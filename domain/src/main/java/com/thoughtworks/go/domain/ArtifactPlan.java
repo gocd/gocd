@@ -31,10 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.apache.commons.io.FilenameUtils.separatorsToUnix;
 import static org.apache.commons.lang3.Strings.CS;
@@ -240,13 +237,23 @@ public class ArtifactPlan extends PersistentObject {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ArtifactPlan that)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ArtifactPlan that)) {
+            return false;
+        }
 
-        if (artifactPlanType != that.artifactPlanType) return false;
-        if (src != null ? !src.equals(that.src) : that.src != null) return false;
-        if (dest != null ? !dest.equals(that.dest) : that.dest != null) return false;
-        return pluggableArtifactConfigJson != null ? pluggableArtifactConfigJson.equals(that.pluggableArtifactConfigJson) : that.pluggableArtifactConfigJson == null;
+        if (artifactPlanType != that.artifactPlanType) {
+            return false;
+        }
+        if (!Objects.equals(src, that.src)) {
+            return false;
+        }
+        if (!Objects.equals(dest, that.dest)) {
+            return false;
+        }
+        return Objects.equals(pluggableArtifactConfigJson, that.pluggableArtifactConfigJson);
     }
 
     @Override

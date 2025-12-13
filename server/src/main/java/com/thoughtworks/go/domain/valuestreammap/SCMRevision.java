@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain.valuestreammap;
 import com.thoughtworks.go.domain.materials.Modification;
 
 import java.util.Date;
+import java.util.Objects;
 
 public class SCMRevision implements Revision, Comparable<SCMRevision> {
 
@@ -62,7 +63,7 @@ public class SCMRevision implements Revision, Comparable<SCMRevision> {
 
         SCMRevision that = (SCMRevision) o;
 
-        if (modification != null ? !modification.equals(that.modification) : that.modification != null) {
+        if (!Objects.equals(modification, that.modification)) {
             return false;
         }
 

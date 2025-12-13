@@ -469,7 +469,7 @@ public class ScheduleService {
 
     // synchronized for updating job
 
-    public Stage cancelAndTriggerRelevantStages(long stageId, Username username, LocalizedOperationResult result) throws Exception {
+    public Stage cancelAndTriggerRelevantStages(long stageId, Username username, LocalizedOperationResult result) {
         Stage stageForId;
         LocalizedOperationResult opResult = result == null ? new DefaultLocalizedOperationResult() : result;
         try {
@@ -536,7 +536,7 @@ public class ScheduleService {
 
     // synchronized for updating job
 
-    public void updateJobStatus(final JobIdentifier jobIdentifier, final JobState jobState) throws Exception {
+    public void updateJobStatus(final JobIdentifier jobIdentifier, final JobState jobState) {
         // have to synchronize at stage-level because cancellation happens at stage-level
         final String stageMutex = mutexForStageInstance(jobIdentifier);
         synchronized (stageMutex) {

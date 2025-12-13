@@ -20,6 +20,8 @@ import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 
+import java.util.Objects;
+
 public class PluggableTaskPluginInfo extends PluginInfo {
 
     private final String displayName;
@@ -41,14 +43,22 @@ public class PluggableTaskPluginInfo extends PluginInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         PluggableTaskPluginInfo that = (PluggableTaskPluginInfo) o;
 
-        if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) return false;
-        return taskSettings != null ? taskSettings.equals(that.taskSettings) : that.taskSettings == null;
+        if (!Objects.equals(displayName, that.displayName)) {
+            return false;
+        }
+        return Objects.equals(taskSettings, that.taskSettings);
     }
 
     @Override

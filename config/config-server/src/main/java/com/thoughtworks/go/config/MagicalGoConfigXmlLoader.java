@@ -62,15 +62,20 @@ public class MagicalGoConfigXmlLoader {
         this.registry = registry;
     }
 
-    public static void setMd5(CruiseConfig configForEdit, String md5) throws NoSuchFieldException, IllegalAccessException {
-        Field field = BasicCruiseConfig.class.getDeclaredField("md5");
-        field.setAccessible(true);
-        field.set(configForEdit, md5);
+    public static void setMd5(CruiseConfig configForEdit, String md5) {
+        try {
+            // TODO Not sure why this needs to use reflection; this seems strange
+            Field field = BasicCruiseConfig.class.getDeclaredField("md5");
+            field.setAccessible(true);
+            field.set(configForEdit, md5);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw bomb("Cannot set MD5 on cruise config", e);
+        }
     }
 
     public static List<ConfigErrors> validate(CruiseConfig config) {
         preprocess(config);
-        return new ArrayList<>(config.validateAfterPreprocess());
+        return config.validateAfterPreprocess();
     }
 
     public static void preprocess(CruiseConfig cruiseConfig) {
@@ -85,7 +90,7 @@ public class MagicalGoConfigXmlLoader {
         }
     }
 
-    public GoConfigHolder loadConfigHolder(final String content, Callback callback) throws Exception {
+    public GoConfigHolder loadConfigHolder(final String content, Callback callback) throws JDOMException {
         CruiseConfig configForEdit;
         CruiseConfig config;
         LOGGER.debug("[Config Save] Loading config holder");
@@ -96,12 +101,13 @@ public class MagicalGoConfigXmlLoader {
         return new GoConfigHolder(config, configForEdit);
     }
 
-    public GoConfigHolder loadConfigHolder(final String content) throws Exception {
+    @TestOnly
+    public GoConfigHolder loadConfigHolder(final String content) throws JDOMException {
         return loadConfigHolder(content, null);
     }
 
-    public CruiseConfig deserializeConfig(String content) throws Exception {
-        Element element = parseInputStream(new ByteArrayInputStream(content.getBytes()));
+    public CruiseConfig deserializeConfig(String content) throws JDOMException {
+        Element element = parseInputStream(new ByteArrayInputStream(content.getBytes())); // FIXME default charset?
         LOGGER.debug("[Config Save] Updating config cache with new XML");
 
         CruiseConfig configForEdit = classParser(element, BasicCruiseConfig.class, configCache, new GoCipher(), registry, new ConfigReferenceElements()).parse();
@@ -138,17 +144,21 @@ public class MagicalGoConfigXmlLoader {
         return config;
     }
 
-    private Element parseInputStream(InputStream inputStream) throws Exception {
-        Element rootElement = XmlUtils.buildValidatedXmlDocument(inputStream, GoConfigSchema.getCurrentSchema()).getRootElement();
-        validateDom(rootElement, registry);
-        return rootElement;
+    private Element parseInputStream(ByteArrayInputStream inputStream) throws JDOMException {
+        try {
+            Element rootElement = XmlUtils.buildValidatedXmlDocument(inputStream, GoConfigSchema.getCurrentSchema()).getRootElement();
+            validateDom(rootElement, registry);
+            return rootElement;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e); // Unlikely to happen due to use of ByteArrayInputStream
+        }
     }
 
-    public <T> T fromXmlPartial(String partial, Class<T> o) throws Exception {
+    public <T> T fromXmlPartial(String partial, Class<T> o) throws JDOMException {
         return parse(o, XmlUtils.buildXmlDocument(partial).getRootElement());
     }
 
-    public <T> T fromXmlPartial(InputStream inputStream, Class<T> o) throws Exception {
+    public <T> T fromXmlPartial(InputStream inputStream, Class<T> o) throws JDOMException, IOException {
         return parse(o, XmlUtils.buildXmlDocument(inputStream).getRootElement());
     }
 

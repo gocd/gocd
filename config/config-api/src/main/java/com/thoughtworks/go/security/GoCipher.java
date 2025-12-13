@@ -25,7 +25,7 @@ import java.util.Objects;
 
 public class GoCipher implements Serializable {
 
-    final Encrypter aesEncrypter;
+    private final Encrypter aesEncrypter;
 
     public GoCipher() {
         this(Encrypter.from(new SystemEnvironment()));

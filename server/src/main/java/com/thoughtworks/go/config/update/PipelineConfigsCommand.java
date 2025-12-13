@@ -31,10 +31,11 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
 
 public abstract class PipelineConfigsCommand implements EntityConfigUpdateCommand<PipelineConfigs> {
-    protected final LocalizedOperationResult result;
-    protected final Username currentUser;
-    protected final SecurityService securityService;
-    protected PipelineConfigs preprocessedPipelineConfigs;
+    final LocalizedOperationResult result;
+    final Username currentUser;
+    final SecurityService securityService;
+
+    PipelineConfigs preprocessedPipelineConfigs;
 
     public PipelineConfigsCommand(LocalizedOperationResult result, Username currentUser, SecurityService securityService) {
         this.result = result;
@@ -52,7 +53,7 @@ public abstract class PipelineConfigsCommand implements EntityConfigUpdateComman
         return preprocessedPipelineConfigs;
     }
 
-    protected boolean isUserAdminOfGroup(String groupName) {
+    boolean isUserAdminOfGroup(String groupName) {
         if (!securityService.isUserAdminOfGroup(currentUser, groupName)) {
             result.forbidden(EntityType.PipelineGroup.forbiddenToEdit(groupName, currentUser.getUsername()), forbidden());
             return false;
@@ -60,7 +61,7 @@ public abstract class PipelineConfigsCommand implements EntityConfigUpdateComman
         return true;
     }
 
-    protected boolean isUserAdmin() {
+    boolean isUserAdmin() {
         if (!securityService.isUserAdmin(currentUser)) {
             result.forbidden(forbiddenToEdit(), forbidden());
             return false;
@@ -68,7 +69,7 @@ public abstract class PipelineConfigsCommand implements EntityConfigUpdateComman
         return true;
     }
 
-    protected PipelineConfigs findPipelineConfigs(CruiseConfig cruiseConfig, String group) {
+    PipelineConfigs findPipelineConfigs(CruiseConfig cruiseConfig, String group) {
         validateGroupName(group);
         PipelineConfigs existingPipelineConfigs = cruiseConfig.findGroup(group);
         if (existingPipelineConfigs == null) {
@@ -78,7 +79,7 @@ public abstract class PipelineConfigsCommand implements EntityConfigUpdateComman
         return existingPipelineConfigs;
     }
 
-    protected void validateGroupName(String group) {
+    void validateGroupName(String group) {
         if (group == null || StringUtils.isBlank(group)) {
             result.unprocessableEntity("The group is invalid. Attribute 'name' cannot be null.");
             throw new IllegalArgumentException("Group name cannot be null.");

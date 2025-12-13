@@ -28,7 +28,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
 public class CreatePackageConfigCommand extends PackageConfigCommand implements EntityConfigUpdateCommand<PackageDefinition> {
     private final PackageDefinition packageDefinition;
-    private String repositoryId;
+    private final String repositoryId;
     private final HttpLocalizedOperationResult result;
 
     public CreatePackageConfigCommand(GoConfigService goConfigService, PackageDefinition packageDefinition, String repositoryId, Username username, HttpLocalizedOperationResult result, PackageDefinitionService packageDefinitionService) {

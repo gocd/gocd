@@ -74,8 +74,8 @@ public class CompareControllerV2 extends ApiController implements SparkSpringCon
 
     public String index(Request request, Response response) throws IOException {
         String pipelineName = request.params("pipeline_name");
-        Integer fromCounter = getCounterValue(request, "from_counter");
-        Integer toCounter = getCounterValue(request, "to_counter");
+        int fromCounter = getCounterValue(request, "from_counter");
+        int toCounter = getCounterValue(request, "to_counter");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         boolean isBisect = pipelineService.isPipelineBisect(pipelineName, fromCounter, toCounter);
@@ -88,7 +88,7 @@ public class CompareControllerV2 extends ApiController implements SparkSpringCon
         }
     }
 
-    private Integer getCounterValue(Request request, String counterString) {
+    private int getCounterValue(Request request, String counterString) {
         try {
             int counter = Integer.parseInt(request.params(counterString), 10);
             if (counter < 1) {

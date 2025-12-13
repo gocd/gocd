@@ -67,6 +67,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.server.service.HistoryUtil.validateCursor;
+import static java.util.stream.Collectors.toList;
 
 @Service
 public class StageService implements StageFinder {
@@ -114,7 +115,7 @@ public class StageService implements StageFinder {
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.goCache = goCache;
         this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
-        this.stageStatusListeners = new ArrayList<>(Arrays.asList(stageStatusListeners));
+        this.stageStatusListeners = Arrays.stream(stageStatusListeners).collect(toList());
     }
 
     public void addStageStatusListener(StageStatusListener listener) {

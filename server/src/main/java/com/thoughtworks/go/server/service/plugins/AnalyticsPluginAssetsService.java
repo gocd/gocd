@@ -19,7 +19,6 @@ import com.thoughtworks.go.plugin.access.analytics.AnalyticsExtension;
 import com.thoughtworks.go.plugin.access.analytics.AnalyticsMetadataLoader;
 import com.thoughtworks.go.plugin.access.analytics.AnalyticsMetadataStore;
 import com.thoughtworks.go.plugin.access.common.PluginMetadataChangeListener;
-import com.thoughtworks.go.util.ExceptionUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.codec.binary.Hex;
@@ -46,6 +45,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import java.util.zip.ZipInputStream;
 
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @Service
@@ -139,7 +139,7 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
             }
         } catch (Exception e) {
             LOGGER.error("Failed to extract static assets from plugin: {}", pluginId, e);
-            ExceptionUtils.bomb(e);
+            bomb(e);
         }
     }
 
@@ -180,7 +180,7 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
             return Hex.encodeHexString(md.digest());
         } catch (Exception e) {
             LOGGER.error("Error generating {} hash", HASH_ALGORITHM, e);
-            ExceptionUtils.bomb(e);
+            bomb(e);
         }
 
         return null;
@@ -193,7 +193,7 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
             pluginAssetPaths.remove(pluginId);
         } catch (Exception e) {
             LOGGER.error("Failed to delete cached static assets for plugin: {}", pluginId, e);
-            ExceptionUtils.bomb(e);
+            bomb(e);
         }
     }
 }

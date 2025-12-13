@@ -18,6 +18,8 @@ package com.thoughtworks.go.config.security;
 import com.thoughtworks.go.config.security.permissions.PipelinePermission;
 import com.thoughtworks.go.config.security.users.Users;
 
+import java.util.Objects;
+
 public class Permissions {
     private final Users viewers;
     private final Users operators;
@@ -54,15 +56,25 @@ public class Permissions {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Permissions that = (Permissions) o;
 
-        if (viewers != null ? !viewers.equals(that.viewers) : that.viewers != null) return false;
-        if (operators != null ? !operators.equals(that.operators) : that.operators != null) return false;
-        if (admins != null ? !admins.equals(that.admins) : that.admins != null) return false;
-        return pipelinePermission != null ? pipelinePermission.equals(that.pipelinePermission) : that.pipelinePermission == null;
+        if (!Objects.equals(viewers, that.viewers)) {
+            return false;
+        }
+        if (!Objects.equals(operators, that.operators)) {
+            return false;
+        }
+        if (!Objects.equals(admins, that.admins)) {
+            return false;
+        }
+        return Objects.equals(pipelinePermission, that.pipelinePermission);
     }
 
     @Override

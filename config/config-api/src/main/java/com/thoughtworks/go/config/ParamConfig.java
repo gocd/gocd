@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
+import java.util.Objects;
 
 @ConfigTag("param")
 public class ParamConfig implements Validatable {
@@ -111,10 +112,10 @@ public class ParamConfig implements Validatable {
             return false;
         }
         ParamConfig that = (ParamConfig) o;
-        if (name != null ? !name.equals(that.name) : that.name != null) {
+        if (!Objects.equals(name, that.name)) {
             return false;
         }
-        return !(value != null ? !value.equals(that.value) : that.value != null);
+        return !(!Objects.equals(value, that.value));
     }
 
     @Override

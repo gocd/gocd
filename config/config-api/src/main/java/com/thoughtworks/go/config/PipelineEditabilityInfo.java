@@ -15,10 +15,12 @@
  */
 package com.thoughtworks.go.config;
 
+import java.util.Objects;
+
 public class PipelineEditabilityInfo {
     private final CaseInsensitiveString pipelineName;
     private final boolean canUserEditPipeline;
-    private boolean isOriginLocal;
+    private final boolean isOriginLocal;
 
     public PipelineEditabilityInfo(CaseInsensitiveString pipelineName, boolean canUserEditPipeline, boolean isOriginLocal) {
         this.pipelineName = pipelineName;
@@ -36,14 +38,22 @@ public class PipelineEditabilityInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         PipelineEditabilityInfo that = (PipelineEditabilityInfo) o;
 
-        if (canUserEditPipeline != that.canUserEditPipeline) return false;
-        if (isOriginLocal != that.isOriginLocal) return false;
-        return pipelineName != null ? pipelineName.equals(that.pipelineName) : that.pipelineName == null;
+        if (canUserEditPipeline != that.canUserEditPipeline) {
+            return false;
+        }
+        if (isOriginLocal != that.isOriginLocal) {
+            return false;
+        }
+        return Objects.equals(pipelineName, that.pipelineName);
     }
 
     @Override

@@ -57,10 +57,10 @@ public class PipelineConfigDependencyGraph {
 
         PipelineConfigDependencyGraph that = (PipelineConfigDependencyGraph) o;
 
-        if (current != null ? !current.equals(that.current) : that.current != null) {
+        if (!Objects.equals(current, that.current)) {
             return false;
         }
-        if (upstreamDependencies != null ? !upstreamDependencies.equals(that.upstreamDependencies) : that.upstreamDependencies != null) {
+        if (!Objects.equals(upstreamDependencies, that.upstreamDependencies)) {
             return false;
         }
 
@@ -219,10 +219,10 @@ public class PipelineConfigDependencyGraph {
 
             PipelineConfigQueueEntry that = (PipelineConfigQueueEntry) o;
 
-            if (node != null ? !node.equals(that.node) : that.node != null) {
+            if (!Objects.equals(node, that.node)) {
                 return false;
             }
-            if (path != null ? !path.equals(that.path) : that.path != null) {
+            if (!Objects.equals(path, that.path)) {
                 return false;
             }
 

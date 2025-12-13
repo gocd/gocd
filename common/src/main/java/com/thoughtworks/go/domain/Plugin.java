@@ -17,10 +17,7 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.json.JsonHelper;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 
@@ -76,9 +73,9 @@ public class Plugin extends PersistentObject {
 
         Plugin plugin = (Plugin) o;
 
-        if (configuration != null ? !configuration.equals(plugin.configuration) : plugin.configuration != null)
+        if (!Objects.equals(configuration, plugin.configuration))
             return false;
-        if (pluginId != null ? !pluginId.equals(plugin.pluginId) : plugin.pluginId != null) return false;
+        if (!Objects.equals(pluginId, plugin.pluginId)) return false;
 
         return true;
     }

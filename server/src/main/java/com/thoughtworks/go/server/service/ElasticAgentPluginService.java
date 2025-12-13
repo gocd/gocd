@@ -277,7 +277,7 @@ public class ElasticAgentPluginService {
         throw new UnsupportedOperationException("Plugin does not plugin support status report.");
     }
 
-    public String getAgentStatusReport(String pluginId, JobIdentifier jobIdentifier, String elasticAgentId) throws Exception {
+    public String getAgentStatusReport(String pluginId, JobIdentifier jobIdentifier, String elasticAgentId) {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
         if (pluginInfo == null) {
             throw new RecordNotFoundException(format("Plugin with id: '%s' is not found.", pluginId));
@@ -293,7 +293,7 @@ public class ElasticAgentPluginService {
                 }
                 return elasticAgentPluginRegistry.getAgentStatusReport(pluginId, jobIdentifier, elasticAgentId, clusterProfileConfigurations);
             }
-            throw new Exception(format("Could not fetch agent status report for agent %s as either the job running on the agent has been completed or the agent has been terminated.", elasticAgentId));
+            throw new RuntimeException(format("Could not fetch agent status report for agent %s as either the job running on the agent has been completed or the agent has been terminated.", elasticAgentId));
         }
 
         throw new UnsupportedOperationException("Plugin does not support agent status report.");

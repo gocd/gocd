@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 
 @ConfigTag("encryptedValue")
 public class EncryptedConfigurationValue implements Serializable, Validatable {
@@ -64,7 +65,7 @@ public class EncryptedConfigurationValue implements Serializable, Validatable {
 
         EncryptedConfigurationValue that = (EncryptedConfigurationValue) o;
 
-        if (value != null ? !value.equals(that.value) : that.value != null) {
+        if (!Objects.equals(value, that.value)) {
             return false;
         }
 

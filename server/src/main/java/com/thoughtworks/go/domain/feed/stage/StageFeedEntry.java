@@ -24,6 +24,7 @@ import com.thoughtworks.go.util.GoConstants;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Understands an atom feed entry
@@ -114,13 +115,13 @@ public class StageFeedEntry implements FeedEntry {
         if (pipelineId != that.pipelineId) {
             return false;
         }
-        if (identifier != null ? !identifier.equals(that.identifier) : that.identifier != null) {
+        if (!Objects.equals(identifier, that.identifier)) {
             return false;
         }
         if (stageResult != that.stageResult) {
             return false;
         }
-        if (updateDate != null ? !updateDate.equals(that.updateDate) : that.updateDate != null) {
+        if (!Objects.equals(updateDate, that.updateDate)) {
             return false;
         }
 

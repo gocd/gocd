@@ -31,11 +31,11 @@ import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
 
 public abstract class PluginProfileCommand<T extends PluginProfile, M extends PluginProfiles<T>> implements EntityConfigUpdateCommand<T> {
-    protected final GoConfigService goConfigService;
-    protected final T profile;
-    protected final Username currentUser;
-    protected final LocalizedOperationResult result;
-    protected T preprocessedProfile;
+    final GoConfigService goConfigService;
+    final T profile;
+    final Username currentUser;
+    final LocalizedOperationResult result;
+    T preprocessedProfile;
 
     public PluginProfileCommand(GoConfigService goConfigService, T profile, Username currentUser, LocalizedOperationResult result) {
         this.goConfigService = goConfigService;
@@ -44,11 +44,11 @@ public abstract class PluginProfileCommand<T extends PluginProfile, M extends Pl
         this.result = result;
     }
 
-    protected abstract M getPluginProfiles(CruiseConfig preprocessedConfig);
+    abstract M getPluginProfiles(CruiseConfig preprocessedConfig);
 
     public abstract ValidationResult validateUsingExtension(final String pluginId, final Map<String, String> configuration);
 
-    protected abstract EntityType getObjectDescriptor();
+    abstract EntityType getObjectDescriptor();
 
     @Override
     public void clearErrors() {
@@ -65,7 +65,7 @@ public abstract class PluginProfileCommand<T extends PluginProfile, M extends Pl
         return isAuthorized();
     }
 
-    protected boolean isValidForCreateOrUpdate(CruiseConfig preprocessedConfig) {
+    boolean isValidForCreateOrUpdate(CruiseConfig preprocessedConfig) {
         preprocessedProfile = findExistingProfile(preprocessedConfig);
         preprocessedProfile.validateTree(new ConfigSaveValidationContext(preprocessedConfig));
 
@@ -79,7 +79,7 @@ public abstract class PluginProfileCommand<T extends PluginProfile, M extends Pl
         return false;
     }
 
-    protected final T findExistingProfile(CruiseConfig cruiseConfig) {
+    final T findExistingProfile(CruiseConfig cruiseConfig) {
         if (profile == null || StringUtils.isBlank(profile.getId())) {
             if (profile != null) {
                 profile.addError("id", getObjectDescriptor() + " cannot have a blank id.");
@@ -100,6 +100,6 @@ public abstract class PluginProfileCommand<T extends PluginProfile, M extends Pl
         return profile.getClass().getAnnotation(ConfigTag.class).value();
     }
 
-    protected abstract boolean isAuthorized();
+    abstract boolean isAuthorized();
 
 }

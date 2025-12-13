@@ -30,7 +30,7 @@ import java.util.Map;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 abstract class ArtifactStoreConfigCommand extends PluginProfileCommand<ArtifactStore, ArtifactStores> {
-    protected final ArtifactExtension extension;
+    private final ArtifactExtension extension;
 
     public ArtifactStoreConfigCommand(GoConfigService goConfigService, ArtifactStore newArtifactStore, ArtifactExtension extension, Username currentUser, LocalizedOperationResult result) {
         super(goConfigService, newArtifactStore, currentUser, result);

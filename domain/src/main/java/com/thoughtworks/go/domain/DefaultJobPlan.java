@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class DefaultJobPlan implements JobPlan {
@@ -128,13 +129,13 @@ public class DefaultJobPlan implements JobPlan {
         if (jobId != plan.jobId) {
             return false;
         }
-        if (identifier != null ? !identifier.equals(plan.identifier) : plan.identifier != null) {
+        if (!Objects.equals(identifier, plan.identifier)) {
             return false;
         }
-        if (artifactPlans != null ? !artifactPlans.equals(plan.artifactPlans) : plan.artifactPlans != null) {
+        if (!Objects.equals(artifactPlans, plan.artifactPlans)) {
             return false;
         }
-        if (resources != null ? !resources.equals(plan.resources) : plan.resources != null) {
+        if (!Objects.equals(resources, plan.resources)) {
             return false;
         }
 

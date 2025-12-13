@@ -76,11 +76,7 @@ public class Database {
     }
 
     public void backup(File targetDir) {
-        try {
-            connectionManager.backup(targetDir);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        connectionManager.backup(targetDir);
     }
 
     public QueryExtensions getQueryExtensions() {

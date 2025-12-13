@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Understands pipeline instance's reference to modifications
@@ -130,44 +131,40 @@ public class PipelineMaterialRevision extends PersistentObject {
 
         PipelineMaterialRevision that = (PipelineMaterialRevision) o;
 
-        if (changed != that.changed) {
+        if (!Objects.equals(name, that.name)) {
             return false;
         }
         if (pipelineId != that.pipelineId) {
             return false;
         }
-        if (actualFromRevisionId != null ? !actualFromRevisionId.equals(that.actualFromRevisionId) : that.actualFromRevisionId != null) {
+        if (!Objects.equals(materialId, that.materialId)) {
             return false;
         }
-        if (folder != null ? !folder.equals(that.folder) : that.folder != null) {
+        if (!Objects.equals(folder, that.folder)) {
             return false;
         }
-        if (fromRevision != null ? !fromRevision.equals(that.fromRevision) : that.fromRevision != null) {
+        if (changed != that.changed) {
             return false;
         }
-        if (materialId != null ? !materialId.equals(that.materialId) : that.materialId != null) {
+        if (!Objects.equals(actualFromRevisionId, that.actualFromRevisionId)) {
             return false;
         }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
+        if (!Objects.equals(fromRevision, that.fromRevision)) {
             return false;
         }
-        if (toRevision != null ? !toRevision.equals(that.toRevision) : that.toRevision != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(toRevision, that.toRevision);
     }
 
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (folder != null ? folder.hashCode() : 0);
         result = 31 * result + Long.hashCode(pipelineId);
+        result = 31 * result + (materialId != null ? materialId.hashCode() : 0);
+        result = 31 * result + (folder != null ? folder.hashCode() : 0);
+        result = 31 * result + (changed ? 1 : 0);
+        result = 31 * result + (actualFromRevisionId != null ? actualFromRevisionId.hashCode() : 0);
         result = 31 * result + (fromRevision != null ? fromRevision.hashCode() : 0);
         result = 31 * result + (toRevision != null ? toRevision.hashCode() : 0);
-        result = 31 * result + (changed ? 1 : 0);
-        result = 31 * result + (materialId != null ? materialId.hashCode() : 0);
-        result = 31 * result + (actualFromRevisionId != null ? actualFromRevisionId.hashCode() : 0);
         return result;
     }
 }

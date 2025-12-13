@@ -19,10 +19,10 @@ import org.springframework.transaction.TransactionStatus;
 
 public abstract class TransactionCallbackWithoutResult extends TransactionCallback {
     @Override
-    public Object doInTransaction(TransactionStatus status) throws Exception {
+    public Object doInTransaction(TransactionStatus status) {
         doInTransactionWithoutResult(status);
         return null;
     }
 
-    public abstract void doInTransactionWithoutResult(TransactionStatus status) throws Exception;
+    public abstract void doInTransactionWithoutResult(TransactionStatus status);
 }

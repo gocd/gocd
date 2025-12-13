@@ -15,7 +15,10 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.policy.*;
+import com.thoughtworks.go.config.policy.Policy;
+import com.thoughtworks.go.config.policy.PolicyAware;
+import com.thoughtworks.go.config.policy.SupportedAction;
+import com.thoughtworks.go.config.policy.SupportedEntity;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 
 import java.util.*;
@@ -110,6 +113,7 @@ public interface Role extends Validatable, PolicyAware {
         }
     }
 
+    @Override
     Policy getPolicy();
 
     void setPolicy(Policy policy);

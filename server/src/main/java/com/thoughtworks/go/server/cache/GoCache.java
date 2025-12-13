@@ -140,7 +140,7 @@ public class GoCache {
     }
 
     private boolean doNotServeForTransaction() {
-        return doNotServeForTransaction.get() != null && doNotServeForTransaction.get();
+        return Boolean.TRUE.equals(doNotServeForTransaction.get());
     }
 
     public void clear() {
@@ -150,8 +150,8 @@ public class GoCache {
     public boolean remove(String key) {
         synchronized (key.intern()) {
             Object value = getWithoutTransactionCheck(key);
-            if (value instanceof KeyList) {
-                for (String subKey : (KeyList) value) {
+            if (value instanceof KeyList keyList) {
+                for (String subKey : keyList) {
                     ehCache.remove(compositeKey(key, subKey));
                 }
             }
@@ -183,9 +183,9 @@ public class GoCache {
     }
 
     public void removeAssociations(String key, Element element) {
-        if (element.getObjectValue() instanceof KeyList) {
+        if (element.getObjectValue() instanceof KeyList keyList) {
             synchronized (key.intern()) {
-                for (String subkey : (KeyList) element.getObjectValue()) {
+                for (String subkey : keyList) {
                     remove(compositeKey(key, subkey));
                 }
             }

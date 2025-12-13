@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 
 @ConfigTag("key")
 public class ConfigurationKey implements Serializable, Validatable {
@@ -65,7 +66,7 @@ public class ConfigurationKey implements Serializable, Validatable {
 
         ConfigurationKey that = (ConfigurationKey) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) {
+        if (!Objects.equals(name, that.name)) {
             return false;
         }
 

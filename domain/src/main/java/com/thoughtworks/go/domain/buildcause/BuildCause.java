@@ -202,10 +202,10 @@ public class BuildCause implements Serializable {
 
         BuildCause that = (BuildCause) o;
 
-        if (materialRevisions != null ? !materialRevisions.equals(that.materialRevisions) : that.materialRevisions != null) {
+        if (!Objects.equals(materialRevisions, that.materialRevisions)) {
             return false;
         }
-        return trigger != null ? trigger.equals(that.trigger) : that.trigger == null;
+        return Objects.equals(trigger, that.trigger);
     }
 
     @Override

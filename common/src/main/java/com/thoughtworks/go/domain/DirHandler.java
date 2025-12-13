@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -89,10 +90,10 @@ public class DirHandler implements FetchHandler {
             return false;
         }
 
-        if (destOnAgent != null ? !destOnAgent.equals(that.destOnAgent) : that.destOnAgent != null) {
+        if (!Objects.equals(destOnAgent, that.destOnAgent)) {
             return false;
         }
-        if (srcFile != null ? !srcFile.equals(that.srcFile) : that.srcFile != null) {
+        if (!Objects.equals(srcFile, that.srcFile)) {
             return false;
         }
 

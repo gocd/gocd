@@ -152,6 +152,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         return new TfsCommandFactory().create(execCtx, url, domain, userName, passwordForCommandLine(), getFingerprint(), projectPath);
     }
 
+    @Override
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
         try {
             tfs(execCtx).checkConnection();

@@ -28,7 +28,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 
 public class DeletePipelineConfigCommand implements EntityConfigUpdateCommand<PipelineConfig> {
     private final GoConfigService goConfigService;
-    private PipelineConfig pipelineConfig;
+    private final PipelineConfig pipelineConfig;
     private final Username currentUser;
     private final LocalizedOperationResult result;
     private PipelineConfig preprocessedPipelineConfig;

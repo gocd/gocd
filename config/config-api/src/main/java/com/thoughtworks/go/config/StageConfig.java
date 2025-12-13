@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Understands the configuration for a stage
@@ -169,16 +170,16 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
         if (cleanWorkingDir != that.cleanWorkingDir) {
             return false;
         }
-        if (approval != null ? !approval.equals(that.approval) : that.approval != null) {
+        if (!Objects.equals(approval, that.approval)) {
             return false;
         }
-        if (jobConfigs != null ? !jobConfigs.equals(that.jobConfigs) : that.jobConfigs != null) {
+        if (!Objects.equals(jobConfigs, that.jobConfigs)) {
             return false;
         }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
+        if (!Objects.equals(name, that.name)) {
             return false;
         }
-        if (variables != null ? !variables.equals(that.variables) : that.variables != null) {
+        if (!Objects.equals(variables, that.variables)) {
             return false;
         }
 

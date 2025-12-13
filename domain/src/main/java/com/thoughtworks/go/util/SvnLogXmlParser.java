@@ -20,7 +20,9 @@ import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -127,7 +129,7 @@ public class SvnLogXmlParser {
             for (Element entry : entries) {
                 uidToUrlMap.put(queryURL, entry.getChild("repository").getChild("uuid").getValue());
             }
-        } catch (Exception e) {
+        } catch (IOException | JDOMException e) {
             throw new RuntimeException(e);
         }
         return uidToUrlMap;

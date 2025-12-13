@@ -96,6 +96,7 @@ public class DependencyMaterial extends AbstractMaterial {
         //Dependency materials are already unique within a pipeline
     }
 
+    @Override
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
         return null;
     } //OLD
@@ -205,6 +206,7 @@ public class DependencyMaterial extends AbstractMaterial {
         return null;
     }
 
+    @Override
     public boolean ignoreForScheduling() {
         return ignoreForScheduling;
     }

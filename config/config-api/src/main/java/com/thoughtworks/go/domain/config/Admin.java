@@ -24,7 +24,6 @@ import java.util.List;
 
 @ConfigInterface
 public interface Admin extends Validatable {
-    String GO_SYSTEM_ADMIN = "Go System Administrator";
     String NAME = "name";
 
     boolean isSameAs(Admin admin, List<Role> memberRoles);

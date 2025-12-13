@@ -26,12 +26,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 
 @Controller
 public class AuthorizationInterceptor implements HandlerInterceptor {
-    private SecurityService securityService;
+    private final SecurityService securityService;
 
     @Autowired
     public AuthorizationInterceptor(SecurityService securityService) {
@@ -39,8 +40,7 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-            throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
         if (SessionUtils.getAuthenticationToken(request).getUser().asUsernameObject().isGoAgentUser()) {
             return true;
         }

@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -61,7 +62,7 @@ public class MagicalGoConfigXmlWriter {
         return new Document(root);
     }
 
-    public void write(CruiseConfig configForEdit, OutputStream output, boolean skipPreprocessingAndValidation) throws Exception {
+    public void write(CruiseConfig configForEdit, OutputStream output, boolean skipPreprocessingAndValidation) throws JDOMException, IOException {
         LOGGER.debug("[Serializing Config] Starting to write. Validation skipped? {}", skipPreprocessingAndValidation);
         MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(configCache, registry);
         if (!configForEdit.getOrigin().isLocal()) {
@@ -88,17 +89,21 @@ public class MagicalGoConfigXmlWriter {
         return document;
     }
 
-    public String toString(Document document) throws IOException {
+    public String toString(Document document) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(32 * 1024)) {
             XmlUtils.writeXml(document, outputStream);
             return outputStream.toString(StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e); // Unlikely to happen due to use of ByteArrayOutputStream
         }
     }
 
-    public void verifyXsdValid(Document document) throws Exception {
+    public void verifyXsdValid(Document document) throws JDOMException {
         try (ByteArrayOutputStream buffer = new ByteArrayOutputStream(32 * 1024)) {
             XmlUtils.writeXml(document, buffer);
             XmlUtils.buildValidatedXmlDocument(buffer.toInputStream(), GoConfigSchema.getCurrentSchema());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e); // Unlikely to happen due to use of ByteArrayOutputStream
         }
     }
 
@@ -124,7 +129,7 @@ public class MagicalGoConfigXmlWriter {
             // Related to similar issue in GoConfigMigration?
             return output.toString(Charset.defaultCharset());
         } catch (IOException e) {
-            throw bomb("Unable to write xml to String");
+            throw new UncheckedIOException(e); // Unlikely to happen due to use of ByteArrayOutputStream
         }
     }
 

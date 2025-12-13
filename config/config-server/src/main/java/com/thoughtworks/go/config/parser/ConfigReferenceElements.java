@@ -20,11 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConfigReferenceElements {
-    private final Map<String, Map<String, Object>> collectionRegistry;
-
-    public ConfigReferenceElements() {
-        collectionRegistry = new HashMap<>();
-    }
+    private final Map<String, Map<String, Object>> collectionRegistry = new HashMap<>();
 
     public void add(String collectionName, String referenceElementId, Object referenceElement) {
         collectionRegistry.computeIfAbsent(collectionName, k -> new HashMap<>()).put(referenceElementId, referenceElement);

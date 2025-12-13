@@ -279,6 +279,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         }
     }
 
+    @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         syncEnvironments(newCruiseConfig.getEnvironments());
     }

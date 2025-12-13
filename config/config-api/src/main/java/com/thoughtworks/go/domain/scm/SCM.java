@@ -171,16 +171,16 @@ public class SCM implements Serializable, Validatable, ConfigOriginTraceable, Se
 
         SCM that = (SCM) o;
 
-        if (id != null ? !id.equals(that.id) : that.id != null) {
+        if (!Objects.equals(id, that.id)) {
             return false;
         }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
+        if (!Objects.equals(name, that.name)) {
             return false;
         }
-        if (pluginConfiguration != null ? !pluginConfiguration.equals(that.pluginConfiguration) : that.pluginConfiguration != null) {
+        if (!Objects.equals(pluginConfiguration, that.pluginConfiguration)) {
             return false;
         }
-        if (configuration != null ? !configuration.equals(that.configuration) : that.configuration != null) {
+        if (!Objects.equals(configuration, that.configuration)) {
             return false;
         }
 

@@ -19,9 +19,11 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.messaging.GoMessage;
 
+import java.util.Objects;
+
 public class WorkAssignedMessage implements GoMessage {
-    private AgentIdentifier agent;
-    private Work work;
+    private final AgentIdentifier agent;
+    private final Work work;
 
     public WorkAssignedMessage(AgentIdentifier agentIdentifier, Work work) {
         this.agent = agentIdentifier;
@@ -47,10 +49,10 @@ public class WorkAssignedMessage implements GoMessage {
 
         WorkAssignedMessage that = (WorkAssignedMessage) o;
 
-        if (agent != null ? !agent.equals(that.agent) : that.agent != null) {
+        if (!Objects.equals(agent, that.agent)) {
             return false;
         }
-        if (work != null ? !work.equals(that.work) : that.work != null) {
+        if (!Objects.equals(work, that.work)) {
             return false;
         }
 

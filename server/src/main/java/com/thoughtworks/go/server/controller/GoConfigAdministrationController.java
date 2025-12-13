@@ -38,6 +38,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -62,12 +63,12 @@ public class GoConfigAdministrationController {
     }
 
     @RequestMapping(value = "/admin/restful/configuration/file/GET/xml", method = RequestMethod.GET)
-    public void getCurrentConfigXml(@RequestParam(value = "md5", required = false) String md5, HttpServletResponse response) throws Exception {
+    public void getCurrentConfigXml(@RequestParam(value = "md5", required = false) String md5, HttpServletResponse response) throws IOException {
         getXmlPartial(md5, goConfigService.fileSaver(false)).respond(response);
     }
 
     @RequestMapping(value = "/admin/restful/configuration/file/GET/historical-xml", method = RequestMethod.GET)
-    public void getConfigRevision(@RequestParam(value = "version", required = true) String version, HttpServletResponse response) throws Exception {
+    public void getConfigRevision(@RequestParam(value = "version") String version, HttpServletResponse response) throws IOException {
         GoConfigRevision configRevision = goConfigService.getConfigAtVersion(version);
         String md5 = configRevision.getMd5();
         response.setStatus(HTTP_OK);
@@ -107,7 +108,7 @@ public class GoConfigAdministrationController {
     @RequestMapping(value = "/admin/restful/configuration/file/POST/xml", method = RequestMethod.POST)
     public ModelAndView postFileAsXml(@RequestParam("xmlFile") String xmlFile,
                                       @RequestParam("md5") String md5,
-                                      HttpServletRequest request, HttpServletResponse response) throws Exception {
+                                      HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (!confirmationConstraint.isSatisfied(request)) {
             return JsonAction.jsonBadRequest(Map.of("message", String.format("Missing required header `%s`", StandardHeaders.REQUEST_CONFIRM_MODIFICATION))).respond(response);
         }
@@ -115,16 +116,16 @@ public class GoConfigAdministrationController {
         if (!isCurrentUserAdmin()) {
             return JsonAction.jsonForbidden().respond(response);
         }
-        return postXmlPartial(goConfigService.fileSaver(false), xmlFile, "File changed successfully.", md5).respond(response);
+        return postXmlPartial(goConfigService.fileSaver(false), xmlFile, md5).respond(response);
     }
 
-    private RestfulAction postXmlPartial(GoConfigService.XmlPartialSaver<?> xmlPartialSaver, String xmlPartial, String successMessage, String expectedMd5) {
+    private RestfulAction postXmlPartial(GoConfigService.XmlPartialSaver<?> xmlPartialSaver, String xmlPartial, String expectedMd5) {
         if (!isCurrentUserAdmin()) {
             return JsonAction.jsonForbidden(forbiddenMessage());
         }
         GoConfigValidity configValidity = xmlPartialSaver.saveXml(xmlPartial, expectedMd5);
         if (configValidity.isValid()) {
-            return JsonAction.jsonFound(JsonView.getSimpleAjaxResult("result", successMessage));
+            return JsonAction.jsonFound(JsonView.getSimpleAjaxResult("result", "File changed successfully."));
         } else {
             GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) configValidity;
             Map<String, Object> jsonMap = new LinkedHashMap<>();

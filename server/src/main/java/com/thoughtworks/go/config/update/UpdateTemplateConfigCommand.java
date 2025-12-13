@@ -29,9 +29,9 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 
 public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
-    private SecurityService securityService;
-    private String digest;
-    private EntityHashingService entityHashingService;
+    private final SecurityService securityService;
+    private final String digest;
+    private final EntityHashingService entityHashingService;
 
     public UpdateTemplateConfigCommand(PipelineTemplateConfig templateConfig,
                                        Username currentUser,

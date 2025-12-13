@@ -53,7 +53,7 @@ public class FullConfigSaveMergeFlowTest {
     private List<PartialConfig> partials;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         configForEdit = mock(CruiseConfig.class);
         updateConfigCommand = new FullConfigUpdateCommand(configForEdit, "md5");
         loader = mock(MagicalGoConfigXmlLoader.class);
@@ -115,7 +115,7 @@ public class FullConfigSaveMergeFlowTest {
     @Test
     public void shouldErrorOutIfSavingConfigPostValidationFails() throws Exception {
         when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
-                .thenThrow(new Exception());
+                .thenThrow(new RuntimeException());
         when(configRepository.getConfigMergedWithLatestRevision(any(GoConfigRevision.class), anyString())).thenReturn("merged_config");
 
         assertThatThrownBy(() -> flow.execute(updateConfigCommand, partials, null))

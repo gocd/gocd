@@ -29,8 +29,8 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 public class UpdateEnvironmentCommand extends EnvironmentCommand {
 
     private final String oldEnvironmentConfigName;
-    private String digest;
-    private EntityHashingService hashingService;
+    private final String digest;
+    private final EntityHashingService hashingService;
 
     public UpdateEnvironmentCommand(GoConfigService goConfigService, String oldEnvironmentConfigName, EnvironmentConfig newEnvironmentConfig, Username username, String actionFailed, String digest, EntityHashingService hashingService, HttpLocalizedOperationResult result) {
         super(actionFailed, newEnvironmentConfig, result, goConfigService, username);

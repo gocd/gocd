@@ -30,6 +30,11 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
 
 public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand<PipelineTemplateConfig> {
 
+    final PipelineTemplateConfig templateConfig;
+    final LocalizedOperationResult result;
+    final Username currentUser;
+    final ExternalArtifactsService externalArtifactsService;
+
     PipelineTemplateConfig preprocessedTemplateConfig;
     protected final LocalizedOperationResult result;
     protected PipelineTemplateConfig templateConfig;
@@ -45,7 +50,7 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
     }
 
 
-    protected boolean isValid(CruiseConfig preprocessedConfig, boolean isTemplateBeingCreated) {
+    boolean isValid(CruiseConfig preprocessedConfig, boolean isTemplateBeingCreated) {
         TemplatesConfig templatesConfig = preprocessedConfig.getTemplates();
         preprocessedTemplateConfig = findAddedTemplate(preprocessedConfig);
         preprocessedTemplateConfig.validateTree(ConfigSaveValidationContext.forChain(preprocessedConfig, templatesConfig), preprocessedConfig, isTemplateBeingCreated);

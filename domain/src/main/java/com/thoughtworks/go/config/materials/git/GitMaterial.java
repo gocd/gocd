@@ -42,7 +42,7 @@ import java.util.*;
 
 import static com.thoughtworks.go.config.materials.git.RefSpecHelper.localBranch;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static com.thoughtworks.go.util.ExceptionUtils.bombIfFailedToRunCommandLine;
+import static com.thoughtworks.go.util.ExceptionUtils.bombUnless;
 import static com.thoughtworks.go.util.FileUtil.mkdirsParentQuietly;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
@@ -157,6 +157,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         }
     }
 
+    @Override
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
         GitCommand gitCommand = new GitCommand(null, null, refSpecOrBranch, false, secrets());
         try {
@@ -347,7 +348,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         }
     }
 
-    private GitCommand git(ConsoleOutputStreamConsumer outputStreamConsumer, final File workingFolder, int preferredCloneDepth, SubprocessExecutionContext executionContext) throws Exception {
+    private GitCommand git(ConsoleOutputStreamConsumer outputStreamConsumer, final File workingFolder, int preferredCloneDepth, SubprocessExecutionContext executionContext) {
         if (isSubmoduleFolder()) {
             return new GitCommand(getFingerprint(), new File(workingFolder.getPath()), GitMaterialConfig.DEFAULT_BRANCH, true, secrets());
         }
@@ -381,7 +382,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
             } else {
                 returnValue = gitCommand.clone(outputStreamConsumer, urlForCommandLine(), cloneDepth);
             }
-            bombIfFailedToRunCommandLine(returnValue, "Failed to run git clone command");
+            bombUnless(returnValue == 0, "Failed to run git clone command");
         }
         return gitCommand;
     }

@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.access.scm.exceptions.InvalidSCMRevisionDataEx
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -104,12 +105,18 @@ public class SCMRevision {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         SCMRevision that = (SCMRevision) o;
 
-        if (revision != null ? !revision.equals(that.revision) : that.revision != null) return false;
+        if (!Objects.equals(revision, that.revision)) {
+            return false;
+        }
 
         return true;
     }

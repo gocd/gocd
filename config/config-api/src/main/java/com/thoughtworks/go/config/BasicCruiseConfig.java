@@ -1526,15 +1526,12 @@ public class BasicCruiseConfig implements CruiseConfig {
         if (this == o) return true;
         if (!(o instanceof BasicCruiseConfig that)) return false;
 
-        if (serverConfig != null ? !serverConfig.equals(that.serverConfig) : that.serverConfig != null) return false;
-        if (elasticConfig != null ? !elasticConfig.equals(that.elasticConfig) : that.elasticConfig != null)
-            return false;
-        if (artifactStores != null ? !artifactStores.equals(that.artifactStores) : that.artifactStores != null)
-            return false;
-        if (groups != null ? !groups.equals(that.groups) : that.groups != null) return false;
-        if (templatesConfig != null ? !templatesConfig.equals(that.templatesConfig) : that.templatesConfig != null)
-            return false;
-        return environments != null ? environments.equals(that.environments) : that.environments == null;
+        if (!Objects.equals(serverConfig, that.serverConfig)) return false;
+        if (!Objects.equals(elasticConfig, that.elasticConfig)) return false;
+        if (!Objects.equals(artifactStores, that.artifactStores)) return false;
+        if (!Objects.equals(groups, that.groups)) return false;
+        if (!Objects.equals(templatesConfig, that.templatesConfig)) return false;
+        return Objects.equals(environments, that.environments);
     }
 
     @Override

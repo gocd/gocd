@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain;
 import org.jetbrains.annotations.TestOnly;
 
 import java.io.*;
+import java.util.Objects;
 import java.util.Properties;
 
 public class ArtifactMd5Checksums implements Serializable {
@@ -47,7 +48,7 @@ public class ArtifactMd5Checksums implements Serializable {
             return false;
         }
 
-        if (checksumProperties != null ? !checksumProperties.equals(that.checksumProperties) : that.checksumProperties != null) {
+        if (!Objects.equals(checksumProperties, that.checksumProperties)) {
             return false;
         }
 

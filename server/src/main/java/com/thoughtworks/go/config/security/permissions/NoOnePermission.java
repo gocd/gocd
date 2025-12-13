@@ -25,6 +25,7 @@ public class NoOnePermission extends PipelinePermission {
     private NoOnePermission() {
     }
 
+    @Override
     public Users getPipelineOperators() {
         return NoOne.INSTANCE;
     }

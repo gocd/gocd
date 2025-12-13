@@ -20,6 +20,7 @@ import com.thoughtworks.go.util.UrlUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class JobIdentifier implements Serializable, LocatableEntity {
     @Expose
@@ -134,7 +135,7 @@ public class JobIdentifier implements Serializable, LocatableEntity {
     }
 
     public String toFullString() {
-        return "Build [" + buildLocator() + "/" + getBuildId() + "]";
+        return "Job [" + buildLocator() + "/" + getBuildId() + "]";
     }
 
     @Override
@@ -148,25 +149,25 @@ public class JobIdentifier implements Serializable, LocatableEntity {
 
         JobIdentifier that = (JobIdentifier) o;
 
-        if (buildId != null ? !buildId.equals(that.buildId) : that.buildId != null) {
+        if (!Objects.equals(buildId, that.buildId)) {
             return false;
         }
-        if (buildName != null ? !buildName.equals(that.buildName) : that.buildName != null) {
+        if (!Objects.equals(buildName, that.buildName)) {
             return false;
         }
-        if (pipelineCounter != null ? !pipelineCounter.equals(that.pipelineCounter) : that.pipelineCounter != null) {
+        if (!Objects.equals(pipelineCounter, that.pipelineCounter)) {
             return false;
         }
-        if (pipelineLabel != null ? !pipelineLabel.equals(that.pipelineLabel) : that.pipelineLabel != null) {
+        if (!Objects.equals(pipelineLabel, that.pipelineLabel)) {
             return false;
         }
-        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) {
+        if (!Objects.equals(pipelineName, that.pipelineName)) {
             return false;
         }
-        if (stageCounter != null ? !stageCounter.equals(that.stageCounter) : that.stageCounter != null) {
+        if (!Objects.equals(stageCounter, that.stageCounter)) {
             return false;
         }
-        return stageName != null ? stageName.equals(that.stageName) : that.stageName == null;
+        return Objects.equals(stageName, that.stageName);
     }
 
     @Override
@@ -184,7 +185,7 @@ public class JobIdentifier implements Serializable, LocatableEntity {
 
     public String buildLocator() {
         //TODO: the encoding logic should be moved to presentation layer
-        return UrlUtil.encodeInUtf8(String.format("%s/%s", stageLocator(), buildName));
+        return UrlUtil.encodeInUtf8(stageLocator() + "/" + buildName);
     }
 
     private String stageLocator() {
@@ -192,11 +193,11 @@ public class JobIdentifier implements Serializable, LocatableEntity {
     }
 
     public String buildLocatorForDisplay() {
-        return String.format("%s/%s", getStageIdentifier().stageLocatorForDisplay(), buildName);
+        return getStageIdentifier().stageLocatorForDisplay() + "/" + buildName;
     }
 
     public String propertyLocator(String propertyName) {
-        return UrlUtil.encodeInUtf8(String.format("%s/%s/%s", stageLocator(), buildName, propertyName));
+        return UrlUtil.encodeInUtf8(stageLocator() + "/" + buildName + "/" + propertyName);
     }
 
     public String artifactLocator(String filePath) {
@@ -204,7 +205,7 @@ public class JobIdentifier implements Serializable, LocatableEntity {
         if (filePath.startsWith("/")) {
             filePath = filePath.substring(1);
         }
-        return UrlUtil.encodeInUtf8(String.format("%s/%s/%s", stageLocator(), buildName, filePath));
+        return UrlUtil.encodeInUtf8(stageLocator() + "/" + buildName + "/" + filePath);
     }
 
     public StageIdentifier getStageIdentifier() {

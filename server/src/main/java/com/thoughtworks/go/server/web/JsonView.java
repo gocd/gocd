@@ -19,6 +19,7 @@ import org.springframework.web.servlet.view.AbstractView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,15 +42,15 @@ public class JsonView extends AbstractView {
 
     @Override
     protected void renderMergedOutputModel(Map<String, Object> map, HttpServletRequest httpServletRequest,
-                                           HttpServletResponse httpServletResponse) throws Exception {
+                                           HttpServletResponse httpServletResponse) throws IOException {
         if (requestContext == null) {
             requestContext = new GoRequestContext(httpServletRequest);
         }
         Object json = map.get("json");
 
-        PrintWriter writer = httpServletResponse.getWriter();
-        JsonRenderer.render(json, requestContext, writer);
-        writer.close();
+        try (PrintWriter writer = httpServletResponse.getWriter()) {
+            JsonRenderer.render(json, requestContext, writer);
+        }
     }
 
     public static Map<String, Object> getSimpleAjaxResult(String messageKey, String message) {

@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.plugin.domain.common;
 
+import java.util.Objects;
+
 public class PluginView {
     private final String template;
 
@@ -29,12 +31,16 @@ public class PluginView {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         PluginView that = (PluginView) o;
 
-        return template != null ? template.equals(that.template) : that.template == null;
+        return Objects.equals(template, that.template);
 
     }
 

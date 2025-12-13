@@ -17,9 +17,11 @@ package com.thoughtworks.go.server.scheduling;
 
 import com.thoughtworks.go.server.messaging.GoMessage;
 
+import java.util.Objects;
+
 public class ScheduleCheckCompletedMessage implements GoMessage {
-    private String pipelineName;
-    private long trackingId;
+    private final String pipelineName;
+    private final long trackingId;
 
     public ScheduleCheckCompletedMessage(String pipelineName, long trackingId) {
         this.pipelineName = pipelineName;
@@ -45,11 +47,7 @@ public class ScheduleCheckCompletedMessage implements GoMessage {
 
         ScheduleCheckCompletedMessage that = (ScheduleCheckCompletedMessage) o;
 
-        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(pipelineName, that.pipelineName);
     }
 
     @Override

@@ -24,6 +24,7 @@ import org.jdom2.output.XMLOutputter;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class ProjectStatus {
@@ -74,25 +75,25 @@ public class ProjectStatus {
 
         ProjectStatus that = (ProjectStatus) o;
 
-        if (activity != null ? !activity.equals(that.activity) : that.activity != null) {
+        if (!Objects.equals(activity, that.activity)) {
             return false;
         }
-        if (lastBuildLabel != null ? !lastBuildLabel.equals(that.lastBuildLabel) : that.lastBuildLabel != null) {
+        if (!Objects.equals(lastBuildLabel, that.lastBuildLabel)) {
             return false;
         }
-        if (lastBuildStatus != null ? !lastBuildStatus.equals(that.lastBuildStatus) : that.lastBuildStatus != null) {
+        if (!Objects.equals(lastBuildStatus, that.lastBuildStatus)) {
             return false;
         }
-        if (lastBuildTime != null ? !lastBuildTime.equals(that.lastBuildTime) : that.lastBuildTime != null) {
+        if (!Objects.equals(lastBuildTime, that.lastBuildTime)) {
             return false;
         }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
+        if (!Objects.equals(name, that.name)) {
             return false;
         }
-        if (webUrl != null ? !webUrl.equals(that.webUrl) : that.webUrl != null) {
+        if (!Objects.equals(webUrl, that.webUrl)) {
             return false;
         }
-        if (breakers != null ? !breakers.equals(that.breakers) : that.breakers != null) {
+        if (!Objects.equals(breakers, that.breakers)) {
             return false;
         }
 

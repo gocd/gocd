@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
@@ -134,7 +135,7 @@ public class ZipArtifactCacheTest {
                     Thread.sleep(10);
                 }
                 artifact = zipArtifactCache.cachedFile(artifactFolder).getAbsolutePath();
-            } catch (Exception e) {
+            } catch (InterruptedException | IOException e) {
                 throw new RuntimeException(e);
             }
         }

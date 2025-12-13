@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.plugin.domain.authorization;
 
+import java.util.Objects;
+
 public class User {
 
     private String username;
@@ -41,14 +43,22 @@ public class User {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         User user = (User) o;
 
-        if (username != null ? !username.equals(user.username) : user.username != null) return false;
-        if (displayName != null ? !displayName.equals(user.displayName) : user.displayName != null) return false;
-        return emailId != null ? emailId.equals(user.emailId) : user.emailId == null;
+        if (!Objects.equals(username, user.username)) {
+            return false;
+        }
+        if (!Objects.equals(displayName, user.displayName)) {
+            return false;
+        }
+        return Objects.equals(emailId, user.emailId);
     }
 
     @Override

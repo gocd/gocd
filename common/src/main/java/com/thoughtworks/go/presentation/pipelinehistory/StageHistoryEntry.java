@@ -20,6 +20,8 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.StageState;
 
+import java.util.Objects;
+
 /**
  * Understands stage details to allow rendering of an entry in stage-history page
  */
@@ -84,13 +86,13 @@ public class StageHistoryEntry extends PersistentObject {
         if (Double.compare(that.naturalOrder, naturalOrder) != 0) {
             return false;
         }
-        if (identifier != null ? !identifier.equals(that.identifier) : that.identifier != null) {
+        if (!Objects.equals(identifier, that.identifier)) {
             return false;
         }
         if (state != that.state) {
             return false;
         }
-        return rerunOfCounter != null ? rerunOfCounter.equals(that.rerunOfCounter) : that.rerunOfCounter == null;
+        return Objects.equals(rerunOfCounter, that.rerunOfCounter);
     }
 
     @Override

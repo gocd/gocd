@@ -292,7 +292,7 @@ public class GoConfigRepoConfigDataSourceTest {
     }
 
     @Test
-    public void shouldThrowWhenGettingLatestPartialConfig_WhenInitializingPluginHasFailed() throws Exception {
+    public void shouldThrowWhenGettingLatestPartialConfig_WhenInitializingPluginHasFailed() {
         when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class)))
                 .thenThrow(new RuntimeException("Failed to initialize plugin"));
 

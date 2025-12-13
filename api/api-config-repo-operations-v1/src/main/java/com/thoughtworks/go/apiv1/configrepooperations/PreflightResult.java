@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 public class PreflightResult {
-    private Set<String> errors = new HashSet<>();
+    private final Set<String> errors = new HashSet<>();
     private boolean valid = false;
 
     public PreflightResult() {
@@ -37,16 +37,8 @@ public class PreflightResult {
         return new ArrayList<>(errors);
     }
 
-    public void setErrors(List<String> errors) {
-        this.errors.clear();
-        this.errors.addAll(errors);
-    }
-
     public boolean isValid() {
         return valid;
     }
 
-    public void setValid(boolean valid) {
-        this.valid = valid;
-    }
 }

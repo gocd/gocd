@@ -31,7 +31,7 @@ public class DFSCycleDetector {
             tsort(root, pipelineDependencyState, state, visiting);
             state.put(root, CycleState.VISITED);
         } else if (prevState == CycleState.VISITING) {
-            throw ExceptionUtils.bomb("Unexpected node in visiting state: " + root);
+            throw new RuntimeException("Unexpected node in visiting state: " + root);
         }
         assertHasVisitedAllNodesInTree(state);
     }
@@ -60,7 +60,7 @@ public class DFSCycleDetector {
     private void assertHasVisitedAllNodesInTree(Map<CaseInsensitiveString, CycleState> state) {
         for (Map.Entry<CaseInsensitiveString, CycleState> cycleStateEntry : state.entrySet()) {
             if (cycleStateEntry.getValue() == CycleState.VISITING) {
-                throw ExceptionUtils.bomb("Unexpected node in visiting state: " + cycleStateEntry.getKey());
+                throw new RuntimeException("Unexpected node in visiting state: " + cycleStateEntry.getKey());
             }
         }
     }
@@ -68,7 +68,7 @@ public class DFSCycleDetector {
     private void popAndAssertTopIsConsistent(Stack<CaseInsensitiveString> visiting, CaseInsensitiveString root) {
         CaseInsensitiveString p = visiting.pop();
         if (!root.equals(p)) {
-            throw ExceptionUtils.bomb("Unexpected internal error: expected to pop " + root + " but got " + p);
+            throw new RuntimeException("Unexpected internal error: expected to pop " + root + " but got " + p);
         }
     }
 

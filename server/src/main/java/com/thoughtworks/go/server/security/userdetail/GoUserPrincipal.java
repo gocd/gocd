@@ -19,6 +19,7 @@ import com.thoughtworks.go.server.domain.Username;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class GoUserPrincipal {
@@ -55,12 +56,20 @@ public class GoUserPrincipal {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof GoUserPrincipal that)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof GoUserPrincipal that)) {
+            return false;
+        }
 
-        if (authorities != null ? !authorities.equals(that.authorities) : that.authorities != null) return false;
-        if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) return false;
-        return username != null ? username.equals(that.username) : that.username == null;
+        if (!Objects.equals(authorities, that.authorities)) {
+            return false;
+        }
+        if (!Objects.equals(displayName, that.displayName)) {
+            return false;
+        }
+        return Objects.equals(username, that.username);
     }
 
     @Override

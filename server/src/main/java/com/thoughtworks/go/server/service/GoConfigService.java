@@ -85,9 +85,10 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     private final ConfigRepository configRepository;
     private final ConfigCache configCache;
     private final GoConfigCloner cloner = new GoConfigCloner();
-    private Clock clock = new SystemTimeClock();
     private final InstanceFactory instanceFactory;
     private final MagicalGoConfigXmlLoader xmlLoader;
+
+    private Clock clock = new SystemTimeClock();
 
     @Autowired
     public GoConfigService(GoConfigDao goConfigDao,
@@ -759,7 +760,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             reader.setEntityResolver((publicId, systemId) -> new InputSource(new StringReader("")));
         }
 
-        protected ConfigSaveState updatePartial(String xmlPartial, final String md5) throws Exception {
+        protected ConfigSaveState updatePartial(String xmlPartial, final String md5) throws IOException, JDOMException, DocumentException {
             LOGGER.debug("[Config Save] Updating partial");
             Document document = documentRoot();
             Element root = document.getRootElement();
@@ -776,7 +777,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
         }
 
-        protected ConfigSaveState saveConfig(final String xmlString, final String md5) throws Exception {
+        protected ConfigSaveState saveConfig(final String xmlString, final String md5) throws JDOMException {
             LOGGER.debug("[Config Save] Started saving XML");
             final MagicalGoConfigXmlLoader configXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
 
@@ -794,7 +795,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             return goConfigDao.updateFullConfig(new FullConfigUpdateCommand(cruiseConfig, md5));
         }
 
-        protected Document documentRoot() throws Exception {
+        protected Document documentRoot() throws IOException, JDOMException, DocumentException {
             CruiseConfig cruiseConfig = goConfigDao.loadForEditing();
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             new MagicalGoConfigXmlWriter(configCache, registry).write(cruiseConfig, out, true);
@@ -820,19 +821,24 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
             try {
                 return GoConfigValidity.valid(updatePartial(xmlPartial, expectedMd5));
-            } catch (JDOMParseException jsonException) {
+            } catch (JDOMException jsonException) {
                 return fromConflict(String.format("%s - %s", INVALID_CRUISE_CONFIG_XML, jsonException.getMessage()));
-            } catch (ConfigMergePreValidationException e) {
-                return mergePreValidationError(e.getMessage());
             } catch (Exception e) {
-                if (e.getCause() instanceof ConfigMergePostValidationException) {
-                    return mergePostValidationError(e.getCause().getMessage());
-                }
-                if (e.getCause() instanceof ConfigMergeException) {
-                    return mergeConflict(e.getCause().getMessage());
-                }
-                return fromConflict(e.getMessage());
+                return toMergeInvalidResult(e)
+                    .or(() -> toMergeInvalidResult(e.getCause()))
+                    .orElseGet(() -> fromConflict(e.getMessage()));
             }
+        }
+
+        private static @NotNull Optional<InvalidGoConfig> toMergeInvalidResult(Throwable e) {
+            if (e instanceof ConfigMergePreValidationException) {
+                return Optional.of(mergePreValidationError(e.getMessage()));
+            } else if (e instanceof ConfigMergePostValidationException) {
+                return Optional.of(mergePostValidationError(e.getMessage()));
+            } else if (e instanceof ConfigMergeException) {
+                return Optional.of(mergeConflict(e.getMessage()));
+            }
+            return Optional.empty();
         }
 
         private GoConfigValidity checkValidity() {
@@ -869,7 +875,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         }
 
         @Override
-        protected ConfigSaveState updatePartial(String xmlFile, final String md5) throws Exception {
+        protected ConfigSaveState updatePartial(String xmlFile, final String md5) throws JDOMException {
             if (shouldUpgrade) {
                 xmlFile = upgrader.upgradeIfNecessary(xmlFile);
             }

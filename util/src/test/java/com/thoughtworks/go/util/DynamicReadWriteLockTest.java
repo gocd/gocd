@@ -27,7 +27,7 @@ public class DynamicReadWriteLockTest {
     private final DynamicReadWriteLock readWriteLock = spy(new DynamicReadWriteLock());
 
     @Test
-    public void shouldEnforceMutualExclusionOfWriteLockForGivenName() throws InterruptedException {
+    public void shouldEnforceMutualExclusionOfWriteLockForGivenName() {
         readWriteLock.acquireWriteLock("foo");
 
         Thread thread = new Thread(() -> readWriteLock.acquireWriteLock("foo"));
@@ -44,7 +44,7 @@ public class DynamicReadWriteLockTest {
     }
 
     @Test
-    public void shouldNotEnforceMutualExclusionOfReadLockForGivenName() throws InterruptedException {
+    public void shouldNotEnforceMutualExclusionOfReadLockForGivenName() {
         readWriteLock.acquireReadLock("foo");
 
         Thread thread = new Thread(() -> readWriteLock.acquireReadLock("foo"));
@@ -60,7 +60,7 @@ public class DynamicReadWriteLockTest {
     }
 
     @Test
-    public void shouldEnforceMutualExclusionOfReadAndWriteLockForGivenName() throws InterruptedException {
+    public void shouldEnforceMutualExclusionOfReadAndWriteLockForGivenName() {
         readWriteLock.acquireReadLock("foo");
 
         Thread thread = new Thread(() -> readWriteLock.acquireWriteLock("foo"));
@@ -77,7 +77,7 @@ public class DynamicReadWriteLockTest {
     }
 
     @Test
-    public void shouldEnforceMutualExclusionOfWriteAndReadLockForGivenName() throws InterruptedException {
+    public void shouldEnforceMutualExclusionOfWriteAndReadLockForGivenName() {
         readWriteLock.acquireWriteLock("foo");
 
         Thread thread = new Thread(() -> readWriteLock.acquireReadLock("foo"));
@@ -94,7 +94,7 @@ public class DynamicReadWriteLockTest {
     }
 
     @Test
-    public void shouldNotEnforceMutualExclusionOfWriteLockForDifferentNames() throws InterruptedException {
+    public void shouldNotEnforceMutualExclusionOfWriteLockForDifferentNames() {
         readWriteLock.acquireWriteLock("foo");
 
         Thread thread = new Thread(() -> readWriteLock.acquireWriteLock("bar"));

@@ -293,11 +293,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
 
         PipelineTemplateConfig config = (PipelineTemplateConfig) o;
 
-        if (name != null ? !name.equals(config.name) : config.name != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(name, config.name);
     }
 
     @Override

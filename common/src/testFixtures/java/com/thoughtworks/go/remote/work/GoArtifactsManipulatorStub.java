@@ -63,6 +63,7 @@ public class GoArtifactsManipulatorStub extends GoArtifactsManipulator {
         savedTo.add(artifact.getHandler());
     }
 
+    @Override
     public ConsoleOutputTransmitter createConsoleOutputTransmitter(JobIdentifier jobIdentifier,
                                                                    AgentIdentifier agentIdentifier, Charset consoleLogCharset) {
         return new ConsoleOutputTransmitter(consoleOuts::add);

@@ -29,6 +29,7 @@ public class GitLab implements ValidateAuth.Provider {
     public static final Set<String> PUSH = Set.of("Push Hook");
     public static final Set<String> PR = Set.of("Merge Request Hook");
 
+    @Override
     public void auth(String webhookSecret, WebhookRequest request, Function<String, HttpException> fail) {
         final String token = request.authToken();
 

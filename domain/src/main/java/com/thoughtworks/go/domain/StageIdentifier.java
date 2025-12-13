@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class StageIdentifier implements Serializable, LocatableEntity {
     public static final String LATEST = "latest";
@@ -123,16 +124,16 @@ public class StageIdentifier implements Serializable, LocatableEntity {
 
         StageIdentifier that = (StageIdentifier) o;
 
-        if (pipelineCounter != null ? !pipelineCounter.equals(that.pipelineCounter) : that.pipelineCounter != null) {
+        if (!Objects.equals(pipelineCounter, that.pipelineCounter)) {
             return false;
         }
-        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) {
+        if (!Objects.equals(pipelineName, that.pipelineName)) {
             return false;
         }
-        if (stageCounter != null ? !stageCounter.equals(that.stageCounter) : that.stageCounter != null) {
+        if (!Objects.equals(stageCounter, that.stageCounter)) {
             return false;
         }
-        return stageName != null ? stageName.equals(that.stageName) : that.stageName == null;
+        return Objects.equals(stageName, that.stageName);
     }
 
     @Override

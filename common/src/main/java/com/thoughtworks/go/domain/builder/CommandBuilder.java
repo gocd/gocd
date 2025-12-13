@@ -19,6 +19,7 @@ import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.util.command.CommandLine;
 
 import java.io.File;
+import java.util.Objects;
 
 public class CommandBuilder extends BaseCommandBuilder {
     protected String args;
@@ -67,16 +68,16 @@ public class CommandBuilder extends BaseCommandBuilder {
 
         CommandBuilder that = (CommandBuilder) o;
 
-        if (args != null ? !args.equals(that.args) : that.args != null) {
+        if (!Objects.equals(args, that.args)) {
             return false;
         }
-        if (command != null ? !command.equals(that.command) : that.command != null) {
+        if (!Objects.equals(command, that.command)) {
             return false;
         }
-        if (errorString != null ? !errorString.equals(that.errorString) : that.errorString != null) {
+        if (!Objects.equals(errorString, that.errorString)) {
             return false;
         }
-        if (workingDir != null ? !workingDir.equals(that.workingDir) : that.workingDir != null) {
+        if (!Objects.equals(workingDir, that.workingDir)) {
             return false;
         }
 

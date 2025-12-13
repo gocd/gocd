@@ -18,33 +18,27 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.TimeProvider;
+import org.jdom2.JDOMException;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ConfigMigrator {
-    public static GoConfigMigration migrate(final Path configFile) {
-        String content = "";
+    public static void migrate(final Path configFile) {
         try {
-            content = Files.readString(configFile, UTF_8);
-        } catch (IOException ignore) {
-        }
+            String content = Files.readString(configFile, UTF_8);
 
-        GoConfigMigration upgrader = new GoConfigMigration(new TimeProvider());
-        //TODO: LYH & GL GoConfigMigration should be able to handle stream instead of binding to file
-        String upgradedContent = upgrader.upgradeIfNecessary(content);
-        try {
+            GoConfigMigration upgrader = new GoConfigMigration(new TimeProvider());
+            //TODO: LYH & GL GoConfigMigration should be able to handle stream instead of binding to file
+            String upgradedContent = upgrader.upgradeIfNecessary(content);
+
             Files.writeString(configFile, upgradedContent, UTF_8);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
-        return upgrader;
     }
 
     public static String migrate(String configXml) throws IOException {
@@ -65,18 +59,18 @@ public class ConfigMigrator {
         GoConfigHolder configHolder;
         try {
             configHolder = loadWithMigration(new ByteArrayInputStream(xml.getBytes()));
-        } catch (Exception e) {
+        } catch (IOException | JDOMException e) {
             throw new RuntimeException(e);
         }
         return configHolder;
     }
 
-    public static GoConfigHolder loadWithMigration(InputStream input) throws Exception {
+    public static GoConfigHolder loadWithMigration(InputStream input) throws IOException, JDOMException {
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         return loadWithMigration(input, registry);
     }
 
-    public static GoConfigHolder loadWithMigration(InputStream input, final ConfigElementImplementationRegistry registry) throws Exception {
+    public static GoConfigHolder loadWithMigration(InputStream input, final ConfigElementImplementationRegistry registry) throws IOException, JDOMException {
         Path tempFile = Files.createTempFile("cruise-config", ".xml");
         try {
             MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(new ConfigCache(), registry);

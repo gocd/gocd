@@ -102,6 +102,7 @@ public class ArtifactConfigControllerV1 extends ApiController implements SparkSp
     }
 
 
+    @Override
     public Consumer<OutputWriter> jsonWriter(ArtifactConfig artifactConfig) {
         return outputWriter -> ArtifactConfigRepresenter.toJSON(outputWriter, artifactConfig);
     }

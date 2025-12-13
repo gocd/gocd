@@ -21,9 +21,12 @@ import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.jdom2.JDOMException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.List;
 
 /*
@@ -51,7 +54,7 @@ public class FullConfigSaveNormalFlow extends FullConfigSaveFlow {
     }
 
     @Override
-    public GoConfigHolder execute(FullConfigUpdateCommand updatingCommand, List<PartialConfig> partials, String currentUser) throws Exception {
+    public GoConfigHolder execute(FullConfigUpdateCommand updatingCommand, List<PartialConfig> partials, String currentUser) throws GitAPIException, IOException, JDOMException {
         LOGGER.debug("[Config Save] Starting Config Save using FullConfigSaveNormalFlow");
 
         CruiseConfig configForEdit = configForEditWithPartials(updatingCommand, partials);

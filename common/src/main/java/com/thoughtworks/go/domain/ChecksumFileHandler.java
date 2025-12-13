@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.util.Objects;
 
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 
@@ -79,7 +80,7 @@ public class ChecksumFileHandler implements FetchHandler {
             return false;
         }
 
-        return checksumFile != null ? checksumFile.equals(that.checksumFile) : that.checksumFile == null;
+        return Objects.equals(checksumFile, that.checksumFile);
     }
 
     @Override

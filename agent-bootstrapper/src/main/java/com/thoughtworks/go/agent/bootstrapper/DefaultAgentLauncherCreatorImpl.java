@@ -56,7 +56,7 @@ public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
             String libDir = JarUtil.getManifestKey(inUseLauncher, GO_AGENT_LAUNCHER_LIB_DIR);
             String classNameToLoad = JarUtil.getManifestKey(inUseLauncher, GO_AGENT_LAUNCHER_CLASS);
             return (AgentLauncher) loadClass(inUseLauncher, GO_AGENT_LAUNCHER_CLASS, libDir, classNameToLoad).getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
     }

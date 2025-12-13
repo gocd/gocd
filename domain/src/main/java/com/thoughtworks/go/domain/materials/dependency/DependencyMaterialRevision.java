@@ -74,16 +74,16 @@ public class DependencyMaterialRevision implements Revision {
         if (stageCounter != that.stageCounter) {
             return false;
         }
-        if (pipelineCounter != null ? !pipelineCounter.equals(that.pipelineCounter) : that.pipelineCounter != null) {
+        if (!Objects.equals(pipelineCounter, that.pipelineCounter)) {
             return false;
         }
-        if (pipelineLabel != null ? !pipelineLabel.equals(that.pipelineLabel) : that.pipelineLabel != null) {
+        if (!Objects.equals(pipelineLabel, that.pipelineLabel)) {
             return false;
         }
-        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) {
+        if (!Objects.equals(pipelineName, that.pipelineName)) {
             return false;
         }
-        if (stageName != null ? !stageName.equals(that.stageName) : that.stageName != null) {
+        if (!Objects.equals(stageName, that.stageName)) {
             return false;
         }
 

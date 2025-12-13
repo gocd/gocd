@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import lombok.EqualsAndHashCode;
+import org.jetbrains.annotations.TestOnly;
 
 import static com.thoughtworks.go.config.exceptions.EntityType.*;
 import static com.thoughtworks.go.config.rules.SupportedEntity.*;
@@ -56,19 +57,15 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
     public PartialConfig() {
     }
 
+    @TestOnly
     public PartialConfig(PipelineGroups pipelines) {
         this.pipelines = pipelines;
     }
 
+    @TestOnly
     public PartialConfig(EnvironmentsConfig environments, PipelineGroups pipelines) {
         this.environments = environments;
         this.pipelines = pipelines;
-    }
-
-    public PartialConfig(EnvironmentsConfig environments, PipelineGroups pipelines, SCMs scms) {
-        this.environments = environments;
-        this.pipelines = pipelines;
-        this.scms = scms;
     }
 
     @Override

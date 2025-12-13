@@ -237,10 +237,7 @@ public class AgentRuntimeInfo implements Serializable {
     }
 
     public boolean isLowDiskSpace(long limit) {
-        if (usableSpace == null) {
-            return false;
-        }
-        return usableSpace < limit;
+        return usableSpace != null && usableSpace < limit;
     }
 
     public String agentInfoDebugString() {

@@ -35,7 +35,7 @@ public class TransactionTemplate {
         });
     }
 
-    public Object executeWithExceptionHandling(final TransactionCallback action) throws Exception {
+    public Object executeWithExceptionHandling(final TransactionCallback action) {
         try {
             return transactionTemplate.execute(status -> {
                 txnCtx().transactionPushed();
@@ -46,7 +46,7 @@ public class TransactionTemplate {
                 }
             });
         } catch (TransactionCallbackExecutionException e) {
-            throw (Exception) e.getCause();
+            throw e.getCause();
         }
     }
 

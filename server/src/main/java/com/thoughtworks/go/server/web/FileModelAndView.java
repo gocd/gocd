@@ -26,6 +26,7 @@ import org.springframework.web.servlet.view.AbstractView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,7 +41,7 @@ public class FileModelAndView {
             return new ModelAndView(new AbstractView() {
                 @Override
                 protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request,
-                                                       HttpServletResponse response) throws Exception {
+                                                       HttpServletResponse response) throws IOException {
                     response.setStatus(HTTP_NOT_MODIFIED);
                     response.getWriter().close();
                 }

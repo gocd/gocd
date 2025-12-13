@@ -37,13 +37,16 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 
 public class GoConfigMother {
-    public static final Cloner CLONER = cloner();
+    public static final Cloner CLONER = goConfigCloner();
 
-    private static Cloner cloner() {
+    private static Cloner goConfigCloner() {
         // Recreated here, because we deliberately not have access to the `GoConfigCloner` from the API
-        Cloner instance = ClonerFactory.instance();
-        instance.nullInsteadOfClone(BasicCruiseConfig.DO_NOT_CLONE_CLASSES);
-        return instance;
+        return new Cloner() {
+            {
+                nullInsteadOfClone(BasicCruiseConfig.DO_NOT_CLONE_CLASSES);
+                ClonerFactory.applyFixes(this);
+            }
+        };
     }
 
     public static <T> T deepClone(T config) {
@@ -208,28 +211,19 @@ public class GoConfigMother {
     }
 
     public static BasicCruiseConfig defaultCruiseConfig() {
-        try {
-            BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
-            ServerConfig serverConfig = new ServerConfig("artifactsDir", new SecurityConfig());
-            serverConfig.ensureTokenGenerationKeyExists();
-            cruiseConfig.setServerConfig(serverConfig);
-            return cruiseConfig;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        ServerConfig serverConfig = new ServerConfig("artifactsDir", new SecurityConfig());
+        serverConfig.ensureTokenGenerationKeyExists();
+        cruiseConfig.setServerConfig(serverConfig);
+        return cruiseConfig;
     }
 
     public static BasicCruiseConfig configWithAutoRegisterKey(String autoregisterKey) {
-        try {
-            BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
-            ServerConfig serverConfig = new ServerConfig(null, null, 0, 0, null, autoregisterKey);
-            cruiseConfig.setServerConfig(serverConfig);
-            return cruiseConfig;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        ServerConfig serverConfig = new ServerConfig(null, null, 0, 0, null, autoregisterKey);
+        cruiseConfig.setServerConfig(serverConfig);
+        return cruiseConfig;
     }
-
 
     private static JobConfigs defaultBuildPlans(String... planNames) {
         JobConfigs plans = new JobConfigs();

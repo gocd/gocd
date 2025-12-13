@@ -142,7 +142,7 @@ public class HgTestRepo extends TestRepo {
         return addCommitPush(material, comment, baseDir, file);
     }
 
-    public List<Modification> addCommitPush(HgMaterial material, String comment, File baseDir, File file) throws Exception {
+    public List<Modification> addCommitPush(HgMaterial material, String comment, File baseDir, File file) {
         material.add(baseDir, ProcessOutputStreamConsumer.inMemoryConsumer(), file);
         material.commit(baseDir, ProcessOutputStreamConsumer.inMemoryConsumer(), comment, "user");
         material.push(baseDir, ProcessOutputStreamConsumer.inMemoryConsumer());

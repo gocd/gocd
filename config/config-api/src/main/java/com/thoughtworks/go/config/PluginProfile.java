@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -120,14 +121,22 @@ public abstract class PluginProfile extends Configuration implements Validatable
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         PluginProfile that = (PluginProfile) o;
 
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        return pluginId != null ? pluginId.equals(that.pluginId) : that.pluginId == null;
+        if (!Objects.equals(id, that.id)) {
+            return false;
+        }
+        return Objects.equals(pluginId, that.pluginId);
 
     }
 

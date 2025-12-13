@@ -20,12 +20,14 @@ import com.thoughtworks.go.agent.common.util.Downloader;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public enum DownloadableFile {
     AGENT("admin/agent", Downloader.AGENT_BINARY),
@@ -68,7 +70,7 @@ public enum DownloadableFile {
                 digest.transferTo(OutputStream.nullOutputStream());
             }
             return expectedSignature.equalsIgnoreCase(encodeHexString(digester.digest()));
-        } catch (Exception e) {
+        } catch (IOException | NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }

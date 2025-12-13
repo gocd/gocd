@@ -37,7 +37,7 @@ public class GoConfigInvalidMergeException extends GoConfigInvalidException {
     }
 
     private static String allErrorsToString(List<String> allErrors) {
-        if (allErrors == null || allErrors.size() == 0)
+        if (allErrors == null || allErrors.isEmpty())
             return "Error list empty";// should never be
 
         StringBuilder b = new StringBuilder();

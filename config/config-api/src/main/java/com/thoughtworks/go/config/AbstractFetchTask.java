@@ -272,9 +272,9 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
 
         AbstractFetchTask that = (AbstractFetchTask) o;
 
-        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) return false;
-        if (stage != null ? !stage.equals(that.stage) : that.stage != null) return false;
-        if (job != null ? !job.equals(that.job) : that.job != null) return false;
+        if (!Objects.equals(pipelineName, that.pipelineName)) return false;
+        if (!Objects.equals(stage, that.stage)) return false;
+        if (!Objects.equals(job, that.job)) return false;
         return super.equals(that);
     }
 

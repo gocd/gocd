@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 
@@ -52,7 +53,7 @@ public class P4MaterialViewConfig implements Serializable, Validatable {
 
         P4MaterialViewConfig view = (P4MaterialViewConfig) o;
 
-        if (value != null ? !value.equals(view.value) : view.value != null) {
+        if (!Objects.equals(value, view.value)) {
             return false;
         }
 

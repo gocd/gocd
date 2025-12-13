@@ -17,6 +17,8 @@ package com.thoughtworks.go.plugin.domain.common;
 
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 
+import java.util.Objects;
+
 public class PluginInfo {
     protected final PluginDescriptor descriptor;
     protected final String extensionName;
@@ -52,15 +54,22 @@ public class PluginInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         PluginInfo that = (PluginInfo) o;
 
-        if (descriptor != null ? !descriptor.equals(that.descriptor) : that.descriptor != null) return false;
-        if (extensionName != null ? !extensionName.equals(that.extensionName) : that.extensionName != null)
+        if (!Objects.equals(descriptor, that.descriptor)) {
             return false;
-        return pluginSettings != null ? pluginSettings.equals(that.pluginSettings) : that.pluginSettings == null;
+        }
+        if (!Objects.equals(extensionName, that.extensionName)) {
+            return false;
+        }
+        return Objects.equals(pluginSettings, that.pluginSettings);
     }
 
     @Override

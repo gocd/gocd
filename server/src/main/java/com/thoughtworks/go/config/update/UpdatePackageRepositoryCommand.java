@@ -34,7 +34,7 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
     private final String digest;
     private final EntityHashingService entityHashingService;
     private final HttpLocalizedOperationResult result;
-    private String oldRepoId;
+    private final String oldRepoId;
 
     public UpdatePackageRepositoryCommand(GoConfigService goConfigService, PackageRepositoryService packageRepositoryService, PackageRepository newRepo, Username username, String digest, EntityHashingService entityHashingService, HttpLocalizedOperationResult result, String oldRepoId) {
         super(packageRepositoryService, newRepo, result, goConfigService, username);

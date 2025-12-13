@@ -24,6 +24,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @ConfigTag("nant")
 public class NantTask extends BuildTask {
@@ -102,7 +103,7 @@ public class NantTask extends BuildTask {
             return false;
         }
 
-        return nantPath != null ? nantPath.equals(nantTask.nantPath) : nantTask.nantPath == null;
+        return Objects.equals(nantPath, nantTask.nantPath);
     }
 
     @Override

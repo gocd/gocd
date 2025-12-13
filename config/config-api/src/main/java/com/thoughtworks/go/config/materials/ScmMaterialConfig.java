@@ -25,6 +25,7 @@ import com.thoughtworks.go.util.command.UrlUserInfo;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
@@ -246,7 +247,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
 
         ScmMaterialConfig that = (ScmMaterialConfig) o;
 
-        if (folder != null ? !folder.equals(that.folder) : that.folder != null) {
+        if (!Objects.equals(folder, that.folder)) {
             return false;
         }
         return super.equals(that);

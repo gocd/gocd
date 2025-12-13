@@ -23,8 +23,8 @@ import java.util.List;
  * CompositeConsumer multicasts strings to any set of {@link StreamConsumer} or {@link TaggedStreamConsumer} instances
  */
 public class CompositeConsumer implements TaggedStreamConsumer {
-    private List<StreamConsumer> consumers = new LinkedList<>();
-    private String defaultTag;
+    private final List<StreamConsumer> consumers = new LinkedList<>();
+    private final String defaultTag;
 
     public CompositeConsumer(String defaultTag, StreamConsumer... consumers) {
         this.defaultTag = defaultTag;

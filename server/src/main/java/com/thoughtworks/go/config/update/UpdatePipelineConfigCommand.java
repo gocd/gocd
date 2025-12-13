@@ -35,7 +35,7 @@ public class UpdatePipelineConfigCommand extends PipelineConfigCommand {
     private final Username currentUser;
     private final String digest;
     private final LocalizedOperationResult result;
-    public String existingGroupName;
+    private String existingGroupName;
 
     public UpdatePipelineConfigCommand(GoConfigService goConfigService, EntityHashingService entityHashingService, PipelineConfig pipelineConfig, String newGroupName,
                                        Username currentUser, String digest, LocalizedOperationResult result, ExternalArtifactsService externalArtifactsService) {

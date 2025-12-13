@@ -19,10 +19,12 @@ import com.thoughtworks.go.domain.StageEvent;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.server.domain.Username;
 
+import java.util.Objects;
+
 public class StageResultMessage implements GoMessage {
     private final StageIdentifier stageIdentifier;
     private final StageEvent event;
-    private Username cancelledBy;
+    private final Username cancelledBy;
 
     public StageResultMessage(StageIdentifier stageIdentifier, StageEvent event, Username cancelledBy) {
         this.stageIdentifier = stageIdentifier;
@@ -53,13 +55,13 @@ public class StageResultMessage implements GoMessage {
 
         StageResultMessage that = (StageResultMessage) o;
 
-        if (cancelledBy != null ? !cancelledBy.equals(that.cancelledBy) : that.cancelledBy != null) {
+        if (!Objects.equals(cancelledBy, that.cancelledBy)) {
             return false;
         }
         if (event != that.event) {
             return false;
         }
-        if (stageIdentifier != null ? !stageIdentifier.equals(that.stageIdentifier) : that.stageIdentifier != null) {
+        if (!Objects.equals(stageIdentifier, that.stageIdentifier)) {
             return false;
         }
 

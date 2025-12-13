@@ -21,10 +21,10 @@ import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.GoConfigService;
 
 public abstract class PipelineConfigCommand implements EntityConfigUpdateCommand<PipelineConfig> {
+    final PipelineConfig pipelineConfig;
+    final GoConfigService goConfigService;
+    private final ExternalArtifactsService externalArtifactsService;
 
-    protected PipelineConfig pipelineConfig;
-    protected GoConfigService goConfigService;
-    private ExternalArtifactsService externalArtifactsService;
     PipelineConfig preprocessedPipelineConfig;
 
     PipelineConfigCommand(PipelineConfig pipelineConfig, GoConfigService goConfigService, ExternalArtifactsService externalArtifactsService) {

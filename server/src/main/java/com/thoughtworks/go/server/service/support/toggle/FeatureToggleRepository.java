@@ -102,7 +102,7 @@ public class FeatureToggleRepository {
 
         try {
             Files.writeString(file, GSON.toJson(representation), UTF_8);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

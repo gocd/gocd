@@ -28,9 +28,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class BuildRepositoryService {
-    private ScheduleService scheduleService;
-    public JobInstanceService jobInstanceService;
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildRepositoryService.class);
+
+    private final ScheduleService scheduleService;
+    private final JobInstanceService jobInstanceService;
 
     @Autowired
     public BuildRepositoryService(JobInstanceService jobInstanceService,

@@ -90,6 +90,7 @@ public final class DummyMaterial extends ScmMaterial {
         throw unsupported();
     }
 
+    @Override
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
         throw unsupported();
     }

@@ -26,10 +26,7 @@ import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -203,14 +200,22 @@ public class PluggableArtifactConfig implements ArtifactTypeConfig {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         PluggableArtifactConfig that = (PluggableArtifactConfig) o;
 
-        if (!id.equals(that.id)) return false;
-        if (!storeId.equals(that.storeId)) return false;
-        return configuration != null ? configuration.equals(that.configuration) : that.configuration == null;
+        if (!id.equals(that.id)) {
+            return false;
+        }
+        if (!storeId.equals(that.storeId)) {
+            return false;
+        }
+        return Objects.equals(configuration, that.configuration);
     }
 
     @Override

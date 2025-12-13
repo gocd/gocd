@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 public class GoCDRolesBulkUpdateRequest {
 
-    private List<Operation> operations;
+    private final List<Operation> operations;
 
     public GoCDRolesBulkUpdateRequest(List<Operation> operations) {
         this.operations = operations;
@@ -46,9 +46,9 @@ public class GoCDRolesBulkUpdateRequest {
     }
 
     public static class Operation {
-        private String roleName;
-        private List<String> usersToAdd;
-        private List<String> usersToRemove;
+        private final String roleName;
+        private final List<String> usersToAdd;
+        private final List<String> usersToRemove;
 
         public Operation(String roleName, List<String> usersToAdd, List<String> usersToRemove) {
             this.roleName = roleName;

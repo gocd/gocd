@@ -32,11 +32,11 @@ import java.util.List;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
-    protected final GoConfigService goConfigService;
-    protected final Role role;
-    protected final Username currentUser;
-    protected final LocalizedOperationResult result;
-    protected Role preprocessedRole;
+    final GoConfigService goConfigService;
+    final Role role;
+    final Username currentUser;
+    final LocalizedOperationResult result;
+    Role preprocessedRole;
 
     public RoleConfigCommand(GoConfigService goConfigService, Role role, Username currentUser, LocalizedOperationResult result) {
         this.goConfigService = goConfigService;
@@ -83,7 +83,7 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
         this.role.encryptSecureProperties(preprocessedConfig);
     }
 
-    protected final boolean isAuthorized() {
+    final boolean isAuthorized() {
         if (goConfigService.isUserAdmin(currentUser)) {
             return true;
         }

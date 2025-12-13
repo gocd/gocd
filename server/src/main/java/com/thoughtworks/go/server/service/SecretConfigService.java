@@ -139,12 +139,10 @@ public class SecretConfigService extends RuleAwarePluginProfileService<SecretCon
 
     private Optional<SecretConfigUsage> getMaterialUsage(PipelineConfig pipelineConfig, String configId) {
         for (Material material : new Materials(pipelineConfig.materialConfigs())) {
-            if (SecretParamAware.class.isAssignableFrom(material.getClass())) {
-                SecretParamAware materialWithSecretParams = (SecretParamAware) material;
-
-                if (materialWithSecretParams.hasSecretParams() && materialWithSecretParams.getSecretParams().findFirstByConfigId(configId).isPresent()) {
-                    return Optional.of(createSecretConfigUsage(pipelineConfig, null, null));
-                }
+            if (material instanceof SecretParamAware materialWithSecretParams
+                    && materialWithSecretParams.hasSecretParams()
+                    && materialWithSecretParams.getSecretParams().findFirstByConfigId(configId).isPresent()) {
+                return Optional.of(createSecretConfigUsage(pipelineConfig, null, null));
             }
         }
         return Optional.empty();

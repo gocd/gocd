@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 @Component
 public class JobStatusCache implements JobStatusListener {
-    private ConcurrentMap<JobConfigIdentifier, JobInstance> jobs = new ConcurrentHashMap<>();
+    private final ConcurrentMap<JobConfigIdentifier, JobInstance> jobs = new ConcurrentHashMap<>();
     private final StageDao stageDao;
     private static final NullJobInstance NEVER_RUN = new NullJobInstance("NEVER_RUN");
 

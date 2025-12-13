@@ -76,7 +76,7 @@ public class ProcessWrapper {
     }
 
     private long lastHeardTime() {
-        if (processErrorStream == null & processOutputStream == null) {
+        if (processErrorStream == null && processOutputStream == null) {
             return System.currentTimeMillis();
         }
         if (processErrorStream == null) {

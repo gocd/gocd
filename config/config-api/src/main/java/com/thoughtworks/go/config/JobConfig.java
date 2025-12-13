@@ -27,6 +27,7 @@ import org.jetbrains.annotations.TestOnly;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -136,18 +137,18 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         JobConfig jobConfig = (JobConfig) o;
 
         if (runOnAllAgents != jobConfig.runOnAllAgents) return false;
-        if (jobName != null ? !jobName.equals(jobConfig.jobName) : jobConfig.jobName != null) return false;
-        if (variables != null ? !variables.equals(jobConfig.variables) : jobConfig.variables != null) return false;
-        if (tasks != null ? !tasks.equals(jobConfig.tasks) : jobConfig.tasks != null) return false;
-        if (tabs != null ? !tabs.equals(jobConfig.tabs) : jobConfig.tabs != null) return false;
-        if (resourceConfigs != null ? !resourceConfigs.equals(jobConfig.resourceConfigs) : jobConfig.resourceConfigs != null)
+        if (!Objects.equals(jobName, jobConfig.jobName)) return false;
+        if (!Objects.equals(variables, jobConfig.variables)) return false;
+        if (!Objects.equals(tasks, jobConfig.tasks)) return false;
+        if (!Objects.equals(tabs, jobConfig.tabs)) return false;
+        if (!Objects.equals(resourceConfigs, jobConfig.resourceConfigs))
             return false;
-        if (artifactTypeConfigs != null ? !artifactTypeConfigs.equals(jobConfig.artifactTypeConfigs) : jobConfig.artifactTypeConfigs != null)
+        if (!Objects.equals(artifactTypeConfigs, jobConfig.artifactTypeConfigs))
             return false;
-        if (runInstanceCount != null ? !runInstanceCount.equals(jobConfig.runInstanceCount) : jobConfig.runInstanceCount != null)
+        if (!Objects.equals(runInstanceCount, jobConfig.runInstanceCount))
             return false;
-        if (timeout != null ? !timeout.equals(jobConfig.timeout) : jobConfig.timeout != null) return false;
-        return elasticProfileId != null ? elasticProfileId.equals(jobConfig.elasticProfileId) : jobConfig.elasticProfileId == null;
+        if (!Objects.equals(timeout, jobConfig.timeout)) return false;
+        return Objects.equals(elasticProfileId, jobConfig.elasticProfileId);
 
     }
 

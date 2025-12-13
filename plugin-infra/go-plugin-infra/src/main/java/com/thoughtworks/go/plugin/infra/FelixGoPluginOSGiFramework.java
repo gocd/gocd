@@ -96,7 +96,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
             pluginBundleDescriptor.setBundle(bundle);
             bundle.start();
             return bundle;
-        } catch (Exception e) {
+        } catch (BundleException e) {
             throw new RuntimeException(e);
         }
     }

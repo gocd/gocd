@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.service.TaskFactory;
 
 import java.util.Map;
+import java.util.Objects;
 
 @ConfigTag(value = "oncancel", label = "OnCancel")
 public class OnCancelConfig implements Validatable {
@@ -73,15 +74,11 @@ public class OnCancelConfig implements Validatable {
 
         OnCancelConfig that = (OnCancelConfig) o;
 
-        if (task != null ? !task.equals(that.task) : that.task != null) {
+        if (!Objects.equals(task, that.task)) {
             return false;
         }
 
-        if (this.shouldKillAll != that.shouldKillAll) {
-            return false;
-        }
-
-        return true;
+        return this.shouldKillAll == that.shouldKillAll;
     }
 
     @Override

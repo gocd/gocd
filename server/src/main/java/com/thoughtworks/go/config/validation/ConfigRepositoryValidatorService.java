@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConfigRepositoryValidatorService implements InitializingBean {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigRepositoryValidatorService.class);
-    private ConfigRepository configRepository;
+    private final ConfigRepository configRepository;
 
     @Autowired
     public ConfigRepositoryValidatorService(ConfigRepository configRepository) {

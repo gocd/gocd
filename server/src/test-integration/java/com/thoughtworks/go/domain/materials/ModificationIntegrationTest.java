@@ -62,7 +62,7 @@ public class ModificationIntegrationTest {
     }
 
     @Test
-    public void shouldPersistAdditionalDataIntoModificationsTable() throws Exception {
+    public void shouldPersistAdditionalDataIntoModificationsTable() {
         String revision = "revision";
         Map<String, String> additionalDataMap = new HashMap<>();
         additionalDataMap.put("key", "value");

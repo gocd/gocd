@@ -78,7 +78,7 @@ public class ArtifactsServiceTest {
     }
 
     @AfterEach
-    void tearDown() throws IOException {
+    void tearDown() {
         for (File resource : resourcesToBeCleanedOnTeardown) {
             FileUtils.deleteQuietly(resource);
         }

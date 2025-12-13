@@ -245,6 +245,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         return SvnMaterialInstance.class;
     }
 
+    @Override
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
         return svn().checkConnection();
     }

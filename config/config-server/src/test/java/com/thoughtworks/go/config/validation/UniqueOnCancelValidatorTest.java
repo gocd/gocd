@@ -24,7 +24,6 @@ import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -256,7 +255,7 @@ public class UniqueOnCancelValidatorTest {
         return tasks;
     }
 
-    private Element elementFor(String content) throws JDOMException, IOException {
+    private Element elementFor(String content) throws JDOMException {
         return XmlUtils.buildXmlDocument(content).getRootElement();
     }
 }

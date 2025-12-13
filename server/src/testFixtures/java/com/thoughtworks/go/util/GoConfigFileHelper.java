@@ -157,11 +157,7 @@ public class GoConfigFileHelper {
     }
 
     public static CruiseConfig load(String content) {
-        try {
-            return new GoConfigFileHelper(content).currentConfig();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return new GoConfigFileHelper(content).currentConfig();
     }
 
     public static void clearConfigVersions() throws IOException {
@@ -489,23 +485,15 @@ public class GoConfigFileHelper {
     }
 
     public CruiseConfig load() {
-        try {
-            goConfigDao.forceReload();
-            return deepClone(goConfigDao.loadForEditing());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        goConfigDao.forceReload();
+        return deepClone(goConfigDao.loadForEditing());
     }
 
     public CruiseConfig loadForEdit() {
-        try {
-            goConfigDao.forceReload();
-            CruiseConfig cruiseConfig = deepClone(goConfigDao.loadForEditing());
-            cruiseConfig.initializeServer();
-            return cruiseConfig;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        goConfigDao.forceReload();
+        CruiseConfig cruiseConfig = deepClone(goConfigDao.loadForEditing());
+        cruiseConfig.initializeServer();
+        return cruiseConfig;
     }
 
     public CruiseConfig currentConfig() {

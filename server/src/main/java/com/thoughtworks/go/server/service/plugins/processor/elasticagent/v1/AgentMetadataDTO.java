@@ -26,6 +26,7 @@ import com.google.gson.reflect.TypeToken;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 class AgentMetadataDTO implements Serializable {
     private static final Gson GSON = new GsonBuilder()
@@ -90,16 +91,25 @@ class AgentMetadataDTO implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         AgentMetadataDTO that = (AgentMetadataDTO) o;
 
-        if (elasticAgentId != null ? !elasticAgentId.equals(that.elasticAgentId) : that.elasticAgentId != null)
+        if (!Objects.equals(elasticAgentId, that.elasticAgentId)) {
             return false;
-        if (agentState != null ? !agentState.equals(that.agentState) : that.agentState != null) return false;
-        if (buildState != null ? !buildState.equals(that.buildState) : that.buildState != null) return false;
-        return configState != null ? configState.equals(that.configState) : that.configState == null;
+        }
+        if (!Objects.equals(agentState, that.agentState)) {
+            return false;
+        }
+        if (!Objects.equals(buildState, that.buildState)) {
+            return false;
+        }
+        return Objects.equals(configState, that.configState);
 
     }
 

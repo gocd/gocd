@@ -230,6 +230,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
         return false;
     }
 
+    @Override
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
         throw new UnsupportedOperationException(String.format("'checkConnection' cannot be performed on material of type %s", materialType));
     }

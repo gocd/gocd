@@ -19,15 +19,18 @@ import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @ConfigTag("runif")
 public class RunIfConfig implements Serializable, Validatable{
-    @ConfigAttribute(value = "status") @SkipParameterResolution
-    private String status;
     public static final RunIfConfig PASSED = new RunIfConfig("passed");
     public static final RunIfConfig FAILED = new RunIfConfig("failed");
     public static final RunIfConfig ANY = new RunIfConfig("any");
-    private ConfigErrors configErrors = new ConfigErrors();
+
+    @ConfigAttribute(value = "status") @SkipParameterResolution
+    private String status;
+
+    private final ConfigErrors configErrors = new ConfigErrors();
 
     public RunIfConfig() {
     }
@@ -51,11 +54,7 @@ public class RunIfConfig implements Serializable, Validatable{
 
         RunIfConfig that = (RunIfConfig) o;
 
-        if (status != null ? !status.equals(that.status) : that.status != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(status, that.status);
     }
 
     @Override

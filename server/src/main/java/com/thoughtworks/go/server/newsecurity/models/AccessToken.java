@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.newsecurity.models;
 import org.springframework.security.authentication.BadCredentialsException;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class AccessToken implements Credentials {
     private final Map<String, String> credentials;
@@ -35,10 +36,13 @@ public class AccessToken implements Credentials {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AccessToken that)) return false;
-
-        return credentials != null ? credentials.equals(that.credentials) : that.credentials == null;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof AccessToken that)) {
+            return false;
+        }
+        return Objects.equals(credentials, that.credentials);
     }
 
     @Override

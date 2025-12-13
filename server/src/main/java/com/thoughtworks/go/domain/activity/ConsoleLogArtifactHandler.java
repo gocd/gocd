@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ConsoleLogArtifactHandler implements JobStatusListener {
-    private ConsoleService consoleService;
+    private final ConsoleService consoleService;
 
     @Autowired
     public ConsoleLogArtifactHandler(ConsoleService consoleService) {
@@ -39,12 +39,8 @@ public class ConsoleLogArtifactHandler implements JobStatusListener {
             TODO: Do not fire completed event for jobs that do not run in the stage.
          */
         if (!job.isCopy() && job.isCompleted()) {
-            try {
-                JobIdentifier identifier = job.getIdentifier();
-                consoleService.moveConsoleArtifacts(identifier);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            JobIdentifier identifier = job.getIdentifier();
+            consoleService.moveConsoleArtifacts(identifier);
         }
     }
 }

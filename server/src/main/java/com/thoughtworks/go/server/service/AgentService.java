@@ -40,6 +40,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.Timeout;
 import com.thoughtworks.go.util.TriState;
 import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,25 +72,23 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
 public class AgentService implements DatabaseEntityChangeListener<Agent> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgentService.class);
+
     private final SystemEnvironment systemEnvironment;
     private final UuidGenerator uuidGenerator;
     private final ServerHealthService serverHealthService;
     private final AgentStatusChangeNotifier agentStatusChangeNotifier;
     private final AgentDao agentDao;
-
-    private AgentInstances agentInstances;
-
-    private Set<AgentChangeListener> listeners = new HashSet<>();
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AgentService.class);
+    private final AgentInstances agentInstances;
+    private final Set<AgentChangeListener> listeners = new HashSet<>();
 
     @Autowired
     public AgentService(SystemEnvironment systemEnvironment, AgentDao agentDao, UuidGenerator uuidGenerator,
                         ServerHealthService serverHealthService, AgentStatusChangeNotifier agentStatusChangeNotifier) {
-        this(systemEnvironment, null, agentDao, uuidGenerator, serverHealthService, agentStatusChangeNotifier);
-        this.agentInstances = new AgentInstances(agentStatusChangeNotifier);
+        this(systemEnvironment, new AgentInstances(agentStatusChangeNotifier), agentDao, uuidGenerator, serverHealthService, agentStatusChangeNotifier);
     }
 
+    @VisibleForTesting
     AgentService(SystemEnvironment systemEnvironment, AgentInstances agentInstances, AgentDao agentDao, UuidGenerator uuidGenerator,
                  ServerHealthService serverHealthService, AgentStatusChangeNotifier agentStatusChangeNotifier) {
         this.systemEnvironment = systemEnvironment;
@@ -107,7 +106,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     @TestOnly
     void setAgentChangeListeners(Set<AgentChangeListener> setOfListener) {
-        this.listeners = Objects.requireNonNullElseGet(setOfListener, HashSet::new);
+        this.listeners.clear();
+        this.listeners.addAll(setOfListener);
     }
 
     public AgentInstances getAgentInstances() {
@@ -219,6 +219,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             LOGGER.warn("Agent with UUID [{}] changed IP Address from [{}] to [{}]", agentRuntimeInfo.getUUId(), agentInstance.getAgent().getIpaddress(), agentRuntimeInfo.getIpAddress());
             Agent agent = (agentInstance.isRegistered() ? agentInstance.getAgent() : null);
             bombIfNull(agent, () -> "Unable to set agent ipAddress; Agent [" + agentInstance.getAgent().getUuid() + "] not found.");
+            //noinspection DataFlowIssue
             agent.setIpaddress(agentRuntimeInfo.getIpAddress());
             saveOrUpdate(agent);
         }
@@ -276,6 +277,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return agentInstances.findAgent(uuid);
     }
 
+    @TestOnly
     public void clearAll() {
         agentInstances.clearAll();
     }

@@ -30,9 +30,9 @@ import java.util.*;
 
 @Component
 public class ServerStatusService {
-    private SecurityService securityService;
-    private List<ServerInfoProvider> providers = new ArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerStatusService.class);
+    private final SecurityService securityService;
+    private final List<ServerInfoProvider> providers = new ArrayList<>();
 
     @Autowired
     public ServerStatusService(SecurityService securityService, ServerInfoProvider... providerArray) {

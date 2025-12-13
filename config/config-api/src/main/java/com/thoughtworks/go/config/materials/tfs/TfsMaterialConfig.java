@@ -27,6 +27,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.util.Map;
+import java.util.Objects;
 
 @ConfigTag(value = "tfs", label = "TFS")
 public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordAwareMaterial {
@@ -136,18 +137,18 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
         TfsMaterialConfig material = (TfsMaterialConfig) o;
 
-        if (projectPath != null ? !projectPath.equals(material.projectPath) : material.projectPath != null) {
+        if (!Objects.equals(projectPath, material.projectPath)) {
             return false;
         }
-        if (url != null ? !url.equals(material.url) : material.url != null) {
-            return false;
-        }
-
-        if (userName != null ? !userName.equals(material.userName) : material.userName != null) {
+        if (!Objects.equals(url, material.url)) {
             return false;
         }
 
-        if (domain != null ? !domain.equals(material.domain) : material.domain != null) {
+        if (!Objects.equals(userName, material.userName)) {
+            return false;
+        }
+
+        if (!Objects.equals(domain, material.domain)) {
             return false;
         }
         return true;

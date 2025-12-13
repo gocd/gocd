@@ -21,8 +21,6 @@ import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DirectoryEntriesTest {
@@ -95,7 +93,7 @@ public class DirectoryEntriesTest {
         assertThat(directoryEntries).contains(new FileDirectoryEntry("console.log", "path"));
     }
 
-    private Element getRenderedDocument(HtmlRenderer renderer) throws JDOMException, IOException {
+    private Element getRenderedDocument(HtmlRenderer renderer) throws JDOMException {
         String renderedString = "<div>" + renderer.asString() + "</div>";
         return XmlUtils.buildXmlDocument(renderedString).getRootElement();
     }

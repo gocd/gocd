@@ -43,11 +43,7 @@ public class CreateOrUpdateConfigServerSiteUrlsCommand implements EntityConfigUp
         BasicCruiseConfig.copyErrors(preprocessedSiteUrls, newSiteUrls);
         List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(newSiteUrls);
 
-        if (!allErrors.isEmpty()) {
-            return false;
-        }
-
-        return true;
+        return allErrors.isEmpty();
     }
 
     @Override

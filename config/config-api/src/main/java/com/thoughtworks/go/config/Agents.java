@@ -48,6 +48,7 @@ public class Agents extends ArrayList<Agent> {
         return !getAgentByUUID(uuid).isNull();
     }
 
+    @Override
     public boolean add(Agent agent) {
         if (agent != null) {
             if (contains(agent)) {

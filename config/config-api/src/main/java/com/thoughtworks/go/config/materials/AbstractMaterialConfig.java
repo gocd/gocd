@@ -23,7 +23,10 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
 
@@ -205,10 +208,10 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
 
         AbstractMaterialConfig that = (AbstractMaterialConfig) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) {
+        if (!Objects.equals(name, that.name)) {
             return false;
         }
-        if (type != null ? !type.equals(that.type) : that.type != null) {
+        if (!Objects.equals(type, that.type)) {
             return false;
         }
 

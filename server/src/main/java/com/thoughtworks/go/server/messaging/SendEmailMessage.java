@@ -17,6 +17,8 @@ package com.thoughtworks.go.server.messaging;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.Objects;
+
 public class SendEmailMessage implements GoMessage {
     private final String subject;
     private final String body;
@@ -39,13 +41,13 @@ public class SendEmailMessage implements GoMessage {
 
         SendEmailMessage that = (SendEmailMessage) o;
 
-        if (body != null ? !body.equals(that.body) : that.body != null) {
+        if (!Objects.equals(body, that.body)) {
             return false;
         }
-        if (subject != null ? !subject.equals(that.subject) : that.subject != null) {
+        if (!Objects.equals(subject, that.subject)) {
             return false;
         }
-        if (to != null ? !to.equals(that.to) : that.to != null) {
+        if (!Objects.equals(to, that.to)) {
             return false;
         }
 

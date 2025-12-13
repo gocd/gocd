@@ -57,6 +57,7 @@ public class SiteUrls implements Validatable {
         this.secureSiteUrl = secureSiteUrl;
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         siteUrl.validate(validationContext);
         secureSiteUrl.validate(validationContext);

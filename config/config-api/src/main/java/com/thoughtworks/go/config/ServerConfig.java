@@ -196,25 +196,25 @@ public class ServerConfig implements Validatable {
         if (getSecureSiteUrl() != null ? !getSecureSiteUrl().equals(that.getSecureSiteUrl()) : that.getSecureSiteUrl() != null) {
             return false;
         }
-        if (jobTimeout != null ? !jobTimeout.equals(that.jobTimeout) : that.jobTimeout != null) {
+        if (!Objects.equals(jobTimeout, that.jobTimeout)) {
             return false;
         }
-        if (agentAutoRegisterKey != null ? !agentAutoRegisterKey.equals(that.agentAutoRegisterKey) : that.agentAutoRegisterKey != null) {
+        if (!Objects.equals(agentAutoRegisterKey, that.agentAutoRegisterKey)) {
             return false;
         }
-        if (webhookSecret != null ? !webhookSecret.equals(that.webhookSecret) : that.webhookSecret != null) {
+        if (!Objects.equals(webhookSecret, that.webhookSecret)) {
             return false;
         }
-        if (serverId != null ? !serverId.equals(that.serverId) : that.serverId != null) {
+        if (!Objects.equals(serverId, that.serverId)) {
             return false;
         }
-        if (securityConfig != null ? !securityConfig.equals(that.securityConfig) : that.securityConfig != null) {
+        if (!Objects.equals(securityConfig, that.securityConfig)) {
             return false;
         }
-        if (mailHost != null ? !mailHost.equals(that.mailHost) : that.mailHost != null) {
+        if (!Objects.equals(mailHost, that.mailHost)) {
             return false;
         }
-        return tokenGenerationKey != null ? tokenGenerationKey.equals(that.tokenGenerationKey) : that.tokenGenerationKey == null;
+        return Objects.equals(tokenGenerationKey, that.tokenGenerationKey);
     }
 
     @Override

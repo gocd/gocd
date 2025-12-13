@@ -16,5 +16,5 @@
 package com.thoughtworks.go.config;
 
 public interface UpdateConfigCommand {
-    CruiseConfig update(CruiseConfig cruiseConfig) throws Exception;
+    CruiseConfig update(CruiseConfig cruiseConfig);
 }

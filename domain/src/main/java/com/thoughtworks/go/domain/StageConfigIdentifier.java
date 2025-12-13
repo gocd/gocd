@@ -17,6 +17,8 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
+import java.util.Objects;
+
 public class StageConfigIdentifier {
 private final CaseInsensitiveString pipelineName;
     private final CaseInsensitiveString stageName;
@@ -49,10 +51,10 @@ private final CaseInsensitiveString pipelineName;
 
         StageConfigIdentifier that = (StageConfigIdentifier) o;
 
-        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) {
+        if (!Objects.equals(pipelineName, that.pipelineName)) {
             return false;
         }
-        if (stageName != null ? !stageName.equals(that.stageName) : that.stageName != null) {
+        if (!Objects.equals(stageName, that.stageName)) {
             return false;
         }
 

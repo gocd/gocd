@@ -67,6 +67,7 @@ public class PipelineDependencyNode extends Node {
         this.templateName = templateName;
     }
 
+    @Override
     public void setMessage(String message) {
         this.message = message;
     }

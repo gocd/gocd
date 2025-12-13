@@ -98,7 +98,7 @@ public class JsonOutputWriter {
             try {
                 jacksonWriter = JSON_FACTORY.createGenerator(writer);
                 jacksonWriter.useDefaultPrettyPrinter();
-            } catch (Exception e) {
+            } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -281,13 +281,13 @@ public class JsonOutputWriter {
 
         @FunctionalInterface
         interface ConsumerWhichThrows extends Consumer<JsonGenerator> {
-            void acceptWhichThrows(JsonGenerator writer) throws Exception;
+            void acceptWhichThrows(JsonGenerator writer) throws IOException;
 
             @Override
             default void accept(JsonGenerator writer) {
                 try {
                     acceptWhichThrows(writer);
-                } catch (Exception e) {
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }

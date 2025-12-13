@@ -17,6 +17,8 @@ package com.thoughtworks.go.server.dao;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.Objects;
+
 public class ActiveJob {
     private long id;
     private String pipelineName;
@@ -101,19 +103,19 @@ public class ActiveJob {
         if (id != activeJob.id) {
             return false;
         }
-        if (buildName != null ? !buildName.equals(activeJob.buildName) : activeJob.buildName != null) {
+        if (!Objects.equals(buildName, activeJob.buildName)) {
             return false;
         }
-        if (pipelineCounter != null ? !pipelineCounter.equals(activeJob.pipelineCounter) : activeJob.pipelineCounter != null) {
+        if (!Objects.equals(pipelineCounter, activeJob.pipelineCounter)) {
             return false;
         }
-        if (pipelineLabel != null ? !pipelineLabel.equals(activeJob.pipelineLabel) : activeJob.pipelineLabel != null) {
+        if (!Objects.equals(pipelineLabel, activeJob.pipelineLabel)) {
             return false;
         }
-        if (pipelineName != null ? !pipelineName.equals(activeJob.pipelineName) : activeJob.pipelineName != null) {
+        if (!Objects.equals(pipelineName, activeJob.pipelineName)) {
             return false;
         }
-        if (stageName != null ? !stageName.equals(activeJob.stageName) : activeJob.stageName != null) {
+        if (!Objects.equals(stageName, activeJob.stageName)) {
             return false;
         }
 

@@ -62,7 +62,7 @@ public class GoLatestVersion {
         return !EncryptionHelper.verifyRSASignature(signingPublicKey, signingPublicKeySignature, publicKey);
     }
 
-    private boolean messageTampered() throws NoSuchAlgorithmException, IOException, SignatureException, InvalidKeyException, InvalidKeySpecException {
+    private boolean messageTampered() throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, InvalidKeySpecException {
         return !EncryptionHelper.verifyRSASignature(message, messageSignature, signingPublicKey);
     }
 }

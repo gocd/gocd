@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.domain;
 
+import java.util.Objects;
+
 public class StageArtifactCleanupProhibited extends PersistentObject {
     private String pipelineName;
     private String stageName;
@@ -46,10 +48,10 @@ public class StageArtifactCleanupProhibited extends PersistentObject {
         if (prohibited != that.prohibited) {
             return false;
         }
-        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) {
+        if (!Objects.equals(pipelineName, that.pipelineName)) {
             return false;
         }
-        if (stageName != null ? !stageName.equals(that.stageName) : that.stageName != null) {
+        if (!Objects.equals(stageName, that.stageName)) {
             return false;
         }
 

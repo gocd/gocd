@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
@@ -128,7 +129,7 @@ public class ScheduledPipelineLoader {
     private void appendToConsoleLog(JobInstance jobInstance, String message) {
         try {
             consoleService.appendToConsoleLog(jobInstance.getIdentifier(), "\n" + message + "\n");
-        } catch (Exception e) {
+        } catch (IllegalArtifactLocationException e) {
             throw new RuntimeException(e);
         }
     }

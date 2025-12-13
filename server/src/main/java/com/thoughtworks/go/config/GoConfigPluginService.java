@@ -33,7 +33,7 @@ public class GoConfigPluginService {
 
     private final ConfigRepoExtension crExtension;
     private final XmlPartialConfigProvider embeddedXmlPlugin;
-    private ConfigConverter configConverter;
+    private final ConfigConverter configConverter;
 
     @Autowired
     public GoConfigPluginService(ConfigRepoExtension configRepoExtension, ConfigCache configCache,

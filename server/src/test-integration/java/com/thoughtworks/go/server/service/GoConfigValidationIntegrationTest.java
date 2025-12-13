@@ -122,20 +122,23 @@ public class GoConfigValidationIntegrationTest {
         });
     }
 
-    private static void saveAdminAndNonAdminGroups(final TransactionTemplate transactionTemplate, final UserService userService) throws Exception {
+    private static void saveAdminAndNonAdminGroups(final TransactionTemplate transactionTemplate, final UserService userService) {
         transactionTemplate.executeWithExceptionHandling(new TransactionCallbackWithoutResult() {
             @Override
-            public void doInTransactionWithoutResult(TransactionStatus status) throws Exception {
-                addUser(ADMIN_1, "Admin One", "admin@admin.one", userService);
-                addUser("admin-2", "Admin Two", "admin@admin.two", userService);
-                addUser(NON_ADMIN, "Non Admin", "no@admin.no", userService);
+            public void doInTransactionWithoutResult(TransactionStatus status) {
+               try {
+                   addUser(ADMIN_1, "Admin One", "admin@admin.one", userService);
+                   addUser("admin-2", "Admin Two", "admin@admin.two", userService);
+                   addUser(NON_ADMIN, "Non Admin", "no@admin.no", userService);
+               } catch (ValidationException e) {
+                   throw new RuntimeException(e);
+               }
             }
         });
     }
 
-    private static User addUser(final String name, final String displayName, final String email, final UserService userService) throws ValidationException {
+    private static void addUser(final String name, final String displayName, final String email, final UserService userService) throws ValidationException {
         User admin = new User(name, displayName, email);
         userService.saveOrUpdate(admin);
-        return admin;
     }
 }

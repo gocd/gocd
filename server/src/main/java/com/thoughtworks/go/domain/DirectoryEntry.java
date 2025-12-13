@@ -22,6 +22,7 @@ import com.thoughtworks.go.util.json.JsonUrl;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.thoughtworks.go.server.presentation.html.HtmlAttribute.cssClass;
 import static com.thoughtworks.go.server.presentation.html.HtmlElement.ul;
@@ -64,14 +65,24 @@ public abstract class DirectoryEntry implements Htmlable, JsonAware {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         DirectoryEntry that = (DirectoryEntry) o;
 
-        if (fileName != null ? !fileName.equals(that.fileName) : that.fileName != null) return false;
-        if (type != null ? !type.equals(that.type) : that.type != null) return false;
-        if (url != null ? !url.equals(that.url) : that.url != null) return false;
+        if (!Objects.equals(fileName, that.fileName)) {
+            return false;
+        }
+        if (!Objects.equals(type, that.type)) {
+            return false;
+        }
+        if (!Objects.equals(url, that.url)) {
+            return false;
+        }
 
         return true;
     }

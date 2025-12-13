@@ -55,13 +55,11 @@ public class ArtifactDirectoryChooser {
             }
             File file = new File(root, path);
             if (!FileUtil.isSubdirectoryOf(root, file)) {
-                throw new IllegalArtifactLocationException("Artifact path [" + path + "] is illegal."
-                        + " Path must be inside the artifact directory.");
+                throw new IllegalArtifactLocationException("Artifact path [" + path + "] is illegal. Path must be inside the artifact directory.");
             }
             return file;
         } catch (IOException e) {
-            throw new IllegalArtifactLocationException("Artifact path [" + path + "] is illegal."
-                    + e.getMessage(), e);
+            throw new IllegalArtifactLocationException("Artifact path [" + path + "] is illegal." + e.getMessage(), e);
         }
     }
 

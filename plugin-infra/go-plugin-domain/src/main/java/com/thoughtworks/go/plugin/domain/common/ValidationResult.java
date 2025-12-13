@@ -17,9 +17,10 @@ package com.thoughtworks.go.plugin.domain.common;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ValidationResult {
-    private List<ValidationError> errors = new ArrayList<>();
+    private final List<ValidationError> errors = new ArrayList<>();
 
     public ValidationResult() {
     }
@@ -38,12 +39,16 @@ public class ValidationResult {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ValidationResult that = (ValidationResult) o;
 
-        return errors != null ? errors.equals(that.errors) : that.errors == null;
+        return Objects.equals(errors, that.errors);
 
     }
 

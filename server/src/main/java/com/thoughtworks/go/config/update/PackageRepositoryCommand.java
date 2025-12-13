@@ -30,9 +30,9 @@ import static com.thoughtworks.go.config.ErrorCollector.getAllErrors;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public abstract class PackageRepositoryCommand implements EntityConfigUpdateCommand<PackageRepository> {
-    private PackageRepositoryService packageRepositoryService;
-    private GoConfigService goConfigService;
-    private Username username;
+    private final PackageRepositoryService packageRepositoryService;
+    private final GoConfigService goConfigService;
+    private final Username username;
     private final PackageRepository repository;
     private final HttpLocalizedOperationResult result;
     private PackageRepository preprocessedRepository;

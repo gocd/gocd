@@ -30,8 +30,8 @@ import java.util.List;
 
 public class UpdateSCMConfigCommand extends SCMConfigCommand {
 
-    private String digest;
-    private EntityHashingService entityHashingService;
+    private final String digest;
+    private final EntityHashingService entityHashingService;
 
     public UpdateSCMConfigCommand(SCM globalScmConfig, PluggableScmService pluggableScmService, GoConfigService goConfigService,
                                   Username currentUser, LocalizedOperationResult result, String digest,

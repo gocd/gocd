@@ -176,7 +176,7 @@ public class ScheduleServiceStageTriggerTest {
     }
 
     @Test
-    public void cancelCurrentStageShouldTriggerSameStageInMostRecentPipeline() throws Exception {
+    public void cancelCurrentStageShouldTriggerSameStageInMostRecentPipeline() {
         Pipeline oldest = pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
         pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
         pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
@@ -191,7 +191,7 @@ public class ScheduleServiceStageTriggerTest {
     }
 
     @Test
-    public void errorInSchedulingSubsequentStageShouldNotRollbackCancelAction() throws Exception {
+    public void errorInSchedulingSubsequentStageShouldNotRollbackCancelAction() {
         Pipeline oldest = pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
         pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
         long cancelledStageId = oldest.getStages().byName(pipelineFixture.ftStage).getId();
@@ -210,8 +210,7 @@ public class ScheduleServiceStageTriggerTest {
 
 
     @Test
-    public void cancelCurrentStageShouldNotTriggerSameStageInMostRecentPipelineWhenItIsScheduledAlready()
-                throws Exception {
+    public void cancelCurrentStageShouldNotTriggerSameStageInMostRecentPipelineWhenItIsScheduledAlready() {
         Pipeline oldest = pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
         pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
         pipelineFixture.createdPipelineWithAllStagesPassed();
@@ -226,7 +225,7 @@ public class ScheduleServiceStageTriggerTest {
     }
 
     @Test
-    public void shouldDoCancellationInTransaction() throws Exception {
+    public void shouldDoCancellationInTransaction() {
         Pipeline oldest = pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
         pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
         pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
@@ -269,14 +268,12 @@ public class ScheduleServiceStageTriggerTest {
     }
 
     @Test
-    public void shouldNotNotifyListenersForWhenCancelStageTransactionRollsback() throws Exception {
+    public void shouldNotNotifyListenersForWhenCancelStageTransactionRollsback() {
         Pipeline oldest = pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
         pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
         pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
 
         final Stage stage = oldest.getStages().byName(pipelineFixture.ftStage);
-
-        final StageIdentifier identifier = stage.getIdentifier();
 
         StageStatusTopic stageStatusTopic = mock(StageStatusTopic.class);
         JobResultTopic jobResultTopic = mock(JobResultTopic.class);
@@ -294,7 +291,7 @@ public class ScheduleServiceStageTriggerTest {
 
         try {
             transactionTemplate.executeWithExceptionHandling(new TransactionCallback() {
-                @Override public Object doInTransaction(TransactionStatus status) throws Exception {
+                @Override public Object doInTransaction(TransactionStatus status) {
                     scheduleService.cancelAndTriggerRelevantStages(stage.getId(), null, null);
                     throw new NotAuthorizedException("blah");
                 }
@@ -309,14 +306,13 @@ public class ScheduleServiceStageTriggerTest {
     }
 
     @Test
-    public void shouldBeAbletoCancelStageByName() throws Exception {
+    public void shouldBeAbleToCancelStageByName() {
         Pipeline oldest = pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
         pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
         pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
 
         Stage stage = oldest.getStages().byName(pipelineFixture.ftStage);
 
-        StageIdentifier identifier = stage.getIdentifier();
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Stage cancelledStage = scheduleService.cancelAndTriggerRelevantStages(stage.getId(), null, result);
 

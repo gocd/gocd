@@ -26,10 +26,7 @@ import org.apache.commons.lang3.Strings;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -268,10 +265,10 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
         BasicPipelineConfigs pipelines = (BasicPipelineConfigs) o;
 
-        if (authorization != null ? !authorization.equals(pipelines.authorization) : pipelines.authorization != null) {
+        if (!Objects.equals(authorization, pipelines.authorization)) {
             return false;
         }
-        if (group != null ? !group.equals(pipelines.group) : pipelines.group != null) {
+        if (!Objects.equals(group, pipelines.group)) {
             return false;
         }
 

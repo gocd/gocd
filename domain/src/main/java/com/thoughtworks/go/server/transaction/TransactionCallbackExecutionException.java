@@ -16,7 +16,12 @@
 package com.thoughtworks.go.server.transaction;
 
 public class TransactionCallbackExecutionException extends RuntimeException {
-    public TransactionCallbackExecutionException(Throwable cause) {
+    public TransactionCallbackExecutionException(RuntimeException cause) {
         super(cause);
+    }
+
+    @Override
+    public RuntimeException getCause() {
+        return (RuntimeException) super.getCause();
     }
 }

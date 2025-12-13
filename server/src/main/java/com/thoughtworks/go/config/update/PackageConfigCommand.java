@@ -33,9 +33,9 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 abstract class PackageConfigCommand implements EntityConfigUpdateCommand<PackageDefinition> {
     private final PackageDefinition packageDefinition;
     private final HttpLocalizedOperationResult result;
-    private PackageDefinitionService packageDefinitionService;
-    private GoConfigService goConfigService;
-    private Username username;
+    private final PackageDefinitionService packageDefinitionService;
+    private final GoConfigService goConfigService;
+    private final Username username;
     private PackageDefinition preprocessedPackageDefinition;
 
     PackageConfigCommand(PackageDefinition packageDefinition, HttpLocalizedOperationResult result, PackageDefinitionService packageDefinitionService, GoConfigService goConfigService, Username username) {

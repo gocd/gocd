@@ -26,5 +26,6 @@ public interface ConsoleConsumer extends AutoCloseable {
 
     long totalLinesConsumed();
 
+    @Override
     void close();
 }

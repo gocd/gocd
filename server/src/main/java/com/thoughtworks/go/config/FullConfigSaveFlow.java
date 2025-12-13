@@ -24,7 +24,9 @@ import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.jdom2.Document;
+import org.jdom2.JDOMException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,9 +58,9 @@ public abstract class FullConfigSaveFlow {
         this.fileWriter = fileWriter;
     }
 
-    public abstract GoConfigHolder execute(FullConfigUpdateCommand updatingCommand, List<PartialConfig> partials, String currentUser) throws Exception;
+    public abstract GoConfigHolder execute(FullConfigUpdateCommand updatingCommand, List<PartialConfig> partials, String currentUser) throws IOException, GitAPIException, JDOMException;
 
-    protected void postValidationUpdates(CruiseConfig configForEdit, String xmlString) throws NoSuchFieldException, IllegalAccessException {
+    protected void postValidationUpdates(CruiseConfig configForEdit, String xmlString) {
         String md5 = DigestUtils.md5Hex(xmlString);
 
         configForEdit.setOrigins(new FileConfigOrigin());
@@ -66,7 +68,7 @@ public abstract class FullConfigSaveFlow {
         MagicalGoConfigXmlLoader.setMd5(configForEdit, md5);
     }
 
-    protected String toXmlString(CruiseConfig configForEdit) throws Exception {
+    protected String toXmlString(CruiseConfig configForEdit) throws JDOMException {
         Document document = documentFrom(configForEdit);
 
         validateDocument(document);
@@ -74,7 +76,7 @@ public abstract class FullConfigSaveFlow {
         return toXmlString(document);
     }
 
-    protected void checkinToConfigRepo(String currentUser, CruiseConfig updatedConfig, String xmlString) throws Exception {
+    protected void checkinToConfigRepo(String currentUser, CruiseConfig updatedConfig, String xmlString) throws GitAPIException, IOException {
         LOGGER.debug("[Config Save] Checkin updated config to git: Starting.");
         configRepository.checkin(new GoConfigRevision(xmlString, updatedConfig.getMd5(), currentUser, CurrentGoCDVersion.getInstance().formatted(), timeProvider));
         LOGGER.debug("[Config Save] Checkin updated config to git: Done.");
@@ -105,7 +107,7 @@ public abstract class FullConfigSaveFlow {
         return document;
     }
 
-    protected void validateDocument(Document document) throws Exception {
+    protected void validateDocument(Document document) throws JDOMException {
         LOGGER.debug("[Config Save] In XSD validation: Starting.");
         writer.verifyXsdValid(document);
         LOGGER.debug("[Config Save] In XSD validation: Done.");
@@ -115,7 +117,7 @@ public abstract class FullConfigSaveFlow {
         LOGGER.debug("[Config Save] In DOM validation: Done.");
     }
 
-    protected String toXmlString(Document document) throws IOException {
+    protected String toXmlString(Document document) {
         LOGGER.debug("[Config Save] Serializing Document to xml: Starting.");
         String xmlString = writer.toString(document);
         LOGGER.debug("[Config Save] Serializing Document to xml: Done.");

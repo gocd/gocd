@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.exceptions;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.domain.ConfigErrors;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -28,22 +29,22 @@ public class GoConfigInvalidException extends RuntimeException {
     private final CruiseConfig cruiseConfig;
     private final Set<String> allErrors;
 
-    public GoConfigInvalidException(CruiseConfig cruiseConfig, String error) {
+    public GoConfigInvalidException(CruiseConfig cruiseConfig, @NotNull String error) {
         super(error);
         allErrors = Set.of(error);
         this.cruiseConfig = cruiseConfig;
     }
 
-    public GoConfigInvalidException(CruiseConfig cruiseConfig, List<ConfigErrors> errors) {
+    public GoConfigInvalidException(CruiseConfig cruiseConfig, @NotNull List<ConfigErrors> errors) {
         super(firstError(errors));
         allErrors = extractErrors(errors);
         this.cruiseConfig = cruiseConfig;
     }
 
-    protected GoConfigInvalidException(CruiseConfig cruiseConfig, List<ConfigErrors> errors, Throwable e) {
+    protected GoConfigInvalidException(CruiseConfig cruiseConfig, @NotNull List<ConfigErrors> errors, Throwable e) {
         super(firstError(errors), e);
-        this.cruiseConfig = cruiseConfig;
         this.allErrors = extractErrors(errors);
+        this.cruiseConfig = cruiseConfig;
     }
 
     private static Set<String> extractErrors(List<ConfigErrors> errors) {

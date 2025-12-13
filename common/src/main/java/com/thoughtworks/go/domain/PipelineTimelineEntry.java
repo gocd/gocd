@@ -145,7 +145,8 @@ public class PipelineTimelineEntry implements Comparable<PipelineTimelineEntry> 
         return Long.hashCode(id);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "PipelineTimelineEntry{" +
                 "pipelineName='" + pipelineName + '\'' +
                 ", id=" + id +

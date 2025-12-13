@@ -21,12 +21,13 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 
 @Component
 public class TokenInterceptor extends HandlerInterceptorAdapter {
-    private TokenManager tokenManager;
+    private final TokenManager tokenManager;
 
     @Autowired
     public TokenInterceptor(TokenManager manager) {
@@ -34,7 +35,7 @@ public class TokenInterceptor extends HandlerInterceptorAdapter {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
         if (!request.getMethod().equalsIgnoreCase("POST")) {
             tokenManager.create(request.getSession());
             return true;

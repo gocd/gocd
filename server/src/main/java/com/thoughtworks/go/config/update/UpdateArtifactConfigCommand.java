@@ -24,7 +24,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import java.util.List;
 
 public class UpdateArtifactConfigCommand implements EntityConfigUpdateCommand<ArtifactConfig> {
-    private ArtifactConfig artifactConfig;
+    private final ArtifactConfig artifactConfig;
     private ArtifactConfig preprocessedArtifactConfig;
 
     public UpdateArtifactConfigCommand(ArtifactConfig artifactConfig) {

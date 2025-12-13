@@ -100,14 +100,14 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
         });
     }
 
-    public String index(Request req, Response res) throws Exception {
+    public String index(Request req, Response res) throws IOException {
         Collection<User> allUsers = userService.allUsers();
         Map<Username, RolesConfig> usersToRolesMap = roleConfigService.getRolesForUser(allUsers.stream().map(User::getUsername).collect(Collectors.toCollection(ArrayList::new)));
         List<UserToRepresent> users = allUsers.stream().map((User user) -> getUserToRepresent(user, usersToRolesMap)).collect(Collectors.toList());
         return writerForTopLevelObject(req, res, writer -> UsersRepresenter.toJSON(writer, users));
     }
 
-    public String show(Request req, Response res) throws Exception {
+    public String show(Request req, Response res) throws IOException {
         String loginName = req.params("login_name");
         User user = userService.findUserByName(loginName);
 
@@ -119,7 +119,7 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
         return writerForTopLevelObject(req, res, writer -> UserRepresenter.toJSON(writer, toRepresent));
     }
 
-    public String create(Request req, Response res) throws Exception {
+    public String create(Request req, Response res) throws IOException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         User user = buildUserEntityFromRequestBody(req, false);
 
@@ -130,7 +130,7 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
         return saveUserAndRenderResult(req, res, result, user, user, user.getName());
     }
 
-    public String patchUser(Request req, Response res) throws Exception {
+    public String patchUser(Request req, Response res) throws IOException {
         String username = req.params("login_name");
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -148,14 +148,14 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
         return saveUserAndRenderResult(req, res, result, existingUser, userFromRequest, username);
     }
 
-    public String deleteUser(Request req, Response res) throws Exception {
+    public String deleteUser(Request req, Response res) throws IOException {
         String username = req.params("login_name");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.deleteUser(username, currentUsernameString(), result);
         return renderHTTPOperationResult(result, req, res);
     }
 
-    public String bulkUpdateUsersState(Request req, Response res) throws Exception {
+    public String bulkUpdateUsersState(Request req, Response res) throws IOException {
         BulkUpdateUsersOperationResult result = new BulkUpdateUsersOperationResult();
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         List<String> users = jsonReader.readStringArrayIfPresent("users").orElse(Collections.emptyList());
@@ -171,7 +171,7 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
         return renderHTTPOperationResult(result, req, res);
     }
 
-    public String bulkDelete(Request req, Response res) throws Exception {
+    public String bulkDelete(Request req, Response res) throws IOException {
         BulkUpdateUsersOperationResult result = new BulkUpdateUsersOperationResult();
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         List<String> users = jsonReader.readStringArrayIfPresent("users").orElse(Collections.emptyList());

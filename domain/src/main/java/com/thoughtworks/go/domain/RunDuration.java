@@ -16,6 +16,7 @@
 package com.thoughtworks.go.domain;
 
 import java.time.Duration;
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -62,7 +63,7 @@ public abstract class RunDuration  {
         if (!(o instanceof RunDuration that)) {
             return false;
         }
-        return !(duration != null ? !duration.equals(that.duration) : that.duration != null);
+        return Objects.equals(duration, that.duration);
     }
 
     @Override

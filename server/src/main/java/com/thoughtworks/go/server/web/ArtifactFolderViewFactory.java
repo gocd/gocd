@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.web;
 import com.thoughtworks.go.domain.JobIdentifier;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.IOException;
+
 public interface ArtifactFolderViewFactory {
-    ModelAndView createView(JobIdentifier identifier, ArtifactFolder artifactFolder) throws Exception;
+    ModelAndView createView(JobIdentifier identifier, ArtifactFolder artifactFolder) throws IOException;
 }

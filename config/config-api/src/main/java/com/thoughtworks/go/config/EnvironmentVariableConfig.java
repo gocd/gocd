@@ -29,6 +29,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.lang.String.format;
 
@@ -116,17 +117,13 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         if (isSecure != that.isSecure) {
             return false;
         }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
+        if (!Objects.equals(name, that.name)) {
             return false;
         }
-        if (value != null ? !value.equals(that.value) : that.value != null) {
+        if (!Objects.equals(value, that.value)) {
             return false;
         }
-        if (!goCipher.passwordEquals(encryptedValue, that.encryptedValue)) {
-            return false;
-        }
-
-        return true;
+        return goCipher.passwordEquals(encryptedValue, that.encryptedValue);
     }
 
     @Override

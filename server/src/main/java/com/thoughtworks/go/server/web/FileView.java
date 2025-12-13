@@ -55,7 +55,7 @@ public class FileView implements View, ServletContextAware {
         return "application/octet-stream";
     }
 
-    private void handleFile(File file, boolean needToZip, HttpServletResponse response) throws Exception {
+    private void handleFile(File file, boolean needToZip, HttpServletResponse response) throws IOException {
         String filename = file.getName();
         seContentType(needToZip, response, filename);
         setHeaders(response, filename);
@@ -104,13 +104,13 @@ public class FileView implements View, ServletContextAware {
     }
 
     @Override
-    public void render(Map<String, ?> map, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
+    public void render(Map<String, ?> map, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
         File file = (File) map.get("targetFile");
         boolean needToZip = map.containsKey(NEED_TO_ZIP);
         handleFileWithLogging(httpServletResponse, file, needToZip);
     }
 
-    private void handleFileWithLogging(HttpServletResponse httpServletResponse, File file, boolean needToZip) throws Exception {
+    private void handleFileWithLogging(HttpServletResponse httpServletResponse, File file, boolean needToZip) throws IOException {
         LOGGER.info("[Artifact Download] About to download: {}. ShouldZip? = {}", file.getAbsolutePath(), needToZip);
         long before = System.currentTimeMillis();
 

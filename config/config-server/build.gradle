@@ -32,7 +32,7 @@ dependencies {
   implementation project.deps.commonsLang3
   implementation project.deps.cloning
   implementation project.deps.jakartaAnnotation
-  implementation project.deps.jdom
+  api project.deps.jdom
   if (project.deps.jdom) {
     // Required for use of org.jdom2.xpath.XPathFactory where jaxen is the default impl
     runtimeOnly project.deps.jaxen

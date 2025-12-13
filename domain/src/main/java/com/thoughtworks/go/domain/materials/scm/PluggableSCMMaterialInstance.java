@@ -21,6 +21,8 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.util.json.JsonHelper;
 
+import java.util.Objects;
+
 public class PluggableSCMMaterialInstance extends MaterialInstance {
 
     protected PluggableSCMMaterialInstance() {
@@ -52,7 +54,7 @@ public class PluggableSCMMaterialInstance extends MaterialInstance {
             return false;
         }
 
-        if (configuration != null ? !configuration.equals(that.configuration) : that.configuration != null) {
+        if (!Objects.equals(configuration, that.configuration)) {
             return false;
         }
 

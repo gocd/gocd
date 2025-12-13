@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 
 @ConfigTag("value")
 public class ConfigurationValue implements Serializable, Validatable {
@@ -71,7 +72,7 @@ public class ConfigurationValue implements Serializable, Validatable {
 
         ConfigurationValue that = (ConfigurationValue) o;
 
-        if (value != null ? !value.equals(that.value) : that.value != null) {
+        if (!Objects.equals(value, that.value)) {
             return false;
         }
 

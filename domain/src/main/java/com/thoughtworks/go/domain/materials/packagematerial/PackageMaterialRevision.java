@@ -19,6 +19,7 @@ import com.thoughtworks.go.domain.materials.Revision;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 
 public class PackageMaterialRevision implements Revision {
 
@@ -70,10 +71,10 @@ public class PackageMaterialRevision implements Revision {
 
         PackageMaterialRevision revision1 = (PackageMaterialRevision) o;
 
-        if (revision != null ? !revision.equals(revision1.revision) : revision1.revision != null) {
+        if (!Objects.equals(revision, revision1.revision)) {
             return false;
         }
-        if (timestamp != null ? !timestamp.equals(revision1.timestamp) : revision1.timestamp != null) {
+        if (!Objects.equals(timestamp, revision1.timestamp)) {
             return false;
         }
 

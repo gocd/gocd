@@ -16,6 +16,7 @@
 package com.thoughtworks.go.plugin.domain.common;
 
 import java.util.List;
+import java.util.Objects;
 
 public class PluggableInstanceSettings {
     private final List<PluginConfiguration> configurations;
@@ -48,14 +49,19 @@ public class PluggableInstanceSettings {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         PluggableInstanceSettings that = (PluggableInstanceSettings) o;
 
-        if (configurations != null ? !configurations.equals(that.configurations) : that.configurations != null)
+        if (!Objects.equals(configurations, that.configurations)) {
             return false;
-        return view != null ? view.equals(that.view) : that.view == null;
+        }
+        return Objects.equals(view, that.view);
 
     }
 

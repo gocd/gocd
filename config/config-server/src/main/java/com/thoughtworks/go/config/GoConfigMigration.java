@@ -60,7 +60,7 @@ public class GoConfigMigration {
     }
 
     public File revertFileToVersion(File configFile, GoConfigRevision currentConfigRevision) {
-        File backupFile = getBackupFile(configFile, "invalid.");
+        File backupFile = invalidBackupFileFor(configFile);
         try {
             backup(configFile, backupFile);
             // FIXME the lack of charset here looks rather suspicious. But unclear how to fix without possible regressions.
@@ -82,8 +82,8 @@ public class GoConfigMigration {
         LOG.info("Config file is backed up, location: {}", backupFile.getAbsolutePath());
     }
 
-    private File getBackupFile(File configFile, final String prefix) {
-        return new File(configFile + "." + prefix + BACKUP_FILE_FORMATTER.format(timeProvider.currentTime().atZone(ZoneId.systemDefault())));
+    private File invalidBackupFileFor(File configFile) {
+        return new File(configFile + ".invalid." + BACKUP_FILE_FORMATTER.format(timeProvider.currentTime().atZone(ZoneId.systemDefault())));
     }
 
     private String upgrade(String content, int currentVersion) {

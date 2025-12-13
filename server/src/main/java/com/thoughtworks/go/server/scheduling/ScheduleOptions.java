@@ -22,6 +22,7 @@ import com.thoughtworks.go.security.GoCipher;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Understands parameter object that contains information like revisions and variables with which the pipeline is triggered
@@ -69,15 +70,11 @@ public class ScheduleOptions {
 
         ScheduleOptions that = (ScheduleOptions) o;
 
-        if (specifiedRevisions != null ? !specifiedRevisions.equals(that.specifiedRevisions) : that.specifiedRevisions != null) {
+        if (!Objects.equals(specifiedRevisions, that.specifiedRevisions)) {
             return false;
         }
         // `Set` because we explicitly want to ignore ordering while comparing, for tests
-        if (variables != null ? !new HashSet<>(variables).equals(new HashSet<>(that.variables)) : that.variables != null) {
-            return false;
-        }
-
-        return true;
+        return variables != null ? new HashSet<>(variables).equals(new HashSet<>(that.variables)) : that.variables == null;
     }
 
     @Override

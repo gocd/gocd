@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Objects;
 
 @ConfigTag(value = "scm")
 public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
@@ -319,11 +320,11 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
 
         PluggableSCMMaterialConfig that = (PluggableSCMMaterialConfig) o;
 
-        if (folder != null ? !folder.equals(that.folder) : that.folder != null) {
+        if (!Objects.equals(folder, that.folder)) {
             return false;
         }
 
-        if (scmConfig != null ? !scmConfig.equals(that.scmConfig) : that.scmConfig != null) {
+        if (!Objects.equals(scmConfig, that.scmConfig)) {
             return false;
         }
 

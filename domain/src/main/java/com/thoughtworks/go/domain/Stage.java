@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.Date;
+import java.util.Objects;
 
 public class Stage extends PersistentObject {
     private static final Logger LOG = LoggerFactory.getLogger(Stage.class);
@@ -346,30 +347,26 @@ public class Stage extends PersistentObject {
         if (cleanWorkingDir != stage.cleanWorkingDir) {
             return false;
         }
-        if (pipelineId != null ? !pipelineId.equals(stage.pipelineId) : stage.pipelineId != null) {
+        if (!Objects.equals(pipelineId, stage.pipelineId)) {
             return false;
         }
-        if (approvalType != null ? !approvalType.equals(stage.approvalType) : stage.approvalType != null) {
+        if (!Objects.equals(approvalType, stage.approvalType)) {
             return false;
         }
-        if (approvedBy != null ? !approvedBy.equals(stage.approvedBy) : stage.approvedBy != null) {
+        if (!Objects.equals(approvedBy, stage.approvedBy)) {
             return false;
         }
-        if (cancelledBy != null ? !cancelledBy.equals(stage.cancelledBy) : stage.cancelledBy != null) {
+        if (!Objects.equals(cancelledBy, stage.cancelledBy)) {
             return false;
         }
-        if (createdTime != null ? !createdTime.equals(stage.createdTime) : stage.createdTime != null) {
-            return false;
-        }
-
-        if (name != null ? !name.equals(stage.name) : stage.name != null) {
-            return false;
-        }
-        if (result != stage.result) {
+        if (!Objects.equals(createdTime, stage.createdTime)) {
             return false;
         }
 
-        return true;
+        if (!Objects.equals(name, stage.name)) {
+            return false;
+        }
+        return result == stage.result;
     }
 
     @Override

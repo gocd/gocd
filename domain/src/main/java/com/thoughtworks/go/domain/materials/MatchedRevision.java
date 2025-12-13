@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain.materials;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * Understands a material revision which matches a search criteria
@@ -65,18 +66,31 @@ public class MatchedRevision {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         MatchedRevision that = (MatchedRevision) o;
 
-        if (searchString != null ? !searchString.equals(that.searchString) : that.searchString != null) return false;
-        if (shortRevision != null ? !shortRevision.equals(that.shortRevision) : that.shortRevision != null)
+        if (!Objects.equals(searchString, that.searchString)) {
             return false;
-        if (longRevision != null ? !longRevision.equals(that.longRevision) : that.longRevision != null) return false;
-        if (user != null ? !user.equals(that.user) : that.user != null) return false;
-        if (checkinTime != null ? !checkinTime.equals(that.checkinTime) : that.checkinTime != null) return false;
-        return comment != null ? comment.equals(that.comment) : that.comment == null;
+        }
+        if (!Objects.equals(shortRevision, that.shortRevision)) {
+            return false;
+        }
+        if (!Objects.equals(longRevision, that.longRevision)) {
+            return false;
+        }
+        if (!Objects.equals(user, that.user)) {
+            return false;
+        }
+        if (!Objects.equals(checkinTime, that.checkinTime)) {
+            return false;
+        }
+        return Objects.equals(comment, that.comment);
     }
 
     @Override

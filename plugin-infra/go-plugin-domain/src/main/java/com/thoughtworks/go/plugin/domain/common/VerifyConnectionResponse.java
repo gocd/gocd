@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.plugin.domain.common;
 
+import java.util.Objects;
+
 public class VerifyConnectionResponse {
     private final String status;
     private final String message;
@@ -45,14 +47,22 @@ public class VerifyConnectionResponse {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         VerifyConnectionResponse that = (VerifyConnectionResponse) o;
 
-        if (status != null ? !status.equals(that.status) : that.status != null) return false;
-        if (message != null ? !message.equals(that.message) : that.message != null) return false;
-        return validationResult != null ? validationResult.equals(that.validationResult) : that.validationResult == null;
+        if (!Objects.equals(status, that.status)) {
+            return false;
+        }
+        if (!Objects.equals(message, that.message)) {
+            return false;
+        }
+        return Objects.equals(validationResult, that.validationResult);
 
     }
 

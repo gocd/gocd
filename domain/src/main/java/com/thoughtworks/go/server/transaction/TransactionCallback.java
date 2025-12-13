@@ -21,10 +21,10 @@ public abstract class TransactionCallback {
     final Object doWithExceptionHandling(TransactionStatus status) {
         try {
             return doInTransaction(status);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             throw new TransactionCallbackExecutionException(e);
         }
     }
 
-    public abstract Object doInTransaction(TransactionStatus status) throws Exception;
+    public abstract Object doInTransaction(TransactionStatus status);
 }

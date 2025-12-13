@@ -18,6 +18,8 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
+import java.util.Objects;
+
 public class EnvironmentVariable extends PersistentObject {
     private String name;
     private boolean isSecure = false;
@@ -101,12 +103,20 @@ public class EnvironmentVariable extends PersistentObject {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EnvironmentVariable that)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EnvironmentVariable that)) {
+            return false;
+        }
 
-        if (isSecure != that.isSecure) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        return value != null ? value.equals(that.value) : that.value == null;
+        if (isSecure != that.isSecure) {
+            return false;
+        }
+        if (!Objects.equals(name, that.name)) {
+            return false;
+        }
+        return Objects.equals(value, that.value);
     }
 
     @Override

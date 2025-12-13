@@ -33,8 +33,8 @@ import java.util.List;
 
 @Component
 public class EnvironmentVariableSqlMapDao implements EnvironmentVariableDao {
-    private SessionFactory sessionFactory;
-    private TransactionTemplate transactionTemplate;
+    private final SessionFactory sessionFactory;
+    private final TransactionTemplate transactionTemplate;
 
     @Autowired
     public EnvironmentVariableSqlMapDao(SessionFactory sessionFactory, TransactionTemplate transactionTemplate) {

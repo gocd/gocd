@@ -288,16 +288,6 @@ public class JobInstanceServiceTest {
     }
 
     @Test
-    public void shouldDelegateToDAO_getJobHistoryCount() {
-        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache,
-            transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, serverHealthService);
-
-        jobService.getJobHistoryCount("pipeline", "stage", "job");
-
-        verify(jobInstanceDao).getJobHistoryCount("pipeline", "stage", "job");
-    }
-
-    @Test
     public void shouldDelegateToDAO_findJobHistoryPage() {
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);

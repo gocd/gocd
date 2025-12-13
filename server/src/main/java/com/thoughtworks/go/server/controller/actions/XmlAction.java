@@ -18,13 +18,15 @@ package com.thoughtworks.go.server.controller.actions;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
 import static java.net.HttpURLConnection.*;
 
 public class XmlAction extends BasicRestfulAction {
-    private final String md5;
     public static final String X_CRUISE_CONFIG_MD5 = "X-CRUISE-CONFIG-MD5";
+
+    private final String md5;
 
     public static RestfulAction xmlFound(String xml, String md5) {
         return new XmlAction(HTTP_OK, xml, md5);
@@ -52,7 +54,7 @@ public class XmlAction extends BasicRestfulAction {
     }
 
     @Override
-    public ModelAndView respond(HttpServletResponse response) throws Exception {
+    public ModelAndView respond(HttpServletResponse response) throws IOException {
         if (md5 != null) {
             response.setHeader(X_CRUISE_CONFIG_MD5, md5);
         }

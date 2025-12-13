@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.websocket;
 
 import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.eclipse.jetty.websocket.api.Session;
@@ -41,11 +42,12 @@ public class ConsoleLogSocket implements SocketEndpoint {
 
     private final JobIdentifier jobIdentifier;
     private final ConsoleLogSender handler;
+    private final String key;
+    private final SocketHealthService socketHealthService;
+    private final String consoleLogCharsetJSONMessage;
+
     private Session session;
     private String sessionId;
-    private String key;
-    private SocketHealthService socketHealthService;
-    private final String consoleLogCharsetJSONMessage;
 
     ConsoleLogSocket(ConsoleLogSender handler, JobIdentifier jobIdentifier, SocketHealthService socketHealthService, Charset consoleLogCharset) {
         this.handler = handler;
@@ -56,7 +58,7 @@ public class ConsoleLogSocket implements SocketEndpoint {
     }
 
     @OnWebSocketConnect
-    public void onConnect(Session session) throws Exception {
+    public void onConnect(Session session) throws IOException, IllegalArtifactLocationException {
         this.session = session;
         socketHealthService.register(this);
         LOGGER.debug("{} connected", sessionName());

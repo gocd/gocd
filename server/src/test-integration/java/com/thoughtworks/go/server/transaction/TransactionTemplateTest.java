@@ -28,18 +28,21 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
-        "classpath:/applicationContext-global.xml",
-        "classpath:/applicationContext-dataLocalAccess.xml",
-        "classpath:/testPropertyConfigurer.xml",
-        "classpath:/spring-all-servlet.xml",
+    "classpath:/applicationContext-global.xml",
+    "classpath:/applicationContext-dataLocalAccess.xml",
+    "classpath:/testPropertyConfigurer.xml",
+    "classpath:/spring-all-servlet.xml",
 })
 public class TransactionTemplateTest {
-    @Autowired private TransactionTemplate goTransactionTemplate;
-    @Autowired private TransactionSynchronizationManager transactionSynchronizationManager;
+    @Autowired
+    private TransactionTemplate goTransactionTemplate;
+    @Autowired
+    private TransactionSynchronizationManager transactionSynchronizationManager;
 
     private boolean txnCommitted;
     private boolean txnCompleted;
@@ -56,17 +59,15 @@ public class TransactionTemplateTest {
     @Test
     public void shouldBubbleRuntimeExceptionToActualTransactionTemplateForCallback() {
         TransactionTemplate template = new TransactionTemplate(transactionTemplate);
-        try {
-            template.executeWithExceptionHandling(new TransactionCallback() {
-                @Override public Object doInTransaction(TransactionStatus status) throws Exception {
-                    registerSynchronization();
-                    throw new Exception("foo");
-                }
-            });
-            fail("should have thrown exception");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("foo");
-        }
+        assertThatThrownBy(() -> template.executeWithExceptionHandling(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus status) {
+                registerSynchronization();
+                throw new RuntimeException("foo");
+            }
+        }))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("foo");
         assertThat(txnCommitted).isFalse();
         assertThat(txnCompleted).isTrue();
     }
@@ -74,27 +75,26 @@ public class TransactionTemplateTest {
     @Test
     public void shouldBubbleRuntimeExceptionToActualTransactionTemplateForCallbackWithoutReturnValue() {
         TransactionTemplate template = new TransactionTemplate(transactionTemplate);
-        try {
-            template.executeWithExceptionHandling(new TransactionCallbackWithoutResult() {
-                @Override public void doInTransactionWithoutResult(TransactionStatus status) throws Exception {
-                    registerSynchronization();
-                    throw new Exception("foo");
-                }
-            });
-            fail("should have thrown exception");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("foo");
-        }
+        assertThatThrownBy(() -> template.executeWithExceptionHandling(new TransactionCallbackWithoutResult() {
+            @Override
+            public void doInTransactionWithoutResult(TransactionStatus status) {
+                registerSynchronization();
+                throw new RuntimeException("foo");
+            }
+        }))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("foo");
         assertThat(txnCommitted).isFalse();
         assertThat(txnCompleted).isTrue();
     }
 
     @Test
-    public void shouldReturnValueReturnedByCallback() throws Exception {
+    public void shouldReturnValueReturnedByCallback() {
         TransactionTemplate template = new TransactionTemplate(transactionTemplate);
 
         String returnVal = (String) template.executeWithExceptionHandling(new TransactionCallback() {
-            @Override public Object doInTransaction(TransactionStatus status) {
+            @Override
+            public Object doInTransaction(TransactionStatus status) {
                 registerSynchronization();
                 return "foo";
             }
@@ -105,11 +105,12 @@ public class TransactionTemplateTest {
     }
 
     @Test
-    public void shouldReturnNullForCallbackWithoutReturn() throws Exception {
+    public void shouldReturnNullForCallbackWithoutReturn() {
         TransactionTemplate template = new TransactionTemplate(transactionTemplate);
 
         Object returnVal = template.executeWithExceptionHandling(new TransactionCallbackWithoutResult() {
-            @Override public void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            public void doInTransactionWithoutResult(TransactionStatus status) {
                 registerSynchronization();
             }
         });
@@ -135,9 +136,9 @@ public class TransactionTemplateTest {
     public void shouldUnderstand_InTransaction() {
         TransactionTemplate template = new TransactionTemplate(transactionTemplate);
 
-        final boolean[] inTransactionInBody = new boolean[] {false};
-        final boolean[] inTransactionInAfterCommit = new boolean[] {true};
-        final boolean[] inTransactionInAfterComplete = new boolean[] {true};
+        final boolean[] inTransactionInBody = new boolean[]{false};
+        final boolean[] inTransactionInAfterCommit = new boolean[]{true};
+        final boolean[] inTransactionInAfterComplete = new boolean[]{true};
 
         String returnVal = template.execute(status -> {
             setTxnBodyActiveFlag(inTransactionInBody, inTransactionInAfterCommit, inTransactionInAfterComplete, 0);
@@ -235,7 +236,8 @@ public class TransactionTemplateTest {
         try {
             returnVal = (String) template.transactionSurrounding(() -> {
                 transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                    @Override public void afterCommit() {
+                    @Override
+                    public void afterCommit() {
                         afterCommitHappened[0] = true;
                     }
                 });
@@ -340,28 +342,24 @@ public class TransactionTemplateTest {
     public void shouldUnderstand_InTransaction_AcrossNestedInvocations() {
         final TransactionTemplate template = new TransactionTemplate(transactionTemplate);
 
-        final boolean[] inTransactionInBody = new boolean[] {false, false, false, false};
-        final boolean[] inTransactionInAfterCommit = new boolean[] {true, true, true, true};
-        final boolean[] inTransactionInAfterComplete = new boolean[] {true, true, true, true};
+        final boolean[] inTransactionInBody = new boolean[]{false, false, false, false};
+        final boolean[] inTransactionInAfterCommit = new boolean[]{true, true, true, true};
+        final boolean[] inTransactionInAfterComplete = new boolean[]{true, true, true, true};
 
         String returnVal = (String) template.execute(status -> {
             setTxnBodyActiveFlag(inTransactionInBody, inTransactionInAfterCommit, inTransactionInAfterComplete, 0);
             return template.execute(status12 -> {
                 setTxnBodyActiveFlag(inTransactionInBody, inTransactionInAfterCommit, inTransactionInAfterComplete, 1);
-                try {
-                    return template.executeWithExceptionHandling(new TransactionCallback() {
-                        @Override
-                        public Object doInTransaction(TransactionStatus status12) {
-                            setTxnBodyActiveFlag(inTransactionInBody, inTransactionInAfterCommit, inTransactionInAfterComplete, 2);
-                            return template.execute(status1 -> {
-                                setTxnBodyActiveFlag(inTransactionInBody, inTransactionInAfterCommit, inTransactionInAfterComplete, 3);
-                                return "baz";
-                            });
-                        }
-                    });
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                return template.executeWithExceptionHandling(new TransactionCallback() {
+                    @Override
+                    public Object doInTransaction(TransactionStatus status12) {
+                        setTxnBodyActiveFlag(inTransactionInBody, inTransactionInAfterCommit, inTransactionInAfterComplete, 2);
+                        return template.execute(status1 -> {
+                            setTxnBodyActiveFlag(inTransactionInBody, inTransactionInAfterCommit, inTransactionInAfterComplete, 3);
+                            return "baz";
+                        });
+                    }
+                });
             });
         });
 
@@ -377,26 +375,29 @@ public class TransactionTemplateTest {
         inTransactionInBody[depth] = transactionSynchronizationManager.isTransactionBodyExecuting();
 
         transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-            @Override public void afterCommit() {
+            @Override
+            public void afterCommit() {
                 inTransactionInAfterCommit[depth] = transactionSynchronizationManager.isTransactionBodyExecuting();
             }
 
-            @Override public void afterCompletion(int status) {
+            @Override
+            public void afterCompletion(int status) {
                 inTransactionInAfterComplete[depth] = transactionSynchronizationManager.isTransactionBodyExecuting();
             }
         });
     }
 
     @Test
-    public void shouldUnderstand_InTransaction_ForTransactionWithExceptionHandling() throws Exception {
+    public void shouldUnderstand_InTransaction_ForTransactionWithExceptionHandling() {
         TransactionTemplate template = new TransactionTemplate(transactionTemplate);
 
-        final boolean[] inTransactionInBody = new boolean[] {false};
-        final boolean[] inTransactionInAfterCommit = new boolean[] {true};
-        final boolean[] inTransactionInAfterComplete = new boolean[] {true};
+        final boolean[] inTransactionInBody = new boolean[]{false};
+        final boolean[] inTransactionInAfterCommit = new boolean[]{true};
+        final boolean[] inTransactionInAfterComplete = new boolean[]{true};
 
         String returnVal = (String) template.executeWithExceptionHandling(new TransactionCallback() {
-            @Override public Object doInTransaction(TransactionStatus status) {
+            @Override
+            public Object doInTransaction(TransactionStatus status) {
                 setTxnBodyActiveFlag(inTransactionInBody, inTransactionInAfterCommit, inTransactionInAfterComplete, 0);
                 return "foo";
             }
@@ -410,7 +411,7 @@ public class TransactionTemplateTest {
 
     @Test
     public void shouldNotFailWhenNoTransactionStarted() throws InterruptedException {
-        final boolean[] transactionBodyIn = new boolean[] {true};
+        final boolean[] transactionBodyIn = new boolean[]{true};
 
         Thread thd = new Thread(() -> transactionBodyIn[0] = TransactionTemplate.isTransactionBodyExecuting());
         thd.start();
@@ -421,11 +422,13 @@ public class TransactionTemplateTest {
 
     private void registerSynchronization() {
         transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-            @Override public void afterCommit() {
+            @Override
+            public void afterCommit() {
                 txnCommitted = true;
             }
 
-            @Override public void afterCompletion(int status) {
+            @Override
+            public void afterCompletion(int status) {
                 txnCompleted = true;
             }
         });

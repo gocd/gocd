@@ -17,6 +17,8 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
+import java.util.Objects;
+
 public class JobConfigIdentifier {
     private final String pipelineName;
     private final String stageName;
@@ -43,13 +45,13 @@ public class JobConfigIdentifier {
 
         JobConfigIdentifier that = (JobConfigIdentifier) o;
 
-        if (jobName != null ? !jobName.equals(that.jobName) : that.jobName != null) {
+        if (!Objects.equals(jobName, that.jobName)) {
             return false;
         }
-        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) {
+        if (!Objects.equals(pipelineName, that.pipelineName)) {
             return false;
         }
-        if (stageName != null ? !stageName.equals(that.stageName) : that.stageName != null) {
+        if (!Objects.equals(stageName, that.stageName)) {
             return false;
         }
 

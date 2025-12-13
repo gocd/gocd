@@ -16,6 +16,7 @@
 package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.codec.DecoderException;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.crypto.KeyGenerator;
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
@@ -63,7 +65,7 @@ public class AESCipherProvider implements Serializable {
                         Files.writeString(cipherFile.toPath(), encodeHexString(newKey), UTF_8);
                         LOGGER.info("AES cipher not found. Creating a new cipher file");
                         cachedKey = newKey;
-                    } catch (Exception e) {
+                    } catch (DecoderException | IOException e) {
                         throw new RuntimeException(e);
                     }
                 }
@@ -71,10 +73,15 @@ public class AESCipherProvider implements Serializable {
         }
     }
 
-    private byte[] generateKey() throws NoSuchAlgorithmException {
-        KeyGenerator keygen = KeyGenerator.getInstance("AES");
-        keygen.init(128);
-        return keygen.generateKey().getEncoded();
+    private byte[] generateKey() {
+        try {
+            KeyGenerator keygen = null;
+            keygen = KeyGenerator.getInstance("AES");
+            keygen.init(128);
+            return keygen.generateKey().getEncoded();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @TestOnly

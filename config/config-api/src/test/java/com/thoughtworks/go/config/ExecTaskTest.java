@@ -22,6 +22,7 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -173,6 +174,16 @@ public class ExecTaskTest {
     }
 
     @Test
+    public void validateTask_shouldValidateThatCommandIsRequired() {
+        ExecTask execTask = new ExecTask();
+
+        execTask.validateTask(null);
+
+        assertThat(execTask.errors().isEmpty()).isFalse();
+        assertThat(execTask.errors().firstErrorOn(ExecTask.COMMAND)).isEqualTo("Command cannot be empty");
+    }
+
+    @Test
     public void shouldErrorOutForTemplates_WhenItHasATaskWithInvalidWorkingDirectory() {
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("some_pipeline");
         StageConfig templateStage = StageConfigMother.stageWithTasks("templateStage");
@@ -188,6 +199,14 @@ public class ExecTaskTest {
         } catch (Exception e) {
             fail("should not have failed. Exception: " + e.getMessage());
         }
+    }
+
+    @Test
+    public void shouldUseConfiguredWorkingDirectory() {
+        File absoluteFile = new File("test").getAbsoluteFile();
+        ExecTask task = new ExecTask("command", "arguments", absoluteFile.getAbsolutePath());
+
+        assertThat(task.workingDirectory()).isEqualTo((absoluteFile.getPath()));
     }
 
     @Test

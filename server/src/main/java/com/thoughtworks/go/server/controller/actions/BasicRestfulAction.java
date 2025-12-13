@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.controller.actions;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
@@ -42,7 +43,7 @@ public class BasicRestfulAction implements RestfulAction {
     }
 
     @Override
-    public ModelAndView respond(HttpServletResponse response) throws Exception {
+    public ModelAndView respond(HttpServletResponse response) throws IOException {
         response.setStatus(status);
         response.setContentType(contentType);
         response.getWriter().write(message);

@@ -111,7 +111,7 @@ public class VSMTestHelper {
         CaseInsensitiveString pipelineName = node.getId();
         List<Revision> revisions = node.revisions();
         for (Revision revision : revisions) {
-            if (revision instanceof PipelineRevision && revision.getRevisionString().equals(new PipelineIdentifier(pipelineName.toString(), Long.parseLong(counter)).pipelineLocator())) {
+            if (revision instanceof PipelineRevision && revision.getRevisionString().equals(new PipelineIdentifier(pipelineName.toString(), Integer.parseInt(counter)).pipelineLocator())) {
                 return (PipelineRevision) revision;
             }
         }

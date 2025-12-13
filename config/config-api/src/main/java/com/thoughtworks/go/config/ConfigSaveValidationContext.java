@@ -28,6 +28,7 @@ import com.thoughtworks.go.domain.scm.SCM;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Understands providing right state required to validate a given config element
@@ -35,8 +36,9 @@ import java.util.Map;
 public class ConfigSaveValidationContext implements ValidationContext {
     private final Validatable immediateParent;
     private final ConfigSaveValidationContext parentContext;
-    private final Map<Class<?>, Object> objectOfType;
-    private Map<String, MaterialConfigs> fingerprintToMaterials = null;
+
+    private final Map<Class<?>, Object> objectOfType = new HashMap<>();
+    private final Map<String, MaterialConfigs> fingerprintToMaterials = new HashMap<>();
 
     public ConfigSaveValidationContext(Validatable immediateParent) {
         this(immediateParent, null);
@@ -45,7 +47,6 @@ public class ConfigSaveValidationContext implements ValidationContext {
     public ConfigSaveValidationContext(Validatable immediateParent, ConfigSaveValidationContext parentContext) {
         this.immediateParent = immediateParent;
         this.parentContext = parentContext;
-        objectOfType = new HashMap<>();
     }
 
     @Override
@@ -57,14 +58,10 @@ public class ConfigSaveValidationContext implements ValidationContext {
             return false;
         }
 
-        if (immediateParent != null ? !immediateParent.equals(that.immediateParent) : that.immediateParent != null) {
+        if (!Objects.equals(immediateParent, that.immediateParent)) {
             return false;
         }
-        if (parentContext != null ? !parentContext.equals(that.parentContext) : that.parentContext != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(parentContext, that.parentContext);
     }
 
     @Override
@@ -272,7 +269,7 @@ public class ConfigSaveValidationContext implements ValidationContext {
 
     @Override
     public MaterialConfigs getAllMaterialsByFingerPrint(String fingerprint) {
-        if (fingerprintToMaterials == null || fingerprintToMaterials.isEmpty()) {
+        if (fingerprintToMaterials.isEmpty()) {
             primeForMaterialValidations();
         }
         MaterialConfigs matchingMaterials = fingerprintToMaterials.get(fingerprint);
@@ -291,7 +288,6 @@ public class ConfigSaveValidationContext implements ValidationContext {
 
     private void primeForMaterialValidations() {
         CruiseConfig cruiseConfig = getCruiseConfig();
-        fingerprintToMaterials = new HashMap<>();
         for (PipelineConfig pipelineConfig : cruiseConfig.getAllPipelineConfigs()) {
             for (MaterialConfig material : pipelineConfig.materialConfigs()) {
                 String fingerprint = material.getFingerprint();

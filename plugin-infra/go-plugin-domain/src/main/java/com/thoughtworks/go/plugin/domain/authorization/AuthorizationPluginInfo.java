@@ -21,6 +21,8 @@ import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 
+import java.util.Objects;
+
 public class AuthorizationPluginInfo extends PluginInfo {
     private final PluggableInstanceSettings authConfigSettings;
     private final PluggableInstanceSettings roleSettings;
@@ -48,16 +50,27 @@ public class AuthorizationPluginInfo extends PluginInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         AuthorizationPluginInfo that = (AuthorizationPluginInfo) o;
 
-        if (authConfigSettings != null ? !authConfigSettings.equals(that.authConfigSettings) : that.authConfigSettings != null)
+        if (!Objects.equals(authConfigSettings, that.authConfigSettings)) {
             return false;
-        if (roleSettings != null ? !roleSettings.equals(that.roleSettings) : that.roleSettings != null) return false;
-        if (image != null ? !image.equals(that.image) : that.image != null) return false;
-        if (capabilities != null ? !capabilities.equals(that.capabilities) : that.capabilities != null) return false;
+        }
+        if (!Objects.equals(roleSettings, that.roleSettings)) {
+            return false;
+        }
+        if (!Objects.equals(image, that.image)) {
+            return false;
+        }
+        if (!Objects.equals(capabilities, that.capabilities)) {
+            return false;
+        }
         return super.equals(that);
     }
 

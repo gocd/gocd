@@ -26,6 +26,7 @@ import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
@@ -117,7 +118,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     @Override
-    public Iterator<AgentInstance> iterator() {
+    public @NotNull Iterator<AgentInstance> iterator() {
         return currentInstances().iterator();
     }
 

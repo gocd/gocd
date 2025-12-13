@@ -16,15 +16,14 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.Clock;
-import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.TimeProvider;
 import org.jetbrains.annotations.TestOnly;
 
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Objects;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -328,11 +327,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
     public void setScheduledDate(Date scheduledDate) {
         this.scheduledDate = scheduledDate;
     }
-
-    public void setScheduledDate(LocalDateTime scheduledDate) {
-        setScheduledDate(Dates.from(scheduledDate));
-    }
-
+    
     // End Date / Time Related Methods th
     @Override
     public JobInstance clone() {
@@ -413,25 +408,25 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         if (stageId != instance.stageId) {
             return false;
         }
-        if (agentUuid != null ? !agentUuid.equals(instance.agentUuid) : instance.agentUuid != null) {
+        if (!Objects.equals(agentUuid, instance.agentUuid)) {
             return false;
         }
-        if (identifier != null ? !identifier.equals(instance.identifier) : instance.identifier != null) {
+        if (!Objects.equals(identifier, instance.identifier)) {
             return false;
         }
-        if (name != null ? !name.equals(instance.name) : instance.name != null) {
+        if (!Objects.equals(name, instance.name)) {
             return false;
         }
         if (result != instance.result) {
             return false;
         }
-        if (scheduledDate != null ? !scheduledDate.equals(instance.scheduledDate) : instance.scheduledDate != null) {
+        if (!Objects.equals(scheduledDate, instance.scheduledDate)) {
             return false;
         }
         if (state != instance.state) {
             return false;
         }
-        return stateTransitions != null ? stateTransitions.equals(instance.stateTransitions) : instance.stateTransitions == null;
+        return Objects.equals(stateTransitions, instance.stateTransitions);
     }
 
     @Override

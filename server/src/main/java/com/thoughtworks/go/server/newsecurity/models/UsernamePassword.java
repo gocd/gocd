@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.newsecurity.models;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.util.StringUtils;
 
+import java.util.Objects;
+
 public class UsernamePassword implements Credentials {
     private final String username;
     private final String password;
@@ -43,11 +45,17 @@ public class UsernamePassword implements Credentials {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof UsernamePassword that)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof UsernamePassword that)) {
+            return false;
+        }
 
-        if (username != null ? !username.equals(that.username) : that.username != null) return false;
-        return password != null ? password.equals(that.password) : that.password == null;
+        if (!Objects.equals(username, that.username)) {
+            return false;
+        }
+        return Objects.equals(password, that.password);
     }
 
     @Override

@@ -28,6 +28,7 @@ import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.*;
@@ -139,10 +140,10 @@ public class ConfigurationProperty implements Serializable, Validatable, SecretP
 
         ConfigurationProperty that = (ConfigurationProperty) o;
 
-        if (configurationKey != null ? !configurationKey.equals(that.configurationKey) : that.configurationKey != null) {
+        if (!Objects.equals(configurationKey, that.configurationKey)) {
             return false;
         }
-        if (configurationValue != null ? !configurationValue.equals(that.configurationValue) : that.configurationValue != null) {
+        if (!Objects.equals(configurationValue, that.configurationValue)) {
             return false;
         }
         return cipher.passwordEquals(encryptedValue, that.encryptedValue);

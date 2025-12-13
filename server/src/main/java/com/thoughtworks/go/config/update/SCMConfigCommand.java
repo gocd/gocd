@@ -30,12 +30,13 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM> {
-    protected final SCM globalScmConfig;
-    protected final LocalizedOperationResult result;
+    final SCM globalScmConfig;
+    final LocalizedOperationResult result;
     private final PluggableScmService pluggableScmService;
-    protected SCM preprocessedGlobalScmConfig;
-    protected final GoConfigService goConfigService;
-    protected final Username currentUser;
+    final GoConfigService goConfigService;
+    final Username currentUser;
+
+    SCM preprocessedGlobalScmConfig;
 
     public SCMConfigCommand(SCM globalScmConfig, PluggableScmService pluggableScmService, GoConfigService goConfigService, Username currentUser, LocalizedOperationResult result) {
         this.globalScmConfig = globalScmConfig;

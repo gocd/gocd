@@ -159,7 +159,7 @@ public class GoFileConfigDataSourceTest {
         when(cachedGoPartials.lastKnownPartials()).thenReturn(known);
         when(cachedGoPartials.lastValidPartials()).thenReturn(valid);
         when(fullConfigSaveNormalFlow.execute(updatingCommand, known, "loser_boozer"))
-            .thenThrow(new Exception());
+            .thenThrow(new RuntimeException());
         when(fullConfigSaveNormalFlow.execute(updatingCommand, valid, "loser_boozer"))
             .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 

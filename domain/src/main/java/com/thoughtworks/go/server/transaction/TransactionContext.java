@@ -30,18 +30,17 @@ public final class TransactionContext {
 
     private int txnActive;
     private int txnSurrounding;
-    private Set<TransactionSynchronization> futureSynchronizations;
+    private final Set<TransactionSynchronization> futureSynchronizations = new HashSet<>();
     private boolean txnFinished;
 
     TransactionContext() {
         txnActive = MAX_VALUE;
         txnSurrounding = MAX_VALUE;
-        futureSynchronizations = new HashSet<>();
         txnFinished = false;
     }
 
     public void transactionPushed() {
-        if (! isTransactionBodyExecuting()) {
+        if (!isTransactionBodyExecuting()) {
             if (isInTransactionSurrounding() && txnFinished) {
                 throw new RuntimeException(TOO_MANY_TXNS_IN_SURROUNDING);
             }
@@ -51,7 +50,7 @@ public final class TransactionContext {
         ensureCanPush(txnActive);
         txnActive--;
 
-        if (! futureSynchronizations.isEmpty()) {
+        if (!futureSynchronizations.isEmpty()) {
             for (TransactionSynchronization futureSynchronization : futureSynchronizations) {
                 doRegisterSynchronization(futureSynchronization);
             }
@@ -62,7 +61,7 @@ public final class TransactionContext {
     public void transactionPopped() {
         ensureCanPop(txnActive);
         txnActive++;
-        if (! isTransactionBodyExecuting()) {
+        if (!isTransactionBodyExecuting()) {
             txnFinished = true;
         }
     }
@@ -80,7 +79,7 @@ public final class TransactionContext {
     }
 
     public void surroundingPushed() {
-        if (! isInTransactionSurrounding()) {
+        if (!isInTransactionSurrounding()) {
             txnFinished = false;
         }
         ensureCanPush(txnSurrounding);
@@ -90,7 +89,7 @@ public final class TransactionContext {
     public void surroundingPopped() {
         ensureCanPop(txnSurrounding);
         txnSurrounding++;
-        if (! isInTransactionSurrounding()) {
+        if (!isInTransactionSurrounding()) {
             clearFutureSynchronizations();
             txnFinished = false;
         }
@@ -113,7 +112,7 @@ public final class TransactionContext {
     }
 
     public void registerSynchronization(TransactionSynchronization synchronization) {
-        if (isInTransactionSurrounding() && ! isTransactionBodyExecuting()) {
+        if (isInTransactionSurrounding() && !isTransactionBodyExecuting()) {
             futureSynchronizations.add(synchronization);
         } else {
             doRegisterSynchronization(synchronization);

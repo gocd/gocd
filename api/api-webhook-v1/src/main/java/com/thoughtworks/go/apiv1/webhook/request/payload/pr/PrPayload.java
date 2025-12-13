@@ -30,6 +30,7 @@ public interface PrPayload extends Payload {
 
     State state();
 
+    @Override
     default String descriptor() {
         return format("%s[%s][%s][%s]",
                 getClass().getSimpleName(),

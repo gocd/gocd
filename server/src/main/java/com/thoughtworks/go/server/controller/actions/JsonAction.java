@@ -26,6 +26,7 @@ import org.springframework.web.servlet.View;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -117,7 +118,7 @@ public class JsonAction implements RestfulAction {
         }
 
         @Override
-        public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws IOException {
             // In IE, there's a problem with caching. We want to cache if we can.
             // This will force the browser to clear the cache only for this page.
             // If any other pages need to clear the cache, we might want to move this
@@ -126,9 +127,9 @@ public class JsonAction implements RestfulAction {
             response.addHeader(HttpHeaders.CACHE_CONTROL, CLEAR_CACHE);
             response.setStatus(status);
             response.setContentType(getContentType());
-            PrintWriter writer = response.getWriter();
-            JsonRenderer.render(json, goRequestContext, writer);
-            writer.close();
+            try (PrintWriter writer = response.getWriter()) {
+                JsonRenderer.render(json, goRequestContext, writer);
+            }
         }
     }
 

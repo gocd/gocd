@@ -85,9 +85,15 @@ public abstract class MaterialInstance extends PersistentObject {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof MaterialInstance that)) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof MaterialInstance that)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         return Objects.equals(url, that.url) &&
                 Objects.equals(username, that.username) &&
                 Objects.equals(pipelineName, that.pipelineName) &&

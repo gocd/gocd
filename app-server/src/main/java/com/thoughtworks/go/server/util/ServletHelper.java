@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.server.util;
 
-import java.lang.reflect.InvocationTargetException;
-
 public abstract class ServletHelper {
     public abstract ServletRequest getRequest(javax.servlet.ServletRequest servletRequest);
 
@@ -26,8 +24,8 @@ public abstract class ServletHelper {
 
     public static void init() {
         try {
-            instance = getAppServerHelper("com.thoughtworks.go.server.util.JettyServletHelper");
-        } catch (Exception e) {
+            instance = (ServletHelper) Class.forName("com.thoughtworks.go.server.util.JettyServletHelper").getConstructor().newInstance();
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
     }
@@ -36,8 +34,5 @@ public abstract class ServletHelper {
         return instance;
     }
 
-    private static ServletHelper getAppServerHelper(String className) throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
-        return (ServletHelper) Class.forName(className).getConstructor().newInstance();
-    }
 }
 

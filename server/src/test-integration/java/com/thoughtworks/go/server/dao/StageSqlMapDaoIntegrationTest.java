@@ -847,7 +847,6 @@ public class StageSqlMapDaoIntegrationTest {
         assertThat(nixJob.getState()).isEqualTo(JobState.Completed);
     }
 
-
     private JobInstance scheduleBuildInstances(Stage scheduledInstance) {
         JobInstances scheduledBuilds = scheduledInstance.getJobInstances();
         JobInstance bi = scheduledBuilds.first();

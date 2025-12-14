@@ -43,7 +43,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
+import java.util.OptionalInt;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -132,7 +132,7 @@ public class JobControllerTest {
 
             when(jobInstanceService.latestCompletedJobs("p1", "s1", jobInstance.getName())).thenReturn(new JobInstances());
             when(pipelineService.wrapBuildDetails(jobInstance)).thenReturn(pipeline);
-            when(pipelineService.resolvePipelineCounter(eq("p1"), anyString())).thenReturn(Optional.of(1));
+            when(pipelineService.resolvePipelineCounter(eq("p1"), anyString())).thenReturn(OptionalInt.of(1));
             when(restfulService.translateStageCounter(any(PipelineIdentifier.class), eq("s1"), anyString())).thenReturn(stageIdentifier);
             when(pipelineService.findPipelineByNameAndCounter("p1", 1)).thenReturn(pipeline);
             when(jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier)).thenReturn(jobInstance);
@@ -163,7 +163,7 @@ public class JobControllerTest {
         @Test
         void shouldThrowErrorIfUserPassesANonNumericValueForPipelineCounter() {
             try {
-                when(pipelineService.resolvePipelineCounter("p1", "some-string")).thenReturn(Optional.empty());
+                when(pipelineService.resolvePipelineCounter("p1", "some-string")).thenReturn(OptionalInt.empty());
                 jobController.jobDetail("p1", "some-string", "s1", "1", "job");
                 fail("Expected an exception to be thrown");
             } catch (Exception e) {
@@ -174,7 +174,7 @@ public class JobControllerTest {
         @Test
         void shouldThrowErrorIfUserPassesANonNumericValueForStageCounter() {
             try {
-                when(pipelineService.resolvePipelineCounter("p1", "1")).thenReturn(Optional.of(1));
+                when(pipelineService.resolvePipelineCounter("p1", "1")).thenReturn(OptionalInt.of(1));
                 jobController.jobDetail("p1", "1", "s1", "some-string", "job");
                 fail("Expected an exception to be thrown");
             } catch (Exception e) {

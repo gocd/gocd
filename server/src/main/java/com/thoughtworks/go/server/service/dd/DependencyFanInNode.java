@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.Supplier;
 
 import static com.thoughtworks.go.server.service.dd.DependencyFanInNode.RevisionAlteration.*;
 
@@ -43,8 +42,7 @@ class DependencyFanInNode extends FanInNode<DependencyMaterialConfig> {
     StageIdentifier currentRevision;
     private final Map<StageIdentifier, Set<FaninScmMaterial>> scmMaterialsByStageId = new LinkedHashMap<>();
 
-    private Supplier<Integer> maxBackTrackLimit = () -> Integer.MAX_VALUE;
-
+    private int maxBackTrackLimit = Integer.MAX_VALUE;
     private int totalInstanceCount = Integer.MAX_VALUE;
     private int currentCount;
 
@@ -54,7 +52,7 @@ class DependencyFanInNode extends FanInNode<DependencyMaterialConfig> {
 
     void initialize(FanInGraphContext context) {
         totalInstanceCount = context.pipelineTimeline().instanceCount(materialConfig.getPipelineName());
-        maxBackTrackLimit = context.maxBackTrackLimit();
+        maxBackTrackLimit = context.maxBackTrackLimit().getAsInt();
     }
 
     Set<? extends FaninScmMaterial> scmMaterialForCurrentRevision() {
@@ -228,7 +226,7 @@ class DependencyFanInNode extends FanInNode<DependencyMaterialConfig> {
     }
 
     private boolean hasMoreInstances() {
-        if (currentCount > maxBackTrackLimit.get()) {
+        if (currentCount > maxBackTrackLimit) {
             throw new MaxBackTrackLimitReachedException(materialConfig, maxBackTrackLimit);
         }
         return currentCount < totalInstanceCount;

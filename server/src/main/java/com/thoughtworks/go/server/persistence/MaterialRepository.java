@@ -627,20 +627,12 @@ public class MaterialRepository extends HibernateDaoSupport {
         }
     }
 
-    public List<Modification> findModificationsSinceAndUptil(Material material,
-                                                             MaterialRevision materialRevision,
-                                                             PipelineTimelineEntry.Revision scmRevision) {
+    public List<Modification> findModificationsSinceAndUntil(Material material, MaterialRevision materialRevision, OptionalLong untilRevisionId) {
         List<Modification> modificationsSince = findModificationsSince(material, materialRevision);
-        if (scmRevision == null) {
-            return modificationsSince;
-        }
-        List<Modification> modificationsUptil = new ArrayList<>();
-        for (Modification modification : modificationsSince) {
-            if (modification.getId() <= scmRevision.id) {
-                modificationsUptil.add(modification);
-            }
-        }
-        return modificationsUptil;
+
+        return untilRevisionId.isEmpty()
+            ? modificationsSince
+            : modificationsSince.stream().filter(m -> m.getId() <= untilRevisionId.getAsLong()).toList();
     }
 
     public List<Modification> findModificationsSince(Material material, MaterialRevision revision) {

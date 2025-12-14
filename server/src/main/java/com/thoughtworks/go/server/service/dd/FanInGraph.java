@@ -37,7 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.*;
-import java.util.function.Supplier;
+import java.util.function.IntSupplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -58,10 +58,10 @@ public class FanInGraph {
 
     private final DependencyFanInNode root;
     private final CaseInsensitiveString pipelineName;
-    private final Supplier<Integer> maxBackTrackLimit;
+    private final IntSupplier maxBackTrackLimit;
 
     public FanInGraph(CruiseConfig cruiseConfig, CaseInsensitiveString root, MaterialRepository materialRepository, PipelineDao pipelineDao,
-                      MaterialConfigConverter materialConfigConverter, Supplier<Integer> maxBackTrackLimit) {
+                      MaterialConfigConverter materialConfigConverter, IntSupplier maxBackTrackLimit) {
         this.cruiseConfig = cruiseConfig;
         this.materialRepository = materialRepository;
         this.pipelineDao = pipelineDao;
@@ -190,24 +190,21 @@ public class FanInGraph {
                 PipelineInstanceModel pipeline = pipelineDao.findPipelineHistoryByNameAndCounter(latestRootNodeInstance.getPipelineName(), latestRootNodeInstance.getCounter());
                 for (MaterialRevision materialRevision : pipeline.getCurrentRevisions()) {
                     if (materialRevision.getMaterial().getFingerprint().equals(child.materialConfig.getFingerprint())) {
-                        List<Modification> modificationsSince = materialRepository.findModificationsSinceAndUptil(material, materialRevision, child.scmRevision);
+                        List<Modification> modificationsSince = materialRepository.findModificationsSinceAndUntil(material, materialRevision, child.scmRevisionId());
                         revision.addModifications(modificationsSince);
                         break;
                     }
                 }
             }
 
-            if (revision.getModifications().isEmpty() && child.scmRevision == null) {
+            if (revision.getModifications().isEmpty() && child.scmRevision.isEmpty()) {
                 MaterialRevisions latestRevisions = materialRepository.findLatestRevisions(new MaterialConfigs(materialConfig));
                 finalRevisions.addAll(latestRevisions.getRevisions());
-                continue;
+            } else if (revision.getModifications().isEmpty()) {
+                finalRevisions.add(new MaterialRevision(material, materialRepository.findModificationWithRevision(material, child.scmRevision.get().revision())));
+            } else {
+                finalRevisions.add(revision);
             }
-
-            if (revision.getModifications().isEmpty()) {
-                revision = new MaterialRevision(material, materialRepository.findModificationWithRevision(material, child.scmRevision.revision));
-            }
-
-            finalRevisions.add(revision);
         }
         return finalRevisions;
     }
@@ -285,7 +282,7 @@ public class FanInGraph {
     private @NotNull StageIdFaninScmMaterialPair getSmallestScmRevision(Collection<StageIdFaninScmMaterialPair> scmWithDiffVersions) {
         return scmWithDiffVersions
             .stream()
-            .min(Comparator.comparing(pair -> pair.faninScmMaterial().revision().date))
+            .min(Comparator.comparing(pair -> pair.faninScmMaterial().revision().date()))
             .orElseThrow(() -> new RuntimeException("Cannot find smallest SCM revision where there are none"));
     }
 

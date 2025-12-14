@@ -21,10 +21,10 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Spliterator;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
+import java.util.function.IntConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -62,26 +62,26 @@ public class JsonReader {
         return optString(property).orElse(defaultValue);
     }
 
-    public Optional<Long> optLong(String property) {
+    public OptionalLong optLong(String property) {
         if (hasJsonObject(property)) {
             try {
-                return Optional.of(jsonObject.get(property).getAsLong());
+                return OptionalLong.of(jsonObject.get(property).getAsLong());
             } catch (Exception e) {
                 throw haltBecausePropertyIsNotAJsonString(property, jsonObject);
             }
         }
-        return Optional.empty();
+        return OptionalLong.empty();
     }
 
-    public Optional<Double> optDouble(String property) {
+    public OptionalDouble optDouble(String property) {
         if (hasJsonObject(property)) {
             try {
-                return Optional.of(jsonObject.get(property).getAsDouble());
+                return OptionalDouble.of(jsonObject.get(property).getAsDouble());
             } catch (Exception e) {
                 throw haltBecausePropertyIsNotAJsonString(property, jsonObject);
             }
         }
-        return Optional.empty();
+        return OptionalDouble.empty();
     }
 
     public Optional<String> optString(String property) {
@@ -128,15 +128,15 @@ public class JsonReader {
         return Optional.empty();
     }
 
-    public Optional<Integer> optInt(String property) {
+    public OptionalInt optInt(String property) {
         if (jsonObject.has(property)) {
             try {
-                return Optional.of(jsonObject.getAsJsonPrimitive(property).getAsInt());
+                return OptionalInt.of(jsonObject.getAsJsonPrimitive(property).getAsInt());
             } catch (Exception e) {
                 throw haltBecausePropertyIsNotAJsonInt(property, jsonObject);
             }
         }
-        return Optional.empty();
+        return OptionalInt.empty();
     }
 
     public Optional<JsonReader> optJsonObject(String property) {
@@ -164,7 +164,7 @@ public class JsonReader {
         return this;
     }
 
-    public JsonReader readIntIfPresent(String key, Consumer<Integer> setterMethod) {
+    public JsonReader readIntIfPresent(String key, IntConsumer setterMethod) {
         optInt(key).ifPresent(setterMethod);
         return this;
     }
@@ -204,7 +204,7 @@ public class JsonReader {
         return this;
     }
 
-    public JsonReader readDoubleIfPresent(String key, Consumer<Double> consumer) {
+    public JsonReader readDoubleIfPresent(String key, DoubleConsumer consumer) {
         optDouble(key).ifPresent(consumer);
         return this;
     }

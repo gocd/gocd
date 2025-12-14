@@ -99,7 +99,7 @@ public class JobController {
                                   @RequestParam("stageName") String stageName,
                                   @RequestParam("stageCounter") String stageCounter,
                                   @RequestParam("jobName") String jobName) {
-        Optional<Integer> pipelineCounterValue = pipelineService.resolvePipelineCounter(pipelineName, pipelineCounter);
+        OptionalInt pipelineCounterValue = pipelineService.resolvePipelineCounter(pipelineName, pipelineCounter);
 
         if (pipelineCounterValue.isEmpty()) {
             throw bomb(String.format("Expected numeric pipelineCounter or latest keyword, but received '%s' for [%s/%s/%s/%s/%s]", pipelineCounter, pipelineName, pipelineCounter, stageName,
@@ -112,7 +112,7 @@ public class JobController {
 
         }
 
-        Pipeline pipeline = pipelineService.findPipelineByNameAndCounter(pipelineName, pipelineCounterValue.get());
+        Pipeline pipeline = pipelineService.findPipelineByNameAndCounter(pipelineName, pipelineCounterValue.getAsInt());
 
         if (pipeline == null) {
             throw bomb(String.format("Job %s/%s/%s/%s/%s not found", pipelineName, pipelineCounter, stageName,

@@ -31,7 +31,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.Optional;
+import java.util.OptionalInt;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseOfReason;
 import static spark.Spark.*;
@@ -77,14 +77,14 @@ public class StageOperationsControllerV2 extends ApiController implements SparkS
         String stageName = req.params("stage_name");
         HttpOperationResult result = new HttpOperationResult();
 
-        Optional<Integer> pipelineCounterValue = pipelineService.resolvePipelineCounter(pipelineName, pipelineCounter);
+        OptionalInt pipelineCounterValue = pipelineService.resolvePipelineCounter(pipelineName, pipelineCounter);
         if (pipelineCounterValue.isEmpty()) {
             String errorMessage = String.format("Error while running [%s/%s/%s]. Received non-numeric pipeline counter '%s'.", pipelineName, pipelineCounter, stageName, pipelineCounter);
             LOGGER.error(errorMessage);
             throw haltBecauseOfReason(errorMessage);
         }
 
-        scheduleService.rerunStage(pipelineName, pipelineCounterValue.get(), stageName, result);
+        scheduleService.rerunStage(pipelineName, pipelineCounterValue.getAsInt(), stageName, result);
         return renderHTTPOperationResult(result, req, res);
     }
 }

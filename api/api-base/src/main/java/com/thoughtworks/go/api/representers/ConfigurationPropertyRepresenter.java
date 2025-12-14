@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class ConfigurationPropertyRepresenter {
     public static void toJSON(OutputListWriter propertiesWriter, List<ConfigurationProperty> configurationProperties) {
@@ -106,12 +107,12 @@ public class ConfigurationPropertyRepresenter {
             final String key = jsonReader.getString("key");
             final String value = jsonReader.optString("value").orElse(null);
             final String encryptedValue = jsonReader.optString("encrypted_value").orElse(null);
-            final Boolean isSecure = jsonReader.optBoolean("secure").orElse(null);
+            final Optional<Boolean> isSecure = jsonReader.optBoolean("secure");
 
             final ConfigurationProperty property = new ConfigurationProperty().deserialize(key, value, encryptedValue);
 
-            if (isSecure != null && (encryptedValue == null || encryptedValue.isBlank())) {
-                property.handleSecureValueConfiguration(isSecure); // handle encryptions
+            if (isSecure.isPresent() && (encryptedValue == null || encryptedValue.isBlank())) {
+                property.handleSecureValueConfiguration(isSecure.get()); // handle encryptions
             }
 
             return property;

@@ -30,7 +30,7 @@ public class ServerBasicInfoProvider implements ServerInfoProvider {
     }
 
     @Override
-    public Map<String, Object> asJson() {
+    public Map<String, Object> asJsonCompatibleMap() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         json.put("Version", CurrentGoCDVersion.getInstance().formatted());
         return json;

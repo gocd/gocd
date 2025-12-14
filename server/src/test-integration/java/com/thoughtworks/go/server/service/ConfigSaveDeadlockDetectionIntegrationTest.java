@@ -102,7 +102,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
                 && throwable.getSuppressed()[0] instanceof InterruptedException) {
             throw new RuntimeException(
                     "Test timed out, possible deadlock. Thread Dump: " +
-                            JsonHelper.toJson(serverStatusService.asJson(Username.ANONYMOUS, new HttpLocalizedOperationResult())),
+                            JsonHelper.toJson(serverStatusService.asJsonCompatibleMap(Username.ANONYMOUS, new HttpLocalizedOperationResult())),
                     throwable);
         }
         throw throwable;

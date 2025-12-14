@@ -44,7 +44,7 @@ public class FileLocationProvider implements ServerInfoProvider {
     }
 
     @Override @SuppressWarnings("rawtypes")
-    public Map<String, Object> asJson() {
+    public Map<String, Object> asJsonCompatibleMap() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         json.put("loc.config.dir", systemEnvironment.configDir().getAbsolutePath());
 

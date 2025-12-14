@@ -23,7 +23,7 @@ import java.util.Map;
 public interface ServerInfoProvider {
     double priority();
 
-    Map<String, Object> asJson();
+    Map<String, Object> asJsonCompatibleMap();
 
     String name();
 }

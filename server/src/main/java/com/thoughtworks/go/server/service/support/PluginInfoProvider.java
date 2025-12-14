@@ -42,7 +42,7 @@ public class PluginInfoProvider implements ServerInfoProvider {
     }
 
     @Override
-    public Map<String, Object> asJson() {
+    public Map<String, Object> asJsonCompatibleMap() {
         List<Map<String, Object>> plugins = new ArrayList<>();
         List<GoPluginDescriptor> goPluginDescriptors = pluginManager.plugins();
         for (GoPluginDescriptor goPluginDescriptor : goPluginDescriptors) {

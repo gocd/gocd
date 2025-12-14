@@ -42,23 +42,23 @@ public class ServerStatusService {
         providers.sort(Comparator.comparingDouble(ServerInfoProvider::priority));
     }
 
-    public Map<String, Object> asJson(Username username, LocalizedOperationResult result) {
+    public Map<String, Object> asJsonCompatibleMap(Username username, LocalizedOperationResult result) {
         if (!securityService.isUserAdmin(username)) {
             result.forbidden(LocalizedMessage.forbiddenToEdit(), HealthStateType.forbidden());
             return null;
         }
 
-        return serverInfoAsJson();
+        return serverInfoAsJsonCompatibleMap();
 
     }
 
-    private Map<String, Object> serverInfoAsJson() {
+    private Map<String, Object> serverInfoAsJsonCompatibleMap() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         json.put("Timestamp", Dates.formatIso8601CompactOffset(new Date()));
 
         for (ServerInfoProvider provider : providers) {
             try {
-                json.put(provider.name(), provider.asJson());
+                json.put(provider.name(), provider.asJsonCompatibleMap());
             } catch (Exception e) {
                 json.put(provider.getClass().getCanonicalName(), String.format("Provider %s threw an exception: %s", provider.getClass(), e.getMessage()));
                 LOGGER.warn("An API support page provider failed.", e);

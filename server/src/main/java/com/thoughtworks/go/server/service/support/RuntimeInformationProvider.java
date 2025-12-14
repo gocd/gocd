@@ -30,16 +30,8 @@ public class RuntimeInformationProvider implements ServerInfoProvider {
         return 5.0;
     }
 
-    private Map<String, Object> asIndentedMultilineValuesAsJson(Map<String, String> inputArguments) {
-        LinkedHashMap<String, Object> json = new LinkedHashMap<>();
-        for (Map.Entry<String, String> entry : inputArguments.entrySet()) {
-            json.put(entry.getKey(), entry.getValue());
-        }
-        return json;
-    }
-
     @Override
-    public Map<String, Object> asJson() {
+    public Map<String, Object> asJsonCompatibleMap() {
         RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
         long uptime = runtimeMXBean.getUptime();
         long uptimeInSeconds = uptime / 1000;
@@ -56,8 +48,8 @@ public class RuntimeInformationProvider implements ServerInfoProvider {
         json.put("Spec Version", runtimeMXBean.getSpecVersion());
 
         json.put("Input Arguments", runtimeMXBean.getInputArguments());
-        json.put("System Properties", new TreeMap<>(asIndentedMultilineValuesAsJson(runtimeMXBean.getSystemProperties())));
-        json.put("Environment Variables", new TreeMap<>(asIndentedMultilineValuesAsJson(System.getenv())));
+        json.put("System Properties", new TreeMap<>(runtimeMXBean.getSystemProperties()));
+        json.put("Environment Variables", new TreeMap<>(System.getenv()));
 
         return json;
     }

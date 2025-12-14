@@ -39,7 +39,7 @@ public class HibernateInformationProvider implements ServerInfoProvider {
     }
 
     @Override
-    public Map<String, Object> asJson() {
+    public Map<String, Object> asJsonCompatibleMap() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         Statistics statistics = sessionFactory.getStatistics();
         if (!statistics.isStatisticsEnabled()) {

@@ -34,7 +34,7 @@ public class CacheInformationProvider implements ServerInfoProvider {
     }
 
     @Override
-    public Map<String, Object> asJson() {
+    public Map<String, Object> asJsonCompatibleMap() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
 
         for (CacheManager cacheManager : CacheManager.ALL_CACHE_MANAGERS) {

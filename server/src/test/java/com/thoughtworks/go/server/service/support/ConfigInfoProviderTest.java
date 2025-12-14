@@ -61,7 +61,7 @@ public class ConfigInfoProviderTest {
         authorizationMetadataStore.setPluginInfo(passwordFile);
         authorizationMetadataStore.setPluginInfo(ldap);
 
-        final Map<String, Object> map = new ConfigInfoProvider(goConfigService, authorizationMetadataStore, agentService()).asJson();
+        final Map<String, Object> map = new ConfigInfoProvider(goConfigService, authorizationMetadataStore, agentService()).asJsonCompatibleMap();
 
         @SuppressWarnings("unchecked") final Map<String, Object> security = (Map<String, Object>) map.get("Security");
         assertNotNull(security);
@@ -79,7 +79,7 @@ public class ConfigInfoProviderTest {
         authorizationMetadataStore.setPluginInfo(ldap);
         goConfigService.security().securityAuthConfigs().add(new SecurityAuthConfig("file", "cd.go.authentication.passwordfile"));
 
-        final Map<String, Object> map = new ConfigInfoProvider(goConfigService, authorizationMetadataStore, agentService()).asJson();
+        final Map<String, Object> map = new ConfigInfoProvider(goConfigService, authorizationMetadataStore, agentService()).asJsonCompatibleMap();
 
         @SuppressWarnings("unchecked") final Map<String, Object> security = (Map<String, Object>) map.get("Security");
         assertNotNull(security);

@@ -51,7 +51,7 @@ public class ConfigInfoProvider implements ServerInfoProvider {
     }
 
     @Override
-    public Map<String, Object> asJson() {
+    public Map<String, Object> asJsonCompatibleMap() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
 

@@ -32,7 +32,7 @@ public class GCInformationProvider implements ServerInfoProvider {
     }
 
     @Override
-    public Map<String, Object> asJson() {
+    public Map<String, Object> asJsonCompatibleMap() {
         List<GarbageCollectorMXBean> garbageCollectorMXBeans = ManagementFactory.getGarbageCollectorMXBeans();
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         for (GarbageCollectorMXBean gcBean : garbageCollectorMXBeans) {

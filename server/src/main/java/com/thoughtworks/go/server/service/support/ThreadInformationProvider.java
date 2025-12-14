@@ -84,8 +84,8 @@ public class ThreadInformationProvider implements ServerInfoProvider {
             threadStackTrace.put("AllocatedMemory(Bytes)", getAllocatedMemory(threadInfo));
 
             Map<String, Object> lockMonitorInfo = new LinkedHashMap<>();
-            lockMonitorInfo.put("Locked Monitors", asJSON(threadInfo.getLockedMonitors()));
-            lockMonitorInfo.put("Locked Synchronizers", asJSON(threadInfo.getLockedSynchronizers()));
+            lockMonitorInfo.put("Locked Monitors", asJsonCompatibleMap(threadInfo.getLockedMonitors()));
+            lockMonitorInfo.put("Locked Synchronizers", asJsonCompatibleMap(threadInfo.getLockedSynchronizers()));
             threadStackTrace.put("Lock Monitor Info", lockMonitorInfo);
 
             Map<String, Object> blockedInfo = new LinkedHashMap<>();
@@ -100,7 +100,7 @@ public class ThreadInformationProvider implements ServerInfoProvider {
 
             Map<String, Object> lockInfoMap = new LinkedHashMap<>();
             LockInfo lockInfo = threadInfo.getLockInfo();
-            lockInfoMap.put("Locked On", asJSON(lockInfo));
+            lockInfoMap.put("Locked On", asJsonCompatibleMap(lockInfo));
             lockInfoMap.put("Lock Owner Thread Id", threadInfo.getLockOwnerId());
             lockInfoMap.put("Lock Owner Thread Name", threadInfo.getLockOwnerName());
             threadStackTrace.put("Lock Info", lockInfoMap);
@@ -110,7 +110,7 @@ public class ThreadInformationProvider implements ServerInfoProvider {
             stateInfo.put("InNative", threadInfo.isInNative());
             threadStackTrace.put("State Info", stateInfo);
 
-            threadStackTrace.put("Stack Trace", asJSON(threadInfo.getStackTrace()));
+            threadStackTrace.put("Stack Trace", asJsonCompatibleMap(threadInfo.getStackTrace()));
             traces.put(threadInfo.getThreadId(), threadStackTrace);
         }
         return traces;
@@ -122,7 +122,7 @@ public class ThreadInformationProvider implements ServerInfoProvider {
             .orElse(-1L);
     }
 
-    private Object asJSON(StackTraceElement[] stackTrace) {
+    private Object asJsonCompatibleMap(StackTraceElement[] stackTrace) {
         List<String> strings = new ArrayList<>();
 
         for (StackTraceElement o : stackTrace) {
@@ -132,7 +132,7 @@ public class ThreadInformationProvider implements ServerInfoProvider {
 
     }
 
-    private List<Map<String, Object>> asJSON(MonitorInfo[] lockedMonitors) {
+    private List<Map<String, Object>> asJsonCompatibleMap(MonitorInfo[] lockedMonitors) {
         List<Map<String, Object>> json = new ArrayList<>();
 
         for (MonitorInfo lockedMonitor : lockedMonitors) {
@@ -146,16 +146,16 @@ public class ThreadInformationProvider implements ServerInfoProvider {
         return json;
     }
 
-    private List<Map<String, Object>> asJSON(LockInfo[] lockInfos) {
+    private List<Map<String, Object>> asJsonCompatibleMap(LockInfo[] lockInfos) {
         List<Map<String, Object>> json = new ArrayList<>();
 
         for (LockInfo lockInfo : lockInfos) {
-            json.add(asJSON(lockInfo));
+            json.add(asJsonCompatibleMap(lockInfo));
         }
         return json;
     }
 
-    private Map<String, Object> asJSON(LockInfo lockInfo) {
+    private Map<String, Object> asJsonCompatibleMap(LockInfo lockInfo) {
         Map<String, Object> lockedOn = new LinkedHashMap<>();
         if (lockInfo != null) {
             lockedOn.put("Class", lockInfo.getClassName());
@@ -165,7 +165,7 @@ public class ThreadInformationProvider implements ServerInfoProvider {
     }
 
     @Override
-    public Map<String, Object> asJson() {
+    public Map<String, Object> asJsonCompatibleMap() {
         ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
         Map<String, Object> json = new LinkedHashMap<>();
         json.put("Thread Count", getThreadCount(threadMXBean));

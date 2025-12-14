@@ -15,18 +15,20 @@
  */
 package com.thoughtworks.go.config;
 
+import org.jetbrains.annotations.NotNull;
+
 public interface AgentAutoRegistrationProperties {
-    String agentAutoRegisterKey();
+    @NotNull String agentAutoRegisterKey();
 
-    String agentAutoRegisterResources();
+    @NotNull String agentAutoRegisterResources();
 
-    String agentAutoRegisterEnvironments();
+    @NotNull String agentAutoRegisterEnvironments();
 
-    String agentAutoRegisterElasticPluginId();
+    @NotNull String agentAutoRegisterElasticPluginId();
 
-    String agentAutoRegisterElasticAgentId();
+    @NotNull String agentAutoRegisterElasticAgentId();
 
-    String agentAutoRegisterHostname();
+    @NotNull String agentAutoRegisterHostname();
 
     void scrubRegistrationProperties();
 

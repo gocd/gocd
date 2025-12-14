@@ -126,7 +126,9 @@ public class AgentHTTPClientController extends AgentController {
         try {
             getAgentRuntimeInfo().idle();
             Work work = client.getWork(getAgentRuntimeInfo());
-            LOG.debug("[Agent Loop] Got work from server: [{}]", work.description());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("[Agent Loop] Got work from server: [{}]", work.description());
+            }
             runner = new JobRunner();
             final AgentWorkContext agentWorkContext = new AgentWorkContext(agentIdentifier, client, manipulator, getAgentRuntimeInfo(), scmExtension, taskExtension, artifactExtension, pluginRequestProcessorRegistry);
             runner.run(work, agentWorkContext);

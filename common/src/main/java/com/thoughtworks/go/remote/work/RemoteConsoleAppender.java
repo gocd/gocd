@@ -29,8 +29,8 @@ public class RemoteConsoleAppender implements ConsoleAppender {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteConsoleAppender.class);
 
-    private String consoleUri;
-    private HttpService httpService;
+    private final String consoleUri;
+    private final HttpService httpService;
     private final Charset charset;
 
     public RemoteConsoleAppender(String consoleUri, HttpService httpService, Charset charset) {

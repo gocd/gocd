@@ -17,36 +17,46 @@ package com.thoughtworks.go.util;
 
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class TriStateTest {
+
+    private final BooleanConsumer consumer = mock();
 
     @Test
     public void testTrueShouldBeTruthy() {
         TriState triState = TriState.from("tRuE");
-        assertTrue(triState.isTrue());
-        assertTrue(triState.isTruthy());
-        assertFalse(triState.isFalsy());
-        assertFalse(triState.isFalse());
+        assertTrue(triState.isPresent());
+        assertTrue(triState.get());
+        triState.ifPresent(consumer);
+        verify(consumer).accept(true);
     }
 
     @Test
     public void testFalseShouldBeTruthy() {
         TriState triState = TriState.from("FaLsE");
-        assertTrue(triState.isFalsy());
-        assertTrue(triState.isFalse());
-        assertFalse(triState.isTrue());
-        assertFalse(triState.isTruthy());
+        assertTrue(triState.isPresent());
+        assertFalse(triState.get());
+        triState.ifPresent(consumer);
+        verify(consumer).accept(false);
     }
-
 
     @Test
     public void testUnsetShouldBeTruthy() {
         TriState triState = TriState.from(null);
-        assertTrue(triState.isFalsy());
-        assertFalse(triState.isFalse());
-        assertFalse(triState.isTrue());
-        assertFalse(triState.isTruthy());
+        assertFalse(triState.isPresent());
+        assertThatThrownBy(triState::get).isInstanceOf(IllegalStateException.class);
+        triState.ifPresent(consumer);
+        verifyNoInteractions(consumer);
+    }
+
+    @Test
+    public void testPrimitivesShouldParse() {
+        assertThat(TriState.from(true)).isEqualTo(TriState.TRUE);
+        assertThat(TriState.from(false)).isEqualTo(TriState.FALSE);
     }
 
     @Test

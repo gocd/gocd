@@ -25,7 +25,9 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.validation.Validator;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import static java.lang.String.format;
 
@@ -223,11 +225,15 @@ public class User extends PersistentObject {
     }
 
     public void disable() {
-        this.enabled = false;
+        setEnabled(false);
     }
 
     public void enable() {
-        this.enabled = true;
+        setEnabled(true);
+    }
+
+    public void setEnabled(boolean value) {
+        this.enabled = value;
     }
 
     public boolean isAnonymous() {

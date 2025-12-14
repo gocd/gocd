@@ -41,7 +41,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
@@ -112,13 +115,8 @@ public class UserService {
                      String email,
                      String checkinAliases,
                      LocalizedOperationResult result) {
-        if (enabled.isTrue()) {
-            user.enable();
-        }
 
-        if (enabled.isFalse()) {
-            user.disable();
-        }
+        enabled.ifPresent(user::setEnabled);
 
         if (email != null) {
             user.setEmail(email);
@@ -128,13 +126,7 @@ public class UserService {
             user.setMatcher(checkinAliases);
         }
 
-        if (emailMe.isTrue()) {
-            user.setEmailMe(true);
-        }
-
-        if (emailMe.isFalse()) {
-            user.setEmailMe(false);
-        }
+        emailMe.ifPresent(user::setEmailMe);
 
         if (validate(result, user)) {
             return user;

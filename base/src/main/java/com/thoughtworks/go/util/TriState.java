@@ -15,58 +15,42 @@
  */
 package com.thoughtworks.go.util;
 
-// an object that represents a ruby like truthy
-public abstract class TriState {
-    public static TriState UNSET = new TriState() {
-        @Override
-        public boolean isFalse() {
-            return false;
-        }
+/**
+ * Models a type of primitive optional boolean value that can be true, false, or unset/unknown. May be better to just
+ * model everything as using <code>Optional&lt;Boolean&gt;</code> in modern Java versions; although this implementation
+ * does avoid very mild boxing/unboxing checks for booleans.
+ */
+@FunctionalInterface
+public interface TriState {
 
-        @Override
-        public boolean isTrue() {
-            return false;
-        }
-    };
+    boolean get();
 
-    public static TriState TRUE = new TriState() {
-        @Override
-        public boolean isFalse() {
-            return false;
-        }
-
-        @Override
-        public boolean isTruthy() {
-            return true;
-        }
-    };
-
-    public static TriState FALSE = new TriState() {
-
-    };
-
-    private TriState() {
-
-    }
-
-    public boolean isTruthy() {
-        return false;
-    }
-
-    public boolean isFalsy() {
-        return !isTruthy();
-    }
-
-
-    public boolean isFalse() {
+    default boolean isPresent() {
         return true;
     }
 
-    public boolean isTrue() {
-        return !isFalse();
+    default void ifPresent(BooleanConsumer consumer) {
+        consumer.accept(this.get());
     }
 
-    public static TriState from(String booleanLike) {
+    TriState FALSE = () -> false;
+    TriState TRUE = () -> true;
+    TriState UNSET = new TriState() {
+        @Override
+        public boolean get() {
+            throw new IllegalStateException("State is unset.");
+        }
+
+        @Override
+        public boolean isPresent() {
+            return false;
+        }
+
+        @Override
+        public void ifPresent(BooleanConsumer consumer) {} // do nothing
+    };
+
+    static TriState from(String booleanLike) {
         if (booleanLike == null || booleanLike.isBlank()) {
             return UNSET;
         }
@@ -79,8 +63,8 @@ public abstract class TriState {
         throw new IllegalArgumentException(String.format("The string '%s' does not look like a boolean.", booleanLike));
     }
 
-    public static TriState from(boolean booleanLike) {
-        if (booleanLike) {
+    static TriState from(boolean booleanValue) {
+        if (booleanValue) {
             return TRUE;
         } else {
             return FALSE;

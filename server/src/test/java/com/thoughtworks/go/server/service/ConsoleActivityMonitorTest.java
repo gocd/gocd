@@ -66,8 +66,8 @@ class ConsoleActivityMonitorTest {
         goConfigService = mock(GoConfigService.class);
         consoleService = mock(ConsoleService.class);
 
-        when(goConfigService.getUnresponsiveJobTerminationThreshold(any(JobIdentifier.class))).thenReturn(UNRESPONSIVE_JOB_KILL_THRESHOLD.toMillis());//5 mins
-        when(systemEnvironment.getUnresponsiveJobWarningThreshold()).thenReturn(UNRESPONSIVE_JOB_WARNING_THRESHOLD.toMillis());//2 mins
+        when(goConfigService.getUnresponsiveJobTerminationThreshold(any(JobIdentifier.class))).thenReturn(UNRESPONSIVE_JOB_KILL_THRESHOLD);
+        when(systemEnvironment.getUnresponsiveJobWarningThreshold()).thenReturn(UNRESPONSIVE_JOB_WARNING_THRESHOLD);
         when(goConfigService.canCancelJobIfHung(any(JobIdentifier.class))).thenReturn(true);
 
         doAnswer((Answer<Object>) invocation -> {
@@ -79,6 +79,7 @@ class ConsoleActivityMonitorTest {
             return null;
         }).when(jobInstanceService).registerJobStateChangeListener(any(ConsoleActivityMonitor.ScheduledJobListener.class));
         consoleActivityMonitor = new ConsoleActivityMonitor(timeProvider, systemEnvironment, jobInstanceService, serverHealthService, goConfigService, consoleService);
+        consoleActivityMonitor.init();
         consoleActivityMonitor.populateActivityMap();
         stubInitializerCallsForActivityMonitor(jobInstanceService);
     }
@@ -220,6 +221,7 @@ class ConsoleActivityMonitorTest {
         JobInstanceService jobInstanceService = mock(JobInstanceService.class);
         when(jobInstanceService.allRunningJobs()).thenReturn(List.of(scheduledInstance(firstJob), buildingInstance(secondJob)));
         consoleActivityMonitor = new ConsoleActivityMonitor(timeProvider, systemEnvironment, jobInstanceService, serverHealthService, goConfigService, consoleService);
+        consoleActivityMonitor.init();
         consoleActivityMonitor.populateActivityMap();
         stubInitializerCallsForActivityMonitor(jobInstanceService);
 
@@ -257,7 +259,7 @@ class ConsoleActivityMonitorTest {
                 "Job <a href='/go/tab/build/detail/foo/12/stage/2/job'>foo/stage/job</a> is currently running but has not shown any console activity in the last 4 minute(s). This job may be hung.",
                 general(forJob("foo", "stage", "job"))));
 
-        when(goConfigService.getUnresponsiveJobTerminationThreshold(any(JobIdentifier.class))).thenReturn(360 * 60 * 1000L);//6 hours
+        when(goConfigService.getUnresponsiveJobTerminationThreshold(any(JobIdentifier.class))).thenReturn(Duration.ofHours(6));
         when(timeProvider.currentTimeMillis()).thenReturn(now.plusHours(1).plusMinutes(2).plusSeconds(1).toInstant().toEpochMilli());//after 62 minutes
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
@@ -390,7 +392,7 @@ class ConsoleActivityMonitorTest {
             verify(serverHealthService).update(ServerHealthState.warningWithHtml("Job 'foo/stage/job' is not responding",
                     "Job <a href='/go/tab/build/detail/foo/12/stage/2/job'>foo/stage/job</a> is currently running but it has not been assigned an agent in the last 4 minute(s). This job may be hung.", general(forJob("foo", "stage", "job"))));
 
-            when(goConfigService.getUnresponsiveJobTerminationThreshold(any(JobIdentifier.class))).thenReturn(360 * 60 * 1000L);//6 hours
+            when(goConfigService.getUnresponsiveJobTerminationThreshold(any(JobIdentifier.class))).thenReturn(Duration.ofHours(6));
             when(timeProvider.currentTimeMillis()).thenReturn(now.plusHours(1).plusMinutes(2).plusSeconds(1).toInstant().toEpochMilli());//after 62 minutes
             consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 

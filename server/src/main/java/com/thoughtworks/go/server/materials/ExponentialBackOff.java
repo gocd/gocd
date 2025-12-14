@@ -30,17 +30,17 @@ public class ExponentialBackOff {
     static final long MAX_RETRY_INTERVAL_IN_MILLIS = MINUTES.toMillis(60);
 
     private final Clock clock;
-    private final double multiplier;
+    private final float multiplier;
     private final Instant failureStartTime;
 
     private long retryIntervalMillis;
     private Instant lastFailureTime;
 
-    public ExponentialBackOff(double multiplier) {
+    public ExponentialBackOff(float multiplier) {
         this(multiplier, new SystemTimeClock());
     }
 
-    protected ExponentialBackOff(double multiplier, SystemTimeClock clock) {
+    protected ExponentialBackOff(float multiplier, SystemTimeClock clock) {
         this.clock = clock;
         this.retryIntervalMillis = DEFAULT_INITIAL_INTERVAL_IN_MILLIS;
         Instant now = now();
@@ -64,7 +64,7 @@ public class ExponentialBackOff {
 
     private long nextRetryIntervalMillis(Instant lastFailureTime, Instant now) {
         long millisSinceLastFailure = lastFailureTime.until(now, MILLIS);
-        long retryIntervalMillis = round(millisSinceLastFailure * multiplier);
+        long retryIntervalMillis = round(millisSinceLastFailure * (double) multiplier);
 
         return Math.min(retryIntervalMillis, MAX_RETRY_INTERVAL_IN_MILLIS);
     }

@@ -40,6 +40,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.ByteArrayOutputStream;
+import java.time.Duration;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -97,7 +98,8 @@ public class GoConfigServiceIntegrationTest {
     public void shouldReturnTheServerLevelJobTimeoutIfTheJobDoesNotHaveItConfigured() {
         configHelper.addPipeline("pipeline", "stage");
         setJobTimeoutTo("30");
-        assertThat(goConfigService.getUnresponsiveJobTerminationThreshold(new JobIdentifier("pipeline", -1, "label", "stage", "-1", "unit"))).isEqualTo(30 * 60 * 1000L);
+        assertThat(goConfigService.getUnresponsiveJobTerminationThreshold(new JobIdentifier("pipeline", -1, "label", "stage", "-1", "unit")))
+            .isEqualTo(Duration.ofMinutes(30));
     }
 
     @Test
@@ -144,12 +146,14 @@ public class GoConfigServiceIntegrationTest {
         config.findJob("pipeline", "stage", "unit").setTimeout("10");
         configHelper.writeConfigFile(config);
         setJobTimeoutTo("30");
-        assertThat(goConfigService.getUnresponsiveJobTerminationThreshold(new JobIdentifier("pipeline", -1, "label", "stage", "-1", "unit"))).isEqualTo(10 * 60 * 1000L);
+        assertThat(goConfigService.getUnresponsiveJobTerminationThreshold(new JobIdentifier("pipeline", -1, "label", "stage", "-1", "unit")))
+            .isEqualTo(Duration.ofMinutes(10));
     }
 
     @Test
     public void shouldReturnTheDefaultTimeoutIfThePipelineIsNotRecentlyDeleted() {
-        assertThat(goConfigService.getUnresponsiveJobTerminationThreshold(new JobIdentifier("recently_deleted_pipeline", -1, "label", "stage", "-1", "unit"))).isEqualTo(0L);
+        assertThat(goConfigService.getUnresponsiveJobTerminationThreshold(new JobIdentifier("recently_deleted_pipeline", -1, "label", "stage", "-1", "unit")))
+            .isZero();
     }
 
     @Test

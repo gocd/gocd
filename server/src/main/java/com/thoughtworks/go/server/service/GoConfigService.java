@@ -61,6 +61,7 @@ import org.xml.sax.InputSource;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.StringReader;
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -246,13 +247,13 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         goConfigDao.updateConfig(command, currentUser);
     }
 
-    public long getUnresponsiveJobTerminationThreshold(JobIdentifier identifier) {
+    public Duration getUnresponsiveJobTerminationThreshold(JobIdentifier identifier) {
         JobConfig jobConfig = getJob(identifier);
         if (jobConfig == null) {
-            return toMillis(Long.parseLong(serverConfig().getJobTimeout()));
+            return Duration.ofMinutes(Long.parseLong(serverConfig().getJobTimeout()));
         }
         String timeout = jobConfig.getTimeout();
-        return timeout != null ? toMillis(Long.parseLong(timeout)) : toMillis(Long.parseLong(serverConfig().getJobTimeout()));
+        return Duration.ofMinutes(timeout != null ? Long.parseLong(timeout) : Long.parseLong(serverConfig().getJobTimeout()));
     }
 
     private JobConfig getJob(JobIdentifier identifier) {
@@ -262,10 +263,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         } catch (Exception ignored) {
         }
         return jobConfig;
-    }
-
-    private long toMillis(final long minutes) {
-        return minutes * 60 * 1000;
     }
 
     public boolean canCancelJobIfHung(JobIdentifier jobIdentifier) {

@@ -25,6 +25,7 @@ import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -134,9 +135,9 @@ class SystemEnvironmentTest {
 
     @Test
     void shouldReturnTheJobWarningLimit() {
-        assertThat(systemEnvironment.getUnresponsiveJobWarningThreshold()).isEqualTo(5 * 60 * 1000L);
+        assertThat(systemEnvironment.getUnresponsiveJobWarningThreshold()).isEqualTo(Duration.ofMinutes(5));
         System.setProperty(SystemEnvironment.UNRESPONSIVE_JOB_WARNING_THRESHOLD, "30");
-        assertThat(systemEnvironment.getUnresponsiveJobWarningThreshold()).isEqualTo(30 * 60 * 1000L);
+        assertThat(systemEnvironment.getUnresponsiveJobWarningThreshold()).isEqualTo(Duration.ofMinutes(30));
     }
 
     @Test
@@ -246,28 +247,6 @@ class SystemEnvironmentTest {
         } finally {
             System.clearProperty("go.landing.page");
         }
-    }
-
-    @Test
-    void ShouldRemoveWhiteSpacesForStringArraySystemProperties() {
-        String[] defaultValue = {"junk", "funk"};
-        String propertyName = "property.name";
-        SystemEnvironment.GoStringArraySystemProperty property = new SystemEnvironment.GoStringArraySystemProperty(propertyName, defaultValue);
-        System.setProperty(propertyName, " foo    ,  bar  ");
-        assertThat(systemEnvironment.get(property).length).isEqualTo(2);
-        assertThat(systemEnvironment.get(property)[0]).isEqualTo("foo");
-        assertThat(systemEnvironment.get(property)[1]).isEqualTo("bar");
-    }
-
-    @Test
-    void ShouldUseDefaultValueForStringArraySystemPropertiesWhenTheValueIsSetToEmptyString() {
-        String[] defaultValue = {"junk", "funk"};
-        String propertyName = "property.name";
-        SystemEnvironment.GoStringArraySystemProperty property = new SystemEnvironment.GoStringArraySystemProperty(propertyName, defaultValue);
-        System.clearProperty(propertyName);
-        assertThat(systemEnvironment.get(property)).isEqualTo(defaultValue);
-        System.setProperty(propertyName, " ");
-        assertThat(systemEnvironment.get(property)).isEqualTo(defaultValue);
     }
 
     @Test

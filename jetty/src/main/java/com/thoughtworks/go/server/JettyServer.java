@@ -203,7 +203,9 @@ public class JettyServer extends AppServer {
     }
 
     protected void replaceJettyXmlIfItBelongsToADifferentVersion(File jettyConfig) throws IOException {
-        if (Files.readString(jettyConfig.toPath(), UTF_8).contains(JETTY_CONFIG_VERSION)) return;
+        if (Files.readString(jettyConfig.toPath(), UTF_8).contains(JETTY_CONFIG_VERSION)) {
+            return;
+        }
         replaceFileWithPackagedOne(jettyConfig);
     }
 

@@ -93,16 +93,10 @@ class AgentMetadataDTO implements Serializable {
 
         AgentMetadataDTO that = (AgentMetadataDTO) o;
 
-        if (!Objects.equals(elasticAgentId, that.elasticAgentId)) {
-            return false;
-        }
-        if (!Objects.equals(agentState, that.agentState)) {
-            return false;
-        }
-        if (!Objects.equals(buildState, that.buildState)) {
-            return false;
-        }
-        return Objects.equals(configState, that.configState);
+        return Objects.equals(elasticAgentId, that.elasticAgentId) &&
+            Objects.equals(agentState, that.agentState) &&
+            Objects.equals(buildState, that.buildState) &&
+            Objects.equals(configState, that.configState);
 
     }
 

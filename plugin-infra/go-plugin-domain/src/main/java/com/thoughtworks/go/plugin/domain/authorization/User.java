@@ -52,13 +52,9 @@ public class User {
 
         User user = (User) o;
 
-        if (!Objects.equals(username, user.username)) {
-            return false;
-        }
-        if (!Objects.equals(displayName, user.displayName)) {
-            return false;
-        }
-        return Objects.equals(emailId, user.emailId);
+        return Objects.equals(username, user.username) &&
+            Objects.equals(displayName, user.displayName) &&
+            Objects.equals(emailId, user.emailId);
     }
 
     @Override

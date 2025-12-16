@@ -63,14 +63,8 @@ public class JobInstancesModel implements Iterable<JobInstance> {
 
         JobInstancesModel that = (JobInstancesModel) o;
 
-        if (!Objects.equals(jobInstances, that.jobInstances)) {
-            return false;
-        }
-        if (!Objects.equals(pagination, that.pagination)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(jobInstances, that.jobInstances) &&
+            Objects.equals(pagination, that.pagination);
     }
 
     @Override

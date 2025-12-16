@@ -57,11 +57,7 @@ public class P4MaterialView implements Serializable, Validatable {
 
         P4MaterialView view = (P4MaterialView) o;
 
-        if (!Objects.equals(value, view.value)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(value, view.value);
     }
 
     @Override

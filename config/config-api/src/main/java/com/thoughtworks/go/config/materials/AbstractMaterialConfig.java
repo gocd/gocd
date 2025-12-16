@@ -208,14 +208,8 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
 
         AbstractMaterialConfig that = (AbstractMaterialConfig) o;
 
-        if (!Objects.equals(name, that.name)) {
-            return false;
-        }
-        if (!Objects.equals(type, that.type)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(name, that.name) &&
+            Objects.equals(type, that.type);
     }
 
     @Override

@@ -35,7 +35,9 @@ public class BuildTrigger implements Serializable {
     static final String FORCED_BUILD_CAUSE = "ManualForcedBuildCause";
 
     private BuildTrigger(String message, boolean forced, Priority priority, String dbName) {
-        if (dbName == null) throw new IllegalArgumentException("dbName cannot be null");
+        if (dbName == null) {
+            throw new IllegalArgumentException("dbName cannot be null");
+        }
 
         this.message = message;
         this.forced = forced;
@@ -94,16 +96,10 @@ public class BuildTrigger implements Serializable {
 
         BuildTrigger trigger = (BuildTrigger) o;
 
-        if (forced != trigger.forced) {
-            return false;
-        }
-        if (!Objects.equals(dbName, trigger.dbName)) {
-            return false;
-        }
-        if (!Objects.equals(message, trigger.message)) {
-            return false;
-        }
-        return priority == trigger.priority;
+        return forced == trigger.forced &&
+            Objects.equals(dbName, trigger.dbName) &&
+            Objects.equals(message, trigger.message) &&
+            priority == trigger.priority;
     }
 
     @Override

@@ -54,8 +54,12 @@ public class ElasticConfig {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ElasticConfig that = (ElasticConfig) o;
         return jobStarvationTimeout == that.jobStarvationTimeout &&
                 Objects.equals(profiles, that.profiles) &&

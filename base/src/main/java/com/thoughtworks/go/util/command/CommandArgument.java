@@ -40,9 +40,15 @@ public abstract class CommandArgument implements Serializable, SecretRedactor {
 
     @Override
     public boolean equals(Object that) {
-        if (that == null) return false;
-        if (this == that) return true;
-        if (that.getClass() != this.getClass()) return false;
+        if (that == null) {
+            return false;
+        }
+        if (this == that) {
+            return true;
+        }
+        if (that.getClass() != this.getClass()) {
+            return false;
+        }
         return equal((CommandArgument) that);
     }
 

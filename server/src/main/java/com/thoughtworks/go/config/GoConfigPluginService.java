@@ -51,8 +51,9 @@ public class GoConfigPluginService {
     }
 
     public PartialConfigProvider partialConfigProviderFor(String pluginId) {
-        if (pluginId == null || pluginId.equals(XmlPartialConfigProvider.providerName))
+        if (pluginId == null || pluginId.equals(XmlPartialConfigProvider.providerName)) {
             return embeddedXmlPlugin;
+        }
 
         return new ConfigRepoPlugin(configConverter, crExtension, pluginId);
     }

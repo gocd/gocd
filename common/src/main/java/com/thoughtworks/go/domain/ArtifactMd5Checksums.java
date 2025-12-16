@@ -44,15 +44,7 @@ public class ArtifactMd5Checksums implements Serializable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof ArtifactMd5Checksums that)) {
-            return false;
-        }
-
-        if (!Objects.equals(checksumProperties, that.checksumProperties)) {
-            return false;
-        }
-
-        return true;
+        return o instanceof ArtifactMd5Checksums that && Objects.equals(checksumProperties, that.checksumProperties);
     }
 
     @Override

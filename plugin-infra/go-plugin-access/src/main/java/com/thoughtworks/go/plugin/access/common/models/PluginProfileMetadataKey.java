@@ -55,14 +55,9 @@ public class PluginProfileMetadataKey {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof PluginProfileMetadataKey that)) {
-            return false;
-        }
-
-        if (!Objects.equals(key, that.key)) {
-            return false;
-        }
-        return Objects.equals(metadata, that.metadata);
+        return o instanceof PluginProfileMetadataKey that &&
+            Objects.equals(key, that.key) &&
+            Objects.equals(metadata, that.metadata);
     }
 
     @Override

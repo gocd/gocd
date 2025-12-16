@@ -121,17 +121,18 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         HttpLocalizedOperationResult that = (HttpLocalizedOperationResult) o;
 
-        if (httpCode != that.httpCode) return false;
-        if (!Objects.equals(healthStateType, that.healthStateType))
-            return false;
-        if (!Objects.equals(message, that.message)) return false;
-
-        return true;
+        return httpCode == that.httpCode &&
+            Objects.equals(healthStateType, that.healthStateType) &&
+            Objects.equals(message, that.message);
     }
 
     @Override

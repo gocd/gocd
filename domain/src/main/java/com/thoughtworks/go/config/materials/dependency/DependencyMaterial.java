@@ -266,8 +266,9 @@ public class DependencyMaterial extends AbstractMaterial {
     public Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig) {
         List<FetchTask> fetchTasks = pipelineConfig.getFetchTasks();
         for (FetchTask fetchTask : fetchTasks) {
-            if (pipelineName.equals(fetchTask.getDirectParentInAncestorPath()))
+            if (pipelineName.equals(fetchTask.getDirectParentInAncestorPath())) {
                 return true;
+            }
         }
         return false;
     }

@@ -67,17 +67,20 @@ public class Plugin extends PersistentObject {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         Plugin plugin = (Plugin) o;
 
-        if (!Objects.equals(configuration, plugin.configuration))
-            return false;
-        if (!Objects.equals(pluginId, plugin.pluginId)) return false;
-
-        return true;
+        return Objects.equals(configuration, plugin.configuration) &&
+            Objects.equals(pluginId, plugin.pluginId);
     }
 
     @Override

@@ -75,29 +75,13 @@ public class ProjectStatus {
 
         ProjectStatus that = (ProjectStatus) o;
 
-        if (!Objects.equals(activity, that.activity)) {
-            return false;
-        }
-        if (!Objects.equals(lastBuildLabel, that.lastBuildLabel)) {
-            return false;
-        }
-        if (!Objects.equals(lastBuildStatus, that.lastBuildStatus)) {
-            return false;
-        }
-        if (!Objects.equals(lastBuildTime, that.lastBuildTime)) {
-            return false;
-        }
-        if (!Objects.equals(name, that.name)) {
-            return false;
-        }
-        if (!Objects.equals(webUrl, that.webUrl)) {
-            return false;
-        }
-        if (!Objects.equals(breakers, that.breakers)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(activity, that.activity) &&
+            Objects.equals(lastBuildLabel, that.lastBuildLabel) &&
+            Objects.equals(lastBuildStatus, that.lastBuildStatus) &&
+            Objects.equals(lastBuildTime, that.lastBuildTime) &&
+            Objects.equals(name, that.name) &&
+            Objects.equals(webUrl, that.webUrl) &&
+            Objects.equals(breakers, that.breakers);
     }
 
     @Override

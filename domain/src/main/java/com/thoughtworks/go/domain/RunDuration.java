@@ -60,10 +60,8 @@ public abstract class RunDuration  {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof RunDuration that)) {
-            return false;
-        }
-        return Objects.equals(duration, that.duration);
+        return o instanceof RunDuration that &&
+            Objects.equals(duration, that.duration);
     }
 
     @Override

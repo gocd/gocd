@@ -56,13 +56,9 @@ public class VerifyConnectionResponse {
 
         VerifyConnectionResponse that = (VerifyConnectionResponse) o;
 
-        if (!Objects.equals(status, that.status)) {
-            return false;
-        }
-        if (!Objects.equals(message, that.message)) {
-            return false;
-        }
-        return Objects.equals(validationResult, that.validationResult);
+        return Objects.equals(status, that.status) &&
+            Objects.equals(message, that.message) &&
+            Objects.equals(validationResult, that.validationResult);
 
     }
 

@@ -72,11 +72,7 @@ public class ConfigurationValue implements Serializable, Validatable {
 
         ConfigurationValue that = (ConfigurationValue) o;
 
-        if (!Objects.equals(value, that.value)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(value, that.value);
     }
 
     @Override

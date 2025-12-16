@@ -100,26 +100,12 @@ public class ActiveJob {
 
         ActiveJob activeJob = (ActiveJob) o;
 
-        if (id != activeJob.id) {
-            return false;
-        }
-        if (!Objects.equals(buildName, activeJob.buildName)) {
-            return false;
-        }
-        if (!Objects.equals(pipelineCounter, activeJob.pipelineCounter)) {
-            return false;
-        }
-        if (!Objects.equals(pipelineLabel, activeJob.pipelineLabel)) {
-            return false;
-        }
-        if (!Objects.equals(pipelineName, activeJob.pipelineName)) {
-            return false;
-        }
-        if (!Objects.equals(stageName, activeJob.stageName)) {
-            return false;
-        }
-
-        return true;
+        return id == activeJob.id &&
+            Objects.equals(buildName, activeJob.buildName) &&
+            Objects.equals(pipelineCounter, activeJob.pipelineCounter) &&
+            Objects.equals(pipelineLabel, activeJob.pipelineLabel) &&
+            Objects.equals(pipelineName, activeJob.pipelineName) &&
+            Objects.equals(stageName, activeJob.stageName);
     }
 
     @Override

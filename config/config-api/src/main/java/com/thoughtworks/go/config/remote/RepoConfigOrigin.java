@@ -42,8 +42,12 @@ public class RepoConfigOrigin implements ConfigOrigin {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         RepoConfigOrigin that = (RepoConfigOrigin) o;
         return Objects.equals(configRepo, that.configRepo) &&
             Objects.equals(revision, that.revision);

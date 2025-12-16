@@ -59,19 +59,11 @@ public class AuthorizationPluginInfo extends PluginInfo {
 
         AuthorizationPluginInfo that = (AuthorizationPluginInfo) o;
 
-        if (!Objects.equals(authConfigSettings, that.authConfigSettings)) {
-            return false;
-        }
-        if (!Objects.equals(roleSettings, that.roleSettings)) {
-            return false;
-        }
-        if (!Objects.equals(image, that.image)) {
-            return false;
-        }
-        if (!Objects.equals(capabilities, that.capabilities)) {
-            return false;
-        }
-        return super.equals(that);
+        return Objects.equals(authConfigSettings, that.authConfigSettings) &&
+            Objects.equals(roleSettings, that.roleSettings) &&
+            Objects.equals(image, that.image) &&
+            Objects.equals(capabilities, that.capabilities) &&
+            super.equals(that);
     }
 
     @Override

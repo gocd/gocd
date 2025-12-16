@@ -199,22 +199,12 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
 
         AbstractTfsCommand that = (AbstractTfsCommand) o;
 
-        if (!Objects.equals(domain, that.domain)) {
-            return false;
-        }
-        if (!Objects.equals(password, that.password)) {
-            return false;
-        }
-        if (!Objects.equals(projectPath, that.projectPath)) {
-            return false;
-        }
-        if (!Objects.equals(url, that.url)) {
-            return false;
-        }
-        if (!Objects.equals(userName, that.userName)) {
-            return false;
-        }
-        return Objects.equals(workspace, that.workspace);
+        return Objects.equals(domain, that.domain) &&
+            Objects.equals(password, that.password) &&
+            Objects.equals(projectPath, that.projectPath) &&
+            Objects.equals(url, that.url) &&
+            Objects.equals(userName, that.userName) &&
+            Objects.equals(workspace, that.workspace);
     }
 
     @Override

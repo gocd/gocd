@@ -285,11 +285,9 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
 
         HgMaterial that = (HgMaterial) o;
 
-        if (!Objects.equals(url, that.url)) {
-            return false;
-        }
+        return Objects.equals(url, that.url) &&
+            Objects.equals(branch, that.branch);
 
-        return Objects.equals(branch, that.branch);
     }
 
     @Override
@@ -312,8 +310,12 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
 
     @Override
     public String getShortRevision(String revision) {
-        if (revision == null) return null;
-        if (revision.length() < 12) return revision;
+        if (revision == null) {
+            return null;
+        }
+        if (revision.length() < 12) {
+            return revision;
+        }
         return revision.substring(0, 12);
     }
 

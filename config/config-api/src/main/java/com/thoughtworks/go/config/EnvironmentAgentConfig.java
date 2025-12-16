@@ -67,11 +67,7 @@ public class EnvironmentAgentConfig implements Validatable {
 
         EnvironmentAgentConfig that = (EnvironmentAgentConfig) o;
 
-        if (!Objects.equals(uuid, that.uuid)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(uuid, that.uuid);
     }
 
     @Override

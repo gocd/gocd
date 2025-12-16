@@ -172,13 +172,9 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
             return false;
         }
         DependencyMaterialConfig that = (DependencyMaterialConfig) o;
-        if (!Objects.equals(type, that.type)) {
-            return false;
-        }
-        if (!Objects.equals(pipelineName, that.pipelineName)) {
-            return false;
-        }
-        return Objects.equals(stageName, that.stageName);
+        return Objects.equals(type, that.type) &&
+            Objects.equals(pipelineName, that.pipelineName) &&
+            Objects.equals(stageName, that.stageName);
     }
 
     @Override

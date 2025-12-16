@@ -249,8 +249,12 @@ public class Agent extends PersistentObject {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Agent that = (Agent) o;
         return disabled == that.disabled &&
                 Objects.equals(hostname, that.hostname) &&

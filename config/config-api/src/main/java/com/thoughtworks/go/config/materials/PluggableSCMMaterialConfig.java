@@ -320,15 +320,10 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
 
         PluggableSCMMaterialConfig that = (PluggableSCMMaterialConfig) o;
 
-        if (!Objects.equals(folder, that.folder)) {
-            return false;
-        }
+        return Objects.equals(folder, that.folder) &&
+            Objects.equals(scmConfig, that.scmConfig) &&
+            super.equals(that);
 
-        if (!Objects.equals(scmConfig, that.scmConfig)) {
-            return false;
-        }
-
-        return super.equals(that);
     }
 
     @Override

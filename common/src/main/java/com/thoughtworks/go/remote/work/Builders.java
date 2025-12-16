@@ -146,19 +146,9 @@ public class Builders {
 
         Builders builders1 = (Builders) o;
 
-        if (cancelStarted != builders1.cancelStarted) {
-            return false;
-        }
-
-        if (!Objects.equals(builders, builders1.builders)) {
-            return false;
-        }
-
-        if (!Objects.equals(currentBuilder, builders1.currentBuilder)) {
-            return false;
-        }
-
-        return true;
+        return cancelStarted == builders1.cancelStarted &&
+            Objects.equals(builders, builders1.builders) &&
+            Objects.equals(currentBuilder, builders1.currentBuilder);
     }
 
     @Override

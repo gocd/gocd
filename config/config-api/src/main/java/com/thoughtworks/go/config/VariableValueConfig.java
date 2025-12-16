@@ -42,12 +42,8 @@ public class VariableValueConfig implements Serializable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof VariableValueConfig that)) {
-            return false;
-        }
-
-        return Objects.equals(value, that.value);
-
+        return o instanceof VariableValueConfig that &&
+            Objects.equals(value, that.value);
     }
 
     @Override

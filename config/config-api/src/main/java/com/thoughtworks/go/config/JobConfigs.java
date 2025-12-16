@@ -132,8 +132,9 @@ public class JobConfigs extends BaseCollection<JobConfig> implements Validatable
 
     public JobConfig getJob(final CaseInsensitiveString job) {
         for (JobConfig jobConfig : this) {
-           if (jobConfig.name().equals(job))
+           if (jobConfig.name().equals(job)) {
                return jobConfig;
+           }
         }
         return null;
     }

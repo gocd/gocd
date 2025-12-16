@@ -41,17 +41,9 @@ public class SendEmailMessage implements GoMessage {
 
         SendEmailMessage that = (SendEmailMessage) o;
 
-        if (!Objects.equals(body, that.body)) {
-            return false;
-        }
-        if (!Objects.equals(subject, that.subject)) {
-            return false;
-        }
-        if (!Objects.equals(to, that.to)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(body, that.body) &&
+            Objects.equals(subject, that.subject) &&
+            Objects.equals(to, that.to);
     }
 
     @Override

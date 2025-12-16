@@ -44,8 +44,12 @@ public class JobStateTransitions extends LinkedHashSet<JobStateTransition> {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null) return false;
-        if (o.getClass()!=this.getClass()) return false;
+        if (o == null) {
+            return false;
+        }
+        if (o.getClass()!=this.getClass()) {
+            return false;
+        }
         JobStateTransitions that = (JobStateTransitions) o;
         return new HashSet<>(this).equals(new HashSet<>(that));
     }

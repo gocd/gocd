@@ -125,17 +125,9 @@ public abstract class BuildTask extends AbstractTask implements CommandTask {
 
         BuildTask buildTask = (BuildTask) o;
 
-        if (!Objects.equals(buildFile, buildTask.buildFile)) {
-            return false;
-        }
-        if (!Objects.equals(target, buildTask.target)) {
-            return false;
-        }
-        if (!Objects.equals(workingDirectory, buildTask.workingDirectory)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(buildFile, buildTask.buildFile) &&
+            Objects.equals(target, buildTask.target) &&
+            Objects.equals(workingDirectory, buildTask.workingDirectory);
     }
 
     @Override

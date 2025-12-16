@@ -58,10 +58,8 @@ public class PluggableInstanceSettings {
 
         PluggableInstanceSettings that = (PluggableInstanceSettings) o;
 
-        if (!Objects.equals(configurations, that.configurations)) {
-            return false;
-        }
-        return Objects.equals(view, that.view);
+        return Objects.equals(configurations, that.configurations) &&
+            Objects.equals(view, that.view);
 
     }
 

@@ -42,8 +42,9 @@ public class AdminUser implements Admin {
 
     @Override
     public void validate(ValidationContext validationContext) {
-        if (name == null || name.isBlank())
+        if (name == null || name.isBlank()) {
             addError("User cannot be blank.");
+        }
     }
 
     @Override

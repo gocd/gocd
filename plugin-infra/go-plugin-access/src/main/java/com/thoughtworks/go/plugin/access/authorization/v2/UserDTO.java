@@ -77,17 +77,9 @@ class UserDTO {
 
         UserDTO user = (UserDTO) o;
 
-        if (!Objects.equals(displayName, user.displayName)) {
-            return false;
-        }
-        if (!Objects.equals(emailId, user.emailId)) {
-            return false;
-        }
-        if (!Objects.equals(username, user.username)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(displayName, user.displayName) &&
+            Objects.equals(emailId, user.emailId) &&
+            Objects.equals(username, user.username);
     }
 
     @Override

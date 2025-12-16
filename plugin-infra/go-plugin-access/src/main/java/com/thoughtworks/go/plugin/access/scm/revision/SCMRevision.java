@@ -114,11 +114,7 @@ public class SCMRevision {
 
         SCMRevision that = (SCMRevision) o;
 
-        if (!Objects.equals(revision, that.revision)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(revision, that.revision);
     }
 
     @Override

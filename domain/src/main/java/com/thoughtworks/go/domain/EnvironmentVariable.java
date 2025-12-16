@@ -106,17 +106,10 @@ public class EnvironmentVariable extends PersistentObject {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof EnvironmentVariable that)) {
-            return false;
-        }
-
-        if (isSecure != that.isSecure) {
-            return false;
-        }
-        if (!Objects.equals(name, that.name)) {
-            return false;
-        }
-        return Objects.equals(value, that.value);
+        return o instanceof EnvironmentVariable that &&
+            isSecure == that.isSecure &&
+            Objects.equals(name, that.name) &&
+            Objects.equals(value, that.value);
     }
 
     @Override

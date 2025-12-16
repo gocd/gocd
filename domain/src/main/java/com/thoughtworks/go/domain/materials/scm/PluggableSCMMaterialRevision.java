@@ -70,14 +70,8 @@ public class PluggableSCMMaterialRevision implements Revision {
 
         PluggableSCMMaterialRevision revision1 = (PluggableSCMMaterialRevision) o;
 
-        if (!Objects.equals(revision, revision1.revision)) {
-            return false;
-        }
-        if (!Objects.equals(timestamp, revision1.timestamp)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(revision, revision1.revision) &&
+            Objects.equals(timestamp, revision1.timestamp);
     }
 
     @Override

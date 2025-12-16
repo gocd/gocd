@@ -45,17 +45,9 @@ public class JobConfigIdentifier {
 
         JobConfigIdentifier that = (JobConfigIdentifier) o;
 
-        if (!Objects.equals(jobName, that.jobName)) {
-            return false;
-        }
-        if (!Objects.equals(pipelineName, that.pipelineName)) {
-            return false;
-        }
-        if (!Objects.equals(stageName, that.stageName)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(jobName, that.jobName) &&
+            Objects.equals(pipelineName, that.pipelineName) &&
+            Objects.equals(stageName, that.stageName);
     }
 
     @Override

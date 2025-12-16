@@ -62,13 +62,9 @@ public final class TaskProperty {
 
         TaskProperty that = (TaskProperty) o;
 
-        if (!Objects.equals(name, that.name)) {
-            return false;
-        }
-        if (!Objects.equals(value, that.value)) {
-            return false;
-        }
-        return Objects.equals(cssClass, that.cssClass);
+        return Objects.equals(name, that.name) &&
+            Objects.equals(value, that.value) &&
+            Objects.equals(cssClass, that.cssClass);
     }
 
     @Override

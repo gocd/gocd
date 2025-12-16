@@ -149,7 +149,9 @@ public class ElasticAgentPluginService {
             elasticAgentsOfMissingPlugins.remove(descriptor.id());
             List<ClusterProfile> clusterProfiles = clusterProfilesService.getPluginProfiles().findByPluginId(descriptor.id());
             boolean secretsResolved = resolveSecrets(descriptor.id(), clusterProfiles);
-            if (!secretsResolved) continue;
+            if (!secretsResolved) {
+                continue;
+            }
             serverPingQueue.post(new ServerPingMessage(descriptor.id(), clusterProfiles), pingMessageTimeToLive);
             serverHealthService.removeByScope(scope(descriptor.id()));
         }
@@ -385,8 +387,9 @@ public class ElasticAgentPluginService {
     }
 
     private void resolveSecrets(ClusterProfile clusterProfile, ElasticProfile elasticProfile) {
-        if (clusterProfile != null)
+        if (clusterProfile != null) {
             secretParamResolver.resolve(clusterProfile);
+        }
         secretParamResolver.resolve(elasticProfile);
     }
 }

@@ -74,17 +74,9 @@ public abstract class DirectoryEntry implements Htmlable, JsonAware {
 
         DirectoryEntry that = (DirectoryEntry) o;
 
-        if (!Objects.equals(fileName, that.fileName)) {
-            return false;
-        }
-        if (!Objects.equals(type, that.type)) {
-            return false;
-        }
-        if (!Objects.equals(url, that.url)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(fileName, that.fileName) &&
+            Objects.equals(type, that.type) &&
+            Objects.equals(url, that.url);
     }
 
     @Override

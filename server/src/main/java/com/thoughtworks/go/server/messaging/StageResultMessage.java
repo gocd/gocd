@@ -55,17 +55,9 @@ public class StageResultMessage implements GoMessage {
 
         StageResultMessage that = (StageResultMessage) o;
 
-        if (!Objects.equals(cancelledBy, that.cancelledBy)) {
-            return false;
-        }
-        if (event != that.event) {
-            return false;
-        }
-        if (!Objects.equals(stageIdentifier, that.stageIdentifier)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(cancelledBy, that.cancelledBy) &&
+            event == that.event &&
+            Objects.equals(stageIdentifier, that.stageIdentifier);
     }
 
     @Override

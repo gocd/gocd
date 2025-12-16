@@ -95,8 +95,12 @@ public class RolesConfigBulkUpdateCommand implements EntityConfigUpdateCommand<R
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         RolesConfigBulkUpdateCommand that = (RolesConfigBulkUpdateCommand) o;
         return Objects.equals(currentUser, that.currentUser) &&
                 Objects.equals(goConfigService, that.goConfigService) &&

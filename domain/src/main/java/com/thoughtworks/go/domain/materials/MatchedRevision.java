@@ -75,22 +75,12 @@ public class MatchedRevision {
 
         MatchedRevision that = (MatchedRevision) o;
 
-        if (!Objects.equals(searchString, that.searchString)) {
-            return false;
-        }
-        if (!Objects.equals(shortRevision, that.shortRevision)) {
-            return false;
-        }
-        if (!Objects.equals(longRevision, that.longRevision)) {
-            return false;
-        }
-        if (!Objects.equals(user, that.user)) {
-            return false;
-        }
-        if (!Objects.equals(checkinTime, that.checkinTime)) {
-            return false;
-        }
-        return Objects.equals(comment, that.comment);
+        return Objects.equals(searchString, that.searchString) &&
+            Objects.equals(shortRevision, that.shortRevision) &&
+            Objects.equals(longRevision, that.longRevision) &&
+            Objects.equals(user, that.user) &&
+            Objects.equals(checkinTime, that.checkinTime) &&
+            Objects.equals(comment, that.comment);
     }
 
     @Override

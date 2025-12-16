@@ -78,21 +78,23 @@ public class ServerBinaryDownloader implements Downloader {
     public boolean downloadIfNecessary(final DownloadableFile downloadableFile) {
         boolean updated = false;
         boolean downloaded = false;
-        while (!updated) try {
-            fetchUpdateCheckHeaders(downloadableFile);
-            if (downloadableFile.doesNotExist() || !downloadableFile.isChecksumEquals(getMd5())) {
-                PerfTimer timer = PerfTimer.start("Downloading new " + downloadableFile + " with md5 signature: " + md5);
-                downloaded = download(downloadableFile);
-                timer.stop();
-            }
-            updated = true;
-        } catch (Exception e) {
+        while (!updated) {
             try {
-                int period = Integer.parseInt(System.getProperty("sleep.for.download", DEFAULT_FAILED_DOWNLOAD_SLEEP_MS));
-                LOG.error("Couldn't update {}. Sleeping for {}s. Error: ", downloadableFile, TimeUnit.SECONDS.convert(period, TimeUnit.MILLISECONDS), e);
-                Thread.sleep(period);
-            } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
+                fetchUpdateCheckHeaders(downloadableFile);
+                if (downloadableFile.doesNotExist() || !downloadableFile.isChecksumEquals(getMd5())) {
+                    PerfTimer timer = PerfTimer.start("Downloading new " + downloadableFile + " with md5 signature: " + md5);
+                    downloaded = download(downloadableFile);
+                    timer.stop();
+                }
+                updated = true;
+            } catch (Exception e) {
+                try {
+                    int period = Integer.parseInt(System.getProperty("sleep.for.download", DEFAULT_FAILED_DOWNLOAD_SLEEP_MS));
+                    LOG.error("Couldn't update {}. Sleeping for {}s. Error: ", downloadableFile, TimeUnit.SECONDS.convert(period, TimeUnit.MILLISECONDS), e);
+                    Thread.sleep(period);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }
         return downloaded;

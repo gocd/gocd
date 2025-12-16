@@ -402,31 +402,15 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
 
         JobInstance instance = (JobInstance) o;
 
-        if (ignored != instance.ignored) {
-            return false;
-        }
-        if (stageId != instance.stageId) {
-            return false;
-        }
-        if (!Objects.equals(agentUuid, instance.agentUuid)) {
-            return false;
-        }
-        if (!Objects.equals(identifier, instance.identifier)) {
-            return false;
-        }
-        if (!Objects.equals(name, instance.name)) {
-            return false;
-        }
-        if (result != instance.result) {
-            return false;
-        }
-        if (!Objects.equals(scheduledDate, instance.scheduledDate)) {
-            return false;
-        }
-        if (state != instance.state) {
-            return false;
-        }
-        return Objects.equals(stateTransitions, instance.stateTransitions);
+        return ignored == instance.ignored &&
+            stageId == instance.stageId &&
+            Objects.equals(agentUuid, instance.agentUuid) &&
+            Objects.equals(identifier, instance.identifier) &&
+            Objects.equals(name, instance.name) &&
+            result == instance.result &&
+            Objects.equals(scheduledDate, instance.scheduledDate) &&
+            state == instance.state &&
+            Objects.equals(stateTransitions, instance.stateTransitions);
     }
 
     @Override

@@ -57,14 +57,8 @@ public class ModifiedFile implements Serializable {
 
         ModifiedFile that = (ModifiedFile) o;
 
-        if (action != that.action) {
-            return false;
-        }
-        if (!Objects.equals(fileName, that.fileName)) {
-            return false;
-        }
-
-        return true;
+        return action == that.action &&
+            Objects.equals(fileName, that.fileName);
     }
 
     @Override

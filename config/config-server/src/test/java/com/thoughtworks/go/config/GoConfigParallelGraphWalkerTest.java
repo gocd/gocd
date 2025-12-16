@@ -24,6 +24,7 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -213,11 +214,7 @@ public class GoConfigParallelGraphWalkerTest {
 
             SomeOtherObject that = (SomeOtherObject) o;
 
-            if (id != null ? !id.equals(that.id) : that.id != null) {
-                return false;
-            }
-
-            return true;
+            return Objects.equals(id, that.id);
         }
 
         @Override

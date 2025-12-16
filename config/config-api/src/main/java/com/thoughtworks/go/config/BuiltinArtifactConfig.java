@@ -97,8 +97,12 @@ public abstract class BuiltinArtifactConfig implements ArtifactTypeConfig {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         BuiltinArtifactConfig that = (BuiltinArtifactConfig) o;
         return Objects.equals(source, that.source) &&
                 Objects.equals(destination, that.destination);

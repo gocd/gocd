@@ -39,10 +39,7 @@ public class AccessToken implements Credentials {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof AccessToken that)) {
-            return false;
-        }
-        return Objects.equals(credentials, that.credentials);
+        return o instanceof AccessToken that && Objects.equals(credentials, that.credentials);
     }
 
     @Override

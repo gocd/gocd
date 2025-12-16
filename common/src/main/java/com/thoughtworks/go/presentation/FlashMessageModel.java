@@ -47,14 +47,8 @@ public class FlashMessageModel implements Serializable {
 
         FlashMessageModel that = (FlashMessageModel) o;
 
-        if (!Objects.equals(flashClassName, that.flashClassName)) {
-            return false;
-        }
-        if (!Objects.equals(message, that.message)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(flashClassName, that.flashClassName) &&
+            Objects.equals(message, that.message);
     }
 
     @Override

@@ -240,20 +240,12 @@ public class ArtifactPlan extends PersistentObject {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof ArtifactPlan that)) {
-            return false;
-        }
+        return o instanceof ArtifactPlan that &&
+            artifactPlanType == that.artifactPlanType &&
+            Objects.equals(src, that.src) &&
+            Objects.equals(dest, that.dest) &&
+            Objects.equals(pluggableArtifactConfigJson, that.pluggableArtifactConfigJson);
 
-        if (artifactPlanType != that.artifactPlanType) {
-            return false;
-        }
-        if (!Objects.equals(src, that.src)) {
-            return false;
-        }
-        if (!Objects.equals(dest, that.dest)) {
-            return false;
-        }
-        return Objects.equals(pluggableArtifactConfigJson, that.pluggableArtifactConfigJson);
     }
 
     @Override

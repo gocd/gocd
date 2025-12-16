@@ -54,15 +54,8 @@ public class Author {
         }
 
         Author author = (Author) o;
-
-        if (!Objects.equals(email, author.email)) {
-            return false;
-        }
-        if (!Objects.equals(name, author.name)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(email, author.email) &&
+            Objects.equals(name, author.name);
     }
 
     @Override

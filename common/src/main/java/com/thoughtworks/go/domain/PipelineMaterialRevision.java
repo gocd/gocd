@@ -131,28 +131,14 @@ public class PipelineMaterialRevision extends PersistentObject {
 
         PipelineMaterialRevision that = (PipelineMaterialRevision) o;
 
-        if (!Objects.equals(name, that.name)) {
-            return false;
-        }
-        if (pipelineId != that.pipelineId) {
-            return false;
-        }
-        if (!Objects.equals(materialId, that.materialId)) {
-            return false;
-        }
-        if (!Objects.equals(folder, that.folder)) {
-            return false;
-        }
-        if (changed != that.changed) {
-            return false;
-        }
-        if (!Objects.equals(actualFromRevisionId, that.actualFromRevisionId)) {
-            return false;
-        }
-        if (!Objects.equals(fromRevision, that.fromRevision)) {
-            return false;
-        }
-        return Objects.equals(toRevision, that.toRevision);
+        return Objects.equals(name, that.name) &&
+            pipelineId == that.pipelineId &&
+            Objects.equals(materialId, that.materialId) &&
+            Objects.equals(folder, that.folder) &&
+            changed == that.changed &&
+            Objects.equals(actualFromRevisionId, that.actualFromRevisionId) &&
+            Objects.equals(fromRevision, that.fromRevision) &&
+            Objects.equals(toRevision, that.toRevision);
     }
 
     @Override

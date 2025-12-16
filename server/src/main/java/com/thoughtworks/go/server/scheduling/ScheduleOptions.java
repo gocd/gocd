@@ -70,11 +70,9 @@ public class ScheduleOptions {
 
         ScheduleOptions that = (ScheduleOptions) o;
 
-        if (!Objects.equals(specifiedRevisions, that.specifiedRevisions)) {
-            return false;
-        }
         // `Set` because we explicitly want to ignore ordering while comparing, for tests
-        return variables != null ? new HashSet<>(variables).equals(new HashSet<>(that.variables)) : that.variables == null;
+        return Objects.equals(specifiedRevisions, that.specifiedRevisions) &&
+            (variables != null ? new HashSet<>(variables).equals(new HashSet<>(that.variables)) : that.variables == null);
     }
 
     @Override

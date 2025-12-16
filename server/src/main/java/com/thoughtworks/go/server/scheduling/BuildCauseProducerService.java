@@ -240,8 +240,9 @@ public class BuildCauseProducerService {
 
     private boolean isGoodReasonToSchedule(PipelineConfig pipelineConfig, BuildCause buildCause, BuildType buildType,
                                            boolean materialConfigurationChanged) {
-        if (buildCause == null)
+        if (buildCause == null) {
             return false;
+        }
 
         boolean validCause = buildType.isValidBuildCause(pipelineConfig, buildCause);
 

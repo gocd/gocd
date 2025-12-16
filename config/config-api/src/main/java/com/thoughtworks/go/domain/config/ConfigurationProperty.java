@@ -140,13 +140,9 @@ public class ConfigurationProperty implements Serializable, Validatable, SecretP
 
         ConfigurationProperty that = (ConfigurationProperty) o;
 
-        if (!Objects.equals(configurationKey, that.configurationKey)) {
-            return false;
-        }
-        if (!Objects.equals(configurationValue, that.configurationValue)) {
-            return false;
-        }
-        return cipher.passwordEquals(encryptedValue, that.encryptedValue);
+        return Objects.equals(configurationKey, that.configurationKey) &&
+            Objects.equals(configurationValue, that.configurationValue) &&
+            cipher.passwordEquals(encryptedValue, that.encryptedValue);
     }
 
     @Override

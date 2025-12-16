@@ -55,10 +55,8 @@ public class PluggableTaskPluginInfo extends PluginInfo {
 
         PluggableTaskPluginInfo that = (PluggableTaskPluginInfo) o;
 
-        if (!Objects.equals(displayName, that.displayName)) {
-            return false;
-        }
-        return Objects.equals(taskSettings, that.taskSettings);
+        return Objects.equals(displayName, that.displayName) &&
+            Objects.equals(taskSettings, that.taskSettings);
     }
 
     @Override

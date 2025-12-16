@@ -78,17 +78,10 @@ public class PipelineState extends PersistentObject {
         }
 
         PipelineState that = (PipelineState) o;
-
-        if (locked != that.locked) {
-            return false;
-        }
-        if (lockedByPipelineId != that.lockedByPipelineId) {
-            return false;
-        }
-        if (!pipelineName.equals(that.pipelineName)) {
-            return false;
-        }
-        return Objects.equals(lockedBy, that.lockedBy);
+        return locked == that.locked &&
+            lockedByPipelineId == that.lockedByPipelineId &&
+            pipelineName.equals(that.pipelineName) &&
+            Objects.equals(lockedBy, that.lockedBy);
     }
 
     @Override

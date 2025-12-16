@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.plugin.access.scm;
 
-import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.ModifiedAction;
@@ -170,7 +169,9 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     @Override
     public MaterialPollResult responseMessageForLatestRevisionsSince(String responseBody) {
-        if (isEmpty(responseBody)) return new MaterialPollResult();
+        if (isEmpty(responseBody)) {
+            return new MaterialPollResult();
+        }
         Map responseBodyMap = getResponseMap(responseBody);
         return new MaterialPollResult(toMaterialDataMap(responseBodyMap), toSCMRevisions(responseBodyMap));
     }

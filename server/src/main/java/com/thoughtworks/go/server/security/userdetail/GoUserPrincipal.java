@@ -59,17 +59,10 @@ public class GoUserPrincipal {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof GoUserPrincipal that)) {
-            return false;
-        }
-
-        if (!Objects.equals(authorities, that.authorities)) {
-            return false;
-        }
-        if (!Objects.equals(displayName, that.displayName)) {
-            return false;
-        }
-        return Objects.equals(username, that.username);
+        return o instanceof GoUserPrincipal that &&
+            Objects.equals(authorities, that.authorities) &&
+            Objects.equals(displayName, that.displayName) &&
+            Objects.equals(username, that.username);
     }
 
     @Override

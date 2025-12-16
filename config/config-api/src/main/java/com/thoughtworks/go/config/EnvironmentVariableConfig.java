@@ -114,16 +114,10 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
 
         EnvironmentVariableConfig that = (EnvironmentVariableConfig) o;
 
-        if (isSecure != that.isSecure) {
-            return false;
-        }
-        if (!Objects.equals(name, that.name)) {
-            return false;
-        }
-        if (!Objects.equals(value, that.value)) {
-            return false;
-        }
-        return goCipher.passwordEquals(encryptedValue, that.encryptedValue);
+        return isSecure == that.isSecure &&
+            Objects.equals(name, that.name) &&
+            Objects.equals(value, that.value) &&
+            goCipher.passwordEquals(encryptedValue, that.encryptedValue);
     }
 
     @Override

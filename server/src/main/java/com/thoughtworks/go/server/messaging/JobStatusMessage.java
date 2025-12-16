@@ -64,13 +64,9 @@ public class JobStatusMessage implements GoMessage {
 
         JobStatusMessage that = (JobStatusMessage) o;
 
-        if (!Objects.equals(agentUuid, that.agentUuid)) {
-            return false;
-        }
-        if (!Objects.equals(jobIdentifier, that.jobIdentifier)) {
-            return false;
-        }
-        return state == that.state;
+        return Objects.equals(agentUuid, that.agentUuid) &&
+            Objects.equals(jobIdentifier, that.jobIdentifier) &&
+            state == that.state;
     }
 
     @Override

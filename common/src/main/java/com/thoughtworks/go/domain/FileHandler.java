@@ -103,11 +103,8 @@ public class FileHandler implements FetchHandler {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof FileHandler that)) {
-            return false;
-        }
-
-        return Objects.equals(artifact, that.artifact);
+        return o instanceof FileHandler that &&
+            Objects.equals(artifact, that.artifact);
     }
 
     @Override

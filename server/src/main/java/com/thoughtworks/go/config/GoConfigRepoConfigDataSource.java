@@ -89,8 +89,9 @@ public class GoConfigRepoConfigDataSource implements ChangedRepoConfigWatchListL
     @TestOnly
     public boolean latestParseHasFailedForMaterial(MaterialConfig material) {
         PartialConfigParseResult result = getLastParseResult(material);
-        if (result == null)
+        if (result == null) {
             return false;
+        }
         return !result.isSuccessful();
     }
 
@@ -100,10 +101,12 @@ public class GoConfigRepoConfigDataSource implements ChangedRepoConfigWatchListL
 
     public PartialConfig latestPartialConfigForMaterial(MaterialConfig material) throws Exception {
         PartialConfigParseResult result = getLastParseResult(material);
-        if (result == null)
+        if (result == null) {
             return null;
-        if (!result.isSuccessful())
+        }
+        if (!result.isSuccessful()) {
             throw result.getLastFailure();
+        }
 
         return result.lastGoodPartialConfig();
     }
@@ -215,8 +218,9 @@ public class GoConfigRepoConfigDataSource implements ChangedRepoConfigWatchListL
 
     public String getRevisionAtLastAttempt(MaterialConfig material) {
         PartialConfigParseResult result = getLastParseResult(material);
-        if (result == null || result.getLatestParsedModification() == null)
+        if (result == null || result.getLatestParsedModification() == null) {
             return null;
+        }
 
         return result.getLatestParsedModification().getRevision();
     }

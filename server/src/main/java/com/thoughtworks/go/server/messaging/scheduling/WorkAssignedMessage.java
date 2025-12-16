@@ -49,14 +49,7 @@ public class WorkAssignedMessage implements GoMessage {
 
         WorkAssignedMessage that = (WorkAssignedMessage) o;
 
-        if (!Objects.equals(agent, that.agent)) {
-            return false;
-        }
-        if (!Objects.equals(work, that.work)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(agent, that.agent) && Objects.equals(work, that.work);
     }
 
     @Override

@@ -140,8 +140,9 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     private void validateOrigins(PipelineConfig currentPipeline, ValidationContext validationContext) {
         for (DependencyMaterialConfig material : filterDependencyMaterials()) {
             PipelineConfig upstream = validationContext.getPipelineConfigByName(material.getPipelineName());
-            if (upstream == null)
+            if (upstream == null) {
                 continue; // other rule validates existence of upstream
+            }
             ConfigOrigin myOrigin = currentPipeline.getOrigin();
             ConfigOrigin upstreamOrigin = upstream.getOrigin();
 

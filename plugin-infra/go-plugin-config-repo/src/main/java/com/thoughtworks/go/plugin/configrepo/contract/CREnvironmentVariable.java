@@ -65,10 +65,11 @@ public class CREnvironmentVariable extends CRBase {
     }
 
     public String validateNameUniqueness(HashSet<String> keys) {
-        if (keys.contains(this.getName()))
+        if (keys.contains(this.getName())) {
             return String.format("Environment variable %s defined more than once", this.getName());
-        else
+        } else {
             keys.add(this.getName());
+        }
         return null;
     }
 
@@ -87,10 +88,12 @@ public class CREnvironmentVariable extends CRBase {
     }
 
     private void validateValue(ErrorCollection errors, String location) {
-        if (StringUtils.isBlank(value) && StringUtils.isBlank(encryptedValue))
+        if (StringUtils.isBlank(value) && StringUtils.isBlank(encryptedValue)) {
             errors.addError(location, "Environment variable value not set");
-        if (!StringUtils.isBlank(value) && !StringUtils.isBlank(encryptedValue))
+        }
+        if (!StringUtils.isBlank(value) && !StringUtils.isBlank(encryptedValue)) {
             errors.addError(location, "Environment variable value and encrypted_value is set. Only one field can be assigned.");
+        }
     }
 
     public boolean hasEncryptedValue() {

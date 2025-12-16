@@ -98,7 +98,9 @@ public class ConsoleLogSender {
             }
             // empty the tail end of the file because the build could have been marked completed, and exited the
             // loop before we've seen the last content update
-            if (isRunningBuild) sendLogs(webSocket, streamer, jobIdentifier);
+            if (isRunningBuild) {
+                sendLogs(webSocket, streamer, jobIdentifier);
+            }
 
             //send the remaining logs if any
             if (detectCompleted(jobIdentifier)) {
@@ -150,7 +152,9 @@ public class ConsoleLogSender {
     }
 
     private void flushBuffer(ByteArrayOutputStream buffer, SocketEndpoint webSocket) throws IOException {
-        if (buffer.size() == 0) return;
+        if (buffer.size() == 0) {
+            return;
+        }
         webSocket.send(ByteBuffer.wrap(maybeGzipIfLargeEnough(buffer.toByteArray())));
         buffer.reset();
     }

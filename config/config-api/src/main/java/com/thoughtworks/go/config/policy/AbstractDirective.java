@@ -143,8 +143,12 @@ public abstract class AbstractDirective implements Directive {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         AbstractDirective directive = (AbstractDirective) o;
         return Objects.equals(action, directive.action) &&
                 Objects.equals(type, directive.type) &&

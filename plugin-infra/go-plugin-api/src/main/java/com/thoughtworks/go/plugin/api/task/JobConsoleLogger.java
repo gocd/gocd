@@ -25,7 +25,9 @@ public class JobConsoleLogger {
     }
 
     public static JobConsoleLogger getConsoleLogger() {
-        if (context == null) throw new RuntimeException("context is null");
+        if (context == null) {
+            throw new RuntimeException("context is null");
+        }
         return new JobConsoleLogger();
     }
 

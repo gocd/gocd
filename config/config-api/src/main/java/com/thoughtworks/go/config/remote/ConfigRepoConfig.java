@@ -120,8 +120,9 @@ public class ConfigRepoConfig extends RuleAwarePluginProfile {
     }
 
     private void validateAutoUpdateIsConsistentAmongSimilarMaterials(ValidationContext validationContext) {
-        if (validationContext == null)
+        if (validationContext == null) {
             return;
+        }
 
         MaterialConfig material = getRepo();
         if (material != null) {

@@ -218,9 +218,15 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         GitMaterial that = (GitMaterial) o;
         return Objects.equals(url, that.url) &&
                 Objects.equals(refSpecOrBranch, that.refSpecOrBranch) &&
@@ -260,8 +266,12 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
 
     @Override
     public String getShortRevision(String revision) {
-        if (revision == null) return null;
-        if (revision.length() < 7) return revision;
+        if (revision == null) {
+            return null;
+        }
+        if (revision.length() < 7) {
+            return revision;
+        }
         return revision.substring(0, 7);
     }
 

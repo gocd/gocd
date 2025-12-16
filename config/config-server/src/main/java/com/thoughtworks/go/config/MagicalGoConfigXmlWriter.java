@@ -226,8 +226,9 @@ public class MagicalGoConfigXmlWriter {
         }
 
         ConfigTag configTag = aClass.getAnnotation(ConfigTag.class);
-        if (configTag == null)
+        if (configTag == null) {
             throw bomb(format("Cannot get config tag for {0}", aClass));
+        }
         return new Element(configTag.value(), namespaceFor(configTag));
     }
 

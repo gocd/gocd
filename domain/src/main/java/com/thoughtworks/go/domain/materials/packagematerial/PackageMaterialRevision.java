@@ -71,14 +71,8 @@ public class PackageMaterialRevision implements Revision {
 
         PackageMaterialRevision revision1 = (PackageMaterialRevision) o;
 
-        if (!Objects.equals(revision, revision1.revision)) {
-            return false;
-        }
-        if (!Objects.equals(timestamp, revision1.timestamp)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(revision, revision1.revision) &&
+            Objects.equals(timestamp, revision1.timestamp);
     }
 
     @Override

@@ -74,20 +74,10 @@ public class StageStatusMessage implements GoMessage {
 
         StageStatusMessage that = (StageStatusMessage) o;
 
-        if (result != that.result) {
-            return false;
-        }
-        if (!stageIdentifier.equals(that.stageIdentifier)) {
-            return false;
-        }
-        if (stageState != that.stageState) {
-            return false;
-        }
-        if (!Objects.equals(userName, that.userName)) {
-            return false;
-        }
-
-        return true;
+        return result == that.result &&
+            stageIdentifier.equals(that.stageIdentifier) &&
+            stageState == that.stageState &&
+            Objects.equals(userName, that.userName);
     }
 
     @Override

@@ -52,14 +52,9 @@ public class ConfigSaveValidationContext implements ValidationContext {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof ConfigSaveValidationContext that)) {
-            return false;
-        }
-
-        if (!Objects.equals(immediateParent, that.immediateParent)) {
-            return false;
-        }
-        return Objects.equals(parentContext, that.parentContext);
+        return o instanceof ConfigSaveValidationContext that &&
+            Objects.equals(immediateParent, that.immediateParent) &&
+            Objects.equals(parentContext, that.parentContext);
     }
 
     @Override

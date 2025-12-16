@@ -226,22 +226,12 @@ public class ExecTask extends AbstractTask implements CommandTask {
 
         ExecTask execTask = (ExecTask) o;
 
-        if (!Objects.equals(timeout, execTask.timeout)) {
-            return false;
-        }
-        if (!Objects.equals(args, execTask.args)) {
-            return false;
-        }
-        if (!Objects.equals(argList, execTask.argList)) {
-            return false;
-        }
-        if (!Objects.equals(command, execTask.command)) {
-            return false;
-        }
-        if (!Objects.equals(workingDirectory, execTask.workingDirectory)) {
-            return false;
-        }
-        return super.equals(execTask);
+        return Objects.equals(timeout, execTask.timeout) &&
+            Objects.equals(args, execTask.args) &&
+            Objects.equals(argList, execTask.argList) &&
+            Objects.equals(command, execTask.command) &&
+            Objects.equals(workingDirectory, execTask.workingDirectory) &&
+            super.equals(execTask);
     }
 
     @Override

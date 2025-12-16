@@ -153,22 +153,12 @@ public class User extends PersistentObject {
         }
 
         User user = (User) o;
-        if (emailMe != user.emailMe) {
-            return false;
-        }
-        if (enabled != user.enabled) {
-            return false;
-        }
-        if (!Objects.equals(email, user.email)) {
-            return false;
-        }
-        if (!Objects.equals(matcher, user.matcher)) {
-            return false;
-        }
-        if (!Objects.equals(name, user.name)) {
-            return false;
-        }
-        return Objects.equals(displayName, user.displayName);
+        return emailMe == user.emailMe &&
+            enabled == user.enabled &&
+            Objects.equals(email, user.email) &&
+            Objects.equals(matcher, user.matcher) &&
+            Objects.equals(name, user.name) &&
+            Objects.equals(displayName, user.displayName);
     }
 
     @Override

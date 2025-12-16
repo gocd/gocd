@@ -45,8 +45,12 @@ public class ConfigRepoWithResult {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ConfigRepoWithResult that = (ConfigRepoWithResult) o;
         return Objects.equals(repo, that.repo) &&
                 Objects.equals(result, that.result);

@@ -133,10 +133,8 @@ public abstract class PluginProfile extends Configuration implements Validatable
 
         PluginProfile that = (PluginProfile) o;
 
-        if (!Objects.equals(id, that.id)) {
-            return false;
-        }
-        return Objects.equals(pluginId, that.pluginId);
+        return Objects.equals(id, that.id) &&
+            Objects.equals(pluginId, that.pluginId);
 
     }
 

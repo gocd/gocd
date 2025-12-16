@@ -247,10 +247,8 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
 
         ScmMaterialConfig that = (ScmMaterialConfig) o;
 
-        if (!Objects.equals(folder, that.folder)) {
-            return false;
-        }
-        return super.equals(that);
+        return Objects.equals(folder, that.folder) &&
+            super.equals(that);
     }
 
     @Override

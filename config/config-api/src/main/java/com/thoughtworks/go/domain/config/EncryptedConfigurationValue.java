@@ -65,11 +65,7 @@ public class EncryptedConfigurationValue implements Serializable, Validatable {
 
         EncryptedConfigurationValue that = (EncryptedConfigurationValue) o;
 
-        if (!Objects.equals(value, that.value)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(value, that.value);
     }
 
     @Override

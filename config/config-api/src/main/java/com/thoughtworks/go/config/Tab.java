@@ -77,14 +77,8 @@ public class Tab implements Validatable {
 
         Tab tab = (Tab) o;
 
-        if (!Objects.equals(name, tab.name)) {
-            return false;
-        }
-        if (!Objects.equals(path, tab.path)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(name, tab.name) &&
+            Objects.equals(path, tab.path);
     }
 
     @Override

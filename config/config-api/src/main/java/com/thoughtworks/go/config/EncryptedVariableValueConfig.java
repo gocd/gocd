@@ -44,11 +44,7 @@ public class EncryptedVariableValueConfig implements Serializable{
 
         EncryptedVariableValueConfig that = (EncryptedVariableValueConfig) o;
 
-        if (!Objects.equals(value, that.value)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(value, that.value);
     }
 
     @Override

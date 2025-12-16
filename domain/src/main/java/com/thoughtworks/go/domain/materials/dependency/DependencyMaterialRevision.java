@@ -71,23 +71,11 @@ public class DependencyMaterialRevision implements Revision {
 
         DependencyMaterialRevision that = (DependencyMaterialRevision) o;
 
-        if (stageCounter != that.stageCounter) {
-            return false;
-        }
-        if (!Objects.equals(pipelineCounter, that.pipelineCounter)) {
-            return false;
-        }
-        if (!Objects.equals(pipelineLabel, that.pipelineLabel)) {
-            return false;
-        }
-        if (!Objects.equals(pipelineName, that.pipelineName)) {
-            return false;
-        }
-        if (!Objects.equals(stageName, that.stageName)) {
-            return false;
-        }
-
-        return true;
+        return stageCounter == that.stageCounter &&
+            Objects.equals(pipelineCounter, that.pipelineCounter) &&
+            Objects.equals(pipelineLabel, that.pipelineLabel) &&
+            Objects.equals(pipelineName, that.pipelineName) &&
+            Objects.equals(stageName, that.stageName);
     }
 
     @Override

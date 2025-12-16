@@ -81,17 +81,9 @@ public class Pagination {
 
         Pagination that = (Pagination) o;
 
-        if (!Objects.equals(pageSize, that.pageSize)) {
-            return false;
-        }
-        if (!Objects.equals(offset, that.offset)) {
-            return false;
-        }
-        if (!Objects.equals(total, that.total)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(pageSize, that.pageSize) &&
+            Objects.equals(offset, that.offset) &&
+            Objects.equals(total, that.total);
     }
 
     @Override
@@ -284,17 +276,9 @@ public class Pagination {
 
             PageNumber that = (PageNumber) o;
 
-            if (current != that.current) {
-                return false;
-            }
-            if (page != that.page) {
-                return false;
-            }
-            if (!Objects.equals(label, that.label)) {
-                return false;
-            }
-
-            return true;
+            return current == that.current &&
+                page == that.page &&
+                Objects.equals(label, that.label);
         }
 
         @Override

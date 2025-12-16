@@ -161,29 +161,13 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
 
         StageConfig that = (StageConfig) o;
 
-        if (fetchMaterials != that.fetchMaterials) {
-            return false;
-        }
-        if (artifactCleanupProhibited != that.artifactCleanupProhibited) {
-            return false;
-        }
-        if (cleanWorkingDir != that.cleanWorkingDir) {
-            return false;
-        }
-        if (!Objects.equals(approval, that.approval)) {
-            return false;
-        }
-        if (!Objects.equals(jobConfigs, that.jobConfigs)) {
-            return false;
-        }
-        if (!Objects.equals(name, that.name)) {
-            return false;
-        }
-        if (!Objects.equals(variables, that.variables)) {
-            return false;
-        }
-
-        return true;
+        return fetchMaterials == that.fetchMaterials &&
+            artifactCleanupProhibited == that.artifactCleanupProhibited &&
+            cleanWorkingDir == that.cleanWorkingDir &&
+            Objects.equals(approval, that.approval) &&
+            Objects.equals(jobConfigs, that.jobConfigs) &&
+            Objects.equals(name, that.name) &&
+            Objects.equals(variables, that.variables);
     }
 
     @Override

@@ -175,13 +175,9 @@ public class PackageRevision {
 
         PackageRevision that = (PackageRevision) o;
 
-        if (!Objects.equals(revision, that.revision)) {
-            return false;
-        }
-        if (!Objects.equals(timestamp, that.timestamp)) {
-            return false;
-        }
-        return Objects.equals(user, that.user);
+        return Objects.equals(revision, that.revision) &&
+            Objects.equals(timestamp, that.timestamp) &&
+            Objects.equals(user, that.user);
     }
 
     @Override

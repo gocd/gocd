@@ -208,14 +208,9 @@ public class PluggableArtifactConfig implements ArtifactTypeConfig {
         }
 
         PluggableArtifactConfig that = (PluggableArtifactConfig) o;
-
-        if (!id.equals(that.id)) {
-            return false;
-        }
-        if (!storeId.equals(that.storeId)) {
-            return false;
-        }
-        return Objects.equals(configuration, that.configuration);
+        return id.equals(that.id) &&
+            storeId.equals(that.storeId) &&
+            Objects.equals(configuration, that.configuration);
     }
 
     @Override

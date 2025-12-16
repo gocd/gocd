@@ -93,8 +93,9 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
 
     public CRParseResult parseDirectory(File configRepoCheckoutDirectory, Collection<CRConfigurationProperty> cRconfigurations) {
         CRParseResult crParseResult = this.crExtension.parseDirectory(this.pluginId, configRepoCheckoutDirectory.getAbsolutePath(), cRconfigurations);
-        if (crParseResult.hasErrors())
+        if (crParseResult.hasErrors()) {
             throw new InvalidPartialConfigException(crParseResult, crParseResult.getErrors().getErrorsAsText());
+        }
         return crParseResult;
     }
 }

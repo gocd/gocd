@@ -246,7 +246,9 @@ public class JsonOutputWriter {
 
         @Override
         public OutputWriter addLinks(Consumer<OutputLinkWriter> consumer) {
-            if (null == requestContext) return this;
+            if (null == requestContext) {
+                return this;
+            }
 
             return withExceptionHandling((jacksonWriter) -> addChild("_links", (childWriter) -> consumer.accept(new JsonOutputLinkWriter(childWriter))));
         }

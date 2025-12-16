@@ -75,14 +75,8 @@ public class ValidationError {
 
         ValidationError validationError = (ValidationError) o;
 
-        if (!Objects.equals(key, validationError.key)) {
-            return false;
-        }
-        if (!Objects.equals(message, validationError.message)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(key, validationError.key) &&
+            Objects.equals(message, validationError.message);
     }
 
     @Override

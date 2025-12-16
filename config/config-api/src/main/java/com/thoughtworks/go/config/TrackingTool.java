@@ -67,7 +67,9 @@ public class TrackingTool implements ParamsAttributeAware, Validatable, CommentR
     @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {
-        if (attributes == null) return;
+        if (attributes == null) {
+            return;
+        }
         Map<String, String> attributeMap = (Map<String, String>) attributes;
         if (attributeMap.containsKey(LINK)) {
             link = attributeMap.get(LINK);
@@ -131,10 +133,7 @@ public class TrackingTool implements ParamsAttributeAware, Validatable, CommentR
             return false;
         }
         TrackingTool that = (TrackingTool) o;
-        if (!Objects.equals(link, that.link)) {
-            return false;
-        }
-        return Objects.equals(regex, that.regex);
+        return Objects.equals(link, that.link) && Objects.equals(regex, that.regex);
 
     }
 

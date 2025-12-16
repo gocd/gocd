@@ -161,7 +161,7 @@ public class ServerConfig implements Validatable {
 
     public void updateMailHost(MailHost mailHost) {
         // remove mailhost if default value
-        if (mailHost != null && mailHost.equals(new MailHost())) {
+        if (Objects.equals(mailHost, new MailHost())) {
             this.mailHost = null;
             return;
         }
@@ -187,34 +187,16 @@ public class ServerConfig implements Validatable {
 
         ServerConfig that = (ServerConfig) o;
 
-        if (!Objects.equals(artifactConfig, that.artifactConfig)) {
-            return false;
-        }
-        if (getSiteUrl() != null ? !getSiteUrl().equals(that.getSiteUrl()) : that.getSiteUrl() != null) {
-            return false;
-        }
-        if (getSecureSiteUrl() != null ? !getSecureSiteUrl().equals(that.getSecureSiteUrl()) : that.getSecureSiteUrl() != null) {
-            return false;
-        }
-        if (!Objects.equals(jobTimeout, that.jobTimeout)) {
-            return false;
-        }
-        if (!Objects.equals(agentAutoRegisterKey, that.agentAutoRegisterKey)) {
-            return false;
-        }
-        if (!Objects.equals(webhookSecret, that.webhookSecret)) {
-            return false;
-        }
-        if (!Objects.equals(serverId, that.serverId)) {
-            return false;
-        }
-        if (!Objects.equals(securityConfig, that.securityConfig)) {
-            return false;
-        }
-        if (!Objects.equals(mailHost, that.mailHost)) {
-            return false;
-        }
-        return Objects.equals(tokenGenerationKey, that.tokenGenerationKey);
+        return Objects.equals(artifactConfig, that.artifactConfig) &&
+            Objects.equals(getSiteUrl(), that.getSiteUrl()) &&
+            Objects.equals(getSecureSiteUrl(), that.getSecureSiteUrl()) &&
+            Objects.equals(jobTimeout, that.jobTimeout) &&
+            Objects.equals(agentAutoRegisterKey, that.agentAutoRegisterKey) &&
+            Objects.equals(webhookSecret, that.webhookSecret) &&
+            Objects.equals(serverId, that.serverId) &&
+            Objects.equals(securityConfig, that.securityConfig) &&
+            Objects.equals(mailHost, that.mailHost) &&
+            Objects.equals(tokenGenerationKey, that.tokenGenerationKey);
     }
 
     @Override

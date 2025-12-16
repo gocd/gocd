@@ -26,7 +26,9 @@ class HistoryUtil {
     private static final String BAD_CURSOR_MSG = "The query parameter '%s', if specified, must be a positive integer.";
 
     static boolean validateCursor(long cursor, String key) {
-        if (cursor == 0) return false;
+        if (cursor == 0) {
+            return false;
+        }
         if (cursor < 0) {
             throw new BadRequestException(format(BAD_CURSOR_MSG, key));
         }

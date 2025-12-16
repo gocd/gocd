@@ -57,7 +57,9 @@ public class PartialConfigHelper {
     }
 
     private Set<String> identities(Collection<PartialConfig> collection) {
-        if (null == collection) return Collections.emptySet();
+        if (null == collection) {
+            return Collections.emptySet();
+        }
         return collection.stream().map(this::identity).collect(Collectors.toSet());
     }
 

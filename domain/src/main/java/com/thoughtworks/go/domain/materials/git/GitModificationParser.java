@@ -66,7 +66,9 @@ public class GitModificationParser {
         if (commentMatcher.matches()) {
             Modification last = modifications.getLast();
             String comment = Optional.ofNullable(last.getComment()).orElse("");
-            if (!comment.isEmpty()) comment += "\n";
+            if (!comment.isEmpty()) {
+                comment += "\n";
+            }
             last.setComment(comment + commentMatcher.group(1));
        }
     }

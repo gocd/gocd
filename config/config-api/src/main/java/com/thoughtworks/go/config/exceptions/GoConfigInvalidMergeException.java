@@ -38,8 +38,9 @@ public class GoConfigInvalidMergeException extends GoConfigInvalidException {
     }
 
     private static String allErrorsToString(List<String> allErrors) {
-        if (allErrors == null || allErrors.isEmpty())
+        if (allErrors == null || allErrors.isEmpty()) {
             return "Error list empty";// should never be
+        }
 
         StringBuilder b = new StringBuilder();
         b.append("Number of errors: ").append(allErrors.size()).append("+").append("\n");

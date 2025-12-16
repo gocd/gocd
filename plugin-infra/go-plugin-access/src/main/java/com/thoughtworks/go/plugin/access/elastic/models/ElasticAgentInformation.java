@@ -47,8 +47,12 @@ public class ElasticAgentInformation {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ElasticAgentInformation that = (ElasticAgentInformation) o;
         return Objects.equals(pluginSettings, that.pluginSettings) &&
                 Objects.equals(clusterProfiles, that.clusterProfiles) &&

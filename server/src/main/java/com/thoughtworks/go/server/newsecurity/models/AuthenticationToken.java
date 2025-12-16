@@ -99,26 +99,14 @@ public class AuthenticationToken<T extends Credentials> {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof AuthenticationToken<?> that)) {
-            return false;
-        }
+        return o instanceof AuthenticationToken<?> that &&
+            authenticatedAt == that.authenticatedAt &&
+            invalidated == that.invalidated &&
+            Objects.equals(user, that.user) &&
+            Objects.equals(credentials, that.credentials) &&
+            Objects.equals(authConfigId, that.authConfigId) &&
+            Objects.equals(pluginId, that.pluginId);
 
-        if (authenticatedAt != that.authenticatedAt) {
-            return false;
-        }
-        if (invalidated != that.invalidated) {
-            return false;
-        }
-        if (!Objects.equals(user, that.user)) {
-            return false;
-        }
-        if (!Objects.equals(credentials, that.credentials)) {
-            return false;
-        }
-        if (!Objects.equals(authConfigId, that.authConfigId)) {
-            return false;
-        }
-        return Objects.equals(pluginId, that.pluginId);
     }
 
     @Override

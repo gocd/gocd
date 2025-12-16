@@ -86,18 +86,9 @@ public class DirHandler implements FetchHandler {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof DirHandler that)) {
-            return false;
-        }
-
-        if (!Objects.equals(destOnAgent, that.destOnAgent)) {
-            return false;
-        }
-        if (!Objects.equals(srcFile, that.srcFile)) {
-            return false;
-        }
-
-        return true;
+        return o instanceof DirHandler that &&
+            Objects.equals(destOnAgent, that.destOnAgent) &&
+            Objects.equals(srcFile, that.srcFile);
     }
 
     @Override

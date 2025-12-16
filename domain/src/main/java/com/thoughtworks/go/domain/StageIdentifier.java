@@ -124,16 +124,10 @@ public class StageIdentifier implements Serializable, LocatableEntity {
 
         StageIdentifier that = (StageIdentifier) o;
 
-        if (!Objects.equals(pipelineCounter, that.pipelineCounter)) {
-            return false;
-        }
-        if (!Objects.equals(pipelineName, that.pipelineName)) {
-            return false;
-        }
-        if (!Objects.equals(stageCounter, that.stageCounter)) {
-            return false;
-        }
-        return Objects.equals(stageName, that.stageName);
+        return Objects.equals(pipelineCounter, that.pipelineCounter) &&
+            Objects.equals(pipelineName, that.pipelineName) &&
+            Objects.equals(stageCounter, that.stageCounter) &&
+            Objects.equals(stageName, that.stageName);
     }
 
     @Override

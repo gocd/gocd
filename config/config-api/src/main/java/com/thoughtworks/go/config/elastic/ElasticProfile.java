@@ -91,9 +91,15 @@ public class ElasticProfile extends Configuration implements Validatable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         ElasticProfile that = (ElasticProfile) o;
         return Objects.equals(id, that.id) &&
                 Objects.equals(clusterProfileId, that.clusterProfileId);

@@ -47,14 +47,8 @@ public class SvnExternal {
 
         SvnExternal that = (SvnExternal) o;
 
-        if (!Objects.equals(folder, that.folder)) {
-            return false;
-        }
-        if (!Objects.equals(url, that.url)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(folder, that.folder) &&
+            Objects.equals(url, that.url);
     }
 
     @Override

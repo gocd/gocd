@@ -79,8 +79,12 @@ public class CreateAgentMessage implements PluginAwareMessage {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         CreateAgentMessage that = (CreateAgentMessage) o;
         return Objects.equals(autoregisterKey, that.autoregisterKey) &&
                 Objects.equals(environment, that.environment) &&

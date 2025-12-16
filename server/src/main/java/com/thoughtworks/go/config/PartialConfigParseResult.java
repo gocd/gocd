@@ -96,8 +96,12 @@ public class PartialConfigParseResult {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         PartialConfigParseResult that = (PartialConfigParseResult) o;
         return Objects.equals(latestParsedModification, that.latestParsedModification) &&
                 Objects.equals(goodModification, that.goodModification) &&

@@ -137,17 +137,9 @@ public class DefaultSchedulingContext implements SchedulingContext {
 
         DefaultSchedulingContext that = (DefaultSchedulingContext) o;
 
-        if (!Objects.equals(agents, that.agents)) {
-            return false;
-        }
-        if (!Objects.equals(approvedBy, that.approvedBy)) {
-            return false;
-        }
-        if (!Objects.equals(variables, that.variables)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(agents, that.agents) &&
+            Objects.equals(approvedBy, that.approvedBy) &&
+            Objects.equals(variables, that.variables);
     }
 
     @Override

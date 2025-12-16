@@ -173,10 +173,8 @@ public abstract class AbstractTask implements Task  {
 
         AbstractTask that = (AbstractTask) o;
 
-        if (!Objects.equals(onCancelConfig, that.onCancelConfig)) {
-            return false;
-        }
-        return Objects.equals(runIfConfigs, that.runIfConfigs);
+        return Objects.equals(onCancelConfig, that.onCancelConfig) &&
+            Objects.equals(runIfConfigs, that.runIfConfigs);
     }
 
     @Override

@@ -63,13 +63,9 @@ public class PluginInfo {
 
         PluginInfo that = (PluginInfo) o;
 
-        if (!Objects.equals(descriptor, that.descriptor)) {
-            return false;
-        }
-        if (!Objects.equals(extensionName, that.extensionName)) {
-            return false;
-        }
-        return Objects.equals(pluginSettings, that.pluginSettings);
+        return Objects.equals(descriptor, that.descriptor) &&
+            Objects.equals(extensionName, that.extensionName) &&
+            Objects.equals(pluginSettings, that.pluginSettings);
     }
 
     @Override

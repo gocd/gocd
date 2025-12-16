@@ -106,26 +106,12 @@ public class StageFeedEntry implements FeedEntry {
 
         StageFeedEntry that = (StageFeedEntry) o;
 
-        if (entryId != that.entryId) {
-            return false;
-        }
-        if (id != that.id) {
-            return false;
-        }
-        if (pipelineId != that.pipelineId) {
-            return false;
-        }
-        if (!Objects.equals(identifier, that.identifier)) {
-            return false;
-        }
-        if (stageResult != that.stageResult) {
-            return false;
-        }
-        if (!Objects.equals(updateDate, that.updateDate)) {
-            return false;
-        }
-
-        return true;
+        return entryId == that.entryId &&
+            id == that.id &&
+            pipelineId == that.pipelineId &&
+            Objects.equals(identifier, that.identifier) &&
+            stageResult == that.stageResult &&
+            Objects.equals(updateDate, that.updateDate);
     }
 
     @Override

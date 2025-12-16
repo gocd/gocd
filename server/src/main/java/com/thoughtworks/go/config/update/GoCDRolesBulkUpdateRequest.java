@@ -70,8 +70,12 @@ public class GoCDRolesBulkUpdateRequest {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             Operation operation = (Operation) o;
             return Objects.equals(roleName, operation.roleName) &&
                     Objects.equals(usersToAdd, operation.usersToAdd) &&
@@ -86,8 +90,12 @@ public class GoCDRolesBulkUpdateRequest {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         GoCDRolesBulkUpdateRequest request = (GoCDRolesBulkUpdateRequest) o;
         return Objects.equals(operations, request.operations);
     }

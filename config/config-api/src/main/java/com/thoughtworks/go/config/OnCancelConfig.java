@@ -74,11 +74,9 @@ public class OnCancelConfig implements Validatable {
 
         OnCancelConfig that = (OnCancelConfig) o;
 
-        if (!Objects.equals(task, that.task)) {
-            return false;
-        }
+        return Objects.equals(task, that.task) &&
+            this.shouldKillAll == that.shouldKillAll;
 
-        return this.shouldKillAll == that.shouldKillAll;
     }
 
     @Override

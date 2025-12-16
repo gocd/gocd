@@ -126,20 +126,10 @@ public class DefaultJobPlan implements JobPlan {
 
         DefaultJobPlan plan = (DefaultJobPlan) o;
 
-        if (jobId != plan.jobId) {
-            return false;
-        }
-        if (!Objects.equals(identifier, plan.identifier)) {
-            return false;
-        }
-        if (!Objects.equals(artifactPlans, plan.artifactPlans)) {
-            return false;
-        }
-        if (!Objects.equals(resources, plan.resources)) {
-            return false;
-        }
-
-        return true;
+        return jobId == plan.jobId &&
+            Objects.equals(identifier, plan.identifier) &&
+            Objects.equals(artifactPlans, plan.artifactPlans) &&
+            Objects.equals(resources, plan.resources);
     }
 
     @Override

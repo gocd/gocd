@@ -59,14 +59,8 @@ public class StageAsDMR {
 
         StageAsDMR asDMR = (StageAsDMR) o;
 
-        if (!Objects.equals(completedDate, asDMR.completedDate)) {
-            return false;
-        }
-        if (!Objects.equals(identifier, asDMR.identifier)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(completedDate, asDMR.completedDate) &&
+            Objects.equals(identifier, asDMR.identifier);
     }
 
     @Override

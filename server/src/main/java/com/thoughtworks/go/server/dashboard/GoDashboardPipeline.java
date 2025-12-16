@@ -122,16 +122,10 @@ public class GoDashboardPipeline {
 
         GoDashboardPipeline that = (GoDashboardPipeline) o;
 
-        if (lastUpdatedTimeStamp != that.lastUpdatedTimeStamp) {
-            return false;
-        }
-        if (!Objects.equals(pipelineModel, that.pipelineModel)) {
-            return false;
-        }
-        if (!Objects.equals(permissions, that.permissions)) {
-            return false;
-        }
-        return Objects.equals(groupName, that.groupName);
+        return lastUpdatedTimeStamp == that.lastUpdatedTimeStamp &&
+            Objects.equals(pipelineModel, that.pipelineModel) &&
+            Objects.equals(permissions, that.permissions) &&
+            Objects.equals(groupName, that.groupName);
     }
 
     @Override

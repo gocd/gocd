@@ -224,16 +224,18 @@ public class FetchTaskAdapter implements Task {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         FetchTaskAdapter that = (FetchTaskAdapter) o;
-        if (!Objects.equals(fetchTask, that.fetchTask)) return false;
-        if (!Objects.equals(fetchPluggableArtifactTask, that.fetchPluggableArtifactTask))
-            return false;
-        if (!Objects.equals(selectedTaskType, that.selectedTaskType))
-            return false;
-        return Objects.equals(pluginId, that.pluginId);
+        return Objects.equals(fetchTask, that.fetchTask) &&
+            Objects.equals(fetchPluggableArtifactTask, that.fetchPluggableArtifactTask) &&
+            Objects.equals(selectedTaskType, that.selectedTaskType) &&
+            Objects.equals(pluginId, that.pluginId);
     }
 
     @Override

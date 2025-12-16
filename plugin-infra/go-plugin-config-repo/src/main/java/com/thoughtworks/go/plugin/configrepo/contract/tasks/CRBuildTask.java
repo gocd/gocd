@@ -108,8 +108,9 @@ public class CRBuildTask extends CRTask {
     }
 
     public CRBuildFramework getType() {
-        if (type == null)
+        if (type == null) {
             return null;
+        }
         return CRBuildFramework.valueOf(type);
     }
 

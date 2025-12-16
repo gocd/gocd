@@ -56,15 +56,18 @@ public class TemplateToPipelines {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         TemplateToPipelines that = (TemplateToPipelines) o;
-
-        if (canEdit != that.canEdit) return false;
-        if (isAdmin != that.isAdmin) return false;
-        if (!pipelines.equals(that.pipelines)) return false;
-        return templateName.equals(that.templateName);
+        return canEdit == that.canEdit &&
+            isAdmin == that.isAdmin &&
+            pipelines.equals(that.pipelines) &&
+            templateName.equals(that.templateName);
     }
 
     @Override

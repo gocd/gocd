@@ -46,14 +46,24 @@ public class Capabilities {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Capabilities that = (Capabilities) o;
 
-        if (canSearch != that.canSearch) return false;
-        if (canAuthorize != that.canAuthorize) return false;
-        if (canGetUserRoles != that.canGetUserRoles) return false;
+        if (canSearch != that.canSearch) {
+            return false;
+        }
+        if (canAuthorize != that.canAuthorize) {
+            return false;
+        }
+        if (canGetUserRoles != that.canGetUserRoles) {
+            return false;
+        }
         return supportedAuthType == that.supportedAuthType;
     }
 

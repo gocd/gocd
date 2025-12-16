@@ -85,12 +85,18 @@ public class SCMDependencyNode extends Node {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             MaterialRevisionWrapper that = (MaterialRevisionWrapper) o;
 
-            if (this.materialRevision == that.materialRevision) return true;
+            if (this.materialRevision == that.materialRevision) {
+                return true;
+            }
 
             return sameMaterial(that.materialRevision.getMaterial()) &&
                     sameModifications(that.materialRevision.getModifications());
@@ -107,7 +113,9 @@ public class SCMDependencyNode extends Node {
         private boolean sameMaterial(Material otherMaterial) {
             Material material = this.materialRevision.getMaterial();
 
-            if (material == otherMaterial) return true;
+            if (material == otherMaterial) {
+                return true;
+            }
             return material != null && otherMaterial != null && material.getFingerprint().equals(otherMaterial.getFingerprint());
         }
 

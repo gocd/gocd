@@ -185,11 +185,7 @@ public class GoConfigRevision {
 
         GoConfigRevision that = (GoConfigRevision) o;
 
-        if (!Objects.equals(md5, that.md5)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(md5, that.md5);
     }
 
     @Override

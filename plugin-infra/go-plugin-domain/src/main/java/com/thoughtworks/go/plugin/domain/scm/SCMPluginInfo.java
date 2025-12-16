@@ -55,10 +55,8 @@ public class SCMPluginInfo extends PluginInfo {
 
         SCMPluginInfo that = (SCMPluginInfo) o;
 
-        if (!Objects.equals(displayName, that.displayName)) {
-            return false;
-        }
-        return Objects.equals(scmSettings, that.scmSettings);
+        return Objects.equals(displayName, that.displayName) &&
+            Objects.equals(scmSettings, that.scmSettings);
     }
 
     @Override

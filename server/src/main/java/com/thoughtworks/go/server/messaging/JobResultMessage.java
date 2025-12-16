@@ -51,13 +51,9 @@ public class JobResultMessage implements GoMessage {
 
         JobResultMessage that = (JobResultMessage) o;
 
-        if (!Objects.equals(agentUuid, that.agentUuid)) {
-            return false;
-        }
-        if (!Objects.equals(jobIdentifier, that.jobIdentifier)) {
-            return false;
-        }
-        return result == that.result;
+        return Objects.equals(agentUuid, that.agentUuid) &&
+            Objects.equals(jobIdentifier, that.jobIdentifier) &&
+            result == that.result;
     }
 
     @Override

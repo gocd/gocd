@@ -68,8 +68,9 @@ public class CRPluggableScmMaterial extends CRMaterial implements SourceCodeMate
     }
 
     public List<String> getFilterList() {
-        if (filter == null)
+        if (filter == null) {
             return null;
+        }
         return filter.getList();
     }
 
@@ -78,8 +79,9 @@ public class CRPluggableScmMaterial extends CRMaterial implements SourceCodeMate
     }
 
     public boolean isWhitelist() {
-        if (this.filter != null)
+        if (this.filter != null) {
             return this.filter.isIncluded();
+        }
         return false;
     }
 

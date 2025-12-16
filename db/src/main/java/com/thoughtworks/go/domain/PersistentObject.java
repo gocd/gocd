@@ -45,10 +45,7 @@ public abstract class PersistentObject implements Serializable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof PersistentObject that)) {
-            return false;
-        }
-        return id == that.id;
+        return o instanceof PersistentObject that && id == that.id;
     }
 
     @Override

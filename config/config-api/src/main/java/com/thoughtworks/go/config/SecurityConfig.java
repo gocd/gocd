@@ -97,16 +97,10 @@ public class SecurityConfig implements Validatable {
 
         SecurityConfig that = (SecurityConfig) o;
 
-        if (!Objects.equals(securityAuthConfigs, that.securityAuthConfigs)) {
-            return false;
-        }
-        if (!Objects.equals(rolesConfig, that.rolesConfig)) {
-            return false;
-        }
-        if (!Objects.equals(adminsConfig, that.adminsConfig)) {
-            return false;
-        }
-        return Objects.equals(errors, that.errors);
+        return Objects.equals(securityAuthConfigs, that.securityAuthConfigs) &&
+            Objects.equals(rolesConfig, that.rolesConfig) &&
+            Objects.equals(adminsConfig, that.adminsConfig) &&
+            Objects.equals(errors, that.errors);
     }
 
     @Override

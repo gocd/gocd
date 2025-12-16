@@ -23,14 +23,17 @@ public class SearchCriteria {
     private String searchToken;
 
     public SearchCriteria(String searchToken) {
-        if (searchToken == null) throw new IllegalArgumentException("Search token cannot be null");
+        if (searchToken == null) {
+            throw new IllegalArgumentException("Search token cannot be null");
+        }
         this.searchToken = searchToken.toLowerCase().trim();
     }
 
     public boolean matches(String value) {
         value = value.toLowerCase();
-        if (isQuotedString())
+        if (isQuotedString()) {
             return unQuoteToken().equals(value);
+        }
         return value.contains(searchToken);
     }
 

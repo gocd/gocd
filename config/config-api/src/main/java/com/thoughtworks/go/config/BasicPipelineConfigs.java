@@ -265,14 +265,8 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
         BasicPipelineConfigs pipelines = (BasicPipelineConfigs) o;
 
-        if (!Objects.equals(authorization, pipelines.authorization)) {
-            return false;
-        }
-        if (!Objects.equals(group, pipelines.group)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(authorization, pipelines.authorization) &&
+            Objects.equals(group, pipelines.group);
     }
 
     @Override
@@ -443,8 +437,9 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     @Override
     public PipelineConfigs getLocal() {
-        if (this.isLocal())
+        if (this.isLocal()) {
             return this;
+        }
         return null;
     }
 

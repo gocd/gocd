@@ -66,7 +66,9 @@ public class ArtifactDirectoryChooser {
     public File findCachedArtifact(LocatableEntity locatableEntity) {
         for (ArtifactLocator locator : locators) {
             File cachedArtifact = locator.findCachedArtifact(locatableEntity);
-            if (cachedArtifact != null && cachedArtifact.exists()) return cachedArtifact;
+            if (cachedArtifact != null && cachedArtifact.exists()) {
+                return cachedArtifact;
+            }
         }
         return null;
     }

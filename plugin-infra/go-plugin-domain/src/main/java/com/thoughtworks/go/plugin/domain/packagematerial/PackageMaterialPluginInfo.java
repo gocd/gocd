@@ -55,10 +55,8 @@ public class PackageMaterialPluginInfo extends PluginInfo {
 
         PackageMaterialPluginInfo that = (PackageMaterialPluginInfo) o;
 
-        if (!Objects.equals(repositorySettings, that.repositorySettings)) {
-            return false;
-        }
-        return Objects.equals(packageSettings, that.packageSettings);
+        return Objects.equals(repositorySettings, that.repositorySettings) &&
+            Objects.equals(packageSettings, that.packageSettings);
     }
 
     @Override

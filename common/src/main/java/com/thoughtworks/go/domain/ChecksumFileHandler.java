@@ -76,11 +76,9 @@ public class ChecksumFileHandler implements FetchHandler {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof ChecksumFileHandler that)) {
-            return false;
-        }
+        return o instanceof ChecksumFileHandler that &&
+            Objects.equals(checksumFile, that.checksumFile);
 
-        return Objects.equals(checksumFile, that.checksumFile);
     }
 
     @Override

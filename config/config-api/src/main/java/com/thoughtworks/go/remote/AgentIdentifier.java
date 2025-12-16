@@ -62,13 +62,9 @@ public class AgentIdentifier implements Serializable {
 
         AgentIdentifier that = (AgentIdentifier) o;
 
-        if (!Objects.equals(hostName, that.hostName)) {
-            return false;
-        }
-        if (!Objects.equals(ipAddress, that.ipAddress)) {
-            return false;
-        }
-        return Objects.equals(uuid, that.uuid);
+        return Objects.equals(hostName, that.hostName) &&
+            Objects.equals(ipAddress, that.ipAddress) &&
+            Objects.equals(uuid, that.uuid);
     }
 
     @Override

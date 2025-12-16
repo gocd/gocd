@@ -70,8 +70,9 @@ public class PluginProfileMetadataKeys implements Iterable<PluginProfileMetadata
 
     public PluginProfileMetadataKey get(String key) {
         for (PluginProfileMetadataKey pluginProfileMetadataKey : keys) {
-            if (key.equals(pluginProfileMetadataKey.getKey()))
+            if (key.equals(pluginProfileMetadataKey.getKey())) {
                 return pluginProfileMetadataKey;
+            }
         }
         return null;
     }

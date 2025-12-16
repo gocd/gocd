@@ -70,16 +70,20 @@ public class ElasticAgentMetadata {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ElasticAgentMetadata that = (ElasticAgentMetadata) o;
 
-        if (!uuid.equals(that.uuid)) return false;
-        if (!elasticAgentId.equals(that.elasticAgentId)) return false;
-        if (!elasticPluginId.equals(that.elasticPluginId)) return false;
-        if (status != that.status) return false;
-        return configStatus == that.configStatus;
+        return uuid.equals(that.uuid) &&
+            elasticAgentId.equals(that.elasticAgentId) &&
+            elasticPluginId.equals(that.elasticPluginId) &&
+            status == that.status &&
+            configStatus == that.configStatus;
     }
 
     @Override

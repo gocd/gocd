@@ -49,7 +49,9 @@ public class PipelineLabelCorrector {
 
     public void correctPipelineLabelCountEntries() {
         List<String> pipelinesWithMultipleEntriesForLabelCount = pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount();
-        if (pipelinesWithMultipleEntriesForLabelCount.isEmpty()) return;
+        if (pipelinesWithMultipleEntriesForLabelCount.isEmpty()) {
+            return;
+        }
 
         LOGGER.warn("Duplicate entries in pipelineLabelCounts exist for the following pipelines {}. Will attempt to clean them up.",
                 StringUtils.join(pipelinesWithMultipleEntriesForLabelCount.toArray()));

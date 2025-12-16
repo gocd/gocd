@@ -146,8 +146,9 @@ public class BasicCruiseConfig implements CruiseConfig {
         }
         partList = removePartialsThatDoNotCorrespondToTheCurrentConfigReposList(partList);
 
-        if (strategy instanceof MergeStrategy)
+        if (strategy instanceof MergeStrategy) {
             throw new RuntimeException("cannot merge partials to already merged configuration");
+        }
         MergeStrategy mergeStrategy = new MergeStrategy(partList, forEdit);
         this.strategy = mergeStrategy;
         groups = mergeStrategy.mergePipelineConfigs();
@@ -160,8 +161,9 @@ public class BasicCruiseConfig implements CruiseConfig {
         List<Object> notToBeMerged = new ArrayList<>();
         for (PartialConfig partialConfig : partList) {
             if (partialConfig.getOrigin() instanceof RepoConfigOrigin origin) {
-                if (!configRepos.hasMaterialWithFingerprint(origin.getMaterial().getFingerprint()))
+                if (!configRepos.hasMaterialWithFingerprint(origin.getMaterial().getFingerprint())) {
                     notToBeMerged.add(partialConfig);
+                }
             }
         }
         return partList.stream().filter(c -> !notToBeMerged.contains(c)).toList();
@@ -325,10 +327,11 @@ public class BasicCruiseConfig implements CruiseConfig {
                 } else {
                     // there will not be any modifications on this config.
                     // just keep all parts in simple form
-                    if (oneEnv.size() == 1)
+                    if (oneEnv.size() == 1) {
                         environments.add(oneEnv.get(0));
-                    else
+                    } else {
                         environments.add(new MergeEnvironmentConfig(oneEnv));
+                    }
                 }
             }
 
@@ -404,10 +407,11 @@ public class BasicCruiseConfig implements CruiseConfig {
                 } else {
                     // there will not be any modifications on this config.
                     // just keep all parts in simple form
-                    if (oneGroup.size() == 1)
+                    if (oneGroup.size() == 1) {
                         groups.add(oneGroup.get(0));
-                    else
+                    } else {
                         groups.add(new MergePipelineConfigs(oneGroup));
+                    }
                 }
             }
 
@@ -435,8 +439,9 @@ public class BasicCruiseConfig implements CruiseConfig {
                     // we want to keep it only if there is something added
                     if (!pipelineConfigs.isEmpty()) {
                         for (PipelineConfig pipelineConfig : pipelineConfigs.getPipelines()) {
-                            if (excludeMembersOfRemoteEnvironments && BasicCruiseConfig.this.getEnvironments().isPipelineAssociatedWithRemoteEnvironment(pipelineConfig.name()))
+                            if (excludeMembersOfRemoteEnvironments && BasicCruiseConfig.this.getEnvironments().isPipelineAssociatedWithRemoteEnvironment(pipelineConfig.name())) {
                                 continue;
+                            }
                             locals.add(pipelineConfig);
                         }
 
@@ -445,8 +450,9 @@ public class BasicCruiseConfig implements CruiseConfig {
                     //origin is local file
 
                     for (PipelineConfig pipelineConfig : pipelineConfigs.getPipelines()) {
-                        if (excludeMembersOfRemoteEnvironments && BasicCruiseConfig.this.getEnvironments().isPipelineAssociatedWithRemoteEnvironment(pipelineConfig.name()))
+                        if (excludeMembersOfRemoteEnvironments && BasicCruiseConfig.this.getEnvironments().isPipelineAssociatedWithRemoteEnvironment(pipelineConfig.name())) {
                             continue;
+                        }
                         locals.add(pipelineConfig);
                     }
 
@@ -1504,15 +1510,17 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BasicCruiseConfig that)) return false;
+        if (this == o) {
+            return true;
+        }
+        return o instanceof BasicCruiseConfig that &&
+            Objects.equals(serverConfig, that.serverConfig) &&
+            Objects.equals(elasticConfig, that.elasticConfig) &&
+            Objects.equals(artifactStores, that.artifactStores) &&
+            Objects.equals(groups, that.groups) &&
+            Objects.equals(templatesConfig, that.templatesConfig) &&
+            Objects.equals(environments, that.environments);
 
-        if (!Objects.equals(serverConfig, that.serverConfig)) return false;
-        if (!Objects.equals(elasticConfig, that.elasticConfig)) return false;
-        if (!Objects.equals(artifactStores, that.artifactStores)) return false;
-        if (!Objects.equals(groups, that.groups)) return false;
-        if (!Objects.equals(templatesConfig, that.templatesConfig)) return false;
-        return Objects.equals(environments, that.environments);
     }
 
     @Override

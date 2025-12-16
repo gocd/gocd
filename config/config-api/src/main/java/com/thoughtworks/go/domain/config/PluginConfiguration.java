@@ -70,14 +70,8 @@ public class PluginConfiguration implements Serializable, Validatable {
 
         PluginConfiguration that = (PluginConfiguration) o;
 
-        if (!Objects.equals(id, that.id)) {
-            return false;
-        }
-        if (!Objects.equals(version, that.version)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(id, that.id) &&
+            Objects.equals(version, that.version);
     }
 
     @Override

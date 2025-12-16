@@ -171,8 +171,9 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     public List<String> getPipelineNamesWithMultipleEntriesForLabelCount() {
         List<String> pipelineNames = getSqlMapClientTemplate().queryForList("getPipelineNamesWithMultipleEntriesForLabelCount");
-        if (!pipelineNames.isEmpty() && StringUtils.isBlank(pipelineNames.get(0)))
+        if (!pipelineNames.isEmpty() && StringUtils.isBlank(pipelineNames.get(0))) {
             return new ArrayList<>();
+        }
         return pipelineNames;
     }
 

@@ -122,13 +122,9 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
 
         PackageDefinition that = (PackageDefinition) o;
 
-        if (!Objects.equals(configuration, that.configuration)) {
-            return false;
-        }
-        if (!Objects.equals(id, that.id)) {
-            return false;
-        }
-        return Objects.equals(name, that.name);
+        return Objects.equals(configuration, that.configuration) &&
+            Objects.equals(id, that.id) &&
+            Objects.equals(name, that.name);
     }
 
     @Override

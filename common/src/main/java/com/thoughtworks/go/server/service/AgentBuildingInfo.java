@@ -56,10 +56,8 @@ public class AgentBuildingInfo implements Serializable {
 
         AgentBuildingInfo that = (AgentBuildingInfo) o;
 
-        if (!Objects.equals(buildLocator, that.buildLocator)) {
-            return false;
-        }
-        return Objects.equals(buildingInfo, that.buildingInfo);
+        return Objects.equals(buildLocator, that.buildLocator) &&
+            Objects.equals(buildingInfo, that.buildingInfo);
     }
 
     @Override

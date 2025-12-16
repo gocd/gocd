@@ -272,16 +272,10 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
 
         Authorization that = (Authorization) o;
 
-        if (!Objects.equals(adminsConfig, that.adminsConfig)) {
-            return false;
-        }
-        if (!Objects.equals(operationConfig, that.operationConfig)) {
-            return false;
-        }
-        if (!Objects.equals(viewConfig, that.viewConfig)) {
-            return false;
-        }
-        return allowGroupAdmins == that.allowGroupAdmins;
+        return Objects.equals(adminsConfig, that.adminsConfig) &&
+            Objects.equals(operationConfig, that.operationConfig) &&
+            Objects.equals(viewConfig, that.viewConfig) &&
+            allowGroupAdmins == that.allowGroupAdmins;
     }
 
     @Override

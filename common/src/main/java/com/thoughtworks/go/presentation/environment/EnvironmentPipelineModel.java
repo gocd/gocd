@@ -49,13 +49,8 @@ public class EnvironmentPipelineModel implements Comparable<EnvironmentPipelineM
 
         EnvironmentPipelineModel that = (EnvironmentPipelineModel) o;
 
-        if (!Objects.equals(environmentName, that.environmentName)) {
-            return false;
-        }
-        if (!Objects.equals(pipelineName, that.pipelineName)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(environmentName, that.environmentName) &&
+            Objects.equals(pipelineName, that.pipelineName);
     }
 
     @Override
@@ -66,10 +61,7 @@ public class EnvironmentPipelineModel implements Comparable<EnvironmentPipelineM
     }
 
     public boolean hasEnvironmentAssociated() {
-        if (environmentName != null) {
-            return true;
-        }
-        return false;
+        return environmentName != null;
     }
 
     @Override

@@ -40,8 +40,12 @@ public class AuthorizationServerUrlResponse {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         AuthorizationServerUrlResponse that = (AuthorizationServerUrlResponse) o;
         return Objects.equals(authorizationServerUrl, that.authorizationServerUrl) && Objects.equals(authSession, that.authSession);
     }

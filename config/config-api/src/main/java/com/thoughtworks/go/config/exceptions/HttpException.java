@@ -41,8 +41,12 @@ public abstract class HttpException extends RuntimeException {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         HttpException that = (HttpException) o;
         return status == that.status;
     }

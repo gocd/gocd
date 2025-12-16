@@ -46,15 +46,9 @@ public class PackageMaterialInstance extends MaterialInstance {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof PackageMaterialInstance that)) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-
-
-        return Objects.equals(configuration, that.configuration);
+        return o instanceof PackageMaterialInstance that &&
+            super.equals(o) &&
+            Objects.equals(configuration, that.configuration);
     }
 
     @Override
@@ -65,10 +59,7 @@ public class PackageMaterialInstance extends MaterialInstance {
     }
 
     public boolean shouldUpgradeTo(PackageMaterialInstance materialInstance) {
-        if (configuration == null && materialInstance.configuration == null) {
-            return false;
-        }
-        return configuration == null || !configuration.equals(materialInstance.configuration);
+        return (configuration != null || materialInstance.configuration != null) && !Objects.equals(configuration, materialInstance.configuration);
     }
 
     public void upgradeTo(PackageMaterialInstance newMaterialInstance) {

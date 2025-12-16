@@ -39,15 +39,16 @@ public class TaskPreference implements PluginPreference {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         TaskPreference that = (TaskPreference) o;
-
-        if (!taskConfig.equals(that.taskConfig)) return false;
-        if (!taskView.equals(that.taskView)) return false;
-
-        return true;
+        return taskConfig.equals(that.taskConfig) &&
+            taskView.equals(that.taskView);
     }
 
     @Override

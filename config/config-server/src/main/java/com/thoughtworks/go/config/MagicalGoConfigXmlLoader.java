@@ -98,7 +98,9 @@ public class MagicalGoConfigXmlLoader {
         CruiseConfig config;
         LOGGER.debug("[Config Save] Loading config holder");
         configForEdit = deserializeConfig(content);
-        if (callback != null) callback.call(configForEdit);
+        if (callback != null) {
+            callback.call(configForEdit);
+        }
         config = preprocessAndValidate(configForEdit);
 
         return new GoConfigHolder(config, configForEdit);

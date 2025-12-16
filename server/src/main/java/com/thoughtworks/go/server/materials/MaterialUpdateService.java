@@ -295,8 +295,9 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
 
     public boolean isInProgress(Material material) {
         for (Material m : this.inProgress.keySet()) {
-            if (m.isSameFlyweight(material))
+            if (m.isSameFlyweight(material)) {
                 return true;
+            }
         }
         return false;
     }

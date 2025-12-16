@@ -63,13 +63,9 @@ public class Image {
 
         Image image = (Image) o;
 
-        if (!Objects.equals(contentType, image.contentType)) {
-            return false;
-        }
-        if (!Objects.equals(data, image.data)) {
-            return false;
-        }
-        return Objects.equals(hash, image.hash);
+        return Objects.equals(contentType, image.contentType) &&
+            Objects.equals(data, image.data) &&
+            Objects.equals(hash, image.hash);
     }
 
     @Override

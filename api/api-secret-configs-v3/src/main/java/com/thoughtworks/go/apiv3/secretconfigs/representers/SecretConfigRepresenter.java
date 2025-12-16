@@ -26,8 +26,9 @@ import java.util.Map;
 
 public class SecretConfigRepresenter {
     public static void toJSON(OutputWriter jsonWriter, SecretConfig secretConfig) {
-        if (secretConfig == null)
+        if (secretConfig == null) {
             return;
+        }
         jsonWriter.addLinks(linksWriter -> linksWriter
                 .addLink("self", Routes.SecretConfigsAPI.id(secretConfig.getId()))
                 .addAbsoluteLink("doc", Routes.SecretConfigsAPI.DOC)

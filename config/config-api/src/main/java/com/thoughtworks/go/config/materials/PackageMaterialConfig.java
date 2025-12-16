@@ -199,10 +199,8 @@ public class PackageMaterialConfig extends AbstractMaterialConfig {
 
         PackageMaterialConfig that = (PackageMaterialConfig) o;
 
-        if (!Objects.equals(packageDefinition, that.packageDefinition)) {
-            return false;
-        }
-        return super.equals(that);
+        return Objects.equals(packageDefinition, that.packageDefinition) &&
+            super.equals(that);
     }
 
     @Override

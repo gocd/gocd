@@ -55,8 +55,9 @@ public class CRPluggableTask extends CRTask {
         String location = getLocation(parentLocation);
         errors.checkMissing(location, "plugin_configuration", pluginConfiguration);
 
-        if (this.pluginConfiguration != null)
+        if (this.pluginConfiguration != null) {
             this.pluginConfiguration.getErrors(errors, location);
+        }
 
         if (this.configuration != null) {
             for (CRConfigurationProperty p : configuration) {
@@ -73,16 +74,18 @@ public class CRPluggableTask extends CRTask {
     }
 
     private void validateKeyUniqueness(ErrorCollection errors, String location) {
-        if (this.configuration == null)
+        if (this.configuration == null) {
             return;
+        }
         HashSet<String> keys = new HashSet<>();
         for (CRConfigurationProperty property1 : this.configuration) {
             String key = property1.getKey();
-            if (keys.contains(key))
+            if (keys.contains(key)) {
                 errors.addError(location, String.format(
                         "Configuration property %s is defined more than once", property1));
-            else
+            } else {
                 keys.add(key);
+            }
         }
     }
 }

@@ -52,10 +52,8 @@ public class ValidationError {
 
         ValidationError that = (ValidationError) o;
 
-        if (!Objects.equals(key, that.key)) {
-            return false;
-        }
-        return Objects.equals(message, that.message);
+        return Objects.equals(key, that.key) &&
+            Objects.equals(message, that.message);
 
     }
 

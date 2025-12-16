@@ -433,20 +433,11 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
             return true;
         }
 
-        if (!(o instanceof EnvironmentConfig that)) {
-            return false;
-        }
-
-        if (this.getAgents() != null ? !this.getAgents().equals(that.getAgents()) : that.getAgents() != null) {
-            return false;
-        }
-        if (this.name() != null ? !this.name().equals(that.name()) : that.name() != null) {
-            return false;
-        }
-        if (this.getPipelines() != null ? !this.getPipelines().equals(that.getPipelines()) : that.getPipelines() != null) {
-            return false;
-        }
-        return this.getVariables() != null ? this.getVariables().equals(that.getVariables()) : that.getVariables() == null;
+        return o instanceof EnvironmentConfig that &&
+            Objects.equals(this.getAgents(), that.getAgents()) &&
+            Objects.equals(this.name(), that.name()) &&
+            Objects.equals(this.getPipelines(), that.getPipelines()) &&
+            Objects.equals(this.getVariables(), that.getVariables());
     }
 
     @Override

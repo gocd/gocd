@@ -53,11 +53,7 @@ public abstract class ServerSiteUrlConfig {
 
         ServerSiteUrlConfig that = (ServerSiteUrlConfig) o;
 
-        if (!Objects.equals(url, that.url)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(url, that.url);
     }
 
     @Override

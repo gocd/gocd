@@ -199,12 +199,7 @@ public class StageInstanceModel implements StageConfigurationModel {
         }
 
         StageInstanceModel that = (StageInstanceModel) o;
-
-        if (!name.equals(that.name)) {
-            return false;
-        }
-
-        return true;
+        return name.equals(that.name);
     }
 
     @Override
@@ -235,28 +230,36 @@ public class StageInstanceModel implements StageConfigurationModel {
 
     public boolean hasUnsuccessfullyCompleted() {
         for (JobHistoryItem jobHistoryItem : jobHistory) {
-            if (jobHistoryItem.hasUnsuccessfullyCompleted()) return true;
+            if (jobHistoryItem.hasUnsuccessfullyCompleted()) {
+                return true;
+            }
         }
         return false;
     }
 
     public boolean hasPassed() {
         for (JobHistoryItem jobHistoryItem : jobHistory) {
-            if (!jobHistoryItem.hasPassed()) return false;
+            if (!jobHistoryItem.hasPassed()) {
+                return false;
+            }
         }
         return true;
     }
 
     public boolean hasFailed() {
         for (JobHistoryItem jobHistoryItem : jobHistory) {
-            if (jobHistoryItem.hasFailed()) return true;
+            if (jobHistoryItem.hasFailed()) {
+                return true;
+            }
         }
         return false;
     }
 
     public boolean isRunning() {
         for (JobHistoryItem jobHistoryItem : jobHistory) {
-            if (jobHistoryItem.isRunning()) return true;
+            if (jobHistoryItem.isRunning()) {
+                return true;
+            }
         }
         return false;
     }

@@ -143,17 +143,11 @@ public class PluginRoleConfig extends Configuration implements Role {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof PluginRoleConfig that)) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
+        return o instanceof PluginRoleConfig that &&
+            super.equals(o) &&
+            Objects.equals(name, that.name) &&
+            Objects.equals(authConfigId, that.authConfigId);
 
-        if (!Objects.equals(name, that.name)) {
-            return false;
-        }
-        return Objects.equals(authConfigId, that.authConfigId);
     }
 
     @Override

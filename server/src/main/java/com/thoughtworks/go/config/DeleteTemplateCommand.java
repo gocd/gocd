@@ -46,10 +46,8 @@ public class DeleteTemplateCommand implements NoOverwriteUpdateConfigCommand {
             return false;
         }
 
-        if (!Objects.equals(md5, command.md5)) {
-            return false;
-        }
-        return Objects.equals(templateName, command.templateName);
+        return Objects.equals(md5, command.md5) &&
+            Objects.equals(templateName, command.templateName);
     }
 
     @Override

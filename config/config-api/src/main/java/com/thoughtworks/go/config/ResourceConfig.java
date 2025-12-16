@@ -17,6 +17,7 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.ConfigErrors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.io.Serializable;
 
@@ -64,12 +65,15 @@ public class ResourceConfig implements Serializable, Comparable<ResourceConfig>,
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ResourceConfig that = (ResourceConfig) o;
-
-        return getName() != null ? getName().equalsIgnoreCase(that.getName()) : that.getName() == null;
+        return Strings.CI.equals(getName(), that.getName());
     }
 
     @Override

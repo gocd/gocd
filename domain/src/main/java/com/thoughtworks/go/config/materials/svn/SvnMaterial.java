@@ -197,11 +197,9 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         }
 
         SvnMaterial that = (SvnMaterial) o;
-
         return checkExternals == that.checkExternals &&
             Objects.equals(url, that.url) &&
             Objects.equals(userName, that.userName);
-
     }
 
     @Override

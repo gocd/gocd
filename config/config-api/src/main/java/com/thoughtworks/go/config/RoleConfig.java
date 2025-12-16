@@ -143,10 +143,8 @@ public class RoleConfig implements Role {
 
         RoleConfig that = (RoleConfig) o;
 
-        if (!Objects.equals(name, that.name)) {
-            return false;
-        }
-        return Objects.equals(users, that.users);
+        return Objects.equals(name, that.name) &&
+            Objects.equals(users, that.users);
     }
 
     @Override

@@ -98,15 +98,8 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
         HgMaterialConfig that = (HgMaterialConfig) o;
 
-        if (!Objects.equals(url, that.url)) {
-            return false;
-        }
-
-        if (!Objects.equals(branch, that.branch)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(url, that.url) &&
+            Objects.equals(branch, that.branch);
     }
 
     @Override

@@ -166,19 +166,11 @@ public class PackageRepository implements Serializable, Validatable, SecretParam
 
         PackageRepository that = (PackageRepository) o;
 
-        if (!Objects.equals(configuration, that.configuration)) {
-            return false;
-        }
-        if (!Objects.equals(id, that.id)) {
-            return false;
-        }
-        if (!Objects.equals(name, that.name)) {
-            return false;
-        }
-        if (!Objects.equals(packages, that.packages)) {
-            return false;
-        }
-        return Objects.equals(pluginConfiguration, that.pluginConfiguration);
+        return Objects.equals(configuration, that.configuration) &&
+            Objects.equals(id, that.id) &&
+            Objects.equals(name, that.name) &&
+            Objects.equals(packages, that.packages) &&
+            Objects.equals(pluginConfiguration, that.pluginConfiguration);
     }
 
     @Override

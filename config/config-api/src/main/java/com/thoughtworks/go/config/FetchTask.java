@@ -192,18 +192,10 @@ public class FetchTask extends AbstractFetchTask {
 
         FetchTask fetchTask = (FetchTask) o;
 
-        if (!Objects.equals(dest, fetchTask.dest)) {
-            return false;
-        }
-
-        if (!Objects.equals(srcdir, fetchTask.srcdir)) {
-            return false;
-        }
-        if (!Objects.equals(srcfile, fetchTask.srcfile)) {
-            return false;
-        }
-
-        return super.equals(fetchTask);
+        return Objects.equals(dest, fetchTask.dest) &&
+            Objects.equals(srcdir, fetchTask.srcdir) &&
+            Objects.equals(srcfile, fetchTask.srcfile) &&
+            super.equals(fetchTask);
     }
 
     @Override

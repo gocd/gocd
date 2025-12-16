@@ -58,23 +58,13 @@ public class ArtifactPluginInfo extends PluginInfo {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof ArtifactPluginInfo that)) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
+        return o instanceof ArtifactPluginInfo that &&
+            super.equals(o) &&
+            Objects.equals(storeConfigSettings, that.storeConfigSettings) &&
+            Objects.equals(artifactConfigSettings, that.artifactConfigSettings) &&
+            Objects.equals(fetchArtifactSettings, that.fetchArtifactSettings) &&
+            Objects.equals(capabilities, that.capabilities);
 
-        if (!Objects.equals(storeConfigSettings, that.storeConfigSettings)) {
-            return false;
-        }
-        if (!Objects.equals(artifactConfigSettings, that.artifactConfigSettings)) {
-            return false;
-        }
-        if (!Objects.equals(fetchArtifactSettings, that.fetchArtifactSettings)) {
-            return false;
-        }
-        return Objects.equals(capabilities, that.capabilities);
     }
 
     @Override

@@ -37,11 +37,7 @@ public class IdleAgentMessage implements GoMessage {
 
         IdleAgentMessage that = (IdleAgentMessage) o;
 
-        if (!agent.equals(that.agent)) {
-            return false;
-        }
-
-        return true;
+        return agent.equals(that.agent);
     }
 
     @Override

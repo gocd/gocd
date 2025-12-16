@@ -83,16 +83,10 @@ public class StageHistoryEntry extends PersistentObject {
 
         StageHistoryEntry that = (StageHistoryEntry) o;
 
-        if (Double.compare(that.naturalOrder, naturalOrder) != 0) {
-            return false;
-        }
-        if (!Objects.equals(identifier, that.identifier)) {
-            return false;
-        }
-        if (state != that.state) {
-            return false;
-        }
-        return Objects.equals(rerunOfCounter, that.rerunOfCounter);
+        return Double.compare(that.naturalOrder, naturalOrder) == 0 &&
+            Objects.equals(identifier, that.identifier) &&
+            state == that.state &&
+            Objects.equals(rerunOfCounter, that.rerunOfCounter);
     }
 
     @Override

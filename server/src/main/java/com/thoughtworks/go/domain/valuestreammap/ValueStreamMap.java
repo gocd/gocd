@@ -165,7 +165,9 @@ public class ValueStreamMap {
     }
 
     private boolean hasMultipleLatestRevisionString(List<MaterialRevision> materialRevisions) {
-        if (materialRevisions.size() == VALID_LATEST_REVISION_STRING_COUNT) return false;
+        if (materialRevisions.size() == VALID_LATEST_REVISION_STRING_COUNT) {
+            return false;
+        }
 
         Set<String> latestRevisions = new HashSet<>();
         for (MaterialRevision revision : materialRevisions) {

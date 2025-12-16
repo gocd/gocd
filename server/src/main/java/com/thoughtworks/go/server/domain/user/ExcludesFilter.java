@@ -38,8 +38,12 @@ public class ExcludesFilter extends AbstractPipelinesFilter {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ExcludesFilter that = (ExcludesFilter) o;
         return Objects.equals(name(), that.name()) &&
                 Objects.equals(pipelines, that.pipelines);

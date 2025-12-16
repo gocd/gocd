@@ -53,8 +53,9 @@ public class CRConfigMaterial extends CRMaterial {
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
-        if (this.filter != null)
+        if (this.filter != null) {
             this.filter.getErrors(errors, location);
+        }
     }
 
     @Override

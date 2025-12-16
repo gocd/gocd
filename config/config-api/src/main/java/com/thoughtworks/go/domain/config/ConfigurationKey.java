@@ -66,11 +66,7 @@ public class ConfigurationKey implements Serializable, Validatable {
 
         ConfigurationKey that = (ConfigurationKey) o;
 
-        if (!Objects.equals(name, that.name)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(name, that.name);
     }
 
     @Override

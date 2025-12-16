@@ -79,7 +79,9 @@ public class PluginsInitializer implements Initializer {
 
     private boolean shouldReplaceBundledPlugins(File bundledPluginsDirectory) throws IOException {
         File versionFile = new File(bundledPluginsDirectory, "version.txt");
-        if (!versionFile.exists()) return true;
+        if (!versionFile.exists()) {
+            return true;
+        }
         String currentlyInstalledVersion = Files.readString(versionFile.toPath(), UTF_8);
         String versionNumberInZip = zipUtil.getFileContentInsideZip(getPluginsZipStream(), "version.txt");
         return !currentlyInstalledVersion.equals(versionNumberInZip);

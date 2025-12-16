@@ -120,16 +120,10 @@ public class NotificationFilter extends PersistentObject implements Validatable 
 
         NotificationFilter filter = (NotificationFilter) o;
 
-        if (myCheckin != filter.myCheckin) {
-            return false;
-        }
-        if (event != filter.event) {
-            return false;
-        }
-        if (!Objects.equals(pipelineName, filter.pipelineName)) {
-            return false;
-        }
-        return Objects.equals(stageName, filter.stageName);
+        return myCheckin == filter.myCheckin &&
+            event == filter.event &&
+            Objects.equals(pipelineName, filter.pipelineName) &&
+            Objects.equals(stageName, filter.stageName);
     }
 
     @Override

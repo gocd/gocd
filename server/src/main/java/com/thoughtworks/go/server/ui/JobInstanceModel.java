@@ -126,13 +126,9 @@ public class JobInstanceModel {
 
         JobInstanceModel that = (JobInstanceModel) o;
 
-        if (!Objects.equals(instance, that.instance)) {
-            return false;
-        }
-        if (!Objects.equals(jobDurationStrategy, that.jobDurationStrategy)) {
-            return false;
-        }
-        return Objects.equals(agentInfo, that.agentInfo);
+        return Objects.equals(instance, that.instance) &&
+            Objects.equals(jobDurationStrategy, that.jobDurationStrategy) &&
+            Objects.equals(agentInfo, that.agentInfo);
     }
 
     @Override
@@ -200,16 +196,10 @@ public class JobInstanceModel {
 
             AgentInfo agentInfo = (AgentInfo) o;
 
-            if (isAgentLive != agentInfo.isAgentLive) {
-                return false;
-            }
-            if (!hostname.equals(agentInfo.hostname)) {
-                return false;
-            }
-            if (!ip.equals(agentInfo.ip)) {
-                return false;
-            }
-            return uuid.equals(agentInfo.uuid);
+            return isAgentLive == agentInfo.isAgentLive &&
+                hostname.equals(agentInfo.hostname) &&
+                ip.equals(agentInfo.ip) &&
+                uuid.equals(agentInfo.uuid);
         }
 
         @Override

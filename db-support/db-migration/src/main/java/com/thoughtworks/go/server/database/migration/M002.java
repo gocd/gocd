@@ -33,7 +33,9 @@ public class M002 {
 
     static Migration ensureFilterStateIsNotNull() {
         return (cxn) -> {
-            if (!required(cxn)) return;
+            if (!required(cxn)) {
+                return;
+            }
 
             try (Statement s = cxn.createStatement()) {
                 try (ResultSet rs = s.executeQuery("SELECT id, filters FROM PIPELINESELECTIONS WHERE version = 1")) {

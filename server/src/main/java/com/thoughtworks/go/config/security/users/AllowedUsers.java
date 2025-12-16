@@ -63,10 +63,8 @@ public class AllowedUsers implements Users {
 
         AllowedUsers that = (AllowedUsers) o;
 
-        if (!Objects.equals(allowedRoles, that.allowedRoles)) {
-            return false;
-        }
-        return Objects.equals(allowedUsers, that.allowedUsers);
+        return Objects.equals(allowedRoles, that.allowedRoles) &&
+            Objects.equals(allowedUsers, that.allowedUsers);
     }
 
     @Override

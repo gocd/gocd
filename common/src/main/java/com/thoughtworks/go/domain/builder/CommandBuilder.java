@@ -68,20 +68,10 @@ public class CommandBuilder extends BaseCommandBuilder {
 
         CommandBuilder that = (CommandBuilder) o;
 
-        if (!Objects.equals(args, that.args)) {
-            return false;
-        }
-        if (!Objects.equals(command, that.command)) {
-            return false;
-        }
-        if (!Objects.equals(errorString, that.errorString)) {
-            return false;
-        }
-        if (!Objects.equals(workingDir, that.workingDir)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(args, that.args) &&
+            Objects.equals(command, that.command) &&
+            Objects.equals(errorString, that.errorString) &&
+            Objects.equals(workingDir, that.workingDir);
     }
 
     @Override

@@ -61,17 +61,9 @@ public final class PipelineRevisionRange {
 
         PipelineRevisionRange that = (PipelineRevisionRange) o;
 
-        if (!Objects.equals(fromRevision, that.fromRevision)) {
-            return false;
-        }
-        if (!Objects.equals(pipelineName, that.pipelineName)) {
-            return false;
-        }
-        if (!Objects.equals(toRevision, that.toRevision)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(fromRevision, that.fromRevision) &&
+            Objects.equals(pipelineName, that.pipelineName) &&
+            Objects.equals(toRevision, that.toRevision);
     }
 
     @Override

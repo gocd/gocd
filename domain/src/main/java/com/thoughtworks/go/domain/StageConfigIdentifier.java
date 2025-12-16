@@ -51,14 +51,8 @@ private final CaseInsensitiveString pipelineName;
 
         StageConfigIdentifier that = (StageConfigIdentifier) o;
 
-        if (!Objects.equals(pipelineName, that.pipelineName)) {
-            return false;
-        }
-        if (!Objects.equals(stageName, that.stageName)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(pipelineName, that.pipelineName) &&
+            Objects.equals(stageName, that.stageName);
     }
 
     @Override

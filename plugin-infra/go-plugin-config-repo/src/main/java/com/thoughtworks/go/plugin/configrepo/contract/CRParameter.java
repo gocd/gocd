@@ -51,10 +51,11 @@ public class CRParameter extends CRBase {
     }
 
     public String validateNameUniqueness(HashSet<String> keys) {
-        if (keys.contains(this.getName()))
+        if (keys.contains(this.getName())) {
             return String.format("Param name '%s' is not unique.", this.getName());
-        else
+        } else {
             keys.add(this.getName());
+        }
         return null;
     }
 

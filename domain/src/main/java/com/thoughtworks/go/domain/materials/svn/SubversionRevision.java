@@ -40,11 +40,9 @@ public class SubversionRevision extends StringRevision {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof SubversionRevision that)) {
-            return false;
-        }
+        return o instanceof SubversionRevision that &&
+            Strings.CI.equals(revision, that.revision);
 
-        return Strings.CI.equals(revision, that.revision);
     }
 
     @Override

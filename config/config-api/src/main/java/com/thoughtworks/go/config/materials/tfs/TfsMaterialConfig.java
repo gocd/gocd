@@ -137,21 +137,10 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
         TfsMaterialConfig material = (TfsMaterialConfig) o;
 
-        if (!Objects.equals(projectPath, material.projectPath)) {
-            return false;
-        }
-        if (!Objects.equals(url, material.url)) {
-            return false;
-        }
-
-        if (!Objects.equals(userName, material.userName)) {
-            return false;
-        }
-
-        if (!Objects.equals(domain, material.domain)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(projectPath, material.projectPath) &&
+            Objects.equals(url, material.url) &&
+            Objects.equals(userName, material.userName) &&
+            Objects.equals(domain, material.domain);
     }
 
     @Override

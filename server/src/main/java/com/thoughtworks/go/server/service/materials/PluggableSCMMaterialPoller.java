@@ -92,8 +92,9 @@ public class PluggableSCMMaterialPoller implements MaterialPoller<PluggableSCMMa
                 pluggableSCMMaterialRevision.getTimestamp(), null, null,
                 pluggableSCMMaterialRevision.getData(), null);
         Result result = scmExtension.checkout(material.getPluginId(), scmPropertyConfiguration, baseDir.getAbsolutePath(), scmRevision);
-        if (!result.isSuccessful())
+        if (!result.isSuccessful()) {
             throw new RuntimeException("Failed to perform checkout on pluggable SCM");
+        }
     }
 
     private SCMPropertyConfiguration buildSCMPropertyConfigurations(SCM scmConfig) {

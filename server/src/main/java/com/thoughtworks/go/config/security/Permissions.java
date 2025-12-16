@@ -65,16 +65,10 @@ public class Permissions {
 
         Permissions that = (Permissions) o;
 
-        if (!Objects.equals(viewers, that.viewers)) {
-            return false;
-        }
-        if (!Objects.equals(operators, that.operators)) {
-            return false;
-        }
-        if (!Objects.equals(admins, that.admins)) {
-            return false;
-        }
-        return Objects.equals(pipelinePermission, that.pipelinePermission);
+        return Objects.equals(viewers, that.viewers) &&
+            Objects.equals(operators, that.operators) &&
+            Objects.equals(admins, that.admins) &&
+            Objects.equals(pipelinePermission, that.pipelinePermission);
     }
 
     @Override

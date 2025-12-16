@@ -109,11 +109,7 @@ public class PathFromAncestor {
 
         PathFromAncestor that = (PathFromAncestor) o;
 
-        if (!Objects.equals(path, that.path)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(path, that.path);
     }
 
     @Override

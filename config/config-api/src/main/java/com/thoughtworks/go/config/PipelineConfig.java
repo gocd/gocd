@@ -419,15 +419,17 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public boolean isConfigOriginSameAsOneOfMaterials() {
-        if (!(isConfigDefinedRemotely()))
+        if (!(isConfigDefinedRemotely())) {
             return false;
+        }
 
         RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin) this.origin;
         MaterialConfig configMaterial = repoConfigOrigin.getMaterial();
 
         for (MaterialConfig material : this.materialConfigs()) {
-            if (material.getFingerprint().equals(configMaterial.getFingerprint()))
+            if (material.getFingerprint().equals(configMaterial.getFingerprint())) {
                 return true;
+            }
         }
         return false;
     }
@@ -437,15 +439,17 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public boolean hasSameConfigOrigin(PipelineConfig other) {
-        if (!(isConfigDefinedRemotely()))
+        if (!(isConfigDefinedRemotely())) {
             return false;
+        }
 
         return this.origin.equals(other.getOrigin());
     }
 
     public boolean isConfigOriginFromRevision(String revision) {
-        if (!(isConfigDefinedRemotely()))
+        if (!(isConfigDefinedRemotely())) {
             return false;
+        }
 
         RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin) this.origin;
         return repoConfigOrigin.isFromRevision(revision);
@@ -516,9 +520,15 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         PipelineConfig that = (PipelineConfig) o;
         return Objects.equals(name, that.name) &&
                 Objects.equals(labelTemplate, that.labelTemplate) &&
@@ -946,10 +956,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public void setLock(boolean lock) {
-        if (lock)
+        if (lock) {
             this.lockExplicitly();
-        else
+        } else {
             this.unlockExplicitly();
+        }
     }
 
     public String getOriginDisplayName() {

@@ -90,13 +90,9 @@ public class PipelineIdentifier implements Serializable {
 
         PipelineIdentifier that = (PipelineIdentifier) o;
 
-        if (!Objects.equals(counter, that.counter)) {
-            return false;
-        }
-        if (!Objects.equals(label, that.label)) {
-            return false;
-        }
-        return Objects.equals(name, that.name);
+        return Objects.equals(counter, that.counter) &&
+            Objects.equals(label, that.label) &&
+            Objects.equals(name, that.name);
     }
 
     @Override

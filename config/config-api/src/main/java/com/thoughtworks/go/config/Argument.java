@@ -43,11 +43,7 @@ public class Argument implements Validatable{
 
         Argument arg = (Argument) o;
 
-        if (!value.equals(arg.value)) {
-            return false;
-        }
-
-        return true;
+        return value.equals(arg.value);
     }
 
     @Override

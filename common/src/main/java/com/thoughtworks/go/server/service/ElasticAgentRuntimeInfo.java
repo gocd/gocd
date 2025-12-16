@@ -88,15 +88,20 @@ public class ElasticAgentRuntimeInfo extends AgentRuntimeInfo implements Seriali
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         ElasticAgentRuntimeInfo that = (ElasticAgentRuntimeInfo) o;
 
-        if (!Objects.equals(elasticAgentId, that.elasticAgentId))
-            return false;
-        return Objects.equals(elasticPluginId, that.elasticPluginId);
+        return Objects.equals(elasticAgentId, that.elasticAgentId) &&
+            Objects.equals(elasticPluginId, that.elasticPluginId);
     }
 
     @Override

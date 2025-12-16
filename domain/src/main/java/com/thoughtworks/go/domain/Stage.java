@@ -334,39 +334,18 @@ public class Stage extends PersistentObject {
 
         Stage stage = (Stage) o;
 
-        if (counter != stage.counter) {
-            return false;
-        }
-        if (orderId != stage.orderId) {
-            return false;
-        }
-        if (fetchMaterials != stage.fetchMaterials) {
-            return false;
-        }
+        return counter == stage.counter &&
+            orderId == stage.orderId &&
+            fetchMaterials == stage.fetchMaterials &&
+            cleanWorkingDir == stage.cleanWorkingDir &&
+            Objects.equals(pipelineId, stage.pipelineId) &&
+            Objects.equals(approvalType, stage.approvalType) &&
+            Objects.equals(approvedBy, stage.approvedBy) &&
+            Objects.equals(cancelledBy, stage.cancelledBy) &&
+            Objects.equals(createdTime, stage.createdTime) &&
+            Objects.equals(name, stage.name) &&
+            result == stage.result;
 
-        if (cleanWorkingDir != stage.cleanWorkingDir) {
-            return false;
-        }
-        if (!Objects.equals(pipelineId, stage.pipelineId)) {
-            return false;
-        }
-        if (!Objects.equals(approvalType, stage.approvalType)) {
-            return false;
-        }
-        if (!Objects.equals(approvedBy, stage.approvedBy)) {
-            return false;
-        }
-        if (!Objects.equals(cancelledBy, stage.cancelledBy)) {
-            return false;
-        }
-        if (!Objects.equals(createdTime, stage.createdTime)) {
-            return false;
-        }
-
-        if (!Objects.equals(name, stage.name)) {
-            return false;
-        }
-        return result == stage.result;
     }
 
     @Override

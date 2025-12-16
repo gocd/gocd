@@ -265,8 +265,9 @@ public class ConfigRepository {
             if (!org.apache.commons.lang3.StringUtils.isBlank(laterMD5)) {
                 laterCommit = getRevCommitForMd5(laterMD5);
             }
-            if (!org.apache.commons.lang3.StringUtils.isBlank(earlierMD5))
+            if (!org.apache.commons.lang3.StringUtils.isBlank(earlierMD5)) {
                 earlierCommit = getRevCommitForMd5(earlierMD5);
+            }
             return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
         });
     }

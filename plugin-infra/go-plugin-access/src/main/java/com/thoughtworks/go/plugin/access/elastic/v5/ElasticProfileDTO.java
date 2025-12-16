@@ -68,8 +68,12 @@ public class ElasticProfileDTO {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ElasticProfileDTO that = (ElasticProfileDTO) o;
         return Objects.equals(id, that.id) &&
                 Objects.equals(pluginId, that.pluginId) &&

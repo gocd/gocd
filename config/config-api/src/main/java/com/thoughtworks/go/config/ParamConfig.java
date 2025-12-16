@@ -112,10 +112,8 @@ public class ParamConfig implements Validatable {
             return false;
         }
         ParamConfig that = (ParamConfig) o;
-        if (!Objects.equals(name, that.name)) {
-            return false;
-        }
-        return !(!Objects.equals(value, that.value));
+        return Objects.equals(name, that.name) &&
+            Objects.equals(value, that.value);
     }
 
     @Override

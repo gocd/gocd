@@ -76,13 +76,9 @@ public abstract class Builder implements Serializable {
 
         Builder builder = (Builder) o;
 
-        if (!Objects.equals(cancelBuilder, builder.cancelBuilder)) {
-            return false;
-        }
-        if (!Objects.equals(conditions, builder.conditions)) {
-            return false;
-        }
-        return Objects.equals(description, builder.description);
+        return Objects.equals(cancelBuilder, builder.cancelBuilder) &&
+            Objects.equals(conditions, builder.conditions) &&
+            Objects.equals(description, builder.description);
     }
 
     @Override
@@ -110,7 +106,9 @@ public abstract class Builder implements Serializable {
     protected void logException(DefaultGoPublisher publisher, Exception e) {
         publisher.taggedConsumeLine(DefaultGoPublisher.ERR, String.format("Error: %s", e.getMessage()));
         LOGGER.error(e.getMessage(), e);
-        if (e instanceof RuntimeException) throw (RuntimeException)e;
+        if (e instanceof RuntimeException re) {
+            throw re;
+        }
         throw new CommandLineException(e);
     }
 

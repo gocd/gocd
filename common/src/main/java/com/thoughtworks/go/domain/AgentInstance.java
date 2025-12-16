@@ -444,19 +444,11 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     private boolean equals(AgentInstance that) {
-        if (!Objects.equals(this.agent, that.agent)) {
-            return false;
-        }
-        if (!Objects.equals(this.agentRuntimeInfo, that.agentRuntimeInfo)) {
-            return false;
-        }
-        if (this.agentConfigStatus != that.agentConfigStatus) {
-            return false;
-        }
-        if (this.agentType != that.agentType) {
-            return false;
-        }
-        return Objects.equals(this.lastHeardTime, that.lastHeardTime);
+        return Objects.equals(this.agent, that.agent) &&
+            Objects.equals(this.agentRuntimeInfo, that.agentRuntimeInfo) &&
+            this.agentConfigStatus == that.agentConfigStatus &&
+            this.agentType == that.agentType &&
+            Objects.equals(this.lastHeardTime, that.lastHeardTime);
     }
 
     @Override

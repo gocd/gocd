@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.plugin.access.packagematerial;
 
-import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration;
@@ -162,7 +161,9 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         PackageRevision packageRevision = toPackageRevision(responseBody);
         if (packageRevision == null) {
             throw new RuntimeException("Empty response body");
-        } else return packageRevision;
+        } else {
+            return packageRevision;
+        }
     }
 
     @Override

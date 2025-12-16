@@ -149,25 +149,13 @@ public class JobIdentifier implements Serializable, LocatableEntity {
 
         JobIdentifier that = (JobIdentifier) o;
 
-        if (!Objects.equals(buildId, that.buildId)) {
-            return false;
-        }
-        if (!Objects.equals(buildName, that.buildName)) {
-            return false;
-        }
-        if (!Objects.equals(pipelineCounter, that.pipelineCounter)) {
-            return false;
-        }
-        if (!Objects.equals(pipelineLabel, that.pipelineLabel)) {
-            return false;
-        }
-        if (!Objects.equals(pipelineName, that.pipelineName)) {
-            return false;
-        }
-        if (!Objects.equals(stageCounter, that.stageCounter)) {
-            return false;
-        }
-        return Objects.equals(stageName, that.stageName);
+        return Objects.equals(buildId, that.buildId) &&
+            Objects.equals(buildName, that.buildName) &&
+            Objects.equals(pipelineCounter, that.pipelineCounter) &&
+            Objects.equals(pipelineLabel, that.pipelineLabel) &&
+            Objects.equals(pipelineName, that.pipelineName) &&
+            Objects.equals(stageCounter, that.stageCounter) &&
+            Objects.equals(stageName, that.stageName);
     }
 
     @Override

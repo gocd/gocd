@@ -105,20 +105,10 @@ public class PipelinePauseInfo implements Serializable {
 
         PipelinePauseInfo that = (PipelinePauseInfo) o;
 
-        if (paused != that.paused) {
-            return false;
-        }
-        if (!Objects.equals(pauseBy, that.pauseBy)) {
-            return false;
-        }
-        if (!Objects.equals(pauseCause, that.pauseCause)) {
-            return false;
-        }
-        if (!Objects.equals(pausedAt, that.pausedAt)) {
-            return false;
-        }
-
-        return true;
+        return paused == that.paused &&
+            Objects.equals(pauseBy, that.pauseBy) &&
+            Objects.equals(pauseCause, that.pauseCause) &&
+            Objects.equals(pausedAt, that.pausedAt);
     }
 
     @Override

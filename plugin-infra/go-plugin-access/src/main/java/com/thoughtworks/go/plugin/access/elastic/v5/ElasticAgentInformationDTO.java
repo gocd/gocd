@@ -73,8 +73,12 @@ class ElasticAgentInformationDTO implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ElasticAgentInformationDTO that = (ElasticAgentInformationDTO) o;
         return Objects.equals(pluginSettings, that.pluginSettings) &&
                 Objects.equals(clusterProfilesDTO, that.clusterProfilesDTO) &&

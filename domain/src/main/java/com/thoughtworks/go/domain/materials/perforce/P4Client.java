@@ -121,7 +121,9 @@ public class P4Client extends SCMCommand {
         login();
         String[] input1 = new String[]{input};
         ConsoleResult result = runOrBomb(p4, input1);
-        if (result.error().size() > 0) throw new RuntimeException(result.describe());
+        if (result.error().size() > 0) {
+            throw new RuntimeException(result.describe());
+        }
         return result;
     }
 
@@ -129,9 +131,12 @@ public class P4Client extends SCMCommand {
         login();
         int returnCode = run(p4, outputStreamConsumer, input);
         if (failOnError) {
-            if (ProgramExitCode.COMMAND_NOT_FOUND == returnCode)
+            if (ProgramExitCode.COMMAND_NOT_FOUND == returnCode) {
                 throw new RuntimeException("Failed to find 'p4' on your PATH. Please ensure 'p4' is executable by the Go Server and on the Go Agents where this material will be used.");
-            if (ProgramExitCode.SUCCESS != returnCode) throw new RuntimeException("Failed to run : " + p4.describe());
+            }
+            if (ProgramExitCode.SUCCESS != returnCode) {
+                throw new RuntimeException("Failed to run : " + p4.describe());
+            }
         }
         return returnCode;
     }

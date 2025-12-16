@@ -36,8 +36,12 @@ public class MaterialForScheduling {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         MaterialForScheduling that = (MaterialForScheduling) o;
         return Objects.equals(fingerprint, that.fingerprint) &&
             Objects.equals(revision, that.revision);

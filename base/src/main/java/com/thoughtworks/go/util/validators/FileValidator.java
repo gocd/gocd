@@ -93,15 +93,19 @@ public class FileValidator implements Validator {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         FileValidator that = (FileValidator) o;
 
-        if (shouldReplace != that.shouldReplace) return false;
-        if (!Objects.equals(fileName, that.fileName)) return false;
-        if (!Objects.equals(srcDir, that.srcDir)) return false;
-        return Objects.equals(destDir, that.destDir);
+        return shouldReplace == that.shouldReplace &&
+            Objects.equals(fileName, that.fileName) &&
+            Objects.equals(srcDir, that.srcDir) &&
+            Objects.equals(destDir, that.destDir);
     }
 
     @Override

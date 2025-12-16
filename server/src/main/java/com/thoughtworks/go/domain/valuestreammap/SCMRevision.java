@@ -63,11 +63,7 @@ public class SCMRevision implements Revision, Comparable<SCMRevision> {
 
         SCMRevision that = (SCMRevision) o;
 
-        if (!Objects.equals(modification, that.modification)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(modification, that.modification);
     }
 
     @Override

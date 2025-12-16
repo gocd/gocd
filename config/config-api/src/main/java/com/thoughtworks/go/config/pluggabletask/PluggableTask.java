@@ -187,7 +187,9 @@ public class PluggableTask extends AbstractTask {
             List<? extends Property> propertyDefinitions = preference.getConfig().list();
             for (Property propertyDefinition : propertyDefinitions) {
                 ConfigurationProperty configuredProperty = configuration.getProperty(propertyDefinition.getKey());
-                if (configuredProperty == null) continue;
+                if (configuredProperty == null) {
+                    continue;
+                }
                 taskProperties.add(new TaskProperty(propertyDefinition.getOption(Property.DISPLAY_NAME), configuredProperty.getDisplayValue(), configuredProperty.getConfigKeyName()));
             }
             return taskProperties;
@@ -226,10 +228,8 @@ public class PluggableTask extends AbstractTask {
 
         PluggableTask that = (PluggableTask) o;
 
-        if (!Objects.equals(configuration, that.configuration)) {
-            return false;
-        }
-        return pluginConfiguration.equals(that.pluginConfiguration);
+        return Objects.equals(configuration, that.configuration) &&
+            pluginConfiguration.equals(that.pluginConfiguration);
     }
 
     @Override

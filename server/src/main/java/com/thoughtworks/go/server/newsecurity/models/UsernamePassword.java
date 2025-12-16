@@ -48,14 +48,10 @@ public class UsernamePassword implements Credentials {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof UsernamePassword that)) {
-            return false;
-        }
+        return o instanceof UsernamePassword that &&
+            Objects.equals(username, that.username) &&
+            Objects.equals(password, that.password);
 
-        if (!Objects.equals(username, that.username)) {
-            return false;
-        }
-        return Objects.equals(password, that.password);
     }
 
     @Override

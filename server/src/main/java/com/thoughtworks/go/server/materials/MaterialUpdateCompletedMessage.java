@@ -51,11 +51,7 @@ public class MaterialUpdateCompletedMessage implements GoMessage {
 
         MaterialUpdateCompletedMessage that = (MaterialUpdateCompletedMessage) o;
 
-        if (!Objects.equals(material, that.material)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(material, that.material);
     }
 
     @Override

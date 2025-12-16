@@ -23,12 +23,16 @@ import java.util.List;
 
 public class PipelineConfigErrorCopier {
     private static void copy(Validatable from, Validatable to) {
-        if (from == null || to == null) return;
+        if (from == null || to == null) {
+            return;
+        }
         to.errors().addAll(from.errors());
     }
 
     private static void copyCollectionErrors(BaseCollection<?> from, BaseCollection<?> to) {
-        if (from == null || to == null) return;
+        if (from == null || to == null) {
+            return;
+        }
         copy((Validatable) from, (Validatable) to);
         for (int i = 0; i < to.size(); i++) {
             copy((Validatable) from.get(i), (Validatable) to.get(i));

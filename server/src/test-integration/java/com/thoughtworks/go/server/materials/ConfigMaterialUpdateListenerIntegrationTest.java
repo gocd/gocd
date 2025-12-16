@@ -77,8 +77,6 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
     @Autowired
     private SystemEnvironment systemEnvironment;
     @Autowired
-    private ConfigCache configCache;
-    @Autowired
     private CachedGoConfig cachedGoConfig;
 
     private MaterialConfig materialConfig;
@@ -110,7 +108,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
                 stageService, configDbStateRepository);
         goDiskSpaceMonitor.initialize();
 
-        configTestRepo = new ConfigTestRepo(hgRepo, new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins()));
+        configTestRepo = new ConfigTestRepo(hgRepo, new MagicalGoConfigXmlWriter(ConfigElementImplementationRegistryMother.withNoPlugins()));
         this.material = configTestRepo.getMaterial();
     }
 

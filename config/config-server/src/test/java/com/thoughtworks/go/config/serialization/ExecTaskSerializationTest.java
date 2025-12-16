@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config.serialization;
 
 import com.thoughtworks.go.config.Argument;
-import com.thoughtworks.go.config.ConfigCache;
 import com.thoughtworks.go.config.ExecTask;
 import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
@@ -25,12 +24,10 @@ import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class ExecTaskTest {
+public class ExecTaskSerializationTest {
     @Test
     public void shouldSupportMultipleArgs() throws Exception {
         String xml = """
@@ -38,7 +35,7 @@ public class ExecTaskTest {
                   <arg>arg1</arg>
                   <arg>arg2</arg>
                 </exec>""";
-        ExecTask execTask = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).fromXmlPartial(xml, ExecTask.class);
+        ExecTask execTask = new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins()).fromXmlPartial(xml, ExecTask.class);
         assertThat(execTask.getArgList()).isEqualTo(new Arguments(new Argument("arg1"), new Argument("arg2")));
     }
 
@@ -56,28 +53,10 @@ public class ExecTaskTest {
         try {
             ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
 
-            new MagicalGoConfigXmlLoader(new ConfigCache(), registry).loadConfigHolder(configXml);
+            new MagicalGoConfigXmlLoader(registry).loadConfigHolder(configXml);
             fail("should throw exception if both 'args' attribute and 'arg' sub element are configured");
         } catch (Exception e) {
             assertThat(e.getMessage()).contains(ExecTask.EXEC_CONFIG_ERROR);
         }
-    }
-
-    @Test
-    public void validateTask_shouldValidateThatCommandIsRequired() {
-        ExecTask execTask = new ExecTask();
-
-        execTask.validateTask(null);
-
-        assertThat(execTask.errors().isEmpty()).isFalse();
-        assertThat(execTask.errors().firstErrorOn(ExecTask.COMMAND)).isEqualTo("Command cannot be empty");
-    }
-
-    @Test
-    public void shouldUseConfiguredWorkingDirectory() {
-        File absoluteFile = new File("test").getAbsoluteFile();
-        ExecTask task = new ExecTask("command", "arguments", absoluteFile.getAbsolutePath());
-
-        assertThat(task.workingDirectory()).isEqualTo((absoluteFile.getPath()));
     }
 }

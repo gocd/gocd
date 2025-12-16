@@ -37,12 +37,12 @@ validating to writing the config in appropriate locations.
 public class FullConfigSaveNormalFlow extends FullConfigSaveFlow {
 
     @Autowired
-    public FullConfigSaveNormalFlow(ConfigCache configCache, ConfigElementImplementationRegistry configElementImplementationRegistry,
+    public FullConfigSaveNormalFlow(ConfigElementImplementationRegistry configElementImplementationRegistry,
                                     SystemEnvironment systemEnvironment, TimeProvider timeProvider,
                                     ConfigRepository configRepository, CachedGoPartials cachedGoPartials) {
-        this(new MagicalGoConfigXmlLoader(configCache, configElementImplementationRegistry),
-                new MagicalGoConfigXmlWriter(configCache, configElementImplementationRegistry), configElementImplementationRegistry,
-                timeProvider, configRepository, cachedGoPartials, new GoConfigFileWriter(systemEnvironment));
+        this(new MagicalGoConfigXmlLoader(configElementImplementationRegistry),
+            new MagicalGoConfigXmlWriter(configElementImplementationRegistry), configElementImplementationRegistry,
+            timeProvider, configRepository, cachedGoPartials, new GoConfigFileWriter(systemEnvironment));
     }
 
     public FullConfigSaveNormalFlow(MagicalGoConfigXmlLoader loader, MagicalGoConfigXmlWriter writer,

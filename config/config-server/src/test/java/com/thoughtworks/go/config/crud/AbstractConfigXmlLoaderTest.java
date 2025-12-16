@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.crud;
 
-import com.thoughtworks.go.config.ConfigCache;
 import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
@@ -24,12 +23,11 @@ import org.junit.jupiter.api.BeforeEach;
 
 public abstract class AbstractConfigXmlLoaderTest {
     MagicalGoConfigXmlLoader xmlLoader;
-    ConfigCache configCache = new ConfigCache();
 
     @BeforeEach
     public void setup() {
         SCMMetadataStore.getInstance().clear();
-        xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
+        xmlLoader = new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins());
     }
 
     @AfterEach

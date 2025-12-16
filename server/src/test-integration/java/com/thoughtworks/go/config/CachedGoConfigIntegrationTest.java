@@ -124,8 +124,6 @@ public class CachedGoConfigIntegrationTest {
     private GoConfigMigration goConfigMigration;
     @Autowired
     private ConfigElementImplementationRegistry registry;
-    @Autowired
-    private ConfigCache configCache;
 
     @TempDir
     Path temporaryFolder;
@@ -148,7 +146,7 @@ public class CachedGoConfigIntegrationTest {
         configRepo = configWatchList.getCurrentConfigRepos().get(0);
         cachedGoPartials.clear();
         configHelper.addEnvironments("some_environment");
-        magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
+        magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(registry);
     }
 
     @AfterEach

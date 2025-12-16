@@ -34,18 +34,18 @@ public class GoConfigGraphWalkerTest {
 
     @Test
     public void walkedObject_shouldOnlyAcceptObjectsInThoughtworksPackage() {
-        assertThat(new GoConfigGraphWalker.WalkedObject("non-tw object").shouldWalk()).isFalse();
-        assertThat(new GoConfigGraphWalker.WalkedObject(new PipelineConfig()).shouldWalk()).isTrue();
+        assertThat(GoConfigGraphWalker.shouldWalk("non-tw object")).isFalse();
+        assertThat(GoConfigGraphWalker.shouldWalk(new PipelineConfig())).isTrue();
     }
 
     @Test
     public void walkedObject_shouldWalkMergePipelineConfigs() {
-        assertThat(new GoConfigGraphWalker.WalkedObject(new MergePipelineConfigs(new BasicPipelineConfigs())).shouldWalk()).isTrue();
+        assertThat(GoConfigGraphWalker.shouldWalk(new MergePipelineConfigs(new BasicPipelineConfigs()))).isTrue();
     }
 
     @Test
     public void walkedObject_shouldNotWalkNull() {
-        assertThat(new GoConfigGraphWalker.WalkedObject(null).shouldWalk()).isFalse();
+        assertThat(GoConfigGraphWalker.shouldWalk(null)).isFalse();
     }
 
     private PipelineConfig mockPipelineConfig() {

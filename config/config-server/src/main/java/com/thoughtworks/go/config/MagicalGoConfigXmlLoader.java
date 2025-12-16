@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidMergeException;
 import com.thoughtworks.go.config.parser.ConfigReferenceElements;
 import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor;
 import com.thoughtworks.go.config.preprocessor.ConfigRepoPartialPreprocessor;
+import com.thoughtworks.go.config.preprocessor.TemplateExpansionPreprocessor;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.validation.*;
@@ -29,24 +30,28 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.config.parser.GoConfigClassLoader.classParser;
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class MagicalGoConfigXmlLoader {
-    public static final List<GoConfigPreprocessor> PREPROCESSORS = List.of(
+    private static final Logger LOGGER = LoggerFactory.getLogger(MagicalGoConfigXmlLoader.class);
+    private static final List<GoConfigPreprocessor> PREPROCESSORS = List.of(
             new ConfigRepoPartialPreprocessor(),
             new TemplateExpansionPreprocessor(),
             new ConfigParamPreprocessor());
-    public static final List<GoConfigXMLValidator> XML_VALIDATORS = List.of(new UniqueOnCancelValidator());
-    private static final Logger LOGGER = LoggerFactory.getLogger(MagicalGoConfigXmlLoader.class);
+    private static final List<GoConfigXMLValidator> XML_VALIDATORS = List.of(new UniqueOnCancelValidator());
     private static final SystemEnvironment systemEnvironment = new SystemEnvironment();
     public static final List<GoConfigValidator> VALIDATORS = List.of(
             new ArtifactDirValidator(),
@@ -55,10 +60,8 @@ public class MagicalGoConfigXmlLoader {
     );
     private static final GoConfigCloner CLONER = new GoConfigCloner();
     private final ConfigElementImplementationRegistry registry;
-    private final ConfigCache configCache;
 
-    public MagicalGoConfigXmlLoader(ConfigCache configCache, ConfigElementImplementationRegistry registry) {
-        this.configCache = configCache;
+    public MagicalGoConfigXmlLoader(ConfigElementImplementationRegistry registry) {
         this.registry = registry;
     }
 
@@ -110,7 +113,7 @@ public class MagicalGoConfigXmlLoader {
         Element element = parseInputStream(new ByteArrayInputStream(content.getBytes())); // FIXME default charset?
         LOGGER.debug("[Config Save] Updating config cache with new XML");
 
-        CruiseConfig configForEdit = classParser(element, BasicCruiseConfig.class, configCache, new GoCipher(), registry, new ConfigReferenceElements()).parse();
+        CruiseConfig configForEdit = classParser(element, BasicCruiseConfig.class, new GoCipher(), registry, new ConfigReferenceElements()).parse();
         setMd5(configForEdit, DigestUtils.md5Hex(content));
         configForEdit.setOrigins(new FileConfigOrigin());
         return configForEdit;
@@ -163,7 +166,7 @@ public class MagicalGoConfigXmlLoader {
     }
 
     private <T> T parse(Class<T> o, Element element) {
-        return classParser(element, o, configCache, new GoCipher(), registry, new ConfigReferenceElements()).parse();
+        return classParser(element, o, new GoCipher(), registry, new ConfigReferenceElements()).parse();
     }
 
     public GoConfigPreprocessor getPreprocessorOfType(final Class<? extends GoConfigPreprocessor> clazz) {

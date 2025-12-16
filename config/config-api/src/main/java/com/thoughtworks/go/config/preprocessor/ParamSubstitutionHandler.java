@@ -87,8 +87,7 @@ public class ParamSubstitutionHandler implements ParamHandler {
     }
 
     private void handleIllegalStateException(IllegalStateException e) throws IllegalStateException {
-        if (Validatable.class.isAssignableFrom(resolvable.getClass())) {
-            Validatable validatable = (Validatable) resolvable;
+        if (resolvable instanceof Validatable validatable) {
             validatable.addError(fieldName, e.getMessage());
         } else {
             throw e;

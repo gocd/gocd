@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.validation;
 
-import com.thoughtworks.go.config.ConfigCache;
 import com.thoughtworks.go.config.ConfigMigrator;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
@@ -35,7 +34,7 @@ public class UniqueRunIfStatusValidatorTest {
     public void shouldThrowExceptionWhenThereIsMoreThanOneOnCancelInEachTask() {
         try {
             final ByteArrayInputStream inputStream = new ByteArrayInputStream(ConfigFileFixture.CONTAINS_MULTI_SAME_STATUS_RUN_IF.getBytes());
-            new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(new String(inputStream.readAllBytes(), UTF_8));
+            new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(new String(inputStream.readAllBytes(), UTF_8));
             fail();
         } catch (Exception e) {
             assertThat(e.getMessage()).containsAnyOf(
@@ -49,7 +48,7 @@ public class UniqueRunIfStatusValidatorTest {
     public void shouldPassWhenEachJobContainsOnCancel() throws Exception {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(ConfigMigrator.migrate(
                 ConfigFileFixture.CONTAINS_MULTI_DIFFERENT_STATUS_RUN_IF).getBytes());
-        CruiseConfig cruiseConfig = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(new String(inputStream.readAllBytes(), UTF_8)).config;
+        CruiseConfig cruiseConfig = new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(new String(inputStream.readAllBytes(), UTF_8)).config;
         assertThat(cruiseConfig).isNotNull();
     }
 }

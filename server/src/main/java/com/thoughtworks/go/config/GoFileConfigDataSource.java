@@ -76,15 +76,15 @@ public class GoFileConfigDataSource {
     /* Will only upgrade cruise config file on application startup. */
     @Autowired
     public GoFileConfigDataSource(GoConfigMigration upgrader, ConfigRepository configRepository, SystemEnvironment systemEnvironment,
-                                  TimeProvider timeProvider, ConfigCache configCache,
+                                  TimeProvider timeProvider,
                                   ConfigElementImplementationRegistry configElementImplementationRegistry,
                                   CachedGoPartials cachedGoPartials,
                                   FullConfigSaveMergeFlow fullConfigSaveMergeFlow, FullConfigSaveNormalFlow fullConfigSaveNormalFlow, PartialConfigHelper partials) {
         this(upgrader, configRepository, systemEnvironment, timeProvider,
-                new MagicalGoConfigXmlLoader(configCache, configElementImplementationRegistry),
-                new MagicalGoConfigXmlWriter(configCache, configElementImplementationRegistry),
-                cachedGoPartials, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow,
-                new GoConfigFileReader(systemEnvironment), new GoConfigFileWriter(systemEnvironment), partials);
+            new MagicalGoConfigXmlLoader(configElementImplementationRegistry),
+            new MagicalGoConfigXmlWriter(configElementImplementationRegistry),
+            cachedGoPartials, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow,
+            new GoConfigFileReader(systemEnvironment), new GoConfigFileWriter(systemEnvironment), partials);
     }
 
     GoFileConfigDataSource(GoConfigMigration upgrader, ConfigRepository configRepository, SystemEnvironment systemEnvironment,
@@ -200,7 +200,7 @@ public class GoFileConfigDataSource {
 
         boolean doFileAttributesDiffer(long currentLastModified, long currentSize) {
             return currentLastModified != lastModified ||
-                    prevSize != currentSize;
+                prevSize != currentSize;
         }
 
         private long length(File configFile) {
@@ -310,8 +310,8 @@ public class GoFileConfigDataSource {
             StringBuilder errorMessageBuilder = new StringBuilder();
             try {
                 String message = String.format(
-                        "Merged update operation failed on VALID %s partials. Falling back to using LAST KNOWN %s partials. Exception message was: [%s %s]",
-                        lastValidPartials.size(), lastKnownPartials.size(), e.getMessage(), e.getAllErrorMessages());
+                    "Merged update operation failed on VALID %s partials. Falling back to using LAST KNOWN %s partials. Exception message was: [%s %s]",
+                    lastValidPartials.size(), lastKnownPartials.size(), e.getMessage(), e.getAllErrorMessages());
                 errorMessageBuilder.append(message);
                 LOGGER.warn(message, e);
                 updatingCommand.clearErrors();
@@ -319,12 +319,12 @@ public class GoFileConfigDataSource {
                 String configAsXml = configAsXml(modifiedConfig, false);
                 GoConfigHolder holder = internalLoad(configAsXml, new ConfigModifyingUser(currentUser.getUsername().toString()), lastKnownPartials);
                 LOGGER.info("Update operation on merged configuration succeeded with {} KNOWN partials. Now there are {} LAST KNOWN partials",
-                        lastKnownPartials.size(), cachedGoPartials.lastKnownPartials().size());
+                    lastKnownPartials.size(), cachedGoPartials.lastKnownPartials().size());
                 return new EntityConfigSaveResult<>(holder.config, holder);
             } catch (Exception exceptionDuringFallbackValidation) {
                 String message = String.format(
-                        "Merged config update operation failed using fallback LAST KNOWN %s partials. Exception message was: %s",
-                        lastKnownPartials.size(), exceptionDuringFallbackValidation.getMessage());
+                    "Merged config update operation failed using fallback LAST KNOWN %s partials. Exception message was: %s",
+                    lastKnownPartials.size(), exceptionDuringFallbackValidation.getMessage());
                 LOGGER.warn(message, exceptionDuringFallbackValidation);
                 errorMessageBuilder.append(System.lineSeparator());
                 errorMessageBuilder.append(message);
@@ -419,7 +419,7 @@ public class GoFileConfigDataSource {
         return fileLocation().getAbsolutePath();
     }
 
-    synchronized GoConfigHolder forceLoad() throws IOException, JDOMException, GitAPIException {
+    private synchronized GoConfigHolder forceLoad() throws IOException, JDOMException, GitAPIException {
         Path configFile = goConfigFileReader.location();
 
         CruiseConfig cruiseConfig = this.magicalGoConfigXmlLoader.deserializeConfig(goConfigFileReader.configXml());
@@ -619,7 +619,7 @@ public class GoFileConfigDataSource {
         String modifiedConfigAsXml = convertMutatedConfigToXml(modifiedConfig, latestMd5);
 
         GoConfigRevision configRevision = new GoConfigRevision(modifiedConfigAsXml, "temporary-md5-for-branch", getConfigUpdatingUser(noOverwriteCommand).getUserName(),
-                CurrentGoCDVersion.getInstance().formatted(), timeProvider);
+            CurrentGoCDVersion.getInstance().formatted(), timeProvider);
 
         String mergedConfigXml = configRepository.getConfigMergedWithLatestRevision(configRevision, oldMd5);
         LOGGER.debug("[Config Save] -=- Done converting merged config to XML");

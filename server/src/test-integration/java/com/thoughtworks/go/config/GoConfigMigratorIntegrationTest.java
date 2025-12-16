@@ -95,8 +95,6 @@ public class GoConfigMigratorIntegrationTest {
     @Autowired
     private FullConfigSaveNormalFlow fullConfigSaveNormalFlow;
     @Autowired
-    private ConfigCache configCache;
-    @Autowired
     private ConfigElementImplementationRegistry registry;
     @Autowired
     private GoFileConfigDataSource goFileConfigDataSource;
@@ -118,7 +116,7 @@ public class GoConfigMigratorIntegrationTest {
         resetCipher.setupDESCipherFile();
         resetCipher.setupAESCipherFile();
         exceptions = new ArrayList<>();
-        MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
+        MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(registry);
         goConfigMigrator = new GoConfigMigrator(goConfigMigration, systemEnvironment, fullConfigSaveNormalFlow, xmlLoader, new GoConfigFileReader(systemEnvironment), configRepository, serverHealthService, e -> exceptions.add(e));
     }
 
@@ -423,7 +421,7 @@ public class GoConfigMigratorIntegrationTest {
 
         String configXml = Files.readString(configFile, UTF_8);
 
-        MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
+        MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins());
         GoConfigHolder configHolder = loader.loadConfigHolder(configXml);
 
         CruiseConfig config = configHolder.config;

@@ -55,7 +55,7 @@ public class EntityHashingServiceTest {
     void setUp() {
         this.goConfigService = mock(GoConfigService.class);
         this.goCache = mock(GoCache.class);
-        digests = new EntityHashes(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
+        digests = new EntityHashes(ConfigElementImplementationRegistryMother.withNoPlugins());
         this.service = new EntityHashingService(this.goConfigService, this.goCache, mock(PartialConfigHelper.class), digests);
     }
 

@@ -46,11 +46,12 @@ import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.Pair;
 import com.thoughtworks.go.util.SystemTimeClock;
 import org.dom4j.Document;
-import org.dom4j.DocumentFactory;
+import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
-import org.jdom2.input.JDOMParseException;
+import org.jdom2.JDOMException;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +61,7 @@ import org.xml.sax.InputSource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.StringReader;
 import java.time.Duration;
 import java.util.*;
@@ -84,7 +86,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     private final GoConfigMigration upgrader;
     private final GoCache goCache;
     private final ConfigRepository configRepository;
-    private final ConfigCache configCache;
     private final GoConfigCloner cloner = new GoConfigCloner();
     private final InstanceFactory instanceFactory;
     private final MagicalGoConfigXmlLoader xmlLoader;
@@ -96,19 +97,17 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
                            GoConfigMigration upgrader,
                            GoCache goCache,
                            ConfigRepository configRepository,
-                           ConfigCache configCache,
                            ConfigElementImplementationRegistry registry,
                            InstanceFactory instanceFactory,
                            CachedGoPartials cachedGoPartials) {
         this.goConfigDao = goConfigDao;
         this.goCache = goCache;
         this.configRepository = configRepository;
-        this.configCache = configCache;
         this.registry = registry;
         this.upgrader = upgrader;
         this.instanceFactory = instanceFactory;
         this.cachedGoPartials = cachedGoPartials;
-        this.xmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
+        this.xmlLoader = new MagicalGoConfigXmlLoader(registry);
     }
 
     @TestOnly
@@ -120,7 +119,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
                            ConfigElementImplementationRegistry registry,
                            InstanceFactory instanceFactory,
                            CachedGoPartials cachedGoPartials) {
-        this(goConfigDao, upgrader, goCache, configRepository, new ConfigCache(), registry, instanceFactory, cachedGoPartials);
+        this(goConfigDao, upgrader, goCache, configRepository, registry, instanceFactory, cachedGoPartials);
         this.clock = clock;
     }
 
@@ -715,7 +714,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     private String configAsXml(CruiseConfig cruiseConfig) {
         final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         try {
-            new MagicalGoConfigXmlWriter(configCache, registry).write(cruiseConfig, outStream, true);
+            new MagicalGoConfigXmlWriter(registry).write(cruiseConfig, outStream, true);
             return outStream.toString();
         } catch (Exception e) {
             throw bomb(e);
@@ -776,7 +775,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
         protected ConfigSaveState saveConfig(final String xmlString, final String md5) throws JDOMException {
             LOGGER.debug("[Config Save] Started saving XML");
-            final MagicalGoConfigXmlLoader configXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
+            final MagicalGoConfigXmlLoader configXmlLoader = new MagicalGoConfigXmlLoader(registry);
 
             LOGGER.debug("[Config Save] Updating config");
             final CruiseConfig deserializedConfig = configXmlLoader.deserializeConfig(xmlString);
@@ -795,19 +794,14 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         protected Document documentRoot() throws IOException, JDOMException, DocumentException {
             CruiseConfig cruiseConfig = goConfigDao.loadForEditing();
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            new MagicalGoConfigXmlWriter(configCache, registry).write(cruiseConfig, out, true);
-            Document document = reader.read(new StringReader(out.toString()));
-            Map<String, String> map = new HashMap<>();
-            map.put("go", MagicalGoConfigXmlWriter.XML_NS);
-            DocumentFactory factory = DocumentFactory.getInstance();
-            factory.setXPathNamespaceURIs(map);
-            return document;
+            new MagicalGoConfigXmlWriter(registry).write(cruiseConfig, out, true);
+            return reader.read(new StringReader(out.toString()));
         }
 
         protected abstract T valid();
 
         public String asXml() {
-            return new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(valid());
+            return new MagicalGoConfigXmlWriter(registry).toXmlPartial(valid());
         }
 
         public GoConfigValidity saveXml(String xmlPartial, String expectedMd5) {

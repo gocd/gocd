@@ -23,15 +23,14 @@ import org.junit.jupiter.api.Test;
 import static com.thoughtworks.go.helper.ConfigFileFixture.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TrackingToolTest {
+public class TrackingToolSerializationTest {
     private MagicalGoConfigXmlLoader loader;
     private MagicalGoConfigXmlWriter writer;
-    private ConfigCache configCache = new ConfigCache();
 
     @BeforeEach
     public void setUp() {
-        loader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
-        writer = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
+        loader = new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins());
+        writer = new MagicalGoConfigXmlWriter(ConfigElementImplementationRegistryMother.withNoPlugins());
     }
 
     @Test

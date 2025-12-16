@@ -15,7 +15,10 @@
  */
 package com.thoughtworks.go.config.serialization;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ConfigMigrator;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
+import com.thoughtworks.go.config.ResourceConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
@@ -23,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CruiseConfigTest {
+public class BasicCruiseConfigSerializationTest {
 
     @Test
     public void shouldFindAllResourcesOnAllJobs() throws Exception {
@@ -45,7 +48,7 @@ public class CruiseConfigTest {
                 </job>""";
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
-        CruiseConfig config = new MagicalGoConfigXmlLoader(new ConfigCache(), registry).loadConfigHolder(ConfigFileFixture.withJob(jobXml + jobXml2)).config;
+        CruiseConfig config = new MagicalGoConfigXmlLoader(registry).loadConfigHolder(ConfigFileFixture.withJob(jobXml + jobXml2)).config;
         assertThat(config.getAllResources()).contains(new ResourceConfig("one"));
         assertThat(config.getAllResources()).contains(new ResourceConfig("two"));
         assertThat(config.getAllResources()).contains(new ResourceConfig("three"));

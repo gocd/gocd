@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.serialization;
 
-import com.thoughtworks.go.config.ConfigCache;
 import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
 import com.thoughtworks.go.config.RakeTask;
 import com.thoughtworks.go.domain.KillAllChildProcessTask;
@@ -25,16 +24,16 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RakeTaskTest {
+public class RakeTaskSerializationTest {
     @Test
     public void shouldDefaultToUsingAKillAllChildrenCancelTask() throws Exception {
-        RakeTask rakeTask = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).fromXmlPartial("<rake/>",RakeTask.class);
+        RakeTask rakeTask = new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins()).fromXmlPartial("<rake/>",RakeTask.class);
         assertThat(rakeTask.cancelTask()).isInstanceOf(KillAllChildProcessTask.class);
     }
 
     @Test
     public void shouldNotKillAllChildrenWhenEmptyOnCancel() throws Exception {
-        RakeTask rakeTask = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).fromXmlPartial(
+        RakeTask rakeTask = new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins()).fromXmlPartial(
                 "<rake><oncancel /></rake>", RakeTask.class
         );
         assertThat(rakeTask.cancelTask()).isInstanceOf(NullTask.class);

@@ -73,7 +73,7 @@ public class ConfigMigrator {
     public static GoConfigHolder loadWithMigration(InputStream input, final ConfigElementImplementationRegistry registry) throws IOException, JDOMException {
         Path tempFile = Files.createTempFile("cruise-config", ".xml");
         try {
-            MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(new ConfigCache(), registry);
+            MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(registry);
             try (FileOutputStream out = new FileOutputStream(tempFile.toFile())) {
                 input.transferTo(out);
             }
@@ -88,8 +88,8 @@ public class ConfigMigrator {
         try {
             ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
 
-            return new MagicalGoConfigXmlLoader(new ConfigCache(), registry).loadConfigHolder(migrate(content)).config;
-        } catch (Exception e) {
+            return new MagicalGoConfigXmlLoader(registry).loadConfigHolder(migrate(content)).config;
+        } catch (IOException | JDOMException e) {
             throw new RuntimeException(e);
         }
     }

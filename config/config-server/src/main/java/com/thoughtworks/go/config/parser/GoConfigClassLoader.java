@@ -16,6 +16,7 @@
 package com.thoughtworks.go.config.parser;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.preprocessor.ConcurrentFieldCache;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ConfigUtil;
@@ -30,8 +31,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static com.thoughtworks.go.config.ConfigCache.annotationFor;
-import static com.thoughtworks.go.config.ConfigCache.isAnnotationPresent;
 import static com.thoughtworks.go.config.parser.GoConfigFieldLoader.fieldParser;
 import static com.thoughtworks.go.util.ExceptionUtils.*;
 import static java.lang.String.format;
@@ -39,22 +38,20 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class GoConfigClassLoader<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigClassLoader.class);
-    private final ConfigUtil configUtil = new ConfigUtil("magic");
+
     private final Element e;
     private final Class<T> aClass;
-    private final ConfigCache configCache;
     private final GoCipher goCipher;
     private final ConfigElementImplementationRegistry registry;
     private final ConfigReferenceElements configReferenceElements;
 
-    public static <T> GoConfigClassLoader<T> classParser(Element e, Class<T> aClass, ConfigCache configCache, GoCipher goCipher, final ConfigElementImplementationRegistry registry, ConfigReferenceElements configReferenceElements) {
-        return new GoConfigClassLoader<>(e, aClass, configCache, goCipher, registry, configReferenceElements);
+    public static <T> GoConfigClassLoader<T> classParser(Element e, Class<T> aClass, GoCipher goCipher, final ConfigElementImplementationRegistry registry, ConfigReferenceElements configReferenceElements) {
+        return new GoConfigClassLoader<>(e, aClass, goCipher, registry, configReferenceElements);
     }
 
-    private GoConfigClassLoader(Element e, Class<T> aClass, ConfigCache configCache, GoCipher goCipher, final ConfigElementImplementationRegistry registry, ConfigReferenceElements configReferenceElements) {
+    private GoConfigClassLoader(Element e, Class<T> aClass, GoCipher goCipher, final ConfigElementImplementationRegistry registry, ConfigReferenceElements configReferenceElements) {
         this.e = e;
         this.aClass = aClass;
-        this.configCache = configCache;
         this.goCipher = goCipher;
         this.registry = registry;
         this.configReferenceElements = configReferenceElements;
@@ -62,10 +59,9 @@ public class GoConfigClassLoader<T> {
 
     @SuppressWarnings("unchecked")
     public T parse() {
-        bombUnless(atElement(),
-            () -> "Unable to parse element <" + e.getName() + "> for class " + aClass.getSimpleName());
+        bombUnless(atElement(), () -> "Unable to parse element <" + e.getName() + "> for class " + aClass.getSimpleName());
         T o = createInstance();
-        if (isAnnotationPresent(aClass, ConfigReferenceCollection.class)) {
+        if (aClass.isAnnotationPresent(ConfigReferenceCollection.class)) {
             ConfigReferenceCollection referenceCollection = aClass.getAnnotation(ConfigReferenceCollection.class);
             String collectionName = referenceCollection.collectionName();
             String idFieldName = referenceCollection.idFieldName();
@@ -88,7 +84,7 @@ public class GoConfigClassLoader<T> {
     private void postConstruct(T o) {
         Method[] methods = o.getClass().getMethods();
         for (Method method : methods) {
-            if (isAnnotationPresent(method, PostConstruct.class)) {
+            if (method.isAnnotationPresent(PostConstruct.class)) {
                 try {
                     method.invoke(o);
                 } catch (Exception e) {
@@ -107,13 +103,13 @@ public class GoConfigClassLoader<T> {
     }
 
     private void parseCollection(Collection<Object> collection) {
-        ConfigCollection collectionAnnotation = annotationFor(aClass, ConfigCollection.class);
+        ConfigCollection collectionAnnotation = aClass.getAnnotation(ConfigCollection.class);
         Class<?> elementType = collectionAnnotation.value();
 
         for (Element childElement : e.getChildren()) {
             if (isInCollection(childElement, elementType)) {
                 Class<?> collectionType = findConcreteType(childElement, elementType);
-                collection.add(classParser(childElement, collectionType, configCache, new GoCipher(), registry, configReferenceElements).parse());
+                collection.add(classParser(childElement, collectionType, new GoCipher(), registry, configReferenceElements).parse());
             }
         }
         int minimumSize = collectionAnnotation.minimum();
@@ -124,30 +120,29 @@ public class GoConfigClassLoader<T> {
 
     private <I> List<GoConfigFieldLoader<?>> allFields(I o) {
         List<GoConfigFieldLoader<?>> fields = new ArrayList<>();
-        List<Field> allFields = configCache.getFieldCache().valuesFor(o.getClass());
-        for (Field field : allFields) {
-            fields.add(fieldParser(e, o, field, configCache, registry, configReferenceElements));
+        for (Field field : ConcurrentFieldCache.nonStaticOrSyntheticFieldsFor(o.getClass())) {
+            fields.add(fieldParser(e, o, field, registry, configReferenceElements));
         }
         return fields;
     }
 
     private boolean atElement() {
-        AttributeAwareConfigTag attributeAwareConfigTag = annotationFor(aClass, AttributeAwareConfigTag.class);
+        AttributeAwareConfigTag attributeAwareConfigTag = aClass.getAnnotation(AttributeAwareConfigTag.class);
         if (attributeAwareConfigTag != null) {
             final String attribute = attributeAwareConfigTag.attribute();
             bombIf(isBlank(attribute), () -> format("Type '%s' has invalid configuration for @AttributeAwareConfigTag. It must have `attribute` with non blank value.", aClass.getName()));
-            bombIf(!hasAttribute(attribute), () -> format("Expected attribute `%s` to be present for %s.", attribute, configUtil.elementOutput(e)));
-            return configUtil.atTag(e, attributeAwareConfigTag.value());
+            bombIf(!hasAttribute(attribute), () -> format("Expected attribute `%s` to be present for %s.", attribute, ConfigUtil.elementOutput(e)));
+            return ConfigUtil.atTag(e, attributeAwareConfigTag.value());
         }
 
-        ConfigTag configTag = annotationFor(aClass, ConfigTag.class);
+        ConfigTag configTag = aClass.getAnnotation(ConfigTag.class);
 
         if (configTag == null) {
             return false;
         }
 
         String tag = configTag.value();
-        return configUtil.atTag(e, tag);
+        return ConfigUtil.atTag(e, tag);
     }
 
     private boolean hasAttribute(String attribute) {
@@ -164,12 +159,12 @@ public class GoConfigClassLoader<T> {
             return aClass;
         }
         Class<T> type = (Class<T>) findConcreteType(e, aClass);
-        bombIfNull(type, () -> format("Unable to determine type to generate. Type: %s Element: %s", aClass.getName(), configUtil.elementOutput(e)));
+        bombIfNull(type, () -> format("Unable to determine type to generate. Type: %s Element: %s", aClass.getName(), ConfigUtil.elementOutput(e)));
         return type;
     }
 
     public static boolean compare(Element e, Class<?> implementation) {
-        final AttributeAwareConfigTag attributeAwareConfigTag = annotationFor(implementation, AttributeAwareConfigTag.class);
+        final AttributeAwareConfigTag attributeAwareConfigTag = implementation.getAnnotation(AttributeAwareConfigTag.class);
 
         if (attributeAwareConfigTag != null) {
             return compareAttributeAwareConfigTag(e, attributeAwareConfigTag);
@@ -186,17 +181,21 @@ public class GoConfigClassLoader<T> {
     }
 
     static boolean isImplicitCollection(Class<?> type) {
-        return isAnnotationPresent(type, ConfigCollection.class) && !(isAnnotationPresent(type, ConfigTag.class) || isAnnotationPresent(type, AttributeAwareConfigTag.class));
+        return isConfigCollection(type) && !type.isAnnotationPresent(ConfigTag.class) && !type.isAnnotationPresent(AttributeAwareConfigTag.class);
     }
 
     public static ConfigTag configTag(Class<?> type) {
-        ConfigTag tag = annotationFor(type, ConfigTag.class);
+        ConfigTag tag = type.getAnnotation(ConfigTag.class);
         bombIfNull(tag, () -> "Invalid type '" + type + "' to autoload. Must have ConfigTag annotation.");
         return tag;
     }
 
     private boolean isConfigCollection() {
-        return isAnnotationPresent(aClass, ConfigCollection.class);
+        return isConfigCollection(aClass);
+    }
+
+    private static boolean isConfigCollection(Class<?> type) {
+        return type.isAnnotationPresent(ConfigCollection.class);
     }
 
     private boolean isInCollection(Element e, Class<?> type) {
@@ -204,7 +203,7 @@ public class GoConfigClassLoader<T> {
     }
 
     private Class<?> findConcreteType(Element e, Class<?> type) {
-        if (type.isInterface() && isAnnotationPresent(type, ConfigInterface.class)) {
+        if (type.isInterface() && type.isAnnotationPresent(ConfigInterface.class)) {
             for (Class<?> implementation : registry.implementersOf(type)) {
                 if (compare(e, implementation)) {
                     return implementation;

@@ -25,13 +25,13 @@ import java.io.ByteArrayOutputStream;
 import static com.thoughtworks.go.helper.SecurityConfigMother.*;
 
 
-public class SecurityConfigTest {
+public class SecurityConfigSerializationTest {
 
     @Test
     public void shouldAllowUnorderedRoleAndUserInXsd() throws Exception {
-        CruiseConfig config = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(ConfigMigrator.migrate(
+        CruiseConfig config = new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(ConfigMigrator.migrate(
                 ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS)).configForEdit;
         config.setServerConfig(new ServerConfig("dir", security(null, admins(role("role2"), user("jez"), role("role1")))));
-        new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).write(config, new ByteArrayOutputStream(), false);
+        new MagicalGoConfigXmlWriter(ConfigElementImplementationRegistryMother.withNoPlugins()).write(config, new ByteArrayOutputStream(), false);
     }
 }

@@ -154,9 +154,8 @@ public class BuildAssignmentServiceIntegrationTest {
     public Subversion repository;
     public static TestRepo testRepo;
     private PipelineWithTwoStages pipelineFixture;
-    private String md5 = "md5-test";
-    private Username loserUser = new Username(new CaseInsensitiveString("loser"));
-    private ConfigCache configCache;
+    private final String md5 = "md5-test";
+    private final Username loserUser = new Username(new CaseInsensitiveString("loser"));
     private ConfigElementImplementationRegistry registry;
 
     @BeforeAll
@@ -167,7 +166,6 @@ public class BuildAssignmentServiceIntegrationTest {
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
         maintenanceModeService.update(new ServerMaintenanceMode(false, "admin", new Date()));
-        configCache = new ConfigCache();
         registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         configHelper = new GoConfigFileHelper().usingCruiseConfigDao(goConfigDao);
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
@@ -315,7 +313,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         PipelineConfig originalPipelineConfig = configHelper.getGoConfigDao().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(pipelineFixture.pipelineName));
         PipelineConfig pipelineConfig = configHelper.deepClone(originalPipelineConfig);
-        String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
+        String xml = new MagicalGoConfigXmlWriter(registry).toXmlPartial(pipelineConfig);
         String md5 = entityHashingService.hashForEntity(originalPipelineConfig, pipelineFixture.groupName);
         StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(pipelineFixture.devStage));
         devStage.getJobs().remove(devStage.jobConfigByConfigName(new CaseInsensitiveString(PipelineWithTwoStages.JOB_FOR_DEV_STAGE)));

@@ -37,19 +37,17 @@ import static org.mockito.Mockito.when;
 
 public class GoConfigPluginServiceTest {
 
-    private ConfigRepoExtension extension;
     private GoConfigPluginService service;
-    private CRParseResult parseResult;
-    private Collection<CREnvironment> environments = new ArrayList<>();
-    private Collection<CRPipeline> pipelines = new ArrayList<>();
-    private ErrorCollection errors = new ErrorCollection();
+    private final Collection<CREnvironment> environments = new ArrayList<>();
+    private final Collection<CRPipeline> pipelines = new ArrayList<>();
+    private final ErrorCollection errors = new ErrorCollection();
 
     @BeforeEach
-    public void SetUp() {
-        extension = mock(ConfigRepoExtension.class);
-        service = new GoConfigPluginService(extension,mock(ConfigCache.class), ConfigElementImplementationRegistryMother.withNoPlugins(),
-                mock(CachedGoConfig.class), mock(AgentService.class));
-        parseResult = new CRParseResult(environments,pipelines,errors);
+    public void setUp() {
+        ConfigRepoExtension extension = mock(ConfigRepoExtension.class);
+        service = new GoConfigPluginService(extension, ConfigElementImplementationRegistryMother.withNoPlugins(),
+            mock(CachedGoConfig.class), mock(AgentService.class));
+        CRParseResult parseResult = new CRParseResult(environments, pipelines, errors);
 
         when(extension.parseDirectory(any(String.class), any(String.class), any())).thenReturn(parseResult);
     }

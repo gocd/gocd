@@ -15,8 +15,12 @@
  */
 package com.thoughtworks.go.config;
 
+import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.lang.reflect.Field;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -29,4 +33,21 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface ConfigAttributeValue {
     String fieldName();
     boolean createForNull() default true;
+
+    @UtilityClass
+    class Resolver {
+        public static @NotNull Field resolveAccessibleField(@NotNull Class<?> clazz, @NotNull ConfigAttributeValue attributeValue) throws NoSuchFieldException {
+            try {
+                Field field = clazz.getDeclaredField(attributeValue.fieldName());
+                field.setAccessible(true);
+                return field;
+            } catch (NoSuchFieldException e) {
+                Class<?> superclass = clazz.getSuperclass();
+                if (superclass == null) {
+                    throw e;
+                }
+                return resolveAccessibleField(superclass, attributeValue);
+            }
+        }
+    }
 }

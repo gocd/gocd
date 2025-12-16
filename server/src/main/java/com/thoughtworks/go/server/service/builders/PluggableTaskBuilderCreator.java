@@ -20,21 +20,14 @@ import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.pluggableTask.PluggableTaskBuilder;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PluggableTaskBuilderCreator implements TaskBuilder<PluggableTask> {
 
-    @Autowired
-    public PluggableTaskBuilderCreator() {
-    }
-
     @Override
     public Builder createBuilder(BuilderFactory builderFactory, PluggableTask task, Pipeline pipeline, UpstreamPipelineResolver resolver) {
         Builder cancelBuilder = builderFactory.builderFor(task.cancelTask(), pipeline, resolver);
-        return new PluggableTaskBuilder(task.getConditions(), cancelBuilder,
-                task, "Plugin with ID: " + task.getPluginConfiguration().getId(),
-                pipeline.defaultWorkingFolder().getPath());
+        return new PluggableTaskBuilder(task.getConditions(), cancelBuilder, task, task.describe(), pipeline.defaultWorkingFolder().getPath());
     }
 }

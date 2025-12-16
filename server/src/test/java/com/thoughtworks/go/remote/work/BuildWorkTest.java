@@ -15,7 +15,10 @@
  */
 package com.thoughtworks.go.remote.work;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ArtifactStore;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.JobConfig;
+import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
@@ -695,7 +698,7 @@ class BuildWorkTest {
     }
 
     private static BuildWork getWork(String jobXml, String pipelineName, boolean fetchMaterials, boolean cleanWorkingDir) throws Exception {
-        CruiseConfig cruiseConfig = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(withJob(jobXml, pipelineName)).config;
+        CruiseConfig cruiseConfig = new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(withJob(jobXml, pipelineName)).config;
         JobConfig jobConfig = cruiseConfig.jobConfigByName(pipelineName, STAGE_NAME, JOB_PLAN_NAME, true);
 
         JobPlan jobPlan = JobInstanceMother.createJobPlan(jobConfig, new JobIdentifier(pipelineName, -2, PIPELINE_LABEL, STAGE_NAME, String.valueOf(STAGE_COUNTER), JOB_PLAN_NAME, 0L),

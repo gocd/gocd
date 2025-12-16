@@ -72,9 +72,8 @@ public class MagicalGoConfigXmlWriterTest {
     @BeforeEach
     public void setup() {
         output = new ByteArrayOutputStream();
-        ConfigCache configCache = new ConfigCache();
-        xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
-        xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
+        xmlWriter = new MagicalGoConfigXmlWriter(ConfigElementImplementationRegistryMother.withNoPlugins());
+        xmlLoader = new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins());
         cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.initializeServer();
     }

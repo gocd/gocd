@@ -52,12 +52,12 @@ public class GoConfigMigrator {
     private final UpgradeFailedHandler upgradeFailedHandler;
 
     @Autowired
-    public GoConfigMigrator(GoConfigMigration goConfigMigration, SystemEnvironment systemEnvironment, ConfigCache configCache,
+    public GoConfigMigrator(GoConfigMigration goConfigMigration, SystemEnvironment systemEnvironment,
                             ConfigElementImplementationRegistry registry, FullConfigSaveNormalFlow fullConfigSaveNormalFlow,
                             ConfigRepository configRepository, ServerHealthService serverHealthService) {
 
         this(goConfigMigration, systemEnvironment, fullConfigSaveNormalFlow,
-                new MagicalGoConfigXmlLoader(configCache, registry),
+                new MagicalGoConfigXmlLoader(registry),
                 new GoConfigFileReader(systemEnvironment), configRepository, serverHealthService,
                 e -> {
                     //noinspection CallToPrintStackTrace
@@ -134,7 +134,7 @@ public class GoConfigMigrator {
             throw e;
         }
     }
-
+    
     private void logException(String backupFileLocation, String exceptionMessage) {
         String invalidConfigMessage = String.format("Go encountered an invalid configuration file while starting up. "
                 + "The invalid configuration file has been renamed to ‘%s’ and a new configuration file has been automatically " +

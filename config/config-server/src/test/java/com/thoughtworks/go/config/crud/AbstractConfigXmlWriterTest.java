@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.crud;
 
-import com.thoughtworks.go.config.ConfigCache;
 import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
 import com.thoughtworks.go.config.MagicalGoConfigXmlWriter;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
@@ -31,8 +30,7 @@ public abstract class AbstractConfigXmlWriterTest {
     @BeforeEach
     public void setup() {
         output = new ByteArrayOutputStream();
-        ConfigCache configCache = new ConfigCache();
-        xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
-        xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
+        xmlWriter = new MagicalGoConfigXmlWriter(ConfigElementImplementationRegistryMother.withNoPlugins());
+        xmlLoader = new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins());
     }
 }

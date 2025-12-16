@@ -16,22 +16,25 @@
 package com.thoughtworks.go.config.serialization;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
+import org.jdom2.JDOMException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class RolesConfigTest {
+public class RolesConfigSerializationTest {
     CruiseConfig config;
 
     @BeforeEach
     public void setUp() throws Exception {
-        config = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(
+        config = new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(
                 ConfigFileFixture.CONFIG).configForEdit;
     }
 
@@ -43,8 +46,8 @@ public class RolesConfigTest {
     private void addRole(Role role) {
         config.server().security().addRole(role);
         try {
-            new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).write(config, new ByteArrayOutputStream(), false);
-        } catch (Exception e) {
+            new MagicalGoConfigXmlWriter(ConfigElementImplementationRegistryMother.withNoPlugins()).write(config, new ByteArrayOutputStream(), false);
+        } catch (IOException | JDOMException e) {
             throw new RuntimeException(e);
         }
     }
@@ -52,12 +55,9 @@ public class RolesConfigTest {
     @Test
     public void shouldNotSupportMultipleRolesWithTheSameName() {
         addRole(role("test_role"));
-        try {
-            addRole(role("test_role"));
-            fail("Role already exists");
-        } catch (Exception expected) {
-            assertThat(expected.getCause().getMessage()).isEqualTo("Role names should be unique. Duplicate names found.");
-        }
+        assertThatThrownBy(() -> addRole(role("test_role")))
+            .isInstanceOf(GoConfigInvalidException.class)
+            .hasMessage("Role names should be unique. Duplicate names found.");
     }
 
     @Test

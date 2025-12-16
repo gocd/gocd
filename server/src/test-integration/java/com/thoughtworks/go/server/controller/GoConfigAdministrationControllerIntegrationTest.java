@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.ClearSingleton;
-import com.thoughtworks.go.config.ConfigCache;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.GoFileConfigDataSource;
 import com.thoughtworks.go.config.MagicalGoConfigXmlWriter;
@@ -79,7 +78,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
 
         controller.getCurrentConfigXml(null, response);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        new MagicalGoConfigXmlWriter(new ConfigCache(), registry).write(goConfigDao.loadForEditing(), os, true);
+        new MagicalGoConfigXmlWriter(registry).write(goConfigDao.loadForEditing(), os, true);
         assertValidContentAndStatus(HTTP_OK, "text/xml", os.toString());
         assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5)).isEqualTo(configHelper.currentConfig().getMd5());
     }
@@ -90,7 +89,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
 
         controller.getCurrentConfigXml("crapy_md5", response);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).write(goConfigDao.loadForEditing(), os, true);
+        new MagicalGoConfigXmlWriter(ConfigElementImplementationRegistryMother.withNoPlugins()).write(goConfigDao.loadForEditing(), os, true);
         assertValidContentAndStatus(HTTP_CONFLICT, "text/plain; charset=utf-8", CONFIG_CHANGED_PLEASE_REFRESH);
         assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5)).isEqualTo(configHelper.currentConfig().getMd5());
     }

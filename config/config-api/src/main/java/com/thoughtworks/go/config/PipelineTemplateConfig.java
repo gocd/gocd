@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.preprocessor.ClassAttributeCache;
 import com.thoughtworks.go.config.preprocessor.ParamReferenceCollectorFactory;
 import com.thoughtworks.go.config.preprocessor.ParamResolver;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
@@ -29,6 +28,7 @@ import com.thoughtworks.go.util.ClonerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.thoughtworks.go.config.Authorization.ALLOW_GROUP_ADMINS;
 
@@ -38,7 +38,6 @@ import static com.thoughtworks.go.config.Authorization.ALLOW_GROUP_ADMINS;
 @ConfigTag("pipeline")
 @ConfigCollection(value = StageConfig.class)
 public class PipelineTemplateConfig extends BaseCollection<StageConfig> implements Validatable, ParamsAttributeAware {
-    private static final ClassAttributeCache.FieldCache FIELD_CACHE = new ClassAttributeCache.FieldCache();
     private static final Cloner CLONER = ClonerFactory.instance();
 
     public static final String NAME = "name";
@@ -261,24 +260,6 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         return super.add(stageConfig);
     }
 
-    public void incrementIndex(StageConfig stageToBeMoved) {
-        moveStage(stageToBeMoved, 1);
-    }
-
-    public void decrementIndex(StageConfig stageToBeMoved) {
-        moveStage(stageToBeMoved, -1);
-    }
-
-    private void moveStage(StageConfig moveMeStage, int moveBy) {
-        int current = this.indexOf(moveMeStage);
-        if (current == -1) {
-            throw new RuntimeException(String.format("Cannot find the stage '%s' in pipeline '%s'", moveMeStage.name(), name()));
-        }
-        this.remove(moveMeStage);
-        this.add(current + moveBy, moveMeStage);
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -345,7 +326,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
 
     public ParamsConfig referredParams() {
         ParamReferenceCollectorFactory paramHandlerFactory = new ParamReferenceCollectorFactory();
-        new ParamResolver(paramHandlerFactory, FIELD_CACHE).resolve(CLONER.deepClone(this));
+        new ParamResolver(paramHandlerFactory).resolve(CLONER.deepClone(this));
         ParamsConfig paramsConfig = new ParamsConfig();
         for (String param : paramHandlerFactory.referredParams()) {
             paramsConfig.add(new ParamConfig(param, null));

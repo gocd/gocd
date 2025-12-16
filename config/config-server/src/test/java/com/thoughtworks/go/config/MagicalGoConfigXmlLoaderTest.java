@@ -104,7 +104,6 @@ import static org.assertj.core.api.Assertions.*;
 public class MagicalGoConfigXmlLoaderTest {
     private MagicalGoConfigXmlLoader xmlLoader;
     private static final String INVALID_DESTINATION_DIRECTORY_MESSAGE = "Invalid destination directory. Every material needs a different destination directory and the directories should not be nested";
-    private final ConfigCache configCache = new ConfigCache();
     private final SystemEnvironment systemEnvironment = new SystemEnvironment();
     private MagicalGoConfigXmlWriter xmlWriter;
     private GoConfigMigration goConfigMigration;
@@ -114,8 +113,8 @@ public class MagicalGoConfigXmlLoaderTest {
         RepositoryMetadataStoreHelper.clear();
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         new ConfigElementImplementationRegistrar(registry).initialize();
-        xmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
-        xmlWriter = new MagicalGoConfigXmlWriter(configCache, registry);
+        xmlLoader = new MagicalGoConfigXmlLoader(registry);
+        xmlWriter = new MagicalGoConfigXmlWriter(registry);
         goConfigMigration = new GoConfigMigration(new TimeProvider());
     }
 
@@ -1588,8 +1587,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("shouldn't have stages and template")
-            .isInstanceOf(RuntimeException.class)
-            .hasCauseInstanceOf(IllegalStateException.class)
+            .isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("Cannot add stage 'badstage' to pipeline 'pipeline1', which already references template 'abc'.");
     }
 
@@ -1715,8 +1713,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("should not allow jobs with with name '" + marker + "'")
-            .isInstanceOf(RuntimeException.class)
-            .hasCauseInstanceOf(GoConfigInvalidException.class)
+            .isInstanceOf(GoConfigInvalidException.class)
             .hasMessageContaining(String.format("A job cannot have '%s' in it's name: %s because it is a reserved keyword", marker, invalidJobName));
     }
 
@@ -1812,8 +1809,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not have allowed referencing of an unknown pipeline under an environment.")
-            .isInstanceOf(RuntimeException.class)
-            .hasCauseInstanceOf(GoConfigInvalidException.class)
+            .isInstanceOf(GoConfigInvalidException.class)
             .hasMessageContaining("Environment 'uat' refers to an unknown pipeline 'notpresent'.");
     }
 
@@ -1836,8 +1832,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not have allowed duplicate pipeline reference across environments")
-            .isInstanceOf(RuntimeException.class)
-            .hasCauseInstanceOf(GoConfigInvalidException.class)
+            .isInstanceOf(GoConfigInvalidException.class)
             .hasMessageContaining("Associating pipeline(s) which is already part of uat environment");
     }
 
@@ -2023,8 +2018,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("XSD should validate timer spec")
-            .isInstanceOf(RuntimeException.class)
-            .hasCauseInstanceOf(GoConfigInvalidException.class)
+            .isInstanceOf(GoConfigInvalidException.class)
             .hasMessageContaining("Invalid cron syntax");
     }
 
@@ -2148,8 +2142,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not allow duplicate variable names")
-            .isInstanceOf(RuntimeException.class)
-            .hasCauseInstanceOf(GoConfigInvalidException.class)
+            .isInstanceOf(GoConfigInvalidException.class)
             .hasMessageContaining("Environment Variable name 'JOB_VARIABLE' is not unique for job 'do-something'.");
     }
 
@@ -2178,8 +2171,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not allow duplicate params")
-            .isInstanceOf(RuntimeException.class)
-            .hasCauseInstanceOf(GoConfigInvalidException.class)
+            .isInstanceOf(GoConfigInvalidException.class)
             .hasMessageContaining("Param name 'same-name' is not unique for pipeline 'dev'.");
     }
 
@@ -2237,8 +2229,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not allow duplicate variable names")
-            .isInstanceOf(RuntimeException.class)
-            .hasCauseInstanceOf(GoConfigInvalidException.class)
+            .isInstanceOf(GoConfigInvalidException.class)
             .hasMessageContaining("Variable name 'PIPELINE_VARIABLE' is not unique for pipeline 'pipeline1'.");
     }
 
@@ -2264,8 +2255,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not allow duplicate variable names")
-            .isInstanceOf(RuntimeException.class)
-            .hasCauseInstanceOf(GoConfigInvalidException.class)
+            .isInstanceOf(GoConfigInvalidException.class)
             .hasMessageContaining("Variable name 'STAGE_VARIABLE' is not unique for stage 'mingle'.");
     }
 
@@ -2283,8 +2273,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not allow duplicate variable names")
-            .isInstanceOf(RuntimeException.class)
-            .hasCauseInstanceOf(GoConfigInvalidException.class)
+            .isInstanceOf(GoConfigInvalidException.class)
             .hasMessageContaining("Variable name 'FOO' is not unique for environment 'uat'.");
     }
 
@@ -2373,8 +2362,8 @@ public class MagicalGoConfigXmlLoaderTest {
         PipelineConfigs group = new BasicPipelineConfigs("defaultGroup", new Authorization());
         CruiseConfig config = new BasicCruiseConfig(group);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins()).write(config, stream, true);
-        GoConfigHolder configHolder = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins())
+        new MagicalGoConfigXmlWriter(ConfigElementImplementationRegistryMother.withNoPlugins()).write(config, stream, true);
+        GoConfigHolder configHolder = new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins())
             .loadConfigHolder(stream.toString());
         assertThat(configHolder.config.findGroup("defaultGroup")).isEqualTo(group);
     }
@@ -2762,8 +2751,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("should not have permitted fetch from parent pipeline's stage after the one downstream depends on")
-            .isInstanceOf(RuntimeException.class)
-            .hasCauseInstanceOf(GoConfigInvalidException.class)
+            .isInstanceOf(GoConfigInvalidException.class)
             .hasMessageContaining("\"down_pipeline :: down_stage :: down_job\" tries to fetch artifact from stage \"up_pipeline :: up_stage_2\" which does not complete before \"down_pipeline\" pipeline's dependencies.");
     }
 
@@ -3640,7 +3628,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldGetConfigRepoPreprocessor() {
-        MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(null, null);
+        MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(null);
         assertThat(loader.getPreprocessorOfType(ConfigRepoPartialPreprocessor.class) instanceof ConfigRepoPartialPreprocessor).isTrue();
         assertThat(loader.getPreprocessorOfType(ConfigParamPreprocessor.class) instanceof ConfigParamPreprocessor).isTrue();
     }
@@ -4005,8 +3993,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(configXml))
-            .isInstanceOf(RuntimeException.class)
-            .hasCauseInstanceOf(GoConfigInvalidException.class)
+            .isInstanceOf(GoConfigInvalidException.class)
             .hasMessageContaining("\"Id\" is required for PluggableArtifact");
     }
 
@@ -4059,8 +4046,7 @@ public class MagicalGoConfigXmlLoaderTest {
             </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(configXml))
-            .isInstanceOf(RuntimeException.class)
-            .hasCauseInstanceOf(GoConfigInvalidException.class)
+            .isInstanceOf(GoConfigInvalidException.class)
             .hasMessageContaining("\"Store id\" is required for PluggableArtifact");
     }
 
@@ -4101,7 +4087,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(configXml))
             .isInstanceOf(RuntimeException.class)
-            .hasCauseInstanceOf(GoConfigInvalidException.class)
+            .isInstanceOf(GoConfigInvalidException.class)
             .hasMessageContaining("Artifact store with id `s3` does not exist");
     }
 

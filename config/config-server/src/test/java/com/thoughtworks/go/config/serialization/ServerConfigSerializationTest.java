@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.serialization;
 
-import com.thoughtworks.go.config.ConfigCache;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
 import com.thoughtworks.go.config.MailHost;
@@ -26,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import static com.thoughtworks.go.helper.ConfigFileFixture.withServerConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ServerConfigTest {
+public class ServerConfigSerializationTest {
 
     @Test
     public void shouldParseServerConfigWithMailhost() throws Exception {
@@ -36,7 +35,7 @@ public class ServerConfigTest {
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
 
-        CruiseConfig config = new MagicalGoConfigXmlLoader(new ConfigCache(), registry).loadConfigHolder(withServerConfig(xml)).config;
+        CruiseConfig config = new MagicalGoConfigXmlLoader(registry).loadConfigHolder(withServerConfig(xml)).config;
         MailHost mailHost = config.server().mailHost();
         assertThat(mailHost).isEqualTo(new MailHost("smtp.company.com", 25, "smtpuser", "password", true, true, "cruise@me.com", "jez@me.com"));
     }

@@ -72,6 +72,11 @@ public class PluggableTask extends AbstractTask {
     }
 
     @Override
+    public String describe() {
+        return "Plugin with ID: " + getPluginConfiguration().getId();
+    }
+
+    @Override
     public boolean hasSameTypeAs(Task task) {
         if (!getClass().equals(task.getClass())) {
             return false;

@@ -55,8 +55,6 @@ public abstract class FullConfigSaveFlowTestBase {
     @Autowired
     private ConfigElementImplementationRegistry registry;
     @Autowired
-    private ConfigCache configCache;
-    @Autowired
     private GoConfigDao goConfigDao;
     @Autowired
     private GoConfigService goConfigService;
@@ -69,7 +67,7 @@ public abstract class FullConfigSaveFlowTestBase {
         configHelper = new GoConfigFileHelper(goConfigDao);
         configHelper.onSetUp();
         xml = goConfigMigration.upgradeIfNecessary(TestFileUtil.resourceToString("/data/pluggable_artifacts_with_params.xml"));
-        loader = new MagicalGoConfigXmlLoader(configCache, registry);
+        loader = new MagicalGoConfigXmlLoader(registry);
         setupMetadataForPlugin();
     }
 

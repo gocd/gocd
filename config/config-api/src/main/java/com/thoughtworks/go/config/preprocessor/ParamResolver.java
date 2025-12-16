@@ -17,28 +17,24 @@ package com.thoughtworks.go.config.preprocessor;
 
 import com.thoughtworks.go.config.*;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class ParamResolver {
-    private final ClassAttributeCache.FieldCache fieldCache;
     private final ParamHandlerFactory paramHandlerFactory;
 
-    public ParamResolver(ParamHandlerFactory paramHandlerFactory, ClassAttributeCache.FieldCache fieldCache) {
+    public ParamResolver(ParamHandlerFactory paramHandlerFactory) {
         this.paramHandlerFactory = paramHandlerFactory;
-        this.fieldCache = fieldCache;
     }
 
     public <T> void resolve(T resolvable) {
         ParamResolver resolver = this;
-        if (ParamScope.class.isAssignableFrom(resolvable.getClass())) {
-            ParamScope newScope = (ParamScope) resolvable;
+        if (resolvable instanceof ParamScope newScope) {
             resolver = newScope.applyOver(resolver);
         }
         resolveStringLeaves(resolvable, resolver);
@@ -47,7 +43,7 @@ public class ParamResolver {
     }
 
     public ParamResolver override(ParamsConfig params) {
-         return new ParamResolver(paramHandlerFactory.override(params), fieldCache);
+         return new ParamResolver(paramHandlerFactory.override(params));
      }
 
     private <T> void resolveNodes(T resolvable, ParamResolver resolver) {
@@ -64,8 +60,8 @@ public class ParamResolver {
         }
     }
 
-    private <T> void resolveCollection(Object resolvable, ParamResolver resolver) {
-        if (hasAnnotation(resolvable.getClass(), ConfigCollection.class)) {
+    private <T> void resolveCollection(T resolvable, ParamResolver resolver) {
+        if (resolvable.getClass().isAnnotationPresent(ConfigCollection.class)) {
             for (Object subResolvable : (Collection<?>) resolvable) {
                 resolver.resolve(subResolvable);
             }
@@ -73,13 +69,12 @@ public class ParamResolver {
     }
 
     private <T> void resolveNonStringLeaves(T resolvable, ParamResolver resolver) {
-        for (Field leaf : filterResolvables(resolvable, leafAttributeSelectorPredicate())) {
+        for (Field leaf : filterResolvables(resolvable, leafAttributes())) {
             try {
                 Object nonStringLeaf = leaf.get(resolvable);
                 if (nonStringLeaf != null) {
                     Class<?> type = leaf.getType();
-                    Field field = getField(leaf, type);
-                    field.setAccessible(true);
+                    Field field = ConfigAttributeValue.Resolver.resolveAccessibleField(type, configAttributeValueFor(leaf));
                     if (field.getType().equals(CaseInsensitiveString.class)) {
                         CaseInsensitiveString cis = (CaseInsensitiveString) field.get(nonStringLeaf);
                         String resolved = resolver.resolveString(resolvable, field, CaseInsensitiveString.str(cis));
@@ -96,20 +91,8 @@ public class ParamResolver {
         }
     }
 
-    private Field getField(Field leaf, Class<?> type) throws NoSuchFieldException {
-        try {
-            return type.getDeclaredField(configAttributeValue(leaf).fieldName());
-        } catch (NoSuchFieldException e) {
-            Class<?> superclass = type.getSuperclass();
-            if (superclass == null) {
-                throw e;
-            }
-            return getField(leaf, superclass);
-        }
-    }
-
     private <T> void resolveStringLeaves(T resolvable, ParamResolver resolver) {
-        for (Field leaf : filterResolvables(resolvable, leafStringSelectorPredicate())) {
+        for (Field leaf : filterResolvables(resolvable, leafStrings())) {
             try {
                 String preResolved = (String) leaf.get(resolvable);
                 if (preResolved != null) {
@@ -130,88 +113,67 @@ public class ParamResolver {
         return new ParamStateMachine().process(preResolved, paramHandlerFactory.createHandler(resolvable, fieldName, preResolved));
     }
 
-    private <T> List<Field> filterResolvables(T resolvable, final NodeSelectorPredicate predicate) {
+    private <T> List<Field> filterResolvables(T resolvable, final Predicate<Field> predicate) {
         List<Field> interpolatableFields = new ArrayList<>();
-        for (Field declaredField : getFields(resolvable)) {
-            if (predicate.shouldSelect(declaredField)) {
-                interpolatableFields.add(declaredField);
-                declaredField.setAccessible(true);
+        for (Field field : ConcurrentFieldCache.nonStaticOrSyntheticFieldsFor(resolvable.getClass())) {
+            if (predicate.test(field)) {
+                interpolatableFields.add(field);
+                field.setAccessible(true);
             }
         }
         return interpolatableFields;
     }
 
-    private List<Field> getFields(Object resolvable) {
-        return fieldCache.valuesFor(resolvable.getClass());
+    private Predicate<Field> nodeSelectorPredicate() {
+        return field -> isConfigSubtag(field) && notSkippable(field);
     }
 
-    private NodeSelectorPredicate nodeSelectorPredicate() {
-        return declaredField -> isConfigSubtag(declaredField) && notSkippable(declaredField);
+    private Predicate<Field> leafStrings() {
+        return field -> isLeafConfigValue(field) && isString(field);
     }
 
-    private boolean isConfigSubtag(Field declaredField) {
-        return hasAnnotation(declaredField, ConfigSubtag.class);
+    private Predicate<Field> leafAttributes() {
+        return field -> (isConfigAttribute(field) || isConfigValue(field)) && notSkippable(field) && isConfigAttributeValueType(field);
     }
 
-    private NodeSelectorPredicate leafStringSelectorPredicate() {
-        return new LeafStringSelectorPredicate();
+    private boolean isLeafConfigValue(Field field) {
+        return (isConfigAttribute(field) || isConfigValue(field)) && notSkippable(field);
     }
 
-    private NodeSelectorPredicate leafAttributeSelectorPredicate() {
-        return new LeafAttributeSelectorPredicate();
+    private static boolean isString(Field field) {
+        return field.getType().isAssignableFrom(String.class);
     }
 
-    private interface NodeSelectorPredicate {
-        boolean shouldSelect(Field declaredField);
+    private boolean isConfigSubtag(Field field) {
+        return field.isAnnotationPresent(ConfigSubtag.class);
     }
 
-    private class LeafStringSelectorPredicate implements NodeSelectorPredicate {
-        @Override
-        public boolean shouldSelect(Field declaredField) {
-            return (isConfigAttribute(declaredField) || isConfigValue(declaredField)) && isString(declaredField) && notSkippable(declaredField);
-        }
-
-        boolean isString(Field declaredField) {
-            return declaredField.getType().isAssignableFrom(String.class);
-        }
+    private boolean isConfigAttribute(Field field) {
+        return field.isAnnotationPresent(ConfigAttribute.class);
     }
 
-    private class LeafAttributeSelectorPredicate implements NodeSelectorPredicate {
-        @Override
-        public boolean shouldSelect(Field declaredField) {
-            return (isConfigAttribute(declaredField) || isConfigValue(declaredField)) && notSkippable(declaredField) && isConfigAttributeValue(declaredField);
-        }
-
-        private boolean isConfigAttributeValue(Field declaredField) {
-            return configAttributeValue(declaredField) != null;
-        }
+    private boolean notSkippable(Field field) {
+        return !field.isAnnotationPresent(SkipParameterResolution.class);
     }
 
-    private boolean isConfigAttribute(Field declaredField) {
-        return hasAnnotation(declaredField, ConfigAttribute.class);
+    private boolean hasValidationErrorKey(Field field) {
+        return field.isAnnotationPresent(ValidationErrorKey.class);
     }
 
-    private boolean notSkippable(Field declaredField) {
-        return !hasAnnotation(declaredField, SkipParameterResolution.class);
+    private boolean isConfigValue(Field field) {
+        return field.isAnnotationPresent(ConfigValue.class);
     }
 
-    private boolean hasValidationErrorKey(Field declaredField) {
-        return hasAnnotation(declaredField, ValidationErrorKey.class);
+    private static boolean isConfigAttributeValueType(Field field) {
+        return field.getType().isAnnotationPresent(ConfigAttributeValue.class);
     }
 
-    private boolean isConfigValue(Field declaredField) {
-        return hasAnnotation(declaredField, ConfigValue.class);
+    private static ConfigAttributeValue configAttributeValueFor(Field field) {
+        return field.getType().getAnnotation(ConfigAttributeValue.class);
     }
 
-    private static ConfigAttributeValue configAttributeValue(Field declaredField) {
-        return declaredField.getType().getAnnotation(ConfigAttributeValue.class);
+    private static ValidationErrorKey validationErrorKey(Field field) {
+        return field.getAnnotation(ValidationErrorKey.class);
     }
 
-    private static ValidationErrorKey validationErrorKey(Field declaredField) {
-        return declaredField.getAnnotation(ValidationErrorKey.class);
-    }
-
-    private boolean hasAnnotation(AnnotatedElement configElement, Class<? extends Annotation> annotation) {
-        return configElement.isAnnotationPresent(annotation);
-    }
 }

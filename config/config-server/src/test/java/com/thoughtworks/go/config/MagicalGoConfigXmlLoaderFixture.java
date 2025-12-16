@@ -39,7 +39,7 @@ public class MagicalGoConfigXmlLoaderFixture {
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
 
-        MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(new ConfigCache(), registry);
+        MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(registry);
         String pipelineXmlPartial =
                 ("""
                         <?xml version="1.0" encoding="utf-8"?>

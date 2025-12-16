@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.ConfigAttribute;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.Task;
+import lombok.experimental.UtilityClass;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
@@ -27,16 +28,11 @@ import org.jdom2.output.XMLOutputter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
+@UtilityClass
 public class ConfigUtil {
-    private final String configFile;
-
-    public ConfigUtil(String configFile) {
-        this.configFile = Objects.toString(configFile, "<no config file specified>");
-    }
 
     public static List<String> allTasks(ConfigElementImplementationRegistry registry) {
         List<String> allTasks = new ArrayList<>();
@@ -53,39 +49,39 @@ public class ConfigUtil {
         return allTasks;
     }
 
-    public Element getChild(Element e, ConfigTag tag) {
+    public static Element getChild(Element e, ConfigTag tag) {
         Element child = child(e, tag);
         if (child == null) {
-            throw bomb("Error finding child '" + tag + "' in config: " + configFile + elementOutput(e));
+            throw bomb("Error finding child '" + tag + "' in element: " + elementOutput(e));
         }
         return child;
     }
 
-    private Element child(Element e, ConfigTag tag) {
+    private static Element child(Element e, ConfigTag tag) {
         return e.getChild(tag.value(), Namespace.getNamespace(tag.namespacePrefix(), tag.namespaceURI()));
     }
 
-    public String getAttribute(Element e, String attribute) {
+    public static String getAttribute(Element e, String attribute) {
         Attribute attr = e.getAttribute(attribute);
         if (attr == null) {
-            throw bomb("Error finding attribute '" + attribute + "' in config: " + configFile + elementOutput(e));
+            throw bomb("Error finding attribute '" + attribute + "' in element: " + elementOutput(e));
         }
         return attr.getValue();
     }
 
-    public String elementOutput(Element e) {
+    public static String elementOutput(Element e) {
         return "\n\t" + new XMLOutputter().outputString(e);
     }
 
-    public boolean hasChild(Element e, ConfigTag tag) {
+    public static boolean hasChild(Element e, ConfigTag tag) {
         return child(e, tag) != null;
     }
 
-    public boolean hasAttribute(Element e, String attribute) {
+    public static boolean hasAttribute(Element e, String attribute) {
         return e.getAttribute(attribute) != null;
     }
 
-    public boolean atTag(Element e, String tag) {
+    public static boolean atTag(Element e, String tag) {
         return e.getName().equals(tag);
     }
 
@@ -98,14 +94,14 @@ public class ConfigUtil {
         return optional && isMissingAttribute;
     }
 
-    public Object getAttribute(Element e, ConfigAttribute attribute) {
+    public static Object getAttribute(Element e, ConfigAttribute attribute) {
         if (optionalAndMissingAttribute(e, attribute)) {
             return null;
         }
         return getAttribute(e, attribute.value());
     }
 
-    public boolean optionalAndMissingTag(Element e, ConfigTag tag, boolean optional) {
+    public static boolean optionalAndMissingTag(Element e, ConfigTag tag, boolean optional) {
         boolean isMissingElement = !hasChild(e, tag);
 
         if (!optional && isMissingElement) {

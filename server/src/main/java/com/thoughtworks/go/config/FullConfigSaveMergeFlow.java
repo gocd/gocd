@@ -40,12 +40,12 @@ validating to writing the config in appropriate locations.
 @Component
 public class FullConfigSaveMergeFlow extends FullConfigSaveFlow{
     @Autowired
-    public FullConfigSaveMergeFlow(ConfigCache configCache, ConfigElementImplementationRegistry configElementImplementationRegistry,
+    public FullConfigSaveMergeFlow(ConfigElementImplementationRegistry configElementImplementationRegistry,
                                    SystemEnvironment systemEnvironment, TimeProvider timeProvider,
                                    ConfigRepository configRepository, CachedGoPartials cachedGoPartials) {
-        this(new MagicalGoConfigXmlLoader(configCache, configElementImplementationRegistry),
-                new MagicalGoConfigXmlWriter(configCache, configElementImplementationRegistry), configElementImplementationRegistry,
-                timeProvider, configRepository, cachedGoPartials, new GoConfigFileWriter(systemEnvironment));
+        this(new MagicalGoConfigXmlLoader(configElementImplementationRegistry),
+            new MagicalGoConfigXmlWriter(configElementImplementationRegistry), configElementImplementationRegistry,
+            timeProvider, configRepository, cachedGoPartials, new GoConfigFileWriter(systemEnvironment));
     }
 
     FullConfigSaveMergeFlow(MagicalGoConfigXmlLoader loader, MagicalGoConfigXmlWriter writer,

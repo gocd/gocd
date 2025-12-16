@@ -158,12 +158,10 @@ public class ArtifactsService implements ArtifactUrlReader {
         StageIdentifier stageIdentifier = stage.getIdentifier();
         try {
             File stageRoot = chooser.findArtifact(stageIdentifier, "");
-            File cachedStageRoot = chooser.findCachedArtifact(stageIdentifier);
-            deleteFile(cachedStageRoot);
-            boolean didDelete = deleteArtifactsExceptCruiseOutputAndPluggableArtifactMetadata(stageRoot);
+            FileUtils.deleteQuietly(chooser.findCachedArtifact(stageIdentifier));
 
-            if (!didDelete) {
-                LOGGER.error("Artifacts for stage '{}' at path '{}' was not deleted", stageIdentifier.entityLocator(), stageRoot.getAbsolutePath());
+            if (!deleteNonSystemManagedArtifacts(stageRoot)) {
+                LOGGER.error("Some artifacts for stage '{}' at path '{}' was not successfully deleted", stageIdentifier.entityLocator(), stageRoot.getAbsolutePath());
             }
         } catch (Exception e) {
             LOGGER.error("Error occurred while clearing artifacts for '{}'. Error: '{}'", stageIdentifier.entityLocator(), e.getMessage(), e);
@@ -174,13 +172,13 @@ public class ArtifactsService implements ArtifactUrlReader {
         }
     }
 
-    private boolean deleteArtifactsExceptCruiseOutputAndPluggableArtifactMetadata(File stageRoot) throws IOException {
+    private boolean deleteNonSystemManagedArtifacts(File stageRoot) throws IOException {
         File[] jobs = stageRoot.listFiles();
         if (jobs == null) {  // null if security restricted
             throw new IOException("Failed to list contents of " + stageRoot);
         }
 
-        boolean didDelete = true;
+        boolean deletePartiallyFailed = false;
 
         for (File jobRoot : jobs) {
             File[] artifacts = jobRoot.listFiles();
@@ -188,17 +186,20 @@ public class ArtifactsService implements ArtifactUrlReader {
                 throw new IOException("Failed to list contents of " + stageRoot);
             }
             for (File artifact : artifacts) {
-                if (artifact.isDirectory() && (artifact.getName().equals(ArtifactLogUtil.CRUISE_OUTPUT_FOLDER) || artifact.getName().equals(ArtifactLogUtil.PLUGGABLE_ARTIFACT_METADATA_FOLDER))) {
-                    continue;
+                if (shouldDeleteArtifact(artifact) && !FileUtils.deleteQuietly(artifact)) {
+                    deletePartiallyFailed = true;
                 }
-                didDelete &= deleteFile(artifact);
             }
         }
-        return didDelete;
+        return !deletePartiallyFailed;
     }
 
-    private boolean deleteFile(File file) {
-        return FileUtils.deleteQuietly(file);
+    private static boolean shouldDeleteArtifact(File artifact) {
+        return !artifact.isDirectory() || !artifactDirectoryIsSystemManaged(artifact);
+    }
+
+    private static boolean artifactDirectoryIsSystemManaged(File artifact) {
+        return artifact.getName().equals(ArtifactLogUtil.CRUISE_OUTPUT_FOLDER) || artifact.getName().equals(ArtifactLogUtil.PLUGGABLE_ARTIFACT_METADATA_FOLDER);
     }
 
 }

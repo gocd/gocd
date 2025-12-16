@@ -28,7 +28,6 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -39,15 +38,14 @@ import static com.thoughtworks.go.util.ArtifactLogUtil.*;
 public class JobDetailPresentationModel {
     private static final String BASE_FILE_URL = "files/";
 
-    protected final JobInstance job;
-    protected JobInstances recent25;
     private final TrackingTool trackingTool;
     private final ArtifactsService artifactsService;
     private final JobIdentifier jobIdentifier;
     private final Pipeline pipeline;
     private final Tabs customizedTabs;
-    private final StageIdentifier stageIdentifier;
     private final Stage stage;
+    private final JobInstance job;
+    private final JobInstances recent25;
 
     public JobDetailPresentationModel(JobInstance job, JobInstances recent25,
                                       Pipeline pipeline, Tabs customizedTabs,
@@ -60,11 +58,10 @@ public class JobDetailPresentationModel {
         this.trackingTool = trackingTool;
         this.artifactsService = artifactsService;
         this.stage = stage;
-        jobIdentifier = this.job.getIdentifier();
-        stageIdentifier = jobIdentifier.getStageIdentifier();
+        this.jobIdentifier = this.job.getIdentifier();
     }
 
-    public String getConsoleoutLocator() {
+    public String getConsoleOutLocator() {
         return jobIdentifier.artifactLocator("cruise-output/console.log");
     }
 
@@ -77,7 +74,7 @@ public class JobDetailPresentationModel {
     }
 
     public String getStageLocator() {
-        return stageIdentifier.stageLocator();
+        return jobIdentifier.getStageIdentifier().stageLocator();
     }
 
     public Integer getPipelineCounter() {
@@ -133,12 +130,7 @@ public class JobDetailPresentationModel {
     }
 
     public List<JobStatusJsonPresentationModel> getRecent25() {
-        List<JobStatusJsonPresentationModel> recent25StatusJson =
-                new ArrayList<>();
-        for (JobInstance jobInstance : this.recent25) {
-            recent25StatusJson.add(new JobStatusJsonPresentationModel(jobInstance));
-        }
-        return recent25StatusJson;
+        return this.recent25.stream().map(JobStatusJsonPresentationModel::new).toList();
     }
 
     public boolean hasTests() {

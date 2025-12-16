@@ -122,8 +122,8 @@ public class PipelineRepositoryTest {
 
     @Test
     public void shouldUpdateTimelineEntriesAndEntriesForRollback() {
-        Object[] pipelineRow1 = {"p1", new BigInteger("1"), new BigInteger("1"), new Date(), "fingerprint", 1.0, "r1", null, new BigInteger("1"), new BigInteger("1")};
-        Object[] pipelineRow2 = {"p1", new BigInteger("2"), new BigInteger("2"), new Date(), "fingerprint", 2.0, "r2", null, new BigInteger("1"), new BigInteger("1")};
+        Object[] pipelineRow1 = {"p1", new BigInteger("1"), new BigInteger("1"), new Date(), "fingerprint", 1.0, "r1", new BigInteger("1"), new BigInteger("1")};
+        Object[] pipelineRow2 = {"p1", new BigInteger("2"), new BigInteger("2"), new Date(), "fingerprint", 2.0, "r2", new BigInteger("1"), new BigInteger("1")};
 
         stubPipelineInstancesInDb(pipelineRow1, pipelineRow2);
         List<PipelineTimelineEntry> tempEntries = new ArrayList<>();
@@ -142,8 +142,8 @@ public class PipelineRepositoryTest {
 
     @Test
     public void shouldNotUpdateTimelineEntriesAndEntriesForRollbackUponFailureDuringRetrieval() {
-        Object[] pipelineRow1 = {"p1", new BigInteger("1"), new BigInteger("1"), new Date(), "fingerprint", 1.0, "r1", null, new BigInteger("1"), new BigInteger("1")};
-        Object[] pipelineRow2 = {"p1", "cause-failure-during-retrieval", new BigInteger("2"), new Date(), "fingerprint", 2.0, "r2", null, new BigInteger("1"), new BigInteger("1")};
+        Object[] pipelineRow1 = {"p1", new BigInteger("1"), new BigInteger("1"), new Date(), "fingerprint", 1.0, "r1", new BigInteger("1"), new BigInteger("1")};
+        Object[] pipelineRow2 = {"p1", "cause-failure-during-retrieval", new BigInteger("2"), new Date(), "fingerprint", 2.0, "r2", new BigInteger("1"), new BigInteger("1")};
 
         stubPipelineInstancesInDb(pipelineRow1, pipelineRow2);
         List<PipelineTimelineEntry> tempEntries = new ArrayList<>();
@@ -160,8 +160,8 @@ public class PipelineRepositoryTest {
 
     @Test
     public void shouldUpdateTimelineEntriesAndEntriesForRollbackDuringFailureWhileUpdatingTheDb() {
-        Object[] pipelineRow1 = {"p1", new BigInteger("1"), new BigInteger("1"), new Date(), "fingerprint", 1.0, "r1", null, new BigInteger("1"), new BigInteger("1")};
-        Object[] pipelineRow2 = {"p1", new BigInteger("2"), new BigInteger("2"), new Date(), "fingerprint", 2.0, "r2", null, new BigInteger("1"), new BigInteger("1")};
+        Object[] pipelineRow1 = {"p1", new BigInteger("1"), new BigInteger("1"), new Date(), "fingerprint", 1.0, "r1", new BigInteger("1"), new BigInteger("1")};
+        Object[] pipelineRow2 = {"p1", new BigInteger("2"), new BigInteger("2"), new Date(), "fingerprint", 2.0, "r2", new BigInteger("1"), new BigInteger("1")};
 
         stubPipelineInstancesInDb(pipelineRow1, pipelineRow2);
 

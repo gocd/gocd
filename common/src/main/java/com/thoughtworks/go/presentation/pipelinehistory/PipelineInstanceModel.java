@@ -380,7 +380,9 @@ public class PipelineInstanceModel implements PipelineInfo {
 
     public StageInstanceModel activeStage() {
         for (StageInstanceModel stageInstanceModel : stageHistory) {
-            if (stageInstanceModel.getState().isActive()) return stageInstanceModel;
+            if (stageInstanceModel.getState().isActive()) {
+                return stageInstanceModel;
+            }
         }
         return null;
     }
@@ -434,7 +436,9 @@ public class PipelineInstanceModel implements PipelineInfo {
 
     public boolean hasStage(StageIdentifier identifier) {
         for (StageInstanceModel instanceModel : stageHistory) {
-            if (identifier.equals(instanceModel.getIdentifier())) return true;
+            if (identifier.equals(instanceModel.getIdentifier())) {
+                return true;
+            }
         }
         return false;
     }

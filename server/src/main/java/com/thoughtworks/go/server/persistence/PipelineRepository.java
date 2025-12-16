@@ -60,7 +60,7 @@ public class PipelineRepository extends HibernateDaoSupport {
         return query.executeUpdate();
     }
 
-public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, final List<PipelineTimelineEntry> tempEntriesForRollback) {
+    public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, final List<PipelineTimelineEntry> tempEntriesForRollback) {
         getHibernateTemplate().execute(new HibernateCallback<>() {
             private static final int PIPELINE_NAME = 0;
             private static final int ID = 1;
@@ -69,14 +69,13 @@ public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, fina
             private static final int FINGERPRINT = 4;
             private static final int NATURAL_ORDER = 5;
             private static final int REVISION = 6;
-            private static final int FOLDER = 7;
-            private static final int MOD_ID = 8;
-            private static final int PMR_ID = 9;
+            private static final int MOD_ID = 7;
+            private static final int PMR_ID = 8;
 
             @Override
             public Object doInHibernate(Session session) throws HibernateException {
                 LOGGER.info("Start updating pipeline timeline");
-                List<Object[]> matches = retrieveTimeline(session, pipelineTimeline);
+                List<Object[]> matches = retrieveTimeline(session, pipelineTimeline.maximumId());
                 List<PipelineTimelineEntry> newPipelines = populateFrom(matches);
                 addEntriesToPipelineTimeline(newPipelines, pipelineTimeline, tempEntriesForRollback);
 
@@ -104,9 +103,9 @@ public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, fina
                 return matches;
             }
 
-            private List<Object[]> retrieveTimeline(Session session, PipelineTimeline pipelineTimeline) {
+            private List<Object[]> retrieveTimeline(Session session, long pipelineId) {
                 SQLQuery query = session.createSQLQuery(queryExtensions.retrievePipelineTimeline());
-                query.setLong("pipelineId", pipelineTimeline.maximumId());
+                query.setLong("pipelineId", pipelineId);
 
                 List<Object[]> matches = loadTimeline(query);
                 sortTimeLineByPidAndPmrId(matches);
@@ -164,12 +163,8 @@ public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, fina
                 return newPipelines;
             }
 
-            private String folder(Object[] row) {
-                return (String) row[FOLDER];
-            }
-
             private PipelineTimelineEntry.Revision rev(Object[] row) {
-                return new PipelineTimelineEntry.Revision(modifiedTime(row), stringRevision(row), folder(row), modId(row));
+                return new PipelineTimelineEntry.Revision(modifiedTime(row), stringRevision(row), modId(row));
             }
 
             private long pmrId(Object[] row) {

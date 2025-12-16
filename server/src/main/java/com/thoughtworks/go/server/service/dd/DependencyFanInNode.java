@@ -153,7 +153,7 @@ class DependencyFanInNode extends FanInNode<DependencyMaterialConfig> {
         }
         while (!revisionQueue.isEmpty()) {
             PipelineTimelineEntry.Revision revision = revisionQueue.poll();
-            DependencyMaterialRevision dmr = DependencyMaterialRevision.create(revision.revision, null);
+            DependencyMaterialRevision dmr = DependencyMaterialRevision.create(revision.revision(), null);
             PipelineTimelineEntry pte = pipelineTimeline.getEntryFor(new CaseInsensitiveString(dmr.getPipelineName()), dmr.getPipelineCounter());
             addToRevisionQueue(pte, revisionQueue, scmMaterials, context, visitedNodes);
         }
@@ -218,9 +218,9 @@ class DependencyFanInNode extends FanInNode<DependencyMaterialConfig> {
                 continue;
             }
 
-            if (context.isDependencyMaterial(fingerprint) && !visitedNodes.contains(new CaseInsensitiveString(revision.revision))) {
+            if (context.isDependencyMaterial(fingerprint) && !visitedNodes.contains(new CaseInsensitiveString(revision.revision()))) {
                 revisionQueue.add(revision);
-                visitedNodes.add(new CaseInsensitiveString(revision.revision));
+                visitedNodes.add(new CaseInsensitiveString(revision.revision()));
             }
         }
     }

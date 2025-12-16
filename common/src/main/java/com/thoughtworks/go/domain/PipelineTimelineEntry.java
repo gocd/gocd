@@ -15,6 +15,9 @@
  */
 package com.thoughtworks.go.domain;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -26,21 +29,21 @@ public class PipelineTimelineEntry implements Comparable<PipelineTimelineEntry> 
     private final String pipelineName;
     private final long id;
     private final int counter;
-    private final Map<String, List<Revision>> revisions;
+    private final Map<String, List<Revision>> revisionsByFingerprint;
     private PipelineTimelineEntry insertedBefore;
     private PipelineTimelineEntry insertedAfter;
     private double naturalOrder = 0.0;
     private boolean hasBeenUpdated;
 
-    public PipelineTimelineEntry(String pipelineName, long id, int counter, Map<String, List<Revision>> revisions) {
+    public PipelineTimelineEntry(String pipelineName, long id, int counter, Map<String, List<Revision>> revisionsByFingerprint) {
         this.pipelineName = pipelineName;
         this.id = id;
         this.counter = counter;
-        this.revisions = revisions;
+        this.revisionsByFingerprint = revisionsByFingerprint;
     }
 
-    public PipelineTimelineEntry(String pipelineName, long id, Integer counter, Map<String, List<Revision>> revisions, double naturalOrder) {
-        this(pipelineName, id, counter, revisions);
+    public PipelineTimelineEntry(String pipelineName, long id, Integer counter, Map<String, List<Revision>> revisionsByFingerprint, double naturalOrder) {
+        this(pipelineName, id, counter, revisionsByFingerprint);
         this.naturalOrder = naturalOrder;
     }
 
@@ -53,48 +56,70 @@ public class PipelineTimelineEntry implements Comparable<PipelineTimelineEntry> 
             return 0;
         }
 
-        Map<Date, TreeSet<Integer>> earlierMods = new HashMap<>();
+        EarliestRev earliestAcrossMaterials = EarliestRev.MAX_VALUE;
 
-        for (String materialFlyweight : revisions.keySet()) {
-            List<Revision> thisRevs = this.revisions.get(materialFlyweight);
-            List<Revision> thatRevs = o.revisions.get(materialFlyweight);
-            if (thisRevs == null || thatRevs == null) {
+        for (Map.Entry<String, List<Revision>> fingerprintRevs : revisionsByFingerprint.entrySet()) {
+            List<Revision> thisRevs = fingerprintRevs.getValue();
+            if (thisRevs == null) {
                 continue;
             }
-            Revision thisRevision = thisRevs.get(0);
-            Revision thatRevision = thatRevs.get(0);
-            if (thisRevision == null || thatRevision == null) {
+            List<Revision> otherRevs = o.revisionsByFingerprint.get(fingerprintRevs.getKey());
+            if (otherRevs == null) {
                 continue;
             }
-            Date thisDate = thisRevision.date;
-            Date thatDate = thatRevision.date;
-            if (thisDate.equals(thatDate)) {
-                continue;
+
+            earliestAcrossMaterials = earliestAcrossMaterials.chooseEarliest(thisRevs.get(0), otherRevs.get(0));
+        }
+
+        return earliestAcrossMaterials.isInconclusive()
+            ? Integer.compare(counter, o.counter)  // Fallback to counter if revision dates are inconclusive
+            : earliestAcrossMaterials.thisComparedToEarliest;
+    }
+
+    record EarliestRev(Date date, int thisComparedToEarliest) {
+        static final EarliestRev MAX_VALUE = new EarliestRev(new Date(Long.MAX_VALUE), 0);
+
+        boolean isInconclusive() {
+            return this == MAX_VALUE || isSameDirectionAs(0);
+        }
+
+        private boolean isSameDirectionAs(int compareTo) {
+            return thisComparedToEarliest == compareTo;
+        }
+
+        @NotNull EarliestRev chooseEarliest(@Nullable Revision leftEarliestRev, @Nullable Revision rightEarlierRev) {
+            if (leftEarliestRev == null || rightEarlierRev == null) {
+                return this; // shouldn't happen, but be safe
             }
-            populateEarlierModification(earlierMods, thisDate, thatDate);
+            int leftComparedToRight = leftEarliestRev.date.compareTo(rightEarlierRev.date);
+            if (leftComparedToRight == 0) {
+                return this; // They are equal; earliest across materials remains unchanged
+            } else {
+                // We have two revs with different dates in same material. Which one is earlier?
+                Date candidateNewMinimum = leftComparedToRight < 0 ? leftEarliestRev.date : rightEarlierRev.date;
+
+                // Is the date earlier than our current minimum; and how does it relate to "this"?
+                return chooseEarliest(candidateNewMinimum, leftComparedToRight);
+            }
         }
-        if (earlierMods.isEmpty()) {
-            return counter < o.counter ? -1 : 1;
+
+        private @NotNull EarliestRev chooseEarliest(@NotNull Date candidateNewMinimum, int leftComparedToRight) {
+            int newComparedToExisting = candidateNewMinimum.compareTo(date);
+
+            if (newComparedToExisting > 0) {
+                return this; // new date greater than current minimum - leave minimum as-is
+            } else if (newComparedToExisting == 0 && (isInconclusive() || isSameDirectionAs(leftComparedToRight))) {
+                return this; // new date candidate is same, and comparison inconclusive or same relationship to - leave as-is
+            } else if (newComparedToExisting == 0) {
+                return new EarliestRev(date, 0); // same date, but different implied comparison - now it's inconclusive
+            } else {
+                return new EarliestRev(candidateNewMinimum, leftComparedToRight); // new date is earlier with clear relationship to "this" Revision
+            }
         }
-        TreeSet<Date> sortedModDate = new TreeSet<>(earlierMods.keySet());
-        if (hasContentionOnEarliestMod(earlierMods, sortedModDate.first())) {
-            return counter < o.counter ? -1 : 1;
-        }
-        return earlierMods.get(sortedModDate.first()).first();
     }
 
     public int getCounter() {
         return counter;
-    }
-
-    private void populateEarlierModification(Map<Date, TreeSet<Integer>> earlierMods, Date thisDate, Date thatDate) {
-        int value = thisDate.before(thatDate) ? -1 : 1;
-        Date actual = thisDate.before(thatDate) ? thisDate : thatDate;
-        earlierMods.computeIfAbsent(actual, k -> new TreeSet<>()).add(value);
-    }
-
-    private boolean hasContentionOnEarliestMod(Map<Date, TreeSet<Integer>> earlierMods, Date earliestModDate) {
-        return earlierMods.get(earliestModDate).size() > 1;
     }
 
     public PipelineTimelineEntry insertedBefore() {
@@ -148,12 +173,12 @@ public class PipelineTimelineEntry implements Comparable<PipelineTimelineEntry> 
     @Override
     public String toString() {
         return "PipelineTimelineEntry{" +
-                "pipelineName='" + pipelineName + '\'' +
-                ", id=" + id +
-                ", counter=" + counter +
-                ", revisions=" + revisions +
-                ", naturalOrder=" + naturalOrder +
-                '}';
+            "pipelineName='" + pipelineName + '\'' +
+            ", id=" + id +
+            ", counter=" + counter +
+            ", revisions=" + revisionsByFingerprint +
+            ", naturalOrder=" + naturalOrder +
+            '}';
     }
 
     public double naturalOrder() {
@@ -192,51 +217,30 @@ public class PipelineTimelineEntry implements Comparable<PipelineTimelineEntry> 
     }
 
     public Map<String, List<Revision>> revisions() {
-        return revisions;
+        return revisionsByFingerprint;
     }
 
-    public static class Revision {
-        public final Date date;
-        public final String revision;
-        public final String folder;
-        public final long id;
-
-        public Revision(Date date, String revision, String folder, long id) {
-            this.date = date;
-            this.revision = revision;
-            this.folder = folder;
-            this.id = id;
-        }
-
+    public record Revision(@NotNull Date date, String revision, long id) {
         @Override
         public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-
             Revision revision1 = (Revision) o;
-
-            return Objects.equals(date, revision1.date) &&
-                Objects.equals(revision, revision1.revision);
+            return Objects.equals(date, revision1.date) && Objects.equals(revision, revision1.revision);
         }
 
         @Override
         public int hashCode() {
-            int result = date != null ? date.hashCode() : 0;
-            result = 31 * result + (revision != null ? revision.hashCode() : 0);
-            result = 31 * result + (folder != null ? folder.hashCode() : 0);
-            return result;
+            return Objects.hash(date, revision);
         }
 
-        @Override public String toString() {
-            return "Revision{" +
-                    "date=" + date +
-                    ", revision='" + revision + '\'' +
-                    ", folder='" + folder + '\'' +
-                    '}';
+        @Override
+        public @NotNull String toString() {
+            return new StringJoiner(", ", "Revision[", "]")
+                .add("date=" + date)
+                .add("revision='" + revision + "'")
+                .toString();
         }
 
         public boolean lessThan(Revision revision) {

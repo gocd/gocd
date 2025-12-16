@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thoughtworks.go.config.preprocessor;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
@@ -31,8 +32,7 @@ import java.util.List;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ConfigRepoPartialPreprocessorTest {
-
+class ConfigRepoPartialPreprocessorTest {
     private final ConfigReposConfig reposConfig;
     private final ConfigRepoConfig configRepoConfig;
 

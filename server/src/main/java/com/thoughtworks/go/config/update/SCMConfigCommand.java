@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.scm.SCM;
@@ -54,10 +54,10 @@ public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM>
         if (preprocessedGlobalScmConfig.getAllErrors().isEmpty()) {
             scms.validate(null);
             boolean isValid = pluggableScmService.isValid(preprocessedGlobalScmConfig);
-            BasicCruiseConfig.copyErrors(preprocessedGlobalScmConfig, globalScmConfig);
+            Validatable.copyErrors(preprocessedGlobalScmConfig, globalScmConfig);
             return preprocessedGlobalScmConfig.getAllErrors().isEmpty() && scms.errors().isEmpty() && isValid;
         }
-        BasicCruiseConfig.copyErrors(preprocessedGlobalScmConfig, globalScmConfig);
+        Validatable.copyErrors(preprocessedGlobalScmConfig, globalScmConfig);
         return false;
     }
 
@@ -68,7 +68,7 @@ public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM>
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(globalScmConfig);
+        Validatable.clearErrors(globalScmConfig);
     }
 
     @Override

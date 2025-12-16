@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.config.domain;
 
-import com.thoughtworks.go.config.*;
+package com.thoughtworks.go.config;
+
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
@@ -33,10 +33,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class EnvironmentVariablesConfigTest {
-
     private EnvironmentVariablesConfig environmentVariablesConfig;
-    private ValidationContext context = mock(ValidationContext.class);
-    private GoCipher goCipher = mock(GoCipher.class);
+    private final ValidationContext context = mock(ValidationContext.class);
+    private final GoCipher goCipher = mock(GoCipher.class);
 
     @BeforeEach
     void setUp() {

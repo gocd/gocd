@@ -72,7 +72,7 @@ public class RolesConfigBulkUpdateCommand implements EntityConfigUpdateCommand<R
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(preProcessedRolesConfig);
+        Validatable.clearErrors(preProcessedRolesConfig);
     }
 
     @Override

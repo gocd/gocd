@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
-@SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+@SuppressWarnings({"MismatchedQueryAndUpdateOfCollection", "CollectionAddedToSelf"})
 public class PipelineConfigTest {
     private static final String BUILDING_PLAN_NAME = "building";
 
@@ -57,45 +57,6 @@ public class PipelineConfigTest {
     public void shouldFindByName() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null, completedStage(), buildingStage());
         assertThat(pipelineConfig.findBy(new CaseInsensitiveString("completed stage")).name()).isEqualTo(new CaseInsensitiveString("completed stage"));
-    }
-
-    @Test
-    public void shouldReturnDuplicateWithoutName() {
-        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("somePipeline");
-        PipelineConfig clonedPipelineConfig = pipelineConfig.duplicate();
-        assertThat(clonedPipelineConfig.name()).isEqualTo(new CaseInsensitiveString(""));
-        assertThat(clonedPipelineConfig.materialConfigs()).isEqualTo(pipelineConfig.materialConfigs());
-        assertThat(clonedPipelineConfig.getFirstStageConfig()).isEqualTo(pipelineConfig.getFirstStageConfig());
-    }
-
-    @Test
-    public void shouldReturnDuplicateWithPipelineNameEmptyIfFetchArtifactTaskIsFetchingFromSamePipeline() {
-        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("somePipeline", "stage", "job");
-        StageConfig stageConfig = pipelineConfig.get(0);
-        JobConfig jobConfig = stageConfig.getJobs().get(0);
-        Tasks originalTasks = jobConfig.getTasks();
-        originalTasks.add(new FetchTask(pipelineConfig.name(), stageConfig.name(), jobConfig.name(), "src", "dest"));
-        originalTasks.add(new FetchTask(new CaseInsensitiveString("some_other_pipeline"), stageConfig.name(), jobConfig.name(), "src", "dest"));
-        PipelineConfig clone = pipelineConfig.duplicate();
-        Tasks clonedTasks = clone.get(0).getJobs().get(0).getTasks();
-        assertThat(((FetchTask) clonedTasks.get(1)).getTargetPipelineName()).isEqualTo(new CaseInsensitiveString(""));
-        assertThat(((FetchTask) clonedTasks.get(2)).getTargetPipelineName()).isEqualTo(new CaseInsensitiveString("some_other_pipeline"));
-        assertThat(((FetchTask) originalTasks.get(1)).getTargetPipelineName()).isEqualTo(pipelineConfig.name());
-    }
-
-    @Test //#6821
-    public void shouldCopyOverAllEnvironmentVariablesWhileCloningAPipeline() {
-        PipelineConfig source = PipelineConfigMother.createPipelineConfig("somePipeline", "stage", "job");
-        source.addEnvironmentVariable("k1", "v1");
-        source.addEnvironmentVariable("k2", "v2");
-        GoCipher goCipher = new GoCipher();
-        source.addEnvironmentVariable(new EnvironmentVariableConfig(goCipher, "secret_key", "secret", true));
-
-        PipelineConfig cloned = source.duplicate();
-        EnvironmentVariablesConfig clonedEnvVariables = cloned.getPlainTextVariables();
-        EnvironmentVariablesConfig sourceEnvVariables = source.getPlainTextVariables();
-        assertThat(clonedEnvVariables.getPlainTextVariables()).containsExactlyElementsOf(sourceEnvVariables.getPlainTextVariables());
-        assertThat(cloned.getSecureVariables()).containsExactlyElementsOf((source.getSecureVariables()));
     }
 
     @Test
@@ -424,8 +385,8 @@ public class PipelineConfigTest {
         pipelineConfig.validate(null);
 
         assertThat(pipelineConfig.errors().isEmpty()).isFalse();
-        assertThat(pipelineConfig.errors().firstErrorOn(PipelineConfig.LOCK_BEHAVIOR)
-            .contains("Lock behavior has an invalid value (someRandomValue). Valid values are: "));
+        assertThat(pipelineConfig.errors().firstErrorOn(PipelineConfig.LOCK_BEHAVIOR))
+            .contains("Lock behavior has an invalid value (someRandomValue). Valid values are: ");
     }
 
     @Test
@@ -599,7 +560,7 @@ public class PipelineConfigTest {
     @Test
     public void shouldReturnStagesBeforeCurrentForSelectedPipeline() {
         PipelineConfig downstream = PipelineConfigMother.createPipelineConfigWithStages("downstream", "s1", "s2");
-        List<StageConfig> fetchableStages = downstream.validStagesForFetchArtifact(downstream, new CaseInsensitiveString("s2"));
+        @SuppressWarnings("CollectionAddedToSelf") List<StageConfig> fetchableStages = downstream.validStagesForFetchArtifact(downstream, new CaseInsensitiveString("s2"));
         assertThat(fetchableStages.size()).isEqualTo(1);
         assertThat(fetchableStages).contains(downstream.get(0));
     }

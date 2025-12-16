@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -56,10 +56,10 @@ abstract class PackageConfigCommand implements EntityConfigUpdateCommand<Package
             packageRepositories.validate(null);
             packages.validate(null);
             packageDefinitionService.validatePackageConfiguration(preprocessedPackageDefinition);
-            BasicCruiseConfig.copyErrors(preprocessedPackageDefinition, packageDefinition);
+            Validatable.copyErrors(preprocessedPackageDefinition, packageDefinition);
             return preprocessedPackageDefinition.getAllErrors().isEmpty() && result.isSuccessful();
         }
-        BasicCruiseConfig.copyErrors(preprocessedPackageDefinition, packageDefinition);
+        Validatable.copyErrors(preprocessedPackageDefinition, packageDefinition);
         return false;
     }
 
@@ -73,7 +73,7 @@ abstract class PackageConfigCommand implements EntityConfigUpdateCommand<Package
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(packageDefinition);
+        Validatable.clearErrors(packageDefinition);
     }
 
     @Override

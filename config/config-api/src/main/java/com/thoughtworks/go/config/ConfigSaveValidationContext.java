@@ -18,10 +18,8 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.policy.PolicyAware;
-import com.thoughtworks.go.config.policy.PolicyValidationContext;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.rules.RulesAware;
-import com.thoughtworks.go.config.rules.RulesValidationContext;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
@@ -272,18 +270,7 @@ public class ConfigSaveValidationContext implements ValidationContext {
         if (fingerprintToMaterials.isEmpty()) {
             primeForMaterialValidations();
         }
-        MaterialConfigs matchingMaterials = fingerprintToMaterials.get(fingerprint);
-        return matchingMaterials == null ? new MaterialConfigs() : matchingMaterials;
-    }
-
-    @Override
-    public Map<CaseInsensitiveString, Boolean> getPipelineToMaterialAutoUpdateMapByFingerprint(String fingerprint) {
-        Map<CaseInsensitiveString, Boolean> map = new HashMap<>();
-        getCruiseConfig().getAllPipelineConfigs().forEach(pipeline -> pipeline.materialConfigs().stream()
-                .filter(materialConfig -> materialConfig.getFingerprint().equals(fingerprint))
-                .findFirst()
-                .ifPresent(expectedMaterialConfig -> map.put(pipeline.name(), expectedMaterialConfig.isAutoUpdate())));
-        return map;
+        return Objects.requireNonNullElseGet(fingerprintToMaterials.get(fingerprint), MaterialConfigs::new);
     }
 
     private void primeForMaterialValidations() {

@@ -23,11 +23,7 @@ import java.util.List;
 public class ErrorCollector {
     public static List<ConfigErrors> getAllErrors(Validatable v) {
         final List<ConfigErrors> allErrors = new ArrayList<>();
-        new GoConfigGraphWalker(v).walk(new ErrorCollectingHandler(allErrors) {
-            @Override
-            public void handleValidation(Validatable validatable, ValidationContext context) {
-            }
-        });
+        new GoConfigGraphWalker(v).walk(new ErrorCollectingHandler(allErrors) {});
         return allErrors;
     }
 }

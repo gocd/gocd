@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.preprocessor.TemplateExpansionPreprocessor;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;

@@ -1219,28 +1219,9 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public List<ConfigErrors> validateAfterPreprocess() {
         final List<ConfigErrors> allErrors = new ArrayList<>();
-        new GoConfigGraphWalker(this).walk(new ErrorCollectingHandler(allErrors) {
-            @Override
-            public void handleValidation(Validatable validatable, ValidationContext context) {
-                validatable.validate(context);
-            }
-        });
+        new GoConfigGraphWalker(this)
+            .walk(new ErrorCollectingHandler(allErrors, Validatable::validate));
         return allErrors;
-    }
-
-    @Override
-    public void copyErrorsTo(CruiseConfig to) {
-        copyErrors(this, to);
-    }
-
-    public static <T> void copyErrors(T from, T to) {
-        GoConfigParallelGraphWalker walker = new GoConfigParallelGraphWalker(from, to);
-        walker.walk((rawObject, objectWithErrors) -> rawObject.errors().addAll(objectWithErrors.errors()));
-    }
-
-    public static void clearErrors(Validatable obj) {
-        GoConfigGraphWalker walker = new GoConfigGraphWalker(obj);
-        walker.walk((validatable, ctx) -> validatable.errors().clear());
     }
 
     @Override

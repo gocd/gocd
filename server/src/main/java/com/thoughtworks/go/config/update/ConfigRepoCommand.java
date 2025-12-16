@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ErrorCollector;
+import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -55,7 +55,7 @@ abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepo
 
         List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(preprocessedConfigRepo);
         if (!allErrors.isEmpty()) {
-            BasicCruiseConfig.copyErrors(preprocessedConfigRepo, configRepo);
+            Validatable.copyErrors(preprocessedConfigRepo, configRepo);
             return false;
         }
 
@@ -80,7 +80,7 @@ abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepo
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(preprocessedConfigRepo);
+        Validatable.clearErrors(preprocessedConfigRepo);
     }
 
     @Override

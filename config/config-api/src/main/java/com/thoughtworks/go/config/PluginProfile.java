@@ -163,7 +163,7 @@ public abstract class PluginProfile extends Configuration implements Validatable
 
     protected abstract boolean hasPluginInfo();
 
-    void validateIdUniquness(Map<String, PluginProfile> profiles) {
+    void validateIdUniqueness(Map<String, PluginProfile> profiles) {
         PluginProfile profileWithSameId = profiles.get(id);
         if (profileWithSameId == null) {
             profiles.put(id, this);

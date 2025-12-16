@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.ConfigAttribute;
 import com.thoughtworks.go.config.ConfigValue;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.ValidationContext.PolicyValidationContext;
 import com.thoughtworks.go.domain.ConfigErrors;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
@@ -44,7 +45,7 @@ public abstract class AbstractDirective implements Directive {
 
     private final ConfigErrors configErrors = new ConfigErrors();
 
-    private DirectiveType directiveType;
+    private final DirectiveType directiveType;
 
     public AbstractDirective(DirectiveType allow) {
         this.directiveType = allow;
@@ -61,12 +62,12 @@ public abstract class AbstractDirective implements Directive {
     public void validate(ValidationContext validationContext) {
         PolicyValidationContext policyValidationContext = validationContext.getPolicyValidationContext();
 
-        if (isInvalidAction(action, policyValidationContext.getAllowedActions())) {
-            this.addError("action", format("Invalid action, must be one of %s.", policyValidationContext.getAllowedActions()));
+        if (isInvalidAction(action, policyValidationContext.allowedActions())) {
+            this.addError("action", format("Invalid action, must be one of %s.", policyValidationContext.allowedActions()));
         }
 
-        if (isInvalidType(type, policyValidationContext.getAllowedTypes())) {
-            this.addError("type", format("Invalid type, must be one of %s.", policyValidationContext.getAllowedTypes()));
+        if (isInvalidType(type, policyValidationContext.allowedTypes())) {
+            this.addError("type", format("Invalid type, must be one of %s.", policyValidationContext.allowedTypes()));
         }
 
         if (isInvalidResource(resource)) {

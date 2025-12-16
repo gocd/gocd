@@ -53,7 +53,7 @@ public class UpdateTemplateAuthConfigCommand extends UpdateTemplateConfigCommand
         });
 
         if (!preprocessedTemplateConfig.getAuthorization().getAllErrors().isEmpty()) {
-            BasicCruiseConfig.copyErrors(preprocessedTemplateConfig.getAuthorization(), authorization);
+            Validatable.copyErrors(preprocessedTemplateConfig.getAuthorization(), authorization);
             return false;
         }
         return true;

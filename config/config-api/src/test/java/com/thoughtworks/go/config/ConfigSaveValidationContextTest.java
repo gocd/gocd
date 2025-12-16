@@ -15,10 +15,11 @@
  */
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.ValidationContext.PolicyValidationContext;
+import com.thoughtworks.go.config.ValidationContext.RulesValidationContext;
 import com.thoughtworks.go.config.elastic.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import com.thoughtworks.go.config.rules.RulesValidationContext;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
@@ -178,7 +179,7 @@ public class ConfigSaveValidationContextTest {
     }
 
     @Nested
-    class rulesValidationContext {
+    class Rules {
         @Test
         void shouldBuildRulesValidationContext() {
             SecretConfig secretConfig = new SecretConfig();
@@ -186,22 +187,22 @@ public class ConfigSaveValidationContextTest {
 
             RulesValidationContext rulesValidationContext = configSaveValidationContext.getRulesValidationContext();
 
-            assertThat(rulesValidationContext.getAllowedActions()).isEqualTo(secretConfig.allowedActions());
-            assertThat(rulesValidationContext.getAllowedTypes()).isEqualTo(secretConfig.allowedTypes());
+            assertThat(rulesValidationContext.allowedActions()).isEqualTo(secretConfig.allowedActions());
+            assertThat(rulesValidationContext.allowedTypes()).isEqualTo(secretConfig.allowedTypes());
         }
     }
 
     @Nested
-    class PolicyValidationContext {
+    class Policy {
         @Test
-        void shouldBuilPolicyValidationContext() {
+        void shouldBuildPolicyValidationContext() {
             RoleConfig roleConfig = new RoleConfig("role");
             ConfigSaveValidationContext configSaveValidationContext = ConfigSaveValidationContext.forChain(roleConfig);
 
-            com.thoughtworks.go.config.policy.PolicyValidationContext policyValidationContext = configSaveValidationContext.getPolicyValidationContext();
+            PolicyValidationContext policyValidationContext = configSaveValidationContext.getPolicyValidationContext();
 
-            assertThat(policyValidationContext.getAllowedActions()).isEqualTo(roleConfig.allowedActions());
-            assertThat(policyValidationContext.getAllowedTypes()).isEqualTo(roleConfig.allowedTypes());
+            assertThat(policyValidationContext.allowedActions()).isEqualTo(roleConfig.allowedActions());
+            assertThat(policyValidationContext.allowedTypes()).isEqualTo(roleConfig.allowedTypes());
 
         }
     }

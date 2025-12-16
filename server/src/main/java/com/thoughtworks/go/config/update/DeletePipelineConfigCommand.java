@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.server.domain.Username;
@@ -68,7 +68,7 @@ public class DeletePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(pipelineConfig);
+        Validatable.clearErrors(pipelineConfig);
     }
 
     @Override

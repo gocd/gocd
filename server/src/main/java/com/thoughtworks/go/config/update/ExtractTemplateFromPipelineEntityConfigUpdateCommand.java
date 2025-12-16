@@ -67,7 +67,7 @@ public class ExtractTemplateFromPipelineEntityConfigUpdateCommand implements Ent
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(preprocessedPipelineConfig);
+        Validatable.clearErrors(preprocessedPipelineConfig);
     }
 
     @Override

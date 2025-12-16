@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.config.domain;
 
-import com.thoughtworks.go.config.VariableValueConfig;
+package com.thoughtworks.go.config;
+
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class VariableValueConfigTest {
+class VariableValueConfigTest {
     @Test
     public void shouldBeEqualIfValuesAreEqual() {
         assertThat(new VariableValueConfig("abcd")).isEqualTo(new VariableValueConfig("abcd"));

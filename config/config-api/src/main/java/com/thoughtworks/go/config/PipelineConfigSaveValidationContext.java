@@ -150,9 +150,7 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
 
     @Override
     public PipelineConfigs getPipelineGroup() {
-        if (cruiseConfig.hasPipelineGroup(groupName))
-            return cruiseConfig.findGroup(groupName);
-        else return null;
+        return cruiseConfig.hasPipelineGroup(groupName) ? cruiseConfig.findGroup(groupName) : null;
     }
 
     public Node getDependencyMaterialsFor(CaseInsensitiveString pipelineName) {
@@ -221,7 +219,6 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
         return dependencies;
     }
 
-
     public PipelineGroups getGroups() {
         return cruiseConfig.getGroups();
     }
@@ -285,15 +282,5 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     @Override
     public RulesValidationContext getRulesValidationContext() {
         return null;
-    }
-
-    @Override
-    public Map<CaseInsensitiveString, Boolean> getPipelineToMaterialAutoUpdateMapByFingerprint(String fingerprint) {
-        Map<CaseInsensitiveString, Boolean> map = new HashMap<>();
-        getCruiseConfig().getAllPipelineConfigs().forEach(pipeline -> pipeline.materialConfigs().stream()
-                .filter(materialConfig -> materialConfig.getFingerprint().equals(fingerprint))
-                .findFirst()
-                .ifPresent(expectedMaterialConfig -> map.put(pipeline.name(), expectedMaterialConfig.isAutoUpdate())));
-        return map;
     }
 }

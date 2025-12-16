@@ -201,7 +201,7 @@ public class PipelineConfigServicePerformanceTest {
         LOG.info("Heap dump available at {}", tempDir.toFile().getAbsolutePath());
     }
 
-    private static abstract class ErrorCollectingHandler implements GoConfigGraphWalker.Handler {
+    private static abstract class ErrorCollectingHandler implements Validatable.Handler {
         private final List<ConfigErrors> allErrors;
 
         public ErrorCollectingHandler(List<ConfigErrors> allErrors) {

@@ -412,7 +412,7 @@ Above scenario allowed
         pipelineOne.materialConfigs().validate(ConfigSaveValidationContext.forChain(config));
 
         assertThat(pipelineOne.materialConfigs().get(0).errors().firstErrorOn(ScmMaterialConfig.AUTO_UPDATE))
-            .isEqualTo("The material of type Mercurial (http://url1) is used elsewhere with a different value for autoUpdate (poll for changes). Those values should be the same. Pipelines:\n one (auto update disabled),\n two (auto update enabled)");
+            .isEqualTo("The material of type Mercurial (http://url1) is used elsewhere with a different value for autoUpdate (poll for changes). Those values should be the same. Pipelines:\n two (auto update enabled),\n one (auto update disabled)");
     }
 
     @Test

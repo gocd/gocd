@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -57,7 +57,7 @@ public abstract class RuleAwarePluginProfileCommand<T extends RuleAwarePluginPro
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(profile);
+        Validatable.clearErrors(profile);
     }
 
     @Override
@@ -76,11 +76,11 @@ public abstract class RuleAwarePluginProfileCommand<T extends RuleAwarePluginPro
 
         if (!preprocessedProfile.hasErrors()) {
             getPluginProfiles(preprocessedConfig).validate(null);
-            BasicCruiseConfig.copyErrors(preprocessedProfile, profile);
+            Validatable.copyErrors(preprocessedProfile, profile);
             return !preprocessedProfile.hasErrors();
         }
 
-        BasicCruiseConfig.copyErrors(preprocessedProfile, profile);
+        Validatable.copyErrors(preprocessedProfile, profile);
         return false;
     }
 

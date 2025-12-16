@@ -212,8 +212,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     List<ConfigErrors> validateAfterPreprocess();
 
-    void copyErrorsTo(CruiseConfig to);
-
     PipelineConfigs findGroupOfPipeline(PipelineConfig pipelineConfig);
 
     Map<CaseInsensitiveString, List<PipelineConfig>> generatePipelineVsDownstreamMap();

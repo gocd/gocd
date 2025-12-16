@@ -35,7 +35,7 @@ public abstract class PipelineConfigCommand implements EntityConfigUpdateCommand
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(pipelineConfig);
+        Validatable.clearErrors(pipelineConfig);
     }
 
     @Override

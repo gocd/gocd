@@ -47,7 +47,7 @@ public class TemplatesConfig extends BaseCollection<PipelineTemplateConfig> impl
     private void validateNameUniqueness() {
         Map<String, PipelineTemplateConfig> templateList = new HashMap<>();
         for (PipelineTemplateConfig pipelineTemplateConfig : this) {
-            pipelineTemplateConfig.validateNameUniquness(templateList);
+            pipelineTemplateConfig.validateNameUniqueness(templateList);
         }
     }
 

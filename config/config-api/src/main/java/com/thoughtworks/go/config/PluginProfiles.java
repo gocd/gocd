@@ -72,7 +72,7 @@ public abstract class PluginProfiles<T extends PluginProfile> extends BaseCollec
     private void validateIdUniqueness() {
         Map<String, PluginProfile> profiles = new HashMap<>();
         for (PluginProfile pluginProfile : this) {
-            pluginProfile.validateIdUniquness(profiles);
+            pluginProfile.validateIdUniqueness(profiles);
         }
     }
 

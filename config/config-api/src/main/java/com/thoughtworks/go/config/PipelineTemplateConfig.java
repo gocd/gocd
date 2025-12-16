@@ -332,7 +332,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         return this.getAuthorization().isAllowGroupAdmins();
     }
 
-    public void validateNameUniquness(Map<String, PipelineTemplateConfig> templateMap) {
+    public void validateNameUniqueness(Map<String, PipelineTemplateConfig> templateMap) {
         String currentName = name.toLower();
         PipelineTemplateConfig templateWithSameName = templateMap.get(currentName);
         if (templateWithSameName == null) {

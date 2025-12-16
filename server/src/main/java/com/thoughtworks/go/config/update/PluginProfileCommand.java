@@ -52,7 +52,7 @@ public abstract class PluginProfileCommand<T extends PluginProfile, M extends Pl
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(profile);
+        Validatable.clearErrors(profile);
     }
 
     @Override
@@ -71,11 +71,11 @@ public abstract class PluginProfileCommand<T extends PluginProfile, M extends Pl
 
         if (preprocessedProfile.getAllErrors().isEmpty()) {
             getPluginProfiles(preprocessedConfig).validate(null);
-            BasicCruiseConfig.copyErrors(preprocessedProfile, profile);
+            Validatable.copyErrors(preprocessedProfile, profile);
             return preprocessedProfile.getAllErrors().isEmpty();
         }
 
-        BasicCruiseConfig.copyErrors(preprocessedProfile, profile);
+        Validatable.copyErrors(preprocessedProfile, profile);
         return false;
     }
 

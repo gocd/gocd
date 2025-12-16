@@ -46,9 +46,9 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.thoughtworks.go.server.service.HistoryUtil.validateCursor;
 import static java.util.stream.Collectors.toList;
@@ -57,7 +57,7 @@ import static java.util.stream.Collectors.toList;
 public class JobInstanceService implements JobPlanLoader, ConfigChangedListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobInstanceService.class);
     private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
-    private static final Object LISTENERS_MODIFICATION_MUTEX = new Object();
+
     private final JobInstanceDao jobInstanceDao;
     private final JobResultTopic jobResultTopic;
     private final JobStatusCache jobStatusCache;
@@ -68,7 +68,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
     private final GoConfigService goConfigService;
     private final SecurityService securityService;
     private final ServerHealthService serverHealthService;
-    private final List<JobStatusListener> listeners;
+    private final List<JobStatusListener> listeners = new CopyOnWriteArrayList<>();
 
 
     @Autowired
@@ -86,17 +86,13 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
         this.goConfigService = goConfigService;
         this.securityService = securityService;
         this.serverHealthService = serverHealthService;
-        this.listeners = new ArrayList<>(Arrays.asList(listener));
+        this.listeners.addAll(Arrays.stream(listener).toList());
         this.goConfigService.register(this);
         this.goConfigService.register(new PipelineConfigChangedListener());
     }
 
     public JobInstances latestCompletedJobs(String pipelineName, String stageName, String jobConfigName) {
         return jobInstanceDao.latestCompletedJobs(pipelineName, stageName, jobConfigName, 25);
-    }
-
-    public int getJobHistoryCount(String pipelineName, String stageName, String jobConfigName) {
-        return jobInstanceDao.getJobHistoryCount(pipelineName, stageName, jobConfigName);
     }
 
     public JobInstances findJobHistoryPage(String pipelineName, String stageName, String jobConfigName, Pagination pagination, String username, OperationResult result) {
@@ -153,16 +149,13 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
         transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
             @Override
             public void afterCommit() {
-                List<JobStatusListener> listeners1;
-                synchronized (LISTENERS_MODIFICATION_MUTEX) {
-                    listeners1 = new ArrayList<>(listeners);
-                }
-                for (JobStatusListener jobStatusListener : listeners1)
+                for (JobStatusListener jobStatusListener : listeners) {
                     try {
                         jobStatusListener.jobStatusChanged(job);
                     } catch (Exception e) {
                         LOGGER.error("error notifying listener for job {}", job, e);
                     }
+                }
             }
         });
     }
@@ -256,9 +249,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
     }
 
     public void registerJobStateChangeListener(JobStatusListener jobStatusListener) {
-        synchronized (LISTENERS_MODIFICATION_MUTEX) {
-            listeners.add(jobStatusListener);
-        }
+        listeners.add(jobStatusListener);
     }
 
     public void failJob(JobInstance jobInstance) {

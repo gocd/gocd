@@ -41,7 +41,9 @@ public class MultiplexingQueueProcessor {
     }
 
     public void add(Action action) {
-        LOGGER.debug("Adding action into {} queue for {}", queueName, action.description());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Adding action into {} queue for {}", queueName, action.description());
+        }
         queue.add(action);
     }
 
@@ -54,13 +56,17 @@ public class MultiplexingQueueProcessor {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
                     Action action = queue.take();
-                    LOGGER.debug("Acting on item in {} queue for {}", queueName, action.description());
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Acting on item in {} queue for {}", queueName, action.description());
+                    }
 
                     long startTime = System.currentTimeMillis();
                     action.call();
                     long endTime = System.currentTimeMillis();
 
-                    LOGGER.debug("Finished acting on item in {} queue for {}. Time taken: {} ms", queueName, action.description(), (endTime - startTime));
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Finished acting on item in {} queue for {}. Time taken: {} ms", queueName, action.description(), (endTime - startTime));
+                    }
                 } catch (Exception e) {
                     LOGGER.warn("Failed to handle action in {} queue", queueName, e);
                 }

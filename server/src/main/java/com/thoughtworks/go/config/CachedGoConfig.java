@@ -164,7 +164,9 @@ public class CachedGoConfig {
                 try {
                     long startTime = System.currentTimeMillis();
                     ((EntityConfigChangedListener<T>) entityConfigChangedListener).onEntityConfigChange(saveResult.getEntityConfig());
-                    LOGGER.debug("Notifying {} took (in ms): {}", listener.getClass(), System.currentTimeMillis() - startTime);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Notifying {} took (in ms): {}", listener.getClass(), System.currentTimeMillis() - startTime);
+                    }
                 } catch (Exception e) {
                     LOGGER.error("failed to fire config changed event for listener: {}", listener, e);
                 }

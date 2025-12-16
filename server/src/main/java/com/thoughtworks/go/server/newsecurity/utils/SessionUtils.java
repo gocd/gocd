@@ -81,7 +81,9 @@ public class SessionUtils {
     }
 
     public static void saveRequest(HttpServletRequest request, SavedRequest savedRequest) {
-        LOGGER.debug("Saving request {}", request.getRequestURI());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Saving request {}", request.getRequestURI());
+        }
         request.getSession().setAttribute(SAVED_REQUEST, savedRequest);
     }
 

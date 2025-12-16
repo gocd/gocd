@@ -61,18 +61,24 @@ public class ConsoleLogSocket implements SocketEndpoint {
     public void onConnect(Session session) throws IOException, IllegalArtifactLocationException {
         this.session = session;
         socketHealthService.register(this);
-        LOGGER.debug("{} connected", sessionName());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("{} connected", sessionName());
+        }
 
         session.getRemote().sendString(consoleLogCharsetJSONMessage);
 
         long start = parseStartLine(session.getUpgradeRequest());
-        LOGGER.debug("{} sending logs for {} starting at line {}.", sessionName(), jobIdentifier, start);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("{} sending logs for {} starting at line {}.", sessionName(), jobIdentifier, start);
+        }
 
         try {
             handler.process(this, jobIdentifier, start);
         } catch (IOException e) {
             if ("Connection output is closed".equals(e.getMessage())) {
-                LOGGER.debug("{} client (likely, browser) closed connection prematurely.", sessionName());
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("{} client (likely, browser) closed connection prematurely.", sessionName());
+                }
                 close(); // for good measure
             } else {
                 throw e;

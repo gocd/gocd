@@ -54,12 +54,12 @@ class ScmMaterialUpdater implements MaterialUpdater {
         List<Modification> newChanges = list.isEmpty() ?
                 materialChecker.findLatestModification(folder, material, subprocessExecutionContext) :
                 materialService.modificationsSince(material, folder, list.latestRevision(material), subprocessExecutionContext);
-        if (newChanges.isEmpty()) {
-            LOGGER.debug("[Material Update] Did not find any new modifications for material '{}' with flyweight '{}' using working directory '{}'", material, material.getFingerprint(), folder.getAbsolutePath());
-        } else {
+        if (!newChanges.isEmpty()) {
             LOGGER.info("[Material Update] Found '{}' modifications for material '{}' with flyweight '{}' using working directory '{}'", newChanges.size(), material, material.getFingerprint(), folder.getAbsolutePath());
 
             materialRepository.saveModifications(materialInstance, newChanges);
+        } else if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[Material Update] Did not find any new modifications for material '{}' with flyweight '{}' using working directory '{}'", material, material.getFingerprint(), folder.getAbsolutePath());
         }
     }
 

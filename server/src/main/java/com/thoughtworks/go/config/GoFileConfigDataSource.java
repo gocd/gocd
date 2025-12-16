@@ -283,7 +283,9 @@ public class GoFileConfigDataSource {
             }
             GoConfigHolder configHolder = internalLoad(configFileContent, new ConfigModifyingUser(), new ArrayList<>());
             String toWrite = configAsXml(configHolder.configForEdit, false);
-            LOGGER.trace("Writing config file: {}", configFile.getAbsolutePath());
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Writing config file: {}", configFile.getAbsolutePath());
+            }
             writeToConfigXmlFile(toWrite);
             return configHolder;
         } catch (Exception e) {
@@ -423,7 +425,9 @@ public class GoFileConfigDataSource {
         Path configFile = goConfigFileReader.location();
 
         CruiseConfig cruiseConfig = this.magicalGoConfigXmlLoader.deserializeConfig(goConfigFileReader.configXml());
-        LOGGER.debug("Reloading config file: {}", configFile.toAbsolutePath());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Reloading config file: {}", configFile.toAbsolutePath());
+        }
 
         GoConfigHolder goConfigHolder;
         try {
@@ -446,7 +450,9 @@ public class GoFileConfigDataSource {
 
     @TestOnly
     synchronized GoConfigHolder forceLoad(Path configFile) throws IOException, JDOMException, GitAPIException {
-        LOGGER.debug("Reloading config file: {}", configFile.toAbsolutePath());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Reloading config file: {}", configFile.toAbsolutePath());
+        }
         try {
             try {
                 List<PartialConfig> lastKnownPartials = cloner.deepClone(cachedGoPartials.lastKnownPartials());
@@ -520,7 +526,9 @@ public class GoFileConfigDataSource {
 
         try {
             goConfigHolder = trySavingFullConfig(updateCommand, configHolder, cachedGoPartials.lastValidPartials());
-            LOGGER.debug("Update operation on merged configuration succeeded with old {} LAST VALID partials.", lastValidPartials.size());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Update operation on merged configuration succeeded with old {} LAST VALID partials.", lastValidPartials.size());
+            }
         } catch (GoConfigInvalidException fallbackFailed) {
             LOGGER.warn("Merged config update operation failed using fallback LAST VALID {} partials. Exception message was: {}", lastValidPartials.size(), fallbackFailed.getMessage(), fallbackFailed);
             throw new GoConfigInvalidMergeException(fallbackFailed);

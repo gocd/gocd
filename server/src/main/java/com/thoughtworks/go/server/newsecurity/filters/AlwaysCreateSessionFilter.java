@@ -36,7 +36,9 @@ public class AlwaysCreateSessionFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         final HttpSession session = request.getSession();
-        LOGGER.debug("Session info for url: {}, Current session: {}, Requested session id: {}", request.getRequestURI(), session.getId(), request.getRequestedSessionId());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Session info for url: {}, Current session: {}, Requested session id: {}", request.getRequestURI(), session.getId(), request.getRequestedSessionId());
+        }
         filterChain.doFilter(request, response);
     }
 

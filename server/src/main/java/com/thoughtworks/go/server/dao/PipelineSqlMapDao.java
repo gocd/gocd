@@ -672,7 +672,9 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         long begin = System.currentTimeMillis();
         List<PipelineInstanceModel> matchingPIMs = getSqlMapClientTemplate().queryForList("findMatchingPipelineInstances", args);
         List<PipelineInstanceModel> exactMatchingPims = getSqlMapClientTemplate().queryForList("findExactMatchingPipelineInstances", args);
-        LOGGER.debug("[Compare Pipelines] Query initiated for pipeline {} with pattern {}. Query execution took {} milliseconds", pipelineName, pattern, System.currentTimeMillis() - begin);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[Compare Pipelines] Query initiated for pipeline {} with pattern {}. Query execution took {} milliseconds", pipelineName, pattern, System.currentTimeMillis() - begin);
+        }
         exactMatchingPims.addAll(matchingPIMs);
         return PipelineInstanceModels.createPipelineInstanceModels(exactMatchingPims);
     }

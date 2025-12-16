@@ -47,7 +47,9 @@ public abstract class AbstractSessionReduceIdleTimeoutFilter extends OncePerRequ
             boolean hasSessionNow = session != null;
 
             if (hadNoSessionBeforeStarting && hasSessionNow) {
-                LOGGER.debug("Setting max inactive interval for request: {} to {}.", request.getRequestURI(), maxInactiveInterval);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Setting max inactive interval for request: {} to {}.", request.getRequestURI(), maxInactiveInterval);
+                }
                 session.setMaxInactiveInterval(maxInactiveInterval);
             }
         }

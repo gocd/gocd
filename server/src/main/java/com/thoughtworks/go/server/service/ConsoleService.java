@@ -88,14 +88,18 @@ public class ConsoleService {
 
     public boolean updateConsoleLog(File dest, InputStream in) {
         FileUtil.mkdirsParentQuietly(dest);
-        LOGGER.trace("Updating console log [{}]", dest.getAbsolutePath());
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Updating console log [{}]", dest.getAbsolutePath());
+        }
         try (OutputStream out = new FileOutputStream(dest, dest.exists())) {
             in.transferTo(out);
         } catch (IOException e) {
             LOGGER.error("Failed to update console log at : [{}]", dest.getAbsolutePath(), e);
             return false;
         }
-        LOGGER.trace("Console log [{}] saved.", dest.getAbsolutePath());
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Console log [{}] saved.", dest.getAbsolutePath());
+        }
         return true;
     }
 

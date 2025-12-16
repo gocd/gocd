@@ -169,7 +169,9 @@ public class ArtifactsService implements ArtifactUrlReader {
             LOGGER.error("Error occurred while clearing artifacts for '{}'. Error: '{}'", stageIdentifier.entityLocator(), e.getMessage(), e);
         }
         stageDao.markArtifactsDeletedFor(stage);
-        LOGGER.debug("Marked stage '{}' as artifacts deleted.", stageIdentifier.entityLocator());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Marked stage '{}' as artifacts deleted.", stageIdentifier.entityLocator());
+        }
     }
 
     private boolean deleteArtifactsExceptCruiseOutputAndPluggableArtifactMetadata(File stageRoot) throws IOException {

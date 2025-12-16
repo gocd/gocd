@@ -137,7 +137,9 @@ public class P4Client extends SCMCommand {
     }
 
     private ConsoleResult execute(CommandLine p4) {
-        LOG.debug("about to execute {}", p4.describe());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("about to execute {}", p4.describe());
+        }
         return execute(p4, "");
     }
 

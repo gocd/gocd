@@ -95,7 +95,9 @@ public class GoCache {
     public void put(String key, Object value) {
         logUnsavedPersistentObjectInteraction(value, "PersistentObject {} added to cache without an id.");
         if (transactionSynchronizationManager.isActualTransactionActive()) {
-            LOGGER.debug("transaction active during cache put for {} = {}", key, value, new IllegalStateException());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("transaction active during cache put for {} = {}", key, value, new IllegalStateException());
+            }
             return;
         }
         ehCache.put(new Element(key, value));

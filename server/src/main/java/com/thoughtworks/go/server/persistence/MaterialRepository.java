@@ -642,7 +642,9 @@ public class MaterialRepository extends HibernateDaoSupport {
             long sinceModificationId = revision.getLatestModification().getId();
             Modifications modifications = cachedModifications(materialInstance);
             if (!modificationExists(sinceModificationId, modifications)) {
-                LOGGER.debug("CACHE-MISS for findModificationsSince - {}: {}", materialInstance, revision.getLatestModification());
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("CACHE-MISS for findModificationsSince - {}: {}", materialInstance, revision.getLatestModification());
+                }
                 modifications = _findModificationsSince(materialInstance, sinceModificationId);
                 if (shouldCache(modifications)) {
                     goCache.put(cacheKey, modifications);

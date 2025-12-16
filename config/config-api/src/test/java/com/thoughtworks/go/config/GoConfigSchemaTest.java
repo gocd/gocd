@@ -19,12 +19,20 @@ import com.thoughtworks.go.util.GoConstants;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class GoConfigSchemaTest {
     @Test
     public void shouldResolveToCorrectSchemaFile() {
         assertThat(GoConfigSchema.resolveSchemaFile(GoConstants.CONFIG_SCHEMA_VERSION)).isEqualTo("/cruise-config.xsd");
         assertThat(GoConfigSchema.resolveSchemaFile(1)).isEqualTo("/schemas/1_cruise-config.xsd");
+    }
+
+    @Test
+    public void shouldThrowOnResourceNotFound() {
+        assertThatThrownBy(() -> GoConfigSchema.getResource(999999))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("Unable to find resource for /schemas/999999_cruise-config.xsd");
     }
 }
 

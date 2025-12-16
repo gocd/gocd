@@ -17,8 +17,7 @@ package com.thoughtworks.go.util;
 
 import org.jdom2.input.sax.XMLReaders;
 
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.URI;
 
 class ValidatingSaxBuilder extends SafeSaxBuilder {
     public ValidatingSaxBuilder() {
@@ -27,8 +26,8 @@ class ValidatingSaxBuilder extends SafeSaxBuilder {
         this.setXMLReaderFactory(XMLReaders.XSDVALIDATING);
     }
 
-    public ValidatingSaxBuilder(URL schemaLocation) throws URISyntaxException {
+    public ValidatingSaxBuilder(URI schemaLocation) {
         this();
-        this.setProperty("http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation", schemaLocation.toURI().toString());
+        this.setProperty("http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation", schemaLocation.toString());
     }
 }

@@ -249,7 +249,7 @@ GEM
     sass-embedded (1.96.0)
       google-protobuf (~> 4.31)
       rake (>= 13)
-    sassc-embedded (1.80.7)
+    sassc-embedded (1.80.8)
       sass-embedded (~> 1.80)
     securerandom (0.4.1)
     sprockets (4.2.2)

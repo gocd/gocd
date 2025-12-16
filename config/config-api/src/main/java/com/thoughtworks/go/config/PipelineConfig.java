@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
@@ -60,7 +59,6 @@ import static org.apache.commons.lang3.StringUtils.substringsBetween;
 @ConfigCollection(StageConfig.class)
 public class PipelineConfig extends BaseCollection<StageConfig> implements ParamScope, ParamsAttributeAware,
         Validatable, EnvironmentVariableScope, ConfigOriginTraceable {
-    private static final Cloner CLONER = ClonerFactory.instance();
 
     public static final String LABEL_TEMPLATE = "labelTemplate";
     public static final String TRACKING_TOOL = "trackingTool";
@@ -509,27 +507,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         this.materialConfigs.remove(materialConfig);
     }
 
-    public PipelineConfig duplicate() {
-        PipelineConfig clone = CLONER.deepClone(this);
-        clone.name = new CaseInsensitiveString("");
-        clearSelfPipelineNameInFetchTask(clone);
-        return clone;
-    }
-
-    private void clearSelfPipelineNameInFetchTask(PipelineConfig clone) {
-        for (StageConfig stage : clone) {
-            for (JobConfig job : stage.getJobs()) {
-                for (Task task : job.getTasks()) {
-                    if (task instanceof FetchTask fetchTask) {
-                        if (this.name().equals(fetchTask.getTargetPipelineName())) {
-                            fetchTask.setPipelineName(new CaseInsensitiveString(""));
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     public boolean isFirstStageManualApproval() {
         if (isEmpty()) {
             throw new IllegalStateException(format("Pipeline [%s] doesn't have any stage", name));
@@ -658,7 +635,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public void usingTemplate(PipelineTemplateConfig pipelineTemplate) {
-        this.addAll(CLONER.deepClone(pipelineTemplate));
+        this.addAll(ClonerFactory.instance().deepClone(pipelineTemplate));
         this.templateApplied = true;
     }
 
@@ -746,7 +723,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     @Override
     public ParamResolver applyOver(ParamResolver enclosingScope) {
-        return enclosingScope.override(CLONER.deepClone(params));
+        return enclosingScope.override(ClonerFactory.instance().deepClone(params));
     }
 
     public ParamsConfig getParams() {

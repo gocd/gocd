@@ -163,6 +163,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         }
     }
 
+    @Override
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
         File baseDir = null;
         try {
@@ -259,21 +260,10 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
 
         P4Material that = (P4Material) o;
 
-        if (serverAndPort != null ? !serverAndPort.equals(that.serverAndPort) : that.serverAndPort != null) {
-            return false;
-        }
-        if (useTickets != null ? !useTickets.equals(that.useTickets) : that.useTickets != null) {
-            return false;
-        }
-        if (view != null ? !view.equals(that.view) : that.view != null) {
-            return false;
-        }
-
-        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(serverAndPort, that.serverAndPort) &&
+            Objects.equals(useTickets, that.useTickets) &&
+            Objects.equals(view, that.view) &&
+            Objects.equals(userName, that.userName);
     }
 
     @Override

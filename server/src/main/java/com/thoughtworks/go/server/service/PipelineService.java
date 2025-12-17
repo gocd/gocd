@@ -36,9 +36,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Queue;
-import java.util.function.Supplier;
+import java.util.function.IntSupplier;
 
 import static com.thoughtworks.go.util.SystemEnvironment.RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT;
 import static java.lang.String.format;
@@ -53,7 +53,7 @@ public class PipelineService implements UpstreamPipelineResolver {
     private final PipelineTimeline pipelineTimeline;
     private final MaterialRepository materialRepository;
     private final MaterialConfigConverter materialConfigConverter;
-    private final Supplier<Integer> maxBackTrackLimit;
+    private final IntSupplier maxBackTrackLimit;
 
     @Autowired
     public PipelineService(PipelineSqlMapDao pipelineDao, StageService stageService, PipelineLockService pipelineLockService, PipelineTimeline pipelineTimeline, MaterialRepository materialRepository,
@@ -250,18 +250,18 @@ public class PipelineService implements UpstreamPipelineResolver {
         return pipelineDao.mostRecentPipelineIdentifier(pipelineName);
     }
 
-    public Optional<Integer> resolvePipelineCounter(String pipelineName, String pipelineCounter) {
+    public OptionalInt resolvePipelineCounter(String pipelineName, String pipelineCounter) {
         if (JobIdentifier.LATEST.equalsIgnoreCase(pipelineCounter)) {
             PipelineIdentifier pipelineIdentifier = mostRecentPipelineIdentifier(pipelineName);
-            return Optional.of(pipelineIdentifier.getCounter());
+            return OptionalInt.of(pipelineIdentifier.getCounter());
         } else if (!StringUtils.isNumeric(pipelineCounter)) {
-            return Optional.empty();
+            return OptionalInt.empty();
         } else {
-            return Optional.of(Integer.parseInt(pipelineCounter));
+            return OptionalInt.of(Integer.parseInt(pipelineCounter));
         }
     }
 
-    public boolean isPipelineBisect(String pipelineName, Integer fromCounter, Integer toCounter) {
+    public boolean isPipelineBisect(String pipelineName, int fromCounter, int toCounter) {
         Pipeline fromPipeline = pipelineDao.findPipelineByNameAndCounter(pipelineName, fromCounter);
         Pipeline toPipeline = pipelineDao.findPipelineByNameAndCounter(pipelineName, toCounter);
         if (fromPipeline == null) {

@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.config;
 
-import java.io.IOException;
-
 public interface AgentRegistry {
     String uuid();
 
@@ -28,5 +26,5 @@ public interface AgentRegistry {
 
     void storeTokenToDisk(String token);
 
-    void deleteToken() throws IOException;
+    void deleteToken();
 }

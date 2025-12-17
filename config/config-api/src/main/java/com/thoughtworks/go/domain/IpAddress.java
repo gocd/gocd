@@ -52,19 +52,25 @@ public class IpAddress implements Comparable<IpAddress> {
         byte[] otherAddressInBytes = other.address.getAddress();
 
         // general ordering: ipv4 before ipv6
-        if (myAddressInBytes.length < otherAddressInBytes.length) return -1;
-        if (myAddressInBytes.length > otherAddressInBytes.length) return 1;
+        if (myAddressInBytes.length < otherAddressInBytes.length) {
+            return -1;
+        }
+        if (myAddressInBytes.length > otherAddressInBytes.length) {
+            return 1;
+        }
 
         // we have 2 ips of the same type, so we have to compare each byte
         for (int i = 0; i < myAddressInBytes.length; i++) {
             int b1 = unsignedByteToInt(myAddressInBytes[i]);
             int b2 = unsignedByteToInt(otherAddressInBytes[i]);
-            if (b1 == b2)
+            if (b1 == b2) {
                 continue;
-            if (b1 < b2)
+            }
+            if (b1 < b2) {
                 return -1;
-            else
+            } else {
                 return 1;
+            }
         }
         return 0;
     }

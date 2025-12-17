@@ -26,7 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -107,20 +107,21 @@ public class RailsAssetsServiceTest {
 
     @Test
     public void shouldHaveAssetsAsTheSerializedNameForAssetsMapInRailsAssetsManifest_ThisIsRequiredSinceManifestFileGeneratedBySprocketsHasAMapOfAssetsWhichThisServiceNeedsAccessTo() {
-        List<Field> fields = new ArrayList<>(List.of(RailsAssetsService.RailsAssetsManifest.class.getDeclaredFields()));
-        List<Field> fieldsAnnotatedWithSerializedNameAsAssets = fields.stream().filter(field -> {
-            if (field.isAnnotationPresent(SerializedName.class)) {
-                SerializedName annotation = field.getAnnotation(SerializedName.class);
-                return annotation.value().equals("assets");
-            }
-            return false;
-        }).toList();
+        List<Field> fieldsAnnotatedWithSerializedNameAsAssets =
+            Arrays.stream(RailsAssetsService.RailsAssetsManifest.class.getDeclaredFields())
+                .filter(field -> {
+                    if (field.isAnnotationPresent(SerializedName.class)) {
+                        SerializedName annotation = field.getAnnotation(SerializedName.class);
+                        return annotation.value().equals("assets");
+                    }
+                    return false;
+                }).toList();
         assertThat(fieldsAnnotatedWithSerializedNameAsAssets.isEmpty()).isFalse();
         assertThat(fieldsAnnotatedWithSerializedNameAsAssets.size()).isEqualTo(1);
         assertThat(fieldsAnnotatedWithSerializedNameAsAssets.get(0).getType().getCanonicalName()).isEqualTo(Map.class.getCanonicalName());
     }
 
-    private String json = """
+    private final String json = """
         {
             "files": {
                 "application-bfdbd4fff63b0cd45c50ce7a79fe0f53.js": {

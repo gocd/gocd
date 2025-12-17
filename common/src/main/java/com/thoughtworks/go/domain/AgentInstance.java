@@ -16,7 +16,6 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.domain.exception.InvalidAgentInstructionException;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -33,6 +32,8 @@ import org.jetbrains.annotations.TestOnly;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.domain.AgentConfigStatus.*;
 import static com.thoughtworks.go.domain.AgentRuntimeStatus.*;
@@ -295,8 +296,9 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return getAgent().getAgentIdentifier();
     }
 
-    public ResourceConfigs getResourceConfigs() {
-        return new ResourceConfigs(getAgent().getResources());
+    @TestOnly
+    public Stream<String> getResourceNames() {
+        return getAgent().getResourcesAsStream();
     }
 
     public String getIpAddress() {
@@ -442,23 +444,11 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     private boolean equals(AgentInstance that) {
-        if (this.agent == null ? that.agent != null : !this.agent.equals(that.agent)) {
-            return false;
-        }
-        if (this.agentRuntimeInfo == null ? that.agentRuntimeInfo != null : !this.agentRuntimeInfo.equals(that.agentRuntimeInfo)) {
-            return false;
-        }
-        if (this.agentConfigStatus != that.agentConfigStatus) {
-            return false;
-        }
-        if (this.agentType != that.agentType) {
-            return false;
-        }
-        if (this.lastHeardTime == null ? that.lastHeardTime != null : !this.lastHeardTime.equals(that.lastHeardTime)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(this.agent, that.agent) &&
+            Objects.equals(this.agentRuntimeInfo, that.agentRuntimeInfo) &&
+            this.agentConfigStatus == that.agentConfigStatus &&
+            this.agentType == that.agentType &&
+            Objects.equals(this.lastHeardTime, that.lastHeardTime);
     }
 
     @Override
@@ -474,10 +464,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public boolean canRemove() {
-        if (agentConfigStatus == Pending && isTimeout(lastHeardTime)) {
-            return true;
-        }
-        return false;
+        return agentConfigStatus == Pending && isTimeout(lastHeardTime);
     }
 
     public String getOperatingSystem() {

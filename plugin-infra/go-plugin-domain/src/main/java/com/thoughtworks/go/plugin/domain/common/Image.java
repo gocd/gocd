@@ -16,6 +16,7 @@
 package com.thoughtworks.go.plugin.domain.common;
 
 import java.util.Base64;
+import java.util.Objects;
 
 public class Image {
     private final String contentType;
@@ -53,14 +54,18 @@ public class Image {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Image image = (Image) o;
 
-        if (contentType != null ? !contentType.equals(image.contentType) : image.contentType != null) return false;
-        if (data != null ? !data.equals(image.data) : image.data != null) return false;
-        return hash != null ? hash.equals(image.hash) : image.hash == null;
+        return Objects.equals(contentType, image.contentType) &&
+            Objects.equals(data, image.data) &&
+            Objects.equals(hash, image.hash);
     }
 
     @Override

@@ -45,9 +45,9 @@ import static java.util.stream.Collectors.groupingBy;
 @Component
 public class SecretParamResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(SecretParamResolver.class);
-    private SecretsExtension secretsExtension;
-    private GoConfigService goConfigService;
-    private RulesService rulesService;
+    private final SecretsExtension secretsExtension;
+    private final GoConfigService goConfigService;
+    private final RulesService rulesService;
 
     @Autowired
     public SecretParamResolver(SecretsExtension secretsExtension, GoConfigService goConfigService, RulesService rulesService) {
@@ -77,7 +77,7 @@ public class SecretParamResolver {
             rulesService.validateSecretConfigReferences(scmMaterial);
 
             resolve(scmMaterial.getSecretParams());
-        } else {
+        } else if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("No secret params to resolve in SCM material {}.", scmMaterial.getDisplayName());
         }
     }
@@ -87,7 +87,7 @@ public class SecretParamResolver {
             rulesService.validateSecretConfigReferences(material);
 
             resolve(material.getSecretParams());
-        } else {
+        } else if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("No secret params to resolve in pluggable SCM material {}.", material.getDisplayName());
         }
     }
@@ -96,7 +96,7 @@ public class SecretParamResolver {
         if (material.hasSecretParams()) {
             rulesService.validateSecretConfigReferences(material);
             resolve(material.getSecretParams());
-        } else {
+        } else if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("No secret params to resolve in package material {}.", material.getDisplayName());
         }
     }
@@ -106,8 +106,8 @@ public class SecretParamResolver {
         if (scmMaterial.hasSecretParams()) {
             rulesService.validateSecretConfigReferences(scmMaterial.getSecretParams(), PipelineConfigs.class, pipelineGroupName, format("Material with url: '%s' in Pipeline Group:", scmMaterial.getUriForDisplay()));
             resolve(scmMaterial.getSecretParams());
-        } else {
-            LOGGER.debug("No secret params to resolve in SCM material {}.", scmMaterial.getDisplayName());
+        } else if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("No secret params to resolve in SCM material {} for group {}.", scmMaterial.getDisplayName(), pipelineGroupName);
         }
     }
 
@@ -115,7 +115,7 @@ public class SecretParamResolver {
         if (buildAssignment.hasSecretParams()) {
             rulesService.validateSecretConfigReferences(buildAssignment);
             resolve(buildAssignment.getSecretParams());
-        } else {
+        } else if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("No secret params available in build assignment {}.", buildAssignment.getJobIdentifier());
         }
     }
@@ -124,7 +124,7 @@ public class SecretParamResolver {
         if (environmentConfig.hasSecretParams()) {
             rulesService.validateSecretConfigReferences(environmentConfig);
             resolve(environmentConfig.getSecretParams());
-        } else {
+        } else if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("No secret params available in environment {}.", environmentConfig.name());
         }
     }
@@ -133,7 +133,7 @@ public class SecretParamResolver {
         if (scmConfig.hasSecretParams()) {
             rulesService.validateSecretConfigReferences(scmConfig);
             resolve(scmConfig.getSecretParams());
-        } else {
+        } else if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("No secret params available in pluggable SCM {}.", scmConfig.getName());
         }
     }
@@ -142,7 +142,7 @@ public class SecretParamResolver {
         if (packageRepository.hasSecretParams()) {
             rulesService.validateSecretConfigReferences(packageRepository);
             resolve(packageRepository.getSecretParams());
-        } else {
+        } else if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("No secret params available in package repository {}.", packageRepository.getName());
         }
     }
@@ -151,7 +151,7 @@ public class SecretParamResolver {
         if (packageDefinition.hasSecretParams()) {
             rulesService.validateSecretConfigReferences(packageDefinition);
             resolve(packageDefinition.getSecretParams());
-        } else {
+        } else if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("No secret params available in package definition {}.", packageDefinition.getName());
         }
     }
@@ -160,7 +160,7 @@ public class SecretParamResolver {
         if (clusterProfile.hasSecretParams()) {
             rulesService.validateSecretConfigReferences(clusterProfile);
             resolve(clusterProfile.getSecretParams());
-        } else {
+        } else if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("No secret params available in cluster profile {}.", clusterProfile.getId());
         }
     }
@@ -169,7 +169,7 @@ public class SecretParamResolver {
         if (elasticProfile.hasSecretParams()) {
             rulesService.validateSecretConfigReferences(elasticProfile);
             resolve(elasticProfile.getSecretParams());
-        } else {
+        } else if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("No secret params available in elastic profile {} in cluster profile {}.", elasticProfile.getId(), elasticProfile.getClusterProfileId());
         }
     }
@@ -183,13 +183,19 @@ public class SecretParamResolver {
             Map<String, List<SecretParam>> secretParamMap = secretParamsToResolve.stream().collect(groupingBy(SecretParam::getKey, Collectors.toList()));
             final SecretConfig secretConfig = goConfigService.cruiseConfig().getSecretConfigs().find(secretConfigId);
 
-            LOGGER.debug("Resolving secret params '{}' using secret config '{}'", secretParamMap.keySet(), secretConfig.getId());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Resolving secret params '{}' using secret config '{}'", secretParamMap.keySet(), secretConfig.getId());
+            }
             List<Secret> resolvedSecrets = secretsExtension.lookupSecrets(secretConfig.getPluginId(), secretConfig, secretParamMap.keySet());
-            LOGGER.debug("Resolved secret size '{}'", resolvedSecrets.size());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Resolved secret size '{}'", resolvedSecrets.size());
+                LOGGER.debug("Updating secret params '{}' with values.", secretParamMap.keySet());
+            }
 
-            LOGGER.debug("Updating secret params '{}' with values.", secretParamMap.keySet());
             resolvedSecrets.forEach(assignValue(secretParamMap));
-            LOGGER.debug("Secret params '{}' updated with values.", secretParamMap.keySet());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Secret params '{}' updated with values.", secretParamMap.keySet());
+            }
         };
     }
 

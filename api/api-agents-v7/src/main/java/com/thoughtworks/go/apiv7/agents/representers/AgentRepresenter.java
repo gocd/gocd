@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class AgentRepresenter {
     public static void toJSON(OutputWriter outputWriter, AgentInstance agentInstance, Collection<EnvironmentConfig> environments, SecurityService securityService, Username username) {
@@ -86,10 +85,7 @@ public class AgentRepresenter {
     }
 
     private static List<String> sortedResources(AgentInstance agentInstance) {
-        if (agentInstance.isElastic()) {
-            return Collections.emptyList();
-        }
+        return agentInstance.isElastic() ? Collections.emptyList() : agentInstance.getAgent().getResourcesAsStream().sorted().toList();
 
-        return agentInstance.getResourceConfigs().resourceNames().stream().sorted().collect(Collectors.toList());
     }
 }

@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 
 @ConfigTag("pluginConfiguration")
 public class PluginConfiguration implements Serializable, Validatable {
@@ -69,14 +70,8 @@ public class PluginConfiguration implements Serializable, Validatable {
 
         PluginConfiguration that = (PluginConfiguration) o;
 
-        if (id != null ? !id.equals(that.id) : that.id != null) {
-            return false;
-        }
-        if (version != null ? !version.equals(that.version) : that.version != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(id, that.id) &&
+            Objects.equals(version, that.version);
     }
 
     @Override

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.persistence;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -62,6 +61,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+@SuppressWarnings({"ReassignedVariable", "UnusedAssignment"})
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
@@ -90,7 +90,7 @@ public class PipelineRepositoryIntegrationTest {
     @Autowired
     private InstanceFactory instanceFactory;
 
-    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private static final String PIPELINE_NAME = "pipeline";
 
     @BeforeEach
@@ -117,7 +117,6 @@ public class PipelineRepositoryIntegrationTest {
         GitMaterial git2 = u.wf(new GitMaterial("git"), "folder2");
 
         ScheduleTestUtil.AddedPipeline p = u.saveConfigWith("P", u.m(git1), u.m(git2));
-        CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
         u.checkinInOrder(git1, u.d(i++), "g2");
 
@@ -132,13 +131,13 @@ public class PipelineRepositoryIntegrationTest {
         assertThat(timelineEntries.get(0).getPipelineLocator().getCounter()).isEqualTo(1);
         assertThat(timelineEntries.get(0).naturalOrder()).isEqualTo(1.0);
         List<PipelineTimelineEntry.Revision> flyweightsRevs = new ArrayList<>(timelineEntries.get(0).revisions().values()).get(0);
-        assertThat(flyweightsRevs.get(0).revision).isEqualTo("g1");
-        assertThat(flyweightsRevs.get(1).revision).isEqualTo("g2");
+        assertThat(flyweightsRevs.get(0).revision()).isEqualTo("g1");
+        assertThat(flyweightsRevs.get(1).revision()).isEqualTo("g2");
         assertThat(timelineEntries.get(1).getPipelineLocator().getCounter()).isEqualTo(2);
         assertThat(timelineEntries.get(1).naturalOrder()).isEqualTo(2.0);
         flyweightsRevs = new ArrayList<>(timelineEntries.get(1).revisions().values()).get(0);
-        assertThat(flyweightsRevs.get(0).revision).isEqualTo("g2");
-        assertThat(flyweightsRevs.get(1).revision).isEqualTo("g1");
+        assertThat(flyweightsRevs.get(0).revision()).isEqualTo("g2");
+        assertThat(flyweightsRevs.get(1).revision()).isEqualTo("g1");
 
         MaterialConfigs materials = configHelper.deepClone(p.config.materialConfigs());
         Collections.reverse(materials);
@@ -153,13 +152,13 @@ public class PipelineRepositoryIntegrationTest {
         assertThat(timelineEntries.get(0).getPipelineLocator().getCounter()).isEqualTo(1);
         assertThat(timelineEntries.get(0).naturalOrder()).isEqualTo(1.0);
         flyweightsRevs = new ArrayList<>(timelineEntries.get(0).revisions().values()).get(0);
-        assertThat(flyweightsRevs.get(0).revision).isEqualTo("g1");
-        assertThat(flyweightsRevs.get(1).revision).isEqualTo("g2");
+        assertThat(flyweightsRevs.get(0).revision()).isEqualTo("g1");
+        assertThat(flyweightsRevs.get(1).revision()).isEqualTo("g2");
         assertThat(timelineEntries.get(1).getPipelineLocator().getCounter()).isEqualTo(2);
         assertThat(timelineEntries.get(1).naturalOrder()).isEqualTo(2.0);
         flyweightsRevs = new ArrayList<>(timelineEntries.get(1).revisions().values()).get(0);
-        assertThat(flyweightsRevs.get(0).revision).isEqualTo("g2");
-        assertThat(flyweightsRevs.get(1).revision).isEqualTo("g1");
+        assertThat(flyweightsRevs.get(0).revision()).isEqualTo("g2");
+        assertThat(flyweightsRevs.get(1).revision()).isEqualTo("g1");
     }
 
     @Test
@@ -188,14 +187,14 @@ public class PipelineRepositoryIntegrationTest {
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME).size()).isEqualTo(2);
         assertThat(entries.size()).isEqualTo(2);
         assertThat(entries).contains(expected(firstId,
-                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(2)), "123", hgmaterial.getFingerprint(), 10))), 1));
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(2)), "123", 10))), 1));
         assertThat(entries).contains(expected(secondId,
-                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(1)), "12", hgmaterial.getFingerprint(), 8))), 2));
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(1)), "12", 8))), 2));
 
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME)).contains(expected(firstId,
-                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(2)), "123", hgmaterial.getFingerprint(), 10))), 1));
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(2)), "123", 10))), 1));
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME)).contains(expected(secondId,
-                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(1)), "12", hgmaterial.getFingerprint(), 8))), 2));
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(1)), "12", 8))), 2));
         assertThat(pipelineTimeline.maximumId()).isEqualTo(secondId);
 
         long thirdId = createPipeline(hgmaterial, pipelineConfig, 3, oneModifiedFile("30", date.plusDays(10)));
@@ -204,7 +203,7 @@ public class PipelineRepositoryIntegrationTest {
 
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME).size()).isEqualTo(3);
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME)).contains(expected(thirdId,
-                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(10)), "1234", hgmaterial.getFingerprint(), 12))), 3));
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(10)), "1234", 12))), 3));
         assertThat(pipelineTimeline.maximumId()).isEqualTo(thirdId);
 
         assertThat(pipelineSqlMapDao.pipelineByIdWithMods(firstId).getNaturalOrder()).isEqualTo(1.0);
@@ -276,12 +275,12 @@ public class PipelineRepositoryIntegrationTest {
         assertThat(modifications.size()).isEqualTo(2);
 
         assertThat(modifications).contains(expected(first, Map.of(
-            hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(2)), "123", hgmaterial.getFingerprint(), 8)),
-            svnMaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(6)), "456", svnMaterial.getFingerprint(), 12))
+            hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(2)), "123", 8)),
+            svnMaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(6)), "456", 12))
         ), 1));
         assertThat(modifications).contains(expected(second, Map.of(
-            hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(3)), "234", hgmaterial.getFingerprint(), 9)),
-            svnMaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(5)), "345", svnMaterial.getFingerprint(), 10))
+            hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(3)), "234", 9)),
+            svnMaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(Dates.from(date.plusDays(5)), "345", 10))
         ), 2));
     }
 

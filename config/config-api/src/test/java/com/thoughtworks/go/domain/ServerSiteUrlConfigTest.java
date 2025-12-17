@@ -84,7 +84,7 @@ public class ServerSiteUrlConfigTest {
     @ValueSource(strings = {"", " "})
     public void shouldHandleBlankUrlsConsistently(String input) throws Exception {
         ServerSiteUrlConfig url = new SiteUrl(input);
-        assertThat(url.toString()).isEqualTo("");
+        assertThat(url.toString()).isEmpty();
         assertThat(url.isBlank()).isTrue();
         assertThat(url.isAHttpsUrl()).isFalse();
         assertThat(url.siteUrlFor("http://test.host/foo/bar?foo=bar#quux")).isEqualTo("http://test.host/foo/bar?foo=bar#quux");

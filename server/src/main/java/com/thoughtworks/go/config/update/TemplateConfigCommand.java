@@ -30,12 +30,12 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
 
 public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand<PipelineTemplateConfig> {
 
-    PipelineTemplateConfig preprocessedTemplateConfig;
-    protected final LocalizedOperationResult result;
-    protected PipelineTemplateConfig templateConfig;
-    protected final Username currentUser;
-    protected ExternalArtifactsService externalArtifactsService;
+    final PipelineTemplateConfig templateConfig;
+    final LocalizedOperationResult result;
+    final Username currentUser;
+    final ExternalArtifactsService externalArtifactsService;
 
+    PipelineTemplateConfig preprocessedTemplateConfig;
 
     TemplateConfigCommand(PipelineTemplateConfig templateConfig, LocalizedOperationResult result, Username currentUser, ExternalArtifactsService externalArtifactsService) {
         this.templateConfig = templateConfig;
@@ -45,16 +45,16 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
     }
 
 
-    protected boolean isValid(CruiseConfig preprocessedConfig, boolean isTemplateBeingCreated) {
+    boolean isValid(CruiseConfig preprocessedConfig, boolean isTemplateBeingCreated) {
         TemplatesConfig templatesConfig = preprocessedConfig.getTemplates();
         preprocessedTemplateConfig = findAddedTemplate(preprocessedConfig);
         preprocessedTemplateConfig.validateTree(ConfigSaveValidationContext.forChain(preprocessedConfig, templatesConfig), preprocessedConfig, isTemplateBeingCreated);
         if (preprocessedTemplateConfig.getAllErrors().isEmpty()) {
             templatesConfig.validate(null);
-            BasicCruiseConfig.copyErrors(preprocessedTemplateConfig, templateConfig);
+            Validatable.copyErrors(preprocessedTemplateConfig, templateConfig);
             return preprocessedTemplateConfig.getAllErrors().isEmpty() && templatesConfig.errors().isEmpty();
         }
-        BasicCruiseConfig.copyErrors(preprocessedTemplateConfig, templateConfig);
+        Validatable.copyErrors(preprocessedTemplateConfig, templateConfig);
         return false;
     }
 
@@ -99,7 +99,7 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(templateConfig);
+        Validatable.clearErrors(templateConfig);
     }
 
     @Override

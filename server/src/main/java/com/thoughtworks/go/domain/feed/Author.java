@@ -18,6 +18,8 @@ package com.thoughtworks.go.domain.feed;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.materials.Modification;
 
+import java.util.Objects;
+
 /**
 * Understands author of a commit
 */
@@ -52,15 +54,8 @@ public class Author {
         }
 
         Author author = (Author) o;
-
-        if (email != null ? !email.equals(author.email) : author.email != null) {
-            return false;
-        }
-        if (name != null ? !name.equals(author.name) : author.name != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(email, author.email) &&
+            Objects.equals(name, author.name);
     }
 
     @Override

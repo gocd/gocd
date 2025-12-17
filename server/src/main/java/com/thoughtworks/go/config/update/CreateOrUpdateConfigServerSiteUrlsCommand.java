@@ -40,19 +40,15 @@ public class CreateOrUpdateConfigServerSiteUrlsCommand implements EntityConfigUp
         preprocessedSiteUrls = preprocessedConfig.server().getSiteUrls();
         preprocessedSiteUrls.validate(new ConfigSaveValidationContext(preprocessedConfig));
 
-        BasicCruiseConfig.copyErrors(preprocessedSiteUrls, newSiteUrls);
+        Validatable.copyErrors(preprocessedSiteUrls, newSiteUrls);
         List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(newSiteUrls);
 
-        if (!allErrors.isEmpty()) {
-            return false;
-        }
-
-        return true;
+        return allErrors.isEmpty();
     }
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(this.preprocessedSiteUrls);
+        Validatable.clearErrors(this.preprocessedSiteUrls);
     }
 
     @Override

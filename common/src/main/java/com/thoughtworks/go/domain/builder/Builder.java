@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.util.Objects;
 
 public abstract class Builder implements Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Builder.class);
@@ -37,7 +38,7 @@ public abstract class Builder implements Serializable {
     private int exitCode = UNSET_EXIT_CODE;
 
     protected final RunIfConfigs conditions;
-    private String description;
+    private final String description;
     private Builder cancelBuilder;
 
     public Builder(RunIfConfigs conditions, Builder cancelBuilder, String description) {
@@ -75,17 +76,9 @@ public abstract class Builder implements Serializable {
 
         Builder builder = (Builder) o;
 
-        if (cancelBuilder != null ? !cancelBuilder.equals(builder.cancelBuilder) : builder.cancelBuilder != null) {
-            return false;
-        }
-        if (conditions != null ? !conditions.equals(builder.conditions) : builder.conditions != null) {
-            return false;
-        }
-        if (description != null ? !description.equals(builder.description) : builder.description != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(cancelBuilder, builder.cancelBuilder) &&
+            Objects.equals(conditions, builder.conditions) &&
+            Objects.equals(description, builder.description);
     }
 
     @Override
@@ -113,7 +106,9 @@ public abstract class Builder implements Serializable {
     protected void logException(DefaultGoPublisher publisher, Exception e) {
         publisher.taggedConsumeLine(DefaultGoPublisher.ERR, String.format("Error: %s", e.getMessage()));
         LOGGER.error(e.getMessage(), e);
-        if (e instanceof RuntimeException) throw (RuntimeException)e;
+        if (e instanceof RuntimeException re) {
+            throw re;
+        }
         throw new CommandLineException(e);
     }
 

@@ -54,7 +54,7 @@ public class SCMConfigurationsTest {
         assertThat(scmConfiguration.getOption(SCMConfiguration.REQUIRED)).isEqualTo(true);
         assertThat(scmConfiguration.getOption(SCMConfiguration.PART_OF_IDENTITY)).isEqualTo(true);
         assertThat(scmConfiguration.getOption(SCMConfiguration.SECURE)).isEqualTo(true);
-        assertThat(scmConfiguration.getOption(SCMConfiguration.DISPLAY_NAME)).isEqualTo("");
+        assertThat(scmConfiguration.getOption(SCMConfiguration.DISPLAY_NAME)).isEmpty();
         assertThat(scmConfiguration.getOption(SCMConfiguration.DISPLAY_ORDER)).isEqualTo(0);
     }
 }

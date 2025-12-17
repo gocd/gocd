@@ -25,9 +25,11 @@ import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.List;
 
 /*
@@ -38,12 +40,12 @@ validating to writing the config in appropriate locations.
 @Component
 public class FullConfigSaveMergeFlow extends FullConfigSaveFlow{
     @Autowired
-    public FullConfigSaveMergeFlow(ConfigCache configCache, ConfigElementImplementationRegistry configElementImplementationRegistry,
+    public FullConfigSaveMergeFlow(ConfigElementImplementationRegistry configElementImplementationRegistry,
                                    SystemEnvironment systemEnvironment, TimeProvider timeProvider,
                                    ConfigRepository configRepository, CachedGoPartials cachedGoPartials) {
-        this(new MagicalGoConfigXmlLoader(configCache, configElementImplementationRegistry),
-                new MagicalGoConfigXmlWriter(configCache, configElementImplementationRegistry), configElementImplementationRegistry,
-                timeProvider, configRepository, cachedGoPartials, new GoConfigFileWriter(systemEnvironment));
+        this(new MagicalGoConfigXmlLoader(configElementImplementationRegistry),
+            new MagicalGoConfigXmlWriter(configElementImplementationRegistry), configElementImplementationRegistry,
+            timeProvider, configRepository, cachedGoPartials, new GoConfigFileWriter(systemEnvironment));
     }
 
     FullConfigSaveMergeFlow(MagicalGoConfigXmlLoader loader, MagicalGoConfigXmlWriter writer,
@@ -54,7 +56,7 @@ public class FullConfigSaveMergeFlow extends FullConfigSaveFlow{
     }
 
     @Override
-    public GoConfigHolder execute(FullConfigUpdateCommand updatingCommand, final List<PartialConfig> partials, String currentUser) throws Exception {
+    public GoConfigHolder execute(FullConfigUpdateCommand updatingCommand, final List<PartialConfig> partials, String currentUser) throws IOException, GitAPIException {
         LOGGER.debug("[Config Save] Starting Config Save using FullConfigSaveMergeFlow");
 
         CruiseConfig configForEdit = configForEditWithPartials(updatingCommand, partials);
@@ -87,7 +89,7 @@ public class FullConfigSaveMergeFlow extends FullConfigSaveFlow{
         }
     }
 
-    private String getMergedConfig(String modifiedConfigAsXml, String currentUser, String oldMd5) throws Exception {
+    private String getMergedConfig(String modifiedConfigAsXml, String currentUser, String oldMd5) throws IOException {
         GoConfigRevision configRevision = new GoConfigRevision(modifiedConfigAsXml, "temporary-md5-for-branch", currentUser,
                 CurrentGoCDVersion.getInstance().formatted(), timeProvider);
 

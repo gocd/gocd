@@ -59,8 +59,6 @@ public class TestUtils {
             } else {
                 throw e;
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 

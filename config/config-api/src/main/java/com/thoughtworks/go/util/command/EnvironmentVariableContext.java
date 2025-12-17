@@ -107,10 +107,8 @@ public class EnvironmentVariableContext implements Serializable, SecretParamAwar
 
             EnvironmentVariable that = (EnvironmentVariable) o;
 
-            if (!name.equals(that.name)) {
-                return false;
-            }
-            return value.equals(that.value);
+            return name.equals(that.name) &&
+                value.equals(that.value);
         }
 
         @Override

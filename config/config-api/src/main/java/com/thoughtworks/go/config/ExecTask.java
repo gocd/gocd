@@ -69,11 +69,11 @@ public class ExecTask extends AbstractTask implements CommandTask {
 
     @Override
     public String describe() {
-        if (null != argList && !argList.isEmpty()) {
+        if (argList != null && !argList.isEmpty()) {
             return CommandUtils.shellJoin(ArrayUtils.insert(0, argList.toStringArray(), command));
         }
 
-        if (null != args && !"".equals(args)) {
+        if (args != null && !args.isEmpty()) {
             return command + " " + args;
         }
 
@@ -226,22 +226,12 @@ public class ExecTask extends AbstractTask implements CommandTask {
 
         ExecTask execTask = (ExecTask) o;
 
-        if (!Objects.equals(timeout, execTask.timeout)) {
-            return false;
-        }
-        if (args != null ? !args.equals(execTask.args) : execTask.args != null) {
-            return false;
-        }
-        if (argList != null ? !argList.equals(execTask.argList) : execTask.argList != null) {
-            return false;
-        }
-        if (command != null ? !command.equals(execTask.command) : execTask.command != null) {
-            return false;
-        }
-        if (workingDirectory != null ? !workingDirectory.equals(execTask.workingDirectory) : execTask.workingDirectory != null) {
-            return false;
-        }
-        return super.equals(execTask);
+        return Objects.equals(timeout, execTask.timeout) &&
+            Objects.equals(args, execTask.args) &&
+            Objects.equals(argList, execTask.argList) &&
+            Objects.equals(command, execTask.command) &&
+            Objects.equals(workingDirectory, execTask.workingDirectory) &&
+            super.equals(execTask);
     }
 
     @Override

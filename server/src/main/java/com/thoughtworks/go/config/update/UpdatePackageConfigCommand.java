@@ -33,8 +33,8 @@ public class UpdatePackageConfigCommand extends PackageConfigCommand {
     private final GoConfigService goConfigService;
     private final String oldPackageId;
     private final PackageDefinition newPackage;
-    private String digest;
-    private EntityHashingService entityHashingService;
+    private final String digest;
+    private final EntityHashingService entityHashingService;
     private final HttpLocalizedOperationResult result;
 
     public UpdatePackageConfigCommand(GoConfigService goConfigService, String oldPackageId, PackageDefinition newPackage,

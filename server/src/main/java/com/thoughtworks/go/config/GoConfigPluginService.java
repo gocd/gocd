@@ -33,14 +33,14 @@ public class GoConfigPluginService {
 
     private final ConfigRepoExtension crExtension;
     private final XmlPartialConfigProvider embeddedXmlPlugin;
-    private ConfigConverter configConverter;
+    private final ConfigConverter configConverter;
 
     @Autowired
-    public GoConfigPluginService(ConfigRepoExtension configRepoExtension, ConfigCache configCache,
+    public GoConfigPluginService(ConfigRepoExtension configRepoExtension,
                                  ConfigElementImplementationRegistry configElementImplementationRegistry,
                                  CachedGoConfig cachedGoConfig, AgentService agentService) {
         this.crExtension = configRepoExtension;
-        MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(configCache, configElementImplementationRegistry);
+        MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(configElementImplementationRegistry);
         embeddedXmlPlugin = new XmlPartialConfigProvider(loader);
         configConverter = new ConfigConverter(new GoCipher(), cachedGoConfig, agentService);
     }
@@ -51,8 +51,9 @@ public class GoConfigPluginService {
     }
 
     public PartialConfigProvider partialConfigProviderFor(String pluginId) {
-        if (pluginId == null || pluginId.equals(XmlPartialConfigProvider.providerName))
+        if (pluginId == null || pluginId.equals(XmlPartialConfigProvider.providerName)) {
             return embeddedXmlPlugin;
+        }
 
         return new ConfigRepoPlugin(configConverter, crExtension, pluginId);
     }

@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.scm.SCM;
@@ -30,12 +30,13 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM> {
-    protected final SCM globalScmConfig;
-    protected final LocalizedOperationResult result;
+    final SCM globalScmConfig;
+    final LocalizedOperationResult result;
     private final PluggableScmService pluggableScmService;
-    protected SCM preprocessedGlobalScmConfig;
-    protected final GoConfigService goConfigService;
-    protected final Username currentUser;
+    final GoConfigService goConfigService;
+    final Username currentUser;
+
+    SCM preprocessedGlobalScmConfig;
 
     public SCMConfigCommand(SCM globalScmConfig, PluggableScmService pluggableScmService, GoConfigService goConfigService, Username currentUser, LocalizedOperationResult result) {
         this.globalScmConfig = globalScmConfig;
@@ -53,10 +54,10 @@ public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM>
         if (preprocessedGlobalScmConfig.getAllErrors().isEmpty()) {
             scms.validate(null);
             boolean isValid = pluggableScmService.isValid(preprocessedGlobalScmConfig);
-            BasicCruiseConfig.copyErrors(preprocessedGlobalScmConfig, globalScmConfig);
+            Validatable.copyErrors(preprocessedGlobalScmConfig, globalScmConfig);
             return preprocessedGlobalScmConfig.getAllErrors().isEmpty() && scms.errors().isEmpty() && isValid;
         }
-        BasicCruiseConfig.copyErrors(preprocessedGlobalScmConfig, globalScmConfig);
+        Validatable.copyErrors(preprocessedGlobalScmConfig, globalScmConfig);
         return false;
     }
 
@@ -67,7 +68,7 @@ public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM>
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(globalScmConfig);
+        Validatable.clearErrors(globalScmConfig);
     }
 
     @Override

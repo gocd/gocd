@@ -145,7 +145,7 @@ class ConfigConverterTest {
         CREnvironmentVariable crEnvironmentVariable = new CREnvironmentVariable("key1", null, "");
         EnvironmentVariableConfig result = configConverter.toEnvironmentVariableConfig(crEnvironmentVariable);
         assertThat(result.isSecure()).isTrue();
-        assertThat(result.getValue()).isEqualTo("");
+        assertThat(result.getValue()).isEmpty();
         assertThat(result.getName()).isEqualTo("key1");
     }
 
@@ -154,7 +154,7 @@ class ConfigConverterTest {
         CREnvironmentVariable crEnvironmentVariable = new CREnvironmentVariable("key1", null, null);
         EnvironmentVariableConfig result = configConverter.toEnvironmentVariableConfig(crEnvironmentVariable);
         assertThat(result.isSecure()).isFalse();
-        assertThat(result.getValue()).isEqualTo("");
+        assertThat(result.getValue()).isEmpty();
         assertThat(result.getName()).isEqualTo("key1");
     }
 
@@ -271,9 +271,9 @@ class ConfigConverterTest {
         FetchTask result = (FetchTask) configConverter.toAbstractTask(crFetchArtifactTask);
 
         assertThat(result.getConditions().first()).isEqualTo(RunIfConfig.PASSED);
-        assertThat(result.getDest()).isEqualTo("");
+        assertThat(result.getDest()).isEmpty();
         assertThat(result.getJob().toLower()).isEqualTo("job");
-        assertThat(result.getPipelineName().toLower()).isEqualTo("");
+        assertThat(result.getPipelineName().toLower()).isEmpty();
         assertThat(result.getSrc()).isEqualTo("src");
         assertThat(result.isSourceAFile()).isTrue();
     }
@@ -286,7 +286,7 @@ class ConfigConverterTest {
         FetchTask result = (FetchTask) configConverter.toAbstractTask(crFetchArtifactTask);
 
         assertThat(result.getConditions().first()).isEqualTo(RunIfConfig.PASSED);
-        assertThat(result.getDest()).isEqualTo("");
+        assertThat(result.getDest()).isEmpty();
         assertThat(result.getJob().toLower()).isEqualTo("job");
         assertThat(result.getPipelineName().toLower()).isEqualTo("upstream");
         assertThat(result.getSrc()).isEqualTo("src");
@@ -337,7 +337,7 @@ class ConfigConverterTest {
 
         assertThat(result.getConditions().first()).isEqualTo(RunIfConfig.PASSED);
         assertThat(result.getJob().toLower()).isEqualTo("job");
-        assertThat(result.getPipelineName().toLower()).isEqualTo("");
+        assertThat(result.getPipelineName().toLower()).isEmpty();
         assertThat(result.getArtifactId()).isEqualTo("artifactId");
         assertThat(result.getConfiguration().getProperty("k1").getValue()).isEqualTo("v1");
     }
@@ -353,7 +353,7 @@ class ConfigConverterTest {
 
         assertThat(result.getConditions().first()).isEqualTo(RunIfConfig.PASSED);
         assertThat(result.getJob().toLower()).isEqualTo("job");
-        assertThat(result.getPipelineName().toLower()).isEqualTo("");
+        assertThat(result.getPipelineName().toLower()).isEmpty();
         assertThat(result.getArtifactId()).isEqualTo("artifactId");
         assertThat(result.getConfiguration().isEmpty()).isTrue();
     }
@@ -547,7 +547,7 @@ class ConfigConverterTest {
 
         HgMaterialConfig hgMaterialConfig = (HgMaterialConfig) materialConfig;
         assertThat(hgMaterialConfig.getAutoUpdate()).isTrue();
-        assertThat(hgMaterialConfig.getFilterAsString()).isEqualTo("");
+        assertThat(hgMaterialConfig.getFilterAsString()).isEmpty();
         assertThat(hgMaterialConfig.getUrl()).isEqualTo("url");
         assertThat(hgMaterialConfig.filter()).isEqualTo(new Filter());
         assertThat(hgMaterialConfig.isInvertFilter()).isFalse();
@@ -605,7 +605,7 @@ class ConfigConverterTest {
         assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(myscm);
         assertThat(pluggableSCMMaterialConfig.getScmId()).isEqualTo("scmid");
         assertThat(pluggableSCMMaterialConfig.getFolder()).isEqualTo("dest1");
-        assertThat(pluggableSCMMaterialConfig.getFilterAsString()).isEqualTo("");
+        assertThat(pluggableSCMMaterialConfig.getFilterAsString()).isEmpty();
     }
 
     @Test
@@ -988,7 +988,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertArtifactConfigWhenDestinationIsNull() {
         BuildArtifactConfig buildArtifactConfig = (BuildArtifactConfig) configConverter.toArtifactConfig(new CRBuiltInArtifact("src", null, CRArtifactType.build));
-        assertThat(buildArtifactConfig.getDestination()).isEqualTo("");
+        assertThat(buildArtifactConfig.getDestination()).isEmpty();
     }
 
     @Test
@@ -1794,7 +1794,7 @@ class ConfigConverterTest {
     void shouldConvertNullEnvironmentVariableConfigWhenNotSecure() {
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("key1", null);
         CREnvironmentVariable result = configConverter.environmentVariableConfigToCREnvironmentVariable(environmentVariableConfig);
-        assertThat(result.getValue()).isEqualTo("");
+        assertThat(result.getValue()).isEmpty();
         assertThat(result.getName()).isEqualTo("key1");
         assertThat(result.hasEncryptedValue()).isFalse();
     }

@@ -17,6 +17,8 @@ package com.thoughtworks.go.domain.materials.svn;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.Objects;
+
 public class SvnExternal {
     private String folder;
     private String url;
@@ -45,14 +47,8 @@ public class SvnExternal {
 
         SvnExternal that = (SvnExternal) o;
 
-        if (folder != null ? !folder.equals(that.folder) : that.folder != null) {
-            return false;
-        }
-        if (url != null ? !url.equals(that.url) : that.url != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(folder, that.folder) &&
+            Objects.equals(url, that.url);
     }
 
     @Override

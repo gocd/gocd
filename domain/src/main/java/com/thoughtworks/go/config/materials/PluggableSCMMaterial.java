@@ -34,10 +34,7 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.json.JsonHelper;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.escapeEnvironmentVariable;
 import static java.lang.String.format;
@@ -287,12 +284,15 @@ public class PluggableSCMMaterial extends AbstractMaterial implements SecretPara
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         PluggableSCMMaterial that = (PluggableSCMMaterial) o;
-
-        return this.getFingerprint() != null ? this.getFingerprint().equals(that.getFingerprint()) : that.getFingerprint() == null;
+        return Objects.equals(this.getFingerprint(), that.getFingerprint());
     }
 
     @Override

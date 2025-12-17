@@ -44,8 +44,12 @@ public class PipelineScheduleOptions {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         PipelineScheduleOptions that = (PipelineScheduleOptions) o;
         return Objects.equals(materials, that.materials) &&
             Objects.equals(shouldPerformMDUBeforeScheduling, that.shouldPerformMDUBeforeScheduling) &&

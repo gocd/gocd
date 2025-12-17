@@ -41,7 +41,7 @@ import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.XsdValidationException;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.jdom2.input.JDOMParseException;
+import org.jdom2.JDOMException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -72,9 +72,8 @@ public class MagicalGoConfigXmlWriterTest {
     @BeforeEach
     public void setup() {
         output = new ByteArrayOutputStream();
-        ConfigCache configCache = new ConfigCache();
-        xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
-        xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
+        xmlWriter = new MagicalGoConfigXmlWriter(ConfigElementImplementationRegistryMother.withNoPlugins());
+        xmlLoader = new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins());
         cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.initializeServer();
     }
@@ -106,7 +105,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldThrowInvalidConfigWhenAttemptedToSaveMergedConfig() throws Exception {
+    public void shouldThrowInvalidConfigWhenAttemptedToSaveMergedConfig() {
         String xml = ConfigFileFixture.TWO_PIPELINES;
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(xml).config;
@@ -590,7 +589,7 @@ public class MagicalGoConfigXmlWriterTest {
         try {
             xmlWriter.write(cruiseConfig, output, false);
             assertThat(output.toString().contains("<auth")).isFalse();
-        } catch (JDOMParseException expected) {
+        } catch (JDOMException expected) {
             assertThat(expected.getMessage()).contains("The content of element 'auth' is not complete");
         }
     }
@@ -763,7 +762,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldNotAllowMultipleRepositoriesWithSameId() throws Exception {
+    public void shouldNotAllowMultipleRepositoriesWithSameId() {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
 
@@ -780,7 +779,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldNotAllowMultiplePackagesWithSameId() throws Exception {
+    public void shouldNotAllowMultiplePackagesWithSameId() {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
 
@@ -826,7 +825,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldFailValidationIfPackageTypeMaterialForPipelineHasARefToNonExistantPackage() throws Exception {
+    public void shouldFailValidationIfPackageTypeMaterialForPipelineHasARefToNonExistantPackage() {
         String packageId = "does-not-exist";
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(packageId);
         PackageRepository repository = com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create("k1", false, "v1")));
@@ -842,7 +841,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldNotAllowMultipleRepositoriesWithSameName() throws Exception {
+    public void shouldNotAllowMultipleRepositoriesWithSameName() {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
 
@@ -859,7 +858,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldNotAllowMultiplePackagesWithSameNameWithinARepo() throws Exception {
+    public void shouldNotAllowMultiplePackagesWithSameNameWithinARepo() {
         Configuration packageConfiguration1 = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration packageConfiguration2 = new Configuration(getConfigurationProperty("name2", false, "go-server"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
@@ -874,7 +873,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldNotAllowPackagesRepositoryWithInvalidId() throws Exception {
+    public void shouldNotAllowPackagesRepositoryWithInvalidId() {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
 
@@ -888,7 +887,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldNotAllowPackagesRepositoryWithInvalidName() throws Exception {
+    public void shouldNotAllowPackagesRepositoryWithInvalidName() {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
 
@@ -902,7 +901,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldNotAllowPackagesWithInvalidId() throws Exception {
+    public void shouldNotAllowPackagesWithInvalidId() {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
 
@@ -949,7 +948,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldNotAllowPackagesWithInvalidName() throws Exception {
+    public void shouldNotAllowPackagesWithInvalidName() {
         Configuration packageConfiguration = new Configuration(getConfigurationProperty("name", false, "go-agent"));
         Configuration repositoryConfiguration = new Configuration(getConfigurationProperty("url", false, "http://go"));
 
@@ -975,7 +974,7 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     @Timeout(2)
-    public void shouldValidateLeadingAndTrailingSpacesOnExecCommandInReasonableTime() throws Exception {
+    public void shouldValidateLeadingAndTrailingSpacesOnExecCommandInReasonableTime() {
         // See https://github.com/gocd/gocd/issues/3551
         // This is only reproducible on longish strings, so don't try shortening the exec task length...
         String longPath = "f".repeat(100);

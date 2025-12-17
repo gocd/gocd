@@ -52,7 +52,7 @@ public class PluggableSCMMaterialUpdaterTest {
             }
 
             @Override
-            public Object executeWithExceptionHandling(com.thoughtworks.go.server.transaction.TransactionCallback action) throws Exception {
+            public Object executeWithExceptionHandling(com.thoughtworks.go.server.transaction.TransactionCallback action) {
                 return super.executeWithExceptionHandling(action);
             }
 

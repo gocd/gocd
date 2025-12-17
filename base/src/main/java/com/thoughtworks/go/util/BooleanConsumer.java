@@ -13,29 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.domain;
 
-import java.util.LinkedHashSet;
-import java.util.List;
+package com.thoughtworks.go.util;
 
-
-public class BaseLinkedSet<T> extends LinkedHashSet<T> {
-
-
-    public BaseLinkedSet() {
-
-    }
-
-    public BaseLinkedSet(List<T> list) {
-        for (T object : list) {
-            this.add(object);
-        }
-    }
-
-    public T first() {
-        if (this.size() > 0) {
-            return this.iterator().next();
-        }
-        return null;
-    }
+@FunctionalInterface
+public
+interface BooleanConsumer {
+    void accept(boolean value);
 }

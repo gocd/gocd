@@ -19,6 +19,7 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.domain.JobStatusListener;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,7 @@ public class AgentAssignment implements JobStatusListener {
         });
     }
 
+    @TestOnly
     public void clear() {
         map.clear();
     }

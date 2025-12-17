@@ -46,7 +46,7 @@ class ScmMaterialConfigTest {
         material.setFilter(new Filter(new IgnoredFiles("*.*")));
         material.setConfigAttributes(Map.of(ScmMaterialConfig.FILTER, ""));
         assertThat(material.filter()).isEqualTo(new Filter());
-        assertThat(material.getFilterAsString()).isEqualTo("");
+        assertThat(material.getFilterAsString()).isEmpty();
     }
 
     @Test

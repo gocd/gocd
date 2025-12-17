@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class MDUPerformanceLogger {
-    private PerformanceLogger performanceLogger;
+    private final PerformanceLogger performanceLogger;
     private static long currentTrackingId = 0;
 
     @Autowired

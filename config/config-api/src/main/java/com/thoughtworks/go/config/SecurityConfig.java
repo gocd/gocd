@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.config.Admin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @ConfigTag("security")
 public class SecurityConfig implements Validatable {
@@ -87,16 +88,19 @@ public class SecurityConfig implements Validatable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         SecurityConfig that = (SecurityConfig) o;
 
-        if (securityAuthConfigs != null ? !securityAuthConfigs.equals(that.securityAuthConfigs) : that.securityAuthConfigs != null)
-            return false;
-        if (rolesConfig != null ? !rolesConfig.equals(that.rolesConfig) : that.rolesConfig != null) return false;
-        if (adminsConfig != null ? !adminsConfig.equals(that.adminsConfig) : that.adminsConfig != null) return false;
-        return errors != null ? errors.equals(that.errors) : that.errors == null;
+        return Objects.equals(securityAuthConfigs, that.securityAuthConfigs) &&
+            Objects.equals(rolesConfig, that.rolesConfig) &&
+            Objects.equals(adminsConfig, that.adminsConfig) &&
+            Objects.equals(errors, that.errors);
     }
 
     @Override

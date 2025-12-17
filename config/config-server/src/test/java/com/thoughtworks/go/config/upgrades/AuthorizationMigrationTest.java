@@ -83,7 +83,7 @@ public class AuthorizationMigrationTest {
 
     @Test
     public void shouldBeAbleToParseNewAuthorization() throws Exception {
-        AuthConfig config = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).fromXmlPartial(NEW_AUTHORIZATION, AuthConfig.class);
+        AuthConfig config = new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins()).fromXmlPartial(NEW_AUTHORIZATION, AuthConfig.class);
         assertThat(config.size()).isEqualTo(3);
     }
 
@@ -97,7 +97,7 @@ public class AuthorizationMigrationTest {
     public void shouldBeAbleToWriteNewConfig() throws Exception {
         CruiseConfig newConfig = ConfigMigrator.loadWithMigration(CONFIG_WITH_AUTH).config;
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).write(newConfig, buffer, false);
+        new MagicalGoConfigXmlWriter(ConfigElementImplementationRegistryMother.withNoPlugins()).write(newConfig, buffer, false);
 
         assertThat(buffer.toString().replace("\r\n", "\n")).contains(NEW_AUTHORIZATION);
     }

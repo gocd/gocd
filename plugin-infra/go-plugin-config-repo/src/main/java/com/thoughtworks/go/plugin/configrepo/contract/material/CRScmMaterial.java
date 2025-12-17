@@ -63,7 +63,9 @@ public abstract class CRScmMaterial extends CRMaterial implements SourceCodeMate
     }
 
     public List<String> getFilterList() {
-        if (filter == null) return null;
+        if (filter == null) {
+            return null;
+        }
         return filter.getList();
     }
 

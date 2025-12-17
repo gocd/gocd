@@ -30,7 +30,7 @@ import java.util.Map;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public abstract class SecurityAuthConfigCommand extends PluginProfileCommand<SecurityAuthConfig, SecurityAuthConfigs> {
-    protected final AuthorizationExtension extension;
+    final AuthorizationExtension extension;
 
     public SecurityAuthConfigCommand(GoConfigService goConfigService, SecurityAuthConfig newSecurityAuthConfig, AuthorizationExtension extension, Username currentUser, LocalizedOperationResult result) {
         super(goConfigService, newSecurityAuthConfig, currentUser, result);

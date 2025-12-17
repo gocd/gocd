@@ -48,7 +48,9 @@ public class GoVersion implements Comparable<GoVersion> {
     private void parse(String version) {
         Matcher matcher = matcherFor(version);
 
-        if (matcher == null) throw new VersionFormatException(format("Invalid version format [%s]", version));
+        if (matcher == null) {
+            throw new VersionFormatException(format("Invalid version format [%s]", version));
+        }
 
         this.major = parseInt(matcher.group(1));
         this.minor = parseInt(matcher.group(2));
@@ -62,10 +64,14 @@ public class GoVersion implements Comparable<GoVersion> {
         Matcher matcher;
 
         matcher = updateServerPattern.matcher(version);
-        if (matcher.matches()) return matcher;
+        if (matcher.matches()) {
+            return matcher;
+        }
 
         matcher = serverVersionPattern.matcher(version);
-        if (matcher.matches()) return matcher;
+        if (matcher.matches()) {
+            return matcher;
+        }
 
         return null;
     }
@@ -89,7 +95,7 @@ public class GoVersion implements Comparable<GoVersion> {
     }
 
     public boolean isGreaterThan(GoVersion o) {
-        return compareTo(o) == 1;
+        return compareTo(o) > 0;
     }
 
     public int getMajor() {
@@ -115,8 +121,12 @@ public class GoVersion implements Comparable<GoVersion> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         GoVersion that = (GoVersion) o;
 

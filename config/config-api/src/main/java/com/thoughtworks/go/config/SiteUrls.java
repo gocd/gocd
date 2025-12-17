@@ -57,6 +57,7 @@ public class SiteUrls implements Validatable {
         this.secureSiteUrl = secureSiteUrl;
     }
 
+    @Override
     public void validate(ValidationContext validationContext) {
         siteUrl.validate(validationContext);
         secureSiteUrl.validate(validationContext);
@@ -74,8 +75,12 @@ public class SiteUrls implements Validatable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         SiteUrls siteUrls = (SiteUrls) o;
         return Objects.equals(siteUrl, siteUrls.siteUrl) &&
                 Objects.equals(secureSiteUrl, siteUrls.secureSiteUrl);

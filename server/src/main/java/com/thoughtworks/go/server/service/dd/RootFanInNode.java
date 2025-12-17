@@ -17,21 +17,28 @@ package com.thoughtworks.go.server.service.dd;
 
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 class RootFanInNode extends FanInNode<MaterialConfig> {
-    PipelineTimelineEntry.Revision scmRevision;
+    @NotNull Optional<PipelineTimelineEntry.Revision> scmRevision = Optional.empty();
 
     RootFanInNode(MaterialConfig material) {
         super(material);
     }
 
     void setScmRevision(Set<FaninScmMaterial> allScmMaterials) {
-        allScmMaterials.stream()
+        scmRevision = allScmMaterials.stream()
             .filter(scmMaterial -> materialConfig.getFingerprint().equals(scmMaterial.fingerprint()))
             .findFirst()
-            .map(FaninScmMaterial::revision)
-            .ifPresent(rev -> scmRevision = rev);
+            .map(FaninScmMaterial::revision);
+    }
+
+    @NotNull OptionalLong scmRevisionId() {
+        return scmRevision.stream().mapToLong(PipelineTimelineEntry.Revision::id).findAny();
     }
 }

@@ -30,7 +30,9 @@ public class DenyAllAccessFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) {
-        LOGGER.debug("Access denied for URL {}", request.getRequestURI());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Access denied for URL {}", request.getRequestURI());
+        }
         response.setStatus(403);
     }
 }

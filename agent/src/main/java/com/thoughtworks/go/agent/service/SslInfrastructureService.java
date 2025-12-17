@@ -65,7 +65,7 @@ public class SslInfrastructureService {
         httpClient.reset();
     }
 
-    public void registerIfNecessary(AgentAutoRegistrationProperties agentAutoRegistrationProperties) throws Exception {
+    public void registerIfNecessary(AgentAutoRegistrationProperties agentAutoRegistrationProperties) throws IOException {
         if (isRegistered()) {
             return;
         }
@@ -89,7 +89,7 @@ public class SslInfrastructureService {
         return agentRegistry.tokenPresent();
     }
 
-    protected void register(AgentAutoRegistrationProperties agentAutoRegistrationProperties) throws Exception {
+    protected void register(AgentAutoRegistrationProperties agentAutoRegistrationProperties) throws IOException {
         String hostName = SystemUtil.getLocalhostNameOrRandomNameIfNotFound();
         boolean registered = false;
         while (!registered) {

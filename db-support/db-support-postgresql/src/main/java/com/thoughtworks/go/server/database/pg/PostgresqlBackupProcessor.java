@@ -28,7 +28,9 @@ import org.zeroturnaround.exec.stream.slf4j.Slf4jStream;
 
 import javax.sql.DataSource;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeoutException;
 
 @Slf4j
 public class PostgresqlBackupProcessor implements BackupProcessor {
@@ -36,7 +38,7 @@ public class PostgresqlBackupProcessor implements BackupProcessor {
     private static final String COMMAND = "pg_dump";
 
     @Override
-    public void backup(File targetDir, DataSource dataSource, DbProperties dbProperties) throws Exception {
+    public void backup(File targetDir, DataSource dataSource, DbProperties dbProperties) {
         try {
             ProcessResult processResult = createProcessExecutor(targetDir, dbProperties).execute();
 
@@ -47,6 +49,8 @@ public class PostgresqlBackupProcessor implements BackupProcessor {
             }
         } catch (ProcessInitException e) {
             throwBackupError(COMMAND, e.getErrorCode(), e.getCause());
+        } catch (IOException | InterruptedException | TimeoutException e) {
+            throwBackupError(COMMAND, e);
         }
     }
 

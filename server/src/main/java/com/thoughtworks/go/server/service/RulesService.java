@@ -75,7 +75,7 @@ public class RulesService {
                 }
             });
         });
-        if (!pipelinesWithErrors.isEmpty()) {
+        if (LOGGER.isDebugEnabled() && !pipelinesWithErrors.isEmpty()) {
             LOGGER.debug("[Material Update] Failure: {}", errorString(pipelinesWithErrors));
         }
         if (!pipelines.isEmpty() && pipelines.size() == pipelinesWithErrors.size()) {

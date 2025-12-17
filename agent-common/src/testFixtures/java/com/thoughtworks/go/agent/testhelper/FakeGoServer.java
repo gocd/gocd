@@ -32,6 +32,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.EnumSet;
 import java.util.Properties;
 
@@ -59,7 +60,7 @@ public class FakeGoServer implements AutoCloseable {
                     digest.transferTo(OutputStream.nullOutputStream());
                 }
                 return Hexadecimals.toHexString(digester.digest()).toLowerCase();
-            } catch (Exception e) {
+            } catch (IOException | NoSuchAlgorithmException e) {
                 throw new RuntimeException(e);
             }
         }

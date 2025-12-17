@@ -44,6 +44,7 @@ public final class NullAgent extends Agent {
         return true;
     }
 
+    @Override
     public String getHostnameForDisplay() {
         return "Not yet assigned";
     }

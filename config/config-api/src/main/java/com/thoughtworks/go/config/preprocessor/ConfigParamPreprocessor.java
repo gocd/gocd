@@ -28,7 +28,7 @@ public class ConfigParamPreprocessor implements GoConfigPreprocessor {
     private final ParamResolver resolver;
 
     public ConfigParamPreprocessor() {
-        this.resolver = new ParamResolver(new ParamSubstitutionHandlerFactory(new ParamsConfig()), new ClassAttributeCache.FieldCache());
+        this.resolver = new ParamResolver(new ParamSubstitutionHandlerFactory(new ParamsConfig()));
     }
 
     @Override

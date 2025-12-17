@@ -16,6 +16,7 @@
 package com.thoughtworks.go.config;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Understands Value of env variable
@@ -41,12 +42,8 @@ public class VariableValueConfig implements Serializable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof VariableValueConfig that)) {
-            return false;
-        }
-
-        return value != null ? value.equals(that.value) : that.value == null;
-
+        return o instanceof VariableValueConfig that &&
+            Objects.equals(value, that.value);
     }
 
     @Override

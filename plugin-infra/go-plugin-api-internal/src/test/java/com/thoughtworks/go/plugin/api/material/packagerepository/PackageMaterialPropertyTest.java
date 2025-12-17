@@ -29,7 +29,7 @@ public class PackageMaterialPropertyTest {
         assertThat(packageMaterialProperty.getOption(Property.REQUIRED)).isTrue();
         assertThat(packageMaterialProperty.getOption(Property.PART_OF_IDENTITY)).isTrue();
         assertThat(packageMaterialProperty.getOption(Property.SECURE)).isFalse();
-        assertThat(packageMaterialProperty.getOption(Property.DISPLAY_NAME)).isEqualTo("");
+        assertThat(packageMaterialProperty.getOption(Property.DISPLAY_NAME)).isEmpty();
         assertThat(packageMaterialProperty.getOption(Property.DISPLAY_ORDER)).isEqualTo(0);
 
         packageMaterialProperty = new PackageMaterialProperty("Test-Property", "Dummy Value");
@@ -37,7 +37,7 @@ public class PackageMaterialPropertyTest {
         assertThat(packageMaterialProperty.getOption(Property.REQUIRED)).isTrue();
         assertThat(packageMaterialProperty.getOption(Property.PART_OF_IDENTITY)).isTrue();
         assertThat(packageMaterialProperty.getOption(Property.SECURE)).isFalse();
-        assertThat(packageMaterialProperty.getOption(Property.DISPLAY_NAME)).isEqualTo("");
+        assertThat(packageMaterialProperty.getOption(Property.DISPLAY_NAME)).isEmpty();
         assertThat(packageMaterialProperty.getOption(Property.DISPLAY_ORDER)).isEqualTo(0);
     }
 }

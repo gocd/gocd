@@ -46,11 +46,12 @@ import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.Pair;
 import com.thoughtworks.go.util.SystemTimeClock;
 import org.dom4j.Document;
-import org.dom4j.DocumentFactory;
+import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
-import org.jdom2.input.JDOMParseException;
+import org.jdom2.JDOMException;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,8 +61,11 @@ import org.xml.sax.InputSource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.StringReader;
+import java.time.Duration;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.config.validation.GoConfigValidity.*;
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditPipeline;
@@ -82,30 +86,28 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     private final GoConfigMigration upgrader;
     private final GoCache goCache;
     private final ConfigRepository configRepository;
-    private final ConfigCache configCache;
     private final GoConfigCloner cloner = new GoConfigCloner();
-    private Clock clock = new SystemTimeClock();
     private final InstanceFactory instanceFactory;
     private final MagicalGoConfigXmlLoader xmlLoader;
+
+    private Clock clock = new SystemTimeClock();
 
     @Autowired
     public GoConfigService(GoConfigDao goConfigDao,
                            GoConfigMigration upgrader,
                            GoCache goCache,
                            ConfigRepository configRepository,
-                           ConfigCache configCache,
                            ConfigElementImplementationRegistry registry,
                            InstanceFactory instanceFactory,
                            CachedGoPartials cachedGoPartials) {
         this.goConfigDao = goConfigDao;
         this.goCache = goCache;
         this.configRepository = configRepository;
-        this.configCache = configCache;
         this.registry = registry;
         this.upgrader = upgrader;
         this.instanceFactory = instanceFactory;
         this.cachedGoPartials = cachedGoPartials;
-        this.xmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
+        this.xmlLoader = new MagicalGoConfigXmlLoader(registry);
     }
 
     @TestOnly
@@ -117,7 +119,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
                            ConfigElementImplementationRegistry registry,
                            InstanceFactory instanceFactory,
                            CachedGoPartials cachedGoPartials) {
-        this(goConfigDao, upgrader, goCache, configRepository, new ConfigCache(), registry, instanceFactory, cachedGoPartials);
+        this(goConfigDao, upgrader, goCache, configRepository, registry, instanceFactory, cachedGoPartials);
         this.clock = clock;
     }
 
@@ -244,13 +246,13 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         goConfigDao.updateConfig(command, currentUser);
     }
 
-    public long getUnresponsiveJobTerminationThreshold(JobIdentifier identifier) {
+    public Duration getUnresponsiveJobTerminationThreshold(JobIdentifier identifier) {
         JobConfig jobConfig = getJob(identifier);
         if (jobConfig == null) {
-            return toMillis(Long.parseLong(serverConfig().getJobTimeout()));
+            return Duration.ofMinutes(Long.parseLong(serverConfig().getJobTimeout()));
         }
         String timeout = jobConfig.getTimeout();
-        return timeout != null ? toMillis(Long.parseLong(timeout)) : toMillis(Long.parseLong(serverConfig().getJobTimeout()));
+        return Duration.ofMinutes(timeout != null ? Long.parseLong(timeout) : Long.parseLong(serverConfig().getJobTimeout()));
     }
 
     private JobConfig getJob(JobIdentifier identifier) {
@@ -260,10 +262,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         } catch (Exception ignored) {
         }
         return jobConfig;
-    }
-
-    private long toMillis(final long minutes) {
-        return minutes * 60 * 1000;
     }
 
     public boolean canCancelJobIfHung(JobIdentifier jobIdentifier) {
@@ -334,14 +332,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     public boolean isSmtpEnabled() {
         return currentCruiseConfig().isSmtpEnabled();
-    }
-
-    public void accept(PipelineConfigVisitor visitor) {
-        getCurrentConfig().accept(visitor);
-    }
-
-    public void accept(PipelineGroupVisitor visitor) {
-        getCurrentConfig().accept(visitor);
     }
 
     public String findGroupNameByPipeline(final CaseInsensitiveString pipelineName) {
@@ -487,12 +477,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return getCurrentConfig().isPipelineUnlockableWhenFinished(pipelineName);
     }
 
-    public List<String> getResourceList() {
-        List<String> resources = new ArrayList<>();
-        for (ResourceConfig res : getCurrentConfig().getAllResources()) {
-            resources.add(res.getName());
-        }
-        return resources;
+    public Stream<String> getResourceNames() {
+        return getCurrentConfig().getAllResources().stream().map(ResourceConfig::getName);
     }
 
     public List<CaseInsensitiveString> pipelines(String group) {
@@ -728,7 +714,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     private String configAsXml(CruiseConfig cruiseConfig) {
         final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         try {
-            new MagicalGoConfigXmlWriter(configCache, registry).write(cruiseConfig, outStream, true);
+            new MagicalGoConfigXmlWriter(registry).write(cruiseConfig, outStream, true);
             return outStream.toString();
         } catch (Exception e) {
             throw bomb(e);
@@ -770,7 +756,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             reader.setEntityResolver((publicId, systemId) -> new InputSource(new StringReader("")));
         }
 
-        protected ConfigSaveState updatePartial(String xmlPartial, final String md5) throws Exception {
+        protected ConfigSaveState updatePartial(String xmlPartial, final String md5) throws IOException, JDOMException, DocumentException {
             LOGGER.debug("[Config Save] Updating partial");
             Document document = documentRoot();
             Element root = document.getRootElement();
@@ -787,9 +773,9 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
         }
 
-        protected ConfigSaveState saveConfig(final String xmlString, final String md5) throws Exception {
+        protected ConfigSaveState saveConfig(final String xmlString, final String md5) throws JDOMException {
             LOGGER.debug("[Config Save] Started saving XML");
-            final MagicalGoConfigXmlLoader configXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
+            final MagicalGoConfigXmlLoader configXmlLoader = new MagicalGoConfigXmlLoader(registry);
 
             LOGGER.debug("[Config Save] Updating config");
             final CruiseConfig deserializedConfig = configXmlLoader.deserializeConfig(xmlString);
@@ -805,22 +791,17 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             return goConfigDao.updateFullConfig(new FullConfigUpdateCommand(cruiseConfig, md5));
         }
 
-        protected Document documentRoot() throws Exception {
+        protected Document documentRoot() throws IOException, JDOMException, DocumentException {
             CruiseConfig cruiseConfig = goConfigDao.loadForEditing();
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            new MagicalGoConfigXmlWriter(configCache, registry).write(cruiseConfig, out, true);
-            Document document = reader.read(new StringReader(out.toString()));
-            Map<String, String> map = new HashMap<>();
-            map.put("go", MagicalGoConfigXmlWriter.XML_NS);
-            DocumentFactory factory = DocumentFactory.getInstance();
-            factory.setXPathNamespaceURIs(map);
-            return document;
+            new MagicalGoConfigXmlWriter(registry).write(cruiseConfig, out, true);
+            return reader.read(new StringReader(out.toString()));
         }
 
         protected abstract T valid();
 
         public String asXml() {
-            return new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(valid());
+            return new MagicalGoConfigXmlWriter(registry).toXmlPartial(valid());
         }
 
         public GoConfigValidity saveXml(String xmlPartial, String expectedMd5) {
@@ -831,19 +812,24 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
             try {
                 return GoConfigValidity.valid(updatePartial(xmlPartial, expectedMd5));
-            } catch (JDOMParseException jsonException) {
+            } catch (JDOMException jsonException) {
                 return fromConflict(String.format("%s - %s", INVALID_CRUISE_CONFIG_XML, jsonException.getMessage()));
-            } catch (ConfigMergePreValidationException e) {
-                return mergePreValidationError(e.getMessage());
             } catch (Exception e) {
-                if (e.getCause() instanceof ConfigMergePostValidationException) {
-                    return mergePostValidationError(e.getCause().getMessage());
-                }
-                if (e.getCause() instanceof ConfigMergeException) {
-                    return mergeConflict(e.getCause().getMessage());
-                }
-                return fromConflict(e.getMessage());
+                return toMergeInvalidResult(e)
+                    .or(() -> toMergeInvalidResult(e.getCause()))
+                    .orElseGet(() -> fromConflict(e.getMessage()));
             }
+        }
+
+        private static @NotNull Optional<InvalidGoConfig> toMergeInvalidResult(Throwable e) {
+            if (e instanceof ConfigMergePreValidationException) {
+                return Optional.of(mergePreValidationError(e.getMessage()));
+            } else if (e instanceof ConfigMergePostValidationException) {
+                return Optional.of(mergePostValidationError(e.getMessage()));
+            } else if (e instanceof ConfigMergeException) {
+                return Optional.of(mergeConflict(e.getMessage()));
+            }
+            return Optional.empty();
         }
 
         private GoConfigValidity checkValidity() {
@@ -880,7 +866,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         }
 
         @Override
-        protected ConfigSaveState updatePartial(String xmlFile, final String md5) throws Exception {
+        protected ConfigSaveState updatePartial(String xmlFile, final String md5) throws JDOMException {
             if (shouldUpgrade) {
                 xmlFile = upgrader.upgradeIfNecessary(xmlFile);
             }

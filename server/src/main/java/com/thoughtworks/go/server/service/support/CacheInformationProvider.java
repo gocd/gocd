@@ -20,7 +20,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.statistics.StatisticsGateway;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
@@ -29,17 +28,13 @@ import java.util.Map;
 @Component
 public class CacheInformationProvider implements ServerInfoProvider {
 
-    @Autowired
-    public CacheInformationProvider() {
-    }
-
     @Override
     public double priority() {
         return 7.0;
     }
 
     @Override
-    public Map<String, Object> asJson() {
+    public Map<String, Object> asJsonCompatibleMap() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
 
         for (CacheManager cacheManager : CacheManager.ALL_CACHE_MANAGERS) {

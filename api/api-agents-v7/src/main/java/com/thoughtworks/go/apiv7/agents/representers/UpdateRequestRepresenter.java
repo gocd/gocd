@@ -21,18 +21,20 @@ import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.util.TriState;
 import org.apache.commons.lang3.Strings;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+
+import static java.util.stream.StreamSupport.stream;
 
 abstract class UpdateRequestRepresenter {
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     static List<String> extractToList(Optional<JsonArray> arrayOptional) {
-        final List<String> treeSet = new ArrayList<>();
-        if (arrayOptional.isPresent()) {
-            for (JsonElement jsonElement : arrayOptional.get()) {
-                treeSet.add(jsonElement.getAsString());
-            }
-        }
-
-        return treeSet;
+        return arrayOptional.stream()
+            .flatMap(s -> stream(s.spliterator(), false))
+            .map(JsonElement::getAsString)
+            .toList();
     }
 
     static String toCommaSeparatedString(JsonArray jsonArray) {
@@ -47,7 +49,7 @@ abstract class UpdateRequestRepresenter {
     }
 
     static TriState toTriState(String agentConfigState) {
-        if (agentConfigState == null  || agentConfigState.isBlank()) {
+        if (agentConfigState == null || agentConfigState.isBlank()) {
             return TriState.UNSET;
         } else if (Strings.CI.equals(agentConfigState, "enabled")) {
             return TriState.TRUE;

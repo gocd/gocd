@@ -23,7 +23,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -73,7 +72,7 @@ public class ServerConfigTest {
     }
 
     @Test
-    public void shouldNotUpdatePasswordForMailHostIfNotChangedOrNull() throws IOException {
+    public void shouldNotUpdatePasswordForMailHostIfNotChangedOrNull() {
         GoCipher goCipher = new GoCipher();
         MailHost mailHost = new MailHost("abc", 12, "admin", "p", null, true, true, "anc@mail.com", "anc@mail.com", goCipher);
         ServerConfig serverConfig = new ServerConfig(null, mailHost, null, null);

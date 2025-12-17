@@ -324,7 +324,10 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     @Test
     public void shouldLoadOldestBuild() {
         JobStateTransition jobStateTransition = jobInstanceDao.oldestBuild();
-        assertThat(jobStateTransition.getId()).isEqualTo(stageDao.stageById(stageId).getJobInstances().first().getTransitions().first().getId());
+        assertThat(stageDao.stageById(stageId).getJobInstances().first().getTransitions())
+            .first()
+            .extracting(JobStateTransition::getId)
+            .isEqualTo(jobStateTransition.getId());
     }
 
     private JobInstance savedJobForAgent(final String jobName, final String uuid, final boolean runOnAllAgents, final boolean runMultipleInstance) {
@@ -730,8 +733,11 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         JobInstance loaded = jobInstanceDao.buildByIdWithTransitions(jobInstance.getId());
 
         JobStateTransitions actualTransitions = loaded.getTransitions();
-        assertThat(actualTransitions).hasSize(2);
-        assertThat(actualTransitions.first().getCurrentState()).isEqualTo(JobState.Scheduled);
+        assertThat(actualTransitions)
+            .hasSize(2)
+            .first()
+            .extracting(JobStateTransition::getCurrentState)
+            .isEqualTo(JobState.Scheduled);
     }
 
     @Test

@@ -124,14 +124,14 @@ public class GoConfigFileHelper {
             ServerHealthService serverHealthService = new ServerHealthService();
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
             configRepository.initialize();
-            ConfigCache configCache = new ConfigCache();
+            
             ConfigElementImplementationRegistry configElementImplementationRegistry = ConfigElementImplementationRegistryMother.withNoPlugins();
             CachedGoPartials cachedGoPartials = new CachedGoPartials(serverHealthService);
-            FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(configCache, configElementImplementationRegistry, systemEnvironment, new TimeProvider(), configRepository, cachedGoPartials);
+            FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(configElementImplementationRegistry, systemEnvironment, new TimeProvider(), configRepository, cachedGoPartials);
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
-                    configCache, configElementImplementationRegistry, cachedGoPartials, null, normalFlow, mock(PartialConfigHelper.class));
+                    configElementImplementationRegistry, cachedGoPartials, null, normalFlow, mock(PartialConfigHelper.class));
             GoConfigMigration goConfigMigration = new GoConfigMigration(new TimeProvider());
-            GoConfigMigrator goConfigMigrator = new GoConfigMigrator(goConfigMigration, new SystemEnvironment(), configCache, configElementImplementationRegistry, normalFlow, configRepository, serverHealthService);
+            GoConfigMigrator goConfigMigrator = new GoConfigMigrator(goConfigMigration, new SystemEnvironment(), configElementImplementationRegistry, normalFlow, configRepository, serverHealthService);
             Files.writeString(dataSource.location(), ConfigFileFixture.configWithSecurity(""), UTF_8);
             goConfigMigrator.migrate();
             CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials, null, maintenanceModeService);
@@ -157,11 +157,7 @@ public class GoConfigFileHelper {
     }
 
     public static CruiseConfig load(String content) {
-        try {
-            return new GoConfigFileHelper(content).currentConfig();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return new GoConfigFileHelper(content).currentConfig();
     }
 
     public static void clearConfigVersions() throws IOException {
@@ -203,7 +199,7 @@ public class GoConfigFileHelper {
         }
         ConfigElementImplementationRegistry registry = new ConfigElementImplementationRegistry();
         new ConfigElementImplementationRegistrar(registry).initialize();
-        MagicalGoConfigXmlLoader magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(new ConfigCache(), registry);
+        MagicalGoConfigXmlLoader magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(registry);
         CruiseConfig configToBeWritten = magicalGoConfigXmlLoader.deserializeConfig(configFileContent);
         goConfigDao.updateFullConfig(new FullConfigUpdateCommand(configToBeWritten, goConfigDao.loadForEditing().getMd5()));
     }
@@ -489,23 +485,15 @@ public class GoConfigFileHelper {
     }
 
     public CruiseConfig load() {
-        try {
-            goConfigDao.forceReload();
-            return deepClone(goConfigDao.loadForEditing());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        goConfigDao.forceReload();
+        return deepClone(goConfigDao.loadForEditing());
     }
 
     public CruiseConfig loadForEdit() {
-        try {
-            goConfigDao.forceReload();
-            CruiseConfig cruiseConfig = deepClone(goConfigDao.loadForEditing());
-            cruiseConfig.initializeServer();
-            return cruiseConfig;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        goConfigDao.forceReload();
+        CruiseConfig cruiseConfig = deepClone(goConfigDao.loadForEditing());
+        cruiseConfig.initializeServer();
+        return cruiseConfig;
     }
 
     public CruiseConfig currentConfig() {
@@ -602,7 +590,7 @@ public class GoConfigFileHelper {
     }
 
     public void getXml(CruiseConfig cruiseConfig, ByteArrayOutputStream buffer) throws Exception {
-        new MagicalGoConfigXmlWriter(new ConfigCache(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins()).write(cruiseConfig, buffer, false);
+        new MagicalGoConfigXmlWriter(com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins()).write(cruiseConfig, buffer, false);
     }
 
     public void configureStageAsManualApproval(String pipelineName, String stage) {

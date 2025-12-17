@@ -22,6 +22,7 @@ import com.thoughtworks.go.plugin.domain.authorization.User;
 import com.thoughtworks.go.util.json.JsonHelper;
 
 import java.util.List;
+import java.util.Objects;
 
 class UserDTO {
 
@@ -67,16 +68,18 @@ class UserDTO {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         UserDTO user = (UserDTO) o;
 
-        if (displayName != null ? !displayName.equals(user.displayName) : user.displayName != null) return false;
-        if (emailId != null ? !emailId.equals(user.emailId) : user.emailId != null) return false;
-        if (username != null ? !username.equals(user.username) : user.username != null) return false;
-
-        return true;
+        return Objects.equals(displayName, user.displayName) &&
+            Objects.equals(emailId, user.emailId) &&
+            Objects.equals(username, user.username);
     }
 
     @Override

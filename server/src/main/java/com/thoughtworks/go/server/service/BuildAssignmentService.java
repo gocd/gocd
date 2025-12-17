@@ -36,7 +36,7 @@ import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.apache.commons.collections4.CollectionUtils;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,23 +63,24 @@ public class BuildAssignmentService implements ConfigChangedListener {
     public static final String GO_PIPELINE_GROUP_NAME = "GO_PIPELINE_GROUP_NAME";
     public static final String GO_AGENT_RESOURCES = "GO_AGENT_RESOURCES";
 
-    private GoConfigService goConfigService;
-    private JobInstanceService jobInstanceService;
-    private ScheduleService scheduleService;
-    private AgentService agentService;
-    private EnvironmentConfigService environmentConfigService;
-    private TransactionTemplate transactionTemplate;
+    private final GoConfigService goConfigService;
+    private final JobInstanceService jobInstanceService;
+    private final ScheduleService scheduleService;
+    private final AgentService agentService;
+    private final EnvironmentConfigService environmentConfigService;
+    private final TransactionTemplate transactionTemplate;
     private final ScheduledPipelineLoader scheduledPipelineLoader;
 
-    private List<JobPlan> jobPlans = new ArrayList<>();
     private final UpstreamPipelineResolver resolver;
     private final BuilderFactory builderFactory;
-    private MaintenanceModeService maintenanceModeService;
+    private final MaintenanceModeService maintenanceModeService;
     private final ElasticAgentPluginService elasticAgentPluginService;
     private final SystemEnvironment systemEnvironment;
-    private SecretParamResolver secretParamResolver;
-    private JobStatusTopic jobStatusTopic;
-    private ConsoleService consoleService;
+    private final SecretParamResolver secretParamResolver;
+    private final JobStatusTopic jobStatusTopic;
+    private final ConsoleService consoleService;
+
+    private List<JobPlan> jobPlans = new ArrayList<>();
 
     @Autowired
     public BuildAssignmentService(GoConfigService goConfigService, JobInstanceService jobInstanceService,
@@ -182,17 +183,18 @@ public class BuildAssignmentService implements ConfigChangedListener {
             final JobPlan job = findMatchingJob(agent);
             if (job != null) {
                 Work buildWork = createWork(agent, job);
-                AgentBuildingInfo buildingInfo = new AgentBuildingInfo(job.getIdentifier().buildLocatorForDisplay(),
-                        job.getIdentifier().buildLocator());
+                AgentBuildingInfo buildingInfo = new AgentBuildingInfo(job.getIdentifier().buildLocatorForDisplay(), job.getIdentifier().buildLocator());
                 agentService.building(agent.getUuid(), buildingInfo);
-                LOGGER.info("[Agent Assignment] Assigned job [{}] to agent [{}]", job.getIdentifier(), agent.getAgent().getAgentIdentifier());
-
+                if (!NO_WORK.equals(buildWork)) {
+                    LOGGER.info("[Agent Assignment] Assigned job [{}] to agent [{}]", job.getIdentifier(), agent.getAgent().getAgentIdentifier());
+                }
                 return buildWork;
             }
         }
         return NO_WORK;
     }
 
+    @VisibleForTesting
     JobPlan findMatchingJob(AgentInstance agent) {
         List<JobPlan> filteredJobPlans = environmentConfigService.filterJobsByAgent(jobPlans, agent.getUuid());
         JobPlan match = null;
@@ -305,9 +307,10 @@ public class BuildAssignmentService implements ConfigChangedListener {
                     final EnvironmentVariableContext environmentVariableContext = buildEnvVarContext(job.getIdentifier().getPipelineName());
 
                     // Agent may have a NULL "resources"
-                    if (CollectionUtils.isNotEmpty(agent.getResourceConfigs())) {
+                    String resources = agent.getAgent().getResourcesNormalized();
+                    if (resources != null) {
                         // Users relying on this env. var. can test for its existence rather than checking for an empty string
-                        environmentVariableContext.setProperty(GO_AGENT_RESOURCES, agent.getResourceConfigs().getCommaSeparatedResourceNames(), false);
+                        environmentVariableContext.setProperty(GO_AGENT_RESOURCES, resources, false);
                     }
                     // Reason to resolve them separately: the rules for pluggable scm material verifies `SCM` based rules
                     // whereas the assignment considers `PipelineGroup` based rules

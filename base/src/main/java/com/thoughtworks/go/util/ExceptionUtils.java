@@ -24,16 +24,12 @@ public final class ExceptionUtils {
         throw new RuntimeException(msg);
     }
 
-    public static RuntimeException bomb() {
-        throw new RuntimeException();
+    public static RuntimeException bomb(Exception e) {
+        throw (e instanceof RuntimeException rt ? rt : new RuntimeException(e.getMessage(), e));
     }
 
-    public static RuntimeException bomb(Throwable t) {
-        throw new RuntimeException(t.getMessage(), t);
-    }
-
-    public static RuntimeException bomb(String msg, Throwable t) {
-        throw new RuntimeException(msg, t);
+    public static RuntimeException bomb(String msg, Exception e) {
+        throw new RuntimeException(msg, e);
     }
 
     public static void bombIfNull(Object o, String msg) {
@@ -42,12 +38,6 @@ public final class ExceptionUtils {
 
     public static void bombIfNull(Object o, Supplier<String> msg) {
         bombIf(o == null, msg);
-    }
-
-    public static void bombIfFailedToRunCommandLine(int returnValue, String msg) throws Exception {
-        if (returnValue != 0) {
-            throw new Exception(msg);
-        }
     }
 
     public static void bombIf(boolean check, String msg) {
@@ -70,24 +60,8 @@ public final class ExceptionUtils {
         bombIf(!check, msg);
     }
 
-    public static RuntimeException methodNotImplemented() {
-        throw bomb("Not yet implemented");
-    }
-
     public static String messageOf(Throwable t) {
         String message = t.getMessage();
         return (message == null || message.isEmpty()) ? t.getClass().toString() : message;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T getCause(Throwable exception, Class<T> type) {
-        Throwable cause;
-        while ((cause = exception.getCause()) != null) {
-            if (type.isAssignableFrom(cause.getClass())) {
-                return (T) cause;
-            }
-            exception = cause;
-        }
-        return null;
     }
 }

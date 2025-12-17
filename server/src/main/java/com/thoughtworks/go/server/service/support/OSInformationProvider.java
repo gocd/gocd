@@ -30,7 +30,7 @@ public class OSInformationProvider implements ServerInfoProvider {
     }
 
     @Override
-    public Map<String, Object> asJson() {
+    public Map<String, Object> asJsonCompatibleMap() {
         OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         json.put("OS Name", operatingSystemMXBean.getName());

@@ -16,15 +16,14 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.Clock;
-import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.TimeProvider;
 import org.jetbrains.annotations.TestOnly;
 
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Objects;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -328,11 +327,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
     public void setScheduledDate(Date scheduledDate) {
         this.scheduledDate = scheduledDate;
     }
-
-    public void setScheduledDate(LocalDateTime scheduledDate) {
-        setScheduledDate(Dates.from(scheduledDate));
-    }
-
+    
     // End Date / Time Related Methods th
     @Override
     public JobInstance clone() {
@@ -407,31 +402,15 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
 
         JobInstance instance = (JobInstance) o;
 
-        if (ignored != instance.ignored) {
-            return false;
-        }
-        if (stageId != instance.stageId) {
-            return false;
-        }
-        if (agentUuid != null ? !agentUuid.equals(instance.agentUuid) : instance.agentUuid != null) {
-            return false;
-        }
-        if (identifier != null ? !identifier.equals(instance.identifier) : instance.identifier != null) {
-            return false;
-        }
-        if (name != null ? !name.equals(instance.name) : instance.name != null) {
-            return false;
-        }
-        if (result != instance.result) {
-            return false;
-        }
-        if (scheduledDate != null ? !scheduledDate.equals(instance.scheduledDate) : instance.scheduledDate != null) {
-            return false;
-        }
-        if (state != instance.state) {
-            return false;
-        }
-        return stateTransitions != null ? stateTransitions.equals(instance.stateTransitions) : instance.stateTransitions == null;
+        return ignored == instance.ignored &&
+            stageId == instance.stageId &&
+            Objects.equals(agentUuid, instance.agentUuid) &&
+            Objects.equals(identifier, instance.identifier) &&
+            Objects.equals(name, instance.name) &&
+            result == instance.result &&
+            Objects.equals(scheduledDate, instance.scheduledDate) &&
+            state == instance.state &&
+            Objects.equals(stateTransitions, instance.stateTransitions);
     }
 
     @Override

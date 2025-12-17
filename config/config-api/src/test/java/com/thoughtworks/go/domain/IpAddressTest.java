@@ -28,7 +28,7 @@ public class IpAddressTest {
 
     @Test
     public void invalidIpAddress() {
-        assertThat(IpAddress.create("").toString()).isEqualTo("");
+        assertThat(IpAddress.create("").toString()).isEmpty();
     }
 
     @Test

@@ -30,6 +30,7 @@ import spark.Response;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static spark.Spark.*;
@@ -37,7 +38,7 @@ import static spark.Spark.*;
 @Component
 public class InternalResourcesControllerV1 extends ApiController implements SparkSpringController {
     private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private GoConfigService goConfigService;
+    private final GoConfigService goConfigService;
     private final AgentService agentService;
 
     @Autowired
@@ -66,10 +67,10 @@ public class InternalResourcesControllerV1 extends ApiController implements Spar
     }
 
     public String index(Request request, Response response) throws IOException {
-        List<String> resourceListFromGoConfig = goConfigService.getResourceList();
-        List<String> resourceListFromAgentDB = agentService.getListOfResourcesAcrossAgents();
-        resourceListFromGoConfig.addAll(resourceListFromAgentDB);
-        List<String> finalResourceList = resourceListFromGoConfig.stream().distinct().collect(toList());
+        Stream<String> resourceListFromGoConfig = goConfigService.getResourceNames();
+        Stream<String> resourceListFromAgentDB = agentService.getDistinctResourcesAcrossAgents();
+
+        List<String> finalResourceList = Stream.concat(resourceListFromGoConfig, resourceListFromAgentDB).distinct().collect(toList());
         return JsonOutputWriter.OBJECT_MAPPER.writeValueAsString(finalResourceList);
     }
 }

@@ -69,8 +69,9 @@ public class CREnvironment extends CRBase {
         HashSet<String> keys = new HashSet<>();
         for (CREnvironmentVariable var : environmentVariables) {
             String error = var.validateNameUniqueness(keys);
-            if (error != null)
+            if (error != null) {
                 errors.addError(location, error);
+            }
         }
     }
 
@@ -78,11 +79,12 @@ public class CREnvironment extends CRBase {
         HashSet<String> keys = new HashSet<>();
         for (String agent : agents) {
             String lowerCase = agent.toLowerCase();
-            if (keys.contains(lowerCase))
+            if (keys.contains(lowerCase)) {
                 errors.addError(location, String.format(
                         "Agent %s is defined more than once", agent));
-            else
+            } else {
                 keys.add(lowerCase);
+            }
         }
     }
 
@@ -90,11 +92,12 @@ public class CREnvironment extends CRBase {
         HashSet<String> keys = new HashSet<>();
         for (String pipeline : pipelines) {
             String lowerCase = pipeline.toLowerCase();
-            if (keys.contains(lowerCase))
+            if (keys.contains(lowerCase)) {
                 errors.addError(location, String.format(
                         "Pipeline %s is defined more than once", pipeline));
-            else
+            } else {
                 keys.add(lowerCase);
+            }
         }
     }
 
@@ -107,10 +110,11 @@ public class CREnvironment extends CRBase {
     }
 
     public String validateNameUniqueness(HashSet<String> keys) {
-        if (keys.contains(this.getName()))
+        if (keys.contains(this.getName())) {
             return String.format("Environment %s is defined more than once", this.getName());
-        else
+        } else {
             keys.add(this.getName());
+        }
         return null;
     }
 

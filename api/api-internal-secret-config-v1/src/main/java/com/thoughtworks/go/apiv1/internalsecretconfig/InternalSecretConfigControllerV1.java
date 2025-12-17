@@ -39,6 +39,7 @@ import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
+import java.io.IOException;
 import java.util.List;
 
 import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
@@ -87,7 +88,7 @@ public class InternalSecretConfigControllerV1 extends ApiController implements S
         });
     }
 
-    public String index(Request request, Response response) throws Exception {
+    public String index(Request request, Response response) throws IOException {
         SecretConfigs secretConfigs = secretConfigService.getAllSecretConfigs();
         SecretConfigsViewModel configsViewModel = new SecretConfigsViewModel().setSecretConfigs(secretConfigs);
 

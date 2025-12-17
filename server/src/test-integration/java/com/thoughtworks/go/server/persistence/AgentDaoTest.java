@@ -16,13 +16,11 @@
 package com.thoughtworks.go.server.persistence;
 
 import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.exception.UnregisteredAgentException;
 import com.thoughtworks.go.listener.DatabaseEntityChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -314,15 +312,12 @@ public class AgentDaoTest {
             agent1.setResources("r1,r2");
             agent1.setEnvironments("e1,e2,e3");
 
-            AgentInstance agentInstance1 = AgentInstance.createFromAgent(agent1, new SystemEnvironment(), null);
-
             Agent agent2 = new Agent("uuid2", "localhost2", "127.0.0.2", "cookie2");
             agent2.setResources("r1");
 
             Agent agent3 = new Agent("uuid3", "localhost3", "127.0.0.3", "cookie3");
             agent3.setResources("r1");
             agent3.setEnvironments("e1,e3");
-            AgentInstance agentInstance3 = AgentInstance.createFromAgent(agent3, new SystemEnvironment(), null);
 
             agentDao.saveOrUpdate(agent1);
             agentDao.saveOrUpdate(agent2);

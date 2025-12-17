@@ -149,7 +149,9 @@ public class ElasticAgentPluginService {
             elasticAgentsOfMissingPlugins.remove(descriptor.id());
             List<ClusterProfile> clusterProfiles = clusterProfilesService.getPluginProfiles().findByPluginId(descriptor.id());
             boolean secretsResolved = resolveSecrets(descriptor.id(), clusterProfiles);
-            if (!secretsResolved) continue;
+            if (!secretsResolved) {
+                continue;
+            }
             serverPingQueue.post(new ServerPingMessage(descriptor.id(), clusterProfiles), pingMessageTimeToLive);
             serverHealthService.removeByScope(scope(descriptor.id()));
         }
@@ -277,7 +279,7 @@ public class ElasticAgentPluginService {
         throw new UnsupportedOperationException("Plugin does not plugin support status report.");
     }
 
-    public String getAgentStatusReport(String pluginId, JobIdentifier jobIdentifier, String elasticAgentId) throws Exception {
+    public String getAgentStatusReport(String pluginId, JobIdentifier jobIdentifier, String elasticAgentId) {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
         if (pluginInfo == null) {
             throw new RecordNotFoundException(format("Plugin with id: '%s' is not found.", pluginId));
@@ -293,7 +295,7 @@ public class ElasticAgentPluginService {
                 }
                 return elasticAgentPluginRegistry.getAgentStatusReport(pluginId, jobIdentifier, elasticAgentId, clusterProfileConfigurations);
             }
-            throw new Exception(format("Could not fetch agent status report for agent %s as either the job running on the agent has been completed or the agent has been terminated.", elasticAgentId));
+            throw new RuntimeException(format("Could not fetch agent status report for agent %s as either the job running on the agent has been completed or the agent has been terminated.", elasticAgentId));
         }
 
         throw new UnsupportedOperationException("Plugin does not support agent status report.");
@@ -385,8 +387,9 @@ public class ElasticAgentPluginService {
     }
 
     private void resolveSecrets(ClusterProfile clusterProfile, ElasticProfile elasticProfile) {
-        if (clusterProfile != null)
+        if (clusterProfile != null) {
             secretParamResolver.resolve(clusterProfile);
+        }
         secretParamResolver.resolve(elasticProfile);
     }
 }

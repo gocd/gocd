@@ -36,11 +36,11 @@ public class PropertyTest {
         Property property = new Property("key", null, defaultValue);
         assertThat(property.getValue()).isEqualTo(defaultValue);
         property = new Property("key", "", defaultValue);
-        assertThat(property.getValue()).isEqualTo("");
+        assertThat(property.getValue()).isEmpty();
         property = new Property("key").withDefault(defaultValue);
         assertThat(property.getValue()).isEqualTo(defaultValue);
         property = new Property("key");
-        assertThat(property.getValue()).isEqualTo("");
+        assertThat(property.getValue()).isEmpty();
         String value = "yek";
         property = new Property("key", value, defaultValue);
         assertThat(property.getValue()).isEqualTo(value);

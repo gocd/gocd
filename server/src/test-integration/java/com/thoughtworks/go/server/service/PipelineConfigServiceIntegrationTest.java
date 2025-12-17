@@ -80,8 +80,6 @@ public class PipelineConfigServiceIntegrationTest {
     @Autowired
     private ConfigRepository configRepository;
     @Autowired
-    private ConfigCache configCache;
-    @Autowired
     private ConfigElementImplementationRegistry registry;
     @Autowired
     private PartialConfigService partialConfigService;
@@ -1083,7 +1081,7 @@ public class PipelineConfigServiceIntegrationTest {
 
     private void saveConfig(CruiseConfig cruiseConfig) throws Exception {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        new MagicalGoConfigXmlWriter(configCache, registry).write(cruiseConfig, buffer, false);
+        new MagicalGoConfigXmlWriter(registry).write(cruiseConfig, buffer, false);
     }
 
     @SuppressWarnings("SameParameterValue")

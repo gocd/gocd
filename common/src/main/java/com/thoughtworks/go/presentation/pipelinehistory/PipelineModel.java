@@ -89,15 +89,8 @@ public class PipelineModel {
         }
 
         PipelineModel that = (PipelineModel) o;
-
-        if (canForce != that.canForce) {
-            return false;
-        }
-        if (!activePipelineInstances.equals(that.activePipelineInstances)) {
-            return false;
-        }
-
-        return true;
+        return canForce == that.canForce &&
+            activePipelineInstances.equals(that.activePipelineInstances);
     }
 
     @Override

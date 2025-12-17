@@ -27,6 +27,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.*;
 
@@ -59,7 +60,7 @@ public class HttpRequestBuilder {
                 request.setQueryString(URLEncodedUtils.format(uri.getQueryParams(), UTF_8));
             }
             return this;
-        } catch (Exception e) {
+        } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }

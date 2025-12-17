@@ -80,7 +80,7 @@ class SerializationTest {
     }
 
     @Test
-    void rejectsSerializationOfAESCipherProvider() throws IOException {
+    void rejectsSerializationOfAESCipherProvider() {
         final AESCipherProvider acp = new AESCipherProvider(new TempSystemEnvironment());
         try {
             final IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->

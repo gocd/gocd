@@ -15,16 +15,18 @@
  */
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.preprocessor.ConcurrentFieldCache;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
+import java.util.Objects;
+
+import static com.thoughtworks.go.config.GoConfigGraphWalker.shouldWalk;
 
 public class GoConfigParallelGraphWalker {
-    private Object rawConfig;
-    private Object configWithErrors;
+    private final Object rawConfig;
+    private final Object configWithErrors;
 
     public GoConfigParallelGraphWalker(Object from, Object to) {
         this.rawConfig = to;
@@ -36,73 +38,49 @@ public class GoConfigParallelGraphWalker {
     }
 
     private void walkSubtree(Object raw, Object withErrors, Handler handler) {
-        GoConfigGraphWalker.WalkedObject walkedObject = new GoConfigGraphWalker.WalkedObject(raw);
-        if (!walkedObject.shouldWalk()) {
+        if (!shouldWalk(raw) || !shouldWalk(withErrors)) {
             return;
         }
-        if (Validatable.class.isAssignableFrom(raw.getClass())) {
-            handler.handle((Validatable)raw, (Validatable)withErrors);
-        }
+        walkValidatable(raw, withErrors, handler);
         walkCollection(raw, withErrors, handler);
         walkFields(raw, withErrors, handler);
     }
 
+    private void walkValidatable(Object raw, Object withErrors, Handler handler) {
+        if (raw instanceof Validatable rawV && withErrors instanceof Validatable withErrorsV) {
+            handler.handle(rawV, withErrorsV);
+        }
+    }
+
     private void walkFields(Object raw, Object withErrors, Handler handler) {
-        for (Field field : getAllFields(raw.getClass())) {
-            field.setAccessible(true);
+        for (Field field : ConcurrentFieldCache.nonStaticOrSyntheticFieldsFor(raw.getClass())) {
+            if (isFinal(field) || field.isAnnotationPresent(IgnoreTraversal.class)) {
+                continue;
+            }
             try {
-                Object rawObject = field.get(raw);
-                Object withErrorsObject = field.get(withErrors);
-                if (rawObject == null || withErrorsObject == null || isAConstantField(field) || field.isAnnotationPresent(IgnoreTraversal.class)) {
-                    continue;
-                }
-                walkSubtree(rawObject, withErrorsObject, handler);
+                field.setAccessible(true);
+                walkSubtree(field.get(raw), field.get(withErrors), handler);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
-    private List<Field> getAllFields(Class<?> klass) {
-        List<Field> declaredFields = new ArrayList<>(Arrays.asList(klass.getDeclaredFields()));
-        Class<?> superKlass = klass.getSuperclass();
-        if (superKlass != null) {
-            declaredFields.addAll(getAllFields(superKlass));
-        }
-        return declaredFields;
-    }
-
-    private boolean isAConstantField(Field field) {
-        int modifiers = field.getModifiers();
-        //MCCXL cannot assign value to final fields as it always uses the default constructor. Hence this assumption is OK
-        return Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers);
+    private boolean isFinal(Field field) {
+        // MCCXL cannot assign value to final fields as it always uses the default constructor. Hence this assumption is OK
+        return Modifier.isFinal(field.getModifiers());
     }
 
     private void walkCollection(Object raw, Object withErrors, Handler handler) {
-        if (Collection.class.isAssignableFrom(raw.getClass())) {
-            Object[] rawCollection = ((Collection<?>) raw).toArray();
-            Object[] withErrorsCollection = ((Collection<?>) withErrors).toArray();
-            for (Object rawObject : rawCollection) {
-                Object matchingObject = findMatchingObject(withErrorsCollection, rawObject);
-                if (matchingObject != null) {
-                    walkSubtree(rawObject, matchingObject, handler);
-                }
-            }
+        if (raw instanceof Collection<?> rawCollection && withErrors instanceof Collection<?> withErrorsCollection) {
+            rawCollection.stream()
+                .filter(Objects::nonNull)
+                .forEach(rawObject -> withErrorsCollection.stream()
+                    .filter(rawObject::equals)
+                    .findFirst()
+                    .ifPresent(matchingObject -> walkSubtree(rawObject, matchingObject, handler))
+                );
         }
-    }
-
-    private Object findMatchingObject(Object[] collectionToSearchIn, Object objectToFindEquivalentOf) {
-        if (objectToFindEquivalentOf == null) {
-            return null;
-        }
-
-        for (Object candidate : collectionToSearchIn) {
-            if (objectToFindEquivalentOf.equals(candidate)) {
-                return candidate;
-            }
-        }
-
-        return null;
     }
 
     public interface Handler {

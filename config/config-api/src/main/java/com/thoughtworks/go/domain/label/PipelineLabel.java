@@ -23,6 +23,7 @@ import org.apache.commons.lang3.Strings;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -113,7 +114,7 @@ public class PipelineLabel implements Serializable {
 
         PipelineLabel label1 = (PipelineLabel) o;
 
-        return label != null ? label.equals(label1.label) : label1.label == null;
+        return Objects.equals(label, label1.label);
     }
 
     @Override

@@ -37,7 +37,7 @@ public class DelegatingListener implements ServletContextListener {
             Class<?> servletKlass = Class.forName(attribute);
             Constructor<?> cons = servletKlass.getConstructor();
             servlet = (HttpServlet) cons.newInstance();
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
         return servlet;

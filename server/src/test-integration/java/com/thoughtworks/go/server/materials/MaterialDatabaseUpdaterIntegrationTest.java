@@ -159,7 +159,7 @@ public class MaterialDatabaseUpdaterIntegrationTest {
         }
 
         @Override
-        public Object executeWithExceptionHandling(TransactionCallback action) throws Exception {
+        public Object executeWithExceptionHandling(TransactionCallback action) {
             invocationCount.incrementAndGet();
             return nestedTransactionTemplate.executeWithExceptionHandling(action);
         }

@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.RoleUser;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /* Understands: The set of users it has. */
@@ -43,8 +44,9 @@ public class AllowedUsers implements Users {
     private boolean containsInRole(String username) {
         for (PluginRoleConfig role : allowedRoles) {
             for (RoleUser r : role.getUsers()) {
-                if (r.getName().equals(new CaseInsensitiveString(username)))
+                if (r.getName().equals(new CaseInsensitiveString(username))) {
                     return true;
+                }
             }
         }
         return false;
@@ -52,13 +54,17 @@ public class AllowedUsers implements Users {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         AllowedUsers that = (AllowedUsers) o;
 
-        if (allowedRoles != null ? !allowedRoles.equals(that.allowedRoles) : that.allowedRoles != null) return false;
-        return allowedUsers != null ? allowedUsers.equals(that.allowedUsers) : that.allowedUsers == null;
+        return Objects.equals(allowedRoles, that.allowedRoles) &&
+            Objects.equals(allowedUsers, that.allowedUsers);
     }
 
     @Override

@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
+import java.util.Objects;
 
 @ConfigTag(value = "package")
 public class PackageMaterialConfig extends AbstractMaterialConfig {
@@ -198,10 +199,8 @@ public class PackageMaterialConfig extends AbstractMaterialConfig {
 
         PackageMaterialConfig that = (PackageMaterialConfig) o;
 
-        if (packageDefinition != null ? !packageDefinition.equals(that.packageDefinition) : that.packageDefinition != null) {
-            return false;
-        }
-        return super.equals(that);
+        return Objects.equals(packageDefinition, that.packageDefinition) &&
+            super.equals(that);
     }
 
     @Override

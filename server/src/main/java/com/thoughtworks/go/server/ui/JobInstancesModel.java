@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.JobInstances;
 import com.thoughtworks.go.server.util.Pagination;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * Understands how to represent a paginated list of jobs on the UI
@@ -62,14 +63,8 @@ public class JobInstancesModel implements Iterable<JobInstance> {
 
         JobInstancesModel that = (JobInstancesModel) o;
 
-        if (jobInstances != null ? !jobInstances.equals(that.jobInstances) : that.jobInstances != null) {
-            return false;
-        }
-        if (pagination != null ? !pagination.equals(that.pagination) : that.pagination != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(jobInstances, that.jobInstances) &&
+            Objects.equals(pagination, that.pagination);
     }
 
     @Override

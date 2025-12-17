@@ -372,7 +372,7 @@ class ElasticAgentPluginServiceTest {
     }
 
     @Test
-    void shouldGetAPluginAgentReportWhenPluginSupportsStatusReport() throws Exception {
+    void shouldGetAPluginAgentReportWhenPluginSupportsStatusReport() {
         final Capabilities capabilities = new Capabilities(false, true);
         final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
         elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
@@ -730,7 +730,7 @@ class ElasticAgentPluginServiceTest {
         }
 
         @Test
-        void shouldResolveSecretsAndSendResolvedValue_getAgentStatusReport() throws Exception {
+        void shouldResolveSecretsAndSendResolvedValue_getAgentStatusReport() {
             ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", "{{SECRET:[config_id][key]}}");
             final Capabilities capabilities = new Capabilities(false, true);
             final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();

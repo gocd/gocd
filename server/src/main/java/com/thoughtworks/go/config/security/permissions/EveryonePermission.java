@@ -25,6 +25,7 @@ public class EveryonePermission extends PipelinePermission {
     private EveryonePermission() {
     }
 
+    @Override
     public Users getPipelineOperators() {
         return Everyone.INSTANCE;
     }

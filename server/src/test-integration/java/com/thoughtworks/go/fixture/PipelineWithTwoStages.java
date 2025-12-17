@@ -99,13 +99,8 @@ public class PipelineWithTwoStages {
         return this;
     }
 
-
     public Material getMaterial() {
-        try {
-            return new SvnMaterial(svnClient);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return new SvnMaterial(svnClient);
     }
 
     public void onSetUp() throws Exception {

@@ -16,6 +16,7 @@
 package com.thoughtworks.go.domain;
 
 import java.util.Date;
+import java.util.Objects;
 
 public class StageAsDMR {
 
@@ -58,14 +59,8 @@ public class StageAsDMR {
 
         StageAsDMR asDMR = (StageAsDMR) o;
 
-        if (completedDate != null ? !completedDate.equals(asDMR.completedDate) : asDMR.completedDate != null) {
-            return false;
-        }
-        if (identifier != null ? !identifier.equals(asDMR.identifier) : asDMR.identifier != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(completedDate, asDMR.completedDate) &&
+            Objects.equals(identifier, asDMR.identifier);
     }
 
     @Override

@@ -450,7 +450,7 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
         MyValidatable bar = new AlwaysEqualMyValidatable();
         foo.innerValidatable = bar;
 
-        GoConfigGraphWalker.Handler handler = mock(GoConfigGraphWalker.Handler.class);
+        Validatable.Handler handler = mock(Validatable.Handler.class);
 
         new GoConfigGraphWalker(foo).walk(handler);
 

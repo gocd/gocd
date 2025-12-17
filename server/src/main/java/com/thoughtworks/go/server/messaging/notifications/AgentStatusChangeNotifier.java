@@ -25,8 +25,8 @@ import static com.thoughtworks.go.plugin.access.notification.NotificationExtensi
 
 @Component
 public class AgentStatusChangeNotifier implements AgentStatusChangeListener {
-    private NotificationPluginRegistry notificationPluginRegistry;
-    private PluginNotificationService pluginNotificationService;
+    private final NotificationPluginRegistry notificationPluginRegistry;
+    private final PluginNotificationService pluginNotificationService;
 
     @Autowired
     public AgentStatusChangeNotifier(NotificationPluginRegistry pluginRegistry, PluginNotificationService notificationService) {

@@ -37,14 +37,18 @@ public abstract class ArtifactCache<T extends Comparable<T>> {
         this.artifactsDirHolder = artifactsDirHolder;
     }
 
-    public boolean cacheCreated(T artifactLocation) throws Exception {
+    public boolean cacheCreated(T artifactLocation) throws IOException {
         if (currentlyCreatingCache(artifactLocation)) { return false; }
         if (exceptionCreatingCache(artifactLocation)) {
-            Exception e = pendingExceptions.get(artifactLocation);
-            if (e != null && pendingExceptions.remove(artifactLocation, e)) {
-                throw e;
-            } else {
+            Exception e = pendingExceptions.remove(artifactLocation);
+            if (e == null) {
                 return false;
+            } else if (e instanceof IOException ioe) {
+                throw ioe;
+            } else if (e instanceof RuntimeException re) {
+                throw re;
+            } else {
+                throw new RuntimeException(e); // unexpected
             }
         }
         if (cacheAlreadyCreated(artifactLocation)) { return true; }

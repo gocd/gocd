@@ -23,7 +23,7 @@ public class RakeTaskTest {
     @Test
     public void shouldReturnEmptyStringForDefault() {
         RakeTask rakeTask = new RakeTask();
-        assertThat(rakeTask.arguments()).isEqualTo("");
+        assertThat(rakeTask.arguments()).isEmpty();
     }
 
     @Test

@@ -16,6 +16,7 @@
 package com.thoughtworks.go.presentation;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class FlashMessageModel implements Serializable {
 
@@ -46,14 +47,8 @@ public class FlashMessageModel implements Serializable {
 
         FlashMessageModel that = (FlashMessageModel) o;
 
-        if (flashClassName != null ? !flashClassName.equals(that.flashClassName) : that.flashClassName != null) {
-            return false;
-        }
-        if (message != null ? !message.equals(that.message) : that.message != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(flashClassName, that.flashClassName) &&
+            Objects.equals(message, that.message);
     }
 
     @Override

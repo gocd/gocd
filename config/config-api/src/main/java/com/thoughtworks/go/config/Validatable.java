@@ -23,4 +23,19 @@ public interface Validatable {
     ConfigErrors errors();
 
     void addError(String fieldName, String message);
+
+    @FunctionalInterface
+    interface Handler {
+        void handle(Validatable validatable, ValidationContext ctx);
+    }
+    
+    static void clearErrors(Validatable obj) {
+        GoConfigGraphWalker walker = new GoConfigGraphWalker(obj);
+        walker.walk((validatable, ctx) -> validatable.errors().clear());
+    }
+
+    static <T> void copyErrors(T from, T to) {
+        GoConfigParallelGraphWalker walker = new GoConfigParallelGraphWalker(from, to);
+        walker.walk((rawObject, objectWithErrors) -> rawObject.errors().addAll(objectWithErrors.errors()));
+    }
 }

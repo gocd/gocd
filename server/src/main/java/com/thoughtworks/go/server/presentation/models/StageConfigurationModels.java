@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.presentation.pipelinehistory.StageConfigurationModel;
 
-import static com.thoughtworks.go.util.ExceptionUtils.methodNotImplemented;
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class StageConfigurationModels extends BaseCollection<StageConfigurationModel> {
     public StageConfigurationModels() {
@@ -61,7 +61,6 @@ public class StageConfigurationModels extends BaseCollection<StageConfigurationM
     // not intend to use this method, but to let checkstyle happy
     @Override
     public int hashCode() {
-        methodNotImplemented();
-        return 0;
+        throw bomb("Not yet implemented");
     }
 }

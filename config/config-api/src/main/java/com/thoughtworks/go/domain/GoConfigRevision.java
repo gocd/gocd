@@ -24,6 +24,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -184,11 +185,7 @@ public class GoConfigRevision {
 
         GoConfigRevision that = (GoConfigRevision) o;
 
-        if (md5 != null ? !md5.equals(that.md5) : that.md5 != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(md5, that.md5);
     }
 
     @Override

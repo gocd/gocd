@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.config;
 
+package com.thoughtworks.go.config.preprocessor;
+
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
@@ -24,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TemplateExpansionPreprocessorTest {
+class TemplateExpansionPreprocessorTest {
     private TemplateExpansionPreprocessor preprocessor;
 
     @BeforeEach

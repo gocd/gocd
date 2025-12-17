@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,14 +77,8 @@ public class Tab implements Validatable {
 
         Tab tab = (Tab) o;
 
-        if (name != null ? !name.equals(tab.name) : tab.name != null) {
-            return false;
-        }
-        if (path != null ? !path.equals(tab.path) : tab.path != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(name, tab.name) &&
+            Objects.equals(path, tab.path);
     }
 
     @Override

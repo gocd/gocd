@@ -94,7 +94,7 @@ public class ValueStreamMapPerformanceTest {
     }
 
     @Test
-    public void shouldTestVSMForNPipelines() throws Exception {
+    public void shouldTestVSMForNPipelines() {
         final int numberOfDownstreamPipelines = 5;
         final CruiseConfig cruiseConfig = setupVSM(numberOfDownstreamPipelines);
         List<Thread> ts = new ArrayList<>();

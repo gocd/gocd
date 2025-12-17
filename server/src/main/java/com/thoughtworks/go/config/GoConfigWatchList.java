@@ -70,12 +70,13 @@ public class GoConfigWatchList extends EntityConfigChangedListener<ConfigRepoCon
     }
 
     private synchronized void notifyListeners(ConfigReposConfig configRepoConfigs) {
-        for (ChangedRepoConfigWatchListListener listener : listeners)
+        for (ChangedRepoConfigWatchListListener listener : listeners) {
             try {
                 listener.onChangedRepoConfigWatchList(configRepoConfigs);
             } catch (Exception e) {
                 LOGGER.error("failed to fire config repos list changed event for listener: {}", listener, e);
             }
+        }
     }
 
     public boolean hasConfigRepoWithFingerprint(String fingerprint) {

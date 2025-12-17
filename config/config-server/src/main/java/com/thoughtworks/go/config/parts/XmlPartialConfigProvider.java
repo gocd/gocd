@@ -20,20 +20,16 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.WildcardScanner;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import org.jdom2.input.JDOMParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jdom2.JDOMException;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
 public class XmlPartialConfigProvider implements PartialConfigProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger(XmlPartialConfigProvider.class);
-
     public static final String providerName = "gocd-xml";
 
-    private final String defaultPattern = "**/*.gocd.xml";
+    private static final String defaultPattern = "**/*.gocd.xml";
 
     private final MagicalGoConfigXmlLoader loader;
 
@@ -99,27 +95,18 @@ public class XmlPartialConfigProvider implements PartialConfigProvider {
         for (int i = 0; i < allFiles.length; i++) {
             parts[i] = parseFile(allFiles[i]);
         }
-
         return parts;
     }
 
     public PartialConfig parseFile(File file) {
-        FileInputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(file);
+        try (FileInputStream inputStream = new FileInputStream(file)) {
             return loader.fromXmlPartial(inputStream, PartialConfig.class);
-        } catch (JDOMParseException jdomex) {
-            throw new RuntimeException("Syntax error in xml file: " + file.getName(), jdomex);
-        } catch (IOException ioex) {
-            throw new RuntimeException("IO error when trying to parse xml file: " + file.getName(), ioex);
-        } catch (Exception ex) {
-            throw new RuntimeException("Failed to parse xml file: " + file.getName(), ex);
-        } finally {
-            if (inputStream != null) try {
-                inputStream.close();
-            } catch (IOException e) {
-                LOGGER.error("Failed to close file: {}", file, e);
-            }
+        } catch (JDOMException e) {
+            throw new RuntimeException("Syntax error in xml file: " + file.getName(), e);
+        } catch (IOException e) {
+            throw new RuntimeException("IO error when trying to parse xml file: " + file.getName(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse xml file: " + file.getName(), e);
         }
     }
 }

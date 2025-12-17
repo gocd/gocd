@@ -22,16 +22,19 @@ import com.thoughtworks.go.server.database.DbProperties;
 import javax.sql.DataSource;
 import java.io.File;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class H2BackupProcessor implements BackupProcessor {
 
     @Override
-    public void backup(File targetDir, DataSource dataSource, DbProperties dbProperties) throws SQLException {
-        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
-            File dbBackupFile = new File(targetDir, "db.zip");
-            statement.execute(String.format("BACKUP TO '%s'", dbBackupFile));
+    public void backup(File targetDir, DataSource dataSource, DbProperties dbProperties) {
+        try (Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement("BACKUP TO ?")) {
+            File backupFile = new File(targetDir, "db.zip");
+            statement.setString(1, backupFile.toString());
+            statement.execute();
+        } catch (SQLException e) {
+            throwBackupError("H2db BACKUP TO", e.getErrorCode(), e);
         }
     }
 

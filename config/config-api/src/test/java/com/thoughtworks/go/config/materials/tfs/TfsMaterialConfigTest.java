@@ -81,7 +81,7 @@ class TfsMaterialConfigTest {
     @Test
     void shouldDefaultDomainToEmptyStringWhenNothingIsSet() {
         TfsMaterialConfig tfsMaterialConfig = tfs();
-        assertThat(tfsMaterialConfig.getDomain()).isEqualTo("");
+        assertThat(tfsMaterialConfig.getDomain()).isEmpty();
     }
 
     @Test

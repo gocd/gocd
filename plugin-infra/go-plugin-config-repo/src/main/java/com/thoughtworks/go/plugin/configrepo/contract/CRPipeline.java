@@ -90,11 +90,13 @@ public class CRPipeline extends CRBase {
     }
 
     public CRMaterial getMaterialByName(String name) {
-        if (this.materials == null)
+        if (this.materials == null) {
             return null;
+        }
         for (CRMaterial m : this.materials) {
-            if (m.getName().equals(name))
+            if (m.getName().equals(name)) {
                 return m;
+            }
         }
         return null;
     }
@@ -172,8 +174,9 @@ public class CRPipeline extends CRBase {
         HashSet<String> keys = new HashSet<>();
         for (CREnvironmentVariable var : environmentVariables) {
             String error = var.validateNameUniqueness(keys);
-            if (error != null)
+            if (error != null) {
                 errors.addError(location, error);
+            }
         }
     }
 
@@ -181,8 +184,9 @@ public class CRPipeline extends CRBase {
         HashSet<String> keys = new HashSet<>();
         for (CRParameter param : parameters) {
             String error = param.validateNameUniqueness(keys);
-            if (error != null)
+            if (error != null) {
                 errors.addError(location, error);
+            }
         }
     }
 
@@ -213,8 +217,9 @@ public class CRPipeline extends CRBase {
         HashSet<String> keys = new HashSet<>();
         for (CRStage stage : stages) {
             String error = stage.validateNameUniqueness(keys);
-            if (error != null)
+            if (error != null) {
                 errors.addError(location, error);
+            }
         }
     }
 
@@ -222,14 +227,16 @@ public class CRPipeline extends CRBase {
         HashSet<String> keys = new HashSet<>();
         for (CRMaterial material1 : materials) {
             String error = material1.validateNameUniqueness(keys);
-            if (error != null)
+            if (error != null) {
                 errors.addError(location, error);
+            }
         }
     }
 
     private void validateAtLeastOneStage(ErrorCollection errors, String location) {
-        if (!hasStages())
+        if (!hasStages()) {
             errors.addError(location, "Pipeline has no stages.");
+        }
     }
 
     private boolean hasStages() {
@@ -245,8 +252,9 @@ public class CRPipeline extends CRBase {
     }
 
     private void validateAtLeastOneMaterial(ErrorCollection errors, String location) {
-        if (this.materials == null || this.materials.isEmpty())
+        if (this.materials == null || this.materials.isEmpty()) {
             errors.addError(location, "Pipeline has no materials.");
+        }
     }
 
     public boolean hasTemplate() {

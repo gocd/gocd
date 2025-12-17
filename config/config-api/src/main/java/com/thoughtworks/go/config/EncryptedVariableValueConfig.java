@@ -16,6 +16,7 @@
 package com.thoughtworks.go.config;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Understands encrypted values for env variables
@@ -43,11 +44,7 @@ public class EncryptedVariableValueConfig implements Serializable{
 
         EncryptedVariableValueConfig that = (EncryptedVariableValueConfig) o;
 
-        if (value != null ? !value.equals(that.value) : that.value != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(value, that.value);
     }
 
     @Override

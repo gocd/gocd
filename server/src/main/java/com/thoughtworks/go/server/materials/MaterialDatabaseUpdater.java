@@ -79,7 +79,7 @@ public class MaterialDatabaseUpdater {
         this.goConfigService = goConfigService;
     }
 
-    public void updateMaterial(final Material material) throws Exception {
+    public void updateMaterial(final Material material) {
         String materialMutex = mutexForMaterial(material);
         HealthStateScope scope = HealthStateScope.forMaterial(material);
         try {

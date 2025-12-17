@@ -25,7 +25,9 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.validation.Validator;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import static java.lang.String.format;
 
@@ -151,22 +153,12 @@ public class User extends PersistentObject {
         }
 
         User user = (User) o;
-        if (emailMe != user.emailMe) {
-            return false;
-        }
-        if (enabled != user.enabled) {
-            return false;
-        }
-        if (!Objects.equals(email, user.email)) {
-            return false;
-        }
-        if (!Objects.equals(matcher, user.matcher)) {
-            return false;
-        }
-        if (!Objects.equals(name, user.name)) {
-            return false;
-        }
-        return Objects.equals(displayName, user.displayName);
+        return emailMe == user.emailMe &&
+            enabled == user.enabled &&
+            Objects.equals(email, user.email) &&
+            Objects.equals(matcher, user.matcher) &&
+            Objects.equals(name, user.name) &&
+            Objects.equals(displayName, user.displayName);
     }
 
     @Override
@@ -223,11 +215,15 @@ public class User extends PersistentObject {
     }
 
     public void disable() {
-        this.enabled = false;
+        setEnabled(false);
     }
 
     public void enable() {
-        this.enabled = true;
+        setEnabled(true);
+    }
+
+    public void setEnabled(boolean value) {
+        this.enabled = value;
     }
 
     public boolean isAnonymous() {

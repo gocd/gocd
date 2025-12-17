@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.split;
@@ -97,15 +98,8 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
         HgMaterialConfig that = (HgMaterialConfig) o;
 
-        if (url != null ? !url.equals(that.url) : that.url != null) {
-            return false;
-        }
-
-        if (branch != null ? !branch.equals(that.branch) : that.branch != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(url, that.url) &&
+            Objects.equals(branch, that.branch);
     }
 
     @Override

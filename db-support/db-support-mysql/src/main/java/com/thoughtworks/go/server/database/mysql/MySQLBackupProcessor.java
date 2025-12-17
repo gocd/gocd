@@ -39,7 +39,7 @@ public class MySQLBackupProcessor implements BackupProcessor {
     private static final String COMMAND = "mysqldump";
 
     @Override
-    public void backup(File targetDir, DataSource dataSource, DbProperties dbProperties) throws InterruptedException, TimeoutException, IOException {
+    public void backup(File targetDir, DataSource dataSource, DbProperties dbProperties) {
         try {
             ProcessResult processResult = createProcessExecutor(targetDir, dbProperties).execute();
 
@@ -50,6 +50,8 @@ public class MySQLBackupProcessor implements BackupProcessor {
             }
         } catch (ProcessInitException e) {
             throwBackupError(COMMAND, e.getErrorCode(), e.getCause());
+        } catch (IOException | InterruptedException | TimeoutException e) {
+            throwBackupError(COMMAND, e);
         }
     }
 

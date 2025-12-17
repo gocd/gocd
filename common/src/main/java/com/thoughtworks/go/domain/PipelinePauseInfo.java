@@ -17,6 +17,7 @@ package com.thoughtworks.go.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 public class PipelinePauseInfo implements Serializable {
     private boolean paused;
@@ -104,20 +105,10 @@ public class PipelinePauseInfo implements Serializable {
 
         PipelinePauseInfo that = (PipelinePauseInfo) o;
 
-        if (paused != that.paused) {
-            return false;
-        }
-        if (pauseBy != null ? !pauseBy.equals(that.pauseBy) : that.pauseBy != null) {
-            return false;
-        }
-        if (pauseCause != null ? !pauseCause.equals(that.pauseCause) : that.pauseCause != null) {
-            return false;
-        }
-        if (pausedAt != null ? !pausedAt.equals(that.pausedAt) : that.pausedAt != null) {
-            return false;
-        }
-
-        return true;
+        return paused == that.paused &&
+            Objects.equals(pauseBy, that.pauseBy) &&
+            Objects.equals(pauseCause, that.pauseCause) &&
+            Objects.equals(pausedAt, that.pausedAt);
     }
 
     @Override

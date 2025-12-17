@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.MailHost;
+import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 
 public class CreateOrUpdateUpdateMailHostCommand implements EntityConfigUpdateCommand<MailHost> {
@@ -42,7 +42,7 @@ public class CreateOrUpdateUpdateMailHostCommand implements EntityConfigUpdateCo
         preprocessedEntityConfig.validate(new ConfigSaveValidationContext(preprocessedConfig));
 
         if (preprocessedEntityConfig.errors().present()) {
-            BasicCruiseConfig.copyErrors(preprocessedEntityConfig, newMailHost);
+            Validatable.copyErrors(preprocessedEntityConfig, newMailHost);
             return false;
         } else {
             return true;
@@ -51,7 +51,7 @@ public class CreateOrUpdateUpdateMailHostCommand implements EntityConfigUpdateCo
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(newMailHost);
+        Validatable.clearErrors(newMailHost);
     }
 
     @Override

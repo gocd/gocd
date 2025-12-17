@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @ConfigTag("role")
 public class RoleConfig implements Role {
@@ -133,13 +134,17 @@ public class RoleConfig implements Role {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         RoleConfig that = (RoleConfig) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        return users != null ? users.equals(that.users) : that.users == null;
+        return Objects.equals(name, that.name) &&
+            Objects.equals(users, that.users);
     }
 
     @Override

@@ -25,9 +25,7 @@ import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.NotificationFilter;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
-import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.domain.packagerepository.Packages;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.listener.ConfigChangedListener;
@@ -260,10 +258,6 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return getConfigEntityDigestFromCache(cacheKey, config);
     }
 
-    public String hashForEntity(PackageRepositories packageRepositories) {
-        return compound(packageRepositories, this::hashForEntity);
-    }
-
     public String hashForEntity(SCM config) {
         String cacheKey = cacheKey(config, config.getName());
         return getConfigEntityDigestFromCache(cacheKey, config);
@@ -306,10 +300,6 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return getConfigEntityDigestFromCache(cacheKey, config);
     }
 
-    public String hashForEntity(SecurityAuthConfigs authConfigs) {
-        return compound(authConfigs, this::hashForEntity);
-    }
-
     public String hashForEntity(Role config) {
         String cacheKey = cacheKey(config, config.getName());
         return getConfigEntityDigestFromCache(cacheKey, config);
@@ -327,10 +317,6 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     public String hashForEntity(PackageDefinition config) {
         String cacheKey = cacheKey(config, config.getId());
         return getConfigEntityDigestFromCache(cacheKey, config);
-    }
-
-    public String hashForEntity(Packages config) {
-        return compound(config, this::hashForEntity);
     }
 
     public String hashForEntity(PluginSettings pluginSettings) {

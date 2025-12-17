@@ -50,7 +50,9 @@ public class ProcessManager {
         ProcessBuilder processBuilder = new ProcessBuilder(commandLine);
         LOG.debug("Executing: {}", commandLineForDisplay);
         if (workingDir != null) {
-            LOG.debug("[Command Line] Using working directory {} to start the process.", workingDir.getAbsolutePath());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("[Command Line] Using working directory {} to start the process.", workingDir.getAbsolutePath());
+            }
             processBuilder.directory(workingDir);
         }
 

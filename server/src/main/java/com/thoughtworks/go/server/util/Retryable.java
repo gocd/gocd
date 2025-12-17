@@ -59,7 +59,9 @@ public class Retryable {
 
         for (; times > tries; ++tries) {
             try {
-                if (action.test(tries)) return;
+                if (action.test(tries)) {
+                    return;
+                }
             } catch (Exception e) {
                 LOGGER.warn("Attempted to perform {}, but got exception", label, e);
             }

@@ -32,18 +32,16 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static com.thoughtworks.go.util.ExceptionUtils.bombIfFailedToRunCommandLine;
+import static com.thoughtworks.go.util.ExceptionUtils.bombUnless;
 import static com.thoughtworks.go.util.FileUtil.mkdirsParentQuietly;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isAllBlank;
@@ -158,21 +156,21 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
     }
 
     @TestOnly
-    public void add(File baseDir, ProcessOutputStreamConsumer<?, ?> outputStreamConsumer, File file) throws Exception {
+    public void add(File baseDir, ProcessOutputStreamConsumer<?, ?> outputStreamConsumer, File file) {
         hg(baseDir, outputStreamConsumer).add(outputStreamConsumer, file);
     }
 
     @TestOnly
-    public void commit(File baseDir, ProcessOutputStreamConsumer<?, ?> consumer, String comment, String username)
-            throws Exception {
+    public void commit(File baseDir, ProcessOutputStreamConsumer<?, ?> consumer, String comment, String username) {
         hg(baseDir, consumer).commit(consumer, comment, username);
     }
 
     @TestOnly
-    public void push(File baseDir, ProcessOutputStreamConsumer<?, ?> consumer) throws Exception {
+    public void push(File baseDir, ProcessOutputStreamConsumer<?, ?> consumer) {
         hg(baseDir, consumer).push(consumer);
     }
 
+    @Override
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
         HgCommand hgCommand = new HgCommand(null, null, null, null, secrets());
         try {
@@ -203,7 +201,7 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
     }
 
 
-    private HgCommand hg(File workingFolder, ConsoleOutputStreamConsumer outputStreamConsumer) throws Exception {
+    private HgCommand hg(File workingFolder, ConsoleOutputStreamConsumer outputStreamConsumer) {
         UrlArgument urlArgument = new HgUrlArgument(urlForCommandLine());
         HgCommand hgCommand = new HgCommand(getFingerprint(), workingFolder, getBranch(), urlArgument.forCommandLine(), secrets());
         if (!isHgRepository(workingFolder) || isRepositoryChanged(hgCommand)) {
@@ -213,7 +211,7 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
         if (!workingFolder.exists()) {
             mkdirsParentQuietly(workingFolder);
             int returnValue = hgCommand.clone(outputStreamConsumer, urlArgument);
-            bombIfFailedToRunCommandLine(returnValue, "Failed to run hg clone command");
+            bombUnless(returnValue == 0, "Failed to run hg clone command");
         }
         return hgCommand;
     }
@@ -227,7 +225,8 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
         return new File(workingFolder, ".hg").isDirectory();
     }
 
-    private boolean isRepositoryChanged(HgCommand hgCommand) {
+    @VisibleForTesting
+    boolean isRepositoryChanged(HgCommand hgCommand) {
         ConsoleResult result = hgCommand.workingRepositoryUrl();
         return !MaterialUrl.sameUrl(url.defaultRemoteUrl(), new HgUrlArgument(result.outputAsString()).defaultRemoteUrl());
     }
@@ -267,10 +266,6 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
         return url;
     }
 
-    public HgUrlArgument getHgUrlArgument() {
-        return url;
-    }
-
     @Override
     public String getLongDescription() {
         return String.format("URL: %s", url.forDisplay());
@@ -290,11 +285,9 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
 
         HgMaterial that = (HgMaterial) o;
 
-        if (url != null ? !url.equals(that.url) : that.url != null) {
-            return false;
-        }
+        return Objects.equals(url, that.url) &&
+            Objects.equals(branch, that.branch);
 
-        return branch != null ? branch.equals(that.branch) : that.branch == null;
     }
 
     @Override
@@ -317,8 +310,12 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
 
     @Override
     public String getShortRevision(String revision) {
-        if (revision == null) return null;
-        if (revision.length() < 12) return revision;
+        if (revision == null) {
+            return null;
+        }
+        if (revision.length() < 12) {
+            return revision;
+        }
         return revision.substring(0, 12);
     }
 

@@ -18,7 +18,8 @@ package com.thoughtworks.go.server.controller.actions;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 public interface RestfulAction {
-    ModelAndView respond(HttpServletResponse response) throws Exception;
+    ModelAndView respond(HttpServletResponse response) throws IOException;
 }

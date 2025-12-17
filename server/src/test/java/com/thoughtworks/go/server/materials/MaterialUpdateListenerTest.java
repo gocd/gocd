@@ -29,13 +29,13 @@ import org.mockito.Mockito;
 import static org.mockito.Mockito.*;
 
 public class MaterialUpdateListenerTest {
+    private static final SvnMaterial MATERIAL = MaterialsMother.svnMaterial();
+
     private MaterialUpdateListener materialUpdateListener;
     private MaterialUpdateCompletedTopic topic;
     private MaterialDatabaseUpdater updater;
-    private static final SvnMaterial MATERIAL = MaterialsMother.svnMaterial();
     private GoDiskSpaceMonitor diskSpaceMonitor;
     private TransactionTemplate transactionTemplate;
-    private MDUPerformanceLogger mduPerformanceLogger;
     private MaintenanceModeService maintenanceModeService;
 
     @BeforeEach
@@ -44,13 +44,12 @@ public class MaterialUpdateListenerTest {
         updater = mock(MaterialDatabaseUpdater.class);
         diskSpaceMonitor = mock(GoDiskSpaceMonitor.class);
         transactionTemplate = mock(TransactionTemplate.class);
-        mduPerformanceLogger = mock(MDUPerformanceLogger.class);
         maintenanceModeService = mock(MaintenanceModeService.class);
-        materialUpdateListener = new MaterialUpdateListener(topic, updater, mduPerformanceLogger, diskSpaceMonitor, maintenanceModeService);
+        materialUpdateListener = new MaterialUpdateListener(topic, updater, mock(MDUPerformanceLogger.class), diskSpaceMonitor, maintenanceModeService);
     }
 
     @Test
-    public void shouldNotUpdateOnMessageWhenLowOnDisk() throws Exception {
+    public void shouldNotUpdateOnMessageWhenLowOnDisk() {
         when(diskSpaceMonitor.isLowOnDisk()).thenReturn(true);
         materialUpdateListener.onMessage(new MaterialUpdateMessage(MATERIAL, 0));
         verify(updater, never()).updateMaterial(MATERIAL);
@@ -64,14 +63,14 @@ public class MaterialUpdateListenerTest {
     }
 
     @Test
-    public void shouldUpdateMaterialOnMessage() throws Exception {
+    public void shouldUpdateMaterialOnMessage() {
         setupTransactionTemplateStub();
         materialUpdateListener.onMessage(new MaterialUpdateMessage(MATERIAL, 0));
         verify(updater).updateMaterial(MATERIAL);
     }
 
     @Test
-    public void shouldNotifyMaintenanceModeServiceAboutStartOfMaterialUpdate() throws Exception {
+    public void shouldNotifyMaintenanceModeServiceAboutStartOfMaterialUpdate() {
         setupTransactionTemplateStub();
         materialUpdateListener.onMessage(new MaterialUpdateMessage(MATERIAL, 0));
         verify(updater).updateMaterial(MATERIAL);
@@ -79,7 +78,7 @@ public class MaterialUpdateListenerTest {
         verify(maintenanceModeService).mduFinishedForMaterial(MATERIAL);
     }
 
-    private void setupTransactionTemplateStub() throws Exception {
+    private void setupTransactionTemplateStub() {
         when(transactionTemplate.executeWithExceptionHandling(Mockito.any(TransactionCallback.class))).thenAnswer(invocationOnMock -> {
             TransactionCallback callback = (TransactionCallback) invocationOnMock.getArguments()[0];
             callback.doInTransaction(null);
@@ -94,9 +93,9 @@ public class MaterialUpdateListenerTest {
     }
 
     @Test
-    public void shouldPostUpdateFailedMessageOnException() throws Exception {
+    public void shouldPostUpdateFailedMessageOnException() {
         setupTransactionTemplateStub();
-        Exception exception = new Exception();
+        Exception exception = new RuntimeException();
         doThrow(exception).when(updater).updateMaterial(MATERIAL);
         materialUpdateListener.onMessage(new MaterialUpdateMessage(MATERIAL, 10));
         verify(topic).post(new MaterialUpdateFailedMessage(MATERIAL, 10, exception));

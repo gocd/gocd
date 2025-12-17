@@ -56,12 +56,7 @@ public class StringRevision implements Revision, Serializable {
         }
 
         StringRevision that = (StringRevision) o;
-
-        if (!revision.equals(that.revision)) {
-            return false;
-        }
-
-        return true;
+        return revision.equals(that.revision);
     }
 
     @Override

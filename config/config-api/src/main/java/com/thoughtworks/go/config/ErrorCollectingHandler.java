@@ -19,22 +19,26 @@ import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.List;
 
-public abstract class ErrorCollectingHandler implements GoConfigGraphWalker.Handler {
+public class ErrorCollectingHandler implements Validatable.Handler {
+    private final Validatable.Handler handler;
     private final List<ConfigErrors> allErrors;
 
     public ErrorCollectingHandler(List<ConfigErrors> allErrors) {
+        this(allErrors, (v, c) -> {});
+    }
+
+    public ErrorCollectingHandler(List<ConfigErrors> allErrors, Validatable.Handler handler) {
         this.allErrors = allErrors;
+        this.handler = handler;
     }
 
     @Override
     public void handle(Validatable validatable, ValidationContext context) {
-        handleValidation(validatable, context);
+        handler.handle(validatable, context);
         ConfigErrors configErrors = validatable.errors();
 
         if (!configErrors.isEmpty()) {
             allErrors.add(configErrors);
         }
     }
-
-    public abstract void handleValidation(Validatable validatable, ValidationContext context);
 }

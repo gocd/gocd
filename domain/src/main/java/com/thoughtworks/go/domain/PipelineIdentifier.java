@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.domain;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -25,10 +27,10 @@ public class PipelineIdentifier implements Serializable {
     private Integer counter;
     private String label;
 
-    public PipelineIdentifier(String name, long counter) {
+    public PipelineIdentifier(String name, @NotNull Integer counter) {
         bombIfNull(counter, "Pipeline Identifier cannot be created without a counter");
         this.name = name;
-        this.counter = (int) counter;
+        this.counter = counter;
     }
 
     public PipelineIdentifier(String name, Integer counter, String label) {
@@ -88,13 +90,9 @@ public class PipelineIdentifier implements Serializable {
 
         PipelineIdentifier that = (PipelineIdentifier) o;
 
-        if (!Objects.equals(counter, that.counter)) {
-            return false;
-        }
-        if (!Objects.equals(label, that.label)) {
-            return false;
-        }
-        return Objects.equals(name, that.name);
+        return Objects.equals(counter, that.counter) &&
+            Objects.equals(label, that.label) &&
+            Objects.equals(name, that.name);
     }
 
     @Override

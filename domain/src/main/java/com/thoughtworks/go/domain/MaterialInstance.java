@@ -85,21 +85,23 @@ public abstract class MaterialInstance extends PersistentObject {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof MaterialInstance that)) return false;
-        if (!super.equals(o)) return false;
-        return Objects.equals(url, that.url) &&
-                Objects.equals(username, that.username) &&
-                Objects.equals(pipelineName, that.pipelineName) &&
-                Objects.equals(stageName, that.stageName) &&
-                Objects.equals(view, that.view) &&
-                Objects.equals(useTickets, that.useTickets) &&
-                Objects.equals(branch, that.branch) &&
-                Objects.equals(submoduleFolder, that.submoduleFolder) &&
-                Objects.equals(checkExternals, that.checkExternals) &&
-                Objects.equals(workspace, that.workspace) &&
-                Objects.equals(projectPath, that.projectPath) &&
-                Objects.equals(domain, that.domain);
+        if (this == o) {
+            return true;
+        }
+        return o instanceof MaterialInstance that &&
+            super.equals(o) &&
+            Objects.equals(url, that.url) &&
+            Objects.equals(username, that.username) &&
+            Objects.equals(pipelineName, that.pipelineName) &&
+            Objects.equals(stageName, that.stageName) &&
+            Objects.equals(view, that.view) &&
+            Objects.equals(useTickets, that.useTickets) &&
+            Objects.equals(branch, that.branch) &&
+            Objects.equals(submoduleFolder, that.submoduleFolder) &&
+            Objects.equals(checkExternals, that.checkExternals) &&
+            Objects.equals(workspace, that.workspace) &&
+            Objects.equals(projectPath, that.projectPath) &&
+            Objects.equals(domain, that.domain);
     }
 
     public abstract Material toOldMaterial(String name, String folder, String password);

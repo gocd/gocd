@@ -266,16 +266,22 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
     @Override
     public boolean equals(Object o) {
         //TODO: compare abstract tasks for correct implementation -jj
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         AbstractFetchTask that = (AbstractFetchTask) o;
 
-        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) return false;
-        if (stage != null ? !stage.equals(that.stage) : that.stage != null) return false;
-        if (job != null ? !job.equals(that.job) : that.job != null) return false;
-        return super.equals(that);
+        return Objects.equals(pipelineName, that.pipelineName) &&
+            Objects.equals(stage, that.stage) &&
+            Objects.equals(job, that.job) &&
+            super.equals(that);
     }
 
     @Override

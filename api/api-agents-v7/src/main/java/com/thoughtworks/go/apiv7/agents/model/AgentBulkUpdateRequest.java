@@ -21,9 +21,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class AgentBulkUpdateRequest {
-    private List<String> uuids;
-    private TriState agentConfigState;
-    private Operations operations;
+    private final List<String> uuids;
+    private final TriState agentConfigState;
+    private final Operations operations;
 
     public AgentBulkUpdateRequest(List<String> uuids, Operations operations, TriState agentConfigState) {
         this.uuids = uuids;
@@ -45,8 +45,8 @@ public class AgentBulkUpdateRequest {
 
     public static class Operations {
         private static final Operation EMPTY_OPERATION = new Operation(Collections.emptyList(), Collections.emptyList());
-        private Operation environments;
-        private Operation resources;
+        private final Operation environments;
+        private final Operation resources;
 
         public Operations() {
             this.environments = EMPTY_OPERATION;
@@ -68,8 +68,12 @@ public class AgentBulkUpdateRequest {
     }
 
     public static class Operation {
-        private List<String> add;
-        private List<String> remove;
+        private final List<String> add;
+        private final List<String> remove;
+
+        public Operation() {
+            this(Collections.emptyList(), Collections.emptyList());
+        }
 
         public Operation(List<String> add, List<String> remove) {
             this.add = add;

@@ -52,7 +52,7 @@ public class DFSCycleDetectorTest {
     }
 
     @Test
-    public void shouldNotThrowExceptionWhenCycleDependencyNotFound() throws Exception {
+    public void shouldNotThrowExceptionWhenCycleDependencyNotFound() {
         when(state.getDependencyMaterials(new CaseInsensitiveString("a"))).thenReturn(new Node(new Node.DependencyNode(new CaseInsensitiveString("b"), new CaseInsensitiveString("stage"))));
         when(state.getDependencyMaterials(new CaseInsensitiveString("b"))).thenReturn(new Node(new Node.DependencyNode(new CaseInsensitiveString("c"), new CaseInsensitiveString("stage"))));
         when(state.getDependencyMaterials(new CaseInsensitiveString("c"))).thenReturn(new Node(new ArrayList<>()));

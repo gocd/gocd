@@ -47,14 +47,18 @@ public class PerfTimer {
     }
 
     public void stop() {
-        if (startTime == 0) return;
+        if (startTime == 0) {
+            return;
+        }
         elapsed = elapsed + (clock.currentTimeMillis() - startTime);
         startTime = 0;
         LOG.info("Performance: {} took {}ms", message, elapsed());
     }
 
     public long elapsed() {
-        if (startTime > 0) stop();
+        if (startTime > 0) {
+            stop();
+        }
         return elapsed;
     }
 

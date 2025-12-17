@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.plugin.access.artifact.model;
+package com.thoughtworks.go.plugin.access.artifact.models;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

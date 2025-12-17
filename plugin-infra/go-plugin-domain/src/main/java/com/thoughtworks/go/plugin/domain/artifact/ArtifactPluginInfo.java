@@ -21,6 +21,8 @@ import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 
+import java.util.Objects;
+
 public class ArtifactPluginInfo extends PluginInfo {
     private final PluggableInstanceSettings storeConfigSettings;
     private final PluggableInstanceSettings artifactConfigSettings;
@@ -53,17 +55,16 @@ public class ArtifactPluginInfo extends PluginInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ArtifactPluginInfo that)) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        return o instanceof ArtifactPluginInfo that &&
+            super.equals(o) &&
+            Objects.equals(storeConfigSettings, that.storeConfigSettings) &&
+            Objects.equals(artifactConfigSettings, that.artifactConfigSettings) &&
+            Objects.equals(fetchArtifactSettings, that.fetchArtifactSettings) &&
+            Objects.equals(capabilities, that.capabilities);
 
-        if (storeConfigSettings != null ? !storeConfigSettings.equals(that.storeConfigSettings) : that.storeConfigSettings != null)
-            return false;
-        if (artifactConfigSettings != null ? !artifactConfigSettings.equals(that.artifactConfigSettings) : that.artifactConfigSettings != null)
-            return false;
-        if (fetchArtifactSettings != null ? !fetchArtifactSettings.equals(that.fetchArtifactSettings) : that.fetchArtifactSettings != null)
-            return false;
-        return capabilities != null ? capabilities.equals(that.capabilities) : that.capabilities == null;
     }
 
     @Override

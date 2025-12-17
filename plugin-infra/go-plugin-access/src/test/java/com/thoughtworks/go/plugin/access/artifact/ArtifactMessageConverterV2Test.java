@@ -19,7 +19,7 @@ import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.FetchPluggableArtifactTask;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.domain.ArtifactPlan;
-import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
+import com.thoughtworks.go.plugin.access.artifact.models.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.artifact.Capabilities;

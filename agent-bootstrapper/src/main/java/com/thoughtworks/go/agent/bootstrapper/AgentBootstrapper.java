@@ -97,7 +97,9 @@ public class AgentBootstrapper {
 
         LOG.info("Agent Bootstrapper stopped");
 
-        if (jvmExitOnFailure) jvmExit(returnValue);
+        if (jvmExitOnFailure) {
+            jvmExit(returnValue);
+        }
     }
 
     private void cleanupTempFiles() {

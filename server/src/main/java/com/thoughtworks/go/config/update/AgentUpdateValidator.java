@@ -39,7 +39,7 @@ public class AgentUpdateValidator {
             return;
         }
 
-        if (state.isTrue() || state.isFalse()) {
+        if (state.isPresent()) {
             return;
         }
         String msg = format("Pending agent [%s] must be explicitly enabled or disabled when performing any operation on it.", agentInstance.getUuid());

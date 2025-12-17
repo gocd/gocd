@@ -83,7 +83,7 @@ public class GoConfigMigrationIntegrationTest {
         configRepository = new ConfigRepository(systemEnvironment);
         configRepository.initialize();
         serverHealthService.removeAllLogs();
-        loader = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
+        loader = new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins());
         resetCipher.setupDESCipherFile();
         resetCipher.setupAESCipherFile();
     }

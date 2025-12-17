@@ -84,8 +84,12 @@ public class HealthStateType implements Comparable<HealthStateType> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         HealthStateType that = (HealthStateType) o;
         return httpCode == that.httpCode &&
                 Objects.equals(name, that.name) &&

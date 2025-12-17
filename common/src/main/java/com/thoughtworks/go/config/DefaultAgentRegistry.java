@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config;
 
-import java.io.IOException;
 import java.util.UUID;
 
 public class DefaultAgentRegistry implements AgentRegistry {
@@ -52,7 +51,7 @@ public class DefaultAgentRegistry implements AgentRegistry {
     }
 
     @Override
-    public void deleteToken() throws IOException {
+    public void deleteToken() {
         tokenService.delete();
     }
 

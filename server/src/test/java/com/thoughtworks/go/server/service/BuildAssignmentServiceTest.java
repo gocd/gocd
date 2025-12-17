@@ -284,16 +284,15 @@ class BuildAssignmentServiceTest {
             final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
             pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
 
-            final AgentInstance agentInstance = mock(AgentInstance.class);
-            when(agentInstance.getResourceConfigs()).thenReturn(mock(ResourceConfigs.class));
-            agentInstance.getResourceConfigs().add(new ResourceConfig("resource-1"));
-            agentInstance.getResourceConfigs().add(new ResourceConfig("resource-2"));
+            Agent agent = mock(Agent.class);
+            when(agent.getResourcesNormalized()).thenReturn("resource-1");
 
+            final AgentInstance agentInstance = mock(AgentInstance.class);
             final Pipeline pipeline = mock(Pipeline.class);
             final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
 
             when(agentInstance.isRegistered()).thenReturn(true);
-            when(agentInstance.getAgent()).thenReturn(mock(Agent.class));
+            when(agentInstance.getAgent()).thenReturn(agent);
             when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
             when(pipeline.getBuildCause()).thenReturn(BuildCause.createNeverRun());
             when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(List.of(jobPlan1));
@@ -311,7 +310,7 @@ class BuildAssignmentServiceTest {
             EnvironmentVariableContext environmentVariableContext = work.getAssignment().initialEnvironmentVariableContext();
             assertThat(environmentVariableContext.getProperty("GIT_USERNAME")).isEqualTo("bob");
             assertThat(environmentVariableContext.getProperty("GIT_TOKEN")).isEqualTo("some-token");
-            assertThat(environmentVariableContext.getProperty(GO_AGENT_RESOURCES)).isEqualTo(agentInstance.getResourceConfigs().getCommaSeparatedResourceNames());
+            assertThat(environmentVariableContext.getProperty(GO_AGENT_RESOURCES)).isEqualTo("resource-1");
             assertThat(environmentVariableContext.getSecureEnvironmentVariables())
                     .contains(new EnvironmentVariableContext.EnvironmentVariable("GIT_TOKEN", "some-token"));
         }
@@ -369,6 +368,7 @@ class BuildAssignmentServiceTest {
 
             when(agentInstance.isRegistered()).thenReturn(true);
             when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
+            when(agentInstance.getAgent()).thenReturn(mock(Agent.class));
             when(pipeline.getBuildCause()).thenReturn(BuildCause.createWithModifications(materialRevisions, "bob"));
             when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
             when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());

@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 
 import static com.thoughtworks.go.server.newsecurity.utils.SessionUtils.currentUsername;
 
@@ -106,7 +107,7 @@ public class ServerConfigService implements BaseUrlProvider {
     @Override
     public String siteUrlFor(String url, boolean forceSsl) throws URISyntaxException {
         String scheme = new URI(url).getScheme();
-        ServerSiteUrlConfig siteUrl = forceSsl || (scheme != null && scheme.equals("https")) ? getSecureSiteUrl() : serverConfig().getSiteUrl();
+        ServerSiteUrlConfig siteUrl = forceSsl || Objects.equals(scheme, "https") ? getSecureSiteUrl() : serverConfig().getSiteUrl();
         return siteUrl.siteUrlFor(url, false);
     }
 

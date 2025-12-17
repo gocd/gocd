@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.domain.materials.Modification;
 
 import java.util.Date;
+import java.util.Objects;
 
 public class ModificationSummary {
     Modification modification;
@@ -62,17 +63,9 @@ public class ModificationSummary {
 
         ModificationSummary that = (ModificationSummary) o;
 
-        if (getComment() != null ? !getComment().equals(that.getComment()) : that.getComment() != null) {
-            return false;
-        }
-        if (getRevision() != null ? !getRevision().equals(that.getRevision()) : that.getRevision() != null) {
-            return false;
-        }
-        if (getUserName() != null ? !getUserName().equals(that.getUserName()) : that.getUserName() != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(getComment(), that.getComment()) &&
+            Objects.equals(getRevision(), that.getRevision()) &&
+            Objects.equals(getUserName(), that.getUserName());
     }
 
     @Override

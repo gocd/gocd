@@ -25,6 +25,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /* Represents a pipeline on the dashboard. Cacheable, since the permissions are not specific to a user. */
@@ -112,16 +113,19 @@ public class GoDashboardPipeline {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         GoDashboardPipeline that = (GoDashboardPipeline) o;
 
-        if (lastUpdatedTimeStamp != that.lastUpdatedTimeStamp) return false;
-        if (pipelineModel != null ? !pipelineModel.equals(that.pipelineModel) : that.pipelineModel != null)
-            return false;
-        if (permissions != null ? !permissions.equals(that.permissions) : that.permissions != null) return false;
-        return groupName != null ? groupName.equals(that.groupName) : that.groupName == null;
+        return lastUpdatedTimeStamp == that.lastUpdatedTimeStamp &&
+            Objects.equals(pipelineModel, that.pipelineModel) &&
+            Objects.equals(permissions, that.permissions) &&
+            Objects.equals(groupName, that.groupName);
     }
 
     @Override

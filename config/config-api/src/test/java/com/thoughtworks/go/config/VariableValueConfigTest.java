@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.listener;
 
-import com.thoughtworks.go.domain.PipelineTimelineEntry;
+package com.thoughtworks.go.config;
 
-import java.util.TreeSet;
+import org.junit.jupiter.api.Test;
 
-public interface TimelineUpdateListener {
+import static org.assertj.core.api.Assertions.assertThat;
 
-    void added(PipelineTimelineEntry newlyAddedEntry, TreeSet<PipelineTimelineEntry> timeline);
+class VariableValueConfigTest {
+    @Test
+    public void shouldBeEqualIfValuesAreEqual() {
+        assertThat(new VariableValueConfig("abcd")).isEqualTo(new VariableValueConfig("abcd"));
+    }
 
+    @Test
+    public void shouldReturnTrueIfBothValuesAreNull() {
+        assertThat(new VariableValueConfig(null)).isEqualTo(new VariableValueConfig(null));
+    }
 }

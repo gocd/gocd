@@ -43,6 +43,7 @@ import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.HashMap;
@@ -99,7 +100,7 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
         });
     }
 
-    public String index(Request request, Response response) throws Exception {
+    public String index(Request request, Response response) throws IOException {
         Map<MaterialConfig, Boolean> materialConfigToOperatePermission = materialConfigService.getMaterialConfigsToOperatePermissions(currentUsernameString());
         Map<String, Modification> modifications = materialService.getLatestModificationForEachMaterial();
         Collection<MaintenanceModeService.MaterialPerformingMDU> runningMDUs = maintenanceModeService.getRunningMDUs();
@@ -116,7 +117,7 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
         return writerForTopLevelObject(request, response, writer -> MaterialWithModificationsRepresenter.toJSON(writer, mergedMap));
     }
 
-    public String usages(Request request, Response response) throws Exception {
+    public String usages(Request request, Response response) throws IOException {
         String fingerprint = request.params(FINGERPRINT);
         List<String> usagesForMaterial = materialConfigService.getUsagesForMaterial(currentUsernameString(), fingerprint);
         return writerForTopLevelObject(request, response, writer -> UsagesRepresenter.toJSON(writer, fingerprint, usagesForMaterial));

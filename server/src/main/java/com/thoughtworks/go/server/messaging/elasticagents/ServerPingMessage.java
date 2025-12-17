@@ -43,8 +43,12 @@ public class ServerPingMessage implements PluginAwareMessage {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ServerPingMessage that = (ServerPingMessage) o;
         return Objects.equals(pluginId, that.pluginId) &&
                 Objects.equals(clusterProfiles, that.clusterProfiles);

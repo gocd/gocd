@@ -24,6 +24,8 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.jdom2.JDOMException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MarkerFactory;
@@ -31,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /*
@@ -49,12 +52,12 @@ public class GoConfigMigrator {
     private final UpgradeFailedHandler upgradeFailedHandler;
 
     @Autowired
-    public GoConfigMigrator(GoConfigMigration goConfigMigration, SystemEnvironment systemEnvironment, ConfigCache configCache,
+    public GoConfigMigrator(GoConfigMigration goConfigMigration, SystemEnvironment systemEnvironment,
                             ConfigElementImplementationRegistry registry, FullConfigSaveNormalFlow fullConfigSaveNormalFlow,
                             ConfigRepository configRepository, ServerHealthService serverHealthService) {
 
         this(goConfigMigration, systemEnvironment, fullConfigSaveNormalFlow,
-                new MagicalGoConfigXmlLoader(configCache, registry),
+                new MagicalGoConfigXmlLoader(registry),
                 new GoConfigFileReader(systemEnvironment), configRepository, serverHealthService,
                 e -> {
                     //noinspection CallToPrintStackTrace
@@ -94,16 +97,23 @@ public class GoConfigMigrator {
         return null;
     }
 
-    private GoConfigHolder upgrade() throws Exception {
+    private GoConfigHolder upgrade() throws JDOMException, GitAPIException, IOException {
         try {
             return upgradeConfigFile();
         } catch (Exception e) {
             LOGGER.warn("Error upgrading config file, trying to upgrade using the versioned config file.");
-            return upgradeVersionedConfigFile(e);
+
+            GoConfigRevision currentConfigRevision = configRepository.getCurrentRevision();
+            if (currentConfigRevision == null) {
+                LOGGER.warn("There is no versioned configuration to fallback for migration.");
+                throw e;
+            }
+
+            return upgradeVersionedConfigFile(currentConfigRevision, e.toString());
         }
     }
-
-    private GoConfigHolder upgradeConfigFile() throws Exception {
+    
+    private GoConfigHolder upgradeConfigFile() throws JDOMException, GitAPIException, IOException {
         String upgradedXml = this.goConfigMigration.upgradeIfNecessary(this.goConfigFileReader.configXml());
 
         LOGGER.info("[Config Save] Starting Config Save post upgrade using FullConfigSaveNormalFlow");
@@ -113,16 +123,10 @@ public class GoConfigMigrator {
         return fullConfigSaveNormalFlow.execute(new FullConfigUpdateCommand(cruiseConfig, null), new ArrayList<>(), "Upgrade");
     }
 
-    private GoConfigHolder upgradeVersionedConfigFile(Exception originalException) throws Exception {
-        GoConfigRevision currentConfigRevision = configRepository.getCurrentRevision();
-        if (currentConfigRevision == null) {
-            LOGGER.warn("There is no versioned configuration to fallback for migration.");
-            throw originalException;
-        }
-
+    private GoConfigHolder upgradeVersionedConfigFile(GoConfigRevision currentConfigRevision, String originalErrorMessage) throws JDOMException, GitAPIException, IOException {
         try {
             File backupFile = this.goConfigMigration.revertFileToVersion(fileLocation(), currentConfigRevision);
-            logException(backupFile.getAbsolutePath(), originalException.getMessage());
+            logException(backupFile.getAbsolutePath(), originalErrorMessage);
 
             return upgradeConfigFile();
         } catch (Exception e) {
@@ -130,7 +134,7 @@ public class GoConfigMigrator {
             throw e;
         }
     }
-
+    
     private void logException(String backupFileLocation, String exceptionMessage) {
         String invalidConfigMessage = String.format("Go encountered an invalid configuration file while starting up. "
                 + "The invalid configuration file has been renamed to ‘%s’ and a new configuration file has been automatically " +

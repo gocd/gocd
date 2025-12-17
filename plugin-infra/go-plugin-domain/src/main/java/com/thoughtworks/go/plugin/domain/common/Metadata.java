@@ -45,12 +45,18 @@ public class Metadata {
     }
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Metadata metadata = (Metadata) o;
 
-        if (required != metadata.required) return false;
+        if (required != metadata.required) {
+            return false;
+        }
         return secure == metadata.secure;
 
     }

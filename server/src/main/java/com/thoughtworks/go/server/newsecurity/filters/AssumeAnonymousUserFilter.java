@@ -60,7 +60,9 @@ public class AssumeAnonymousUserFilter extends OncePerRequestFilter {
             authenticateAsAnonymous(request);
         }
 
-        LOGGER.debug("User authenticated as anonymous user {}", SessionUtils.getAuthenticationToken(request));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("User authenticated as anonymous user {}", SessionUtils.getAuthenticationToken(request));
+        }
         filterChain.doFilter(request, response);
 
     }

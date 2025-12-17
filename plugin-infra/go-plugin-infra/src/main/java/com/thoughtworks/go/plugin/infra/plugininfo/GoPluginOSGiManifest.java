@@ -97,6 +97,7 @@ public class GoPluginOSGiManifest {
 
     @Component
     public static class DefaultGoPluginOSGiManifestCreator implements GoPluginOSGiManifestGenerator {
+        @Override
         public void updateManifestOf(GoPluginBundleDescriptor bundleDescriptor) {
             GoPluginOSGiManifest manifest = new GoPluginOSGiManifest(bundleDescriptor);
             try {

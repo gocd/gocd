@@ -23,12 +23,10 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PipelineConfigVisitor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -92,14 +90,11 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     @Override
-    public PipelineConfig findBy(final CaseInsensitiveString pipelineName) {
-        for (int i = 0; i < this.size(); i++) {
-            PipelineConfig pipelineConfig = this.get(i);
-            if (pipelineConfig.name().equals(pipelineName)) {
-                return pipelineConfig;
-            }
-        }
-        return null;
+    public @Nullable PipelineConfig findBy(final CaseInsensitiveString pipelineName) {
+        return stream()
+            .filter(p -> p.name().equals(pipelineName))
+            .findFirst()
+            .orElse(null);
     }
 
     @Override
@@ -270,14 +265,8 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
         BasicPipelineConfigs pipelines = (BasicPipelineConfigs) o;
 
-        if (authorization != null ? !authorization.equals(pipelines.authorization) : pipelines.authorization != null) {
-            return false;
-        }
-        if (group != null ? !group.equals(pipelines.group) : pipelines.group != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(authorization, pipelines.authorization) &&
+            Objects.equals(group, pipelines.group);
     }
 
     @Override
@@ -448,8 +437,9 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     @Override
     public PipelineConfigs getLocal() {
-        if (this.isLocal())
+        if (this.isLocal()) {
             return this;
+        }
         return null;
     }
 

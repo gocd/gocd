@@ -95,7 +95,7 @@ public class ServerMaintenanceModeControllerV1 extends ApiController implements 
         });
     }
 
-    public String enableMaintenanceModeState(Request req, Response res) throws Exception {
+    public String enableMaintenanceModeState(Request req, Response res) throws IOException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ServerMaintenanceMode existingMaintenanceModeState = maintenanceModeService.get();
         if (existingMaintenanceModeState.isMaintenanceMode()) {
@@ -109,7 +109,7 @@ public class ServerMaintenanceModeControllerV1 extends ApiController implements 
         return NOTHING;
     }
 
-    public String disableMaintenanceModeState(Request req, Response res) throws Exception {
+    public String disableMaintenanceModeState(Request req, Response res) throws IOException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ServerMaintenanceMode existingMaintenanceModeState = maintenanceModeService.get();
         if (!existingMaintenanceModeState.isMaintenanceMode()) {

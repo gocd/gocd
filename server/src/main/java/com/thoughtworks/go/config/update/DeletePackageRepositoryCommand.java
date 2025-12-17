@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
@@ -81,7 +81,7 @@ public class DeletePackageRepositoryCommand implements EntityConfigUpdateCommand
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(this.repository);
+        Validatable.clearErrors(this.repository);
     }
 
     @Override

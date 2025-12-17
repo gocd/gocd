@@ -95,7 +95,7 @@ public class ArtifactsController {
                                              @RequestParam("buildName") String buildName,
                                              @RequestParam("filePath") String filePath,
                                              @RequestParam(value = "sha1", required = false) String sha
-    ) throws Exception {
+    ) throws IllegalArtifactLocationException, IOException {
         return getArtifact(filePath, (identifier, artifactFolder) -> FileModelAndView.fileNotFound(filePath), pipelineName, pipelineCounter, stageName, stageCounter, buildName, sha);
     }
 
@@ -107,7 +107,7 @@ public class ArtifactsController {
                                           @RequestParam("buildName") String buildName,
                                           @RequestParam("filePath") String filePath,
                                           @RequestParam(value = "sha1", required = false) String sha
-    ) throws Exception {
+    ) throws IllegalArtifactLocationException, IOException {
         return getArtifact(filePath, new JsonArtifactFolderViewFactory(), pipelineName, pipelineCounter, stageName, stageCounter, buildName, sha);
     }
 
@@ -119,7 +119,7 @@ public class ArtifactsController {
                                          @RequestParam("buildName") String buildName,
                                          @RequestParam("filePath") String filePath,
                                          @RequestParam(value = "sha1", required = false) String sha
-    ) throws Exception {
+    ) throws IllegalArtifactLocationException, IOException {
         return getArtifact(filePath.equals(".zip") ? "./.zip" : filePath, zipFolderViewFactory, pipelineName, pipelineCounter, stageName, stageCounter, buildName, sha);
     }
 
@@ -132,7 +132,7 @@ public class ArtifactsController {
                                      @RequestParam(value = "buildId", required = false) Long buildId,
                                      @RequestParam("filePath") String filePath,
                                      @RequestParam(value = "attempt", required = false) Integer attempt,
-                                     MultipartHttpServletRequest request) throws Exception {
+                                     MultipartHttpServletRequest request) throws IOException {
         JobIdentifier jobIdentifier;
         if (!confirmationConstraint.isSatisfied(request)) {
             return ResponseCodeView.create(HTTP_BAD_REQUEST, String.format("Missing required header '%s'", StandardHeaders.REQUEST_CONFIRM_MODIFICATION));
@@ -208,7 +208,7 @@ public class ArtifactsController {
                                     @RequestParam("filePath") String filePath,
                                     @RequestParam(value = "agentId", required = false) String agentId,
                                     HttpServletRequest request
-    ) throws Exception {
+    ) throws IOException, IllegalArtifactLocationException {
         if (filePath.contains("..")) {
             return FileModelAndView.forbiddenUrl(filePath);
         }
@@ -267,7 +267,7 @@ public class ArtifactsController {
         return new ModelAndView("exceptions_page", model);
     }
 
-    ModelAndView getArtifact(String filePath, ArtifactFolderViewFactory folderViewFactory, String pipelineName, String counterOrLabel, String stageName, String stageCounter, String buildName, String sha) throws Exception {
+    ModelAndView getArtifact(String filePath, ArtifactFolderViewFactory folderViewFactory, String pipelineName, String counterOrLabel, String stageName, String stageCounter, String buildName, String sha) throws IllegalArtifactLocationException, IOException {
         LOGGER.info("[Artifact Download] Trying to resolve '{}' for '{}/{}/{}/{}/{}'", filePath, pipelineName, counterOrLabel, stageName, stageCounter, buildName);
 
         if (!isValidStageCounter(stageCounter)) {
@@ -311,7 +311,7 @@ public class ArtifactsController {
         return request.getFile(CHECKSUM_MULTIPART_FILENAME);
     }
 
-    private ModelAndView putConsoleOutput(final JobIdentifier jobIdentifier, final InputStream inputStream) throws Exception {
+    private ModelAndView putConsoleOutput(final JobIdentifier jobIdentifier, final InputStream inputStream) throws IllegalArtifactLocationException {
         File consoleLogFile = consoleService.consoleLogFile(jobIdentifier);
         boolean updated = consoleService.updateConsoleLog(consoleLogFile, inputStream);
         if (updated) {
@@ -323,7 +323,7 @@ public class ArtifactsController {
     }
 
     private ModelAndView putArtifact(JobIdentifier jobIdentifier, String filePath,
-                                     InputStream inputStream) throws Exception {
+                                     InputStream inputStream) throws IllegalArtifactLocationException {
         File artifact = artifactsService.findArtifact(jobIdentifier, filePath);
         if (artifactsService.saveOrAppendFile(artifact, inputStream)) {
             return FileModelAndView.fileAppended(filePath);

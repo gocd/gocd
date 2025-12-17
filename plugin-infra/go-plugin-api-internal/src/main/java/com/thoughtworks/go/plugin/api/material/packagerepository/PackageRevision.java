@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.api.material.packagerepository.exceptions.Inva
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -174,13 +175,9 @@ public class PackageRevision {
 
         PackageRevision that = (PackageRevision) o;
 
-        if (revision != null ? !revision.equals(that.revision) : that.revision != null) {
-            return false;
-        }
-        if (timestamp != null ? !timestamp.equals(that.timestamp) : that.timestamp != null) {
-            return false;
-        }
-        return user != null ? user.equals(that.user) : that.user == null;
+        return Objects.equals(revision, that.revision) &&
+            Objects.equals(timestamp, that.timestamp) &&
+            Objects.equals(user, that.user);
     }
 
     @Override

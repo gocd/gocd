@@ -800,8 +800,10 @@ public class StageSqlMapDaoIntegrationTest {
 
         for (JobInstance job : stage.getJobInstances()) {
             assertThat(job.getIdentifier()).isEqualTo(new JobIdentifier(pipeline, stage, job));
-            assertThat(job.getTransitions().size()).isGreaterThan(0);
-            assertThat(job.getTransitions().first().getCurrentState()).isEqualTo(JobState.Scheduled);
+            assertThat(job.getTransitions()).isNotEmpty()
+                .first()
+                .extracting(JobStateTransition::getCurrentState)
+                .isEqualTo(JobState.Scheduled);
         }
     }
 
@@ -846,7 +848,6 @@ public class StageSqlMapDaoIntegrationTest {
         assertThat(winJob.getName()).isEqualTo("WinBuild");
         assertThat(nixJob.getState()).isEqualTo(JobState.Completed);
     }
-
 
     private JobInstance scheduleBuildInstances(Stage scheduledInstance) {
         JobInstances scheduledBuilds = scheduledInstance.getJobInstances();

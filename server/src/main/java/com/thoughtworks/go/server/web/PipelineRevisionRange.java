@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.server.web;
 
+import java.util.Objects;
+
 public final class PipelineRevisionRange {
     private final String pipelineName;
     private final String fromRevision;
@@ -59,17 +61,9 @@ public final class PipelineRevisionRange {
 
         PipelineRevisionRange that = (PipelineRevisionRange) o;
 
-        if (fromRevision != null ? !fromRevision.equals(that.fromRevision) : that.fromRevision != null) {
-            return false;
-        }
-        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) {
-            return false;
-        }
-        if (toRevision != null ? !toRevision.equals(that.toRevision) : that.toRevision != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(fromRevision, that.fromRevision) &&
+            Objects.equals(pipelineName, that.pipelineName) &&
+            Objects.equals(toRevision, that.toRevision);
     }
 
     @Override

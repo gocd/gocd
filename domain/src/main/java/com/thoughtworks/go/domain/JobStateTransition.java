@@ -30,11 +30,9 @@ public class JobStateTransition extends PersistentObject {
     }
 
     public JobStateTransition(JobState current, Date stateChangeTime) {
-
         this.currentState = current;
         this.stateChangeTime = stateChangeTime;
     }
-
 
     public JobState getCurrentState() {
         return currentState;
@@ -73,11 +71,7 @@ public class JobStateTransition extends PersistentObject {
         if (jobId != that.jobId) {
             return false;
         }
-        if (currentState != that.currentState) {
-            return false;
-        }
-
-        return true;
+        return currentState == that.currentState;
     }
 
     @Override

@@ -29,9 +29,9 @@ public class ErrorCollection {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        if (this.isEmpty())
+        if (this.isEmpty()) {
             builder.append("No errors");
-        else {
+        } else {
             builder.append(this.getErrorCount());
             builder.append(" errors in partial configuration");
         }

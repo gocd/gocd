@@ -24,6 +24,7 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,8 +35,9 @@ public class GoConfigParallelGraphWalkerTest {
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("bad pipeline name");
         CruiseConfig rawCruiseConfig = GoConfigMother.deepClone(cruiseConfig);
         MagicalGoConfigXmlLoader.validate(cruiseConfig);
-        cruiseConfig.copyErrorsTo(rawCruiseConfig);
-        assertThat(rawCruiseConfig.pipelineConfigByName(new CaseInsensitiveString("bad pipeline name")).errors()).isEqualTo(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("bad pipeline name")).errors());
+        Validatable.copyErrors(cruiseConfig, rawCruiseConfig);
+        assertThat(rawCruiseConfig.pipelineConfigByName(new CaseInsensitiveString("bad pipeline name")).errors())
+            .isEqualTo(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("bad pipeline name")).errors());
     }
 
     @Test
@@ -50,7 +52,7 @@ public class GoConfigParallelGraphWalkerTest {
 
         CruiseConfig rawCruiseConfig = GoConfigMother.deepClone(cruiseConfig);
         MagicalGoConfigXmlLoader.validate(cruiseConfig);
-        cruiseConfig.copyErrorsTo(rawCruiseConfig);
+        Validatable.copyErrors(cruiseConfig, rawCruiseConfig);
         assertThat(rawCruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline-with-template")).errors().isEmpty()).isTrue();
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline-with-template")).getStage(new CaseInsensitiveString("invalid stage name")).errors().isEmpty()).isFalse();
 
@@ -69,7 +71,7 @@ public class GoConfigParallelGraphWalkerTest {
 
         CruiseConfig rawCruiseConfig = GoConfigMother.deepClone(cruiseConfig);
         MagicalGoConfigXmlLoader.validate(cruiseConfig);
-        cruiseConfig.copyErrorsTo(rawCruiseConfig);
+        Validatable.copyErrors(cruiseConfig, rawCruiseConfig);
 
         ConfigErrors templateErrors = rawCruiseConfig.getTemplateByName(new CaseInsensitiveString("invalid template name")).errors();
         assertThat(templateErrors.getAll().size()).isEqualTo(1);
@@ -83,7 +85,7 @@ public class GoConfigParallelGraphWalkerTest {
 
         AValidatableObjectWithAField goodObjectWithNonNullField = new AValidatableObjectWithAField(new SomeOtherObject("1"));
 
-        BasicCruiseConfig.copyErrors(badObjectWithNullField, goodObjectWithNonNullField);
+        Validatable.copyErrors(badObjectWithNullField, goodObjectWithNonNullField);
 
         assertThat(goodObjectWithNonNullField.errors().getAll().size()).isEqualTo(1);
         assertThat(goodObjectWithNonNullField.errors().firstError()).isEqualTo("Bad");
@@ -102,7 +104,7 @@ public class GoConfigParallelGraphWalkerTest {
         AValidatableObjectWithAList goodObjectWith2ObjectsInList = new AValidatableObjectWithAList();
         goodObjectWith2ObjectsInList.add(new SomeOtherObject("2"));
 
-        BasicCruiseConfig.copyErrors(badObjectWith2ObjectsInList, goodObjectWith2ObjectsInList);
+        Validatable.copyErrors(badObjectWith2ObjectsInList, goodObjectWith2ObjectsInList);
 
         assertThat(goodObjectWith2ObjectsInList.getSomeOtherObjectList().size()).isEqualTo(1);
         assertThat(goodObjectWith2ObjectsInList.getSomeOtherObjectList().get(0).errors().getAll().size()).isEqualTo(1);
@@ -118,7 +120,7 @@ public class GoConfigParallelGraphWalkerTest {
         pipelineWithErrors.getVariables().get(0).addError("name", "error on environment variable");
         pipelineWithErrors.first().addError("name", "error on stage");
         pipelineWithErrors.first().getJobs().first().addError("name", "error on job");
-        BasicCruiseConfig.copyErrors(pipelineWithErrors, pipelineConfig);
+        Validatable.copyErrors(pipelineWithErrors, pipelineConfig);
         assertThat(pipelineConfig.getVariables().get(0).errors().firstErrorOn("name")).isEqualTo("error on environment variable");
         assertThat(pipelineConfig.first().errors().firstErrorOn("name")).isEqualTo("error on stage");
         assertThat(pipelineConfig.first().getJobs().first().errors().firstErrorOn("name")).isEqualTo("error on job");
@@ -212,11 +214,7 @@ public class GoConfigParallelGraphWalkerTest {
 
             SomeOtherObject that = (SomeOtherObject) o;
 
-            if (id != null ? !id.equals(that.id) : that.id != null) {
-                return false;
-            }
-
-            return true;
+            return Objects.equals(id, that.id);
         }
 
         @Override

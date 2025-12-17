@@ -111,8 +111,9 @@ public class MaterialChecker {
             Long latestModificationRunByPipeline = materialRepository.latestModificationRunByPipeline(pipelineName, materialRevision.getMaterial());
             Modifications revised = new Modifications();
             for (Modification modification : materialRevision.getModifications()) {
-                if (modification.getId() > latestModificationRunByPipeline)
+                if (modification.getId() > latestModificationRunByPipeline) {
                     revised.add(modification);
+                }
             }
             if (!revised.isEmpty()) {
                 materialRevision.replaceModifications(revised);

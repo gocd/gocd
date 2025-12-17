@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.config;
 
+import java.util.Objects;
+
 public class DeleteTemplateCommand implements NoOverwriteUpdateConfigCommand {
     private final String templateName;
     private final String md5;
@@ -44,10 +46,8 @@ public class DeleteTemplateCommand implements NoOverwriteUpdateConfigCommand {
             return false;
         }
 
-        if (md5 != null ? !md5.equals(command.md5) : command.md5 != null) {
-            return false;
-        }
-        return !(templateName != null ? !templateName.equals(command.templateName) : command.templateName != null);
+        return Objects.equals(md5, command.md5) &&
+            Objects.equals(templateName, command.templateName);
     }
 
     @Override

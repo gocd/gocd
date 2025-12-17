@@ -51,7 +51,7 @@ class ApiSupportControllerV1Test implements SecurityServiceTrait, ControllerTrai
     void 'should return agent json'() {
       loginAsAdmin()
       def res = [foo: "bar"]
-      when(serverStatusService.asJson(any() as Username, any() as HttpLocalizedOperationResult)).thenReturn(res)
+      when(serverStatusService.asJsonCompatibleMap(any() as Username, any() as HttpLocalizedOperationResult)).thenReturn(res)
 
       get(controller.controllerPath())
 
@@ -68,7 +68,7 @@ class ApiSupportControllerV1Test implements SecurityServiceTrait, ControllerTrai
       doAnswer({ InvocationOnMock invocation ->
         def result = invocation.getArgument(1) as HttpLocalizedOperationResult
         result.unprocessableEntity(message)
-      }).when(serverStatusService).asJson(eq(currentUsername()), any() as HttpLocalizedOperationResult)
+      }).when(serverStatusService).asJsonCompatibleMap(eq(currentUsername()), any() as HttpLocalizedOperationResult)
 
       get(controller.controllerPath())
 

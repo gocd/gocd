@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
+import java.io.IOException;
 import java.util.List;
 
 import static spark.Spark.*;
@@ -66,7 +67,7 @@ public class InternalMaterialModificationsControllerV1 extends ApiController imp
         });
     }
 
-    public String modifications(Request request, Response response) throws Exception {
+    public String modifications(Request request, Response response) throws IOException {
         String fingerprint = request.params("fingerprint");
         long after = afterCursor(request);
         long before = beforeCursor(request);

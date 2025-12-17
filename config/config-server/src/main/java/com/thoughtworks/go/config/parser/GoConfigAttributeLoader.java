@@ -28,7 +28,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class GoConfigAttributeLoader {
     private static final Map<Field, ConfigAttribute> isAttributes = new HashMap<>();
-    private final ConfigUtil configUtil = new ConfigUtil("magic");
+
     private final Element e;
     private final Field field;
 
@@ -52,7 +52,7 @@ public class GoConfigAttributeLoader {
     public Object parse(Object defaultValue) {
         ConfigAttribute attribute = findAttribute(field);
         validateAttributeName(attribute);
-        Object val = configUtil.getAttribute(e, attribute);
+        Object val = ConfigUtil.getAttribute(e, attribute);
         if (!attribute.allowNull() && val == null && defaultValue == null) {
             bomb("Field '" + field.getName() + "' is still set to null. Must give a default value.");
         }

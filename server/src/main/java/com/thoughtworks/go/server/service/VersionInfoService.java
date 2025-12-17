@@ -50,7 +50,9 @@ public class VersionInfoService {
     }
 
     public String getGoUpdate() {
-        if (!isGOUpdateCheckEnabled()) return null;
+        if (!isGOUpdateCheckEnabled()) {
+            return null;
+        }
         return this.manager.getGoUpdate();
     }
 

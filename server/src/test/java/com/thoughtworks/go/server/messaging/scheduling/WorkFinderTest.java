@@ -28,15 +28,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 public class WorkFinderTest {
-    private BuildAssignmentService workAssigner;
     private static final AgentIdentifier AGENT_1 = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
     private static final FakeWork SOME_WORK = new FakeWork();
     private static final NoWork NO_WORK = new NoWork();
+    private BuildAssignmentService workAssigner;
     private WorkAssignedTopic assignedWorkTopic;
     private WorkFinder finder;
     private IdleAgentTopic idleAgentTopic;
@@ -76,11 +75,8 @@ public class WorkFinderTest {
         final RuntimeException exception = new RuntimeException("foo");
         when(workAssigner.assignWorkToAgent(AGENT_1)).thenThrow(exception);
 
-        try {
-            finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie")));
-        } catch (Exception e) {
-            assertSame(exception, e);
-        }
+        assertThatThrownBy(() -> finder.onMessage(new IdleAgentMessage(new AgentRuntimeInfo(AGENT_1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"))))
+            .isSameAs(exception);
         verify(assignedWorkTopic).post(new WorkAssignedMessage(AGENT_1, NO_WORK));
     }
 
@@ -92,17 +88,11 @@ public class WorkFinderTest {
         WorkFinder finder = new WorkFinder(assigner, idleTopic, assignedTopic, workAssignmentPerformanceLogger);
         AgentRuntimeInfo runtimeInfo = AgentRuntimeInfo.initialState(AgentMother.approvedAgent());
         when(assigner.assignWorkToAgent(runtimeInfo.getIdentifier())).thenThrow(new OutOfMemoryError("test error for martians"));
-        try {
-            finder.onMessage(new IdleAgentMessage(runtimeInfo));
-            fail("should have propagated error");
-        } catch (OutOfMemoryError e) {
-            String message = e.getMessage();
-            if (message != null && message.equals("test error for martians")) {
-                //expected
-            } else {
-                throw e;
-            }
-        }
+
+        assertThatThrownBy(() -> finder.onMessage(new IdleAgentMessage(runtimeInfo)))
+                .isInstanceOf(OutOfMemoryError.class)
+                .hasMessage("test error for martians");
+
         verify(assignedTopic).post(new WorkAssignedMessage(runtimeInfo.getIdentifier(), new NoWork()));
     }
 }

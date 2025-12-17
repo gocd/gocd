@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentMap;
 @Service
 public class ExponentialBackoffService implements GoMessageListener<MaterialUpdateCompletedMessage>  {
     private final SystemEnvironment systemEnvironment;
-    private ConcurrentMap<Material, ExponentialBackOff> materials = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Material, ExponentialBackOff> materials = new ConcurrentHashMap<>();
 
     @Autowired
     public ExponentialBackoffService(MaterialUpdateCompletedTopic completed, SystemEnvironment systemEnvironment) {

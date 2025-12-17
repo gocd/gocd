@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public abstract class BuildTask extends AbstractTask implements CommandTask {
     @ConfigAttribute(value = "buildfile", allowNull = true)
@@ -124,17 +125,9 @@ public abstract class BuildTask extends AbstractTask implements CommandTask {
 
         BuildTask buildTask = (BuildTask) o;
 
-        if (buildFile != null ? !buildFile.equals(buildTask.buildFile) : buildTask.buildFile != null) {
-            return false;
-        }
-        if (target != null ? !target.equals(buildTask.target) : buildTask.target != null) {
-            return false;
-        }
-        if (workingDirectory != null ? !workingDirectory.equals(buildTask.workingDirectory) : buildTask.workingDirectory != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(buildFile, buildTask.buildFile) &&
+            Objects.equals(target, buildTask.target) &&
+            Objects.equals(workingDirectory, buildTask.workingDirectory);
     }
 
     @Override

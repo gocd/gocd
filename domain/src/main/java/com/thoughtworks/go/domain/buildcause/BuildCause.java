@@ -202,10 +202,8 @@ public class BuildCause implements Serializable {
 
         BuildCause that = (BuildCause) o;
 
-        if (materialRevisions != null ? !materialRevisions.equals(that.materialRevisions) : that.materialRevisions != null) {
-            return false;
-        }
-        return trigger != null ? trigger.equals(that.trigger) : that.trigger == null;
+        return Objects.equals(materialRevisions, that.materialRevisions) &&
+            Objects.equals(trigger, that.trigger);
     }
 
     @Override
@@ -216,10 +214,8 @@ public class BuildCause implements Serializable {
     }
 
     public boolean isSameAs(BuildCause buildCause) {
-        if (!Objects.equals(this.trigger.getDbName(), buildCause.trigger.getDbName())) {
-            return false;
-        }
-        return materialRevisions.isSameAs(buildCause.materialRevisions);
+        return Objects.equals(this.trigger.getDbName(), buildCause.trigger.getDbName()) &&
+            materialRevisions.isSameAs(buildCause.materialRevisions);
     }
 
     public boolean hasNeverRun() {

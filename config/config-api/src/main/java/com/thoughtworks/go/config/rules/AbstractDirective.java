@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.ConfigAttribute;
 import com.thoughtworks.go.config.ConfigValue;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.ValidationContext.RulesValidationContext;
 import com.thoughtworks.go.domain.ConfigErrors;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
@@ -60,12 +61,12 @@ public abstract class AbstractDirective implements Directive {
     public void validate(ValidationContext validationContext) {
         RulesValidationContext rulesValidationContext = validationContext.getRulesValidationContext();
 
-        if (isInvalid(action, rulesValidationContext.getAllowedActions())) {
-            this.addError("action", format("Invalid action, must be one of %s.", rulesValidationContext.getAllowedActions()));
+        if (isInvalid(action, rulesValidationContext.allowedActions())) {
+            this.addError("action", format("Invalid action, must be one of %s.", rulesValidationContext.allowedActions()));
         }
 
-        if (isInvalid(type, rulesValidationContext.getAllowedTypes())) {
-            this.addError("type", format("Invalid type, must be one of %s.", rulesValidationContext.getAllowedTypes()));
+        if (isInvalid(type, rulesValidationContext.allowedTypes())) {
+            this.addError("type", format("Invalid type, must be one of %s.", rulesValidationContext.allowedTypes()));
         }
 
         if (isBlank(resource)) {
@@ -117,8 +118,12 @@ public abstract class AbstractDirective implements Directive {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         AbstractDirective directive = (AbstractDirective) o;
         return Objects.equals(action, directive.action) &&
                 Objects.equals(type, directive.type) &&

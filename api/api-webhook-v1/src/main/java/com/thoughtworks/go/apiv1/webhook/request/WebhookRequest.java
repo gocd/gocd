@@ -43,8 +43,10 @@ public abstract class WebhookRequest implements HasAuth, HasEvents, RequestConte
         this.request = request;
     }
 
+    @Override
     public abstract String event();
 
+    @Override
     public Request request() {
         return request;
     }

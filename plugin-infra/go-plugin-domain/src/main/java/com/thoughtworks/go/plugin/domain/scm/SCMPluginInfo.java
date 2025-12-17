@@ -20,6 +20,8 @@ import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 
+import java.util.Objects;
+
 public class SCMPluginInfo extends PluginInfo {
 
     private final String displayName;
@@ -41,14 +43,20 @@ public class SCMPluginInfo extends PluginInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         SCMPluginInfo that = (SCMPluginInfo) o;
 
-        if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) return false;
-        return scmSettings != null ? scmSettings.equals(that.scmSettings) : that.scmSettings == null;
+        return Objects.equals(displayName, that.displayName) &&
+            Objects.equals(scmSettings, that.scmSettings);
     }
 
     @Override

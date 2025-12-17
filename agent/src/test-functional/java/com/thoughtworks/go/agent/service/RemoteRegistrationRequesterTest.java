@@ -53,7 +53,7 @@ public class RemoteRegistrationRequesterTest {
     }
 
     @AfterEach
-    void tearDown() throws IOException {
+    void tearDown() {
         tokenService.delete();
     }
 
@@ -121,7 +121,7 @@ public class RemoteRegistrationRequesterTest {
                     assertThat(getParameter(params, "elasticPluginId")).isEqualTo(elasticPluginId);
                     assertThat(getParameter(params, "token")).isEqualTo("token-from-server");
                     return true;
-                } catch (Exception e) {
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }

@@ -17,6 +17,7 @@ package com.thoughtworks.go.plugin.access.configrepo;
 
 import com.bazaarvoice.jolt.JsonUtils;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -44,7 +45,7 @@ class ConfigRepoDocumentMother {
     private Map<String, Object> getJSONFor(String fileName) {
         try (InputStream stream = Objects.requireNonNull(this.getClass().getResourceAsStream(fileName))) {
             return JsonUtils.jsonToMap(new String(stream.readAllBytes(), StandardCharsets.UTF_8));
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

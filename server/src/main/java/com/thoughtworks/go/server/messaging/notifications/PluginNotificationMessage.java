@@ -41,8 +41,12 @@ public class PluginNotificationMessage<T extends Serializable> implements Plugin
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         PluginNotificationMessage<?> that = (PluginNotificationMessage<?>) o;
         return Objects.equals(pluginId, that.pluginId) &&
                 Objects.equals(requestName, that.requestName) &&

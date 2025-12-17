@@ -17,6 +17,7 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.ConfigErrors;
 
+import java.util.Objects;
 import java.util.Set;
 
 import static java.lang.String.format;
@@ -66,11 +67,7 @@ public class EnvironmentAgentConfig implements Validatable {
 
         EnvironmentAgentConfig that = (EnvironmentAgentConfig) o;
 
-        if (uuid != null ? !uuid.equals(that.uuid) : that.uuid != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(uuid, that.uuid);
     }
 
     @Override

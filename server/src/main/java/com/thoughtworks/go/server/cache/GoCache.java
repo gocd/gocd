@@ -24,6 +24,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
@@ -32,7 +33,6 @@ import javax.annotation.PreDestroy;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -40,17 +40,14 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
  * Understands storing and retrieving objects from an underlying LRU cache
  */
 public class GoCache {
-    public static final String SUB_KEY_DELIMITER = "!_#$#_!";
+    @VisibleForTesting public static final String SUB_KEY_DELIMITER = "!_#$#_!";
     private static final Logger LOGGER = LoggerFactory.getLogger(GoCache.class);
     private final ThreadLocal<Boolean> doNotServeForTransaction = new ThreadLocal<>();
 
     private final Ehcache ehCache;
     private final TransactionSynchronizationManager transactionSynchronizationManager;
 
-    private final Set<Class<? extends PersistentObject>> nullObjectClasses;
-
-    static class KeyList extends HashSet<String> {
-    }
+    @VisibleForTesting static class KeyList extends HashSet<String> { }
 
     @TestOnly
     public GoCache(GoCache goCache) {
@@ -60,9 +57,7 @@ public class GoCache {
     public GoCache(Ehcache cache, TransactionSynchronizationManager transactionSynchronizationManager) {
         this.ehCache = cache;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
-        this.nullObjectClasses = new HashSet<>();
-        nullObjectClasses.add(NullUser.class);
-        registerAsCacheEvictionListener();
+        ehCache.getCacheEventNotificationService().registerListener(new CacheEvictionListener(this));
     }
 
     @PreDestroy
@@ -72,12 +67,9 @@ public class GoCache {
             .ifPresent(cm -> cm.removeCache(ehCache.getName()));
     }
 
+    @TestOnly
     public void addListener(CacheEventListener listener) {
         ehCache.getCacheEventNotificationService().registerListener(listener);
-    }
-
-    protected void registerAsCacheEvictionListener() {
-        ehCache.getCacheEventNotificationService().registerListener(new CacheEvictionListener(this));
     }
 
     public void stopServingForTransaction() {
@@ -95,7 +87,9 @@ public class GoCache {
     public void put(String key, Object value) {
         logUnsavedPersistentObjectInteraction(value, "PersistentObject {} added to cache without an id.");
         if (transactionSynchronizationManager.isActualTransactionActive()) {
-            LOGGER.debug("transaction active during cache put for {} = {}", key, value, new IllegalStateException());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("transaction active during cache put for {} = {}", key, value, new IllegalStateException());
+            }
             return;
         }
         ehCache.put(new Element(key, value));
@@ -107,19 +101,20 @@ public class GoCache {
     }
 
     private void logUnsavedPersistentObjectInteraction(Object value, String message) {
-        if (value instanceof PersistentObject persistentObject) {
-            for (Class<? extends PersistentObject> nullObjectClass : nullObjectClasses) {
-                if (value.getClass().equals(nullObjectClass)) {
-                    return;
-                }
-            }
-            if (!persistentObject.hasId()) {
-                String msg = String.format(message, persistentObject);
-                IllegalStateException exception = new IllegalStateException();
-                LOGGER.error(msg, exception);
-                throw bomb(msg, exception);
-            }
+        if (value instanceof PersistentObject persistent && isMissingId(persistent)) {
+            String msg = String.format(message, persistent);
+            IllegalStateException exception = new IllegalStateException();
+            LOGGER.error(msg, exception);
+            throw bomb(msg, exception);
         }
+    }
+
+    private boolean isMissingId(PersistentObject persistentObject) {
+        return !persistentObject.hasId() && !isNullObject(persistentObject);
+    }
+
+    private static boolean isNullObject(PersistentObject persistentObject) {
+        return NullUser.class.equals(persistentObject.getClass());
     }
 
     public <T> T get(String key) {
@@ -140,7 +135,7 @@ public class GoCache {
     }
 
     private boolean doNotServeForTransaction() {
-        return doNotServeForTransaction.get() != null && doNotServeForTransaction.get();
+        return Boolean.TRUE.equals(doNotServeForTransaction.get());
     }
 
     public void clear() {
@@ -150,8 +145,8 @@ public class GoCache {
     public boolean remove(String key) {
         synchronized (key.intern()) {
             Object value = getWithoutTransactionCheck(key);
-            if (value instanceof KeyList) {
-                for (String subKey : (KeyList) value) {
+            if (value instanceof KeyList keyList) {
+                for (String subKey : keyList) {
                     ehCache.remove(compositeKey(key, subKey));
                 }
             }
@@ -183,9 +178,9 @@ public class GoCache {
     }
 
     public void removeAssociations(String key, Element element) {
-        if (element.getObjectValue() instanceof KeyList) {
+        if (element.getObjectValue() instanceof KeyList keyList) {
             synchronized (key.intern()) {
-                for (String subkey : (KeyList) element.getObjectValue()) {
+                for (String subkey : keyList) {
                     remove(compositeKey(key, subkey));
                 }
             }

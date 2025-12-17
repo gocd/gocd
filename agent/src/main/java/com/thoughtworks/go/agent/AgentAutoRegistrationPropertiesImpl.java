@@ -20,6 +20,7 @@ import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.PropertiesConfigurationLayout;
 import org.apache.commons.configuration2.convert.ListDelimiterHandler;
 import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,33 +63,33 @@ public class AgentAutoRegistrationPropertiesImpl implements AgentAutoRegistratio
     }
 
     @Override
-    public String agentAutoRegisterKey() {
-        return getProperty(AGENT_AUTO_REGISTER_KEY, "");
+    public @NotNull String agentAutoRegisterKey() {
+        return getPropertyOrEmpty(AGENT_AUTO_REGISTER_KEY);
     }
 
     @Override
-    public String agentAutoRegisterResources() {
-        return getProperty(AGENT_AUTO_REGISTER_RESOURCES, "");
+    public @NotNull String agentAutoRegisterResources() {
+        return getPropertyOrEmpty(AGENT_AUTO_REGISTER_RESOURCES);
     }
 
     @Override
-    public String agentAutoRegisterEnvironments() {
-        return getProperty(AGENT_AUTO_REGISTER_ENVIRONMENTS, "");
+    public @NotNull String agentAutoRegisterEnvironments() {
+        return getPropertyOrEmpty(AGENT_AUTO_REGISTER_ENVIRONMENTS);
     }
 
     @Override
-    public String agentAutoRegisterElasticPluginId() {
-        return getProperty(AGENT_AUTO_REGISTER_ELASTIC_PLUGIN_ID, "");
+    public @NotNull String agentAutoRegisterElasticPluginId() {
+        return getPropertyOrEmpty(AGENT_AUTO_REGISTER_ELASTIC_PLUGIN_ID);
     }
 
     @Override
-    public String agentAutoRegisterElasticAgentId() {
-        return getProperty(AGENT_AUTO_REGISTER_ELASTIC_AGENT_ID, "");
+    public @NotNull String agentAutoRegisterElasticAgentId() {
+        return getPropertyOrEmpty(AGENT_AUTO_REGISTER_ELASTIC_AGENT_ID);
     }
 
     @Override
-    public String agentAutoRegisterHostname() {
-        return getProperty(AGENT_AUTO_REGISTER_HOSTNAME, "");
+    public @NotNull String agentAutoRegisterHostname() {
+        return getPropertyOrEmpty(AGENT_AUTO_REGISTER_HOSTNAME);
     }
 
     @Override
@@ -111,8 +112,8 @@ public class AgentAutoRegistrationPropertiesImpl implements AgentAutoRegistratio
         }
     }
 
-    private String getProperty(String property, String defaultValue) {
-        return properties().getProperty(property, defaultValue);
+    private @NotNull String getPropertyOrEmpty(String property) {
+        return properties().getProperty(property, "");
     }
 
     private Properties properties() {
@@ -127,7 +128,9 @@ public class AgentAutoRegistrationPropertiesImpl implements AgentAutoRegistratio
             this.properties.clear();
             this.properties.load(reader());
         } catch (IOException e) {
-            LOG.debug("[Agent Auto Registration] Unable to load agent auto register properties file. This agent will not auto-register.", e);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("[Agent Auto Registration] Unable to load agent auto register properties file. This agent will not auto-register.", e);
+            }
         }
     }
 

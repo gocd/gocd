@@ -140,9 +140,10 @@ public class JobInstanceTest {
         instance.completing(JobResult.Passed);
         final JobStateTransition scheduledState = new JobStateTransition(JobState.Scheduled, new Date());
         final JobStateTransition completedState = new JobStateTransition(JobState.Completing, new Date());
-        assertThat(instance.getTransitions()).contains(scheduledState);
-        assertThat(instance.getTransitions()).contains(completedState);
-        assertThat(instance.getTransitions().first().getCurrentState()).isNotEqualTo(JobState.Preparing);
+        assertThat(instance.getTransitions()).containsExactly(scheduledState, completedState)
+            .first()
+            .extracting(JobStateTransition::getCurrentState)
+            .isNotEqualTo(JobState.Preparing);
     }
 
     @Test
@@ -151,9 +152,11 @@ public class JobInstanceTest {
         instance.changeState(JobState.Scheduled);
         final JobStateTransition scheduledState = new JobStateTransition(JobState.Scheduled, new Date());
 
-        assertThat(instance.getTransitions()).contains(scheduledState);
-        assertThat(instance.getTransitions()).hasSize(1);
-        assertThat(instance.getTransitions().first().getCurrentState()).isNotEqualTo(JobState.Preparing);
+        assertThat(instance.getTransitions())
+            .containsOnly(scheduledState)
+            .singleElement()
+            .extracting(JobStateTransition::getCurrentState)
+            .isNotEqualTo(JobState.Preparing);
     }
 
     @Test

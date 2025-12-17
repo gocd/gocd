@@ -25,6 +25,7 @@ import com.thoughtworks.go.service.TaskFactory;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -223,16 +224,18 @@ public class FetchTaskAdapter implements Task {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         FetchTaskAdapter that = (FetchTaskAdapter) o;
-        if (fetchTask != null ? !fetchTask.equals(that.fetchTask) : that.fetchTask != null) return false;
-        if (fetchPluggableArtifactTask != null ? !fetchPluggableArtifactTask.equals(that.fetchPluggableArtifactTask) : that.fetchPluggableArtifactTask != null)
-            return false;
-        if (selectedTaskType != null ? !selectedTaskType.equals(that.selectedTaskType) : that.selectedTaskType != null)
-            return false;
-        return pluginId != null ? pluginId.equals(that.pluginId) : that.pluginId == null;
+        return Objects.equals(fetchTask, that.fetchTask) &&
+            Objects.equals(fetchPluggableArtifactTask, that.fetchPluggableArtifactTask) &&
+            Objects.equals(selectedTaskType, that.selectedTaskType) &&
+            Objects.equals(pluginId, that.pluginId);
     }
 
     @Override

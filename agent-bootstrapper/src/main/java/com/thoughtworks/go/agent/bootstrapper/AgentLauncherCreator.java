@@ -24,5 +24,6 @@ import java.io.IOException;
  */
 public interface AgentLauncherCreator extends AutoCloseable {
     AgentLauncher createLauncher();
+    @Override
     void close() throws IOException;
 }

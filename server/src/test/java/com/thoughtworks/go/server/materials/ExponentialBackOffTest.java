@@ -56,7 +56,7 @@ public class ExponentialBackOffTest {
                     .thenReturn(now())
                     .thenReturn(now(tenSecondsFromNow));
 
-            ExponentialBackOff backOff = new ExponentialBackOff(1.5, systemTimeClock);
+            ExponentialBackOff backOff = new ExponentialBackOff(1.5f, systemTimeClock);
 
             backOff.failedAgain();
 
@@ -70,7 +70,7 @@ public class ExponentialBackOffTest {
                     .thenReturn(now())
                     .thenReturn(now(fiveSecondsAgo));
 
-            ExponentialBackOff backOff = new ExponentialBackOff(0.5, systemTimeClock);
+            ExponentialBackOff backOff = new ExponentialBackOff(0.5f, systemTimeClock);
 
             backOff.failedAgain();
 

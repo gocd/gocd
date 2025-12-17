@@ -95,7 +95,7 @@ public class ArtifactsControllerTest {
 
         assertThat(view.getView().getContentType()).isEqualTo(RESPONSE_CHARSET);
         assertThat(view.getView()).isInstanceOf(ResponseCodeView.class);
-        assertThat(((ResponseCodeView) view.getView()).getContent()).contains("Console log for Build [pipeline/10/stage/2/build/103] is unavailable as it may have been purged by Go or deleted externally");
+        assertThat(((ResponseCodeView) view.getView()).getContent()).contains("Console log for Job [pipeline/10/stage/2/build/103] is unavailable as it may have been purged by Go or deleted externally");
     }
 
     @Test

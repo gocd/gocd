@@ -47,7 +47,7 @@ import static spark.Spark.*;
 public class SecretConfigsControllerV3 extends ApiController implements SparkSpringController, CrudController<SecretConfig> {
 
     public static final String CONFIG_ID_PARAM = "config_id";
-    public final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final SecretConfigService configService;
     private final EntityHashingService entityHashingService;
 

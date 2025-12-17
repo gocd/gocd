@@ -16,9 +16,9 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.AdminsConfig;
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -60,7 +60,7 @@ public class AdminsConfigUpdateCommand implements EntityConfigUpdateCommand<Admi
         preprocessedAdmin = preprocessedConfig.server().security().adminsConfig();
 
         if (!preprocessedAdmin.validateTree(ConfigSaveValidationContext.forChain(preprocessedConfig))) {
-            BasicCruiseConfig.copyErrors(preprocessedAdmin, admin);
+            Validatable.copyErrors(preprocessedAdmin, admin);
             return false;
         }
 
@@ -73,7 +73,7 @@ public class AdminsConfigUpdateCommand implements EntityConfigUpdateCommand<Admi
     }
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(admin);
+        Validatable.clearErrors(admin);
     }
 
     @Override

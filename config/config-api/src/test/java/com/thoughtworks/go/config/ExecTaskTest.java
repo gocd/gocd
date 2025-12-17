@@ -22,6 +22,7 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +97,7 @@ public class ExecTaskTest {
         exec.setConfigAttributes(Map.of(ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "my_dir"));
         assertThat(exec.command()).isEqualTo("ls");
         assertThat(exec.getArgs()).isEqualTo("-la");
-        assertThat(exec.getArgListString()).isEqualTo("");
+        assertThat(exec.getArgListString()).isEmpty();
         assertThat(exec.workingDirectory()).isEqualTo("my_dir");
 
         Map<String, Object> attributes = new HashMap<>();
@@ -105,7 +106,7 @@ public class ExecTaskTest {
         attributes.put(ExecTask.WORKING_DIR, null);
         exec.setConfigAttributes(attributes);
         assertThat(exec.command()).isNull();
-        assertThat(exec.getArgs()).isEqualTo("");
+        assertThat(exec.getArgs()).isEmpty();
         assertThat(exec.workingDirectory()).isNull();
 
         Map<String, String> attributes1 = new HashMap<>();
@@ -146,8 +147,8 @@ public class ExecTaskTest {
     public void shouldNullOutWorkingDirectoryIfGivenBlank() {
         ExecTask exec = new ExecTask("ls", "-la", "foo");
         exec.setConfigAttributes(Map.of(ExecTask.COMMAND, "", ExecTask.ARGS, "", ExecTask.WORKING_DIR, ""));
-        assertThat(exec.command()).isEqualTo("");
-        assertThat(exec.getArgs()).isEqualTo("");
+        assertThat(exec.command()).isEmpty();
+        assertThat(exec.getArgs()).isEmpty();
         assertThat(exec.workingDirectory()).isNull();
     }
 
@@ -173,6 +174,16 @@ public class ExecTaskTest {
     }
 
     @Test
+    public void validateTask_shouldValidateThatCommandIsRequired() {
+        ExecTask execTask = new ExecTask();
+
+        execTask.validateTask(null);
+
+        assertThat(execTask.errors().isEmpty()).isFalse();
+        assertThat(execTask.errors().firstErrorOn(ExecTask.COMMAND)).isEqualTo("Command cannot be empty");
+    }
+
+    @Test
     public void shouldErrorOutForTemplates_WhenItHasATaskWithInvalidWorkingDirectory() {
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("some_pipeline");
         StageConfig templateStage = StageConfigMother.stageWithTasks("templateStage");
@@ -188,6 +199,14 @@ public class ExecTaskTest {
         } catch (Exception e) {
             fail("should not have failed. Exception: " + e.getMessage());
         }
+    }
+
+    @Test
+    public void shouldUseConfiguredWorkingDirectory() {
+        File absoluteFile = new File("test").getAbsoluteFile();
+        ExecTask task = new ExecTask("command", "arguments", absoluteFile.getAbsolutePath());
+
+        assertThat(task.workingDirectory()).isEqualTo((absoluteFile.getPath()));
     }
 
     @Test
@@ -207,7 +226,7 @@ public class ExecTaskTest {
     @Test
     public void shouldReturnEmptyCommandArguments() {
         ExecTask task = new ExecTask("./bn", new Arguments(), "src/build");
-        assertThat(task.arguments()).isEqualTo("");
+        assertThat(task.arguments()).isEmpty();
     }
 
     @Test

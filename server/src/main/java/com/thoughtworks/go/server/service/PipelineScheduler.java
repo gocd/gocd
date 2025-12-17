@@ -133,8 +133,10 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
                     scheduleCheckQueue.post(new ScheduleCheckMessage(entry.getKey(), trackingId));
                     pipelines.put(entry.getKey(), ScheduleCheckState.BUSY);
 
-                    LOGGER.trace("try to schedule pipeline {}, current pipeline state: {}", entry.getKey(), pipelines);
-                } else {
+                    if (LOGGER.isTraceEnabled()) {
+                        LOGGER.trace("try to schedule pipeline {}, current pipeline state: {}", entry.getKey(), pipelines);
+                    }
+                } else if (LOGGER.isTraceEnabled()) {
                     LOGGER.trace("skipping scheduling pipeline {} because it's busy scheduling, current pipelines state: {}", entry.getKey(), pipelines);
                 }
             }
@@ -232,7 +234,9 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
             pipelines.put(message.getPipelineName(), ScheduleCheckState.IDLE);
 
             schedulingPerformanceLogger.completionMessageForScheduleCheckReceived(message.trackingId(), message.getPipelineName());
-            LOGGER.trace("marked pipeline {} as IDLE, current pipelines state: {}", message.getPipelineName(), pipelines);
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("marked pipeline {} as IDLE, current pipelines state: {}", message.getPipelineName(), pipelines);
+            }
         }
     }
 }

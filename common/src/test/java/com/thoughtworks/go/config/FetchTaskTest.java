@@ -515,10 +515,10 @@ class FetchTaskTest {
         fetchTask.setConfigAttributes(Map.of(FetchTask.PIPELINE_NAME, "", FetchTask.STAGE, "", FetchTask.JOB, "", FetchTask.SRC, "", FetchTask.IS_SOURCE_A_FILE, "1", FetchTask.DEST, ""));
         assertThat(fetchTask.getTargetPipelineName()).isEqualTo(new CaseInsensitiveString(""));
         assertThat(fetchTask.getStage()).isEqualTo(new CaseInsensitiveString(""));
-        assertThat(fetchTask.getJob().toString()).isEqualTo("");
+        assertThat(fetchTask.getJob().toString()).isEmpty();
         assertThat(fetchTask.getSrcfile()).isNull();
         assertThat(fetchTask.getSrcdir()).isNull();
-        assertThat(fetchTask.getDest()).isEqualTo("");
+        assertThat(fetchTask.getDest()).isEmpty();
     }
 
     @Test

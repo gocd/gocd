@@ -67,7 +67,7 @@ public class XpathUtilsTest {
     public void shouldEvaluateTextValueXpath() throws Exception {
         String xpath = "//son/grandson[2]/text()";
         String value = XpathUtils.evaluate(getTestFile(), xpath);
-        assertThat(value).isEqualTo("");
+        assertThat(value).isEmpty();
     }
 
     @Test
@@ -78,7 +78,7 @@ public class XpathUtilsTest {
     @Test
     public void shouldCheckIfNodeExists() throws Exception {
         String attribute = "//son/grandson[@name=\"anyone\"]/@address";
-        assertThat(XpathUtils.evaluate(getTestFile(), attribute)).isEqualTo("");
+        assertThat(XpathUtils.evaluate(getTestFile(), attribute)).isEmpty();
         assertThat(XpathUtils.nodeExists(getTestFile(), attribute)).isTrue();
 
         String textNode = "//son/grandson[2]/text()";
@@ -99,7 +99,7 @@ public class XpathUtilsTest {
     public void shouldReturnEmptyStringWhenMatchedNodeIsNotTextNode() throws Exception {
         String xpath = "/root/son";
         String value = XpathUtils.evaluate(getTestFile(), xpath);
-        assertThat(value).isEqualTo("");
+        assertThat(value).isEmpty();
     }
 
     @Test

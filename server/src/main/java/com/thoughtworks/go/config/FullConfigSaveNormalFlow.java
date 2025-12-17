@@ -21,9 +21,12 @@ import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.jdom2.JDOMException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.List;
 
 /*
@@ -34,12 +37,12 @@ validating to writing the config in appropriate locations.
 public class FullConfigSaveNormalFlow extends FullConfigSaveFlow {
 
     @Autowired
-    public FullConfigSaveNormalFlow(ConfigCache configCache, ConfigElementImplementationRegistry configElementImplementationRegistry,
+    public FullConfigSaveNormalFlow(ConfigElementImplementationRegistry configElementImplementationRegistry,
                                     SystemEnvironment systemEnvironment, TimeProvider timeProvider,
                                     ConfigRepository configRepository, CachedGoPartials cachedGoPartials) {
-        this(new MagicalGoConfigXmlLoader(configCache, configElementImplementationRegistry),
-                new MagicalGoConfigXmlWriter(configCache, configElementImplementationRegistry), configElementImplementationRegistry,
-                timeProvider, configRepository, cachedGoPartials, new GoConfigFileWriter(systemEnvironment));
+        this(new MagicalGoConfigXmlLoader(configElementImplementationRegistry),
+            new MagicalGoConfigXmlWriter(configElementImplementationRegistry), configElementImplementationRegistry,
+            timeProvider, configRepository, cachedGoPartials, new GoConfigFileWriter(systemEnvironment));
     }
 
     public FullConfigSaveNormalFlow(MagicalGoConfigXmlLoader loader, MagicalGoConfigXmlWriter writer,
@@ -51,7 +54,7 @@ public class FullConfigSaveNormalFlow extends FullConfigSaveFlow {
     }
 
     @Override
-    public GoConfigHolder execute(FullConfigUpdateCommand updatingCommand, List<PartialConfig> partials, String currentUser) throws Exception {
+    public GoConfigHolder execute(FullConfigUpdateCommand updatingCommand, List<PartialConfig> partials, String currentUser) throws GitAPIException, IOException, JDOMException {
         LOGGER.debug("[Config Save] Starting Config Save using FullConfigSaveNormalFlow");
 
         CruiseConfig configForEdit = configForEditWithPartials(updatingCommand, partials);

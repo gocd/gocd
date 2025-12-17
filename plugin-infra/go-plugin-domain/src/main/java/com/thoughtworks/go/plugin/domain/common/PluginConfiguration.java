@@ -40,13 +40,17 @@ public class PluginConfiguration {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         PluginConfiguration that = (PluginConfiguration) o;
 
-        if (!Objects.equals(key, that.key)) return false;
-        return Objects.equals(metadata, that.metadata);
+        return Objects.equals(key, that.key) &&
+            Objects.equals(metadata, that.metadata);
 
     }
 

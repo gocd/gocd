@@ -17,9 +17,7 @@ package com.thoughtworks.go.config.parser;
 
 import com.thoughtworks.go.config.AttributeAwareConfigTag;
 import com.thoughtworks.go.config.ConfigAttribute;
-import com.thoughtworks.go.config.ConfigCache;
 import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.preprocessor.ClassAttributeCache;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.security.GoCipher;
 import org.jdom2.Element;
@@ -30,12 +28,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class GoConfigClassLoaderTest {
-    @Mock
-    private ConfigCache configCache;
     @Mock
     private GoCipher goCipher;
     @Mock
@@ -46,7 +41,7 @@ public class GoConfigClassLoaderTest {
     @Test
     public void shouldErrorOutIfElementDoesNotHaveConfigTagAnnotation() {
         final Element element = new Element("cruise");
-        final GoConfigClassLoader<ConfigWithoutAnnotation> loader = GoConfigClassLoader.classParser(element, ConfigWithoutAnnotation.class, configCache, goCipher, registry, referenceElements);
+        final GoConfigClassLoader<ConfigWithoutAnnotation> loader = GoConfigClassLoader.classParser(element, ConfigWithoutAnnotation.class, goCipher, registry, referenceElements);
 
         assertThatThrownBy(loader::parse)
                 .isInstanceOf(RuntimeException.class)
@@ -56,9 +51,8 @@ public class GoConfigClassLoaderTest {
     @Test
     public void shouldContinueParsingWhenElementHasConfigTagAnnotation() {
         final Element element = new Element("example");
-        when(configCache.getFieldCache()).thenReturn(new ClassAttributeCache.FieldCache());
 
-        final GoConfigClassLoader<ConfigWithConfigTagAnnotation> loader = GoConfigClassLoader.classParser(element, ConfigWithConfigTagAnnotation.class, configCache, goCipher, registry, referenceElements);
+        final GoConfigClassLoader<ConfigWithConfigTagAnnotation> loader = GoConfigClassLoader.classParser(element, ConfigWithConfigTagAnnotation.class, goCipher, registry, referenceElements);
 
         final ConfigWithConfigTagAnnotation configWithConfigTagAnnotation = loader.parse();
 
@@ -69,9 +63,8 @@ public class GoConfigClassLoaderTest {
     public void shouldContinueParsingWhenConfigClassHasValidAttributeAwareConfigTagAnnotation() {
         final Element element = new Element("example");
         element.setAttribute("type", "example-type");
-        when(configCache.getFieldCache()).thenReturn(new ClassAttributeCache.FieldCache());
 
-        final GoConfigClassLoader<ConfigWithAttributeAwareConfigTagAnnotation> loader = GoConfigClassLoader.classParser(element, ConfigWithAttributeAwareConfigTagAnnotation.class, configCache, goCipher, registry, referenceElements);
+        final GoConfigClassLoader<ConfigWithAttributeAwareConfigTagAnnotation> loader = GoConfigClassLoader.classParser(element, ConfigWithAttributeAwareConfigTagAnnotation.class, goCipher, registry, referenceElements);
 
         final ConfigWithAttributeAwareConfigTagAnnotation configWithConfigTagAnnotation = loader.parse();
 
@@ -83,7 +76,7 @@ public class GoConfigClassLoaderTest {
         final Element element = new Element("example");
         element.setAttribute("type", "foo-bar");
 
-        final GoConfigClassLoader<ConfigWithAttributeAwareConfigTagAnnotation> loader = GoConfigClassLoader.classParser(element, ConfigWithAttributeAwareConfigTagAnnotation.class, configCache, goCipher, registry, referenceElements);
+        final GoConfigClassLoader<ConfigWithAttributeAwareConfigTagAnnotation> loader = GoConfigClassLoader.classParser(element, ConfigWithAttributeAwareConfigTagAnnotation.class, goCipher, registry, referenceElements);
 
         assertThatThrownBy(loader::parse)
                 .isInstanceOf(RuntimeException.class)
@@ -96,7 +89,7 @@ public class GoConfigClassLoaderTest {
     public void shouldErrorOutWhenConfigClassHasAttributeAwareConfigTagAnnotationButAttributeIsNotPresent() {
         final Element element = new Element("example");
 
-        final GoConfigClassLoader<ConfigWithAttributeAwareConfigTagAnnotation> loader = GoConfigClassLoader.classParser(element, ConfigWithAttributeAwareConfigTagAnnotation.class, configCache, goCipher, registry, referenceElements);
+        final GoConfigClassLoader<ConfigWithAttributeAwareConfigTagAnnotation> loader = GoConfigClassLoader.classParser(element, ConfigWithAttributeAwareConfigTagAnnotation.class, goCipher, registry, referenceElements);
 
         assertThatThrownBy(loader::parse)
                 .isInstanceOf(RuntimeException.class)
@@ -107,7 +100,7 @@ public class GoConfigClassLoaderTest {
     public void shouldErrorOutWhenConfigClassHasAttributeAwareConfigTagAnnotationButAttributeIsMissingInConfig() {
         final Element element = new Element("example");
 
-        final GoConfigClassLoader<AttributeAwareConfigTagWithBlankAttributeValue> loader = GoConfigClassLoader.classParser(element, AttributeAwareConfigTagWithBlankAttributeValue.class, configCache, goCipher, registry, referenceElements);
+        final GoConfigClassLoader<AttributeAwareConfigTagWithBlankAttributeValue> loader = GoConfigClassLoader.classParser(element, AttributeAwareConfigTagWithBlankAttributeValue.class, goCipher, registry, referenceElements);
 
         assertThatThrownBy(loader::parse)
                 .isInstanceOf(RuntimeException.class)
@@ -118,7 +111,7 @@ public class GoConfigClassLoaderTest {
     public void shouldErrorOutWhenAttributeAwareConfigTagHasAttributeWithBlankValue() {
         final Element element = new Element("example");
 
-        final GoConfigClassLoader<ConfigWithAttributeAwareConfigTagAnnotation> loader = GoConfigClassLoader.classParser(element, ConfigWithAttributeAwareConfigTagAnnotation.class, configCache, goCipher, registry, referenceElements);
+        final GoConfigClassLoader<ConfigWithAttributeAwareConfigTagAnnotation> loader = GoConfigClassLoader.classParser(element, ConfigWithAttributeAwareConfigTagAnnotation.class, goCipher, registry, referenceElements);
 
         assertThatThrownBy(loader::parse)
                 .isInstanceOf(RuntimeException.class)
@@ -129,9 +122,8 @@ public class GoConfigClassLoaderTest {
     public void shouldErrorOutWhenAttributeAwareConfigTagClassHasConfigAttributeWithSameName() {
         final Element element = new Element("example");
         element.setAttribute("type", "example-type");
-        when(configCache.getFieldCache()).thenReturn(new ClassAttributeCache.FieldCache());
 
-        final GoConfigClassLoader<AttributeAwareConfigTagHasConfigAttributeWithSameName> loader = GoConfigClassLoader.classParser(element, AttributeAwareConfigTagHasConfigAttributeWithSameName.class, configCache, goCipher, registry, referenceElements);
+        final GoConfigClassLoader<AttributeAwareConfigTagHasConfigAttributeWithSameName> loader = GoConfigClassLoader.classParser(element, AttributeAwareConfigTagHasConfigAttributeWithSameName.class, goCipher, registry, referenceElements);
 
         assertThatThrownBy(loader::parse)
                 .isInstanceOf(RuntimeException.class)

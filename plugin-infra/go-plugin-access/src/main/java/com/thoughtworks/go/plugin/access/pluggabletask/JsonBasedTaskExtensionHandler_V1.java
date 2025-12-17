@@ -116,7 +116,9 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
         List<String> exceptions = new ArrayList<>();
         try {
             Map result = (Map) JsonHelper.fromJson(responseBody, Object.class);
-            if (result == null) return validationResult;
+            if (result == null) {
+                return validationResult;
+            }
             final Map<String, Object> errors = (Map<String, Object>) result.get("errors");
             if (errors != null) {
                 for (Map.Entry<String, Object> entry : errors.entrySet()) {

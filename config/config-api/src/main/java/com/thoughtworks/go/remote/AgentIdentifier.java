@@ -18,6 +18,7 @@ package com.thoughtworks.go.remote;
 import com.google.gson.annotations.Expose;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class AgentIdentifier implements Serializable {
     @Expose
@@ -61,17 +62,9 @@ public class AgentIdentifier implements Serializable {
 
         AgentIdentifier that = (AgentIdentifier) o;
 
-        if (hostName != null ? !hostName.equals(that.hostName) : that.hostName != null) {
-            return false;
-        }
-        if (ipAddress != null ? !ipAddress.equals(that.ipAddress) : that.ipAddress != null) {
-            return false;
-        }
-        if (uuid != null ? !uuid.equals(that.uuid) : that.uuid != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(hostName, that.hostName) &&
+            Objects.equals(ipAddress, that.ipAddress) &&
+            Objects.equals(uuid, that.uuid);
     }
 
     @Override

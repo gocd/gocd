@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.plugin.domain.common;
 
+import java.util.Objects;
+
 public class ValidationError {
     private static final String EMPTY_KEY = "";
 
@@ -41,13 +43,17 @@ public class ValidationError {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ValidationError that = (ValidationError) o;
 
-        if (key != null ? !key.equals(that.key) : that.key != null) return false;
-        return message != null ? message.equals(that.message) : that.message == null;
+        return Objects.equals(key, that.key) &&
+            Objects.equals(message, that.message);
 
     }
 

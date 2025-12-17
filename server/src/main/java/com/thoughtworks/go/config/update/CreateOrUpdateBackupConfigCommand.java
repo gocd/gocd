@@ -16,9 +16,9 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BackupConfig;
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 
 public class CreateOrUpdateBackupConfigCommand implements EntityConfigUpdateCommand<BackupConfig> {
@@ -42,7 +42,7 @@ public class CreateOrUpdateBackupConfigCommand implements EntityConfigUpdateComm
         preprocessedEntityConfig.validate(new ConfigSaveValidationContext(preprocessedConfig));
 
         if (preprocessedEntityConfig.errors().present()) {
-            BasicCruiseConfig.copyErrors(preprocessedEntityConfig, newBackupConfig);
+            Validatable.copyErrors(preprocessedEntityConfig, newBackupConfig);
             return false;
         } else {
             return true;
@@ -51,7 +51,7 @@ public class CreateOrUpdateBackupConfigCommand implements EntityConfigUpdateComm
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(newBackupConfig);
+        Validatable.clearErrors(newBackupConfig);
     }
 
     @Override

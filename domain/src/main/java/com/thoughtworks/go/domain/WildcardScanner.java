@@ -43,8 +43,8 @@ public class WildcardScanner  {
             allFiles.add(new File(rootPath, directory));
         }
 
-        for (int i = 0; i < allPaths.length; i++) {
-            File file = new File(rootPath, allPaths[i]);
+        for (String allPath : allPaths) {
+            File file = new File(rootPath, allPath);
             if (!allFiles.contains(file.getParentFile())) {
                 allFiles.add(file);
             }

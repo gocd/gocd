@@ -209,7 +209,7 @@ class AgentTest {
             void shouldDoNothingWhenListOfResourcesToRemoveDoesNotExist() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
                 agent.removeResources(List.of("r1", "r2"));
-                assertNull(agent.getResources());
+                assertThat(agent.getResources()).isEmpty();
             }
 
             @Test
@@ -229,15 +229,15 @@ class AgentTest {
             @Test
             void shouldTrimEachResourceNameInTheListOfResourcesToRemove() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-                agent.setResourcesFromList(List.of("r1", "r2", "r3"));
+                agent.setResourcesFrom(List.of("r1", "r2", "r3"));
                 agent.removeResources(List.of("  r1 ", "r2 ", " r3"));
-                assertNull(agent.getResources());
+                assertThat(agent.getResources()).isNull();
             }
 
             @Test
             void shouldNotConsiderNullOrEmptyResourceNamesInTheListOfResourcesToRemove() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-                agent.setResourcesFromList(List.of("r1", "r2", "r3"));
+                agent.setResourcesFrom(List.of("r1", "r2", "r3"));
                 agent.removeResources(Arrays.asList(null, " ", ""));
                 assertThat(agent.getResources()).isEqualTo("r1,r2,r3");
             }
@@ -317,36 +317,6 @@ class AgentTest {
             void shouldSetEnvironmentsAsNullWhenInvalidCommaSeparatedStringOfEnvironmentNamesIsSpecified() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
                 agent.setEnvironments("   , ,, ,");
-                assertThat(agent.getEnvironments()).isNull();
-            }
-
-            @Test
-            void shouldSetEnvironmentsWithValidListOfEnvironmentNames() {
-                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-                agent.setEnvironmentsFrom(List.of("env1", "env2", "env3"));
-                assertThat(agent.getEnvironments()).isEqualTo("env1,env2,env3");
-
-                agent.setEnvironmentsFrom(List.of("env4", "env5"));
-                assertThat(agent.getEnvironments()).isEqualTo("env4,env5");
-            }
-
-            @Test
-            void shouldSetEnvironmentsFromEmptyListOrListContainingEmptyEnvironmentNames() {
-                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-                agent.setEnvironmentsFrom(emptyList());
-                assertThat(agent.getEnvironments()).isNull();
-
-                agent.setEnvironmentsFrom(List.of("      ", " ", "  ", "", "", "  "));
-                assertThat(agent.getEnvironments()).isNull();
-
-                agent.setEnvironmentsFrom(List.of("      , ,  ,,,  "));
-                assertThat(agent.getEnvironments()).isEqualTo(", ,  ,,,");
-            }
-
-            @Test
-            void shouldSetEnvironmentsAsNullWhenNullListOfEnvironmentNamesIsSpecified() {
-                Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-                agent.setEnvironmentsFrom(null);
                 assertThat(agent.getEnvironments()).isNull();
             }
         }
@@ -445,21 +415,21 @@ class AgentTest {
             void shouldDoNothingWhenListOfEnvironmentsToRemoveDoesNotExist() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
                 agent.removeEnvironments(List.of("env1", "env3"));
-                assertNull(agent.getEnvironments());
+                assertThat(agent.getEnvironments()).isEmpty();
             }
 
             @Test
             void shouldDoNothingWhenListOfEnvironmentsToRemoveIsEmpty() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
                 agent.removeEnvironments(emptyList());
-                assertNull(agent.getEnvironments());
+                assertThat(agent.getEnvironments()).isEmpty();
             }
 
             @Test
             void shouldDoNothingWhenListOfEnvironmentsToRemoveIsNull() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
                 agent.removeEnvironments(null);
-                assertNull(agent.getEnvironments());
+                assertThat(agent.getEnvironments()).isEmpty();
             }
 
             @Test
@@ -467,7 +437,7 @@ class AgentTest {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
                 agent.setEnvironmentsFrom(List.of("e1", "e2", "e3"));
                 agent.removeEnvironments(List.of("  e1 ", "e2 ", " e3"));
-                assertNull(agent.getEnvironments());
+                assertThat(agent.getEnvironments()).isNull();
             }
 
             @Test
@@ -484,25 +454,24 @@ class AgentTest {
             Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
 
             assertThat(agent.getEnvironments()).isEmpty();
-            assertThat(agent.getEnvironmentsAsList()).isEmpty();
+            assertThat(agent.getEnvironmentsAsStream()).isEmpty();
 
             agent.setEnvironments("");
 
             assertThat(agent.getEnvironments()).isNull();
-            assertThat(agent.getEnvironmentsAsList()).isEmpty();
+            assertThat(agent.getEnvironmentsAsStream()).isEmpty();
         }
 
         @Test
         void shouldReturnEnvAsListSplitOnComma() {
             Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
             assertThat(agent.getEnvironments()).isEmpty();
-            assertThat(agent.getEnvironmentsAsList()).isEmpty();
+            assertThat(agent.getEnvironmentsAsStream()).isEmpty();
 
             agent.setEnvironments("env1,env2");
 
-            assertThat(agent.getEnvironments()).isNotNull();
             assertThat(agent.getEnvironments()).isEqualTo("env1,env2");
-            assertThat(agent.getEnvironmentsAsList()).isEqualTo(List.of("env1", "env2"));
+            assertThat(agent.getEnvironmentsAsStream()).containsExactly("env1", "env2");
         }
     }
 

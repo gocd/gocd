@@ -117,7 +117,7 @@ public class ConfigRepository {
         return result;
     }
 
-    public void checkin(final GoConfigRevision rev) throws Exception {
+    public void checkin(final GoConfigRevision rev) throws IOException, GitAPIException {
         try {
             if (rev.equals(getCurrentRevision())) {
                 return;
@@ -125,9 +125,9 @@ public class ConfigRepository {
             final File file = new File(workingDir, CRUISE_CONFIG_XML);
             Files.writeString(file.toPath(), rev.getContent(), UTF_8);
             final AddCommand addCommand = git.add();
-            doLocked(new VoidThrowingFn<Exception>() {
+            doLocked(new VoidThrowingFn<GitAPIException>() {
                 @Override
-                public void run() throws Exception {
+                public void run() throws GitAPIException{
                     addCommand.addFilepattern(CRUISE_CONFIG_XML).call();
                     git.commit().setAuthor(rev.getUsername(), COMMIT_EMAIL).setMessage(rev.getComment()).call();
                 }
@@ -265,8 +265,9 @@ public class ConfigRepository {
             if (!org.apache.commons.lang3.StringUtils.isBlank(laterMD5)) {
                 laterCommit = getRevCommitForMd5(laterMD5);
             }
-            if (!org.apache.commons.lang3.StringUtils.isBlank(earlierMD5))
+            if (!org.apache.commons.lang3.StringUtils.isBlank(earlierMD5)) {
                 earlierCommit = getRevCommitForMd5(earlierMD5);
+            }
             return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
         });
     }
@@ -311,7 +312,7 @@ public class ConfigRepository {
         return input;
     }
 
-    public String getConfigMergedWithLatestRevision(GoConfigRevision configRevision, String oldMD5) throws Exception {
+    public String getConfigMergedWithLatestRevision(GoConfigRevision configRevision, String oldMD5) throws IOException {
         try {
             LOGGER.debug("[Config Save] Starting git merge of config");
             createBranch(BRANCH_AT_REVISION, getRevCommitForMd5(oldMD5));
@@ -345,7 +346,7 @@ public class ConfigRepository {
         }
     }
 
-    RevCommit checkinToBranch(String branchName, GoConfigRevision rev) throws Exception {
+    RevCommit checkinToBranch(String branchName, GoConfigRevision rev) throws GitAPIException, IOException {
         try {
             checkout(branchName);
             checkin(rev);
@@ -356,7 +357,7 @@ public class ConfigRepository {
         }
     }
 
-    String getMergedConfig(String branchName, RevCommit newCommit) throws GitAPIException, IOException {
+    String getMergedConfig(@SuppressWarnings("SameParameterValue") String branchName, RevCommit newCommit) throws GitAPIException, IOException {
         MergeResult result;
         try {
             checkout(branchName);
@@ -402,13 +403,13 @@ public class ConfigRepository {
         return git.branchList().call().stream().anyMatch(ref -> ref.getName().equals(REFS_MASTER));
     }
 
-    public void garbageCollect() throws Exception {
+    public void garbageCollect() throws GitAPIException {
         if (!systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC)) {
             return;
         }
-        doLocked(new VoidThrowingFn<Exception>() {
+        doLocked(new VoidThrowingFn<GitAPIException>() {
             @Override
-            public void run() throws Exception {
+            public void run() throws GitAPIException {
                 try {
                     LOGGER.info("Before GC: {}", git.gc().getStatistics());
                     LOGGER.debug("Before GC: Size - {}", getConfigRepoDisplaySize());
@@ -430,7 +431,7 @@ public class ConfigRepository {
         return FileUtils.byteCountToDisplaySize(FileUtils.sizeOfDirectory(workingDir));
     }
 
-    public long getLooseObjectCount() throws Exception {
+    public long getLooseObjectCount() throws GitAPIException {
         return doLocked(() -> (Long) getStatistics().get("numberOfLooseObjects"));
     }
 

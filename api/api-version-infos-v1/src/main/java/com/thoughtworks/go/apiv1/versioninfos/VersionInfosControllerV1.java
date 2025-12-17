@@ -72,12 +72,12 @@ public class VersionInfosControllerV1 extends ApiController implements SparkSpri
         });
     }
 
-    public String stale(Request request, Response response) throws Exception {
+    public String stale(Request request, Response response) throws IOException {
         VersionInfo staleVersionInfo = versionInfoService.getStaleVersionInfo();
         return writerForTopLevelObject(request, response, writer -> VersionInfoRepresenter.toJSON(writer, staleVersionInfo, systemEnvironment));
     }
 
-    public String latestVersion(Request request, Response response) throws Exception {
+    public String latestVersion(Request request, Response response) throws IOException {
         String goUpdate = versionInfoService.getGoUpdate();
         return writerForTopLevelObject(request, response, writer -> {
             if (StringUtils.isNotBlank(goUpdate)) {

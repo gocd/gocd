@@ -144,33 +144,21 @@ public class ServerHealthState {
     }
 
     @Override
-    public boolean equals(Object that) {
-        if (this == that) {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-        if (that == null) {
+        if (o == null) {
             return false;
         }
-        if (this.getClass() != that.getClass()) {
+        if (this.getClass() != o.getClass()) {
             return false;
         }
-        return equals((ServerHealthState) that);
-    }
-
-    private boolean equals(ServerHealthState that) {
-        if (!this.healthStateLevel.equals(that.healthStateLevel)) {
-            return false;
-        }
-        if (!this.type.equals(that.type)) {
-            return false;
-        }
-        if (!this.description.equals(that.description)) {
-            return false;
-        }
-        if (!this.message.equals(that.message)) {
-            return false;
-        }
-        return true;
+        ServerHealthState that = (ServerHealthState) o;
+        return this.healthStateLevel.equals(that.healthStateLevel) &&
+            this.type.equals(that.type) &&
+            this.description.equals(that.description) &&
+            this.message.equals(that.message);
     }
 
     @Override

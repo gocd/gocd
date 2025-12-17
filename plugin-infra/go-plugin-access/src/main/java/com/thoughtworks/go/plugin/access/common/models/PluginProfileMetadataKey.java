@@ -19,6 +19,8 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 
+import java.util.Objects;
+
 
 public class PluginProfileMetadataKey {
     @Expose
@@ -50,11 +52,12 @@ public class PluginProfileMetadataKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PluginProfileMetadataKey that)) return false;
-
-        if (key != null ? !key.equals(that.key) : that.key != null) return false;
-        return metadata != null ? metadata.equals(that.metadata) : that.metadata == null;
+        if (this == o) {
+            return true;
+        }
+        return o instanceof PluginProfileMetadataKey that &&
+            Objects.equals(key, that.key) &&
+            Objects.equals(metadata, that.metadata);
     }
 
     @Override

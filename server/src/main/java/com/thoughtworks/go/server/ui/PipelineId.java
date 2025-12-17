@@ -48,10 +48,8 @@ public class PipelineId {
 
         PipelineId that = (PipelineId) o;
 
-        if (!Objects.equals(pipelineId, that.pipelineId)) {
-            return false;
-        }
-        return Objects.equals(pipelineName, that.pipelineName);
+        return Objects.equals(pipelineId, that.pipelineId) &&
+            Objects.equals(pipelineName, that.pipelineName);
     }
 
     @Override

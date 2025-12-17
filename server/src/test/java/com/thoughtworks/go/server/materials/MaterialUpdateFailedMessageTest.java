@@ -31,7 +31,7 @@ public class MaterialUpdateFailedMessageTest {
 
     @Test
     public void shouldReturnEmptyStringIfThereIsNotMessage() {
-        assertThat(new MaterialUpdateFailedMessage(MaterialsMother.hgMaterial(), 2, new NullPointerException()).getReason()).isEqualTo("");
+        assertThat(new MaterialUpdateFailedMessage(MaterialsMother.hgMaterial(), 2, new NullPointerException()).getReason()).isEmpty();
     }
 
     @Test

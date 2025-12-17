@@ -57,7 +57,7 @@ public class UpdatePipelineConfigsCommand extends PipelineConfigsCommand {
         });
 
         if (!ErrorCollector.getAllErrors(preprocessedPipelineConfigs).isEmpty()) {
-            BasicCruiseConfig.copyErrors(preprocessedPipelineConfigs, newPipelineGroup);
+            Validatable.copyErrors(preprocessedPipelineConfigs, newPipelineGroup);
             return false;
         }
 

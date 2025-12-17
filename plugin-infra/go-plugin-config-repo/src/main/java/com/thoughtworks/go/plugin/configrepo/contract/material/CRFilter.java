@@ -38,10 +38,11 @@ public class CRFilter extends CRBase {
     private List<String> includes = new ArrayList<>();
 
     public CRFilter(List<String> list, boolean isFilterInverted) {
-        if (isFilterInverted)
+        if (isFilterInverted) {
             this.includes = list;
-        else
+        } else {
             this.ignore = list;
+        }
     }
 
     @Override
@@ -66,10 +67,11 @@ public class CRFilter extends CRBase {
     }
 
     public List<String> getList() {
-        if (isIgnored())
+        if (isIgnored()) {
             return ignore;
-        else
+        } else {
             return includes;
+        }
     }
 
     private boolean isIgnored() {

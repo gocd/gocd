@@ -35,6 +35,7 @@ import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.jdom2.input.JDOMParseException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,7 +58,7 @@ import java.util.Vector;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS;
 import static com.thoughtworks.go.helper.ConfigFileFixture.VALID_XML_3169;
-import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.*;
+import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAs;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -89,8 +90,6 @@ public class GoFileConfigDataSourceIntegrationTest {
     private ConfigRepoConfig configRepo;
     @Autowired
     private CachedGoPartials cachedGoPartials;
-    @Autowired
-    private ConfigCache configCache;
     @Autowired
     private ConfigRepository configRepository;
     @Autowired
@@ -217,8 +216,7 @@ public class GoFileConfigDataSourceIntegrationTest {
             pipelineConfig.add(new StageConfig(new CaseInsensitiveString("new_stage"), new JobConfigs(new JobConfig("job"))));
             return cruiseConfig;
         }, new GoConfigHolder(configHelper.currentConfig(), configHelper.currentConfig())))
-                .isInstanceOf(RuntimeException.class)
-                .hasCauseInstanceOf(GoConfigInvalidException.class)
+                .isInstanceOf(GoConfigInvalidException.class)
                 .hasMessageContaining(String.format("Stage with name 's1' does not exist on pipeline '%s', it is being referred to from pipeline '%s' (%s)", upstream.name(), remotePipeline, repoConfigOrigin.displayName()));
     }
 
@@ -278,7 +276,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         CruiseConfig forEdit = configHolder.configForEdit;
         forEdit.addPipeline("my-awesome-group", PipelineConfigMother.createPipelineConfig("pipeline-foo", "stage-bar", "job-baz"));
         FileOutputStream fos = new FileOutputStream(dataSource.fileLocation());
-        new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins()).write(forEdit, fos, false);
+        new MagicalGoConfigXmlWriter(ConfigElementImplementationRegistryMother.withNoPlugins()).write(forEdit, fos, false);
 
         configHolder = dataSource.load();
         String xmlText = Files.readString(dataSource.location(), UTF_8);
@@ -296,12 +294,9 @@ public class GoFileConfigDataSourceIntegrationTest {
         Path file = dataSource.location();
         String originalCopy = Files.readString(file, UTF_8);
 
-        try {
-            dataSource.write("abc", false);
-            fail("Should not allow us to write an invalid config");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).contains("Content is not allowed in prolog");
-        }
+        assertThatThrownBy(() -> dataSource.write("abc", false))
+                .isInstanceOf(JDOMParseException.class)
+                .hasMessageContaining("Content is not allowed in prolog");
 
         assertThat(Files.readString(file, UTF_8)).isEqualTo(originalCopy);
     }
@@ -596,7 +591,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         updateConfig.update(updatedConfig);
         File configFile = new File(cruiseConfigFile);
         FileOutputStream outputStream = new FileOutputStream(configFile);
-        new MagicalGoConfigXmlWriter(configCache, configElementImplementationRegistry).write(updatedConfig, outputStream, true);
+        new MagicalGoConfigXmlWriter(configElementImplementationRegistry).write(updatedConfig, outputStream, true);
     }
 
 }

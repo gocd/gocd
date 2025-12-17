@@ -79,7 +79,7 @@ public class AgentsUpdateValidator {
             return;
         }
 
-        if (state.isTrue() || state.isFalse()) {
+        if (state.isPresent()) {
             return;
         }
 

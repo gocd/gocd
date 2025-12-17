@@ -20,6 +20,8 @@ import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 
+import java.util.Objects;
+
 public class PackageMaterialPluginInfo extends PluginInfo {
 
     private final PluggableInstanceSettings repositorySettings;
@@ -41,15 +43,20 @@ public class PackageMaterialPluginInfo extends PluginInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         PackageMaterialPluginInfo that = (PackageMaterialPluginInfo) o;
 
-        if (repositorySettings != null ? !repositorySettings.equals(that.repositorySettings) : that.repositorySettings != null)
-            return false;
-        return packageSettings != null ? packageSettings.equals(that.packageSettings) : that.packageSettings == null;
+        return Objects.equals(repositorySettings, that.repositorySettings) &&
+            Objects.equals(packageSettings, that.packageSettings);
     }
 
     @Override

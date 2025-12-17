@@ -45,7 +45,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
     }
 
     @Override
-    public SqlSessionFactory getObject() throws Exception {
+    public SqlSessionFactory getObject() throws IOException {
         if (this.sqlSessionFactory == null) {
             afterPropertiesSet();
         }
@@ -64,7 +64,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() throws IOException {
         this.sqlSessionFactory = buildSqlSessionFactory();
     }
 

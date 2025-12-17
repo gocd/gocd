@@ -16,6 +16,7 @@
 package com.thoughtworks.go.plugin.access.scm.revision;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class ModifiedFile implements Serializable {
     private String fileName;
@@ -47,15 +48,17 @@ public class ModifiedFile implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ModifiedFile that = (ModifiedFile) o;
 
-        if (action != that.action) return false;
-        if (fileName != null ? !fileName.equals(that.fileName) : that.fileName != null) return false;
-
-        return true;
+        return action == that.action &&
+            Objects.equals(fileName, that.fileName);
     }
 
     @Override

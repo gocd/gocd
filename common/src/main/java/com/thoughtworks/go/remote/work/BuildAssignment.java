@@ -134,25 +134,21 @@ public class BuildAssignment implements Serializable, SecretParamAware {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BuildAssignment that)) return false;
+        if (this == o) {
+            return true;
+        }
+        return o instanceof BuildAssignment that &&
+            fetchMaterials == that.fetchMaterials &&
+            cleanWorkingDirectory == that.cleanWorkingDirectory &&
+            Objects.equals(builders, that.builders) &&
+            Objects.equals(artifactPlans, that.artifactPlans) &&
+            Objects.equals(artifactStores, that.artifactStores) &&
+            Objects.equals(buildWorkingDirectory, that.buildWorkingDirectory) &&
+            Objects.equals(jobIdentifier, that.jobIdentifier) &&
+            initialContext.equals(that.initialContext) &&
+            materialRevisions.equals(that.materialRevisions) &&
+            Objects.equals(approver, that.approver);
 
-        if (fetchMaterials != that.fetchMaterials) return false;
-        if (cleanWorkingDirectory != that.cleanWorkingDirectory) return false;
-        if (!Objects.equals(builders, that.builders)) return false;
-        if (!Objects.equals(artifactPlans, that.artifactPlans))
-            return false;
-        if (!Objects.equals(artifactStores, that.artifactStores))
-            return false;
-        if (!Objects.equals(buildWorkingDirectory, that.buildWorkingDirectory))
-            return false;
-        if (!Objects.equals(jobIdentifier, that.jobIdentifier))
-            return false;
-        if (!initialContext.equals(that.initialContext))
-            return false;
-        if (!materialRevisions.equals(that.materialRevisions))
-            return false;
-        return Objects.equals(approver, that.approver);
     }
 
     @Override

@@ -44,8 +44,9 @@ public class ServerVersionInfoBuilder {
     private VersionInfo updateOrCreate() {
         VersionInfo versionInfo = findAndUpdate();
 
-        if (versionInfo == null)
+        if (versionInfo == null) {
             versionInfo = createVersionInfo();
+        }
 
         return versionInfo;
     }
@@ -53,7 +54,9 @@ public class ServerVersionInfoBuilder {
     private VersionInfo findAndUpdate() {
         VersionInfo versionInfo = find();
 
-        if (versionInfo == null) return null;
+        if (versionInfo == null) {
+            return null;
+        }
 
         return update(versionInfo);
     }
@@ -65,7 +68,9 @@ public class ServerVersionInfoBuilder {
     private VersionInfo update(VersionInfo versionInfo) {
         GoVersion currentGoVersion = installedVersion();
 
-        if (currentGoVersion == null) return versionInfo;
+        if (currentGoVersion == null) {
+            return versionInfo;
+        }
 
         if (!isServerVersionInfoUpToDate(versionInfo, currentGoVersion)) {
             versionInfo.setInstalledVersion(currentGoVersion);
@@ -81,7 +86,9 @@ public class ServerVersionInfoBuilder {
     private VersionInfo createVersionInfo() {
         GoVersion installedVersion = installedVersion();
 
-        if (installedVersion == null) return null;
+        if (installedVersion == null) {
+            return null;
+        }
 
         VersionInfo versionInfo = new VersionInfo(GO_SERVER, installedVersion);
         versionInfoDao.saveOrUpdate(versionInfo);

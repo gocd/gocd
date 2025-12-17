@@ -79,6 +79,7 @@ public class DefaultPluginRegistry implements PluginRegistry {
             .orElse(null);
     }
 
+    @Override
     public void markPluginInvalid(String bundleSymbolicName, List<String> messages) {
         final GoPluginBundleDescriptor bundleDescriptor = getBundleDescriptor(bundleSymbolicName);
         if (bundleDescriptor == null) {

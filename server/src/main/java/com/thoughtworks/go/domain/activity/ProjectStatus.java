@@ -24,6 +24,7 @@ import org.jdom2.output.XMLOutputter;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class ProjectStatus {
@@ -74,29 +75,13 @@ public class ProjectStatus {
 
         ProjectStatus that = (ProjectStatus) o;
 
-        if (activity != null ? !activity.equals(that.activity) : that.activity != null) {
-            return false;
-        }
-        if (lastBuildLabel != null ? !lastBuildLabel.equals(that.lastBuildLabel) : that.lastBuildLabel != null) {
-            return false;
-        }
-        if (lastBuildStatus != null ? !lastBuildStatus.equals(that.lastBuildStatus) : that.lastBuildStatus != null) {
-            return false;
-        }
-        if (lastBuildTime != null ? !lastBuildTime.equals(that.lastBuildTime) : that.lastBuildTime != null) {
-            return false;
-        }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-        if (webUrl != null ? !webUrl.equals(that.webUrl) : that.webUrl != null) {
-            return false;
-        }
-        if (breakers != null ? !breakers.equals(that.breakers) : that.breakers != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(activity, that.activity) &&
+            Objects.equals(lastBuildLabel, that.lastBuildLabel) &&
+            Objects.equals(lastBuildStatus, that.lastBuildStatus) &&
+            Objects.equals(lastBuildTime, that.lastBuildTime) &&
+            Objects.equals(name, that.name) &&
+            Objects.equals(webUrl, that.webUrl) &&
+            Objects.equals(breakers, that.breakers);
     }
 
     @Override

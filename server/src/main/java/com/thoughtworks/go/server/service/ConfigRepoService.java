@@ -80,10 +80,6 @@ public class ConfigRepoService {
                 ((RepoConfigOrigin) part.getOrigin()).getConfigRepo().equals(repo);
     }
 
-    public GoConfigService getGoConfigService() {
-        return goConfigService;
-    }
-
     public ConfigRepoConfig getConfigRepo(String repoId) {
         return goConfigService.getConfigForEditing().getConfigRepos().getConfigRepo(repoId);
     }

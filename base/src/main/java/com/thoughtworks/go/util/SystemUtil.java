@@ -84,17 +84,13 @@ public class SystemUtil {
                 isLocal = isLocal || address.isLoopbackAddress();
             }
             return isLocal || isLocalhostWithNonLoopbackIpAddress(ipAddress);
-        } catch (Exception e) {
+        } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
     }
 
     static boolean isLocalhost(String hostname, String ipAddress) {
-        try {
-            return isLocalhostWithLoopbackIpAddress(hostname, ipAddress) || isLocalhostWithNonLoopbackIpAddress(ipAddress);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return isLocalhostWithLoopbackIpAddress(hostname, ipAddress) || isLocalhostWithNonLoopbackIpAddress(ipAddress);
     }
 
     public static boolean isLocalhost(String ipAddress) {

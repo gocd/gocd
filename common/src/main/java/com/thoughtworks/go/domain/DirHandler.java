@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -85,18 +86,9 @@ public class DirHandler implements FetchHandler {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof DirHandler that)) {
-            return false;
-        }
-
-        if (destOnAgent != null ? !destOnAgent.equals(that.destOnAgent) : that.destOnAgent != null) {
-            return false;
-        }
-        if (srcFile != null ? !srcFile.equals(that.srcFile) : that.srcFile != null) {
-            return false;
-        }
-
-        return true;
+        return o instanceof DirHandler that &&
+            Objects.equals(destOnAgent, that.destOnAgent) &&
+            Objects.equals(srcFile, that.srcFile);
     }
 
     @Override

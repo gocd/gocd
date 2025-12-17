@@ -29,7 +29,9 @@ class M001 {
 
     static Migration convertPipelineSelectionsToFilters() {
         return (cxn) -> {
-            if (!required(cxn)) return;
+            if (!required(cxn)) {
+                return;
+            }
 
             try (Statement s = cxn.createStatement()) {
                 final ResultSet rs = s.executeQuery("SELECT id, selections, isblacklist FROM pipelineselections WHERE version = 0");

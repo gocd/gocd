@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @ConfigAttributeValue(fieldName = "path", createForNull = false)
 public class PathFromAncestor {
@@ -108,11 +109,7 @@ public class PathFromAncestor {
 
         PathFromAncestor that = (PathFromAncestor) o;
 
-        if (path != null ? !path.equals(that.path) : that.path != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(path, that.path);
     }
 
     @Override

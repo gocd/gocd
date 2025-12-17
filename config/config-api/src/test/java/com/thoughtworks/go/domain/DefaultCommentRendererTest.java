@@ -38,7 +38,7 @@ public class DefaultCommentRendererTest {
         String regex = "(evo-\\d+)";
         trackingTool = new DefaultCommentRenderer(link, regex);
         String result = trackingTool.render(null);
-        assertThat(result).isEqualTo("");
+        assertThat(result).isEmpty();
     }
 
     @Test

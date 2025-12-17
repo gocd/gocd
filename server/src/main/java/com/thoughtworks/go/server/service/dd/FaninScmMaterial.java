@@ -21,18 +21,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 record FaninScmMaterial(@NotNull String fingerprint, @NotNull PipelineTimelineEntry.Revision revision) {
-
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         FaninScmMaterial that = (FaninScmMaterial) o;
-
         return Objects.equals(fingerprint, that.fingerprint);
     }
 

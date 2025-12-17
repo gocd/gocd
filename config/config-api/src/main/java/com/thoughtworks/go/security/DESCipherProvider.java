@@ -16,6 +16,7 @@
 package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.codec.DecoderException;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,7 @@ public class DESCipherProvider implements Serializable {
                             cachedKey = new byte[]{}; // Cache an empty key
                             LOGGER.info("DES cipher not found. Ignoring... we do not support generating new DES keys.");
                         }
-                    } catch (Exception e) {
+                    } catch (DecoderException | IOException e) {
                         throw new RuntimeException(e);
                     }
                 }

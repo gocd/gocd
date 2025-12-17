@@ -154,8 +154,9 @@ public class JsonMessageHandler3_0 implements JsonMessageHandler {
     }
 
     private String migrate(String responseBody, int targetVersion) {
-        if (targetVersion > CURRENT_CONTRACT_VERSION)
+        if (targetVersion > CURRENT_CONTRACT_VERSION) {
             throw new RuntimeException(String.format("Migration to %s is not supported", targetVersion));
+        }
 
         return migrator.migrate(responseBody, targetVersion);
     }

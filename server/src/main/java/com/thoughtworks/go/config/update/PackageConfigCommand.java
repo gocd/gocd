@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -33,9 +33,9 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 abstract class PackageConfigCommand implements EntityConfigUpdateCommand<PackageDefinition> {
     private final PackageDefinition packageDefinition;
     private final HttpLocalizedOperationResult result;
-    private PackageDefinitionService packageDefinitionService;
-    private GoConfigService goConfigService;
-    private Username username;
+    private final PackageDefinitionService packageDefinitionService;
+    private final GoConfigService goConfigService;
+    private final Username username;
     private PackageDefinition preprocessedPackageDefinition;
 
     PackageConfigCommand(PackageDefinition packageDefinition, HttpLocalizedOperationResult result, PackageDefinitionService packageDefinitionService, GoConfigService goConfigService, Username username) {
@@ -56,10 +56,10 @@ abstract class PackageConfigCommand implements EntityConfigUpdateCommand<Package
             packageRepositories.validate(null);
             packages.validate(null);
             packageDefinitionService.validatePackageConfiguration(preprocessedPackageDefinition);
-            BasicCruiseConfig.copyErrors(preprocessedPackageDefinition, packageDefinition);
+            Validatable.copyErrors(preprocessedPackageDefinition, packageDefinition);
             return preprocessedPackageDefinition.getAllErrors().isEmpty() && result.isSuccessful();
         }
-        BasicCruiseConfig.copyErrors(preprocessedPackageDefinition, packageDefinition);
+        Validatable.copyErrors(preprocessedPackageDefinition, packageDefinition);
         return false;
     }
 
@@ -73,7 +73,7 @@ abstract class PackageConfigCommand implements EntityConfigUpdateCommand<Package
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(packageDefinition);
+        Validatable.clearErrors(packageDefinition);
     }
 
     @Override

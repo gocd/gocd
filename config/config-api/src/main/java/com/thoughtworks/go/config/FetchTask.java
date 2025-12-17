@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 // TODO - #2541 - Implementing serializable here because we need to send
 
@@ -191,18 +192,10 @@ public class FetchTask extends AbstractFetchTask {
 
         FetchTask fetchTask = (FetchTask) o;
 
-        if (dest != null ? !dest.equals(fetchTask.dest) : fetchTask.dest != null) {
-            return false;
-        }
-
-        if (srcdir != null ? !srcdir.equals(fetchTask.srcdir) : fetchTask.srcdir != null) {
-            return false;
-        }
-        if (srcfile != null ? !srcfile.equals(fetchTask.srcfile) : fetchTask.srcfile != null) {
-            return false;
-        }
-
-        return super.equals(fetchTask);
+        return Objects.equals(dest, fetchTask.dest) &&
+            Objects.equals(srcdir, fetchTask.srcdir) &&
+            Objects.equals(srcfile, fetchTask.srcfile) &&
+            super.equals(fetchTask);
     }
 
     @Override

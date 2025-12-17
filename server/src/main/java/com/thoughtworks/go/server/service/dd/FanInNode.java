@@ -50,7 +50,8 @@ abstract class FanInNode<T extends MaterialConfig> {
             return false;
         }
         FanInNode<?> fanInNode = (FanInNode<?>) o;
-        return (materialConfig != null) ? materialConfig.getFingerprint().equals(fanInNode.materialConfig.getFingerprint()) : (fanInNode.materialConfig == null);
+        return (materialConfig != null && materialConfig.getFingerprint().equals(fanInNode.materialConfig.getFingerprint())) ||
+            (materialConfig == null && fanInNode.materialConfig == null);
     }
 
     @Override

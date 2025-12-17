@@ -133,7 +133,9 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
     }
 
     private void updateMaterial(Material material) {
-        if (skipUpdate) return;
+        if (skipUpdate) {
+            return;
+        }
 
         try {
             if (!materialUpdateService.updateMaterial(material)) {

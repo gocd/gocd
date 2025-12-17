@@ -43,6 +43,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
@@ -250,22 +252,22 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
     public void agentChanged(Agent agent) {
         String uuid = agent.getUuid();
 
+
         Set<String> originalEnvNames = getAgentEnvironmentNames(uuid);
-        HashSet<String> newEnvNames = new HashSet<>(agent.getEnvironmentsAsList());
+        Set<String> newEnvNames = agent.getEnvironmentsAsStream().collect(Collectors.toSet());
 
         Set<String> envsToRemove = SetUtils.difference(originalEnvNames, newEnvNames);
-        Set<String> envToAdd = SetUtils.difference(newEnvNames, originalEnvNames);
+        Set<String> envsToAdd = SetUtils.difference(newEnvNames, originalEnvNames);
 
-        removeAgentFromCurrentlyAssociatedEnvironments(uuid, new ArrayList<>(envsToRemove));
-        addAgentToNewlyAssociatedEnvironments(uuid, new ArrayList<>(envToAdd));
+        removeAgentFromCurrentlyAssociatedEnvironments(uuid, envsToRemove.stream());
+        addAgentToNewlyAssociatedEnvironments(uuid, envsToAdd.stream());
 
         matchers = environments.matchers();
     }
 
     @Override
     public void agentDeleted(Agent agent) {
-        List<String> envNames = agent.getEnvironmentsAsList();
-        removeAgentFromCurrentlyAssociatedEnvironments(agent.getUuid(), envNames);
+        removeAgentFromCurrentlyAssociatedEnvironments(agent.getUuid(), agent.getEnvironmentsAsStream());
         matchers = environments.matchers();
     }
 
@@ -277,18 +279,19 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         }
     }
 
+    @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         syncEnvironments(newCruiseConfig.getEnvironments());
     }
 
-    private void removeAgentFromCurrentlyAssociatedEnvironments(String uuid, List<String> envNames) {
-        envNames.stream().map(this::find)
+    private void removeAgentFromCurrentlyAssociatedEnvironments(String uuid, Stream<String> envNames) {
+        envNames.map(this::find)
             .filter(envConfig -> isEnvironmentAssociatedWithAgentLocally(envConfig, uuid))
             .forEach(envConfig -> envConfig.removeAgent(uuid));
     }
 
-    private void addAgentToNewlyAssociatedEnvironments(String uuid, List<String> envNames) {
-        envNames.stream().map(this::find)
+    private void addAgentToNewlyAssociatedEnvironments(String uuid, Stream<String> envNames) {
+        envNames.map(this::find)
             .filter(envConfig -> isEnvironmentNotAssociatedWithAgent(envConfig, uuid))
             .forEach(envConfig -> envConfig.addAgentIfNew(uuid));
     }
@@ -296,9 +299,8 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
     private void syncAssociatedAgentFromDB(AgentInstance agentInstance) {
         Agent agent = agentInstance.getAgent();
         String uuid = agent.getUuid();
-        List<String> envNames = agent.getEnvironmentsAsList();
 
-        addAgentToNewlyAssociatedEnvironments(uuid, envNames);
+        addAgentToNewlyAssociatedEnvironments(uuid, agent.getEnvironmentsAsStream());
     }
 
     private boolean isEnvironmentAssociatedWithAgentLocally(EnvironmentConfig envConfig, String uuid) {

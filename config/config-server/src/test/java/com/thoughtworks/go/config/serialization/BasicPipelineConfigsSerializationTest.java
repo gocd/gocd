@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BasicPipelineConfigsTest {
+public class BasicPipelineConfigsSerializationTest {
     private static final String PIPELINES_WITH_PERMISSION = ("""
             <?xml version="1.0" encoding="utf-8"?>
             <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
@@ -84,8 +84,7 @@ public class BasicPipelineConfigsTest {
         Authorization authorization = new Authorization(operationConfig);
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1");
         PipelineConfigs pipelineConfigs = new BasicPipelineConfigs(authorization, pipelineConfig);
-        MagicalGoConfigXmlWriter xmlWriter = new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()
-        );
+        MagicalGoConfigXmlWriter xmlWriter = new MagicalGoConfigXmlWriter(ConfigElementImplementationRegistryMother.withNoPlugins());
         String xml = xmlWriter.toXmlPartial(pipelineConfigs);
         assertThat(xml).isEqualTo("""
                 <pipelines>

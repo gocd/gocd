@@ -41,7 +41,7 @@ class SecretRedactorTest {
         SecretRedactor.Redactable redactable = SecretRedactor.Redactable.of(null);
         assertThat(redactable.wasRedacted()).isFalse();
         assertThat(redactable.value()).isEqualTo(null);
-        assertThat(redactable.toString()).isEqualTo("");
+        assertThat(redactable.toString()).isEmpty();
     }
 
     @Test

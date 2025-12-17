@@ -21,13 +21,30 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.thoughtworks.go.util.CommaSeparatedString.append;
-import static com.thoughtworks.go.util.CommaSeparatedString.remove;
+import static com.thoughtworks.go.util.CommaSeparatedString.*;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 class CommaSeparatedStringTest {
+
+    @Nested
+    class Sanitization {
+        @Test
+        void sanitizeShouldNormalizeBlankEntriesToNull() {
+            assertThat(normalizeToNull(null)).isNull();
+            assertThat(normalizeToNull("")).isNull();
+            assertThat(normalizeToNull(" ")).isNull();
+            assertThat(normalizeToNull(",")).isNull();
+            assertThat(normalizeToNull(" , ,,")).isNull();
+        }
+
+        @Test
+        void sanitizeShouldSortDistinct() {
+            assertThat(normalizeToNull("b,a")).isEqualTo("a,b");
+            assertThat(normalizeToNull("b, a , b,,")).isEqualTo("a,b");
+        }
+    }
+
     @Nested
     class Append {
         @Test
@@ -84,7 +101,7 @@ class CommaSeparatedStringTest {
         @Test
         void shouldDoNothingWhenEntriesToRemoveIsNull() {
             assertThat(remove(null, null)).isNull();
-            assertThat(remove("", null)).isEqualTo("");
+            assertThat(remove("", null)).isEmpty();
             assertThat(remove("e1,e2", null)).isEqualTo("e1,e2");
         }
 
@@ -96,20 +113,17 @@ class CommaSeparatedStringTest {
 
         @Test
         void shouldDoNothingWhenEntriesToRemoveDoesNotContainsEntriesInOriginalCommaSeparatedString() {
-            String result = remove("e1,e2,e3", List.of("e4"));
-            assertThat(result).isEqualTo("e1,e2,e3");
+            assertThat(remove("e1,e2,e3", List.of("e4"))).isEqualTo("e1,e2,e3");
 
-            result = remove("", List.of("e1", "e2"));
-            assertThat(result).isEqualTo("");
+            assertThat(remove("", List.of("e1", "e2"))).isEmpty();
 
-            result = remove(null, List.of("e1", "e2"));
-            assertNull(result);
+            assertThat(remove(null, List.of("e1", "e2"))).isNull();
         }
 
         @Test
         void shouldRemoveAllEntriesWhenListOfEntriesToRemoveContainsAllEntriesInOriginalCommaSeparatedString() {
             String result = remove("e1,e2", List.of("e1", "e2"));
-            assertNull(result);
+            assertThat(result).isNull();
         }
     }
 }

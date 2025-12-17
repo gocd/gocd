@@ -95,8 +95,6 @@ public class GoConfigMigratorIntegrationTest {
     @Autowired
     private FullConfigSaveNormalFlow fullConfigSaveNormalFlow;
     @Autowired
-    private ConfigCache configCache;
-    @Autowired
     private ConfigElementImplementationRegistry registry;
     @Autowired
     private GoFileConfigDataSource goFileConfigDataSource;
@@ -118,7 +116,7 @@ public class GoConfigMigratorIntegrationTest {
         resetCipher.setupDESCipherFile();
         resetCipher.setupAESCipherFile();
         exceptions = new ArrayList<>();
-        MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
+        MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(registry);
         goConfigMigrator = new GoConfigMigrator(goConfigMigration, systemEnvironment, fullConfigSaveNormalFlow, xmlLoader, new GoConfigFileReader(systemEnvironment), configRepository, serverHealthService, e -> exceptions.add(e));
     }
 
@@ -423,7 +421,7 @@ public class GoConfigMigratorIntegrationTest {
 
         String configXml = Files.readString(configFile, UTF_8);
 
-        MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
+        MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins());
         GoConfigHolder configHolder = loader.loadConfigHolder(configXml);
 
         CruiseConfig config = configHolder.config;
@@ -1411,8 +1409,8 @@ public class GoConfigMigratorIntegrationTest {
 
         Agent staticAgent = agentDao.fetchAgentFromDBByUUID("one");
 
-        assertThat(staticAgent.getResourcesAsList()).contains("repos", "db");
-        assertThat(staticAgent.getEnvironmentsAsList()).contains("foo");
+        assertThat(staticAgent.getResourcesAsStream()).contains("repos", "db");
+        assertThat(staticAgent.getEnvironmentsAsStream()).contains("foo");
         assertThat(staticAgent.getHostname()).isEqualTo("one-host");
         assertThat(staticAgent.getIpaddress()).isEqualTo("127.0.0.1");
         assertThat(staticAgent.isDisabled()).isFalse();
@@ -1429,7 +1427,7 @@ public class GoConfigMigratorIntegrationTest {
 
         Agent elasticAgent = agentDao.fetchAgentFromDBByUUID("elastic-two");
 
-        assertThat(elasticAgent.getEnvironmentsAsList()).contains("foo", "baz");
+        assertThat(elasticAgent.getEnvironmentsAsStream()).contains("foo", "baz");
         assertThat(elasticAgent.getHostname()).isEqualTo("two-elastic-host");
         assertThat(elasticAgent.getIpaddress()).isEqualTo("172.10.20.31");
         assertThat(elasticAgent.getElasticPluginId()).isEqualTo("docker");
@@ -1484,7 +1482,7 @@ public class GoConfigMigratorIntegrationTest {
 
         Agent staticAgent = agentDao.fetchAgentFromDBByUUID("one");
 
-        assertThat(staticAgent.getResourcesAsList()).contains("repos", "db");
+        assertThat(staticAgent.getResourcesAsStream()).contains("repos", "db");
         assertThat(staticAgent.getEnvironments()).isEqualTo("foo");
         assertThat(staticAgent.getHostname()).isEqualTo("one-host");
         assertThat(staticAgent.getIpaddress()).isEqualTo("127.0.0.1");

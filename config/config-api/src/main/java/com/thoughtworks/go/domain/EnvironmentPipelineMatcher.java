@@ -36,16 +36,17 @@ public class EnvironmentPipelineMatcher {
 
     @Override
     public boolean equals(Object that) {
-        if (this == that) { return true; }
-        if (that == null) { return false; }
-        if (getClass() != that.getClass()) { return false; }
+        if (this == that) {
+            return true;
+        }
+        if (that == null) {
+            return false;
+        }
+        if (getClass() != that.getClass()) {
+            return false;
+        }
 
-        return equals((EnvironmentPipelineMatcher) that);
-    }
-
-    private boolean equals(EnvironmentPipelineMatcher that) {
-        if (!name.equals(that.name)) { return false; }
-        return true;
+        return name.equals(((EnvironmentPipelineMatcher) that).name);
     }
 
     @Override

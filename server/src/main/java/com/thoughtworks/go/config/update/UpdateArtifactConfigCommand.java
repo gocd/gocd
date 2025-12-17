@@ -24,7 +24,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import java.util.List;
 
 public class UpdateArtifactConfigCommand implements EntityConfigUpdateCommand<ArtifactConfig> {
-    private ArtifactConfig artifactConfig;
+    private final ArtifactConfig artifactConfig;
     private ArtifactConfig preprocessedArtifactConfig;
 
     public UpdateArtifactConfigCommand(ArtifactConfig artifactConfig) {
@@ -48,7 +48,7 @@ public class UpdateArtifactConfigCommand implements EntityConfigUpdateCommand<Ar
         preprocessedArtifactConfig = preprocessedConfig.server().getArtifactConfig();
         preprocessedArtifactConfig.validate(new ConfigSaveValidationContext(preprocessedConfig));
 
-        BasicCruiseConfig.copyErrors(preprocessedArtifactConfig, artifactConfig);
+        Validatable.copyErrors(preprocessedArtifactConfig, artifactConfig);
         List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(artifactConfig);
 
         if (!allErrors.isEmpty()) {

@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.AdminUser;
-import com.thoughtworks.go.config.ConfigCache;
 import com.thoughtworks.go.config.MagicalGoConfigXmlWriter;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
@@ -41,7 +40,7 @@ class EntityHashesTest {
 
     @BeforeEach
     void setup() {
-        hashes = new EntityHashes(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
+        hashes = new EntityHashes(ConfigElementImplementationRegistryMother.withNoPlugins());
     }
 
     @Test
@@ -60,7 +59,7 @@ class EntityHashesTest {
         void setup() {
             final MagicalGoConfigXmlWriter writer = mock(MagicalGoConfigXmlWriter.class);
 
-            hashes = new EntityHashes(mock(ConfigCache.class), mock(ConfigElementImplementationRegistry.class)) {
+            hashes = new EntityHashes(mock(ConfigElementImplementationRegistry.class)) {
                 @Override
                 protected String serializeDomainEntity(Object domainObject) {
                     return writer.toXmlPartial(domainObject);

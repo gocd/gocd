@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.DefaultCommentRenderer;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
+import java.util.Objects;
 
 @ConfigTag("trackingtool")
 public class TrackingTool implements ParamsAttributeAware, Validatable, CommentRenderer {
@@ -66,7 +67,9 @@ public class TrackingTool implements ParamsAttributeAware, Validatable, CommentR
     @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {
-        if (attributes == null) return;
+        if (attributes == null) {
+            return;
+        }
         Map<String, String> attributeMap = (Map<String, String>) attributes;
         if (attributeMap.containsKey(LINK)) {
             link = attributeMap.get(LINK);
@@ -130,10 +133,7 @@ public class TrackingTool implements ParamsAttributeAware, Validatable, CommentR
             return false;
         }
         TrackingTool that = (TrackingTool) o;
-        if (link != null ? !link.equals(that.link) : that.link != null) {
-            return false;
-        }
-        return !(regex != null ? !regex.equals(that.regex) : that.regex != null);
+        return Objects.equals(link, that.link) && Objects.equals(regex, that.regex);
 
     }
 

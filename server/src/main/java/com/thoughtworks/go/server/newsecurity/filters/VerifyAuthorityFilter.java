@@ -53,10 +53,14 @@ public class VerifyAuthorityFilter extends OncePerRequestFilter {
         final Set<GrantedAuthority> authorities = authentication.getUser().getAuthorities();
 
         if (authorityVerifier.hasAnyAuthorityMatching(authorities)) {
-            LOGGER.debug("User {} authorized to access {}", authentication.getUser().getUsername(), request.getRequestURI());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("User {} authorized to access {}", authentication.getUser().getUsername(), request.getRequestURI());
+            }
             filterChain.doFilter(request, response);
         } else {
-            LOGGER.debug("User {} not authorized to access {}: has authorities {}", authentication.getUser().getUsername(), request.getRequestURI(), authentication.getUser().getAuthorities());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("User {} not authorized to access {}: has authorities {}", authentication.getUser().getUsername(), request.getRequestURI(), authentication.getUser().getAuthorities());
+            }
             if (SessionUtils.getCurrentUser().asUsernameObject().isAnonymous()) {
                 requestHandler.handle(request, response, HTTP_UNAUTHORIZED, "You are not authenticated!");
             } else {

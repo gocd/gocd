@@ -54,7 +54,9 @@ public class FileHandler implements FetchHandler {
     @Override
     public String url(String remoteHost, String workingUrl) {
         boolean fileExist = artifact.exists();
-        LOG.debug("Requesting the file [{}], exist? [{}]", artifact.getAbsolutePath(), fileExist);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Requesting the file [{}], exist? [{}]", artifact.getAbsolutePath(), fileExist);
+        }
         if (fileExist && artifact.isFile()) {
             String sha1 = sha1Digest(artifact);
             return format("%s/remoting/files/%s?sha1=%s", remoteHost, workingUrl, URLEncoder.encode(sha1, StandardCharsets.UTF_8));
@@ -101,11 +103,8 @@ public class FileHandler implements FetchHandler {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof FileHandler that)) {
-            return false;
-        }
-
-        return Objects.equals(artifact, that.artifact);
+        return o instanceof FileHandler that &&
+            Objects.equals(artifact, that.artifact);
     }
 
     @Override

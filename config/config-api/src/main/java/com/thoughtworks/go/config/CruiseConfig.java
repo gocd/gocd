@@ -29,7 +29,6 @@ import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.util.Node;
 
 import javax.annotation.PostConstruct;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,7 +58,7 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     @Override
     void validate(ValidationContext validationContext);
 
-    Hashtable<CaseInsensitiveString, Node> getDependencyTable();
+    Map<CaseInsensitiveString, Node> getDependencyTable();
 
     @Override
     ConfigErrors errors();
@@ -212,8 +211,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     List<ConfigErrors> getAllErrorsExceptFor(Validatable skipValidatable);
 
     List<ConfigErrors> validateAfterPreprocess();
-
-    void copyErrorsTo(CruiseConfig to);
 
     PipelineConfigs findGroupOfPipeline(PipelineConfig pipelineConfig);
 

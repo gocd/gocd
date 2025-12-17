@@ -58,6 +58,7 @@ public interface PushPayload extends Payload {
         );
     }
 
+    @Override
     default String descriptor() {
         return format("%s[%s][%s]",
                 getClass().getSimpleName(),

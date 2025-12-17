@@ -55,10 +55,12 @@ public class PipelineConfigTreeValidator {
         isValid = pipelineConfig.materialConfigs().validateTree(contextForChildren) && isValid;
         isValid = pipelineConfig.getParams().validateTree(contextForChildren) && isValid;
         isValid = pipelineConfig.getVariables().validateTree(contextForChildren) && isValid;
-        if (pipelineConfig.getTrackingTool() != null)
+        if (pipelineConfig.getTrackingTool() != null) {
             isValid = pipelineConfig.getTrackingTool().validateTree(contextForChildren) && isValid;
-        if (pipelineConfig.getTimer() != null)
+        }
+        if (pipelineConfig.getTimer() != null) {
             isValid = pipelineConfig.getTimer().validateTree(contextForChildren) && isValid;
+        }
         return isValid;
     }
 
@@ -80,9 +82,13 @@ public class PipelineConfigTreeValidator {
     }
 
     void validateDependencies(PipelineConfigSaveValidationContext validationContext) {
-        if (validationContext.isPipelineBeingCreated()) return;
+        if (validationContext.isPipelineBeingCreated()) {
+            return;
+        }
         for (CaseInsensitiveString selected : validationContext.getPipelinesWithDependencyMaterials()) {
-            if (selected.equals(pipelineConfig.name())) continue;
+            if (selected.equals(pipelineConfig.name())) {
+                continue;
+            }
             PipelineConfig selectedPipeline = validationContext.getPipelineConfigByName(selected);
             validateDependencyMaterialsForDownstreams(validationContext, selected, selectedPipeline);
             validateFetchTasksForOtherPipelines(validationContext, selectedPipeline);
@@ -142,8 +148,9 @@ public class PipelineConfigTreeValidator {
 
         @Override
         public Node getDependencyMaterials(CaseInsensitiveString pipelineName) {
-            if (pipelineConfig.name().equals(pipelineName))
+            if (pipelineConfig.name().equals(pipelineName)) {
                 return pipelineConfig.getDependenciesAsNode();
+            }
             return validationContext.getDependencyMaterialsFor(pipelineName);
         }
     }

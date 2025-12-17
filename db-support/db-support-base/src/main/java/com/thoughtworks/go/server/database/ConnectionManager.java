@@ -53,7 +53,7 @@ public class ConnectionManager {
         this.decrypter = decrypter;
     }
 
-    public void backup(File targetDir) throws Exception {
+    public void backup(File targetDir) {
         getBackupProcessor().backup(targetDir, getDataSourceInstance(), getDbProperties());
     }
 

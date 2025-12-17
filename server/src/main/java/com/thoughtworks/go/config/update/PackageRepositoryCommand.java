@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
@@ -30,9 +30,9 @@ import static com.thoughtworks.go.config.ErrorCollector.getAllErrors;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public abstract class PackageRepositoryCommand implements EntityConfigUpdateCommand<PackageRepository> {
-    private PackageRepositoryService packageRepositoryService;
-    private GoConfigService goConfigService;
-    private Username username;
+    private final PackageRepositoryService packageRepositoryService;
+    private final GoConfigService goConfigService;
+    private final Username username;
     private final PackageRepository repository;
     private final HttpLocalizedOperationResult result;
     private PackageRepository preprocessedRepository;
@@ -52,13 +52,13 @@ public abstract class PackageRepositoryCommand implements EntityConfigUpdateComm
         preprocessedRepository.validate(null);
         repositories.validate(null);
         boolean isValidConfiguration = packageRepositoryService.validatePluginId(preprocessedRepository) && packageRepositoryService.validateRepositoryConfiguration(preprocessedRepository);
-        BasicCruiseConfig.copyErrors(preprocessedRepository, this.repository);
+        Validatable.copyErrors(preprocessedRepository, this.repository);
         return getAllErrors(this.repository).isEmpty() && isValidConfiguration && result.isSuccessful();
     }
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(this.preprocessedRepository);
+        Validatable.clearErrors(this.preprocessedRepository);
     }
 
     @Override

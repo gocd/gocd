@@ -34,7 +34,7 @@ public class ScmVersionInfoProvider implements ServerInfoProvider {
     }
 
     @Override
-    public Map<String, Object> asJson() {
+    public Map<String, Object> asJsonCompatibleMap() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         String gitVersion = getGitVersion();
         if (isNotBlank(gitVersion)) {

@@ -20,7 +20,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializer;
-import com.thoughtworks.go.config.ConfigCache;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.MagicalGoConfigXmlWriter;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
@@ -48,8 +47,8 @@ public class EntityHashes implements DigestMixin {
     private final MagicalGoConfigXmlWriter xmlSerializer;
 
     @Autowired
-    public EntityHashes(ConfigCache configCache, ConfigElementImplementationRegistry registry) {
-        xmlSerializer = new MagicalGoConfigXmlWriter(configCache, registry);
+    public EntityHashes(ConfigElementImplementationRegistry registry) {
+        xmlSerializer = new MagicalGoConfigXmlWriter(registry);
     }
 
     /**

@@ -51,6 +51,6 @@ public class ResultTest {
     public void shouldReturnMessagesForDisplayWithEmptyMessages() {
         Result result = new Result().withSuccessMessages();
         String messagesForDisplay = result.getMessagesForDisplay();
-        assertThat(messagesForDisplay).isEqualTo("");
+        assertThat(messagesForDisplay).isEmpty();
     }
 }

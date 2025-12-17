@@ -35,7 +35,7 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
     public static final String VALUE_KEY = "value";
     public static final String ERRORS_KEY = "errors";
 
-    private ConfigErrors errors = new ConfigErrors();
+    private final ConfigErrors errors = new ConfigErrors();
 
     public Configuration() {
     }

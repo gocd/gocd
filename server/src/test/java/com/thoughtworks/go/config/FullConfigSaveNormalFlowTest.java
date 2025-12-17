@@ -50,7 +50,7 @@ public class FullConfigSaveNormalFlowTest {
     private List<PartialConfig> partials;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
         configForEdit = new BasicCruiseConfig();
         updateConfigCommand = new FullConfigUpdateCommand(configForEdit, "md5");
         loader = mock(MagicalGoConfigXmlLoader.class);

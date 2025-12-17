@@ -80,10 +80,8 @@ public class Username implements Serializable {
             return false;
         }
         Username other = (Username) o;
-        if (!Objects.equals(displayName, other.displayName)) {
-            return false;
-        }
-        return Objects.equals(username, other.username);
+        return Objects.equals(displayName, other.displayName) &&
+            Objects.equals(username, other.username);
 
     }
 

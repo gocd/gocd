@@ -71,10 +71,11 @@ public class CRFetchPluggableArtifactTask extends CRAbstractFetchTask {
             List<String> keys = new ArrayList<>();
             for (CRConfigurationProperty property : this.configuration) {
                 String key = property.getKey();
-                if (keys.contains(key))
+                if (keys.contains(key)) {
                     errors.addError(location, String.format("Duplicate Configuration property %s", property));
-                else
+                } else {
                     keys.add(key);
+                }
             }
         }
     }

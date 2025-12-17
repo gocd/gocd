@@ -56,7 +56,7 @@ public class TestApplication implements SparkApplication {
             clear(service, "exceptionMapper", ExceptionMapper.class);
             clear(service, "staticFilesConfiguration", StaticFilesConfiguration.class);
             ReflectionTestUtils.setField(service, "initialized", false);
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
     }

@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.domain;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.helper.PipelineTimelineEntryMother;
-import com.thoughtworks.go.listener.TimelineUpdateListener;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -29,14 +28,12 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronization;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 public class PipelineTimelineTest {
@@ -59,10 +56,10 @@ public class PipelineTimelineTest {
     public void setUp() {
         pipelineRepository = mock(PipelineRepository.class);
         materials = List.of("first", "second", "third", "fourth");
-        first = PipelineTimelineEntryMother.modification(1, materials, List.of(now, now.plusMinutes(1), now.plusMinutes(2), now.plusMinutes(3)), 1, "111", "pipeline");
-        second = PipelineTimelineEntryMother.modification(2, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(2)), 2, "222", "pipeline");
-        third = PipelineTimelineEntryMother.modification(3, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(3)), 3, "333", "pipeline");
-        fourth = PipelineTimelineEntryMother.modification(4, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(3), now.plusMinutes(2)), 4, "444", "pipeline");
+        first = PipelineTimelineEntryMother.timelineEntry(1, materials, List.of(now, now.plusMinutes(1), now.plusMinutes(2), now.plusMinutes(3)), 1, "111");
+        second = PipelineTimelineEntryMother.timelineEntry(2, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(2)), 2, "222");
+        third = PipelineTimelineEntryMother.timelineEntry(3, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(3)), 3, "333");
+        fourth = PipelineTimelineEntryMother.timelineEntry(4, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(3), now.plusMinutes(2)), 4, "444");
         pipelineName = "pipeline";
         transactionTemplate = mock(TransactionTemplate.class);
         transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
@@ -126,9 +123,9 @@ public class PipelineTimelineTest {
 
     @Test
     public void shouldPopulateTheBeforeAndAfterNodesForAGivenPipelineDuringAddition() {
-        PipelineTimelineEntry anotherPipeline1 = PipelineTimelineEntryMother.modification("another", 4, materials, List.of(now, now.plusMinutes(1), now.plusMinutes(2), now.plusMinutes(3)), 1, "123");
-        PipelineTimelineEntry anotherPipeline2 = PipelineTimelineEntryMother.modification("another", 5, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(3)), 2, "123");
-        PipelineTimelineEntry anotherPipeline3 = PipelineTimelineEntryMother.modification("another", 6, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(3), now.plusMinutes(2)), 3, "123");
+        PipelineTimelineEntry anotherPipeline1 = PipelineTimelineEntryMother.timelineEntry(4, materials, List.of(now, now.plusMinutes(1), now.plusMinutes(2), now.plusMinutes(3)), 1, "123", "another");
+        PipelineTimelineEntry anotherPipeline2 = PipelineTimelineEntryMother.timelineEntry(5, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(3)), 2, "123", "another");
+        PipelineTimelineEntry anotherPipeline3 = PipelineTimelineEntryMother.timelineEntry(6, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(3), now.plusMinutes(2)), 3, "123", "another");
 
         PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
 
@@ -154,42 +151,6 @@ public class PipelineTimelineTest {
 
         assertThat(mods.runAfter(first.getId(), new CaseInsensitiveString(first.getPipelineName()))).isNull();
         assertThat(mods.runAfter(second.getId(), new CaseInsensitiveString(second.getPipelineName()))).isEqualTo(third);
-    }
-
-    @Test
-    public void updateShouldNotifyListenersOnAddition() {
-        stubTransactionSynchronization();
-        setupTransactionTemplateStub(TransactionSynchronization.STATUS_COMMITTED, true);
-        final List<PipelineTimelineEntry> entries = new ArrayList<>();
-        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, (newlyAddedEntry, timeline1) -> {
-            assertThat(timeline1)
-                .contains(newlyAddedEntry)
-                .containsAll(entries);
-            entries.add(newlyAddedEntry);
-        });
-        stubPipelineRepository(timeline, true, first, second);
-
-        timeline.update();
-
-        assertThat(entries.size()).isEqualTo(1);
-        assertThat(entries.contains(first)).isTrue();
-    }
-
-    @Test
-    public void updateShouldIgnoreExceptionThrownByListenersDuringNotifications() {
-        stubTransactionSynchronization();
-        setupTransactionTemplateStub(TransactionSynchronization.STATUS_COMMITTED, true);
-        TimelineUpdateListener anotherListener = mock(TimelineUpdateListener.class);
-        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, (newlyAddedEntry, timeline1) -> {
-            throw new RuntimeException();
-        }, anotherListener);
-        stubPipelineRepository(timeline, true, first, second);
-        try {
-            timeline.update();
-        } catch (Exception e) {
-            fail("should not have failed because of exception thrown by listener");
-        }
-        verify(anotherListener).added(eq(first), any());
     }
 
     @Test

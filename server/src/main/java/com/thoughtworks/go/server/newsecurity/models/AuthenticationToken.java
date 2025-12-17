@@ -19,6 +19,8 @@ import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
 
+import java.util.Objects;
+
 public class AuthenticationToken<T extends Credentials> {
     private final GoUserPrincipal user;
     private final T credentials;
@@ -94,15 +96,17 @@ public class AuthenticationToken<T extends Credentials> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AuthenticationToken<?> that)) return false;
+        if (this == o) {
+            return true;
+        }
+        return o instanceof AuthenticationToken<?> that &&
+            authenticatedAt == that.authenticatedAt &&
+            invalidated == that.invalidated &&
+            Objects.equals(user, that.user) &&
+            Objects.equals(credentials, that.credentials) &&
+            Objects.equals(authConfigId, that.authConfigId) &&
+            Objects.equals(pluginId, that.pluginId);
 
-        if (authenticatedAt != that.authenticatedAt) return false;
-        if (invalidated != that.invalidated) return false;
-        if (user != null ? !user.equals(that.user) : that.user != null) return false;
-        if (credentials != null ? !credentials.equals(that.credentials) : that.credentials != null) return false;
-        if (authConfigId != null ? !authConfigId.equals(that.authConfigId) : that.authConfigId != null) return false;
-        return pluginId != null ? pluginId.equals(that.pluginId) : that.pluginId == null;
     }
 
     @Override

@@ -145,8 +145,9 @@ public class ConfigConverter {
             return new EnvironmentVariableConfig(cipher, crEnvironmentVariable.getName(), encryptedValue);
         } else {
             String value = crEnvironmentVariable.getValue();
-            if (StringUtils.isBlank(value))
+            if (StringUtils.isBlank(value)) {
                 value = "";
+            }
             return new EnvironmentVariableConfig(crEnvironmentVariable.getName(), value);
         }
     }
@@ -161,14 +162,16 @@ public class ConfigConverter {
 
     private void setCommonTaskMembers(AbstractTask task, CRTask crTask) {
         CRTask crTaskOnCancel = crTask.getOnCancel();
-        if (crTaskOnCancel != null)
+        if (crTaskOnCancel != null) {
             task.setCancelTask(toAbstractTask(crTaskOnCancel));
+        }
         task.runIfConfigs = toRunIfConfigs(crTask.getRunIf());
     }
 
     private RunIfConfigs toRunIfConfigs(CRRunIf runIf) {
-        if (runIf == null)
+        if (runIf == null) {
             return new RunIfConfigs(RunIfConfig.PASSED);
+        }
 
         return switch (runIf) {
             case any -> new RunIfConfigs(RunIfConfig.ANY);
@@ -178,8 +181,9 @@ public class ConfigConverter {
     }
 
     public AbstractTask toAbstractTask(CRTask crTask) {
-        if (crTask == null)
+        if (crTask == null) {
             throw new ConfigConvertionException("task cannot be null");
+        }
 
         if (crTask instanceof CRPluggableTask) {
             return toPluggableTask((CRPluggableTask) crTask);
@@ -191,9 +195,10 @@ public class ConfigConverter {
             return toFetchTask((CRFetchArtifactTask) crTask);
         } else if (crTask instanceof CRFetchPluggableArtifactTask) {
             return toFetchPluggableArtifactTask((CRFetchPluggableArtifactTask) crTask);
-        } else
+        } else {
             throw new RuntimeException(
                     String.format("unknown type of task '%s'", crTask));
+        }
     }
 
     public FetchPluggableArtifactTask toFetchPluggableArtifactTask(CRFetchPluggableArtifactTask crTask) {
@@ -231,10 +236,11 @@ public class ConfigConverter {
 
     private Arguments toArgList(List<String> args) {
         Arguments arguments = new Arguments();
-        if (args != null)
+        if (args != null) {
             for (String arg : args) {
                 arguments.add(new Argument(arg));
             }
+        }
         return arguments;
     }
 
@@ -263,10 +269,11 @@ public class ConfigConverter {
         Configuration configuration = new Configuration();
         if (properties != null) {
             for (CRConfigurationProperty p : properties) {
-                if (p.getValue() != null)
+                if (p.getValue() != null) {
                     configuration.addNewConfigurationWithValue(p.getKey(), p.getValue(), false);
-                else
+                } else {
                     configuration.addNewConfigurationWithValue(p.getKey(), p.getEncryptedValue(), true);
+                }
             }
         }
         return configuration;
@@ -290,12 +297,13 @@ public class ConfigConverter {
     }
 
     public MaterialConfig toMaterialConfig(CRMaterial crMaterial, PartialConfigLoadContext context, SCMs newSCMs) {
-        if (crMaterial == null)
+        if (crMaterial == null) {
             throw new ConfigConvertionException("material cannot be null");
+        }
 
-        if (crMaterial instanceof CRDependencyMaterial)
+        if (crMaterial instanceof CRDependencyMaterial) {
             return toDependencyMaterialConfig((CRDependencyMaterial) crMaterial);
-        else if (crMaterial instanceof CRScmMaterial crScmMaterial) {
+        } else if (crMaterial instanceof CRScmMaterial crScmMaterial) {
             return toScmMaterialConfig(crScmMaterial);
         } else if (crMaterial instanceof CRPluggableScmMaterial crPluggableScmMaterial) {
             return toPluggableScmMaterialConfig(crPluggableScmMaterial, context, newSCMs);
@@ -303,10 +311,12 @@ public class ConfigConverter {
             return toPackageMaterial(crPackageMaterial);
         } else if (crMaterial instanceof CRConfigMaterial crConfigMaterial) {
             MaterialConfig repoMaterial = cloner.deepClone(context.configMaterial());
-            if (isNotEmpty(crConfigMaterial.getName()))
+            if (isNotEmpty(crConfigMaterial.getName())) {
                 repoMaterial.setName(new CaseInsensitiveString(crConfigMaterial.getName()));
-            if (isNotEmpty(crConfigMaterial.getDestination()))
+            }
+            if (isNotEmpty(crConfigMaterial.getDestination())) {
                 setDestination(repoMaterial, crConfigMaterial.getDestination());
+            }
             if (crConfigMaterial.getFilter() != null && !crConfigMaterial.getFilter().isEmpty()) {
                 if (repoMaterial instanceof ScmMaterialConfig scmMaterialConfig) {
                     scmMaterialConfig.setFilter(toFilter(crConfigMaterial.getFilter().getList()));
@@ -318,9 +328,10 @@ public class ConfigConverter {
                 }
             }
             return repoMaterial;
-        } else
+        } else {
             throw new ConfigConvertionException(
                     String.format("unknown material type '%s'", crMaterial));
+        }
     }
 
     private void setDestination(MaterialConfig repoMaterial, String destination) {
@@ -328,8 +339,9 @@ public class ConfigConverter {
             ((ScmMaterialConfig) repoMaterial).setFolder(destination);
         } else if (repoMaterial instanceof PluggableSCMMaterialConfig) {
             ((PluggableSCMMaterialConfig) repoMaterial).setFolder(destination);
-        } else
+        } else {
             LOGGER.warn("Unknown material type {}", repoMaterial.getTypeForDisplay());
+        }
     }
 
     public PackageMaterialConfig toPackageMaterial(CRPackageMaterial crPackageMaterial) {
@@ -339,9 +351,10 @@ public class ConfigConverter {
 
     private PackageDefinition getPackageDefinition(String packageId) {
         PackageRepository packageRepositoryHaving = this.cachedGoConfig.currentConfig().getPackageRepositories().findPackageRepositoryHaving(packageId);
-        if (packageRepositoryHaving == null)
+        if (packageRepositoryHaving == null) {
             throw new ConfigConvertionException(
                     String.format("Failed to find package repository with package id '%s'", packageId));
+        }
         return packageRepositoryHaving.findPackage(packageId);
     }
 
@@ -393,8 +406,9 @@ public class ConfigConverter {
     private ScmMaterialConfig toScmMaterialConfig(CRScmMaterial crScmMaterial) {
         if (crScmMaterial instanceof CRGitMaterial git) {
             String gitBranch = git.getBranch();
-            if (StringUtils.isBlank(gitBranch))
+            if (StringUtils.isBlank(gitBranch)) {
                 gitBranch = GitMaterialConfig.DEFAULT_BRANCH;
+            }
             GitMaterialConfig gitConfig = new GitMaterialConfig();
             gitConfig.setUrl(git.getUrl());
             gitConfig.setBranch(gitBranch);
@@ -432,14 +446,16 @@ public class ConfigConverter {
             setCommonMaterialMembers(tfsMaterialConfig, crTfsMaterial);
             setCommonScmMaterialMembers(tfsMaterialConfig, crTfsMaterial);
             return tfsMaterialConfig;
-        } else
+        } else {
             throw new ConfigConvertionException(
                     String.format("unknown scm material type '%s'", crScmMaterial));
+        }
     }
 
     private CaseInsensitiveString toMaterialName(String materialName) {
-        if (StringUtils.isBlank(materialName))
+        if (StringUtils.isBlank(materialName)) {
             return null;
+        }
         return new CaseInsensitiveString(materialName);
     }
 
@@ -465,8 +481,9 @@ public class ConfigConverter {
 
     private Filter toFilter(List<String> filterList) {
         Filter filter = new Filter();
-        if (filterList == null)
+        if (filterList == null) {
             return filter;
+        }
         for (String pattern : filterList) {
             filter.add(new IgnoredFiles(pattern));
         }
@@ -475,32 +492,37 @@ public class ConfigConverter {
 
     public JobConfig toJobConfig(CRJob crJob) {
         JobConfig jobConfig = new JobConfig(crJob.getName());
-        if (crJob.getEnvironmentVariables() != null)
+        if (crJob.getEnvironmentVariables() != null) {
             for (CREnvironmentVariable crEnvironmentVariable : crJob.getEnvironmentVariables()) {
                 jobConfig.getVariables().add(toEnvironmentVariableConfig(crEnvironmentVariable));
             }
+        }
 
         List<CRTask> crTasks = crJob.getTasks();
         Tasks tasks = jobConfig.getTasks();
-        if (crTasks != null)
+        if (crTasks != null) {
             for (CRTask crTask : crTasks) {
                 tasks.add(toAbstractTask(crTask));
             }
+        }
 
         Tabs tabs = jobConfig.getTabs();
-        if (crJob.getTabs() != null)
+        if (crJob.getTabs() != null) {
             for (CRTab crTab : crJob.getTabs()) {
                 tabs.add(toTab(crTab));
             }
+        }
 
         ResourceConfigs resourceConfigs = jobConfig.resourceConfigs();
-        if (crJob.getResources() != null)
+        if (crJob.getResources() != null) {
             for (String crResource : crJob.getResources()) {
                 resourceConfigs.add(new ResourceConfig(crResource));
             }
+        }
 
-        if (crJob.getElasticProfileId() != null)
+        if (crJob.getElasticProfileId() != null) {
             jobConfig.setElasticProfileId(crJob.getElasticProfileId());
+        }
 
         ArtifactTypeConfigs artifactTypeConfigs = jobConfig.artifactTypeConfigs();
         if (crJob.getArtifacts() != null) {
@@ -509,17 +531,19 @@ public class ConfigConverter {
             }
         }
 
-        if (crJob.isRunOnAllAgents())
+        if (crJob.isRunOnAllAgents()) {
             jobConfig.setRunOnAllAgents(true);
-        else {
+        } else {
             Integer count = crJob.getRunInstanceCount();
-            if (count != null)
+            if (count != null) {
                 jobConfig.setRunInstanceCount(count);
+            }
             // else null - meaning simple job
         }
 
-        if (crJob.getTimeout() != 0)
+        if (crJob.getTimeout() != 0) {
             jobConfig.setTimeout(Integer.toString(crJob.getTimeout()));
+        }
         //else null - means default server-wide timeout
 
         return jobConfig;
@@ -560,14 +584,16 @@ public class ConfigConverter {
     }
 
     public Approval toApproval(CRApproval crApproval) {
-        if (crApproval == null)
+        if (crApproval == null) {
             return Approval.automaticApproval();
+        }
 
         Approval approval;
-        if (crApproval.getType() == CRApprovalCondition.manual)
+        if (crApproval.getType() == CRApprovalCondition.manual) {
             approval = Approval.manualApproval();
-        else
+        } else {
             approval = Approval.automaticApproval();
+        }
 
         approval.setAllowOnlyOnSuccess(crApproval.isAllowOnlyOnSuccess());
         AuthConfig authConfig = approval.getAuthConfig();
@@ -605,8 +631,9 @@ public class ConfigConverter {
             }
         }
 
-        if (crPipeline.getLabelTemplate() != null)
+        if (crPipeline.getLabelTemplate() != null) {
             pipelineConfig.setLabelTemplate(crPipeline.getLabelTemplate());
+        }
 
         CRTrackingTool crTrackingTool = crPipeline.getTrackingTool();
         if (crTrackingTool != null) {
@@ -640,8 +667,9 @@ public class ConfigConverter {
 
     public TimerConfig toTimerConfig(CRTimer crTimer) {
         String spec = crTimer.getSpec();
-        if (StringUtils.isBlank(spec))
+        if (StringUtils.isBlank(spec)) {
             throw new RuntimeException("timer schedule is not specified");
+        }
         return new TimerConfig(spec, crTimer.isOnlyOnChanges());
     }
 
@@ -670,8 +698,9 @@ public class ConfigConverter {
             crPipeline.addEnvironmentVariable(environmentVariableConfigToCREnvironmentVariable(envVar));
         }
 
-        if (pipelineConfig.getTemplateName() != null)
+        if (pipelineConfig.getTemplateName() != null) {
             crPipeline.setTemplate(pipelineConfig.getTemplateName().toString());
+        }
 
         crPipeline.setTrackingTool(trackingToolToCRTrackingTool(pipelineConfig.getTrackingTool()));
         crPipeline.setTimer(timerConfigToCRTimer(pipelineConfig.getTimer()));
@@ -761,12 +790,13 @@ public class ConfigConverter {
     }
 
     CRTask taskToCRTask(Task task) {
-        if (task == null)
+        if (task == null) {
             throw new ConfigConvertionException("task cannot be null");
+        }
 
-        if (task instanceof PluggableTask)
+        if (task instanceof PluggableTask) {
             return pluggableTaskToCRPluggableTask((PluggableTask) task);
-        else if (task instanceof BuildTask) {
+        } else if (task instanceof BuildTask) {
             return buildTaskToCRBuildTask((BuildTask) task);
         } else if (task instanceof ExecTask) {
             return execTasktoCRExecTask((ExecTask) task);
@@ -774,9 +804,10 @@ public class ConfigConverter {
             return fetchTaskToCRFetchTask((FetchTask) task);
         } else if (task instanceof FetchPluggableArtifactTask) {
             return fetchPluggableArtifactTaskToCRFetchPluggableTask((FetchPluggableArtifactTask) task);
-        } else
+        } else {
             throw new RuntimeException(
                     String.format("unknown type of task '%s'", task));
+        }
     }
 
     private CRFetchPluggableArtifactTask fetchPluggableArtifactTaskToCRFetchPluggableTask(FetchPluggableArtifactTask task) {
@@ -853,14 +884,16 @@ public class ConfigConverter {
 
     private void commonCRTaskMembers(CRTask crTask, AbstractTask task) {
         Task taskOnCancel = task.cancelTask();
-        if (taskOnCancel != null && !(taskOnCancel instanceof KillAllChildProcessTask) && !(taskOnCancel instanceof NullTask))
+        if (taskOnCancel != null && !(taskOnCancel instanceof KillAllChildProcessTask) && !(taskOnCancel instanceof NullTask)) {
             crTask.setOnCancel(taskToCRTask(taskOnCancel));
+        }
         crTask.setRunIf(crRunIfs(task.runIfConfigs));
     }
 
     private CRRunIf crRunIfs(RunIfConfigs runIfs) {
-        if (runIfs == null || runIfs.isEmpty())
+        if (runIfs == null || runIfs.isEmpty()) {
             return CRRunIf.passed;
+        }
         RunIfConfig runIf = runIfs.first();
         if (runIf.equals(RunIfConfig.ANY)) {
             return CRRunIf.any;
@@ -879,10 +912,11 @@ public class ConfigConverter {
         if (config != null) {
             for (ConfigurationProperty p : config) {
                 CRConfigurationProperty crProp = new CRConfigurationProperty(p.getKey().getName());
-                if (p.isSecure())
+                if (p.isSecure()) {
                     crProp.setEncryptedValue(p.getEncryptedValue());
-                else
+                } else {
                     crProp.setValue(p.getValue());
+                }
                 properties.add(crProp);
             }
         }
@@ -903,8 +937,9 @@ public class ConfigConverter {
     }
 
     private CRTrackingTool trackingToolToCRTrackingTool(TrackingTool trackingTool) {
-        if (trackingTool == null)
+        if (trackingTool == null) {
             return null;
+        }
         return new CRTrackingTool(trackingTool.getLink(), trackingTool.getRegex());
     }
 
@@ -913,11 +948,13 @@ public class ConfigConverter {
     }
 
     private CRTimer timerConfigToCRTimer(TimerConfig timerConfig) {
-        if (timerConfig == null)
+        if (timerConfig == null) {
             return null;
+        }
         String spec = timerConfig.getTimerSpec();
-        if (StringUtils.isBlank(spec))
+        if (StringUtils.isBlank(spec)) {
             throw new RuntimeException("timer schedule is not specified");
+        }
         return new CRTimer(spec, timerConfig.shouldTriggerOnlyOnChanges());
     }
 
@@ -926,8 +963,9 @@ public class ConfigConverter {
             return new CREnvironmentVariable(environmentVariableConfig.getName(), null, environmentVariableConfig.getEncryptedValue());
         } else {
             String value = environmentVariableConfig.getValue();
-            if (StringUtils.isBlank(value))
+            if (StringUtils.isBlank(value)) {
                 value = "";
+            }
             return new CREnvironmentVariable(environmentVariableConfig.getName(), value);
         }
     }
@@ -936,9 +974,10 @@ public class ConfigConverter {
         SCMs scms = existingServerSCMs();
         String id = pluggableScmMaterialConfig.getScmId();
         SCM scmConfig = scms.find(id);
-        if (scmConfig == null)
+        if (scmConfig == null) {
             throw new ConfigConvertionException(
                     String.format("Failed to find referenced scm '%s'", id));
+        }
 
         return new CRPluggableScmMaterial(pluggableScmMaterialConfig.getName().toString(),
                 id, pluggableScmMaterialConfig.getFolder(),
@@ -954,8 +993,9 @@ public class ConfigConverter {
                 dependencyMaterialConfig.getPipelineName().toString(),
                 dependencyMaterialConfig.getStageName().toString(),
                 dependencyMaterialConfig.ignoreForScheduling());
-        if (dependencyMaterialConfig.getName() != null)
+        if (dependencyMaterialConfig.getName() != null) {
             crDependencyMaterial.setName(dependencyMaterialConfig.getName().toString());
+        }
         return crDependencyMaterial;
     }
 
@@ -965,24 +1005,20 @@ public class ConfigConverter {
             name = scmConfig.getName().toString();
         }
 
-        if (scmConfig instanceof GitMaterialConfig)
+        if (scmConfig instanceof GitMaterialConfig) {
             return gitMaterialToCRGitMaterial(name, (GitMaterialConfig) scmConfig);
-
-        else if (scmConfig instanceof HgMaterialConfig)
+        } else if (scmConfig instanceof HgMaterialConfig) {
             return hgMaterialToCRHgMaterial(name, (HgMaterialConfig) scmConfig);
-
-        else if (scmConfig instanceof P4MaterialConfig)
+        } else if (scmConfig instanceof P4MaterialConfig) {
             return p4MaterialToCRP4Material(name, (P4MaterialConfig) scmConfig);
-
-        else if (scmConfig instanceof SvnMaterialConfig)
+        } else if (scmConfig instanceof SvnMaterialConfig) {
             return svnMaterialToCRSvnMaterial(name, (SvnMaterialConfig) scmConfig);
-
-        else if (scmConfig instanceof TfsMaterialConfig)
+        } else if (scmConfig instanceof TfsMaterialConfig) {
             return tfsMaterialToCRTfsMaterial(name, (TfsMaterialConfig) scmConfig);
-
-        else
+        } else {
             throw new ConfigConvertionException(
                     String.format("unknown scm material type '%s'", scmConfig));
+        }
     }
 
     private CRHgMaterial hgMaterialToCRHgMaterial(String materialName, HgMaterialConfig hgMaterialConfig) {
@@ -1031,8 +1067,9 @@ public class ConfigConverter {
     }
 
     CRMaterial materialToCRMaterial(MaterialConfig materialConfig) {
-        if (materialConfig == null)
+        if (materialConfig == null) {
             throw new ConfigConvertionException("material cannot be null");
+        }
 
         if (materialConfig instanceof DependencyMaterialConfig) {
             return dependencyMaterialConfigToCRDependencyMaterial((DependencyMaterialConfig) materialConfig);

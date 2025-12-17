@@ -22,7 +22,7 @@ import com.thoughtworks.go.server.domain.PipelineTimeline;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
+import java.util.function.IntSupplier;
 
 record FanInGraphContext(
     Map<String, MaterialConfig> fingerprintScmMaterialMap,
@@ -30,7 +30,7 @@ record FanInGraphContext(
     Map<DependencyMaterialConfig, Set<MaterialConfig>> pipelineScmDepMap,
     Map<String, DependencyMaterialConfig> fingerprintDepMaterialMap,
     PipelineDao pipelineDao,
-    Supplier<Integer> maxBackTrackLimit
+    IntSupplier maxBackTrackLimit
 ) {
     boolean isDependencyMaterial(String fingerprint) {
         return fingerprintDepMaterialMap.containsKey(fingerprint);

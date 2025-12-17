@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.Map;
+import java.util.Objects;
 
 @ConfigTag(value = "p4", label = "Perforce")
 public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordAwareMaterial {
@@ -104,21 +105,10 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
         P4MaterialConfig that = (P4MaterialConfig) o;
 
-        if (serverAndPort != null ? !serverAndPort.equals(that.serverAndPort) : that.serverAndPort != null) {
-            return false;
-        }
-        if (useTickets != null ? !useTickets.equals(that.useTickets) : that.useTickets != null) {
-            return false;
-        }
-        if (view != null ? !view.equals(that.view) : that.view != null) {
-            return false;
-        }
-
-        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(serverAndPort, that.serverAndPort) &&
+            Objects.equals(useTickets, that.useTickets) &&
+            Objects.equals(view, that.view) &&
+            Objects.equals(userName, that.userName);
     }
 
     @Override

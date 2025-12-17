@@ -46,12 +46,13 @@ public abstract class CRMaterial extends CRBase {
     public abstract String typeName();
 
     public String validateNameUniqueness(HashSet<String> keys) {
-        if (this.getName() == null)
+        if (this.getName() == null) {
             return "Material has no name when there many pipeline materials";
-        else if (keys.contains(this.getName()))
+        } else if (keys.contains(this.getName())) {
             return String.format("Material named %s is defined more than once", this.getName());
-        else
+        } else {
             keys.add(this.getName());
+        }
         return null;
     }
 }

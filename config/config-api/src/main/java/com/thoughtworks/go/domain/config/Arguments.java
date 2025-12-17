@@ -22,9 +22,6 @@ import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @ConfigCollection(Argument.class)
 public class Arguments extends BaseCollection<Argument> implements Validatable {
     private final ConfigErrors configErrors = new ConfigErrors();
@@ -51,10 +48,6 @@ public class Arguments extends BaseCollection<Argument> implements Validatable {
     }
 
     public String[] toStringArray() {
-        List<String> list = new ArrayList<>(this.size());
-        for (Argument arg : this) {
-            list.add(arg.getValue());
-        }
-        return list.toArray(new String[0]);
+        return stream().map(Argument::getValue).toArray(String[]::new);
     }
 }

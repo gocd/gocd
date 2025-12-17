@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.ValidationContext.RulesValidationContext;
 import com.thoughtworks.go.config.rules.Allow;
 import com.thoughtworks.go.config.rules.RuleAwarePluginProfile;
 import com.thoughtworks.go.config.rules.Rules;
-import com.thoughtworks.go.config.rules.RulesValidationContext;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
@@ -145,11 +145,11 @@ public class SecretConfigTest extends AbstractRuleAwarePluginProfileTest {
 
             final ValidationContext validationContext = argumentCaptor.getValue();
             RulesValidationContext rulesValidationContext = validationContext.getRulesValidationContext();
-            assertThat(rulesValidationContext.getAllowedActions())
+            assertThat(rulesValidationContext.allowedActions())
                     .hasSize(1)
                     .contains("refer");
 
-            assertThat(rulesValidationContext.getAllowedTypes())
+            assertThat(rulesValidationContext.allowedTypes())
                     .hasSize(5)
                     .containsExactly("pipeline_group", "environment", "pluggable_scm", "package_repository", "cluster_profile");
         }

@@ -19,29 +19,27 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConstants;
+import org.jdom2.JDOMException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MagicalGoConfigXmlLoaderFixture {
     public static void assertNotValid(String message, String xmlMaterials) {
-        try {
-            toMaterials(xmlMaterials);
-            fail("Should not be valid");
-        } catch (Exception expected) {
-            assertThat(expected.getMessage()).contains(message);
-        }
+        assertThatThrownBy(() -> toMaterials(xmlMaterials))
+            .isInstanceOf(Exception.class)
+            .hasMessageContaining(message);
     }
 
-    public static void assertValid(String xmlMaterials) throws Exception {
-        toMaterials(xmlMaterials);
+    public static void assertValid(String xmlMaterials) throws JDOMException {
+        assertThat(toMaterials(xmlMaterials)).isNotEmpty();
     }
 
-    public static MaterialConfigs toMaterials(String materials) throws Exception {
+    public static MaterialConfigs toMaterials(String materials) throws JDOMException {
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
 
-        MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(new ConfigCache(), registry);
+        MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(registry);
         String pipelineXmlPartial =
                 ("""
                         <?xml version="1.0" encoding="utf-8"?>

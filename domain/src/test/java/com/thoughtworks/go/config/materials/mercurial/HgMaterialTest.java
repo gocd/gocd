@@ -29,7 +29,6 @@ import com.thoughtworks.go.domain.materials.mercurial.HgVersion;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -300,7 +299,7 @@ public class HgMaterialTest {
         final ConsoleResult consoleResult = mock(ConsoleResult.class);
         when(consoleResult.outputAsString()).thenReturn("http://user@domain:9999/path");
         when(hgCommand.workingRepositoryUrl()).thenReturn(consoleResult);
-        assertThat(ReflectionUtil.<Boolean>invoke(material, "isRepositoryChanged", hgCommand)).isFalse();
+        assertThat(material.isRepositoryChanged(hgCommand)).isFalse();
     }
 
     @Test
@@ -310,7 +309,7 @@ public class HgMaterialTest {
         final ConsoleResult consoleResult = mock(ConsoleResult.class);
         when(consoleResult.outputAsString()).thenReturn("http://user:pwd@domain:9999/path");
         when(hgCommand.workingRepositoryUrl()).thenReturn(consoleResult);
-        assertThat(ReflectionUtil.<Boolean>invoke(material, "isRepositoryChanged", hgCommand)).isTrue();
+        assertThat(material.isRepositoryChanged(hgCommand)).isTrue();
     }
 
     @Test

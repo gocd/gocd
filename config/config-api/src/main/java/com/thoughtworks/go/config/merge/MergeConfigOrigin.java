@@ -32,8 +32,9 @@ public class MergeConfigOrigin extends BaseCollection<ConfigOrigin> implements C
     @Override
     public boolean canEdit() {
         for (ConfigOrigin part : this) {
-            if (part.canEdit())
+            if (part.canEdit()) {
                 return true;
+            }
         }
         return false;
     }

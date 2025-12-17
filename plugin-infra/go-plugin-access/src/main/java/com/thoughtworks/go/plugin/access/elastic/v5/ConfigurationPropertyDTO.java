@@ -62,8 +62,12 @@ public class ConfigurationPropertyDTO {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ConfigurationPropertyDTO that = (ConfigurationPropertyDTO) o;
         return Objects.equals(id, that.id) &&
                 Objects.equals(pluginId, that.pluginId) &&

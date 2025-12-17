@@ -61,9 +61,8 @@ public class PipelineConfigsServiceTest {
 
     @BeforeEach
     public void setUp() {
-        ConfigCache configCache = new ConfigCache();
         validUser = new Username(new CaseInsensitiveString("validUser"));
-        service = new PipelineConfigsService(configCache, ConfigElementImplementationRegistryMother.withNoPlugins(), goConfigService, securityService, entityHashingService);
+        service = new PipelineConfigsService(ConfigElementImplementationRegistryMother.withNoPlugins(), goConfigService, securityService, entityHashingService);
         result = new HttpLocalizedOperationResult();
 
         ReflectionUtil.setField(new BasicCruiseConfig(), "md5", "md5");

@@ -27,6 +27,7 @@ import org.jetbrains.annotations.TestOnly;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -130,24 +131,25 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         JobConfig jobConfig = (JobConfig) o;
 
-        if (runOnAllAgents != jobConfig.runOnAllAgents) return false;
-        if (jobName != null ? !jobName.equals(jobConfig.jobName) : jobConfig.jobName != null) return false;
-        if (variables != null ? !variables.equals(jobConfig.variables) : jobConfig.variables != null) return false;
-        if (tasks != null ? !tasks.equals(jobConfig.tasks) : jobConfig.tasks != null) return false;
-        if (tabs != null ? !tabs.equals(jobConfig.tabs) : jobConfig.tabs != null) return false;
-        if (resourceConfigs != null ? !resourceConfigs.equals(jobConfig.resourceConfigs) : jobConfig.resourceConfigs != null)
-            return false;
-        if (artifactTypeConfigs != null ? !artifactTypeConfigs.equals(jobConfig.artifactTypeConfigs) : jobConfig.artifactTypeConfigs != null)
-            return false;
-        if (runInstanceCount != null ? !runInstanceCount.equals(jobConfig.runInstanceCount) : jobConfig.runInstanceCount != null)
-            return false;
-        if (timeout != null ? !timeout.equals(jobConfig.timeout) : jobConfig.timeout != null) return false;
-        return elasticProfileId != null ? elasticProfileId.equals(jobConfig.elasticProfileId) : jobConfig.elasticProfileId == null;
+        return runOnAllAgents == jobConfig.runOnAllAgents &&
+            Objects.equals(jobName, jobConfig.jobName) &&
+            Objects.equals(variables, jobConfig.variables) &&
+            Objects.equals(tasks, jobConfig.tasks) &&
+            Objects.equals(tabs, jobConfig.tabs) &&
+            Objects.equals(resourceConfigs, jobConfig.resourceConfigs) &&
+            Objects.equals(artifactTypeConfigs, jobConfig.artifactTypeConfigs) &&
+            Objects.equals(runInstanceCount, jobConfig.runInstanceCount) &&
+            Objects.equals(timeout, jobConfig.timeout) &&
+            Objects.equals(elasticProfileId, jobConfig.elasticProfileId);
 
     }
 
@@ -496,7 +498,9 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     }
 
     public void validateNameUniqueness(Map<String, JobConfig> visitedConfigs) {
-        if (isBlank(CaseInsensitiveString.str(name()))) return;
+        if (isBlank(CaseInsensitiveString.str(name()))) {
+            return;
+        }
 
         String currentJob = name().toLower();
         if (visitedConfigs.containsKey(CaseInsensitiveString.str(name())) || visitedConfigs.containsKey(currentJob)) {
@@ -530,10 +534,12 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     }
 
     public String getRunType() {
-        if (isRunOnAllAgents())
+        if (isRunOnAllAgents()) {
             return RUN_ON_ALL_AGENTS;
-        if (isRunMultipleInstanceType())
+        }
+        if (isRunMultipleInstanceType()) {
             return RUN_MULTIPLE_INSTANCE;
+        }
         return RUN_SINGLE_INSTANCE;
     }
 

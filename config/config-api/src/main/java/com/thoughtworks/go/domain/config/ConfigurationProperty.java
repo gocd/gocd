@@ -21,12 +21,14 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.*;
@@ -138,13 +140,9 @@ public class ConfigurationProperty implements Serializable, Validatable, SecretP
 
         ConfigurationProperty that = (ConfigurationProperty) o;
 
-        if (configurationKey != null ? !configurationKey.equals(that.configurationKey) : that.configurationKey != null) {
-            return false;
-        }
-        if (configurationValue != null ? !configurationValue.equals(that.configurationValue) : that.configurationValue != null) {
-            return false;
-        }
-        return cipher.passwordEquals(encryptedValue, that.encryptedValue);
+        return Objects.equals(configurationKey, that.configurationKey) &&
+            Objects.equals(configurationValue, that.configurationValue) &&
+            cipher.passwordEquals(encryptedValue, that.encryptedValue);
     }
 
     @Override
@@ -155,7 +153,7 @@ public class ConfigurationProperty implements Serializable, Validatable, SecretP
         return result;
     }
 
-    public String forFingerprint() {
+    public @NotNull String forFingerprint() {
         String value = getValue();
 
         if (isEmpty(value)) {

@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.domain;
 
+import java.util.Objects;
+
 public class PipelineState extends PersistentObject {
     private String pipelineName;
     private boolean locked = false;
@@ -65,16 +67,21 @@ public class PipelineState extends PersistentObject {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         PipelineState that = (PipelineState) o;
-
-        if (locked != that.locked) return false;
-        if (lockedByPipelineId != that.lockedByPipelineId) return false;
-        if (!pipelineName.equals(that.pipelineName)) return false;
-        return lockedBy != null ? lockedBy.equals(that.lockedBy) : that.lockedBy == null;
+        return locked == that.locked &&
+            lockedByPipelineId == that.lockedByPipelineId &&
+            pipelineName.equals(that.pipelineName) &&
+            Objects.equals(lockedBy, that.lockedBy);
     }
 
     @Override

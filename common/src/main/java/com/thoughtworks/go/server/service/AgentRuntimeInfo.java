@@ -132,8 +132,12 @@ public class AgentRuntimeInfo implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         AgentRuntimeInfo that = (AgentRuntimeInfo) o;
         return Objects.equals(identifier, that.identifier) &&
                 runtimeStatus == that.runtimeStatus &&
@@ -237,10 +241,7 @@ public class AgentRuntimeInfo implements Serializable {
     }
 
     public boolean isLowDiskSpace(long limit) {
-        if (usableSpace == null) {
-            return false;
-        }
-        return usableSpace < limit;
+        return usableSpace != null && usableSpace < limit;
     }
 
     public String agentInfoDebugString() {

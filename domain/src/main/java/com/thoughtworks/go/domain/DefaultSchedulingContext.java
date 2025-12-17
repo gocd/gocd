@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Understands what a job needs to know to be scheduled
@@ -136,17 +137,9 @@ public class DefaultSchedulingContext implements SchedulingContext {
 
         DefaultSchedulingContext that = (DefaultSchedulingContext) o;
 
-        if (agents != null ? !agents.equals(that.agents) : that.agents != null) {
-            return false;
-        }
-        if (approvedBy != null ? !approvedBy.equals(that.approvedBy) : that.approvedBy != null) {
-            return false;
-        }
-        if (variables != null ? !variables.equals(that.variables) : that.variables != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(agents, that.agents) &&
+            Objects.equals(approvedBy, that.approvedBy) &&
+            Objects.equals(variables, that.variables);
     }
 
     @Override

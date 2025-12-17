@@ -15,8 +15,11 @@
  */
 package com.thoughtworks.go.server.view.artifacts;
 
+import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.IOException;
+
 public interface ArtifactsView {
-    ModelAndView createView(String filePath, String sha) throws Exception;
+    ModelAndView createView(String filePath, String sha) throws IllegalArtifactLocationException, IOException;
 }

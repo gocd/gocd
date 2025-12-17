@@ -48,7 +48,9 @@ public class JSONResultMessageHandler {
         try {
             ValidationResult validationResult = new ValidationResult();
 
-            if (isEmpty(responseBody)) return validationResult;
+            if (isEmpty(responseBody)) {
+                return validationResult;
+            }
 
             List<Map<String, Object>> errors;
             try {

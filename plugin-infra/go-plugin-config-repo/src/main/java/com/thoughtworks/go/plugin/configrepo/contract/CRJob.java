@@ -88,23 +88,26 @@ public class CRJob extends CRBase {
 
     private void validateTasks(ErrorCollection errors, String location) {
         errors.checkMissing(location, "tasks", tasks);
-        if (tasks != null)
+        if (tasks != null) {
             for (CRTask task : tasks) {
                 task.getErrors(errors, location);
             }
+        }
     }
 
     private void validateArtifacts(ErrorCollection errors, String location) {
-        if (artifacts == null)
+        if (artifacts == null) {
             return;
+        }
         for (CRArtifact artifact : artifacts) {
             artifact.getErrors(errors, location);
         }
     }
 
     private void validateTabs(ErrorCollection errors, String location) {
-        if (tabs == null)
+        if (tabs == null) {
             return;
+        }
         for (CRTab tab : tabs) {
             tab.getErrors(errors, location);
         }
@@ -114,8 +117,9 @@ public class CRJob extends CRBase {
         HashSet<String> keys = new HashSet<>();
         for (CREnvironmentVariable var : environmentVariables) {
             String error = var.validateNameUniqueness(keys);
-            if (error != null)
+            if (error != null) {
                 errors.addError(location, error);
+            }
         }
     }
 
@@ -151,15 +155,17 @@ public class CRJob extends CRBase {
     }
 
     public void setRunOnAllAgents(boolean runOnAllAgents) {
-        if (runOnAllAgents)
+        if (runOnAllAgents) {
             this.runInstanceCount = "all";
-        else
+        } else {
             this.runInstanceCount = null;
+        }
     }
 
     public Integer getRunInstanceCount() {
-        if (runInstanceCount == null)
+        if (runInstanceCount == null) {
             return null;
+        }
         return Integer.parseInt(runInstanceCount);
     }
 
@@ -176,10 +182,11 @@ public class CRJob extends CRBase {
     }
 
     public String validateNameUniqueness(HashSet<String> names) {
-        if (names.contains(this.getName()))
+        if (names.contains(this.getName())) {
             return String.format("Job %s is defined more than once", this.getName());
-        else
+        } else {
             names.add(this.getName());
+        }
         return null;
     }
 

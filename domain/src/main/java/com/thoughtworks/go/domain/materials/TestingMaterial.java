@@ -107,6 +107,7 @@ public class TestingMaterial extends ScmMaterial {
         return String.format("Url: %s", url);
     }
 
+    @Override
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
         return null;
     }

@@ -146,8 +146,9 @@ public class BasicCruiseConfig implements CruiseConfig {
         }
         partList = removePartialsThatDoNotCorrespondToTheCurrentConfigReposList(partList);
 
-        if (strategy instanceof MergeStrategy)
+        if (strategy instanceof MergeStrategy) {
             throw new RuntimeException("cannot merge partials to already merged configuration");
+        }
         MergeStrategy mergeStrategy = new MergeStrategy(partList, forEdit);
         this.strategy = mergeStrategy;
         groups = mergeStrategy.mergePipelineConfigs();
@@ -160,8 +161,9 @@ public class BasicCruiseConfig implements CruiseConfig {
         List<Object> notToBeMerged = new ArrayList<>();
         for (PartialConfig partialConfig : partList) {
             if (partialConfig.getOrigin() instanceof RepoConfigOrigin origin) {
-                if (!configRepos.hasMaterialWithFingerprint(origin.getMaterial().getFingerprint()))
+                if (!configRepos.hasMaterialWithFingerprint(origin.getMaterial().getFingerprint())) {
                     notToBeMerged.add(partialConfig);
+                }
             }
         }
         return partList.stream().filter(c -> !notToBeMerged.contains(c)).toList();
@@ -325,10 +327,11 @@ public class BasicCruiseConfig implements CruiseConfig {
                 } else {
                     // there will not be any modifications on this config.
                     // just keep all parts in simple form
-                    if (oneEnv.size() == 1)
+                    if (oneEnv.size() == 1) {
                         environments.add(oneEnv.get(0));
-                    else
+                    } else {
                         environments.add(new MergeEnvironmentConfig(oneEnv));
+                    }
                 }
             }
 
@@ -404,10 +407,11 @@ public class BasicCruiseConfig implements CruiseConfig {
                 } else {
                     // there will not be any modifications on this config.
                     // just keep all parts in simple form
-                    if (oneGroup.size() == 1)
+                    if (oneGroup.size() == 1) {
                         groups.add(oneGroup.get(0));
-                    else
+                    } else {
                         groups.add(new MergePipelineConfigs(oneGroup));
+                    }
                 }
             }
 
@@ -435,8 +439,9 @@ public class BasicCruiseConfig implements CruiseConfig {
                     // we want to keep it only if there is something added
                     if (!pipelineConfigs.isEmpty()) {
                         for (PipelineConfig pipelineConfig : pipelineConfigs.getPipelines()) {
-                            if (excludeMembersOfRemoteEnvironments && BasicCruiseConfig.this.getEnvironments().isPipelineAssociatedWithRemoteEnvironment(pipelineConfig.name()))
+                            if (excludeMembersOfRemoteEnvironments && BasicCruiseConfig.this.getEnvironments().isPipelineAssociatedWithRemoteEnvironment(pipelineConfig.name())) {
                                 continue;
+                            }
                             locals.add(pipelineConfig);
                         }
 
@@ -445,8 +450,9 @@ public class BasicCruiseConfig implements CruiseConfig {
                     //origin is local file
 
                     for (PipelineConfig pipelineConfig : pipelineConfigs.getPipelines()) {
-                        if (excludeMembersOfRemoteEnvironments && BasicCruiseConfig.this.getEnvironments().isPipelineAssociatedWithRemoteEnvironment(pipelineConfig.name()))
+                        if (excludeMembersOfRemoteEnvironments && BasicCruiseConfig.this.getEnvironments().isPipelineAssociatedWithRemoteEnvironment(pipelineConfig.name())) {
                             continue;
+                        }
                         locals.add(pipelineConfig);
                     }
 
@@ -527,16 +533,16 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public Hashtable<CaseInsensitiveString, Node> getDependencyTable() {
-        final Hashtable<CaseInsensitiveString, Node> hashtable = new Hashtable<>();
-        this.accept((PipelineConfigVisitor) pipelineConfig -> hashtable.put(pipelineConfig.name(), pipelineConfig.getDependenciesAsNode()));
-        return hashtable;
+    public Map<CaseInsensitiveString, Node> getDependencyTable() {
+        final Map<CaseInsensitiveString, Node> map = new HashMap<>();
+        this.accept((PipelineConfigVisitor) pipelineConfig -> map.put(pipelineConfig.name(), pipelineConfig.getDependenciesAsNode()));
+        return map;
     }
 
     private static class DependencyTable implements PipelineDependencyState {
-        private final Hashtable<CaseInsensitiveString, Node> targetTable;
+        private final Map<CaseInsensitiveString, Node> targetTable;
 
-        public DependencyTable(Hashtable<CaseInsensitiveString, Node> targetTable) {
+        public DependencyTable(Map<CaseInsensitiveString, Node> targetTable) {
             this.targetTable = targetTable;
         }
 
@@ -553,7 +559,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     private void areThereCyclicDependencies() {
         final DFSCycleDetector dfsCycleDetector = new DFSCycleDetector();
-        final Hashtable<CaseInsensitiveString, Node> dependencyTable = getDependencyTable();
+        final Map<CaseInsensitiveString, Node> dependencyTable = getDependencyTable();
         List<PipelineConfig> pipelineConfigs = this.getAllPipelineConfigs();
         DependencyTable pipelineDependencyState = new DependencyTable(dependencyTable);
         for (PipelineConfig pipelineConfig : pipelineConfigs) {
@@ -1219,28 +1225,9 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public List<ConfigErrors> validateAfterPreprocess() {
         final List<ConfigErrors> allErrors = new ArrayList<>();
-        new GoConfigGraphWalker(this).walk(new ErrorCollectingHandler(allErrors) {
-            @Override
-            public void handleValidation(Validatable validatable, ValidationContext context) {
-                validatable.validate(context);
-            }
-        });
+        new GoConfigGraphWalker(this)
+            .walk(new ErrorCollectingHandler(allErrors, Validatable::validate));
         return allErrors;
-    }
-
-    @Override
-    public void copyErrorsTo(CruiseConfig to) {
-        copyErrors(this, to);
-    }
-
-    public static <T> void copyErrors(T from, T to) {
-        GoConfigParallelGraphWalker walker = new GoConfigParallelGraphWalker(from, to);
-        walker.walk((rawObject, objectWithErrors) -> rawObject.errors().addAll(objectWithErrors.errors()));
-    }
-
-    public static void clearErrors(Validatable obj) {
-        GoConfigGraphWalker walker = new GoConfigGraphWalker(obj);
-        walker.walk((validatable, ctx) -> validatable.errors().clear());
     }
 
     @Override
@@ -1523,18 +1510,17 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BasicCruiseConfig that)) return false;
+        if (this == o) {
+            return true;
+        }
+        return o instanceof BasicCruiseConfig that &&
+            Objects.equals(serverConfig, that.serverConfig) &&
+            Objects.equals(elasticConfig, that.elasticConfig) &&
+            Objects.equals(artifactStores, that.artifactStores) &&
+            Objects.equals(groups, that.groups) &&
+            Objects.equals(templatesConfig, that.templatesConfig) &&
+            Objects.equals(environments, that.environments);
 
-        if (serverConfig != null ? !serverConfig.equals(that.serverConfig) : that.serverConfig != null) return false;
-        if (elasticConfig != null ? !elasticConfig.equals(that.elasticConfig) : that.elasticConfig != null)
-            return false;
-        if (artifactStores != null ? !artifactStores.equals(that.artifactStores) : that.artifactStores != null)
-            return false;
-        if (groups != null ? !groups.equals(that.groups) : that.groups != null) return false;
-        if (templatesConfig != null ? !templatesConfig.equals(that.templatesConfig) : that.templatesConfig != null)
-            return false;
-        return environments != null ? environments.equals(that.environments) : that.environments == null;
     }
 
     @Override

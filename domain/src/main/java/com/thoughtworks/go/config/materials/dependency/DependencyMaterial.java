@@ -96,6 +96,7 @@ public class DependencyMaterial extends AbstractMaterial {
         //Dependency materials are already unique within a pipeline
     }
 
+    @Override
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
         return null;
     } //OLD
@@ -205,6 +206,7 @@ public class DependencyMaterial extends AbstractMaterial {
         return null;
     }
 
+    @Override
     public boolean ignoreForScheduling() {
         return ignoreForScheduling;
     }
@@ -264,8 +266,9 @@ public class DependencyMaterial extends AbstractMaterial {
     public Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig) {
         List<FetchTask> fetchTasks = pipelineConfig.getFetchTasks();
         for (FetchTask fetchTask : fetchTasks) {
-            if (pipelineName.equals(fetchTask.getDirectParentInAncestorPath()))
+            if (pipelineName.equals(fetchTask.getDirectParentInAncestorPath())) {
                 return true;
+            }
         }
         return false;
     }

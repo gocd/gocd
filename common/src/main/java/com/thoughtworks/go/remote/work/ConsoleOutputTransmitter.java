@@ -57,7 +57,9 @@ public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Run
 
     @Override
     public void taggedConsumeLine(String tag, String line) {
-        if (tag == null) tag = "  ";
+        if (tag == null) {
+            tag = "  ";
+        }
         String taggedDate = format("%s|%s", tag, FORMATTER.format(LocalTime.now()));
         String logLine = format("%s %s", taggedDate, line).replace("\n", "\n" + taggedDate + " ");
         synchronized (buffer) {

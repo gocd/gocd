@@ -17,18 +17,22 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
+import net.sf.ehcache.Ehcache;
+import org.mockito.Answers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.mockito.Mockito.mock;
+
 public class StubGoCache extends GoCache {
 
     private final Map<String, Object> map;
 
     public StubGoCache(final TestTransactionSynchronizationManager transactionSynchronizationManager) {
-        super(null, transactionSynchronizationManager);
+        super(mock(Ehcache.class, Answers.RETURNS_DEEP_STUBS), transactionSynchronizationManager);
         map = new HashMap<>();
     }
 
@@ -57,9 +61,5 @@ public class StubGoCache extends GoCache {
     @Override
     public List<String> getKeys() {
         return new ArrayList<>(map.keySet());
-    }
-
-    @Override
-    protected void registerAsCacheEvictionListener() {
     }
 }

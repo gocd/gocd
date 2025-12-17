@@ -328,8 +328,8 @@ class PipelineHistoryServiceTest {
     @Test
     void shouldPopulatePipelineInstanceModelWithTheBeforeAndAfterForTheGivenPipeline() {
         ZonedDateTime now = ZonedDateTime.now();
-        PipelineTimelineEntry first = PipelineTimelineEntryMother.modification(List.of("first"), 1, "123", now);
-        PipelineTimelineEntry second = PipelineTimelineEntryMother.modification(List.of("first"), 1, "123", now);
+        PipelineTimelineEntry first = PipelineTimelineEntryMother.timelineEntry(List.of("first"), 1, now);
+        PipelineTimelineEntry second = PipelineTimelineEntryMother.timelineEntry(List.of("first"), 1, now);
 
         when(pipelineTimeline.runBefore(1, new CaseInsensitiveString("pipeline"))).thenReturn(first);
         when(pipelineTimeline.runAfter(1, new CaseInsensitiveString("pipeline"))).thenReturn(second);

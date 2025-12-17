@@ -83,13 +83,16 @@ public class Node {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             DependencyNode that = (DependencyNode) o;
-
-            if (!pipelineName.equals(that.pipelineName)) return false;
-            return stageName.equals(that.stageName);
+            return pipelineName.equals(that.pipelineName) &&
+                stageName.equals(that.stageName);
         }
 
         @Override

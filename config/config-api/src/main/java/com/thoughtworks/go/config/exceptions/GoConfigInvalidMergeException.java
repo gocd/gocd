@@ -18,8 +18,9 @@ package com.thoughtworks.go.config.exceptions;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.config.exceptions.EntityType.RULE_ERROR_PREFIX;
 
@@ -37,15 +38,17 @@ public class GoConfigInvalidMergeException extends GoConfigInvalidException {
     }
 
     private static String allErrorsToString(List<String> allErrors) {
-        if (allErrors == null || allErrors.size() == 0)
+        if (allErrors == null || allErrors.isEmpty()) {
             return "Error list empty";// should never be
+        }
 
         StringBuilder b = new StringBuilder();
         b.append("Number of errors: ").append(allErrors.size()).append("+").append("\n");
 
-        List<String> ruleValidationErrors = allErrors.stream()
-                .filter((error) -> error.startsWith(RULE_ERROR_PREFIX))
-                .toList();
+        Map<Boolean, List<String>> splitErrors = allErrors.stream()
+            .collect(Collectors.partitioningBy(error -> error.startsWith(RULE_ERROR_PREFIX)));
+        List<String> ruleValidationErrors = splitErrors.get(Boolean.TRUE);
+        List<String> configValidationErrors = splitErrors.get(Boolean.FALSE);
 
         if (ruleValidationErrors.isEmpty()) {
             for (int i = 1; i <= allErrors.size(); i++) {
@@ -57,8 +60,6 @@ public class GoConfigInvalidMergeException extends GoConfigInvalidException {
                 b.append('\t').append(i).append(". ").append(ruleValidationErrors.get(i - 1)).append("\n");
             }
             b.append("\n");
-            List<String> configValidationErrors = new ArrayList<>(allErrors);
-            configValidationErrors.removeAll(ruleValidationErrors);
             b.append("II. Config Validation Errors: \n");
 
             for (int i = 1; i <= configValidationErrors.size(); i++) {
@@ -71,6 +72,6 @@ public class GoConfigInvalidMergeException extends GoConfigInvalidException {
 
     @Override
     public String getMessage() {
-        return allErrorsToString(new ArrayList<>(getAllErrors()));
+        return allErrorsToString(getAllErrors());
     }
 }

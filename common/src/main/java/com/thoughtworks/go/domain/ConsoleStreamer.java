@@ -54,8 +54,12 @@ public class ConsoleStreamer implements ConsoleConsumer, AutoCloseable {
     public long stream(Consumer<String> action) throws IOException {
         long linesStreamed = 0L;
 
-        if (null == stream) stream = Files.lines(path, new SystemEnvironment().consoleLogCharset()).skip(start);
-        if (null == iterator) iterator = stream.iterator();
+        if (null == stream) {
+            stream = Files.lines(path, new SystemEnvironment().consoleLogCharset()).skip(start);
+        }
+        if (null == iterator) {
+            iterator = stream.iterator();
+        }
 
         while (iterator.hasNext()) {
             action.accept(iterator.next());

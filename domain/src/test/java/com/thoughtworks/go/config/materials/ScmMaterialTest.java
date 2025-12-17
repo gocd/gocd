@@ -157,7 +157,7 @@ class ScmMaterialTest {
 
     @Test
     void shouldGetMaterialNameForEnvironmentMaterial() {
-        assertThat(material.getMaterialNameForEnvironmentVariable()).isEqualTo("");
+        assertThat(material.getMaterialNameForEnvironmentVariable()).isEmpty();
         material.setFolder("dest-folder");
         assertThat(material.getMaterialNameForEnvironmentVariable()).isEqualTo("DEST_FOLDER");
         material.setName(new CaseInsensitiveString("some-material"));

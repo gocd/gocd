@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 
 public abstract class ServerSiteUrlConfig {
     private static final String HTTPS_URL_REGEX = "^https://.+";
@@ -52,11 +53,7 @@ public abstract class ServerSiteUrlConfig {
 
         ServerSiteUrlConfig that = (ServerSiteUrlConfig) o;
 
-        if (url != null ? !url.equals(that.url) : that.url != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(url, that.url);
     }
 
     @Override

@@ -389,7 +389,7 @@ public class Logger {
             Field field = kls.getDeclaredField("pluginId");
             field.setAccessible(true);
             return field.get(null);
-        } catch (Exception e) {
+        } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }

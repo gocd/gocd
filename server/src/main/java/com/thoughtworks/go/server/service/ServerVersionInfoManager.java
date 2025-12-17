@@ -68,7 +68,9 @@ public class ServerVersionInfoManager {
 
     public VersionInfo versionInfoForUpdate() {
         synchronized (VERSION_INFO_MUTEX) {
-            if (isDevelopmentServer() || isVersionInfoUpdatedToday() || isUpdateInProgress()) return null;
+            if (isDevelopmentServer() || isVersionInfoUpdatedToday() || isUpdateInProgress()) {
+                return null;
+            }
 
             versionInfoUpdatingFrom = clock.currentTime();
             LOGGER.info("[Go Update Check] Starting update check at: {}", new Date());
@@ -106,23 +108,31 @@ public class ServerVersionInfoManager {
     private boolean isVersionInfoUpdatedToday() {
         Date latestVersionUpdatedAt = serverVersionInfo.getLatestVersionUpdatedAt();
 
-        if (latestVersionUpdatedAt == null) return false;
+        if (latestVersionUpdatedAt == null) {
+            return false;
+        }
 
         return isToday(latestVersionUpdatedAt);
     }
 
     private boolean isUpdateInProgress() {
-        if (versionInfoUpdatingFrom == null) return false;
+        if (versionInfoUpdatingFrom == null) {
+            return false;
+        }
 
         Instant halfHourAgo = clock.currentTime().minus(30, ChronoUnit.MINUTES);
         return versionInfoUpdatingFrom.isAfter(halfHourAgo);
     }
 
     private void addGoUpdateToCacheIfAvailable() {
-        if (this.serverVersionInfo == null) return;
+        if (this.serverVersionInfo == null) {
+            return;
+        }
 
         GoVersion latestVersion = serverVersionInfo.getLatestVersion();
-        if (latestVersion == null) return;
+        if (latestVersion == null) {
+            return;
+        }
 
         if (latestVersion.isGreaterThan(serverVersionInfo.getInstalledVersion())) {
             goCache.put(GO_UPDATE, latestVersion.toString());

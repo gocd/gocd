@@ -366,7 +366,7 @@ public class UserServiceIntegrationTest {
         result = new HttpLocalizedOperationResult();
         userService.save(user, TriState.TRUE, TriState.UNSET, "", null, result);
         assertThat(result.isSuccessful()).isTrue();
-        assertThat(user.getEmail()).isEqualTo("");
+        assertThat(user.getEmail()).isEmpty();
     }
 
     @Test
@@ -394,7 +394,7 @@ public class UserServiceIntegrationTest {
         result = new HttpLocalizedOperationResult();
         userService.save(user, TriState.UNSET, TriState.UNSET, null, "", result);
         assertThat(result.isSuccessful()).isTrue();
-        assertThat(user.getMatcher()).isEqualTo("");
+        assertThat(user.getMatcher()).isEmpty();
     }
 
     @Test

@@ -54,14 +54,13 @@ class InternalPipelineStructuresRepresenterTest {
     environmentConfig.addPipeline(pipeline1.name)
     environmentConfigs.add(environmentConfig)
 
-    def hashtable = new Hashtable<CaseInsensitiveString, Node>()
-    hashtable.put(pipeline1.name, new Node(new Node.DependencyNode(pipeline2.name, pipeline2.stages[0].name())))
+    def depTable = Map.of(pipeline1.name, new Node(new Node.DependencyNode(pipeline2.name, pipeline2.stages[0].name())))
 
     def pipelineStructureViewModel = new PipelineStructureViewModel()
       .setPipelineGroups(new PipelineGroups(group, group2))
       .setTemplatesConfig(new TemplatesConfig(template, template2))
       .setEnvironmentsConfig(environmentConfigs)
-      .setPipelineDependencyTable(hashtable)
+      .setPipelineDependencyTable(depTable)
 
     def json = toObjectString({
       InternalPipelineStructuresRepresenter.toJSON(it, pipelineStructureViewModel)
@@ -182,7 +181,7 @@ class InternalPipelineStructuresRepresenterTest {
       .setPipelineGroups(new PipelineGroups(group, group2))
       .setTemplatesConfig(new TemplatesConfig(template, template2))
       .setEnvironmentsConfig(new EnvironmentsConfig())
-      .setPipelineDependencyTable(new Hashtable<CaseInsensitiveString, Node>())
+      .setPipelineDependencyTable(Collections.emptyMap())
 
     def actualJson = toObjectString({
       InternalPipelineStructuresRepresenter.toJSON(it, pipelineStructureViewModel, users, roles)

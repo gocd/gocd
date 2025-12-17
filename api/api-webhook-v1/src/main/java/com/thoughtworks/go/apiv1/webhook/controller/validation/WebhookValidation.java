@@ -26,10 +26,12 @@ import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import java.util.Set;
 
 public interface WebhookValidation extends ValidateAuth, ValidateEvent {
+    @Override
     default BadRequestException fail(String message) {
         return new BadRequestException(message);
     }
 
+    @Override
     default NotAuthorizedException unauthorized(String message) {
         return new NotAuthorizedException(message);
     }

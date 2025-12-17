@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.util.ReflectionUtil;
+package com.thoughtworks.go.config;
+
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CaseInsensitiveStringTest {
-
+class CaseInsensitiveStringTest {
     @Test
     public void shouldIgnoreCaseInEquals() {
         CaseInsensitiveString name = new CaseInsensitiveString("someName");
@@ -40,9 +38,9 @@ public class CaseInsensitiveStringTest {
     }
 
     @Test
-    public void shouldClone() throws Exception {
+    public void shouldClone() {
         CaseInsensitiveString foo = new CaseInsensitiveString("foo");
-        CaseInsensitiveString fooClone = ReflectionUtil.invoke(foo, "clone");
+        Object fooClone = foo.clone();
         assertThat(foo).isEqualTo(fooClone);
         assertThat(foo).isNotSameAs(fooClone);
     }
@@ -69,7 +67,7 @@ public class CaseInsensitiveStringTest {
     @Test
     public void shouldReturnNullSafeStringRepresentation() {
         assertThat(CaseInsensitiveString.str(new CaseInsensitiveString("foo"))).isEqualTo("foo");
-        assertThat(CaseInsensitiveString.str(new CaseInsensitiveString(""))).isEqualTo("");
+        assertThat(CaseInsensitiveString.str(new CaseInsensitiveString(""))).isEmpty();
         assertThat(CaseInsensitiveString.str(new CaseInsensitiveString(null))).isNull();
         assertThat(CaseInsensitiveString.str(null)).isNull();
     }

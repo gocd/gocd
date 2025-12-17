@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.config;
+
+package com.thoughtworks.go.config.preprocessor;
+
+import com.thoughtworks.go.config.*;
 
 /**
  * Understands de-referencing template body into pipeline

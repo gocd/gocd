@@ -20,10 +20,12 @@ import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.StageState;
 import com.thoughtworks.go.server.domain.Username;
 
+import java.util.Objects;
+
 public class StageStatusMessage implements GoMessage {
-    private StageIdentifier stageIdentifier;
-    private StageState stageState;
-    private StageResult result;
+    private final StageIdentifier stageIdentifier;
+    private final StageState stageState;
+    private final StageResult result;
     private final Username userName;
 
     public StageStatusMessage(StageIdentifier stageIdentifier, StageState stageState, StageResult result) {
@@ -72,20 +74,10 @@ public class StageStatusMessage implements GoMessage {
 
         StageStatusMessage that = (StageStatusMessage) o;
 
-        if (result != that.result) {
-            return false;
-        }
-        if (!stageIdentifier.equals(that.stageIdentifier)) {
-            return false;
-        }
-        if (stageState != that.stageState) {
-            return false;
-        }
-        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
-            return false;
-        }
-
-        return true;
+        return result == that.result &&
+            stageIdentifier.equals(that.stageIdentifier) &&
+            stageState == that.stageState &&
+            Objects.equals(userName, that.userName);
     }
 
     @Override

@@ -63,10 +63,11 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
                 continue;//other rule will error that we reference unknown pipeline
             }
             if (validationContext.shouldCheckConfigRepo()) {
-                if (!configRepos.isReferenceAllowed(this.origin, pipelineConfig.getOrigin()))
+                if (!configRepos.isReferenceAllowed(this.origin, pipelineConfig.getOrigin())) {
                     pipelineRefConfig.addError(EnvironmentPipelineConfig.ORIGIN,
                             String.format("Environment defined in %s cannot reference a pipeline in %s",
                                     this.origin, displayNameFor(pipelineConfig.getOrigin())));
+                }
             }
         }
     }
@@ -194,24 +195,11 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
             return true;
         }
 
-        EnvironmentConfig that = as(EnvironmentConfig.class, o);
-        if (that == null)
-            return false;
-
-        if (agents != null ? !agents.equals(that.getAgents()) : that.getAgents() != null) {
-            return false;
-        }
-        if (name != null ? !name.equals(that.name()) : that.name() != null) {
-            return false;
-        }
-        if (pipelines != null ? !pipelines.equals(that.getPipelines()) : that.getPipelines() != null) {
-            return false;
-        }
-        if (variables != null ? !variables.equals(that.getVariables()) : that.getVariables() != null) {
-            return false;
-        }
-
-        return true;
+        return o instanceof EnvironmentConfig that &&
+            Objects.equals(agents, that.getAgents()) &&
+            Objects.equals(name, that.name()) &&
+            Objects.equals(pipelines, that.getPipelines()) &&
+            Objects.equals(variables, that.getVariables());
     }
 
     @Override
@@ -221,13 +209,6 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
         result = 31 * result + (pipelines != null ? pipelines.hashCode() : 0);
         result = 31 * result + (variables != null ? variables.hashCode() : 0);
         return result;
-    }
-
-    private static <T> T as(Class<T> clazz, Object o) {
-        if (clazz.isInstance(o)) {
-            return clazz.cast(o);
-        }
-        return null;
     }
 
     @Override

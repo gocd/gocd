@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -57,7 +57,7 @@ public abstract class EnvironmentCommand implements EntityConfigUpdateCommand<En
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(environmentConfig);
+        Validatable.clearErrors(environmentConfig);
     }
 
     @Override

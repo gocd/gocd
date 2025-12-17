@@ -28,6 +28,8 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.jdom2.JDOMException;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,15 +76,15 @@ public class GoFileConfigDataSource {
     /* Will only upgrade cruise config file on application startup. */
     @Autowired
     public GoFileConfigDataSource(GoConfigMigration upgrader, ConfigRepository configRepository, SystemEnvironment systemEnvironment,
-                                  TimeProvider timeProvider, ConfigCache configCache,
+                                  TimeProvider timeProvider,
                                   ConfigElementImplementationRegistry configElementImplementationRegistry,
                                   CachedGoPartials cachedGoPartials,
                                   FullConfigSaveMergeFlow fullConfigSaveMergeFlow, FullConfigSaveNormalFlow fullConfigSaveNormalFlow, PartialConfigHelper partials) {
         this(upgrader, configRepository, systemEnvironment, timeProvider,
-                new MagicalGoConfigXmlLoader(configCache, configElementImplementationRegistry),
-                new MagicalGoConfigXmlWriter(configCache, configElementImplementationRegistry),
-                cachedGoPartials, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow,
-                new GoConfigFileReader(systemEnvironment), new GoConfigFileWriter(systemEnvironment), partials);
+            new MagicalGoConfigXmlLoader(configElementImplementationRegistry),
+            new MagicalGoConfigXmlWriter(configElementImplementationRegistry),
+            cachedGoPartials, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow,
+            new GoConfigFileReader(systemEnvironment), new GoConfigFileWriter(systemEnvironment), partials);
     }
 
     GoFileConfigDataSource(GoConfigMigration upgrader, ConfigRepository configRepository, SystemEnvironment systemEnvironment,
@@ -198,7 +200,7 @@ public class GoFileConfigDataSource {
 
         boolean doFileAttributesDiffer(long currentLastModified, long currentSize) {
             return currentLastModified != lastModified ||
-                    prevSize != currentSize;
+                prevSize != currentSize;
         }
 
         private long length(File configFile) {
@@ -247,7 +249,7 @@ public class GoFileConfigDataSource {
         return Path.of(systemEnvironment.getCruiseConfigFile());
     }
 
-    public GoConfigHolder load() throws Exception {
+    public GoConfigHolder load() throws IOException, JDOMException, GitAPIException {
         File configFile = fileLocation();
 
         ReloadStrategy.ReloadTestResult result = reloadStrategy.requiresReload(configFile);
@@ -273,7 +275,7 @@ public class GoFileConfigDataSource {
     }
 
     @TestOnly
-    public synchronized GoConfigHolder write(String configFileContent, boolean shouldMigrate) throws Exception {
+    public synchronized GoConfigHolder write(String configFileContent, boolean shouldMigrate) throws IOException, JDOMException, GitAPIException {
         File configFile = fileLocation();
         try {
             if (shouldMigrate) {
@@ -281,7 +283,9 @@ public class GoFileConfigDataSource {
             }
             GoConfigHolder configHolder = internalLoad(configFileContent, new ConfigModifyingUser(), new ArrayList<>());
             String toWrite = configAsXml(configHolder.configForEdit, false);
-            LOGGER.trace("Writing config file: {}", configFile.getAbsolutePath());
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Writing config file: {}", configFile.getAbsolutePath());
+            }
             writeToConfigXmlFile(toWrite);
             return configHolder;
         } catch (Exception e) {
@@ -308,8 +312,8 @@ public class GoFileConfigDataSource {
             StringBuilder errorMessageBuilder = new StringBuilder();
             try {
                 String message = String.format(
-                        "Merged update operation failed on VALID %s partials. Falling back to using LAST KNOWN %s partials. Exception message was: [%s %s]",
-                        lastValidPartials.size(), lastKnownPartials.size(), e.getMessage(), e.getAllErrorMessages());
+                    "Merged update operation failed on VALID %s partials. Falling back to using LAST KNOWN %s partials. Exception message was: [%s %s]",
+                    lastValidPartials.size(), lastKnownPartials.size(), e.getMessage(), e.getAllErrorMessages());
                 errorMessageBuilder.append(message);
                 LOGGER.warn(message, e);
                 updatingCommand.clearErrors();
@@ -317,12 +321,12 @@ public class GoFileConfigDataSource {
                 String configAsXml = configAsXml(modifiedConfig, false);
                 GoConfigHolder holder = internalLoad(configAsXml, new ConfigModifyingUser(currentUser.getUsername().toString()), lastKnownPartials);
                 LOGGER.info("Update operation on merged configuration succeeded with {} KNOWN partials. Now there are {} LAST KNOWN partials",
-                        lastKnownPartials.size(), cachedGoPartials.lastKnownPartials().size());
+                    lastKnownPartials.size(), cachedGoPartials.lastKnownPartials().size());
                 return new EntityConfigSaveResult<>(holder.config, holder);
             } catch (Exception exceptionDuringFallbackValidation) {
                 String message = String.format(
-                        "Merged config update operation failed using fallback LAST KNOWN %s partials. Exception message was: %s",
-                        lastKnownPartials.size(), exceptionDuringFallbackValidation.getMessage());
+                    "Merged config update operation failed using fallback LAST KNOWN %s partials. Exception message was: %s",
+                    lastKnownPartials.size(), exceptionDuringFallbackValidation.getMessage());
                 LOGGER.warn(message, exceptionDuringFallbackValidation);
                 errorMessageBuilder.append(System.lineSeparator());
                 errorMessageBuilder.append(message);
@@ -365,7 +369,7 @@ public class GoFileConfigDataSource {
             throw e;
         } catch (GoConfigInvalidException e) {
             LOGGER.warn("Configuration file is invalid: {}", e.getMessage(), e);
-            throw bomb(e.getMessage(), e);
+            throw e;
         } catch (Exception e) {
             LOGGER.error("Configuration file is not valid: {}", e.getMessage(), e);
             throw bomb(e.getMessage(), e);
@@ -380,8 +384,9 @@ public class GoFileConfigDataSource {
             try {
                 validatedConfigHolder = trySavingConfigWithLastKnownPartials(updatingCommand, configHolder);
             } catch (Exception e) {
-                if (cannotUpdateConfigWithLastValidPartials())
+                if (cannotUpdateConfigWithLastValidPartials()) {
                     throw e;
+                }
 
                 LOGGER.warn("Merged config update operation failed on LATEST {} partials. Falling back to using LAST VALID {} partials. Exception message was: {}", cachedGoPartials.lastKnownPartials().size(), cachedGoPartials.lastValidPartials().size(), e.getMessage(), e);
 
@@ -403,7 +408,7 @@ public class GoFileConfigDataSource {
         }
     }
 
-    public String configAsXml(CruiseConfig config, boolean skipPreprocessingAndValidation) throws Exception {
+    public String configAsXml(CruiseConfig config, boolean skipPreprocessingAndValidation) throws IOException, JDOMException {
         LOGGER.debug("[Config Save] === Converting config to XML");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         magicalGoConfigXmlWriter.write(config, outputStream, skipPreprocessingAndValidation);
@@ -416,19 +421,22 @@ public class GoFileConfigDataSource {
         return fileLocation().getAbsolutePath();
     }
 
-    synchronized GoConfigHolder forceLoad() throws Exception {
+    private synchronized GoConfigHolder forceLoad() throws IOException, JDOMException, GitAPIException {
         Path configFile = goConfigFileReader.location();
 
         CruiseConfig cruiseConfig = this.magicalGoConfigXmlLoader.deserializeConfig(goConfigFileReader.configXml());
-        LOGGER.debug("Reloading config file: {}", configFile.toAbsolutePath());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Reloading config file: {}", configFile.toAbsolutePath());
+        }
 
         GoConfigHolder goConfigHolder;
         try {
             try {
                 goConfigHolder = fullConfigSaveNormalFlow.execute(new FullConfigUpdateCommand(cruiseConfig, null), cachedGoPartials.lastKnownPartials(), FILESYSTEM);
             } catch (GoConfigInvalidException e) {
-                if (cannotUpdateConfigWithLastValidPartials())
+                if (cannotUpdateConfigWithLastValidPartials()) {
                     throw e;
+                }
 
                 goConfigHolder = fullConfigSaveNormalFlow.execute(new FullConfigUpdateCommand(cruiseConfig, null), cachedGoPartials.lastValidPartials(), FILESYSTEM);
             }
@@ -441,29 +449,29 @@ public class GoFileConfigDataSource {
     }
 
     @TestOnly
-    synchronized GoConfigHolder forceLoad(Path configFile) throws Exception {
-        LOGGER.debug("Reloading config file: {}", configFile.toAbsolutePath());
-        GoConfigHolder holder;
+    synchronized GoConfigHolder forceLoad(Path configFile) throws IOException, JDOMException, GitAPIException {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Reloading config file: {}", configFile.toAbsolutePath());
+        }
         try {
             try {
                 List<PartialConfig> lastKnownPartials = cloner.deepClone(cachedGoPartials.lastKnownPartials());
-                holder = internalLoad(Files.readString(configFile, UTF_8), new ConfigModifyingUser(FILESYSTEM), lastKnownPartials);
+                return internalLoad(Files.readString(configFile, UTF_8), new ConfigModifyingUser(FILESYSTEM), lastKnownPartials);
             } catch (GoConfigInvalidException e) {
                 if (cannotUpdateConfigWithLastValidPartials()) {
                     throw e;
                 } else {
                     List<PartialConfig> lastValidPartials = cloner.deepClone(cachedGoPartials.lastValidPartials());
-                    holder = internalLoad(Files.readString(configFile, UTF_8), new ConfigModifyingUser(FILESYSTEM), lastValidPartials);
+                    return internalLoad(Files.readString(configFile, UTF_8), new ConfigModifyingUser(FILESYSTEM), lastValidPartials);
                 }
             }
-            return holder;
         } catch (Exception e) {
             logConfigLoadException(configFile, e);
             throw e;
         }
     }
 
-    private static void logConfigLoadException(Path configFile, Exception e) throws Exception {
+    private static void logConfigLoadException(Path configFile, Exception e) throws IOException {
         LOGGER.error("Unable to load config file: {} {}", configFile.toAbsolutePath(), e.getMessage(), e);
         if (LOGGER.isDebugEnabled() && Files.exists(configFile)) {
             LOGGER.debug("--- {} ---", configFile.toAbsolutePath());
@@ -507,18 +515,20 @@ public class GoFileConfigDataSource {
         }
     }
 
-    private GoConfigHolder trySavingConfigWithLastKnownPartials(FullConfigUpdateCommand updateCommand, GoConfigHolder configHolder) throws Exception {
+    private GoConfigHolder trySavingConfigWithLastKnownPartials(FullConfigUpdateCommand updateCommand, GoConfigHolder configHolder) throws IOException, GitAPIException, JDOMException {
         LOGGER.debug("[Config Save] Trying to save config with Last Known Partials");
         return trySavingFullConfig(updateCommand, configHolder, cachedGoPartials.lastKnownPartials());
     }
 
-    private GoConfigHolder trySavingConfigWithLastValidPartials(FullConfigUpdateCommand updateCommand, GoConfigHolder configHolder) throws Exception {
+    private GoConfigHolder trySavingConfigWithLastValidPartials(FullConfigUpdateCommand updateCommand, GoConfigHolder configHolder) throws IOException, GitAPIException, JDOMException {
         List<PartialConfig> lastValidPartials = cachedGoPartials.lastValidPartials();
         GoConfigHolder goConfigHolder;
 
         try {
             goConfigHolder = trySavingFullConfig(updateCommand, configHolder, cachedGoPartials.lastValidPartials());
-            LOGGER.debug("Update operation on merged configuration succeeded with old {} LAST VALID partials.", lastValidPartials.size());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Update operation on merged configuration succeeded with old {} LAST VALID partials.", lastValidPartials.size());
+            }
         } catch (GoConfigInvalidException fallbackFailed) {
             LOGGER.warn("Merged config update operation failed using fallback LAST VALID {} partials. Exception message was: {}", lastValidPartials.size(), fallbackFailed.getMessage(), fallbackFailed);
             throw new GoConfigInvalidMergeException(fallbackFailed);
@@ -534,13 +544,15 @@ public class GoFileConfigDataSource {
     }
 
     private void updateMergedConfigForEdit(GoConfigHolder validatedConfigHolder, List<PartialConfig> partialConfigs) {
-        if (partialConfigs.isEmpty()) return;
+        if (partialConfigs.isEmpty()) {
+            return;
+        }
         CruiseConfig mergedCruiseConfigForEdit = cloner.deepClone(validatedConfigHolder.configForEdit);
         mergedCruiseConfigForEdit.merge(partialConfigs, true);
         validatedConfigHolder.mergedConfigForEdit = mergedCruiseConfigForEdit;
     }
 
-    private GoConfigHolder trySavingFullConfig(FullConfigUpdateCommand updatingCommand, GoConfigHolder configHolder, List<PartialConfig> partials) throws Exception {
+    private GoConfigHolder trySavingFullConfig(FullConfigUpdateCommand updatingCommand, GoConfigHolder configHolder, List<PartialConfig> partials) throws IOException, GitAPIException, JDOMException {
         String userName = getConfigUpdatingUser(updatingCommand).getUserName();
         GoConfigHolder goConfigHolder;
 
@@ -560,7 +572,7 @@ public class GoFileConfigDataSource {
         return goConfigHolder;
     }
 
-    private GoConfigHolder trySavingConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder, List<PartialConfig> partials) throws Exception {
+    private GoConfigHolder trySavingConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder, List<PartialConfig> partials) throws IOException, GitAPIException, JDOMException {
         String configAsXml;
         GoConfigHolder validatedConfigHolder;
         LOGGER.debug("[Config Save] ==-- Getting modified config");
@@ -588,13 +600,14 @@ public class GoFileConfigDataSource {
         return updatingCommand instanceof UserAware ? ((UserAware) updatingCommand).user() : new ConfigModifyingUser();
     }
 
-    private String getUnmergedConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder, List<PartialConfig> partials) throws Exception {
+    private String getUnmergedConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder, List<PartialConfig> partials) throws IOException, JDOMException {
         CruiseConfig deepCloneForEdit = cloner.deepClone(configHolder.configForEdit);
         deepCloneForEdit.setPartials(partials);
         CruiseConfig config = updatingCommand.update(deepCloneForEdit);
         String configAsXml = configAsXml(config, false);
-        if (deepCloneForEdit.getPartials().size() < partials.size())
+        if (deepCloneForEdit.getPartials().size() < partials.size()) {
             throw new RuntimeException("should never be called");
+        }
         return configAsXml;
     }
 
@@ -606,7 +619,7 @@ public class GoFileConfigDataSource {
         return false;
     }
 
-    private String getMergedConfig(NoOverwriteUpdateConfigCommand noOverwriteCommand, String latestMd5, List<PartialConfig> partials) throws Exception {
+    private String getMergedConfig(NoOverwriteUpdateConfigCommand noOverwriteCommand, String latestMd5, List<PartialConfig> partials) throws JDOMException, GitAPIException, IOException {
         LOGGER.debug("[Config Save] Getting merged config");
         String oldMd5 = noOverwriteCommand.unmodifiedMd5();
         CruiseConfig modifiedConfig = getOldConfigAndMutateWithChanges(noOverwriteCommand, oldMd5);
@@ -614,7 +627,7 @@ public class GoFileConfigDataSource {
         String modifiedConfigAsXml = convertMutatedConfigToXml(modifiedConfig, latestMd5);
 
         GoConfigRevision configRevision = new GoConfigRevision(modifiedConfigAsXml, "temporary-md5-for-branch", getConfigUpdatingUser(noOverwriteCommand).getUserName(),
-                CurrentGoCDVersion.getInstance().formatted(), timeProvider);
+            CurrentGoCDVersion.getInstance().formatted(), timeProvider);
 
         String mergedConfigXml = configRepository.getConfigMergedWithLatestRevision(configRevision, oldMd5);
         LOGGER.debug("[Config Save] -=- Done converting merged config to XML");
@@ -630,7 +643,7 @@ public class GoFileConfigDataSource {
         }
     }
 
-    private CruiseConfig getOldConfigAndMutateWithChanges(NoOverwriteUpdateConfigCommand noOverwriteCommand, String oldMd5) throws Exception {
+    private CruiseConfig getOldConfigAndMutateWithChanges(NoOverwriteUpdateConfigCommand noOverwriteCommand, String oldMd5) throws GitAPIException, JDOMException {
         LOGGER.debug("[Config Save] --- Mutating old config");
         String configXmlAtOldMd5 = configRepository.getRevision(oldMd5).getContent();
         CruiseConfig cruiseConfigAtOldMd5 = magicalGoConfigXmlLoader.fromXmlPartial(configXmlAtOldMd5, BasicCruiseConfig.class);
@@ -639,14 +652,14 @@ public class GoFileConfigDataSource {
         return config;
     }
 
-    private GoConfigHolder internalLoad(final String content, final ConfigModifyingUser configModifyingUser, final List<PartialConfig> partials) throws Exception {
+    private GoConfigHolder internalLoad(final String content, final ConfigModifyingUser configModifyingUser, final List<PartialConfig> partials) throws IOException, JDOMException, GitAPIException {
         GoConfigHolder configHolder = magicalGoConfigXmlLoader.loadConfigHolder(content, cruiseConfig -> cruiseConfig.setPartials(partials));
         CruiseConfig config = configHolder.config;
         checkinConfigToGitRepo(partials, config, content, configHolder.configForEdit.getMd5(), configModifyingUser.getUserName());
         return configHolder;
     }
 
-    private void checkinConfigToGitRepo(List<PartialConfig> partials, CruiseConfig config, String configAsXml, String md5, String currentUser) throws Exception {
+    private void checkinConfigToGitRepo(List<PartialConfig> partials, CruiseConfig config, String configAsXml, String md5, String currentUser) throws GitAPIException, IOException {
         reloadStrategy.latestState(config);
         LOGGER.debug("[Config Save] === Checking in the valid XML to config.git");
         configRepository.checkin(new GoConfigRevision(configAsXml, md5, currentUser, CurrentGoCDVersion.getInstance().formatted(), timeProvider));

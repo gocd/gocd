@@ -42,7 +42,9 @@ class FilterValidator {
     static final String MSG_INVALID_STATES = "An invalid filter state has been provided. Only " + String.join(", ", VALID_STATES) + " are supported";
 
     static void validateDefaultIsPresent(Map<String, DashboardFilter> current) {
-        if (current.isEmpty()) throw new FilterValidationException(MSG_NO_DEFAULT_FILTER);
+        if (current.isEmpty()) {
+            throw new FilterValidationException(MSG_NO_DEFAULT_FILTER);
+        }
     }
 
     static void validateFilter(Map<String, DashboardFilter> current, DashboardFilter filter) {
@@ -54,28 +56,36 @@ class FilterValidator {
     }
 
     private static void validateState(Set<String> state) {
-        if (state == null)
+        if (state == null) {
             throw new FilterValidationException("Filter state should never be NULL");
-        if (!state.isEmpty() && !VALID_STATES.containsAll(state))
+        }
+        if (!state.isEmpty() && !VALID_STATES.containsAll(state)) {
             throw new FilterValidationException(MSG_INVALID_STATES);
+        }
     }
 
     static void validateNameFormat(String name) {
-        if (LEAD_TRAIL_WHITESPACE.matcher(name).matches())
+        if (LEAD_TRAIL_WHITESPACE.matcher(name).matches()) {
             throw new FilterValidationException(MSG_NO_LEADING_TRAILING_SPACES);
-        if (!NAME_FORMAT.matcher(name).matches())
+        }
+        if (!NAME_FORMAT.matcher(name).matches()) {
             throw new FilterValidationException(MSG_NAME_FORMAT);
-        if (MAX_NAME_LENGTH < name.length())
+        }
+        if (MAX_NAME_LENGTH < name.length()) {
             throw new FilterValidationException(MSG_MAX_LENGTH);
+        }
     }
 
     static void validateNameIsUnique(Map<String, DashboardFilter> current, String name) {
-        if (current.containsKey(name.toLowerCase()))
+        if (current.containsKey(name.toLowerCase())) {
             throw new FilterValidationException("Duplicate filter name: " + name);
+        }
     }
 
     static void validateNamePresent(String name) {
-        if (StringUtils.isBlank(name)) throw new FilterValidationException(MSG_MISSING_NAME);
+        if (StringUtils.isBlank(name)) {
+            throw new FilterValidationException(MSG_MISSING_NAME);
+        }
     }
 
 }

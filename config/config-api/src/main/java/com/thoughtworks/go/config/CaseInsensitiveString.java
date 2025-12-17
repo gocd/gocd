@@ -52,8 +52,12 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         CaseInsensitiveString that = (CaseInsensitiveString) o;
         return Objects.equals(lowerCaseName, that.lowerCaseName);
     }

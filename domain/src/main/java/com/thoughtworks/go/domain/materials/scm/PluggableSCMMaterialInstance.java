@@ -21,6 +21,8 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.util.json.JsonHelper;
 
+import java.util.Objects;
+
 public class PluggableSCMMaterialInstance extends MaterialInstance {
 
     protected PluggableSCMMaterialInstance() {
@@ -45,18 +47,9 @@ public class PluggableSCMMaterialInstance extends MaterialInstance {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof PluggableSCMMaterialInstance that)) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-
-        if (configuration != null ? !configuration.equals(that.configuration) : that.configuration != null) {
-            return false;
-        }
-
-        return true;
+        return o instanceof PluggableSCMMaterialInstance that &&
+            super.equals(o) &&
+            Objects.equals(configuration, that.configuration);
     }
 
     @Override
@@ -67,10 +60,7 @@ public class PluggableSCMMaterialInstance extends MaterialInstance {
     }
 
     public boolean shouldUpgradeTo(PluggableSCMMaterialInstance materialInstance) {
-        if (configuration == null && materialInstance.configuration == null) {
-            return false;
-        }
-        return configuration == null || !configuration.equals(materialInstance.configuration);
+        return (configuration != null || materialInstance.configuration != null) && !Objects.equals(configuration, materialInstance.configuration);
     }
 
     public void upgradeTo(PluggableSCMMaterialInstance newMaterialInstance) {

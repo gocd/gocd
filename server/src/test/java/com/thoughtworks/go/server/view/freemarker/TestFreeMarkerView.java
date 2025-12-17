@@ -55,6 +55,8 @@ class TestFreeMarkerView extends GoCDFreeMarkerView {
             modelData.put(REQUEST_CONTEXT_ATTRIBUTE, request);
             renderMergedOutputModel(modelData, request, response);
             return response.getContentAsString();
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

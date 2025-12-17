@@ -105,7 +105,9 @@ public class Tasks extends BaseCollection<Task> implements Validatable {
         if (attributes == null) {
             return;
         }
-        if (taskFactory == null) throw new IllegalArgumentException("ConfigContext cannot be null");
+        if (taskFactory == null) {
+            throw new IllegalArgumentException("ConfigContext cannot be null");
+        }
         Map<String, String> attributeMap = (Map<String, String>) attributes;
         String taskType = attributeMap.get(TASK_OPTIONS);
         Task task = taskFactory.taskInstanceFor(taskType);

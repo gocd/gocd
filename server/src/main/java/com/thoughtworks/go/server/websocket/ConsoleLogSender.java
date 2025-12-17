@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.websocket;
 
 import com.thoughtworks.go.domain.ConsoleConsumer;
 import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.util.Retryable;
@@ -41,12 +42,11 @@ public class ConsoleLogSender {
     private static final int LOG_DOES_NOT_EXIST = 4004;
     private static final int LOG_FILE_DOES_NOT_EXIST = 4410;
     private static final int BUF_SIZE = 1024 * 1024; // 1MB
-    private static final int FILL_INTERVAL = 500;
+    private static final int FILL_INTERVAL_MILLIS = 500;
+
     private final Charset charset;
-
-    private ConsoleService consoleService;
-
-    private JobInstanceDao jobInstanceDao;
+    private final ConsoleService consoleService;
+    private final JobInstanceDao jobInstanceDao;
 
     @Autowired
     ConsoleLogSender(ConsoleService consoleService, JobInstanceDao jobInstanceDao, SystemEnvironment systemEnvironment) {
@@ -55,8 +55,10 @@ public class ConsoleLogSender {
         this.charset = systemEnvironment.consoleLogCharset();
     }
 
-    public void process(final SocketEndpoint webSocket, JobIdentifier jobIdentifier, long start) throws Exception {
-        if (start < 0L) start = 0L;
+    public void process(final SocketEndpoint webSocket, JobIdentifier jobIdentifier, long start) throws IllegalArtifactLocationException, IOException {
+        if (start < 0L) {
+            start = 0L;
+        }
 
         // check if we're tailing a running build, or viewing a prior build's logs
         boolean detectCompleted = detectCompleted(jobIdentifier);
@@ -82,24 +84,37 @@ public class ConsoleLogSender {
 
                 // allow buffers to fill to avoid sending 1 line at a time for running builds
                 if (isRunningBuild) {
-                    Thread.sleep(FILL_INTERVAL);
+                    try {
+                        //noinspection BusyWait
+                        Thread.sleep(FILL_INTERVAL_MILLIS);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
-            } while (webSocket.isOpen() && !detectCompleted(jobIdentifier));
+            } while (webSocket.isOpen() && !detectCompleted(jobIdentifier) && !Thread.currentThread().isInterrupted());
 
-            LOGGER.debug("Sent {} log lines for {} from {}", streamer.totalLinesConsumed(), jobIdentifier, consoleService.consoleLogFile(jobIdentifier).toPath());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Sent {} log lines for {} from {}", streamer.totalLinesConsumed(), jobIdentifier, consoleService.consoleLogFile(jobIdentifier).toPath());
+            }
             // empty the tail end of the file because the build could have been marked completed, and exited the
             // loop before we've seen the last content update
-            if (isRunningBuild) sendLogs(webSocket, streamer, jobIdentifier);
+            if (isRunningBuild) {
+                sendLogs(webSocket, streamer, jobIdentifier);
+            }
 
             //send the remaining logs if any
             if (detectCompleted(jobIdentifier)) {
                 try (ConsoleConsumer consoleFileStreamer = consoleService.getStreamer(start, jobIdentifier)) {
                     start += sendLogs(webSocket, consoleFileStreamer, jobIdentifier);
-                    LOGGER.debug("Sent {} log lines for {} from {}", streamer.totalLinesConsumed(), jobIdentifier, consoleService.consoleLogFile(jobIdentifier).toPath());
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Sent {} log lines for {} from {}", streamer.totalLinesConsumed(), jobIdentifier, consoleService.consoleLogFile(jobIdentifier).toPath());
+                    }
                 }
             }
 
-            LOGGER.debug("Sent {} log lines for {} from all sources", start, jobIdentifier);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Sent {} log lines for {} from all sources", start, jobIdentifier);
+            }
         } finally {
             webSocket.close();
         }
@@ -137,7 +152,9 @@ public class ConsoleLogSender {
     }
 
     private void flushBuffer(ByteArrayOutputStream buffer, SocketEndpoint webSocket) throws IOException {
-        if (buffer.size() == 0) return;
+        if (buffer.size() == 0) {
+            return;
+        }
         webSocket.send(ByteBuffer.wrap(maybeGzipIfLargeEnough(buffer.toByteArray())));
         buffer.reset();
     }

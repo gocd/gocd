@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.util;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
@@ -24,12 +26,13 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 
-import static java.lang.Double.parseDouble;
 import static java.util.concurrent.TimeUnit.*;
 
 public class SystemEnvironment implements Serializable, ConfigDirProvider {
@@ -117,8 +120,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final GoSystemProperty<String> AVAILABLE_FEATURE_TOGGLES_FILE_PATH = new GoStringSystemProperty("available.toggles.path", "/available.toggles");
     public static final GoSystemProperty<String> USER_FEATURE_TOGGLES_FILE_PATH_RELATIVE_TO_CONFIG_DIR = new GoStringSystemProperty("user.toggles.path", "go.feature.toggles");
 
-    public static final GoSystemProperty<String> DEFAULT_PLUGINS_ZIP = new CachedProperty<>(
-            new GoStringSystemProperty("default.plugins.zip.location", "/defaultFiles/plugins.zip"));
+    public static final GoSystemProperty<String> DEFAULT_PLUGINS_ZIP = new CachedProperty<>(new GoStringSystemProperty("default.plugins.zip.location", "/defaultFiles/plugins.zip"));
     public static final GoSystemProperty<String> AGENT_PLUGINS_PATH = new CachedProperty<>(new GoStringSystemProperty("agent.plugins.path", PLUGINS_PATH));
     public static final GoSystemProperty<Long> GO_SERVER_CONNECTION_IDLE_TIMEOUT_IN_MILLIS = new GoLongSystemProperty("idle.timeout", SECONDS.toMillis(30));
     public static final GoSystemProperty<Integer> RESPONSE_BUFFER_SIZE = new GoIntSystemProperty("response.buffer.size", 32 * 1024);
@@ -190,7 +192,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final GoSystemProperty<Boolean> HSTS_HEADER_INCLUDE_SUBDOMAINS = new GoBooleanSystemProperty("gocd.hsts.header.include.subdomains", false);
     public static final GoSystemProperty<Boolean> HSTS_HEADER_PRELOAD = new GoBooleanSystemProperty("gocd.hsts.header.preload", false);
     public static final GoSystemProperty<Long> EPHEMERAL_AUTO_REGISTER_KEY_EXPIRY_IN_MILLIS = new GoLongSystemProperty("gocd.ephemeral.auto.register.key.expiry.millis", MINUTES.toMillis(30));
-    public static final GoSystemProperty<Double> MDU_EXPONENTIAL_BACKOFF_MULTIPLIER = new GoDoubleSystemProperty("gocd.mdu.exponential.backoff.multiplier", 1.5);
+    public static final GoSystemProperty<Float> MDU_EXPONENTIAL_BACKOFF_MULTIPLIER = new GoFloatSystemProperty("gocd.mdu.exponential.backoff.multiplier", 1.5f);
 
     public static final GoSystemProperty<Boolean> START_IN_MAINTENANCE_MODE = new GoBooleanSystemProperty("gocd.server.start.in.maintenance.mode", false);
 
@@ -219,23 +221,27 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         this.properties = properties;
     }
 
-    public <T> T get(GoSystemProperty<T> systemProperty) {
+    public <T> @NotNull T get(@NotNull GoSystemProperty<T> systemProperty) {
         return systemProperty.getValue();
     }
 
 
-    public <T> void set(GoSystemProperty<T> systemProperty, T value) {
-        System.setProperty(systemProperty.propertyName, "" + value);
-        if (systemProperty instanceof CachedProperty) {
-            ((CachedProperty<?>) systemProperty).clear();
-        }
+    @TestOnly
+    public <T> void set(GoSystemProperty<T> systemProperty, @NotNull T value) {
+        System.setProperty(systemProperty.propertyName, String.valueOf(value));
+        systemProperty.clearIfNecessary();
     }
 
+    @TestOnly
     public void set(GoSystemProperty<Boolean> systemProperty, boolean value) {
         System.setProperty(systemProperty.propertyName, value ? "Y" : "N");
-        if (systemProperty instanceof CachedProperty) {
-            ((CachedProperty<?>) systemProperty).clear();
-        }
+        systemProperty.clearIfNecessary();
+    }
+
+    @TestOnly
+    public <T> void reset(GoSystemProperty<T> systemProperty) {
+        System.clearProperty(systemProperty.propertyName());
+        systemProperty.clearIfNecessary();
     }
 
     @Override
@@ -497,8 +503,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return getPropertyImpl(CRUISE_SERVER_WAR_PROPERTY, "cruise.war");
     }
 
-    public long getUnresponsiveJobWarningThreshold() {
-        return Long.parseLong(getPropertyImpl(UNRESPONSIVE_JOB_WARNING_THRESHOLD, "5")) * 60 * 1000; // mins to millis
+    public Duration getUnresponsiveJobWarningThreshold() {
+        return Duration.ofMinutes(Long.parseLong(getPropertyImpl(UNRESPONSIVE_JOB_WARNING_THRESHOLD, "5")));
     }
 
     public boolean getParentLoaderPriority() {
@@ -539,13 +545,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static Integer getGoServerAuthorizationExtensionCallsCacheTimeoutInSeconds() {
         return GO_SERVER_AUTHORIZATION_EXTENSION_CALLS_CACHE_TIMEOUT_IN_SECONDS.getValue();
-    }
-
-    public <T> void reset(GoSystemProperty<T> systemProperty) {
-        System.clearProperty(systemProperty.propertyName());
-        if (systemProperty instanceof CachedProperty) {
-            ((CachedProperty<?>) systemProperty).clear();
-        }
     }
 
     public long getMaterialUpdateIdleInterval() {
@@ -661,7 +660,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return EPHEMERAL_AUTO_REGISTER_KEY_EXPIRY_IN_MILLIS.getValue();
     }
 
-    public double getMDUExponentialBackOffMultiplier() {
+    public float getMDUExponentialBackOffMultiplier() {
         return MDU_EXPONENTIAL_BACKOFF_MULTIPLIER.getValue();
     }
 
@@ -678,24 +677,25 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
     public static abstract class GoSystemProperty<T> {
-        private final String propertyName;
-        protected T defaultValue;
+        private final @NotNull String propertyName;
+        private final @NotNull T defaultValue;
 
-        protected GoSystemProperty(String propertyName, T defaultValue) {
+        GoSystemProperty(@NotNull String propertyName, @NotNull T defaultValue) {
             this.propertyName = propertyName;
             this.defaultValue = defaultValue;
         }
 
-        T getValue() {
-            String propertyValue = System.getProperty(propertyName);
-            return convertValue(propertyValue, defaultValue);
+        @NotNull T getValue() {
+            return convertValue(System.getProperty(propertyName), defaultValue);
         }
 
-        protected abstract T convertValue(String propertyValueFromSystem, T defaultValue);
+        abstract @NotNull T convertValue(@Nullable String propertyValueFromSystem, @NotNull T defaultValue);
 
-        public String propertyName() {
+        public @NotNull String propertyName() {
             return propertyName;
         }
+
+        void clearIfNecessary() {}
     }
 
     private static class GoIntSystemProperty extends GoSystemProperty<Integer> {
@@ -704,39 +704,39 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         }
 
         @Override
-        protected Integer convertValue(String propertyValueFromSystem, Integer defaultValue) {
+        protected @NotNull Integer convertValue(@Nullable String propertyValueFromSystem, @NotNull Integer defaultValue) {
             try {
-                return Integer.parseInt(propertyValueFromSystem);
-            } catch (NumberFormatException e) {
+                return propertyValueFromSystem == null ? defaultValue : Integer.parseInt(propertyValueFromSystem);
+            } catch (Exception e) {
                 return defaultValue;
             }
         }
     }
 
     private static class GoLongSystemProperty extends GoSystemProperty<Long> {
-        public GoLongSystemProperty(String propertyName, Long defaultValue) {
+        public GoLongSystemProperty(@NotNull String propertyName, @NotNull Long defaultValue) {
             super(propertyName, defaultValue);
         }
 
         @Override
-        protected Long convertValue(String propertyValueFromSystem, Long defaultValue) {
+        protected @NotNull Long convertValue(@Nullable String propertyValueFromSystem, @NotNull Long defaultValue) {
             try {
-                return Long.parseLong(propertyValueFromSystem);
-            } catch (NumberFormatException e) {
+                return propertyValueFromSystem == null ? defaultValue : Long.parseLong(propertyValueFromSystem);
+            } catch (Exception e) {
                 return defaultValue;
             }
         }
     }
 
-    private static class GoDoubleSystemProperty extends GoSystemProperty<Double> {
-        public GoDoubleSystemProperty(String propertyName, Double defaultValue) {
+    private static class GoFloatSystemProperty extends GoSystemProperty<Float> {
+        public GoFloatSystemProperty(@NotNull String propertyName, @NotNull Float defaultValue) {
             super(propertyName, defaultValue);
         }
 
         @Override
-        protected Double convertValue(String propertyValueFromSystem, Double defaultValue) {
+        protected @NotNull Float convertValue(@Nullable String propertyValueFromSystem, @NotNull Float defaultValue) {
             try {
-                return parseDouble(propertyValueFromSystem);
+                return propertyValueFromSystem == null ? defaultValue : Float.parseFloat(propertyValueFromSystem);
             } catch (Exception e) {
                 return defaultValue;
             }
@@ -744,60 +744,49 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
     private static class GoStringSystemProperty extends GoSystemProperty<String> {
-        public GoStringSystemProperty(String propertyName, String defaultValue) {
+        public GoStringSystemProperty(@NotNull String propertyName, @NotNull String defaultValue) {
             super(propertyName, defaultValue);
         }
 
         @Override
-        protected String convertValue(String propertyValueFromSystem, String defaultValue) {
+        @NotNull String convertValue(@Nullable String propertyValueFromSystem, @NotNull String defaultValue) {
             return propertyValueFromSystem == null ? defaultValue : propertyValueFromSystem;
         }
     }
 
-    protected static class GoStringArraySystemProperty extends GoSystemProperty<String[]> {
-        public GoStringArraySystemProperty(String propertyName, String[] defaultValue) {
-            super(propertyName, defaultValue);
-        }
-
-        @Override
-        protected String[] convertValue(String propertyValueFromSystem, String[] defaultValue) {
-            return propertyValueFromSystem == null || propertyValueFromSystem.isBlank() ? defaultValue : propertyValueFromSystem.trim().split("(\\s*)?,(\\s*)?");
-        }
-    }
-
     private static class CachedProperty<T> extends GoSystemProperty<T> {
-        private final GoSystemProperty<T> wrappedProperty;
-        private T cachedValue;
+        @NotNull private final GoSystemProperty<T> wrappedProperty;
+        private final AtomicReference<T> cachedValue = new AtomicReference<>();
 
-        public CachedProperty(GoSystemProperty<T> goSystemProperty) {
+        public CachedProperty(@NotNull GoSystemProperty<T> goSystemProperty) {
             super(goSystemProperty.propertyName, goSystemProperty.defaultValue);
             wrappedProperty = goSystemProperty;
         }
 
         @Override
-        protected T convertValue(String propertyValueFromSystem, T defaultValue) {
-            if (cachedValue == null) {
-                cachedValue = wrappedProperty.convertValue(propertyValueFromSystem, defaultValue);
+        @NotNull T convertValue(@Nullable String propertyValueFromSystem, @NotNull T defaultValue) {
+            T value = cachedValue.get();
+            if (value == null) {
+                value = wrappedProperty.convertValue(propertyValueFromSystem, defaultValue);
+                cachedValue.set(value);
             }
-            return cachedValue;
+            return value;
         }
 
-        public void clear() {
-            cachedValue = null;
+        @Override
+        public void clearIfNecessary() {
+            cachedValue.set(null);
         }
     }
 
     private static class GoBooleanSystemProperty extends GoSystemProperty<Boolean> {
-        public GoBooleanSystemProperty(String propertyName, Boolean defaultValue) {
+        public GoBooleanSystemProperty(@NotNull String propertyName, @NotNull Boolean defaultValue) {
             super(propertyName, defaultValue);
         }
 
         @Override
-        protected Boolean convertValue(String propertyValueFromSystem, Boolean defaultValue) {
-            if (propertyValueFromSystem == null) {
-                return defaultValue;
-            }
-            return "Y".equalsIgnoreCase(propertyValueFromSystem) || "true".equalsIgnoreCase(propertyValueFromSystem);
+        @NotNull Boolean convertValue(@Nullable String propertyValueFromSystem, @NotNull Boolean defaultValue) {
+            return propertyValueFromSystem == null ? defaultValue : "Y".equalsIgnoreCase(propertyValueFromSystem) || "true".equalsIgnoreCase(propertyValueFromSystem);
         }
     }
 }

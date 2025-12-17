@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.service.result;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.apache.http.HttpStatus;
 
+import java.util.Objects;
+
 /**
  * Understands localized operation result for http
  */
@@ -119,17 +121,18 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         HttpLocalizedOperationResult that = (HttpLocalizedOperationResult) o;
 
-        if (httpCode != that.httpCode) return false;
-        if (healthStateType != null ? !healthStateType.equals(that.healthStateType) : that.healthStateType != null)
-            return false;
-        if (message != null ? !message.equals(that.message) : that.message != null) return false;
-
-        return true;
+        return httpCode == that.httpCode &&
+            Objects.equals(healthStateType, that.healthStateType) &&
+            Objects.equals(message, that.message);
     }
 
     @Override

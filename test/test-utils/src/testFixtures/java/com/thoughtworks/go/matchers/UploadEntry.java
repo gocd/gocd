@@ -16,6 +16,7 @@
 package com.thoughtworks.go.matchers;
 
 import java.io.File;
+import java.util.Objects;
 
 public class UploadEntry {
     public final File file;
@@ -37,14 +38,8 @@ public class UploadEntry {
 
         UploadEntry that = (UploadEntry) o;
 
-        if (destiname != null ? !destiname.equals(that.destiname) : that.destiname != null) {
-            return false;
-        }
-        if (file != null ? !file.equals(that.file) : that.file != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(destiname, that.destiname) &&
+            Objects.equals(file, that.file);
     }
 
     @Override

@@ -15,25 +15,22 @@
  */
 package com.thoughtworks.go.domain;
 
+import org.jetbrains.annotations.TestOnly;
+
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 
-public class JobStateTransitions extends BaseLinkedSet<JobStateTransition> {
-
-
-    public JobStateTransitions(JobStateTransition... list) {
-        for (JobStateTransition jobStateTransition : list) {
-            this.add(jobStateTransition);
-        }
-    }
+public class JobStateTransitions extends LinkedHashSet<JobStateTransition> {
 
     public JobStateTransitions() {
-
+        super();
     }
 
-    public JobStateTransitions(List<JobStateTransition> list) {
-        super(list);
+    @TestOnly
+    JobStateTransitions(JobStateTransition... list) {
+        super(Arrays.asList(list));
     }
 
     public JobStateTransition byState(JobState state) {
@@ -47,8 +44,12 @@ public class JobStateTransitions extends BaseLinkedSet<JobStateTransition> {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null) return false;
-        if (o.getClass()!=this.getClass()) return false;
+        if (o == null) {
+            return false;
+        }
+        if (o.getClass()!=this.getClass()) {
+            return false;
+        }
         JobStateTransitions that = (JobStateTransitions) o;
         return new HashSet<>(this).equals(new HashSet<>(that));
     }

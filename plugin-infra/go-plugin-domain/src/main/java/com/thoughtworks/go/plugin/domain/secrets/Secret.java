@@ -36,8 +36,12 @@ public class Secret {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Secret secret = (Secret) o;
         return Objects.equals(key, secret.key) &&
                 Objects.equals(value, secret.value);

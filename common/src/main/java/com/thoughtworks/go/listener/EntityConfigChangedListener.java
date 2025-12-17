@@ -37,7 +37,9 @@ public abstract class EntityConfigChangedListener<T> implements ConfigChangedLis
     }
 
     public boolean shouldCareAbout(Object entity) {
-        if (entity != null) return getParameterizedClass().isAssignableFrom(entity.getClass());
+        if (entity != null) {
+            return getParameterizedClass().isAssignableFrom(entity.getClass());
+        }
         return false;
     }
 }

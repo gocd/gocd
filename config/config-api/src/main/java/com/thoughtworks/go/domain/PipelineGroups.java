@@ -236,8 +236,9 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
         PipelineGroups locals = new PipelineGroups();
         for (PipelineConfigs pipelineConfigs : this) {
             PipelineConfigs local = pipelineConfigs.getLocal();
-            if (local != null)
+            if (local != null) {
                 locals.add(local);
+            }
         }
         return locals;
     }

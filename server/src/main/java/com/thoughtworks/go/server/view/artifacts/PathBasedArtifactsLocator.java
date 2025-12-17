@@ -21,7 +21,7 @@ import com.thoughtworks.go.server.cache.ArtifactCache;
 import java.io.File;
 
 public class PathBasedArtifactsLocator implements ArtifactLocator {
-    private File artifactsRoot;
+    private final File artifactsRoot;
 
     public PathBasedArtifactsLocator(File artifactsRoot) {
         this.artifactsRoot = artifactsRoot;

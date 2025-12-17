@@ -69,13 +69,15 @@ public class CRStage extends CRBase {
     }
 
     private void validateJobNameUniqueness(ErrorCollection errors, String location) {
-        if (this.jobs == null)
+        if (this.jobs == null) {
             return;
+        }
         HashSet<String> keys = new HashSet<>();
         for (CRJob var : jobs) {
             String error = var.validateNameUniqueness(keys);
-            if (error != null)
+            if (error != null) {
                 errors.addError(location, error);
+            }
         }
     }
 
@@ -83,14 +85,16 @@ public class CRStage extends CRBase {
         HashSet<String> keys = new HashSet<>();
         for (CREnvironmentVariable var : environmentVariables) {
             String error = var.validateNameUniqueness(keys);
-            if (error != null)
+            if (error != null) {
                 errors.addError(location, error);
+            }
         }
     }
 
     private void validateAtLeastOneJob(ErrorCollection errors, String location) {
-        if (this.jobs == null || this.jobs.isEmpty())
+        if (this.jobs == null || this.jobs.isEmpty()) {
             errors.addError(location, "Stage has no jobs");
+        }
     }
 
     public boolean hasEnvironmentVariable(String key) {
@@ -109,8 +113,9 @@ public class CRStage extends CRBase {
         validateAtLeastOneJob(errors, location);
         validateEnvironmentVariableUniqueness(errors, location);
         validateJobNameUniqueness(errors, location);
-        if (approval != null)
+        if (approval != null) {
             approval.getErrors(errors, location);
+        }
         if (jobs != null) {
             for (CRJob job : jobs) {
                 job.getErrors(errors, location);
@@ -126,10 +131,11 @@ public class CRStage extends CRBase {
     }
 
     public String validateNameUniqueness(HashSet<String> keys) {
-        if (keys.contains(this.getName()))
+        if (keys.contains(this.getName())) {
             return String.format("Stage named %s is defined more than once", this.getName());
-        else
+        } else {
             keys.add(this.getName());
+        }
         return null;
     }
 

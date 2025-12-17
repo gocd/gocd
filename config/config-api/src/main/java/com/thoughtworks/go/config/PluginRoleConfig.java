@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStor
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 
 import java.util.List;
+import java.util.Objects;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -139,12 +140,14 @@ public class PluginRoleConfig extends Configuration implements Role {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PluginRoleConfig that)) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        return o instanceof PluginRoleConfig that &&
+            super.equals(o) &&
+            Objects.equals(name, that.name) &&
+            Objects.equals(authConfigId, that.authConfigId);
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        return authConfigId != null ? authConfigId.equals(that.authConfigId) : that.authConfigId == null;
     }
 
     @Override

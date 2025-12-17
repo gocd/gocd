@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class ElasticAgentRuntimeInfo extends AgentRuntimeInfo implements Serializable {
@@ -87,15 +88,20 @@ public class ElasticAgentRuntimeInfo extends AgentRuntimeInfo implements Seriali
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         ElasticAgentRuntimeInfo that = (ElasticAgentRuntimeInfo) o;
 
-        if (elasticAgentId != null ? !elasticAgentId.equals(that.elasticAgentId) : that.elasticAgentId != null)
-            return false;
-        return elasticPluginId != null ? elasticPluginId.equals(that.elasticPluginId) : that.elasticPluginId == null;
+        return Objects.equals(elasticAgentId, that.elasticAgentId) &&
+            Objects.equals(elasticPluginId, that.elasticPluginId);
     }
 
     @Override

@@ -23,7 +23,12 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+
+import static java.util.stream.Collectors.joining;
 
 /**
  * Understands material configuration
@@ -91,7 +96,7 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
     @Override
     public String getFingerprint() {
         if (fingerprint == null) {
-            fingerprint = generateFingerprintFromCriteria(getSqlCriteria());
+            fingerprint = fingerprintFrom(getSqlCriteria());
         }
         return fingerprint;
     }
@@ -101,19 +106,17 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
         if (pipelineUniqueFingerprint == null) {
             Map<String, Object> basicCriteria = new LinkedHashMap<>(getSqlCriteria());
             appendPipelineUniqueCriteria(basicCriteria);
-            pipelineUniqueFingerprint = generateFingerprintFromCriteria(basicCriteria);
+            pipelineUniqueFingerprint = fingerprintFrom(basicCriteria);
         }
         return pipelineUniqueFingerprint;
     }
 
-    private String generateFingerprintFromCriteria(Map<String, Object> sqlCriteria) {
-        List<String> list = new ArrayList<>();
-        for (Map.Entry<String, Object> criteria : sqlCriteria.entrySet()) {
-            list.add(criteria.getKey() + "=" + criteria.getValue());
-        }
-        String fingerprint = StringUtils.join(list, FINGERPRINT_DELIMITER);
+    private String fingerprintFrom(Map<String, Object> map) {
         // CAREFUL! the hash algorithm has to be same as the one used in 47_create_new_materials.sql
-        return DigestUtils.sha256Hex(fingerprint);
+        return DigestUtils.sha256Hex(map.entrySet().stream()
+            .map(criteria -> criteria.getKey() + "=" + criteria.getValue())
+            .collect(joining(FINGERPRINT_DELIMITER))
+        );
     }
 
     protected abstract void appendCriteria(Map<String, Object> parameters);
@@ -205,14 +208,8 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
 
         AbstractMaterialConfig that = (AbstractMaterialConfig) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-        if (type != null ? !type.equals(that.type) : that.type != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(name, that.name) &&
+            Objects.equals(type, that.type);
     }
 
     @Override

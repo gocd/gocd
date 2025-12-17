@@ -104,8 +104,6 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     @Autowired
     private MaterialConfigConverter materialConfigConverter;
     @Autowired
-    private ConfigCache configCache;
-    @Autowired
     private CachedGoConfig cachedGoConfig;
     @Autowired
     private PipelineScheduleQueue pipelineScheduleQueue;
@@ -164,7 +162,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
                 stageService, configDbStateRepository);
         goDiskSpaceMonitor.initialize();
 
-        xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
+        xmlWriter = new MagicalGoConfigXmlWriter(ConfigElementImplementationRegistryMother.withNoPlugins());
         configTestRepo = new ConfigTestRepo(hgRepo, xmlWriter);
         this.material = (HgMaterial) materialConfigConverter.toMaterial(materialConfig);
 

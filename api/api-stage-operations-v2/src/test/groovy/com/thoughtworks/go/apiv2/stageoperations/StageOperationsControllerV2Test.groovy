@@ -97,13 +97,13 @@ class StageOperationsControllerV2Test implements SecurityServiceTrait, Controlle
       @Test
       void 'runs a stage'() {
         String acceptanceMessage = "Request to run stage ${[pipelineName, pipelineCounter, stageName].join("/")} accepted"
-        HttpOperationResult result
+        HttpOperationResult result = null
         doAnswer({ InvocationOnMock invocation ->
           result = invocation.getArgument(3)
           result.accepted(acceptanceMessage, "", HealthStateType.general(HealthStateScope.forStage(pipelineName, stageName)))
           return mock(Stage)
         }).when(scheduleService).rerunStage(eq(pipelineName), eq(pipelineCounter.toInteger()), eq(stageName), any() as HttpOperationResult)
-        when(pipelineService.resolvePipelineCounter(pipelineName, pipelineCounter)).thenReturn(Optional.of(pipelineCounter.toInteger()))
+        when(pipelineService.resolvePipelineCounter(pipelineName, pipelineCounter)).thenReturn(OptionalInt.of(Integer.parseInt(pipelineCounter)))
         postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run'), [:])
 
         assertThatResponse()
@@ -116,7 +116,7 @@ class StageOperationsControllerV2Test implements SecurityServiceTrait, Controlle
 
       @Test
       void 'reports errors'() {
-        when(pipelineService.resolvePipelineCounter(eq(pipelineName), eq(pipelineCounter))).thenReturn(Optional.of(pipelineCounter.toInteger()))
+        when(pipelineService.resolvePipelineCounter(eq(pipelineName), eq(pipelineCounter))).thenReturn(OptionalInt.of(Integer.parseInt(pipelineCounter)))
         when(scheduleService.rerunStage(eq(pipelineName), eq(pipelineCounter.toInteger()), eq(stageName), any() as ScheduleService.ErrorConditionHandler)).thenThrow(new RuntimeException("bewm."))
         doAnswer({ InvocationOnMock invocation -> invocation.callRealMethod() }).
           when(scheduleService).rerunStage(eq(pipelineName), eq(pipelineCounter.toInteger()), eq(stageName), any() as HttpOperationResult)

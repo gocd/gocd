@@ -133,7 +133,7 @@ public class HgCommandTest {
     @Test
     public void shouldUpdateToSpecificRevision() {
         InMemoryStreamConsumer output = ProcessOutputStreamConsumer.inMemoryConsumer();
-        assertThat(output.getStdOut()).isEqualTo("");
+        assertThat(output.getStdOut()).isEmpty();
         File newFile = new File(clientRepo, "test.txt");
         assertThat(newFile.exists()).isFalse();
         Revision revision = createNewFileAndCheckIn(serverRepo);

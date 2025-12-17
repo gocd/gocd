@@ -38,8 +38,7 @@ import static org.mockito.Mockito.*;
 
 public class PipelinePauseServiceTest {
     private PipelineSqlMapDao pipelineDao;
-    public PipelinePauseService pipelinePauseService;
-    private GoConfigService goConfigService;
+    private PipelinePauseService pipelinePauseService;
     private GoConfigDao goConfigDao;
     private SecurityService securityService;
 
@@ -53,7 +52,7 @@ public class PipelinePauseServiceTest {
     public void setUp() {
         pipelineDao = mock(PipelineSqlMapDao.class);
         goConfigDao = mock(GoConfigDao.class);
-        goConfigService = new GoConfigService(goConfigDao, (GoConfigMigration) null, null, null, null, null, null, null);
+        GoConfigService goConfigService = new GoConfigService(goConfigDao, (GoConfigMigration) null, null, null, null, null, null);
         securityService = mock(SecurityService.class);
         pipelinePauseService = new PipelinePauseService(pipelineDao, goConfigService, securityService);
         when(pipelineDao.pauseState(VALID_PIPELINE)).thenReturn(new PipelinePauseInfo(false, "", VALID_USER.getUsername().toString()));

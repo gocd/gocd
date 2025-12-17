@@ -66,13 +66,15 @@ public class SecretConfigUsage {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SecretConfigUsage that)) return false;
-        return Objects.equals(pipelineName, that.pipelineName) &&
-                Objects.equals(stageName, that.stageName) &&
-                Objects.equals(jobName, that.jobName) &&
-                Objects.equals(templateName, that.templateName) &&
-                Objects.equals(pipelineConfigOrigin, that.pipelineConfigOrigin);
+        if (this == o) {
+            return true;
+        }
+        return o instanceof SecretConfigUsage that &&
+            Objects.equals(pipelineName, that.pipelineName) &&
+            Objects.equals(stageName, that.stageName) &&
+            Objects.equals(jobName, that.jobName) &&
+            Objects.equals(templateName, that.templateName) &&
+            Objects.equals(pipelineConfigOrigin, that.pipelineConfigOrigin);
     }
 
     @Override

@@ -77,7 +77,7 @@ public class BuildRepositoryMessageProducerTest {
 
         producer.isIgnored(agentRuntimeInfo, jobIdentifier);
 
-        verify(oldImplementation).isIgnored(agentRuntimeInfo, jobIdentifier);
+        verify(oldImplementation).isIgnored(jobIdentifier);
     }
 
     @Test

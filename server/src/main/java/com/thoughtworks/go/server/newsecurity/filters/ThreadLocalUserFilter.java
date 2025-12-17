@@ -37,11 +37,15 @@ public class ThreadLocalUserFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         try {
             SessionUtils.setCurrentUser(SessionUtils.getAuthenticationToken(request).getUser());
-            LOGGER.debug("Set loggedin user {} to thread local for request {}.", SessionUtils.getCurrentUser().getUsername(), request.getRequestURI());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Set loggedin user {} to thread local for request {}.", SessionUtils.getCurrentUser().getUsername(), request.getRequestURI());
+            }
             filterChain.doFilter(request, response);
         } finally {
             SessionUtils.unsetCurrentUser();
-            LOGGER.debug("Unset loggedin user from thread local for request {}.", request.getRequestURI());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Unset loggedin user from thread local for request {}.", request.getRequestURI());
+            }
         }
     }
 }

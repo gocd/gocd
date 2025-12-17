@@ -55,8 +55,12 @@ public class SecretParam implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         SecretParam that = (SecretParam) o;
         return Objects.equals(secretConfigId, that.secretConfigId) &&
                 Objects.equals(key, that.key);

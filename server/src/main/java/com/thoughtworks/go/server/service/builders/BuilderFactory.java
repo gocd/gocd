@@ -65,8 +65,9 @@ public class BuilderFactory {
 
     @SuppressWarnings("unchecked")
     private <T extends Task> TaskBuilder<T> getBuilderImplementation(Task task) {
-        if (!taskBuilderMap.containsKey(task.getClass()))
+        if (!taskBuilderMap.containsKey(task.getClass())) {
             throw new RuntimeException("Unexpected type of task: " + task.getClass());
+        }
 
         return (TaskBuilder<T>) taskBuilderMap.get(task.getClass());
     }

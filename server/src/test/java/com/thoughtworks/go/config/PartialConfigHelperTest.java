@@ -41,7 +41,7 @@ class PartialConfigHelperTest {
 
     @BeforeEach
     void setup() {
-        hashes = new EntityHashes(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
+        hashes = new EntityHashes(ConfigElementImplementationRegistryMother.withNoPlugins());
         helper = new PartialConfigHelper(hashes);
     }
 

@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
-import com.thoughtworks.go.config.rules.RulesValidationContext;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -41,6 +40,7 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     private StageConfig stage;
     private JobConfig job;
     private MaterialConfigFingerprintMap materialConfigsFingerprintMap;
+    private Map<CaseInsensitiveString, Node> dependencies;
 
     private PipelineConfigSaveValidationContext(Boolean isPipelineBeingCreated, String groupName, Validatable immediateParent) {
         this.isPipelineBeingCreated = isPipelineBeingCreated;
@@ -150,17 +150,11 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
 
     @Override
     public PipelineConfigs getPipelineGroup() {
-        if (cruiseConfig.hasPipelineGroup(groupName))
-            return cruiseConfig.findGroup(groupName);
-        else return null;
+        return cruiseConfig.hasPipelineGroup(groupName) ? cruiseConfig.findGroup(groupName) : null;
     }
 
-
     public Node getDependencyMaterialsFor(CaseInsensitiveString pipelineName) {
-        if (getDependencies().containsKey(pipelineName)) {
-            return getDependencies().get(pipelineName);
-        }
-        return new Node(new ArrayList<>());
+        return Optional.ofNullable(getDependencies().get(pipelineName)).orElseGet(() -> new Node(new ArrayList<>()));
     }
 
     @Override
@@ -215,17 +209,15 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
         return getDependencies().keySet();
     }
 
-    private Hashtable<CaseInsensitiveString, Node> getDependencies() {
+    private Map<CaseInsensitiveString, Node> getDependencies() {
         if (dependencies == null) {
-            dependencies = new Hashtable<>();
+            dependencies = new HashMap<>();
             for (PipelineConfig pipeline : cruiseConfig.getAllPipelineConfigs()) {
                 dependencies.put(pipeline.name(), pipeline.getDependenciesAsNode());
             }
         }
         return dependencies;
     }
-
-    private Hashtable<CaseInsensitiveString, Node> dependencies;
 
     public PipelineGroups getGroups() {
         return cruiseConfig.getGroups();
@@ -290,15 +282,5 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     @Override
     public RulesValidationContext getRulesValidationContext() {
         return null;
-    }
-
-    @Override
-    public Map<CaseInsensitiveString, Boolean> getPipelineToMaterialAutoUpdateMapByFingerprint(String fingerprint) {
-        Map<CaseInsensitiveString, Boolean> map = new HashMap<>();
-        getCruiseConfig().getAllPipelineConfigs().forEach(pipeline -> pipeline.materialConfigs().stream()
-                .filter(materialConfig -> materialConfig.getFingerprint().equals(fingerprint))
-                .findFirst()
-                .ifPresent(expectedMaterialConfig -> map.put(pipeline.name(), expectedMaterialConfig.isAutoUpdate())));
-        return map;
     }
 }

@@ -65,7 +65,7 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
 
     private GoConfigFileHelper configHelper;
 
-    private SystemEnvironment systemEnvironment = new SystemEnvironment();
+    private final SystemEnvironment systemEnvironment = new SystemEnvironment();
     @Autowired
     private ScheduleService scheduleService;
 

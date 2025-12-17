@@ -15,10 +15,7 @@
  */
 package com.thoughtworks.go.server.util;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Pagination {
     private Integer pageSize;
@@ -84,17 +81,9 @@ public class Pagination {
 
         Pagination that = (Pagination) o;
 
-        if (pageSize != null ? !pageSize.equals(that.pageSize) : that.pageSize != null) {
-            return false;
-        }
-        if (offset != null ? !offset.equals(that.offset) : that.offset != null) {
-            return false;
-        }
-        if (total != null ? !total.equals(that.total) : that.total != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(pageSize, that.pageSize) &&
+            Objects.equals(offset, that.offset) &&
+            Objects.equals(total, that.total);
     }
 
     @Override
@@ -287,17 +276,9 @@ public class Pagination {
 
             PageNumber that = (PageNumber) o;
 
-            if (current != that.current) {
-                return false;
-            }
-            if (page != that.page) {
-                return false;
-            }
-            if (label != null ? !label.equals(that.label) : that.label != null) {
-                return false;
-            }
-
-            return true;
+            return current == that.current &&
+                page == that.page &&
+                Objects.equals(label, that.label);
         }
 
         @Override

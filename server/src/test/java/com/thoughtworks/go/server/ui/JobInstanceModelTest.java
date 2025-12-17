@@ -129,8 +129,8 @@ public class JobInstanceModelTest {
 
     @Test
     public void shouldShowElapsedTimeForDisplay() {
-        assertThat(scheduledJob(300, 0).getElapsedTimeForDisplay()).isEqualTo("");
-        assertThat(scheduledJob(0, 0).getElapsedTimeForDisplay()).isEqualTo("");
+        assertThat(scheduledJob(300, 0).getElapsedTimeForDisplay()).isEmpty();
+        assertThat(scheduledJob(0, 0).getElapsedTimeForDisplay()).isEmpty();
 
         assertThat(buildingJob(301_000, 0).getElapsedTimeForDisplay()).isEqualTo("5 minutes 1 second");
         assertThat(buildingJob(300_000, 0).getElapsedTimeForDisplay()).isEqualTo("5 minutes");

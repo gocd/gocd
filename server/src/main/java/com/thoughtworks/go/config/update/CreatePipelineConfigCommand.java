@@ -31,7 +31,6 @@ public class CreatePipelineConfigCommand extends PipelineConfigCommand {
     private final Username currentUser;
     private final LocalizedOperationResult result;
     private final String groupName;
-    public String group;
 
     public CreatePipelineConfigCommand(GoConfigService goConfigService, PipelineConfig pipelineConfig, Username currentUser, LocalizedOperationResult result, final String groupName, ExternalArtifactsService externalArtifactsService) {
         super(pipelineConfig, goConfigService, externalArtifactsService);

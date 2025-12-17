@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.websocket;
 
 import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.eclipse.jetty.websocket.api.Session;
@@ -41,11 +42,12 @@ public class ConsoleLogSocket implements SocketEndpoint {
 
     private final JobIdentifier jobIdentifier;
     private final ConsoleLogSender handler;
+    private final String key;
+    private final SocketHealthService socketHealthService;
+    private final String consoleLogCharsetJSONMessage;
+
     private Session session;
     private String sessionId;
-    private String key;
-    private SocketHealthService socketHealthService;
-    private final String consoleLogCharsetJSONMessage;
 
     ConsoleLogSocket(ConsoleLogSender handler, JobIdentifier jobIdentifier, SocketHealthService socketHealthService, Charset consoleLogCharset) {
         this.handler = handler;
@@ -56,21 +58,27 @@ public class ConsoleLogSocket implements SocketEndpoint {
     }
 
     @OnWebSocketConnect
-    public void onConnect(Session session) throws Exception {
+    public void onConnect(Session session) throws IOException, IllegalArtifactLocationException {
         this.session = session;
         socketHealthService.register(this);
-        LOGGER.debug("{} connected", sessionName());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("{} connected", sessionName());
+        }
 
         session.getRemote().sendString(consoleLogCharsetJSONMessage);
 
         long start = parseStartLine(session.getUpgradeRequest());
-        LOGGER.debug("{} sending logs for {} starting at line {}.", sessionName(), jobIdentifier, start);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("{} sending logs for {} starting at line {}.", sessionName(), jobIdentifier, start);
+        }
 
         try {
             handler.process(this, jobIdentifier, start);
         } catch (IOException e) {
             if ("Connection output is closed".equals(e.getMessage())) {
-                LOGGER.debug("{} client (likely, browser) closed connection prematurely.", sessionName());
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("{} client (likely, browser) closed connection prematurely.", sessionName());
+                }
                 close(); // for good measure
             } else {
                 throw e;
@@ -125,7 +133,9 @@ public class ConsoleLogSocket implements SocketEndpoint {
 
     private String sessionName() {
         if (null == sessionId) {
-            if (null == session) throw new IllegalStateException(String.format("Cannot get session name because the session has not been assigned to socket %s", key()));
+            if (null == session) {
+                throw new IllegalStateException(String.format("Cannot get session name because the session has not been assigned to socket %s", key()));
+            }
             sessionId = String.format("Session[%s:%s]", session.getRemoteAddress(), key());
         }
         return sessionId;

@@ -96,7 +96,9 @@ public class Marshaling {
             jsonObject.addProperty(KEY_NAME, name);
 
             final String type = defensivelyGetString(jsonObject, KEY_TYPE);
-            if (StringUtils.isBlank(type)) throw new JsonParseException("Missing filter type");
+            if (StringUtils.isBlank(type)) {
+                throw new JsonParseException("Missing filter type");
+            }
 
             return switch (type) {
                 case TYPE_INCLUDES -> context.deserialize(jsonObject,

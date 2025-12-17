@@ -13,96 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.config.serialization;
+
+package com.thoughtworks.go.config.materials.dependency;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
-import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.domain.materials.dependency.NewGoConfigMother;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.thoughtworks.go.helper.MaterialConfigsMother.p4;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DependencyMaterialConfigTest {
 
-    private MagicalGoConfigXmlWriter writer;
-    private MagicalGoConfigXmlLoader loader;
     private CruiseConfig config;
     private PipelineConfig pipelineConfig;
 
     @BeforeEach
     void setUp() {
-        writer = new MagicalGoConfigXmlWriter(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
-        loader = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
         config = GoConfigMother.configWithPipelines("pipeline1", "pipeline2", "pipeline3", "go");
         pipelineConfig = config.getAllPipelineConfigs().get(0);
-    }
-
-    @Test
-    void shouldBeAbleToLoadADependencyMaterialFromConfig() throws Exception {
-        String xml = "<pipeline pipelineName=\"pipeline-name\" stageName=\"stage-name\" />";
-        DependencyMaterialConfig material = loader.fromXmlPartial(xml, DependencyMaterialConfig.class);
-        assertThat(material.getPipelineName()).isEqualTo(new CaseInsensitiveString("pipeline-name"));
-        assertThat(material.getStageName()).isEqualTo(new CaseInsensitiveString("stage-name"));
-        assertThat(writer.toXmlPartial(material)).isEqualTo(xml);
-    }
-
-    @Test
-    void shouldBeAbleToSaveADependencyMaterialToConfig() throws Exception {
-        DependencyMaterialConfig originalMaterial = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
-
-        NewGoConfigMother mother = new NewGoConfigMother();
-        mother.addPipeline("pipeline-name", "stage-name", "job-name");
-        mother.addPipeline("dependent", "stage-name", "job-name").addMaterialConfig(originalMaterial);
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        CruiseConfig configForEdit = mother.cruiseConfig();
-        configForEdit.initializeServer();
-        writer.write(configForEdit, buffer, false);
-
-        final ByteArrayInputStream inputStream = new ByteArrayInputStream(buffer.toByteArray());
-        CruiseConfig config = loader.loadConfigHolder(new String(inputStream.readAllBytes(), UTF_8)).config;
-
-        DependencyMaterialConfig material = (DependencyMaterialConfig) config.pipelineConfigByName(new CaseInsensitiveString("dependent")).materialConfigs().get(1);
-        assertThat(material).isEqualTo(originalMaterial);
-        assertThat(material.getPipelineName()).isEqualTo(new CaseInsensitiveString("pipeline-name"));
-        assertThat(material.getStageName()).isEqualTo(new CaseInsensitiveString("stage-name"));
-    }
-
-    @Test
-    void shouldBeAbleToHaveADependencyAndOneOtherMaterial() throws Exception {
-        NewGoConfigMother mother = new NewGoConfigMother();
-        mother.addPipeline("pipeline-name", "stage-name", "job-name");
-        PipelineConfig pipelineConfig = mother.addPipeline("dependent", "stage-name", "job-name",
-                new DependencyMaterialConfig(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name")));
-        pipelineConfig.addMaterialConfig(p4("localhost:1666", "foo"));
-
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        CruiseConfig cruiseConfig = mother.cruiseConfig();
-        cruiseConfig.initializeServer();
-
-        writer.write(cruiseConfig, buffer, false);
-
-        final ByteArrayInputStream inputStream = new ByteArrayInputStream(buffer.toByteArray());
-        CruiseConfig config = loader.loadConfigHolder(new String(inputStream.readAllBytes(), UTF_8)).config;
-
-        MaterialConfigs materialConfigs = config.pipelineConfigByName(new CaseInsensitiveString("dependent")).materialConfigs();
-        assertThat(materialConfigs.get(0)).isInstanceOf(DependencyMaterialConfig.class);
-        assertThat(materialConfigs.get(1)).isInstanceOf(P4MaterialConfig.class);
     }
 
     @Test
@@ -198,19 +134,16 @@ class DependencyMaterialConfigTest {
         assertThat(dependencyMaterialConfig.getLongDescription()).isEqualTo("upstream_pipeline [ stage ]");
     }
 
-    @Nested
-    class getNameWithoutDefaults {
-        @Test
-        void shouldNotDefaultToPipelineNameSinceItsUsedToSerializeConfigToJSON() {
-            DependencyMaterialConfig config = new DependencyMaterialConfig(
-                    new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
+    @Test
+    void shouldNotDefaultToPipelineNameSinceItsUsedToSerializeConfigToJSON() {
+        DependencyMaterialConfig config = new DependencyMaterialConfig(
+            new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
 
-            assertThat(config.getNameWithoutDefaults()).isNull();
+        assertThat(config.getNameWithoutDefaults()).isNull();
 
-            config = new DependencyMaterialConfig(new CaseInsensitiveString("material_name"),
-                    new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
+        config = new DependencyMaterialConfig(new CaseInsensitiveString("material_name"),
+            new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
 
-            assertThat(config.getNameWithoutDefaults()).isEqualTo(new CaseInsensitiveString("material_name"));
-        }
+        assertThat(config.getNameWithoutDefaults()).isEqualTo(new CaseInsensitiveString("material_name"));
     }
 }

@@ -98,7 +98,7 @@ public class JsonOutputWriter {
             try {
                 jacksonWriter = JSON_FACTORY.createGenerator(writer);
                 jacksonWriter.useDefaultPrettyPrinter();
-            } catch (Exception e) {
+            } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -246,7 +246,9 @@ public class JsonOutputWriter {
 
         @Override
         public OutputWriter addLinks(Consumer<OutputLinkWriter> consumer) {
-            if (null == requestContext) return this;
+            if (null == requestContext) {
+                return this;
+            }
 
             return withExceptionHandling((jacksonWriter) -> addChild("_links", (childWriter) -> consumer.accept(new JsonOutputLinkWriter(childWriter))));
         }
@@ -281,13 +283,13 @@ public class JsonOutputWriter {
 
         @FunctionalInterface
         interface ConsumerWhichThrows extends Consumer<JsonGenerator> {
-            void acceptWhichThrows(JsonGenerator writer) throws Exception;
+            void acceptWhichThrows(JsonGenerator writer) throws IOException;
 
             @Override
             default void accept(JsonGenerator writer) {
                 try {
                     acceptWhichThrows(writer);
-                } catch (Exception e) {
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }

@@ -15,89 +15,65 @@
  */
 package com.thoughtworks.go.util;
 
-import org.apache.commons.lang3.StringUtils;
+import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.regex.Pattern;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
+@UtilityClass
 public class CommaSeparatedString {
-    private static final Pattern COMMA_STRING_PATTERN = Pattern.compile("\\s*,[,\\s]*");
+    private static final String COMMA = ",";
 
-    public static String append(String origCommaSeparatedStr, List<String> entriesToAdd) {
-        if (entriesToAdd == null || entriesToAdd.isEmpty()) {
-            return origCommaSeparatedStr;
-        }
-
-        LinkedHashSet<String> distinctEntrySet = createDistinctEntrySetWithExistingAndNewEntriesToAdd(origCommaSeparatedStr, entriesToAdd);
-
-        List<String> entryList = distinctEntrySet.stream()
-            .filter(Objects::nonNull)
-            .map(String::trim)
-            .filter(StringUtils::isNotBlank)
-            .collect(toList());
-
-        if (!entryList.isEmpty()) {
-            return listToCommaSeparatedStr(entryList);
-        }
-
-        return null;
+    public static @Nullable String normalizeToNull(String commaSeparatedStr) {
+        return joinToNull(commaSeparatedStrToTrimmed(commaSeparatedStr).distinct().sorted());
     }
 
-    public static String remove(String commaSeparatedStr, List<String> entriesToRemove) {
-        if (entriesToRemove == null || entriesToRemove.isEmpty()) {
+    public static @Nullable String append(@Nullable String commaSeparatedStr, @Nullable List<String> entriesToAdd) {
+        if (entriesToAdd == null || entriesToAdd.isEmpty()) {
             return commaSeparatedStr;
         }
 
-        List<String> finalEntriesToRemove = filterEmptyEntriesAndTrimTheirValues(entriesToRemove);
+        return joinToNull(Stream.concat(commaSeparatedStrToTrimmed(commaSeparatedStr), trimmedWithoutBlanks(entriesToAdd.stream())));
+    }
 
-        if (isNotBlank(commaSeparatedStr)) {
-            List<String> entryListAfterRemoval = Arrays.stream(commaSeparatedStrToArr(commaSeparatedStr))
-                .map(String::trim)
-                .filter(entry -> !finalEntriesToRemove.contains(entry))
-                .collect(toList());
-
-            if (!entryListAfterRemoval.isEmpty()) {
-                return listToCommaSeparatedStr(entryListAfterRemoval);
-            }
-
-            return null;
+    public static @Nullable String remove(@Nullable String commaSeparatedStr, @Nullable List<String> entriesToRemove) {
+        if (entriesToRemove == null || entriesToRemove.isEmpty() || commaSeparatedStr == null || commaSeparatedStr.isBlank()) {
+            return commaSeparatedStr;
         }
 
-        return commaSeparatedStr;
+        Set<String> finalEntriesToRemove = distinctNonBlankEntries(entriesToRemove);
+        return joinToNull(
+            commaSeparatedStrToTrimmed(commaSeparatedStr)
+                .filter(s -> !finalEntriesToRemove.contains(s))
+        );
     }
 
-    private static List<String> filterEmptyEntriesAndTrimTheirValues(List<String> entriesToRemove) {
-        return entriesToRemove.stream().filter(StringUtils::isNotBlank).map(String::trim).collect(toList());
+    private static Set<String> distinctNonBlankEntries(@NotNull Collection<String> entriesToRemove) {
+        return entriesToRemove.isEmpty()
+            ? Collections.emptySet()
+            : trimmedWithoutBlanks(entriesToRemove.stream()).collect(Collectors.toSet());
     }
 
-    private static LinkedHashSet<String> createDistinctEntrySetWithExistingAndNewEntriesToAdd(String commaSeparatedStr, List<String> entriesToAdd) {
-        LinkedHashSet<String> uniqEntrySet = new LinkedHashSet<>();
-
-        if (isNotBlank(commaSeparatedStr)) {
-            uniqEntrySet.addAll(commaSeparatedStrToList(commaSeparatedStr));
-        }
-
-        uniqEntrySet.addAll(entriesToAdd);
-        return uniqEntrySet;
+    public static List<String> commaSeparatedStrToList(@Nullable String commaSeparatedStr) {
+        return commaSeparatedStrToTrimmed(commaSeparatedStr).collect(Collectors.toList());
     }
 
-    private static String listToCommaSeparatedStr(List<String> list) {
-        return String.join(",", list);
+    public static @NotNull Stream<String> commaSeparatedStrToTrimmed(@Nullable String commaSeparatedStr) {
+        return commaSeparatedStr == null || commaSeparatedStr.isBlank()
+            ? Stream.empty()
+            : trimmedWithoutBlanks(Arrays.stream(commaSeparatedStr.split(COMMA)));
     }
 
-    public static List<String> commaSeparatedStrToList(String commaSeparatedStr) {
-        return isBlank(commaSeparatedStr) ? emptyList() : Arrays.asList(commaSeparatedStrToArr(commaSeparatedStr));
+    private static @NotNull Stream<String> trimmedWithoutBlanks(Stream<String> stream) {
+        return stream.filter(Objects::nonNull).map(String::trim).filter(s -> !s.isEmpty());
     }
 
-    private static String[] commaSeparatedStrToArr(String commaSeparatedStr) {
-        return COMMA_STRING_PATTERN.split(commaSeparatedStr.trim());
+    private static @Nullable String joinToNull(@NotNull Stream<String> stream) {
+        String result = stream.distinct().collect(Collectors.joining(COMMA));
+        return result.isEmpty() ? null : result;
     }
+
 }

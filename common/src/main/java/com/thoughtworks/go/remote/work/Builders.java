@@ -30,6 +30,7 @@ import java.nio.charset.Charset;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 import static java.lang.String.format;
 
@@ -145,20 +146,9 @@ public class Builders {
 
         Builders builders1 = (Builders) o;
 
-        if (cancelStarted != builders1.cancelStarted) {
-            return false;
-        }
-
-        if (builders != null ? !builders.equals(builders1.builders) : builders1.builders != null) {
-            return false;
-        }
-
-        if (currentBuilder != null ? !currentBuilder.equals(
-                builders1.currentBuilder) : builders1.currentBuilder != null) {
-            return false;
-        }
-
-        return true;
+        return cancelStarted == builders1.cancelStarted &&
+            Objects.equals(builders, builders1.builders) &&
+            Objects.equals(currentBuilder, builders1.currentBuilder);
     }
 
     @Override

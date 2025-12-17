@@ -15,14 +15,15 @@
  */
 package com.thoughtworks.go.server.domain;
 
+import java.util.Objects;
+
 public class StageIdentity {
     private String pipelineName;
     private String stageName;
     private Long stageId;
 
-    // -- Only for IBatis
-    private StageIdentity() {
-    }
+    @SuppressWarnings("unused") // For iBatis
+    private StageIdentity() {}
 
     public StageIdentity(String pipelineName, String stageName, Long stageId) {
         this.pipelineName = pipelineName;
@@ -65,14 +66,8 @@ public class StageIdentity {
 
         StageIdentity that = (StageIdentity) o;
 
-        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) {
-            return false;
-        }
-        if (stageName != null ? !stageName.equals(that.stageName) : that.stageName != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(pipelineName, that.pipelineName) &&
+            Objects.equals(stageName, that.stageName);
     }
 
     @Override

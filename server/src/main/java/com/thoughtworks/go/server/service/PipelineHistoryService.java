@@ -490,10 +490,11 @@ public class PipelineHistoryService {
             populateLockStatus(instanceModel.getName(), username, instanceModel);
             pipelineModel.addPipelineInstance(instanceModel);
             String groupName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
-            if (goConfigService.isPipelineEditable(pipelineName))
+            if (goConfigService.isPipelineEditable(pipelineName)) {
                 pipelineModel.updateAdministrability(goConfigService.isUserAdminOfGroup(username.getUsername(), groupName));
-            else
+            } else {
                 pipelineModel.updateAdministrability(false);
+            }
             return pipelineModel;
         }
         return null;

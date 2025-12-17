@@ -48,8 +48,9 @@ public class ScheduleOptionsBuilder {
         }
 
         for (Builder builder : builders) {
-            if (result.canContinue())
+            if (result.canContinue()) {
                 builder.build(scheduleOptions, result, pipelineName, pipelineScheduleOptions, healthStateType);
+            }
         }
         return scheduleOptions;
     }

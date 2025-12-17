@@ -43,10 +43,11 @@ import static spark.Spark.path;
 
 @Component
 public class ApiSupportController implements SparkController, ControllerMethods, SparkSpringController {
-    private static final Gson GSON = new GsonBuilder()
+    static final Gson GSON = new GsonBuilder()
         .setPrettyPrinting()
         .addSerializationExclusionStrategy(excludeLocks())
         .serializeNulls()
+        .disableHtmlEscaping()
         .create();
 
     private final ServerStatusService serverStatusService;
@@ -71,7 +72,7 @@ public class ApiSupportController implements SparkController, ControllerMethods,
 
     public String show(Request request, Response response) throws IOException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Map<String, Object> information = serverStatusService.asJson(currentUsername(), result);
+        Map<String, Object> information = serverStatusService.asJsonCompatibleMap(currentUsername(), result);
         response.type("application/json");
         if (result.isSuccessful()) {
             GSON.toJson(information, response.raw().getWriter());

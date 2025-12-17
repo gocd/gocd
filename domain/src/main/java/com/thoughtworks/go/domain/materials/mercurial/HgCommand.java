@@ -148,8 +148,10 @@ public class HgCommand extends SCMCommand {
         CommandLine hg = hg("showconfig", "paths.default");
 
         final ConsoleResult result = execute(hg);
-        LOGGER.trace("Current repository url of [{}]: {}", workingDir, result.outputForDisplayAsString());
-        LOGGER.trace("Target repository url: {}", url);
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Current repository url of [{}]: {}", workingDir, result.outputForDisplayAsString());
+            LOGGER.trace("Target repository url: {}", url);
+        }
         return result;
     }
 

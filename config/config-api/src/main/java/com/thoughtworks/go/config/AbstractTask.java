@@ -18,19 +18,18 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.Task;
-import com.thoughtworks.go.domain.config.Arguments;
 import com.thoughtworks.go.service.TaskFactory;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract class AbstractTask implements Task  {
     @ConfigSubtag(label = "RunIfs")
     protected RunIfConfigs runIfConfigs = new RunIfConfigs();
 
-    @ConfigSubtag(label = "OnCancel", optional = true) public OnCancelConfig onCancelConfig = OnCancelConfig.killAllChildProcess();
+    @ConfigSubtag(label = "OnCancel") public OnCancelConfig onCancelConfig = OnCancelConfig.killAllChildProcess();
 
     public static final String RUN_IF_CONFIGS_PASSED = "runIfConfigsPassed";
     public static final String RUN_IF_CONFIGS_FAILED = "runIfConfigsFailed";
@@ -53,9 +52,7 @@ public abstract class AbstractTask implements Task  {
         if (runIfConfigs.isEmpty()) {
             return StringUtils.capitalize(RunIfConfig.PASSED.toString());
         }
-        List<String> capitalized = runIfConfigs.stream().map(f -> StringUtils.capitalize(f.toString())).collect(Collectors.toList());
-
-        return StringUtils.join(capitalized, ", ");
+        return runIfConfigs.stream().map(f -> StringUtils.capitalize(f.toString())).collect(Collectors.joining(", "));
     }
 
     @Override
@@ -96,57 +93,7 @@ public abstract class AbstractTask implements Task  {
         return runIfConfigs.match(RunIfConfig.ANY);
     }
 
-    public String describe() {
-        // for #2398.  sigh
-        StringBuilder builder = new StringBuilder();
-        ConfigTag configTag = this.getClass().getAnnotation(ConfigTag.class);
-        builder.append("<").append(configTag.value()).append(" ");
-
-        GoConfigClassWriter cruiseConfigClass = new GoConfigClassWriter(this.getClass(), new ConfigCache(), null);
-        List<GoConfigFieldWriter> fields = cruiseConfigClass.getAllFields(this);
-        for (GoConfigFieldWriter field : fields) {
-            if (field.isAttribute()) {
-                Object value = field.getValue();
-                if (!field.isDefault(cruiseConfigClass)) {
-                    appendIfNotEmpty(builder, value, field.value());
-                }
-            } else {
-                addDescribeOfArguments(builder, configTag, field);
-            }
-
-        }
-        if (!(this instanceof ExecTask)) {
-            builder.append("/>");
-        }
-        return builder.toString();
-    }
-
-    private void addDescribeOfArguments(StringBuilder builder, ConfigTag configTag, GoConfigFieldWriter field) {
-        if (field.isSubtag() && field.getValue() instanceof Arguments) {
-            closeConfigTag(builder, field);
-
-            if (field.getValue() instanceof Arguments && !((Arguments) field.getValue()).isEmpty()) {
-                for (Argument arg : (Arguments) field.getValue()) {
-                    builder.append(String.format("<arg>%s</arg>", arg.getValue())).append("\n");
-                }
-                builder.append("</").append(configTag.value()).append(">");
-            }
-        }
-    }
-
-    private void closeConfigTag(StringBuilder builder, GoConfigFieldWriter field) {
-        if (!((Arguments) field.getValue()).isEmpty()) {
-            builder.append(">").append("\n");
-        } else {
-            builder.append("/>");
-        }
-    }
-
-    private void appendIfNotEmpty(StringBuilder builder, Object value, String description) {
-        if (value != null && StringUtils.isNotBlank(value.toString())) {
-            builder.append(String.format("%s=\"%s\" ", description, value));
-        }
-    }
+    public abstract String describe();
 
     @SuppressWarnings("unchecked")
     @Override
@@ -226,14 +173,8 @@ public abstract class AbstractTask implements Task  {
 
         AbstractTask that = (AbstractTask) o;
 
-        if (onCancelConfig != null ? !onCancelConfig.equals(that.onCancelConfig) : that.onCancelConfig != null) {
-            return false;
-        }
-        if (runIfConfigs != null ? !runIfConfigs.equals(that.runIfConfigs) : that.runIfConfigs != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(onCancelConfig, that.onCancelConfig) &&
+            Objects.equals(runIfConfigs, that.runIfConfigs);
     }
 
     @Override

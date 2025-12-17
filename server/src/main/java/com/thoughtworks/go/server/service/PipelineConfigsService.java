@@ -32,6 +32,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+import org.jdom2.JDOMException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,23 +50,21 @@ public class PipelineConfigsService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineConfigsService.class);
 
     private final GoConfigService goConfigService;
-    private final ConfigCache configCache;
     private final ConfigElementImplementationRegistry registry;
     private final SecurityService securityService;
     private final EntityHashingService entityHashingService;
     private final MagicalGoConfigXmlLoader magicalGoConfigXmlLoader;
 
     @Autowired
-    public PipelineConfigsService(ConfigCache configCache, ConfigElementImplementationRegistry registry, GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService) {
+    public PipelineConfigsService(ConfigElementImplementationRegistry registry, GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService) {
         this.goConfigService = goConfigService;
-        this.configCache = configCache;
         this.registry = registry;
         this.securityService = securityService;
         this.entityHashingService = entityHashingService;
-        this.magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
+        this.magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(registry);
     }
 
-    public GoConfigOperationalResponse<PipelineConfigs> updateXml(String groupName, String xmlPartial, final String md5, Username username, HttpLocalizedOperationResult result) throws Exception {
+    public GoConfigOperationalResponse<PipelineConfigs> updateXml(String groupName, String xmlPartial, final String md5, Username username, HttpLocalizedOperationResult result) throws JDOMException {
         if (!userHasPermissions(username, groupName, result)) {
             return new GoConfigOperationalResponse<>(GoConfigValidity.valid(), null);
         }
@@ -85,7 +84,7 @@ public class PipelineConfigsService {
         if (!userHasPermissions(username, groupName, result)) {
             return null;
         }
-        return new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(getConfig(groupName));
+        return new MagicalGoConfigXmlWriter(registry).toXmlPartial(getConfig(groupName));
     }
 
     private void handleError(String groupName, GoConfigValidity.InvalidGoConfig goConfigValidity, HttpLocalizedOperationResult result) {

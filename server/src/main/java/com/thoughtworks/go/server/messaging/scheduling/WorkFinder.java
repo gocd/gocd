@@ -35,9 +35,10 @@ public class WorkFinder implements GoMessageListener<IdleAgentMessage> {
 
     private static final NoWork NO_WORK = new NoWork();
     private static final Marker FATAL = MarkerFactory.getMarker("FATAL");
-    private BuildAssignmentService buildAssignmentService;
-    private GoMessageChannel<WorkAssignedMessage> assignedWorkTopic;
-    private WorkAssignmentPerformanceLogger workAssignmentPerformanceLogger;
+
+    private final BuildAssignmentService buildAssignmentService;
+    private final GoMessageChannel<WorkAssignedMessage> assignedWorkTopic;
+    private final WorkAssignmentPerformanceLogger workAssignmentPerformanceLogger;
 
     @Autowired
     public WorkFinder(BuildAssignmentService buildAssignmentService,

@@ -32,11 +32,11 @@ import static java.util.Optional.ofNullable;
 @Component
 public class JobStatusListener implements GoMessageListener<JobStatusMessage> {
     private final JobStatusTopic jobStatusTopic;
-    private JobInstanceService jobInstanceService;
-    private StageService stageService;
+    private final JobInstanceService jobInstanceService;
+    private final StageService stageService;
     private final StageStatusTopic stageStatusTopic;
     private final ElasticAgentPluginService elasticAgentPluginService;
-    private JobInstanceSqlMapDao jobInstanceSqlMapDao;
+    private final JobInstanceSqlMapDao jobInstanceSqlMapDao;
 
     @Autowired
     public JobStatusListener(JobStatusTopic jobStatusTopic,

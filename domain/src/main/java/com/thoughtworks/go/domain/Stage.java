@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.Date;
+import java.util.Objects;
 
 public class Stage extends PersistentObject {
     private static final Logger LOG = LoggerFactory.getLogger(Stage.class);
@@ -333,43 +334,18 @@ public class Stage extends PersistentObject {
 
         Stage stage = (Stage) o;
 
-        if (counter != stage.counter) {
-            return false;
-        }
-        if (orderId != stage.orderId) {
-            return false;
-        }
-        if (fetchMaterials != stage.fetchMaterials) {
-            return false;
-        }
+        return counter == stage.counter &&
+            orderId == stage.orderId &&
+            fetchMaterials == stage.fetchMaterials &&
+            cleanWorkingDir == stage.cleanWorkingDir &&
+            Objects.equals(pipelineId, stage.pipelineId) &&
+            Objects.equals(approvalType, stage.approvalType) &&
+            Objects.equals(approvedBy, stage.approvedBy) &&
+            Objects.equals(cancelledBy, stage.cancelledBy) &&
+            Objects.equals(createdTime, stage.createdTime) &&
+            Objects.equals(name, stage.name) &&
+            result == stage.result;
 
-        if (cleanWorkingDir != stage.cleanWorkingDir) {
-            return false;
-        }
-        if (pipelineId != null ? !pipelineId.equals(stage.pipelineId) : stage.pipelineId != null) {
-            return false;
-        }
-        if (approvalType != null ? !approvalType.equals(stage.approvalType) : stage.approvalType != null) {
-            return false;
-        }
-        if (approvedBy != null ? !approvedBy.equals(stage.approvedBy) : stage.approvedBy != null) {
-            return false;
-        }
-        if (cancelledBy != null ? !cancelledBy.equals(stage.cancelledBy) : stage.cancelledBy != null) {
-            return false;
-        }
-        if (createdTime != null ? !createdTime.equals(stage.createdTime) : stage.createdTime != null) {
-            return false;
-        }
-
-        if (name != null ? !name.equals(stage.name) : stage.name != null) {
-            return false;
-        }
-        if (result != stage.result) {
-            return false;
-        }
-
-        return true;
     }
 
     @Override

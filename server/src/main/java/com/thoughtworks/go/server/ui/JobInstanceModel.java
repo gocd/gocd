@@ -22,6 +22,7 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import java.time.Duration;
 import java.util.Comparator;
+import java.util.Objects;
 
 public class JobInstanceModel {
     private final JobInstance instance;
@@ -116,15 +117,18 @@ public class JobInstanceModel {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         JobInstanceModel that = (JobInstanceModel) o;
 
-        if (instance != null ? !instance.equals(that.instance) : that.instance != null) return false;
-        if (jobDurationStrategy != null ? !jobDurationStrategy.equals(that.jobDurationStrategy) : that.jobDurationStrategy != null)
-            return false;
-        return agentInfo != null ? agentInfo.equals(that.agentInfo) : that.agentInfo == null;
+        return Objects.equals(instance, that.instance) &&
+            Objects.equals(jobDurationStrategy, that.jobDurationStrategy) &&
+            Objects.equals(agentInfo, that.agentInfo);
     }
 
     @Override
@@ -183,15 +187,19 @@ public class JobInstanceModel {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             AgentInfo agentInfo = (AgentInfo) o;
 
-            if (isAgentLive != agentInfo.isAgentLive) return false;
-            if (!hostname.equals(agentInfo.hostname)) return false;
-            if (!ip.equals(agentInfo.ip)) return false;
-            return uuid.equals(agentInfo.uuid);
+            return isAgentLive == agentInfo.isAgentLive &&
+                hostname.equals(agentInfo.hostname) &&
+                ip.equals(agentInfo.ip) &&
+                uuid.equals(agentInfo.uuid);
         }
 
         @Override

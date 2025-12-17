@@ -17,6 +17,7 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.ResourceConfig;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 public class Resource extends PersistentObject implements Comparable<Resource> {
     private String name;
@@ -67,10 +68,12 @@ public class Resource extends PersistentObject implements Comparable<Resource> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Resource resource)) return false;
+        if (this == o) {
+            return true;
+        }
+        return o instanceof Resource that &&
+            Strings.CI.equals(getName(), that.getName());
 
-        return getName() != null ? getName().equalsIgnoreCase(resource.getName()) : resource.getName() == null;
     }
 
     @Override

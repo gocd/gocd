@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.presentation.environment;
 
+import java.util.Objects;
+
 public class EnvironmentPipelineModel implements Comparable<EnvironmentPipelineModel> {
     private final String pipelineName;
     private final String environmentName;
@@ -47,13 +49,8 @@ public class EnvironmentPipelineModel implements Comparable<EnvironmentPipelineM
 
         EnvironmentPipelineModel that = (EnvironmentPipelineModel) o;
 
-        if (environmentName != null ? !environmentName.equals(that.environmentName) : that.environmentName != null) {
-            return false;
-        }
-        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) {
-            return false;
-        }
-        return true;
+        return Objects.equals(environmentName, that.environmentName) &&
+            Objects.equals(pipelineName, that.pipelineName);
     }
 
     @Override
@@ -64,10 +61,7 @@ public class EnvironmentPipelineModel implements Comparable<EnvironmentPipelineM
     }
 
     public boolean hasEnvironmentAssociated() {
-        if (environmentName != null) {
-            return true;
-        }
-        return false;
+        return environmentName != null;
     }
 
     @Override

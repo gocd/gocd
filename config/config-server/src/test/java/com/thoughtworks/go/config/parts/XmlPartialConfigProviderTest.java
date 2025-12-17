@@ -37,20 +37,17 @@ import static org.mockito.Mockito.when;
 
 public class XmlPartialConfigProviderTest {
 
-    private ConfigCache configCache = new ConfigCache();
-    private MagicalGoConfigXmlLoader xmlLoader;
     private XmlPartialConfigProvider xmlPartialProvider;
-    private MagicalGoConfigXmlWriter xmlWriter;
-    private  PartialConfigHelper helper;
+    private PartialConfigHelper helper;
     @TempDir
     File tmpFolder;
 
     @BeforeEach
     public void SetUp() {
-        xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
+        MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins());
         xmlPartialProvider = new XmlPartialConfigProvider(xmlLoader);
 
-        xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
+        MagicalGoConfigXmlWriter xmlWriter = new MagicalGoConfigXmlWriter(ConfigElementImplementationRegistryMother.withNoPlugins());
 
         helper = new PartialConfigHelper(xmlWriter, tmpFolder);
     }
@@ -68,7 +65,7 @@ public class XmlPartialConfigProviderTest {
     }
 
     @Test
-    public void shouldParseFileWithOnePipelineGroup() throws Exception   {
+    public void shouldParseFileWithOnePipelineGroup() throws Exception {
         GoConfigMother mother = new GoConfigMother();
         PipelineConfigs group1 = mother.cruiseConfigWithOnePipelineGroup().getGroups().get(0);
 
@@ -102,13 +99,13 @@ public class XmlPartialConfigProviderTest {
 
         helper.addFileWithPipeline("pipe1.gocd.xml", pipe1);
 
-        PartialConfig part = xmlPartialProvider.load(tmpFolder,mock(PartialConfigLoadContext.class));
+        PartialConfig part = xmlPartialProvider.load(tmpFolder, mock(PartialConfigLoadContext.class));
         PipelineConfig pipeRead = part.getGroups().get(0).get(0);
         assertThat(pipeRead).isEqualTo(pipe1);
     }
 
     @Test
-    public void shouldLoadDirectoryWithOnePipelineGroup() throws Exception{
+    public void shouldLoadDirectoryWithOnePipelineGroup() throws Exception {
         GoConfigMother mother = new GoConfigMother();
         PipelineConfigs group1 = mother.cruiseConfigWithOnePipelineGroup().getGroups().get(0);
 
@@ -153,7 +150,7 @@ public class XmlPartialConfigProviderTest {
 
         File[] matchingFiles = xmlPartialProvider.getFiles(tmpFolder, mock(PartialConfigLoadContext.class));
 
-        File[] expected = new File[] {file1, file3, file4};
+        File[] expected = new File[]{file1, file3, file4};
         assertArrayEquals(expected, matchingFiles, "Matched files are: " + List.of(matchingFiles));
     }
 
@@ -169,14 +166,14 @@ public class XmlPartialConfigProviderTest {
 
         PartialConfigLoadContext context = mock(PartialConfigLoadContext.class);
         Configuration configs = new Configuration();
-        configs.addNewConfigurationWithValue("pattern","*.myextension",false);
+        configs.addNewConfigurationWithValue("pattern", "*.myextension", false);
         when(context.configuration()).thenReturn(configs);
 
         File[] matchingFiles = xmlPartialProvider.getFiles(tmpFolder, context);
 
         File[] expected = new File[1];
         expected[0] = file1;
-        assertArrayEquals(expected,matchingFiles);
+        assertArrayEquals(expected, matchingFiles);
     }
 
     @Test
@@ -199,11 +196,11 @@ public class XmlPartialConfigProviderTest {
     @Test
     public void shouldFailToLoadDirectoryWithNonXmlFormat() throws Exception {
         String content = """
-                <?xml version="1.0" encoding="utf-8"?>
-                <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="38">
-                /cruise>""";// missing '<'
+            <?xml version="1.0" encoding="utf-8"?>
+            <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="38">
+            /cruise>""";// missing '<'
 
-        helper.writeFileWithContent("bad.gocd.xml",content);
+        helper.writeFileWithContent("bad.gocd.xml", content);
 
         try {
             PartialConfig part = xmlPartialProvider.load(tmpFolder, mock(PartialConfigLoadContext.class));

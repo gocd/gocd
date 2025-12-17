@@ -16,6 +16,7 @@
 package com.thoughtworks.go.plugin.domain.common;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class PackageMaterialMetadata extends MetadataWithPartOfIdentity {
 
@@ -48,14 +49,22 @@ public class PackageMaterialMetadata extends MetadataWithPartOfIdentity {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         PackageMaterialMetadata that = (PackageMaterialMetadata) o;
 
-        if (displayOrder != that.displayOrder) return false;
-        return displayName != null ? displayName.equals(that.displayName) : that.displayName == null;
+        if (displayOrder != that.displayOrder) {
+            return false;
+        }
+        return Objects.equals(displayName, that.displayName);
     }
 
     @Override

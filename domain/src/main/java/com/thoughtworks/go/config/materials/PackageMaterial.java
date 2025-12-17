@@ -35,6 +35,7 @@ import com.thoughtworks.go.util.json.JsonHelper;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.escapeEnvironmentVariable;
@@ -268,8 +269,7 @@ public class PackageMaterial extends AbstractMaterial implements SecretParamAwar
         }
 
         PackageMaterial that = (PackageMaterial) o;
-
-        return this.getFingerprint() != null ? this.getFingerprint().equals(that.getFingerprint()) : that.getFingerprint() == null;
+        return Objects.equals(this.getFingerprint(), that.getFingerprint());
     }
 
     @Override

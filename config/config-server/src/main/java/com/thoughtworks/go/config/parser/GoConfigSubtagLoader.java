@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.parser;
 
-import com.thoughtworks.go.config.ConfigCache;
 import com.thoughtworks.go.config.ConfigInterface;
 import com.thoughtworks.go.config.ConfigSubtag;
 import com.thoughtworks.go.config.ConfigTag;
@@ -28,17 +27,13 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.thoughtworks.go.config.ConfigCache.annotationFor;
-import static com.thoughtworks.go.config.ConfigCache.isAnnotationPresent;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class GoConfigSubtagLoader {
     private static final Map<Field, ConfigSubtag> isSubTags = new HashMap<>();
 
-    private final ConfigUtil configUtil = new ConfigUtil("magic");
     private final Element e;
     private final Field field;
-    private final ConfigCache configCache;
     private final ConfigElementImplementationRegistry registry;
     private final ConfigReferenceElements configReferenceElements;
 
@@ -50,15 +45,14 @@ public class GoConfigSubtagLoader {
         return isSubTags.computeIfAbsent(field, f -> f.getAnnotation(ConfigSubtag.class));
     }
 
-    public static GoConfigSubtagLoader subtagParser(Element e, Field field, ConfigCache configCache, final ConfigElementImplementationRegistry registry,
-                                                        ConfigReferenceElements configReferenceElements) {
-        return new GoConfigSubtagLoader(e, field, configCache, registry, configReferenceElements);
+    public static GoConfigSubtagLoader subtagParser(Element e, Field field, ConfigElementImplementationRegistry registry,
+                                                    ConfigReferenceElements configReferenceElements) {
+        return new GoConfigSubtagLoader(e, field, registry, configReferenceElements);
     }
 
-    private GoConfigSubtagLoader(Element e, Field field, ConfigCache configCache, final ConfigElementImplementationRegistry registry, ConfigReferenceElements configReferenceElements) {
+    private GoConfigSubtagLoader(Element e, Field field, ConfigElementImplementationRegistry registry, ConfigReferenceElements configReferenceElements) {
         this.e = e;
         this.field = field;
-        this.configCache = configCache;
         this.registry = registry;
         this.configReferenceElements = configReferenceElements;
     }
@@ -68,11 +62,11 @@ public class GoConfigSubtagLoader {
         if (type == null) { return null; }
 
         ConfigTag tag = GoConfigClassLoader.configTag(type);
-        if (configUtil.optionalAndMissingTag(e, tag, findSubTag(field).optional())) {
+        if (ConfigUtil.optionalAndMissingTag(e, tag, findSubTag(field).optional())) {
             return null;
         }
 
-        return GoConfigClassLoader.classParser(configUtil.getChild(e, tag), type, configCache, new GoCipher(), registry, configReferenceElements).parse();
+        return GoConfigClassLoader.classParser(ConfigUtil.getChild(e, tag), type, new GoCipher(), registry, configReferenceElements).parse();
     }
 
     private Class<?> findTypeOfField() {
@@ -84,7 +78,7 @@ public class GoConfigSubtagLoader {
                     return concreteType;
                 }
             }
-            boolean optional = annotationFor(field, ConfigSubtag.class).optional();
+            boolean optional = field.getAnnotation(ConfigSubtag.class).optional();
             if (optional) { return null; }
             throw bomb("Unable to find a tag of type '" + type.getSimpleName() + "' under element '" + e.getName()
                     + "'");
@@ -102,7 +96,7 @@ public class GoConfigSubtagLoader {
     }
 
     private boolean isInterface(Class<?> aClass) {
-        return isAnnotationPresent(aClass, ConfigInterface.class);
+        return aClass.isAnnotationPresent(ConfigInterface.class);
     }
 
 }

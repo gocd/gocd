@@ -164,21 +164,34 @@ public class RoutesHelper {
         }
     }
 
-    void setDeprecationHeaders(Request request, Response response, DeprecatedAPI controller) {
-        String deprecatedRelease = controller.deprecatedIn();
-        String removalRelease = controller.removalIn();
-        String entityName = controller.entityName();
-        ApiVersion deprecatedApiVersion = controller.deprecatedApiVersion();
-        ApiVersion successorApiVersion = controller.successorApiVersion();
+    void setDeprecationHeaders(Request request, Response response, DeprecatedAPI deprecationDetails) {
+        String deprecatedRelease = deprecationDetails.deprecatedIn();
+        String removalRelease = deprecationDetails.removalIn();
+        String entityName = deprecationDetails.entityName();
+        ApiVersion deprecatedApiVersion = deprecationDetails.deprecatedApiVersion();
+        ApiVersion successorApiVersion = deprecationDetails.successorApiVersion();
 
-        String changelogUrl = format("https://api.gocd.org/%s/#api-changelog", deprecatedRelease);
-        String link = format("<%s>; Accept=\"%s\"; rel=\"successor-version\"", request.url(), successorApiVersion.mimeType());
-        String warning = format("299 GoCD/v%s \"The %s API version %s has been deprecated in GoCD Release v%s. This version will be removed in GoCD Release v%s. Version %s of the API is available, and users are encouraged to use it\"", deprecatedRelease, entityName, deprecatedApiVersion, deprecatedRelease, removalRelease, successorApiVersion);
+        response.header("X-GoCD-API-Deprecated-In", "v" + deprecatedRelease);
+        response.header("X-GoCD-API-Removal-In", "v" + removalRelease);
+        response.header("X-GoCD-API-Deprecation-Info", format("https://api.gocd.org/%s/#api-changelog", deprecatedRelease));
 
-        response.header("X-GoCD-API-Deprecated-In", format("v%s", deprecatedRelease));
-        response.header("X-GoCD-API-Removal-In", format("v%s", removalRelease));
-        response.header("X-GoCD-API-Deprecation-Info", changelogUrl);
-        response.header("Link", link);
-        response.header("Warning", warning);
+        if (successorApiVersion != ApiVersion.none) {
+            String link = format("<%s>; Accept=\"%s\"; rel=\"successor-version\"", request.url(), successorApiVersion.mimeType());
+            String warning = """
+                    299 GoCD/v%s "The %s API version %s has been deprecated in GoCD Release v%s. \
+                    This version will be removed in GoCD Release v%s. \
+                    Version %s of the API is available, and users are encouraged to use it\""""
+                    .formatted(deprecatedRelease, entityName, deprecatedApiVersion, deprecatedRelease, removalRelease, successorApiVersion);
+
+            response.header("Warning", warning);
+            response.header("Link", link);
+        } else {
+            String warning = """
+                    299 GoCD/v%s "The %s API version %s has been deprecated without replacement in GoCD Release v%s. \
+                    This API will be removed in GoCD Release v%s. %s\""""
+                    .formatted(deprecatedRelease, entityName, deprecatedApiVersion, deprecatedRelease, removalRelease, deprecationDetails.replacementSuggestion());
+
+            response.header("Warning", warning);
+        }
     }
 }

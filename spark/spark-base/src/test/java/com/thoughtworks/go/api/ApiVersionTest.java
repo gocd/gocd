@@ -42,4 +42,10 @@ class ApiVersionTest {
         assertThat(ApiVersion.v1.mimeType()).isEqualTo("application/vnd.go.cd.v1+json");
         assertThat(ApiVersion.v10.mimeType()).isEqualTo("application/vnd.go.cd.v10+json");
     }
+
+    @Test
+    public void shouldExcludeNoneType() {
+        assertThat(ApiVersion.parse(ApiVersion.none.mimeType())).isNull();
+        assertThat(ApiVersion.isValid(ApiVersion.none.mimeType())).isFalse();
+    }
 }

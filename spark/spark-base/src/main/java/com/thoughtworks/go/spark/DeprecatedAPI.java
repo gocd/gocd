@@ -36,4 +36,6 @@ public @interface DeprecatedAPI {
     String removalIn();
 
     String entityName();
+
+    String replacementSuggestion() default "";
 }

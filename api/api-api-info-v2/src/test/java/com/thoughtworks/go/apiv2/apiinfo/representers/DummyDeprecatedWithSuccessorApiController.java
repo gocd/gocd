@@ -24,7 +24,22 @@ import spark.Response;
 import spark.RouteImpl;
 
 @DeprecatedAPI(deprecatedApiVersion = ApiVersion.v1, successorApiVersion = ApiVersion.v2, deprecatedIn = "20.2.0", removalIn = "20.5.0", entityName = "Do Nothing")
-public class DummyDeprecatedApiController implements SparkSpringController {
+class DummyDeprecatedWithSuccessorApiController implements SparkSpringController {
+    @Override
+    public void setupRoutes() {
+    }
+
+    public String doNothing(Request request, Response response) {
+        return "";
+    }
+
+    public RouteImpl doNothingRouteImpl() {
+        return RouteImpl.create("", "", this::doNothing);
+    }
+}
+
+@DeprecatedAPI(deprecatedApiVersion = ApiVersion.v1, successorApiVersion = ApiVersion.none, deprecatedIn = "23.4.0", removalIn = "23.5.0", entityName = "", replacementSuggestion = "Use something else")
+class DummyDeprecatedPermanentlyApiController implements SparkSpringController {
     @Override
     public void setupRoutes() {
     }

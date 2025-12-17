@@ -24,31 +24,24 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum ApiVersion {
-    v1(),
-    v2(),
-    v3(),
-    v4(),
-    v5(),
-    v6(),
-    v7(),
-    v8(),
-    v9(),
-    v10(),
-    v11();
+    none, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11;
 
     public static final String LATEST_VERSION_MIMETYPE = "application/vnd.go.cd+json";
 
     private static final Set<String> VALID_HEADERS = Set.copyOf(
         Stream.concat(
                 Stream.of(LATEST_VERSION_MIMETYPE),
-                Arrays.stream(ApiVersion.values()).map(ApiVersion::mimeType))
+                realApiVersions().map(ApiVersion::mimeType))
             .collect(Collectors.toSet())
     );
 
     private static final Map<String, ApiVersion> HEADER_TO_VERSION_MAP = Map.copyOf(
-        Arrays.stream(ApiVersion.values())
-            .collect(Collectors.toMap(v -> v.mimeType, Function.identity()))
+        realApiVersions().collect(Collectors.toMap(v -> v.mimeType, Function.identity()))
     );
+
+    private static Stream<ApiVersion> realApiVersions() {
+        return Arrays.stream(ApiVersion.values()).filter(v -> v != none);
+    }
 
     private final String mimeType;
 

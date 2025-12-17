@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.server.service.FeedService;
+import com.thoughtworks.go.spark.DeprecatedAPI;
 import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -44,6 +45,8 @@ import static org.springframework.http.MediaType.*;
 import static spark.Spark.*;
 
 @Component
+@DeprecatedAPI(deprecatedApiVersion = ApiVersion.v1, successorApiVersion = ApiVersion.none, deprecatedIn = "25.4.0", removalIn = "25.1.0", entityName = "Feeds",
+    replacementSuggestion = "Users should migrate to modern JSON-based alternatives.")
 public class FeedsApiControllerV1 extends ApiController implements SparkSpringController {
     private static final String PIPELINE_NAME = "pipeline_name";
     private static final String PIPELINE_COUNTER = "pipeline_counter";

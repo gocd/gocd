@@ -67,7 +67,7 @@ public class ApiInfoControllerV2 extends ApiController implements SparkSpringCon
     public String index(Request request, Response response) throws IOException {
         List<RouteEntry> filteredRoutes = provider.getRoutes().stream()
             .filter(RouteEntry::isAPI)
-            .sorted(Comparator.comparing(RouteEntry::getPath))
+            .sorted(Comparator.comparing(RouteEntry::path))
             .collect(Collectors.toList());
 
         return writerForTopLevelArray(request, response, writer -> RouteEntryRepresenter.toJSON(writer, filteredRoutes));

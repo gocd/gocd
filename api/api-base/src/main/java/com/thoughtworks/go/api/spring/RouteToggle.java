@@ -41,8 +41,8 @@ class RouteToggle {
     }
 
     boolean matches(RouteEntry entry) {
-        return entry.getAcceptedType().equals(version.mimeType()) &&
-                this.withinPath(entry.getPath());
+        return entry.acceptedType().equals(version.mimeType()) &&
+                this.withinPath(entry.path());
     }
 
     boolean isToggleOn(FeatureToggleService s) {

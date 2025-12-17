@@ -30,12 +30,12 @@ public class RouteEntryRepresenter {
     public static void toJSON(OutputListWriter writer, List<RouteEntry> routes) {
         routes.forEach(entry -> writer.addChild(entryWriter -> {
             entryWriter
-                    .add("method", entry.getHttpMethod().name())
-                    .add("path", entry.getPath())
-                    .add("version", entry.getAcceptedType())
+                    .add("method", entry.httpMethod().name())
+                    .add("path", entry.path())
+                    .add("version", entry.acceptedType())
                     .addChildList("path_params", getParams(entry));
 
-            Class<?> routeHandlerClass = ((RouteImpl) entry.getTarget()).delegate().getClass();
+            Class<?> routeHandlerClass = ((RouteImpl) entry.target()).delegate().getClass();
 
             // Generally routes are lambdas nested within a controller class, so we can find the controller
             // by looking for the nest host of the route
@@ -66,7 +66,7 @@ public class RouteEntryRepresenter {
     }
 
     public static List<String> getParams(RouteEntry entry) {
-        return SparkUtils.convertRouteToList(entry.getPath())
+        return SparkUtils.convertRouteToList(entry.path())
                 .stream()
                 .filter(SparkUtils::isParam)
                 .collect(Collectors.toList());

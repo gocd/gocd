@@ -19,37 +19,10 @@ package com.thoughtworks.go.spark.spring;
 import org.apache.commons.lang3.Strings;
 import spark.route.HttpMethod;
 
-import java.util.List;
+import java.util.Set;
 
-public class RouteEntry {
-    private final List<String> METHODS = List.of("get", "post", "put", "patch", "delete", "trace");
-    private HttpMethod httpMethod;
-    private String path;
-    private String acceptedType;
-    private Object target;
-
-    public RouteEntry(HttpMethod httpMethod, String path, String acceptedType, Object target) {
-        this.httpMethod = httpMethod;
-        this.path = path;
-        this.acceptedType = acceptedType;
-        this.target = target;
-    }
-
-    public HttpMethod getHttpMethod() {
-        return httpMethod;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public String getAcceptedType() {
-        return acceptedType;
-    }
-
-    public Object getTarget() {
-        return target;
-    }
+public record RouteEntry(HttpMethod httpMethod, String path, String acceptedType, Object target) {
+    private final static Set<String> METHODS = Set.of("get", "post", "put", "patch", "delete", "trace");
 
     public boolean isAPI() {
         return METHODS.contains(httpMethod.name().toLowerCase()) &&

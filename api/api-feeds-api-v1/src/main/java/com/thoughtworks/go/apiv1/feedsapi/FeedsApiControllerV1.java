@@ -93,30 +93,30 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
 
     public String pipelineXML(Request request, Response response) throws IOException {
         String pipelineName = request.params(PIPELINE_NAME);
-        Integer pipelineCounter = parseInt(removeExtension(request.params(PIPELINE_COUNTER)), PIPELINE_COUNTER);
+        Integer pipelineCounter = valueOf(removeExtension(request.params(PIPELINE_COUNTER)), PIPELINE_COUNTER);
         return prettyPrint(feedService.pipelineXml(currentUsername(), pipelineName, pipelineCounter, baseUrl(request)));
     }
 
     public String stagesXML(Request request, Response response) throws IOException {
         String pipelineName = request.params(PIPELINE_NAME);
         String beforeFromRequest = request.queryParams("before");
-        Integer before = isBlank(beforeFromRequest) ? null : parseInt(beforeFromRequest, "before");
+        Integer before = isBlank(beforeFromRequest) ? null : valueOf(beforeFromRequest, "before");
         return prettyPrint(feedService.stagesXml(currentUsername(), pipelineName, before, baseUrl(request)));
     }
 
     public String stageXML(Request request, Response response) throws IOException {
         String pipelineName = request.params(PIPELINE_NAME);
-        Integer pipelineCounter = parseInt(request.params(PIPELINE_COUNTER), PIPELINE_COUNTER);
+        Integer pipelineCounter = valueOf(request.params(PIPELINE_COUNTER), PIPELINE_COUNTER);
         String stageName = request.params(STAGE_NAME);
-        Integer stageCounter = parseInt(removeExtension(request.params(STAGE_COUNTER)), STAGE_COUNTER);
+        Integer stageCounter = valueOf(removeExtension(request.params(STAGE_COUNTER)), STAGE_COUNTER);
         return prettyPrint(feedService.stageXml(currentUsername(), pipelineName, pipelineCounter, stageName, stageCounter, baseUrl(request)));
     }
 
     public String jobXML(Request request, Response response) throws IOException {
         String pipelineName = request.params(PIPELINE_NAME);
-        Integer pipelineCounter = parseInt(request.params(PIPELINE_COUNTER), PIPELINE_COUNTER);
+        Integer pipelineCounter = valueOf(request.params(PIPELINE_COUNTER), PIPELINE_COUNTER);
         String stageName = request.params(STAGE_NAME);
-        Integer stageCounter = parseInt(request.params(STAGE_COUNTER), STAGE_COUNTER);
+        Integer stageCounter = valueOf(request.params(STAGE_COUNTER), STAGE_COUNTER);
         String jobName = removeExtension(request.params("job_name"));
 
         return prettyPrint(feedService.jobXml(currentUsername(), pipelineName, pipelineCounter, stageName, stageCounter, jobName, baseUrl(request)));
@@ -128,7 +128,7 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
 
     public String materialXML(Request request, Response response) throws IOException {
         String pipelineName = request.params(PIPELINE_NAME);
-        Integer pipelineCounter = parseInt(request.params(PIPELINE_COUNTER), PIPELINE_COUNTER);
+        Integer pipelineCounter = valueOf(request.params(PIPELINE_COUNTER), PIPELINE_COUNTER);
         String fingerprint = removeExtension(request.params("fingerprint"));
 
         return prettyPrint(feedService.materialXml(currentUsername(), pipelineName, pipelineCounter, fingerprint, baseUrl(request)));
@@ -144,9 +144,9 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
         return writer.toString();
     }
 
-    private Integer parseInt(String value, String entity) {
+    private Integer valueOf(String value, String entity) {
         try {
-            return Integer.parseInt(value);
+            return Integer.valueOf(value);
         } catch (NumberFormatException nfe) {
             throw new BadRequestException(format("The '%s' must be an integer.", entity.replaceAll("_", " ")));
         }

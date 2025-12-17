@@ -29,10 +29,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import spark.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiFunction;
 
 import static com.thoughtworks.go.api.ApiVersion.LATEST_VERSION_MIMETYPE;
@@ -56,12 +53,12 @@ public class RerouteLatestApisImpl implements RerouteLatestApis, ApplicationCont
             return !routeToggles.isToggledOn(entry);
         }
 
-        return entry.getAcceptedType().equals("*/*");
+        return entry.acceptedType().equals("*/*");
     }
 
     // ignore feed API paths
     private boolean ignoreFeedApis(String path) {
-        return path.toLowerCase().startsWith("/api/feed/");
+        return path.toLowerCase().startsWith("/api/feed");
     }
 
     @Override
@@ -72,38 +69,38 @@ public class RerouteLatestApisImpl implements RerouteLatestApis, ApplicationCont
         routeToggles = resolveRouteToggles();
 
         routes.forEach(entry -> {
-            if (shouldIgnore(entry) || ignoreFeedApis(entry.getPath())) {
+            if (shouldIgnore(entry) || ignoreFeedApis(entry.path())) {
                 return;
             }
 
-            ApiVersion version = ApiVersion.parse(entry.getAcceptedType());
-            pathToVersionsMap.add(entry.getPath(), version);
+            ApiVersion version = Objects.requireNonNull(ApiVersion.parse(entry.acceptedType()), "No api version corresponding to " + entry);
+            pathToVersionsMap.add(entry.path(), version);
         });
 
         routes.forEach(routeEntry -> {
-            if (shouldIgnore(routeEntry) || ignoreFeedApis(routeEntry.getPath())) {
+            if (shouldIgnore(routeEntry) || ignoreFeedApis(routeEntry.path())) {
                 return;
             }
 
             // get the api versions for this path
-            Collection<ApiVersion> apiVersions = pathToVersionsMap.get(routeEntry.getPath());
+            Collection<ApiVersion> apiVersions = pathToVersionsMap.get(routeEntry.path());
             // get the max version supported by this path
-            ApiVersion maxVersion = apiVersions.stream().max(Comparator.naturalOrder()).orElseThrow(() -> new IllegalArgumentException("Unable to lookup api version for " + routeEntry.getPath()));
+            ApiVersion maxVersion = apiVersions.stream().max(Comparator.naturalOrder()).orElseThrow(() -> new IllegalArgumentException("Unable to lookup api version for " + routeEntry));
 
             // if this route corresponds to the latest version, then also register that route with latest version.
-            if (maxVersion.mimeType().equals(routeEntry.getAcceptedType())) {
+            if (maxVersion.mimeType().equals(routeEntry.acceptedType())) {
                 Service service = routeInformationProvider.getService();
-                if (routeEntry.getTarget() instanceof Route) {
-                    service.addRoute(routeEntry.getHttpMethod(), RouteImpl.create(routeEntry.getPath(), LATEST_VERSION_MIMETYPE, (Route) routeEntry.getTarget()));
-                } else if (routeEntry.getTarget() instanceof Filter) {
-                    service.addFilter(routeEntry.getHttpMethod(), new FilterImpl(routeEntry.getPath(), LATEST_VERSION_MIMETYPE, ((Filter) routeEntry.getTarget())) {
+                if (routeEntry.target() instanceof Route) {
+                    service.addRoute(routeEntry.httpMethod(), RouteImpl.create(routeEntry.path(), LATEST_VERSION_MIMETYPE, (Route) routeEntry.target()));
+                } else if (routeEntry.target() instanceof Filter) {
+                    service.addFilter(routeEntry.httpMethod(), new FilterImpl(routeEntry.path(), LATEST_VERSION_MIMETYPE, ((Filter) routeEntry.target())) {
                         @Override
                         public void handle(Request request, Response response) throws Exception {
-                            ((Filter) routeEntry.getTarget()).handle(request, response);
+                            ((Filter) routeEntry.target()).handle(request, response);
                         }
                     });
                 } else {
-                    throw new IllegalArgumentException("Unexpected target type " + routeEntry.getTarget().getClass());
+                    throw new IllegalArgumentException("Unexpected target type " + routeEntry.target().getClass());
                 }
             }
 

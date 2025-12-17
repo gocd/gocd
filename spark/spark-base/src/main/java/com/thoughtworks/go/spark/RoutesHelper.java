@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.http.MediaType.*;
 import static spark.Spark.*;
@@ -136,7 +136,7 @@ public class RoutesHelper {
 
     private List<String> getAcceptedTypesFromRequest(Request request) {
         String acceptHeader = request.headers("Accept");
-        if (StringUtils.isBlank(acceptHeader)) {
+        if (isBlank(acceptHeader)) {
             return Collections.emptyList();
         }
 

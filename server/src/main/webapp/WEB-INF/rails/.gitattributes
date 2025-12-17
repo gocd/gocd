@@ -1,2 +1,9 @@
-.yarn/releases/** linguist-vendored
-.yarn/plugins/** linguist-vendored
+.yarn/releases/** linguist-generated
+.yarn/plugins/**  linguist-vendored
+
+tsconfig.json     linguist-language=JSON-with-Comments
+babel.config.json linguist-language=JSON-with-Comments
+
+*.html.erb        linguist-language=HTML
+*.json.erb        linguist-language=JSON
+*.scss.erb        linguist-language=SCSS

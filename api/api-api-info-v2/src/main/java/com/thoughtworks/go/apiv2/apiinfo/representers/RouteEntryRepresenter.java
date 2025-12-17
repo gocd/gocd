@@ -57,6 +57,7 @@ public class RouteEntryRepresenter {
             deprecationWriter.add("successor_api_version", deprecatedAPI.successorApiVersion());
             deprecationWriter.add("deprecated_in", deprecatedAPI.deprecatedIn());
             deprecationWriter.add("removal_in", deprecatedAPI.removalIn());
+            deprecationWriter.addIfNotBlank("replacement_suggestion", deprecatedAPI.replacementSuggestion());
         });
     }
 

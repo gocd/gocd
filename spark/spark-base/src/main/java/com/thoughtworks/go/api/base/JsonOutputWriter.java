@@ -33,8 +33,6 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.function.Consumer;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
 public class JsonOutputWriter {
     private static final Logger log = LoggerFactory.getLogger(JsonOutputWriter.class);
 
@@ -139,6 +137,15 @@ public class JsonOutputWriter {
         }
 
         @Override
+        public JsonOutputWriterUsingJackson addIfNotBlank(String key, String value) {
+            return withExceptionHandling((jacksonWriter) -> {
+                if (value != null && !value.isBlank()) {
+                    add(key, value);
+                }
+            });
+        }
+
+        @Override
         public JsonOutputWriterUsingJackson addIfNotNull(String key, Long value) {
             return withExceptionHandling((jacksonWriter) -> {
                 if (value != null) {
@@ -174,11 +181,10 @@ public class JsonOutputWriter {
             });
         }
 
-
         @Override
         public JsonOutputWriterUsingJackson addWithDefaultIfBlank(String key, String value, String defaultValue) {
             return withExceptionHandling((jacksonWriter) -> {
-                if (isNotBlank(value)) {
+                if (value != null && !value.isBlank()) {
                     add(key, value);
                 } else {
                     add(key, defaultValue);
@@ -403,7 +409,7 @@ public class JsonOutputWriter {
 
             @Override
             public OutputLinkWriter addLinkIfPresent(String key, String href) {
-                if (isNotBlank(href)) {
+                if (href != null && !href.isBlank()) {
                     addAbsoluteLink(key, requestContext.build(key, href).getHref());
                 }
                 return this;

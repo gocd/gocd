@@ -17,6 +17,7 @@ package com.thoughtworks.go.api.base;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.Closeable;
 import java.util.Collection;
@@ -35,13 +36,15 @@ public interface OutputWriter extends Closeable {
 
     OutputWriter addIfNotNull(String key, String value);
 
+    OutputWriter addIfNotBlank(String key, String value);
+
     OutputWriter addIfNotNull(String key, CaseInsensitiveString value);
 
     OutputWriter addIfNotNull(String key, Long value);
 
     OutputWriter addIfNotNull(String key, Integer value);
 
-    OutputWriter addWithDefaultIfBlank(String key, String value, String defaultValue);
+    OutputWriter addWithDefaultIfBlank(String key, String value, @Nullable String defaultValue);
 
     OutputWriter add(String key, int value);
 

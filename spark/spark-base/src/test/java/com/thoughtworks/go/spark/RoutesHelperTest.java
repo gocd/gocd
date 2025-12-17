@@ -19,6 +19,7 @@ package com.thoughtworks.go.spark;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -90,26 +91,66 @@ class RoutesHelperTest {
     }
 
     @Test
-    void shouldAddDeprecationHeaders() {
-        DoNothingApiV1 doNothingApiV1 = new DoNothingApiV1();
-
-        RoutesHelper helper = new RoutesHelper(doNothingApiV1);
-
-        Request request = mock(Request.class);
-        Response response = mock(Response.class);
-        when(request.url()).thenReturn("http://test.host:80/go");
-
-        helper.setDeprecationHeaders(request, response, doNothingApiV1.getClass().getAnnotation(DeprecatedAPI.class));
+    void shouldAddDeprecationHeadersForUpgradedApi() {
+        Response response = checkDeprecationHeadersFor(new DoNothingApiForUpgrade());
 
         verify(response).header("X-GoCD-API-Deprecated-In", "v20.2.0");
         verify(response).header("X-GoCD-API-Removal-In", "v20.5.0");
         verify(response).header("X-GoCD-API-Deprecation-Info", "https://api.gocd.org/20.2.0/#api-changelog");
         verify(response).header("Link", "<http://test.host:80/go>; Accept=\"application/vnd.go.cd.v2+json\"; rel=\"successor-version\"");
         verify(response).header("Warning", "299 GoCD/v20.2.0 \"The Do Nothing API version v1 has been deprecated in GoCD Release v20.2.0. This version will be removed in GoCD Release v20.5.0. Version v2 of the API is available, and users are encouraged to use it\"");
+        verifyNoMoreInteractions(response);
+    }
+
+    @Test
+    void shouldAddDeprecationHeadersForToBeRemovedApi() {
+        Response response = checkDeprecationHeadersFor(new DoNothingApiForRemovalWithSuggestion());
+
+        verify(response).header("X-GoCD-API-Deprecated-In", "v20.2.0");
+        verify(response).header("X-GoCD-API-Removal-In", "v20.5.0");
+        verify(response).header("X-GoCD-API-Deprecation-Info", "https://api.gocd.org/20.2.0/#api-changelog");
+        verify(response).header("Warning", "299 GoCD/v20.2.0 \"The Do Nothing API version v2 has been deprecated without replacement in GoCD Release v20.2.0. This API will be removed in GoCD Release v20.5.0. Users are suggested to migrate to use of another API.\"");
+        verifyNoMoreInteractions(response);
+    }
+
+    @Test
+    void shouldAddDeprecationHeadersForToBeRemovedWithoutSuggestionApi() {
+        Response response = checkDeprecationHeadersFor(new DoNothingApiForRemovalWithoutSuggestion());
+
+        verify(response).header("X-GoCD-API-Deprecated-In", "v20.2.0");
+        verify(response).header("X-GoCD-API-Removal-In", "v20.5.0");
+        verify(response).header("X-GoCD-API-Deprecation-Info", "https://api.gocd.org/20.2.0/#api-changelog");
+        verify(response).header("Warning", "299 GoCD/v20.2.0 \"The Do Nothing API version v2 has been deprecated without replacement in GoCD Release v20.2.0. This API will be removed in GoCD Release v20.5.0. \"");
+        verifyNoMoreInteractions(response);
+    }
+
+    private static @NotNull Response checkDeprecationHeadersFor(SparkSpringController api) {
+        RoutesHelper helper = new RoutesHelper(api);
+        Request request = mock(Request.class);
+        Response response = mock(Response.class);
+        when(request.url()).thenReturn("http://test.host:80/go");
+
+        helper.setDeprecationHeaders(request, response, api.getClass().getAnnotation(DeprecatedAPI.class));
+        return response;
     }
 
     @DeprecatedAPI(deprecatedApiVersion = ApiVersion.v1, successorApiVersion = ApiVersion.v2, deprecatedIn = "20.2.0", removalIn = "20.5.0", entityName = "Do Nothing")
-    private static class DoNothingApiV1 implements SparkSpringController {
+    private static class DoNothingApiForUpgrade implements SparkSpringController {
+        @Override
+        public void setupRoutes() {
+        }
+    }
+
+    @DeprecatedAPI(deprecatedApiVersion = ApiVersion.v2, successorApiVersion = ApiVersion.none, deprecatedIn = "20.2.0", removalIn = "20.5.0", entityName = "Do Nothing",
+        replacementSuggestion = "Users are suggested to migrate to use of another API.")
+    private static class DoNothingApiForRemovalWithSuggestion implements SparkSpringController {
+        @Override
+        public void setupRoutes() {
+        }
+    }
+
+    @DeprecatedAPI(deprecatedApiVersion = ApiVersion.v2, successorApiVersion = ApiVersion.none, deprecatedIn = "20.2.0", removalIn = "20.5.0", entityName = "Do Nothing")
+    private static class DoNothingApiForRemovalWithoutSuggestion implements SparkSpringController {
         @Override
         public void setupRoutes() {
         }

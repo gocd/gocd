@@ -48,7 +48,7 @@ class RouteEntryRepresenterTest {
   @Test
   void shouldConvertDeprecatedRouteEntriesToJson() {
     def entries = List.of(new RouteEntry(HttpMethod.get, "/api/:foo/:bar", "application/vnd.go.cd+v2.json",
-      new DummyDeprecatedApiController()::doNothingRouteImpl()))
+      new DummyDeprecatedWithSuccessorApiController()::doNothingRouteImpl()))
     def json = toArrayString({
       RouteEntryRepresenter.toJSON(it, entries)
     })
@@ -64,6 +64,33 @@ class RouteEntryRepresenterTest {
           "successor_api_version": "v2",
           "deprecated_in": "20.2.0",
           "removal_in": "20.5.0"
+       ]
+      ]
+    ]
+
+    assertThatJson(json).isEqualTo(expectedJSON)
+  }
+
+  @Test
+  void shouldConvertDeprecatedRouteEntriesToJsonForRemovedApi() {
+    def entries = List.of(new RouteEntry(HttpMethod.get, "/api/:foo/:bar", "application/vnd.go.cd+v2.json",
+      new DummyDeprecatedPermanentlyApiController()::doNothingRouteImpl()))
+    def json = toArrayString({
+      RouteEntryRepresenter.toJSON(it, entries)
+    })
+
+    def expectedJSON = [
+      ["method"     : "get",
+       "path"       : "/api/:foo/:bar",
+       "version"    : "application/vnd.go.cd+v2.json",
+       "path_params": [":foo", ":bar"],
+       "deprecation_info": [
+         "is_deprecated": true,
+         "deprecated_api_version": "v1",
+         "successor_api_version": "none",
+         "deprecated_in": "23.4.0",
+         "removal_in": "23.5.0",
+         "replacement_suggestion": "Use something else"
        ]
       ]
     ]

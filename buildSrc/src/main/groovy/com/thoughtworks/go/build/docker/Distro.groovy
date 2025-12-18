@@ -38,7 +38,6 @@ enum Distro implements DistroBehavior {
     @Override
     List<String> getBaseImageUpdateCommands(DistroVersion v) {
       [
-        'apk --no-cache upgrade --scripts=no apk-tools', // Workaround for Alpine >= 3.23.0 < 3.23.1 https://gitlab.alpinelinux.org/alpine/aports/-/issues/17775 / https://github.com/moby/buildkit/issues/6400
         'apk --no-cache upgrade'
       ]
     }

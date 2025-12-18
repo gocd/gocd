@@ -21,7 +21,6 @@ import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.database.QueryExtensions;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
@@ -35,6 +34,8 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
 import java.util.*;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * Understands how to store and retrieve pipelines from the database
@@ -69,8 +70,10 @@ public class PipelineRepository extends HibernateDaoSupport {
             private static final int FINGERPRINT = 4;
             private static final int NATURAL_ORDER = 5;
             private static final int REVISION = 6;
-            private static final int MOD_ID = 7;
-            private static final int PMR_ID = 8;
+            @SuppressWarnings("unused")  // Retaining this unused field for clarity; as removing it from queries seemed to change natural implied order of PipelineTimelineEntry
+            private static final int FOLDER = 7;
+            private static final int MOD_ID = 8;
+            private static final int PMR_ID = 9;
 
             @Override
             public Object doInHibernate(Session session) throws HibernateException {
@@ -130,7 +133,7 @@ public class PipelineRepository extends HibernateDaoSupport {
                     return newPipelines;
                 }
 
-                Map<String, List<PipelineTimelineEntry.Revision>> revisions = new HashMap<>();
+                Map<String, List<PipelineTimelineEntry.Revision>> revisionsByFingerprint = new HashMap<>();
 
                 String name = null;
                 long curId = -1;
@@ -146,17 +149,17 @@ public class PipelineRepository extends HibernateDaoSupport {
                         name = pipelineName(row);
                         curId = id;
                         counter = counter(row);
-                        revisions = new HashMap<>();
+                        revisionsByFingerprint = new HashMap<>();
                         naturalOrder = naturalOrder(row);
                     }
 
-                    revisions.computeIfAbsent(fingerprint(row), k -> new ArrayList<>())
+                    revisionsByFingerprint.computeIfAbsent(fingerprint(row), k -> new ArrayList<>())
                         .add(rev(row));
 
                     int nextI = i + 1;
                     if (((nextI < matches.size() && id(matches.get(nextI)) != curId) ||//new pipeline instance starts in next record, so capture this one
                         nextI == matches.size())) {//this is the last record, so capture it
-                        entry = new PipelineTimelineEntry(name, curId, counter, revisions, naturalOrder);
+                        entry = new PipelineTimelineEntry(name, curId, counter, revisionsByFingerprint, naturalOrder);
                         newPipelines.add(entry);
                     }
                 }
@@ -243,7 +246,7 @@ public class PipelineRepository extends HibernateDaoSupport {
     }
 
     public PipelineSelections findPipelineSelectionsById(String id) {
-        if (StringUtils.isEmpty(id)) {
+        if (isEmpty(id)) {
             return null;
         }
         return findPipelineSelectionsById(Long.parseLong(id));

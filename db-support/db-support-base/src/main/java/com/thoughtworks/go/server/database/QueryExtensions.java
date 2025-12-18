@@ -56,7 +56,7 @@ public abstract class QueryExtensions {
 
     public String retrievePipelineTimeline() {
         return "SELECT p.name, p.id AS p_id, p.counter, m.modifiedtime, "
-                + " (SELECT materials.fingerprint FROM materials WHERE id = m.materialId), naturalOrder, m.revision, pmr.toRevisionId AS mod_id, pmr.Id as pmrid "
+                + " (SELECT materials.fingerprint FROM materials WHERE id = m.materialId), naturalOrder, m.revision, pmr.folder, pmr.toRevisionId AS mod_id, pmr.Id as pmrid "
                 + "FROM pipelines p, pipelinematerialrevisions pmr, modifications m "
                 + "WHERE p.id = pmr.pipelineid "
                 + "AND pmr.torevisionid = m.id "

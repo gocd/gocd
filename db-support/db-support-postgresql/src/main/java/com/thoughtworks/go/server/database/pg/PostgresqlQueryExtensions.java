@@ -22,12 +22,13 @@ public class PostgresqlQueryExtensions extends QueryExtensions {
     @Override
     public String retrievePipelineTimeline() {
         // we run a `CAST` because otherwise hibernate is unable to understand the `citext` datatype
-        return "SELECT CAST(p.name AS VARCHAR), p.id AS p_id, p.counter, m.modifiedtime, "
-                + " (SELECT CAST(materials.fingerprint AS VARCHAR) FROM materials WHERE id = m.materialId), naturalOrder, m.revision, pmr.folder, pmr.toRevisionId AS mod_id, pmr.Id as pmrid "
-                + "FROM pipelines p, pipelinematerialrevisions pmr, modifications m "
-                + "WHERE p.id = pmr.pipelineid "
-                + "AND pmr.torevisionid = m.id "
-                + "AND p.id > :pipelineId";
+        return """
+            SELECT CAST(p.name AS VARCHAR), p.id AS p_id, p.counter, m.modifiedtime, \
+             (SELECT CAST(materials.fingerprint AS VARCHAR) FROM materials WHERE id = m.materialId), naturalOrder, m.revision, pmr.toRevisionId AS mod_id, pmr.Id as pmrid \
+            FROM pipelines p, pipelinematerialrevisions pmr, modifications m \
+            WHERE p.id = pmr.pipelineid \
+            AND pmr.torevisionid = m.id \
+            AND p.id > :pipelineId""";
     }
 
     @Override

@@ -17,67 +17,62 @@
 package com.thoughtworks.go.server.database;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public abstract class QueryExtensions {
     public String queryFromInclusiveModificationsForPipelineRange(String pipelineName, Integer fromCounter, Integer toCounter) {
-        return "WITH RECURSIVE link(id) AS ( "
-                + "  SELECT id "
-                + "     FROM pipelines "
-                + "     WHERE name = " + getQuotedString(
-                pipelineName)  // using string concatenation because Hibernate does not seem to be able to replace named or positional parameters here
-                + "         AND counter >= " + fromCounter
-                + "         AND counter <= " + toCounter
-                + "  UNION ALL "
-                + "  SELECT mods.pipelineId "
-                + "     FROM link "
-                + "         INNER JOIN pipelineMaterialRevisions pmr ON link.id = pmr.pipelineId "
-                + "         INNER JOIN modifications mods ON pmr.toRevisionId >= mods.id and pmr.actualFromRevisionId <= mods.id AND pmr.materialId = mods.materialId "
-                + "     WHERE mods.pipelineId IS NOT NULL"
-                + ")"
-                + "SELECT DISTINCT id FROM link WHERE id IS NOT NULL";
-
+        // using string concatenation because Hibernate does not seem to be able to replace named or positional parameters here
+        return """
+            WITH RECURSIVE link(id) AS ( \
+              SELECT id \
+                 FROM pipelines \
+                 WHERE name = '%s' \
+                     AND counter >= %s \
+                     AND counter <= %s \
+              UNION ALL \
+              SELECT mods.pipelineId \
+                 FROM link \
+                     INNER JOIN pipelineMaterialRevisions pmr ON link.id = pmr.pipelineId \
+                     INNER JOIN modifications mods ON pmr.toRevisionId >= mods.id and pmr.actualFromRevisionId <= mods.id AND pmr.materialId = mods.materialId \
+                 WHERE mods.pipelineId IS NOT NULL \
+            )\
+            SELECT DISTINCT id FROM link WHERE id IS NOT NULL"""
+            .formatted(pipelineName, fromCounter, toCounter);
     }
 
     public String queryRelevantToLookedUpDependencyMap(List<Long> pipelineIds) {
-        return "WITH RECURSIVE link(id, name, lookedUpId) AS ( "
-                + "  SELECT id, name, id as lookedUpId"
-                + "     FROM pipelines "
-                + "     WHERE id in (" + joinWithQuotesForSql(pipelineIds.toArray()) + ") "
-                + "  UNION ALL "
-                + "  SELECT mods.pipelineId as id, p.name as name, link.lookedUpId as lookedUpId "
-                + "     FROM link "
-                + "         INNER JOIN pipelineMaterialRevisions pmr ON link.id = pmr.pipelineId "
-                + "         INNER JOIN modifications mods ON pmr.toRevisionId >= mods.id and pmr.actualFromRevisionId <= mods.id AND pmr.materialId = mods.materialId "
-                + "         INNER JOIN pipelines p ON mods.pipelineId = p.id "
-                + "     WHERE mods.pipelineId IS NOT NULL"
-                + ")"
-                + "SELECT id, name, lookedUpId FROM link";
+        // using string concatenation because Hibernate does not seem to be able to replace named or positional parameters here
+        return """
+            WITH RECURSIVE link(id, name, lookedUpId) AS ( \
+              SELECT id, name, id as lookedUpId\
+                 FROM pipelines \
+                 WHERE id in (%s) \
+              UNION ALL \
+              SELECT mods.pipelineId as id, p.name as name, link.lookedUpId as lookedUpId \
+                 FROM link \
+                     INNER JOIN pipelineMaterialRevisions pmr ON link.id = pmr.pipelineId \
+                     INNER JOIN modifications mods ON pmr.toRevisionId >= mods.id and pmr.actualFromRevisionId <= mods.id AND pmr.materialId = mods.materialId \
+                     INNER JOIN pipelines p ON mods.pipelineId = p.id \
+                 WHERE mods.pipelineId IS NOT NULL\
+            )\
+            SELECT id, name, lookedUpId FROM link""".formatted(joinWithQuotesForSql(pipelineIds));
     }
 
     public String retrievePipelineTimeline() {
-        return "SELECT p.name, p.id AS p_id, p.counter, m.modifiedtime, "
-                + " (SELECT materials.fingerprint FROM materials WHERE id = m.materialId), naturalOrder, m.revision, pmr.folder, pmr.toRevisionId AS mod_id, pmr.Id as pmrid "
-                + "FROM pipelines p, pipelinematerialrevisions pmr, modifications m "
-                + "WHERE p.id = pmr.pipelineid "
-                + "AND pmr.torevisionid = m.id "
-                + "AND p.id > :pipelineId";
+        return """
+            SELECT p.name, p.id AS p_id, p.counter, m.modifiedtime, \
+             (SELECT materials.fingerprint FROM materials WHERE id = m.materialId), naturalOrder, m.revision, pmr.toRevisionId AS mod_id, pmr.Id as pmrid \
+            FROM pipelines p, pipelinematerialrevisions pmr, modifications m \
+            WHERE p.id = pmr.pipelineid \
+            AND pmr.torevisionid = m.id \
+            AND p.id > :pipelineId""";
     }
 
-    protected <T> String joinWithQuotesForSql(T[] array) {
-        StringBuilder buffer = new StringBuilder();
-        for (int i = 0; i < array.length; i++) {
-            T t = array[i];
-            buffer.append(getQuotedString(t.toString()));
-            if (i < array.length - 1) {
-                buffer.append(',');
-            }
-        }
-        return buffer.toString();
-
-    }
-
-    protected String getQuotedString(String value) {
-        return String.format("'%s'", value);
+    protected <T> String joinWithQuotesForSql(List<T> array) {
+        return array.stream()
+            .map(Objects::toString)
+            .collect(Collectors.joining("','", "'", "'"));
     }
 
     public abstract boolean accepts(String url);

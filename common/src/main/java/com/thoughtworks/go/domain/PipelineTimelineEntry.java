@@ -17,6 +17,7 @@ package com.thoughtworks.go.domain;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.*;
 
@@ -26,54 +27,65 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
  * Understands a pipeline which can be compared based on its material checkin (natural) order
  */
 public class PipelineTimelineEntry implements Comparable<PipelineTimelineEntry> {
+
     private final String pipelineName;
     private final long id;
     private final int counter;
     private final Map<String, List<Revision>> revisionsByFingerprint;
+
     private PipelineTimelineEntry insertedBefore;
     private PipelineTimelineEntry insertedAfter;
-    private double naturalOrder = 0.0;
+    private double naturalOrder;
     private boolean hasBeenUpdated;
 
+    @TestOnly
     public PipelineTimelineEntry(String pipelineName, long id, int counter, Map<String, List<Revision>> revisionsByFingerprint) {
+        this(pipelineName, id, counter, revisionsByFingerprint, 0.0);
+    }
+
+    public PipelineTimelineEntry(String pipelineName, long id, Integer counter, Map<String, List<Revision>> revisionsByFingerprint, double naturalOrder) {
         this.pipelineName = pipelineName;
         this.id = id;
         this.counter = counter;
         this.revisionsByFingerprint = revisionsByFingerprint;
+        this.naturalOrder = naturalOrder;
     }
 
-    public PipelineTimelineEntry(String pipelineName, long id, Integer counter, Map<String, List<Revision>> revisionsByFingerprint, double naturalOrder) {
-        this(pipelineName, id, counter, revisionsByFingerprint);
-        this.naturalOrder = naturalOrder;
+    public boolean addRevision(String fingerprint, Revision rev) {
+        return revisions().computeIfAbsent(fingerprint, k -> new ArrayList<>()).add(rev);
     }
 
     @Override
     public int compareTo(PipelineTimelineEntry o) {
-        if (o.getClass() != this.getClass()) {
-            throw new RuntimeException("Cannot compare '" + o + "' with '" + this + "'");
-        }
         if (this.equals(o)) {
             return 0;
         }
 
-        EarliestRev earliestAcrossMaterials = EarliestRev.MAX_VALUE;
+        return comparingByRevisions() // Compare across materials based on earliest revision date on matching materials
+            .thenComparingInt(t -> t.counter) // Fallback to counter if revision dates are inconclusive
+            .thenComparingLong(t -> t.id) // then tie-break on ID in the worst case "bug" scenario where pipelines with different capitalization have ended up with identical counters. See the tests.
+            .compare(this, o);
+    }
 
-        for (Map.Entry<String, List<Revision>> fingerprintRevs : revisionsByFingerprint.entrySet()) {
-            List<Revision> thisRevs = fingerprintRevs.getValue();
-            if (thisRevs == null) {
-                continue;
+    private static @NotNull Comparator<PipelineTimelineEntry> comparingByRevisions() {
+        return Comparator.comparing(t -> t.revisionsByFingerprint, (revisionsByFingerprint1, revisionsByFingerprint2) -> {
+            EarliestRev earliestAcrossMaterials = EarliestRev.MAX_VALUE;
+
+            for (Map.Entry<String, List<Revision>> fingerprintRevs : revisionsByFingerprint1.entrySet()) {
+                List<Revision> o1Revs = fingerprintRevs.getValue();
+                if (o1Revs == null) {
+                    continue;
+                }
+                List<Revision> o2Revs = revisionsByFingerprint2.get(fingerprintRevs.getKey());
+                if (o2Revs == null) {
+                    continue;
+                }
+
+                earliestAcrossMaterials = earliestAcrossMaterials.chooseEarliest(o1Revs.get(0), o2Revs.get(0));
             }
-            List<Revision> otherRevs = o.revisionsByFingerprint.get(fingerprintRevs.getKey());
-            if (otherRevs == null) {
-                continue;
-            }
 
-            earliestAcrossMaterials = earliestAcrossMaterials.chooseEarliest(thisRevs.get(0), otherRevs.get(0));
-        }
-
-        return earliestAcrossMaterials.isInconclusive()
-            ? Integer.compare(counter, o.counter)  // Fallback to counter if revision dates are inconclusive
-            : earliestAcrossMaterials.thisComparedToEarliest;
+            return earliestAcrossMaterials.asCompareToResult();
+        });
     }
 
     record EarliestRev(Date date, int thisComparedToEarliest) {
@@ -115,6 +127,10 @@ public class PipelineTimelineEntry implements Comparable<PipelineTimelineEntry> 
             } else {
                 return new EarliestRev(candidateNewMinimum, leftComparedToRight); // new date is earlier with clear relationship to "this" Revision
             }
+        }
+
+        private int asCompareToResult() {
+            return isInconclusive() ? 0 : thisComparedToEarliest;
         }
     }
 
@@ -201,10 +217,7 @@ public class PipelineTimelineEntry implements Comparable<PipelineTimelineEntry> 
     }
 
     private double calculateNaturalOrder() {
-        double previous = 0.0;
-        if (insertedAfter != null) {
-            previous = insertedAfter.naturalOrder;
-        }
+        double previous = insertedAfter != null ? insertedAfter.naturalOrder : 0.0;
         if (insertedBefore != null) {
             return (previous + insertedBefore.naturalOrder) / 2.0;
         } else {
@@ -223,6 +236,9 @@ public class PipelineTimelineEntry implements Comparable<PipelineTimelineEntry> 
     public record Revision(@NotNull Date date, String revision, long id) {
         @Override
         public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }

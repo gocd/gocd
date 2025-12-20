@@ -70,10 +70,8 @@ public class PipelineRepository extends HibernateDaoSupport {
             private static final int FINGERPRINT = 4;
             private static final int NATURAL_ORDER = 5;
             private static final int REVISION = 6;
-            @SuppressWarnings("unused")  // Retaining this unused field for clarity; as removing it from queries seemed to change natural implied order of PipelineTimelineEntry
-            private static final int FOLDER = 7;
-            private static final int MOD_ID = 8;
-            private static final int PMR_ID = 9;
+            private static final int MOD_ID = 7;
+            private static final int PMR_ID = 8;
 
             @Override
             public Object doInHibernate(Session session) throws HibernateException {
@@ -116,16 +114,8 @@ public class PipelineRepository extends HibernateDaoSupport {
             }
 
             private void sortTimeLineByPidAndPmrId(List<Object[]> matches) {
-                matches.sort((m1, m2) -> {
-                    long id1 = id(m1);
-                    long id2 = id(m2);
-                    if (id1 == id2) {
-                        return (int) (pmrId(m1) - pmrId(m2));
-                    }
-                    return (int) (id1 - id2);
-                });
+                matches.sort(Comparator.comparing(this::id).thenComparingLong(this::pmrId));
             }
-
 
             private List<PipelineTimelineEntry> populateFrom(List<Object[]> matches) {
                 List<PipelineTimelineEntry> newPipelines = new ArrayList<>();
@@ -133,35 +123,20 @@ public class PipelineRepository extends HibernateDaoSupport {
                     return newPipelines;
                 }
 
-                Map<String, List<PipelineTimelineEntry.Revision>> revisionsByFingerprint = new HashMap<>();
+                BigInteger lastId = null;
+                PipelineTimelineEntry lastEntry = null;
 
-                String name = null;
-                long curId = -1;
-                Integer counter = null;
-                double naturalOrder = 0.0;
+                for (Object[] row : matches) {
+                    BigInteger id = id(row);
 
-                PipelineTimelineEntry entry;
-
-                for (int i = 0; i < matches.size(); i++) {
-                    Object[] row = matches.get(i);
-                    long id = id(row);
-                    if (curId != id) {
-                        name = pipelineName(row);
-                        curId = id;
-                        counter = counter(row);
-                        revisionsByFingerprint = new HashMap<>();
-                        naturalOrder = naturalOrder(row);
+                    // New row
+                    if (!id.equals(lastId)) {
+                        lastId = id;
+                        lastEntry = new PipelineTimelineEntry(pipelineName(row), lastId.longValue(), counter(row), new HashMap<>(), naturalOrder(row));
+                        newPipelines.add(lastEntry);
                     }
 
-                    revisionsByFingerprint.computeIfAbsent(fingerprint(row), k -> new ArrayList<>())
-                        .add(rev(row));
-
-                    int nextI = i + 1;
-                    if (((nextI < matches.size() && id(matches.get(nextI)) != curId) ||//new pipeline instance starts in next record, so capture this one
-                        nextI == matches.size())) {//this is the last record, so capture it
-                        entry = new PipelineTimelineEntry(name, curId, counter, revisionsByFingerprint, naturalOrder);
-                        newPipelines.add(entry);
-                    }
+                    lastEntry.addRevision(fingerprint(row), rev(row));
                 }
                 return newPipelines;
             }
@@ -202,8 +177,8 @@ public class PipelineRepository extends HibernateDaoSupport {
                 return row[COUNTER] == null ? -1 : ((BigInteger) row[COUNTER]).intValue();
             }
 
-            private long id(Object[] first) {
-                return ((BigInteger) first[ID]).longValue();
+            private BigInteger id(Object[] first) {
+                return (BigInteger) first[ID];
             }
         });
     }

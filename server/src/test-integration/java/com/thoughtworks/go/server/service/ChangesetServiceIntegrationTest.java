@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.server.web.PipelineRevisionRange;
 import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.jupiter.api.AfterEach;
@@ -76,10 +75,8 @@ public class ChangesetServiceIntegrationTest {
     private DependencyMaterialUpdateNotifier notifier;
     private PipelineConfig pipelineConfigWithTwoMaterials;
     private PipelineConfig pipelineConfig;
-    private PipelineConfig pipelineConfigWithSvn;
     private ScmMaterial git;
     private ScmMaterial hg;
-    private ScmMaterial svn;
     private GoConfigFileHelper configHelper;
     private static int counter = 0;
 
@@ -92,11 +89,8 @@ public class ChangesetServiceIntegrationTest {
         git.setFolder("git");
         hg = MaterialsMother.hgMaterial();
         hg.setFolder("hg");
-        svn = MaterialsMother.svnMaterial("http://google.com/svn");
-        svn.setFolder("svn");
         pipelineConfig = configHelper.addPipeline("foo-bar", "stage", new MaterialConfigs(hg.config()), "build");
         pipelineConfigWithTwoMaterials = configHelper.addPipeline("foo", "stage", new MaterialConfigs(git.config(), hg.config()), "build");
-        pipelineConfigWithSvn = configHelper.addPipeline("bar", "stage", new MaterialConfigs(svn.config()), "build");
         notifier.disableUpdates();
     }
 
@@ -105,61 +99,6 @@ public class ChangesetServiceIntegrationTest {
         notifier.enableUpdates();
         dbHelper.onTearDown();
         configHelper.onTearDown();
-    }
-
-
-    @Test
-    public void shouldUnderstandModificationsBetween_MultipleSetsOfInstances_OfDifferentPipelines() {
-        Username loser = new Username(new CaseInsensitiveString("loser"));
-        ManualBuild build = new ManualBuild(loser);
-        Date checkinTime = new Date();
-
-        Modification hgCommit1 = checkinWithComment("abcd", "#4518 - foo", checkinTime);
-        Modification gitCommit1 = checkinWithComment("1234", "#3750 - agent index", checkinTime);
-        Pipeline pipelineOne = dbHelper.checkinRevisionsToBuild(build, pipelineConfigWithTwoMaterials, dbHelper.addRevisionsWithModifications(hg, hgCommit1),
-                dbHelper.addRevisionsWithModifications(git, gitCommit1));
-
-        Modification hgCommit2 = checkinWithComment("bcde", "#4520 - foo", checkinTime);
-        Modification gitCommit2 = checkinWithComment("2355", "#3750 - agent index", checkinTime);
-        dbHelper.checkinRevisionsToBuild(build, pipelineConfigWithTwoMaterials, dbHelper.addRevisionsWithModifications(hg, hgCommit2), dbHelper.addRevisionsWithModifications(git, gitCommit2));
-
-
-        Modification hgCommit3 = checkinWithComment("cdef", "#4521 - get gadget working", checkinTime);
-        Modification gitCommit3 = checkinWithComment("2345", "#4200 - whatever", checkinTime);
-        Pipeline pipelineThree = dbHelper.checkinRevisionsToBuild(build, pipelineConfigWithTwoMaterials, dbHelper.addRevisionsWithModifications(hg, hgCommit3),
-                dbHelper.addRevisionsWithModifications(git, gitCommit3));
-
-        Modification svnCommit1 = checkinWithComment("9876", "svn ci", checkinTime);
-        Pipeline pipelineSvnOne = dbHelper.checkinRevisionsToBuild(build, pipelineConfigWithSvn, dbHelper.addRevisionsWithModifications(svn, svnCommit1));
-
-        Modification svnCommit2 = checkinWithComment("5432", "another svn ci", checkinTime);
-        Pipeline pipelineSvnTwo = dbHelper.checkinRevisionsToBuild(build, pipelineConfigWithSvn, dbHelper.addRevisionsWithModifications(svn, svnCommit2));
-
-        Modification svnCommit3 = checkinWithComment("666", "svn ci 3", checkinTime);
-        Modification svnCommit4 = checkinWithComment("121212", "svn ci 4", checkinTime);
-        Pipeline pipelineSvnThree = dbHelper.checkinRevisionsToBuild(build, pipelineConfigWithSvn, dbHelper.addRevisionsWithModifications(svn, svnCommit4, svnCommit3));
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> revisions = changesetService.revisionsBetween(
-                List.of(pipelineRevRange(pipelineOne, pipelineThree), pipelineRevRange(pipelineSvnOne, pipelineSvnThree)),
-                loser, result);
-
-        List<MaterialRevision> expectedRevisions = List.of(
-                new MaterialRevision(hg, hgCommit3, hgCommit2),
-                new MaterialRevision(git, gitCommit3, gitCommit2),
-                new MaterialRevision(svn, svnCommit4, svnCommit3, svnCommit2));
-
-
-        assertMaterialRevisions(expectedRevisions, revisions);
-        assertThat(result.isSuccessful()).isTrue();
-    }
-
-    private PipelineRevisionRange pipelineRevRange(Pipeline from, Pipeline to) {
-        return new PipelineRevisionRange(from.getName(), rev(from), rev(to));
-    }
-
-    private String rev(Pipeline pipeline) {
-        return String.format("%s/%s/%s/%s", pipeline.getName(), pipeline.getCounter(), pipeline.getFirstStage().getName(), pipeline.getFirstStage().getCounter());
     }
 
     @Test

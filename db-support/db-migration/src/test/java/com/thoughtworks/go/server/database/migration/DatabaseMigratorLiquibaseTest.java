@@ -42,7 +42,7 @@ public class DatabaseMigratorLiquibaseTest {
     @BeforeEach
     void initializeDatasource() {
         dataSource = new BasicDataSource();
-        dataSource.setUrl("jdbc:h2:mem:migration-test");
+        dataSource.setUrl("jdbc:h2:mem:migration-test;DB_CLOSE_DELAY=0");
         dataSource.setDriverClassName(org.h2.Driver.class.getName());
         dataSource.setUsername("sa");
         dataSource.setPassword("");
@@ -50,10 +50,6 @@ public class DatabaseMigratorLiquibaseTest {
 
     @AfterEach
     void destroyDatasource() throws Exception {
-        try (Connection connection = dataSource.getConnection()) {
-            connection.createStatement().execute("SHUTDOWN;");
-        }
-
         dataSource.close();
     }
 
@@ -68,11 +64,11 @@ public class DatabaseMigratorLiquibaseTest {
         migrate("liquibase.xml");
     }
 
-    private void switchToDataSourceFromResource(Path tempDir, String dbName) throws IOException {
+    private void switchToDataSourceFromResource(Path tempDir, @SuppressWarnings("SameParameterValue") String dbName) throws IOException {
         try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/" + dbName + ".mv.db"))) {
             Files.copy(is, tempDir.resolve(dbName + ".mv.db"));
         }
-        dataSource.setUrl("jdbc:h2:file:" + tempDir.resolve(dbName));
+        dataSource.setUrl("jdbc:h2:file:" + tempDir.resolve(dbName) + ";DB_CLOSE_DELAY=0");
     }
 
     @Test

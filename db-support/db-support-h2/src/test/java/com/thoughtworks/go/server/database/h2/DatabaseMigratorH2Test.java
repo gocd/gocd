@@ -39,16 +39,13 @@ class DatabaseMigratorH2Test {
     @BeforeEach
     void initializeDatasource() {
         dataSource = new BasicDataSource();
-        dataSource.setUrl("jdbc:h2:mem:migration-test");
+        dataSource.setUrl("jdbc:h2:mem:migration-test;DB_CLOSE_DELAY=0");
         dataSource.setUsername("sa");
         dataSource.setPassword("");
     }
 
     @AfterEach
     void destroyDatasource() throws SQLException {
-        try (Connection connection = dataSource.getConnection()) {
-            connection.createStatement().execute("SHUTDOWN;");
-        }
         dataSource.close();
     }
 

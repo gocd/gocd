@@ -27,7 +27,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -216,7 +215,7 @@ public class AgentRegistrationControllerTest {
 
     @Test
     public void shouldSendAnEmptyStringInBase64_AsAgentExtraProperties_IfTheValueIsTooBigAfterConvertingToBase64() throws IOException {
-        final String longExtraPropertiesValue = StringUtils.rightPad("", AgentRegistrationController.MAX_HEADER_LENGTH, "z");
+        final String longExtraPropertiesValue = "z".repeat(AgentRegistrationController.MAX_HEADER_LENGTH);
         final String expectedValueToBeUsedForProperties = "";
         final String expectedBase64ExtraPropertiesValue = getEncoder().encodeToString(expectedValueToBeUsedForProperties.getBytes(UTF_8));
 

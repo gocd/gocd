@@ -59,9 +59,13 @@ public abstract class AgentPerformanceCommand implements Callable<Optional<Strin
 
     Optional<AgentInstance> findAnyRegisteredAgentInstance() {
         AgentInstances registeredAgents = agentService.findRegisteredAgents();
-        LOG.debug("Registered Agent Instances size: {}",registeredAgents.size());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Registered Agent Instances size: {}", registeredAgents.size());
+        }
         Optional<AgentInstance> anyAgentInstance = stream(registeredAgents.spliterator(), false).findAny();
-        if (anyAgentInstance.isEmpty()) LOG.debug("Returning empty agent instance: {} by {}", anyAgentInstance, this.getName());
+        if (anyAgentInstance.isEmpty() && LOG.isDebugEnabled()) {
+            LOG.debug("Returning empty agent instance: {} by {}", anyAgentInstance, this.getName());
+        }
         return anyAgentInstance;
     }
 
@@ -71,7 +75,7 @@ public abstract class AgentPerformanceCommand implements Callable<Optional<Strin
 
     private void logCommandExecutionError(Exception e) {
         result.setFailureMessage(e.getMessage());
-        LOG.error("Error while executing command [" + this.getName() + "]. More details : ", e);
+        LOG.error("Error while executing command [{}]. More details : ", this.getName(), e);
     }
 
     private void endHeartBeatAndLogCommandCompletion(boolean completed, Heartbeat heartbeat, Optional<String> value) {
@@ -80,8 +84,8 @@ public abstract class AgentPerformanceCommand implements Callable<Optional<Strin
         String status = completed ? "completed" : "failed";
         long ageInMillis = heartbeat.getAgeInMillis();
         result.setStatus(status)
-                .setAgentUuids("[" + value.orElse("") + "]")
-                .setTimeTakenInMillis(ageInMillis);
+            .setAgentUuids("[" + value.orElse("") + "]")
+            .setTimeTakenInMillis(ageInMillis);
         LOG.info(format, this.getName(), value.orElse(""), status, ageInMillis);
     }
 }

@@ -19,17 +19,17 @@ import ch.qos.logback.classic.BasicConfigurator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.core.Context;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter2;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.function.Supplier;
+import java.util.function.IntSupplier;
 
 public class LogConfigurator {
     private final String configDir;
@@ -55,17 +55,17 @@ public class LogConfigurator {
         }
     }
 
-    public <T> T runWithLogger(Supplier<T> supplier) {
+    public int runWithLogger(IntSupplier supplier) {
         try {
             initialize();
-            return supplier.get();
+            return supplier.getAsInt();
         } finally {
             shutdown();
         }
     }
 
     public void initialize() {
-        if ((!(loggerFactory instanceof LoggerContext))) {
+        if (!(loggerFactory instanceof LoggerContext loggerContext)) {
             System.err.println("Unable to initialize logback. It seems that slf4j is bound to an unexpected backend " + loggerFactory.getClass().getName());
             return;
         }
@@ -74,7 +74,7 @@ public class LogConfigurator {
 
         if (logbackFile.exists()) {
             System.err.println("Using logback configuration from file " + logbackFile);
-            configureWith(logbackFile);
+            configureWith(loggerContext, logbackFile);
         } else {
             System.err.println("Could not find file `" + logbackFile + "'. Attempting to load from classpath.");
             String resourcePath = "config/" + childLogbackConfigFile;
@@ -82,45 +82,47 @@ public class LogConfigurator {
 
             if (resource == null) {
                 System.err.println("Could not find classpath resource `" + resourcePath + "'. Falling back to using a default logback configuration that writes to stdout.");
-                configureDefaultLogging();
+                configureDefaultLogging(loggerContext);
             } else {
                 System.err.println("Using classpath resource `" + resource + "'.");
-                configureWith(resource);
+                configureWith(loggerContext, resource);
             }
         }
     }
 
-    protected void configureDefaultLogging() {
-        ((LoggerContext) loggerFactory).reset();
+    @VisibleForTesting
+    void configureDefaultLogging(LoggerContext loggerContext) {
+        loggerContext.reset();
         // reset will cause log level to be set to debug, so we set it to something more useful
         LogHelper.rootLogger().setLevel(Level.INFO);
-        new BasicConfigurator().configure((LoggerContext) loggerFactory);
+        new BasicConfigurator().configure(loggerContext);
     }
 
-    protected void configureWith(URL resource) {
+    @VisibleForTesting
+    void configureWith(LoggerContext loggerContext, URL resource) {
         JoranConfigurator configurator = new JoranConfigurator();
-        configurator.setContext((LoggerContext) loggerFactory);
-        ((LoggerContext) loggerFactory).reset();
+        configurator.setContext(loggerContext);
+        loggerContext.reset();
 
         // the statusManager keeps a copy of all logback status messages even after reset, so we clear that
-        ((LoggerContext) loggerFactory).getStatusManager().clear();
+        loggerContext.getStatusManager().clear();
         try {
             configurator.doConfigure(resource);
         } catch (JoranException ignore) {
         }
-        new StatusPrinter2().printIfErrorsOccured((Context) loggerFactory);
+        new StatusPrinter2().printIfErrorsOccured(loggerContext);
     }
 
-    private void configureWith(File logbackFile) {
+    private void configureWith(LoggerContext loggerContext, File logbackFile) {
         try {
-            configureWith(logbackFile.toURI().toURL());
+            configureWith(loggerContext, logbackFile.toURI().toURL());
         } catch (MalformedURLException ignore) {
         }
     }
 
-    public void shutdown() {
-        if (loggerFactory instanceof LoggerContext) {
-            ((LoggerContext) loggerFactory).stop();
+    private void shutdown() {
+        if (loggerFactory instanceof LoggerContext loggerContext) {
+            loggerContext.stop();
         } else {
             System.err.println("Unable to shutdown logback. It seems that slf4j is bound to an unexpected backend " + loggerFactory.getClass().getName());
         }

@@ -19,12 +19,12 @@ import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
 
 import static com.thoughtworks.go.util.TriState.UNSET;
+import static java.lang.String.join;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
 
@@ -39,20 +39,20 @@ public class BulkUpdateAgentCommand extends AgentPerformanceCommand {
 
     @Override
     Optional<String> execute() {
-        Optional<List<String>> anyRegisteredUUIDs = findAnyRegisteredUUIDs();
-        anyRegisteredUUIDs.ifPresent(this::bulkUpdateAgent);
-        return Optional.ofNullable(StringUtils.join(anyRegisteredUUIDs.get(), " | "));
+        List<String> anyRegisteredUUIDs = findAnyRegisteredUUIDs();
+        bulkUpdateAgent(anyRegisteredUUIDs);
+        return Optional.of(join(" | ", anyRegisteredUUIDs));
     }
 
     private void bulkUpdateAgent(List<String> uuids) {
         agentService.bulkUpdateAgentAttributes(uuids, List.of("r3", "r4"), null, List.of("e3", "e4"), List.of("e1", "e2"), UNSET, envConfigService);
     }
 
-    private Optional<List<String>> findAnyRegisteredUUIDs() {
+    private List<String> findAnyRegisteredUUIDs() {
         AgentInstances registeredAgents = agentService.findRegisteredAgents();
-        return Optional.of(stream(registeredAgents.spliterator(), false)
+        return stream(registeredAgents.spliterator(), false)
                 .map(AgentInstance::getUuid)
                 .limit(3)
-                .collect(toList()));
+                .collect(toList());
     }
 }

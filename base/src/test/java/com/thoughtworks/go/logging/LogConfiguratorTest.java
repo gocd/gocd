@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.logging;
 
+import ch.qos.logback.classic.LoggerContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,7 +58,7 @@ public class LogConfiguratorTest {
         final boolean[] defaultLoggingInvoked = {false};
         LogConfigurator logConfigurator = new LogConfigurator("non-existant-dir", "non-existant.properties") {
             @Override
-            protected void configureDefaultLogging() {
+            protected void configureDefaultLogging(LoggerContext loggerContext) {
                 defaultLoggingInvoked[0] = true;
             }
         };
@@ -75,7 +76,7 @@ public class LogConfiguratorTest {
         final URL[] initializeFromPropertyResource = {null};
         LogConfigurator logConfigurator = new LogConfigurator("xxx", "logging-test-logback.xml") {
             @Override
-            protected void configureWith(URL resource) {
+            protected void configureWith(LoggerContext loggerContext, URL resource) {
                 initializeFromPropertyResource[0] = resource;
             }
         };
@@ -94,7 +95,7 @@ public class LogConfiguratorTest {
         final URL[] initializeFromPropertiesFile = {null};
         LogConfigurator logConfigurator = new LogConfigurator(temporaryFolder.toAbsolutePath().toString(), configFile.getFileName().toString()) {
             @Override
-            protected void configureWith(URL resource) {
+            protected void configureWith(LoggerContext loggerContext, URL resource) {
                 initializeFromPropertiesFile[0] = resource;
             }
         };

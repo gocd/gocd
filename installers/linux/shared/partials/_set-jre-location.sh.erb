@@ -17,25 +17,42 @@
 -%>
 
     java="$(<%= ENV['JRE_BINARY_LOCATOR'] %>)"
+    wrapper_conf_real="/usr/share/<%= name %>/wrapper-config/wrapper.conf"
+    wrapper_conf_props_user="/usr/share/<%= name %>/wrapper-config/wrapper-properties.conf"
+
     if [ -n "${java}" ]; then
-      echo "(info) Configuring <%= name %> to default to package-provided Java runtime located at '${java}', unless overridden by user."
-      sed -ie "s:^\\(wrapper.java.command=\\).*:\\1${java}:" /usr/share/<%= name %>/wrapper-config/wrapper.conf
+      # If found, always override wrapper.conf with packaged managed version; regardless of whether earlier config reflected a user-managed version.
+      echo "(info) Configuring <%= name %> via '${wrapper_conf_real}' to default to package-provided Java runtime located at '${java}', unless overridden by user."
+      sed -ie "s:^\\(wrapper.java.command=\\).*:\\1${java}:" "${wrapper_conf_real}"
+
+      # Also edit the package-managed wrapper config if it happens to exist; to avoid diff confusion
+      if [ -f "${wrapper_conf_real}.rpmnew" ]; then
+        sed -ie "s:^\\(wrapper.java.command=\\).*:\\1${java}:" "${wrapper_conf_real}.rpmnew"
+      elif [ -f "${wrapper_conf_real}.dpkg-dist" ]; then
+        sed -ie "s:^\\(wrapper.java.command=\\).*:\\1${java}:" "${wrapper_conf_real}.dpkg-dist"
+      fi
     else
-      echo "(warning) <%= name %> cannot locate package-installed Java runtime (may need to install recommended dependencies?). Will look for default or pre-configured Java runtime."
+      echo "(warning) <%= name %> cannot locate package-installed Java runtime (may need to install recommended dependencies?). Will check for default or user-configured Java runtime."
     fi
 
-    configured_java_command=$(
-      grep -oP '^wrapper.java.command\s*=\s*\K.*' /usr/share/<%= name %>/wrapper-config/wrapper-properties.conf || \
-      grep -oP '^wrapper.java.command\s*=\s*\K.*' /usr/share/<%= name %>/wrapper-config/wrapper.conf
-    )
+    java_user_override="$(grep -oP '^wrapper.java.command\s*=\s*\K.*' "${wrapper_conf_props_user}" | tail -n 1)"
+    java_package="$(grep -oP '^wrapper.java.command\s*=\s*\K.*' "${wrapper_conf_real}" | tail -n 1)"
 
-    if [ -x "$(command -v ${configured_java_command})" ]; then
-      echo "(info) <%= name %> will use the configured Java runtime located at '${configured_java_command}'"
+    if [ -n "${java_user_override}" ] && [ -x "$(command -v ${java_user_override})" ]; then
+      echo "(warn) <%= name %> will use the user-overridden Java runtime located at '${java_user_override}' from ${wrapper_conf_props_user}."
+    elif [ -z "${java_user_override}" ] && [ -x "$(command -v ${java_package})" ]
+      echo "(info) <%= name %> will use the Java runtime located at '${java_package}' as configured by package in ${wrapper_conf_real}."
     else
-      >&2 echo "(error) Current <%= name %> configuration is looking for Java runtime at '${configured_java_command}' but it cannot be found."
+      if [ -n "${java_user_override}" ]; then
+        >&2 echo "(error) Current <%= name %> configuration is looking for user-configured Java runtime at '${java_user_override}' but it cannot be found."
+        >&2 echo "        - Package would prefer to use the runtime at '${java_package}', if available."
+      else
+        >&2 echo "(error) Current <%= name %> configuration is looking for packaged-configured Java runtime at '${java_package}' but it cannot be found."
+      fi
       >&2 echo "(error) <%= name %> cannot locate a Java runtime to use. Please ensure a compatible Java runtime is available by doing one of:"
       >&2 echo "        - Installing the 'recommended' package dependencies which include a compatible runtime OR"
-      >&2 echo "        - Pre-configuring location of a compatible 'java' executable using 'wrapper.java.command=/path/to/bin/java' in /usr/share/<%= name %>/wrapper-config/wrapper-properties.conf OR"
+      >&2 echo "        - Pre-configuring location of a compatible 'java' executable using 'wrapper.java.command=/path/to/bin/java' in ${wrapper_conf_props_user} OR"
+      >&2 echo "        - Remove any user-override of 'wrapper.java.command' from ${wrapper_conf_props_user} to allow use of the package-implied version OR"
       >&2 echo "        - Ensuring a compatible Java runtime is available by default on the PATH"
       exit 1
     fi

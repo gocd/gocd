@@ -40,7 +40,7 @@
 
     if [ -n "${java_user_override}" ] && [ -x "$(command -v ${java_user_override})" ]; then
       echo "(warn) <%= name %> will use the user-overridden Java runtime located at '${java_user_override}' from ${wrapper_conf_props_user}."
-    elif [ -z "${java_user_override}" ] && [ -x "$(command -v ${java_package})" ]
+    elif [ -z "${java_user_override}" ] && [ -x "$(command -v ${java_package})" ]; then
       echo "(info) <%= name %> will use the Java runtime located at '${java_package}' as configured by package in ${wrapper_conf_real}."
     else
       if [ -n "${java_user_override}" ]; then

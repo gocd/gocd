@@ -344,7 +344,7 @@ tasks.register('rspec', ExecuteUnderRailsTask) {
   inputs.files(compileAssetsRailsTest)
 
   maxHeapSize = '256m'
-  jvmArgs += (InstallerType.server.jvmInternalAccessArgs - jvmArgs) // Add additional args not already needed by JRuby alone
+  jvmArgs += (InstallerTypeServer.instance.jvmInternalAccessArgs - jvmArgs) // Add additional args not already needed by JRuby alone
   args = ['-S', 'rspec', '--backtrace']
   if (project.hasProperty('opts')) {
     args += Commandline.translateCommandline(project.property('opts') as String)

@@ -16,10 +16,9 @@
 
 package com.thoughtworks.go.build
 
-interface InstallerType {
+import groovy.transform.MapConstructor
 
-  public static agent = new InstallerTypeAgent()
-  public static server = new InstallerTypeServer()
+interface InstallerType {
 
   String getBaseName()
 
@@ -36,11 +35,16 @@ interface InstallerType {
 
   boolean getAllowPassthrough()
 
-  Map<String, Object> getDirectories()
+  Map<String, Permission> getDirectories()
 
-  Map<String, Object> getConfigFiles()
+  Map<String, Permission> getConfigFiles()
 
   String getPackageDescription()
 
   String getWindowsAndOSXServiceName()
+
+  default Permission perm(Map args) { return new Permission(args) }
+
+  @MapConstructor
+  class Permission {int mode; String owner; String group}
 }

@@ -18,6 +18,10 @@ import org.apache.tools.ant.filters.FixCrLfFilter
 
 import java.util.stream.Collectors
 
+static def toCamelCase(String input) {
+  return input.split("[^a-zA-Z0-9]").collect { it.capitalize() }.join("")
+}
+
 tasks.register('newSPA') {
   description = "Helper to create a new SPA. Pass `-PspaName=maintenance_mode"
 

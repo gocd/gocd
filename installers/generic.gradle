@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-import com.thoughtworks.go.build.Architecture
-import com.thoughtworks.go.build.InstallerMetadataTask
-import com.thoughtworks.go.build.InstallerType
+
+import com.thoughtworks.go.build.*
 import org.apache.tools.ant.filters.ConcatFilter
 import org.apache.tools.ant.filters.FixCrLfFilter
 
 tasks.register('agentGenericZip', Zip) { Zip thisTask ->
   dependsOn configurations.agentBootstrapperJar
-  configureGenericZip(thisTask, InstallerType.agent)
+  configureGenericZip(thisTask, InstallerTypeAgent.instance)
 
   from({ configurations.agentBootstrapperJar }) {
     rename "(.*)-${project.version}.(.*)", '$1.$2'
@@ -36,7 +35,7 @@ tasks.register('agentGenericZip', Zip) { Zip thisTask ->
 
 tasks.register('serverGenericZip', Zip) { Zip thisTask ->
   dependsOn configurations.serverJar
-  configureGenericZip(thisTask, InstallerType.server)
+  configureGenericZip(thisTask, InstallerTypeServer.instance)
 
   from({ configurations.serverJar }) {
     rename "(.*)-${project.version}.(.*)", 'go.jar'
@@ -51,7 +50,7 @@ tasks.register('serverGenericZip', Zip) { Zip thisTask ->
   tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
     architecture = Architecture.all
     packageTask = project.tasks.named(packageTaskName)
-    type = InstallerType."${installerType}"
+    type = installerType == "agent" ? InstallerTypeAgent.instance : InstallerTypeServer.instance
   }
 }
 

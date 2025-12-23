@@ -173,7 +173,7 @@ def configureNSIS(Task packageTask, InstallerType installerType, File buildRoot,
 }
 
 tasks.register('agentWindows64bitExe') { thisTask ->
-  def installerType = InstallerType.agent
+  def installerType = InstallerTypeAgent.instance
   def buildRoot = project.file("${layout.buildDirectory.get()}/${installerType.baseName}/win/BUILD_ROOT")
   def destDir = project.file("${layout.buildDirectory.get()}/distributions/win")
   outputs.dir(destDir)
@@ -185,7 +185,7 @@ tasks.register('agentWindows64bitExe') { thisTask ->
 }
 
 tasks.register('serverWindows64bitExe') { thisTask ->
-  def installerType = InstallerType.server
+  def installerType = InstallerTypeServer.instance
   def buildRoot = project.file("${layout.buildDirectory.get()}/${installerType.baseName}/win/BUILD_ROOT")
   def destDir = project.file("${layout.buildDirectory.get()}/distributions/win")
   outputs.dir(destDir)
@@ -202,7 +202,7 @@ tasks.register('serverWindows64bitExe') { thisTask ->
     architecture = Architecture.x64
     packagedJavaVersion = (project.goVersions as GoVersions).packagedJavaVersion
     packageTask = project.tasks.named(packageTaskName)
-    type = InstallerType."${installerType}"
+    type = installerType == "agent" ? InstallerTypeAgent.instance : InstallerTypeServer.instance
   }
 }
 

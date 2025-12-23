@@ -27,12 +27,14 @@ enum PackageType {
       goVersions.preferredJavaVersions().collect { "openjdk-${it}-jre-headless" }.join(' | ')
     }
 
+    @SuppressWarnings('unused')
     String jreBinaryLocator(GoVersions goVersions) {
       // Find the most recent version that was installed
       """ls ${goVersions.preferredJavaVersions().collect { "/usr/lib/jvm/java-${it}-openjdk-\$(dpkg --print-architecture)/bin/java" }.join(' \\\n   ') } \\
            2>/dev/null | tail -1"""
     }
 
+    @SuppressWarnings('unused')
     List<String> fpmArgs(Injected injected, File buildRoot, InstallerType installerType, GoVersions goVersions) {
       List<String> fpmArgs = []
       fpmArgs += ['-t', 'deb']
@@ -63,12 +65,14 @@ enum PackageType {
       "(${goVersions.preferredJavaVersions().collect { "java-${it}-openjdk-headless" }.join(' or ')})"
     }
 
+    @SuppressWarnings('unused')
     String jreBinaryLocator(GoVersions goVersions) {
       // Find the most recent version that was installed
-      """ls ${goVersions.preferredJavaVersions().collect { "/etc/alternatives/jre_${it}/bin/java" }.join(' \\\n   ') } \\
+      """ls ${goVersions.preferredJavaVersions().collect { "/usr/lib/jvm/java-${it}-openjdk/bin/java" }.join(' \\\n   ') } \\
            2>/dev/null | tail -1"""
     }
 
+    @SuppressWarnings('unused')
     List<String> fpmArgs(Injected injected, File buildRoot, InstallerType installerType, GoVersions goVersions) {
       List<String> fpmArgs = []
 
@@ -86,11 +90,8 @@ enum PackageType {
       fpmArgs += ['--rpm-defattrfile', '0444']
       fpmArgs += ['--rpm-defattrdir', '0755']
 
-      installerType.directories.each {
-        dirName, permissions ->
-          if (permissions.ownedByPackage) {
-            fpmArgs += ['--rpm-attr', "${Integer.toOctalString(permissions.mode)},${permissions.owner},${permissions.group}:${dirName}"]
-          }
+      installerType.directories.each { dirName, permissions ->
+        fpmArgs += ['--rpm-attr', "${Integer.toOctalString(permissions.mode)},${permissions.owner},${permissions.group}:${dirName}"]
       }
 
       injected.objectFactory.fileTree().from(buildRoot).files.forEach({ File eachFile ->
@@ -100,14 +101,12 @@ enum PackageType {
         }
       })
 
-      installerType.configFiles.each {
-        fileName, permissions ->
-          // set ownership and mode on the rpm manifest
-          fpmArgs += ['--rpm-attr', "${Integer.toOctalString(permissions.mode)},${permissions.owner},${permissions.group}:${fileName}"]
+      installerType.configFiles.each { fileName, permissions ->
+        // set ownership and mode on the rpm manifest
+        fpmArgs += ['--rpm-attr', "${Integer.toOctalString(permissions.mode)},${permissions.owner},${permissions.group}:${fileName}"]
       }
 
       return fpmArgs
-
     }
   }
 
@@ -299,7 +298,6 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
       afterUpgrade: project.file("linux/${packageType}/after-upgrade.sh.erb").path,
       afterInstall: project.file("linux/${packageType}/after-install.sh.erb").path,
       beforeRemove: project.file("linux/${packageType}/before-remove.sh.erb").path,
-      postTrans: project.file("linux/rpm/post-tran.sh.erb").path,
     ]
     def installScriptsDir = project.file('linux').path
 
@@ -331,20 +329,15 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
         cmd += ['--after-upgrade', templatePaths.afterUpgrade]
         cmd += ['--after-install', templatePaths.afterInstall]
         cmd += ['--before-remove', templatePaths.beforeRemove]
-        cmd += ['--rpm-posttrans', templatePaths.postTrans]
         cmd += ['--template-value', "install_scripts_dir=${installScriptsDir}"]
         cmd += ['--template-scripts']
 
         installerType.directories.each { dirName, permissions ->
-          if (permissions.ownedByPackage) {
-            cmd += ['--directories', dirName]
-          }
+          cmd += ['--directories', dirName]
         }
 
         installerType.configFiles.each { fileName, permissions ->
-          if (permissions.confFile) {
-            cmd += ['--config-files', fileName.replaceAll(/^\//, '')]
-          }
+          cmd += ['--config-files', fileName.replaceAll(/^\//, '')]
         }
 
         cmd += packageType.fpmArgs(injected, buildRoot, installerType, goVersions)
@@ -375,7 +368,7 @@ def copyMultipleAgentsReadme(Task packageTask, File buildRoot, InstallerType ins
 }
 
 tasks.register('agentPackageRpm') { thisTask ->
-  def installerType = InstallerType.agent
+  def installerType = InstallerTypeAgent.instance
   def packageType = PackageType.rpm
   def buildRoot = layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
   def destDir = layout.buildDirectory.dir("distributions/${packageType}").get().asFile
@@ -387,7 +380,7 @@ tasks.register('agentPackageRpm') { thisTask ->
 
 
 tasks.register('agentPackageDeb') { thisTask ->
-  def installerType = InstallerType.agent
+  def installerType = InstallerTypeAgent.instance
   def packageType = PackageType.deb
   def buildRoot = layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
   def destDir = layout.buildDirectory.dir("distributions/${packageType}").get().asFile
@@ -398,7 +391,7 @@ tasks.register('agentPackageDeb') { thisTask ->
 }
 
 tasks.register('serverPackageRpm') { thisTask ->
-  def installerType = InstallerType.server
+  def installerType = InstallerTypeServer.instance
   def packageType = PackageType.rpm
   def buildRoot = layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
   def destDir = layout.buildDirectory.dir("distributions/${packageType}").get().asFile
@@ -408,7 +401,7 @@ tasks.register('serverPackageRpm') { thisTask ->
 }
 
 tasks.register('serverPackageDeb') { thisTask ->
-  def installerType = InstallerType.server
+  def installerType = InstallerTypeServer.instance
   def packageType = PackageType.deb
   def buildRoot = layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
   def destDir = layout.buildDirectory.dir("distributions/${packageType}").get().asFile
@@ -423,7 +416,7 @@ tasks.register('serverPackageDeb') { thisTask ->
     tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
       architecture = Architecture.all
       packageTask = project.tasks.named(packageTaskName)
-      type = InstallerType."${installerType}"
+      type = installerType == "agent" ? InstallerTypeAgent.instance : InstallerTypeServer.instance
     }
   }
 }

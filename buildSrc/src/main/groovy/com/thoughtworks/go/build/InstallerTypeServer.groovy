@@ -17,6 +17,8 @@
 package com.thoughtworks.go.build
 
 class InstallerTypeServer implements InstallerType {
+  static instance = new InstallerTypeServer()
+
   @Override
   String getBaseName() {
     'go-server'
@@ -79,24 +81,24 @@ class InstallerTypeServer implements InstallerType {
   }
 
   @Override
-  Map<String, Object> getDirectories() {
+  Map<String, Permission> getDirectories() {
     [
-      '/usr/share/doc/go-server'           : [mode: 0755, owner: 'root', group: 'root', ownedByPackage: true],
-      '/usr/share/go-server/wrapper-config': [mode: 0750, owner: 'root', group: 'go', ownedByPackage: true],
-      '/var/lib/go-server'                 : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
-      '/var/lib/go-server/run'             : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
-      '/var/log/go-server'                 : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
-      '/var/run/go-server'                 : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
-      '/etc/go'                            : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
-      '/var/go'                            : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
+      '/usr/share/doc/go-server'           : perm(mode: 0755, owner: 'root', group: 'root'),
+      '/usr/share/go-server/wrapper-config': perm(mode: 0750, owner: 'root', group: 'go'),
+      '/var/lib/go-server'                 : perm(mode: 0750, owner: 'go',   group: 'go'),
+      '/var/lib/go-server/run'             : perm(mode: 0750, owner: 'go',   group: 'go'),
+      '/var/log/go-server'                 : perm(mode: 0750, owner: 'go',   group: 'go'),
+      '/var/run/go-server'                 : perm(mode: 0750, owner: 'go',   group: 'go'),
+      '/etc/go'                            : perm(mode: 0750, owner: 'go',   group: 'go'),
+      '/var/go'                            : perm(mode: 0750, owner: 'go',   group: 'go'),
     ]
   }
 
   @Override
-  Map<String, Object> getConfigFiles() {
+  Map<String, Permission> getConfigFiles() {
     [
-      '/usr/share/go-server/wrapper-config/wrapper.conf'           : [mode: 0640, owner: 'root', group: 'go', ownedByPackage: true, confFile: true],
-      '/usr/share/go-server/wrapper-config/wrapper-properties.conf': [mode: 0640, owner: 'root', group: 'go', ownedByPackage: true, confFile: true],
+      '/usr/share/go-server/wrapper-config/wrapper.conf'           : perm(mode: 0640, owner: 'root', group: 'go'),
+      '/usr/share/go-server/wrapper-config/wrapper-properties.conf': perm(mode: 0640, owner: 'root', group: 'go'),
     ]
   }
 

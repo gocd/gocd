@@ -17,7 +17,7 @@
 -%>
 
     # Setup permissions on directories
-    <% JSON.parse(File.read(dir_permissions)).delete_if {|k, v| !v['ownedByPackage']}.each do |each_dir, permissions| %>
+    <% JSON.parse(File.read(dir_permissions)).each do |each_dir, permissions| %>
     chmod <%= permissions['mode'].to_s(8) %> <%= each_dir %>
     chown <%= permissions['owner']%>:<%= permissions['group'] %> <%= each_dir %>
     <% end -%>

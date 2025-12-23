@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-import com.thoughtworks.go.build.Architecture
-import com.thoughtworks.go.build.GoVersions
-import com.thoughtworks.go.build.InstallerMetadataTask
-import com.thoughtworks.go.build.InstallerType
+import com.thoughtworks.go.build.*
 import groovy.json.JsonOutput
 import org.apache.tools.ant.filters.ConcatFilter
 
@@ -93,11 +90,8 @@ enum PackageType {
       fpmArgs += ['--rpm-defattrfile', '0444']
       fpmArgs += ['--rpm-defattrdir', '0755']
 
-      installerType.directories.each {
-        dirName, permissions ->
-          if (permissions.ownedByPackage) {
-            fpmArgs += ['--rpm-attr', "${Integer.toOctalString(permissions.mode)},${permissions.owner},${permissions.group}:${dirName}"]
-          }
+      installerType.directories.each { dirName, permissions ->
+        fpmArgs += ['--rpm-attr', "${Integer.toOctalString(permissions.mode)},${permissions.owner},${permissions.group}:${dirName}"]
       }
 
       injected.objectFactory.fileTree().from(buildRoot).files.forEach({ File eachFile ->
@@ -107,14 +101,12 @@ enum PackageType {
         }
       })
 
-      installerType.configFiles.each {
-        fileName, permissions ->
-          // set ownership and mode on the rpm manifest
-          fpmArgs += ['--rpm-attr', "${Integer.toOctalString(permissions.mode)},${permissions.owner},${permissions.group}:${fileName}"]
+      installerType.configFiles.each { fileName, permissions ->
+        // set ownership and mode on the rpm manifest
+        fpmArgs += ['--rpm-attr', "${Integer.toOctalString(permissions.mode)},${permissions.owner},${permissions.group}:${fileName}"]
       }
 
       return fpmArgs
-
     }
   }
 
@@ -341,15 +333,11 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
         cmd += ['--template-scripts']
 
         installerType.directories.each { dirName, permissions ->
-          if (permissions.ownedByPackage) {
-            cmd += ['--directories', dirName]
-          }
+          cmd += ['--directories', dirName]
         }
 
         installerType.configFiles.each { fileName, permissions ->
-          if (permissions.confFile) {
-            cmd += ['--config-files', fileName.replaceAll(/^\//, '')]
-          }
+          cmd += ['--config-files', fileName.replaceAll(/^\//, '')]
         }
 
         cmd += packageType.fpmArgs(injected, buildRoot, installerType, goVersions)
@@ -380,7 +368,7 @@ def copyMultipleAgentsReadme(Task packageTask, File buildRoot, InstallerType ins
 }
 
 tasks.register('agentPackageRpm') { thisTask ->
-  def installerType = InstallerType.agent
+  def installerType = InstallerTypeAgent.instance
   def packageType = PackageType.rpm
   def buildRoot = layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
   def destDir = layout.buildDirectory.dir("distributions/${packageType}").get().asFile
@@ -392,7 +380,7 @@ tasks.register('agentPackageRpm') { thisTask ->
 
 
 tasks.register('agentPackageDeb') { thisTask ->
-  def installerType = InstallerType.agent
+  def installerType = InstallerTypeAgent.instance
   def packageType = PackageType.deb
   def buildRoot = layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
   def destDir = layout.buildDirectory.dir("distributions/${packageType}").get().asFile
@@ -403,7 +391,7 @@ tasks.register('agentPackageDeb') { thisTask ->
 }
 
 tasks.register('serverPackageRpm') { thisTask ->
-  def installerType = InstallerType.server
+  def installerType = InstallerTypeServer.instance
   def packageType = PackageType.rpm
   def buildRoot = layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
   def destDir = layout.buildDirectory.dir("distributions/${packageType}").get().asFile
@@ -413,7 +401,7 @@ tasks.register('serverPackageRpm') { thisTask ->
 }
 
 tasks.register('serverPackageDeb') { thisTask ->
-  def installerType = InstallerType.server
+  def installerType = InstallerTypeServer.instance
   def packageType = PackageType.deb
   def buildRoot = layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
   def destDir = layout.buildDirectory.dir("distributions/${packageType}").get().asFile
@@ -428,7 +416,7 @@ tasks.register('serverPackageDeb') { thisTask ->
     tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
       architecture = Architecture.all
       packageTask = project.tasks.named(packageTaskName)
-      type = InstallerType."${installerType}"
+      type = installerType == "agent" ? InstallerTypeAgent.instance : InstallerTypeServer.instance
     }
   }
 }

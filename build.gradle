@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
+
 import com.autonomousapps.tasks.ResolveExternalDependenciesTask
 import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
 import com.github.jk1.license.task.ReportTask
-import com.thoughtworks.go.build.AdoptiumVersion
-import com.thoughtworks.go.build.DownloadFile
-import com.thoughtworks.go.build.DownloaderTask
-import com.thoughtworks.go.build.GoVersions
-import com.thoughtworks.go.build.InstallerType
-import com.thoughtworks.go.build.YarnInstallTask
+import com.thoughtworks.go.build.*
 import de.undercouch.gradle.tasks.download.Download
 import nl.javadude.gradle.plugins.license.License
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
@@ -550,10 +546,10 @@ subprojects {
     systemProperty 'java.io.tmpdir', tmpDir
 
     if (testTask.project.name == 'agent') {
-      jvmArgs += InstallerType.agent.jvmInternalAccessArgs
+      jvmArgs += InstallerTypeAgent.instance.jvmInternalAccessArgs
     } else if (testTask.project.name.startsWithAny('server', 'config', 'common', 'domain', 'go-plugin-infra', 'api')) {
       // The tests for these projects often need modules to be opened or use server-style unsafe access which has warnings logged
-      jvmArgs += InstallerType.server.jvmInternalAccessArgs
+      jvmArgs += InstallerTypeServer.instance.jvmInternalAccessArgs
     }
 
     jvmArgs += testTask.project.configurations.hasProperty('testJavaAgents') ? ["-javaagent:${testTask.project.configurations.testJavaAgents.asPath}", "-XX:-PrintWarnings"] : []
@@ -723,10 +719,6 @@ tasks.register('allTestsJunitHtmlReport', TestReport) { TestReport thisTask ->
     eachTestTask.finalizedBy(thisTask)
   }
   destinationDirectory = layout.buildDirectory.dir("reports/tests/allTests")
-}
-
-static def toCamelCase(String input) {
-  return input.split("[^a-zA-Z0-9]").collect { it.capitalize() }.join("")
 }
 
 static List<String> getTestClassesForTask(List<String> testsToRun) {

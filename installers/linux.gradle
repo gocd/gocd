@@ -68,7 +68,7 @@ enum PackageType {
     @SuppressWarnings('unused')
     String jreBinaryLocator(GoVersions goVersions) {
       // Find the most recent version that was installed
-      """ls ${goVersions.preferredJavaVersions().collect { "/usr/lib/jvm/java-${it}-openjdk/bin/java" }.join(' \\\n   ') } \\
+      """ls ${goVersions.preferredJavaVersions().collect { "/usr/lib/jvm/jre_${it}/bin/java" }.join(' \\\n   ') } \\
            2>/dev/null | tail -1"""
     }
 
@@ -298,6 +298,7 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
       afterUpgrade: project.file("linux/${packageType}/after-upgrade.sh.erb").path,
       afterInstall: project.file("linux/${packageType}/after-install.sh.erb").path,
       beforeRemove: project.file("linux/${packageType}/before-remove.sh.erb").path,
+      postTrans: project.file("linux/rpm/post-tran.sh.erb").path,
     ]
     def installScriptsDir = project.file('linux').path
 
@@ -329,6 +330,7 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
         cmd += ['--after-upgrade', templatePaths.afterUpgrade]
         cmd += ['--after-install', templatePaths.afterInstall]
         cmd += ['--before-remove', templatePaths.beforeRemove]
+        cmd += ['--rpm-posttrans', templatePaths.postTrans]
         cmd += ['--template-value', "install_scripts_dir=${installScriptsDir}"]
         cmd += ['--template-scripts']
 

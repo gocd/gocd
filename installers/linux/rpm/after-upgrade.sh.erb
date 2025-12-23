@@ -20,44 +20,9 @@
   <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}-cleanup-temp-files-from-previous-version.sh.erb")), trim_mode: '-', eoutvar: "_#{SecureRandom.hex}").result(binding) %>
 <% end -%>
 
-    # Backup the existing go-{server,agent} installation from `/etc/init.d/<%= name %>` to `/etc/init.d/<%= name %>-old`
-    if [ -e /etc/init.d/<%= name %> ]; then
-      mv /etc/init.d/<%= name %> /etc/init.d/<%= name %>-old
-    fi
-
     /usr/share/<%= name %>/bin/<%= name %> install 2>&1 || true
 
-    # recall if migration of pre 19.6 config needs to happen
-    MIGRATION_FILE="/var/run/<%= name %>.pre-19.6-migration"
-
-    if [ -f "${MIGRATION_FILE}" ]; then
-      echo "" >> /usr/share/<%= name %>/wrapper-config/wrapper-properties.conf
-
-      echo "###### begin auto-migrated content ######" >> /usr/share/<%= name %>/wrapper-config/wrapper-properties.conf
-      echo "# These lines have been added automatically on upgrade of the <%= name %> package" >> /usr/share/<%= name %>/wrapper-config/wrapper-properties.conf
-      cat "${MIGRATION_FILE}" >> /usr/share/<%= name %>/wrapper-config/wrapper-properties.conf
-      echo "###### end auto-migrated content ######" >> /usr/share/<%= name %>/wrapper-config/wrapper-properties.conf
-
-      echo "The contents of /etc/default/<%= name %> have been migrated to /usr/share/<%= name %>/wrapper-config/wrapper-properties.conf"
-      echo "The following lines have been appended to /usr/share/<%= name %>/wrapper-config/wrapper-properties.conf:"
-      cat "${MIGRATION_FILE}" | sed -e 's/^/  /g'
-      rm -rf "${MIGRATION_FILE}"
-    fi
-
     if [ -e %{_localstatedir}/lib/rpm-state/<%= name %>/running ]; then
-      rm %{_localstatedir}/lib/rpm-state/<%= name %>/running
+      rm -rf %{_localstatedir}/lib/rpm-state/<%= name %>/running
       /usr/share/<%= name %>/bin/<%= name %> start
-    fi
-
-    # If the newer installation of go-{server,agent} (using tanuki script) is done using `/etc/init.d/`,
-    # then, backup the new installation from `/etc/init.d/<%= name %>` to `/etc/init.d/<%= name %>-new`
-    # If the copy of the `/etc/init.d/<%= name %>` is not taken, it would be cleared by the `before-remove` script of older installer.
-    if [ -e /etc/init.d/<%= name %> ]; then
-      mv  /etc/init.d/<%= name %> /etc/init.d/<%= name %>-new
-    fi
-
-    # Now, restore `/etc/init.d/<%= name %>-old` back to to `/etc/init.d/<%= name %>`, so that, when the `before-remove` script
-    # is invoked to remove the older installation, it will remove the old go-{server,agent}
-    if [ -e /etc/init.d/<%= name %>-old ]; then
-      mv /etc/init.d/<%= name %>-old /etc/init.d/<%= name %>
     fi

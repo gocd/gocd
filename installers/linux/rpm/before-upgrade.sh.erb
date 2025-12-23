@@ -16,8 +16,7 @@
 #########################################################################
 -%>
 
-<%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}-config-migration.sh.erb")), trim_mode: '-', eoutvar: "_#{SecureRandom.hex}").result(binding) %>
-
+    # Check if the service is running, and stop it before upgrading
     rm -rf %{_localstatedir}/lib/rpm-state/<%= name %>
     if /etc/init.d/<%= name %> status > /dev/null 2>&1; then
       mkdir -p %{_localstatedir}/lib/rpm-state/<%= name %>

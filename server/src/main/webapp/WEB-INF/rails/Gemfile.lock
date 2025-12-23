@@ -167,10 +167,10 @@ GEM
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
-    psych (5.3.0)
+    psych (5.3.1)
       date
       stringio
-    psych (5.3.0-java)
+    psych (5.3.1-java)
       date
       jar-dependencies (>= 0.1.7)
     public_suffix (6.0.2)

@@ -185,26 +185,7 @@ describe StagesController do
       expect(:get => "/pipelines/pipeline_name/10/stage_name/5/jobs").to route_to({:controller => "stages", :pipeline_name => "pipeline_name", :pipeline_counter => "10", :stage_name => "stage_name", :stage_counter => "5", :action => "jobs"})
     end
 
-    it "should render action api/stages/index for :format xml" do
-      stub_current_config
-      stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
-
-      allow(@status).to receive(:canContinue).and_return(true)
-      expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(stage_identifier, @user, @localized_result).and_return(@stage_summary_model)
-      expect(@pipeline_history_service).to receive(:findPipelineInstance).with("pipeline", 2, 100, @user, @status).and_return(:pim)
-      expect(@pipeline_lock_service).to receive(:lockedPipeline).with("pipeline").and_return(@pipeline_identifier)
-      get :overview, params:{:pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3", :format => 'xml'}
-
-      redirect_url = "/go/api/feed/pipelines/#{@stage_summary_model.getPipelineName()}/#{@stage_summary_model.getPipelineCounter()}/#{@stage_summary_model.getName()}/#{@stage_summary_model.getStageCounter()}"
-      expect(response).to redirect_to redirect_url
-    end
-
-    it "should resolve pipelines/stage-locator to the stage action" do
-      expect(:get => "/pipelines/pipeline_name/10/stage_name/2.xml").to route_to({:controller => "stages", :action => 'overview', :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => "10", :stage_counter => "2", :format => "xml"})
-      expect(controller.send(:stage_detail_tab_path_for, :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => "10", :stage_counter => "2", :format => "xml")).to eq("/pipelines/pipeline_name/10/stage_name/2.xml")
-    end
-
-    it "should load pipeline instance " do
+    it "should load stage overview as json" do
       stub_current_config
       now = ZonedDateTime.now
       pim = PipelineHistoryMother.singlePipeline("pipeline-name", PipelineHistoryMother.stagePerJob("stage-", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.to_instant),
@@ -218,7 +199,7 @@ describe StagesController do
       allow(@status).to receive(:canContinue).and_return(true)
       expect(@localized_result).to receive(:isSuccessful).and_return(true)
 
-      get :overview, params:{:pipeline_name => "blah-pipeline-name", :pipeline_counter => "12", :stage_name => "stage-0", :stage_counter => "3", :format => 'xml'}
+      get :overview, params:{:pipeline_name => "blah-pipeline-name", :pipeline_counter => "12", :stage_name => "stage-0", :stage_counter => "3", :format => 'json'}
       expect(assigns(:stage)).to eq stage_summary_model
       expect(assigns(:pipeline)).to eq pim
     end

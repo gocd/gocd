@@ -28,7 +28,6 @@ class StagesController < ApplicationController
   before_action :load_stage_history, :only => STAGE_DETAIL_ACTIONS - [:stats, :stats_iframe]
   before_action :load_current_config_version, :only => STAGE_DETAIL_ACTIONS << :history
   before_action :load_pipeline_instance, :only => :redirect_to_first_stage
-  before_action :feed_api_url
 
   STAGE_HISTORY_PAGE_SIZE = 10
 
@@ -164,10 +163,6 @@ class StagesController < ApplicationController
     respond_to do |format|
       format.html { render action: 'stage', status: status }
       format.json { render action: 'stage', status: status }
-      format.xml {
-        redirect_to spark_url_for({:request => request},
-                                  "/api/feed/pipelines/#{@stage.getPipelineName()}/#{@stage.getPipelineCounter()}/#{@stage.getName()}/#{@stage.getStageCounter()}")
-      }
     end
   end
 
@@ -191,10 +186,6 @@ class StagesController < ApplicationController
 
   def date_range(stage_summary_models)
     [Dates::formatToSimpleDate(stage_summary_models.last.getStage().scheduledDate()), Dates::formatToSimpleDate(stage_summary_models.first.getStage().scheduledDate())]
-  end
-
-  def feed_api_url
-      @feed_api_url = spark_url_for({:request => request}, "/api/feed/pipelines/#{params[:pipeline_name]}/stages.xml")
   end
 
   def can_view_settings?

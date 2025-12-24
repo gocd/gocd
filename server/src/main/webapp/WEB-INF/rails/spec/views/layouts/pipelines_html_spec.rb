@@ -43,7 +43,6 @@ describe "layouts/pipelines.html.erb" do
     params[:pipeline_name] = "cruise"
     params[:pipeline_counter] = "1"
     @request.path_parameters.reverse_merge!(params)
-    @feed_api_url = "/api/pipelines/pipeline-name/stages.xml"
     allow(view).to receive(:can_view_admin_page?).and_return(true)
     view.extend PipelinesHelper
     view.extend ApplicationHelper
@@ -115,11 +114,6 @@ describe "layouts/pipelines.html.erb" do
       expect(response.body).to have_selector(".entity_status_wrapper .entity_title .name a[href='/pipeline/activity/pipeline-name']", :text => "pipeline-name")
       expect(response.body).to have_selector(".entity_status_wrapper .entity_title li", :text => "1")
       expect(response.body).to have_selector(".entity_status_wrapper .entity_title .last h1", :text => "stage-0")
-    end
-
-    it "should show the rss feed link" do
-      render :inline => '<div>content</div>', :layout => @layout_name
-      expect(response.body).to have_selector("a[href='/api/pipelines/pipeline-name/stages.xml'] .feed")
     end
 
     it "should display stage links" do

@@ -13,7 +13,7 @@
     "stage_run_details": {"html": <%== render_json :partial => "run_details", :formats => [:html], :locals => {:scope => {}} %>},
     "other_stage_runs": {"html": <%== render_json :partial => "other_stage_runs", :formats => [:html], :locals => {:scope => {}}  %>},
     "current_stage_run": {"html": <%== render_json :partial => "current_stage_run", :formats => [:html], :locals => {:scope => {}}  %>},
-    <% unless ['pipeline','stats'].include?(params[:action]) -%>
+    <% unless ['stats'].include?(params[:action]) -%>
     "stage_history": {"html": <%== render_json :partial => "stage_history", :formats => [:html], :locals=> {:scope => {:stage_history_page => @stage_history_page, :tab => params[:action], :current_stage_pipeline => @pipeline, :current_config_version => @current_config_version}} %>},
     <% end %>
     "pipeline_header": {"html": <%== render_json :partial => "pipelines/pipeline_header", :formats => [:html], :locals => {:scope => {}}  %>}

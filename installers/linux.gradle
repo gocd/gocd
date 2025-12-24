@@ -68,7 +68,7 @@ enum PackageType {
     @SuppressWarnings('unused')
     String jreBinaryLocator(GoVersions goVersions) {
       // Find the most recent version that was installed
-      """ls ${goVersions.preferredJavaVersions().collect { "/usr/lib/jvm/jre_${it}/bin/java" }.join(' \\\n   ') } \\
+      """ls ${goVersions.preferredJavaVersions().collect { "/usr/lib/jvm/jre-${it}/bin/java" }.join(' \\\n   ') } \\
            2>/dev/null | tail -1"""
     }
 

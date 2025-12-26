@@ -19,15 +19,11 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.SqlMapClientTemplate;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -38,8 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import static com.thoughtworks.go.helper.ModificationsMother.*;
-import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -81,7 +75,7 @@ class PipelineSqlMapDaoTest {
     void shouldPrimePipelineHistoryToCacheWhenQueriedViaNameAndCounter() {
         String pipelineName = "wholetthedogsout";
         int pipelineCounter = 42;
-        Map<String, Object> map = arguments("pipelineName", pipelineName).and("pipelineCounter", pipelineCounter).asMap();
+        Map<String, Object> map = Map.of("pipelineName", pipelineName, "pipelineCounter", pipelineCounter);
         PipelineInstanceModel expected = mock(PipelineInstanceModel.class);
         when(sqlMapClientTemplate.queryForObject("getPipelineHistoryByNameAndCounter", map)).thenReturn(expected);
         when(expected.getId()).thenReturn(1111L);
@@ -103,32 +97,16 @@ class PipelineSqlMapDaoTest {
         String pipelineName = "wholetthedogsout";
         int pipelineCounter = 42;
         String comment = "This song is from the 90s.";
-        Map<String, Object> args = arguments("pipelineName", pipelineName).and("pipelineCounter", pipelineCounter).and("comment", comment).asMap();
+        Map<String, Object> args = Map.of("pipelineName", pipelineName, "pipelineCounter", pipelineCounter, "comment", comment);
 
         Pipeline expected = mock(Pipeline.class);
-        when(sqlMapClientTemplate.queryForObject("findPipelineByNameAndCounter", arguments("name", pipelineName).and("counter", pipelineCounter).asMap())).thenReturn(expected);
+        when(sqlMapClientTemplate.queryForObject("findPipelineByNameAndCounter", Map.of("name", pipelineName, "counter", pipelineCounter))).thenReturn(expected);
         when(expected.getId()).thenReturn(102413L);
 
         pipelineSqlMapDao.updateComment(pipelineName, pipelineCounter, comment);
 
         verify(sqlMapClientTemplate, times(1)).update("updatePipelineComment", args);
         verify(goCache, times(1)).remove("com.thoughtworks.go.server.dao.PipelineSqlMapDao.$pipelineHistory.$102413");
-    }
-
-    @Test
-    void shouldGetLatestRevisionFromOrderedLists() {
-        PipelineSqlMapDao pipelineSqlMapDao = new PipelineSqlMapDao(null, null, null, null, null, null, null, new SystemEnvironment(), mock(GoConfigDao.class), mock(Database.class), timeProvider);
-        List<Modification> list1 = new ArrayList<>();
-        List<Modification> list2 = new ArrayList<>();
-        assertThat(PipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2)).isNull();
-        Modification modification1 = new Modification(MOD_USER, MOD_COMMENT, EMAIL_ADDRESS,
-                YESTERDAY_CHECKIN, ModificationsMother.nextRevision());
-        list1.add(modification1);
-        assertThat(PipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2)).isEqualTo(ModificationsMother.currentRevision());
-        Modification modification2 = new Modification(MOD_USER_COMMITTER, MOD_COMMENT_2, EMAIL_ADDRESS,
-                TODAY_CHECKIN, ModificationsMother.nextRevision());
-        list2.add(modification2);
-        assertThat(PipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2)).isEqualTo(ModificationsMother.currentRevision());
     }
 
     @Test

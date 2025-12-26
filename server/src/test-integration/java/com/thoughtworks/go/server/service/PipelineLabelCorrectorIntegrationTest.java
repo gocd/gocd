@@ -38,8 +38,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Map;
+
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -65,8 +66,7 @@ public class PipelineLabelCorrectorIntegrationTest {
     @Autowired
     private PartialConfigService partialConfigService;
     private ScheduleTestUtil scheduleUtil;
-    private ConfigRepoConfig repoConfig;
-    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -74,7 +74,7 @@ public class PipelineLabelCorrectorIntegrationTest {
         configHelper.onSetUp();
         dbHelper.onSetUp();
         scheduleUtil = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
-        repoConfig = ConfigRepoConfig.createConfigRepoConfig(git("url1"), "plugin", "id1");
+        ConfigRepoConfig repoConfig = ConfigRepoConfig.createConfigRepoConfig(git("url1"), "plugin", "id1");
         configHelper.addConfigRepo(repoConfig);
     }
 
@@ -88,9 +88,9 @@ public class PipelineLabelCorrectorIntegrationTest {
     public void shouldRemoveDuplicateEntriesForPipelineCounterFromDbAndKeepTheOneMatchingPipelineNameCaseInConfig() {
         String pipelineName = "Pipeline-Name";
         configHelper.addPipeline(pipelineName, "stage-name");
-        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
-        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap());
-        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName).and("count", 30).asMap());
+        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName.toLowerCase(), "count", 10));
+        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName.toUpperCase(), "count", 20));
+        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName, "count", 30));
         assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().size()).isEqualTo(1);
         assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().get(0).equalsIgnoreCase(pipelineName)).isTrue();
 
@@ -106,9 +106,9 @@ public class PipelineLabelCorrectorIntegrationTest {
         // Such a scenario could be created in pre 18.4 world when the pipeline was recreated with different cases via the API or the UI which causes the pipeline to be paused by default. Pipeline pause information is stored in the same table.
         String pipelineName = "Pipeline-Name";
         configHelper.addPipeline(pipelineName, "stage-name");
-        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
-        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap());
-        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName).and("count", 30).asMap());
+        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName.toLowerCase(), "count", 10));
+        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName.toUpperCase(), "count", 20));
+        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName, "count", 30));
         assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().size()).isEqualTo(1);
         assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().get(0).equalsIgnoreCase(pipelineName)).isTrue();
         configHelper.removePipeline(pipelineName);
@@ -136,8 +136,8 @@ public class PipelineLabelCorrectorIntegrationTest {
         pipeline = scheduleUtil.saveConfigWith(pipelineName, scheduleUtil.m(svn));
         scheduleUtil.runAndPass(pipeline, "s3");
 
-        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
-        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName).and("count", 20).asMap());
+        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName.toLowerCase(), "count", 10));
+        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName, "count", 20));
 
         assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().size()).isEqualTo(1);
         assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().get(0).equalsIgnoreCase(pipelineName)).isTrue();
@@ -163,8 +163,8 @@ public class PipelineLabelCorrectorIntegrationTest {
         pipelineConfig = addConfigRepoPipeline(repoConfig, pipelineName.toLowerCase());
         scheduleUtil.runAndPass(new ScheduleTestUtil.AddedPipeline(pipelineConfig,
                 new DependencyMaterial(pipelineConfig.name(), pipelineConfig.first().name())), "svn1r11");
-        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
-        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap());
+        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName.toLowerCase(), "count", 10));
+        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName.toUpperCase(), "count", 20));
         addConfigRepoPipeline(repoConfig, "something-else");
 
         pipelineLabelCorrector.correctPipelineLabelCountEntries();

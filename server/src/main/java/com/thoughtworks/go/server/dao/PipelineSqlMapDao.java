@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
@@ -771,23 +770,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return pipeline;
     }
 
-    static String getLatestRevisionFromOrderedLists(List<Modification> orderedList1, List<Modification> orderedList2) {
-        Modification latestModification = null;
-
-        if (!orderedList1.isEmpty()) {
-            latestModification = orderedList1.get(0);
-        }
-        if (!orderedList2.isEmpty()) {
-            Modification modification = orderedList2.get(0);
-            if (latestModification == null) {
-                latestModification = modification;
-            } else if (modification.getModifiedTime().compareTo(latestModification.getModifiedTime()) > 0) {
-                latestModification = modification;
-            }
-        }
-        return latestModification != null ? latestModification.getRevision() : null;
-    }
-
     public void pause(String pipelineName, String pauseCause, String pauseBy) {
         String cacheKey = cacheKeyForPauseState(pipelineName);
         synchronized (cacheKey) {
@@ -809,7 +791,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
             getSqlMapClientTemplate().update("updatePipelinePauseState", args);
             goCache.remove(cacheKey);
         }
-
     }
 
     public PipelinePauseInfo pauseState(String pipelineName) {

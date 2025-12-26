@@ -62,19 +62,17 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
 import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 @SuppressWarnings("unused")
@@ -1331,13 +1329,9 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldThrowExceptionWhenBuildCauseIsAskedForANonExistentPipeline() {
-        try {
-            pipelineDao.findBuildCauseOfPipelineByNameAndCounter("foo", 1);
-            fail("should have thrown RecordNotFoundException");
-        } catch (Exception e) {
-            assertThat(e instanceof RecordNotFoundException).isTrue();
-            assertThat(e.getMessage()).isEqualTo("Pipeline foo with counter 1 was not found");
-        }
+        assertThatThrownBy(() -> pipelineDao.findBuildCauseOfPipelineByNameAndCounter("foo", 1))
+            .isInstanceOf(RecordNotFoundException.class)
+            .hasMessage("Pipeline foo with counter 1 was not found");
     }
 
     @Test
@@ -1350,13 +1344,10 @@ public class PipelineSqlMapDaoIntegrationTest {
         dbHelper.pass(pipeline);
         BuildCause buildCause = pipelineDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, 1);
         assertThat(buildCause).isNotNull();
-        try {
-            pipelineDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, 10);
-            fail("should have thrown RecordNotFoundException");
-        } catch (Exception e) {
-            assertThat(e instanceof RecordNotFoundException).isTrue();
-            assertThat(e.getMessage()).isEqualTo("Pipeline P1 with counter 10 was not found");
-        }
+
+        assertThatThrownBy(() -> pipelineDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, 10))
+            .isInstanceOf(RecordNotFoundException.class)
+            .hasMessage("Pipeline P1 with counter 10 was not found");
     }
 
     @Test
@@ -1540,9 +1531,9 @@ public class PipelineSqlMapDaoIntegrationTest {
     public void shouldRemoveDuplicateEntriesForPipelineCounterFromDbForAGivenPipelineName() {
         String pipelineName = "Pipeline-Name";
         configHelper.addPipeline(pipelineName, "stage-name");
-        pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
-        pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap());
-        pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName).and("count", 30).asMap());
+        pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName.toLowerCase(), "count", 10));
+        pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName.toUpperCase(), "count", 20));
+        pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName, "count", 30));
         assertThat(pipelineDao.getPipelineNamesWithMultipleEntriesForLabelCount().size()).isEqualTo(1);
         assertThat(pipelineDao.getPipelineNamesWithMultipleEntriesForLabelCount().get(0).equalsIgnoreCase(pipelineName)).isTrue();
 

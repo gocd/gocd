@@ -61,7 +61,7 @@ import static java.lang.String.format;
 
 @Component
 public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, StageStatusListener, JobStatusListener {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SqlSessionDaoSupport.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StageSqlMapDao.class);
     private final CacheKeyGenerator cacheKeyGenerator;
     private final TransactionTemplate transactionTemplate;
     private final JobInstanceSqlMapDao buildInstanceDao;

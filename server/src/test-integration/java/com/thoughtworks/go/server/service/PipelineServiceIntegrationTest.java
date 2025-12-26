@@ -47,9 +47,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.File;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
-import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -181,9 +181,9 @@ public class PipelineServiceIntegrationTest {
         Material hg = new HgMaterial("url", "Dest");
         u.checkinFiles(hg, "h1", List.of(file1), ModifiedAction.added);
         ScheduleTestUtil.AddedPipeline addedPipeline = u.saveConfigWith(pipelineName, "stageName", u.m(hg));
-        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
-        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap());
-        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName).and("count", 30).asMap());
+        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName.toLowerCase(), "count", 10));
+        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName.toUpperCase(), "count", 20));
+        pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName, "count", 30));
 
         pipelineSqlMapDao.deleteOldPipelineLabelCountForPipelineInConfig(pipelineName);
 

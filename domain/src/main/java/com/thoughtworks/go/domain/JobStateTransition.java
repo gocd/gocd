@@ -88,7 +88,7 @@ public class JobStateTransition extends PersistentObject {
         return ToStringBuilder.reflectionToString(this);
     }
 
-    public Long getStageId() {
+    public long getStageId() {
         return stageId;
     }
 

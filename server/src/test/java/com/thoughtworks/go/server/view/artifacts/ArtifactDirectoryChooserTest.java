@@ -108,7 +108,7 @@ public class ArtifactDirectoryChooserTest {
 
     @Test
     public void shouldFetchATemporaryConsoleOutLocation() {
-        File consoleFile = chooser.temporaryConsoleFile(new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null));
+        File consoleFile = chooser.temporaryConsoleFile(new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", 0));
         String filePathSeparator = FileSystems.getDefault().getSeparator();
         assertThat(consoleFile.getPath()).isEqualTo(String.format("data%sconsole%sd0132b209429f7dc5b9ffffe87b02a7c.log", filePathSeparator, filePathSeparator));
     }

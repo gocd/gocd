@@ -33,6 +33,7 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.TriState;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.Strings;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,8 +113,8 @@ public class UserService {
     public User save(final User user,
                      TriState enabled,
                      TriState emailMe,
-                     String email,
-                     String checkinAliases,
+                     @Nullable String email,
+                     @Nullable String checkinAliases,
                      LocalizedOperationResult result) {
 
         enabled.ifPresent(user::setEnabled);

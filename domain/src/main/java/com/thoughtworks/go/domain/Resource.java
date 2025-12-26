@@ -16,8 +16,9 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.ResourceConfig;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
+
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 public class Resource extends PersistentObject implements Comparable<Resource> {
     private String name;
@@ -45,11 +46,11 @@ public class Resource extends PersistentObject implements Comparable<Resource> {
     }
 
     public String getName() {
-        return StringUtils.trimToNull(name);
+        return trimToNull(name);
     }
 
     public void setName(String name) {
-        this.name = StringUtils.trimToNull(name);
+        this.name = trimToNull(name);
     }
 
     @Override

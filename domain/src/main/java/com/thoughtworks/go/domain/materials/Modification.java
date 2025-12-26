@@ -22,13 +22,14 @@ import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * data structure for holding data about a single modification
@@ -166,7 +167,7 @@ public class Modification extends PersistentObject implements Comparable<Modific
     }
 
     public String getUserDisplayName() {
-        return StringUtils.isBlank(userName) ? ANONYMOUS : userName;
+        return isBlank(userName) ? ANONYMOUS : userName;
     }
 
     public String getRevision() {

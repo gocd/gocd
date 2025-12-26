@@ -95,7 +95,7 @@ public class PipelineHistoryService {
         return pipelineDao.count(pipelineName);
     }
 
-    public PipelineInstanceModel load(String pipelineName, Integer pipelineCounter, Username username) {
+    public PipelineInstanceModel load(String pipelineName, int pipelineCounter, Username username) {
         PipelineInstanceModel pipeline = pipelineDao.findPipelineHistoryByNameAndCounter(pipelineName, pipelineCounter);
         if (pipeline == null) {
             throw new RecordNotFoundException(EntityType.PipelineInstance, pipelineCounter);
@@ -156,7 +156,7 @@ public class PipelineHistoryService {
         return populatePipelineInstanceModels(username, history);
     }
 
-    public PipelineInstanceModels loadPipelineHistoryData(Username username, String pipelineName, long afterCursor, long beforeCursor, Integer pageSize) {
+    public PipelineInstanceModels loadPipelineHistoryData(Username username, String pipelineName, long afterCursor, long beforeCursor, int pageSize) {
         checkForExistenceAndAccess(username, pipelineName);
         PipelineInstanceModels history;
         if (validateCursor(afterCursor, "after")) {

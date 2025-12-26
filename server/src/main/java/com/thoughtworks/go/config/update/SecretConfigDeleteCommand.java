@@ -23,13 +23,13 @@ import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.cannotDeleteResourceBecauseOfDependentPipelines;
+import static java.lang.String.join;
 
 public class SecretConfigDeleteCommand extends SecretConfigCommand {
     private final Set<SecretConfigUsage> usageInformation;
@@ -57,7 +57,7 @@ public class SecretConfigDeleteCommand extends SecretConfigCommand {
             List<String> pipelineNames = usageInformation.stream().map(SecretConfigUsage::getPipelineName).collect(Collectors.toList());
             String message = cannotDeleteResourceBecauseOfDependentPipelines(getObjectDescriptor().getEntityNameLowerCase(), profile.getId(), pipelineNames);
             result.unprocessableEntity(message);
-            throw new GoConfigInvalidException(preprocessedConfig, String.format("The %s '%s' is being referenced by pipeline(s): %s.", getObjectDescriptor().getEntityNameLowerCase(), profile.getId(), StringUtils.join(pipelineNames, ", ")));
+            throw new GoConfigInvalidException(preprocessedConfig, String.format("The %s '%s' is being referenced by pipeline(s): %s.", getObjectDescriptor().getEntityNameLowerCase(), profile.getId(), join(", ", pipelineNames)));
         }
 
         return true;

@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -41,6 +40,7 @@ import spark.Response;
 
 import java.io.IOException;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
 
 @Component
@@ -144,7 +144,7 @@ public class PipelineOperationsControllerV1 extends ApiController implements Spa
     }
 
     private PipelineScheduleOptions getScheduleOptions(Request req) {
-        if (StringUtils.isBlank(req.body())) {
+        if (isBlank(req.body())) {
             return new PipelineScheduleOptions();
         }
         GsonTransformer gsonTransformer = GsonTransformer.getInstance();

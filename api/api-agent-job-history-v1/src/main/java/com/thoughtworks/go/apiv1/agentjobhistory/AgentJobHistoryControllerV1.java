@@ -84,13 +84,13 @@ public class AgentJobHistoryControllerV1 extends ApiController implements SparkS
 
         String uuid = request.params(":uuid");
 
-        Integer offset = getOffset(request);
-        Integer pageSize = getPageSize(request);
+        int offset = getOffset(request);
+        int pageSize = getPageSize(request);
         JobInstanceService.JobHistoryColumns column = getSortColumn(request);
         SortOrder sortOrder = getSortOrder(request);
 
-        Integer total = jobInstanceService.totalCompletedJobsCountOn(uuid);
-        Pagination pagination = Pagination.pageStartingAt(offset, total, pageSize);
+        int total = jobInstanceService.totalCompletedJobsCountOn(uuid);
+        Pagination pagination = Pagination.pageByOffset(offset, total, pageSize);
 
         AgentInstance agent = agentService.findAgent(uuid);
         if (agent.isNullAgent()) {

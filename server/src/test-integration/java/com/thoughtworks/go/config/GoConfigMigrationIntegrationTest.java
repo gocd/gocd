@@ -28,7 +28,6 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
-import org.apache.commons.lang3.StringUtils;
 import org.jdom2.Document;
 import org.jdom2.filter.ElementFilter;
 import org.junit.jupiter.api.AfterEach;
@@ -447,7 +446,7 @@ public class GoConfigMigrationIntegrationTest {
                           </pipelines>
                         </cruise>""";
         String migratedXml = migrateXmlString(configXml, 77);
-        assertThat(StringUtils.countMatches(migratedXml, "<user>")).isEqualTo(1);
+        assertThat(migratedXml).containsOnlyOnce("<user>");
     }
 
     @Test

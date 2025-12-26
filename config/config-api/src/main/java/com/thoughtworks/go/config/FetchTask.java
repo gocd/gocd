@@ -18,12 +18,13 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.util.FilenameUtil;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import static org.apache.commons.lang3.StringUtils.*;
 
 // TODO - #2541 - Implementing serializable here because we need to send
 
@@ -58,11 +59,11 @@ public class FetchTask extends AbstractFetchTask {
     }
 
     public boolean isSourceAFile() {
-        return !StringUtils.isBlank(srcfile);
+        return !isBlank(srcfile);
     }
 
     public String getDest() {
-        return StringUtils.isEmpty(dest) ? "" : FilenameUtils.separatorsToUnix(dest);
+        return isEmpty(dest) ? "" : FilenameUtils.separatorsToUnix(dest);
     }
 
     public String getSrcdir() {
@@ -86,7 +87,7 @@ public class FetchTask extends AbstractFetchTask {
     }
 
     public String getSrc() {
-        return StringUtils.isNotEmpty(srcfile) ? getSrcfile() : getSrcdir();
+        return isNotEmpty(srcfile) ? getSrcfile() : getSrcdir();
     }
 
     public void setSrcdir(String srcdir) {
@@ -101,13 +102,13 @@ public class FetchTask extends AbstractFetchTask {
     @Override
     public List<TaskProperty> getPropertiesForDisplay() {
         List<TaskProperty> taskProperties = super.getPropertiesForDisplay();
-        if (!StringUtils.isBlank(srcfile)) {
+        if (!isBlank(srcfile)) {
             taskProperties.add(new TaskProperty("Source File", srcfile));
         }
-        if (!StringUtils.isBlank(srcdir)) {
+        if (!isBlank(srcdir)) {
             taskProperties.add(new TaskProperty("Source Directory", srcdir));
         }
-        if (!StringUtils.isBlank(dest)) {
+        if (!isBlank(dest)) {
             taskProperties.add(new TaskProperty("Destination", dest));
         }
         return taskProperties;
@@ -148,7 +149,7 @@ public class FetchTask extends AbstractFetchTask {
     }
 
     public void setDest(String dest) {
-        if (StringUtils.isBlank(dest)) {
+        if (isBlank(dest)) {
             this.dest = null;
         } else {
             this.dest = dest;
@@ -157,10 +158,10 @@ public class FetchTask extends AbstractFetchTask {
 
     @Override
     protected void validateAttributes(ValidationContext validationContext) {
-        if (StringUtils.isNotEmpty(srcdir) && StringUtils.isNotEmpty(srcfile)) {
+        if (isNotEmpty(srcdir) && isNotEmpty(srcfile)) {
             addError(SRC, "Only one of srcfile or srcdir is allowed at a time");
         }
-        if (StringUtils.isEmpty(srcdir) && StringUtils.isEmpty(srcfile)) {
+        if (isEmpty(srcdir) && isEmpty(srcfile)) {
             addError(SRC, "Should provide either srcdir or srcfile");
         }
         validateFilePath(validationContext, srcfile, SRC);

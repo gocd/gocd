@@ -33,6 +33,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static spark.Spark.*;
 
@@ -73,12 +74,12 @@ public class MaterialModificationsControllerV2 extends ApiController implements 
 
     public String modifications(Request req, Response res) throws IOException {
         String fingerprint = req.params("fingerprint");
-        Integer offset = req.params("offset") == null ? null : Integer.parseInt(req.params("offset"));
+        Integer offset = Optional.ofNullable(req.params("offset")).map(Integer::valueOf).orElse(null);
         HttpOperationResult result = new HttpOperationResult();
         MaterialConfig materialConfig = materialConfigService.getMaterialConfig(currentUsernameString(), fingerprint, result);
         if (result.canContinue()) {
             Long modificationsCount = materialService.getTotalModificationsFor(materialConfig);
-            Pagination pagination = Pagination.pageStartingAt(offset, modificationsCount.intValue(), 10);
+            Pagination pagination = Pagination.pageByOffsetNullSafe(offset, modificationsCount == null ? null : modificationsCount.intValue(), null);
             Modifications modifications = materialService.getModificationsFor(materialConfig, pagination);
             return writerForTopLevelObject(req, res, writer -> ModificationsRepresenter.toJSON(writer, modifications, pagination, fingerprint));
         } else {

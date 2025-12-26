@@ -20,7 +20,6 @@ import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -34,6 +33,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang3.StringUtils.split;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -207,7 +207,7 @@ public class HgCommandTest {
         List<String> branches = hg(secondBranchWorkingCopy, "branches").runOrBomb(null).output();
         List<String> branchNames = new ArrayList<>();
         for (String branchDetails : branches) {
-            branchNames.add(StringUtils.split(branchDetails, " ")[0]);
+            branchNames.add(split(branchDetails, " ")[0]);
         }
         assertThat(branchNames.size()).isEqualTo(2);
         assertThat(branchNames.contains(branchName)).isTrue();

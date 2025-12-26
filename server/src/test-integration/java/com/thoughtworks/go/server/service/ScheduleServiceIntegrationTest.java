@@ -68,20 +68,23 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.helper.ModificationsMother.forceBuild;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
-        "classpath:/applicationContext-global.xml",
-        "classpath:/applicationContext-dataLocalAccess.xml",
-        "classpath:/testPropertyConfigurer.xml",
-        "classpath:/spring-all-servlet.xml",
+    "classpath:/applicationContext-global.xml",
+    "classpath:/applicationContext-dataLocalAccess.xml",
+    "classpath:/testPropertyConfigurer.xml",
+    "classpath:/spring-all-servlet.xml",
 })
 public class ScheduleServiceIntegrationTest {
     @Autowired
@@ -178,7 +181,7 @@ public class ScheduleServiceIntegrationTest {
         pipeline = dbHelper.savePipelineWithStagesAndMaterials(pipeline);
         pipelinePauseService.pause(pipeline.getName(), "", null);
         dbHelper.passStage(pipeline.getStages().first());
-        Pipeline newPipeline = manualSchedule(CaseInsensitiveString.str(mingleConfig.name()));
+        Pipeline newPipeline = manualSchedule(str(mingleConfig.name()));
         assertThat(newPipeline.getId()).isEqualTo(pipeline.getId());
     }
 
@@ -193,12 +196,13 @@ public class ScheduleServiceIntegrationTest {
         new File(dir).mkdirs();
         goConfigService.forceNotifyListeners();
 
-        Stage cruise = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(cruisePlan.name()), cruisePlan.findBy(new CaseInsensitiveString("test")));
-        assertEquals(NullStage.class, cruise.getClass());
+        assertThatThrownBy(() -> stageDao.mostRecentJobsForStage("cruise", "test"))
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageContaining("Most recent ID not found for pipeline cruise and stage test");
 
         autoSchedulePipelines("cruise");
-        cruise = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(cruisePlan.name()), cruisePlan.findBy(new CaseInsensitiveString("test")));
-        for (JobInstance instance : cruise.getJobInstances()) {
+        List<JobInstance> cruiseInstances = stageDao.mostRecentJobsForStage("cruise", "test");
+        for (JobInstance instance : cruiseInstances) {
             assertThat(instance.getState()).isEqualTo(JobState.Scheduled);
         }
     }

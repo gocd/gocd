@@ -41,14 +41,14 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.SecretParamResolver;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.lang3.StringUtils;
 import spark.Request;
 import spark.Response;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
+import static java.lang.String.join;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -82,10 +82,11 @@ public abstract class AbstractMaterialTestController extends ApiController {
         validateMaterialConfig(scmMaterialConfig, pipelineName, pipelineGroupName);
 
         if (!scmMaterialConfig.errors().isEmpty()) {
-            List<String> errorsList = new ArrayList<>();
-            scmMaterialConfig.errors().forEach((key, errors) -> errorsList.add(String.format("- %s: %s", key, StringUtils.join(errors, ", "))));
+            String errorMessage = scmMaterialConfig.errors().entrySet().stream()
+                .map(e -> String.format("- %s: %s", e.getKey(), join(", ", e.getValue())))
+                .collect(Collectors.joining("\n", "There was an error with the material configuration.\n", ""));
             response.status(422);
-            return MessageJson.create(String.format("There was an error with the material configuration.\n%s", StringUtils.join(errorsList, "\n")), jsonWriter(scmMaterialConfig));
+            return MessageJson.create(errorMessage, jsonWriter(scmMaterialConfig));
         }
 
         performParamExpansion(scmMaterialConfig, pipelineName);

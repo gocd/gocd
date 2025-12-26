@@ -31,7 +31,7 @@ module StageModelMother
   def historical_stages(count)
     history = []
     count.times do |i|
-      stage = StageMother.createPassedStage("cruise", i+1, "dev", 1, "rspec", ZonedDateTime.now.plus_minutes(10).to_instant)
+      stage = StageMother.createPassedStage("cruise", i + 1, "dev", 1, "rspec", ZonedDateTime.now.plus_minutes(10).to_instant)
       stage.setConfigVersion("md5-test")
       history << StageHistoryEntry.new(stage, i, nil)
     end
@@ -39,11 +39,11 @@ module StageModelMother
   end
 
   def stage_history_page(offset)
-    StageHistoryPage.new(historical_stages(10), Pagination.pageStartingAt(offset,100,10), historical_stages(1)[0])
+    StageHistoryPage.new(historical_stages(10), Pagination.pageByOffset(offset, 100, 10), historical_stages(1)[0])
   end
 
   def last_stage_history_page(offset)
-    StageHistoryPage.new(historical_stages(1), Pagination.pageStartingAt(offset,100,10), nil)
+    StageHistoryPage.new(historical_stages(1), Pagination.pageByOffset(offset, 100, 10), nil)
   end
 
   def stage_model(name, counter, job_state = JobState::Completed, job_result = JobResult::Passed)

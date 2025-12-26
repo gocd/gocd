@@ -26,10 +26,11 @@ import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 class ElasticAgentExtensionConverterV4 {
     private final CapabilitiesConverterV4 capabilitiesConverterV4 = new CapabilitiesConverterV4();
@@ -60,7 +61,7 @@ class ElasticAgentExtensionConverterV4 {
 
     String getProfileViewResponseFromBody(String responseBody) {
         String template = (String) JsonHelper.fromJson(responseBody, Map.class).get("template");
-        if (StringUtils.isBlank(template)) {
+        if (isBlank(template)) {
             throw new RuntimeException("Template was blank!");
         }
         return template;
@@ -94,7 +95,7 @@ class ElasticAgentExtensionConverterV4 {
 
     String getStatusReportView(String responseBody) {
         String statusReportView = (String) JsonHelper.fromJson(responseBody, Map.class).get("view");
-        if (StringUtils.isBlank(statusReportView)) {
+        if (isBlank(statusReportView)) {
             throw new RuntimeException("Status Report is blank!");
         }
         return statusReportView;

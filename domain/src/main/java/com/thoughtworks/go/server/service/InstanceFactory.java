@@ -112,7 +112,6 @@ public class InstanceFactory {
     }
 
     public JobPlan createJobPlan(JobConfig config, SchedulingContext context) {
-        JobIdentifier identifier = new JobIdentifier();
         String elasticProfileId = config.getElasticProfileId();
         String clusterProfileId = null;
         ElasticProfile elasticProfile = null;
@@ -131,6 +130,6 @@ public class InstanceFactory {
 
         return new DefaultJobPlan(new Resources(config.resourceConfigs()),
                 ArtifactPlan.toArtifactPlans(config.artifactTypeConfigs()),
-                -1, identifier, null, variables, new EnvironmentVariables(), elasticProfile, clusterProfile);
+                -1, new JobIdentifier(), null, variables, new EnvironmentVariables(), elasticProfile, clusterProfile);
     }
 }

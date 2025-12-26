@@ -17,12 +17,13 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @ConfigTag("params")
 @ConfigCollection(ParamConfig.class)
@@ -115,7 +116,7 @@ public class ParamsConfig extends BaseCollection<ParamConfig> implements Validat
             for (Map<String, String> attributeMap : (List<Map<String, String>>) attributes) {
                 String name = attributeMap.get(ParamConfig.NAME);
                 String value = attributeMap.get(ParamConfig.VALUE);
-                if (StringUtils.isBlank(name) && StringUtils.isBlank(value)) {
+                if (isBlank(name) && isBlank(value)) {
                     continue;
                 }
                 this.add(new ParamConfig(name, value));

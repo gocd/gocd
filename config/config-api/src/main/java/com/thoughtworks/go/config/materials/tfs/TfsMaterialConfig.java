@@ -22,12 +22,13 @@ import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.util.Map;
 import java.util.Objects;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @ConfigTag(value = "tfs", label = "TFS")
 public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordAwareMaterial {
@@ -80,10 +81,10 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     public void validateConcreteScmMaterial(ValidationContext validationContext) {
         validateMaterialUrl(this.url);
 
-        if (StringUtils.isBlank(userName)) {
+        if (isBlank(userName)) {
             errors().add(USERNAME, "Username cannot be blank");
         }
-        if (StringUtils.isBlank(projectPath)) {
+        if (isBlank(projectPath)) {
             errors().add(PROJECT_PATH, "Project Path cannot be blank");
         }
         validateEncryptedPassword();

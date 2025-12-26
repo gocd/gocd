@@ -185,7 +185,7 @@ class CompareControllerV2Test implements SecurityServiceTrait, ControllerTrait<C
     }
   }
 
-  static String getApi(String pipelineName, Integer fromCounter, Integer toCounter) {
+  static String getApi(String pipelineName, int fromCounter, int toCounter) {
     return "/api/pipelines/$pipelineName/compare/$fromCounter/$toCounter".toString()
   }
 }

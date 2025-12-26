@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.server.service.permissions.PermissionsService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -36,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static spark.Spark.*;
 
 @Component
@@ -74,7 +74,7 @@ public class PermissionsControllerV1 extends ApiController implements SparkSprin
         List<String> requestedTypes = permissibleEntities;
 
         String type = request.queryParams("type");
-        if (StringUtils.isNotBlank(type)) {
+        if (isNotBlank(type)) {
             requestedTypes = Arrays.stream(type.split(",")).collect(Collectors.toList());
             validateRequestedTypes(requestedTypes, permissibleEntities);
         }
@@ -85,7 +85,7 @@ public class PermissionsControllerV1 extends ApiController implements SparkSprin
 
     private void validateRequestedTypes(List<String> requestedTypes, List<String> permissibleEntities) {
         requestedTypes.forEach(type -> {
-            if (StringUtils.isNotBlank(type.trim()) && !permissibleEntities.contains(type)) {
+            if (isNotBlank(type.trim()) && !permissibleEntities.contains(type)) {
                 throw new UnprocessableEntityException(String.format("Invalid permission type '%s'. It has to be one of '%s'.", type, String.join(", ", permissibleEntities)));
             }
         });

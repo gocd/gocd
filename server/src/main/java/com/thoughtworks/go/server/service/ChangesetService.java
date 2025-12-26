@@ -55,7 +55,7 @@ public class ChangesetService {
         this.goConfigService = goConfigService;
     }
 
-    public List<MaterialRevision> revisionsBetween(String pipelineName, Integer fromCounter, Integer toCounter, Username username, HttpLocalizedOperationResult result,
+    public List<MaterialRevision> revisionsBetween(String pipelineName, int fromCounter, int toCounter, Username username, HttpLocalizedOperationResult result,
                                                    boolean showBisect) {
         if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
             result.forbidden(EntityType.Pipeline.forbiddenToView(pipelineName, username.getUsername()), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
@@ -67,7 +67,7 @@ public class ChangesetService {
             return new ArrayList<>();
         }
 
-        if (fromCounter.equals(toCounter)) {
+        if (fromCounter == toCounter) {
             fromCounter -= 1;
         }
 
@@ -141,7 +141,7 @@ public class ChangesetService {
         return securityService.hasViewPermissionForPipeline(username, CaseInsensitiveString.str(pipeline.name()));
     }
 
-    private List<MaterialRevision> modificationsPerMaterialBetween(String pipelineName, Integer fromCounter, Integer toCounter) {
+    private List<MaterialRevision> modificationsPerMaterialBetween(String pipelineName, int fromCounter, int toCounter) {
         List<Modification> modifications = materialRepository.getModificationsForPipelineRange(pipelineName, fromCounter, toCounter);
         return deduplicateRevisionsForMaterial(modifications);
     }

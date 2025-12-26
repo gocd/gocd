@@ -16,10 +16,11 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.ConfigErrors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 
 import java.io.Serializable;
+
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 @ConfigTag("resource")
 public class ResourceConfig implements Serializable, Comparable<ResourceConfig>, Validatable {
@@ -51,11 +52,11 @@ public class ResourceConfig implements Serializable, Comparable<ResourceConfig>,
     }
 
     public String getName() {
-        return StringUtils.trimToNull(name);
+        return trimToNull(name);
     }
 
     public void setName(String name) {
-        this.name = StringUtils.trimToNull(name);
+        this.name = trimToNull(name);
     }
 
     @Override

@@ -49,7 +49,7 @@ public class JsonReader {
                 .orElseThrow(() -> haltBecauseMissingJsonProperty(property, jsonObject));
     }
 
-    public Integer getInt(String property) {
+    public int getInt(String property) {
         return optInt(property)
                 .orElseThrow(() -> haltBecauseMissingJsonProperty(property, jsonObject));
     }

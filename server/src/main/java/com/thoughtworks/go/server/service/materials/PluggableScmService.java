@@ -34,7 +34,6 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecretParamResolver;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +41,7 @@ import org.springframework.stereotype.Service;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Service
 public class PluggableScmService {
@@ -72,7 +72,7 @@ public class PluggableScmService {
                 boolean isRequired = SCMMetadataStore.getInstance().hasOption(pluginId, key, Property.REQUIRED);
                 ConfigurationProperty property = scmConfig.getConfiguration().getProperty(key);
                 String configValue = property == null ? null : property.getValue();
-                if (isRequired && StringUtils.isBlank(configValue)) {
+                if (isRequired && isBlank(configValue)) {
                     validationResult.addError(new ValidationError(key, "This field is required"));
                 }
             }

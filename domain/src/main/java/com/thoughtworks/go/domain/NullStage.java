@@ -15,9 +15,6 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.util.TimeProvider;
 
 public final class NullStage extends Stage {
@@ -28,16 +25,6 @@ public final class NullStage extends Stage {
 
     public NullStage(String stageName) {
         this(stageName, new JobInstances());
-    }
-
-    public static NullStage createNullStage(StageConfig stageConfig) {
-        JobInstances nullBuilds = new JobInstances();
-        for (JobConfig plan : stageConfig.allBuildPlans()) {
-            nullBuilds.add(new NullJobInstance(CaseInsensitiveString.str(plan.name())));
-        }
-        NullStage nullStage = new NullStage(CaseInsensitiveString.str(stageConfig.name()), nullBuilds);
-        nullStage.setPipelineId(10L);
-        return nullStage;
     }
 
     @Override
@@ -54,7 +41,6 @@ public final class NullStage extends Stage {
     public String stageLocator() {
         return "NULLSTAGE";
     }
-
 
     @Override
     public StageState stageState() {

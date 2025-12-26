@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.Serializable;
@@ -32,6 +31,7 @@ import java.util.Objects;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class MaterialRevision implements Serializable {
     private final Material material;
@@ -239,7 +239,7 @@ public class MaterialRevision implements Serializable {
     public void populateEnvironmentVariables(EnvironmentVariableContext context, File workingDir) {
         material.populateEnvironmentContext(context, this, workingDir);
         String materialNameForEnvironmentVariable = material.getMaterialNameForEnvironmentVariable();
-        if (StringUtils.isNotBlank(materialNameForEnvironmentVariable)) {
+        if (isNotBlank(materialNameForEnvironmentVariable)) {
             context.setPropertyWithEscape(format("GO_MATERIAL_%s_HAS_CHANGED", materialNameForEnvironmentVariable), Boolean.toString(isChanged()));
         } else {
             context.setPropertyWithEscape("GO_MATERIAL_HAS_CHANGED", Boolean.toString(isChanged()));

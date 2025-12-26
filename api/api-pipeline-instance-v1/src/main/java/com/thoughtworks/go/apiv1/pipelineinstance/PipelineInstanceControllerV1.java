@@ -74,7 +74,7 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
 
     String getInstanceInfo(Request request, Response response) throws IOException {
         String pipelineName = request.params("pipeline_name");
-        Integer pipelineCounter = getCounterValue(request);
+        int pipelineCounter = getCounterValue(request);
         HttpOperationResult result = new HttpOperationResult();
         PipelineInstanceModel pipelineInstance = pipelineHistoryService.findPipelineInstance(pipelineName, pipelineCounter, currentUsername(), result);
         if (result.canContinue()) {
@@ -85,7 +85,7 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
 
     String getHistoryInfo(Request request, Response response) throws IOException {
         String pipelineName = request.params("pipeline_name");
-        Integer pageSize = getPageSize(request);
+        int pageSize = getPageSize(request);
         long after = getCursor(request, "after");
         long before = getCursor(request, "before");
         PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadPipelineHistoryData(currentUsername(), pipelineName, after, before, pageSize);
@@ -95,7 +95,7 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
 
     String comment(Request request, Response response) {
         String pipelineName = request.params("pipeline_name");
-        Integer pipelineCounter = getCounterValue(request);
+        int pipelineCounter = getCounterValue(request);
 
         JsonReader reader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
 
@@ -104,7 +104,7 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
         return renderMessage(response, 200, "Comment successfully updated.");
     }
 
-    private Integer getCounterValue(Request request) {
+    private int getCounterValue(Request request) {
         try {
             int counter = Integer.parseInt(request.params("pipeline_counter"));
             if (counter < 1) {

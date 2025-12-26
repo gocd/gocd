@@ -34,7 +34,6 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ErrorHandler;
 import com.thoughtworks.go.util.GoConstants;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +50,7 @@ import java.util.*;
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_PAGE;
+import static org.apache.commons.lang3.StringUtils.isNumeric;
 
 /*
  * Handles requests for Build Details: See urlrewrite.xml.
@@ -166,7 +166,7 @@ public class JobController {
     }
 
     private boolean isValidCounter(String pipelineCounter) {
-        return StringUtils.isNumeric(pipelineCounter) || JobIdentifier.LATEST.equalsIgnoreCase(pipelineCounter);
+        return isNumeric(pipelineCounter) || JobIdentifier.LATEST.equalsIgnoreCase(pipelineCounter);
     }
 
     private ModelAndView getModelAndView(JobInstance jobDetail) {

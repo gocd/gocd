@@ -129,7 +129,7 @@ public class StageStatusCacheTest {
     @Test
     public void shouldRefreshCurrentStageWhenNewStageComes() {
         Stage stage = StageMother.failingStage("dev");
-        StageIdentifier identifier = new StageIdentifier("cruise", null, "1", "dev", "1");
+        StageIdentifier identifier = new StageIdentifier("cruise", 1, "1", "dev", "1");
         stage.setIdentifier(identifier);
 
         stageStatusCache.stageStatusChanged(stage);

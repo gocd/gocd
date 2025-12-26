@@ -42,8 +42,8 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.TimeProvider;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +58,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
+import static java.lang.String.join;
 
 @Service
 public class ScheduleService {
@@ -247,24 +248,26 @@ public class ScheduleService {
         return schedulingChecker.canAutoTriggerConsumer(pipelineConfig);
     }
 
+    @TestOnly
     public boolean rerunStage(Pipeline pipeline, StageConfig stageConfig, String approvedBy) {
         internalRerun(pipeline, CaseInsensitiveString.str(stageConfig.name()), approvedBy, new NewStageInstanceCreator(goConfigService), new ExceptioningErrorHandler());
         return true;
     }
 
-    public Stage rerunStage(String pipelineName, Integer pipelineCounter, String stageName) {
+    @TestOnly
+    public Stage rerunStage(String pipelineName, int pipelineCounter, String stageName) {
         return rerunStage(pipelineName, pipelineCounter, stageName, new ExceptioningErrorHandler());
     }
 
-    public Stage rerunStage(String pipelineName, Integer pipelineCounter, String stageName, ErrorConditionHandler errorHandler) {
+    public Stage rerunStage(String pipelineName, int pipelineCounter, String stageName, ErrorConditionHandler errorHandler) {
         return lockAndRerunStage(pipelineName, pipelineCounter, stageName, new NewStageInstanceCreator(goConfigService), errorHandler);
     }
 
     /**
      * Top-level operation only; consumes exceptions
      */
-    public Stage rerunStage(String pipelineName, Integer pipelineCounter, String stageName, HttpOperationResult result) {
-        String identifier = StringUtils.join(List.of(pipelineName, pipelineCounter, stageName), "/");
+    public Stage rerunStage(String pipelineName, int pipelineCounter, String stageName, HttpOperationResult result) {
+        String identifier = String.format("%s/%s/%s", pipelineName, pipelineCounter, stageName);
         HealthStateType healthStateType = HealthStateType.general(HealthStateScope.forStage(pipelineName, stageName));
         Stage stage = null;
 
@@ -290,7 +293,7 @@ public class ScheduleService {
         return stage;
     }
 
-    private Stage lockAndRerunStage(String pipelineName, Integer counter, String stageName, StageInstanceCreator creator, final ErrorConditionHandler errorHandler) {
+    private Stage lockAndRerunStage(String pipelineName, int counter, String stageName, StageInstanceCreator creator, final ErrorConditionHandler errorHandler) {
         synchronized (mutexForPipeline(pipelineName)) {
             OperationResult result = new ServerHealthStateOperationResult();
             if (!schedulingChecker.canSchedule(result)) {
@@ -351,11 +354,11 @@ public class ScheduleService {
                 }
             }, new ResultUpdatingErrorHandler(result));
 
-            result.accepted(String.format("Request to rerun jobs accepted", identifier), "", healthStateForStage);
+            result.accepted(String.format("Request to rerun jobs for %s accepted", identifier), "", healthStateForStage);
             return resultStage;
         } catch (RuntimeException e) {
             if (result.canContinue()) {
-                String message = String.format("Job rerun request for job(s) [%s] could not be completed because of unexpected failure. Cause: %s", StringUtils.join(jobNames.toArray(), ", "),
+                String message = String.format("Job rerun request for job(s) [%s] could not be completed because of unexpected failure. Cause: %s", join(", ", jobNames),
                         e.getMessage());
                 result.internalServerError(message, healthStateForStage);
                 LOGGER.error(message, e);
@@ -592,7 +595,7 @@ public class ScheduleService {
         return mutexForStageInstance(id.getPipelineName(), id.getPipelineCounter(), id.getStageName(), id.getStageCounter());
     }
 
-    private String mutexForStageInstance(String pipelineName, Integer pipelineCounter, String stageName, String stageCounter) {
+    private String mutexForStageInstance(String pipelineName, int pipelineCounter, String stageName, String stageCounter) {
         String s = String.format("%s_forStageInstance_%s_%s_%s_%s", getClass().getName(), pipelineName, pipelineCounter, stageName, stageCounter);
         return s.intern(); // interned because we synchronize on it
     }
@@ -762,7 +765,7 @@ public class ScheduleService {
 
         void noOperatePermission(String pipelineName, String stageName);
 
-        void nullPipeline(String pipelineName, Integer pipelineCounter, String stageName);
+        void nullPipeline(String pipelineName, int pipelineCounter, String stageName);
 
         void previousStageNotRun(String pipelineName, String stageName);
 
@@ -786,7 +789,7 @@ public class ScheduleService {
         }
 
         @Override
-        public void nullPipeline(String pipelineName, Integer pipelineCounter, String stageName) {
+        public void nullPipeline(String pipelineName, int pipelineCounter, String stageName) {
             throw new RecordNotFoundException(String.format("Pipeline instance [%s/%s] not found", pipelineName, pipelineCounter));
         }
 

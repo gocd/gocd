@@ -92,11 +92,9 @@ public class StageHistoryEntry extends PersistentObject {
     @Override
     public int hashCode() {
         int result;
-        long temp;
         result = identifier != null ? identifier.hashCode() : 0;
         result = 31 * result + (state != null ? state.hashCode() : 0);
-        temp = naturalOrder != +0.0d ? Double.doubleToLongBits(naturalOrder) : 0L;
-        result = 31 * result + Long.hashCode(temp);
+        result = 31 * result + Double.hashCode(naturalOrder);
         return result;
     }
 
@@ -117,6 +115,7 @@ public class StageHistoryEntry extends PersistentObject {
         return rerunOfCounter != null;
     }
 
+    @SuppressWarnings("unused")
     @Deprecated(since = "Only for DB fw usage")
     public void setRerunOfCounter(Integer rerunOfCounter) {
         this.rerunOfCounter = rerunOfCounter;

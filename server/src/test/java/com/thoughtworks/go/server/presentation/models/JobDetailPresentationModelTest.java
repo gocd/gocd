@@ -15,11 +15,12 @@
  */
 package com.thoughtworks.go.server.presentation.models;
 
-import com.thoughtworks.go.domain.DirectoryEntries;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.config.Tabs;
+import com.thoughtworks.go.config.TrackingTool;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.helper.JobInstanceMother;
+import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,5 +81,25 @@ public class JobDetailPresentationModelTest {
         expected.addFolder("cruise-output").addFile("console.log", "path/to/console");
 
         assertThat(model.getArtifactFiles(directoryReader)).isEqualTo(expected);
+    }
+
+
+    @Test
+    public void shouldReturnBuildMessageFromPipeline() {
+        JobInstance stubJobInstance = mock(JobInstance.class);
+        ArtifactsService artifactService = mock(ArtifactsService.class);
+        JobIdentifier jobIdentifier = new JobIdentifier("pipeline", -1, "1", "stageName", "0", "build", 1L);
+        when(stubJobInstance.getName()).thenReturn("build");
+        when(stubJobInstance.getId()).thenReturn(1L);
+        when(stubJobInstance.getIdentifier()).thenReturn(jobIdentifier);
+        Stage stage = StageMother.custom("stageName", stubJobInstance);
+        Pipeline pipeline = new Pipeline("pipeline", null, stage);
+        pipeline.setId(1L);
+
+        TrackingTool trackingTool = new TrackingTool();
+        JobDetailPresentationModel jobDetailPresenter = new JobDetailPresentationModel(stubJobInstance,
+            null, pipeline, new Tabs(), trackingTool, artifactService, null);
+        String message = jobDetailPresenter.getBuildCauseMessage();
+        assertThat(message).isEqualTo("Unknown");
     }
 }

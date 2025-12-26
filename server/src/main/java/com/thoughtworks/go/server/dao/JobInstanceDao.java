@@ -72,7 +72,7 @@ public interface JobInstanceDao {
 
     JobInstance findJobInstance(String pipelineName, String stageName, String jobName, int pipelineCounter, int stageCounter);
 
-    JobInstances findDetailedJobHistoryViaCursor(String pipelineName, String stageName, String jobConfigName, FeedModifier feedModifier, long cursor, Integer pageSize);
+    JobInstances findDetailedJobHistoryViaCursor(String pipelineName, String stageName, String jobConfigName, FeedModifier feedModifier, long cursor, int pageSize);
 
     PipelineRunIdInfo getOldestAndLatestJobInstanceId(String pipelineName, String stageName, String jobConfigName);
 }

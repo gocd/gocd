@@ -23,7 +23,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import spark.Request;
 import spark.Response;
 
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public interface CrudController<Entity> extends ControllerMethods {
@@ -39,7 +38,7 @@ public interface CrudController<Entity> extends ControllerMethods {
             return true;
         }
         String etagFromServer = etagFor(entity);
-        return !Objects.equals(etagFromClient, etagFromServer);
+        return !etagFromClient.equals(etagFromServer);
     }
 
     default Entity fetchEntityFromConfig(String nameOrId) {

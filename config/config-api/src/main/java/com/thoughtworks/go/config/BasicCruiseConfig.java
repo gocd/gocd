@@ -39,7 +39,6 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.*;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 
@@ -54,6 +53,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Understands the configuration for cruise
@@ -1351,7 +1351,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public void savePackageRepository(final PackageRepository packageRepository) {
         packageRepository.clearEmptyConfigurations();
-        if (StringUtils.isBlank(packageRepository.getRepoId())) {
+        if (isBlank(packageRepository.getRepoId())) {
             packageRepository.setId(UUID.randomUUID().toString());
         }
         PackageRepository existingPackageRepository = packageRepositories.find(packageRepository.getRepoId());

@@ -21,7 +21,6 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,9 +32,9 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -237,14 +236,17 @@ public class FeatureToggleRepositoryTest {
 
     /* Write by hand to remove unnecessary coupling to actual write. */
     private String convertTogglesToJson(FeatureToggle[] toggles) {
-        List<String> jsonContentForEachToggle = new ArrayList<>();
-        for (FeatureToggle toggle : toggles) {
-            jsonContentForEachToggle.add(MessageFormat.format(
-                "'{'\"key\": \"{0}\", \"description\": \"{1}\", \"value\": {2}'}'",
-                toggle.key(), toggle.description(), String.valueOf(toggle.isOn())));
-        }
+        Stream<String> jsonContentForEachToggle = Arrays.stream(toggles)
+            .map(toggle -> """
+                { "key": "%s", "description": "%s", "value": %s }
+                """.formatted(toggle.key(), toggle.description(), toggle.isOn()));
 
-        return "{ \"version\": \"1\", \"toggles\": [" + StringUtils.join(jsonContentForEachToggle, ",").trim() + "]}";
+        return """
+            {
+              "version": "1",
+              "toggles": [%s]
+            }
+            """.formatted(jsonContentForEachToggle.collect(Collectors.joining(", ")));
     }
 
     private File availableTogglesFile() throws URISyntaxException {

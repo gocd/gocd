@@ -229,7 +229,7 @@ public class PipelineTriggerServiceIntegrationTest {
         pipelineConfig.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), "SECURE_VAR2", "SECURE_VAL2", true));
         String digest = entityHashingService.hashForEntity(pipelineConfigService.getPipelineConfig(pipelineConfig.name().toString()), group);
         pipelineConfigService.updatePipelineConfig(admin, pipelineConfig, group, digest, new HttpLocalizedOperationResult());
-        Integer pipelineCounterBefore = pipelineSqlMapDao.getCounterForPipeline(pipelineName);
+        int pipelineCounterBefore = pipelineSqlMapDao.getCounterForPipeline(pipelineName);
 
         CaseInsensitiveString pipelineNameCaseInsensitive = new CaseInsensitiveString(this.pipelineName);
         assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
@@ -260,7 +260,7 @@ public class PipelineTriggerServiceIntegrationTest {
 
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
 
-        Integer pipelineCounterAfter = pipelineSqlMapDao.getCounterForPipeline(this.pipelineName);
+        int pipelineCounterAfter = pipelineSqlMapDao.getCounterForPipeline(this.pipelineName);
         assertThat(pipelineCounterAfter).isEqualTo(pipelineCounterBefore + 1);
         BuildCause buildCauseOfLatestRun = pipelineSqlMapDao.findBuildCauseOfPipelineByNameAndCounter(this.pipelineName, pipelineCounterAfter);
         assertThat(buildCauseOfLatestRun).isEqualTo(buildCause);

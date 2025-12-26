@@ -22,7 +22,6 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +29,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+
+import static java.lang.String.join;
 
 @Service
 public class PipelineLabelCorrector {
@@ -54,7 +55,7 @@ public class PipelineLabelCorrector {
         }
 
         LOGGER.warn("Duplicate entries in pipelineLabelCounts exist for the following pipelines {}. Will attempt to clean them up.",
-                StringUtils.join(pipelinesWithMultipleEntriesForLabelCount.toArray()));
+                join(", ", pipelinesWithMultipleEntriesForLabelCount));
 
         Map<CaseInsensitiveString, PipelineConfig> pipelineConfigHashMap = goConfigService.cruiseConfig().pipelineConfigsAsMap();
         pipelinesWithMultipleEntriesForLabelCount.forEach(pipelineWithIssue -> {
@@ -73,7 +74,7 @@ public class PipelineLabelCorrector {
         List<String> pipelineNamesWithMultipleEntriesForLabelCount = pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount();
         if (!pipelineNamesWithMultipleEntriesForLabelCount.isEmpty()) {
             String message = String.format("Duplicate entries in pipelineLabelCounts still exist for the following pipelines %s.",
-                    StringUtils.join(pipelineNamesWithMultipleEntriesForLabelCount.toArray()));
+                join(", ", pipelineNamesWithMultipleEntriesForLabelCount));
             LOGGER.error(message);
             serverHealthService.update(ServerHealthState.error("Data Error: pipeline operations will fail", message,
                     HealthStateType.general(HealthStateScope.forDuplicatePipelineLabel())));

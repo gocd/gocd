@@ -22,7 +22,6 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
@@ -35,6 +34,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static org.apache.commons.lang3.StringUtils.splitByWholeSeparator;
 
 /**
  * Understands storing and retrieving objects from an underlying LRU cache
@@ -114,7 +114,7 @@ public class GoCache {
     }
 
     private static boolean isNullObject(PersistentObject persistentObject) {
-        return NullUser.class.equals(persistentObject.getClass());
+        return NullUser.class == persistentObject.getClass();
     }
 
     public <T> T get(String key) {
@@ -185,7 +185,7 @@ public class GoCache {
                 }
             }
         } else if (key.contains(SUB_KEY_DELIMITER)) {
-            String[] parts = StringUtils.splitByWholeSeparator(key, SUB_KEY_DELIMITER);
+            String[] parts = splitByWholeSeparator(key, SUB_KEY_DELIMITER);
             String parentKey = parts[0];
             String childKey = parts[1];
             synchronized (parentKey.intern()) {

@@ -27,7 +27,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.result.DefaultLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +38,7 @@ import java.util.List;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbiddenForPipeline;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Service
 public class PipelinePauseService {
@@ -66,7 +66,7 @@ public class PipelinePauseService {
         if (pipelineDoesNotExist(pipelineName, result) || notAuthorized(pipelineName, pauseByUserName, result)) {
             return;
         }
-        if (StringUtils.isBlank(pauseCause)) {
+        if (isBlank(pauseCause)) {
             pauseCause = "";
         }
         if (isPipelinePaused(pipelineName)) {

@@ -42,7 +42,7 @@ public class RecordNotFoundException extends HttpException {
         this(type.notFoundMessage(id));
     }
 
-    public RecordNotFoundException(EntityType type, List<?> ids) {
+    public RecordNotFoundException(EntityType type, List<String> ids) {
         this(type.notFoundMessage(ids));
     }
 

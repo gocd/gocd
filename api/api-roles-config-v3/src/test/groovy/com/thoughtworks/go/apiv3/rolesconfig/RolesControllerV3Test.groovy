@@ -123,7 +123,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
           .isBadRequest()
           .hasEtag(null)
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("Bad role type `bad-role-type`. Valid values are gocd, plugin")
+          .hasJsonMessage(~/Bad role type `bad-role-type`. Valid values are (gocd, plugin|plugin, gocd)/)
       }
 
       @Test

@@ -291,9 +291,6 @@ public class PipelineScheduleQueueIntegrationTest {
 
         queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider());
 
-        JobInstances instances = jobService.currentJobsOfStage("test-pipeline", stage);
-        assertThat(instances.size()).isEqualTo(1);
-
         List<JobPlan> plans = jobService.orderedScheduledBuilds();
         JobPlan plan = plans.get(0);
         assertThat(plan.getName()).isEqualTo("test-job");

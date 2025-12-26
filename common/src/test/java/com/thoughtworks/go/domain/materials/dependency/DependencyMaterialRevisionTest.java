@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class DependencyMaterialRevisionTest {
 
@@ -40,16 +39,6 @@ public class DependencyMaterialRevisionTest {
         DependencyMaterialRevision revision = DependencyMaterialRevision.create("pipeline", 2, "1.0.123", "stage", 1);
         assertThat(revision.getRevision()).isEqualTo("pipeline/2/stage/1");
         assertThat(revision.getPipelineLabel()).isEqualTo("1.0.123");
-    }
-
-    @Test
-    public void shouldUseLabelIfCounterIsNotPresent() {
-        try {
-            DependencyMaterialRevision.create("pipeline", null, "1.0.123", "stage", 1);
-            fail("creation without pipeline counter must not be allowed");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("Dependency material revision can not be created without pipeline counter.");
-        }
     }
 
     @Test

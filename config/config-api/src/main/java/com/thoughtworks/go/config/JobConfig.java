@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.NullTask;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.XmlUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.List;
@@ -32,6 +31,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * Understands configuratin for a job
@@ -251,7 +251,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         return runInstanceCount;
     }
 
-    public void setRunInstanceCount(Integer runInstanceCount) {
+    public void setRunInstanceCount(int runInstanceCount) {
         setRunInstanceCount(Integer.toString(runInstanceCount));
     }
 
@@ -403,7 +403,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
             errors().add(ELASTIC_PROFILE_ID, "Must not be a blank string");
         }
         for (ResourceConfig resourceConfig : resourceConfigs) {
-            if (StringUtils.isEmpty(resourceConfig.getName())) {
+            if (isEmpty(resourceConfig.getName())) {
                 CaseInsensitiveString pipelineName = validationContext.getPipeline().name();
                 CaseInsensitiveString stageName = validationContext.getStage().name();
                 String message = String.format("Empty resource name in job \"%s\" of stage \"%s\" of pipeline \"%s\". If a template is used, please ensure that the resource parameters are defined for this pipeline.", jobName, stageName, pipelineName);

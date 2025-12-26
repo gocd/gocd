@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.domain.cctray.CcTrayCache;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,11 +26,12 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-/* Understands how to serve a request for the CcTray XML for the current user. */
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 @Service
 public class CcTrayService {
-    private CcTrayCache ccTrayCache;
-    private GoConfigService goConfigService;
+    private final CcTrayCache ccTrayCache;
+    private final GoConfigService goConfigService;
 
     @Autowired
     public CcTrayService(CcTrayCache ccTrayCache, GoConfigService goConfigService) {
@@ -48,15 +48,15 @@ public class CcTrayService {
         etagConsumer.accept(etag);
 
         try {
-            appendable.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-            appendable.append("\n");
-            appendable.append("<Projects>");
-            appendable.append("\n");
+            appendable.append("""
+                <?xml version="1.0" encoding="utf-8"?>
+                <Projects>
+                """);
             for (ProjectStatus status : statuses) {
                 if (!isSecurityEnabled || status.canBeViewedBy(userName)) {
                     String xmlRepresentation = status.xmlRepresentation().replaceAll(ProjectStatus.SITE_URL_PREFIX, siteUrlPrefix);
-                    if (!StringUtils.isBlank(xmlRepresentation)) {
-                        appendable.append("  ").append(xmlRepresentation).append("\n");
+                    if (!isBlank(xmlRepresentation)) {
+                        appendable.append("  ").append(xmlRepresentation).append('\n');
                     }
                 }
             }

@@ -95,8 +95,8 @@ public class MaterialRepository extends HibernateDaoSupport {
 
     @SuppressWarnings("unchecked")
     public List<Modification> getModificationsForPipelineRange(final String pipelineName,
-                                                               final Integer fromCounter,
-                                                               final Integer toCounter) {
+                                                               final int fromCounter,
+                                                               final int toCounter) {
         return (List<Modification>) getHibernateTemplate().execute(session -> {
             final List<Long> fromInclusiveModificationList = fromInclusiveModificationsForPipelineRange(session, pipelineName, fromCounter, toCounter);
 
@@ -121,8 +121,8 @@ public class MaterialRepository extends HibernateDaoSupport {
 
     private List<Long> fromInclusiveModificationsForPipelineRange(Session session,
                                                                   String pipelineName,
-                                                                  Integer fromCounter,
-                                                                  Integer toCounter) {
+                                                                  int fromCounter,
+                                                                  int toCounter) {
         String pipelineIdsSql = queryExtensions.queryFromInclusiveModificationsForPipelineRange(pipelineName, fromCounter, toCounter);
         SQLQuery pipelineIdsQuery = session.createSQLQuery(pipelineIdsSql);
         @SuppressWarnings("unchecked") final List<Long> ids = pipelineIdsQuery.list();
@@ -613,7 +613,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     public void createPipelineMaterialRevisions(Pipeline pipeline,
-                                                Long pipelineId,
+                                                long pipelineId,
                                                 MaterialRevisions materialRevisions) {
         for (MaterialRevision materialRevision : materialRevisions) {
             savePipelineMaterialRevision(pipeline, pipelineId, materialRevision);
@@ -932,17 +932,17 @@ public class MaterialRepository extends HibernateDaoSupport {
         return modifications;
     }
 
-    public Long getTotalModificationsFor(final MaterialInstance materialInstance) {
+    public @Nullable Long getTotalModificationsFor(final MaterialInstance materialInstance) {
         String key = materialModificationCountKey(materialInstance);
         Long totalCount = goCache.get(key);
         if (totalCount == null || totalCount == 0) {
             synchronized (key) {
                 totalCount = goCache.get(key);
                 if (totalCount == null || totalCount == 0) {
-                    totalCount = (Long) getHibernateTemplate().execute(session -> {
+                    totalCount = getHibernateTemplate().execute(session -> {
                         Query q = session.createQuery("select count(*) FROM Modification WHERE materialId = ?");
                         q.setLong(0, materialInstance.getId());
-                        return q.uniqueResult();
+                        return (Long) q.uniqueResult();
                     });
                     goCache.put(key, totalCount);
                 }
@@ -1038,7 +1038,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Modification> loadHistory(long materialId, FeedModifier modifier, long cursor, Integer pageSize) {
+    public List<Modification> loadHistory(long materialId, FeedModifier modifier, long cursor, int pageSize) {
         Map<String, Object> params = Map.of(
             "materialId", materialId,
             "size", pageSize,
@@ -1084,7 +1084,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Modification> findMatchingModifications(long materialId, String pattern, FeedModifier modifier, long cursor, Integer pageSize) {
+    public List<Modification> findMatchingModifications(long materialId, String pattern, FeedModifier modifier, long cursor, int pageSize) {
         Map<String, Object> params = Map.of(
             "materialId", materialId,
             "pattern", "%" + pattern.toLowerCase() + "%",

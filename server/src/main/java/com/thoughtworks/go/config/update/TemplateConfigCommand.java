@@ -65,7 +65,7 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
     }
 
     PipelineTemplateConfig findAddedTemplate(CruiseConfig cruiseConfig) {
-        if (templateConfig == null || templateConfig.name() == null || templateConfig.name().isBlank()) {
+        if (templateConfig == null || templateConfig.name() == null || templateConfig.name().isEmpty()) {
             result.unprocessableEntity("The template config is invalid. Attribute 'name' cannot be null.");
             throw new IllegalArgumentException("Template name cannot be null.");
         } else {

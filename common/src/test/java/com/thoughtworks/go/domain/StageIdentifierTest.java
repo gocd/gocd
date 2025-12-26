@@ -24,13 +24,13 @@ public class StageIdentifierTest {
 
     @Test
     public void shouldContainCounterIfStageHasRerun() {
-        StageIdentifier identifier = new StageIdentifier("cruise", null, "label", "dev", "2");
+        StageIdentifier identifier = new StageIdentifier("cruise", 0, "label", "dev", "2");
         assertThat(identifier.ccTrayLastBuildLabel()).isEqualTo("label :: 2");
     }
 
     @Test
     public void shouldNotContainCounterForFirstRun() {
-        StageIdentifier identifier = new StageIdentifier("cruise", null, "label", "dev", "1");
+        StageIdentifier identifier = new StageIdentifier("cruise", 0, "label", "dev", "1");
         assertThat(identifier.ccTrayLastBuildLabel()).isEqualTo("label");
     }
 
@@ -45,7 +45,7 @@ public class StageIdentifierTest {
 
     @Test
     public void shouldThrowExceptionIfStageCounterIsNotNumber() {
-        StageIdentifier identifier = new StageIdentifier("cruise", null, "label", "dev", "");
+        StageIdentifier identifier = new StageIdentifier("cruise", 0, "label", "dev", "");
         try {
             identifier.ccTrayLastBuildLabel();
             Assertions.fail("should throw exception if stage counter is not number");

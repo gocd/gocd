@@ -180,7 +180,7 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
         AbstractPackageMetaDataStore metadataStore = PackageMetadataStore.getInstance();
         List<ConfigurationProperty> propertiesToBeUsedForDisplay = ConfigurationDisplayUtil.getConfigurationPropertiesToBeUsedForDisplay(metadataStore, pluginId(), configuration);
 
-        return format("%s - Package: %s", getRepository().getConfigForDisplay(), configuration.forDisplay(propertiesToBeUsedForDisplay));
+        return getRepository().getConfigForDisplay() + " - Package: " + configuration.forDisplay(propertiesToBeUsedForDisplay);
     }
 
     public String getFingerprint(String fingerprintDelimiter) {

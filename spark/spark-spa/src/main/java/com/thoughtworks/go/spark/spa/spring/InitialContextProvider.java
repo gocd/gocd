@@ -29,15 +29,14 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static org.apache.commons.lang3.StringUtils.splitByCharacterTypeCamelCase;
 
 @Component
 public class InitialContextProvider {
@@ -102,11 +101,7 @@ public class InitialContextProvider {
     }
 
     static String camelCaseToSnakeCase(String s) {
-        String[] words = StringUtils.splitByCharacterTypeCamelCase(s);
-        for (int i = 0; i < words.length; i++) {
-            words[i] = words[i].toLowerCase();
-        }
-        return String.join("_", words);
+        return Arrays.stream(splitByCharacterTypeCamelCase(s)).map(String::toLowerCase).collect(Collectors.joining("_"));
     }
 
     private boolean showAnalyticsDashboard() {

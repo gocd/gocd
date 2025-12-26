@@ -126,7 +126,7 @@ public class DependencyMaterial extends AbstractMaterial {
         json.put("scmType", "Dependency");
         json.put("location", pipelineName + "/" + stageName);
         json.put("action", "Completed");
-        if (!CaseInsensitiveString.isBlank(getName())) {
+        if (!CaseInsensitiveString.isEmpty(getName())) {
             json.put("materialName", CaseInsensitiveString.str(getName()));
         }
     }

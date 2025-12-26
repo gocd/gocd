@@ -32,7 +32,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class DependencyMaterialAgentTest {
 
-    private MaterialRevision materialRevision(String pipelineName, Integer pipelineCounter, String pipelineLabel,
+    @SuppressWarnings("SameParameterValue")
+    private MaterialRevision materialRevision(String pipelineName, int pipelineCounter, String pipelineLabel,
                                               String stageName, int stageCounter) {
         DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
         DependencyMaterialRevision revision = DependencyMaterialRevision.create(pipelineName, pipelineCounter,

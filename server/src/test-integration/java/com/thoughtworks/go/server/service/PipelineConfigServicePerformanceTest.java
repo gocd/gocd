@@ -27,7 +27,6 @@ import com.thoughtworks.go.util.PerfTimer;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -51,6 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang3.StringUtils.join;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Disabled("For adhoc running only")
@@ -113,7 +113,7 @@ public class PipelineConfigServicePerformanceTest {
             results.put(Thread.currentThread().getName(), result.isSuccessful());
             if (!result.isSuccessful()) {
                 LOG.error(result.toString());
-                LOG.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + StringUtils.join(getAllErrors(pipelineConfig), ", "));
+                LOG.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + join(", ", getAllErrors(pipelineConfig)));
             }
         }, numberOfRequests, results);
     }
@@ -131,7 +131,7 @@ public class PipelineConfigServicePerformanceTest {
             results.put(Thread.currentThread().getName(), result.isSuccessful());
             if (!result.isSuccessful()) {
                 LOG.error(result.toString());
-                LOG.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + StringUtils.join(getAllErrors(pipelineConfig), ", "));
+                LOG.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + join(", ", getAllErrors(pipelineConfig)));
             }
         }, numberOfRequests, results);
     }
@@ -150,7 +150,7 @@ public class PipelineConfigServicePerformanceTest {
             results.put(Thread.currentThread().getName(), result.isSuccessful());
             if (!result.isSuccessful()) {
                 LOG.error(result.toString());
-                LOG.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + StringUtils.join(getAllErrors(pipelineConfig), ", "));
+                LOG.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + join(", ", getAllErrors(pipelineConfig)));
             }
         }, numberOfRequests, results);
     }
@@ -227,7 +227,7 @@ public class PipelineConfigServicePerformanceTest {
         new GoConfigGraphWalker(v).walk(new ErrorCollectingHandler(allErrors) {
             @Override
             public void handleValidation(Validatable validatable, ValidationContext context) {
-                // do nothing here
+
             }
         });
         return allErrors;

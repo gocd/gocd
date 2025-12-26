@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.plugin.access.elastic.v5;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.domain.ClusterProfilesChangedStatus;
@@ -30,10 +29,11 @@ import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 class ElasticAgentExtensionConverterV5 {
     private final ElasticAgentInformationConverterV5 elasticAgentInformationConverterV5 = new ElasticAgentInformationConverterV5();
@@ -67,7 +67,7 @@ class ElasticAgentExtensionConverterV5 {
 
     String getProfileViewResponseFromBody(String responseBody) {
         String template = (String) JsonHelper.fromJson(responseBody, Map.class).get("template");
-        if (StringUtils.isBlank(template)) {
+        if (isBlank(template)) {
             throw new RuntimeException("Template was blank!");
         }
         return template;
@@ -102,7 +102,7 @@ class ElasticAgentExtensionConverterV5 {
 
     String getStatusReportView(String responseBody) {
         String statusReportView = (String) JsonHelper.fromJson(responseBody, Map.class).get("view");
-        if (StringUtils.isBlank(statusReportView)) {
+        if (isBlank(statusReportView)) {
             throw new RuntimeException("Status Report is blank!");
         }
         return statusReportView;

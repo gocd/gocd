@@ -18,7 +18,6 @@ package com.thoughtworks.go.http.mocks;
 
 import com.google.gson.Gson;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URIBuilder;
@@ -32,6 +31,7 @@ import java.nio.charset.Charset;
 import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class HttpRequestBuilder {
 
@@ -66,7 +66,7 @@ public class HttpRequestBuilder {
     }
 
     public HttpRequestBuilder withPathSafe(String path) {
-        return withPath(StringUtils.isBlank(path) ? "/" : path);
+        return withPath(isBlank(path) ? "/" : path);
     }
 
 

@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Admin;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -183,12 +182,10 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
         return rolesConfig;
     }
 
-    private static final Map<String, Class<? extends Role>> ROLE_FILTER_MAP = new LinkedHashMap<>();
-
-    static {
-        ROLE_FILTER_MAP.put("gocd", RoleConfig.class);
-        ROLE_FILTER_MAP.put("plugin", PluginRoleConfig.class);
-    }
+    private static final Map<String, Class<? extends Role>> ROLE_FILTER_MAP = Map.of(
+        "gocd", RoleConfig.class,
+        "plugin", PluginRoleConfig.class
+    );
 
     public RolesConfig ofType(String pluginType) {
         if (isBlank(pluginType)) {
@@ -198,10 +195,10 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
         Class<? extends Role> roleClass = ROLE_FILTER_MAP.get(pluginType);
 
         if (roleClass == null) {
-            throw new BadRequestException("Bad role type `" + pluginType + "`. Valid values are " + StringUtils.join(ROLE_FILTER_MAP.keySet(), ", "));
+            throw new BadRequestException("Bad role type `" + pluginType + "`. Valid values are " + String.join(", ", ROLE_FILTER_MAP.keySet()));
         }
 
-        return this.stream().filter(role -> role.getClass().isAssignableFrom(roleClass)).collect(Collectors.toCollection(RolesConfig::new));
+        return this.stream().filter(roleClass::isInstance).collect(Collectors.toCollection(RolesConfig::new));
 
     }
 }

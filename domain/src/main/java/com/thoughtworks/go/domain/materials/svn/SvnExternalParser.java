@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain.materials.svn;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 
 import java.util.ArrayList;
@@ -24,6 +23,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.strip;
 
 public class SvnExternalParser {
     private static final List<SvnExternalMatcher> MATCHERS = List.of(
@@ -104,11 +105,11 @@ public class SvnExternalParser {
     }
 
     private static String combine(String root, String externalDir) {
-        return StringUtils.isBlank(root) ? externalDir : root + "/" + externalDir;
+        return isBlank(root) ? externalDir : root + "/" + externalDir;
     }
 
     private static String relativeRoot(String absoluteRoot, String repoUrl) {
-        return StringUtils.strip(Strings.CS.remove(absoluteRoot, repoUrl), "/");
+        return strip(Strings.CS.remove(absoluteRoot, repoUrl), "/");
     }
 
     private static class Svn15AndAboveWithRootMatcher extends BaseSvnExternalMatcher {

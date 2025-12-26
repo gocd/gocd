@@ -24,7 +24,6 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
@@ -42,6 +41,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Component
 public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
@@ -218,7 +219,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
     }
 
     private User copyLoginToDisplayNameIfNotPresent(User user) {
-        if (StringUtils.isBlank(user.getDisplayName())) {
+        if (isBlank(user.getDisplayName())) {
             user.setDisplayName(user.getName());
         }
         return user;

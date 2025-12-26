@@ -28,7 +28,7 @@ class ModificationsRepresenterTest {
 
   @Test
   void "should serialize modifications"() {
-    def pagination = Pagination.pageStartingAt(null, 120, 10)
+    def pagination = Pagination.pageByOffset(0, 120, 10)
     def modification1 = new Modification("user1", "comment1", "email@ediblefrog", new Date(), "revision1")
     modification1.id = 1
     def modification2 = new Modification("user2", "comment2", "email@argentino", new Date(), "anotherRevision")
@@ -75,7 +75,7 @@ class ModificationsRepresenterTest {
 
   @Test
   void "should create empty json when modifications are null"() {
-    def pagination = Pagination.pageStartingAt(20, 1, 10)
+    def pagination = Pagination.pageByOffset(20, 1, 10)
 
     def actualJSON = JsonUtils.toObjectString({
       ModificationsRepresenter.toJSON(it, null, pagination, "some-fingerprint")

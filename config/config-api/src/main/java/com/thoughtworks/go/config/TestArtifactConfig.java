@@ -17,7 +17,8 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.ArtifactType;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @AttributeAwareConfigTag(value = "artifact", attribute = "type", attributeValue = "test")
 public class TestArtifactConfig extends BuiltinArtifactConfig {
@@ -44,6 +45,6 @@ public class TestArtifactConfig extends BuiltinArtifactConfig {
 
     @Override
     public String getDestination() {
-        return StringUtils.isBlank(destination) ? TEST_OUTPUT_FOLDER : FilenameUtils.separatorsToUnix(destination);
+        return isBlank(destination) ? TEST_OUTPUT_FOLDER : FilenameUtils.separatorsToUnix(destination);
     }
 }

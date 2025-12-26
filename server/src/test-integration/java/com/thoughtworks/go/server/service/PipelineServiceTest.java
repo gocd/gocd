@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -146,8 +145,8 @@ public class PipelineServiceTest {
         StageDao stageDao = mock(StageDao.class);
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
         when(serverHealthService.logsSorted()).thenReturn(new ServerHealthStates());
-        JobInstanceService jobInstanceService = new JobInstanceService(mock(JobInstanceDao.class), mock(JobResultTopic.class), mock(JobStatusCache.class),
-                actualTransactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, serverHealthService, jobStatusListener);
+        JobInstanceService jobInstanceService = new JobInstanceService(mock(JobInstanceDao.class), mock(JobResultTopic.class),
+            actualTransactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, serverHealthService, jobStatusListener);
 
         StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), mock(SecurityService.class), mock(PipelineDao.class),
                 mock(ChangesetService.class), mock(GoConfigService.class), actualTransactionTemplate, transactionSynchronizationManager,
@@ -192,8 +191,8 @@ public class PipelineServiceTest {
     @Test
     public void shouldReturnTrueIfEitherInstanceIsaBisect() {
         String pipelineName = "pipeline";
-        Integer fromCounter = 2;
-        Integer toCounter = 3;
+        int fromCounter = 2;
+        int toCounter = 3;
 
         Pipeline fromPipeline = mock(Pipeline.class);
         Pipeline toPipeline = mock(Pipeline.class);
@@ -211,8 +210,8 @@ public class PipelineServiceTest {
     @Test
     public void shouldReturnFalseIfBothInstancesAreNotBisect() {
         String pipelineName = "pipeline";
-        Integer fromCounter = 2;
-        Integer toCounter = 3;
+        int fromCounter = 2;
+        int toCounter = 3;
 
         Pipeline fromPipeline = mock(Pipeline.class);
         Pipeline toPipeline = mock(Pipeline.class);
@@ -230,8 +229,8 @@ public class PipelineServiceTest {
     @Test
     public void shouldThrowExceptionIfPipelineWithFromCounterNotFound() {
         String pipelineName = "pipeline";
-        Integer fromCounter = 2;
-        Integer toCounter = 3;
+        int fromCounter = 2;
+        int toCounter = 3;
 
         Pipeline toPipeline = mock(Pipeline.class);
 
@@ -246,8 +245,8 @@ public class PipelineServiceTest {
     @Test
     public void shouldThrowExceptionIfPipelineWithToCounterNotFound() {
         String pipelineName = "pipeline";
-        Integer fromCounter = 2;
-        Integer toCounter = 3;
+        int fromCounter = 2;
+        int toCounter = 3;
 
         Pipeline fromPipeline = mock(Pipeline.class);
 

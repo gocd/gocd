@@ -28,7 +28,6 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -46,6 +45,7 @@ import java.nio.file.Path;
 import java.util.Date;
 import java.util.stream.Stream;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -256,11 +256,12 @@ public class EnvironmentVariableContextTest {
         }
     }
 
-    private MaterialRevision materialRevision(String materialName, String pipelineName, Integer pipelineCounter,
+    @SuppressWarnings("SameParameterValue")
+    private MaterialRevision materialRevision(String materialName, String pipelineName, int pipelineCounter,
                                               String pipelineLabel,
                                               String stageName, int stageCounter) {
         DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
-        if (!StringUtils.isEmpty(materialName)) {
+        if (!isEmpty(materialName)) {
             material.setName(new CaseInsensitiveString(materialName));
         }
 

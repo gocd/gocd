@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.util.Node;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -95,12 +94,12 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
 
     @Override
     public EnvironmentConfig getEnvironment() {
-        throw new NotImplementedException("Operation not supported");
+        throw new UnsupportedOperationException("Operation not supported");
     }
 
     @Override
     public ConfigReposConfig getConfigRepos() {
-        throw new NotImplementedException("Operation not supported");
+        throw new UnsupportedOperationException("Operation not supported");
     }
 
     @Override
@@ -125,7 +124,7 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
 
     @Override
     public PipelineTemplateConfig getTemplate() {
-        throw new NotImplementedException("Operation not supported");
+        throw new UnsupportedOperationException("Operation not supported");
     }
 
     @Override

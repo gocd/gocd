@@ -72,7 +72,7 @@ public class PipelineHistoryMother {
         return history;
     }
 
-    public static PipelineInstanceModel pipelineInstanceModel(String pipelineName, Integer pipelineCounter, Instant scheduled) {
+    public static PipelineInstanceModel pipelineInstanceModel(String pipelineName, int pipelineCounter, Instant scheduled) {
         MaterialRevisions revisions = ModificationsMother.createSvnMaterialWithMultipleRevisions(-1, ModificationsMother.multipleModificationList().toArray(new Modification[0]));
         BuildCause buildCause = BuildCause.createManualForced(revisions, Username.ANONYMOUS);
         List<String> stages = List.of("unit-tests", "integration-tests", "functional-tests");
@@ -141,7 +141,7 @@ public class PipelineHistoryMother {
         return history;
     }
 
-    public static StageInstanceModel stageInstanceModel(String pipelineName, Integer pipelineCounter, String stageName,
+    public static StageInstanceModel stageInstanceModel(String pipelineName, int pipelineCounter, String stageName,
                                                         String stageCounter, Instant scheduled) {
         StageIdentifier stageIdentifier = new StageIdentifier(pipelineName, pipelineCounter, stageName, stageCounter);
         JobHistory jobHistory = new JobHistory();

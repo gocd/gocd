@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.net.URLEncoder;
@@ -34,6 +33,7 @@ import java.util.Objects;
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.escapeEnvironmentVariable;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.joining;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Understands material configuration
@@ -205,7 +205,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     }
 
     protected boolean hasDestinationFolder() {
-        return !StringUtils.isBlank(getFolder());
+        return !isBlank(getFolder());
     }
 
     public boolean supportsDestinationFolder() {
@@ -240,7 +240,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
         for (EnvironmentVariableContext.EnvironmentVariable secureEnvironmentVariable : context.getSecureEnvironmentVariables()) {
             String urlEncodedValue;
             urlEncodedValue = URLEncoder.encode(secureEnvironmentVariable.value(), UTF_8);
-            boolean isSecureEnvironmentVariableEncoded = !StringUtils.isBlank(urlEncodedValue) && !secureEnvironmentVariable.value().equals(urlEncodedValue);
+            boolean isSecureEnvironmentVariableEncoded = !isBlank(urlEncodedValue) && !secureEnvironmentVariable.value().equals(urlEncodedValue);
             if (isSecureEnvironmentVariableEncoded && dataEntry.getValue().contains(urlEncodedValue)) {
                 isSecure = true;
                 break;

@@ -15,12 +15,13 @@
  */
 package com.thoughtworks.go.config.parser;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.beans.TypeConverter;
 import org.springframework.beans.propertyeditors.FileEditor;
 
 import java.io.File;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class GoConfigFieldTypeConverter extends SimpleTypeConverter {
 
@@ -42,7 +43,7 @@ public class GoConfigFieldTypeConverter extends SimpleTypeConverter {
     private static class CustomizedFileEditor extends FileEditor {
         @Override
         public void setAsText(String text) throws IllegalArgumentException {
-            if (StringUtils.isBlank(text)) {
+            if (isBlank(text)) {
                 return;
             }
             super.setAsText(text);

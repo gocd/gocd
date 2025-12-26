@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.plugin.access.configrepo;
 
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class ExportedConfig {
     private static final String CONTENT_TYPE = "Content-Type";
@@ -49,7 +49,7 @@ public class ExportedConfig {
             throw new IllegalArgumentException(format("You must provide the response header: `%s`", key));
         }
 
-        if (StringUtils.isBlank(headers.get(key))) {
+        if (isBlank(headers.get(key))) {
             throw new IllegalArgumentException(format("Response header `%s` cannot be blank", key));
         }
     }

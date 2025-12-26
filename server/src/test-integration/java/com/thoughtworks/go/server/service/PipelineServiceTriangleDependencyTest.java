@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
@@ -169,7 +168,7 @@ public class PipelineServiceTriangleDependencyTest {
         StageDao stageDao = mock(StageDao.class);
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
         when(serverHealthService.logsSorted()).thenReturn(new ServerHealthStates());
-        JobInstanceService jobInstanceService = new JobInstanceService(mock(JobInstanceDao.class), mock(JobResultTopic.class), mock(JobStatusCache.class),
+        JobInstanceService jobInstanceService = new JobInstanceService(mock(JobInstanceDao.class), mock(JobResultTopic.class),
                 actualTransactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, serverHealthService, jobStatusListener);
 
         StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), mock(SecurityService.class), mock(PipelineDao.class),

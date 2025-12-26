@@ -18,7 +18,6 @@ package com.thoughtworks.go.domain.activity;
 import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.util.Dates;
-import org.apache.commons.lang3.StringUtils;
 import org.jdom2.Element;
 import org.jdom2.output.XMLOutputter;
 
@@ -27,10 +26,13 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import static java.lang.String.join;
+
 public class ProjectStatus {
     public static final Date DEFAULT_LAST_BUILD_TIME = new Date();
     public static final String DEFAULT_LAST_BUILD_STATUS = "Success";
     public static final String SITE_URL_PREFIX = "__SITE_URL_PREFIX__";
+    public static final String DEFAULT_LAST_BUILD_LABEL = "1";
 
     private String name;
     private String activity;
@@ -39,7 +41,6 @@ public class ProjectStatus {
     private final Set<String> breakers;
     private Date lastBuildTime;
     private String webUrl;
-    public static final String DEFAULT_LAST_BUILD_LABEL = "1";
     private volatile Users viewers;
     private String cachedXmlRepresentation;
 
@@ -162,7 +163,7 @@ public class ProjectStatus {
     private void addBreakers(Element element) {
         Element messages = new Element("messages");
         Element message = new Element("message");
-        String breakerNames = StringUtils.join(breakers, ", ");
+        String breakerNames = join(", ", breakers);
         message.setAttribute("text", breakerNames);
         message.setAttribute("kind", "Breakers");
         messages.addContent(message);

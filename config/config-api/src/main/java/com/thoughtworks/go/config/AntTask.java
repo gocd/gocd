@@ -16,10 +16,6 @@
 package com.thoughtworks.go.config;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @ConfigTag("ant")
 public class AntTask extends BuildTask {
@@ -37,16 +33,17 @@ public class AntTask extends BuildTask {
 
     @Override
     public String arguments() {
-        List<String> args = new ArrayList<>();
+        StringBuilder args = new StringBuilder();
+        boolean spaceNeeded = false;
         if (buildFile != null) {
-            args.add("-f \"" + FilenameUtils.separatorsToUnix(buildFile) + "\"");
+            args.append("-f \"").append(FilenameUtils.separatorsToUnix(buildFile)).append('"');
+            spaceNeeded = true;
         }
-
         if (target != null) {
-            args.add(target);
+            if (spaceNeeded) { args.append(' '); }
+            args.append(target);
         }
-
-        return StringUtils.join(args, " ");
+        return args.toString();
     }
 
     @Override

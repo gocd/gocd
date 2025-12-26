@@ -36,6 +36,7 @@ import com.thoughtworks.go.util.TimeProvider;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -44,17 +45,16 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 public class PipelineMother {
 
     public static PipelineConfig withSingleStageWithMaterials(String pipelineName, String stageName, JobConfigs jobConfigs) {
-        MaterialConfigs materialConfigs = com.thoughtworks.go.helper.MaterialConfigsMother.defaultMaterialConfigs();
+        MaterialConfigs materialConfigs = MaterialConfigsMother.defaultMaterialConfigs();
         return new PipelineConfig(new CaseInsensitiveString(pipelineName), materialConfigs, new StageConfig(new CaseInsensitiveString(stageName), jobConfigs));
     }
 
     public static Pipeline passedPipelineInstance(String pipelineName, String stageName, String buildName) {
-        return pipeline(pipelineName, com.thoughtworks.go.helper.StageMother.passedStageInstance(stageName, buildName, pipelineName));
+        return pipeline(pipelineName, StageMother.passedStageInstance(stageName, buildName, pipelineName));
     }
 
     public static Pipeline pipeline(String pipelineName, Stage... stages) {
-        Materials materials = MaterialsMother.defaultMaterials();
-        return new Pipeline(pipelineName, BuildCause.createWithModifications(com.thoughtworks.go.helper.ModificationsMother.modifyOneFile(materials, com.thoughtworks.go.helper.ModificationsMother.nextRevision()), ""), stages);
+        return new Pipeline(pipelineName, BuildCause.createWithModifications(ModificationsMother.modifyOneFile(MaterialsMother.defaultMaterials(), ModificationsMother.nextRevision()), ""), stages);
     }
 
     public static Pipeline pipelineWithAllTypesOfMaterials(String pipelineName, String stageName, String jobName, String fixedMaterialRevisionForAllMaterials) {
@@ -109,19 +109,15 @@ public class PipelineMother {
     }
 
     public static Pipeline completedPipelineWithStagesAndBuilds(String pipelineName, List<String> baseStageNames, List<String> baseBuildNames) {
-        return pipeline(pipelineName, toStageArray(stagesAndBuildsWithEndState(JobState.Completed, JobResult.Passed, baseStageNames, baseBuildNames)));
+        return pipeline(pipelineName, stagesAndBuildsWithEndState(JobState.Completed, JobResult.Passed, baseStageNames, baseBuildNames));
     }
 
-    private static Stage[] toStageArray(Stages stages) {
-        return stages.toArray(new Stage[0]);
-    }
-
-    private static Stages stagesAndBuildsWithEndState(JobState endState, JobResult result, List<String> baseStageNames, List<String> baseBuildNames) {
+    private static Stage[] stagesAndBuildsWithEndState(JobState endState, JobResult result, List<String> baseStageNames, List<String> baseBuildNames) {
         Stages stages = new Stages();
         for (String baseStageName : baseStageNames) {
-            stages.add(com.thoughtworks.go.helper.StageMother.stageWithNBuildsHavingEndState(endState, result, baseStageName, baseBuildNames));
+            stages.add(StageMother.stageWithNBuildsHavingEndState(endState, result, baseStageName, baseBuildNames));
         }
-        return stages;
+        return stages.toArray(new Stage[0]);
     }
 
     public static Pipeline firstStageBuildingAndSecondStageScheduled(String pipelineName, List<String> stageNames, List<String> buildNames) {
@@ -130,50 +126,49 @@ public class PipelineMother {
         }
 
         Stages stages = new Stages();
-        stages.add(com.thoughtworks.go.helper.StageMother.stageWithNBuildsHavingEndState(JobState.Building, null, stageNames.get(0), buildNames));
+        stages.add(StageMother.stageWithNBuildsHavingEndState(JobState.Building, null, stageNames.get(0), buildNames));
         List<String> remainder = stageNames.subList(1, stageNames.size());
 
-
-        stages.addAll(stagesAndBuildsWithEndState(JobState.Scheduled, null, buildNames, remainder));
-        return pipeline(pipelineName, toStageArray(stages));
+        Collections.addAll(stages, stagesAndBuildsWithEndState(JobState.Scheduled, null, buildNames, remainder));
+        return pipeline(pipelineName, stages.toArray(new Stage[0]));
     }
 
 
     public static Pipeline completedFailedStageInstance(String pipelineName, String stageName, String planName,
                                                         Instant date) {
-        return pipeline(pipelineName, com.thoughtworks.go.helper.StageMother.completedFailedStageInstance(pipelineName, stageName, planName, date));
+        return pipeline(pipelineName, StageMother.completedFailedStageInstance(pipelineName, stageName, planName, date));
     }
 
     public static PipelineConfig twoBuildPlansWithResourcesAndMaterials(String pipelineName, String... stageNames) {
-        MaterialConfigs materials = com.thoughtworks.go.helper.MaterialConfigsMother.defaultMaterialConfigs();
+        MaterialConfigs materials = MaterialConfigsMother.defaultMaterialConfigs();
         return createPipelineConfig(pipelineName, materials, stageNames);
     }
 
     public static PipelineConfig createPipelineConfig(String pipelineName, MaterialConfigs materialConfigs, String... stageNames) {
         List<StageConfig> stages = new ArrayList<>();
         for (String stageName : stageNames) {
-            stages.add(com.thoughtworks.go.helper.StageConfigMother.twoBuildPlansWithResourcesAndMaterials(stageName));
+            stages.add(StageConfigMother.twoBuildPlansWithResourcesAndMaterials(stageName));
         }
         return new PipelineConfig(new CaseInsensitiveString(pipelineName), materialConfigs, stages.toArray(new StageConfig[0]));
     }
 
     public static PipelineConfig twoBuildPlansWithResourcesAndSvnMaterialsAtUrl(String pipeline, String stageName, String svnUrl) {
-        MaterialConfigs materials = com.thoughtworks.go.helper.MaterialConfigsMother.defaultSvnMaterialConfigsWithUrl(svnUrl);
+        MaterialConfigs materials = MaterialConfigsMother.defaultSvnMaterialConfigsWithUrl(svnUrl);
         return createPipelineConfig(pipeline, materials, stageName);
     }
 
     public static PipelineConfig withMaterials(String pipelineName, String stageName, JobConfigs jobConfigs) {
-        MaterialConfigs materialConfigs = com.thoughtworks.go.helper.MaterialConfigsMother.defaultMaterialConfigs();
-        return new PipelineConfig(new CaseInsensitiveString(pipelineName), materialConfigs, com.thoughtworks.go.helper.StageConfigMother.stageConfig(stageName, jobConfigs));
+        MaterialConfigs materialConfigs = MaterialConfigsMother.defaultMaterialConfigs();
+        return new PipelineConfig(new CaseInsensitiveString(pipelineName), materialConfigs, StageConfigMother.stageConfig(stageName, jobConfigs));
     }
 
     public static PipelineConfig custom(String pipelineName, String stageName, JobConfigs jobConfigs, MaterialConfigs materials) {
-        return new PipelineConfig(new CaseInsensitiveString(pipelineName), materials, com.thoughtworks.go.helper.StageConfigMother.custom(stageName, jobConfigs));
+        return new PipelineConfig(new CaseInsensitiveString(pipelineName), materials, StageConfigMother.custom(stageName, jobConfigs));
     }
 
     public static PipelineConfig withTwoStagesOneBuildEach(String pipelineName, String stageName, String stageName2) {
-        StageConfig stageConfig1 = com.thoughtworks.go.helper.StageConfigMother.oneBuildPlanWithResourcesAndMaterials(stageName);
-        StageConfig stageConfig2 = com.thoughtworks.go.helper.StageConfigMother.oneBuildPlanWithResourcesAndMaterials(stageName2);
+        StageConfig stageConfig1 = StageConfigMother.oneBuildPlanWithResourcesAndMaterials(stageName);
+        StageConfig stageConfig2 = StageConfigMother.oneBuildPlanWithResourcesAndMaterials(stageName2);
         MaterialConfigs materialConfigs = MaterialConfigsMother.defaultMaterialConfigs();
         return new PipelineConfig(new CaseInsensitiveString(pipelineName), materialConfigs, stageConfig1, stageConfig2);
     }

@@ -29,7 +29,6 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.spark.Routes.Export;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -37,6 +36,7 @@ import spark.Response;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseOfReason;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
 
 @Component
@@ -45,7 +45,7 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final GoConfigPluginService crPluginService;
     private final GoConfigService configService;
-    private EntityHashingService entityHashingService;
+    private final EntityHashingService entityHashingService;
 
     @Autowired
     public ExportControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, GoConfigPluginService crPluginService, GoConfigService configService,
@@ -124,7 +124,7 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
     private String requiredQueryParam(final Request req, final String name) {
         String value = req.queryParams(name);
 
-        if (StringUtils.isBlank(value)) {
+        if (isBlank(value)) {
             throw HaltApiResponses.haltBecauseRequiredParamMissing(name);
         }
 

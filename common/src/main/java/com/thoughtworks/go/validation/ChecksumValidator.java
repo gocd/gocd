@@ -17,7 +17,8 @@ package com.thoughtworks.go.validation;
 
 import com.thoughtworks.go.agent.ChecksumValidationPublisher;
 import com.thoughtworks.go.domain.ArtifactMd5Checksums;
-import org.apache.commons.lang3.StringUtils;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class ChecksumValidator {
 
@@ -33,7 +34,7 @@ public class ChecksumValidator {
             return;
         }
         String expectedMd5 = artifactMd5Checksums.md5For(effectivePath);
-        if (StringUtils.isBlank(expectedMd5)) {
+        if (isBlank(expectedMd5)) {
             checksumValidationPublisher.md5NotFoundFor(effectivePath);
             return;
         }

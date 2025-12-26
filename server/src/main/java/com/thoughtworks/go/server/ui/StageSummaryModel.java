@@ -72,7 +72,7 @@ public class StageSummaryModel {
         return getIdentifier().getPipelineLabel();
     }
 
-    public Integer getPipelineCounter() {
+    public int getPipelineCounter() {
         return getIdentifier().getPipelineCounter();
     }
 

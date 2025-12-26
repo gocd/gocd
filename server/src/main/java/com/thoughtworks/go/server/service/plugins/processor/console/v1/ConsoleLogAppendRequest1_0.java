@@ -46,7 +46,7 @@ public class ConsoleLogAppendRequest1_0 implements ConsoleLogAppendRequest {
 
     @Override
     public JobIdentifier jobIdentifier() {
-        return new JobIdentifier(pipelineName, pipelineCounter, null, stageName, stageCounter, jobName);
+        return new JobIdentifier(pipelineName, pipelineCounter == null ? 0 : pipelineCounter, null, stageName, stageCounter, jobName);
     }
 
     @Override

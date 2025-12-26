@@ -222,7 +222,7 @@ public class FeedServiceTest {
         @Test
         void shouldThrowRecordNotFoundExceptionWhenMaterialRevisionWithFingerprintDoesNotExist() {
             String pipelineName = "up42";
-            Integer pipelineCounter = 2;
+            int pipelineCounter = 2;
             PipelineInstanceModel model = pipelineInstanceModel(pipelineName, pipelineCounter, Instant.now());
             model.setLatestRevisions(new MaterialRevisions());
             when(pipelineHistoryService.load(pipelineName, pipelineCounter, username)).thenReturn(model);
@@ -236,7 +236,7 @@ public class FeedServiceTest {
         void shouldReturnMaterialXmlDocument() {
             MaterialRevisions revisions = createSvnMaterialRevisions(oneModifiedFile("rev"));
             String pipelineName = "up42";
-            Integer pipelineCounter = 2;
+            int pipelineCounter = 2;
             String pipelineUniqueFingerprint = revisions.getMaterialRevision(0).getMaterial().getPipelineUniqueFingerprint();
 
             PipelineInstanceModel model = pipelineInstanceModel(pipelineName, pipelineCounter, Instant.now());

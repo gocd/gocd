@@ -267,7 +267,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     private boolean isMaxPendingAgentsLimitReached() {
-        Integer maxPendingAgentsAllowed = systemEnvironment.get(MAX_PENDING_AGENTS_ALLOWED);
+        int maxPendingAgentsAllowed = systemEnvironment.get(MAX_PENDING_AGENTS_ALLOWED);
         int pendingAgentsCount = this.size() - findRegisteredAgents().size();
         return pendingAgentsCount >= maxPendingAgentsAllowed;
     }

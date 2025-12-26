@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class ComparisonRepresenter {
-    public static void toJSON(OutputWriter outputWriter, String pipelineName, Integer fromCounter, Integer toCounter, boolean isBisect, List<MaterialRevision> materialRevisions) {
+    public static void toJSON(OutputWriter outputWriter, String pipelineName, int fromCounter, int toCounter, boolean isBisect, List<MaterialRevision> materialRevisions) {
         outputWriter.addLinks(addLinks())
                 .add("pipeline_name", pipelineName)
                 .add("from_counter", fromCounter)

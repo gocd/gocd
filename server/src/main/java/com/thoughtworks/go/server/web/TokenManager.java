@@ -15,12 +15,13 @@
  */
 package com.thoughtworks.go.server.web;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.UUID;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Component
 public class TokenManager {
@@ -38,6 +39,6 @@ public class TokenManager {
     public boolean verify(HttpServletRequest request) {
         String postedToken = request.getParameter(TOKEN);
         String expectedToken = (String) request.getSession().getAttribute(TOKEN);
-        return !StringUtils.isBlank(postedToken) && !StringUtils.isBlank(expectedToken) && postedToken.equals(expectedToken);
+        return !isBlank(postedToken) && !isBlank(expectedToken) && postedToken.equals(expectedToken);
     }
 }

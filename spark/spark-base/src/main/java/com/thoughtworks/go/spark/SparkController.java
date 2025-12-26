@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.policy.SupportedAction;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import spark.Request;
@@ -29,12 +28,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.join;
+
 public interface SparkController {
     default String controllerPath(Object... paths) {
         if (paths == null || paths.length == 0) {
             return controllerBasePath();
         } else {
-            return (controllerBasePath() + "/" + StringUtils.join(paths, '/')).replaceAll("//", "/");
+            return (controllerBasePath() + "/" + join(paths, '/')).replaceAll("//", "/");
         }
     }
 
@@ -44,7 +45,9 @@ public interface SparkController {
         if (params == null || params.isEmpty()) {
             return path;
         } else {
-            List<BasicNameValuePair> queryParams = params.entrySet().stream().map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue())).collect(Collectors.toList());
+            List<BasicNameValuePair> queryParams = params.entrySet().stream()
+                .map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
             return path + '?' + URLEncodedUtils.format(queryParams, StandardCharsets.UTF_8);
         }
     }

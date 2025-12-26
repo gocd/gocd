@@ -256,7 +256,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
         Map<CaseInsensitiveString, String> results = new HashMap<>();
         for (MaterialRevision mr : revisions) {
             CaseInsensitiveString materialName = mr.getMaterial().getName();
-            if (!CaseInsensitiveString.isBlank(materialName)) {
+            if (!CaseInsensitiveString.isEmpty(materialName)) {
                 results.put(materialName, getRevisionValueOf(mr.getRevision()));
             }
         }

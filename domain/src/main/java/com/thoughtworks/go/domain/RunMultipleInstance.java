@@ -84,8 +84,8 @@ public class RunMultipleInstance implements JobType {
 		return context;
 	}
 
-	private Integer getOldJobIndex(String jobName) {
-		return Integer.valueOf(jobName.split("-" + RunMultipleInstanceJobTypeConfig.MARKER + "-")[1]);
+	private int getOldJobIndex(String jobName) {
+		return Integer.parseInt(jobName.split("-" + RunMultipleInstanceJobTypeConfig.MARKER + "-")[1]);
 	}
 
 	private static class IdentityNameGenerator implements JobNameGenerator {
@@ -102,7 +102,7 @@ public class RunMultipleInstance implements JobType {
 	}
 
 	public static class CounterBasedJobNameGenerator implements JobNameGenerator {
-		private String name;
+		private final String name;
 
 		public CounterBasedJobNameGenerator(String name) {
 			this.name = name;

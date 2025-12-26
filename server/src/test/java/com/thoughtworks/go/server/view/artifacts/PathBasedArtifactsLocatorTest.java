@@ -28,7 +28,7 @@ public class PathBasedArtifactsLocatorTest {
     @Test
     public void shouldUsePipelineCounterForArtifactDirectory() {
         PathBasedArtifactsLocator locator = new PathBasedArtifactsLocator(new File("root"));
-        File directory = locator.directoryFor(new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null));
+        File directory = locator.directoryFor(new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", 0));
         assertThat(directory).isEqualTo(new File("root/pipelines/cruise/1/dev/2/linux-firefox"));
     }
 
@@ -42,7 +42,7 @@ public class PathBasedArtifactsLocatorTest {
     @Test
     public void shouldUsePipelineLabelForArtifactDirectory() {
         PathBasedArtifactsLocator locator = new PathBasedArtifactsLocator(new File("root"));
-        File directory = locator.directoryFor(new JobIdentifier("cruise", -2, "1.1", "dev", "2", "linux-firefox", null));
+        File directory = locator.directoryFor(new JobIdentifier("cruise", -2, "1.1", "dev", "2", "linux-firefox", 0));
         assertThat(directory).isEqualTo(new File("root/pipelines/cruise/1.1/dev/2/linux-firefox"));
     }
 }

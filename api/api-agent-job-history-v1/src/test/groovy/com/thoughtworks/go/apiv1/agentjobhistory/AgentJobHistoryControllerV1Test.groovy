@@ -70,7 +70,7 @@ class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, Controlle
       def offset = 0
       def sortOrder = SortOrder.DESC
 
-      def pagination = Pagination.pageStartingAt(offset, totalCompletedJobs, pageSize)
+      def pagination = Pagination.pageByOffset(offset, totalCompletedJobs, pageSize)
       def jobInstance = JobInstanceMother.completed("blah", JobResult.Passed)
 
       when(agentService.findAgent(uuid)).thenReturn(AgentInstanceMother.idleWith(uuid))
@@ -95,7 +95,7 @@ class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, Controlle
         @Test
         void 'should allow `offset` with value `0`'() {
 
-          def pagination = Pagination.pageStartingAt(0, 42, 10)
+          def pagination = Pagination.pageByOffset(0, 42, 10)
           def jobInstance = JobInstanceMother.completed("blah", JobResult.Passed)
           def jobInstancesModel = new JobInstancesModel(new JobInstances(jobInstance), pagination)
 
@@ -121,7 +121,7 @@ class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, Controlle
 
         @Test
         void 'should allow positive offset'() {
-          def pagination = Pagination.pageStartingAt(1, 42, 10)
+          def pagination = Pagination.pageByOffset(1, 42, 10)
           def jobInstance = JobInstanceMother.completed("blah", JobResult.Passed)
           def jobInstancesModel = new JobInstancesModel(new JobInstances(jobInstance), pagination)
 
@@ -161,7 +161,7 @@ class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, Controlle
 
         @Test
         void 'should allow page_size of 10'() {
-          def pagination = Pagination.pageStartingAt(0, 42, 10)
+          def pagination = Pagination.pageByOffset(0, 42, 10)
           def jobInstance = JobInstanceMother.completed("blah", JobResult.Passed)
           def jobInstancesModel = new JobInstancesModel(new JobInstances(jobInstance), pagination)
 
@@ -179,7 +179,7 @@ class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, Controlle
 
         @Test
         void 'should allow page_size of 100'() {
-          def pagination = Pagination.pageStartingAt(0, 42, 100)
+          def pagination = Pagination.pageByOffset(0, 42, 100)
           def jobInstance = JobInstanceMother.completed("blah", JobResult.Passed)
           def jobInstancesModel = new JobInstancesModel(new JobInstances(jobInstance), pagination)
 
@@ -210,7 +210,7 @@ class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, Controlle
 
         @Test
         void 'should allow good `sort_column` name'() {
-          def pagination = Pagination.pageStartingAt(0, 42, 10)
+          def pagination = Pagination.pageByOffset(0, 42, 10)
           def jobInstance = JobInstanceMother.completed("blah", JobResult.Passed)
           def jobInstancesModel = new JobInstancesModel(new JobInstances(jobInstance), pagination)
 
@@ -231,7 +231,7 @@ class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, Controlle
       class SortOrder {
         @Test
         void 'should allow ASC `sort_order`'() {
-          def pagination = Pagination.pageStartingAt(0, 42, 10)
+          def pagination = Pagination.pageByOffset(0, 42, 10)
           def jobInstance = JobInstanceMother.completed("blah", JobResult.Passed)
           def jobInstancesModel = new JobInstancesModel(new JobInstances(jobInstance), pagination)
 
@@ -249,7 +249,7 @@ class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, Controlle
 
         @Test
         void 'should allow DESC `sort_order`'() {
-          def pagination = Pagination.pageStartingAt(0, 42, 10)
+          def pagination = Pagination.pageByOffset(0, 42, 10)
           def jobInstance = JobInstanceMother.completed("blah", JobResult.Passed)
           def jobInstancesModel = new JobInstancesModel(new JobInstances(jobInstance), pagination)
 

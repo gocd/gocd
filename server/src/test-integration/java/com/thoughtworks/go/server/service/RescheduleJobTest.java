@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -59,8 +58,6 @@ public class RescheduleJobTest {
     @Autowired
     private ScheduleService scheduleService;
     @Autowired
-    private JobStatusCache jobStatusCache;
-    @Autowired
     private MaterialRepository materialRepository;
     @Autowired
     private TransactionTemplate transactionTemplate;
@@ -88,22 +85,6 @@ public class RescheduleJobTest {
         pipelineFixture.onTearDown();
         dbHelper.onTearDown();
         configHelper.onTearDown();
-    }
-
-    @Test
-    public void rescheduleBuildShouldUpdateCache() {
-        final JobInstance hungJob = stage.getJobInstances().get(0);
-        final Pipeline pipeline = dbHelper.getPipelineDao().mostRecentPipeline(PIPELINE_NAME);
-        //Need to do this in transaction because of caching
-        dbHelper.txTemplate().execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                jobInstanceService.save(new StageIdentifier(pipeline.getName(), -2, pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter())), stage.getId(), hungJob);
-            }
-        });
-
-        scheduleService.rescheduleJob(hungJob);
-        assertThat(jobStatusCache.currentJob(hungJob.getIdentifier().jobConfigIdentifier()).getState()).isEqualTo(JobState.Scheduled);
     }
 
     @Test

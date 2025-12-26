@@ -42,7 +42,7 @@ public class StageConverter extends DataConverter<StageNotificationDTO> {
     @Override
     public StageNotificationDTO transformData() {
         String pipelineName = stage.getIdentifier().getPipelineName();
-        Integer pipelineCounter = stage.getIdentifier().getPipelineCounter();
+        int pipelineCounter = stage.getIdentifier().getPipelineCounter();
         String pipelineLabel = stage.getIdentifier().getPipelineLabel();
         StageNotificationDTO.PipelineDTO pipeline = new StageNotificationDTO.PipelineDTO(pipelineName, pipelineCounter, pipelineLabel, pipelineGroup, createBuildCause(buildCause), createStageDTO());
         return new StageNotificationDTO(pipeline);

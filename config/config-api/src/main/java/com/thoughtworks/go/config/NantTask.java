@@ -17,11 +17,9 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.TaskProperty;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,16 +36,17 @@ public class NantTask extends BuildTask {
 
     @Override
     public String arguments() {
-        List<String> args = new ArrayList<>();
+        StringBuilder args = new StringBuilder();
+        boolean spaceNeeded = false;
         if (buildFile != null) {
-            args.add("-buildfile:\"" + FilenameUtils.separatorsToUnix(buildFile) + "\"");
+            args.append("-buildfile:\"").append(FilenameUtils.separatorsToUnix(buildFile)).append('"');
+            spaceNeeded = true;
         }
-
         if (target != null) {
-            args.add(target);
+            if (spaceNeeded) { args.append(' '); }
+            args.append(target);
         }
-
-        return StringUtils.join(args, " ");
+        return args.toString();
     }
 
     @Override

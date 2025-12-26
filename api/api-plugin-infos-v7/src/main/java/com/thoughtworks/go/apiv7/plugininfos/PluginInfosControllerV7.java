@@ -31,7 +31,6 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -41,6 +40,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.thoughtworks.go.api.util.HaltApiMessages.notFoundMessage;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static spark.Spark.*;
 
 @Component
@@ -85,7 +85,7 @@ public class PluginInfosControllerV7 extends ApiController implements SparkSprin
         String pluginType = request.queryParams("type");
         boolean includeBad = Boolean.parseBoolean(request.queryParams("include_bad"));
 
-        if (StringUtils.isNotBlank(pluginType) && !extensionsRegistry.allRegisteredExtensions().contains(pluginType)) {
+        if (isNotBlank(pluginType) && !extensionsRegistry.allRegisteredExtensions().contains(pluginType)) {
             throw new UnprocessableEntityException(String.format("Invalid plugin type '%s'. It has to be one of '%s'.", pluginType, String.join(", ", extensionsRegistry.allRegisteredExtensions())));
         }
 

@@ -16,13 +16,16 @@
 package com.thoughtworks.go.server.perf;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 @Component
 public class SchedulingPerformanceLogger {
-    private PerformanceLogger performanceLogger;
-    private long currentTrackingId = 0;
+    private final Logger performanceLogger;
+    private final AtomicLong currentTrackingId = new AtomicLong(0);
 
     @Autowired
     public SchedulingPerformanceLogger(PerformanceLogger performanceLogger) {
@@ -30,56 +33,80 @@ public class SchedulingPerformanceLogger {
     }
 
     public long pipelineSentToScheduleCheckQueue(String pipelineName) {
-        long trackingId = currentTrackingId++;
-        performanceLogger.log("SCH-CHECK-QUEUE-PUT {} {}", trackingId, pipelineName);
+        long trackingId = currentTrackingId.getAndIncrement();
+        if (performanceLogger.isDebugEnabled()) {
+            performanceLogger.debug("SCH-CHECK-QUEUE-PUT {} {}", trackingId, pipelineName);
+        }
         return trackingId;
     }
 
     public void pickedUpPipelineForScheduleCheck(long trackingId, String pipelineName) {
-        performanceLogger.log("SCH-CHECK-START {} {}", trackingId, pipelineName);
+        if (performanceLogger.isDebugEnabled()) {
+            performanceLogger.debug("SCH-CHECK-START {} {}", trackingId, pipelineName);
+        }
     }
 
     public void autoSchedulePipelineStart(long trackingId, String pipelineName) {
-        performanceLogger.log("SCH-AUTO-START {} {}", trackingId, pipelineName);
+        if (performanceLogger.isDebugEnabled()) {
+            performanceLogger.debug("SCH-AUTO-START {} {}", trackingId, pipelineName);
+        }
     }
 
     public void autoSchedulePipelineFinish(long trackingId, String pipelineName) {
-        performanceLogger.log("SCH-AUTO-DONE {} {}", trackingId, pipelineName);
+        if (performanceLogger.isDebugEnabled()) {
+            performanceLogger.debug("SCH-AUTO-DONE {} {}", trackingId, pipelineName);
+        }
     }
 
     public void postingMessageAboutScheduleCheckCompletion(long trackingId, String pipelineName) {
-        performanceLogger.log("SCH-CHECK-DONE {} {}", trackingId, pipelineName);
+        if (performanceLogger.isDebugEnabled()) {
+            performanceLogger.debug("SCH-CHECK-DONE {} {}", trackingId, pipelineName);
+        }
     }
 
     public void completionMessageForScheduleCheckReceived(long trackingId, String pipelineName) {
-        performanceLogger.log("SCH-CHECK-QUEUE-REMOVE {} {}", trackingId, pipelineName);
+        if (performanceLogger.isDebugEnabled()) {
+            performanceLogger.debug("SCH-CHECK-QUEUE-REMOVE {} {}", trackingId, pipelineName);
+        }
     }
 
     public long manualSchedulePipelineStart(String pipelineName) {
-        long trackingId = currentTrackingId++;
-        performanceLogger.log("SCH-MANUAL-START {} {}", trackingId, pipelineName);
+        long trackingId = currentTrackingId.getAndIncrement();
+        if (performanceLogger.isDebugEnabled()) {
+            performanceLogger.debug("SCH-MANUAL-START {} {}", trackingId, pipelineName);
+        }
         return trackingId;
     }
 
     public void manualSchedulePipelineFinish(long trackingId, String pipelineName) {
-        performanceLogger.log("SCH-MANUAL-DONE {} {}", trackingId, pipelineName);
+        if (performanceLogger.isDebugEnabled()) {
+            performanceLogger.debug("SCH-MANUAL-DONE {} {}", trackingId, pipelineName);
+        }
     }
 
     public long timerSchedulePipelineStart(String pipelineName) {
-        long trackingId = currentTrackingId++;
-        performanceLogger.log("SCH-TIMER-START {} {}", trackingId, pipelineName);
+        long trackingId = currentTrackingId.getAndIncrement();
+        if (performanceLogger.isDebugEnabled()) {
+            performanceLogger.debug("SCH-TIMER-START {} {}", trackingId, pipelineName);
+        }
         return trackingId;
     }
 
     public void timerSchedulePipelineFinish(long trackingId, String pipelineName) {
-        performanceLogger.log("SCH-TIMER-DONE {} {}", trackingId, pipelineName);
+        if (performanceLogger.isDebugEnabled()) {
+            performanceLogger.debug("SCH-TIMER-DONE {} {}", trackingId, pipelineName);
+        }
     }
 
     public void sendingPipelineToTheToBeScheduledQueue(long trackingId, String pipelineName) {
-        performanceLogger.log("SCH-TO-BE-SCHEDULED-QUEUE-PUT {} {}", trackingId, pipelineName);
+        if (performanceLogger.isDebugEnabled()) {
+            performanceLogger.debug("SCH-TO-BE-SCHEDULED-QUEUE-PUT {} {}", trackingId, pipelineName);
+        }
     }
 
     public void scheduledPipeline(CaseInsensitiveString pipelineName, int toBeScheduledQueueSize, long schedulePipelineStartTime, long schedulePipelineEndTime) {
-        performanceLogger.log("SCH-SCHEDULED {} {} {} {}", pipelineName, toBeScheduledQueueSize, schedulePipelineStartTime, schedulePipelineEndTime);
+        if (performanceLogger.isDebugEnabled()) {
+            performanceLogger.debug("SCH-SCHEDULED {} {} {} {}", pipelineName, toBeScheduledQueueSize, schedulePipelineStartTime, schedulePipelineEndTime);
+        }
     }
 }

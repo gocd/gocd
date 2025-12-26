@@ -31,7 +31,6 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.dd.FanInGraph;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +41,7 @@ import java.util.function.IntSupplier;
 
 import static com.thoughtworks.go.util.SystemEnvironment.RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isNumeric;
 
 @Service
 public class PipelineService implements UpstreamPipelineResolver {
@@ -98,7 +98,7 @@ public class PipelineService implements UpstreamPipelineResolver {
     }
 
     private void updateCounter(Pipeline pipeline) {
-        Integer lastCount = pipelineDao.getCounterForPipeline(pipeline.getName());
+        int lastCount = pipelineDao.getCounterForPipeline(pipeline.getName());
         pipeline.updateCounter(lastCount);
         pipelineDao.insertOrUpdatePipelineCounter(pipeline, lastCount, pipeline.getCounter());
     }
@@ -117,7 +117,7 @@ public class PipelineService implements UpstreamPipelineResolver {
         return pipelineDao.findPipelineByNameAndCounter(pipelineName, pipelineCounter);
     }
 
-    public Pipeline fullPipelineByCounter(String pipelineName, Integer pipelineCounter) {
+    public Pipeline fullPipelineByCounter(String pipelineName, int pipelineCounter) {
         Pipeline pipeline = findPipelineByNameAndCounter(pipelineName, pipelineCounter);
         pipelineDao.loadAssociations(pipeline, pipelineName);
         return pipeline;
@@ -254,7 +254,7 @@ public class PipelineService implements UpstreamPipelineResolver {
         if (JobIdentifier.LATEST.equalsIgnoreCase(pipelineCounter)) {
             PipelineIdentifier pipelineIdentifier = mostRecentPipelineIdentifier(pipelineName);
             return OptionalInt.of(pipelineIdentifier.getCounter());
-        } else if (!StringUtils.isNumeric(pipelineCounter)) {
+        } else if (!isNumeric(pipelineCounter)) {
             return OptionalInt.empty();
         } else {
             return OptionalInt.of(Integer.parseInt(pipelineCounter));

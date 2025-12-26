@@ -37,7 +37,6 @@ import com.thoughtworks.go.server.service.PipelinePauseService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -48,6 +47,7 @@ import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
 
 @Component
@@ -57,7 +57,7 @@ public class PipelineConfigControllerV11 extends ApiController implements SparkS
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final EntityHashingService entityHashingService;
     private final PasswordDeserializer passwordDeserializer;
-    private GoConfigService goConfigService;
+    private final GoConfigService goConfigService;
 
     @Autowired
     public PipelineConfigControllerV11(PipelineConfigService pipelineConfigService,
@@ -147,7 +147,7 @@ public class PipelineConfigControllerV11 extends ApiController implements SparkS
 
     private String getUserSpecifiedOrDefaultPauseCause(Request req) {
         String pauseCauseHeaderVal = req.headers("X-pause-cause");
-        return (StringUtils.isBlank(pauseCauseHeaderVal)
+        return (isBlank(pauseCauseHeaderVal)
                 ? "No pause cause was specified when pipeline was created via API"
                 : pauseCauseHeaderVal);
     }
@@ -227,7 +227,7 @@ public class PipelineConfigControllerV11 extends ApiController implements SparkS
 
     private String getOrHaltForGroupName(Request req) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
-        if (!jsonReader.hasJsonObject("group") || StringUtils.isBlank(jsonReader.getString("group"))) {
+        if (!jsonReader.hasJsonObject("group") || isBlank(jsonReader.getString("group"))) {
             throw haltBecauseOfReason("Pipeline group must be specified for creating a pipeline.");
         }
         return jsonReader.getString("group");

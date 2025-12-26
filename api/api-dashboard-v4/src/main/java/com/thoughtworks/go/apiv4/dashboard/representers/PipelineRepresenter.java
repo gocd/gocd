@@ -25,9 +25,10 @@ import com.thoughtworks.go.presentation.pipelinehistory.EmptyPipelineInstanceMod
 import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.spark.Routes;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.function.Consumer;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class PipelineRepresenter {
 
@@ -76,8 +77,8 @@ public class PipelineRepresenter {
         return writer -> {
             PipelinePauseInfo pausedInfo = model.model().getPausedInfo();
             writer.add("paused", pausedInfo.isPaused());
-            writer.add("paused_by", StringUtils.isBlank(pausedInfo.getPauseBy()) ? null : pausedInfo.getPauseBy());
-            writer.add("pause_reason", StringUtils.isBlank(pausedInfo.getPauseCause()) ? null : pausedInfo.getPauseCause());
+            writer.add("paused_by", isBlank(pausedInfo.getPauseBy()) ? null : pausedInfo.getPauseBy());
+            writer.add("pause_reason", isBlank(pausedInfo.getPauseCause()) ? null : pausedInfo.getPauseCause());
             writer.add("paused_at", pausedInfo.getPausedAt());
         };
     }

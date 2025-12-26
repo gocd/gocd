@@ -28,12 +28,12 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public abstract class RuleAwarePluginProfileCommand<T extends RuleAwarePluginProfile, M extends RuleAwarePluginProfiles<T>> implements EntityConfigUpdateCommand<T> {
     final GoConfigService goConfigService;
@@ -85,7 +85,7 @@ public abstract class RuleAwarePluginProfileCommand<T extends RuleAwarePluginPro
     }
 
     final T findExistingProfile(CruiseConfig cruiseConfig) {
-        if (profile == null || StringUtils.isBlank(profile.getId())) {
+        if (profile == null || isBlank(profile.getId())) {
             if (profile != null) {
                 profile.addError("id", getObjectDescriptor() + " cannot have a blank id.");
             }

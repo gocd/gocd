@@ -15,16 +15,17 @@
  */
 package com.thoughtworks.go.domain;
 
-import org.apache.commons.lang3.StringUtils;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * Understands the network address for a machine
  */
 public class IpAddress implements Comparable<IpAddress> {
-    private InetAddress address;
+    private final InetAddress address;
 
     public IpAddress(InetAddress address) {
         this.address = address;
@@ -32,7 +33,7 @@ public class IpAddress implements Comparable<IpAddress> {
 
     public static IpAddress create(String address) {
         try {
-            if (StringUtils.isEmpty(address)) {
+            if (isEmpty(address)) {
                 return new NullIpAddress();
             }
             return new IpAddress(InetAddress.getByName(address));

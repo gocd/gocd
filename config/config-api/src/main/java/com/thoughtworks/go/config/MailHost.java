@@ -21,12 +21,12 @@ import com.thoughtworks.go.security.GoCipher;
 import lombok.*;
 import lombok.experimental.Accessors;
 import lombok.experimental.Tolerate;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.stripToNull;
 
 @Getter
 @Setter
@@ -142,7 +142,7 @@ public class MailHost implements Validatable, PasswordEncrypter {
     @Override
     @PostConstruct
     public void ensureEncrypted() {
-        this.username = StringUtils.stripToNull(username);
+        this.username = stripToNull(username);
 
         setPasswordIfNotBlank(password);
     }
@@ -172,15 +172,15 @@ public class MailHost implements Validatable, PasswordEncrypter {
     }
 
     private void resetPassword(String password) {
-        if (StringUtils.isBlank(password)) {
+        if (isBlank(password)) {
             this.encryptedPassword = null;
         }
         setPasswordIfNotBlank(password);
     }
 
     private void setPasswordIfNotBlank(String password) {
-        this.password = StringUtils.stripToNull(password);
-        this.encryptedPassword = StringUtils.stripToNull(encryptedPassword);
+        this.password = stripToNull(password);
+        this.encryptedPassword = stripToNull(encryptedPassword);
 
         if (this.password == null) {
             return;

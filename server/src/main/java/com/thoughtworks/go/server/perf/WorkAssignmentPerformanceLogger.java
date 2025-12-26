@@ -20,12 +20,13 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.BuildWork;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class WorkAssignmentPerformanceLogger {
-    private PerformanceLogger performanceLogger;
+    private final Logger performanceLogger;
 
     @Autowired
     public WorkAssignmentPerformanceLogger(PerformanceLogger performanceLogger) {
@@ -33,23 +34,24 @@ public class WorkAssignmentPerformanceLogger {
     }
 
     public void retrievedWorkForAgent(AgentRuntimeInfo agentRuntimeInfo, Work work, long retrieveWorkStartTime, long retrieveWorkEndTime) {
-        if (work == null || !(work instanceof BuildWork buildWork)) {
-            performanceLogger.log("WORK-NOWORK {} {} {}", agentRuntimeInfo.getIdentifier().getUuid(), retrieveWorkStartTime, retrieveWorkEndTime);
-            return;
+        if (performanceLogger.isDebugEnabled()) {
+            if (work instanceof BuildWork buildWork) {
+                performanceLogger.debug("WORK-RETRIEVED {} {} {} {}", agentRuntimeInfo.getIdentifier().getUuid(), buildWork.identifierForLogging(), retrieveWorkStartTime, retrieveWorkEndTime);
+            } else {
+                performanceLogger.debug("WORK-NOWORK {} {} {}", agentRuntimeInfo.getIdentifier().getUuid(), retrieveWorkStartTime, retrieveWorkEndTime);
+            }
         }
-
-        performanceLogger.log("WORK-RETRIEVED {} {} {} {}", agentRuntimeInfo.getIdentifier().getUuid(), buildWork.identifierForLogging(), retrieveWorkStartTime, retrieveWorkEndTime);
     }
 
     public void agentReportedCompletion(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, long reportCompletionStartTime, long reportCompletionEndTime) {
-        performanceLogger.log("WORK-COMPLETED {} {} {} {}", agentRuntimeInfo.getIdentifier().getUuid(), jobIdentifier, reportCompletionStartTime, reportCompletionEndTime);
+        if (performanceLogger.isDebugEnabled()) {
+            performanceLogger.debug("WORK-COMPLETED {} {} {} {}", agentRuntimeInfo.getIdentifier().getUuid(), jobIdentifier, reportCompletionStartTime, reportCompletionEndTime);
+        }
     }
 
     public void assignedWorkToAgent(Work work, AgentIdentifier agentIdentifier, long assignWorkStartTime, long assignWorkEndTime) {
-        if (work == null || !(work instanceof BuildWork buildWork)) {
-            return;
+        if (performanceLogger.isDebugEnabled() && work instanceof BuildWork buildWork) {
+            performanceLogger.debug("WORK-ASSIGNED {} {} {} {}", agentIdentifier.getUuid(), buildWork.identifierForLogging(), assignWorkStartTime, assignWorkEndTime);
         }
-
-        performanceLogger.log("WORK-ASSIGNED {} {} {} {}", agentIdentifier.getUuid(), buildWork.identifierForLogging(), assignWorkStartTime, assignWorkEndTime);
     }
 }

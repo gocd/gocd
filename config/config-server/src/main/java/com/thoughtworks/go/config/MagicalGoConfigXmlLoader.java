@@ -172,7 +172,7 @@ public class MagicalGoConfigXmlLoader {
     }
 
     public GoConfigPreprocessor getPreprocessorOfType(final Class<? extends GoConfigPreprocessor> clazz) {
-        return MagicalGoConfigXmlLoader.PREPROCESSORS.stream().filter(item -> item.getClass().isAssignableFrom(clazz)).findFirst().orElse(null);
+        return MagicalGoConfigXmlLoader.PREPROCESSORS.stream().filter(clazz::isInstance).findFirst().orElse(null);
     }
 
     public interface Callback {

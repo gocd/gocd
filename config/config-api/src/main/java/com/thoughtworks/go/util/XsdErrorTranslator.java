@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.util;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -25,6 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.apache.commons.lang3.StringUtils.capitalize;
+import static org.apache.commons.lang3.StringUtils.splitByCharacterTypeCamelCase;
 
 public class XsdErrorTranslator extends DefaultHandler {
     private boolean validationError = false;
@@ -96,7 +98,7 @@ public class XsdErrorTranslator extends DefaultHandler {
     }
 
     public static String humanize(String s) {
-        String[] words = StringUtils.splitByCharacterTypeCamelCase(s);
+        String[] words = splitByCharacterTypeCamelCase(s);
         for (int i = 0; i < words.length; i++) {
             words[i] = words[i].toLowerCase();
         }
@@ -137,7 +139,7 @@ public class XsdErrorTranslator extends DefaultHandler {
                     args[i] = humanize(args[i]);
                 }
                 if ((transform & CAPITALIZE) != 0) {
-                    args[i] = StringUtils.capitalize(args[i]);
+                    args[i] = capitalize(args[i]);
                 }
                 if ((transform & REMOVE_TYPE_SUFFIX) != 0) {
                     args[i] = Strings.CS.replace(args[i], " type", "");

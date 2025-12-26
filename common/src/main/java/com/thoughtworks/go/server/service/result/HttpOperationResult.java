@@ -17,10 +17,11 @@ package com.thoughtworks.go.server.service.result;
 
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 
 import java.net.HttpURLConnection;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Understands how to turn the problems that can occur during api calls into human-readable form and http codes
@@ -151,7 +152,7 @@ public class HttpOperationResult implements OperationResult {
             desc = serverHealthState.getDescription();
         }
 
-        return StringUtils.isBlank(desc) ? message : String.format("%s { %s }", message, desc);
+        return isBlank(desc) ? message : String.format("%s { %s }", message, desc);
     }
 
     public String detailedMessage() {        //cache me if gc mandates so -jj

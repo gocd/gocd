@@ -565,7 +565,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     private Pipeline savePipeline(Pipeline pipeline) {
-        Integer lastCount = pipelineSqlMapDao.getCounterForPipeline(pipeline.getName());
+        int lastCount = pipelineSqlMapDao.getCounterForPipeline(pipeline.getName());
         pipeline.updateCounter(lastCount);
         pipelineSqlMapDao.insertOrUpdatePipelineCounter(pipeline, lastCount, pipeline.getCounter());
         return pipelineSqlMapDao.save(pipeline);
@@ -1009,14 +1009,14 @@ public class MaterialRepositoryIntegrationTest {
         MaterialRevision fourth = saveOneScmModification("4", material, "user4", "4.txt", "comment4");
         MaterialRevision fifth = saveOneScmModification("5", material, "user5", "5.txt", "comment5");
 
-        Modifications modifications = repo.getModificationsFor(materialInstance, Pagination.pageStartingAt(0, 5, 3));
+        Modifications modifications = repo.getModificationsFor(materialInstance, Pagination.pageByOffset(0, 5, 3));
 
         assertThat(modifications.size()).isEqualTo(3);
         assertThat(modifications.get(0).getRevision()).isEqualTo(fifth.getLatestRevisionString());
         assertThat(modifications.get(1).getRevision()).isEqualTo(fourth.getLatestRevisionString());
         assertThat(modifications.get(2).getRevision()).isEqualTo(third.getLatestRevisionString());
 
-        modifications = repo.getModificationsFor(materialInstance, Pagination.pageStartingAt(3, 5, 3));
+        modifications = repo.getModificationsFor(materialInstance, Pagination.pageByOffset(3, 5, 3));
 
         assertThat(modifications.size()).isEqualTo(2);
         assertThat(modifications.get(0).getRevision()).isEqualTo(second.getLatestRevisionString());
@@ -1034,7 +1034,7 @@ public class MaterialRepositoryIntegrationTest {
         MaterialRevision fourth = saveOneScmModification("4", material, "user4", "4.txt", "comment4");
         MaterialRevision fifth = saveOneScmModification("5", material, "user5", "5.txt", "comment5");
 
-        Pagination page = Pagination.pageStartingAt(0, 5, 3);
+        Pagination page = Pagination.pageByOffset(0, 5, 3);
         repo.getModificationsFor(materialInstance, page);
         Modifications modificationsFromCache = (Modifications) goCache.get(repo.materialModificationsWithPaginationKey(materialInstance), repo.materialModificationsWithPaginationSubKey(page));
 
@@ -1044,7 +1044,7 @@ public class MaterialRepositoryIntegrationTest {
         assertThat(modificationsFromCache.get(2).getRevision()).isEqualTo(third.getLatestRevisionString());
 
 
-        page = Pagination.pageStartingAt(1, 5, 3);
+        page = Pagination.pageByOffset(1, 5, 3);
         repo.getModificationsFor(materialInstance, page);
         modificationsFromCache = (Modifications) goCache.get(repo.materialModificationsWithPaginationKey(materialInstance), repo.materialModificationsWithPaginationSubKey(page));
 
@@ -1054,7 +1054,7 @@ public class MaterialRepositoryIntegrationTest {
         assertThat(modificationsFromCache.get(2).getRevision()).isEqualTo(second.getLatestRevisionString());
 
 
-        page = Pagination.pageStartingAt(3, 5, 3);
+        page = Pagination.pageByOffset(3, 5, 3);
         repo.getModificationsFor(materialInstance, page);
         modificationsFromCache = (Modifications) goCache.get(repo.materialModificationsWithPaginationKey(materialInstance), repo.materialModificationsWithPaginationSubKey(page));
 
@@ -1072,11 +1072,11 @@ public class MaterialRepositoryIntegrationTest {
             }
         });
 
-        modificationsFromCache = (Modifications) goCache.get(repo.materialModificationsWithPaginationKey(materialInstance), repo.materialModificationsWithPaginationSubKey(Pagination.pageStartingAt(0, 5, 3)));
+        modificationsFromCache = (Modifications) goCache.get(repo.materialModificationsWithPaginationKey(materialInstance), repo.materialModificationsWithPaginationSubKey(Pagination.pageByOffset(0, 5, 3)));
 
         assertThat(modificationsFromCache).isNull();
 
-        modificationsFromCache = (Modifications) goCache.get(repo.materialModificationsWithPaginationKey(materialInstance), repo.materialModificationsWithPaginationSubKey(Pagination.pageStartingAt(3, 5, 3)));
+        modificationsFromCache = (Modifications) goCache.get(repo.materialModificationsWithPaginationKey(materialInstance), repo.materialModificationsWithPaginationSubKey(Pagination.pageByOffset(3, 5, 3)));
 
         assertThat(modificationsFromCache).isNull();
     }

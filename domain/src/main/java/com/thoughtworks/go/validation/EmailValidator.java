@@ -16,9 +16,10 @@
 package com.thoughtworks.go.validation;
 
 import com.thoughtworks.go.domain.materials.ValidationBean;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.regex.Pattern;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class EmailValidator extends Validator<String> {
 
@@ -31,7 +32,7 @@ public class EmailValidator extends Validator<String> {
 
     @Override
     public ValidationBean validate(String address) {
-        if (StringUtils.isBlank(address)) {
+        if (isBlank(address)) {
             return ValidationBean.valid();
         }
         if (EMAIL_PATTERN.matcher(address).matches()) {

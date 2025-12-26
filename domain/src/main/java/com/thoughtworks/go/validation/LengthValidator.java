@@ -16,7 +16,8 @@
 package com.thoughtworks.go.validation;
 
 import com.thoughtworks.go.domain.materials.ValidationBean;
-import org.apache.commons.lang3.StringUtils;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class LengthValidator extends Validator<String> {
     private final int length;
@@ -28,7 +29,7 @@ public class LengthValidator extends Validator<String> {
 
     @Override
     public ValidationBean validate(String value) {
-        if (StringUtils.isEmpty(value)) {
+        if (isEmpty(value)) {
             return ValidationBean.valid();
         }
         if (value.length() <= length) {

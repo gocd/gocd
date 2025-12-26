@@ -23,7 +23,6 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ThrowingFn;
 import com.thoughtworks.go.util.VoidThrowingFn;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
@@ -53,6 +52,7 @@ import java.util.Properties;
 import java.util.stream.StreamSupport;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Understands versioning cruise-config
@@ -262,10 +262,10 @@ public class ConfigRepository {
         return doLocked(() -> {
             RevCommit laterCommit = null;
             RevCommit earlierCommit = null;
-            if (!org.apache.commons.lang3.StringUtils.isBlank(laterMD5)) {
+            if (!isBlank(laterMD5)) {
                 laterCommit = getRevCommitForMd5(laterMD5);
             }
-            if (!org.apache.commons.lang3.StringUtils.isBlank(earlierMD5)) {
+            if (!isBlank(earlierMD5)) {
                 earlierCommit = getRevCommitForMd5(earlierMD5);
             }
             return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
@@ -276,10 +276,10 @@ public class ConfigRepository {
         return doLocked(() -> {
             RevCommit laterCommit = null;
             RevCommit earlierCommit = null;
-            if (!StringUtils.isBlank(fromRevision)) {
+            if (!isBlank(fromRevision)) {
                 laterCommit = getRevCommitForCommitSHA(fromRevision);
             }
-            if (!StringUtils.isBlank(toRevision)) {
+            if (!isBlank(toRevision)) {
                 earlierCommit = getRevCommitForCommitSHA(toRevision);
             }
             return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);

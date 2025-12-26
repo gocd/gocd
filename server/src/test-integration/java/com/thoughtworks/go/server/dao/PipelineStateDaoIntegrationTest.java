@@ -218,7 +218,7 @@ public class PipelineStateDaoIntegrationTest {
     private static class TestAfterCompletionCallback implements AfterCompletionCallback {
 
         boolean called = false;
-        Integer status = null;
+        int status;
 
         @Override
         public void execute(int status) {

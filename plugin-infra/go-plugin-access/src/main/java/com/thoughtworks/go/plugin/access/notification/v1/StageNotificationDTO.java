@@ -54,9 +54,9 @@ public class StageNotificationDTO {
         @SerializedName("stage")
         private StageDTO stage;
 
-        public PipelineDTO(String name, Integer counter, String group, List<MaterialRevisionDTO> buildCause, StageDTO stage) {
+        public PipelineDTO(String name, int counter, String group, List<MaterialRevisionDTO> buildCause, StageDTO stage) {
             this.name = name;
-            this.counter = counter.toString();
+            this.counter = String.valueOf(counter);
             this.group = group;
             this.buildCause = buildCause;
             this.stage = stage;
@@ -130,7 +130,7 @@ public class StageNotificationDTO {
 
         public StageDTO(String name, int counter, String approvalType, String approvedBy, StageState state, StageResult result, Timestamp createTime, Timestamp lastTransitionTime, List<JobDTO> jobs) {
             this.name = name;
-            this.counter = Integer.valueOf(counter).toString();
+            this.counter = String.valueOf(counter);
             this.approvalType = approvalType;
             this.approvedBy = approvedBy;
             this.state = state.toString();

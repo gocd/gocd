@@ -25,7 +25,6 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.util.Pagination;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,13 +32,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound;
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonNotAcceptable;
 import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_JSON;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Controller
 public class PipelineHistoryController {
@@ -72,22 +71,22 @@ public class PipelineHistoryController {
                              @RequestParam(value = "perPage", required = false) Integer perPageParam,
                              @RequestParam(value = "start", required = false) Integer startParam,
                              @RequestParam(value = "labelFilter", required = false) String labelFilter,
-                             HttpServletResponse response, HttpServletRequest request) {
+                             HttpServletResponse response) {
         PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
         String username = CaseInsensitiveString.str(SessionUtils.currentUsername().getUsername());
 
         Pagination pagination;
         try {
-            pagination = Pagination.pageStartingAt(startParam, pipelineHistoryService.totalCount(pipelineName), perPageParam);
+            pagination = Pagination.pageByOffsetNullSafe(startParam, pipelineHistoryService.totalCount(pipelineName), perPageParam);
         } catch (Exception e) {
             return jsonNotAcceptable(Map.of(ERROR_FOR_JSON, e.getMessage())).respond(response);
         }
 
         PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
         boolean hasBuildCauseInBuffer = pipelineScheduleQueue.hasBuildCause(pipelineConfig.name());
-        PipelineInstanceModels pipelineHistory = StringUtils.isBlank(labelFilter) ?
+        PipelineInstanceModels pipelineHistory = isBlank(labelFilter) ?
                 pipelineHistoryService.load(pipelineName, pagination, username, true) :
-                pipelineHistoryService.findMatchingPipelineInstances(pipelineName, labelFilter, perPageParam, SessionUtils.currentUsername(), new HttpLocalizedOperationResult());
+                pipelineHistoryService.findMatchingPipelineInstances(pipelineName, labelFilter, pagination.getPageSize(), SessionUtils.currentUsername(), new HttpLocalizedOperationResult());
 
 
         boolean hasForcedBuildCause = pipelineScheduleQueue.hasForcedBuildCause(pipelineConfig.name());

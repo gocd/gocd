@@ -167,7 +167,9 @@ public class SessionUtils {
         if (user == null) {
             throw new IllegalArgumentException("Use unsetCurrentUser instead");
         }
-        LOGGER.debug("Setting user {} into thread local", user.getUsername());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Setting user {} into thread local", user.getUsername());
+        }
         USERS.set(user);
     }
 

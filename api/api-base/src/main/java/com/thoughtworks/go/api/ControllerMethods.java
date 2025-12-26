@@ -28,7 +28,6 @@ import spark.Response;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public interface ControllerMethods {
@@ -40,7 +39,7 @@ public interface ControllerMethods {
         if (etagFromClient == null) {
             return false;
         }
-        return Objects.equals(etagFromClient, etagFromServer);
+        return etagFromClient.equals(etagFromServer);
     }
 
     default String getIfNoneMatch(Request request) {

@@ -71,7 +71,7 @@ public class XmlWriterContext {
         return relative(format("/api/feed/pipelines/%s/stages.xml", pipelineName));
     }
 
-    public String stagesXmlLink(String pipelineName, long beforePipelineCounter) {
+    public String stagesXmlLink(String pipelineName, int beforePipelineCounter) {
         return format("%s?before=%s", stagesXmlLink(pipelineName), beforePipelineCounter);
     }
 
@@ -95,7 +95,7 @@ public class XmlWriterContext {
         return relative(format("/api/feed/pipelines/%s/%s.xml", pipelineName, pipelineCounter));
     }
 
-    public String materialUri(String pipelineName, Integer pipelineCounter, String revision) {
+    public String materialUri(String pipelineName, int pipelineCounter, String revision) {
         return relative(format("/api/feed/materials/%s/%s/%s.xml", pipelineName, pipelineCounter, revision));
     }
 

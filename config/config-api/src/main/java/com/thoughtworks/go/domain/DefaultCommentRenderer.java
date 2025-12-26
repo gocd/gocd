@@ -15,37 +15,49 @@
  */
 package com.thoughtworks.go.domain;
 
-import org.apache.commons.lang3.StringUtils;
+import com.thoughtworks.go.util.SupplierUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 public class DefaultCommentRenderer implements CommentRenderer {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCommentRenderer.class);
     private final String link;
-    private final String regex;
+    private final @Nullable Supplier<Optional<Pattern>> regexPattern;
 
     public DefaultCommentRenderer(String link, String regex) {
         this.link = link;
-        this.regex = regex;
+        this.regexPattern = regex == null ? null : SupplierUtils.memoize(() -> {
+            try {
+                return Optional.of(Pattern.compile(regex));
+            } catch (PatternSyntaxException e) {
+                LOGGER.warn("Illegal regular expression: {} - {}", regex, e.getMessage());
+                return Optional.empty();
+            }
+        });
     }
 
     @Override
     public String render(String text) {
-        if (StringUtils.isBlank(text)) {
+        if (isBlank(text)) {
             return "";
         }
-        if (regex.isEmpty() || link.isEmpty()) {
+        if (regexPattern == null || link.isEmpty()) {
             Comment comment = new Comment();
             comment.escapeAndAdd(text);
             return comment.render();
         }
-        try {
-            Matcher matcher = Pattern.compile(regex).matcher(text);
+        return regexPattern.get().map(pattern -> {
+            Matcher matcher = pattern.matcher(text);
             int start = 0;
             Comment comment = new Comment();
             while (hasMatch(matcher)) {
@@ -55,10 +67,11 @@ public class DefaultCommentRenderer implements CommentRenderer {
             }
             comment.escapeAndAdd(text.substring(start));
             return comment.render();
-        } catch (PatternSyntaxException e) {
-            LOGGER.warn("Illegal regular expression: {} - {}", regex, e.getMessage());
-        }
-        return text;
+        }).orElseGet(() -> {
+            Comment comment = new Comment();
+            comment.escapeAndAdd(text);
+            return comment.render();
+        });
     }
 
     private boolean hasMatch(Matcher matcher) {

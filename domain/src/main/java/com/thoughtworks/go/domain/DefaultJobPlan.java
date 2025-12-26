@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class DefaultJobPlan implements JobPlan {
 
     private long jobId;
-    private long pipelineId;
+    private long pipelineId; // FIXME - this seems like a bug causing environment variables to not load properly?
     private JobIdentifier identifier;
 
     private Resources resources;

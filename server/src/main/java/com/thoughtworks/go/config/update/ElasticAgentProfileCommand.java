@@ -27,12 +27,12 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public abstract class ElasticAgentProfileCommand implements EntityConfigUpdateCommand<ElasticProfile> {
     private final ElasticAgentExtension extension;
@@ -92,7 +92,7 @@ public abstract class ElasticAgentProfileCommand implements EntityConfigUpdateCo
     }
 
     protected final ElasticProfile findExistingProfile(CruiseConfig cruiseConfig) {
-        if (elasticProfile == null || StringUtils.isBlank(elasticProfile.getId())) {
+        if (elasticProfile == null || isBlank(elasticProfile.getId())) {
             if (elasticProfile != null) {
                 elasticProfile.addError("id", getObjectDescriptor() + " cannot have a blank id.");
             }

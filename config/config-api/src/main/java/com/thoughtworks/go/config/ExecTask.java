@@ -20,13 +20,14 @@ import com.thoughtworks.go.domain.config.Arguments;
 import com.thoughtworks.go.util.CommandUtils;
 import com.thoughtworks.go.util.FilenameUtil;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * This was copied from the ExecBuilder class in ccmain. Look for references there.
@@ -104,7 +105,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
         if (attributeMap.containsKey(ARG_LIST_STRING)) {
             clearCurrentArgsAndArgList();
             String value = (String) attributeMap.get(ARG_LIST_STRING);
-            if (!StringUtils.isBlank(value)) {
+            if (!isBlank(value)) {
                 String[] arguments = value.split("\\R");
                 for (String arg : arguments) {
                     argList.add(new Argument(arg));
@@ -130,13 +131,13 @@ public class ExecTask extends AbstractTask implements CommandTask {
 
     public void setArgs(String val) {
         clearCurrentArgsAndArgList();
-        if (!StringUtils.isBlank(val)) {
+        if (!isBlank(val)) {
             this.args = val;
         }
     }
 
     public void setWorkingDirectory(String newWorkingDir) {
-        workingDirectory = StringUtils.isBlank(newWorkingDir) ? null : newWorkingDir;
+        workingDirectory = isBlank(newWorkingDir) ? null : newWorkingDir;
     }
 
     private void clearCurrentArgsAndArgList() {
@@ -172,7 +173,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
     }
 
     private void validateCommand() {
-        if (StringUtils.isBlank(command)) {
+        if (isBlank(command)) {
             errors.add(COMMAND, "Command cannot be empty");
         }
     }

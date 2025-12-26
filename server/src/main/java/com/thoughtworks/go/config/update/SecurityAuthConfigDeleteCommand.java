@@ -15,16 +15,20 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PluginRoleConfig;
+import com.thoughtworks.go.config.RolesConfig;
+import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.lang.String.join;
 
 public class SecurityAuthConfigDeleteCommand extends SecurityAuthConfigCommand {
 
@@ -54,8 +58,9 @@ public class SecurityAuthConfigDeleteCommand extends SecurityAuthConfigCommand {
         }
 
         if (!usedByRolesConfig.isEmpty()) {
-            result.unprocessableEntity("Cannot delete the " + getObjectDescriptor().getEntityNameLowerCase() + " '" + profile.getId() + "' as it is used by role(s): '" + usedByRolesConfig + "'");
-            throw new GoConfigInvalidException(preprocessedConfig, String.format("The %s '%s' is being referenced by role(s): %s.", getObjectDescriptor().getEntityNameLowerCase(), profile.getId(), StringUtils.join(usedByRolesConfig, ", ")));
+            String usedByMessage = join(", ", usedByRolesConfig);
+            result.unprocessableEntity("Cannot delete the %s '%s' as it is used by role(s): '%s'".formatted(getObjectDescriptor().getEntityNameLowerCase(), profile.getId(), usedByMessage));
+            throw new GoConfigInvalidException(preprocessedConfig, String.format("The %s '%s' is being referenced by role(s): %s.", getObjectDescriptor().getEntityNameLowerCase(), profile.getId(), usedByMessage));
         }
         return true;
     }

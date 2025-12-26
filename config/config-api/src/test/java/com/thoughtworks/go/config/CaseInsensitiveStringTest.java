@@ -31,10 +31,10 @@ class CaseInsensitiveStringTest {
 
     @Test
     public void shouldUnderstandBlankString() {
-        assertThat(new CaseInsensitiveString("someName").isBlank()).isFalse();
-        assertThat(new CaseInsensitiveString(null).isBlank()).isTrue();
-        assertThat(new CaseInsensitiveString("").isBlank()).isTrue();
-        assertThat(new CaseInsensitiveString(" ").isBlank()).isFalse();
+        assertThat(new CaseInsensitiveString("someName").isEmpty()).isFalse();
+        assertThat(new CaseInsensitiveString(null).isEmpty()).isTrue();
+        assertThat(new CaseInsensitiveString("").isEmpty()).isTrue();
+        assertThat(new CaseInsensitiveString(" ").isEmpty()).isFalse();
     }
 
     @Test

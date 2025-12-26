@@ -28,12 +28,12 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static spark.Spark.*;
 
 @Component
@@ -79,7 +79,7 @@ public class InternalDependencyPipelinesControllerV1 extends ApiController imple
         String stageName = request.params("stage_name");
 
         CruiseConfig config = goConfigService.getMergedConfigForEditing();
-        FetchArtifactViewHelper helper = new FetchArtifactViewHelper(systemEnvironment, config, new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName), StringUtils.isNotBlank(request.queryParams("template")));
+        FetchArtifactViewHelper helper = new FetchArtifactViewHelper(systemEnvironment, config, new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName), isNotBlank(request.queryParams("template")));
 
         response.type("application/json");
         return GSON.toJson(helper.autosuggestMap());

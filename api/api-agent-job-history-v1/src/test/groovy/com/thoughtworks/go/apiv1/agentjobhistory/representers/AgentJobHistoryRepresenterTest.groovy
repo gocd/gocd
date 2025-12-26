@@ -34,7 +34,7 @@ class AgentJobHistoryRepresenterTest {
   @Test
   void 'should serialize'() {
     def jobInstance = JobInstanceMother.completed("blah", JobResult.Passed)
-    def pagination = Pagination.pageStartingAt(1, 42, 10)
+    def pagination = Pagination.pageByOffset(1, 42, 10)
     def jobInstancesModel = new JobInstancesModel(new JobInstances(jobInstance), pagination)
 
     def actualJson = toObjectString({

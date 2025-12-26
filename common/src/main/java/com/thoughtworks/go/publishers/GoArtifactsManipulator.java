@@ -30,7 +30,6 @@ import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +50,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH_ERR;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Component
 public class GoArtifactsManipulator {
@@ -179,7 +179,7 @@ public class GoArtifactsManipulator {
     }
 
     private String getDestPath(String file) {
-        if (StringUtils.isEmpty(file)) {
+        if (isEmpty(file)) {
             return "[defaultRoot]";
         } else {
             return file;

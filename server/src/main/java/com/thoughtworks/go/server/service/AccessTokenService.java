@@ -24,7 +24,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.InvalidAccessTokenException;
 import com.thoughtworks.go.server.exceptions.RevokedAccessTokenException;
 import com.thoughtworks.go.util.Clock;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import static org.apache.commons.lang3.StringUtils.substring;
 
 @Service
 public class AccessTokenService {
@@ -95,7 +96,7 @@ public class AccessTokenService {
             throw new InvalidAccessTokenException();
         }
 
-        String saltId = StringUtils.substring(actualToken, 0, 8);
+        String saltId = substring(actualToken, 0, 8);
 
         AccessToken token = accessTokenDao.findAccessTokenBySaltId(saltId);
         if (token == null) {

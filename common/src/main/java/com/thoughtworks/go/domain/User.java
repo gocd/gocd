@@ -23,13 +23,13 @@ import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.validation.Validator;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.trim;
 
 public class User extends PersistentObject {
     private String name;
@@ -94,7 +94,7 @@ public class User extends PersistentObject {
     }
 
     public void setName(String name) {
-        this.name = StringUtils.trim(name);
+        this.name = trim(name);
     }
 
     public Username getUsername() {
@@ -114,7 +114,7 @@ public class User extends PersistentObject {
     }
 
     public void setEmail(String email) {
-        this.email = StringUtils.trim(email);
+        this.email = trim(email);
     }
 
     public void setMatcher(String matcher) {

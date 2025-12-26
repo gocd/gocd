@@ -15,12 +15,13 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.dao.FeedModifier;
@@ -60,7 +61,6 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
 
     private final JobInstanceDao jobInstanceDao;
     private final JobResultTopic jobResultTopic;
-    private final JobStatusCache jobStatusCache;
     private final TransactionTemplate transactionTemplate;
     private final TransactionSynchronizationManager transactionSynchronizationManager;
     private final JobResolverService jobResolverService;
@@ -72,13 +72,12 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
 
 
     @Autowired
-    public JobInstanceService(JobInstanceDao jobInstanceDao, JobResultTopic jobResultTopic, JobStatusCache jobStatusCache,
+    public JobInstanceService(JobInstanceDao jobInstanceDao, JobResultTopic jobResultTopic,
                               TransactionTemplate transactionTemplate, TransactionSynchronizationManager transactionSynchronizationManager, JobResolverService jobResolverService,
                               EnvironmentConfigService environmentConfigService, GoConfigService goConfigService,
                               SecurityService securityService, ServerHealthService serverHealthService, JobStatusListener... listener) {
         this.jobInstanceDao = jobInstanceDao;
         this.jobResultTopic = jobResultTopic;
-        this.jobStatusCache = jobStatusCache;
         this.transactionTemplate = transactionTemplate;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.jobResolverService = jobResolverService;
@@ -108,7 +107,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
         return jobInstanceDao.findJobHistoryPage(pipelineName, stageName, jobConfigName, pagination.getPageSize(), pagination.getOffset());
     }
 
-    public JobInstance findJobInstanceWithTransitions(String pipelineName, String stageName, String jobName, Integer pipelineCounter, Integer stageCounter, Username username) {
+    public JobInstance findJobInstanceWithTransitions(String pipelineName, String stageName, String jobName, int pipelineCounter, int stageCounter, Username username) {
         if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
             throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
         }
@@ -116,7 +115,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
             throw new NotAuthorizedException(NOT_AUTHORIZED_TO_VIEW_PIPELINE);
         }
 
-        StageIdentifier stageIdentifier = new StageIdentifier(pipelineName, pipelineCounter, null, stageName, stageCounter.toString());
+        StageIdentifier stageIdentifier = new StageIdentifier(pipelineName, pipelineCounter, null, stageName, String.valueOf(stageCounter));
         return jobInstanceDao.mostRecentJobWithTransitions(new JobIdentifier(stageIdentifier, jobName));
     }
 
@@ -139,7 +138,9 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 internalUpdateJobStateAndResult(job);
 
-                LOGGER.debug("job status updated [{}]", job);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("job status updated [{}]", job);
+                }
                 notifyJobStatusChangeListeners(job);
             }
         });
@@ -184,9 +185,8 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
 
     public List<WaitingJobPlan> waitingJobPlans(Username username) {
         List<JobPlan> jobPlans = orderedScheduledBuilds();
-        boolean isUserAdmin = securityService.isUserAdmin(username);
         return jobPlans.stream()
-                .filter((jobPlan) -> isUserAdmin || securityService.hasViewPermissionForPipeline(username, jobPlan.getPipelineName()))
+                .filter((jobPlan) -> securityService.hasViewPermissionForPipeline(username, jobPlan.getPipelineName()))
                 .map((jobPlan) -> {
                     String envForJob = environmentConfigService.envForPipeline(jobPlan.getPipelineName());
                     return new WaitingJobPlan(jobPlan, envForJob);
@@ -223,21 +223,6 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
         job.setIdentifier(new JobIdentifier(stageIdentifier, job));
 
         notifyJobStatusChangeListeners(job);
-    }
-
-    public JobInstances currentJobsOfStage(String pipelineName, StageConfig stageConfig) {
-        JobInstances jobs = new JobInstances();
-        for (JobConfig jobConfig : stageConfig.allBuildPlans()) {
-            JobConfigIdentifier jobConfigIdentifier = new JobConfigIdentifier(pipelineName, CaseInsensitiveString.str(stageConfig.name()), CaseInsensitiveString.str(jobConfig.name()));
-            List<JobInstance> found = jobStatusCache.currentJobs(jobConfigIdentifier);
-            if (found.isEmpty()) {
-                jobs.add(new NullJobInstance(CaseInsensitiveString.str(jobConfig.name())));
-            } else {
-                jobs.addAll(found);
-            }
-        }
-        jobs.sortByName();
-        return jobs;
     }
 
     public List<JobIdentifier> allBuildingJobs() {
@@ -317,7 +302,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
         return jobInstanceDao.getOldestAndLatestJobInstanceId(pipelineName, stageName, jobConfigName);
     }
 
-    public JobInstances getJobHistoryViaCursor(Username username, String pipelineName, String stageName, String jobConfigName, long afterCursor, long beforeCursor, Integer pageSize) {
+    public JobInstances getJobHistoryViaCursor(Username username, String pipelineName, String stageName, String jobConfigName, long afterCursor, long beforeCursor, int pageSize) {
         checkForExistenceAndAccess(username, pipelineName);
         JobInstances jobInstances;
         if (validateCursor(afterCursor, "after")) {

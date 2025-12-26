@@ -269,11 +269,11 @@ public class DownstreamInstancePopulatorIntegrationTest {
 		assertThat(nodep6.revisions().size()).isEqualTo(0);
 	}
 
-    private void assertInstances(Node node, String pipelineName, Integer... pipelineCounters) {
+    private void assertInstances(Node node, String pipelineName, int... pipelineCounters) {
         List<Revision> revisions = node.revisions();
         assertThat(revisions.size()).isEqualTo(pipelineCounters.length);
-        for (Integer pipelineCounter : pipelineCounters) {
-            assertThat(revisions.contains(new PipelineRevision(pipelineName, pipelineCounter, pipelineCounter.toString()))).isTrue();
+        for (int pipelineCounter : pipelineCounters) {
+            assertThat(revisions).contains(new PipelineRevision(pipelineName, pipelineCounter, String.valueOf(pipelineCounter)));
         }
     }
 }

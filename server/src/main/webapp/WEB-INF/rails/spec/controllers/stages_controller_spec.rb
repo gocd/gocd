@@ -382,7 +382,7 @@ describe StagesController do
                         :status => "Failed"}]
 
       expect(assigns(:graph_data)).to eq(expected_data)
-      expect(assigns(:pagination)).to eq Pagination.pageStartingAt(12, 200, 10)
+      expect(assigns(:pagination)).to eq Pagination.pageByOffset(12, 200, 10)
       expect(assigns(:start_end_dates)).to eq ["22 Feb 2008", "22 Feb 2008"]
       expect(assigns(:no_chart_to_render)).to eq false
     end
@@ -521,7 +521,7 @@ describe StagesController do
     def setup_stubs(*stage_summary_models)
       models = StageSummaryModels.new
       models.addAll(stage_summary_models)
-      models.setPagination(Pagination.pageStartingAt(12, 200, 10))
+      models.setPagination(Pagination.pageByOffset(12, 200, 10))
       expect(@pipeline_lock_service).to receive(:lockedPipeline).with("pipeline-name").and_return("")
       stage_iden = stage_summary_models[0].getStage().getIdentifier()
       expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(stage_iden, @user, @localized_result).and_return(stage_summary_models[0])

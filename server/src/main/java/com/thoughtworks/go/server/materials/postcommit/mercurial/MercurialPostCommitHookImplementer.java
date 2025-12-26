@@ -19,11 +19,12 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookImplementer;
 import com.thoughtworks.go.server.materials.postcommit.UrlMatchers;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class MercurialPostCommitHookImplementer implements PostCommitHookImplementer {
 
@@ -35,7 +36,7 @@ public class MercurialPostCommitHookImplementer implements PostCommitHookImpleme
         HashSet<Material> prunedCollection = new HashSet<>();
         if (params.containsKey(REPO_URL_PARAM_KEY)) {
             String paramRepoUrl = params.get(REPO_URL_PARAM_KEY);
-            if (StringUtils.isNotBlank(paramRepoUrl)) {
+            if (isNotBlank(paramRepoUrl)) {
                 for (Material material : materials) {
                     if (material instanceof HgMaterial && isUrlEqual(paramRepoUrl, (HgMaterial) material)) {
                         prunedCollection.add(material);

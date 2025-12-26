@@ -15,50 +15,64 @@
  */
 package com.thoughtworks.go.server.util;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.*;
 
 public class Pagination {
-    private Integer pageSize;
-    private Integer offset;
-    private Integer total;
+    public static final Pagination ONE_ITEM = new Pagination(0, 1, 1);
 
     private static final int DEFAULT_PER_PAGE = 10;
-    private static final int MAXIMUM_LIMIT = 300;
-    public static final Pagination ONE_ITEM = pageStartingAt(0, 1, 1);
+    private static final int MAXIMUM_PER_PAGE = 300;
 
     private static final int NUMBER_OF_NEIGHBOURS = 2;
 
-    private Pagination(Integer offset, Integer total, Integer pageSize) {
-        setPageSize(pageSize);
-        setOffset(offset);
-        setTotal(total);
+    private final int pageSize;
+    private final int offset;
+    private final int total;
+
+    private Pagination(int offset, int total, int pageSize) {
+        this.pageSize = defaultIfZero(pageSize);
+        this.offset = offset;
+        this.total = total;
     }
 
-    private void setPageSize(Integer pageSize) {
-        if (pageSize != null && pageSize > MAXIMUM_LIMIT) {
-            throw new RuntimeException("The max number of perPage is [" + MAXIMUM_LIMIT + "].");
+    public static Pagination pageByItemNumber(int currentItem, int totalCount, int pageSize) {
+        return new Pagination((currentItem / pageSize) * pageSize, totalCount, pageSize);
+    }
+
+    public static Pagination pageByOffset(int offset, int total, int pageSize) {
+        return new Pagination(offset, total, pageSize);
+    }
+
+    public static Pagination pageByOffsetNullSafe(@Nullable Integer offset, @Nullable Integer total, @Nullable Integer pageSize) {
+        return new Pagination(offset == null ? 0 : offset, total == null ? 0 : total, pageSize == null ? DEFAULT_PER_PAGE : pageSize);
+    }
+
+    public static Pagination pageByOffsetUnknownTotal(int offset, int pageSize) {
+        return pageByOffset(offset, 0, pageSize);
+    }
+
+    public static Pagination pageByNumber(int pageNumber, int total, int pageSize) {
+        return new Pagination((pageNumber - 1) * pageSize, total, pageSize);
+    }
+
+    private int defaultIfZero(int v) {
+        if (v > MAXIMUM_PER_PAGE) {
+            throw new RuntimeException("The max number of perPage is [" + MAXIMUM_PER_PAGE + "].");
         }
-        this.pageSize = (pageSize == null || pageSize == 0) ? DEFAULT_PER_PAGE : pageSize;
-
+        return v == 0 ? DEFAULT_PER_PAGE : v;
     }
 
-    private void setOffset(Integer offset) {
-        this.offset = (offset == null) ? 0 : offset;
-    }
-
-    private void setTotal(Integer total) {
-        this.total = (total == null) ? 0 : total;
-    }
-
-    public Integer getPageSize() {
+    public int getPageSize() {
         return pageSize;
     }
 
-    public Integer getOffset() {
+    public int getOffset() {
         return offset;
     }
 
-    public Integer getTotal() {
+    public int getTotal() {
         return total;
     }
 
@@ -72,26 +86,16 @@ public class Pagination {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         Pagination that = (Pagination) o;
-
-        return Objects.equals(pageSize, that.pageSize) &&
-            Objects.equals(offset, that.offset) &&
-            Objects.equals(total, that.total);
+        return pageSize == that.pageSize && offset == that.offset && total == that.total;
     }
 
     @Override
     public int hashCode() {
-        int result = pageSize != null ? pageSize.hashCode() : 0;
-        result = 31 * result + (offset != null ? offset.hashCode() : 0);
-        result = 31 * result + (total != null ? total.hashCode() : 0);
-        return result;
+        return Objects.hash(pageSize, offset, total);
     }
 
     public int getCurrentPage() {
@@ -133,18 +137,6 @@ public class Pagination {
             ", offset=" + offset +
             ", total=" + total +
             '}';
-    }
-
-    public static Pagination pageFor(int currentItem, int totalCount, int pageSize) {
-        return pageStartingAt((currentItem / pageSize) * pageSize, totalCount, pageSize);
-    }
-
-    public static Pagination pageStartingAt(Integer offset, Integer total, Integer pageSize) {
-        return new Pagination(offset, total, pageSize);
-    }
-
-    public static Pagination pageByNumber(int pageNumber, int total, int pageSize) {
-        return pageStartingAt((pageNumber - 1) * pageSize, total, pageSize);
     }
 
     public int getFirstPage() {
@@ -231,8 +223,8 @@ public class Pagination {
             }
         };
 
-        private int page;
-        private String label;
+        private final int page;
+        private final String label;
         private boolean current;
 
         public PageNumber(int page) {
@@ -291,7 +283,7 @@ public class Pagination {
 
         @Override
         public String toString() {
-            return "" + page +
+            return page +
                 "(" + label + ')'
                 + (current ? "current" : "");
         }

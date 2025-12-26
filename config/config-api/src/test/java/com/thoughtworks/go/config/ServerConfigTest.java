@@ -18,12 +18,12 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.SiteUrl;
 import com.thoughtworks.go.security.GoCipher;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.annotation.PostConstruct;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -135,7 +135,7 @@ public class ServerConfigTest {
         assertNull(serverConfig.getAgentAutoRegisterKey());
         assertNotNull(serverConfig.getClass().getMethod("ensureAgentAutoregisterKeyExists").getAnnotation(PostConstruct.class));
         serverConfig.ensureAgentAutoregisterKeyExists();
-        assertTrue(StringUtils.isNotBlank(serverConfig.getAgentAutoRegisterKey()));
+        assertTrue(isNotBlank(serverConfig.getAgentAutoRegisterKey()));
     }
 
     @Test
@@ -144,7 +144,7 @@ public class ServerConfigTest {
         assertNull(serverConfig.getWebhookSecret());
         assertNotNull(serverConfig.getClass().getMethod("ensureWebhookSecretExists").getAnnotation(PostConstruct.class));
         serverConfig.ensureWebhookSecretExists();
-        assertTrue(StringUtils.isNotBlank(serverConfig.getWebhookSecret()));
+        assertTrue(isNotBlank(serverConfig.getWebhookSecret()));
     }
 
     @Test
@@ -153,7 +153,7 @@ public class ServerConfigTest {
         assertNull(serverConfig.getTokenGenerationKey());
         assertNotNull(serverConfig.getClass().getMethod("ensureTokenGenerationKeyExists").getAnnotation(PostConstruct.class));
         serverConfig.ensureTokenGenerationKeyExists();
-        assertTrue(StringUtils.isNotBlank(serverConfig.getTokenGenerationKey()));
+        assertTrue(isNotBlank(serverConfig.getTokenGenerationKey()));
     }
 
 
@@ -163,6 +163,6 @@ public class ServerConfigTest {
         assertNull(serverConfig.getArtifactConfig().getArtifactsDir().getArtifactDir());
         assertNotNull(serverConfig.getClass().getMethod("ensureArtifactConfigExists").getAnnotation(PostConstruct.class));
         serverConfig.ensureArtifactConfigExists();
-        assertTrue(StringUtils.isNotBlank(serverConfig.getArtifactConfig().getArtifactsDir().getArtifactDir()));
+        assertTrue(isNotBlank(serverConfig.getArtifactConfig().getArtifactsDir().getArtifactDir()));
     }
 }

@@ -23,7 +23,7 @@ import com.thoughtworks.go.config.validation.NameTypeValidator;
 
 import java.util.*;
 
-import static com.thoughtworks.go.config.CaseInsensitiveString.isBlank;
+import static com.thoughtworks.go.config.CaseInsensitiveString.isEmpty;
 import static com.thoughtworks.go.config.policy.SupportedAction.ADMINISTER;
 import static com.thoughtworks.go.config.policy.SupportedAction.VIEW;
 import static com.thoughtworks.go.config.policy.SupportedEntity.*;
@@ -56,13 +56,13 @@ public interface Role extends Validatable, PolicyAware {
 
     @Override
     default void validate(ValidationContext validationContext) {
-        if (isBlank(getName()) || !new NameTypeValidator().isNameValid(getName())) {
+        if (isEmpty(getName()) || !new NameTypeValidator().isNameValid(getName())) {
             addError("name", NameTypeValidator.errorMessage("role name", getName()));
         }
 
         RolesConfig roles = validationContext.getServerSecurityConfig().getRoles();
 
-        if (!isBlank(getName()) && !roles.isUniqueRoleName(getName())) {
+        if (!isEmpty(getName()) && !roles.isUniqueRoleName(getName())) {
             addError("name", "Role names should be unique. Role with the same name exists.");
         }
 

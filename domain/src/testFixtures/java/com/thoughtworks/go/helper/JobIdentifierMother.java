@@ -24,7 +24,7 @@ public class JobIdentifierMother {
         return new JobIdentifier("pipelineName", 1, "lastgood", "stageName", "LATEST", "buildName", 1L);
     }
 
-    public static JobIdentifier jobIdentifier(String pipelineName, Integer pipelineCounter, String stageName, String stageCounter, String jobName) {
+    public static JobIdentifier jobIdentifier(String pipelineName, int pipelineCounter, String stageName, String stageCounter, String jobName) {
         return new JobIdentifier(new StageIdentifier(pipelineName, pipelineCounter, "LABEL-1", stageName, stageCounter), jobName);
     }
 

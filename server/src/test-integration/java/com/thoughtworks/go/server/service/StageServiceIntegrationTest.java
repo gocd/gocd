@@ -218,7 +218,7 @@ public class StageServiceIntegrationTest {
         Stage newSavedStage = stageService.save(savedPipeline, newInstance);
 
         Stage latestStage = stageService.findStageWithIdentifier(
-            new StageIdentifier(CaseInsensitiveString.str(pipelineConfig.name()), null, savedPipeline.getLabel(), firstStage.getName(), String.valueOf(newSavedStage.getCounter())));
+            new StageIdentifier(CaseInsensitiveString.str(pipelineConfig.name()), savedPipeline.getCounter(), savedPipeline.getLabel(), firstStage.getName(), String.valueOf(newSavedStage.getCounter())));
         assertThat(latestStage).isEqualTo(newSavedStage);
 
     }
@@ -264,7 +264,7 @@ public class StageServiceIntegrationTest {
         StageHistoryEntry[] stages = createFiveStages();
 
         StageHistoryPage history = stageService.findStageHistoryPage(stageService.stageById(stages[2].getId()), 3);
-        assertThat(history.getPagination()).isEqualTo(Pagination.pageStartingAt(0, 5, 3));
+        assertThat(history.getPagination()).isEqualTo(Pagination.pageByOffset(0, 5, 3));
         assertThat(history.getStages().size()).isEqualTo(3);
         assertThat(history.getStages().get(0)).isEqualTo(stages[4]);
         assertThat(history.getStages().get(1)).isEqualTo(stages[3]);
@@ -280,7 +280,7 @@ public class StageServiceIntegrationTest {
         StageHistoryPage history = stageService.findStageHistoryPage(stageService.stageById(stages[0].getId()), 3);
         assertThat(history.getStages().get(0)).isEqualTo(stages[1]);
         assertThat(history.getStages().get(1)).isEqualTo(stages[0]);
-        assertThat(history.getPagination()).isEqualTo(Pagination.pageStartingAt(3, 5, 3));
+        assertThat(history.getPagination()).isEqualTo(Pagination.pageByOffset(3, 5, 3));
         assertThat(history.getPagination().getCurrentPage()).isEqualTo(2);
     }
 
@@ -306,7 +306,7 @@ public class StageServiceIntegrationTest {
         StageHistoryEntry[] stages = createFiveStages();
 
         StageHistoryPage history = stageService.findStageHistoryPageByNumber(PIPELINE_NAME, STAGE_NAME, 2, 3);
-        assertThat(history.getPagination()).isEqualTo(Pagination.pageStartingAt(3, 5, 3));
+        assertThat(history.getPagination()).isEqualTo(Pagination.pageByOffset(3, 5, 3));
         assertThat(history.getStages().size()).isEqualTo(2);
         assertThat(history.getStages().get(0)).isEqualTo(stages[1]);
         assertThat(history.getStages().get(1)).isEqualTo(stages[0]);

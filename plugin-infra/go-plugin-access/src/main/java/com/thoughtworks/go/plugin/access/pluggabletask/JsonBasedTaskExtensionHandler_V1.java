@@ -32,6 +32,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.String.join;
+
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionHandler {
     public static final String VERSION = "1.0";
@@ -80,7 +82,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
                         if (!(propertyValue.get("display-order") instanceof String && isInteger((String) propertyValue.get("display-order")))) {
                             exceptions.add(String.format("Key: '%s' - 'display-order' should be a String containing a numerical value", entry.getKey()));
                         } else {
-                            property.with(Property.DISPLAY_ORDER, Integer.parseInt((String) propertyValue.get("display-order")));
+                            property.with(Property.DISPLAY_ORDER, Integer.valueOf((String) propertyValue.get("display-order")));
                         }
                     }
                     if (propertyValue.containsKey("secure")) {
@@ -101,7 +103,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
                 taskConfig.add(property);
             }
             if (!exceptions.isEmpty()) {
-                throw new RuntimeException(org.apache.commons.lang3.StringUtils.join(exceptions, ", "));
+                throw new RuntimeException(join(", ", exceptions));
             }
             return taskConfig;
         } catch (Exception e) {
@@ -130,7 +132,7 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
                 }
             }
             if (!exceptions.isEmpty()) {
-                throw new RuntimeException(org.apache.commons.lang3.StringUtils.join(exceptions, ", "));
+                throw new RuntimeException(join(", ", exceptions));
             }
             return validationResult;
         } catch (Exception e) {
@@ -147,15 +149,15 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
             if (map.isEmpty()) {
                 exceptions.add("The Json for Task View cannot be empty");
             } else {
-                if (!(map.containsKey("displayValue") && map.get("displayValue") instanceof String)) {
+                if (!(map.get("displayValue") instanceof String)) {
                     exceptions.add("The Json for Task View must contain a not-null 'displayValue' of type String");
                 }
-                if (!(map.containsKey("template") && map.get("template") instanceof String)) {
+                if (!(map.get("template") instanceof String)) {
                     exceptions.add("The Json for Task View must contain a not-null 'template' of type String");
                 }
             }
             if (!exceptions.isEmpty()) {
-                throw new RuntimeException(org.apache.commons.lang3.StringUtils.join(exceptions, ", "));
+                throw new RuntimeException(join(", ", exceptions));
             }
             return new TaskView() {
                 @Override
@@ -180,14 +182,14 @@ public class JsonBasedTaskExtensionHandler_V1 implements JsonBasedTaskExtensionH
         List<String> exceptions = new ArrayList<>();
         try {
             Map result = (Map) JsonHelper.fromJson(responseBody, Object.class);
-            if (!(result.containsKey("success") && result.get("success") instanceof Boolean)) {
+            if (!(result.get("success") instanceof Boolean)) {
                 exceptions.add("The Json for Execution Result must contain a not-null 'success' field of type Boolean");
             }
-            if (result.containsKey("message") && (!(result.get("message") instanceof String))) {
+            if (result.containsKey("message") && !(result.get("message") instanceof String)) {
                 exceptions.add("If the 'message' key is present in the Json for Execution Result, it must contain a not-null message of type String");
             }
             if (!exceptions.isEmpty()) {
-                throw new RuntimeException(org.apache.commons.lang3.StringUtils.join(exceptions, ", "));
+                throw new RuntimeException(join(", ", exceptions));
             }
             if ((Boolean) result.get("success")) {
                 executionResult.withSuccessMessages((String) result.get("message"));

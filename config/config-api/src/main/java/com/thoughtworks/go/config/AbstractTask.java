@@ -19,11 +19,12 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.service.TaskFactory;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static org.apache.commons.lang3.StringUtils.capitalize;
 
 public abstract class AbstractTask implements Task  {
     @ConfigSubtag(label = "RunIfs")
@@ -50,9 +51,9 @@ public abstract class AbstractTask implements Task  {
 
     public String getConditionsForDisplay() {
         if (runIfConfigs.isEmpty()) {
-            return StringUtils.capitalize(RunIfConfig.PASSED.toString());
+            return capitalize(RunIfConfig.PASSED.toString());
         }
-        return runIfConfigs.stream().map(f -> StringUtils.capitalize(f.toString())).collect(Collectors.joining(", "));
+        return runIfConfigs.stream().map(f -> capitalize(f.toString())).collect(Collectors.joining(", "));
     }
 
     @Override

@@ -38,7 +38,6 @@ import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -52,6 +51,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.joinWith;
 import static spark.Spark.*;
 
 @Component
@@ -161,6 +161,6 @@ public class PipelineSelectionController extends ApiController implements SparkS
                 pipelinesDataSegment.put(group.getGroup(), pipelineNames);
             }
         }
-        return DigestUtils.md5Hex(StringUtils.joinWith("/", username.getUsername(), pipelinesDataSegment));
+        return DigestUtils.md5Hex(joinWith("/", username.getUsername(), pipelinesDataSegment));
     }
 }

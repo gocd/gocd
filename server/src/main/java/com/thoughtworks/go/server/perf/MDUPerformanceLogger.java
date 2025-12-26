@@ -16,13 +16,16 @@
 package com.thoughtworks.go.server.perf;
 
 import com.thoughtworks.go.domain.materials.Material;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 @Component
 public class MDUPerformanceLogger {
-    private final PerformanceLogger performanceLogger;
-    private static long currentTrackingId = 0;
+    private final Logger performanceLogger;
+    private final AtomicLong currentTrackingId = new AtomicLong(0);
 
     @Autowired
     public MDUPerformanceLogger(PerformanceLogger performanceLogger) {
@@ -30,26 +33,35 @@ public class MDUPerformanceLogger {
     }
 
     public long materialSentToUpdateQueue(Material material) {
-        long trackingId = currentTrackingId++;
-
-        performanceLogger.log("MDU-QUEUE-PUT {} {} {}", trackingId, material.getFingerprint(), material.getDisplayName());
+        long trackingId = currentTrackingId.getAndIncrement();
+        if (performanceLogger.isDebugEnabled()) {
+            performanceLogger.debug("MDU-QUEUE-PUT {} {} {}", trackingId, material.getFingerprint(), material.getDisplayName());
+        }
         return trackingId;
     }
 
     public void pickedUpMaterialForMDU(long trackingId, Material material) {
-        performanceLogger.log("MDU-START {} {} {}", trackingId, material.getFingerprint(), material.getDisplayName());
+        if (performanceLogger.isDebugEnabled()) {
+            performanceLogger.debug("MDU-START {} {} {}", trackingId, material.getFingerprint(), material.getDisplayName());
+        }
     }
 
     public void postingMessageAboutMDUCompletion(long trackingId, Material material) {
-        performanceLogger.log("MDU-DONE {} {} {}", trackingId, material.getFingerprint(), material.getDisplayName());
+        if (performanceLogger.isDebugEnabled()) {
+            performanceLogger.debug("MDU-DONE {} {} {}", trackingId, material.getFingerprint(), material.getDisplayName());
+        }
     }
 
     public void postingMessageAboutMDUFailure(long trackingId, Material material) {
-        performanceLogger.log("MDU-FAIL {} {} {}", trackingId, material.getFingerprint(), material.getDisplayName());
+        if (performanceLogger.isDebugEnabled()) {
+            performanceLogger.debug("MDU-FAIL {} {} {}", trackingId, material.getFingerprint(), material.getDisplayName());
+        }
     }
 
     public void completionMessageForMaterialReceived(long trackingId, Material material) {
-        performanceLogger.log("MDU-QUEUE-REMOVE {} {} {}", trackingId, material.getFingerprint(), material.getDisplayName());
+        if (performanceLogger.isDebugEnabled()) {
+            performanceLogger.debug("MDU-QUEUE-REMOVE {} {} {}", trackingId, material.getFingerprint(), material.getDisplayName());
+        }
     }
 
 }

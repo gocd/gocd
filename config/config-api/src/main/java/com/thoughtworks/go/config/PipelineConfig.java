@@ -36,7 +36,6 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.Node;
-import org.apache.commons.lang3.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.*;
@@ -49,8 +48,7 @@ import static com.thoughtworks.go.domain.label.PipelineLabel.ENV_VAR_PREFIX;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.commons.lang3.StringUtils.substringsBetween;
+import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * Understands how a cruise pipeline is configured by the user
@@ -242,7 +240,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     private void validateLabelTemplate() {
-        if (StringUtils.isBlank(labelTemplate)) {
+        if (isBlank(labelTemplate)) {
             addError("labelTemplate", BLANK_LABEL_TEMPLATE_ERROR_MESSAGE);
             return;
         }
@@ -262,7 +260,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     private boolean isValidToken(String token) {
-        if (StringUtils.isBlank(token)) {
+        if (isBlank(token)) {
             addError("labelTemplate", "Label template variable cannot be blank.");
             return false;
         }
@@ -637,7 +635,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public boolean hasTemplate() {
-        return templateName != null && !StringUtils.isBlank(templateName.toString());
+        return templateName != null && !isBlank(templateName.toString());
     }
 
     public CaseInsensitiveString getTemplateName() {
@@ -765,7 +763,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         }
         if (attributeMap.containsKey(LABEL_TEMPLATE)) {
             labelTemplate = (String) attributeMap.get(LABEL_TEMPLATE);
-            if (StringUtils.isBlank(labelTemplate)) {
+            if (isBlank(labelTemplate)) {
                 labelTemplate = PipelineLabel.COUNT_TEMPLATE;
             }
         }

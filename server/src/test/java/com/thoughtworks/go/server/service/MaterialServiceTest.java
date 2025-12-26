@@ -401,7 +401,7 @@ public class MaterialServiceTest {
     public void shouldDelegateToMaterialRepository_getModificationsFor() {
         GitMaterialConfig materialConfig = git("http://test.com");
         GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
-        Pagination pagination = Pagination.pageStartingAt(0, 10, 10);
+        Pagination pagination = Pagination.pageByOffset(0, 10, 10);
         Modifications modifications = new Modifications();
         modifications.add(new Modification("user", "comment", "email", new Date(), "revision"));
 

@@ -19,11 +19,12 @@ import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Admin;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @ConfigTag("authorization")
 public class Authorization implements Validatable, ParamsAttributeAware, ConfigOriginTraceable {
@@ -243,7 +244,7 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         List<Map<String, Object>> attributeMap = (List<Map<String, Object>>) attributes;
         for (Map<String, Object> userMap : attributeMap) {
             String name = (String) userMap.get(NAME);
-            if (StringUtils.isBlank(name)) {
+            if (isBlank(name)) {
                 continue;
             }
             UserType type = UserType.valueOf((String) userMap.get(TYPE));

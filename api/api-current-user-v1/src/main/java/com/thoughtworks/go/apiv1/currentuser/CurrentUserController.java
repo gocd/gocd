@@ -26,7 +26,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.TriState;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -35,6 +34,7 @@ import spark.Spark;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static spark.Spark.*;
 
@@ -92,16 +92,13 @@ public class CurrentUserController extends ApiController implements SparkSpringC
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         Map<String, Object> map = readRequestBodyAsJSON(req);
+
         String checkinAliases = null;
-
-        if (map.containsKey("checkin_aliases")) {
-            Object newAliases = map.get("checkin_aliases");
-
-            if (newAliases instanceof Collection<?> aliasCollection) {
-                checkinAliases = StringUtils.join(aliasCollection, ", ");
-            } else if (newAliases instanceof String) {
-                checkinAliases = (String) newAliases;
-            }
+        Object rawAliases = map.get("checkin_aliases");
+        if (rawAliases instanceof Collection<?> aliasCollection) {
+            checkinAliases = aliasCollection.stream().map(Object::toString).collect(Collectors.joining(", "));
+        } else if (rawAliases instanceof String asString) {
+            checkinAliases = asString;
         }
 
         TriState emailMe = TriState.from(String.valueOf(map.get("email_me")));

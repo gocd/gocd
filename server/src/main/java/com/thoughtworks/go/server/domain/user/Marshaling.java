@@ -17,13 +17,13 @@ package com.thoughtworks.go.server.domain.user;
 
 import com.google.gson.*;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class Marshaling {
 
@@ -96,7 +96,7 @@ public class Marshaling {
             jsonObject.addProperty(KEY_NAME, name);
 
             final String type = defensivelyGetString(jsonObject, KEY_TYPE);
-            if (StringUtils.isBlank(type)) {
+            if (isBlank(type)) {
                 throw new JsonParseException("Missing filter type");
             }
 

@@ -15,12 +15,13 @@
  */
 package com.thoughtworks.go.server.domain.xml.builder;
 
-import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.dom.DOMDocument;
 import org.dom4j.dom.DOMElement;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class DocumentBuilder extends AbstractBuilder<DOMDocument, DocumentBuilder> {
 
@@ -34,7 +35,7 @@ public class DocumentBuilder extends AbstractBuilder<DOMDocument, DocumentBuilde
 
     public static DocumentBuilder withRoot(String name, String xmlns) {
         DOMElement rootElement = new DOMElement(name);
-        if (StringUtils.isNotBlank(xmlns)) {
+        if (isNotBlank(xmlns)) {
             rootElement.setNamespace(new Namespace("", xmlns));
         }
         return new DocumentBuilder(new DOMDocument(rootElement));

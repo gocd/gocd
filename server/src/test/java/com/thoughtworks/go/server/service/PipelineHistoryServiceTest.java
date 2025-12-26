@@ -413,7 +413,7 @@ class PipelineHistoryServiceTest {
 
         HttpOperationResult result = new HttpOperationResult();
         PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName,
-            Pagination.pageFor(0, 0, 10), new Username(new CaseInsensitiveString("looser")), result);
+            Pagination.pageByItemNumber(0, 0, 10), new Username(new CaseInsensitiveString("looser")), result);
 
         assertThat(pipelineInstanceModels).isNull();
         assertThat(result.httpCode()).isEqualTo(404);
@@ -435,13 +435,13 @@ class PipelineHistoryServiceTest {
         when(pipelineDao.loadHistory(pipelineName, 10, 0)).thenReturn(PipelineInstanceModels.createPipelineInstanceModels());
 
         HttpOperationResult result = new HttpOperationResult();
-        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName, Pagination.pageFor(0, 1, 10), noAccessUserName, result);
+        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName, Pagination.pageByItemNumber(0, 1, 10), noAccessUserName, result);
 
         assertThat(pipelineInstanceModels).isNull();
         assertThat(result.httpCode()).isEqualTo(403);
 
         result = new HttpOperationResult();
-        pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName, Pagination.pageFor(0, 1, 10), withAccessUserName, result);
+        pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName, Pagination.pageByItemNumber(0, 1, 10), withAccessUserName, result);
 
         assertThat(pipelineInstanceModels).isNotNull();
         assertThat(result.canContinue()).isTrue();

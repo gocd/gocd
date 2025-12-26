@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.util.ZipUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -32,6 +31,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.zip.Deflater;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Component
 public class FileView implements View, ServletContextAware {
@@ -97,7 +98,7 @@ public class FileView implements View, ServletContextAware {
         }
 
         String mimeType = this.getServletContext().getMimeType(filename);
-        if (StringUtils.isEmpty(mimeType)) {
+        if (isEmpty(mimeType)) {
             mimeType = "application/octet-stream";
         }
         return mimeType;

@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.persistence;
 
 import com.thoughtworks.go.server.domain.BackupStatus;
 import com.thoughtworks.go.server.domain.ServerBackup;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
@@ -29,6 +28,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Service
 public class ServerBackupRepository extends HibernateDaoSupport {
@@ -72,7 +73,7 @@ public class ServerBackupRepository extends HibernateDaoSupport {
     }
 
     public Optional<ServerBackup> getBackup(String id) {
-        if (StringUtils.isEmpty(id)) {
+        if (isEmpty(id)) {
             return Optional.empty();
         }
         return getBackup(Long.parseLong(id));

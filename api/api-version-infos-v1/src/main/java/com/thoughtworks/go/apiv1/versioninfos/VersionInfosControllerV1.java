@@ -30,7 +30,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -38,6 +37,7 @@ import spark.Response;
 
 import java.io.IOException;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static spark.Spark.*;
 
 @Component
@@ -80,7 +80,7 @@ public class VersionInfosControllerV1 extends ApiController implements SparkSpri
     public String latestVersion(Request request, Response response) throws IOException {
         String goUpdate = versionInfoService.getGoUpdate();
         return writerForTopLevelObject(request, response, writer -> {
-            if (StringUtils.isNotBlank(goUpdate)) {
+            if (isNotBlank(goUpdate)) {
                 writer.add("latest_version", goUpdate);
             }
         });

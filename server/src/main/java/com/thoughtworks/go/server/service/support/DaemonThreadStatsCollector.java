@@ -52,14 +52,5 @@ public class DaemonThreadStatsCollector {
         return map;
     }
 
-    private static class Info {
-        public long time;
-        public String uuid;
-
-        public Info(long threadCpuTime, String uuid) {
-            time = threadCpuTime;
-            this.uuid = uuid;
-        }
-    }
-
+    private record Info(long time, String uuid) {}
 }

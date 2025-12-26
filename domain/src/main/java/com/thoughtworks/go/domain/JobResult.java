@@ -17,10 +17,7 @@ package com.thoughtworks.go.domain;
 
 import java.util.Comparator;
 
-/**
- *
- */
-public enum JobResult implements ViewableStatus {
+public enum JobResult {
     Passed,
     Failed,
     Cancelled,
@@ -42,18 +39,12 @@ public enum JobResult implements ViewableStatus {
         return this.equals(Unknown);
     }
 
-    @Override
     public String getStatus() {
         return this.toString();
     }
 
-    @Override
-    public String getCruiseStatus() {
-        return this.toString();
-    }
-
     public String toLowerCase() {
-        return toString().toLowerCase();
+        return getStatus().toLowerCase();
     }
 
     public String toCctrayStatus() {

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config.materials;
 
 import com.thoughtworks.go.config.ValidationContext;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Map;
 
@@ -37,7 +36,7 @@ public class DummyMaterialConfig extends ScmMaterialConfig {
 
     @Override
     public void setUrl(String url) {
-        throw new NotImplementedException("Operation not supported");
+        throw new UnsupportedOperationException("Operation not supported");
     }
 
     @Override

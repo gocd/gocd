@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.Arrays;
@@ -34,6 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @AttributeAwareConfigTag(value = "fetchartifact", attribute = "artifactOrigin", attributeValue = "external")
@@ -101,7 +101,7 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
 
     @Override
     protected void validateAttributes(ValidationContext validationContext) {
-        if (StringUtils.isBlank(artifactId)) {
+        if (isBlank(artifactId)) {
             errors.add("artifactId", "Artifact Id cannot be blank.");
         }
 
@@ -156,7 +156,7 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
         BaseCollection<StageConfig> dependencyMaterial = null;
         PluggableArtifactConfig externalArtifact = null;
         boolean isUpstreamAPipeline = isPipeline;
-        if (preprocessedTask.getPipelineName() == null || CaseInsensitiveString.isBlank(preprocessedTask.getTargetPipelineName()) || preprocessedTask.getTargetPipelineName().equals(pipelineOrTemplateName)) {
+        if (preprocessedTask.getPipelineName() == null || CaseInsensitiveString.isEmpty(preprocessedTask.getTargetPipelineName()) || preprocessedTask.getTargetPipelineName().equals(pipelineOrTemplateName)) {
             dependencyMaterial = pipelineOrTemplate;
         } else {
             try {
@@ -186,7 +186,7 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
     @Override
     protected void setFetchTaskAttributes(Map<String, ?> attributeMap) {
         this.artifactId = (String) attributeMap.get(ARTIFACT_ID);
-        if (StringUtils.isBlank(this.artifactId)) {
+        if (isBlank(this.artifactId)) {
             return;
         }
 
@@ -196,7 +196,7 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
         }
 
         final String pluginId = (String) attributeMap.get("pluginId");
-        if (StringUtils.isBlank(pluginId)) {
+        if (isBlank(pluginId)) {
             for (String key : userSpecifiedConfiguration.keySet()) {
                 @SuppressWarnings("unchecked") Map<String, String> configurationMetadata = (Map<String, String>) userSpecifiedConfiguration.get(key);
                 if (configurationMetadata != null) {

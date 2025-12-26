@@ -18,10 +18,12 @@ package com.thoughtworks.go.config.materials;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 import java.util.Objects;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @ConfigTag(value = "package")
 public class PackageMaterialConfig extends AbstractMaterialConfig {
@@ -92,14 +94,14 @@ public class PackageMaterialConfig extends AbstractMaterialConfig {
 
     @Override
     protected void validateConcreteMaterial(ValidationContext validationContext) {
-        if (StringUtils.isBlank(packageId)) {
+        if (isBlank(packageId)) {
             addError(PACKAGE_ID, "Please select a repository and package");
         }
     }
 
     @Override
     protected void validateExtras(ValidationContext validationContext) {
-        if (!StringUtils.isBlank(packageId)) {
+        if (!isBlank(packageId)) {
             PackageRepository packageRepository = validationContext.findPackageById(packageId);
             if (packageRepository == null) {
                 addError(PACKAGE_ID, String.format("Could not find repository for given package id:[%s]", packageId));
@@ -137,7 +139,7 @@ public class PackageMaterialConfig extends AbstractMaterialConfig {
 
     @Override
     public CaseInsensitiveString getName() {
-        if (((name == null) || StringUtils.isEmpty(name.toString())) && packageDefinition != null) {
+        if ((name == null || isEmpty(name.toString())) && packageDefinition != null) {
             return new CaseInsensitiveString(getPackageDefinition().getRepository().getName() + "_" + packageDefinition.getName());
         } else {
             return name;
@@ -156,7 +158,7 @@ public class PackageMaterialConfig extends AbstractMaterialConfig {
 
     @Override
     public String getDisplayName() {
-        return ((name == null || name.isBlank()) && getPackageDefinition().getRepository().getName() == null) ? getUriForDisplay() : getName().toString();
+        return (name == null || name.isEmpty()) && getPackageDefinition().getRepository().getName() == null ? getUriForDisplay() : getName().toString();
     }
 
     @Override
@@ -223,7 +225,7 @@ public class PackageMaterialConfig extends AbstractMaterialConfig {
 
     @Override
     public void validateNameUniqueness(Map<CaseInsensitiveString, AbstractMaterialConfig> map) {
-        if (StringUtils.isBlank(packageId)) {
+        if (isBlank(packageId)) {
             return;
         }
         if (map.containsKey(new CaseInsensitiveString(packageId))) {

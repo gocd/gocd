@@ -21,9 +21,11 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.PipelineIdentifier;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.server.dao.StageDao;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNumeric;
 
 @Service
 public class RestfulService {
@@ -49,13 +51,13 @@ public class RestfulService {
 
         if (JobIdentifier.LATEST.equalsIgnoreCase(pipelineCounter)) {
             pipelineIdentifier = pipelineService.mostRecentPipelineIdentifier(jobConfigIdentifier.getPipelineName());
-        } else if (StringUtils.isNumeric(pipelineCounter)) {
+        } else if (isNumeric(pipelineCounter)) {
             pipelineIdentifier = pipelineService.findPipelineByNameAndCounter(pipelineName, Integer.parseInt(pipelineCounter)).getIdentifier();
         } else {
             throw new RuntimeException("Expected numeric pipeline counter but received '%s'" + pipelineCounter);
         }
 
-        stageCounter = StringUtils.isEmpty(stageCounter) ? JobIdentifier.LATEST : stageCounter;
+        stageCounter = isEmpty(stageCounter) ? JobIdentifier.LATEST : stageCounter;
         StageIdentifier stageIdentifier = translateStageCounter(pipelineIdentifier, jobConfigIdentifier.getStageName(), stageCounter);
 
         JobIdentifier jobId;

@@ -34,7 +34,7 @@ public class PluginAwareMessageQueue<T extends PluginAwareMessage> extends GoMes
     private final String pluginId;
 
 
-    public PluginAwareMessageQueue(MessagingService<GoMessage> messaging, String pluginId, String queueName, Integer numberOfListeners, ListenerFactory<T> listenerFactory) {
+    public PluginAwareMessageQueue(MessagingService<GoMessage> messaging, String pluginId, String queueName, int numberOfListeners, ListenerFactory<T> listenerFactory) {
         super(messaging, queueName);
         this.pluginId = pluginId;
         for (int i = 0; i < numberOfListeners; i++) {

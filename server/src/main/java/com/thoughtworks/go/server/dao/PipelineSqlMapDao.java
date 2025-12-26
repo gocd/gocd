@@ -48,7 +48,6 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
@@ -164,14 +163,14 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
 
     @Override
-    public Integer getCounterForPipeline(String name) {
+    public int getCounterForPipeline(String name) {
         Integer counter = getSqlMapClientTemplate().queryForObject("getCounterForPipeline", name);
         return counter == null ? 0 : counter;
     }
 
     public List<String> getPipelineNamesWithMultipleEntriesForLabelCount() {
         List<String> pipelineNames = getSqlMapClientTemplate().queryForList("getPipelineNamesWithMultipleEntriesForLabelCount");
-        if (!pipelineNames.isEmpty() && StringUtils.isBlank(pipelineNames.get(0))) {
+        if (!pipelineNames.isEmpty() && isBlank(pipelineNames.get(0))) {
             return new ArrayList<>();
         }
         return pipelineNames;
@@ -188,7 +187,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     @Override
-    public void insertOrUpdatePipelineCounter(Pipeline pipeline, Integer lastCount, Integer newCount) {
+    public void insertOrUpdatePipelineCounter(Pipeline pipeline, int lastCount, int newCount) {
         Map<String, Object> args = arguments("pipelineName", pipeline.getName()).and("count", newCount).asMap();
         Integer hasPipelineRow = getSqlMapClientTemplate().queryForObject("hasPipelineInfoRow", pipeline.getName());
         transactionTemplate.execute(status -> {
@@ -255,7 +254,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return cacheKeyGenerator.generate("latestSuccessfulStage", pipelineName, stageName);
     }
 
-    private void savePipelineMaterialRevisions(Pipeline pipeline, final Long pipelineId) {
+    private void savePipelineMaterialRevisions(Pipeline pipeline, final long pipelineId) {
         MaterialRevisions materialRevisions = pipeline.getBuildCause().getMaterialRevisions();
         materialRepository.createPipelineMaterialRevisions(pipeline, pipelineId, materialRevisions);
     }
@@ -290,7 +289,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     private void updateCounter(Pipeline pipeline) {
-        Integer lastCount = getCounterForPipeline(pipeline.getName());
+        int lastCount = getCounterForPipeline(pipeline.getName());
 
         pipeline.updateCounter(lastCount);
         insertOrUpdatePipelineCounter(pipeline, lastCount, pipeline.getCounter());
@@ -546,11 +545,11 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         syncCachedActivePipelines(stage);
         updateCachedLatestSuccessfulStage(stage);
         String pipelineName = stage.getIdentifier().getPipelineName();
-        Integer pipelineCounter = stage.getIdentifier().getPipelineCounter();
+        int pipelineCounter = stage.getIdentifier().getPipelineCounter();
         clearPipelineHistoryCacheViaNameAndCounter(pipelineName, pipelineCounter);
     }
 
-    private void clearPipelineHistoryCacheViaNameAndCounter(String pipelineName, Integer pipelineCounter) {
+    private void clearPipelineHistoryCacheViaNameAndCounter(String pipelineName, int pipelineCounter) {
         goCache.remove(cacheKeyForPipelineHistoryByNameAndCounter(pipelineName, pipelineCounter));
     }
 
@@ -633,7 +632,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     @Override
-    public PipelineInstanceModels loadHistory(String pipelineName, FeedModifier modifier, long cursor, Integer pageSize) {
+    public PipelineInstanceModels loadHistory(String pipelineName, FeedModifier modifier, long cursor, int pageSize) {
         List<Long> ids = findPipelineIds(pipelineName, modifier, cursor, pageSize);
         if (ids.size() == 1) {
             return PipelineInstanceModels.createPipelineInstanceModels(loadHistoryByIdWithBuildCause(ids.get(0)));
@@ -657,8 +656,8 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     @Override
     public int getPageNumberForCounter(String pipelineName, int pipelineCounter, int limit) {
-        Integer maxCounter = getCounterForPipeline(pipelineName);
-        Pagination pagination = Pagination.pageStartingAt((maxCounter - pipelineCounter), maxCounter, limit);
+        int maxCounter = getCounterForPipeline(pipelineName);
+        Pagination pagination = Pagination.pageByOffset((maxCounter - pipelineCounter), maxCounter, limit);
         return pagination.getCurrentPage();
     }
 
@@ -922,7 +921,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     String cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName,
                                                                        String dependencyPipelineName,
-                                                                       Integer dependencyPipelineCounter) {
+                                                                       int dependencyPipelineCounter) {
         return cacheKeyGenerator.generate("cacheKeyForPipelineInstancesWithDependencyMaterial", pipelineName.toLowerCase(), dependencyPipelineName.toLowerCase(), dependencyPipelineCounter);
     }
 

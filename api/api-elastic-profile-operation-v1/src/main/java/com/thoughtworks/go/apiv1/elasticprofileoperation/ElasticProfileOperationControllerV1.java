@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.ElasticProfileUsage;
 import com.thoughtworks.go.server.service.ElasticProfileService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -33,12 +32,13 @@ import spark.Response;
 
 import java.util.Collection;
 
+import static org.apache.commons.lang3.StringUtils.stripToEmpty;
 import static spark.Spark.*;
 
 @Component
 public class ElasticProfileOperationControllerV1 extends ApiController implements SparkSpringController {
     private static final String PROFILE_ID_PARAM = "profile_id";
-    private ElasticProfileService elasticProfileService;
+    private final ElasticProfileService elasticProfileService;
     private final ApiAuthenticationHelper apiAuthenticationHelper;
 
     @Autowired
@@ -69,7 +69,7 @@ public class ElasticProfileOperationControllerV1 extends ApiController implement
     }
 
     public String usages(Request request, Response response) {
-        final String elasticProfileId = StringUtils.stripToEmpty(request.params(PROFILE_ID_PARAM));
+        final String elasticProfileId = stripToEmpty(request.params(PROFILE_ID_PARAM));
         final Collection<ElasticProfileUsage> jobsUsingElasticProfile = elasticProfileService.getUsageInformation(elasticProfileId);
         return ElasticProfileUsageRepresenter.toJSON(jobsUsingElasticProfile);
     }

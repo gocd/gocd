@@ -96,7 +96,7 @@ public class PackageMaterialUpdaterTest {
 
         materialUpdater.insertLatestOrNewModifications(material, materialInstance, file, modifications);
 
-        verify(materialRepository, never()).saveOrUpdate(any(MaterialInstance.class));
+        verify(materialRepository, never()).saveOrUpdate(any());
         verify(scmMaterialUpdater).insertLatestOrNewModifications(material, materialInstance, file, modifications);
     }
 

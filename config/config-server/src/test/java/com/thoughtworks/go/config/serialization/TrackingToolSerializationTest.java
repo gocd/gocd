@@ -41,6 +41,7 @@ public class TrackingToolSerializationTest {
 
         assertThat(trackingTool.getLink()).isEqualTo("http://mingle05/projects/cce/cards/${ID}");
         assertThat(trackingTool.getRegex()).isEqualTo("(evo-\\d+)");
+        assertThat(trackingTool.render("evo-123: fixed bug")).isEqualTo("<a href=\"http://mingle05/projects/cce/cards/evo-123\" target=\"story_tracker\">evo-123</a>: fixed bug");
     }
 
     @Test
@@ -60,5 +61,6 @@ public class TrackingToolSerializationTest {
         assertThat(trackingTool).isNotNull();
         assertThat(trackingTool.getLink()).isEmpty();
         assertThat(trackingTool.getRegex()).isEmpty();
+        assertThat(trackingTool.render("evo-123: fixed bug")).isEqualTo("evo-123: fixed bug");
     }
 }

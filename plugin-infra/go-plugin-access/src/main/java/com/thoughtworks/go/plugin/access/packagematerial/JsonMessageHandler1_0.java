@@ -24,12 +24,12 @@ import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfi
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static java.lang.String.format;
+import static java.lang.String.join;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -224,13 +224,13 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
         Integer displayOrder = null;
         try {
-            displayOrder = configuration.get("display-order") == null ? null : Integer.parseInt((String) configuration.get("display-order"));
+            displayOrder = configuration.get("display-order") == null ? null : Integer.valueOf((String) configuration.get("display-order"));
         } catch (Exception e) {
             errors.add(format("'display-order' property for key '%s' should be of type integer", key));
         }
 
         if (!errors.isEmpty()) {
-            throw new RuntimeException(StringUtils.join(errors, ", "));
+            throw new RuntimeException(join(", ", errors));
         }
 
         PackageMaterialProperty packageMaterialProperty = new PackageMaterialProperty(key);

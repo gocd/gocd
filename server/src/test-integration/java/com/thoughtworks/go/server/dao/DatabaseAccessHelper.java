@@ -495,7 +495,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         return pipeline;
     }
 
-    public Integer updateNaturalOrder(final long pipelineId, final double naturalOrder) {
+    public int updateNaturalOrder(final long pipelineId, final double naturalOrder) {
         return getHibernateTemplate().execute(session -> PipelineRepository.updateNaturalOrderForPipeline(session, pipelineId, naturalOrder));
     }
 

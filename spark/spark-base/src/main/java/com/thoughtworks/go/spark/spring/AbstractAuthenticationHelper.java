@@ -27,7 +27,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.HaltException;
@@ -37,6 +36,7 @@ import spark.Response;
 import java.util.List;
 
 import static com.thoughtworks.go.config.exceptions.EntityType.Pipeline;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public abstract class AbstractAuthenticationHelper {
@@ -152,7 +152,7 @@ public abstract class AbstractAuthenticationHelper {
             throw renderForbiddenResponse();
         }
 
-        if (StringUtils.isBlank(templateName) && !securityService.isAuthorizedToViewAndEditTemplates(currentUsername())) {
+        if (isBlank(templateName) && !securityService.isAuthorizedToViewAndEditTemplates(currentUsername())) {
             throw renderForbiddenResponse();
         }
     }
@@ -167,7 +167,7 @@ public abstract class AbstractAuthenticationHelper {
             throw renderForbiddenResponse();
         }
 
-        if (StringUtils.isBlank(templateName) && !securityService.isAuthorizedToViewTemplates(currentUsername())) {
+        if (isBlank(templateName) && !securityService.isAuthorizedToViewTemplates(currentUsername())) {
             throw renderForbiddenResponse();
         }
     }
@@ -250,7 +250,7 @@ public abstract class AbstractAuthenticationHelper {
 
     private String findPipelineGroupName(Request request) {
         String groupName = request.params("group_name");
-        if (StringUtils.isBlank(groupName)) {
+        if (isBlank(groupName)) {
             groupName = goConfigService.findGroupNameByPipeline(getPipelineNameFromRequest(request));
         }
         return groupName;
@@ -258,7 +258,7 @@ public abstract class AbstractAuthenticationHelper {
 
     private CaseInsensitiveString getPipelineNameFromRequest(Request request) {
         String pipelineName = request.params("pipeline_name");
-        if (StringUtils.isBlank(pipelineName)) {
+        if (isBlank(pipelineName)) {
             pipelineName = request.queryParams("pipeline_name");
         }
         return new CaseInsensitiveString(pipelineName);

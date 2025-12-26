@@ -133,22 +133,23 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         this.agentUuid = agentUuid;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "JobInstance{" +
-                "stageId=" + stageId +
-                ", name='" + name + '\'' +
-                ", state=" + state +
-                ", result=" + result +
-                ", agentUuid='" + agentUuid + '\'' +
-                ", stateTransitions=" + stateTransitions +
-                ", scheduledDate=" + scheduledDate +
-                ", timeProvider=" + timeProvider +
-                ", ignored=" + ignored +
-                ", identifier=" + identifier +
-                ", plan=" + plan +
-                ", runOnAllAgents=" + runOnAllAgents +
-                ", runMultipleInstance=" + runMultipleInstance +
-                '}';
+            "stageId=" + stageId +
+            ", name='" + name + '\'' +
+            ", state=" + state +
+            ", result=" + result +
+            ", agentUuid='" + agentUuid + '\'' +
+            ", stateTransitions=" + stateTransitions +
+            ", scheduledDate=" + scheduledDate +
+            ", timeProvider=" + timeProvider +
+            ", ignored=" + ignored +
+            ", identifier=" + identifier +
+            ", plan=" + plan +
+            ", runOnAllAgents=" + runOnAllAgents +
+            ", runMultipleInstance=" + runMultipleInstance +
+            '}';
     }
 
     public boolean isNull() {
@@ -209,7 +210,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
     }
 
     public void completed(Date completionDate) {
-        if (result==JobResult.Unknown) {
+        if (result == JobResult.Unknown) {
             throw new RuntimeException("Result is still unknown. Make sure completing(...) is called and then this if you are doing this through a test.");
         }
         this.changeState(JobState.Completed, completionDate);
@@ -327,7 +328,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
     public void setScheduledDate(Date scheduledDate) {
         this.scheduledDate = scheduledDate;
     }
-    
+
     // End Date / Time Related Methods th
     @Override
     public JobInstance clone() {
@@ -348,9 +349,9 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         return identifier.getPipelineName();
     }
 
-	public Integer getPipelineCounter() {
-	        return identifier.getPipelineCounter();
-	    }
+    public int getPipelineCounter() {
+        return identifier.getPipelineCounter();
+    }
 
     public String getStageName() {
         return identifier.getStageName();
@@ -370,10 +371,10 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
 
     public String getBuildDurationKey(String pipelineName, String stageName) {
         return String.format("BUILD_DURATION: %s_%s_%s_%s",
-                pipelineName,
-                stageName,
-                getName(),
-                getAgentUuid());
+            pipelineName,
+            stageName,
+            getName(),
+            getAgentUuid());
     }
 
     public boolean isAssignedToAgent() {
@@ -446,15 +447,15 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         return runOnAllAgents;
     }
 
-	public boolean isRunMultipleInstance() {
-		return runMultipleInstance;
-	}
+    public boolean isRunMultipleInstance() {
+        return runMultipleInstance;
+    }
 
-	public void setRunMultipleInstance(boolean runMultipleInstance) {
-		this.runMultipleInstance = runMultipleInstance;
-	}
+    public void setRunMultipleInstance(boolean runMultipleInstance) {
+        this.runMultipleInstance = runMultipleInstance;
+    }
 
-	public boolean matches(JobConfigIdentifier identifier) {
+    public boolean matches(JobConfigIdentifier identifier) {
         if (!getPipelineName().equalsIgnoreCase(identifier.getPipelineName())) {
             return false;
         }
@@ -467,9 +468,9 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
     JobType jobType() {
         if (runOnAllAgents) {
             return new RunOnAllAgents();
-		} else if (runMultipleInstance) {
-			return new RunMultipleInstance();
-		} else {
+        } else if (runMultipleInstance) {
+            return new RunMultipleInstance();
+        } else {
             return new SingleJobInstance();
         }
     }

@@ -29,6 +29,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.apache.commons.lang3.StringUtils.split;
+
 public class Matcher {
     private static final char SEPARATOR = ',';
     private static final String[] SPECIAL_CHARS = new String[]{"\\", "[", "]", "^", "$", ".", "|", "?", "*", "+", "(", ")"};
@@ -50,7 +52,7 @@ public class Matcher {
     }
 
     private static @NotNull Stream<String> matchersFrom(@NotNull String matcherPattern) {
-        return Arrays.stream(StringUtils.split(matcherPattern, SEPARATOR)).map(String::trim).filter(s -> !s.isEmpty()).distinct();
+        return Arrays.stream(split(matcherPattern, SEPARATOR)).map(String::trim).filter(s -> !s.isEmpty()).distinct();
     }
 
     @Override

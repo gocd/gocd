@@ -39,7 +39,6 @@ import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.VoidThrowingFn;
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +56,7 @@ import java.util.zip.ZipOutputStream;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.codec.binary.Hex.encodeHexString;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.stripToNull;
 
 /**
  * Understands backing up db and config
@@ -274,7 +274,7 @@ public class BackupService implements BackupStatusProvider {
         BackupConfig backupConfig = backupConfig();
         if (backupConfig != null) {
             String postBackupScript = backupConfig.getPostBackupScript();
-            return StringUtils.stripToNull(postBackupScript);
+            return stripToNull(postBackupScript);
         }
         return null;
     }

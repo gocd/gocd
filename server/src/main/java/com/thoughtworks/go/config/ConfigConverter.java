@@ -47,13 +47,13 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.command.CommandLine;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 /**
@@ -145,7 +145,7 @@ public class ConfigConverter {
             return new EnvironmentVariableConfig(cipher, crEnvironmentVariable.getName(), encryptedValue);
         } else {
             String value = crEnvironmentVariable.getValue();
-            if (StringUtils.isBlank(value)) {
+            if (isBlank(value)) {
                 value = "";
             }
             return new EnvironmentVariableConfig(crEnvironmentVariable.getName(), value);
@@ -406,7 +406,7 @@ public class ConfigConverter {
     private ScmMaterialConfig toScmMaterialConfig(CRScmMaterial crScmMaterial) {
         if (crScmMaterial instanceof CRGitMaterial git) {
             String gitBranch = git.getBranch();
-            if (StringUtils.isBlank(gitBranch)) {
+            if (isBlank(gitBranch)) {
                 gitBranch = GitMaterialConfig.DEFAULT_BRANCH;
             }
             GitMaterialConfig gitConfig = new GitMaterialConfig();
@@ -453,7 +453,7 @@ public class ConfigConverter {
     }
 
     private CaseInsensitiveString toMaterialName(String materialName) {
-        if (StringUtils.isBlank(materialName)) {
+        if (isBlank(materialName)) {
             return null;
         }
         return new CaseInsensitiveString(materialName);
@@ -667,7 +667,7 @@ public class ConfigConverter {
 
     public TimerConfig toTimerConfig(CRTimer crTimer) {
         String spec = crTimer.getSpec();
-        if (StringUtils.isBlank(spec)) {
+        if (isBlank(spec)) {
             throw new RuntimeException("timer schedule is not specified");
         }
         return new TimerConfig(spec, crTimer.isOnlyOnChanges());
@@ -952,7 +952,7 @@ public class ConfigConverter {
             return null;
         }
         String spec = timerConfig.getTimerSpec();
-        if (StringUtils.isBlank(spec)) {
+        if (isBlank(spec)) {
             throw new RuntimeException("timer schedule is not specified");
         }
         return new CRTimer(spec, timerConfig.shouldTriggerOnlyOnChanges());
@@ -963,7 +963,7 @@ public class ConfigConverter {
             return new CREnvironmentVariable(environmentVariableConfig.getName(), null, environmentVariableConfig.getEncryptedValue());
         } else {
             String value = environmentVariableConfig.getValue();
-            if (StringUtils.isBlank(value)) {
+            if (isBlank(value)) {
                 value = "";
             }
             return new CREnvironmentVariable(environmentVariableConfig.getName(), value);

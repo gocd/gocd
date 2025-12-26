@@ -310,23 +310,6 @@ Above scenario allowed
     }
 
     @Test
-    public void shouldCheckSCMMaterialsHaveDestinationCorrectly() {
-        HgMaterialConfig materialConfigOne = hg("http://url1", null);
-        materialConfigOne.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "folder"));
-
-        CruiseConfig config = GoConfigMother.configWithPipelines("one");
-        PipelineConfig pipelineOne = config.pipelineConfigByName(new CaseInsensitiveString("one"));
-        pipelineOne.setMaterialConfigs(new MaterialConfigs(materialConfigOne));
-
-        assertThat(pipelineOne.materialConfigs().scmMaterialsHaveDestination()).isEqualTo(true);
-
-        PluggableSCMMaterialConfig materialConfigTwo = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), null, null, false);
-        pipelineOne.materialConfigs().add(materialConfigTwo);
-
-        assertThat(pipelineOne.materialConfigs().scmMaterialsHaveDestination()).isFalse();
-    }
-
-    @Test
     public void shouldShowAutoUpdateMismatchErrorTwiceWhenMaterialIsAddedToSamePipeline() {
         HgMaterialConfig materialOne = hg("http://url1", null);
         materialOne.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "some-folder"));

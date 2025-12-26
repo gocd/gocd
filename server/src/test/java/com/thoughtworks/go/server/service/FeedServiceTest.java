@@ -22,8 +22,6 @@ import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.domain.xml.*;
-import com.thoughtworks.go.server.domain.xml.materials.MaterialXmlRepresenter;
 import org.dom4j.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -68,7 +66,7 @@ public class FeedServiceTest {
 
     @BeforeEach
     void setUp() {
-        when(xmlApiService.write(any(XmlRepresentable.class), eq(BASE_URL))).thenReturn(document);
+        when(xmlApiService.write(any(), eq(BASE_URL))).thenReturn(document);
     }
 
     @Test
@@ -80,7 +78,7 @@ public class FeedServiceTest {
 
         assertThat(document).isNotNull();
         verify(pipelineHistoryService).latestInstancesForConfiguredPipelines(username);
-        verify(xmlApiService).write(any(PipelinesXmlRepresenter.class), eq(BASE_URL));
+        verify(xmlApiService).write(any(), eq(BASE_URL));
         verifyNoMoreInteractions(xmlApiService);
         verifyNoInteractions(goConfigService);
         verifyNoInteractions(securityService);
@@ -120,7 +118,7 @@ public class FeedServiceTest {
 
             assertThat(document).isNotNull();
             verify(stageService).findStageFeedBy(pipelineName, null, Before, username);
-            verify(xmlApiService).write(any(FeedEntriesRepresenter.class), eq(BASE_URL));
+            verify(xmlApiService).write(any(), eq(BASE_URL));
             verifyNoMoreInteractions(xmlApiService);
             verifyNoInteractions(pipelineHistoryService);
             verifyNoInteractions(jobInstanceService);
@@ -137,7 +135,7 @@ public class FeedServiceTest {
 
             assertThat(document).isNotNull();
             verify(stageService).findStageFeedBy(pipelineName, pipelineCounter, Before, username);
-            verify(xmlApiService).write(any(FeedEntriesRepresenter.class), eq(BASE_URL));
+            verify(xmlApiService).write(any(), eq(BASE_URL));
             verifyNoMoreInteractions(xmlApiService);
             verifyNoInteractions(pipelineHistoryService);
             verifyNoInteractions(jobInstanceService);
@@ -153,7 +151,7 @@ public class FeedServiceTest {
             Document document = feedService.pipelineXml(username, pipelineName, 100, BASE_URL);
 
             assertThat(document).isNotNull();
-            verify(xmlApiService).write(any(PipelineXmlRepresenter.class), eq(BASE_URL));
+            verify(xmlApiService).write(any(), eq(BASE_URL));
             verify(pipelineHistoryService).load(pipelineName, 100, username);
             verifyNoMoreInteractions(xmlApiService);
             verifyNoMoreInteractions(pipelineHistoryService);
@@ -172,7 +170,7 @@ public class FeedServiceTest {
             Document document = feedService.stageXml(username, pipelineName, 100, stageName, 1, BASE_URL);
 
             assertThat(document).isNotNull();
-            verify(xmlApiService).write(any(StageXmlRepresenter.class), eq(BASE_URL));
+            verify(xmlApiService).write(any(), eq(BASE_URL));
             verify(stageService).findStageWithIdentifier(pipelineName, 100, stageName, "1", username);
             verifyNoMoreInteractions(xmlApiService);
             verifyNoMoreInteractions(stageService);
@@ -192,7 +190,7 @@ public class FeedServiceTest {
             Document document = feedService.jobXml(username, pipelineName, 100, stageName, 1, jobName, BASE_URL);
 
             assertThat(document).isNotNull();
-            verify(xmlApiService).write(any(JobXmlRepresenter.class), eq(BASE_URL));
+            verify(xmlApiService).write(any(), eq(BASE_URL));
             verify(jobInstanceService).findJobInstanceWithTransitions(pipelineName, stageName, jobName, 100, 1, username);
             verifyNoMoreInteractions(xmlApiService);
             verifyNoMoreInteractions(jobInstanceService);
@@ -208,7 +206,7 @@ public class FeedServiceTest {
             Document document = feedService.waitingJobPlansXml(BASE_URL, username);
 
             assertThat(document).isNotNull();
-            verify(xmlApiService).write(any(JobPlanXmlRepresenter.class), eq(BASE_URL));
+            verify(xmlApiService).write(any(), eq(BASE_URL));
             verify(jobInstanceService).waitingJobPlans(username);
             verifyNoMoreInteractions(xmlApiService);
             verifyNoMoreInteractions(jobInstanceService);
@@ -222,7 +220,7 @@ public class FeedServiceTest {
         @Test
         void shouldThrowRecordNotFoundExceptionWhenMaterialRevisionWithFingerprintDoesNotExist() {
             String pipelineName = "up42";
-            Integer pipelineCounter = 2;
+            int pipelineCounter = 2;
             PipelineInstanceModel model = pipelineInstanceModel(pipelineName, pipelineCounter, Instant.now());
             model.setLatestRevisions(new MaterialRevisions());
             when(pipelineHistoryService.load(pipelineName, pipelineCounter, username)).thenReturn(model);
@@ -236,7 +234,7 @@ public class FeedServiceTest {
         void shouldReturnMaterialXmlDocument() {
             MaterialRevisions revisions = createSvnMaterialRevisions(oneModifiedFile("rev"));
             String pipelineName = "up42";
-            Integer pipelineCounter = 2;
+            int pipelineCounter = 2;
             String pipelineUniqueFingerprint = revisions.getMaterialRevision(0).getMaterial().getPipelineUniqueFingerprint();
 
             PipelineInstanceModel model = pipelineInstanceModel(pipelineName, pipelineCounter, Instant.now());
@@ -246,7 +244,7 @@ public class FeedServiceTest {
             Document document = feedService.materialXml(username, pipelineName, pipelineCounter, pipelineUniqueFingerprint, BASE_URL);
 
             assertThat(document).isNotNull();
-            verify(xmlApiService).write(any(MaterialXmlRepresenter.class), eq(BASE_URL));
+            verify(xmlApiService).write(any(), eq(BASE_URL));
             verifyNoMoreInteractions(xmlApiService);
             verifyNoInteractions(jobInstanceService);
             verifyNoInteractions(stageService);

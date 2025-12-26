@@ -37,7 +37,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
-import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.Pagination;
@@ -290,7 +289,7 @@ class PipelineHistoryServiceTest {
         PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createNeverRun(), new StageInstanceModels());
         when(pipelineDao.findPipelineHistoryByNameAndCounter("pipeline", 1)).thenReturn(instanceModel);
 
-        when(pipelineUnlockService.canUnlock(eq("pipeline"), eq(Username.ANONYMOUS), any(HttpOperationResult.class))).thenReturn(true);
+        when(pipelineUnlockService.canUnlock(eq("pipeline"), eq(Username.ANONYMOUS), any())).thenReturn(true);
 
         PipelineInstanceModel pipelineInstance = pipelineHistoryService.findPipelineInstance("pipeline", 1, Username.ANONYMOUS, new HttpOperationResult());
         assertThat(pipelineInstance.canUnlock()).isTrue();
@@ -309,7 +308,7 @@ class PipelineHistoryServiceTest {
         stubConfigServiceToReturnPipeline("pipeline", config);
 
         StageInstanceModel firstStage = instanceModel.getStageHistory().get(0);
-        when(scheduleService.canRun(eq(instanceModel.getPipelineIdentifier()), eq(firstStage.getName()), eq(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername())), eq(instanceModel.hasPreviousStageBeenScheduled(firstStage.getName())), any(ServerHealthStateOperationResult.class))).thenReturn(true);
+        when(scheduleService.canRun(eq(instanceModel.getPipelineIdentifier()), eq(firstStage.getName()), eq(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername())), eq(instanceModel.hasPreviousStageBeenScheduled(firstStage.getName())), any())).thenReturn(true);
         StageInstanceModel secondStage = instanceModel.getStageHistory().get(1);
         lenient().when(scheduleService.canRun(instanceModel.getPipelineIdentifier(), secondStage.getName(), CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()),
             instanceModel.hasPreviousStageBeenScheduled(secondStage.getName()))).thenReturn(false);
@@ -365,7 +364,7 @@ class PipelineHistoryServiceTest {
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("user-name"), "pipeline-name")).thenReturn(true);
         when(pipelinePauseService.pipelinePauseInfo("pipeline-name")).thenReturn(pipelinePauseInfo);
         when(pipelineLockService.isLocked("pipeline-name")).thenReturn(true);
-        when(schedulingCheckerService.canManuallyTrigger(eq(pipelineConfig), eq("user-name"), any(ServerHealthStateOperationResult.class))).thenReturn(true);
+        when(schedulingCheckerService.canManuallyTrigger(eq(pipelineConfig), eq("user-name"), any())).thenReturn(true);
 
         PipelineStatusModel pipelineStatus = pipelineHistoryService.getPipelineStatus("pipeline-name", "user-name", new HttpOperationResult());
 
@@ -413,7 +412,7 @@ class PipelineHistoryServiceTest {
 
         HttpOperationResult result = new HttpOperationResult();
         PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName,
-            Pagination.pageFor(0, 0, 10), new Username(new CaseInsensitiveString("looser")), result);
+            Pagination.pageByItemNumber(0, 0, 10), new Username(new CaseInsensitiveString("looser")), result);
 
         assertThat(pipelineInstanceModels).isNull();
         assertThat(result.httpCode()).isEqualTo(404);
@@ -435,13 +434,13 @@ class PipelineHistoryServiceTest {
         when(pipelineDao.loadHistory(pipelineName, 10, 0)).thenReturn(PipelineInstanceModels.createPipelineInstanceModels());
 
         HttpOperationResult result = new HttpOperationResult();
-        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName, Pagination.pageFor(0, 1, 10), noAccessUserName, result);
+        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName, Pagination.pageByItemNumber(0, 1, 10), noAccessUserName, result);
 
         assertThat(pipelineInstanceModels).isNull();
         assertThat(result.httpCode()).isEqualTo(403);
 
         result = new HttpOperationResult();
-        pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName, Pagination.pageFor(0, 1, 10), withAccessUserName, result);
+        pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName, Pagination.pageByItemNumber(0, 1, 10), withAccessUserName, result);
 
         assertThat(pipelineInstanceModels).isNotNull();
         assertThat(result.canContinue()).isTrue();

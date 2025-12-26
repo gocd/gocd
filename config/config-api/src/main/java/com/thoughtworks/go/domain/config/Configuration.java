@@ -19,12 +19,13 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.join;
 
 @ConfigTag("configuration")
 @ConfigCollection(value = ConfigurationProperty.class)
@@ -49,13 +50,9 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
     }
 
     public String forDisplay(List<ConfigurationProperty> propertiesToDisplay) {
-        List<String> list = new ArrayList<>();
-        for (ConfigurationProperty property : propertiesToDisplay) {
-            if (!property.isSecure()) {
-                list.add(format("%s=%s", property.getConfigurationKey().getName().toLowerCase(), property.getConfigurationValue().getValue()));
-            }
-        }
-        return format("[%s]", StringUtils.join(list, ", "));
+        return propertiesToDisplay.stream().filter(p -> !p.isSecure())
+            .map(p -> p.getConfigurationKey().getName().toLowerCase() + "=" + p.getConfigurationValue().getValue())
+            .collect(Collectors.joining(", ", "[", "]"));
     }
 
     public void setConfigAttributes(Object attributes, SecureKeyInfoProvider secureKeyInfoProvider) {
@@ -111,7 +108,7 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
             ConfigurationValue configurationValue = configurationProperty.getConfigurationValue();
             EncryptedConfigurationValue encryptedValue = configurationProperty.getEncryptedConfigurationValue();
 
-            if (StringUtils.isBlank(configurationProperty.getValue()) && (configurationValue == null || configurationValue.errors().isEmpty()) && (encryptedValue == null || encryptedValue.errors().isEmpty())) {
+            if (isBlank(configurationProperty.getValue()) && (configurationValue == null || configurationValue.errors().isEmpty()) && (encryptedValue == null || encryptedValue.errors().isEmpty())) {
                 propertiesToRemove.add(configurationProperty);
             }
         }
@@ -209,7 +206,7 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
                 mapValue.put(VALUE_KEY, value);
             }
             if (!property.getAllErrors().isEmpty()) {
-                mapValue.put(ERRORS_KEY, StringUtils.join(property.getAllErrors().stream().map(ConfigErrors::getAll).collect(toList()), ", "));
+                mapValue.put(ERRORS_KEY, join(property.getAllErrors().stream().map(ConfigErrors::getAll).collect(toList()), ", "));
             }
             configMap.put(property.getConfigKeyName(), mapValue);
         }

@@ -204,8 +204,8 @@ public class AgentDaoTest {
             AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid1");
             associateCookieAndVerifyThatCookieIsAssociated(agentIdentifier, "cookie");
 
-            verify(mockListener1, times(2)).entityChanged(any(Agent.class));
-            verify(mockListener2, times(2)).entityChanged(any(Agent.class));
+            verify(mockListener1, times(2)).entityChanged(any());
+            verify(mockListener2, times(2)).entityChanged(any());
         }
 
         @Test
@@ -256,7 +256,7 @@ public class AgentDaoTest {
             assertThat(agent.getCookie()).isEqualTo("updated_cookie");
 
             agentDao.setHibernateTemplate(mockHibernateTemplate);
-            doThrow(new RuntimeException("holy smoke")).when(mockHibernateTemplate).saveOrUpdate(any(Agent.class));
+            doThrow(new RuntimeException("holy smoke")).when(mockHibernateTemplate).saveOrUpdate(any());
             DatabaseEntityChangeListener<Agent> mockListener = registerMockListener();
             try {
                 agentDao.associateCookie(agentIdentifier, "cookie");
@@ -265,7 +265,7 @@ public class AgentDaoTest {
                 assertThat(e.getMessage()).isEqualTo("holy smoke");
             }
             assertThat(agentDao.cookieFor(agentIdentifier)).isEqualTo("cookie");
-            verify(mockListener, never()).entityChanged(any(Agent.class));
+            verify(mockListener, never()).entityChanged(any());
             agentDao.setHibernateTemplate(originalTemplate);
         }
 

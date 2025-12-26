@@ -266,17 +266,17 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public long getArtifactRepositoryFullLimit() {
         return Objects.requireNonNullElseGet(artifactFullSizeLimit,
-            () -> artifactFullSizeLimit = Long.parseLong(trimMegaFromSize(getPropertyImpl(ARTIFACT_FULL_SIZE_LIMIT, "100M"))));
+            () -> artifactFullSizeLimit = Long.valueOf(trimMegaFromSize(getPropertyImpl(ARTIFACT_FULL_SIZE_LIMIT, "100M"))));
     }
 
     public long getDatabaseDiskSpaceFullLimit() {
         return Objects.requireNonNullElseGet(databaseFullSizeLimit,
-            () -> databaseFullSizeLimit = Long.parseLong(trimMegaFromSize(getPropertyImpl(DATABASE_FULL_SIZE_LIMIT, "100M"))));
+            () -> databaseFullSizeLimit = Long.valueOf(trimMegaFromSize(getPropertyImpl(DATABASE_FULL_SIZE_LIMIT, "100M"))));
     }
 
     public long getDiskSpaceCacheRefresherInterval() {
         return Objects.requireNonNullElseGet(diskSpaceCacheRefresherInterval,
-            () -> diskSpaceCacheRefresherInterval = Long.parseLong(getPropertyImpl(DISK_SPACE_CACHE_REFRESHER_INTERVAL, "5000")));
+            () -> diskSpaceCacheRefresherInterval = Long.valueOf(getPropertyImpl(DISK_SPACE_CACHE_REFRESHER_INTERVAL, "5000")));
     }
 
     public boolean consoleOutToStdout() {
@@ -413,7 +413,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public int getAgentConnectionTimeout() {
         return Objects.requireNonNullElseGet(agentConnectionTimeout,
-            () -> agentConnectionTimeout = Integer.parseInt(getPropertyImpl(AGENT_CONNECTION_TIMEOUT_IN_SECONDS, "300")));
+            () -> agentConnectionTimeout = Integer.valueOf(getPropertyImpl(AGENT_CONNECTION_TIMEOUT_IN_SECONDS, "300")));
     }
 
     public Integer getConsolePublishIntervalSeconds() {
@@ -629,7 +629,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
     public Integer getNotificationListenerCountForPlugin(String pluginId) {
-        return Integer.parseInt(getPropertyImpl("plugin." + pluginId + ".notifications.listener.count", "1"));
+        return Integer.valueOf(getPropertyImpl("plugin." + pluginId + ".notifications.listener.count", "1"));
     }
 
     public boolean enableAnalyticsOnlyForAdmins() {
@@ -706,7 +706,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         @Override
         protected @NotNull Integer convertValue(@Nullable String propertyValueFromSystem, @NotNull Integer defaultValue) {
             try {
-                return propertyValueFromSystem == null ? defaultValue : Integer.parseInt(propertyValueFromSystem);
+                return propertyValueFromSystem == null ? defaultValue : Integer.valueOf(propertyValueFromSystem);
             } catch (Exception e) {
                 return defaultValue;
             }
@@ -721,7 +721,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         @Override
         protected @NotNull Long convertValue(@Nullable String propertyValueFromSystem, @NotNull Long defaultValue) {
             try {
-                return propertyValueFromSystem == null ? defaultValue : Long.parseLong(propertyValueFromSystem);
+                return propertyValueFromSystem == null ? defaultValue : Long.valueOf(propertyValueFromSystem);
             } catch (Exception e) {
                 return defaultValue;
             }
@@ -736,7 +736,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         @Override
         protected @NotNull Float convertValue(@Nullable String propertyValueFromSystem, @NotNull Float defaultValue) {
             try {
-                return propertyValueFromSystem == null ? defaultValue : Float.parseFloat(propertyValueFromSystem);
+                return propertyValueFromSystem == null ? defaultValue : Float.valueOf(propertyValueFromSystem);
             } catch (Exception e) {
                 return defaultValue;
             }

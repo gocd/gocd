@@ -119,7 +119,7 @@ public class PipelineHistoryServiceIntegrationTest {
     public void shouldLoadPipelineHistory() {
         pipelineOne.createdPipelineWithAllStagesPassed();
         PipelineInstanceModels history = pipelineHistoryService.load(pipelineOne.pipelineName,
-                Pagination.pageStartingAt(0, 1, 10),
+                Pagination.pageByOffset(0, 1, 10),
                 "jez", true);
         assertThat(history.size()).isEqualTo(1);
         StageInstanceModels stageHistory = history.first().getStageHistory();
@@ -147,7 +147,7 @@ public class PipelineHistoryServiceIntegrationTest {
     @Test
     public void shouldLoadPipelineHistoryWithEmptyDefaultIfNone() {
         configHelper.setViewPermissionForGroup("group1", "jez");
-        PipelineInstanceModels history = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, Pagination.pageStartingAt(0, 1, 1), "jez");
+        PipelineInstanceModels history = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, Pagination.pageByOffset(0, 1, 1), "jez");
         assertThat(history.size()).isEqualTo(1);
         StageInstanceModels stageHistory = history.first().getStageHistory();
         assertThat(stageHistory.size()).isEqualTo(3);
@@ -165,7 +165,7 @@ public class PipelineHistoryServiceIntegrationTest {
     public void shouldNotLoadPipelinesThatTheUserDoesNotHavePermissionToSee() {
         configHelper.setViewPermissionForGroup("group1", "foo");
 
-        PipelineInstanceModels history = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, Pagination.pageStartingAt(0, 1, 1), "non-admin-user");
+        PipelineInstanceModels history = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, Pagination.pageByOffset(0, 1, 1), "non-admin-user");
         assertThat(history.size()).isEqualTo(0);
     }
 
@@ -173,7 +173,7 @@ public class PipelineHistoryServiceIntegrationTest {
     public void shouldLoadPipelineHistoryWithPlaceholderStagesPopulated() {
         pipelineOne.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
         PipelineInstanceModels history = pipelineHistoryService.load(pipelineOne.pipelineName,
-                Pagination.pageStartingAt(0, 1, 10),
+                Pagination.pageByOffset(0, 1, 10),
                 "jez", true);
         StageInstanceModels stageHistory = history.first().getStageHistory();
         assertThat(stageHistory.size()).isEqualTo(3);
@@ -194,7 +194,7 @@ public class PipelineHistoryServiceIntegrationTest {
         configHelper.updateArtifactRoot(TempDirUtils.createTempDirectoryIn(tempDir, "serverlogs").toAbsolutePath().toString());
         pipelineOne.createdPipelineWithAllStagesPassed();
         PipelineInstanceModels history = pipelineHistoryService.load(pipelineOne.pipelineName,
-                Pagination.pageStartingAt(0, 1, 10),
+                Pagination.pageByOffset(0, 1, 10),
                 "jez", true);
         assertThat(history.size()).isEqualTo(1);
         assertThat(history.first().getCanRun()).isFalse();
@@ -211,7 +211,7 @@ public class PipelineHistoryServiceIntegrationTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "job");
         configHelper.addPipeline("pipeline-group", pipelineConfig);
 
-        PipelineInstanceModels history = pipelineHistoryService.load("pipeline", Pagination.pageStartingAt(0, 1, 10), "anyone", true);
+        PipelineInstanceModels history = pipelineHistoryService.load("pipeline", Pagination.pageByOffset(0, 1, 10), "anyone", true);
         PipelineInstanceModel instanceModel = history.first();
 
         assertThat(instanceModel instanceof EmptyPipelineInstanceModel).isTrue();
@@ -358,7 +358,7 @@ public class PipelineHistoryServiceIntegrationTest {
 
 		HttpOperationResult result = new HttpOperationResult();
         PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineOne.pipelineName,
-                Pagination.pageStartingAt(0, 1, 10), new Username(new CaseInsensitiveString("admin1")), result);
+                Pagination.pageByOffset(0, 1, 10), new Username(new CaseInsensitiveString("admin1")), result);
 
 		StageInstanceModels stageHistory = pipelineInstanceModels.first().getStageHistory();
 		assertThat(stageHistory.size()).isEqualTo(3);
@@ -510,7 +510,7 @@ public class PipelineHistoryServiceIntegrationTest {
 
         assertThat(actual.size()).isEqualTo(1);
         assertThat(actual.get(0).getCounter()).isEqualTo(2);
-        assertThat(actual.getPagination()).isEqualTo(Pagination.pageStartingAt(1, 3, limit));
+        assertThat(actual.getPagination()).isEqualTo(Pagination.pageByOffset(1, 3, limit));
     }
 
     @Test

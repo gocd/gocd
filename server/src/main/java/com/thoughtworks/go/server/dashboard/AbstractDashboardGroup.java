@@ -91,18 +91,18 @@ public abstract class AbstractDashboardGroup implements DashboardGroup {
             MessageDigest digest = DigestUtils.getSha256Digest();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new DigestOutputStream(OutputStream.nullOutputStream(), digest));
             outputStreamWriter.write(getClass().getSimpleName());
-            outputStreamWriter.write("$");
+            outputStreamWriter.write('$');
             outputStreamWriter.write(name());
-            outputStreamWriter.write("/");
+            outputStreamWriter.write('/');
             outputStreamWriter.write(permissionsSegment);
-            outputStreamWriter.write("[");
+            outputStreamWriter.write('[');
 
             for (GoDashboardPipeline pipeline : allPipelines()) {
                 outputStreamWriter.write(pipeline.cacheSegment());
-                outputStreamWriter.write(",");
+                outputStreamWriter.write(',');
             }
 
-            outputStreamWriter.write("]");
+            outputStreamWriter.write(']');
             outputStreamWriter.flush();
 
             return Hex.encodeHexString(digest.digest());

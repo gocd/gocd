@@ -15,9 +15,10 @@
  */
 package com.thoughtworks.go.config.policy;
 
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Optional;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public enum DirectiveType {
     ALLOW("allow"), DENY("deny");
@@ -33,7 +34,7 @@ public enum DirectiveType {
     }
 
     public static Optional<DirectiveType> fromString(String directive) {
-        if (StringUtils.isBlank(directive)) {
+        if (isBlank(directive)) {
             return Optional.empty();
         }
 

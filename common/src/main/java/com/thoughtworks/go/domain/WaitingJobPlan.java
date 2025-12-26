@@ -18,7 +18,7 @@ package com.thoughtworks.go.domain;
 public class WaitingJobPlan {
 
     private final JobPlan jobPlan;
-    private String envName;
+    private final String envName;
 
     public WaitingJobPlan(JobPlan jobPlan, String envName) {
         this.jobPlan = jobPlan;

@@ -17,11 +17,12 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @ConfigTag("tabs")
 @ConfigCollection(Tab.class)
@@ -70,7 +71,7 @@ public class Tabs extends BaseCollection<Tab> implements Validatable, ParamsAttr
             for (Map<String, String> attributeMap : (List<Map<String, String>>) attributes) {
                 String tabName = attributeMap.get(Tab.NAME);
                 String path = attributeMap.get(Tab.PATH);
-                if (StringUtils.isBlank(tabName) && StringUtils.isBlank(path)) {
+                if (isBlank(tabName) && isBlank(path)) {
                     continue;
                 }
                 this.add(new Tab(tabName, path));

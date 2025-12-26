@@ -281,7 +281,7 @@ public class ArtifactsPublisherTest {
                 .publishArtifacts(List.of(s3ArtifactPlan), env);
 
         InOrder inOrder = inOrder(registry, artifactExtension);
-        inOrder.verify(registry, times(1)).registerProcessorFor(eq(CONSOLE_LOG.requestName()), any(ArtifactRequestProcessor.class));
+        inOrder.verify(registry, times(1)).registerProcessorFor(eq(CONSOLE_LOG.requestName()), any());
         inOrder.verify(artifactExtension, times(1))
                 .publishArtifact("cd.go.s3", s3ArtifactPlan, s3ArtifactStore, workingFolder.getAbsolutePath(), env);
         inOrder.verify(registry, times(1)).removeProcessorFor(CONSOLE_LOG.requestName());

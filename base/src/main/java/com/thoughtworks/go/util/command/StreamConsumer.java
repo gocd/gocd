@@ -36,5 +36,5 @@ public interface StreamConsumer extends AutoCloseable {
     void consumeLine(String line);
 
     @Override
-    default void close() {};
+    default void close() {}
 }

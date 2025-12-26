@@ -15,15 +15,16 @@
  */
 package com.thoughtworks.go.server.perf;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.SubstituteLogger;
 import org.springframework.stereotype.Component;
 
-@Component
-public class PerformanceLogger {
-    private static final Logger LOGGER = LoggerFactory.getLogger("PerformanceLogger");
+import java.util.LinkedList;
 
-    public void log(String format, Object... arguments) {
-        LOGGER.debug(format, arguments);
+@Component
+public class PerformanceLogger extends SubstituteLogger {
+    public PerformanceLogger() {
+        super("PerformanceLogger", new LinkedList<>(), true);
+        setDelegate(LoggerFactory.getLogger(getName()));
     }
 }

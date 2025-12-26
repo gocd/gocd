@@ -517,7 +517,7 @@ class RulesServiceTest {
             PipelineConfigs defaultGroup = PipelineConfigMother.createGroup("default", up42);
             CruiseConfig cruiseConfig = defaultCruiseConfig();
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
-            when(goConfigService.findGroupByPipeline(any(CaseInsensitiveString.class))).thenReturn(defaultGroup);
+            when(goConfigService.findGroupByPipeline(any())).thenReturn(defaultGroup);
 
             rulesService.validateSecretConfigReferences(buildAssigment);
         }

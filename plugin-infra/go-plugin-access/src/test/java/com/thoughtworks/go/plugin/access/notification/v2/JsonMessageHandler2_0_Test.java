@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.plugin.api.response.Result;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -280,7 +279,7 @@ public class JsonMessageHandler2_0_Test {
     public void shouldNotHandleAgentNotificationRequest() {
         assertThatThrownBy(() -> messageHandler.requestMessageForNotify(new AgentNotificationData(null, null, false,
             null, null, null, null, null, null, null)))
-            .isInstanceOf(NotImplementedException.class)
+            .isInstanceOf(UnsupportedOperationException.class)
             .hasMessageContaining(String.format("Converter for %s not supported", AgentNotificationData.class.getCanonicalName()));
     }
 

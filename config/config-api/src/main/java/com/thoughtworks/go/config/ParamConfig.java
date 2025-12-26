@@ -17,10 +17,11 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 import java.util.Objects;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @ConfigTag("param")
 public class ParamConfig implements Validatable {
@@ -74,7 +75,7 @@ public class ParamConfig implements Validatable {
     public void validateName(Map<String, ParamConfig> paramConfigMap, ValidationContext validationContext) {
         CaseInsensitiveString parentName = validationContext.getPipeline().name();
 
-        if (StringUtils.isBlank(name)) {
+        if (isBlank(name)) {
             configErrors.add("name", String.format("Parameter cannot have an empty name for pipeline '%s'.", parentName));
             return;
         }

@@ -187,7 +187,7 @@ public class MaterialUpdateServiceTest {
             assertThat(service.updateMaterial(svnMaterial)).isTrue();
 
             verify(queue).post(matchMaterialUpdateMessage(svnMaterial));
-            verify(configQueue, times(0)).post(any(MaterialUpdateMessage.class));
+            verify(configQueue, times(0)).post(any());
         }
 
         @Test
@@ -197,7 +197,7 @@ public class MaterialUpdateServiceTest {
             assertThat(service.updateMaterial(svnMaterial)).isTrue();
 
             verify(configQueue).post(matchMaterialUpdateMessage(svnMaterial));
-            verify(queue, times(0)).post(any(MaterialUpdateMessage.class));
+            verify(queue, times(0)).post(any());
         }
 
         @Test
@@ -207,8 +207,8 @@ public class MaterialUpdateServiceTest {
             assertThat(service.updateMaterial(dependencyMaterial)).isTrue();
 
             verify(dependencyMaterialUpdateQueue).post(matchMaterialUpdateMessage(dependencyMaterial));
-            verify(queue, times(0)).post(any(MaterialUpdateMessage.class));
-            verify(configQueue, times(0)).post(any(MaterialUpdateMessage.class));
+            verify(queue, times(0)).post(any());
+            verify(configQueue, times(0)).post(any());
         }
 
         @Test
@@ -448,7 +448,7 @@ public class MaterialUpdateServiceTest {
 
         //then
         verify(serverHealthService, never()).removeByScope(HealthStateScope.forMaterialUpdate(material));
-        verify(serverHealthService, never()).update(any(ServerHealthState.class));
+        verify(serverHealthService, never()).update(any());
     }
 
     @Test

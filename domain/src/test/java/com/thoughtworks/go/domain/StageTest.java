@@ -38,7 +38,7 @@ public class StageTest {
     private final Instant time1 = ZonedDateTime.of(2008, 2, 22, 12, 22, 23, 0, ZoneId.systemDefault()).toInstant();
     private final Instant time2 = ZonedDateTime.of(2008, 2, 22, 12, 22, 24, 0, ZoneId.systemDefault()).toInstant();
     private final Instant time3 = ZonedDateTime.of(2008, 2, 22, 12, 22, 25, 0, ZoneId.systemDefault()).toInstant();
-    private final Instant time4 = ZonedDateTime.of(2008, 2, 22, 12, 22, 26, 0, ZoneId.systemDefault()).toInstant();;
+    private final Instant time4 = ZonedDateTime.of(2008, 2, 22, 12, 22, 26, 0, ZoneId.systemDefault()).toInstant();
 
     private JobInstances jobInstances;
     private Stage stage;

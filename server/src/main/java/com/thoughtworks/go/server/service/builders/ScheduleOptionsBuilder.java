@@ -25,9 +25,10 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 
 public class ScheduleOptionsBuilder {
@@ -71,7 +72,7 @@ public class ScheduleOptionsBuilder {
             for (MaterialForScheduling materialForScheduling : pipelineScheduleOptions.getMaterials()) {
                 try {
                     MaterialConfig material = goConfigService.materialForPipelineWithFingerprint(pipelineName, materialForScheduling.getFingerprint());
-                    if (StringUtils.isBlank(materialForScheduling.getRevision())) {
+                    if (isBlank(materialForScheduling.getRevision())) {
                         result.unprocessableEntity("Request to schedule pipeline rejected", String.format("Material [%s] has empty revision", materialForScheduling.getFingerprint()), HealthStateType.general(HealthStateScope.GLOBAL));
                         return;
                     }

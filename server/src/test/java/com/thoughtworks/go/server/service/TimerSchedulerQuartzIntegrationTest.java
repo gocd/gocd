@@ -73,7 +73,7 @@ public class TimerSchedulerQuartzIntegrationTest {
         pauseForScheduling();
         verify(buildCauseProducerService, atLeastOnce()).timerSchedulePipeline(eq(uat), any(
                 ServerHealthStateOperationResult.class));
-        verify(buildCauseProducerService, atLeastOnce()).timerSchedulePipeline(eq(dist), any(ServerHealthStateOperationResult.class));
+        verify(buildCauseProducerService, atLeastOnce()).timerSchedulePipeline(eq(dist), any());
     }
 
     @Test
@@ -94,8 +94,8 @@ public class TimerSchedulerQuartzIntegrationTest {
         timerScheduler.initialize();
 
         pauseForScheduling();
-        verify(buildCauseProducerService, never()).timerSchedulePipeline(eq(uat), any(ServerHealthStateOperationResult.class));
-        verify(buildCauseProducerService, never()).timerSchedulePipeline(eq(dist), any(ServerHealthStateOperationResult.class));
+        verify(buildCauseProducerService, never()).timerSchedulePipeline(eq(uat), any());
+        verify(buildCauseProducerService, never()).timerSchedulePipeline(eq(dist), any());
     }
 
     @Test
@@ -117,7 +117,7 @@ public class TimerSchedulerQuartzIntegrationTest {
         timerScheduler.onConfigChange(cruiseConfig);
 
         pauseForScheduling();
-        verify(buildCauseProducerService, atLeastOnce()).timerSchedulePipeline(eq(uat), any(ServerHealthStateOperationResult.class));
+        verify(buildCauseProducerService, atLeastOnce()).timerSchedulePipeline(eq(uat), any());
     }
 
     private void pauseForScheduling() throws InterruptedException {

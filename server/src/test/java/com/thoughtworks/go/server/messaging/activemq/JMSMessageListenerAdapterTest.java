@@ -124,7 +124,7 @@ public class JMSMessageListenerAdapterTest {
             assertFalse(logFixture.contains(Level.WARN, "Backing off for a few seconds"));
             assertThat(endTime - startTime).isLessThan(1000 * 1000 * 1000L);
 
-            verify(serverHealthService, never()).update(any(ServerHealthState.class));
+            verify(serverHealthService, never()).update(any());
             verify(systemEnvironment, never()).get(SystemEnvironment.JMS_LISTENER_BACKOFF_TIME_IN_MILLIS);
         }
     }

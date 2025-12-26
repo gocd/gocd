@@ -22,11 +22,12 @@ import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Getter
 @Setter
@@ -94,11 +95,11 @@ public abstract class CRScmMaterial extends CRMaterial implements SourceCodeMate
     }
 
     public boolean hasEncryptedPassword() {
-        return StringUtils.isNotBlank(encryptedPassword);
+        return isNotBlank(encryptedPassword);
     }
 
     public boolean hasPlainTextPassword() {
-        return StringUtils.isNotBlank(password);
+        return isNotBlank(password);
     }
 
     protected void validatePassword(ErrorCollection errors, String location) {

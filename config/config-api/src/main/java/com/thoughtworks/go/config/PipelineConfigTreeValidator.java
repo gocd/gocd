@@ -23,9 +23,10 @@ import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.DFSCycleDetector;
 import com.thoughtworks.go.util.Node;
 import com.thoughtworks.go.util.PipelineDependencyState;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class PipelineConfigTreeValidator {
     private final PipelineConfig pipelineConfig;
@@ -118,7 +119,7 @@ public class PipelineConfigTreeValidator {
             for (JobConfig jobConfig : stageConfig.getJobs()) {
                 for (Task task : jobConfig.getTasks()) {
                     if (task instanceof FetchTask fetchTask) {
-                        if (fetchTask.getPipelineNamePathFromAncestor() != null && !StringUtils.isBlank(CaseInsensitiveString.str(fetchTask.getPipelineNamePathFromAncestor().getPath())) && fetchTask.getPipelineNamePathFromAncestor().pathIncludingAncestor().contains(pipelineConfig.name())) {
+                        if (fetchTask.getPipelineNamePathFromAncestor() != null && !isBlank(CaseInsensitiveString.str(fetchTask.getPipelineNamePathFromAncestor().getPath())) && fetchTask.getPipelineNamePathFromAncestor().pathIncludingAncestor().contains(pipelineConfig.name())) {
                             fetchTask = ClonerFactory.instance().deepClone(fetchTask);
                             fetchTask.validateTask(validationContext.withParent(downstreamPipeline).withParent(stageConfig).withParent(jobConfig));
                             List<String> allErrors = fetchTask.errors().getAll();

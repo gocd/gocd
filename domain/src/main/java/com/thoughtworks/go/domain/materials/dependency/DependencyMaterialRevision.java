@@ -19,14 +19,14 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import java.util.*;
 
 public class DependencyMaterialRevision implements Revision {
     private final String pipelineName;
-    private final String pipelineCounter;
+    private final int pipelineCounter;
     private final String pipelineLabel;
     private final String stageName;
     private final int stageCounter;
@@ -36,19 +36,17 @@ public class DependencyMaterialRevision implements Revision {
         return DependencyMaterialRevision.create(strings[0], Integer.parseInt(strings[1]), pipelineLabel, strings[2], Integer.parseInt(strings[3]));
     }
 
-    private DependencyMaterialRevision(String pipelineName, String pipelineCounter, String pipelineLabel, String stageName, int stageCounter) {
+    @VisibleForTesting
+    public static DependencyMaterialRevision create(String pipelineName, int pipelineCounter, String pipelineLabel, String stageName, int stageCounter) {
+        return new DependencyMaterialRevision(pipelineName, pipelineCounter, pipelineLabel, stageName, stageCounter);
+    }
+
+    private DependencyMaterialRevision(String pipelineName, int pipelineCounter, String pipelineLabel, String stageName, int stageCounter) {
         this.pipelineName = pipelineName;
         this.pipelineCounter = pipelineCounter;
         this.pipelineLabel = pipelineLabel;
         this.stageName = stageName;
         this.stageCounter = stageCounter;
-    }
-
-    public static DependencyMaterialRevision create(String pipelineName, Integer pipelineCounter, String pipelineLabel, String stageName, int stageCounter) {
-        if (pipelineCounter == null) {
-            throw new IllegalArgumentException("Dependency material revision can not be created without pipeline counter.");
-        }
-        return new DependencyMaterialRevision(pipelineName, pipelineCounter.toString(), pipelineLabel, stageName, stageCounter);
     }
 
     @Override
@@ -72,7 +70,7 @@ public class DependencyMaterialRevision implements Revision {
         DependencyMaterialRevision that = (DependencyMaterialRevision) o;
 
         return stageCounter == that.stageCounter &&
-            Objects.equals(pipelineCounter, that.pipelineCounter) &&
+            pipelineCounter == that.pipelineCounter &&
             Objects.equals(pipelineLabel, that.pipelineLabel) &&
             Objects.equals(pipelineName, that.pipelineName) &&
             Objects.equals(stageName, that.stageName);
@@ -82,7 +80,7 @@ public class DependencyMaterialRevision implements Revision {
     public int hashCode() {
         int result;
         result = (pipelineName != null ? pipelineName.hashCode() : 0);
-        result = 31 * result + (pipelineCounter != null ? pipelineCounter.hashCode() : 0);
+        result = 31 * result + pipelineCounter;
         result = 31 * result + (pipelineLabel != null ? pipelineLabel.hashCode() : 0);
         result = 31 * result + (stageName != null ? stageName.hashCode() : 0);
         result = 31 * result + stageCounter;
@@ -108,6 +106,10 @@ public class DependencyMaterialRevision implements Revision {
         return pipelineName;
     }
 
+    public int getPipelineCounter() {
+        return pipelineCounter;
+    }
+
     public String getPipelineLabel() {
         return pipelineLabel;
     }
@@ -121,10 +123,6 @@ public class DependencyMaterialRevision implements Revision {
         List<Modification> modifications = new ArrayList<>();
         modifications.add(new Modification(modifiedTime, getRevision(), getPipelineLabel(), null));
         return new MaterialRevision(material, modifications);
-    }
-
-    public Integer getPipelineCounter() {
-        return StringUtils.isEmpty(pipelineCounter) ? null : Integer.parseInt(pipelineCounter);
     }
 
     public String getStageName() {

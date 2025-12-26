@@ -20,7 +20,6 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
-import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -66,9 +65,9 @@ class ConsoleActivityMonitorTest {
         goConfigService = mock(GoConfigService.class);
         consoleService = mock(ConsoleService.class);
 
-        when(goConfigService.getUnresponsiveJobTerminationThreshold(any(JobIdentifier.class))).thenReturn(UNRESPONSIVE_JOB_KILL_THRESHOLD);
+        when(goConfigService.getUnresponsiveJobTerminationThreshold(any())).thenReturn(UNRESPONSIVE_JOB_KILL_THRESHOLD);
         when(systemEnvironment.getUnresponsiveJobWarningThreshold()).thenReturn(UNRESPONSIVE_JOB_WARNING_THRESHOLD);
-        when(goConfigService.canCancelJobIfHung(any(JobIdentifier.class))).thenReturn(true);
+        when(goConfigService.canCancelJobIfHung(any())).thenReturn(true);
 
         doAnswer((Answer<Object>) invocation -> {
             activeJobListener = (ConsoleActivityMonitor.ActiveJobListener) invocation.getArguments()[0];
@@ -259,7 +258,7 @@ class ConsoleActivityMonitorTest {
                 "Job <a href='/go/tab/build/detail/foo/12/stage/2/job'>foo/stage/job</a> is currently running but has not shown any console activity in the last 4 minute(s). This job may be hung.",
                 general(forJob("foo", "stage", "job"))));
 
-        when(goConfigService.getUnresponsiveJobTerminationThreshold(any(JobIdentifier.class))).thenReturn(Duration.ofHours(6));
+        when(goConfigService.getUnresponsiveJobTerminationThreshold(any())).thenReturn(Duration.ofHours(6));
         when(timeProvider.currentTimeMillis()).thenReturn(now.plusHours(1).plusMinutes(2).plusSeconds(1).toInstant().toEpochMilli());//after 62 minutes
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
@@ -392,7 +391,7 @@ class ConsoleActivityMonitorTest {
             verify(serverHealthService).update(ServerHealthState.warningWithHtml("Job 'foo/stage/job' is not responding",
                     "Job <a href='/go/tab/build/detail/foo/12/stage/2/job'>foo/stage/job</a> is currently running but it has not been assigned an agent in the last 4 minute(s). This job may be hung.", general(forJob("foo", "stage", "job"))));
 
-            when(goConfigService.getUnresponsiveJobTerminationThreshold(any(JobIdentifier.class))).thenReturn(Duration.ofHours(6));
+            when(goConfigService.getUnresponsiveJobTerminationThreshold(any())).thenReturn(Duration.ofHours(6));
             when(timeProvider.currentTimeMillis()).thenReturn(now.plusHours(1).plusMinutes(2).plusSeconds(1).toInstant().toEpochMilli());//after 62 minutes
             consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
@@ -486,7 +485,7 @@ class ConsoleActivityMonitorTest {
     }
 
     private void stubInitializerCallsForActivityMonitor(final JobInstanceService jobInstanceService) {
-        verify(jobInstanceService, times(2)).registerJobStateChangeListener(any(JobStatusListener.class));
+        verify(jobInstanceService, times(2)).registerJobStateChangeListener(any());
         verify(jobInstanceService).allRunningJobs();
     }
 

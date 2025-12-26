@@ -19,10 +19,11 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.config.PluginPreferenceStore;
 import com.thoughtworks.go.plugin.api.config.Property;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class ConfigurationDisplayUtil {
     public static List<ConfigurationProperty> getConfigurationPropertiesToBeUsedForDisplay(PluginPreferenceStore<?> metadataStore, String pluginId, final Configuration configuration) {
@@ -32,7 +33,7 @@ public class ConfigurationDisplayUtil {
         for (ConfigurationProperty property : configuration) {
             boolean isNotASecureProperty = !property.isSecure();
             boolean isPartOfIdentity = metadataStore.hasOption(pluginId, property.getConfigurationKey().getName(), Property.PART_OF_IDENTITY);
-            if (isNotASecureProperty && !StringUtils.isBlank(property.getValue()) && (pluginDoesNotExist || isPartOfIdentity)) {
+            if (isNotASecureProperty && !isBlank(property.getValue()) && (pluginDoesNotExist || isPartOfIdentity)) {
                 keysForDisplay.add(property);
             }
         }

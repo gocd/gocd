@@ -34,7 +34,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.transaction.support.SimpleTransactionStatus;
-import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.util.ArrayList;
@@ -111,7 +110,7 @@ public class PipelineStateDaoCachingTest {
             TransactionSynchronizationAdapter adapter= (TransactionSynchronizationAdapter) invocation.getArguments()[0];
             transactionSynchronizationAdapters.add(adapter);
             return null;
-        }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
+        }).when(transactionSynchronizationManager).registerSynchronization(any());
         setupTransactionTemplate(transactionSynchronizationAdapters);
 
         final Pipeline pipeline = PipelineMother.pipeline("mingle");
@@ -144,7 +143,7 @@ public class PipelineStateDaoCachingTest {
             TransactionSynchronizationAdapter adapter= (TransactionSynchronizationAdapter) invocation.getArguments()[0];
             transactionSynchronizationAdapters.add(adapter);
             return null;
-        }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
+        }).when(transactionSynchronizationManager).registerSynchronization(any());
         setupTransactionTemplate(transactionSynchronizationAdapters);
 
         final Pipeline pipeline = PipelineMother.pipeline("mingle");
@@ -163,7 +162,7 @@ public class PipelineStateDaoCachingTest {
     }
 
     private void setupTransactionTemplate(List<TransactionSynchronizationAdapter> transactionSynchronizationAdapters) {
-        when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(invocation -> {
+        when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
             org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
             callback.doInTransaction(new SimpleTransactionStatus());
             for (TransactionSynchronizationAdapter synchronizationAdapter : transactionSynchronizationAdapters) {

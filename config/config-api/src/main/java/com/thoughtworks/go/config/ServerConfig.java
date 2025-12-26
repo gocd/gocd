@@ -20,12 +20,13 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.domain.SiteUrl;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 
 import javax.annotation.PostConstruct;
 import java.util.Objects;
 import java.util.UUID;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @ConfigTag("server")
 public class ServerConfig implements Validatable {
@@ -87,21 +88,21 @@ public class ServerConfig implements Validatable {
 
     @PostConstruct
     public void ensureAgentAutoregisterKeyExists() {
-        if (StringUtils.isBlank(agentAutoRegisterKey)) {
+        if (isBlank(agentAutoRegisterKey)) {
             agentAutoRegisterKey = UUID.randomUUID().toString();
         }
     }
 
     @PostConstruct
     public void ensureWebhookSecretExists() {
-        if (StringUtils.isBlank(webhookSecret)) {
+        if (isBlank(webhookSecret)) {
             webhookSecret = UUID.randomUUID().toString();
         }
     }
 
     @PostConstruct
     public void ensureTokenGenerationKeyExists() {
-        if (StringUtils.isBlank(tokenGenerationKey)) {
+        if (isBlank(tokenGenerationKey)) {
             tokenGenerationKey = UUID.randomUUID().toString();
         }
     }
@@ -214,12 +215,12 @@ public class ServerConfig implements Validatable {
 
     @TestOnly
     public void setSiteUrl(String siteUrl) {
-        getSiteUrls().setSiteUrl(StringUtils.isBlank(siteUrl) ? new SiteUrl() : new SiteUrl(siteUrl));
+        getSiteUrls().setSiteUrl(isBlank(siteUrl) ? new SiteUrl() : new SiteUrl(siteUrl));
     }
 
     @TestOnly
     public void setSecureSiteUrl(String secureSiteUrl) {
-        getSiteUrls().setSecureSiteUrl(StringUtils.isBlank(secureSiteUrl) ? new SecureSiteUrl() : new SecureSiteUrl(secureSiteUrl));
+        getSiteUrls().setSecureSiteUrl(isBlank(secureSiteUrl) ? new SecureSiteUrl() : new SecureSiteUrl(secureSiteUrl));
     }
 
 
@@ -314,7 +315,7 @@ public class ServerConfig implements Validatable {
     }
 
     public boolean shouldAutoRegisterAgentWith(String agentKey) {
-        return (!StringUtils.isBlank(getAgentAutoRegisterKey())) && getAgentAutoRegisterKey().equals(agentKey);
+        return (!isBlank(getAgentAutoRegisterKey())) && getAgentAutoRegisterKey().equals(agentKey);
     }
 
     public String getServerId() {

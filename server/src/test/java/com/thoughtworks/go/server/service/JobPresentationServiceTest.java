@@ -52,7 +52,7 @@ public class JobPresentationServiceTest {
         JobInstance lev = assignAgent(passed("lev"), "agent3");
         JobInstance kev = assignAgent(failed("kev"), "agent3");
         AgentInstance agentInstance = building();
-        when(agentService.findAgentAndRefreshStatus(any(String.class))).thenReturn(agentInstance);
+        when(agentService.findAgentAndRefreshStatus(any())).thenReturn(agentInstance);
         List<JobInstanceModel> models = new JobPresentationService(jobDurationStrategy, agentService).jobInstanceModelFor(new JobInstances(dev, bev, tev, lev, kev, DEv));
         assertThat(models.size()).isEqualTo(6);
         //failed

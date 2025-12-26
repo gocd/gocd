@@ -22,8 +22,10 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.activity.JobStatusCache;
+import com.thoughtworks.go.domain.MaterialRevision;
+import com.thoughtworks.go.domain.MaterialRevisions;
+import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
@@ -149,8 +151,8 @@ public class PipelineServiceTriangleDependencyTest {
 
         assertThatThrownBy(() -> service.save(pipeline))
             .isExactlyInstanceOf(RuntimeException.class);
-        verify(stageStatusListener, never()).stageStatusChanged(any(Stage.class));
-        verify(jobStatusListener, never()).jobStatusChanged(any(JobInstance.class));
+        verify(stageStatusListener, never()).stageStatusChanged(any());
+        verify(jobStatusListener, never()).jobStatusChanged(any());
     }
 
     @Test
@@ -161,22 +163,22 @@ public class PipelineServiceTriangleDependencyTest {
 
         service.save(pipeline);
 
-        verify(stageStatusListener).stageStatusChanged(any(Stage.class));
-        verify(jobStatusListener).jobStatusChanged(any(JobInstance.class));
+        verify(stageStatusListener).stageStatusChanged(any());
+        verify(jobStatusListener).jobStatusChanged(any());
     }
 
     private Pipeline stubPipelineSaveForStatusListener(StageStatusListener stageStatusListener, JobStatusListener jobStatusListener) {
         StageDao stageDao = mock(StageDao.class);
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
         when(serverHealthService.logsSorted()).thenReturn(new ServerHealthStates());
-        JobInstanceService jobInstanceService = new JobInstanceService(mock(JobInstanceDao.class), mock(JobResultTopic.class), mock(JobStatusCache.class),
+        JobInstanceService jobInstanceService = new JobInstanceService(mock(JobInstanceDao.class), mock(JobResultTopic.class),
                 actualTransactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, serverHealthService, jobStatusListener);
 
         StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), mock(SecurityService.class), mock(PipelineDao.class),
                 mock(ChangesetService.class), mock(GoConfigService.class), actualTransactionTemplate, transactionSynchronizationManager,
                 goCache);
         Stage savedStage = StageMother.passedStageInstance("stage", "job", "pipeline-name");
-        when(stageDao.save(any(Pipeline.class), any(Stage.class))).thenReturn(savedStage);
+        when(stageDao.save(any(), any())).thenReturn(savedStage);
 
         stageService.addStageStatusListener(stageStatusListener);
 

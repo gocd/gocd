@@ -29,7 +29,6 @@ import com.thoughtworks.go.server.service.result.ServerHealthServiceUpdatingOper
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +39,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Service
 public class PipelineScheduler implements ConfigChangedListener, GoMessageListener<ScheduleCheckCompletedMessage> {
@@ -176,7 +177,7 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
 
     private boolean revisionInvalid(Map<String, String> revisions, OperationResult result) {
         for (Map.Entry<String, String> entry : revisions.entrySet()) {
-            if (StringUtils.isEmpty(entry.getValue())) {
+            if (isEmpty(entry.getValue())) {
                 String message = String.format("material with fingerprint [%s] has empty revision", entry.getKey());
                 result.notAcceptable(message, HealthStateType.general(HealthStateScope.GLOBAL));
                 return true;

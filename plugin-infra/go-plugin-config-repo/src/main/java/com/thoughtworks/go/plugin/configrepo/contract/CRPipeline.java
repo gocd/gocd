@@ -23,13 +23,14 @@ import com.thoughtworks.go.plugin.configrepo.contract.material.SourceCodeMateria
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Getter
 @Setter
@@ -125,8 +126,8 @@ public class CRPipeline extends CRBase {
 
     @Override
     public String getLocation(String parent) {
-        return StringUtils.isBlank(location) ?
-                StringUtils.isBlank(name) ? String.format("Pipeline in %s", parent) :
+        return isBlank(location) ?
+                isBlank(name) ? String.format("Pipeline in %s", parent) :
                         String.format("Pipeline %s", name) : String.format("%s; Pipeline %s", location, name);
     }
 
@@ -195,7 +196,7 @@ public class CRPipeline extends CRBase {
         if (allSCMMaterials.size() > 1) {
             for (SourceCodeMaterial material : allSCMMaterials) {
                 String directory = material.getDestination();
-                if (StringUtils.isBlank(directory)) {
+                if (isBlank(directory)) {
                     String location = material.getLocation(pipelineLocation);
                     errors.addError(location, "Material must have destination directory when there are many SCM materials");
                 }
@@ -258,7 +259,7 @@ public class CRPipeline extends CRBase {
     }
 
     public boolean hasTemplate() {
-        return template != null && !StringUtils.isBlank(template);
+        return template != null && !isBlank(template);
     }
 
 }

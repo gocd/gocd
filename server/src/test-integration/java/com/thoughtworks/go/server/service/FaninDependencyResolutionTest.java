@@ -110,7 +110,7 @@ public class FaninDependencyResolutionTest {
         systemEnvironment.set(RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT, limit);
     }
 
-    private Integer maxBackTrackLimit() {
+    private int maxBackTrackLimit() {
         return systemEnvironment.get(SystemEnvironment.RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT);
     }
 

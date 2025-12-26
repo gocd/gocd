@@ -22,13 +22,13 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import com.thoughtworks.go.server.domain.StageIdentity;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.List;
 
 public interface StageDao extends JobDurationStrategy {
-
-    Stage mostRecentWithBuilds(String pipelineName, StageConfig stageConfig);
 
     Stage save(Pipeline pipeline, Stage stage);
 
@@ -40,13 +40,11 @@ public interface StageDao extends JobDurationStrategy {
 
     int getCount(String pipelineName, String stageName);
 
-    Stages getStagesByPipelineId(long pipelineId);
+    @NotNull Stages getStagesByPipelineId(long pipelineId);
 
-    Stage stageById(long stageId);
+    @NotNull Stage stageById(long stageId);
 
-    Stage getStageByBuild(long buildInstanceId);
-
-    Stage mostRecentPassed(String pipelineName, String stageName);
+    @NotNull Stage getStageByBuild(long buildInstanceId);
 
     boolean isStageActive(String pipelineName, String stageName);
 
@@ -54,7 +52,7 @@ public interface StageDao extends JobDurationStrategy {
 
     int getMaxStageOrder(long pipelineId);
 
-    Integer getStageOrderInPipeline(long pipelineId, String stageName);
+    @Nullable Integer getStageOrderInPipeline(long pipelineId, String stageName);
 
     void updateResult(Stage stage, StageResult result, String username);
 
@@ -64,18 +62,20 @@ public interface StageDao extends JobDurationStrategy {
 
     Stage findStageWithIdentifier(StageIdentifier stageIdentifier);
 
+    @Nullable Stage mostRecentPassed(String pipelineName, String stageName);
+
     Stage mostRecentCompleted(StageConfigIdentifier identifier);
 
     Stage mostRecentStage(StageConfigIdentifier identifier);
 
     List<JobInstance> mostRecentJobsForStage(String pipelineName, String stageName);
 
+    @TestOnly
+    Stage mostRecentWithBuilds(String pipelineName, StageConfig stageConfig);
+
     List<StageFeedEntry> findAllCompletedStages(FeedModifier feedModifier, long id, int pageSize);
 
-    List<StageFeedEntry> findStageFeedBy(String pipelineName,
-                                         Integer pipelineCounter,
-                                         FeedModifier feedModifier,
-                                         long pageSize);
+    List<StageFeedEntry> findStageFeedBy(String pipelineName, Integer pipelineCounter, FeedModifier feedModifier, long pageSize);
 
     List<StageFeedEntry> findCompletedStagesFor(String pipelineName, FeedModifier feedModifier, long transitionId, long pageSize);
 
@@ -83,7 +83,7 @@ public interface StageDao extends JobDurationStrategy {
 
     List<StageAsDMR> getPassedStagesAfter(StageIdentifier stageIdentifier, int limit, int offset);
 
-    Stages getAllRunsOfStageForPipelineInstance(String pipelineName, Integer pipelineCounter, String stageName);
+    Stages getAllRunsOfStageForPipelineInstance(String pipelineName, int pipelineCounter, String stageName);
 
     List<Stage> findStageHistoryForChart(String pipelineName, String stageName, int pageSize, int offset);
 
@@ -91,7 +91,7 @@ public interface StageDao extends JobDurationStrategy {
 
     StageHistoryPage findStageHistoryPageByNumber(String pipelineName, String stageName, int pageNumber, int pageSize);
 
-    StageInstanceModels findDetailedStageHistoryViaCursor(String pipelineName, String stageName, FeedModifier feedModifier, long cursor, Integer pageSize);
+    StageInstanceModels findDetailedStageHistoryViaCursor(String pipelineName, String stageName, FeedModifier feedModifier, long cursor, int pageSize);
 
     List<StageIdentifier> findFailedStagesBetween(String pipelineName, String stageName, double fromNaturalOrder, double toNaturalOrder);
 

@@ -97,7 +97,7 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
     @Override
     public List<TaskProperty> getPropertiesForDisplay() {
         List<TaskProperty> taskProperties = new ArrayList<>();
-        if (pipelineName != null && !CaseInsensitiveString.isBlank(pipelineName.getPath())) {
+        if (pipelineName != null && !CaseInsensitiveString.isEmpty(pipelineName.getPath())) {
             taskProperties.add(new TaskProperty("Pipeline Name", CaseInsensitiveString.str(pipelineName.getPath())));
         }
         taskProperties.add(new TaskProperty("Stage Name", CaseInsensitiveString.str(stage)));
@@ -122,7 +122,7 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
         }
         if (validationContext.isWithinPipelines()) {
             PipelineConfig currentPipeline = validationContext.getPipeline();
-            if (pipelineName == null || CaseInsensitiveString.isBlank(pipelineName.getPath())) {
+            if (pipelineName == null || CaseInsensitiveString.isEmpty(pipelineName.getPath())) {
                 pipelineName = new PathFromAncestor(currentPipeline.name());
             }
             if (validateExistenceAndOrigin(currentPipeline, validationContext)) {
@@ -181,11 +181,11 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
 
     private boolean stageAndOrJobIsBlank() {
         boolean atLeastOneBlank = false;
-        if (CaseInsensitiveString.isBlank(stage)) {
+        if (CaseInsensitiveString.isEmpty(stage)) {
             atLeastOneBlank = true;
             addError(STAGE, "Stage is a required field.");
         }
-        if (CaseInsensitiveString.isBlank(job)) {
+        if (CaseInsensitiveString.isEmpty(job)) {
             atLeastOneBlank = true;
             addError(JOB, "Job is a required field.");
         }

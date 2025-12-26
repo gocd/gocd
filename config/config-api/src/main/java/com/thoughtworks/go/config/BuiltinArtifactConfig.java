@@ -25,6 +25,9 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 public abstract class BuiltinArtifactConfig implements ArtifactTypeConfig {
 
     public static final String SRC = "source";
@@ -48,10 +51,10 @@ public abstract class BuiltinArtifactConfig implements ArtifactTypeConfig {
 
     @Override
     public void validate(ValidationContext validationContext) {
-        if (!StringUtils.isBlank(destination) && (!(destination.equals(DEFAULT_ROOT.getPath()) || new FilePathTypeValidator().isPathValid(destination)))) {
+        if (!isBlank(destination) && (!(destination.equals(DEFAULT_ROOT.getPath()) || new FilePathTypeValidator().isPathValid(destination)))) {
             addError(DEST, "Invalid destination path. Destination path should match the pattern " + FilePathTypeValidator.PATH_PATTERN);
         }
-        if (StringUtils.isBlank(source)) {
+        if (isBlank(source)) {
             addError(SRC, String.format("Job '%s' has an artifact with an empty source", validationContext.getJob().name()));
         }
     }
@@ -90,7 +93,7 @@ public abstract class BuiltinArtifactConfig implements ArtifactTypeConfig {
     }
 
     public void setDestination(String destination) {
-        if (StringUtils.isNotBlank(destination)) {
+        if (isNotBlank(destination)) {
             this.destination = StringUtils.trim(destination);
         }
     }

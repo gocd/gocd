@@ -28,7 +28,6 @@ import com.thoughtworks.go.apiv1.templateauthorization.representers.Authorizatio
 import com.thoughtworks.go.config.Authorization;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.NotImplementedException;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.TemplateConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -123,7 +122,7 @@ public class TemplateAuthorizationControllerV1 extends ApiController implements 
 
     @Override
     public PipelineTemplateConfig buildEntityFromRequestBody(Request req) {
-        throw new NotImplementedException("Not Implemented");
+        throw new UnsupportedOperationException("Not Implemented");
     }
 
     public Authorization buildAuthorizationFromRequestBody(Request req) {

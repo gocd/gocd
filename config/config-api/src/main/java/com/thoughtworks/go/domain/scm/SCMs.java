@@ -21,9 +21,11 @@ import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @ConfigTag("scms")
 @ConfigCollection(value = SCM.class)
@@ -113,13 +115,11 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
         for (String fingerprint : map.keySet()) {
             SCMs scmsWithSameFingerprint = map.get(fingerprint);
             if (scmsWithSameFingerprint.size() > 1) {
-                List<String> scmNames = new ArrayList<>();
-                for (SCM scm : scmsWithSameFingerprint) {
-                    scmNames.add(scm.getName());
-                }
+                String errorMessage = scmsWithSameFingerprint.stream().map(SCM::getName).
+                        collect(Collectors.joining(", ", "Cannot save SCM, found duplicate SCMs. ", ""));
 
                 for (SCM scm : scmsWithSameFingerprint) {
-                    scm.addError(SCM.SCM_ID, String.format("Cannot save SCM, found duplicate SCMs. %s", StringUtils.join(scmNames, ", ")));
+                    scm.addError(SCM.SCM_ID, errorMessage);
                 }
             }
         }

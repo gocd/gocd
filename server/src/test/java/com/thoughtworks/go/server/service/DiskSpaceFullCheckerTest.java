@@ -72,7 +72,7 @@ public class DiskSpaceFullCheckerTest {
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         fullChecker.check(result);
         assertThat(result.canContinue()).isFalse();
-        verify(sender).sendEmail(any(SendEmailMessage.class));
+        verify(sender).sendEmail(any());
     }
 
     @Test
@@ -95,7 +95,7 @@ public class DiskSpaceFullCheckerTest {
         result = new ServerHealthStateOperationResult();
         fullChecker.check(result);
         assertThat(result.canContinue()).isFalse();
-        verify(sender, times(2)).sendEmail(any(SendEmailMessage.class));
+        verify(sender, times(2)).sendEmail(any());
     }
 
     private CruiseConfig simulateFullDisk() {
@@ -120,7 +120,7 @@ public class DiskSpaceFullCheckerTest {
         assertThat(result.getServerHealthState().isSuccess()).isFalse();
         assertThat(result.getServerHealthState().getMessage()).isEqualTo("GoCD Server has run out of artifacts disk space. Scheduling has been stopped");
         assertThat(result.getServerHealthState().getType()).isEqualTo(HealthStateType.artifactsDiskFull());
-        verify(sender).sendEmail(any(SendEmailMessage.class));
+        verify(sender).sendEmail(any());
     }
 
     @Test

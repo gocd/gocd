@@ -84,7 +84,7 @@ public class GoConfigRepoConfigDataSourceTest {
 
         repoConfigDataSource.onCheckoutComplete(material, folder, getModificationFor("7a8f"));
 
-        verify(plugin, times(1)).load(eq(folder), any(PartialConfigLoadContext.class));
+        verify(plugin, times(1)).load(eq(folder), any());
     }
 
     @Test
@@ -109,7 +109,7 @@ public class GoConfigRepoConfigDataSourceTest {
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepo));
         configWatchList.onConfigChange(cruiseConfig);
 
-        when(plugin.load(any(File.class), any(PartialConfigLoadContext.class)))
+        when(plugin.load(any(), any()))
                 .thenReturn(PartialConfigMother.withPipeline("pipe1"));
 
         repoConfigDataSource.onCheckoutComplete(material, folder, getModificationFor("7a8f"));
@@ -131,7 +131,7 @@ public class GoConfigRepoConfigDataSourceTest {
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepo));
         configWatchList.onConfigChange(cruiseConfig);
 
-        when(plugin.load(any(File.class), any(PartialConfigLoadContext.class)))
+        when(plugin.load(any(), any()))
                 .thenReturn(PartialConfigMother.withEnvironment("UAT"));
 
         repoConfigDataSource.onCheckoutComplete(material, folder, getModificationFor("7a8f"));
@@ -203,7 +203,7 @@ public class GoConfigRepoConfigDataSourceTest {
 
         repoConfigDataSource.onCheckoutComplete(material, folder, getModificationFor("7a8f"));
 
-        verify(plugin, times(0)).load(eq(folder), any(PartialConfigLoadContext.class));
+        verify(plugin, times(0)).load(eq(folder), any());
     }
 
     @Test

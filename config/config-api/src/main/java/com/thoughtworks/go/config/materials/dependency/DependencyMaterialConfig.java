@@ -235,7 +235,7 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
         @SuppressWarnings("unchecked") Map<String, ?> attributesMap = (Map<String, ?>) attributes;
         if (attributesMap.containsKey(MATERIAL_NAME)) {
             name = new CaseInsensitiveString((String) attributesMap.get(MATERIAL_NAME));
-            if (CaseInsensitiveString.isBlank(name)) {
+            if (CaseInsensitiveString.isEmpty(name)) {
                 name = null;
             }
         }
@@ -257,7 +257,7 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
         if (pipelineStageName != null) {
             return pipelineStageName;
         }
-        if (CaseInsensitiveString.isBlank(pipelineName) || CaseInsensitiveString.isBlank(stageName)) {
+        if (CaseInsensitiveString.isEmpty(pipelineName) || CaseInsensitiveString.isEmpty(stageName)) {
             return null;
         }
         return String.format("%s [%s]", pipelineName, stageName);

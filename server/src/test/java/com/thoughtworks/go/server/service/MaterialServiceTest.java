@@ -46,9 +46,7 @@ import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMPropertyConfiguration;
 import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
-import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -61,6 +59,7 @@ import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.Dates;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -239,7 +238,7 @@ public class MaterialServiceTest {
 
     private static class MaterialRequests implements ArgumentsProvider {
         @Override
-        public Stream<? extends Arguments> provideArguments(ParameterDeclarations parameters, ExtensionContext context) {
+        public @NonNull Stream<? extends Arguments> provideArguments(@NonNull ParameterDeclarations parameters, @NonNull ExtensionContext context) {
             return Stream.of(
                     GIT_LATEST_MODIFICATIONS,
                     SVN_LATEST_MODIFICATIONS,
@@ -333,8 +332,8 @@ public class MaterialServiceTest {
         material.setPackageDefinition(packageDefinition);
 
         when(packageRepositoryExtension.getLatestRevision(eq("plugin-id"),
-                any(PackageConfiguration.class),
-                any(RepositoryConfiguration.class))).thenReturn(new PackageRevision("blah-123", new Date(), "user"));
+                any(),
+                any())).thenReturn(new PackageRevision("blah-123", new Date(), "user"));
 
 
         List<Modification> modifications = materialService.latestModification(material, null, null);
@@ -348,9 +347,9 @@ public class MaterialServiceTest {
         material.setPackageDefinition(packageDefinition);
 
         when(packageRepositoryExtension.latestModificationSince(eq("plugin-id"),
-                any(PackageConfiguration.class),
-                any(RepositoryConfiguration.class),
-                any(PackageRevision.class))).thenReturn(new PackageRevision("new-revision-456", new Date(), "user"));
+                any(),
+                any(),
+                any())).thenReturn(new PackageRevision("new-revision-456", new Date(), "user"));
         List<Modification> modifications = materialService.modificationsSince(material, null, new PackageMaterialRevision("revision-124", new Date()), null);
         assertThat(modifications.get(0).getRevision()).isEqualTo("new-revision-456");
     }
@@ -401,7 +400,7 @@ public class MaterialServiceTest {
     public void shouldDelegateToMaterialRepository_getModificationsFor() {
         GitMaterialConfig materialConfig = git("http://test.com");
         GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
-        Pagination pagination = Pagination.pageStartingAt(0, 10, 10);
+        Pagination pagination = Pagination.pageByOffset(0, 10, 10);
         Modifications modifications = new Modifications();
         modifications.add(new Modification("user", "comment", "email", new Date(), "revision"));
 
@@ -555,7 +554,7 @@ public class MaterialServiceTest {
         modifications.add(new Modification("user", "comment 3", "email", Dates.from(ZonedDateTime.now().minusHours(3)), "revision"));
 
         when(materialRepository.findMaterialInstance(config)).thenReturn(instance);
-        when(materialRepository.findMatchingModifications(anyLong(), anyString(), any(FeedModifier.class), anyLong(), anyInt())).thenReturn(modifications);
+        when(materialRepository.findMatchingModifications(anyLong(), anyString(), any(), anyLong(), anyInt())).thenReturn(modifications);
 
         List<Modification> result = materialService.getModificationsFor(config, "comment", 0, 0, 10);
 
@@ -573,7 +572,7 @@ public class MaterialServiceTest {
         modifications.add(new Modification("user", "comment 3", "email", Dates.from(ZonedDateTime.now().minusHours(3)), "revision"));
 
         when(materialRepository.findMaterialInstance(config)).thenReturn(instance);
-        when(materialRepository.findMatchingModifications(anyLong(), anyString(), any(FeedModifier.class), anyLong(), anyInt())).thenReturn(modifications);
+        when(materialRepository.findMatchingModifications(anyLong(), anyString(), any(), anyLong(), anyInt())).thenReturn(modifications);
 
         List<Modification> result = materialService.getModificationsFor(config, "comment", 3, 0, 10);
 
@@ -591,7 +590,7 @@ public class MaterialServiceTest {
         modifications.add(new Modification("user", "comment 3", "email", Dates.from(ZonedDateTime.now().minusHours(3)), "revision"));
 
         when(materialRepository.findMaterialInstance(config)).thenReturn(instance);
-        when(materialRepository.findMatchingModifications(anyLong(), anyString(), any(FeedModifier.class), anyLong(), anyInt())).thenReturn(modifications);
+        when(materialRepository.findMatchingModifications(anyLong(), anyString(), any(), anyLong(), anyInt())).thenReturn(modifications);
 
         List<Modification> result = materialService.getModificationsFor(config, "comment", 0, 3, 10);
 

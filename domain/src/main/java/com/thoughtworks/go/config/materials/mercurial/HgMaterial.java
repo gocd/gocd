@@ -29,7 +29,6 @@ import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.annotations.VisibleForTesting;
@@ -44,8 +43,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombUnless;
 import static com.thoughtworks.go.util.FileUtil.mkdirsParentQuietly;
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.isAllBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * Understands configuration for mercurial version control
@@ -359,7 +357,7 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
     }
 
     private String getBranchFromUrl() {
-        String[] componentsOfUrl = StringUtils.split(url.originalArgument(), HgUrlArgument.DOUBLE_HASH);
+        String[] componentsOfUrl = split(url.originalArgument(), HgUrlArgument.DOUBLE_HASH);
         if (componentsOfUrl.length > 1) {
             return componentsOfUrl[1];
         }

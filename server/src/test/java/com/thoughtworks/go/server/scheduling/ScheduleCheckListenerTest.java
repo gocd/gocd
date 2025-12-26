@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.scheduling;
 
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
-import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -46,7 +45,7 @@ public class ScheduleCheckListenerTest {
 
         InOrder inOrder = inOrder(schedulingPerformanceLogger, producer, checkCompletedTopic);
         inOrder.verify(schedulingPerformanceLogger).pickedUpPipelineForScheduleCheck(123L, "cruise");
-        inOrder.verify(producer).autoSchedulePipeline(eq("cruise"), any(ServerHealthStateOperationResult.class), eq(123L));
+        inOrder.verify(producer).autoSchedulePipeline(eq("cruise"), any(), eq(123L));
         inOrder.verify(checkCompletedTopic).post(new ScheduleCheckCompletedMessage("cruise", 123L));
         inOrder.verify(schedulingPerformanceLogger).postingMessageAboutScheduleCheckCompletion(123L, "cruise");
     }

@@ -49,7 +49,7 @@ public class GoConfigPluginServiceTest {
             mock(CachedGoConfig.class), mock(AgentService.class));
         CRParseResult parseResult = new CRParseResult(environments, pipelines, errors);
 
-        when(extension.parseDirectory(any(String.class), any(String.class), any())).thenReturn(parseResult);
+        when(extension.parseDirectory(any(), any(), any())).thenReturn(parseResult);
     }
 
     @Test

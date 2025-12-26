@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.view.artifacts.LocalArtifactsView;
 import com.thoughtworks.go.server.web.*;
 import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +57,7 @@ import static com.thoughtworks.go.util.ArtifactLogUtil.isConsoleOutput;
 import static com.thoughtworks.go.util.GoConstants.*;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Controller
 public class ArtifactsController {
@@ -346,7 +346,7 @@ public class ArtifactsController {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isValidStageCounter(String stageCounter) {
-        if (StringUtils.isEmpty(stageCounter) || StageIdentifier.LATEST.equalsIgnoreCase(stageCounter)) {
+        if (isEmpty(stageCounter) || StageIdentifier.LATEST.equalsIgnoreCase(stageCounter)) {
             return true;
         }
 

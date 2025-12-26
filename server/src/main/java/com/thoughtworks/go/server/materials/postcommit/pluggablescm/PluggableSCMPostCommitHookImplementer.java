@@ -18,22 +18,23 @@ package com.thoughtworks.go.server.materials.postcommit.pluggablescm;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookImplementer;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class PluggableSCMPostCommitHookImplementer implements PostCommitHookImplementer {
     static final String SCM_NAME = "scm_name";
 
     @Override
     public Set<Material> prune(Set<Material> materials, Map<String, String> params) {
-        HashSet<Material> prunedCollection = new HashSet<>();
+        Set<Material> prunedCollection = new HashSet<>();
         String paramSCMName = params.get(SCM_NAME);
-        if (StringUtils.isNotBlank(paramSCMName)) {
+        if (isNotBlank(paramSCMName)) {
             for (Material material : materials) {
-                if (material instanceof PluggableSCMMaterial && paramSCMName.equalsIgnoreCase(((PluggableSCMMaterial) material).getScmConfig().getName())) {
+                if (material instanceof PluggableSCMMaterial pluggable && paramSCMName.equalsIgnoreCase(pluggable.getScmConfig().getName())) {
                     prunedCollection.add(material);
                 }
             }

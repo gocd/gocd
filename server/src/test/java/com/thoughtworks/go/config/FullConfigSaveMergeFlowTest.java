@@ -74,7 +74,7 @@ public class FullConfigSaveMergeFlowTest {
 
     @Test
     public void shouldUpdateGivenConfigWithPartials() throws Exception {
-        when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
+        when(loader.loadConfigHolder(nullable(String.class), any()))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
         flow.execute(updateConfigCommand, partials, null);
@@ -84,7 +84,7 @@ public class FullConfigSaveMergeFlowTest {
 
     @Test
     public void shouldPreprocessAndValidateTheUpdatedConfig() throws Exception {
-        when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
+        when(loader.loadConfigHolder(nullable(String.class), any()))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
         flow.execute(updateConfigCommand, partials, null);
@@ -94,7 +94,7 @@ public class FullConfigSaveMergeFlowTest {
 
     @Test
     public void shouldValidateDomRepresentationOfCruiseConfig() throws Exception {
-        when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
+        when(loader.loadConfigHolder(nullable(String.class), any()))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
         flow.execute(updateConfigCommand, partials, null);
@@ -105,7 +105,7 @@ public class FullConfigSaveMergeFlowTest {
     @Test
     public void shouldErrorOutIfPreprocessOrValidateFails() throws Exception {
         when(loader.preprocessAndValidate(configForEdit)).thenThrow(new IllegalArgumentException());
-        when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
+        when(loader.loadConfigHolder(nullable(String.class), any()))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
         assertThatThrownBy(() -> flow.execute(updateConfigCommand, partials, null))
@@ -114,9 +114,9 @@ public class FullConfigSaveMergeFlowTest {
 
     @Test
     public void shouldErrorOutIfSavingConfigPostValidationFails() throws Exception {
-        when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
+        when(loader.loadConfigHolder(nullable(String.class), any()))
                 .thenThrow(new RuntimeException());
-        when(configRepository.getConfigMergedWithLatestRevision(any(GoConfigRevision.class), anyString())).thenReturn("merged_config");
+        when(configRepository.getConfigMergedWithLatestRevision(any(), anyString())).thenReturn("merged_config");
 
         assertThatThrownBy(() -> flow.execute(updateConfigCommand, partials, null))
                 .isInstanceOf(ConfigMergePostValidationException.class);
@@ -124,7 +124,7 @@ public class FullConfigSaveMergeFlowTest {
 
     @Test
     public void shouldErrorOutIfConfigMergeFails() throws Exception {
-        when(configRepository.getConfigMergedWithLatestRevision(any(GoConfigRevision.class), anyString())).thenThrow(new ConfigMergeException("merge fails"));
+        when(configRepository.getConfigMergedWithLatestRevision(any(), anyString())).thenThrow(new ConfigMergeException("merge fails"));
 
         assertThatThrownBy(() -> flow.execute(updateConfigCommand, partials, null))
                 .isInstanceOf(ConfigMergeException.class);
@@ -132,7 +132,7 @@ public class FullConfigSaveMergeFlowTest {
 
     @Test
     public void shouldMergeConfigWithLatestRevision() throws Exception {
-        when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
+        when(loader.loadConfigHolder(nullable(String.class), any()))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
         flow.execute(updateConfigCommand, partials, null);
@@ -144,21 +144,21 @@ public class FullConfigSaveMergeFlowTest {
     public void shouldLoadConfigHolderFromTheMergedConfigXML() throws Exception {
         String mergedConfig = "merged_config";
 
-        when(configRepository.getConfigMergedWithLatestRevision(any(GoConfigRevision.class), any(String.class))).thenReturn(mergedConfig);
-        when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
+        when(configRepository.getConfigMergedWithLatestRevision(any(), any())).thenReturn(mergedConfig);
+        when(loader.loadConfigHolder(nullable(String.class), any()))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
         flow.execute(updateConfigCommand, partials, null);
 
-        verify(loader).loadConfigHolder(any(String.class), any(MagicalGoConfigXmlLoader.Callback.class));
+        verify(loader).loadConfigHolder(any(), any());
     }
 
     @Test
     public void shouldPersistXmlRepresentationOfMergedCruiseConfig() throws Exception {
         String mergedConfig = "merged_config";
 
-        when(configRepository.getConfigMergedWithLatestRevision(any(GoConfigRevision.class), any(String.class))).thenReturn(mergedConfig);
-        when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
+        when(configRepository.getConfigMergedWithLatestRevision(any(), any())).thenReturn(mergedConfig);
+        when(loader.loadConfigHolder(nullable(String.class), any()))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
         flow.execute(updateConfigCommand, partials, null);
@@ -172,9 +172,9 @@ public class FullConfigSaveMergeFlowTest {
         Date currentTime = mock(Date.class);
         ArgumentCaptor<GoConfigRevision> revisionArgumentCaptor = ArgumentCaptor.forClass(GoConfigRevision.class);
 
-        when(configRepository.getConfigMergedWithLatestRevision(any(GoConfigRevision.class), any(String.class))).thenReturn(mergedConfig);
+        when(configRepository.getConfigMergedWithLatestRevision(any(), any())).thenReturn(mergedConfig);
         when(timeProvider.currentUtilDate()).thenReturn(currentTime);
-        when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
+        when(loader.loadConfigHolder(nullable(String.class), any()))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
         doNothing().when(configRepository).checkin(revisionArgumentCaptor.capture());
 
@@ -192,15 +192,15 @@ public class FullConfigSaveMergeFlowTest {
         String mergedConfig = "merged_config";
         List<PartialConfig> partials = new ArrayList<>();
 
-        when(configRepository.getConfigMergedWithLatestRevision(any(GoConfigRevision.class), any(String.class))).thenReturn(mergedConfig);
-        when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
+        when(configRepository.getConfigMergedWithLatestRevision(any(), any())).thenReturn(mergedConfig);
+        when(loader.loadConfigHolder(nullable(String.class), any()))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
         InOrder inOrder = inOrder(configRepository, fileWriter, cachedGoPartials);
 
         flow.execute(updateConfigCommand, partials, null);
 
-        inOrder.verify(configRepository).checkin(any(GoConfigRevision.class));
-        inOrder.verify(fileWriter).writeToConfigXmlFile(any(String.class));
+        inOrder.verify(configRepository).checkin(any());
+        inOrder.verify(fileWriter).writeToConfigXmlFile(any());
         inOrder.verify(cachedGoPartials).markAsValid(partials);
     }
 }

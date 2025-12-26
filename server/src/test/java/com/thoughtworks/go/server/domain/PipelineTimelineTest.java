@@ -239,7 +239,7 @@ public class PipelineTimelineTest {
         doAnswer(invocationOnMock -> {
             transactionSynchronization = (TransactionSynchronization) invocationOnMock.getArguments()[0];
             return null;
-        }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
+        }).when(transactionSynchronizationManager).registerSynchronization(any());
     }
 
     private void setupTransactionTemplateStub(final int status, final boolean restub) {

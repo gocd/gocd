@@ -135,7 +135,7 @@ public class ExternalArtifactsServiceTest {
         ArtifactStore artifactStore = mock(ArtifactStore.class);
         when(artifactStore.getPluginId()).thenReturn(pluginId);
 
-        when(artifactExtension.validatePluggableArtifactConfig(any(String.class), any())).thenReturn(validationResult);
+        when(artifactExtension.validatePluggableArtifactConfig(any(), any())).thenReturn(validationResult);
 
         externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore, true);
 

@@ -41,14 +41,14 @@ public class PackageDefinitionCreatorTest {
     @BeforeEach
     public void setup() {
         packageDefinitionService = mock(PackageDefinitionService.class);
-        doNothing().when(packageDefinitionService).performPluginValidationsFor(any(PackageDefinition.class));
+        doNothing().when(packageDefinitionService).performPluginValidationsFor(any());
 
         cruiseConfig = mock(BasicCruiseConfig.class);
         packageRepository = PackageRepositoryMother.create(repoId);
         packageDefinition = PackageDefinitionMother.create(pkgId);
         packageRepository.addPackage(packageDefinition);
         when(cruiseConfig.getPackageRepositories()).thenReturn(new PackageRepositories(packageRepository));
-        doNothing().when(cruiseConfig).savePackageDefinition(any(PackageDefinition.class));
+        doNothing().when(cruiseConfig).savePackageDefinition(any());
     }
 
     @Test
@@ -61,8 +61,8 @@ public class PackageDefinitionCreatorTest {
         assertThat(newPackageDefinition.getName()).isEqualTo(pkgName);
         assertThat(newPackageDefinition.getRepository()).isEqualTo(packageRepository);
 
-        verify(packageDefinitionService).performPluginValidationsFor(any(PackageDefinition.class));
-        verify(cruiseConfig).savePackageDefinition(any(PackageDefinition.class));
+        verify(packageDefinitionService).performPluginValidationsFor(any());
+        verify(cruiseConfig).savePackageDefinition(any());
     }
 
     @Test

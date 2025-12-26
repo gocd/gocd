@@ -71,7 +71,7 @@ public class InternalMaterialModificationsControllerV1 extends ApiController imp
         String fingerprint = request.params("fingerprint");
         long after = afterCursor(request);
         long before = beforeCursor(request);
-        Integer pageSize = getPageSize(request);
+        int pageSize = getPageSize(request);
         String pattern = request.queryParamOrDefault("pattern", "");
 
         HttpOperationResult result = new HttpOperationResult();

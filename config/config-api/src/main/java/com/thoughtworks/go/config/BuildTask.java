@@ -17,23 +17,25 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.util.FilenameUtil;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 public abstract class BuildTask extends AbstractTask implements CommandTask {
+    public static final String BUILD_FILE = "buildFile";
+    public static final String TARGET = "target";
+    public static final String WORKING_DIRECTORY = "workingDirectory";
+
     @ConfigAttribute(value = "buildfile", allowNull = true)
     protected String buildFile;
     @ConfigAttribute(value = "target", allowNull = true)
     protected String target;
     @ConfigAttribute(value = "workingdir", allowNull = true)
     protected String workingDirectory;
-    public static final String BUILD_FILE = "buildFile";
-    public static final String TARGET = "target";
-    public static final String WORKING_DIRECTORY = "workingDirectory";
 
     public void setBuildFile(String buildFile) {
         this.buildFile = buildFile;
@@ -62,18 +64,17 @@ public abstract class BuildTask extends AbstractTask implements CommandTask {
 
     @Override
     public String describe() {
-        List<String> description = new ArrayList<>();
-        description.add(command());
+        StringBuilder description = new StringBuilder(command());
 
-        if (!"".equals(arguments())) {
-            description.add(arguments());
+        String arguments = arguments();
+        if (!arguments.isEmpty()) {
+            description.append(' ').append(arguments);
         }
 
         if (null != workingDirectory()) {
-            description.add(String.format("(workingDirectory: %s)", workingDirectory()));
+            description.append(" (workingDirectory: ").append(workingDirectory()).append(")");
         }
-
-        return StringUtils.join(description, " ");
+        return description.toString();
     }
 
     @Override
@@ -86,7 +87,7 @@ public abstract class BuildTask extends AbstractTask implements CommandTask {
 
     protected String inferValueFromMap(Map<String, ?> attributeMap, String key) {
         String value = null;
-        if (attributeMap.containsKey(key) && !StringUtils.isBlank((String) attributeMap.get(key))) {
+        if (attributeMap.containsKey(key) && !isBlank((String) attributeMap.get(key))) {
             value = (String) attributeMap.get(key);
         }
         return value;
@@ -142,13 +143,13 @@ public abstract class BuildTask extends AbstractTask implements CommandTask {
     @Override
     public List<TaskProperty> getPropertiesForDisplay() {
         List<TaskProperty> taskProperties = new ArrayList<>();
-        if (!StringUtils.isBlank(buildFile)) {
+        if (!isBlank(buildFile)) {
             taskProperties.add(new TaskProperty("Build File", buildFile));
         }
-        if (!StringUtils.isBlank(target)) {
+        if (!isBlank(target)) {
             taskProperties.add(new TaskProperty("Target", target));
         }
-        if (!StringUtils.isBlank(workingDirectory)) {
+        if (!isBlank(workingDirectory)) {
             taskProperties.add(new TaskProperty("Working Directory", workingDirectory));
         }
         return taskProperties;

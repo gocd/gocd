@@ -223,6 +223,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
         return match;
     }
 
+    @SuppressWarnings("unused") // used by spring scheduler
     public void onTimer() {
         if (maintenanceModeService.isMaintenanceMode()) {
             LOGGER.debug("[Maintenance Mode] GoCD server is in 'maintenance' mode, skip checking build assignments");
@@ -247,12 +248,12 @@ public class BuildAssignmentService implements ConfigChangedListener {
     }
 
     @Override
-    public void onConfigChange(CruiseConfig newCruiseConfig) {
+    public void onConfigChange(CruiseConfig cruiseConfig) {
         LOGGER.info("[Configuration Changed] Removing jobs for pipelines that no longer exist in configuration.");
         synchronized (this) {
             List<JobPlan> jobsToRemove = new ArrayList<>();
             for (JobPlan jobPlan : jobPlans) {
-                if (!newCruiseConfig.hasBuildPlan(new CaseInsensitiveString(jobPlan.getPipelineName()), new CaseInsensitiveString(jobPlan.getStageName()), jobPlan.getName(), true)) {
+                if (!cruiseConfig.hasBuildPlan(new CaseInsensitiveString(jobPlan.getPipelineName()), new CaseInsensitiveString(jobPlan.getStageName()), jobPlan.getName(), true)) {
                     jobsToRemove.add(jobPlan);
                 }
             }
@@ -260,8 +261,8 @@ public class BuildAssignmentService implements ConfigChangedListener {
         }
     }
 
-    private void removeJobIfNotPresentInCruiseConfig(CruiseConfig newCruiseConfig, JobPlan jobPlan) {
-        if (!newCruiseConfig.hasBuildPlan(new CaseInsensitiveString(jobPlan.getPipelineName()), new CaseInsensitiveString(jobPlan.getStageName()), jobPlan.getName(), true)) {
+    private void removeJobIfNotPresentInCruiseConfig(CruiseConfig cruiseConfig, JobPlan jobPlan) {
+        if (!cruiseConfig.hasBuildPlan(new CaseInsensitiveString(jobPlan.getPipelineName()), new CaseInsensitiveString(jobPlan.getStageName()), jobPlan.getName(), true)) {
             removeJob(jobPlan);
         }
     }

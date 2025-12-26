@@ -256,7 +256,7 @@ public class PipelineWithTwoStages {
         }
     }
 
-    public Integer pipelineCounter() {
+    public int pipelineCounter() {
         return dbHelper.getPipelineDao().mostRecentPipeline(pipelineName).getCounter();
     }
 

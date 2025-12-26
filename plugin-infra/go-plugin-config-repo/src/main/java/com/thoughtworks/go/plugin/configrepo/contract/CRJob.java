@@ -166,7 +166,7 @@ public class CRJob extends CRBase {
         if (runInstanceCount == null) {
             return null;
         }
-        return Integer.parseInt(runInstanceCount);
+        return Integer.valueOf(runInstanceCount);
     }
 
     public void setRunInstanceCount(int runInstanceCount) {

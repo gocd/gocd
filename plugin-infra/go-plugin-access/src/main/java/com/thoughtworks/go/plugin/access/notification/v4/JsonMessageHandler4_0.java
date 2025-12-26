@@ -21,7 +21,6 @@ import com.thoughtworks.go.plugin.access.notification.DataConverter;
 import com.thoughtworks.go.plugin.access.notification.JsonMessageHandler;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +80,7 @@ public class JsonMessageHandler4_0 implements JsonMessageHandler {
         if (data instanceof AgentNotificationData) {
             return new AgentConverter((AgentNotificationData) data);
         }
-        throw new NotImplementedException(String.format("Converter for %s not supported", data.getClass().getCanonicalName()));
+        throw new UnsupportedOperationException(String.format("Converter for %s not supported", data.getClass().getCanonicalName()));
     }
 
     @Override

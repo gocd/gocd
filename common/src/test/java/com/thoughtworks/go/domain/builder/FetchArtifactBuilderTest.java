@@ -161,8 +161,8 @@ public class FetchArtifactBuilderTest {
 
         builder.fetch(downloadAction, urlService);
 
-        verify(downloadAction).perform(eq("http://foo.bar:8153/go/files/foo/label-1/dev/1/linux/cruise-output/md5.checksum"), any(FetchHandler.class));
-        verify(downloadAction).perform(eq("http://foo.bar:8153/go/remoting/files/foo/label-1/dev/1/linux/cruise-output/console.log?sha1=2jmj7l5rSw0yVb%2FvlWAYkK%2FYBwk%3D"), any(FileHandler.class));
+        verify(downloadAction).perform(eq("http://foo.bar:8153/go/files/foo/label-1/dev/1/linux/cruise-output/md5.checksum"), any());
+        verify(downloadAction).perform(eq("http://foo.bar:8153/go/remoting/files/foo/label-1/dev/1/linux/cruise-output/console.log?sha1=2jmj7l5rSw0yVb%2FvlWAYkK%2FYBwk%3D"), any());
         verifyNoMoreInteractions(downloadAction);
     }
 

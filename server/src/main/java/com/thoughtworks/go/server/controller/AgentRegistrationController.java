@@ -24,7 +24,6 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.apache.commons.codec.digest.HmacUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +45,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.remote.StandardHeaders.*;
 import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES;
+import static java.lang.String.join;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -287,14 +287,14 @@ public class AgentRegistrationController {
 
     private String getErrorMessage(Exception e) {
         if (e instanceof GoConfigInvalidException exception) {
-            return StringUtils.join(exception.getAllErrors(), ", ");
+            return join(", ", exception.getAllErrors());
         }
         return e.getMessage();
     }
 
     @RequestMapping(value = "/admin/agent/token", method = RequestMethod.GET)
     public ResponseEntity<String> getToken(@RequestParam("uuid") String uuid) {
-        if (StringUtils.isBlank(uuid)) {
+        if (isBlank(uuid)) {
             String message = "UUID cannot be blank.";
             LOG.error("Rejecting request for token. Error: HttpCode=[{}] Message=[{}] UUID=[{}]", CONFLICT, message, uuid);
             return new ResponseEntity<>(message, CONFLICT);

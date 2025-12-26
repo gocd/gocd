@@ -60,7 +60,7 @@ public class DependencyMaterialUpdater implements MaterialUpdater {
     }
 
     private void insertRevisionsForParentStagesAfter(DependencyMaterial dependencyMaterial, Modifications list) {
-        Pagination pagination = Pagination.pageStartingAt(0, null, MaterialDatabaseUpdater.STAGES_PER_PAGE);
+        Pagination pagination = Pagination.pageByOffsetUnknownTotal(0, MaterialDatabaseUpdater.STAGES_PER_PAGE);
         List<Modification> modifications;
         do {
             modifications = dependencyMaterialSourceDao.getPassedStagesAfter(list.last().getRevision(), dependencyMaterial, pagination);
@@ -68,12 +68,12 @@ public class DependencyMaterialUpdater implements MaterialUpdater {
                 MaterialRevision revision = new MaterialRevision(dependencyMaterial, modification);
                 materialRepository.saveMaterialRevision(revision);
             }
-            pagination = Pagination.pageStartingAt(pagination.getOffset() + pagination.getPageSize(), null, pagination.getPageSize());
+            pagination = Pagination.pageByOffsetUnknownTotal(pagination.getOffset() + pagination.getPageSize(), pagination.getPageSize());
         } while (!modifications.isEmpty());
     }
 
     private void insertRevisionsForAllParentStageInstances(DependencyMaterial dependencyMaterial) {
-        Pagination pagination = Pagination.pageStartingAt(0, null, MaterialDatabaseUpdater.STAGES_PER_PAGE);
+        Pagination pagination = Pagination.pageByOffsetUnknownTotal(0, MaterialDatabaseUpdater.STAGES_PER_PAGE);
         List<Modification> modifications;
         do {
             modifications = dependencyMaterialSourceDao.getPassedStagesByName(dependencyMaterial, pagination);
@@ -81,7 +81,7 @@ public class DependencyMaterialUpdater implements MaterialUpdater {
                 MaterialRevision revision = new MaterialRevision(dependencyMaterial, modification);
                 materialRepository.saveMaterialRevision(revision);
             }
-            pagination = Pagination.pageStartingAt(pagination.getOffset() + pagination.getPageSize(), null, pagination.getPageSize());
+            pagination = Pagination.pageByOffsetUnknownTotal(pagination.getOffset() + pagination.getPageSize(), pagination.getPageSize());
         } while (!modifications.isEmpty());
     }
 }

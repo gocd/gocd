@@ -47,7 +47,7 @@ public class AutoBuildTriangleDependencyTest {
         pipelineService = mock(PipelineService.class);
         materialChecker = mock(MaterialChecker.class);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(materialChecker.hasPipelineEverRunWith(any(String.class), any(MaterialRevisions.class))).thenReturn(false);
+        when(materialChecker.hasPipelineEverRunWith(any(), any())).thenReturn(false);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class AutoBuildTriangleDependencyTest {
         BuildCause buildCause = spyAutoBuild.onModifications(originalRevisions, false, null);
 
         verify(pipelineService).getRevisionsBasedOnDependencies(dependencyGraph, originalRevisions);
-        verify(pipelineService, never()).getRevisionsBasedOnDependencies(any(MaterialRevisions.class), any(BasicCruiseConfig.class), any(CaseInsensitiveString.class));
+        verify(pipelineService, never()).getRevisionsBasedOnDependencies(any(), any(), any());
         assertThat(buildCause.getMaterialRevisions()).isEqualTo(recomputedRevisions);
     }
 }

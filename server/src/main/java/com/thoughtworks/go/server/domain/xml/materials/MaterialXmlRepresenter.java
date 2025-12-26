@@ -31,10 +31,10 @@ import org.dom4j.dom.DOMElement;
 
 public abstract class MaterialXmlRepresenter implements XmlRepresentable {
     private final String pipelineName;
-    private final Integer pipelineCounter;
+    private final int pipelineCounter;
     protected final MaterialRevision materialRevision;
 
-    public MaterialXmlRepresenter(String pipelineName, Integer pipelineCounter, MaterialRevision materialRevision) {
+    public MaterialXmlRepresenter(String pipelineName, int pipelineCounter, MaterialRevision materialRevision) {
         this.pipelineName = pipelineName;
         this.pipelineCounter = pipelineCounter;
         this.materialRevision = materialRevision;
@@ -55,7 +55,7 @@ public abstract class MaterialXmlRepresenter implements XmlRepresentable {
 
     protected abstract void populateModification(ElementBuilder builder, Modification modification, XmlWriterContext ctx);
 
-    public static MaterialXmlRepresenter representerFor(String pipelineName, Integer pipelineCounter, MaterialRevision revision) {
+    public static MaterialXmlRepresenter representerFor(String pipelineName, int pipelineCounter, MaterialRevision revision) {
         Material material = revision.getMaterial();
         if (material instanceof ScmMaterial || material instanceof PluggableSCMMaterial) {
             return new ScmMaterialXmlRepresenter(pipelineName, pipelineCounter, revision);

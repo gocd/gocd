@@ -17,9 +17,10 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.ResourceConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 public class Resources extends BaseCollection<Resource> {
 
@@ -29,7 +30,7 @@ public class Resources extends BaseCollection<Resource> {
     public Resources(String commaSeparatedResources) {
         final String[] resourceArray = commaSeparatedResources.split(",");
         for (String resource : resourceArray) {
-            final String name = StringUtils.trimToNull(resource);
+            final String name = trimToNull(resource);
 
             if (name == null) {
                 continue;

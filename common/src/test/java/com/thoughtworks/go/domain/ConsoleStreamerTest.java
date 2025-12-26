@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain;
 
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -24,6 +23,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.String.join;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ConsoleStreamerTest {
@@ -85,7 +85,7 @@ public class ConsoleStreamerTest {
         File console = File.createTempFile("console", ".log");
         console.deleteOnExit();
 
-        Files.write(console.toPath(), StringUtils.join(message, "\n").getBytes());
+        Files.writeString(console.toPath(), join("\n", message));
         return console;
     }
 

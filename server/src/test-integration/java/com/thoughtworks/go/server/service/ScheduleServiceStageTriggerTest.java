@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
-import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.fixture.SchedulerFixture;
@@ -30,9 +29,7 @@ import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.StageStatusListener;
-import com.thoughtworks.go.server.messaging.JobResultMessage;
 import com.thoughtworks.go.server.messaging.JobResultTopic;
-import com.thoughtworks.go.server.messaging.StageStatusMessage;
 import com.thoughtworks.go.server.messaging.StageStatusTopic;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -89,7 +86,6 @@ public class ScheduleServiceStageTriggerTest {
     @Autowired private ServerHealthService serverHealthService;
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private StageStatusCache stageStatusCache;
-    @Autowired private JobStatusCache jobStatusCache;
     @Autowired private ChangesetService changesetService;
     @Autowired private TransactionSynchronizationManager transactionSynchronizationManager;
     @Autowired private GoCache goCache;
@@ -246,7 +242,7 @@ public class ScheduleServiceStageTriggerTest {
         StageOrderService stageOrderService = mock(StageOrderService.class);
         SchedulingPerformanceLogger schedulingPerformanceLogger = mock(SchedulingPerformanceLogger.class);
         scheduleService = new ScheduleService(goConfigService, pipelineService, stageService, schedulingCheckerService, pipelineDao, stageDao,
-                stageOrderService, securityService, pipelineScheduleQueue, this.jobInstanceService, jobInstanceDao, agentAssignment, environmentConfigService, pipelineLockService, serverHealthService,
+                stageOrderService, securityService, pipelineScheduleQueue, jobInstanceService, jobInstanceDao, agentAssignment, environmentConfigService, pipelineLockService, serverHealthService,
                 transactionTemplate, null, transactionSynchronizationManager, null, null, null, null, schedulingPerformanceLogger, null, null);
 
         try {
@@ -255,15 +251,15 @@ public class ScheduleServiceStageTriggerTest {
             //ignore
         }
 
-        verify(stageStatusTopic, never()).post(any(StageStatusMessage.class));
-        verify(jobResultTopic, never()).post(any(JobResultMessage.class));
-        verify(stageStatusListener, never()).stageStatusChanged(any(Stage.class));
+        verify(stageStatusTopic, never()).post(any());
+        verify(jobResultTopic, never()).post(any());
+        verify(stageStatusListener, never()).stageStatusChanged(any());
     }
 
     private JobInstanceService jobInstanceService(JobResultTopic jobResultTopic) {
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
         when(serverHealthService.logsSorted()).thenReturn(new ServerHealthStates());
-        return new JobInstanceService(jobInstanceDao, jobResultTopic, jobStatusCache, transactionTemplate,
+        return new JobInstanceService(jobInstanceDao, jobResultTopic, transactionTemplate,
                 transactionSynchronizationManager, null, null, goConfigService, null, serverHealthService);
     }
 
@@ -300,9 +296,9 @@ public class ScheduleServiceStageTriggerTest {
             //ignore
         }
 
-        verify(stageStatusTopic, never()).post(any(StageStatusMessage.class));
-        verify(jobResultTopic, never()).post(any(JobResultMessage.class));
-        verify(stageStatusListener, never()).stageStatusChanged(any(Stage.class));
+        verify(stageStatusTopic, never()).post(any());
+        verify(jobResultTopic, never()).post(any());
+        verify(stageStatusListener, never()).stageStatusChanged(any());
     }
 
     @Test

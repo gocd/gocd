@@ -278,9 +278,9 @@ public class StageConfigTest {
         EnvironmentVariablesConfig variables = mock(EnvironmentVariablesConfig.class);
         JobConfigs jobConfigs = mock(JobConfigs.class);
         Approval approval = mock(Approval.class);
-        when(variables.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
-        when(jobConfigs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
-        when(approval.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
+        when(variables.validateTree(any())).thenReturn(true);
+        when(jobConfigs.validateTree(any())).thenReturn(true);
+        when(approval.validateTree(any())).thenReturn(true);
 
         StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("p1"), jobConfigs);
         stageConfig.setVariables(variables);
@@ -289,9 +289,9 @@ public class StageConfigTest {
         boolean isValid = stageConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig(), stageConfig));
         assertThat(isValid).isTrue();
 
-        verify(jobConfigs).validateTree(any(PipelineConfigSaveValidationContext.class));
-        verify(variables).validateTree(any(PipelineConfigSaveValidationContext.class));
-        verify(approval).validateTree(any(PipelineConfigSaveValidationContext.class));
+        verify(jobConfigs).validateTree(any());
+        verify(variables).validateTree(any());
+        verify(approval).validateTree(any());
     }
 
     @Test
@@ -299,9 +299,9 @@ public class StageConfigTest {
         EnvironmentVariablesConfig variables = mock(EnvironmentVariablesConfig.class);
         JobConfigs jobConfigs = mock(JobConfigs.class);
         Approval approval = mock(Approval.class);
-        when(variables.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
-        when(jobConfigs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
-        when(approval.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
+        when(variables.validateTree(any())).thenReturn(false);
+        when(jobConfigs.validateTree(any())).thenReturn(false);
+        when(approval.validateTree(any())).thenReturn(false);
 
         StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("p1"), jobConfigs);
         stageConfig.setVariables(variables);
@@ -310,9 +310,9 @@ public class StageConfigTest {
         boolean isValid = stageConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig(), stageConfig));
         assertThat(isValid).isFalse();
 
-        verify(jobConfigs).validateTree(any(PipelineConfigSaveValidationContext.class));
-        verify(variables).validateTree(any(PipelineConfigSaveValidationContext.class));
-        verify(approval).validateTree(any(PipelineConfigSaveValidationContext.class));
+        verify(jobConfigs).validateTree(any());
+        verify(variables).validateTree(any());
+        verify(approval).validateTree(any());
 
     }
 }

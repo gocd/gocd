@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 
 public class Boot {
     private static final Predicate<JarEntry> FIND_JAR_FILES_UNDER_LIB_FOLDER = jarEntry -> jarEntry.getName().startsWith("lib/") && jarEntry.getName().endsWith(".jar");
+    private static final String JAR_ATTRIBUTE_GOCD_MAIN_CLASS = "GoCD-Main-Class";
 
     private final String[] args;
 
@@ -49,7 +50,7 @@ public class Boot {
         log("           Java Version: " + System.getProperty("java.version"));
         log("       Operating System: " + System.getProperty("os.name") + "(" + System.getProperty("os.version") + ")");
         if (shouldLogJVMArgsAndEnvVars()) {
-            log("  JVM arguments        : " + jvmArgs());
+            log("          JVM arguments: " + jvmArgs());
             log("         JVM properties: " + System.getProperties());
             log("  Environment Variables: " + System.getenv());
         }
@@ -117,16 +118,7 @@ public class Boot {
         }
     }
 
-    static String mainClassName(JarFile jarFile) throws IOException {
-        // allow overriding the main class name, used by OSX installers
-        if (System.getProperty("jar-class-loader.main.class") == null) {
-            return defaultMainClassName(jarFile);
-        } else {
-            return System.getProperty("jar-class-loader.main.class");
-        }
-    }
-
-    private static String defaultMainClassName(JarFile jarFile) throws IOException {
-        return jarFile.getManifest().getMainAttributes().getValue("GoCD-Main-Class");
+    private static String mainClassName(JarFile jarFile) throws IOException {
+        return jarFile.getManifest().getMainAttributes().getValue(JAR_ATTRIBUTE_GOCD_MAIN_CLASS);
     }
 }

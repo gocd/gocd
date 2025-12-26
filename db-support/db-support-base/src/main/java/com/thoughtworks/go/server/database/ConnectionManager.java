@@ -58,20 +58,30 @@ public class ConnectionManager {
     }
 
     private BasicDataSource createDataSource() {
+
         final DbProperties dbProperties = getDbProperties();
-        BasicDataSource basicDataSource = new BasicDataSource();
+        BasicDataSource basicDataSource = isDefaultH2Database(dbProperties)
+            ? DefaultH2DataSource.forBasicConnection(dbProperties)
+            : forGenericBasicConnection(dbProperties);
 
-        if (dbProperties.url().isBlank()) {
-            return DefaultH2DataSource.defaultH2DataSource(basicDataSource, dbProperties);
-        }
+        // Set pool behaviour
+        basicDataSource.setMaxIdle(dbProperties.maxIdle());
+        basicDataSource.setMaxTotal(dbProperties.maxTotal());
 
+        return basicDataSource;
+    }
+
+    private static boolean isDefaultH2Database(DbProperties dbProperties) {
+        return dbProperties.url().isBlank();
+    }
+
+    private static BasicDataSource forGenericBasicConnection(DbProperties dbProperties) {
+        BasicDataSource basicDataSource;
+        basicDataSource = new BasicDataSource();
         basicDataSource.setDriverClassName(dbProperties.driver());
         basicDataSource.setUrl(dbProperties.url());
         basicDataSource.setUsername(dbProperties.user());
         basicDataSource.setPassword(dbProperties.password());
-
-        basicDataSource.setMaxTotal(dbProperties.maxTotal());
-        basicDataSource.setMaxIdle(dbProperties.maxIdle());
         basicDataSource.setConnectionProperties(dbProperties.connectionPropertiesAsString());
         return basicDataSource;
     }

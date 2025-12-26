@@ -25,7 +25,6 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -34,6 +33,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.escapeEnvironmentVariable;
+import static org.apache.commons.lang3.StringUtils.*;
 
 
 /**
@@ -71,7 +71,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
     }
 
     public String updatingTarget() {
-        return StringUtils.isEmpty(getFolder()) ? "files" : getFolder();
+        return isEmpty(getFolder()) ? "files" : getFolder();
     }
 
     @Override
@@ -79,7 +79,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
         json.put("folder", getFolder() == null ? "" : getFolder());
         json.put("scmType", getTypeForDisplay());
         json.put("location", getLocation());
-        if (!CaseInsensitiveString.isBlank(getName())) {
+        if (!CaseInsensitiveString.isEmpty(getName())) {
             json.put("materialName", CaseInsensitiveString.str(getName()));
         }
         json.put("action", "Modified");
@@ -120,13 +120,13 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
     }
 
     private void setPasswordIfNotBlank(String password) {
-        this.password = StringUtils.stripToNull(password);
+        this.password = stripToNull(password);
         this.secretParamsForPassword = SecretParams.parse(password);
     }
 
     @PostConstruct
     public void ensureEncrypted() {
-        this.userName = StringUtils.stripToNull(this.userName);
+        this.userName = stripToNull(this.userName);
         setPasswordIfNotBlank(password);
     }
 
@@ -207,7 +207,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
 
     protected void setVariableWithName(EnvironmentVariableContext environmentVariableContext, String value, String propertyName) {
         String materialNameForEnvironmentVariable = getMaterialNameForEnvironmentVariable();
-        if (StringUtils.isNotBlank(materialNameForEnvironmentVariable)) {
+        if (isNotBlank(materialNameForEnvironmentVariable)) {
             environmentVariableContext.setProperty(propertyName + "_" + materialNameForEnvironmentVariable, value, false);
         } else {
             environmentVariableContext.setProperty(propertyName, value, false);
@@ -216,7 +216,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
 
     @Override
     public String getMaterialNameForEnvironmentVariable() {
-        if (!CaseInsensitiveString.isBlank(this.name)) {
+        if (!CaseInsensitiveString.isEmpty(this.name)) {
             return escapeEnvironmentVariable(this.name.toUpper());
         }
 

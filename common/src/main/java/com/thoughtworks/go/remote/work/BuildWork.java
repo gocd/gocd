@@ -41,6 +41,7 @@ import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -49,6 +50,7 @@ import static java.lang.String.format;
 
 public class BuildWork implements Work {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildWork.class);
+    private static final JobIdentifier INVALID_IDENTIFIER = new JobIdentifier("Unknown", 0, "Unknown", "Unknown", "Unknown", "Unknown", -1L);
 
     private final BuildAssignment assignment;
 
@@ -238,10 +240,7 @@ public class BuildWork implements Work {
     }
 
     public JobIdentifier identifierForLogging() {
-        if (assignment == null || assignment.getJobIdentifier() == null) {
-            return JobIdentifier.invalidIdentifier("Unknown", "Unknown", "Unknown", "Unknown", "Unknown");
-        }
-        return assignment.getJobIdentifier();
+        return Optional.ofNullable(assignment).map(BuildAssignment::getJobIdentifier).orElse(INVALID_IDENTIFIER);
     }
 
     @Override

@@ -43,7 +43,6 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -69,6 +68,7 @@ import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static com.thoughtworks.go.util.TestUtils.doInterruptiblyQuietly;
 import static com.thoughtworks.go.util.TriState.*;
 import static java.lang.String.format;
+import static java.lang.String.join;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
@@ -745,7 +745,7 @@ public class AgentServiceIntegrationTest {
 
             BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, resourcesToAdd, emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
 
-            assertThat(e.getMessage()).isEqualTo("Resources on elastic agents with uuids [" + StringUtils.join(uuids, ", ") + "] can not be updated.");
+            assertThat(e.getMessage()).isEqualTo("Resources on elastic agents with uuids [" + join(", ", uuids) + "] can not be updated.");
             assertThat(agentService.findAgent(elasticAgent.getUuid()).getResourceNames()).isEmpty();
         }
 

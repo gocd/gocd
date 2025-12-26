@@ -56,7 +56,7 @@ public class ConsoleOutputTransmitterTest {
 
         transmitter.flushToServer();
 
-        verify(consoleAppender).append(any(String.class));
+        verify(consoleAppender).append(any());
         assertThat(requestArgumentCaptor.getValue()).contains("first line\n");
         assertThat(requestArgumentCaptor.getValue()).contains("second line\n");
     }
@@ -65,6 +65,6 @@ public class ConsoleOutputTransmitterTest {
     public void shouldNotFlushToServerWhenBufferIsEmpty() throws Exception {
         transmitter.flushToServer();
 
-        verify(consoleAppender, never()).append(any(String.class));
+        verify(consoleAppender, never()).append(any());
     }
 }

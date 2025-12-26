@@ -288,7 +288,7 @@ public class StageInstanceModel implements StageConfigurationModel {
         return identifier.getPipelineName();
     }
 
-    public Integer getPipelineCounter() {
+    public int getPipelineCounter() {
         return identifier.getPipelineCounter();
     }
 

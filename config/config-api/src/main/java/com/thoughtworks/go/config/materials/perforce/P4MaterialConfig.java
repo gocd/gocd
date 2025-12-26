@@ -19,11 +19,12 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.Map;
 import java.util.Objects;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @ConfigTag(value = "p4", label = "Perforce")
 public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordAwareMaterial {
@@ -126,7 +127,7 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         if (getView() == null || getView().trim().isEmpty()) {
             errors.add(VIEW, "P4 view cannot be empty.");
         }
-        if (StringUtils.isBlank(getServerAndPort())) {
+        if (isBlank(getServerAndPort())) {
             errors.add(SERVER_AND_PORT, "P4 port cannot be empty.");
         }
 

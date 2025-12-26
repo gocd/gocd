@@ -34,11 +34,12 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.SafeOutputStreamConsumer;
 import com.thoughtworks.go.work.DefaultGoPublisher;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.Map;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * This class is serialized and sent over wire to agents.
@@ -112,7 +113,7 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
     private Property getExecProperty(TaskConfig defaultConfig, Property property) {
         String key = property.getKey();
         String configValue = pluginConfig.get(key) == null ? null : pluginConfig.get(key).get(PluggableTask.VALUE_KEY);
-        return StringUtils.isBlank(configValue) ? defaultConfig.get(key) : new TaskConfigProperty(key, configValue);
+        return isBlank(configValue) ? defaultConfig.get(key) : new TaskConfigProperty(key, configValue);
     }
 
 }

@@ -16,11 +16,11 @@
 package com.thoughtworks.go.server.cache;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CacheKeyGenerator {
     private static final String DELIMITER = ".$";
@@ -30,24 +30,27 @@ public class CacheKeyGenerator {
         this.clazz = clazz;
     }
 
-    public String generate(String identifier, Object... args) {
-        final List<Object> allArgs = Arrays.stream(args).map(arg -> {
-            if (isAllowed(arg)) {
-                return arg;
-            }
-            throw new IllegalArgumentException("Type " + arg.getClass() + " is not allowed here!");
-        }).map(arg -> {
-            if (arg instanceof CaseInsensitiveString) {
-                return ((CaseInsensitiveString) arg).toLower();
-            } else {
-                return arg;
-            }
-        }).collect(Collectors.toList());
+    public @NotNull String generate(@NotNull String identifier, Object... args) {
+        return Stream.concat(
+                Stream.of(clazz.getName(), identifier),
+                Arrays.stream(args).map(CacheKeyGenerator::validateArg).map(CacheKeyGenerator::toString))
+            .collect(Collectors.joining(DELIMITER))
+            .intern();
+    }
 
-        allArgs.add(0, clazz.getName());
-        allArgs.add(1, identifier);
+    private static String toString(Object arg) {
+        if (arg instanceof CaseInsensitiveString) {
+            return ((CaseInsensitiveString) arg).toLower();
+        } else {
+            return arg == null ? "" : arg.toString();
+        }
+    }
 
-        return StringUtils.join(allArgs, DELIMITER).intern();
+    private static Object validateArg(Object arg) {
+        if (isAllowed(arg)) {
+            return arg;
+        }
+        throw new IllegalArgumentException("Type " + arg.getClass() + " is not allowed here!");
     }
 
     private static boolean isAllowed(Object arg) {

@@ -611,7 +611,7 @@ public class ValueStreamMapServiceTest {
         VSMTestHelper.assertNodeHasRevisions(graph, new CaseInsensitiveString("p3"), new PipelineRevision("p3", 1, "LABEL-P3"));
         VSMTestHelper.assertSCMNodeHasMaterialRevisions(graph, new CaseInsensitiveString(git.getFingerprint()), new MaterialRevision(git, false, modifications));
 
-        verify(runStagesPopulator).apply(ArgumentMatchers.any(ValueStreamMap.class));
+        verify(runStagesPopulator).apply(ArgumentMatchers.any());
     }
 
     @Test
@@ -647,7 +647,7 @@ public class ValueStreamMapServiceTest {
 
         VSMTestHelper.assertSCMNodeHasMaterialRevisions(graph, new CaseInsensitiveString(git.getFingerprint()), new MaterialRevision(git, false, gitModifications));
 
-        verify(runStagesPopulator).apply(ArgumentMatchers.any(ValueStreamMap.class));
+        verify(runStagesPopulator).apply(ArgumentMatchers.any());
     }
 
     @Test
@@ -688,7 +688,7 @@ public class ValueStreamMapServiceTest {
                 new MaterialRevision(git, false, modification1, modification2),
                 new MaterialRevision(git, false, modification3));
 
-        verify(runStagesPopulator).apply(ArgumentMatchers.any(ValueStreamMap.class));
+        verify(runStagesPopulator).apply(ArgumentMatchers.any());
     }
 
     @Test

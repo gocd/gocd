@@ -33,7 +33,7 @@ public class PipelineInstanceModel implements PipelineInfo {
     private BuildCause buildCause;
     private StageInstanceModels stageHistory;
     protected boolean canRun;
-    private Integer counter;
+    private int counter;
     private MaterialRevisions latest = new MaterialRevisions();
     private MaterialConfigs materialConfigs = new MaterialConfigs();
     protected boolean isPreparingToSchedule;
@@ -52,7 +52,7 @@ public class PipelineInstanceModel implements PipelineInfo {
         stageHistory = new StageInstanceModels();
     }
 
-    public PipelineInstanceModel(String name, Integer counter, String label, BuildCause buildCause, StageInstanceModels stageHistory) {
+    public PipelineInstanceModel(String name, int counter, String label, BuildCause buildCause, StageInstanceModels stageHistory) {
         this.name = name;
         this.counter = counter;
         this.label = label;
@@ -168,11 +168,11 @@ public class PipelineInstanceModel implements PipelineInfo {
         return buildCause.getMaterialRevisions().latestRevision();
     }
 
-    public Integer getCounter() {
+    public int getCounter() {
         return counter;
     }
 
-    public void setCounter(Integer counter) {
+    public void setCounter(int counter) {
         this.counter = counter;
     }
 
@@ -334,7 +334,8 @@ public class PipelineInstanceModel implements PipelineInfo {
         return new PreparingToScheduleInstance(name, stages);
     }
 
-    public static PipelineInstanceModel createPipeline(String name, Integer counter, String label, BuildCause buildCause, StageInstanceModels stageHistory) {
+    @TestOnly
+    public static PipelineInstanceModel createPipeline(String name, int counter, String label, BuildCause buildCause, StageInstanceModels stageHistory) {
         return new PipelineInstanceModel(name, counter, label, buildCause, stageHistory);
     }
 

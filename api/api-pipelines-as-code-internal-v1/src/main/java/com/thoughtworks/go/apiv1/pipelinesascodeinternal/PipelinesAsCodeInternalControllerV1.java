@@ -42,7 +42,6 @@ import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +61,7 @@ import java.util.function.Consumer;
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseOfReason;
 import static com.thoughtworks.go.spark.Routes.PaC.*;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
 
 @Component
@@ -277,7 +277,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
     private String requiredParam(final Request req, @SuppressWarnings("SameParameterValue") final String name) {
         String value = req.params(name);
 
-        if (StringUtils.isBlank(value)) {
+        if (isBlank(value)) {
             throw HaltApiResponses.haltBecauseRequiredParamMissing(name);
         }
 
@@ -287,7 +287,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
     private String requiredQueryParam(final Request req, @SuppressWarnings("SameParameterValue") final String name) {
         String value = req.queryParams(name);
 
-        if (StringUtils.isBlank(value)) {
+        if (isBlank(value)) {
             throw HaltApiResponses.haltBecauseRequiredParamMissing(name);
         }
 

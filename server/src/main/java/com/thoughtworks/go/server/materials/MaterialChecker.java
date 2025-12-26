@@ -25,20 +25,20 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * Understands how to retrieve changes on SCMs given a material
  */
 @Component
 public class MaterialChecker {
-    private MaterialRepository materialRepository;
+    private final MaterialRepository materialRepository;
 
     @Autowired
     public MaterialChecker(MaterialRepository materialRepository) {
@@ -46,7 +46,7 @@ public class MaterialChecker {
     }
 
     public MaterialRevision findSpecificRevision(Material material, String revision) {
-        if (StringUtils.isEmpty(revision)) {
+        if (isEmpty(revision)) {
             throw new RuntimeException(format("Revision was not specified for material [%s]", material));
         }
         Modification modification = materialRepository.findModificationWithRevision(material, revision);

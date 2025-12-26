@@ -20,11 +20,12 @@ import com.google.gson.annotations.SerializedName;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Getter
 @Setter
@@ -109,19 +110,10 @@ public class CREnvironment extends CRBase {
         this.pipelines.add(pipeline1);
     }
 
-    public String validateNameUniqueness(HashSet<String> keys) {
-        if (keys.contains(this.getName())) {
-            return String.format("Environment %s is defined more than once", this.getName());
-        } else {
-            keys.add(this.getName());
-        }
-        return null;
-    }
-
     @Override
     public String getLocation(String parent) {
-        return StringUtils.isBlank(location) ?
-                StringUtils.isBlank(name) ? String.format("Environment in %s", parent) :
+        return isBlank(location) ?
+                isBlank(name) ? String.format("Environment in %s", parent) :
                         String.format("Environment %s", name) : String.format("%s; Environment %s", location, name);
     }
 }

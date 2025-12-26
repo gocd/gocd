@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.presentation.pipelinehistory;
 
+import org.jetbrains.annotations.TestOnly;
+
 import java.util.Date;
 
 /**
@@ -23,6 +25,7 @@ import java.util.Date;
 public class NullStageHistoryItem extends StageInstanceModel {
     private final boolean autoApproved;
 
+    @TestOnly
     public NullStageHistoryItem(String name) {
         this(name, true);
     }
@@ -54,13 +57,6 @@ public class NullStageHistoryItem extends StageInstanceModel {
 
     @Override
     public String getApprovalTypeDescription() {
-        if (autoApproved) {
-            return "auto";
-        }
-        else {
-            return "manual";
-        }
+        return autoApproved ? "auto" : "manual";
     }
-
-
 }

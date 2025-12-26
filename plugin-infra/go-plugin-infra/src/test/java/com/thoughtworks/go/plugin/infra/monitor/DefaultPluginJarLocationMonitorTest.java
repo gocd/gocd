@@ -170,7 +170,7 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
     @Test
     void shouldNotifyListenerOfMultiplePluginFilesAddedEvenIfOneListenerThrowsAnException() throws Exception {
         PluginJarChangeListener exceptionRaisingListener = mock(PluginJarChangeListener.class);
-        doThrow(new RuntimeException("Dummy Listener Exception")).when(exceptionRaisingListener).pluginJarAdded(any(BundleOrPluginFileDetails.class));
+        doThrow(new RuntimeException("Dummy Listener Exception")).when(exceptionRaisingListener).pluginJarAdded(any());
         monitor.addPluginJarChangeListener(exceptionRaisingListener);
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();

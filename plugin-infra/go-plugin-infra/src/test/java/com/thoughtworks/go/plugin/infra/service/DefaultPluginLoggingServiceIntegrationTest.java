@@ -52,7 +52,7 @@ class DefaultPluginLoggingServiceIntegrationTest {
         this.plugins = new HashMap<>();
 
         systemEnvironment = mock(SystemEnvironment.class);
-        when(systemEnvironment.pluginLoggingLevel(any(String.class))).thenReturn(Level.INFO);
+        when(systemEnvironment.pluginLoggingLevel(any())).thenReturn(Level.INFO);
 
         pluginLoggingService = new DefaultPluginLoggingService(systemEnvironment);
     }

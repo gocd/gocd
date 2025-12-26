@@ -21,7 +21,7 @@ import com.thoughtworks.go.server.domain.xml.XmlWriterContext;
 import com.thoughtworks.go.server.domain.xml.builder.ElementBuilder;
 
 public class ScmMaterialXmlRepresenter extends MaterialXmlRepresenter {
-    public ScmMaterialXmlRepresenter(String pipelineName, Integer pipelineCounter, MaterialRevision materialRevision) {
+    public ScmMaterialXmlRepresenter(String pipelineName, int pipelineCounter, MaterialRevision materialRevision) {
         super(pipelineName, pipelineCounter, materialRevision);
     }
 

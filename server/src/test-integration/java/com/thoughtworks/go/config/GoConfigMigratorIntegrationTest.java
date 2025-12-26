@@ -42,7 +42,6 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.hibernate.Cache;
 import org.hibernate.SessionFactory;
@@ -68,6 +67,7 @@ import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -1019,7 +1019,7 @@ public class GoConfigMigratorIntegrationTest {
                     </cruise>""";
 
             final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml);
-            assertThat(StringUtils.isNotBlank(cruiseConfig.server().getTokenGenerationKey())).isTrue();
+            assertThat(isNotBlank(cruiseConfig.server().getTokenGenerationKey())).isTrue();
         } catch (Exception e) {
             System.err.println("jyoti singh: " + e.getMessage());
         }

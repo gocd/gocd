@@ -23,8 +23,7 @@ import com.thoughtworks.go.domain.materials.Revision;
  */
 public class EmptyPipelineInstanceModel extends PipelineInstanceModel {
     EmptyPipelineInstanceModel(String pipelineName, BuildCause withEmptyModifications, StageInstanceModels stageHistory) {
-        super(pipelineName, -1, "unknown", withEmptyModifications, stageHistory);
-        setCounter(0);
+        super(pipelineName, 0, "unknown", withEmptyModifications, stageHistory);
         setId(-1);
     }
 

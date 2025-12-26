@@ -387,7 +387,7 @@ class InstanceFactoryTest {
 
         SchedulingContext context = mock(SchedulingContext.class);
         when(context.getEnvironmentVariablesConfig()).thenReturn(new EnvironmentVariablesConfig());
-        when(context.overrideEnvironmentVariables(any(EnvironmentVariablesConfig.class))).thenReturn(context);
+        when(context.overrideEnvironmentVariables(any())).thenReturn(context);
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("someStage"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
@@ -476,7 +476,7 @@ class InstanceFactoryTest {
         when(context.getApprovedBy()).thenReturn("chris");
         when(context.findAgentsMatching(new ResourceConfigs())).thenReturn(agents);
         when(context.getEnvironmentVariablesConfig()).thenReturn(new EnvironmentVariablesConfig());
-        when(context.overrideEnvironmentVariables(any(EnvironmentVariablesConfig.class))).thenReturn(context);
+        when(context.overrideEnvironmentVariables(any())).thenReturn(context);
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("stageName"), jobConfig, context, new TimeProvider(), jobNameGenerator);
@@ -503,7 +503,7 @@ class InstanceFactoryTest {
         when(context.getApprovedBy()).thenReturn("chris");
         when(context.findAgentsMatching(new ResourceConfigs())).thenReturn(new ArrayList<>());
         when(context.getEnvironmentVariablesConfig()).thenReturn(new EnvironmentVariablesConfig());
-        when(context.overrideEnvironmentVariables(any(EnvironmentVariablesConfig.class))).thenReturn(context);
+        when(context.overrideEnvironmentVariables(any())).thenReturn(context);
 
         try {
             RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));

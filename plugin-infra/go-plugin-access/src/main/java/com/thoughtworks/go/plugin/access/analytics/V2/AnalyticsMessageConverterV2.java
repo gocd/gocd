@@ -21,10 +21,11 @@ import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
 import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class AnalyticsMessageConverterV2 implements AnalyticsMessageConverter {
     public static final String VERSION = "2.0";
@@ -57,7 +58,7 @@ public class AnalyticsMessageConverterV2 implements AnalyticsMessageConverter {
     public String getStaticAssetsFromResponseBody(String responseBody) {
         String assets = (String) JsonHelper.fromJson(responseBody, Map.class).get("assets");
 
-        if (StringUtils.isBlank(assets)) {
+        if (isBlank(assets)) {
             throw new RuntimeException("No assets defined!");
         }
 

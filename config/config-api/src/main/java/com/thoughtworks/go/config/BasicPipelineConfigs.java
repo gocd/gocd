@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PipelineConfigVisitor;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,6 +28,7 @@ import java.io.Serializable;
 import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @ConfigTag(value = "pipelines", label = "PipelineGroup")
 @ConfigCollection(PipelineConfig.class)
@@ -154,7 +154,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     public static String sanitizedGroupName(String group) {
-        return StringUtils.isBlank(group) ? DEFAULT_GROUP : group;
+        return isBlank(group) ? DEFAULT_GROUP : group;
     }
 
     @Override
@@ -429,7 +429,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     @Override
     public void validateGroupNameAndAddErrorsTo(ConfigErrors errors) {
-        if (StringUtils.isBlank(group) || new NameTypeValidator().isNameInvalid(group)) {
+        if (isBlank(group) || new NameTypeValidator().isNameInvalid(group)) {
             String errorText = NameTypeValidator.errorMessage("group", group);
             errors.add(GROUP, errorText);
         }

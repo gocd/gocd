@@ -28,16 +28,16 @@ import com.thoughtworks.go.plugin.access.scm.SCMPropertyConfiguration;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PREP_ERR;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class PluggableSCMMaterialAgent implements MaterialAgent {
-    private SCMExtension scmExtension;
-    private MaterialRevision revision;
-    private File workingDirectory;
+    private final SCMExtension scmExtension;
+    private final MaterialRevision revision;
+    private final File workingDirectory;
     private final ConsoleOutputStreamConsumer consumer;
 
     public PluggableSCMMaterialAgent(SCMExtension scmExtension,
@@ -67,7 +67,7 @@ public class PluggableSCMMaterialAgent implements MaterialAgent {
 
     private void handleCheckoutResult(PluggableSCMMaterial material, Result result) {
         if (result.isSuccessful()) {
-            if (StringUtils.isNotBlank(result.getMessagesForDisplay())) {
+            if (isNotBlank(result.getMessagesForDisplay())) {
                 consumer.stdOutput(result.getMessagesForDisplay());
             }
         } else {

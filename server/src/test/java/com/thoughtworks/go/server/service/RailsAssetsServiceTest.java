@@ -67,7 +67,7 @@ public class RailsAssetsServiceTest {
     public void shouldGetAssetPathFromManifestJson() throws IOException {
         Files.writeString(new File(assetsDir, ".sprockets-manifest-digest.json").toPath(), json, UTF_8);
         when(context.getInitParameter("rails.root")).thenReturn("");
-        when(context.getRealPath(any(String.class))).thenReturn(assetsDir.getAbsolutePath());
+        when(context.getRealPath(any())).thenReturn(assetsDir.getAbsolutePath());
         railsAssetsService.initialize();
 
         assertThat(railsAssetsService.getAssetPath("application.js")).isEqualTo("assets/application-bfdbd4fff63b0cd45c50ce7a79fe0f53.js");
@@ -77,7 +77,7 @@ public class RailsAssetsServiceTest {
     @Test
     public void shouldThrowExceptionIfManifestFileIsNotFoundInAssetsDir() {
         when(context.getInitParameter("rails.root")).thenReturn("");
-        when(context.getRealPath(any(String.class))).thenReturn(assetsDir.getAbsolutePath());
+        when(context.getRealPath(any())).thenReturn(assetsDir.getAbsolutePath());
         try {
             railsAssetsService.initialize();
             fail("Expected exception to be thrown");
@@ -89,7 +89,7 @@ public class RailsAssetsServiceTest {
     @Test
     public void shouldThrowExceptionIfAssetsDirDoesNotExist() {
         when(context.getInitParameter("rails.root")).thenReturn("");
-        when(context.getRealPath(any(String.class))).thenReturn("DoesNotExist");
+        when(context.getRealPath(any())).thenReturn("DoesNotExist");
         try {
             railsAssetsService.initialize();
             fail("Expected exception to be thrown");

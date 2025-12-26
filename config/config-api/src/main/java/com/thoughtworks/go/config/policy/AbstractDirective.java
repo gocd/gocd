@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.ValidationContext.PolicyValidationContext;
 import com.thoughtworks.go.domain.ConfigErrors;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 
 import java.util.List;
@@ -32,6 +31,7 @@ import java.util.Objects;
 import static com.thoughtworks.go.config.policy.SupportedEntity.ELASTIC_AGENT_PROFILE;
 import static com.thoughtworks.go.config.policy.SupportedEntity.fromString;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public abstract class AbstractDirective implements Directive {
     @ConfigAttribute(value = "action", optional = false)
@@ -76,7 +76,7 @@ public abstract class AbstractDirective implements Directive {
     }
 
     private boolean isInvalidResource(String resource) {
-        if (StringUtils.isEmpty(resource)) {
+        if (isEmpty(resource)) {
             return false;
         }
 

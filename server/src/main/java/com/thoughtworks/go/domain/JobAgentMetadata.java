@@ -37,7 +37,7 @@ public class JobAgentMetadata extends PersistentObject {
         .setFieldNamingStrategy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
         .create();
 
-    private Long jobId;
+    private long jobId;
     private String elasticAgentProfileMetadata;
     private String clusterProfileMetadata;
     private String metadataVersion;
@@ -117,7 +117,7 @@ public class JobAgentMetadata extends PersistentObject {
             return false;
         }
         JobAgentMetadata that = (JobAgentMetadata) o;
-        return Objects.equals(jobId, that.jobId) &&
+        return jobId == that.jobId &&
                 Objects.equals(elasticAgentProfileMetadata, that.elasticAgentProfileMetadata) &&
                 Objects.equals(clusterProfileMetadata, that.clusterProfileMetadata) &&
                 Objects.equals(metadataVersion, that.metadataVersion);

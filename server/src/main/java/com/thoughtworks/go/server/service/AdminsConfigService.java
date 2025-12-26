@@ -26,7 +26,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.BulkUpdateAdminsResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,9 +64,9 @@ public class AdminsConfigService {
         try {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
-            if (e instanceof GoConfigInvalidException) {
+            if (e instanceof GoConfigInvalidException invalidException) {
                 String adminsTag = AdminsConfig.class.getAnnotation(ConfigTag.class).value();
-                String errors = deDuplicatedErrors(((GoConfigInvalidException) e).getCruiseConfig().getAllErrors());
+                String errors = deDuplicatedErrors(invalidException.getCruiseConfig().getAllErrors());
                 result.unprocessableEntity(LocalizedMessage.entityConfigValidationFailed(adminsTag, errors));
             } else {
                 if (!result.hasMessage()) {
@@ -80,8 +79,7 @@ public class AdminsConfigService {
 
     //Hack to remove duplicate errors. See `AdminRole.addError`
     private String deDuplicatedErrors(List<ConfigErrors> allErrors) {
-        Set<String> errors = allErrors.stream().map(ConfigErrors::firstError).collect(Collectors.toSet());
-        return StringUtils.join(errors, ",");
+        return allErrors.stream().map(ConfigErrors::firstError).distinct().collect(Collectors.joining(","));
     }
 
     public BulkUpdateAdminsResult bulkUpdate(Username currentUser,

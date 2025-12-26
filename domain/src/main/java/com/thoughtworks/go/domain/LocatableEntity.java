@@ -18,5 +18,5 @@ package com.thoughtworks.go.domain;
 public interface LocatableEntity {
     String entityLocator();
 
-    Long getId();
+    long getId();
 }

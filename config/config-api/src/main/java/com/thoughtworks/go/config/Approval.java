@@ -20,12 +20,13 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Admin;
 import lombok.*;
 import lombok.experimental.Accessors;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Getter
 @Setter
@@ -185,7 +186,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
         List<Admin> result = new ArrayList<>(map.size());
         for (Map<String, String> usernameMap : map) {
             String value = usernameMap.get("name").trim();
-            if (!StringUtils.isBlank(value)) {
+            if (!isBlank(value)) {
                 result.add(new AdminUser(new CaseInsensitiveString(value)));
             }
         }
@@ -196,7 +197,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
         List<Admin> result = new ArrayList<>(map.size());
         for (Map<String, String> usernameMap : map) {
             String value = usernameMap.get("name").trim();
-            if (!StringUtils.isBlank(value)) {
+            if (!isBlank(value)) {
                 result.add(new AdminRole(new CaseInsensitiveString(value)));
             }
         }

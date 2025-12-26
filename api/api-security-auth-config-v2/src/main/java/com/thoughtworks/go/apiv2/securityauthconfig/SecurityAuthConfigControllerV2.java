@@ -32,7 +32,6 @@ import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -45,6 +44,7 @@ import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
 
 @Component
@@ -177,7 +177,7 @@ public class SecurityAuthConfigControllerV2 extends ApiController implements Spa
     }
 
     private boolean isRenameAttempt(String profileIdFromRequestParam, String profileIdFromRequestBody) {
-        if (StringUtils.isBlank(profileIdFromRequestBody)) {
+        if (isBlank(profileIdFromRequestBody)) {
             return false;
         }
         return !Strings.CS.equals(profileIdFromRequestBody, profileIdFromRequestParam);

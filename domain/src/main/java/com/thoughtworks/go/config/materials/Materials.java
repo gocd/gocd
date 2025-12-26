@@ -35,13 +35,14 @@ import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class Materials extends BaseCollection<Material> {
     private static final int DEFAULT_INTERVAL = 100;
@@ -114,7 +115,7 @@ public class Materials extends BaseCollection<Material> {
     private List<String> allowedFolders() {
         List<String> allowed = new ArrayList<>();
         for (Material material : this) {
-            if (!StringUtils.isBlank(material.getFolder())) {
+            if (!isBlank(material.getFolder())) {
                 allowed.add(material.getFolder());
             }
         }

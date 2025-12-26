@@ -61,7 +61,7 @@ public class BuildRepositoryService {
         }
     }
 
-    public boolean isCancelledOrRescheduled(Long buildInstanceId) {
+    public boolean isCancelledOrRescheduled(long buildInstanceId) {
         JobInstance instance = jobInstanceService.buildByIdWithTransitions(buildInstanceId);
         if (instance.isNull()) {
             return false;

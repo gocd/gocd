@@ -64,7 +64,7 @@ public class AdminsConfigServiceTest {
 
         adminsConfigService.update(admin, config, "md5", result);
 
-        verify(goConfigService).updateConfig(any(AdminsConfigUpdateCommand.class), eq(admin));
+        verify(goConfigService).updateConfig(any(), eq(admin));
     }
 
     @Test
@@ -172,7 +172,7 @@ public class AdminsConfigServiceTest {
         when(goConfigService.serverConfig()).thenReturn(cruiseConfig.server());
 
         doThrow(new GoConfigInvalidException(cruiseConfig, "Validation Failed."))
-                .when(goConfigService).updateConfig(any(AdminsConfigUpdateCommand.class), eq(user));
+                .when(goConfigService).updateConfig(any(), eq(user));
 
         BulkUpdateAdminsResult result = adminsConfigService.bulkUpdate(user, emptyList(), emptyList(), List.of("roleToRemove"),
                 emptyList(), "md5");

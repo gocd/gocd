@@ -21,9 +21,7 @@ import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.security.Permissions;
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
-import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -35,9 +33,9 @@ public class GoDashboardPipeline {
     private final String groupName;
     private final TrackingTool trackingTool;
     private final long lastUpdatedTimeStamp;
-    private ConfigOrigin origin;
-    private int displayOrderWeight;
-    private PipelineConfig pipelineConfig;
+    private final ConfigOrigin origin;
+    private final int displayOrderWeight;
+    private final PipelineConfig pipelineConfig;
 
     public GoDashboardPipeline(PipelineModel pipelineModel, Permissions permissions, String groupName, Counter timeStampBasedCounter, PipelineConfig pipelineConfig) {
         this.pipelineModel = pipelineModel;
@@ -68,14 +66,6 @@ public class GoDashboardPipeline {
 
     public PipelineConfig pipelineConfig() {
         return pipelineConfig;
-    }
-
-    public StageInstanceModel getLatestStage() {
-        PipelineInstanceModel latestPipelineInstance = pipelineModel.getLatestPipelineInstance();
-        if (latestPipelineInstance == null) {
-            return null;
-        }
-        return latestPipelineInstance.latestStage();
     }
 
     public CaseInsensitiveString name() {
@@ -145,7 +135,7 @@ public class GoDashboardPipeline {
         return origin == null || origin.isLocal();
     }
 
-    public Integer getdisplayOrderWeight() {
+    public int getdisplayOrderWeight() {
         return displayOrderWeight;
     }
 

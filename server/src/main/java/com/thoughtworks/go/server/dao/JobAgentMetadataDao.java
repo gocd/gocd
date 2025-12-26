@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.JobAgentMetadata;
 public interface JobAgentMetadataDao {
     void save(JobAgentMetadata metadata);
 
-    JobAgentMetadata load(Long jobId);
+    JobAgentMetadata load(long jobId);
 
     void delete(JobAgentMetadata jobAgentMetadata);
 }

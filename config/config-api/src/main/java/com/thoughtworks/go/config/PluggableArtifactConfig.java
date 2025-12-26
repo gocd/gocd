@@ -24,10 +24,10 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @AttributeAwareConfigTag(value = "artifact", attribute = "type", attributeValue = "external")
@@ -124,11 +124,11 @@ public class PluggableArtifactConfig implements ArtifactTypeConfig {
     }
 
     private void validateMandatoryAttributes() {
-        if (StringUtils.isBlank(this.id)) {
+        if (isBlank(this.id)) {
             errors.add("id", "\"Id\" is required for PluggableArtifact");
         }
 
-        if (StringUtils.isBlank(this.storeId)) {
+        if (isBlank(this.storeId)) {
             errors.add("storeId", "\"Store id\" is required for PluggableArtifact");
         }
     }

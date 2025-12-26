@@ -87,7 +87,7 @@ class MaterialModificationsControllerV2Test implements SecurityServiceTrait, Con
 
       @Test
       void 'should list material modifications'() {
-        def pagination = Pagination.pageStartingAt(0, 2, 10)
+        def pagination = Pagination.pageByOffset(0, 2, 10)
         def modification1 = new Modification("user1", "comment1", "email@ediblefrog", new Date(), "revision1")
         modification1.id = 1
         def modification2 = new Modification("user2", "comment2", "email@argentino", new Date(), "anotherRevision")

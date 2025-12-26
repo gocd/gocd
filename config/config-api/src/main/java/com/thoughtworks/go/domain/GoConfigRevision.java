@@ -18,15 +18,14 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -42,7 +41,7 @@ public class GoConfigRevision {
         user, timestamp, schema_version, go_edition, go_version, md5;
 
         public String represent(String value) {
-            return toString() + ":" + value;
+            return this + ":" + value;
         }
 
         private int offset() {
@@ -50,11 +49,9 @@ public class GoConfigRevision {
         }
 
         private static String string(String value, String delimiter) {
-            List<String> parts = new ArrayList<>(0);
-            for (Fragment fragment : values()) {
-                parts.add(fragment.represent(value));
-            }
-            return StringUtils.join(parts, delimiter);
+            return Arrays.stream(values())
+                .map(f -> f.represent(value))
+                .collect(Collectors.joining(delimiter));
         }
 
         private String unesc(String escapedValue) {

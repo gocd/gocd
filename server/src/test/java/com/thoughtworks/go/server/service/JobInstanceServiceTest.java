@@ -23,12 +23,10 @@ import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
-import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.JobResultMessage;
@@ -70,8 +68,6 @@ public class JobInstanceServiceTest {
     @Mock
     private JobResultTopic topic;
     @Mock
-    private StageDao stageDao;
-    @Mock
     private GoConfigService goConfigService;
     @Mock
     private CruiseConfig cruiseConfig;
@@ -83,26 +79,24 @@ public class JobInstanceServiceTest {
     private JobInstance job;
     private TestTransactionSynchronizationManager transactionSynchronizationManager;
     private TransactionTemplate transactionTemplate;
-    private JobStatusCache jobStatusCache;
 
     @BeforeEach
     public void setUp() {
         job = JobInstanceMother.building("dev");
         transactionSynchronizationManager = new TestTransactionSynchronizationManager();
         transactionTemplate = new TestTransactionTemplate(transactionSynchronizationManager);
-        jobStatusCache = new JobStatusCache(stageDao);
     }
 
     @AfterEach
     public void after() {
-        verifyNoMoreInteractions(jobInstanceDao, stageDao);
+        verifyNoMoreInteractions(jobInstanceDao);
     }
 
     @Test
     public void shouldNotifyListenerWhenJobStatusChanged() {
         final JobStatusListener listener = mock(JobStatusListener.class);
 
-        JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
+        JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
             null, serverHealthService, listener);
         jobService.updateStateAndResult(job);
 
@@ -115,7 +109,7 @@ public class JobInstanceServiceTest {
         final JobStatusListener listener1 = mock(JobStatusListener.class, "listener1");
         final JobStatusListener listener2 = mock(JobStatusListener.class, "listener2");
 
-        JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
+        JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, transactionTemplate, transactionSynchronizationManager,
             null, null, goConfigService, null, serverHealthService, listener1, listener2);
         jobService.updateStateAndResult(job);
 
@@ -129,7 +123,7 @@ public class JobInstanceServiceTest {
         final JobStatusListener listener1 = mock(JobStatusListener.class, "listener1");
         final JobStatusListener listener2 = mock(JobStatusListener.class, "listener2");
 
-        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
+        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, transactionTemplate, transactionSynchronizationManager,
             null, null, goConfigService, null, serverHealthService, listener1, listener2);
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -151,12 +145,12 @@ public class JobInstanceServiceTest {
         final Stage stage = new Stage();
         stage.setId(1);
 
-        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
+        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, transactionTemplate, transactionSynchronizationManager,
             null, null, goConfigService, null, serverHealthService, listener1, listener2);
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
-                jobService.save(new StageIdentifier(pipeline.getName(), null, pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter())), stage.getId(), job);
+                jobService.save(new StageIdentifier(pipeline.getName(), pipeline.getCounter(), pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter())), stage.getId(), job);
             }
         });
 
@@ -174,13 +168,13 @@ public class JobInstanceServiceTest {
         final Stage stage = new Stage();
         stage.setId(1);
 
-        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
+        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, transactionTemplate, transactionSynchronizationManager,
             null, null, goConfigService, null, serverHealthService, failingListener, passingListener);
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
-                jobService.save(new StageIdentifier(pipeline.getName(), null, pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter())), stage.getId(), job);
+                jobService.save(new StageIdentifier(pipeline.getName(), pipeline.getCounter(), pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter())), stage.getId(), job);
             }
         });
 
@@ -190,7 +184,7 @@ public class JobInstanceServiceTest {
 
     @Test
     public void shouldNotifyListenersWhenAssignedJobIsCancelled() {
-        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
+        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, transactionTemplate, transactionSynchronizationManager,
             null, null, goConfigService, null, serverHealthService);
         job.setAgentUuid("dummy agent");
 
@@ -209,7 +203,7 @@ public class JobInstanceServiceTest {
     public void shouldNotNotifyListenersWhenScheduledJobIsCancelled() {
         final JobInstance scheduledJob = scheduled("dev");
 
-        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null,
+        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, transactionTemplate, transactionSynchronizationManager, null,
             null, goConfigService, null, serverHealthService);
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -221,14 +215,14 @@ public class JobInstanceServiceTest {
 
         jobService.cancelJob(scheduledJob);
         verify(jobInstanceDao).updateStateAndResult(scheduledJob);
-        verify(topic, never()).post(any(JobResultMessage.class));
+        verify(topic, never()).post(any());
     }
 
     @Test
     public void shouldNotNotifyListenersWhenACompletedJobIsCancelled() {
         final JobInstance completedJob = completed("dev");
 
-        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null,
+        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, transactionTemplate, transactionSynchronizationManager, null,
             null, goConfigService, null, serverHealthService);
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -240,12 +234,12 @@ public class JobInstanceServiceTest {
 
         jobService.cancelJob(completedJob);
         verify(jobInstanceDao, never()).updateStateAndResult(completedJob);
-        verify(topic, never()).post(any(JobResultMessage.class));
+        verify(topic, never()).post(any());
     }
 
     @Test
     public void shouldNotNotifyListenersWhenAssignedJobCancellationTransactionRollsback() {
-        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
+        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, transactionTemplate, transactionSynchronizationManager,
             null, null, goConfigService, null, serverHealthService);
         job.setAgentUuid("dummy agent");
 
@@ -262,14 +256,14 @@ public class JobInstanceServiceTest {
         }
 
         verify(jobInstanceDao).updateStateAndResult(job);
-        verify(topic, never()).post(any(JobResultMessage.class));
+        verify(topic, never()).post(any());
     }
 
     @Test
     public void shouldNotNotifyListenersWhenScheduledJobIsFailed() {
         final JobInstance scheduledJob = scheduled("dev");
         scheduledJob.setId(10);
-        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null,
+        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, transactionTemplate, transactionSynchronizationManager, null,
             null, goConfigService, null, serverHealthService);
 
         when(jobInstanceDao.buildByIdWithTransitions(scheduledJob.getId())).thenReturn(scheduledJob);
@@ -293,10 +287,10 @@ public class JobInstanceServiceTest {
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
 
-        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache,
-            transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
+        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic,
+                transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
 
-        Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
+        Pagination pagination = Pagination.pageByOffset(1, 1, 1);
         jobService.findJobHistoryPage("pipeline", "stage", "job", pagination, "looser", new HttpOperationResult());
 
         verify(jobInstanceDao).findJobHistoryPage("pipeline", "stage", "job", pagination.getPageSize(), pagination.getOffset());
@@ -307,10 +301,10 @@ public class JobInstanceServiceTest {
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
-        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache,
-            transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
+        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic,
+                transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
 
-        Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
+        Pagination pagination = Pagination.pageByOffset(1, 1, 1);
         HttpOperationResult result = new HttpOperationResult();
         JobInstances jobHistoryPage = jobService.findJobHistoryPage("pipeline", "stage", "job", pagination, "looser", result);
 
@@ -324,10 +318,10 @@ public class JobInstanceServiceTest {
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(false);
 
-        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache,
-            transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
+        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic,
+                transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
 
-        Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
+        Pagination pagination = Pagination.pageByOffset(1, 1, 1);
         HttpOperationResult result = new HttpOperationResult();
         JobInstances jobHistoryPage = jobService.findJobHistoryPage("pipeline", "stage", "job", pagination, "looser", result);
 
@@ -338,7 +332,7 @@ public class JobInstanceServiceTest {
     @Test
     public void shouldLoadOriginalJobPlan() {
         JobResolverService resolver = mock(JobResolverService.class);
-        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
+        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, transactionTemplate, transactionSynchronizationManager,
             resolver,
             null, goConfigService, null, serverHealthService);
         DefaultJobPlan expectedPlan = new DefaultJobPlan(new Resources(), new ArrayList<>(), 7, new JobIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
@@ -351,7 +345,7 @@ public class JobInstanceServiceTest {
 
     @Test
     public void shouldRegisterANewListener() {
-        JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
+        JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
             null, serverHealthService);
         JobStatusListener listener = mock(JobStatusListener.class);
         jobService.registerJobStateChangeListener(listener);
@@ -363,7 +357,7 @@ public class JobInstanceServiceTest {
 
     @Test
     public void shouldGetCompletedJobsOnAgentOnTheGivenPage() {
-        JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
+        JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
             null, serverHealthService);
         List<JobInstance> expected = new ArrayList<>();
         when(jobInstanceDao.totalCompletedJobsOnAgent("uuid")).thenReturn(500);
@@ -382,7 +376,7 @@ public class JobInstanceServiceTest {
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p1", "s1", "j1"))));
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p2", "s2", "j2"))));
         assertThat(serverHealthService.logsSorted().errorCount()).isEqualTo(2);
-        JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
+        JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
             null, serverHealthService);
         jobService.onConfigChange(new BasicCruiseConfig());
         assertThat(serverHealthService.logsSorted().errorCount()).isEqualTo(0);
@@ -394,7 +388,7 @@ public class JobInstanceServiceTest {
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p1", "s1", "j1"))));
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p2", "s2", "j2"))));
         assertThat(serverHealthService.logsSorted().errorCount()).isEqualTo(2);
-        JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
+        JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
             null, serverHealthService);
         JobInstanceService.PipelineConfigChangedListener pipelineConfigChangedListener = jobService.new PipelineConfigChangedListener();
         pipelineConfigChangedListener.onEntityConfigChange(PipelineConfigMother.pipelineConfig("p1", "s_new", new MaterialConfigs(), "j1"));
@@ -407,7 +401,7 @@ public class JobInstanceServiceTest {
         List<JobInstance> expectedRunningJobs = List.of(job);
         when(jobInstanceDao.getRunningJobs()).thenReturn(expectedRunningJobs);
 
-        JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
+        JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
             null, serverHealthService);
 
         List<JobInstance> jobInstances = jobService.allRunningJobs();
@@ -424,7 +418,7 @@ public class JobInstanceServiceTest {
         JobInstance instance = new JobInstance("job");
         when(jobInstanceDao.mostRecentJobWithTransitions(any())).thenReturn(instance);
 
-        JobInstanceService jobInstanceService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
+        JobInstanceService jobInstanceService = new JobInstanceService(jobInstanceDao, null, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
 
         assertThat(jobInstanceService.findJobInstanceWithTransitions("pipeline", "stage", "job", 1, 1, new Username("user"))).isEqualTo(instance);
     }
@@ -433,7 +427,7 @@ public class JobInstanceServiceTest {
     void shouldThrowExceptionIfPipelineDoesNotExistForJobInstance() {
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
-        JobInstanceService jobInstanceService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, serverHealthService);
+        JobInstanceService jobInstanceService = new JobInstanceService(jobInstanceDao, null, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, serverHealthService);
 
         assertThatCode(() -> jobInstanceService.findJobInstanceWithTransitions("pipeline", "stage", "job", 1, 1, new Username("admin")))
             .isInstanceOf(RecordNotFoundException.class)
@@ -446,7 +440,7 @@ public class JobInstanceServiceTest {
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("user"), "pipeline")).thenReturn(false);
 
-        JobInstanceService jobInstanceService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
+        JobInstanceService jobInstanceService = new JobInstanceService(jobInstanceDao, null, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
 
         assertThatCode(() -> jobInstanceService.findJobInstanceWithTransitions("pipeline", "stage", "job", 1, 1, new Username("user")))
             .isInstanceOf(NotAuthorizedException.class)
@@ -456,15 +450,14 @@ public class JobInstanceServiceTest {
     @Nested
     class JobHistoryViaCursor {
         private JobInstanceService jobService;
-        ;
-        private Username username = Username.valueOf("user");
+        private final Username username = Username.valueOf("user");
         String pipelineName = "pipeline";
         String stageName = "stage";
         String jobConfigName = "job";
 
         @BeforeEach
         void setUp() {
-            jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
+            jobService = new JobInstanceService(jobInstanceDao, null, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
         }
 
         @Test
@@ -538,14 +531,14 @@ public class JobInstanceServiceTest {
     @Nested
     class LatestAndOldestStageInstanceId {
         private JobInstanceService jobService;
-        private Username username = Username.valueOf("user");
+        private final Username username = Username.valueOf("user");
         String pipelineName = "pipeline";
         String stageName = "stage";
         String jobConfigName = "job";
 
         @BeforeEach
         void setUp() {
-            jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
+            jobService = new JobInstanceService(jobInstanceDao, null, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
         }
 
         @Test

@@ -497,11 +497,11 @@ class JobConfigTest {
         Tabs tabs = mock(Tabs.class);
         EnvironmentVariablesConfig variables = mock(EnvironmentVariablesConfig.class);
         when(tasks.size()).thenReturn(1);
-        when(tasks.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
-        when(resourceConfigs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
-        when(artifactTypeConfigs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
-        when(tabs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
-        when(variables.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
+        when(tasks.validateTree(any())).thenReturn(true);
+        when(resourceConfigs.validateTree(any())).thenReturn(true);
+        when(artifactTypeConfigs.validateTree(any())).thenReturn(true);
+        when(tabs.validateTree(any())).thenReturn(true);
+        when(variables.validateTree(any())).thenReturn(true);
 
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"), resourceConfigs, artifactTypeConfigs, tasks);
         jobConfig.setTabs(tabs);
@@ -528,11 +528,11 @@ class JobConfigTest {
         Tasks tasks = mock(Tasks.class);
         Tabs tabs = mock(Tabs.class);
         EnvironmentVariablesConfig variables = mock(EnvironmentVariablesConfig.class);
-        when(tasks.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
-        when(resourceConfigs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
-        when(artifactTypeConfigs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
-        when(tabs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
-        when(variables.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
+        when(tasks.validateTree(any())).thenReturn(false);
+        when(resourceConfigs.validateTree(any())).thenReturn(false);
+        when(artifactTypeConfigs.validateTree(any())).thenReturn(false);
+        when(tabs.validateTree(any())).thenReturn(false);
+        when(variables.validateTree(any())).thenReturn(false);
 
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"), resourceConfigs, artifactTypeConfigs, tasks);
         jobConfig.setTabs(tabs);
@@ -572,7 +572,7 @@ class JobConfigTest {
 
         jobConfig.encryptSecureProperties(new BasicCruiseConfig(), new PipelineConfig(), jobConfig);
 
-        verify(mockFetchExternalArtifactTask).encryptSecureProperties(any(CruiseConfig.class), any(PipelineConfig.class), any(FetchPluggableArtifactTask.class));
+        verify(mockFetchExternalArtifactTask).encryptSecureProperties(any(), any(), any());
     }
 
     @Nested

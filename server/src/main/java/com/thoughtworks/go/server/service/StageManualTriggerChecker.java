@@ -23,12 +23,12 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 public class StageManualTriggerChecker implements SchedulingChecker {
 
     private final String pipelineName;
-    private final Integer pipelineCounter;
+    private final int pipelineCounter;
     private final String stageName;
     private final SchedulingCheckerService schedulingCheckerService;
     private final PipelineService pipelineService;
 
-    public StageManualTriggerChecker(String pipelineName, Integer pipelineCounter, String stageName, SchedulingCheckerService schedulingCheckerService, PipelineService pipelineService) {
+    public StageManualTriggerChecker(String pipelineName, int pipelineCounter, String stageName, SchedulingCheckerService schedulingCheckerService, PipelineService pipelineService) {
         this.pipelineName = pipelineName;
         this.pipelineCounter = pipelineCounter;
         this.stageName = stageName;

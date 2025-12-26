@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.update.CreateTemplateConfigCommand;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
@@ -169,7 +168,7 @@ public class TemplateConfigServiceTest {
         String templateName = "template-name";
         PipelineTemplateConfig pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString(templateName), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
         String errorMessage = "invalid template";
-        doThrow(new GoConfigInvalidException(GoConfigMother.defaultCruiseConfig(), errorMessage)).when(goConfigService).updateConfig(any(CreateTemplateConfigCommand.class), any(Username.class));
+        doThrow(new GoConfigInvalidException(GoConfigMother.defaultCruiseConfig(), errorMessage)).when(goConfigService).updateConfig(any(), any());
 
         service.createTemplateConfig(user, pipelineTemplateConfig, result);
 

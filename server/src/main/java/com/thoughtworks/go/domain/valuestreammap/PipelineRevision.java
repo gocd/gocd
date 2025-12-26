@@ -25,7 +25,7 @@ public class PipelineRevision implements Revision {
     private final Stages stages = new Stages();
     private final PipelineIdentifier pipelineIdentifier;
 
-    public PipelineRevision(String pipelineName, Integer pipelineCounter, String pipelineLabel) {
+    public PipelineRevision(String pipelineName, int pipelineCounter, String pipelineLabel) {
         this(new PipelineIdentifier(pipelineName, pipelineCounter, pipelineLabel));
     }
 
@@ -42,7 +42,7 @@ public class PipelineRevision implements Revision {
         return pipelineIdentifier.getName();
     }
 
-    public Integer getCounter() {
+    public int getCounter() {
         return pipelineIdentifier.getCounter();
     }
 

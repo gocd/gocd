@@ -13,24 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.validation;
 
-import com.thoughtworks.go.domain.materials.ValidationBean;
+package com.thoughtworks.go.util;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import org.junit.jupiter.api.Test;
 
-class PresenceValidator extends Validator<String> {
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
-    public PresenceValidator(String errorMessage) {
-        super(errorMessage);
-    }
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    @Override
-    public ValidationBean validate(String value) {
-        if (isBlank(value)) {
-            return ValidationBean.notValid(errorMessage);
-        } else {
-            return ValidationBean.valid();
-        }
+class SupplierUtilsTest {
+
+    @Test
+    void shouldMemoizeSupplier() {
+        AtomicInteger counter = new AtomicInteger(0);
+        Supplier<Integer> supplier = SupplierUtils.memoize(counter::incrementAndGet);
+
+        assertEquals(1, supplier.get());
+        assertEquals(1, supplier.get());
+        assertEquals(1, supplier.get());
+        assertEquals(2, counter.incrementAndGet());
     }
 }

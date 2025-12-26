@@ -28,14 +28,11 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import com.thoughtworks.go.plugin.infra.monitor.PluginJarLocationMonitor;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
-import com.thoughtworks.go.remote.work.AgentWorkContext;
 import com.thoughtworks.go.remote.work.DeniedAgentWork;
 import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.remote.work.Work;
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -94,7 +91,7 @@ public class AgentHTTPClientControllerTest {
         prepareForWork();
         agentController.ping();
         assertThat(agentController.tryDoWork()).isEqualTo(WorkAttempt.OK);
-        verify(work).doWork(any(EnvironmentVariableContext.class), any(AgentWorkContext.class));
+        verify(work).doWork(any(), any());
         verify(sslInfrastructureService).createSslInfrastructure();
     }
 
@@ -144,7 +141,7 @@ public class AgentHTTPClientControllerTest {
     }
 
     private void prepareForWork() {
-        when(loopServer.getWork(any(AgentRuntimeInfo.class))).thenReturn(work);
+        when(loopServer.getWork(any())).thenReturn(work);
         when(agentRegistry.uuid()).thenReturn(agentUuid);
         agentController = createAgentController();
         agentController.init();
@@ -176,7 +173,7 @@ public class AgentHTTPClientControllerTest {
         agentController.init();
         agentController.ping();
         verify(sslInfrastructureService).createSslInfrastructure();
-        verify(loopServer).ping(any(AgentRuntimeInfo.class));
+        verify(loopServer).ping(any());
     }
 
     private AgentHTTPClientController createAgentController() {

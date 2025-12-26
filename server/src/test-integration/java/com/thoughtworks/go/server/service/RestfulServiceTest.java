@@ -94,14 +94,14 @@ public class RestfulServiceTest {
     public void shouldTranslateLatestToRealStageCounter() {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
 
-        JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(), pipelineFixture.devStage, JobIdentifier.LATEST, PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
+        JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName(), String.valueOf(pipeline.getCounter()), pipelineFixture.devStage, JobIdentifier.LATEST, PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
         assertThat(Integer.valueOf(jobIdentifier.getStageCounter())).isEqualTo(pipeline.getStages().byName(pipelineFixture.devStage).getCounter());
     }
 
     @Test
     public void shouldTranslateEmtpyToLatestStageCounter() {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
-        JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(), pipelineFixture.devStage, "", PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
+        JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName(), String.valueOf(pipeline.getCounter()), pipelineFixture.devStage, "", PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
         assertThat(Integer.valueOf(jobIdentifier.getStageCounter())).isEqualTo(pipeline.getStages().byName(pipelineFixture.devStage).getCounter());
     }
 
@@ -118,7 +118,7 @@ public class RestfulServiceTest {
     public void canSupportQueryingUsingStageNameWithDifferentCase() {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
 
-        JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(), pipelineFixture.devStage.toUpperCase(), "", PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
+        JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName(), String.valueOf(pipeline.getCounter()), pipelineFixture.devStage.toUpperCase(), "", PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
 
         assertThat(jobIdentifier.getStageName()).isEqualTo(pipelineFixture.devStage);
     }
@@ -185,7 +185,7 @@ public class RestfulServiceTest {
         Stage stage = pipeline.getStages().byName(pipelineFixture.devStage);
         JobInstance job = stage.getJobInstances().first();
 
-        JobIdentifier result = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(),
+        JobIdentifier result = restfulService.findJob(pipeline.getName(), String.valueOf(pipeline.getCounter()),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName(), job.getId());
         JobIdentifier expect = new JobIdentifier(pipeline, stage, job);
         assertThat(result).isEqualTo(expect);

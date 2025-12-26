@@ -54,7 +54,10 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Semaphore;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -308,7 +311,7 @@ public class BackupServiceIntegrationTest {
         when(timeProvider.currentLocalDateTime()).thenReturn(now);
 
         Database databaseStrategyMock = mock(Database.class);
-        doThrow(new RuntimeException("Oh no!")).when(databaseStrategyMock).backup(any(File.class));
+        doThrow(new RuntimeException("Oh no!")).when(databaseStrategyMock).backup(any());
         BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvSpy, configRepository,
                 databaseStrategyMock, null);
         ServerBackup backup = service.startBackup(admin);
@@ -341,7 +344,7 @@ public class BackupServiceIntegrationTest {
         when(timeProvider.currentLocalDateTime()).thenReturn(now);
 
         Database databaseStrategyMock = mock(Database.class);
-        doThrow(new RuntimeException("Oh no!")).when(databaseStrategyMock).backup(any(File.class));
+        doThrow(new RuntimeException("Oh no!")).when(databaseStrategyMock).backup(any());
         BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvSpy, configRepository,
                 databaseStrategyMock, null);
         ServerBackup backup = service.startBackup(admin);
@@ -585,7 +588,7 @@ public class BackupServiceIntegrationTest {
             waitForBackupToBegin.release();
             waitForAssertion_whichHasToHappen_whileBackupIsRunning.acquire();
             return null;
-        }).when(databaseStrategyMock).backup(any(File.class));
+        }).when(databaseStrategyMock).backup(any());
 
 
         final BackupService backupService = new BackupService(artifactsDirHolder, goConfigService, new TimeProvider(), backupInfoRepository, systemEnvSpy,

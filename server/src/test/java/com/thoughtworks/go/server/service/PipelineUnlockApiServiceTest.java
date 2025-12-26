@@ -24,7 +24,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -89,7 +88,7 @@ public class PipelineUnlockApiServiceTest {
 
         assertThat(result.httpCode()).isEqualTo(409);
         assertThat(result.message()).isEqualTo("No lock exists within the pipeline configuration for pipeline-name");
-        verify(pipelineLockService, never()).unlock(Mockito.any(String.class));
+        verify(pipelineLockService, never()).unlock(any());
     }
 
     @Test

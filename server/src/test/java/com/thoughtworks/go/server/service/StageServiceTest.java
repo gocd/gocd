@@ -146,7 +146,7 @@ public class StageServiceTest {
 
     private SecurityService alwaysAllow() {
         SecurityService securityService = mock(SecurityService.class);
-        when(securityService.hasViewPermissionForPipeline(eq(ALWAYS_ALLOW_USER), any(String.class))).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(eq(ALWAYS_ALLOW_USER), any())).thenReturn(true);
         return securityService;
     }
 
@@ -434,8 +434,8 @@ public class StageServiceTest {
         when(stageDao.findCompletedStagesFor("down", FeedModifier.Latest, -1, 25)).thenReturn(List.of(stageFeedEntry("down", updateDate), stageFeedEntry("down", updateDate)));
         when(goConfigService.currentCruiseConfig()).thenReturn(config);
         when(changesetService.modificationsOfPipelines(List.of(1L, 1L), "down", Username.ANONYMOUS)).thenReturn(expectedModMapDown);
-        when(config.hasPipelineNamed(any(CaseInsensitiveString.class))).thenReturn(false).thenReturn(true);
-        when(config.pipelineConfigByName(any(CaseInsensitiveString.class))).thenReturn(pipelineConfig);
+        when(config.hasPipelineNamed(any())).thenReturn(false).thenReturn(true);
+        when(config.pipelineConfigByName(any())).thenReturn(pipelineConfig);
 
         StageService service = new StageService(stageDao, null, null, null, null, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
             new StubGoCache(transactionSynchronizationManager));

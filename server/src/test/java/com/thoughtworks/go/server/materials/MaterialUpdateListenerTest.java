@@ -24,7 +24,6 @@ import com.thoughtworks.go.server.transaction.TransactionCallback;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import static org.mockito.Mockito.*;
 
@@ -79,7 +78,7 @@ public class MaterialUpdateListenerTest {
     }
 
     private void setupTransactionTemplateStub() {
-        when(transactionTemplate.executeWithExceptionHandling(Mockito.any(TransactionCallback.class))).thenAnswer(invocationOnMock -> {
+        when(transactionTemplate.executeWithExceptionHandling(any())).thenAnswer(invocationOnMock -> {
             TransactionCallback callback = (TransactionCallback) invocationOnMock.getArguments()[0];
             callback.doInTransaction(null);
             return null;

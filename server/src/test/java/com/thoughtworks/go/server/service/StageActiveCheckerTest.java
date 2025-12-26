@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.server.service.result.OperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -46,13 +45,13 @@ public class StageActiveCheckerTest {
     public void shouldNotThrowExceptionIfStageIsNotActive() {
         when(service.isStageActive(pipelineName, stageName)).thenReturn(false);
         checker.check(result);
-        verify(result).success(any(HealthStateType.class));
+        verify(result).success(any());
     }
 
     @Test
     public void shouldBeAConflictOperationResultWhenStageAlreadyScheduled() {
         when(service.isStageActive(pipelineName, stageName)).thenReturn(true);
         checker.check(result);
-        verify(result).conflict(eq("Failed to trigger pipeline [cruise]"), eq("Stage [dev] in pipeline [cruise] is still in progress"), any(HealthStateType.class));
+        verify(result).conflict(eq("Failed to trigger pipeline [cruise]"), eq("Stage [dev] in pipeline [cruise] is still in progress"), any());
     }
 }

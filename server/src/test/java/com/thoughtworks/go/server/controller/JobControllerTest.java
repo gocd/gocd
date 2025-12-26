@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.policy.SupportedAction;
@@ -133,11 +132,11 @@ public class JobControllerTest {
             when(jobInstanceService.latestCompletedJobs("p1", "s1", jobInstance.getName())).thenReturn(new JobInstances());
             when(pipelineService.wrapBuildDetails(jobInstance)).thenReturn(pipeline);
             when(pipelineService.resolvePipelineCounter(eq("p1"), anyString())).thenReturn(OptionalInt.of(1));
-            when(restfulService.translateStageCounter(any(PipelineIdentifier.class), eq("s1"), anyString())).thenReturn(stageIdentifier);
+            when(restfulService.translateStageCounter(any(), eq("s1"), anyString())).thenReturn(stageIdentifier);
             when(pipelineService.findPipelineByNameAndCounter("p1", 1)).thenReturn(pipeline);
             when(jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier)).thenReturn(jobInstance);
-            when(jobInstanceDao.mostRecentJobWithTransitions(any(JobIdentifier.class))).thenReturn(jobInstance);
-            when(jobConfigService.pipelineConfigNamed(any(CaseInsensitiveString.class))).thenReturn(PipelineConfigMother.pipelineConfig("p1"));
+            when(jobInstanceDao.mostRecentJobWithTransitions(any())).thenReturn(jobInstance);
+            when(jobConfigService.pipelineConfigNamed(any())).thenReturn(PipelineConfigMother.pipelineConfig("p1"));
             when(stageService.getStageByBuild(jobInstance)).thenReturn(StageMother.passedStageInstance("s1", "plan1", "p1"));
 
             FeatureToggleService featureToggleService = mock(FeatureToggleService.class);

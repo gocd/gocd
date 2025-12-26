@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.SiteUrl;
 import com.thoughtworks.go.fixture.ArtifactsDiskIsFull;
-import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.AfterEach;
@@ -58,7 +57,7 @@ public class ArtifactsDiskSpaceFullCheckerTest {
         when(goConfigService.adminEmail()).thenReturn("admin@tw.com");
         checker.check(new ServerHealthStateOperationResult());
         checker.check(new ServerHealthStateOperationResult()); // call once more
-        verify(emailSender).sendEmail(any(SendEmailMessage.class));
+        verify(emailSender).sendEmail(any());
     }
 
     @Test
@@ -72,7 +71,7 @@ public class ArtifactsDiskSpaceFullCheckerTest {
 
         new ArtifactsDiskIsFull().beforeEach(null);
         checker.check(new ServerHealthStateOperationResult()); //should send email again
-        verify(emailSender, times(2)).sendEmail(any(SendEmailMessage.class));
+        verify(emailSender, times(2)).sendEmail(any());
     }
 
     public static GoConfigService mockGoConfigServiceToHaveSiteUrl() {

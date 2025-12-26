@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.fixture.SchedulerFixture;
@@ -64,22 +63,21 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
-        "classpath:/applicationContext-global.xml",
-        "classpath:/applicationContext-dataLocalAccess.xml",
-        "classpath:/testPropertyConfigurer.xml",
-        "classpath:/spring-all-servlet.xml",
+    "classpath:/applicationContext-global.xml",
+    "classpath:/applicationContext-dataLocalAccess.xml",
+    "classpath:/testPropertyConfigurer.xml",
+    "classpath:/spring-all-servlet.xml",
 })
 public class JobInstanceServiceIntegrationTest {
     @Autowired
     private GoConfigDao goConfigDao;
     @Autowired
     private JobInstanceDao jobInstanceDao;
-    @Autowired
-    private JobStatusCache jobStatusCache;
     @Autowired
     private JobInstanceService jobInstanceService;
     @Autowired
@@ -115,7 +113,6 @@ public class JobInstanceServiceIntegrationTest {
     @AfterEach
     public void teardown() throws Exception {
         pipelineFixture.onTearDown();
-        jobStatusCache.clear();
     }
 
     @Test
@@ -131,7 +128,7 @@ public class JobInstanceServiceIntegrationTest {
         }
 
         JobInstances jobs1 = jobInstanceService.latestCompletedJobs(
-                pipelineFixture.pipelineName, pipelineFixture.devStage, stage.getJobInstances().first().getName());
+            pipelineFixture.pipelineName, pipelineFixture.devStage, stage.getJobInstances().first().getName());
         assertThat(jobs1.size()).isEqualTo(25);
     }
 
@@ -166,7 +163,7 @@ public class JobInstanceServiceIntegrationTest {
         final JobInstance newJob = instances.first();
 
         final StageIdentifier stageIdentifier = new StageIdentifier(pipeline.getName(), pipeline.getCounter(), pipeline.getLabel(),
-                pipeline.getFirstStage().getName(), String.valueOf(pipeline.getFirstStage().getCounter()));
+            pipeline.getFirstStage().getName(), String.valueOf(pipeline.getFirstStage().getCounter()));
         dbHelper.txTemplate().execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -175,67 +172,6 @@ public class JobInstanceServiceIntegrationTest {
         });
 
         assertThat(newJob.getIdentifier()).isEqualTo(new JobIdentifier(pipeline, pipeline.getFirstStage(), newJob));
-    }
-
-    @Test
-    public void shouldFindCurrentJobsOrderedByName() {
-        StageConfig stageConfig = StageConfigMother.custom("dev", "build", "alpha");
-        Stage stage = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), "md5-test", new TimeProvider());
-
-        for (JobInstance instance : stage.getJobInstances()) {
-            instance.setIdentifier(new JobIdentifier("cruise", 1, "1", "dev", "1", instance.getName()));
-        }
-
-        jobStatusCache.jobStatusChanged(stage.getJobInstances().first());
-        jobStatusCache.jobStatusChanged(stage.getJobInstances().last());
-
-        JobInstances jobs = jobInstanceService.currentJobsOfStage("cruise", stageConfig);
-        assertThat(jobs.first().getName()).isEqualTo("alpha");
-        assertThat(jobs.last().getName()).isEqualTo("build");
-    }
-
-    @Test
-    public void shouldFindAllCopiesOfJobsRunOnAllAgents() {
-        StageConfig stageConfig = StageConfigMother.custom("dev", "build");
-        JobConfig jobConfig = stageConfig.jobConfigByInstanceName("build", true);
-        jobConfig.setRunOnAllAgents(true);
-        String uuid1 = UUID.randomUUID().toString();
-        String uuid2 = UUID.randomUUID().toString();
-        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("anyone", new Agents(new Agent(uuid1), new Agent(uuid2)));
-        Stage stage = instanceFactory.createStageInstance(stageConfig, schedulingContext, "md5-test", new TimeProvider());
-
-        for (JobInstance instance : stage.getJobInstances()) {
-            instance.setIdentifier(new JobIdentifier("cruise", 1, "1", "dev", "1", instance.getName()));
-        }
-
-        jobStatusCache.jobStatusChanged(stage.getJobInstances().first());
-        jobStatusCache.jobStatusChanged(stage.getJobInstances().last());
-
-        JobInstances jobs = jobInstanceService.currentJobsOfStage("cruise", stageConfig);
-        assertThat(jobs.first().getName()).isEqualTo(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("build", 1));
-        assertThat(jobs.last().getName()).isEqualTo(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("build", 2));
-        assertThat(jobs.size()).isEqualTo(2);
-    }
-
-    @Test
-    public void shouldFindAllCopiesOfJobsRunMultipleInstance() {
-        StageConfig stageConfig = StageConfigMother.custom("dev", "build");
-        JobConfig jobConfig = stageConfig.jobConfigByInstanceName("build", true);
-        jobConfig.setRunInstanceCount(2);
-        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("anyone", new Agents());
-        Stage stage = instanceFactory.createStageInstance(stageConfig, schedulingContext, "md5-test", new TimeProvider());
-
-        for (JobInstance instance : stage.getJobInstances()) {
-            instance.setIdentifier(new JobIdentifier("cruise", 1, "1", "dev", "1", instance.getName()));
-        }
-
-        jobStatusCache.jobStatusChanged(stage.getJobInstances().first());
-        jobStatusCache.jobStatusChanged(stage.getJobInstances().last());
-
-        JobInstances jobs = jobInstanceService.currentJobsOfStage("cruise", stageConfig);
-        assertThat(jobs.size()).isEqualTo(2);
-        assertThat(jobs.first().getName()).isEqualTo(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("build", 1));
-        assertThat(jobs.last().getName()).isEqualTo(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("build", 2));
     }
 
     @Test
@@ -514,17 +450,16 @@ public class JobInstanceServiceIntegrationTest {
         Stage stage = pipeline.getStages().byName(CaseInsensitiveString.str(ftStage.name()));
         final JobInstance instance = stage.getJobInstances().get(0);
         instance.changeState(JobState.Building, new Date());
-        try {
+        RuntimeException toThrow = new RuntimeException("to rollback txn");
+        assertThatThrownBy(() ->
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     jobInstanceService.updateStateAndResult(instance);
-                    throw new RuntimeException("to rollback txn");
+                    throw toThrow;
                 }
-            });
-            fail("Should have thrown an exception and transaction rolled back. Listeners should not have be called on afterCommit");
-        } catch (RuntimeException e) {
-        }
+            })).isSameAs(toThrow);
+
         assertThat(isListenerCalled[0]).isFalse();
     }
 

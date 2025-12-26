@@ -36,13 +36,13 @@ public class ParamStateMachineTest {
         stateMachine.process("#{pattern}", handler);
 
         assertThat(ParamStateMachine.ReaderState.IN_PATTERN.pattern.length()).isEqualTo(0);
-        verify(handler).handlePatternFound(any(StringBuilder.class));
+        verify(handler).handlePatternFound(any());
     }
 
     @Test
     public void shouldClearPatternWhenParameterCannotBeResolved() {
         ParamStateMachine stateMachine = new ParamStateMachine();
-        doThrow(new IllegalStateException()).when(handler).handlePatternFound(any(StringBuilder.class));
+        doThrow(new IllegalStateException()).when(handler).handlePatternFound(any());
 
         try {
             stateMachine.process("#{pattern}", handler);
@@ -50,6 +50,6 @@ public class ParamStateMachineTest {
             //Ignore to assert on the pattern
         }
         assertThat(ParamStateMachine.ReaderState.IN_PATTERN.pattern.length()).isEqualTo(0);
-        verify(handler).handlePatternFound(any(StringBuilder.class));
+        verify(handler).handlePatternFound(any());
     }
 }

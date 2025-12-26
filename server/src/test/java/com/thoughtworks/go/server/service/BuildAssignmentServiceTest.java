@@ -94,31 +94,27 @@ class BuildAssignmentServiceTest {
     private ConsoleService consoleService;
 
     private BuildAssignmentService buildAssignmentService;
-    private TransactionTemplate transactionTemplate;
     private SchedulingContext schedulingContext;
     private List<JobPlan> jobPlans;
-    private Agent elasticAgent;
     private AgentInstance elasticAgentInstance;
-    private ElasticProfile elasticProfile1;
-    private ElasticProfile elasticProfile2;
     private String elasticProfileId1;
     private String elasticProfileId2;
     private AgentInstance regularAgentInstance;
 
     @BeforeEach
     void setUp() {
-        transactionTemplate = dummy();
+        TransactionTemplate transactionTemplate = dummy();
         buildAssignmentService = new BuildAssignmentService(goConfigService, jobInstanceService, scheduleService, agentService,
                 environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory,
                 maintenanceModeService, elasticAgentPluginService, systemEnvironment, secretParamResolver,
                 jobStatusTopic, consoleService);
         elasticProfileId1 = "elastic.profile.id.1";
         elasticProfileId2 = "elastic.profile.id.2";
-        elasticAgent = AgentMother.elasticAgent();
+        Agent elasticAgent = AgentMother.elasticAgent();
         elasticAgentInstance = AgentInstance.createFromAgent(elasticAgent, new SystemEnvironment(), null);
         regularAgentInstance = AgentInstance.createFromAgent(AgentMother.approvedAgent(), new SystemEnvironment(), null);
-        elasticProfile1 = new ElasticProfile(elasticProfileId1, "prod-cluster");
-        elasticProfile2 = new ElasticProfile(elasticProfileId2, "prod-cluster");
+        ElasticProfile elasticProfile1 = new ElasticProfile(elasticProfileId1, "prod-cluster");
+        ElasticProfile elasticProfile2 = new ElasticProfile(elasticProfileId2, "prod-cluster");
         jobPlans = new ArrayList<>();
         Map<String, ElasticProfile> profiles = new HashMap<>();
         profiles.put(elasticProfile1.getId(), elasticProfile1);

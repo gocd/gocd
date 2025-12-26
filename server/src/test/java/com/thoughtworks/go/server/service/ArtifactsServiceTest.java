@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.LocatableEntity;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.helper.JobIdentifierMother;
@@ -200,7 +199,7 @@ public class ArtifactsServiceTest {
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
         artifactsService.initialize();
         File artifact = artifactsService.findArtifact(
-                new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null), "pkg.zip");
+                new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", 0), "pkg.zip");
         assertThat(artifact).isEqualTo(new File(artifactsRoot + "/pipelines/cruise/1/dev/2/linux-firefox/pkg.zip"));
     }
 
@@ -210,7 +209,7 @@ public class ArtifactsServiceTest {
         assumeArtifactsRoot(fakeRoot);
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
         artifactsService.initialize();
-        JobIdentifier oldId = new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null);
+        JobIdentifier oldId = new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", 0);
         when(resolverService.actualJobIdentifier(oldId)).thenReturn(new JobIdentifier("cruise", 2, "2.2", "functional", "3", "mac-safari"));
         String artifactRoot = artifactsService.findArtifactRoot(oldId);
         assertThat(artifactRoot).isEqualTo("pipelines/cruise/2/functional/3/mac-safari");
@@ -222,8 +221,8 @@ public class ArtifactsServiceTest {
         assumeArtifactsRoot(fakeRoot);
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
         artifactsService.initialize();
-        JobIdentifier oldId = new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null);
-        when(resolverService.actualJobIdentifier(oldId)).thenReturn(new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", null));
+        JobIdentifier oldId = new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", 0);
+        when(resolverService.actualJobIdentifier(oldId)).thenReturn(new JobIdentifier("cruise", 1, "1.1", "dev", "2", "linux-firefox", 0));
         String artifactRoot = artifactsService.findArtifactRoot(oldId);
         assertThat(artifactRoot).isEqualTo("pipelines\\cruise\\1\\dev\\2\\linux-firefox");
     }
@@ -245,7 +244,7 @@ public class ArtifactsServiceTest {
         willCleanUp(artifactsRoot);
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
         artifactsService.initialize();
-        File artifact = artifactsService.findArtifact(new JobIdentifier("cruise", -2, "1.1", "dev", "2", "linux-firefox", null), "pkg.zip");
+        File artifact = artifactsService.findArtifact(new JobIdentifier("cruise", -2, "1.1", "dev", "2", "linux-firefox", 0), "pkg.zip");
         assertThat(artifact).isEqualTo(new File(artifactsRoot, "pipelines/cruise/1.1/dev/2/linux-firefox/pkg.zip"));
     }
 
@@ -366,7 +365,7 @@ public class ArtifactsServiceTest {
         ArtifactDirectoryChooser chooser = mock(ArtifactDirectoryChooser.class);
         ReflectionUtil.setField(artifactsService, "chooser", chooser);
 
-        when(chooser.findArtifact(any(LocatableEntity.class), eq(""))).thenThrow(new IllegalArtifactLocationException("holy cow!"));
+        when(chooser.findArtifact(any(), eq(""))).thenThrow(new IllegalArtifactLocationException("holy cow!"));
 
 
         try (LogFixture logFixture = logFixtureFor(ArtifactsService.class, Level.DEBUG)) {

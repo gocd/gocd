@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract class QueryExtensions {
-    public String queryFromInclusiveModificationsForPipelineRange(String pipelineName, Integer fromCounter, Integer toCounter) {
+    public String queryFromInclusiveModificationsForPipelineRange(String pipelineName, int fromCounter, int toCounter) {
         // using string concatenation because Hibernate does not seem to be able to replace named or positional parameters here
         return """
             WITH RECURSIVE link(id) AS ( \

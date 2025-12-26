@@ -853,7 +853,7 @@ public class PipelineConfigTest {
 
         pipelineConfig.encryptSecureProperties(new BasicCruiseConfig(), pipelineConfig);
 
-        verify(mockStageConfig, never()).encryptSecureProperties(eq(new BasicCruiseConfig()), eq(pipelineConfig), ArgumentMatchers.any(StageConfig.class));
+        verify(mockStageConfig, never()).encryptSecureProperties(eq(new BasicCruiseConfig()), eq(pipelineConfig), ArgumentMatchers.any());
     }
 
     @Test
@@ -868,7 +868,7 @@ public class PipelineConfigTest {
 
         pipelineConfig.encryptSecureProperties(new BasicCruiseConfig(), pipelineConfig);
 
-        verify(mockStageConfig).encryptSecureProperties(eq(new BasicCruiseConfig()), eq(pipelineConfig), ArgumentMatchers.any(StageConfig.class));
+        verify(mockStageConfig).encryptSecureProperties(eq(new BasicCruiseConfig()), eq(pipelineConfig), ArgumentMatchers.any());
     }
 
     @Test
@@ -882,7 +882,7 @@ public class PipelineConfigTest {
 
         pipelineConfig.encryptSecureProperties(new BasicCruiseConfig(), pipelineConfig);
 
-        verify(mockStageConfig, never()).encryptSecureProperties(eq(new BasicCruiseConfig()), eq(pipelineConfig), ArgumentMatchers.any(StageConfig.class));
+        verify(mockStageConfig, never()).encryptSecureProperties(eq(new BasicCruiseConfig()), eq(pipelineConfig), ArgumentMatchers.any());
     }
 
     private StageConfig completedStage() {

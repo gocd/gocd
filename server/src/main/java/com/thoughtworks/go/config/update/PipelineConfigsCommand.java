@@ -24,11 +24,11 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.apache.commons.lang3.StringUtils;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public abstract class PipelineConfigsCommand implements EntityConfigUpdateCommand<PipelineConfigs> {
     final LocalizedOperationResult result;
@@ -80,7 +80,7 @@ public abstract class PipelineConfigsCommand implements EntityConfigUpdateComman
     }
 
     void validateGroupName(String group) {
-        if (group == null || StringUtils.isBlank(group)) {
+        if (group == null || isBlank(group)) {
             result.unprocessableEntity("The group is invalid. Attribute 'name' cannot be null.");
             throw new IllegalArgumentException("Group name cannot be null.");
         }

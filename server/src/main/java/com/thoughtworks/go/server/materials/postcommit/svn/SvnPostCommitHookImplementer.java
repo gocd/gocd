@@ -20,11 +20,12 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookImplementer;
 import com.thoughtworks.go.server.materials.postcommit.UrlMatchers;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class SvnPostCommitHookImplementer implements PostCommitHookImplementer {
 
@@ -46,7 +47,7 @@ public class SvnPostCommitHookImplementer implements PostCommitHookImplementer {
             }
         } else if (params.containsKey(REPO_URL_PARAM_KEY)) {
             String paramRepoUrl = params.get(REPO_URL_PARAM_KEY);
-            if (StringUtils.isNotBlank(paramRepoUrl)) {
+            if (isNotBlank(paramRepoUrl)) {
                 for (Material material : materials) {
                     if (material instanceof SvnMaterial && isUrlEqual(paramRepoUrl, (SvnMaterial) material)) {
                         prunedMaterials.add(material);

@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.server.domain.user;
 
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.VALID_STATES;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 class FilterValidator {
 
@@ -83,7 +83,7 @@ class FilterValidator {
     }
 
     static void validateNamePresent(String name) {
-        if (StringUtils.isBlank(name)) {
+        if (isBlank(name)) {
             throw new FilterValidationException(MSG_MISSING_NAME);
         }
     }

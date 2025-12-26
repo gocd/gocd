@@ -114,7 +114,7 @@ public class PartialConfigServiceTest {
             UpdateConfigCommand command = (UpdateConfigCommand) invocationOnMock.getArguments()[0];
             command.update(cruiseConfig);
             return cruiseConfig;
-        }).when(goConfigService).updateConfig(any(UpdateConfigCommand.class));
+        }).when(goConfigService).updateConfig(any());
         service.onSuccessPartialConfig(configRepoConfig, withPipeline("p1"));
         assertEquals(1, cruiseConfig.getPartials().size());
         assertEquals("group", cruiseConfig.getPartials().get(0).getGroups().first().getGroup());
@@ -126,7 +126,7 @@ public class PartialConfigServiceTest {
             UpdateConfigCommand command = (UpdateConfigCommand) invocationOnMock.getArguments()[0];
             command.update(cruiseConfig);
             return cruiseConfig;
-        }).when(goConfigService).updateConfig(any(UpdateConfigCommand.class));
+        }).when(goConfigService).updateConfig(any());
         service.onSuccessPartialConfig(configRepoConfig, withEnvironment("env1"));
         assertEquals(1, cruiseConfig.getPartials().size());
         assertEquals(new CaseInsensitiveString("env1"), cruiseConfig.getPartials().get(0).getEnvironments().first().name());
@@ -135,10 +135,10 @@ public class PartialConfigServiceTest {
     @Test
     void mergesWhenPartialHasChanged() {
         cachedGoPartials = mock(CachedGoPartials.class);
-        when(cachedGoPartials.getKnown(any(String.class))).thenReturn(mock(PartialConfig.class));
+        when(cachedGoPartials.getKnown(any())).thenReturn(mock(PartialConfig.class));
 
         configWatchList = mock(GoConfigWatchList.class);
-        when(configWatchList.hasConfigRepoWithFingerprint(any(String.class))).thenReturn(true);
+        when(configWatchList.hasConfigRepoWithFingerprint(any())).thenReturn(true);
 
         when(partialConfigHelper.isEquivalent(any(PartialConfig.class), any(PartialConfig.class))).thenReturn(false);
 
@@ -152,17 +152,17 @@ public class PartialConfigServiceTest {
     @Test
     void skipsMergeWhenPartialHasNotChanged() {
         cachedGoPartials = mock(CachedGoPartials.class);
-        when(cachedGoPartials.getKnown(any(String.class))).thenReturn(mock(PartialConfig.class));
+        when(cachedGoPartials.getKnown(any())).thenReturn(mock(PartialConfig.class));
 
         configWatchList = mock(GoConfigWatchList.class);
-        when(configWatchList.hasConfigRepoWithFingerprint(any(String.class))).thenReturn(true);
+        when(configWatchList.hasConfigRepoWithFingerprint(any())).thenReturn(true);
 
         when(partialConfigHelper.isEquivalent(any(PartialConfig.class), any(PartialConfig.class))).thenReturn(true);
 
         service = new PartialConfigService(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService, partialConfigHelper);
 
         service.onSuccessPartialConfig(configRepoConfig, mock(PartialConfig.class));
-        verify(cachedGoPartials, never()).cacheAsLastKnown(any(String.class), any(PartialConfig.class));
+        verify(cachedGoPartials, never()).cacheAsLastKnown(any(), any());
     }
 
     @Test
@@ -197,7 +197,7 @@ public class PartialConfigServiceTest {
 
         assertTrue(cachedGoPartials.lastValidPartials().isEmpty());
 
-        verify(goConfigService, times(2)).updateConfig(any(UpdateConfigCommand.class));
+        verify(goConfigService, times(2)).updateConfig(any());
     }
 
     @Test
@@ -237,7 +237,7 @@ public class PartialConfigServiceTest {
         assertEquals(1, cachedGoPartials.lastValidPartials().size());
         assertEquals(lastValid, cachedGoPartials.lastValidPartials().get(0));
 
-        verify(goConfigService).updateConfig(any(UpdateConfigCommand.class));
+        verify(goConfigService).updateConfig(any());
     }
 
     @Nested
@@ -345,7 +345,7 @@ public class PartialConfigServiceTest {
             repoConfigDataSource.registerListener(listener);
 
             repoConfigDataSource.onCheckoutComplete(material, folder, mock(Modification.class));
-            verify(listener).onSuccessPartialConfig(any(ConfigRepoConfig.class), any(PartialConfig.class));
+            verify(listener).onSuccessPartialConfig(any(), any());
         }
 
         private void notifyWatchList(ConfigRepoConfig... repos) {
@@ -360,12 +360,12 @@ public class PartialConfigServiceTest {
         }
 
         private PartialConfig stubConfigRepoParseWith(PartialConfig part) {
-            when(plugin.load(any(File.class), any(PartialConfigLoadContext.class))).thenReturn(part);
+            when(plugin.load(any(), any())).thenReturn(part);
             return part;
         }
 
         private void stubConfigRepoParseFailure(Throwable e) {
-            when(plugin.load(any(File.class), any(PartialConfigLoadContext.class))).thenThrow(e);
+            when(plugin.load(any(), any())).thenThrow(e);
         }
     }
 }

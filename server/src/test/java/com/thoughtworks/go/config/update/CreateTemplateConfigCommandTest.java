@@ -116,6 +116,6 @@ public class CreateTemplateConfigCommandTest {
 
         command.encrypt(preprocessedConfig);
 
-        verify(template).encryptSecureProperties(eq(preprocessedConfig), any(PipelineTemplateConfig.class));
+        verify(template).encryptSecureProperties(eq(preprocessedConfig), any());
     }
 }

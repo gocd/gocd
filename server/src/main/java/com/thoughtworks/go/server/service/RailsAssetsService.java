@@ -20,7 +20,6 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +36,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Service
 public class RailsAssetsService implements ServletContextAware {
@@ -75,7 +75,7 @@ public class RailsAssetsService implements ServletContextAware {
 
     public String getAssetPath(String asset) {
         String assetFileName = systemEnvironment.useCompressedJs() ? railsAssetsManifest.getAssetWithDigest(asset) : asset;
-        return StringUtils.isBlank(assetFileName) ? null : String.format("assets/%s", assetFileName);
+        return isBlank(assetFileName) ? null : "assets/" + assetFileName;
     }
 
     @Override

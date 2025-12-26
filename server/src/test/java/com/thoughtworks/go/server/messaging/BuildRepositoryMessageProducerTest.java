@@ -34,16 +34,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class BuildRepositoryMessageProducerTest {
-    private AgentIdentifier agentIdentifier = new AgentIdentifier("HOSTNAME", "10.0.0.1", UUID.randomUUID().toString());
-    private JobIdentifier jobIdentifier = new JobIdentifier();
-    private JobState assigned = JobState.Assigned;
-    private JobResult passed = JobResult.Passed;
+    private static final AgentIdentifier AGENT = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
+    private static final AgentRuntimeInfo AGENT_INFO = new AgentRuntimeInfo(AGENT, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
+
+    private final AgentIdentifier agentIdentifier = new AgentIdentifier("HOSTNAME", "10.0.0.1", UUID.randomUUID().toString());
+    private final JobIdentifier jobIdentifier = new JobIdentifier();
+    private final JobState assigned = JobState.Assigned;
+    private final JobResult passed = JobResult.Passed;
 
     private BuildRepositoryRemoteImpl oldImplementation;
     private WorkAssignments newImplementation;
     private BuildRepositoryMessageProducer producer;
-    private static final AgentIdentifier AGENT = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
-    private static final AgentRuntimeInfo AGENT_INFO = new AgentRuntimeInfo(AGENT, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
 
     @BeforeEach
     public void setUp() {

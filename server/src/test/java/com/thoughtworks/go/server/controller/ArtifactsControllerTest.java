@@ -34,7 +34,6 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.File;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 
 import static com.thoughtworks.go.remote.StandardHeaders.REQUEST_CONFIRM_MODIFICATION;
@@ -78,7 +77,7 @@ public class ArtifactsControllerTest {
         String path = "cruise-output/console.log";
         File artifactFile = new File("junk");
         when(consoleService.consoleLogFile(jobIdentifier)).thenReturn(artifactFile);
-        when(consoleService.updateConsoleLog(eq(artifactFile), any(InputStream.class))).thenReturn(true);
+        when(consoleService.updateConsoleLog(eq(artifactFile), any())).thenReturn(true);
         assertThat(((ResponseCodeView) artifactsController.putArtifact("pipeline", "10", "stage", "2", "build", 103L, path, "agent-id", request).getView()).getStatusCode()).isEqualTo(HttpURLConnection.HTTP_OK);
         verify(consoleActivityMonitor).consoleUpdatedFor(jobIdentifier);
     }
@@ -103,9 +102,9 @@ public class ArtifactsControllerTest {
         File artifactFile = new File("junk");
         JobIdentifier jobIdentifier = new JobIdentifier("pipeline-1", 1, "1", "stage-1", "2", "job-1", 122L);
         when(restfulService.findJob("pipeline-1", "1", "stage-1", "2", "job-1", 122L)).thenReturn(jobIdentifier);
-        when(artifactService.findArtifact(any(JobIdentifier.class), eq("some-path"))).thenReturn(artifactFile);
-        when(artifactService.saveFile(any(File.class), any(InputStream.class), eq(false), eq(1))).thenReturn(true);
-        when(artifactService.saveOrAppendFile(any(File.class), any(InputStream.class))).thenReturn(false);
+        when(artifactService.findArtifact(any(), eq("some-path"))).thenReturn(artifactFile);
+        when(artifactService.saveFile(any(), any(), eq(false), eq(1))).thenReturn(true);
+        when(artifactService.saveOrAppendFile(any(), any())).thenReturn(false);
 
         MockMultipartHttpServletRequest request = newMultiPartRequest();
         request.addFile(new MockMultipartFile(REGULAR_MULTIPART_FILENAME, "content".getBytes()));

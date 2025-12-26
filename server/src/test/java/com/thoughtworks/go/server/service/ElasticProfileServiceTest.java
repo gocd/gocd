@@ -22,9 +22,6 @@ import com.thoughtworks.go.config.elastic.ElasticConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.config.update.ElasticAgentProfileCreateCommand;
-import com.thoughtworks.go.config.update.ElasticAgentProfileDeleteCommand;
-import com.thoughtworks.go.config.update.ElasticAgentProfileUpdateCommand;
 import com.thoughtworks.go.domain.ElasticProfileUsage;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
@@ -127,7 +124,7 @@ class ElasticProfileServiceTest {
         Username username = new Username("username");
         elasticProfileService.create(username, elasticProfile, new HttpLocalizedOperationResult());
 
-        verify(goConfigService).updateConfig(any(ElasticAgentProfileCreateCommand.class), eq(username));
+        verify(goConfigService).updateConfig(any(), eq(username));
     }
 
     @Test
@@ -148,7 +145,7 @@ class ElasticProfileServiceTest {
         Username username = new Username("username");
         elasticProfileService.update(username, "md5", elasticProfile, new HttpLocalizedOperationResult());
 
-        verify(goConfigService).updateConfig(any(ElasticAgentProfileUpdateCommand.class), eq(username));
+        verify(goConfigService).updateConfig(any(), eq(username));
     }
 
     @Test
@@ -169,7 +166,7 @@ class ElasticProfileServiceTest {
         Username username = new Username("username");
         elasticProfileService.delete(username, elasticProfile, new HttpLocalizedOperationResult());
 
-        verify(goConfigService).updateConfig(any(ElasticAgentProfileDeleteCommand.class), eq(username));
+        verify(goConfigService).updateConfig(any(), eq(username));
     }
 
     @Test

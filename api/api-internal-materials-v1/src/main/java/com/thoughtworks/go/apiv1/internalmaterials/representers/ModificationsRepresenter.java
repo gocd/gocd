@@ -27,7 +27,7 @@ import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class ModificationsRepresenter {
-    public static void toJSON(OutputWriter outputWriter, List<Modification> modifications, PipelineRunIdInfo latestAndOldestModId, String fingerprint, String pattern, Integer pageSize) {
+    public static void toJSON(OutputWriter outputWriter, List<Modification> modifications, PipelineRunIdInfo latestAndOldestModId, String fingerprint, String pattern, int pageSize) {
         if (modifications == null || modifications.isEmpty()) {
             outputWriter.addChildList("modifications", emptyList());
             return;

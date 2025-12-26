@@ -154,7 +154,7 @@ public class PipelineHistoryControllerIntegrationTest {
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> requestPipelineHistoryPage() {
-        ModelAndView modelAndView = controller.list(pipelineFixture.pipelineName, 10, 0, null, response, request);
+        ModelAndView modelAndView = controller.list(pipelineFixture.pipelineName, 10, 0, null, response);
         return (Map<String, Object>) modelAndView.getModel().get("json");
     }
 

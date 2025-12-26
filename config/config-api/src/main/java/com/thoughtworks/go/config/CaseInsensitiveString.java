@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Strings;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -46,10 +45,6 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
         return lowerCaseName;
     }
 
-    public boolean startsWith(String string) {
-       return Strings.CI.startsWith(lowerCaseName, string);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -67,7 +62,7 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
         return Objects.hash(lowerCaseName);
     }
 
-    public boolean isBlank() {
+    public boolean isEmpty() {
         return StringUtils.isEmpty(name);
     }
 
@@ -81,8 +76,8 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
         return toLower().compareTo(other.toLower());
     }
 
-    public static boolean isBlank(CaseInsensitiveString string) {
-        return string == null || string.isBlank();
+    public static boolean isEmpty(CaseInsensitiveString string) {
+        return string == null || string.isEmpty();
     }
 
     public String toUpper() {

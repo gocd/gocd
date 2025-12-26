@@ -22,7 +22,6 @@ import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -32,6 +31,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * Understands an environment variable value that will be passed to a job when it is run
@@ -155,7 +156,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
             configErrors.add(NAME, String.format("Environment Variable cannot start or end with spaces for %s '%s'.", parentDisplayName, parentName));
             return;
         }
-        if (StringUtils.isBlank(currentVariableName)) {
+        if (isBlank(currentVariableName)) {
             configErrors.add(NAME, String.format("Environment Variable cannot have an empty name for %s '%s'.", parentDisplayName, parentName));
             return;
         }
@@ -277,7 +278,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         Map<String, String> attributeMap = (Map<String, String>) attributes;
         this.name = attributeMap.get(EnvironmentVariableConfig.NAME);
         String value = attributeMap.get(EnvironmentVariableConfig.VALUE);
-        if (StringUtils.isBlank(name) && StringUtils.isBlank(value)) {
+        if (isBlank(name) && isBlank(value)) {
             throw new IllegalArgumentException(String.format("Need not null/empty name & value %s:%s", this.name, value));
         }
         this.isSecure = BooleanUtils.toBoolean(attributeMap.get(EnvironmentVariableConfig.SECURE));
@@ -305,16 +306,16 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         setName(name);
         setIsSecure(isSecure);
 
-        if (!isSecure && StringUtils.isNotBlank(encryptedValue)) {
+        if (!isSecure && isNotBlank(encryptedValue)) {
             errors().add(ENCRYPTEDVALUE, "You may specify encrypted value only when option 'secure' is true.");
         }
 
-        if (StringUtils.isNotBlank(value) && StringUtils.isNotBlank(encryptedValue)) {
+        if (isNotBlank(value) && isNotBlank(encryptedValue)) {
             addError("value", "You may only specify `value` or `encrypted_value`, not both!");
             addError(ENCRYPTEDVALUE, "You may only specify `value` or `encrypted_value`, not both!");
         }
 
-        if (StringUtils.isNotBlank(encryptedValue)) {
+        if (isNotBlank(encryptedValue)) {
             setEncryptedValue(encryptedValue);
         }
 

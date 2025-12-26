@@ -206,7 +206,7 @@ class PackageMaterialPollerTest {
     void shouldPopulatePackageModificationComment_WithTrackbackUrlAndComment() {
         PackageRevision packageRevision = new PackageRevision(null, null, null, "Built on host1", "http://google.com");
         PackageMaterial packageMaterial = MaterialsMother.packageMaterial();
-        when(packageRepositoryExtension.getLatestRevision(eq(packageMaterial.getPluginId()), any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class), any(RepositoryConfiguration.class))).thenReturn(packageRevision);
+        when(packageRepositoryExtension.getLatestRevision(eq(packageMaterial.getPluginId()), any(), any())).thenReturn(packageRevision);
 
         List<Modification> modifications = poller.latestModification(packageMaterial, null, null);
         assertThatJson(modifications.get(0).getComment()).isEqualTo("{\"COMMENT\":\"Built on host1\",\"TRACKBACK_URL\":\"http://google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}");
@@ -217,7 +217,7 @@ class PackageMaterialPollerTest {
         PackageRevision packageRevision = new PackageRevision(null, null, null, "some comment", "http://google.com");
         PackageMaterialRevision previousRevision = new PackageMaterialRevision("rev", new Date());
         PackageMaterial packageMaterial = MaterialsMother.packageMaterial();
-        when(packageRepositoryExtension.latestModificationSince(eq(packageMaterial.getPluginId()), any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class), any(RepositoryConfiguration.class), any(PackageRevision.class))).thenReturn(packageRevision);
+        when(packageRepositoryExtension.latestModificationSince(eq(packageMaterial.getPluginId()), any(), any(), any())).thenReturn(packageRevision);
 
         List<Modification> modifications = poller.modificationsSince(packageMaterial, null, previousRevision, null);
         assertThatJson(modifications.get(0).getComment()).isEqualTo("{\"COMMENT\":\"some comment\",\"TRACKBACK_URL\":\"http://google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}");
@@ -262,7 +262,7 @@ class PackageMaterialPollerTest {
             String dataKey = "extra_data";
             String dataValue = "value";
             packageRevision.addData(dataKey, dataValue);
-            when(packageRepositoryExtension.latestModificationSince(eq(material.getPluginId()), packageConfiguration.capture(), repositoryConfiguration.capture(), any(PackageRevision.class))).thenReturn(packageRevision);
+            when(packageRepositoryExtension.latestModificationSince(eq(material.getPluginId()), packageConfiguration.capture(), repositoryConfiguration.capture(), any())).thenReturn(packageRevision);
 
             List<Modification> modifications = poller.modificationsSince(material, null, knownRevision, null);
 

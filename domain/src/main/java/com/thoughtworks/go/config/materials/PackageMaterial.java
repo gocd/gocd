@@ -193,7 +193,7 @@ public class PackageMaterial extends AbstractMaterial implements SecretParamAwar
 
     @Override
     public String getDisplayName() {
-        return ((name == null || name.isBlank()) && getPackageDefinition().getRepository().getName() == null) ? getUriForDisplay() : getName().toString();
+        return ((name == null || name.isEmpty()) && getPackageDefinition().getRepository().getName() == null) ? getUriForDisplay() : getName().toString();
     }
 
     @Override

@@ -37,7 +37,6 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.listener.BaseUrlChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
@@ -528,7 +527,7 @@ public class GoConfigServiceTest {
         CruiseConfig cruiseConfig = new GoConfigMother().cruiseConfigWithOnePipelineGroup();
         when(goConfigDao.currentConfig()).thenReturn(cruiseConfig);
         goConfigService.initialize();
-        verify(goConfigDao).registerListener(any(BaseUrlChangeListener.class));
+        verify(goConfigDao).registerListener(any());
     }
 
     @Test
@@ -696,7 +695,7 @@ public class GoConfigServiceTest {
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml(pipelineGroupContent, "md5");
         assertThat(validity.isValid()).isEqualTo((false));
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).contains("Invalid content was found starting with element 'unknown'");
-        verify(goConfigDao, never()).updateConfig(any(UpdateConfigCommand.class));
+        verify(goConfigDao, never()).updateConfig(any());
     }
 
     @Test
@@ -711,7 +710,7 @@ public class GoConfigServiceTest {
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml(pipelineGroupContent, "md5");
         assertThat(validity.isValid()).isEqualTo((false));
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).contains("Name is invalid. \"pipeline@$^\"");
-        verify(goConfigDao, never()).updateConfig(any(UpdateConfigCommand.class));
+        verify(goConfigDao, never()).updateConfig(any());
     }
 
     @Test
@@ -726,7 +725,7 @@ public class GoConfigServiceTest {
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml("<foobar>", "md5");
         assertThat(validity.isValid()).isEqualTo((false));
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).contains("XML document structures must start and end within the same entity");
-        verify(goConfigDao, never()).updateConfig(any(UpdateConfigCommand.class));
+        verify(goConfigDao, never()).updateConfig(any());
     }
 
     @Test

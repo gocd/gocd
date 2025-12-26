@@ -16,13 +16,11 @@
 package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.config.GoConfigRepoConfigDataSource;
-import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.MaterialService;
@@ -83,7 +81,7 @@ public class ConfigMaterialUpdateListenerTest {
 
         this.configUpdater.onMessage(message);
 
-        verify(materialService, times(1)).checkout(any(Material.class), any(File.class), any(Revision.class), any(SubprocessExecutionContext.class));
+        verify(materialService, times(1)).checkout(any(), any(), any(), any());
     }
 
     @Test

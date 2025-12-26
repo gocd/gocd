@@ -25,7 +25,6 @@ import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.NamedProcessTag;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +34,7 @@ import java.io.File;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.config.materials.git.GitMaterial.UNSHALLOW_TRYOUT_STEP;
 import static com.thoughtworks.go.config.materials.git.RefSpecHelper.REFS_HEADS;
@@ -42,7 +42,9 @@ import static com.thoughtworks.go.domain.materials.ModifiedAction.parseGitAction
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
+import static java.lang.String.join;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 
 public class GitCommand extends SCMCommand {
     public static final String GIT_CLEAN_KEEP_IGNORED_FILES_FLAG = "toggle.agent.git.clean.keep.ignored.files";
@@ -63,7 +65,7 @@ public class GitCommand extends SCMCommand {
         super(materialFingerprint);
         this.workingDir = workingDir;
         this.secrets = secrets != null ? secrets : new ArrayList<>();
-        this.branch = StringUtils.defaultIfBlank(branch, GitMaterialConfig.DEFAULT_BRANCH);
+        this.branch = defaultIfBlank(branch, GitMaterialConfig.DEFAULT_BRANCH);
         this.isSubmodule = isSubmodule;
     }
 
@@ -134,7 +136,7 @@ public class GitCommand extends SCMCommand {
 
     // Clone repository from url with specified depth.
     // Special depth 2147483647 (Integer.MAX_VALUE) are treated as full clone
-    public int clone(ConsoleOutputStreamConsumer outputStreamConsumer, String url, Integer depth) {
+    public int clone(ConsoleOutputStreamConsumer outputStreamConsumer, String url, int depth) {
         CommandLine gitClone = cloneCommand()
             .when(!hasRefSpec(), git -> git.withArgs("--branch", branch))
             .when(depth < Integer.MAX_VALUE, git -> git.withArg(format("--depth=%s", depth)))
@@ -348,7 +350,7 @@ public class GitCommand extends SCMCommand {
         CommandLine syncCmd = gitWd().withArgs(syncArgs);
         runOrBomb(syncCmd);
 
-        List<String> foreachArgs = submoduleForEachRecursive(List.of("git", "submodule", "sync"));
+        List<String> foreachArgs = submoduleForEachRecursive("git", "submodule", "sync");
         CommandLine foreachCmd = gitWd().withArgs(foreachArgs);
         runOrBomb(foreachCmd);
     }
@@ -384,7 +386,7 @@ public class GitCommand extends SCMCommand {
                     %s"""
                     .formatted(
                         result.redactFrom(submoduleLine),
-                        result.redactFrom(String.join("\n", submoduleList))
+                        result.redactFrom(join("\n", submoduleList))
                     )
                 );
             }
@@ -457,7 +459,7 @@ public class GitCommand extends SCMCommand {
 
     private void checkoutAllModifiedFilesInSubmodules(ConsoleOutputStreamConsumer outputStreamConsumer) {
         log(outputStreamConsumer, "Removing modified files in submodules");
-        List<String> submoduleForEachRecursive = submoduleForEachRecursive(List.of("git", "checkout", "."));
+        List<String> submoduleForEachRecursive = submoduleForEachRecursive("git", "checkout", ".");
         runOrBomb(gitWd().withArgs(submoduleForEachRecursive));
     }
 
@@ -548,7 +550,7 @@ public class GitCommand extends SCMCommand {
     }
 
     private void cleanUnversionedFilesInAllSubmodules() {
-        List<String> args = submoduleForEachRecursive(List.of("git", "clean", gitCleanArgs()));
+        List<String> args = submoduleForEachRecursive("git", "clean", gitCleanArgs());
         runOrBomb(gitWd().withArgs(args));
     }
 
@@ -585,10 +587,7 @@ public class GitCommand extends SCMCommand {
                     Unable to parse git-submodule output line: %s
                     From output:
                     %s"""
-                    .formatted(
-                        submoduleLine,
-                        String.join("\n", submoduleLines)
-                    )
+                    .formatted(submoduleLine, join("\n", submoduleLines))
                 );
             }
             submoduleFolders.add(m.group(1));
@@ -597,17 +596,16 @@ public class GitCommand extends SCMCommand {
     }
 
     private void log(ConsoleOutputStreamConsumer outputStreamConsumer, String message, Object... args) {
-        LOG.debug(message, args);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(message, args);
+        }
         outputStreamConsumer.stdOutput(MessageFormatter.basicArrayFormat("[GIT] " + message, args));
     }
 
-    private List<String> submoduleForEachRecursive(List<String> args) {
-        List<String> forEachArgs = new ArrayList<>(List.of("submodule", "foreach", "--recursive"));
-        if (version().requiresSubmoduleCommandFix()) {
-            forEachArgs.add(StringUtils.join(args, " "));
-        } else {
-            forEachArgs.addAll(args);
-        }
-        return forEachArgs;
+    private List<String> submoduleForEachRecursive(String... args) {
+        return Stream.concat(
+            Stream.of("submodule", "foreach", "--recursive"),
+            version().requiresSubmoduleCommandFix() ? Stream.of(join(" ", args)) : Arrays.stream(args)
+        ).toList();
     }
 }

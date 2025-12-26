@@ -41,6 +41,7 @@ import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.Pair;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -147,7 +148,7 @@ public class MaterialService {
         return materialPoller == null ? new NoOpPoller() : materialPoller;
     }
 
-    public Long getTotalModificationsFor(MaterialConfig materialConfig) {
+    public @Nullable Long getTotalModificationsFor(MaterialConfig materialConfig) {
         MaterialInstance materialInstance = materialRepository.findMaterialInstance(materialConfig);
 
         return materialRepository.getTotalModificationsFor(materialInstance);
@@ -184,7 +185,7 @@ public class MaterialService {
         return materialRepository.getOldestAndLatestModificationId(materialInstance.getId(), pattern);
     }
 
-    public List<Modification> getModificationsFor(MaterialConfig materialConfig, String pattern, long after, long before, Integer pageSize) {
+    public List<Modification> getModificationsFor(MaterialConfig materialConfig, String pattern, long after, long before, int pageSize) {
         MaterialInstance materialInstance = materialRepository.findMaterialInstance(materialConfig);
 
         if (materialInstance == null) {
@@ -196,13 +197,13 @@ public class MaterialService {
                 : findMatchingModifications(materialInstance, pattern, after, before, pageSize);
     }
 
-    private List<Modification> getModificationsFor(MaterialInstance materialInstance, long afterCursor, long beforeCursor, Integer pageSize) {
+    private List<Modification> getModificationsFor(MaterialInstance materialInstance, long afterCursor, long beforeCursor, int pageSize) {
         Pair<Long, FeedModifier> cursor = cursor(afterCursor, beforeCursor);
 
         return materialRepository.loadHistory(materialInstance.getId(), cursor.last(), cursor.first(), pageSize);
     }
 
-    private List<Modification> findMatchingModifications(MaterialInstance materialInstance, String pattern, long afterCursor, long beforeCursor, Integer pageSize) {
+    private List<Modification> findMatchingModifications(MaterialInstance materialInstance, String pattern, long afterCursor, long beforeCursor, int pageSize) {
         Pair<Long, FeedModifier> cursor = cursor(afterCursor, beforeCursor);
 
         return materialRepository.findMatchingModifications(materialInstance.getId(), pattern, cursor.last(), cursor.first(), pageSize);

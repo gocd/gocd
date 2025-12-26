@@ -85,25 +85,25 @@ public class JobConfigsTest {
     @Test
     public void shouldReturnTrueIfAllDescendentsAreValid() {
         JobConfig jobConfig = mock(JobConfig.class);
-        when(jobConfig.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
+        when(jobConfig.validateTree(any())).thenReturn(true);
         JobConfigs jobConfigs = new JobConfigs(jobConfig);
 
         boolean isValid = jobConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig()));
         assertTrue(isValid);
 
-        verify(jobConfig).validateTree(any(PipelineConfigSaveValidationContext.class));
+        verify(jobConfig).validateTree(any());
     }
 
     @Test
     public void shouldReturnFalseIfAnyDescendentIsInvalid() {
         JobConfig jobConfig = mock(JobConfig.class);
-        when(jobConfig.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
+        when(jobConfig.validateTree(any())).thenReturn(false);
         JobConfigs jobConfigs = new JobConfigs(jobConfig);
 
         boolean isValid = jobConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig()));
         assertFalse(isValid);
 
-        verify(jobConfig).validateTree(any(PipelineConfigSaveValidationContext.class));
+        verify(jobConfig).validateTree(any());
     }
 
     @Test

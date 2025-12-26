@@ -90,7 +90,7 @@ public class UnitTestReportGeneratorTest {
             copyAndClose(source("nunit-result-206.xml"), target("test-result.xml"));
             generator.generate(testFolder.listFiles(), "testoutput");
             assertThat(testFolder.listFiles()).hasSize(2);
-            verify(publisher).upload(uploadedFile.capture(), any(String.class));
+            verify(publisher).upload(uploadedFile.capture(), any());
             assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("206");
             assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
             assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
@@ -126,7 +126,7 @@ public class UnitTestReportGeneratorTest {
 
             generator.generate(testFolder.listFiles(), "testoutput");
 
-            verify(publisher).upload(uploadedFile.capture(), any(String.class));
+            verify(publisher).upload(uploadedFile.capture(), any());
             assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("2762");
             assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
             assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("120");
@@ -144,7 +144,7 @@ public class UnitTestReportGeneratorTest {
             generator.generate(testFolder.listFiles(), "testoutput");
 
             verify(publisher).consumeLine("Ignoring file ncover-report.xml - it is not a recognised test file.");
-            verify(publisher).upload(uploadedFile.capture(), any(String.class));
+            verify(publisher).upload(uploadedFile.capture(), any());
             assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("204");
             assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
             assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("6");
@@ -161,7 +161,7 @@ public class UnitTestReportGeneratorTest {
 
             generator.generate(testFolder.listFiles(), "testoutput");
 
-            verify(publisher).upload(uploadedFile.capture(), any(String.class));
+            verify(publisher).upload(uploadedFile.capture(), any());
             assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("1");
             assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
             assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
@@ -174,7 +174,7 @@ public class UnitTestReportGeneratorTest {
 
             generator.generate(testFolder.listFiles(), "testoutput");
 
-            verify(publisher).upload(uploadedFile.capture(), any(String.class));
+            verify(publisher).upload(uploadedFile.capture(), any());
             assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("1");
             assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
             assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
@@ -187,7 +187,7 @@ public class UnitTestReportGeneratorTest {
 
             generator.generate(testFolder.listFiles(), "testoutput");
 
-            verify(publisher).upload(uploadedFile.capture(), any(String.class));
+            verify(publisher).upload(uploadedFile.capture(), any());
             assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("1");
             assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
             assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
@@ -200,7 +200,7 @@ public class UnitTestReportGeneratorTest {
 
             generator.generate(testFolder.listFiles(), "testoutput");
 
-            verify(publisher).upload(uploadedFile.capture(), any(String.class));
+            verify(publisher).upload(uploadedFile.capture(), any());
             assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("1");
             assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
             assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
@@ -214,7 +214,7 @@ public class UnitTestReportGeneratorTest {
 
             generator.generate(testFolder.listFiles(), "testoutput");
 
-            verify(publisher).upload(uploadedFile.capture(), any(String.class));
+            verify(publisher).upload(uploadedFile.capture(), any());
             assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("5");
             assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("3");
             assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
@@ -228,7 +228,7 @@ public class UnitTestReportGeneratorTest {
 
             generator.generate(testFolder.listFiles(), "testoutput");
 
-            verify(publisher).upload(uploadedFile.capture(), any(String.class));
+            verify(publisher).upload(uploadedFile.capture(), any());
             assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("5");
             assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("3");
             assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
@@ -237,7 +237,7 @@ public class UnitTestReportGeneratorTest {
     }
 
     private void expectZeroedProperties() throws Exception {
-        verify(publisher).upload(uploadedFile.capture(), any(String.class));
+        verify(publisher).upload(uploadedFile.capture(), any());
         assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("0");
         assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
         assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");

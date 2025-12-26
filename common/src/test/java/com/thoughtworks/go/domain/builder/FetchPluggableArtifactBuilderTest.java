@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.artifact.models.FetchArtifactEnvironmentVariable;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
-import com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.json.JsonHelper;
@@ -135,7 +134,7 @@ public class FetchPluggableArtifactBuilderTest {
         builder.build(publisher, new EnvironmentVariableContext(), null, artifactExtension, registry, UTF_8);
 
         InOrder inOrder = inOrder(registry, artifactExtension);
-        inOrder.verify(registry, times(1)).registerProcessorFor(eq(CONSOLE_LOG.requestName()), ArgumentMatchers.any(ArtifactRequestProcessor.class));
+        inOrder.verify(registry, times(1)).registerProcessorFor(eq(CONSOLE_LOG.requestName()), ArgumentMatchers.any());
         inOrder.verify(artifactExtension).fetchArtifact(eq(PLUGIN_ID), eq(artifactStore), eq(fetchPluggableArtifactTask.getConfiguration()), eq(metadata), eq(metadataDest.getParent().toString()));
         inOrder.verify(registry, times(1)).removeProcessorFor(CONSOLE_LOG.requestName());
     }

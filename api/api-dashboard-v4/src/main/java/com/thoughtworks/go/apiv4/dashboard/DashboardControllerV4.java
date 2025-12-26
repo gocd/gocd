@@ -32,7 +32,6 @@ import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -43,6 +42,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.joinWith;
 import static spark.Spark.*;
 
 @Component
@@ -122,11 +123,11 @@ public class DashboardControllerV4 extends ApiController implements SparkSpringC
             .map(GoDashboardPipelineGroup::etag).collect(Collectors.joining(SEP_CHAR));
         final String environmentSegment = environments.stream()
             .map(GoDashboardEnvironment::etag).collect(Collectors.joining(SEP_CHAR));
-        return DigestUtils.md5Hex(StringUtils.joinWith(SEP_CHAR, username.getUsername(), pipelineSegment, environmentSegment));
+        return DigestUtils.md5Hex(joinWith(SEP_CHAR, username.getUsername(), pipelineSegment, environmentSegment));
     }
 
     private String getViewName(Request request) {
         final String viewName = request.queryParams(VIEW_NAME);
-        return StringUtils.isBlank(viewName) ? DEFAULT_NAME : viewName;
+        return isBlank(viewName) ? DEFAULT_NAME : viewName;
     }
 }

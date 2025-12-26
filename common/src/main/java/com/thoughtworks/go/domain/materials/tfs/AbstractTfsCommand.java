@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.SCMCommand;
 import com.thoughtworks.go.util.command.CommandArgument;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +33,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public abstract class AbstractTfsCommand extends SCMCommand implements TfsCommand {
 
@@ -227,10 +228,10 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
     }
 
     protected String usernameWithDomain() {
-        if (StringUtils.isBlank(domain)) {
+        if (isBlank(domain)) {
             return getUserName();
         } else {
-            return String.format("%s\\%s", getDomain(), getUserName());
+            return getDomain() + "\\" + getUserName();
         }
     }
 

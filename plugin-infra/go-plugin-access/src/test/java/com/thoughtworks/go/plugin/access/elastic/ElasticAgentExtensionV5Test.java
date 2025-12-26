@@ -293,8 +293,9 @@ public class ElasticAgentExtensionV5Test {
         final Map<String, String> profile = Map.of("Image", "alpine:latest");
         final Map<String, String> clusterProfileProperties = Map.of("ServerURL", "https://example.com/go");
         final AgentMetadata agentMetadata = new AgentMetadata("foo-agent-id", "Idle", "Idle", "Enabled");
+        final JobIdentifier jobIdentifier = new JobIdentifier("up42", 2, "Test", "up42_stage", "10", "up42_job");
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success("true"));
-        final boolean shouldAssignWork = extensionV5.shouldAssignWork(PLUGIN_ID, agentMetadata, "test-env", profile, clusterProfileProperties, new JobIdentifier());
+        final boolean shouldAssignWork = extensionV5.shouldAssignWork(PLUGIN_ID, agentMetadata, "test-env", profile, clusterProfileProperties, jobIdentifier);
 
         assertTrue(shouldAssignWork);
 
@@ -313,7 +314,15 @@ public class ElasticAgentExtensionV5Test {
                     "build_state": "Idle",
                     "config_state": "Enabled"
                   },
-                  "job_identifier": {}
+                  "job_identifier": {
+                    "pipeline_name": "up42",
+                    "pipeline_label": "Test",
+                    "pipeline_counter": 2,
+                    "stage_name": "up42_stage",
+                    "stage_counter": "10",
+                    "job_name": "up42_job",
+                    "job_id": -1
+                  }
                 }""";
 
         assertExtensionRequest("5.0", REQUEST_SHOULD_ASSIGN_WORK, expectedRequestBody);

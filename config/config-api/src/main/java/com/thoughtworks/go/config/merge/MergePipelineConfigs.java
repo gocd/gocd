@@ -19,13 +19,13 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PipelineConfigVisitor;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Understands pipeline group configuration in many parts.
@@ -151,7 +151,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
     }
 
     public static String sanitizedGroupName(String group) {
-        return StringUtils.isBlank(group) ? DEFAULT_GROUP : group;
+        return isBlank(group) ? DEFAULT_GROUP : group;
     }
 
     @Override

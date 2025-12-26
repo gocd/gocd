@@ -18,9 +18,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.config.update.SecurityAuthConfigCreateCommand;
-import com.thoughtworks.go.config.update.SecurityAuthConfigDeleteCommand;
-import com.thoughtworks.go.config.update.SecurityAuthConfigUpdateCommand;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
@@ -118,7 +115,7 @@ public class SecurityAuthConfigServiceTest {
         Username username = new Username("username");
         securityAuthConfigService.create(username, securityAuthConfig, new HttpLocalizedOperationResult());
 
-        verify(goConfigService).updateConfig(any(SecurityAuthConfigCreateCommand.class), eq(username));
+        verify(goConfigService).updateConfig(any(), eq(username));
     }
 
     @Test
@@ -161,7 +158,7 @@ public class SecurityAuthConfigServiceTest {
         Username username = new Username("username");
         securityAuthConfigService.update(username, "md5", securityAuthConfig, new HttpLocalizedOperationResult());
 
-        verify(goConfigService).updateConfig(any(SecurityAuthConfigUpdateCommand.class), eq(username));
+        verify(goConfigService).updateConfig(any(), eq(username));
     }
 
     @Test
@@ -194,7 +191,7 @@ public class SecurityAuthConfigServiceTest {
         Username username = new Username("username");
         securityAuthConfigService.delete(username, securityAuthConfig, new HttpLocalizedOperationResult());
 
-        verify(goConfigService).updateConfig(any(SecurityAuthConfigDeleteCommand.class), eq(username));
+        verify(goConfigService).updateConfig(any(), eq(username));
     }
 
     @Test

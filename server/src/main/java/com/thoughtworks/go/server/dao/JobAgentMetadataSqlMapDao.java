@@ -46,7 +46,7 @@ public class JobAgentMetadataSqlMapDao implements JobAgentMetadataDao {
     }
 
     @Override
-    public JobAgentMetadata load(final Long jobId) {
+    public JobAgentMetadata load(final long jobId) {
         return (JobAgentMetadata) transactionTemplate.execute(transactionStatus -> sessionFactory.getCurrentSession()
                 .createCriteria(JobAgentMetadata.class)
                 .add(Restrictions.eq("jobId", jobId))

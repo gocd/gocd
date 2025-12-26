@@ -901,19 +901,19 @@ public class Routes {
             return (MaterialConfig.BASE + USAGES).replaceAll(":fingerprint", fingerprint);
         }
 
-        public static String previous(String pipelineName, long before, String pattern, Integer pageSize) {
+        public static String previous(String pipelineName, long before, String pattern, int pageSize) {
             String link = INTERNAL_BASE_MODIFICATIONS.replaceAll(":fingerprint", pipelineName) + "?before=" + before;
             link = appendQueryString(link, pattern, pageSize);
             return link;
         }
 
-        public static String next(String pipelineName, long after, String pattern, Integer pageSize) {
+        public static String next(String pipelineName, long after, String pattern, int pageSize) {
             String link = INTERNAL_BASE_MODIFICATIONS.replaceAll(":fingerprint", pipelineName) + "?after=" + after;
             link = appendQueryString(link, pattern, pageSize);
             return link;
         }
 
-        private static String appendQueryString(String link, String pattern, Integer pageSize) {
+        private static String appendQueryString(String link, String pattern, int pageSize) {
             if (pageSize > 10) {
                 link += "&page_size=" + pageSize;
             }

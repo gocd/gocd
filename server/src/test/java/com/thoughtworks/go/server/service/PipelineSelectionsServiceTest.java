@@ -138,7 +138,7 @@ public class PipelineSelectionsServiceTest {
 
         pipelineSelectionsService.update(null, 2L, new CaseInsensitiveString("newly-created-pipeline"));
 
-        verify(pipelineRepository, never()).saveSelectedPipelines(any(PipelineSelections.class));
+        verify(pipelineRepository, never()).saveSelectedPipelines(any());
     }
 
     @Test

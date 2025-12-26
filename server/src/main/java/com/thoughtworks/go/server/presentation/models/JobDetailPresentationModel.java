@@ -25,7 +25,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.Collection;
@@ -34,6 +33,7 @@ import java.util.List;
 import static com.thoughtworks.go.config.TestArtifactConfig.TEST_OUTPUT_FOLDER;
 import static com.thoughtworks.go.server.web.JsonRenderer.render;
 import static com.thoughtworks.go.util.ArtifactLogUtil.*;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class JobDetailPresentationModel {
     private static final String BASE_FILE_URL = "files/";
@@ -77,7 +77,7 @@ public class JobDetailPresentationModel {
         return jobIdentifier.getStageIdentifier().stageLocator();
     }
 
-    public Integer getPipelineCounter() {
+    public int getPipelineCounter() {
         return jobIdentifier.getPipelineCounter();
     }
 
@@ -134,7 +134,7 @@ public class JobDetailPresentationModel {
     }
 
     public boolean hasTests() {
-        return StringUtils.isNotEmpty(getIndexPageURL());
+        return isNotEmpty(getIndexPageURL());
     }
 
     public String getRestfulUrl(String path) {

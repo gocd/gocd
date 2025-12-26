@@ -16,38 +16,29 @@
 package com.thoughtworks.go.domain;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.TestOnly;
 
 import java.io.Serializable;
 import java.util.Objects;
 
 public class StageIdentifier implements Serializable, LocatableEntity {
     public static final String LATEST = "latest";
+    public static final StageIdentifier NULL = new StageIdentifier(new NullPipeline(), new NullStage(null));
+
     private String pipelineName;
-    private Integer pipelineCounter;
+    private int pipelineCounter;
     private String pipelineLabel;
     private String stageName;
     private String stageCounter;
-    private Long id;
+    private long id;
 
-    public static final StageIdentifier NULL = new StageIdentifier(new NullPipeline(), new NullStage(null));
-
-    public StageIdentifier() {
-    }
+    public StageIdentifier() {}
 
     public StageIdentifier(Pipeline pipeline, Stage stage) {
         this(pipeline.getName(), pipeline.getCounter(), pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter()));
     }
 
-    public StageIdentifier(String pipelineName, Integer pipelineCounter, String pipelineLabel, Long stageId, String stageName, String stageCounter) {
-        this.pipelineName = pipelineName;
-        this.pipelineCounter = pipelineCounter;
-        this.pipelineLabel = pipelineLabel;
-        id = stageId;
-        this.stageName = stageName;
-        this.stageCounter = stageCounter;
-    }
-
-    public StageIdentifier(String pipelineName, Integer pipelineCounter, String pipelineLabel, String stageName, String stageCounter) {
+    public StageIdentifier(String pipelineName, int pipelineCounter, String pipelineLabel, String stageName, String stageCounter) {
         String label = StringUtils.isBlank(pipelineLabel) ? LATEST : pipelineLabel;
         setLocatorAttributes(pipelineName, pipelineCounter, label, stageName, stageCounter);
     }
@@ -66,7 +57,13 @@ public class StageIdentifier implements Serializable, LocatableEntity {
         setLocatorAttributes(locatorElements[0], Integer.parseInt(counter), null, locatorElements[2], locatorElements[3]);
     }
 
-    private void setLocatorAttributes(String pipelineName, Integer pipelineCounter, String label, String stageName, String stageCounter) {
+    @TestOnly
+    public StageIdentifier(String pipelineName, int pipelineCounter, String pipelineLabel, long stageId, String stageName, String stageCounter) {
+        setLocatorAttributes(pipelineName, pipelineCounter, pipelineLabel, stageName, stageCounter);
+        this.id = stageId;
+    }
+
+    private void setLocatorAttributes(String pipelineName, int pipelineCounter, String label, String stageName, String stageCounter) {
         this.pipelineName = pipelineName;
         this.pipelineCounter = pipelineCounter;
         this.pipelineLabel = label;
@@ -124,7 +121,7 @@ public class StageIdentifier implements Serializable, LocatableEntity {
 
         StageIdentifier that = (StageIdentifier) o;
 
-        return Objects.equals(pipelineCounter, that.pipelineCounter) &&
+        return pipelineCounter == that.pipelineCounter &&
             Objects.equals(pipelineName, that.pipelineName) &&
             Objects.equals(stageCounter, that.stageCounter) &&
             Objects.equals(stageName, that.stageName);
@@ -134,7 +131,7 @@ public class StageIdentifier implements Serializable, LocatableEntity {
     public int hashCode() {
         int result;
         result = (pipelineName != null ? pipelineName.hashCode() : 0);
-        result = 31 * result + (pipelineCounter != null ? pipelineCounter.hashCode() : 0);
+        result = 31 * result + pipelineCounter;
         result = 31 * result + (pipelineLabel != null ? pipelineLabel.hashCode() : 0);
         result = 31 * result + (stageName != null ? stageName.hashCode() : 0);
         result = 31 * result + (stageCounter != null ? stageCounter.hashCode() : 0);
@@ -162,20 +159,23 @@ public class StageIdentifier implements Serializable, LocatableEntity {
         return new StageConfigIdentifier(pipelineName, stageName);
     }
 
-    public Integer getPipelineCounter() {
+    public int getPipelineCounter() {
         return pipelineCounter;
     }
 
+    @SuppressWarnings("unused")
     @Deprecated(since = "Only for iBatis")
     void setPipelineName(String pipelineName) {
         this.pipelineName = pipelineName;
     }
 
+    @SuppressWarnings("unused")
     @Deprecated(since = "Only for iBatis")
     void setPipelineLabel(String pipelineLabel) {
         this.pipelineLabel = pipelineLabel;
     }
 
+    @SuppressWarnings("unused")
     @Deprecated(since = "Only for iBatis")
     void setStageName(String stageName) {
         this.stageName = stageName;
@@ -185,8 +185,9 @@ public class StageIdentifier implements Serializable, LocatableEntity {
         this.stageCounter = stageCounter;
     }
 
+    @SuppressWarnings("unused")
     @Deprecated(since = "Only for iBatis")
-    void setPipelineCounter(Integer pipelineCounter) {
+    void setPipelineCounter(int pipelineCounter) {
         this.pipelineCounter = pipelineCounter;
     }
 
@@ -194,19 +195,19 @@ public class StageIdentifier implements Serializable, LocatableEntity {
         return String.format("urn:x-go.studios.thoughtworks.com:stage-id:%s:%s:%s:%s", pipelineName, pipelineCounter, stageName, stageCounter);
     }
 
-
     @Override
     public String entityLocator() {
         return getStageLocator();
     }
 
     @Override
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
+    @SuppressWarnings("unused")
     @Deprecated(since = "Only for iBatis")
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 }

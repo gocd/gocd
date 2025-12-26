@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.scheduling;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -164,7 +163,7 @@ public class BuildCauseProducerServiceTest {
 
         verify(mockMaterialUpdateService, times(2)).updateMaterial(any(Material.class));
         verify(mockMaterialUpdateStatusNotifier).registerListenerFor(eq(pipelineConfig),
-                any(MaterialUpdateStatusListener.class));
+                any());
     }
 
     @Test
@@ -185,7 +184,7 @@ public class BuildCauseProducerServiceTest {
 
         verify(mockMaterialUpdateService, never()).updateMaterial(any(Material.class));
         verify(mockMaterialUpdateStatusNotifier, never()).registerListenerFor(eq(pipelineConfig),
-                any(MaterialUpdateStatusListener.class));
+                any());
     }
 
     @Test
@@ -239,7 +238,7 @@ public class BuildCauseProducerServiceTest {
 
     private MaterialUpdateStatusListener extractMaterialListenerInstanceFromRegisterCall() {
         final MaterialUpdateStatusListener[] listener = new MaterialUpdateStatusListener[1];
-        verify(mockMaterialUpdateStatusNotifier).registerListenerFor(any(PipelineConfig.class),
+        verify(mockMaterialUpdateStatusNotifier).registerListenerFor(any(),
                 argThat(o -> {
                     listener[0] = o;
                     return true;
@@ -253,7 +252,7 @@ public class BuildCauseProducerServiceTest {
         buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), errorResult());
         verify(mockMaterialUpdateService, never()).updateMaterial(any(Material.class));
         verify(mockMaterialUpdateStatusNotifier, never()).registerListenerFor(eq(pipelineConfig),
-                any(MaterialUpdateStatusListener.class));
+                any());
     }
 
     @Test
@@ -275,8 +274,8 @@ public class BuildCauseProducerServiceTest {
         buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), new ServerHealthStateOperationResult());
         final Map<String, String> stringStringHashMap = new HashMap<>();
         doReturn(ServerHealthState.success(healthStateType)).when(buildCauseProducerService).newProduceBuildCause(
-                eq(pipelineConfig), any(ManualBuild.class),
-                new ScheduleOptions(eq(EMPTY_REVISIONS), stringStringHashMap, new HashMap<>()), any(ServerHealthStateOperationResult.class), eq(12345L));
+                eq(pipelineConfig), any(),
+                new ScheduleOptions(eq(EMPTY_REVISIONS), stringStringHashMap, new HashMap<>()), any(), eq(12345L));
 
         assertThat(notifier.hasListenerFor(pipelineConfig)).isTrue();
         notifier.onMessage(new MaterialUpdateSuccessfulMessage(hgMaterial, 1111L));
@@ -285,15 +284,15 @@ public class BuildCauseProducerServiceTest {
         notifier.onMessage(new MaterialUpdateSuccessfulMessage(svnMaterial, 2222L));
 
         assertThat(notifier.hasListenerFor(pipelineConfig)).isFalse();
-        verify(buildCauseProducerService).newProduceBuildCause(eq(pipelineConfig), any(ManualBuild.class), eq(new ScheduleOptions()), any(ServerHealthStateOperationResult.class), eq(2222L));
+        verify(buildCauseProducerService).newProduceBuildCause(eq(pipelineConfig), any(), eq(new ScheduleOptions()), any(), eq(2222L));
     }
 
     @Test
     public void shouldUpdateResultAsAcceptedOnSuccess() {
         when(operationResult.canContinue()).thenReturn(true);
         buildCauseProducerService.manualSchedulePipeline(Username.BLANK, pipelineConfig.name(), new ScheduleOptions(), operationResult);
-        verify(operationResult).accepted(eq("Request to schedule pipeline pipeline accepted"), any(String.class),
-                any(HealthStateType.class));
+        verify(operationResult).accepted(eq("Request to schedule pipeline pipeline accepted"), any(),
+                any());
     }
 
     @Test
@@ -422,7 +421,7 @@ public class BuildCauseProducerServiceTest {
 
         MaterialUpdateStatusListener statusListener = extractMaterialListenerInstanceFromRegisterCall();
         statusListener.onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material1, 0));
-        verify(mockMaterialUpdateStatusNotifier).registerListenerFor(eq(pipelineConfig), any(MaterialUpdateStatusListener.class));
+        verify(mockMaterialUpdateStatusNotifier).registerListenerFor(eq(pipelineConfig), any());
         verify(goConfigService, times(1)).pipelineConfigNamed(pipelineConfig.name());
     }
 
@@ -480,13 +479,13 @@ public class BuildCauseProducerServiceTest {
         config.addMaterialConfig(svnMaterial.config());
         config.addMaterialConfig(dependencyMaterial.config());
 
-        lenient().when(pipelineService.getRevisionsBasedOnDependencies(any(MaterialRevisions.class), any(BasicCruiseConfig.class), any(CaseInsensitiveString.class))).thenThrow(
+        lenient().when(pipelineService.getRevisionsBasedOnDependencies(any(), any(), any())).thenThrow(
                 new NoModificationsPresentForDependentMaterialException("P/1/S/1"));
         when(pipelineScheduleQueue.mostRecentScheduled(new CaseInsensitiveString(pipelineName))).thenReturn(BuildCause.createNeverRun());
         Modification modification = ModificationsMother.checkinWithComment("r", "c", new Date(), "f1");
         when(materialRepository.findLatestModification(svnMaterial)).thenReturn(ModificationsMother.createSvnMaterialWithMultipleRevisions(1, modification));
         when(materialRepository.findLatestModification(dependencyMaterial)).thenReturn(new MaterialRevisions(ModificationsMother.changedDependencyMaterialRevision("up", 1, "1", "s", 1, new Date())));
-        when(specificMaterialRevisionFactory.create(any(String.class), anyMap())).thenReturn(MaterialRevisions.EMPTY);
+        when(specificMaterialRevisionFactory.create(any(), anyMap())).thenReturn(MaterialRevisions.EMPTY);
 
         MaterialConfigs knownMaterialConfigs = new MaterialConfigs(svnMaterial.config(), dependencyMaterial.config());
         Materials materials = new Materials(svnMaterial, dependencyMaterial);

@@ -696,7 +696,7 @@ public class GoConfigFileHelper {
         writeConfigFile(config);
     }
 
-    public void setRunMultipleInstance(String pipelineName, String stageName, String jobName, Integer runInstanceCount) {
+    public void setRunMultipleInstance(String pipelineName, String stageName, String jobName, int runInstanceCount) {
         CruiseConfig config = loadForEdit();
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
         pipelineConfig.findBy(new CaseInsensitiveString(stageName)).jobConfigByInstanceName(jobName, true).setRunInstanceCount(runInstanceCount);

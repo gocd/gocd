@@ -75,7 +75,7 @@ public class PluginNotificationService {
 
     private void notify(String requestName, Object instance) {
         Set<String> interestedPlugins = notificationPluginRegistry.getPluginsInterestedIn(requestName);
-        Long timeToLive = systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS);
+        long timeToLive = systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS);
         for (String pluginId : interestedPlugins) {
             @SuppressWarnings("unchecked") PluginNotificationMessage<?> message = new PluginNotificationMessage<>(pluginId, requestName, ((NotificationDataCreator<Object, ?>) notificationCreators.get(requestName)).notificationDataFor(instance));
             pluginNotificationsQueueHandler.post(message, timeToLive);

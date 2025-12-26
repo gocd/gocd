@@ -117,7 +117,7 @@ class StageOperationsControllerV2Test implements SecurityServiceTrait, Controlle
       @Test
       void 'reports errors'() {
         when(pipelineService.resolvePipelineCounter(eq(pipelineName), eq(pipelineCounter))).thenReturn(OptionalInt.of(Integer.parseInt(pipelineCounter)))
-        when(scheduleService.rerunStage(eq(pipelineName), eq(pipelineCounter.toInteger()), eq(stageName), any() as ScheduleService.ErrorConditionHandler)).thenThrow(new RuntimeException("bewm."))
+        when(scheduleService.rerunStage(eq(pipelineName), eq(Integer.parseInt(pipelineCounter)), eq(stageName), any() as ScheduleService.ErrorConditionHandler)).thenThrow(new RuntimeException("bewm."))
         doAnswer({ InvocationOnMock invocation -> invocation.callRealMethod() }).
           when(scheduleService).rerunStage(eq(pipelineName), eq(pipelineCounter.toInteger()), eq(stageName), any() as HttpOperationResult)
 

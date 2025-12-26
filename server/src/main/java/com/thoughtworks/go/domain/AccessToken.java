@@ -21,7 +21,6 @@ import com.thoughtworks.go.util.Clock;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +35,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.sql.Timestamp;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.substring;
 
 @EqualsAndHashCode(callSuper = true, doNotUseGetters = true)
 @ToString(callSuper = true)
@@ -158,7 +158,7 @@ public class AccessToken extends PersistentObject implements Validatable {
     }
 
     public boolean isValidToken(String actualToken) {
-        String originalToken = StringUtils.substring(actualToken, 8);
+        String originalToken = substring(actualToken, 8);
         String saltValue = getSaltValue();
         String digestOfUserProvidedToken = digestToken(originalToken, saltValue);
 

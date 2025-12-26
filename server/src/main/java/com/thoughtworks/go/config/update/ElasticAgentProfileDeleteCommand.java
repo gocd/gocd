@@ -21,12 +21,12 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.domain.JobConfigIdentifier;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.cannotDeleteResourceBecauseOfDependentPipelines;
+import static java.lang.String.join;
 
 public class ElasticAgentProfileDeleteCommand extends ElasticAgentProfileCommand {
 
@@ -62,7 +62,7 @@ public class ElasticAgentProfileDeleteCommand extends ElasticAgentProfileCommand
 
         if (!usedByPipelines.isEmpty()) {
             result.unprocessableEntity(cannotDeleteResourceBecauseOfDependentPipelines(getObjectDescriptor().getEntityNameLowerCase(), elasticProfile.getId(), pipelineNames));
-            throw new GoConfigInvalidException(preprocessedConfig, String.format("The %s '%s' is being referenced by pipeline(s): %s.", getObjectDescriptor().getEntityNameLowerCase(), elasticProfile.getId(), StringUtils.join(pipelineNames, ", ")));
+            throw new GoConfigInvalidException(preprocessedConfig, String.format("The %s '%s' is being referenced by pipeline(s): %s.", getObjectDescriptor().getEntityNameLowerCase(), elasticProfile.getId(), join(", ", pipelineNames)));
         }
         return true;
     }

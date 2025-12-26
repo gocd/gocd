@@ -15,9 +15,10 @@
  */
 package com.thoughtworks.go.domain;
 
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
+
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 public enum StageEvent {
     Fails {
@@ -65,7 +66,7 @@ public enum StageEvent {
 
     public static StageEvent from(String event) {
         return Arrays.stream(values())
-                .filter(e -> e.name().equalsIgnoreCase(StringUtils.trimToEmpty(event)))
+                .filter(e -> e.name().equalsIgnoreCase(trimToEmpty(event)))
                 .findFirst()
                 .orElse(null);
     }

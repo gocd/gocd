@@ -18,22 +18,27 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.CommentRenderer;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.DefaultCommentRenderer;
-import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @ConfigTag("trackingtool")
 public class TrackingTool implements ParamsAttributeAware, Validatable, CommentRenderer {
+    static final String LINK = "link";
+    static final String REGEX = "regex";
+
     @ConfigAttribute(value = "link", optional = false)
     private String link = "";
     @ConfigAttribute(value = "regex", optional = false)
     private String regex = "";
 
-    public static final String LINK = "link";
-    public static final String REGEX = "regex";
-    private ConfigErrors configErrors = new ConfigErrors();
-
+    private final ConfigErrors configErrors = new ConfigErrors();
+    private final transient AtomicReference<CommentRenderer> commentRenderer = new AtomicReference<>();
 
     public TrackingTool() {
     }
@@ -61,7 +66,15 @@ public class TrackingTool implements ParamsAttributeAware, Validatable, CommentR
 
     @Override
     public String render(String text) {
-        return new DefaultCommentRenderer(link, regex).render(text);
+        return Optional.ofNullable(commentRenderer.get())
+            .orElseGet(this::createCommentRenderer)
+            .render(text);
+    }
+
+    private @NotNull CommentRenderer createCommentRenderer() {
+        CommentRenderer lazy = new DefaultCommentRenderer(getLink(), getRegex());
+        commentRenderer.set(lazy);
+        return lazy;
     }
 
     @SuppressWarnings("unchecked")
@@ -86,10 +99,10 @@ public class TrackingTool implements ParamsAttributeAware, Validatable, CommentR
 
     @Override
     public void validate(ValidationContext validationContext) {
-        if (StringUtils.isEmpty(link)) {
+        if (isEmpty(link)) {
             configErrors.add(LINK, "Link should be populated");
         }
-        if (StringUtils.isEmpty(regex)) {
+        if (isEmpty(regex)) {
             configErrors.add(REGEX, "Regex should be populated");
         }
         if (!link.contains("${ID}")) {

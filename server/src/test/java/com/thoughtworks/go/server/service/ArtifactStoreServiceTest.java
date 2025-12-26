@@ -17,9 +17,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.ArtifactStores;
-import com.thoughtworks.go.config.update.CreateArtifactStoreConfigCommand;
-import com.thoughtworks.go.config.update.DeleteArtifactStoreConfigCommand;
-import com.thoughtworks.go.config.update.UpdateArtifactStoreConfigCommand;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -88,7 +85,7 @@ public class ArtifactStoreServiceTest {
 
         artifactStoreService.create(admin, artifactStore, result);
 
-        verify(configService).updateConfig(any(CreateArtifactStoreConfigCommand.class), eq(admin));
+        verify(configService).updateConfig(any(), eq(admin));
     }
 
     @Test
@@ -139,7 +136,7 @@ public class ArtifactStoreServiceTest {
 
         artifactStoreService.update(admin, "md5", artifactStore, result);
 
-        verify(configService).updateConfig(any(UpdateArtifactStoreConfigCommand.class), eq(admin));
+        verify(configService).updateConfig(any(), eq(admin));
     }
 
     @Test
@@ -150,6 +147,6 @@ public class ArtifactStoreServiceTest {
 
         artifactStoreService.delete(admin, artifactStore, result);
 
-        verify(configService).updateConfig(any(DeleteArtifactStoreConfigCommand.class), eq(admin));
+        verify(configService).updateConfig(any(), eq(admin));
     }
 }

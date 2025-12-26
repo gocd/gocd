@@ -51,7 +51,8 @@ public class MaterialDatabaseDependencyUpdaterIntegrationTest  {
     @Autowired private GoCache goCache;
     @Autowired private GoConfigService goConfigService;
     @Autowired private MaterialDatabaseUpdater updater;
-    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
+
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -67,7 +68,7 @@ public class MaterialDatabaseDependencyUpdaterIntegrationTest  {
     }
 
     @Test
-    public void shouldInsertAllRunsAfterLastKnownOfUpstreamStage() throws Exception {
+    public void shouldInsertAllRunsAfterLastKnownOfUpstreamStage() {
         PipelineConfig mingleConfig = PipelineConfigMother.createPipelineConfig("acceptance", "stage-name", "job");
         configHelper.addPipeline("pipeline-group", mingleConfig);
 
@@ -92,14 +93,14 @@ public class MaterialDatabaseDependencyUpdaterIntegrationTest  {
         Modification modification1 = materialRepository.findModificationWithRevision(dependencyMaterial, revision1);
         assertThat(modification1).isNotNull();
         assertThat(modification1.getRevision()).isEqualTo(revision1);
-        assertThat(modification1.getPipelineLabel()).isEqualTo(passed1.getCounter().toString());
+        assertThat(modification1.getPipelineLabel()).isEqualTo(String.valueOf(passed1.getCounter()));
         assertThat(modification1.getPipelineId()).isEqualTo(passed1.getId());
 
         String revision2 = String.format("acceptance/%s/stage-name/1", passed2.getCounter());
         Modification modification2 = materialRepository.findModificationWithRevision(dependencyMaterial, revision2);
         assertThat(modification2).isNotNull();
         assertThat(modification2.getRevision()).isEqualTo(revision2);
-        assertThat(modification2.getPipelineLabel()).isEqualTo(passed2.getCounter().toString());
+        assertThat(modification2.getPipelineLabel()).isEqualTo(String.valueOf(passed2.getCounter()));
         assertThat(modification2.getPipelineId()).isEqualTo(passed2.getId());
     }
 }

@@ -43,7 +43,7 @@ public class PipelineTimelineEntry implements Comparable<PipelineTimelineEntry> 
         this(pipelineName, id, counter, revisionsByFingerprint, 0.0);
     }
 
-    public PipelineTimelineEntry(String pipelineName, long id, Integer counter, Map<String, List<Revision>> revisionsByFingerprint, double naturalOrder) {
+    public PipelineTimelineEntry(String pipelineName, long id, int counter, Map<String, List<Revision>> revisionsByFingerprint, double naturalOrder) {
         this.pipelineName = pipelineName;
         this.id = id;
         this.counter = counter;

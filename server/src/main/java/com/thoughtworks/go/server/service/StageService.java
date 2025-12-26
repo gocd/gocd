@@ -52,6 +52,7 @@ import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.ClonerFactory;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,7 +163,7 @@ public class StageService implements StageFinder {
     }
 
     public Stage findStageWithIdentifier(String pipelineName,
-                                         Integer pipelineCounter,
+                                         int pipelineCounter,
                                          String stageName,
                                          String stageCounter,
                                          Username username) {
@@ -304,20 +305,9 @@ public class StageService implements StageFinder {
 
     //stage order definition: 1) if stage has been scheduled, copy existing order 2) if not, increase the max existing
     // stage order in current pipeline by 1, as current stage's order
-    private Integer resolveStageOrder(long pipelineId, String stageName) {
-        Integer order = getStageOrderInPipeline(pipelineId, stageName);
-        if (order == null) {
-            order = getMaxStageOrderInPipeline(pipelineId) + 1;
-        }
-        return order;
-    }
-
-    private Integer getStageOrderInPipeline(long pipelineId, String stageName) {
-        return stageDao.getStageOrderInPipeline(pipelineId, stageName);
-    }
-
-    private int getMaxStageOrderInPipeline(long pipelineId) {
-        return stageDao.getMaxStageOrder(pipelineId);
+    private int resolveStageOrder(long pipelineId, String stageName) {
+        Integer order = stageDao.getStageOrderInPipeline(pipelineId, stageName);
+        return order != null ? order : stageDao.getMaxStageOrder(pipelineId) + 1;
     }
 
     public void updateResult(final Stage stage) {
@@ -367,7 +357,7 @@ public class StageService implements StageFinder {
     }
 
     public FeedEntries findStageFeedBy(String pipelineName,
-                                       Integer pipelineCounter,
+                                       @Nullable Integer pipelineCounter,
                                        FeedModifier feedModifier,
                                        Username username) {
         if (pipelineCounter != null) {
@@ -476,7 +466,7 @@ public class StageService implements StageFinder {
         return stageDao.findStageHistoryPageByNumber(pipelineName, stageName, pageNumber, pageSize);
     }
 
-    public StageInstanceModels findStageHistoryViaCursor(Username username, String pipelineName, String stageName, long afterCursor, long beforeCursor, Integer pageSize) {
+    public StageInstanceModels findStageHistoryViaCursor(Username username, String pipelineName, String stageName, long afterCursor, long beforeCursor, int pageSize) {
         checkForExistenceAndAccess(username, pipelineName);
         StageInstanceModels stageInstanceModels;
         if (validateCursor(afterCursor, "after")) {

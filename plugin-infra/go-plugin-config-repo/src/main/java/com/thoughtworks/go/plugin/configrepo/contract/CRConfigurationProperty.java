@@ -20,7 +20,8 @@ import com.google.gson.annotations.SerializedName;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Getter
 @Setter
@@ -56,11 +57,11 @@ public class CRConfigurationProperty extends CRBase {
 
 
     public boolean hasEncryptedValue() {
-        return StringUtils.isNotBlank(encryptedValue);
+        return isNotBlank(encryptedValue);
     }
 
     public boolean hasPlainTextValue() {
-        return StringUtils.isNotBlank(value);
+        return isNotBlank(value);
     }
 
     @Override

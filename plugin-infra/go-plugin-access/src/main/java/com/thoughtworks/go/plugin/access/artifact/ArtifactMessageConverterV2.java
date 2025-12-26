@@ -29,12 +29,13 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class ArtifactMessageConverterV2 implements ArtifactMessageConverter {
     public static final String VERSION = ArtifactExtensionConstants.V2;
@@ -110,7 +111,7 @@ public class ArtifactMessageConverterV2 implements ArtifactMessageConverter {
 
     private String getTemplateFromResponse(String responseBody, String message) {
         String template = (String) JsonHelper.fromJson(responseBody, Map.class).get("template");
-        if (StringUtils.isBlank(template)) {
+        if (isBlank(template)) {
             throw new RuntimeException(message);
         }
         return template;

@@ -36,7 +36,7 @@ import java.util.Objects;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -252,7 +252,7 @@ class P4OutputParserTest {
                         Change 539901 on 2008/09/24 by anil@anil-box-1 'Added all columns of AA_TASK to'
                         """;
 
-        when(p4Client.describe(any(Long.class))).thenReturn("""
+        when(p4Client.describe(anyLong())).thenReturn("""
                 Change 539921 by abc@SomeRefinery_abc_sa1-sgr-xyz-001 on 2008/09/24 12:10:00
 
                 \tmore work in progress on ABC unit test
@@ -271,7 +271,7 @@ class P4OutputParserTest {
                     + "by abc@SomeRefinery_abc_sa1-sgr-xyz-001 'more work in progress on MDC un'\n";
             final String description = "Change that I cannot parse :-(\n";
 
-            when(p4Client.describe(any(Long.class))).thenReturn(description);
+            when(p4Client.describe(anyLong())).thenReturn(description);
 
             List<Modification> modifications = parser.modifications(new ConsoleResult(0, List.of(output.split("\n")), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
             assertThat(modifications.size()).isEqualTo(0);

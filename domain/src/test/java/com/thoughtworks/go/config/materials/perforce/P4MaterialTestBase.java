@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.domain.materials.perforce.PerforceFixture;
 import com.thoughtworks.go.helper.P4TestRepo;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -29,6 +28,7 @@ import java.util.*;
 
 import static java.lang.String.format;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -42,7 +42,7 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
         p4Material.setUseTickets(false);
         ValidationBean validation = p4Material.checkConnection(new TestSubprocessExecutionContext());
         assertThat(validation.isValid()).isTrue();
-        assertThat(StringUtils.isBlank(validation.getError())).isTrue();
+        assertThat(isBlank(validation.getError())).isTrue();
     }
 
     @Test

@@ -640,7 +640,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     @Override
-    public JobInstances findDetailedJobHistoryViaCursor(String pipelineName, String stageName, String jobConfigName, FeedModifier feedModifier, long cursor, Integer pageSize) {
+    public JobInstances findDetailedJobHistoryViaCursor(String pipelineName, String stageName, String jobConfigName, FeedModifier feedModifier, long cursor, int pageSize) {
         String cacheKey = cacheKeyForFindDetailedJobHistoryViaCursor(pipelineName, stageName, jobConfigName, feedModifier.suffix(), cursor, pageSize);
         return latestCompletedCache.get(cacheKey, () -> {
             Map<String, Object> params = new HashMap<>();
@@ -657,7 +657,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         });
     }
 
-    String cacheKeyForFindDetailedJobHistoryViaCursor(String pipelineName, String stageName, String jobConfigName, String suffix, long cursor, Integer pageSize) {
+    String cacheKeyForFindDetailedJobHistoryViaCursor(String pipelineName, String stageName, String jobConfigName, String suffix, long cursor, int pageSize) {
         return cacheKeyGenerator.generate("findDetailedJobHistoryViaCursor", pipelineName.toLowerCase(), stageName.toLowerCase(), jobConfigName.toLowerCase(), suffix, cursor, pageSize);
     }
 

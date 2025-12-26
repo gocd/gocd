@@ -75,7 +75,7 @@ public class JobInstanceControllerV1 extends ApiController implements SparkSprin
         String jobName = request.params("job_name");
         long after = getCursor(request, "after");
         long before = getCursor(request, "before");
-        Integer pageSize = getPageSize(request);
+        int pageSize = getPageSize(request);
 
         JobInstances jobInstances = jobInstanceService.getJobHistoryViaCursor(currentUsername(), pipelineName, stageName, jobName, after, before, pageSize);
         PipelineRunIdInfo runIdInfo = jobInstanceService.getOldestAndLatestJobInstanceId(currentUsername(), pipelineName, stageName, jobName);

@@ -23,7 +23,6 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +46,7 @@ import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Service
 public class AnalyticsPluginAssetsService implements ServletContextAware, PluginMetadataChangeListener {
@@ -115,7 +115,7 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
         LOGGER.info("Caching static assets for plugin: {}", pluginId);
         String data = this.analyticsExtension.getStaticAssets(pluginId);
 
-        if (StringUtils.isBlank(data)) {
+        if (isBlank(data)) {
             LOGGER.info("No static assets found for plugin: {}", pluginId);
             return;
         }

@@ -80,7 +80,7 @@ class PluggableSCMMaterialAgentTest {
 
         pluggableSCMMaterialAgent.prepare();
 
-        verify(scmExtension).checkout(any(String.class), any(SCMPropertyConfiguration.class), any(String.class), any(SCMRevision.class));
+        verify(scmExtension).checkout(any(), any(), any(), any());
         assertThat(scmConfiguration.getValue().size()).isEqualTo(2);
         assertThat(scmConfiguration.getValue().get("k1").getValue()).isEqualTo("v1");
         assertThat(scmConfiguration.getValue().get("k2").getValue()).isEqualTo("v2");
@@ -110,7 +110,7 @@ class PluggableSCMMaterialAgentTest {
 
         pluggableSCMMaterialAgent.prepare();
 
-        verify(scmExtension).checkout(any(String.class), any(SCMPropertyConfiguration.class), any(String.class), any(SCMRevision.class));
+        verify(scmExtension).checkout(any(), any(), any(), any());
         assertThat(scmConfiguration.getValue().size()).isEqualTo(2);
         assertThat(scmConfiguration.getValue().get("k1").getValue()).isEqualTo("some-dummy-value");
         assertThat(scmConfiguration.getValue().get("k2").getValue()).isEqualTo("v2");

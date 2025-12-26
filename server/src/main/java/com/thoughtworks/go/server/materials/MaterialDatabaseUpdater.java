@@ -33,7 +33,6 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +41,7 @@ import org.springframework.transaction.TransactionStatus;
 
 import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 
@@ -131,7 +131,7 @@ public class MaterialDatabaseUpdater {
         List<CaseInsensitiveString> pipelineNames = goConfigService.pipelinesWithMaterial(material.config().getFingerprint());
         return pipelineNames.isEmpty()
             ? "\nNo pipelines affected, may only affect configuration repositories."
-            : "\nAffected pipelines are " + StringUtils.join(pipelineNames, ", ") + ".";
+            : pipelineNames.stream().map(CaseInsensitiveString::toString).collect(Collectors.joining(", ", "\nAffected pipelines are ", "."));
     }
 
     private void initializeMaterialWithLatestRevision(Material material) {

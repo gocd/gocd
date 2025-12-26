@@ -24,13 +24,13 @@ public class ActiveJob {
     private String pipelineName;
     private String buildName;
     private String stageName;
-    private Integer pipelineCounter;
+    private int pipelineCounter;
     private String pipelineLabel;
 
     public ActiveJob() {
     }
 
-    public ActiveJob(long id, String pipelineName, Integer pipelineCounter, String pipelineLabel, String stageName, String buildName) {
+    public ActiveJob(long id, String pipelineName, int pipelineCounter, String pipelineLabel, String stageName, String buildName) {
         this();
         this.id = id;
         this.pipelineName = pipelineName;
@@ -81,11 +81,11 @@ public class ActiveJob {
         return ToStringBuilder.reflectionToString(this);
     }
 
-    public Integer getPipelineCounter() {
+    public int getPipelineCounter() {
         return pipelineCounter;
     }
 
-    public void setPipelineCounter(Integer pipelineCounter) {
+    public void setPipelineCounter(int pipelineCounter) {
         this.pipelineCounter = pipelineCounter;
     }
 
@@ -102,7 +102,7 @@ public class ActiveJob {
 
         return id == activeJob.id &&
             Objects.equals(buildName, activeJob.buildName) &&
-            Objects.equals(pipelineCounter, activeJob.pipelineCounter) &&
+            pipelineCounter == activeJob.pipelineCounter &&
             Objects.equals(pipelineLabel, activeJob.pipelineLabel) &&
             Objects.equals(pipelineName, activeJob.pipelineName) &&
             Objects.equals(stageName, activeJob.stageName);
@@ -114,7 +114,7 @@ public class ActiveJob {
         result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
         result = 31 * result + (buildName != null ? buildName.hashCode() : 0);
         result = 31 * result + (stageName != null ? stageName.hashCode() : 0);
-        result = 31 * result + (pipelineCounter != null ? pipelineCounter.hashCode() : 0);
+        result = 31 * result + pipelineCounter;
         result = 31 * result + (pipelineLabel != null ? pipelineLabel.hashCode() : 0);
         return result;
     }

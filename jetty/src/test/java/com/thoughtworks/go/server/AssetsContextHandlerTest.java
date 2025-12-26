@@ -29,7 +29,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
@@ -91,6 +90,6 @@ public class AssetsContextHandlerTest {
         ReflectionUtil.setField(((HandlerWrapper) handler.getHandler()).getHandler(), "resourceHandler", resourceHandler);
 
         handler.getHandler().handle(target, baseRequest, request, response);
-        verify(resourceHandler, never()).handle(any(String.class), any(Request.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(resourceHandler, never()).handle(any(), any(), any(), any());
     }
 }

@@ -19,59 +19,59 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static com.thoughtworks.go.server.util.Pagination.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PaginationTest {
     @Test
     public void shouldNotCreatePaginationWithMoreThan300Records() {
-        try {
-            Pagination.pageStartingAt(0, 1000, 301);
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("The max number of perPage is [300].");
-        }
+        assertThatThrownBy(() -> pageByOffset(0, 1000, 301))
+            .hasMessageContaining("The max number of perPage is [300].");
     }
 
     @Test
     public void shouldCreatePaginationWithLessEquals300Records() {
-        try {
-            Pagination.pageStartingAt(0, 1000, 300);
-        } catch (Exception e) {
-            fail();
-        }
+        Pagination pagination = pageByOffset(0, 1000, 300);
+        assertThat(pagination.getPageSize()).isEqualTo(300);
+
+        assertThat(pagination.getCurrentPage()).isEqualTo(1);
+        assertThat(pagination.getTotalPages()).isEqualTo(3); // This seems wrong - aren't there 4 pages? Matching old behaviour.
     }
 
     @Test
-    public void shouldCreatePaginationProvidingNull() {
-        try {
-            Pagination.pageStartingAt(0, 1000, null);
-        } catch (Exception e) {
-            fail();
-        }
+    public void shouldCreatePaginationProvidingNulls() {
+        Pagination pagination = pageByOffsetNullSafe(null, null, null);
+        assertThat(pagination.getOffset()).isEqualTo(0);
+        assertThat(pagination.getPageSize()).isEqualTo(10);
+        assertThat(pagination.getTotal()).isEqualTo(0);
+
+        assertThat(pagination.getCurrentPage()).isEqualTo(1);
+        assertThat(pagination.getTotalPages()).isEqualTo(0);
     }
 
     @Test
     public void shouldHavePage1ForFirst() {
-        Pagination pagination = Pagination.pageStartingAt(0, 1000, 10);
+        Pagination pagination = pageByOffset(0, 1000, 10);
         assertThat(pagination.getCurrentPage()).isEqualTo(1);
         assertThat(pagination.getTotalPages()).isEqualTo(100);
     }
 
     @Test
     public void shouldHavePage1ForEndOfPage() {
-        Pagination pagination = Pagination.pageStartingAt(9, 1000, 10);
+        Pagination pagination = pageByOffset(9, 1000, 10);
         assertThat(pagination.getCurrentPage()).isEqualTo(1);
     }
 
     @Test
     public void shouldHavePage2ForTenth() {
-        Pagination pagination = Pagination.pageStartingAt(10, 1000, 10);
+        Pagination pagination = pageByOffset(10, 1000, 10);
         assertThat(pagination.getCurrentPage()).isEqualTo(2);
     }
 
     @Test
     public void shouldHaveOffsetForPreviousPage() {
-        Pagination pagination = Pagination.pageStartingAt(70, 1000, 10);
+        Pagination pagination = pageByOffset(70, 1000, 10);
         assertThat(pagination.getCurrentPage()).isEqualTo(8);
         assertThat(pagination.getPreviousPage()).isEqualTo(7);
         assertThat(pagination.getPreviousOffset()).isEqualTo(60);
@@ -83,7 +83,7 @@ public class PaginationTest {
 
     @Test
     public void shouldHaveOffsetsForFinalPage() {
-        Pagination pagination = Pagination.pageStartingAt(11, 16, 10);
+        Pagination pagination = pageByOffset(11, 16, 10);
         assertThat(pagination.getCurrentPage()).isEqualTo(2);
         assertThat(pagination.hasNextPage()).isFalse();
         assertThat(pagination.hasPreviousPage()).isTrue();
@@ -91,14 +91,14 @@ public class PaginationTest {
 
     @Test
     public void shouldReturnHasPreviousAndNextPages() {
-       Pagination pagination = Pagination.pageStartingAt(10, 16, 10);
-       assertThat(pagination.hasPreviousPage()).isTrue();
-       assertThat(pagination.hasNextPage()).isFalse();
+        Pagination pagination = pageByOffset(10, 16, 10);
+        assertThat(pagination.hasPreviousPage()).isTrue();
+        assertThat(pagination.hasNextPage()).isFalse();
     }
 
     @Test
     public void shouldHaveOffsetsForFirstPage() {
-        Pagination pagination = Pagination.pageStartingAt(0, 16, 10);
+        Pagination pagination = pageByOffset(0, 16, 10);
         assertThat(pagination.getCurrentPage()).isEqualTo(1);
         assertThat(pagination.hasNextPage()).isTrue();
         assertThat(pagination.hasPreviousPage()).isFalse();
@@ -106,34 +106,34 @@ public class PaginationTest {
 
     @Test
     public void shouldFindPageForAGivenOffset() {
-        assertThat(Pagination.pageFor(0, 10, 3)).isEqualTo(Pagination.pageStartingAt(0, 10, 3));
-        assertThat(Pagination.pageFor(1, 10, 3)).isEqualTo(Pagination.pageStartingAt(0, 10, 3));
-        assertThat(Pagination.pageFor(2, 10, 3)).isEqualTo(Pagination.pageStartingAt(0, 10, 3));
-        assertThat(Pagination.pageFor(3, 10, 3)).isEqualTo(Pagination.pageStartingAt(3, 10, 3));
-        assertThat(Pagination.pageFor(4, 10, 3)).isEqualTo(Pagination.pageStartingAt(3, 10, 3));
-        assertThat(Pagination.pageFor(5, 10, 3)).isEqualTo(Pagination.pageStartingAt(3, 10, 3));
-        assertThat(Pagination.pageFor(6, 10, 3)).isEqualTo(Pagination.pageStartingAt(6, 10, 3));
+        assertThat(pageByItemNumber(0, 10, 3)).isEqualTo(pageByOffset(0, 10, 3));
+        assertThat(pageByItemNumber(1, 10, 3)).isEqualTo(pageByOffset(0, 10, 3));
+        assertThat(pageByItemNumber(2, 10, 3)).isEqualTo(pageByOffset(0, 10, 3));
+        assertThat(pageByItemNumber(3, 10, 3)).isEqualTo(pageByOffset(3, 10, 3));
+        assertThat(pageByItemNumber(4, 10, 3)).isEqualTo(pageByOffset(3, 10, 3));
+        assertThat(pageByItemNumber(5, 10, 3)).isEqualTo(pageByOffset(3, 10, 3));
+        assertThat(pageByItemNumber(6, 10, 3)).isEqualTo(pageByOffset(6, 10, 3));
     }
 
     @Test
     public void shouldFindPageForAGivenPage() {
-        assertThat(Pagination.pageByNumber(1, 10, 3)).isEqualTo(Pagination.pageStartingAt(0, 10, 3));
-        assertThat(Pagination.pageByNumber(2, 10, 3)).isEqualTo(Pagination.pageStartingAt(3, 10, 3));
-        assertThat(Pagination.pageByNumber(3, 10, 3)).isEqualTo(Pagination.pageStartingAt(6, 10, 3));
+        assertThat(Pagination.pageByNumber(1, 10, 3)).isEqualTo(pageByOffset(0, 10, 3));
+        assertThat(Pagination.pageByNumber(2, 10, 3)).isEqualTo(pageByOffset(3, 10, 3));
+        assertThat(Pagination.pageByNumber(3, 10, 3)).isEqualTo(pageByOffset(6, 10, 3));
     }
 
     @Test
     public void shouldUnderstandFirstPage() {
-        assertThat(Pagination.pageStartingAt(3, 10, 3).getFirstPage()).isEqualTo(1);
-        assertThat(Pagination.pageStartingAt(6, 10, 3).getFirstPage()).isEqualTo(1);
+        assertThat(pageByOffset(3, 10, 3).getFirstPage()).isEqualTo(1);
+        assertThat(pageByOffset(6, 10, 3).getFirstPage()).isEqualTo(1);
     }
 
     @Test
     public void shouldUnderstandLastPage() {
-        assertThat(Pagination.pageStartingAt(3, 10, 3).getLastPage()).isEqualTo(4);
-        assertThat(Pagination.pageStartingAt(6, 10, 3).getLastPage()).isEqualTo(4);
-        assertThat(Pagination.pageStartingAt(0, 2, 3).getLastPage()).isEqualTo(1);
-        assertThat(Pagination.pageStartingAt(2, 3, 3).getLastPage()).isEqualTo(1);
+        assertThat(pageByOffset(3, 10, 3).getLastPage()).isEqualTo(4);
+        assertThat(pageByOffset(6, 10, 3).getLastPage()).isEqualTo(4);
+        assertThat(pageByOffset(0, 2, 3).getLastPage()).isEqualTo(1);
+        assertThat(pageByOffset(2, 3, 3).getLastPage()).isEqualTo(1);
     }
 
     @Test

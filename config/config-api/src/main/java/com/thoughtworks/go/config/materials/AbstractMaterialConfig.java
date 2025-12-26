@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -29,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Understands material configuration
@@ -140,7 +140,7 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
 
     @Override
     public final void validate(ValidationContext validationContext) {
-        if (name != null && !StringUtils.isBlank(CaseInsensitiveString.str(name)) && !new NameTypeValidator().isNameValid(name)) {
+        if (name != null && !isBlank(CaseInsensitiveString.str(name)) && !new NameTypeValidator().isNameValid(name)) {
             errors().add(MATERIAL_NAME, NameTypeValidator.errorMessage("material", name));
         }
         validateConcreteMaterial(validationContext);
@@ -171,7 +171,7 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
 
     @Override
     public void validateNameUniqueness(Map<CaseInsensitiveString, AbstractMaterialConfig> map) {
-        if (CaseInsensitiveString.isBlank(getName())) {
+        if (CaseInsensitiveString.isEmpty(getName())) {
             return;
         }
         CaseInsensitiveString currentMaterialName = getName();
@@ -231,7 +231,7 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
         Map<String, String> map = (Map<String, String>) attributes;
         if (map.containsKey(MATERIAL_NAME)) {
             String name = map.get(MATERIAL_NAME);
-            this.name = StringUtils.isBlank(name) ? null : new CaseInsensitiveString(name);
+            this.name = isBlank(name) ? null : new CaseInsensitiveString(name);
         }
     }
 

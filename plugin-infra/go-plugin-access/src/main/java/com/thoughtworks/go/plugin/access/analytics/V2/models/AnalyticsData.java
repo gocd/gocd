@@ -19,7 +19,8 @@ package com.thoughtworks.go.plugin.access.analytics.V2.models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.apache.commons.lang3.StringUtils;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class AnalyticsData {
     public static class MissingRequiredKeyException extends RuntimeException {
@@ -53,11 +54,11 @@ public class AnalyticsData {
     }
 
     public void validate() {
-        if (StringUtils.isBlank(data)) {
+        if (isBlank(data)) {
             throw new MissingRequiredKeyException("Missing \"data\" key in analytics payload");
         }
 
-        if (StringUtils.isBlank(viewPath)) {
+        if (isBlank(viewPath)) {
             throw new MissingRequiredKeyException("Missing \"view_path\" key in analytics payload");
         }
     }

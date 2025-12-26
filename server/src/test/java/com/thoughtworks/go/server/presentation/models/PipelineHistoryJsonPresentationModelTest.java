@@ -63,7 +63,7 @@ public class PipelineHistoryJsonPresentationModelTest {
     }
 
     private Pagination pagination() {
-        return Pagination.pageStartingAt(START, COUNT, PER_PAGE);
+        return Pagination.pageByOffset(START, COUNT, PER_PAGE);
     }
 
     private PipelineHistoryGroups preparePipelineHistoryGroups(PipelineConfig pipelineConfig) {

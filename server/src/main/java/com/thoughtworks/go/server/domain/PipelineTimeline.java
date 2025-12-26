@@ -251,7 +251,7 @@ public class PipelineTimeline {
     }
 
 
-    public PipelineTimelineEntry getEntryFor(CaseInsensitiveString pipelineName, Integer pipelineCounter) {
+    public PipelineTimelineEntry getEntryFor(CaseInsensitiveString pipelineName, int pipelineCounter) {
         scheduleOrderLock.readLock().lock();
         try {
             List<PipelineTimelineEntry> instances = scheduleOrderPmm.get(pipelineName);

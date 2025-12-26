@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -639,7 +638,7 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.syncEnvironments(environments("uat", "prod", "env_name"));
 
         doThrow(ConfigUpdateCheckFailedException.class)
-                .when(mockGoConfigService).updateConfig(any(EntityConfigUpdateCommand.class), any(Username.class));
+                .when(mockGoConfigService).updateConfig(any(), any());
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         environmentConfigService.patchEnvironment(environmentConfig, List.of("pipeline1"), emptyList(), emptyList(), emptyList(), user, result);
@@ -670,7 +669,7 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.syncEnvironments(environments("uat", "prod", "env_name"));
 
         doThrow(ConfigUpdateCheckFailedException.class)
-                .when(mockGoConfigService).updateConfig(any(EntityConfigUpdateCommand.class), any(Username.class));
+                .when(mockGoConfigService).updateConfig(any(), any());
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         environmentConfigService.deleteEnvironment(environmentConfig, user, result);

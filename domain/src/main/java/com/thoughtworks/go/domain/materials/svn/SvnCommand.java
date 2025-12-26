@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.util.SafeSaxBuilder;
 import com.thoughtworks.go.util.SvnLogXmlParser;
 import com.thoughtworks.go.util.command.*;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -44,6 +43,7 @@ import java.util.Set;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class SvnCommand extends SCMCommand implements Subversion {
     private UrlArgument repositoryUrl;
@@ -261,9 +261,9 @@ public class SvnCommand extends SCMCommand implements Subversion {
     }
 
     private void addCredentials(CommandLine line, StringArgument svnUserName, PasswordArgument svnPassword) {
-        if (!StringUtils.isBlank(svnUserName.originalArgument())) {
+        if (!isBlank(svnUserName.originalArgument())) {
             line.withArgs("--username", svnUserName.originalArgument());
-            if (!StringUtils.isBlank(svnPassword.originalArgument())) {
+            if (!isBlank(svnPassword.originalArgument())) {
                 line.withArg("--password");
                 line.withArg(svnPassword);
             }

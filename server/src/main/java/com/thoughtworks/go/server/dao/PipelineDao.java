@@ -46,9 +46,9 @@ public interface PipelineDao {
 
     PipelineIdentifier mostRecentPipelineIdentifier(String pipelineName);
 
-    Integer getCounterForPipeline(String name);
+    int getCounterForPipeline(String name);
 
-    void insertOrUpdatePipelineCounter(Pipeline pipeline, Integer lastCount, Integer newCount);
+    void insertOrUpdatePipelineCounter(Pipeline pipeline, int lastCount, int newCount);
 
     Pipeline findPipelineByNameAndCounter(String pipelineName, int pipelineCounter);
 
@@ -82,7 +82,7 @@ public interface PipelineDao {
 
     PipelineInstanceModels loadHistoryForDashboard(List<String> pipelineNames);
 
-    PipelineInstanceModels loadHistory(String pipelineName, FeedModifier modifier, long cursor, Integer pageSize);
+    PipelineInstanceModels loadHistory(String pipelineName, FeedModifier modifier, long cursor, int pageSize);
 
     PipelineRunIdInfo getOldestAndLatestPipelineId(String pipelineName);
 }

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service.materials;
 
 import com.thoughtworks.go.ClearSingleton;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.packagerepository.*;
 import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
@@ -87,8 +86,8 @@ public class PackageDefinitionServiceTest {
         ValidationResult expectedValidationResult = new ValidationResult();
         expectedValidationResult.addError(new ValidationError("spec", "invalid spec"));
         when(packageRepositoryExtension.isPackageConfigurationValid(eq(packageRepository.getPluginConfiguration().getId()),
-                any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class),
-                any(RepositoryConfiguration.class))).thenReturn(expectedValidationResult);
+                any(),
+                any())).thenReturn(expectedValidationResult);
         service.performPluginValidationsFor(packageDefinition);
 
         assertThat(packageDefinition.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value")).isEqualTo(List.of("Field: 'required' is required"));
@@ -109,8 +108,8 @@ public class PackageDefinitionServiceTest {
         expectedValidationResult.addError(new ValidationError("required-field", "error-two"));
 
         when(packageRepositoryExtension.isPackageConfigurationValid(eq(packageRepository.getPluginConfiguration().getId()),
-                any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class),
-                any(RepositoryConfiguration.class))).thenReturn(expectedValidationResult);
+                any(),
+                any())).thenReturn(expectedValidationResult);
         service.performPluginValidationsFor(packageDefinition);
         assertThat(packageDefinition.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value").size()).isEqualTo(2);
         assertThat(packageDefinition.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value")).contains("error-one", "error-two");
@@ -144,7 +143,7 @@ public class PackageDefinitionServiceTest {
         assertPackageConfiguration(packageRepositoryConfigurationsCaptor.getValue().list(), packageRepository.getConfiguration());
         assertThat(result.isSuccessful()).isTrue();
         assertThat(result.message()).isEqualTo("OK. Got Package!!!");
-        verify(packageRepositoryExtension).checkConnectionToPackage(anyString(), any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class), any(RepositoryConfiguration.class));
+        verify(packageRepositoryExtension).checkConnectionToPackage(anyString(), any(), any());
     }
 
     @Test
@@ -174,7 +173,7 @@ public class PackageDefinitionServiceTest {
         assertPackageConfiguration(packageRepositoryConfigurationsCaptor.getValue().list(), packageRepository.getConfiguration());
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.message()).isEqualTo("Package check Failed. Reason(s): Package not available\nRepo not available");
-        verify(packageRepositoryExtension).checkConnectionToPackage(anyString(), any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class), any(RepositoryConfiguration.class));
+        verify(packageRepositoryExtension).checkConnectionToPackage(anyString(), any(), any());
     }
 
     @Test
@@ -204,7 +203,7 @@ public class PackageDefinitionServiceTest {
 
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.message()).isEqualTo("Package check Failed. Reason(s): Check connection for package not implemented!!");
-        verify(packageRepositoryExtension).checkConnectionToPackage(anyString(), any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class), any(RepositoryConfiguration.class));
+        verify(packageRepositoryExtension).checkConnectionToPackage(anyString(), any(), any());
     }
 
     @Test
@@ -215,7 +214,7 @@ public class PackageDefinitionServiceTest {
         configuration.add(ConfigurationPropertyMother.create("required_secure", true, "v2"));
         PackageDefinition packageDefinition = PackageDefinitionMother.create("1", "name", configuration, packageRepository);
 
-        when(packageRepositoryExtension.isPackageConfigurationValid(anyString(), any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class), any(RepositoryConfiguration.class))).thenReturn(new ValidationResult());
+        when(packageRepositoryExtension.isPackageConfigurationValid(anyString(), any(), any())).thenReturn(new ValidationResult());
         doAnswer(invocation -> {
             PackageDefinition config = invocation.getArgument(0);
             config.getSecretParams().get(0).setValue("resolved-value");
@@ -226,7 +225,7 @@ public class PackageDefinitionServiceTest {
 
         verify(secretParamResolver).resolve(packageDefinition);
         ArgumentCaptor<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration> pkgCaptor = ArgumentCaptor.forClass(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class);
-        verify(packageRepositoryExtension).isPackageConfigurationValid(eq(packageRepository.getPluginConfiguration().getId()), pkgCaptor.capture(), any(RepositoryConfiguration.class));
+        verify(packageRepositoryExtension).isPackageConfigurationValid(eq(packageRepository.getPluginConfiguration().getId()), pkgCaptor.capture(), any());
         assertThat(pkgCaptor.getValue().list().get(0).getValue()).isEqualTo("resolved-value");
     }
 
@@ -261,7 +260,7 @@ public class PackageDefinitionServiceTest {
         PackageDefinition packageDefinition = PackageDefinitionMother.create("1", "name", new Configuration(), packageRepository);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        doThrow(new RulesViolationException("some rule violation message")).when(goConfigService).updateConfig(any(EntityConfigUpdateCommand.class), any(Username.class));
+        doThrow(new RulesViolationException("some rule violation message")).when(goConfigService).updateConfig(any(), any());
 
         service.createPackage(packageDefinition, packageRepository.getId(), new Username("user"), result);
 
@@ -275,7 +274,7 @@ public class PackageDefinitionServiceTest {
         PackageDefinition packageDefinition = PackageDefinitionMother.create("1", "name", new Configuration(), packageRepository);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        doThrow(new SecretResolutionFailureException("some secret resolution message")).when(goConfigService).updateConfig(any(EntityConfigUpdateCommand.class), any(Username.class));
+        doThrow(new SecretResolutionFailureException("some secret resolution message")).when(goConfigService).updateConfig(any(), any());
 
         service.createPackage(packageDefinition, packageRepository.getId(), new Username("user"), result);
 

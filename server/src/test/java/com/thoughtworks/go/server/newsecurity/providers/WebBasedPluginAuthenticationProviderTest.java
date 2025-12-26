@@ -226,7 +226,7 @@ class WebBasedPluginAuthenticationProviderTest {
             authenticationProvider.authenticate(CREDENTIALS, PLUGIN_ID);
 
             inOrder.verify(authorizationExtension).authenticateUser(eq(PLUGIN_ID), eq(CREDENTIALS.getCredentials()), anyList(), anyList());
-            inOrder.verify(userService).addOrUpdateUser(any(com.thoughtworks.go.domain.User.class), eq(githubSecurityAuthconfig));
+            inOrder.verify(userService).addOrUpdateUser(any(), eq(githubSecurityAuthconfig));
             inOrder.verify(pluginRoleService).updatePluginRoles(PLUGIN_ID, user.getUsername(), List.of(new CaseInsensitiveString("admin")));
             inOrder.verify(authorityGranter).authorities(user.getUsername());
         }

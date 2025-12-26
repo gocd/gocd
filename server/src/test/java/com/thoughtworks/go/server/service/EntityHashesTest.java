@@ -67,7 +67,7 @@ class EntityHashesTest {
             };
 
             // mocking this as we aren't testing the XML serialization; that's supposed to be an abstraction!
-            when(writer.toXmlPartial(any(AdminUser.class))).thenAnswer((Answer<String>) invocation -> {
+            when(writer.toXmlPartial(any())).thenAnswer((Answer<String>) invocation -> {
                 final AdminUser user = invocation.getArgument(0);
                 return user.getName().toString();
             });

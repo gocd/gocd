@@ -454,8 +454,8 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
 
         new GoConfigGraphWalker(foo).walk(handler);
 
-        verify(handler).handle(same(foo), any(ValidationContext.class));
-        verify(handler).handle(same(bar), any(ValidationContext.class));
+        verify(handler).handle(same(foo), any());
+        verify(handler).handle(same(bar), any());
     }
 
     @Test

@@ -78,6 +78,6 @@ public class MergedTestArtifactPlanTest {
 
         verify(mockArtifactPublisher).upload(first, "logs/report");
         verify(mockArtifactPublisher).upload(second, "logs/test/a/b");
-        verify(mockArtifactPublisher, times(2)).upload(any(File.class), eq("testoutput"));
+        verify(mockArtifactPublisher, times(2)).upload(any(), eq("testoutput"));
     }
 }

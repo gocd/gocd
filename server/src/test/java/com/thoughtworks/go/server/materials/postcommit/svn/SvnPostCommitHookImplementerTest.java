@@ -55,7 +55,7 @@ class SvnPostCommitHookImplementerTest {
         final Material dependencyMaterial = mock(DependencyMaterial.class);
         final Set<Material> allMaterials = Set.of(svnMaterial1, svnMaterial2, svnMaterial3, gitMaterial, hgMaterial, p4Material, tfsMaterial, dependencyMaterial);
         final SvnPostCommitHookImplementer spy = spy(implementer);
-        doAnswer(invocation -> Boolean.TRUE).when(spy).isQualified(anyString(), any(SvnMaterial.class), anyMap());
+        doAnswer(invocation -> Boolean.TRUE).when(spy).isQualified(anyString(), any(), anyMap());
         doAnswer(invocation -> Map.of()).when(spy).createUrlToRemoteUUIDMap(allMaterials);
         Map<String, String> params = new HashMap<>();
         params.put(SvnPostCommitHookImplementer.UUID, "some uuid");
@@ -125,7 +125,7 @@ class SvnPostCommitHookImplementerTest {
         final SvnPostCommitHookImplementer spy = spy(implementer);
         final Set<Material> prunedList = spy.prune(allMaterials, new HashMap<>());
         assertThat(prunedList.size()).isEqualTo(0);
-        verify(spy, never()).isQualified(anyString(), any(SvnMaterial.class), any());
+        verify(spy, never()).isQualified(anyString(), any(), any());
     }
 
     @Test

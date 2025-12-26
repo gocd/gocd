@@ -109,13 +109,13 @@ public class SslInfrastructureServiceTest {
         when(agentRegistry.tokenPresent()).thenReturn(true);
         when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpURLConnection.HTTP_OK, null));
         when(httpResponseForbidden.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpURLConnection.HTTP_FORBIDDEN, null));
-        when(httpClient.execute(any(HttpRequestBase.class))).thenReturn(httpResponseForbidden).thenReturn(httpResponse);
+        when(httpClient.execute(any())).thenReturn(httpResponseForbidden).thenReturn(httpResponse);
         sslInfrastructureService.createSslInfrastructure();
 
         sslInfrastructureService.register(new AgentAutoRegistrationPropertiesImpl(new File("foo", "bar")));
 
         verify(agentRegistry, times(1)).deleteToken();
-        verify(httpClient, times(2)).execute(any(HttpRequestBase.class));
+        verify(httpClient, times(2)).execute(any());
     }
 
     private NameValuePair findParam(List<NameValuePair> nameValuePairs, final String paramName) {

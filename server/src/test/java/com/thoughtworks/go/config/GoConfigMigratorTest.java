@@ -101,7 +101,7 @@ public class GoConfigMigratorTest {
         when(goConfigMigration.upgradeIfNecessary(configInFile)).thenThrow(new RuntimeException());
         when(goConfigMigration.upgradeIfNecessary(versionedConfig)).thenReturn(versionedConfig);
         when(loader.deserializeConfig(versionedConfig)).thenReturn(cruiseConfig);
-        when(goConfigMigration.revertFileToVersion(any(File.class), any(GoConfigRevision.class))).thenReturn(new File("path_to_backup_file"));
+        when(goConfigMigration.revertFileToVersion(any(), any())).thenReturn(new File("path_to_backup_file"));
         when(fullConfigSaveNormalFlow.execute(commandArgumentCaptor.capture(), listArgumentCaptor.capture(), stringArgumentCaptor.capture())).thenReturn(mock(GoConfigHolder.class));
 
         goConfigMigrator.migrate();
@@ -109,7 +109,7 @@ public class GoConfigMigratorTest {
         assertThat(stringArgumentCaptor.getValue()).isEqualTo("Upgrade");
         assertThat(commandArgumentCaptor.getValue().configForEdit()).isEqualTo(cruiseConfig);
         assertThat(listArgumentCaptor.getValue().size()).isEqualTo(0);
-        verify(goConfigMigration).revertFileToVersion(any(File.class), any(GoConfigRevision.class));
+        verify(goConfigMigration).revertFileToVersion(any(), any());
     }
 
 

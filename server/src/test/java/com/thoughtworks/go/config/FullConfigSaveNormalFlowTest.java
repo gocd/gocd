@@ -133,8 +133,8 @@ public class FullConfigSaveNormalFlowTest {
 
         flow.execute(updateConfigCommand, partials, null);
 
-        inOrder.verify(configRepository).checkin(any(GoConfigRevision.class));
-        inOrder.verify(fileWriter).writeToConfigXmlFile(any(String.class));
+        inOrder.verify(configRepository).checkin(any());
+        inOrder.verify(fileWriter).writeToConfigXmlFile(any());
         inOrder.verify(cachedGoPartials).markAsValid(partials);
     }
 }

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.remote.work;
 
-import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
@@ -413,7 +412,7 @@ class BuildWorkTest {
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator,
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), scmExtension, taskExtension, artifactExtension, pluginRequestProcessorRegistry));
 
-        verify(artifactExtension).publishArtifact(anyString(), any(ArtifactPlan.class), any(ArtifactStore.class), anyString(), any(EnvironmentVariableContext.class));
+        verify(artifactExtension).publishArtifact(anyString(), any(), any(), anyString(), any());
     }
 
     @Test

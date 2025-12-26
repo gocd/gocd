@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.JobConfigs;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Stage;
@@ -125,8 +124,8 @@ public class PipelineServiceTest {
         } catch (RuntimeException e) {
             //ignore
         }
-        verify(stageStatusListener, never()).stageStatusChanged(any(Stage.class));
-        verify(jobStatusListener, never()).jobStatusChanged(any(JobInstance.class));
+        verify(stageStatusListener, never()).stageStatusChanged(any());
+        verify(jobStatusListener, never()).jobStatusChanged(any());
     }
 
     @Test
@@ -137,8 +136,8 @@ public class PipelineServiceTest {
 
         service.save(pipeline);
 
-        verify(stageStatusListener).stageStatusChanged(any(Stage.class));
-        verify(jobStatusListener).jobStatusChanged(any(JobInstance.class));
+        verify(stageStatusListener).stageStatusChanged(any());
+        verify(jobStatusListener).jobStatusChanged(any());
     }
 
     private Pipeline stubPipelineSaveForStatusListener(StageStatusListener stageStatusListener, JobStatusListener jobStatusListener) {
@@ -152,7 +151,7 @@ public class PipelineServiceTest {
                 mock(ChangesetService.class), mock(GoConfigService.class), actualTransactionTemplate, transactionSynchronizationManager,
                 goCache);
         Stage savedStage = StageMother.passedStageInstance("stage", "job", "pipeline-name");
-        when(stageDao.save(any(Pipeline.class), any(Stage.class))).thenReturn(savedStage);
+        when(stageDao.save(any(), any())).thenReturn(savedStage);
 
         stageService.addStageStatusListener(stageStatusListener);
 

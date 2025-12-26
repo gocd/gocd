@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service.materials;
 
 import com.thoughtworks.go.ClearSingleton;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
@@ -94,7 +93,7 @@ public class PackageRepositoryServiceTest {
         packageRepository.getConfiguration().add(ConfigurationPropertyMother.create("secure", true, ""));
         packageRepository.getConfiguration().add(ConfigurationPropertyMother.create("not_required_not_secure", false, ""));
 
-        when(packageRepositoryExtension.isRepositoryConfigurationValid(eq(pluginId), any(RepositoryConfiguration.class))).thenReturn(new ValidationResult());
+        when(packageRepositoryExtension.isRepositoryConfigurationValid(eq(pluginId), any())).thenReturn(new ValidationResult());
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(getPluginDescriptor(pluginId));
 
         service.performPluginValidationsFor(packageRepository);
@@ -147,7 +146,7 @@ public class PackageRepositoryServiceTest {
         String pluginId = "valid";
         RepositoryMetadataStore.getInstance().addMetadataFor(pluginId, new PackageConfigurations());
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(getPluginDescriptor(pluginId));
-        when(packageRepositoryExtension.isRepositoryConfigurationValid(eq(pluginId), any(RepositoryConfiguration.class))).thenReturn(new ValidationResult());
+        when(packageRepositoryExtension.isRepositoryConfigurationValid(eq(pluginId), any())).thenReturn(new ValidationResult());
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.setPluginConfiguration(new PluginConfiguration(pluginId, ""));
         service.performPluginValidationsFor(packageRepository);
@@ -171,7 +170,7 @@ public class PackageRepositoryServiceTest {
         PackageMaterialTestHelper.assertPackageConfiguration(packageConfigurations.list(), packageRepository.getConfiguration());
         assertThat(result.isSuccessful()).isTrue();
         assertThat(result.message()).isEqualTo("Connection OK. Accessed Repo File!!!");
-        verify(packageRepositoryExtension).checkConnectionToRepository(eq(pluginId), any(RepositoryConfiguration.class));
+        verify(packageRepositoryExtension).checkConnectionToRepository(eq(pluginId), any());
     }
 
     @Test
@@ -189,7 +188,7 @@ public class PackageRepositoryServiceTest {
 
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.message()).isEqualTo("Could not connect to package repository. Reason(s): Check Connection not implemented!!");
-        verify(packageRepositoryExtension).checkConnectionToRepository(eq(pluginId), any(RepositoryConfiguration.class));
+        verify(packageRepositoryExtension).checkConnectionToRepository(eq(pluginId), any());
     }
 
     @Test
@@ -209,7 +208,7 @@ public class PackageRepositoryServiceTest {
         assertThat(result.isSuccessful()).isFalse();
 
         assertThat(result.message()).isEqualTo("Could not connect to package repository. Reason(s): Repo invalid!!\nCould not connect");
-        verify(packageRepositoryExtension).checkConnectionToRepository(eq(pluginId), any(RepositoryConfiguration.class));
+        verify(packageRepositoryExtension).checkConnectionToRepository(eq(pluginId), any());
     }
 
     @Test
@@ -268,7 +267,7 @@ public class PackageRepositoryServiceTest {
     void shouldSetResultAsUnprocessableEntityIfRulesViolationForUpdate() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        doThrow(new RulesViolationException("some rule violation message")).when(goConfigService).updateConfig(any(EntityConfigUpdateCommand.class), any(Username.class));
+        doThrow(new RulesViolationException("some rule violation message")).when(goConfigService).updateConfig(any(), any());
 
         service.createPackageRepository(packageRepository("some-plugin"), new Username("user"), result);
 
@@ -281,7 +280,7 @@ public class PackageRepositoryServiceTest {
     void shouldSetResultAsUnprocessableEntityIfSecretResolutionFailsForUpdate() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        doThrow(new SecretResolutionFailureException("some secret resolution message")).when(goConfigService).updateConfig(any(EntityConfigUpdateCommand.class), any(Username.class));
+        doThrow(new SecretResolutionFailureException("some secret resolution message")).when(goConfigService).updateConfig(any(), any());
 
         service.createPackageRepository(packageRepository("some-plugin"), new Username("user"), result);
 

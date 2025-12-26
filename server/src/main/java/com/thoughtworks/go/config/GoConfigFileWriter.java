@@ -29,8 +29,8 @@ import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 
 public class GoConfigFileWriter {
-    private SystemEnvironment systemEnvironment;
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass().getName());
+    private final SystemEnvironment systemEnvironment;
 
     public GoConfigFileWriter(SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
@@ -41,7 +41,7 @@ public class GoConfigFileWriter {
         try (
                 RandomAccessFile randomAccessFile = new RandomAccessFile(systemEnvironment.getCruiseConfigFile(), "rw");
                 FileChannel channel = randomAccessFile.getChannel();
-                FileLock ignored = channel.lock();
+                FileLock ignored = channel.lock()
         ) {
             randomAccessFile.seek(0);
             randomAccessFile.setLength(0);

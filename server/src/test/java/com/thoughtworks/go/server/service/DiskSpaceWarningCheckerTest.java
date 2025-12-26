@@ -102,7 +102,7 @@ public class DiskSpaceWarningCheckerTest {
         GoConfigService goConfigService = mockGoConfigServiceToHaveSiteUrl();
 
         SystemDiskSpaceChecker checker = mock(SystemDiskSpaceChecker.class);
-        when(checker.getUsableSpace(any(File.class))).thenReturn(1000000L);
+        when(checker.getUsableSpace(any())).thenReturn(1000000L);
 
         ArtifactsDiskSpaceWarningChecker diskSpaceWarningChecker = new ArtifactsDiskSpaceWarningChecker(new SystemEnvironment(), null, goConfigService, checker, serverHealthService) {
             @Override protected String targetFolderCanonicalPath() {

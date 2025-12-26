@@ -101,7 +101,7 @@ public class PluginMessageQueueHandlerTest {
 
         assertThat(handler.queues.containsKey(pluginId)).isFalse();
         verify(messaging, never()).removeQueue(queueName);
-        verify(messaging, never()).addQueueListener(any(String.class), any());
+        verify(messaging, never()).addQueueListener(any(), any());
     }
 
     private class MyQueueFactory implements QueueFactory<FooMessage> {

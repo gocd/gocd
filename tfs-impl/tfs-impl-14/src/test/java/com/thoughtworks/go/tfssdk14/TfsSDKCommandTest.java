@@ -18,8 +18,6 @@ package com.thoughtworks.go.tfssdk14;
 import com.microsoft.tfs.core.TFSTeamProjectCollection;
 import com.microsoft.tfs.core.clients.versioncontrol.GetOptions;
 import com.microsoft.tfs.core.clients.versioncontrol.soapextensions.Changeset;
-import com.microsoft.tfs.core.clients.versioncontrol.soapextensions.GetRequest;
-import com.microsoft.tfs.core.clients.versioncontrol.specs.version.ChangesetVersionSpec;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.tfssdk14.wrapper.GoTfsVersionControlClient;
@@ -98,7 +96,7 @@ class TfsSDKCommandTest {
     @Test
     void shouldReturnChangeSetsFromAPreviouslyKnownRevisionUptilTheLatest() {
         Changeset[] changeSets = getChangeSets(42);
-        when(client.queryHistory(eq(TFS_PROJECT), or(isNull(), any(ChangesetVersionSpec.class)), anyInt())).thenReturn(changeSets);
+        when(client.queryHistory(eq(TFS_PROJECT), or(isNull(), any()), anyInt())).thenReturn(changeSets);
         TfsSDKCommand spy = spy(tfsCommand);
         doReturn(null).when(spy).getModifiedFiles(changeSets[0]);
 
@@ -106,7 +104,7 @@ class TfsSDKCommandTest {
 
         assertThat(modifications.isEmpty()).isFalse();
 
-        verify(client, times(2)).queryHistory(eq(TFS_PROJECT), or(isNull(), any(ChangesetVersionSpec.class)), anyInt());
+        verify(client, times(2)).queryHistory(eq(TFS_PROJECT), or(isNull(), any()), anyInt());
     }
 
     @Test
@@ -119,7 +117,7 @@ class TfsSDKCommandTest {
         GoTfsWorkspace workspace = mock(GoTfsWorkspace.class);
         when(client.createWorkspace(TFS_WORKSPACE)).thenReturn(workspace);
         when(workspace.isLocalPathMapped("/some-random-path/")).thenReturn(false);
-        doNothing().when(workspace).createWorkingFolder(any(com.microsoft.tfs.core.clients.versioncontrol.soapextensions.WorkingFolder.class));
+        doNothing().when(workspace).createWorkingFolder(any());
         TfsSDKCommand spy = spy(tfsCommand);
         doNothing().when(spy).retrieveFiles(workingDirectory, null);
 
@@ -128,7 +126,7 @@ class TfsSDKCommandTest {
         verify(client, times(1)).queryWorkspaces(TFS_WORKSPACE, USERNAME);
         verify(client, times(1)).createWorkspace(TFS_WORKSPACE);
         verify(workspace, times(1)).isLocalPathMapped(anyString());
-        verify(workspace, times(1)).createWorkingFolder(any(com.microsoft.tfs.core.clients.versioncontrol.soapextensions.WorkingFolder.class));
+        verify(workspace, times(1)).createWorkingFolder(any());
         verify(spy).retrieveFiles(workingDirectory, null);
     }
 
@@ -141,7 +139,7 @@ class TfsSDKCommandTest {
         GoTfsWorkspace[] workspaces = {workspace};
         when(client.queryWorkspaces(TFS_WORKSPACE, USERNAME)).thenReturn(workspaces);
         when(workspace.isLocalPathMapped("/some-random-path/")).thenReturn(false);
-        doNothing().when(workspace).createWorkingFolder(any(com.microsoft.tfs.core.clients.versioncontrol.soapextensions.WorkingFolder.class));
+        doNothing().when(workspace).createWorkingFolder(any());
         TfsSDKCommand spy = spy(tfsCommand);
         doNothing().when(spy).retrieveFiles(workingDirectory, null);
 
@@ -150,7 +148,7 @@ class TfsSDKCommandTest {
         verify(client, times(1)).queryWorkspaces(TFS_WORKSPACE, USERNAME);
         verify(client, never()).createWorkspace(TFS_WORKSPACE);
         verify(workspace, times(1)).isLocalPathMapped("/some-random-path/");
-        verify(workspace, times(1)).createWorkingFolder(any(com.microsoft.tfs.core.clients.versioncontrol.soapextensions.WorkingFolder.class));
+        verify(workspace, times(1)).createWorkingFolder(any());
         verify(spy).retrieveFiles(workingDirectory, null);
     }
 
@@ -174,13 +172,13 @@ class TfsSDKCommandTest {
         doNothing().when(spy).initializeWorkspace(workingDirectory);
         GoTfsWorkspace workspace = mock(GoTfsWorkspace.class);
         when(client.queryWorkspace(TFS_WORKSPACE, USERNAME)).thenReturn(workspace);
-        doNothing().when(workspace).get(any(GetRequest.class), eq(GetOptions.GET_ALL));
+        doNothing().when(workspace).get(any(), eq(GetOptions.GET_ALL));
 
         spy.checkout(workingDirectory, null);
 
         verify(workingDirectory).getCanonicalPath();
         verify(workingDirectory).listFiles();
-        verify(workspace).get(any(GetRequest.class), eq(GetOptions.GET_ALL));
+        verify(workspace).get(any(), eq(GetOptions.GET_ALL));
     }
 
     @Test
@@ -194,13 +192,13 @@ class TfsSDKCommandTest {
         doNothing().when(spy).initializeWorkspace(workingDirectory);
         GoTfsWorkspace workspace = mock(GoTfsWorkspace.class);
         when(client.queryWorkspace(TFS_WORKSPACE, USERNAME)).thenReturn(workspace);
-        doNothing().when(workspace).get(any(GetRequest.class), eq(GetOptions.NONE));
+        doNothing().when(workspace).get(any(), eq(GetOptions.NONE));
 
         spy.checkout(workingDirectory, null);
 
         verify(workingDirectory).getCanonicalPath();
         verify(workingDirectory).listFiles();
-        verify(workspace).get(any(GetRequest.class), eq(GetOptions.NONE));
+        verify(workspace).get(any(), eq(GetOptions.NONE));
     }
 
     @Test

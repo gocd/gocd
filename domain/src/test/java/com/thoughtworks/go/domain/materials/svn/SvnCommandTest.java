@@ -502,7 +502,7 @@ public class SvnCommandTest {
             final CommandLine commandLine = (CommandLine) invocation.getArguments()[0];
             assertThat(commandLine.toString()).contains("svn info --xml --username user --password ****** http://localhost/svn/project1");
             return consoleResult;
-        }).when(spy).executeCommand(any(CommandLine.class));
+        }).when(spy).executeCommand(any());
         final Map<String, String> urlToRemoteUUIDMap = spy.createUrlToRemoteUUIDMap(svnMaterials);
         assertThat(urlToRemoteUUIDMap.size()).isEqualTo(1);
         assertThat(urlToRemoteUUIDMap.get("http://localhost/svn/project1")).isEqualTo("b51fe673-20c0-4205-a07b-5deb54bb09f3");
@@ -527,7 +527,7 @@ public class SvnCommandTest {
             } else {
                 throw new RuntimeException("Some thing crapped out");
             }
-        }).when(spy).executeCommand(any(CommandLine.class));
+        }).when(spy).executeCommand(any());
 
         Map<String, String> urlToRemoteUUIDMap = null;
         try {
@@ -538,7 +538,7 @@ public class SvnCommandTest {
 
         assertThat(urlToRemoteUUIDMap.size()).isEqualTo(1);
         assertThat(urlToRemoteUUIDMap.get("http://localhost/svn/project1")).isEqualTo("b51fe673-20c0-4205-a07b-5deb54bb09f3");
-        verify(spy, times(2)).executeCommand(any(CommandLine.class));
+        verify(spy, times(2)).executeCommand(any());
     }
 
     @Test
@@ -577,7 +577,7 @@ public class SvnCommandTest {
                     assertThat(commandString).doesNotContainPattern("password");
                 }
             }
-        }).when(spy).executeCommand(any(CommandLine.class));
+        }).when(spy).executeCommand(any());
 
         spy.createUrlToRemoteUUIDMap(svnMaterials);
 

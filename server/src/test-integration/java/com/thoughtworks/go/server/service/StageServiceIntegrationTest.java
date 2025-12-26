@@ -327,14 +327,14 @@ public class StageServiceIntegrationTest {
         try {
             stageService.getStageStatusListeners().clear();
             StageStatusListener failingListener = mock(StageStatusListener.class);
-            doThrow(new RuntimeException("Should not be rethrown by save")).when(failingListener).stageStatusChanged(any(Stage.class));
+            doThrow(new RuntimeException("Should not be rethrown by save")).when(failingListener).stageStatusChanged(any());
             StageStatusListener passingListener = mock(StageStatusListener.class);
             stageService.getStageStatusListeners().add(failingListener);
             stageService.getStageStatusListeners().add(passingListener);
             Stage newInstance = instanceFactory.createStageInstance(pipelineConfig.first(), new DefaultSchedulingContext("anonumous"), md5, new TimeProvider());
             Stage savedStage = stageService.save(savedPipeline, newInstance);
             assertThat(savedStage.getId()).isGreaterThan(0L);
-            verify(passingListener).stageStatusChanged(any(Stage.class));
+            verify(passingListener).stageStatusChanged(any());
         } finally {
             stageService.getStageStatusListeners().clear();
             stageService.getStageStatusListeners().addAll(original);
@@ -493,7 +493,7 @@ public class StageServiceIntegrationTest {
         } catch (Exception e) {
             assertThat(e.getMessage()).isEqualTo("test exception");
         }
-        verify(listener, never()).stageStatusChanged(any(Stage.class));
+        verify(listener, never()).stageStatusChanged(any());
     }
 
     @Test

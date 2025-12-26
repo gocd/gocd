@@ -32,7 +32,6 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
-import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
@@ -104,8 +103,6 @@ class ElasticAgentPluginServiceTest {
     @Mock
     private JobStatusTopic jobStatusTopic;
 
-    private TimeProvider timeProvider;
-    private String autoRegisterKey = "key";
     private ElasticAgentPluginService service;
     private ElasticAgentMetadataStore elasticAgentMetadataStore;
     private JobInstanceSqlMapDao jobInstanceSqlMapDao;
@@ -124,12 +121,12 @@ class ElasticAgentPluginServiceTest {
         when(agentService.allElasticAgents()).thenReturn(new LinkedMultiValueMap<>());
 
         elasticAgentMetadataStore = ElasticAgentMetadataStore.instance();
-        timeProvider = new TimeProvider();
 
         jobInstanceSqlMapDao = mock(JobInstanceSqlMapDao.class);
         service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService,
-                createAgentQueue, serverPingQueue, goConfigService, timeProvider, serverHealthService, elasticAgentMetadataStore,
+                createAgentQueue, serverPingQueue, goConfigService, new TimeProvider(), serverHealthService, elasticAgentMetadataStore,
                 clusterProfilesService, jobInstanceSqlMapDao, scheduleService, consoleService, ephemeralAutoRegisterKeyService, secretParamResolver, jobStatusTopic);
+        String autoRegisterKey = "key";
         when(goConfigService.serverConfig()).thenReturn(GoConfigMother.configWithAutoRegisterKey(autoRegisterKey).server());
     }
 
@@ -678,7 +675,7 @@ class ElasticAgentPluginServiceTest {
 
             assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, new ClusterProfile("clusterProfileId", elasticPluginId), null)).isTrue();
             verify(secretParamResolver).resolve(elasticProfile);
-            verify(registry).shouldAssignWork(eq(null), any(AgentMetadata.class), eq(null),
+            verify(registry).shouldAssignWork(eq(null), any(), eq(null),
                     eq(elasticProfile.getConfigurationAsMap(true, true)), eq(emptyMap()), eq(null));
         }
 

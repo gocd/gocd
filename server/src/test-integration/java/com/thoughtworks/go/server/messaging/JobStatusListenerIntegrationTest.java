@@ -114,7 +114,7 @@ public class JobStatusListenerIntegrationTest {
 
         listener.onMessage(new JobStatusMessage(jobIdentifier, JobState.Completed, AGENT1.getUuid()));
         verify(stageStatusTopic).post(stagePassed);
-        verify(spyOfElasticAgentPluginService).jobCompleted(any(JobInstance.class));
+        verify(spyOfElasticAgentPluginService).jobCompleted(any());
     }
 
     @Test
@@ -127,8 +127,8 @@ public class JobStatusListenerIntegrationTest {
 
         listener.onMessage(new JobStatusMessage(jobIdentifier, JobState.Building, AGENT1.getUuid()));
 
-        verify(stageStatusTopic, never()).post(any(StageStatusMessage.class));
-        verify(spyOfElasticAgentPluginService, never()).jobCompleted(any(JobInstance.class));
+        verify(stageStatusTopic, never()).post(any());
+        verify(spyOfElasticAgentPluginService, never()).jobCompleted(any());
     }
 
     @Test

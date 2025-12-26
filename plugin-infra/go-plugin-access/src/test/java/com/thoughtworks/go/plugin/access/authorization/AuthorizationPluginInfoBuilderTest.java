@@ -36,7 +36,7 @@ public class AuthorizationPluginInfoBuilderTest {
     @BeforeEach
     public void setUp() {
         extension = mock(AuthorizationExtension.class);
-        when(extension.getCapabilities(any(String.class))).thenReturn(new Capabilities(SupportedAuthType.Password, true, true, false));
+        when(extension.getCapabilities(any())).thenReturn(new Capabilities(SupportedAuthType.Password, true, true, false));
     }
 
     @Test

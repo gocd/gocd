@@ -23,7 +23,10 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
-import com.thoughtworks.go.plugin.access.scm.*;
+import com.thoughtworks.go.plugin.access.scm.SCMConfiguration;
+import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
+import com.thoughtworks.go.plugin.access.scm.SCMExtension;
+import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -116,7 +119,7 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
 
         Map<String, String> data = new HashMap<>();
         data.put("k1", "v1");
-        when(scmExtension.getLatestRevision(any(String.class), any(SCMPropertyConfiguration.class), any(), any(String.class))).thenReturn(new MaterialPollResult(data, new SCMRevision()));
+        when(scmExtension.getLatestRevision(any(), any(), any(), any())).thenReturn(new MaterialPollResult(data, new SCMRevision()));
         mockSCMExtensionInPoller();
         scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, materialChecker, subprocessExecutionContext, materialService);
         pluggableSCMMaterialUpdater = new PluggableSCMMaterialUpdater(materialRepository, scmMaterialUpdater, transactionTemplate);
@@ -141,7 +144,7 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
 
         Map<String, String> newData = new HashMap<>(oldData);
         newData.put("k2", "v2");
-        when(scmExtension.latestModificationSince(any(String.class), any(SCMPropertyConfiguration.class), any(), any(String.class), any(SCMRevision.class))).thenReturn(new MaterialPollResult(newData, new SCMRevision()));
+        when(scmExtension.latestModificationSince(any(), any(), any(), any(), any())).thenReturn(new MaterialPollResult(newData, new SCMRevision()));
         mockSCMExtensionInPoller();
         scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, materialChecker, subprocessExecutionContext, materialService);
         pluggableSCMMaterialUpdater = new PluggableSCMMaterialUpdater(materialRepository, scmMaterialUpdater, transactionTemplate);

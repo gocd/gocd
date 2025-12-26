@@ -67,7 +67,7 @@ public class JsonBasedTaskExecutorTest {
 
     @Test
     public void shouldExecuteAndReturnSuccessfulExecutionResultTaskThroughPlugin() {
-        when(pluginManager.submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any(GoPluginApiRequest.class))).thenReturn(response);
+        when(pluginManager.submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any())).thenReturn(response);
         when(handler.toExecutionResult(response.responseBody())).thenReturn(ExecutionResult.success("message1"));
 
         ExecutionResult result = new JsonBasedTaskExecutor(pluginId, pluginRequestHelper, handlerHashMap).execute(config(), context);
@@ -84,7 +84,7 @@ public class JsonBasedTaskExecutorTest {
 
     @Test
     public void shouldExecuteAndReturnFailureExecutionResultTaskThroughPlugin() {
-        when(pluginManager.submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any(GoPluginApiRequest.class))).thenReturn(response);
+        when(pluginManager.submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any())).thenReturn(response);
         when(handler.toExecutionResult(response.responseBody())).thenReturn(ExecutionResult.failure("error1"));
 
         ExecutionResult result = new JsonBasedTaskExecutor(pluginId, pluginRequestHelper, handlerHashMap).execute(config(), context);
@@ -110,7 +110,7 @@ public class JsonBasedTaskExecutorTest {
             GoPluginApiRequest request = (GoPluginApiRequest) invocationOnMock.getArguments()[2];
             executionRequest[0] = request;
             return response;
-        }).when(pluginManager).submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any(GoPluginApiRequest.class));
+        }).when(pluginManager).submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any());
         handler = new JsonBasedTaskExtensionHandler_V1();
         handlerHashMap.put("1.0", handler);
         new JsonBasedTaskExecutor(pluginId, pluginRequestHelper, handlerHashMap).execute(config(), context);

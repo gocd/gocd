@@ -42,6 +42,6 @@ public class ConfigMaterialUpdateListenerFactoryTest {
                 null, null, null, null, null);
         factory.init();
 
-        verify(configMaterialPostUpdateQueue, times(numberOfConfigMaterialPostUpdateListeners)).addListener(any(ConfigMaterialUpdateListener.class));
+        verify(configMaterialPostUpdateQueue, times(numberOfConfigMaterialPostUpdateListeners)).addListener(any());
     }
 }

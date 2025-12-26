@@ -257,8 +257,8 @@ public class MaterialDatabaseDependencyUpdaterTest {
         // update subsequently should hit database
         updater.updateMaterial(dependencyMaterial);
 
-        verify(dependencyMaterialSourceDao, times(2)).getPassedStagesAfter(any(String.class), any(DependencyMaterial.class), any(Pagination.class));
-        verify(dependencyMaterialSourceDao, times(2)).getPassedStagesByName(any(DependencyMaterial.class), any(Pagination.class));
+        verify(dependencyMaterialSourceDao, times(2)).getPassedStagesAfter(any(), any(), any());
+        verify(dependencyMaterialSourceDao, times(2)).getPassedStagesByName(any(), any());
     }
 
     private Stages stages(int... pipelineCounters) {

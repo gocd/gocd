@@ -86,7 +86,7 @@ public class CreatePipelineConfigCommandTest {
 
         command.encrypt(preprocessedConfig);
 
-        verify(pipelineConfig).encryptSecureProperties(eq(preprocessedConfig), any(PipelineConfig.class));
+        verify(pipelineConfig).encryptSecureProperties(eq(preprocessedConfig), any());
     }
 
     @Test

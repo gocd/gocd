@@ -100,7 +100,7 @@ public class AbstractExtensionTest {
 
         extension.notifyPluginSettingsChange(pluginId, settings);
 
-        verify(pluginManager, times(0)).submitTo(anyString(), eq(extensionName), any(GoPluginApiRequest.class));
+        verify(pluginManager, times(0)).submitTo(anyString(), eq(extensionName), any());
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {

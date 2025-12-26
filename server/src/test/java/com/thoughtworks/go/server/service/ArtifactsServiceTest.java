@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.LocatableEntity;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.helper.JobIdentifierMother;
@@ -366,7 +365,7 @@ public class ArtifactsServiceTest {
         ArtifactDirectoryChooser chooser = mock(ArtifactDirectoryChooser.class);
         ReflectionUtil.setField(artifactsService, "chooser", chooser);
 
-        when(chooser.findArtifact(any(LocatableEntity.class), eq(""))).thenThrow(new IllegalArtifactLocationException("holy cow!"));
+        when(chooser.findArtifact(any(), eq(""))).thenThrow(new IllegalArtifactLocationException("holy cow!"));
 
 
         try (LogFixture logFixture = logFixtureFor(ArtifactsService.class, Level.DEBUG)) {

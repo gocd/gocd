@@ -110,7 +110,7 @@ public class JobRerunScheduleServiceTest {
         stub(mingleConfig, pipeline, firstStage);
         stubConfigMd5Cal("latest-md5");
 
-        when(instanceFactory.createStageForRerunOfJobs(eq(firstStage), eq(List.of("unit")), any(SchedulingContext.class), eq(mingleConfig.first()), eq(timeProvider), eq("latest-md5")))
+        when(instanceFactory.createStageForRerunOfJobs(eq(firstStage), eq(List.of("unit")), any(), eq(mingleConfig.first()), eq(timeProvider), eq("latest-md5")))
                 .thenReturn(expectedStageToBeCreated);
 
         Stage stage = service.rerunJobs(firstStage, List.of("unit"), new HttpOperationResult());
@@ -137,7 +137,7 @@ public class JobRerunScheduleServiceTest {
         stub(mingleConfig, pipeline, firstStage);
 
         schedulingChecker = mock(SchedulingCheckerService.class);//leads to null pointer exception
-        doThrow(new NullPointerException("The whole world is a big null.")).when(schedulingChecker).canSchedule(any(OperationResult.class));
+        doThrow(new NullPointerException("The whole world is a big null.")).when(schedulingChecker).canSchedule(any());
 
         service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(PipelineDao.class),
                 mock(StageDao.class), mock(StageOrderService.class), securityService, pipelineScheduleQueue, jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class),
@@ -182,7 +182,7 @@ public class JobRerunScheduleServiceTest {
 
         stub(mingleConfig, pipeline, firstStage);
 
-        when(securityService.hasOperatePermissionForStage(eq("mingle"), eq(firstStage.getName()), any(String.class))).thenReturn(false);
+        when(securityService.hasOperatePermissionForStage(eq("mingle"), eq(firstStage.getName()), any())).thenReturn(false);
 
         assertScheduleFailure("unit", firstStage, "User does not have operate permissions for stage [build] of pipeline [mingle]", 403);
     }
@@ -202,7 +202,7 @@ public class JobRerunScheduleServiceTest {
         stub(mingleConfig, pipeline, firstStage);
         stubConfigMd5Cal(latestMd5);
 
-        when(instanceFactory.createStageForRerunOfJobs(eq(firstStage), eq(List.of("unit")), any(SchedulingContext.class), eq(stageConfig), eq(timeProvider), eq(latestMd5)))
+        when(instanceFactory.createStageForRerunOfJobs(eq(firstStage), eq(List.of("unit")), any(), eq(stageConfig), eq(timeProvider), eq(latestMd5)))
                 .thenThrow(new CannotScheduleException("Could not find matching agents to run job [unit] of stage [build].", "build"));
 
         assertScheduleFailure("unit", firstStage, "Could not find matching agents to run job [unit] of stage [build].", 409);
@@ -331,7 +331,7 @@ public class JobRerunScheduleServiceTest {
 
         assertThat(result.httpCode()).isEqualTo(400);
         assertThat(result.message()).isEqualTo("There are no failed jobs in the stage that could be re-run");
-        verify(scheduleServiceSpy, never()).rerunJobs(any(Stage.class), anyList(), any(HttpOperationResult.class));
+        verify(scheduleServiceSpy, never()).rerunJobs(any(), anyList(), any());
     }
 
     private void assertScheduleFailure(String jobName, Stage oldStage, String failureMessage, int statusCode) {
@@ -348,11 +348,11 @@ public class JobRerunScheduleServiceTest {
         when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("mingle"))).thenReturn(mingleConfig);
         when(goConfigService.stageConfigNamed("mingle", identifier.getStageName())).thenReturn(mingleConfig.get(0));
 
-        when(schedulingChecker.canSchedule(any(OperationResult.class))).thenReturn(true);
-        when(schedulingChecker.canRerunStage(eq(pipeline.getIdentifier()), eq(lastStage.getName()), eq("anonymous"), any(OperationResult.class))).thenReturn(true);
+        when(schedulingChecker.canSchedule(any())).thenReturn(true);
+        when(schedulingChecker.canRerunStage(eq(pipeline.getIdentifier()), eq(lastStage.getName()), eq("anonymous"), any())).thenReturn(true);
         when(schedulingChecker.shouldAllowSchedulingStage(pipeline, lastStage.getName())).thenReturn(ScheduleStageResult.CanSchedule);
 
-        when(securityService.hasOperatePermissionForStage(eq("mingle"), eq(lastStage.getName()), any(String.class))).thenReturn(true);
+        when(securityService.hasOperatePermissionForStage(eq("mingle"), eq(lastStage.getName()), any())).thenReturn(true);
 
         when(pipelineService.fullPipelineByCounter("mingle", identifier.getPipelineCounter())).thenReturn(pipeline);
     }

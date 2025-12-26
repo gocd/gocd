@@ -87,13 +87,13 @@ public class PluggableScmServiceTest {
         SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError(new ValidationError("KEY1", "error message"));
-        when(scmExtension.isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class))).thenReturn(validationResult);
+        when(scmExtension.isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any())).thenReturn(validationResult);
 
         pluggableScmService.validate(modifiedSCM);
 
         assertFalse(modifiedSCM.getConfiguration().getProperty("KEY1").errors().isEmpty());
         assertThat(modifiedSCM.getConfiguration().getProperty("KEY1").errors().firstError()).isEqualTo("error message");
-        verify(scmExtension).isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class));
+        verify(scmExtension).isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any());
     }
 
     @Test
@@ -103,7 +103,7 @@ public class PluggableScmServiceTest {
         SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError(new ValidationError("NON-EXISTENT-KEY", "error message"));
-        when(scmExtension.isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class))).thenReturn(validationResult);
+        when(scmExtension.isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any())).thenReturn(validationResult);
 
         pluggableScmService.validate(modifiedSCM);
 
@@ -115,7 +115,7 @@ public class PluggableScmServiceTest {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
         SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);
         ValidationResult validationResult = new ValidationResult();
-        when(scmExtension.isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class))).thenReturn(validationResult);
+        when(scmExtension.isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any())).thenReturn(validationResult);
 
         pluggableScmService.validate(modifiedSCM);
 
@@ -134,7 +134,7 @@ public class PluggableScmServiceTest {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"), ConfigurationPropertyMother.create("KEY2", true, ""));
         SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);
         ValidationResult validationResult = new ValidationResult();
-        when(scmExtension.isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class))).thenReturn(validationResult);
+        when(scmExtension.isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any())).thenReturn(validationResult);
 
         pluggableScmService.validate(modifiedSCM);
 
@@ -154,7 +154,7 @@ public class PluggableScmServiceTest {
         configuration.getProperty("KEY1").setConfigurationValue(new ConfigurationValue("junk"));
         SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);
         ValidationResult validationResult = new ValidationResult();
-        when(scmExtension.isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class))).thenReturn(validationResult);
+        when(scmExtension.isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any())).thenReturn(validationResult);
 
         pluggableScmService.validate(modifiedSCM);
 
@@ -168,7 +168,7 @@ public class PluggableScmServiceTest {
         Result resultFromPlugin = new Result();
         resultFromPlugin.withSuccessMessages(List.of("message"));
 
-        when(scmExtension.checkConnectionToSCM(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class))).thenReturn(resultFromPlugin);
+        when(scmExtension.checkConnectionToSCM(eq(modifiedSCM.getPluginConfiguration().getId()), any())).thenReturn(resultFromPlugin);
 
         HttpLocalizedOperationResult result = pluggableScmService.checkConnection(modifiedSCM);
 
@@ -183,7 +183,7 @@ public class PluggableScmServiceTest {
         Result resultFromPlugin = new Result();
         resultFromPlugin.withErrorMessages("connection failed");
 
-        when(scmExtension.checkConnectionToSCM(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class))).thenReturn(resultFromPlugin);
+        when(scmExtension.checkConnectionToSCM(eq(modifiedSCM.getPluginConfiguration().getId()), any())).thenReturn(resultFromPlugin);
 
         HttpLocalizedOperationResult result = pluggableScmService.checkConnection(modifiedSCM);
 
@@ -260,7 +260,7 @@ public class PluggableScmServiceTest {
         when(scmConfig.doesPluginExist()).thenReturn(true);
         when(scmConfig.getPluginConfiguration()).thenReturn(pluginConfiguration);
         when(scmConfig.getConfiguration()).thenReturn(configuration);
-        when(scmExtension.isSCMConfigurationValid(any(String.class), any(SCMPropertyConfiguration.class))).thenReturn(validationResult);
+        when(scmExtension.isSCMConfigurationValid(any(), any())).thenReturn(validationResult);
 
         assertFalse(pluggableScmService.isValid(scmConfig));
         assertThat(configuration.getProperty("url").errors().get("url").get(0)).isEqualTo("invalid");
@@ -279,7 +279,7 @@ public class PluggableScmServiceTest {
         when(scmConfig.doesPluginExist()).thenReturn(true);
         when(scmConfig.getPluginConfiguration()).thenReturn(pluginConfiguration);
         when(scmConfig.getConfiguration()).thenReturn(new Configuration());
-        when(scmExtension.isSCMConfigurationValid(any(String.class), any(SCMPropertyConfiguration.class))).thenReturn(validationResult);
+        when(scmExtension.isSCMConfigurationValid(any(), any())).thenReturn(validationResult);
 
         assertFalse(pluggableScmService.isValid(scmConfig));
         verify(scmConfig).addError("url", "URL is a required field");
@@ -294,7 +294,7 @@ public class PluggableScmServiceTest {
         SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError(new ValidationError("KEY1", "error message"));
-        when(scmExtension.isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class))).thenReturn(validationResult);
+        when(scmExtension.isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any())).thenReturn(validationResult);
         doAnswer(invocation -> {
             SCM config = invocation.getArgument(0);
             config.getSecretParams().get(0).setValue("resolved-value");
@@ -323,7 +323,7 @@ public class PluggableScmServiceTest {
         when(scmConfig.doesPluginExist()).thenReturn(true);
         when(scmConfig.getPluginConfiguration()).thenReturn(pluginConfiguration);
         when(scmConfig.getConfiguration()).thenReturn(configuration);
-        when(scmExtension.isSCMConfigurationValid(any(String.class), any(SCMPropertyConfiguration.class))).thenReturn(new ValidationResult());
+        when(scmExtension.isSCMConfigurationValid(any(), any())).thenReturn(new ValidationResult());
         doAnswer(invocation -> {
             configuration.get(1).getSecretParams().get(0).setValue("resolved-value");
             return scmConfig;

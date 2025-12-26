@@ -55,7 +55,7 @@ public class JsonBasedPluggableTaskTest {
 
         task = new JsonBasedPluggableTask(pluginId, new PluginRequestHelper(pluginManager, goSupportedVersions, PLUGGABLE_TASK_EXTENSION), handlerMap);
         goPluginApiResponse = mock(GoPluginApiResponse.class);
-        when(pluginManager.submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any(GoPluginApiRequest.class))).thenReturn(goPluginApiResponse);
+        when(pluginManager.submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any())).thenReturn(goPluginApiResponse);
         when(pluginManager.resolveExtensionVersion(pluginId, PLUGGABLE_TASK_EXTENSION, goSupportedVersions)).thenReturn("1.0");
         when(goPluginApiResponse.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
         when(pluginManager.isPluginOfType(PLUGGABLE_TASK_EXTENSION, pluginId)).thenReturn(true);

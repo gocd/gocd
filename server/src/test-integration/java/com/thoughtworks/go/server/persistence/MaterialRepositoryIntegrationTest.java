@@ -67,7 +67,6 @@ import com.thoughtworks.go.util.TestUtils;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.DetachedCriteria;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -188,7 +187,7 @@ public class MaterialRepositoryIntegrationTest {
         doReturn(modifications).when(mockTemplate).find("FROM Modification WHERE materialId = ? AND id BETWEEN ? AND ? ORDER BY id DESC", 10L, -1L, -1L);
         MaterialInstance materialInstance = material().createMaterialInstance();
         materialInstance.setId(10);
-        doReturn(List.of(materialInstance)).when(mockTemplate).findByCriteria(any(DetachedCriteria.class));
+        doReturn(List.of(materialInstance)).when(mockTemplate).findByCriteria(any());
 
         PipelineMaterialRevision pmr = pipelineMaterialRevision();
         repo.findModificationsFor(pmr);
@@ -621,8 +620,8 @@ public class MaterialRepositoryIntegrationTest {
                 new TimeProvider());
 
         GoCache spyGoCache = spy(goCache);
-        when(spyGoCache.get(any(String.class))).thenCallRealMethod();
-        doCallRealMethod().when(spyGoCache).put(any(String.class), any(Object.class));
+        when(spyGoCache.get(any())).thenCallRealMethod();
+        doCallRealMethod().when(spyGoCache).put(any(), any());
         repo = new MaterialRepository(sessionFactory, spyGoCache, 2, transactionSynchronizationManager, materialConfigConverter, materialExpansionService, databaseStrategy);
 
         pipelineSqlMapDao.save(pipeline);
@@ -632,7 +631,7 @@ public class MaterialRepositoryIntegrationTest {
         assertThat(repo.hasPipelineEverRunWith("mingle", revisions)).isTrue();
         assertThat(repo.hasPipelineEverRunWith("mingle", revisions)).isTrue();
 
-        verify(spyGoCache, times(1)).put(any(String.class), eq(Boolean.TRUE));
+        verify(spyGoCache, times(1)).put(any(), eq(Boolean.TRUE));
     }
 
     @Test

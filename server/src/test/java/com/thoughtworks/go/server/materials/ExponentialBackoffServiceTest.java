@@ -45,7 +45,7 @@ public class ExponentialBackoffServiceTest {
 
         new ExponentialBackoffService(completedTopic, new SystemEnvironment());
 
-        verify(completedTopic).addListener(any(ExponentialBackoffService.class));
+        verify(completedTopic).addListener(any());
     }
 
     @Nested

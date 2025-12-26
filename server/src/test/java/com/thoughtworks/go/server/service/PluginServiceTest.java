@@ -139,7 +139,7 @@ public class PluginServiceTest {
         when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(new NullPlugin());
         when(pluginSettings.toPluginSettingsConfiguration()).thenReturn(mock(PluginSettingsConfiguration.class));
 
-        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
+        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any())).thenReturn(new ValidationResult());
         when(pluginSettings.hasErrors()).thenReturn(false);
 
         pluginService.createPluginSettings(pluginSettings, currentUser, new HttpLocalizedOperationResult());
@@ -156,7 +156,7 @@ public class PluginServiceTest {
         when(pluginSettings.toPluginSettingsConfiguration()).thenReturn(mock(PluginSettingsConfiguration.class));
 
         when(pluginSettings.hasErrors()).thenReturn(false);
-        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
+        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any())).thenReturn(new ValidationResult());
 
         doThrow(new RuntimeException()).when(elasticAgentExtension).notifyPluginSettingsChange(eq(elasticAgentPluginId), anyMap());
 
@@ -170,12 +170,12 @@ public class PluginServiceTest {
     public void validatePluginSettingsFor_shouldTalkToPluginToValidatePluginSettings() {
         setUpElasticPluginForTheTest(true);
 
-        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
+        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any())).thenReturn(new ValidationResult());
 
         PluginSettings pluginSettings = new PluginSettings(elasticAgentPluginId);
         pluginService.validatePluginSettings(pluginSettings);
 
-        verify(elasticAgentExtension).validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class));
+        verify(elasticAgentExtension).validatePluginSettings(eq(elasticAgentPluginId), any());
     }
 
     @Test
@@ -194,7 +194,7 @@ public class PluginServiceTest {
         List<String> allErrorsOnProperty = pluginSettings.getPluginSettingsProperties().get(0).errors().getAll();
         assertThat(allErrorsOnProperty.size()).isEqualTo(1);
         assertTrue(allErrorsOnProperty.contains("Encrypted value for property with key 'secure-key' is invalid. This usually happens when the cipher text is modified to have an invalid value."));
-        verify(elasticAgentExtension, never()).validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class));
+        verify(elasticAgentExtension, never()).validatePluginSettings(eq(elasticAgentPluginId), any());
     }
 
     @Test
@@ -207,7 +207,7 @@ public class PluginServiceTest {
         addPluginSettingsMetadataToStore(elasticAgentPluginId, ELASTIC_AGENT_EXTENSION, getPluginSettingsConfiguration());
         when(elasticAgentExtension.extensionName()).thenReturn(ELASTIC_AGENT_EXTENSION);
         when(elasticAgentExtension.canHandlePlugin(elasticAgentPluginId)).thenReturn(true);
-        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class)))
+        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any()))
                 .thenReturn(validationResult);
 
         PluginSettings pluginSettings = PluginSettings.from(getPlugin(elasticAgentPluginId), elasticAgentPluginInfo);
@@ -226,7 +226,7 @@ public class PluginServiceTest {
         addPluginSettingsMetadataToStore(elasticAgentPluginId, ELASTIC_AGENT_EXTENSION, getPluginSettingsConfiguration());
         when(elasticAgentExtension.extensionName()).thenReturn(ELASTIC_AGENT_EXTENSION);
         when(elasticAgentExtension.canHandlePlugin(elasticAgentPluginId)).thenReturn(true);
-        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class)))
+        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any()))
                 .thenReturn(new ValidationResult());
 
         PluginSettings pluginSettings = PluginSettings.from(getPlugin(elasticAgentPluginId), elasticAgentPluginInfo);
@@ -360,7 +360,7 @@ public class PluginServiceTest {
         when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(new NullPlugin());
         when(pluginSettings.toPluginSettingsConfiguration()).thenReturn(mock(PluginSettingsConfiguration.class));
 
-        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
+        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any())).thenReturn(new ValidationResult());
         when(pluginSettings.hasErrors()).thenReturn(false);
 
         pluginService.createPluginSettings(pluginSettings, currentUser, result);
@@ -437,7 +437,7 @@ public class PluginServiceTest {
         when(entityHashingService.hashForEntity(any(PluginSettings.class))).thenReturn("foo");
         when(pluginSettings.toPluginSettingsConfiguration()).thenReturn(mock(PluginSettingsConfiguration.class));
 
-        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class)))
+        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any()))
                 .thenReturn(new ValidationResult());
 
         when(pluginSettings.hasErrors()).thenReturn(false);

@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.server.service.result.OperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -61,7 +60,7 @@ public class StageManualTriggerCheckerTest {
         when(pipelineService.fullPipelineByCounter(pipelineName, pipelineCounter)).thenReturn(null);
         when(schedulingCheckerService.shouldAllowSchedulingStage(null, stageName)).thenReturn(PipelineNotFound);
         checker.check(result);
-        verify(result).success(any(HealthStateType.class));
+        verify(result).success(any());
     }
 
     @ParameterizedTest
@@ -69,14 +68,14 @@ public class StageManualTriggerCheckerTest {
     void shouldReturnSuccessIfSchedulingServiceReturnsAnythingOtherThanStageFailed(ScheduleStageResult scheduleStageResult) {
         when(schedulingCheckerService.shouldAllowSchedulingStage(null, stageName)).thenReturn(scheduleStageResult);
         checker.check(result);
-        verify(result).success(any(HealthStateType.class));
+        verify(result).success(any());
     }
 
     @Test
     void shouldReturnNotAcceptableIfThePreviousStageFailed() {
         when(schedulingCheckerService.shouldAllowSchedulingStage(pipeline, stageName)).thenReturn(PreviousStageNotPassed.setPreviousStageValues("build", "Failed"));
         checker.check(result);
-        verify(result).notAcceptable(eq("Cannot schedule dev as the previous stage build has Failed!"), any(HealthStateType.class));
+        verify(result).notAcceptable(eq("Cannot schedule dev as the previous stage build has Failed!"), any());
     }
 
     static Stream<Arguments> testInputs() {

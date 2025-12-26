@@ -104,7 +104,7 @@ public class ElasticAgentExtensionTest {
 
         extension.reportJobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
 
-        verify(pluginManager, times(1)).submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), any(GoPluginApiRequest.class));
+        verify(pluginManager, times(1)).submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), any());
     }
 
     private void assertExtensionRequest(String extensionVersion, String requestName, String requestBody) {

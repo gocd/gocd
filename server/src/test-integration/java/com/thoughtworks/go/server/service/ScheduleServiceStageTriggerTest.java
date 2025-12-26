@@ -29,9 +29,7 @@ import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.StageStatusListener;
-import com.thoughtworks.go.server.messaging.JobResultMessage;
 import com.thoughtworks.go.server.messaging.JobResultTopic;
-import com.thoughtworks.go.server.messaging.StageStatusMessage;
 import com.thoughtworks.go.server.messaging.StageStatusTopic;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -253,9 +251,9 @@ public class ScheduleServiceStageTriggerTest {
             //ignore
         }
 
-        verify(stageStatusTopic, never()).post(any(StageStatusMessage.class));
-        verify(jobResultTopic, never()).post(any(JobResultMessage.class));
-        verify(stageStatusListener, never()).stageStatusChanged(any(Stage.class));
+        verify(stageStatusTopic, never()).post(any());
+        verify(jobResultTopic, never()).post(any());
+        verify(stageStatusListener, never()).stageStatusChanged(any());
     }
 
     private JobInstanceService jobInstanceService(JobResultTopic jobResultTopic) {
@@ -298,9 +296,9 @@ public class ScheduleServiceStageTriggerTest {
             //ignore
         }
 
-        verify(stageStatusTopic, never()).post(any(StageStatusMessage.class));
-        verify(jobResultTopic, never()).post(any(JobResultMessage.class));
-        verify(stageStatusListener, never()).stageStatusChanged(any(Stage.class));
+        verify(stageStatusTopic, never()).post(any());
+        verify(jobResultTopic, never()).post(any());
+        verify(stageStatusListener, never()).stageStatusChanged(any());
     }
 
     @Test

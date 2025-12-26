@@ -58,7 +58,7 @@ public class JobDetailPresentationModelTest {
         when(artifactsService.findArtifact(jobInstance.getIdentifier(), "")).thenReturn(file);
 
         DirectoryEntries directoryEntries = new DirectoryEntries();
-        when(directoryReader.listEntries(eq(file), any(String.class))).thenReturn(directoryEntries);
+        when(directoryReader.listEntries(eq(file), any())).thenReturn(directoryEntries);
 
         JobDetailPresentationModel jobDetailPresentationModel = new JobDetailPresentationModel(jobInstance, null,
             null, null, null, artifactsService, stage);
@@ -75,7 +75,7 @@ public class JobDetailPresentationModelTest {
 
         when(artifactsService.findArtifact(job.getIdentifier(), "")).thenReturn(mock(File.class));
         when(artifactsService.findArtifactUrl(job.getIdentifier(), getConsoleOutputFolderAndFileName())).thenReturn("path/to/console");
-        when(directoryReader.listEntries(any(File.class), eq(""))).thenReturn(new DirectoryEntries());
+        when(directoryReader.listEntries(any(), eq(""))).thenReturn(new DirectoryEntries());
 
         DirectoryEntries expected = new DirectoryEntries();
         expected.addFolder("cruise-output").addFile("console.log", "path/to/console");

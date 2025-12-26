@@ -51,7 +51,7 @@ public class PluginRequestHelperTest {
     void shouldNotInvokeSuccessBlockOnFailureResponse() {
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.INTERNAL_ERROR);
         when(response.responseBody()).thenReturn("junk");
-        when(pluginManager.submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class))).thenReturn(response);
+        when(pluginManager.submitTo(eq(pluginId), eq(extensionName), any())).thenReturn(response);
         try {
             helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<>() {
                 @Override
@@ -64,14 +64,14 @@ public class PluginRequestHelperTest {
         } catch (Exception e) {
             assertThat(e.getMessage()).isEqualTo("The plugin sent a response that could not be understood by Go. Plugin returned with code '500' and the following response: 'junk'");
             assertThat(isSuccessInvoked[0]).isFalse();
-            verify(pluginManager).submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class));
+            verify(pluginManager).submitTo(eq(pluginId), eq(extensionName), any());
         }
     }
 
     @Test
     void shouldInvokeSuccessBlockOnSuccessfulResponse() {
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
-        when(pluginManager.submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class))).thenReturn(response);
+        when(pluginManager.submitTo(eq(pluginId), eq(extensionName), any())).thenReturn(response);
 
         helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<>() {
             @Override
@@ -81,13 +81,13 @@ public class PluginRequestHelperTest {
             }
         });
         assertThat(isSuccessInvoked[0]).isTrue();
-        verify(pluginManager).submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class));
+        verify(pluginManager).submitTo(eq(pluginId), eq(extensionName), any());
     }
 
     @Test
     void shouldErrorOutOnValidationFailure() {
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.VALIDATION_ERROR);
-        when(pluginManager.submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class))).thenReturn(response);
+        when(pluginManager.submitTo(eq(pluginId), eq(extensionName), any())).thenReturn(response);
 
         assertThatThrownBy(() -> helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<>() {
             @Override
@@ -107,7 +107,7 @@ public class PluginRequestHelperTest {
         doAnswer(invocationOnMock -> {
             generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[2];
             return response;
-        }).when(pluginManager).submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class));
+        }).when(pluginManager).submitTo(eq(pluginId), eq(extensionName), any());
 
 
         helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<>() {
@@ -131,7 +131,7 @@ public class PluginRequestHelperTest {
         doAnswer(invocationOnMock -> {
             generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[2];
             return response;
-        }).when(pluginManager).submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class));
+        }).when(pluginManager).submitTo(eq(pluginId), eq(extensionName), any());
 
 
         helper.submitRequest(pluginId, requestName, new PluginInteractionCallback<>() {
@@ -177,7 +177,7 @@ public class PluginRequestHelperTest {
         doAnswer(invocationOnMock -> {
             generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[2];
             return response;
-        }).when(pluginManager).submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class));
+        }).when(pluginManager).submitTo(eq(pluginId), eq(extensionName), any());
 
 
         helper.submitRequest(pluginId, requestName, new PluginInteractionCallback<>() {
@@ -223,7 +223,7 @@ public class PluginRequestHelperTest {
 
         when(response.responseCode()).thenReturn(400);
         when(response.responseBody()).thenReturn("Error response");
-        when(pluginManager.submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class))).thenReturn(response);
+        when(pluginManager.submitTo(eq(pluginId), eq(extensionName), any())).thenReturn(response);
         when(pluginManager.resolveExtensionVersion(eq(pluginId), eq(extensionName), anyList())).thenReturn("1.0");
 
         assertThatCode(() -> helper.submitRequest(pluginId, requestName, pluginInteractionCallback))

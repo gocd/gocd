@@ -40,7 +40,7 @@ public class AnalyticsPluginInfoBuilderTest {
     @BeforeEach
     public void setUp() {
         extension = mock(AnalyticsExtension.class);
-        when(extension.getCapabilities(any(String.class))).thenReturn(new Capabilities(Collections.emptyList()));
+        when(extension.getCapabilities(any())).thenReturn(new Capabilities(Collections.emptyList()));
     }
 
     @Test

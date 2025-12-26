@@ -68,7 +68,7 @@ class AccessTokenServiceTest {
 
         assertThat(result.isSuccessful()).isTrue();
 
-        verify(accessTokenDao, times(1)).saveOrUpdate(any(AccessToken.class));
+        verify(accessTokenDao, times(1)).saveOrUpdate(any());
     }
 
     @Test

@@ -45,7 +45,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 import org.springframework.transaction.support.SimpleTransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.util.ArrayList;
@@ -142,7 +141,7 @@ class PipelineSqlMapDaoCachingTest {
         doAnswer((Answer<Object>) invocation -> {
             ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
             return null;
-        }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
+        }).when(transactionSynchronizationManager).registerSynchronization(any());
 
         when(transactionTemplate.execute(any())).then(invocation -> {
             ((TransactionCallback<?>) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
@@ -488,7 +487,7 @@ class PipelineSqlMapDaoCachingTest {
         doAnswer((Answer<Object>) invocation -> {
             ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
             return null;
-        }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
+        }).when(transactionSynchronizationManager).registerSynchronization(any());
 
         when(transactionTemplate.execute(any())).then(invocation -> {
             ((TransactionCallback<?>) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
@@ -564,7 +563,7 @@ class PipelineSqlMapDaoCachingTest {
         doAnswer((Answer<Object>) invocation -> {
             ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
             return null;
-        }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
+        }).when(transactionSynchronizationManager).registerSynchronization(any());
 
         when(transactionTemplate.execute(any())).then(invocation -> {
             ((TransactionCallback<?>) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());

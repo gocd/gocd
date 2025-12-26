@@ -374,7 +374,7 @@ class AgentServiceTest {
             class PositiveTests {
                 private void assertThatUpdateIsSuccessfulWithSpecifiedValues(Agent updatedAgent, String hostname, String envs,
                                                                              String resources, boolean isDisabled) {
-                    verify(agentDao).saveOrUpdate(any(Agent.class));
+                    verify(agentDao).saveOrUpdate(any());
 
                     assertThat(updatedAgent.getHostname()).isEqualTo(hostname);
                     assertThat(updatedAgent.getResources()).isEqualTo(resources);
@@ -459,7 +459,7 @@ class AgentServiceTest {
 
                     when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
                     when(agentInstances.findAgentAndRefreshStatus(uuid)).thenReturn(pending);
-                    doThrow(RuntimeException.class).when(agentDao).saveOrUpdate(any(Agent.class));
+                    doThrow(RuntimeException.class).when(agentDao).saveOrUpdate(any());
 
                     String hostname = "new-hostname";
                     String resources = "resource1,resource2";
@@ -479,7 +479,7 @@ class AgentServiceTest {
                     when(agentDao.fetchAgentFromDBByUUID(uuid)).thenReturn(agent);
                     BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.updateAgentAttributes(uuid, null, null, null, UNSET));
 
-                    verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
+                    verify(agentDao, times(0)).saveOrUpdate(any());
                     assertThat(e.getMessage()).isEqualTo("Bad Request. No operation is specified in the request to be performed on agent.");
                 }
 
@@ -497,7 +497,7 @@ class AgentServiceTest {
 
                     RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> agentService.updateAgentAttributes(uuid, "new-hostname", "resource1,resource2", "env1,env2", TRUE));
 
-                    verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
+                    verify(agentDao, times(0)).saveOrUpdate(any());
                     assertThat(e.getMessage()).isEqualTo(format("Agent with uuid '%s' was not found!", uuid));
                 }
 
@@ -511,7 +511,7 @@ class AgentServiceTest {
 
                     BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.updateAgentAttributes(uuid, "new-hostname", "resource1", "env1", UNSET));
 
-                    verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
+                    verify(agentDao, times(0)).saveOrUpdate(any());
                     assertThat(e.getMessage()).isEqualTo("Pending agent [uuid] must be explicitly enabled or disabled when performing any operation on it.");
                 }
 
@@ -524,7 +524,7 @@ class AgentServiceTest {
 
                     AgentInstance agentInstance = agentService.updateAgentAttributes(uuid, "new-hostname", "res%^1", "env1", TRUE);
 
-                    verify(agentDao, times(0)).saveOrUpdate(any(Agent.class));
+                    verify(agentDao, times(0)).saveOrUpdate(any());
 
                     Agent agent = agentInstance.getAgent();
                     assertTrue(agent.hasErrors());
@@ -834,7 +834,7 @@ class AgentServiceTest {
         void shouldAssociateCookieForAnAgent() {
             when(uuidGenerator.randomUuid()).thenReturn("foo");
             assertThat(agentService.assignCookie(agentIdentifier)).isEqualTo("foo");
-            verify(agentDao).associateCookie(eq(agentIdentifier), any(String.class));
+            verify(agentDao).associateCookie(eq(agentIdentifier), any());
         }
     }
 
@@ -1207,7 +1207,7 @@ class AgentServiceTest {
 
             agentService.entityChanged(agentAfterUpdate);
 
-            verify(agentInstances).add(any(AgentInstance.class));
+            verify(agentInstances).add(any());
         }
 
         @Test

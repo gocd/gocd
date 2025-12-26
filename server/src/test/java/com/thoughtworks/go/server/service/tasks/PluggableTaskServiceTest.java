@@ -65,7 +65,7 @@ public class PluggableTaskServiceTest {
         when(pluggableTask.isValid()).thenReturn(true);
         when(pluggableTask.toTaskConfig()).thenReturn(new TaskConfig());
         when(pluggableTask.getPluginConfiguration()).thenReturn(pluginConfiguration);
-        when(taskExtension.validate(any(String.class), any(TaskConfig.class))).thenReturn(new ValidationResult());
+        when(taskExtension.validate(any(), any())).thenReturn(new ValidationResult());
 
         assertTrue(pluggableTaskService.isValid(pluggableTask));
     }
@@ -114,7 +114,7 @@ public class PluggableTaskServiceTest {
         when(pluggableTask.toTaskConfig()).thenReturn(new TaskConfig());
         when(pluggableTask.getPluginConfiguration()).thenReturn(pluginConfiguration);
         when(pluggableTask.getConfiguration()).thenReturn(configuration);
-        when(taskExtension.validate(any(String.class), any(TaskConfig.class))).thenReturn(validationResult);
+        when(taskExtension.validate(any(), any())).thenReturn(validationResult);
 
         assertFalse(pluggableTaskService.isValid(pluggableTask));
         assertThat(configuration.getProperty("source").errors().get("source").get(0)).isEqualTo("source directory format is invalid");
@@ -134,7 +134,7 @@ public class PluggableTaskServiceTest {
         when(pluggableTask.toTaskConfig()).thenReturn(new TaskConfig());
         when(pluggableTask.getPluginConfiguration()).thenReturn(pluginConfiguration);
         when(pluggableTask.getConfiguration()).thenReturn(new Configuration());
-        when(taskExtension.validate(any(String.class), any(TaskConfig.class))).thenReturn(validationResult);
+        when(taskExtension.validate(any(), any())).thenReturn(validationResult);
 
         assertFalse(pluggableTaskService.isValid(pluggableTask));
         verify(pluggableTask).addError("source", "source is mandatory");

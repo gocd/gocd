@@ -46,8 +46,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
-;
-
 @ExtendWith(MockitoExtension.class)
 class FelixGoPluginOSGiFrameworkTest {
     private static final String TEST_SYMBOLIC_NAME = "testplugin.descriptorValidator";

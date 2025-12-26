@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.materials.Material;
@@ -63,7 +62,7 @@ class ConfigRepoServiceTest {
     @Test
     void shouldRegisterListener() {
         new ConfigRepoService(goConfigService, entityHashingService, configRepoExtension, materialUpdateService, converter);
-        verify(goConfigService).register(any(EntityConfigChangedListener.class));
+        verify(goConfigService).register(any());
     }
 
     @Test
@@ -102,7 +101,7 @@ class ConfigRepoServiceTest {
 
             Username testUser = Username.valueOf("test");
             doThrow(new GoConfigInvalidException(null, "invalid config")).when(goConfigService)
-                    .updateConfig(any(EntityConfigUpdateCommand.class), eq(testUser));
+                    .updateConfig(any(), eq(testUser));
 
             HttpLocalizedOperationResult result = mock(HttpLocalizedOperationResult.class);
             service.updateConfigRepo("repo", configRepo, "digest", testUser, result);
@@ -115,7 +114,7 @@ class ConfigRepoServiceTest {
 
             Username testUser = Username.valueOf("test");
             doThrow(new RuntimeException("unexpected exception")).when(goConfigService)
-                    .updateConfig(any(EntityConfigUpdateCommand.class), eq(testUser));
+                    .updateConfig(any(), eq(testUser));
 
             HttpLocalizedOperationResult result = mock(HttpLocalizedOperationResult.class);
             service.updateConfigRepo("repo", configRepo, "digest", testUser, result);
@@ -127,7 +126,7 @@ class ConfigRepoServiceTest {
         void shouldIgnoreIfResultAlreadyHasMessage() {
 
             Username testUser = Username.valueOf("test");
-            doThrow(new RuntimeException()).when(goConfigService).updateConfig(any(EntityConfigUpdateCommand.class), eq(testUser));
+            doThrow(new RuntimeException()).when(goConfigService).updateConfig(any(), eq(testUser));
 
             HttpLocalizedOperationResult result = mock(HttpLocalizedOperationResult.class);
             when(result.hasMessage()).thenReturn(true);

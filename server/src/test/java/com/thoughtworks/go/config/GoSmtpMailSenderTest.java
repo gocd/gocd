@@ -253,7 +253,7 @@ class GoSmtpMailSenderTest {
             MailSession.fakeSessionJustForTestsSinceSessionClassIsFinal = session;
 
             when(session.getTransport()).thenReturn(transport);
-            when(session.createWith(any(Properties.class), eq(username), eq(password))).thenReturn(session);
+            when(session.createWith(any(), eq(username), eq(password))).thenReturn(session);
             when(session.createMessage(from, to, subject, body)).thenReturn(message);
         }
 
@@ -285,7 +285,7 @@ class GoSmtpMailSenderTest {
 
         private Properties getPropertiesUsedInSession() {
             ArgumentCaptor<Properties> propertyCaptor = ArgumentCaptor.forClass(Properties.class);
-            verify(session).createWith(propertyCaptor.capture(), any(String.class), any(String.class));
+            verify(session).createWith(propertyCaptor.capture(), any(), any());
 
             return propertyCaptor.getValue();
         }

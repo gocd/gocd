@@ -93,7 +93,7 @@ public class GoFileConfigDataSourceTest {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines(pipelineName);
         ConfigErrors configErrors = new ConfigErrors();
         configErrors.add("key", "some error");
-        when(xmlLoader.loadConfigHolder(any(String.class))).thenThrow(new GoConfigInvalidException(cruiseConfig, configErrors.firstError()));
+        when(xmlLoader.loadConfigHolder(any())).thenThrow(new GoConfigInvalidException(cruiseConfig, configErrors.firstError()));
 
         try {
             dataSource.writeWithLock(cruiseConfig1 -> {
@@ -104,7 +104,7 @@ public class GoFileConfigDataSourceTest {
         } catch (Exception e) {
             verifyNoInteractions(configRepository);
             verifyNoInteractions(serverHealthService);
-            verify(xmlLoader, times(1)).loadConfigHolder(any(String.class), any(MagicalGoConfigXmlLoader.Callback.class));
+            verify(xmlLoader, times(1)).loadConfigHolder(any(), any());
         }
     }
 
@@ -118,7 +118,7 @@ public class GoFileConfigDataSourceTest {
         List<PartialConfig> lastKnownPartials = mock();
 
         when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
-        when(fullConfigSaveNormalFlow.execute(any(FullConfigUpdateCommand.class), anyList(), any(String.class)))
+        when(fullConfigSaveNormalFlow.execute(any(), anyList(), any()))
             .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
         dataSource.writeFullConfigWithLock(updatingCommand, configHolder);
@@ -136,7 +136,7 @@ public class GoFileConfigDataSourceTest {
         GoConfigHolder configHolder = new GoConfigHolder(new BasicCruiseConfig(), configForEdit);
         List<PartialConfig> lastKnownPartials = mock();
         when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
-        when(fullConfigSaveMergeFlow.execute(any(FullConfigUpdateCommand.class), anyList(), any(String.class)))
+        when(fullConfigSaveMergeFlow.execute(any(), anyList(), any()))
             .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
         dataSource.writeFullConfigWithLock(updatingCommand, configHolder);
@@ -219,8 +219,8 @@ public class GoFileConfigDataSourceTest {
         assertThatThrownBy(() -> dataSource.writeFullConfigWithLock(updatingCommand, configHolder))
             .isInstanceOf(RuntimeException.class);
 
-        verify(fullConfigSaveMergeFlow, never()).execute(any(FullConfigUpdateCommand.class), anyList(), any(String.class));
-        verify(fullConfigSaveNormalFlow, never()).execute(any(FullConfigUpdateCommand.class), anyList(), any(String.class));
+        verify(fullConfigSaveMergeFlow, never()).execute(any(), anyList(), any());
+        verify(fullConfigSaveNormalFlow, never()).execute(any(), anyList(), any());
     }
 
     @Test

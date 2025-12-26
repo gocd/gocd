@@ -228,7 +228,7 @@ public class PipelineSchedulerTest {
 
         //both should get scheduled
         scheduler.checkPipelines();
-        verify(queue, times(2)).post(any(ScheduleCheckMessage.class));
+        verify(queue, times(2)).post(any());
 
         //reset
         scheduler.onMessage(new ScheduleCheckCompletedMessage("pipeline_in_repo1", 0));
@@ -244,6 +244,6 @@ public class PipelineSchedulerTest {
 
         //removed pipeline should not get scheduled
         scheduler.checkPipelines();
-        verify(queue, times(1)).post(any(ScheduleCheckMessage.class));
+        verify(queue, times(1)).post(any());
     }
 }

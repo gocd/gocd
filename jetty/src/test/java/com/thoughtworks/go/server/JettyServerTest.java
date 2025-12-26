@@ -93,7 +93,7 @@ public class JettyServerTest {
             serverLevelHandler.setServer((Server) invocation.getMock());
             return null;
         };
-        lenient().doAnswer(setHandlerMock).when(server).setHandler(any(Handler.class));
+        lenient().doAnswer(setHandlerMock).when(server).setHandler(any());
 
         appCaptor = ArgumentCaptor.forClass(App.class);
         doNothing().when(deploymentManager).addApp(appCaptor.capture());

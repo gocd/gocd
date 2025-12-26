@@ -119,7 +119,7 @@ public class TimerSchedulerTest {
     @Test
     public void shouldUpdateServerHealthStatusWhenPipelineCantBeAddedToTheQuartzScheduler() throws Exception {
         Scheduler scheduler = mock(Scheduler.class);
-        when(scheduler.scheduleJob(any(JobDetail.class), any(Trigger.class))).thenThrow(
+        when(scheduler.scheduleJob(any(), any())).thenThrow(
                 new SchedulerException("scheduling failed!"));
 
         when(goConfigService.getAllPipelineConfigs()).thenReturn(List.of(pipelineConfigWithTimer("uat", "* * * * * ?")));

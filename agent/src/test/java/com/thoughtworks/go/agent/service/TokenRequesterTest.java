@@ -59,7 +59,7 @@ class TokenRequesterTest {
         final CloseableHttpResponse httpResponse = mock(CloseableHttpResponse.class);
 
         when(agentRegistry.uuid()).thenReturn("agent-uuid");
-        when(httpClient.execute(any(HttpRequestBase.class))).thenReturn(httpResponse);
+        when(httpClient.execute(any())).thenReturn(httpResponse);
         when(httpResponse.getEntity()).thenReturn(new StringEntity("token-from-server"));
         when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("https", 1, 2), HTTP_OK, null));
 
@@ -79,7 +79,7 @@ class TokenRequesterTest {
         final CloseableHttpResponse httpResponse = mock(CloseableHttpResponse.class);
 
         when(agentRegistry.uuid()).thenReturn("agent-uuid");
-        when(httpClient.execute(any(HttpRequestBase.class))).thenReturn(httpResponse);
+        when(httpClient.execute(any())).thenReturn(httpResponse);
         when(httpResponse.getEntity()).thenReturn(new StringEntity("A token has already been issued for this agent."));
         when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("https", 1, 2), SC_UNPROCESSABLE_ENTITY, null));
 

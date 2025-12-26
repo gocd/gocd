@@ -31,7 +31,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -229,12 +228,12 @@ public class JobInstanceSqlMapDaoCachingTest {
         jobInstanceDao.setSqlMapClientTemplate(mockTemplate);
 
         JobInstance job = JobInstanceMother.buildEndingWithState(JobState.Building, JobResult.Unknown, "config");
-        when(mockTemplate.queryForObject(eq("findJobId"), any(Map.class))).thenReturn(job.getIdentifier());
+        when(mockTemplate.queryForObject(eq("findJobId"), any())).thenReturn(job.getIdentifier());
 
         jobInstanceDao.findOriginalJobIdentifier(job.getIdentifier().getStageIdentifier(), job.getName());
         jobInstanceDao.findOriginalJobIdentifier(job.getIdentifier().getStageIdentifier(), job.getName());
 
-        verify(mockTemplate, times(1)).queryForObject(eq("findJobId"), any(Map.class));
+        verify(mockTemplate, times(1)).queryForObject(eq("findJobId"), any());
     }
 
     @Test
@@ -242,7 +241,7 @@ public class JobInstanceSqlMapDaoCachingTest {
         jobInstanceDao.setSqlMapClientTemplate(mockTemplate);
 
         JobInstance job = JobInstanceMother.buildEndingWithState(JobState.Building, JobResult.Unknown, "config");
-        when(mockTemplate.queryForObject(eq("findJobId"), any(Map.class))).thenReturn(job.getIdentifier());
+        when(mockTemplate.queryForObject(eq("findJobId"), any())).thenReturn(job.getIdentifier());
 
         jobInstanceDao.findOriginalJobIdentifier(job.getIdentifier().getStageIdentifier(), job.getName());
 
@@ -253,7 +252,7 @@ public class JobInstanceSqlMapDaoCachingTest {
 
         jobInstanceDao.findOriginalJobIdentifier(job.getIdentifier().getStageIdentifier(), job.getName());
 
-        verify(mockTemplate, times(2)).queryForObject(eq("findJobId"), any(Map.class));
+        verify(mockTemplate, times(2)).queryForObject(eq("findJobId"), any());
     }
 
     @Test
@@ -261,7 +260,7 @@ public class JobInstanceSqlMapDaoCachingTest {
         jobInstanceDao.setSqlMapClientTemplate(mockTemplate);
 
         JobInstance job = JobInstanceMother.buildEndingWithState(JobState.Building, JobResult.Unknown, "config");
-        when(mockTemplate.queryForObject(eq("findJobId"), any(Map.class))).thenReturn(job.getIdentifier());
+        when(mockTemplate.queryForObject(eq("findJobId"), any())).thenReturn(job.getIdentifier());
 
         jobInstanceDao.findOriginalJobIdentifier(job.getIdentifier().getStageIdentifier(), job.getName());
 
@@ -275,7 +274,7 @@ public class JobInstanceSqlMapDaoCachingTest {
 
         jobInstanceDao.findOriginalJobIdentifier(job.getIdentifier().getStageIdentifier(), job.getName());
 
-        verify(mockTemplate, times(1)).queryForObject(eq("findJobId"), any(Map.class));
+        verify(mockTemplate, times(1)).queryForObject(eq("findJobId"), any());
     }
 
     private DefaultJobPlan jobPlan(long id) {

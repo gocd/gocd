@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.controller;
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.config.ServerConfig;
-import com.thoughtworks.go.config.UpdateConfigCommand;
 import com.thoughtworks.go.domain.JarDetector;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
@@ -103,7 +102,7 @@ public class AgentRegistrationControllerTest {
         controller.agentRequest("host", uuid, "location", "233232", "osx", "someKey", "", "", "", "", "", token, request);
 
         verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(new Agent(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx"));
-        verify(agentService).register(any(Agent.class));
+        verify(agentService).register(any());
     }
 
     @Test
@@ -118,7 +117,7 @@ public class AgentRegistrationControllerTest {
 
         verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(
                 new Agent(uuid, "autoregister-hostname", request.getRemoteAddr()), false, "location", 233232L, "osx"));
-        verify(agentService).register(any(Agent.class));
+        verify(agentService).register(any());
     }
 
     @Test
@@ -132,7 +131,7 @@ public class AgentRegistrationControllerTest {
         controller.agentRequest("host", uuid, "location", "233232", "osx", "", "", "", "", "", "", controller.hmacOf(uuid), request);
 
         verify(agentService).requestRegistration(AgentRuntimeInfo.fromServer(new Agent(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx"));
-        verify(goConfigService, never()).updateConfig(any(UpdateConfigCommand.class));
+        verify(goConfigService, never()).updateConfig(any());
     }
 
     @Test
@@ -362,7 +361,7 @@ public class AgentRegistrationControllerTest {
 
         verify(agentService).findElasticAgent(elasticAgentId, elasticPluginId);
         verify(agentService, times(2)).isRegistered(uuid);
-        verify(agentService).register(any(Agent.class));
+        verify(agentService).register(any());
         verify(agentService).requestRegistration(ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, elasticAgentId, elasticPluginId));
     }
 
@@ -383,7 +382,7 @@ public class AgentRegistrationControllerTest {
                 "", "e1", "", "elastic-agent-id",
                 "elastic-plugin-id", token, request);
 
-        verify(agentService, never()).register(any(Agent.class));
+        verify(agentService, never()).register(any());
     }
 
     private ServerConfig mockedServerConfig(String tokenGenerationKey, String agentAutoRegisterKey) {

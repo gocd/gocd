@@ -126,7 +126,6 @@ class UpdateTemplateConfigCommandTest {
     @Test
     void shouldCopyOverAuthorizationAsIsWhileUpdatingTemplateStageConfig() {
         PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));
-        ;
         cruiseConfig.addTemplate(pipelineTemplateConfig);
 
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, securityService, result, "digest", entityHashingService, externalArtifactsService);
@@ -192,7 +191,7 @@ class UpdateTemplateConfigCommandTest {
 
         command.encrypt(preprocessedConfig);
 
-        verify(pipelineTemplateConfig).encryptSecureProperties(eq(preprocessedConfig), any(PipelineTemplateConfig.class));
+        verify(pipelineTemplateConfig).encryptSecureProperties(eq(preprocessedConfig), any());
     }
 
     @Nested
@@ -224,7 +223,7 @@ class UpdateTemplateConfigCommandTest {
 
             command.isValid(preprocessedConfig);
 
-            verify(externalArtifactsService, times(2)).validateExternalArtifactConfig(any(PluggableArtifactConfig.class),
+            verify(externalArtifactsService, times(2)).validateExternalArtifactConfig(any(),
                     eq(new ArtifactStore("id", "pluginId")), eq(true));
         }
 

@@ -17,7 +17,8 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.update.*;
+import com.thoughtworks.go.config.update.GoCDRolesBulkUpdateRequest;
+import com.thoughtworks.go.config.update.RolesConfigBulkUpdateCommand;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.domain.Username;
@@ -62,7 +63,7 @@ public class RoleConfigServiceTest {
 
         roleConfigService.create(admin, role, result);
 
-        verify(configService).updateConfig(any(RoleConfigCreateCommand.class), eq(admin));
+        verify(configService).updateConfig(any(), eq(admin));
     }
 
     @Test
@@ -102,7 +103,7 @@ public class RoleConfigServiceTest {
 
         roleConfigService.update(admin, "md5", role, result);
 
-        verify(configService).updateConfig(any(RoleConfigUpdateCommand.class), eq(admin));
+        verify(configService).updateConfig(any(), eq(admin));
     }
 
     @Test
@@ -189,7 +190,7 @@ public class RoleConfigServiceTest {
 
         roleConfigService.delete(admin, role, new HttpLocalizedOperationResult());
 
-        verify(configService).updateConfig(any(RoleConfigDeleteCommand.class), eq(admin));
+        verify(configService).updateConfig(any(), eq(admin));
     }
 
     @Test

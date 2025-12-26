@@ -215,7 +215,7 @@ public class JobInstanceServiceTest {
 
         jobService.cancelJob(scheduledJob);
         verify(jobInstanceDao).updateStateAndResult(scheduledJob);
-        verify(topic, never()).post(any(JobResultMessage.class));
+        verify(topic, never()).post(any());
     }
 
     @Test
@@ -234,7 +234,7 @@ public class JobInstanceServiceTest {
 
         jobService.cancelJob(completedJob);
         verify(jobInstanceDao, never()).updateStateAndResult(completedJob);
-        verify(topic, never()).post(any(JobResultMessage.class));
+        verify(topic, never()).post(any());
     }
 
     @Test
@@ -256,7 +256,7 @@ public class JobInstanceServiceTest {
         }
 
         verify(jobInstanceDao).updateStateAndResult(job);
-        verify(topic, never()).post(any(JobResultMessage.class));
+        verify(topic, never()).post(any());
     }
 
     @Test

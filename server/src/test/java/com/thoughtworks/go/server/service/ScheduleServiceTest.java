@@ -194,7 +194,7 @@ public class ScheduleServiceTest {
         when(cruiseConfig.getMd5()).thenReturn("md5-test");
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(schedulingChecker.canAutoTriggerConsumer(pipelineConfig)).thenReturn(true);
-        when(pipelineScheduleQueue.createPipeline(any(BuildCause.class), eq(pipelineConfig), any(SchedulingContext.class), eq("md5-test"), eq(timeProvider))).thenThrow(
+        when(pipelineScheduleQueue.createPipeline(any(), eq(pipelineConfig), any(), eq("md5-test"), eq(timeProvider))).thenThrow(
                 new CannotScheduleException("foo", "stage-baz"));
         final Map<CaseInsensitiveString, BuildCause> map = new HashMap<>();
         map.put(new CaseInsensitiveString("pipeline-quux"), BuildCause.createManualForced());
@@ -215,7 +215,7 @@ public class ScheduleServiceTest {
         when(cruiseConfig.getMd5()).thenReturn("md5-test");
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(schedulingChecker.canAutoTriggerConsumer(pipelineConfig)).thenReturn(true);
-        when(pipelineScheduleQueue.createPipeline(any(BuildCause.class), eq(pipelineConfig), any(SchedulingContext.class), eq("md5-test"), eq(timeProvider))).thenReturn(PipelineMother.schedule(pipelineConfig,
+        when(pipelineScheduleQueue.createPipeline(any(), eq(pipelineConfig), any(), eq("md5-test"), eq(timeProvider))).thenReturn(PipelineMother.schedule(pipelineConfig,
                 BuildCause.createManualForced(new MaterialRevisions(new MaterialRevision(new MaterialConfigConverter().toMaterial(materialConfig), ModificationsMother.aCheckIn("123", "foo.c"))), new Username(new CaseInsensitiveString("loser")))));
         final Map<CaseInsensitiveString, BuildCause> map = new HashMap<>();
         map.put(new CaseInsensitiveString("pipeline-quux"), BuildCause.createManualForced());

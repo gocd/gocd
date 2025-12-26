@@ -113,7 +113,7 @@ class UpdatePipelineConfigCommandTest {
 
         command.encrypt(preprocessedConfig);
 
-        verify(pipelineConfig).encryptSecureProperties(eq(preprocessedConfig), any(PipelineConfig.class));
+        verify(pipelineConfig).encryptSecureProperties(eq(preprocessedConfig), any());
     }
 
     @Test
@@ -180,7 +180,7 @@ class UpdatePipelineConfigCommandTest {
 
         command.isValid(preprocessedConfig);
 
-        verify(externalArtifactsService, times(2)).validateFetchExternalArtifactTask(any(FetchPluggableArtifactTask.class), any(PipelineConfig.class), eq(preprocessedConfig));
+        verify(externalArtifactsService, times(2)).validateFetchExternalArtifactTask(any(), any(PipelineConfig.class), eq(preprocessedConfig));
 
         // Verify errors are copied to the config we are applying
         assertThat(fetchDockerConfigProperty.getAllErrors())
@@ -223,7 +223,7 @@ class UpdatePipelineConfigCommandTest {
         PipelineGroups pipelineGroups = new PipelineGroups(pipelineConfigs, pipelineConfigs1);
 
         when(goConfigService.findGroupNameByPipeline(pipelineConfig.name())).thenReturn("group1");
-        when(goConfigService.canEditPipeline(anyString(), any(Username.class), any(LocalizedOperationResult.class), anyString())).thenReturn(true);
+        when(goConfigService.canEditPipeline(anyString(), any(), any(), anyString())).thenReturn(true);
         when(goConfigService.groups()).thenReturn(pipelineGroups);
         when(goConfigService.isUserAdminOfGroup(username.getUsername(), "group2")).thenReturn(false);
 
@@ -248,10 +248,10 @@ class UpdatePipelineConfigCommandTest {
         PipelineGroups pipelineGroups = new PipelineGroups(pipelineConfigs, pipelineConfigs1);
 
         when(goConfigService.findGroupNameByPipeline(pipelineConfig.name())).thenReturn("group1");
-        when(goConfigService.canEditPipeline(anyString(), any(Username.class), any(LocalizedOperationResult.class), anyString())).thenReturn(true);
+        when(goConfigService.canEditPipeline(anyString(), any(), any(), anyString())).thenReturn(true);
         when(goConfigService.groups()).thenReturn(pipelineGroups);
         when(username.getUsername()).thenReturn(new CaseInsensitiveString("user"));
-        when(goConfigService.isUserAdminOfGroup(any(CaseInsensitiveString.class), eq("group2"))).thenReturn(true);
+        when(goConfigService.isUserAdminOfGroup(any(), eq("group2"))).thenReturn(true);
         when(cruiseConfig.getPipelineConfigByName(pipelineConfig.name())).thenReturn(pipelineConfig);
         when(entityHashingService.hashForEntity(pipelineConfig, "group1")).thenReturn("digest");
 

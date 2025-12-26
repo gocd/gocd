@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.update.ReplaceElasticAgentInformationCommand;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.access.elastic.v4.ElasticAgentExtensionV4;
@@ -88,7 +87,7 @@ class ElasticAgentInformationMigratorImplTest {
         PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor, new HashMap<>());
 
         assertThat(result.isAFailure()).isFalse();
-        verify(goConfigService, times(1)).updateConfig(any(ReplaceElasticAgentInformationCommand.class));
+        verify(goConfigService, times(1)).updateConfig(any());
     }
 
     @Test
@@ -101,7 +100,7 @@ class ElasticAgentInformationMigratorImplTest {
 
         assertThat(result.isAFailure()).isFalse();
         assertThat(result.getMessage()).isEqualTo("Success");
-        verify(goConfigService, times(1)).updateConfig(any(ReplaceElasticAgentInformationCommand.class));
+        verify(goConfigService, times(1)).updateConfig(any());
     }
 
     @Test
@@ -132,7 +131,7 @@ class ElasticAgentInformationMigratorImplTest {
 
         assertThat(result.isAFailure()).isFalse();
         assertThat(result.getMessage()).isEqualTo("Success");
-        verify(goConfigService, times(1)).updateConfig(any(ReplaceElasticAgentInformationCommand.class));
+        verify(goConfigService, times(1)).updateConfig(any());
 
         verify(pluginSqlMapDao, times(1)).deletePluginIfExists(goPluginDescriptor.id());
     }
@@ -154,7 +153,7 @@ class ElasticAgentInformationMigratorImplTest {
         assertThat(goPluginDescriptor.isInvalid()).isTrue();
         assertThat(goPluginDescriptor.getStatus().getMessages().get(0)).isEqualTo(expectedErrorMessage);
 
-        verify(goConfigService, times(1)).updateConfig(any(ReplaceElasticAgentInformationCommand.class));
+        verify(goConfigService, times(1)).updateConfig(any());
         verify(pluginSqlMapDao, never()).deletePluginIfExists(goPluginDescriptor.id());
     }
 
@@ -168,7 +167,7 @@ class ElasticAgentInformationMigratorImplTest {
 
         assertThat(result.isAFailure()).isFalse();
         assertThat(result.getMessage()).isEqualTo("Success");
-        verify(goConfigService, times(1)).updateConfig(any(ReplaceElasticAgentInformationCommand.class));
+        verify(goConfigService, times(1)).updateConfig(any());
 
         verify(pluginSqlMapDao, never()).deletePluginIfExists(goPluginDescriptor.id());
     }

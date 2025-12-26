@@ -22,7 +22,6 @@ import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -87,14 +86,14 @@ public class CachedGoConfigTest {
 
     @Test
     public void shouldNotifyConfigListenersWhenConfigChanges() {
-        when(dataSource.writeWithLock(any(UpdateConfigCommand.class), any(GoConfigHolder.class))).thenReturn(new GoFileConfigDataSource.GoConfigSaveResult(configHolder, ConfigSaveState.UPDATED));
+        when(dataSource.writeWithLock(any(), any())).thenReturn(new GoFileConfigDataSource.GoConfigSaveResult(configHolder, ConfigSaveState.UPDATED));
         final ConfigChangedListener listener = mock(ConfigChangedListener.class);
         cachedGoConfig.registerListener(listener);
         cachedGoConfig.forceReload();
 
         cachedGoConfig.writeWithLock(cruiseConfig -> cruiseConfig);
 
-        verify(listener, times(2)).onConfigChange(any(BasicCruiseConfig.class));
+        verify(listener, times(2)).onConfigChange(any());
     }
 
     @Test
@@ -149,7 +148,7 @@ public class CachedGoConfigTest {
     @Test
     public void shouldWriteFullConfigWithLock() {
         FullConfigUpdateCommand fullConfigUpdateCommand = mock(FullConfigUpdateCommand.class);
-        when(dataSource.writeFullConfigWithLock(any(FullConfigUpdateCommand.class), any(GoConfigHolder.class))).thenReturn(new GoFileConfigDataSource.GoConfigSaveResult(null, null));
+        when(dataSource.writeFullConfigWithLock(any(), any())).thenReturn(new GoFileConfigDataSource.GoConfigSaveResult(null, null));
 
         cachedGoConfig.forceReload();
         cachedGoConfig.writeFullConfigWithLock(fullConfigUpdateCommand);
@@ -166,7 +165,7 @@ public class CachedGoConfigTest {
         goConfigHolder.mergedConfigForEdit = mergedConfigForEdit;
         ConfigSaveState configSaveState = ConfigSaveState.UPDATED;
 
-        when(dataSource.writeFullConfigWithLock(any(FullConfigUpdateCommand.class), any(GoConfigHolder.class)))
+        when(dataSource.writeFullConfigWithLock(any(), any()))
                 .thenReturn(new GoFileConfigDataSource.GoConfigSaveResult(goConfigHolder, configSaveState));
 
         cachedGoConfig.forceReload();
@@ -177,7 +176,7 @@ public class CachedGoConfigTest {
         assertThat(cachedGoConfig.loadForEditing()).isEqualTo(configForEdit);
         assertThat(cachedGoConfig.loadConfigHolder()).isEqualTo(goConfigHolder);
         assertThat(cachedGoConfig.loadMergedForEditing()).isEqualTo(mergedConfigForEdit);
-        verify(serverHealthService, times(2)).update(any(ServerHealthState.class));
+        verify(serverHealthService, times(2)).update(any());
     }
 
     @Test
@@ -203,6 +202,6 @@ public class CachedGoConfigTest {
         assertThat(cachedGoConfig.loadForEditing()).isEqualTo(configForEdit);
         assertThat(cachedGoConfig.loadConfigHolder()).isEqualTo(goConfigHolder);
         assertThat(cachedGoConfig.loadMergedForEditing()).isEqualTo(mergedConfigForEdit);
-        verify(serverHealthService).update(any(ServerHealthState.class));
+        verify(serverHealthService).update(any());
     }
 }

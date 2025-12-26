@@ -17,8 +17,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.ArtifactConfig;
 import com.thoughtworks.go.config.ArtifactDirectory;
-import com.thoughtworks.go.config.update.UpdateArtifactConfigCommand;
-import com.thoughtworks.go.server.domain.Username;
 import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.*;
@@ -33,7 +31,7 @@ public class ServerConfigServiceTest {
         modifiedArtifactConfig.setArtifactsDir(new ArtifactDirectory("foo"));
         serverConfigService.updateArtifactConfig(modifiedArtifactConfig);
 
-        verify(goConfigService, times(1)).updateConfig(any(UpdateArtifactConfigCommand.class), any(Username.class));
+        verify(goConfigService, times(1)).updateConfig(any(), any());
 
     }
 }

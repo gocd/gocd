@@ -64,7 +64,7 @@ public class PipelineLockServiceTest {
 
         Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", List.of("dev", "ft"), List.of("test"));
         pipelineLockService.lockIfNeeded(pipeline);
-        verify(pipelineStateDao).lockPipeline(eq(pipeline), any(AfterCompletionCallback.class));
+        verify(pipelineStateDao).lockPipeline(eq(pipeline), any());
     }
 
     @Test
@@ -90,7 +90,7 @@ public class PipelineLockServiceTest {
     @Test
     public void shouldUnlockPipelineIrrespectiveOfItBeingLockable() {
         pipelineLockService.unlock("mingle");
-        verify(pipelineStateDao).unlockPipeline(eq("mingle"), any(AfterCompletionCallback.class));
+        verify(pipelineStateDao).unlockPipeline(eq("mingle"), any());
     }
 
     @Test
@@ -152,8 +152,8 @@ public class PipelineLockServiceTest {
 
         pipelineLockService.onConfigChange(cruiseConfig);
 
-        verify(pipelineStateDao, never()).unlockPipeline(eq("mingle"), any(AfterCompletionCallback.class));
-        verify(pipelineStateDao).unlockPipeline(eq("twist"), any(AfterCompletionCallback.class));
+        verify(pipelineStateDao, never()).unlockPipeline(eq("mingle"), any());
+        verify(pipelineStateDao).unlockPipeline(eq("twist"), any());
     }
 
     @Test
@@ -168,8 +168,8 @@ public class PipelineLockServiceTest {
 
         pipelineLockService.onConfigChange(cruiseConfig);
 
-        verify(pipelineStateDao).unlockPipeline(eq("mingle"), any(AfterCompletionCallback.class));
-        verify(pipelineStateDao).unlockPipeline(eq("twist"), any(AfterCompletionCallback.class));
+        verify(pipelineStateDao).unlockPipeline(eq("mingle"), any());
+        verify(pipelineStateDao).unlockPipeline(eq("twist"), any());
     }
 
     @SuppressWarnings("unchecked")
@@ -193,8 +193,8 @@ public class PipelineLockServiceTest {
 
         changedListener.onEntityConfigChange(pipelineConfig);
 
-        verify(pipelineStateDao, never()).unlockPipeline(eq("other_pipeline"), any(AfterCompletionCallback.class));
-        verify(pipelineStateDao).unlockPipeline(eq("locked_pipeline"), any(AfterCompletionCallback.class));
+        verify(pipelineStateDao, never()).unlockPipeline(eq("other_pipeline"), any());
+        verify(pipelineStateDao).unlockPipeline(eq("locked_pipeline"), any());
     }
 
     @Test
@@ -223,7 +223,7 @@ public class PipelineLockServiceTest {
             AfterCompletionCallback callback = (AfterCompletionCallback) invocation.getArguments()[1];
             callback.execute(TransactionSynchronization.STATUS_COMMITTED);
             return null;
-        }).when(pipelineStateDao).lockPipeline(any(Pipeline.class), any(AfterCompletionCallback.class));
+        }).when(pipelineStateDao).lockPipeline(any(), any());
 
         PipelineLockStatusChangeListener lockStatusChangeListener = mock(PipelineLockStatusChangeListener.class);
 
@@ -241,7 +241,7 @@ public class PipelineLockServiceTest {
             AfterCompletionCallback callback = (AfterCompletionCallback) invocation.getArguments()[1];
             callback.execute(TransactionSynchronization.STATUS_ROLLED_BACK);
             return null;
-        }).when(pipelineStateDao).lockPipeline(any(Pipeline.class), any(AfterCompletionCallback.class));
+        }).when(pipelineStateDao).lockPipeline(any(), any());
 
         PipelineLockStatusChangeListener lockStatusChangeListener = mock(PipelineLockStatusChangeListener.class);
 
@@ -259,7 +259,7 @@ public class PipelineLockServiceTest {
             AfterCompletionCallback callback = (AfterCompletionCallback) invocation.getArguments()[1];
             callback.execute(TransactionSynchronization.STATUS_COMMITTED);
             return null;
-        }).when(pipelineStateDao).unlockPipeline(eq("pipeline1"), any(AfterCompletionCallback.class));
+        }).when(pipelineStateDao).unlockPipeline(eq("pipeline1"), any());
 
         pipelineLockService.registerListener(lockStatusChangeListener);
         pipelineLockService.unlock("pipeline1");
@@ -274,7 +274,7 @@ public class PipelineLockServiceTest {
             AfterCompletionCallback callback = (AfterCompletionCallback) invocation.getArguments()[1];
             callback.execute(TransactionSynchronization.STATUS_ROLLED_BACK);
             return null;
-        }).when(pipelineStateDao).unlockPipeline(eq("pipeline1"), any(AfterCompletionCallback.class));
+        }).when(pipelineStateDao).unlockPipeline(eq("pipeline1"), any());
 
         pipelineLockService.registerListener(lockStatusChangeListener);
         pipelineLockService.unlock("pipeline1");
@@ -294,7 +294,7 @@ public class PipelineLockServiceTest {
             AfterCompletionCallback callback = (AfterCompletionCallback) invocation.getArguments()[1];
             callback.execute(TransactionSynchronization.STATUS_COMMITTED);
             return null;
-        }).when(pipelineStateDao).unlockPipeline(eq("pipeline1"), any(AfterCompletionCallback.class));
+        }).when(pipelineStateDao).unlockPipeline(eq("pipeline1"), any());
 
         pipelineLockService.registerListener(lockStatusChangeListener);
         pipelineLockService.onConfigChange(cruiseConfig);
@@ -312,7 +312,7 @@ public class PipelineLockServiceTest {
             AfterCompletionCallback callback = (AfterCompletionCallback) invocation.getArguments()[1];
             callback.execute(TransactionSynchronization.STATUS_COMMITTED);
             return null;
-        }).when(pipelineStateDao).unlockPipeline(eq("pipeline1"), any(AfterCompletionCallback.class));
+        }).when(pipelineStateDao).unlockPipeline(eq("pipeline1"), any());
 
         try (LogFixture logFixture = logFixtureFor(PipelineLockService.class, Level.WARN)) {
 

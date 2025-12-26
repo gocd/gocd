@@ -23,7 +23,6 @@ import com.thoughtworks.go.agent.testhelper.GoTestResource;
 import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
 import com.thoughtworks.go.util.SslVerificationMode;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.assertj.core.util.Hexadecimals;
 import org.junit.jupiter.api.AfterEach;
@@ -141,7 +140,7 @@ public class ServerBinaryDownloaderTest {
         CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class);
         when(builder.build()).thenReturn(closeableHttpClient);
         CloseableHttpResponse httpResponse = mock(CloseableHttpResponse.class);
-        when(closeableHttpClient.execute(any(HttpRequestBase.class))).thenReturn(httpResponse);
+        when(closeableHttpClient.execute(any())).thenReturn(httpResponse);
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(builder, ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()));
         assertThat(downloader.download(DownloadableFile.AGENT)).isEqualTo(false);
     }

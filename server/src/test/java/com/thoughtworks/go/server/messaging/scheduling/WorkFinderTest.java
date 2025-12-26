@@ -53,7 +53,7 @@ public class WorkFinderTest {
 
     @AfterEach
     public void tearDown() {
-        verify(idleAgentTopic).addListener(any(WorkFinder.class));
+        verify(idleAgentTopic).addListener(any());
     }
 
     @Test

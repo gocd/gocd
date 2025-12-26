@@ -62,14 +62,14 @@ public class PipelinePauseServiceTest {
         Authorization authorization = new Authorization(new OperationConfig(new AdminUser(VALID_USER.getUsername())));
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs("my_group", authorization, PipelineConfigMother.pipelineConfig(VALID_PIPELINE)));
         when(goConfigDao.currentConfig()).thenReturn(cruiseConfig);
-        when(securityService.hasOperatePermissionForGroup(eq(VALID_USER.getUsername()), any(String.class))).thenReturn(true);
+        when(securityService.hasOperatePermissionForGroup(eq(VALID_USER.getUsername()), any())).thenReturn(true);
     }
 
     private void setUpValidPipelineWithInvalidAuth() {
         Authorization authorization = new Authorization(new OperationConfig(new AdminUser(INVALID_USER.getUsername())));
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs("my_group", authorization, PipelineConfigMother.pipelineConfig(VALID_PIPELINE)));
         when(goConfigDao.currentConfig()).thenReturn(cruiseConfig);
-        when(securityService.hasOperatePermissionForGroup(eq(INVALID_USER.getUsername()), any(String.class))).thenReturn(false);
+        when(securityService.hasOperatePermissionForGroup(eq(INVALID_USER.getUsername()), any())).thenReturn(false);
     }
 
     @Test

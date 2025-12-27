@@ -16,8 +16,8 @@
 package com.thoughtworks.go.config;
 
 public class InvalidPartialConfigException extends RuntimeException {
-    private Object partialConfig;
-    private String errors;
+    private final Object partialConfig;
+    private final String errors;
 
     public InvalidPartialConfigException(Object partialConfig, String errors) {
         super(errors);

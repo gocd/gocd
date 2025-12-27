@@ -33,7 +33,7 @@
     <import resource="propertyConfigurer.xml"/>
     <import resource="classpath*:optional-development-server-configurer.xml"/>
 
-    <bean id="cache" class="com.opensymphony.oscache.base.Cache">
+    <bean id="buildDurationCache" class="com.opensymphony.oscache.base.Cache">
         <constructor-arg value="true"/>
         <!-- useMemoryCaching -->
         <constructor-arg value="false"/>

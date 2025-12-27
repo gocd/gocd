@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbiddenForPipeline;
@@ -42,13 +42,13 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Service
 public class PipelinePauseService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PipelinePauseService.class);
 
-    private PipelineSqlMapDao pipelineSqlMapDao;
+    private final PipelineSqlMapDao pipelineSqlMapDao;
     private final GoConfigService goConfigService;
     private final SecurityService securityService;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PipelinePauseService.class);
-    private List<PipelinePauseChangeListener> listeners = new ArrayList<>();
+    private final List<PipelinePauseChangeListener> listeners = new CopyOnWriteArrayList<>();
 
     @Autowired
     public PipelinePauseService(PipelineSqlMapDao pipelineSqlMapDao, GoConfigService goConfigService, SecurityService securityService) {
@@ -62,7 +62,7 @@ public class PipelinePauseService {
     }
 
     public void pause(String pipelineName, String pauseCause, Username pausedBy, LocalizedOperationResult result) {
-        String pauseByUserName = pausedBy == null ? "" : pausedBy.getUsername().toString();
+        String pauseByUserName = pausedBy.getUsername().toString();
         if (pipelineDoesNotExist(pipelineName, result) || notAuthorized(pipelineName, pauseByUserName, result)) {
             return;
         }

@@ -73,8 +73,7 @@ public class StageNotificationService {
         for (User user : users) {
             if (user.matchNotification(stageIdentifier.stageConfigIdentifier(), event, materialRevisions)) {
                 StringBuilder emailWithSignature = new StringBuilder(emailBody)
-                        .append("\n\n")
-                        .append("Sent by Go on behalf of ")
+                        .append("\n\nSent by Go on behalf of ")
                         .append(user.getName());
                 SendEmailMessage sendEmailMessage
                         = new SendEmailMessage(subject, emailWithSignature.toString(), user.getEmail());
@@ -128,7 +127,6 @@ public class StageNotificationService {
                 throw bomb("Could not construct URL.", e);
             }
         }
-
 
         @Override
         public void visit(MaterialRevision materialRevision) {

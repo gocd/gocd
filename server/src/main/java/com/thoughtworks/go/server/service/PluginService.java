@@ -45,7 +45,7 @@ import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 
 @Service
 public class PluginService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TemplateConfigService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginService.class);
 
     private final List<GoPluginExtension> extensions;
     private final PluginDao pluginDao;

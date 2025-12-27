@@ -21,11 +21,8 @@ import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.jetbrains.annotations.TestOnly;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class JobRunner {
-    private static final Logger LOG = LoggerFactory.getLogger(AgentHTTPClientController.class);
     private final EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
     private volatile boolean cancelHandled = false;
     private volatile boolean killRunningTasksHandled = false;
@@ -85,7 +82,6 @@ public class JobRunner {
     private void cancelJob(AgentRuntimeInfo agentRuntimeInfo) {
         isJobCancelled = true;
         if (work != null) {
-            LOG.info("");
             work.cancel(environmentVariableContext, agentRuntimeInfo);
         }
 

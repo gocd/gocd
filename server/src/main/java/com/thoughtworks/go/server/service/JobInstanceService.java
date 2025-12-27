@@ -30,15 +30,14 @@ import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.JobResultMessage;
 import com.thoughtworks.go.server.messaging.JobResultTopic;
-import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.JobInstancesModel;
 import com.thoughtworks.go.server.ui.SortOrder;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,19 +91,6 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
 
     public JobInstances latestCompletedJobs(String pipelineName, String stageName, String jobConfigName) {
         return jobInstanceDao.latestCompletedJobs(pipelineName, stageName, jobConfigName, 25);
-    }
-
-    public JobInstances findJobHistoryPage(String pipelineName, String stageName, String jobConfigName, Pagination pagination, String username, OperationResult result) {
-        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
-            result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
-            return null;
-        }
-        if (!securityService.hasViewPermissionForPipeline(Username.valueOf(username), pipelineName)) {
-            result.forbidden("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
-            return null;
-        }
-
-        return jobInstanceDao.findJobHistoryPage(pipelineName, stageName, jobConfigName, pagination.getPageSize(), pagination.getOffset());
     }
 
     public JobInstance findJobInstanceWithTransitions(String pipelineName, String stageName, String jobName, int pipelineCounter, int stageCounter, Username username) {
@@ -225,10 +211,6 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
         notifyJobStatusChangeListeners(job);
     }
 
-    public List<JobIdentifier> allBuildingJobs() {
-        return jobInstanceDao.getBuildingJobs();
-    }
-
     public List<JobInstance> allRunningJobs() {
         return jobInstanceDao.getRunningJobs();
     }
@@ -245,6 +227,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
         }
     }
 
+    @TestOnly
     public JobInstancesModel completedJobsOnAgent(String uuid, JobHistoryColumns columnName, SortOrder order, int pageNumber, int pageSize) {
         int total = totalCompletedJobsCountOn(uuid);
         Pagination pagination = Pagination.pageByNumber(pageNumber, total, pageSize);

@@ -62,19 +62,16 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Stream;
+import java.util.*;
 
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
 import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 @SuppressWarnings("unused")
@@ -456,134 +453,6 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadAllActivePipelines() {
-        PipelineConfig twistConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("twist", "dev", "ft");
-        Pipeline twistPipeline = dbHelper.newPipelineWithAllStagesPassed(twistConfig);
-        List<CaseInsensitiveString> allPipelineNames = goConfigDao.currentConfig().getAllPipelineNames();
-        if (!allPipelineNames.contains(new CaseInsensitiveString("twist"))) {
-            configHelper.addPipeline("pipelinesqlmapdaotest", twistConfig);
-        }
-
-        PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev", "ft");
-        if (!allPipelineNames.contains(new CaseInsensitiveString("mingle"))) {
-            configHelper.addPipeline("pipelinesqlmapdaotest", mingleConfig);
-        }
-
-
-        Pipeline firstPipeline = dbHelper.newPipelineWithAllStagesPassed(mingleConfig);
-        Pipeline secondPipeline = dbHelper.newPipelineWithFirstStagePassed(mingleConfig);
-        dbHelper.scheduleStage(secondPipeline, mingleConfig.get(1));
-        Pipeline thirdPipeline = dbHelper.newPipelineWithFirstStageScheduled(mingleConfig);
-
-        PipelineInstanceModels pipelineHistories = pipelineDao.loadActivePipelines();
-        assertThat(pipelineHistories.size()).isEqualTo(3);
-        assertThat(pipelineHistories.get(0).getId()).isEqualTo(thirdPipeline.getId());
-        assertThat(pipelineHistories.get(1).getId()).isEqualTo(secondPipeline.getId());
-        assertThat(pipelineHistories.get(2).getId()).isEqualTo(twistPipeline.getId());
-        assertThat(pipelineHistories.get(0).getBuildCause().getMaterialRevisions().isEmpty()).isFalse();
-    }
-
-    @Test
-    public void shouldLoadAllActivePipelinesPresentInConfigOnly() {
-        PipelineConfig twistConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("twist", "dev", "ft");
-        Pipeline twistPipeline = dbHelper.newPipelineWithAllStagesPassed(twistConfig);
-        List<CaseInsensitiveString> allPipelineNames = goConfigDao.currentConfig().getAllPipelineNames();
-        if (!allPipelineNames.contains(new CaseInsensitiveString("twist"))) {
-            configHelper.addPipeline("pipelinesqlmapdaotest", twistConfig);
-        }
-        PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev", "ft");
-
-        dbHelper.newPipelineWithAllStagesPassed(mingleConfig);
-        Pipeline minglePipeline = dbHelper.newPipelineWithFirstStagePassed(mingleConfig);
-
-        PipelineInstanceModels pipelineHistories = pipelineDao.loadActivePipelines();
-        assertThat(pipelineHistories.size()).isEqualTo(1);
-        assertThat(pipelineHistories.get(0).getId()).isEqualTo(twistPipeline.getId());
-        assertThat(pipelineHistories.get(0).getBuildCause().getMaterialRevisions().isEmpty()).isFalse();
-
-        if (!allPipelineNames.contains(new CaseInsensitiveString("mingle"))) {
-            configHelper.addPipeline("pipelinesqlmapdaotest", mingleConfig);
-        }
-
-        pipelineHistories = pipelineDao.loadActivePipelines();
-        assertThat(pipelineHistories.size()).isEqualTo(2);
-        assertThat(pipelineHistories.get(0).getId()).isEqualTo(minglePipeline.getId());
-        assertThat(pipelineHistories.get(1).getId()).isEqualTo(twistPipeline.getId());
-        assertThat(pipelineHistories.get(1).getBuildCause().getMaterialRevisions().isEmpty()).isFalse();
-    }
-
-    @Test
-    public void loadAllActivePipelinesPresentInConfigOnlyShouldBeCaseInsensitive() {
-        PipelineConfig twistConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("twist", "dev", "ft");
-        Pipeline twistPipeline = dbHelper.newPipelineWithAllStagesPassed(twistConfig);
-        List<CaseInsensitiveString> allPipelineNames = goConfigDao.currentConfig().getAllPipelineNames();
-        if (!allPipelineNames.contains(new CaseInsensitiveString("twist"))) {
-            PipelineConfig pipelineConfigWithDifferentCase = PipelineMother.createPipelineConfig("TWIST", twistConfig.materialConfigs(), "dev", "ft");
-            configHelper.addPipeline("pipelinesqlmapdaotest", pipelineConfigWithDifferentCase);
-        }
-        PipelineInstanceModels pipelineHistories = pipelineDao.loadActivePipelines();
-        assertThat(pipelineHistories.size()).isEqualTo(1);
-        assertThat(pipelineHistories.get(0).getId()).isEqualTo(twistPipeline.getId());
-        assertThat(pipelineHistories.get(0).getBuildCause().getMaterialRevisions().isEmpty()).isFalse();
-
-    }
-
-    @Test
-    public void shouldLoadAllActivePipelinesPresentInConfigAndAlsoTheScheduledStagesOfPipelinesNotInConfig() {
-        PipelineConfig twistConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("twist", "dev", "ft");
-        Pipeline twistPipeline = dbHelper.newPipelineWithAllStagesPassed(twistConfig);
-        List<CaseInsensitiveString> allPipelineNames = goConfigDao.currentConfig().getAllPipelineNames();
-        if (!allPipelineNames.contains(new CaseInsensitiveString("twist"))) {
-            configHelper.addPipeline("pipelinesqlmapdaotest", twistConfig);
-        }
-        PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev", "ft");
-        if (!allPipelineNames.contains(new CaseInsensitiveString("mingle"))) {
-            configHelper.addPipeline("pipelinesqlmapdaotest", mingleConfig);
-        }
-        dbHelper.newPipelineWithAllStagesPassed(mingleConfig);
-        Pipeline secondPipeline = dbHelper.newPipelineWithFirstStagePassed(mingleConfig);
-        dbHelper.scheduleStage(secondPipeline, mingleConfig.get(1));
-        Pipeline thirdPipeline = dbHelper.newPipelineWithFirstStageScheduled(mingleConfig);
-
-        PipelineInstanceModels pipelineHistories = pipelineDao.loadActivePipelines();
-        assertThat(pipelineHistories.size()).isEqualTo(3);
-        assertThat(pipelineHistories.get(0).getId()).isEqualTo(thirdPipeline.getId());
-        assertThat(pipelineHistories.get(1).getId()).isEqualTo(secondPipeline.getId());
-        assertThat(pipelineHistories.get(2).getId()).isEqualTo(twistPipeline.getId());
-        assertThat(pipelineHistories.get(0).getBuildCause().getMaterialRevisions().isEmpty()).isFalse();
-    }
-
-    @Test
-    public void shouldLoadAllActivePipelinesEvenWhenThereIsStageStatusChange() {
-        PipelineConfig twistConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("twist", "dev", "ft");
-        configHelper.addPipeline("pipelinesqlmapdaotest", twistConfig);
-        Pipeline twistPipeline = dbHelper.newPipelineWithAllStagesPassed(twistConfig);
-        PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev", "ft");
-        configHelper.addPipeline("pipelinesqlmapdaotest", mingleConfig);
-        final Pipeline firstPipeline = dbHelper.newPipelineWithAllStagesPassed(mingleConfig);
-        final Pipeline secondPipeline = dbHelper.newPipelineWithFirstStagePassed(mingleConfig);
-        dbHelper.scheduleStage(secondPipeline, mingleConfig.get(1));
-        Pipeline thirdPipeline = dbHelper.newPipelineWithFirstStageScheduled(mingleConfig);
-        Thread stageStatusChanger = new Thread() {
-            @Override
-            public void run() {
-                do {
-                    pipelineDao.stageStatusChanged(secondPipeline.findStage("dev"));
-                } while (!super.isInterrupted());
-            }
-        };
-        stageStatusChanger.setDaemon(true);
-        stageStatusChanger.start();
-        PipelineInstanceModels pipelineHistories = pipelineDao.loadActivePipelines();
-        assertThat(pipelineHistories.size()).isEqualTo(3);
-        assertThat(pipelineHistories.get(0).getId()).isEqualTo(thirdPipeline.getId());
-        assertThat(pipelineHistories.get(1).getId()).isEqualTo(secondPipeline.getId());
-        assertThat(pipelineHistories.get(2).getId()).isEqualTo(twistPipeline.getId());
-        assertThat(pipelineHistories.get(0).getBuildCause().getMaterialRevisions().isEmpty()).isFalse();
-        stageStatusChanger.interrupt();
-    }
-
-    @Test
     public void shouldLoadPipelineHistoriesWithMultipleSameStage() {
         String stageName = "dev";
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", stageName);
@@ -916,34 +785,6 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldInvalidateSessionAndFetchNewPipelineByNameAndLabel_WhenPipelineIsPersisted() {
-        Pipeline pipeline = new Pipeline("Test", BuildCause.createWithEmptyModifications());
-        assertThat(pipelineDao.findPipelineByNameAndLabel("Test", "1")).isNull();
-
-        savePipeline(pipeline);
-        Pipeline loadedPipeline = pipelineDao.findPipelineByNameAndLabel("Test", pipeline.getLabel());
-        assertThat(loadedPipeline).isNotNull();
-        assertThat(loadedPipeline.getId()).isEqualTo(pipeline.getId());
-    }
-
-    @Test
-    public void shouldFindPipelineByNameAndLabel() {
-        Pipeline pipeline = new Pipeline("Test", BuildCause.createWithEmptyModifications());
-        savePipeline(pipeline);
-        Pipeline loadedId = pipelineDao.findPipelineByNameAndLabel("Test", pipeline.getLabel());
-        assertThat(loadedId.getId()).isEqualTo(pipeline.getId());
-    }
-
-    @Test
-    public void findPipelineByNameAndLabelShouldReturnLatestWhenLabelRepeated() {
-        Pipeline pipeline = new Pipeline("Test", BuildCause.createWithEmptyModifications());
-        savePipeline(pipeline);
-        Pipeline newPipeline = dbHelper.save(pipeline);
-        Pipeline loadedId = pipelineDao.findPipelineByNameAndLabel("Test", newPipeline.getLabel());
-        assertThat(loadedId.getId()).isEqualTo(newPipeline.getId());
-    }
-
-    @Test
     public void shouldSaveModificationWithChangedAsTrue() {
         Pipeline pipeline = new Pipeline("Test", BuildCause.createWithModifications(revisions(true), ""));
         save(pipeline);
@@ -984,154 +825,6 @@ public class PipelineSqlMapDaoIntegrationTest {
         save(pipeline);
         Pipeline loaded = pipelineDao.loadPipeline(pipeline.getId());
         assertEquals(buildCause, loaded.getBuildCause());
-    }
-
-
-    @Test
-    public void shouldFindPipelineThatPassedForStage() {
-        PipelineConfig config = PipelineMother.createPipelineConfig("pipeline", new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig()), "firstStage", "secondStage");
-        Pipeline pipeline0 = dbHelper.newPipelineWithAllStagesPassed(config);
-        dbHelper.updateNaturalOrder(pipeline0.getId(), 4.0);
-
-        Pipeline pipeline1 = dbHelper.newPipelineWithFirstStagePassed(config);
-        Stage stage = dbHelper.scheduleStage(pipeline1, config.get(1));
-        dbHelper.failStage(stage);
-        stage = dbHelper.scheduleStage(pipeline1, config.get(1));
-        dbHelper.passStage(stage);
-        dbHelper.updateNaturalOrder(pipeline1.getId(), 5.0);
-
-        Pipeline pipeline2 = dbHelper.newPipelineWithFirstStagePassed(config);
-        stage = dbHelper.scheduleStage(pipeline2, config.get(1));
-        dbHelper.failStage(stage);
-        dbHelper.updateNaturalOrder(pipeline2.getId(), 6.0);
-
-        Pipeline pipeline3 = dbHelper.newPipelineWithFirstStagePassed(config);
-        dbHelper.updateNaturalOrder(pipeline3.getId(), 7.0);
-
-        Pipeline pipeline4 = dbHelper.newPipelineWithFirstStagePassed(config);
-        stage = dbHelper.scheduleStage(pipeline4, config.get(1));
-        dbHelper.cancelStage(stage);
-        dbHelper.updateNaturalOrder(pipeline4.getId(), 8.0);
-
-        Pipeline pipeline5 = dbHelper.newPipelineWithFirstStagePassed(config);
-        dbHelper.scheduleStage(pipeline5, config.get(1));
-        dbHelper.updateNaturalOrder(pipeline5.getId(), 9.0);
-
-        Pipeline pipeline6 = dbHelper.newPipelineWithFirstStagePassed(config);
-        stage = dbHelper.scheduleStage(pipeline6, config.get(1));
-        dbHelper.failStage(stage);
-        dbHelper.updateNaturalOrder(pipeline6.getId(), 10.0);
-
-        Pipeline pipeline = pipelineDao.findEarlierPipelineThatPassedForStage("pipeline", "secondStage", 10.0);
-        assertThat(pipeline.getId()).isEqualTo(pipeline1.getId());
-        assertThat(pipeline.getNaturalOrder()).isEqualTo(5.0);
-    }
-
-    @Test
-    public void shouldFindPipelineThatPassedForStageAcrossStageRerunsHavingPassedStagesOtherThanLatest() {
-        PipelineConfig config = PipelineMother.createPipelineConfig("pipeline", new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig()), "firstStage", "secondStage");
-        Pipeline pipeline0 = dbHelper.newPipelineWithAllStagesPassed(config);
-        dbHelper.updateNaturalOrder(pipeline0.getId(), 4.0);
-
-        Pipeline pipeline1 = dbHelper.newPipelineWithFirstStagePassed(config);
-        Stage stage = dbHelper.scheduleStage(pipeline1, config.get(1));
-        dbHelper.failStage(stage);
-        stage = dbHelper.scheduleStage(pipeline1, config.get(1));
-        dbHelper.passStage(stage);
-        dbHelper.updateNaturalOrder(pipeline1.getId(), 5.0);
-
-
-        Pipeline pipeline5 = dbHelper.newPipelineWithAllStagesPassed(config);
-        dbHelper.updateNaturalOrder(pipeline5.getId(), 9.0);
-        Stage failedRerun = StageMother.scheduledStage("pipeline", pipeline5.getCounter(), "secondStage", 2, "job");
-        failedRerun = stageDao.saveWithJobs(pipeline5, failedRerun);
-        dbHelper.failStage(failedRerun);
-
-        Pipeline pipeline6 = dbHelper.newPipelineWithFirstStagePassed(config);
-        stage = dbHelper.scheduleStage(pipeline6, config.get(1));
-        dbHelper.failStage(stage);
-        dbHelper.updateNaturalOrder(pipeline6.getId(), 10.0);
-
-        Pipeline pipeline = pipelineDao.findEarlierPipelineThatPassedForStage("pipeline", "secondStage", 10.0);
-        assertThat(pipeline.getNaturalOrder()).isEqualTo(5.0);
-        assertThat(pipeline.getId()).isEqualTo(pipeline1.getId());
-    }
-
-    @Test
-    public void shouldFindPipelineThatPassedForStageAcrossStageReruns() {
-        PipelineConfig config = PipelineMother.createPipelineConfig("pipeline", new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig()), "firstStage", "secondStage");
-        Pipeline pipeline0 = dbHelper.newPipelineWithAllStagesPassed(config);
-        dbHelper.updateNaturalOrder(pipeline0.getId(), 4.0);
-
-        Pipeline pipeline1 = dbHelper.newPipelineWithFirstStagePassed(config);
-        Stage stage = dbHelper.scheduleStage(pipeline1, config.get(1));
-        dbHelper.failStage(stage);
-        stage = dbHelper.scheduleStage(pipeline1, config.get(1));
-        dbHelper.passStage(stage);
-        dbHelper.updateNaturalOrder(pipeline1.getId(), 5.0);
-
-        Stage passedStageRerun = StageMother.scheduledStage("pipeline", pipeline1.getCounter(), "secondStage", 2, "job");
-        passedStageRerun = stageDao.saveWithJobs(pipeline1, passedStageRerun);
-        dbHelper.passStage(passedStageRerun);
-
-        Pipeline pipeline5 = dbHelper.newPipelineWithFirstStagePassed(config);
-        stage = dbHelper.scheduleStage(pipeline5, config.get(1));
-        dbHelper.failStage(stage);
-        dbHelper.updateNaturalOrder(pipeline5.getId(), 9.0);
-
-        Pipeline pipeline6 = dbHelper.newPipelineWithFirstStagePassed(config);
-        stage = dbHelper.scheduleStage(pipeline6, config.get(1));
-        dbHelper.failStage(stage);
-        dbHelper.updateNaturalOrder(pipeline6.getId(), 10.0);
-
-        Pipeline pipeline = pipelineDao.findEarlierPipelineThatPassedForStage("pipeline", "secondStage", 10.0);
-        assertThat(pipeline.getId()).isEqualTo(pipeline1.getId());
-        assertThat(pipeline.getNaturalOrder()).isEqualTo(5.0);
-    }
-
-    @Test
-    public void shouldReturnTheEarliestFailedPipelineIfThereAreNoPassedStageEver() {
-        PipelineConfig config = PipelineMother.createPipelineConfig("pipeline", new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig()), "firstStage", "secondStage");
-
-        Pipeline pipeline2 = dbHelper.newPipelineWithFirstStagePassed(config);
-        Stage stage = dbHelper.scheduleStage(pipeline2, config.get(1));
-        dbHelper.failStage(stage);
-        dbHelper.updateNaturalOrder(pipeline2.getId(), 6.0);
-
-        Pipeline pipeline3 = dbHelper.newPipelineWithFirstStagePassed(config);
-        dbHelper.updateNaturalOrder(pipeline3.getId(), 7.0);
-
-        Pipeline pipeline4 = dbHelper.newPipelineWithFirstStagePassed(config);
-        stage = dbHelper.scheduleStage(pipeline4, config.get(1));
-        dbHelper.cancelStage(stage);
-        dbHelper.updateNaturalOrder(pipeline4.getId(), 8.0);
-
-        Pipeline pipeline5 = dbHelper.newPipelineWithFirstStagePassed(config);
-        dbHelper.scheduleStage(pipeline5, config.get(1));
-        dbHelper.updateNaturalOrder(pipeline5.getId(), 9.0);
-
-        Pipeline pipeline6 = dbHelper.newPipelineWithFirstStagePassed(config);
-        stage = dbHelper.scheduleStage(pipeline6, config.get(1));
-        dbHelper.failStage(stage);
-        dbHelper.updateNaturalOrder(pipeline6.getId(), 10.0);
-
-        assertThat(pipelineDao.findEarlierPipelineThatPassedForStage("pipeline", "secondStage", 10.0)).isNull();
-    }
-
-    @Test
-    public void shouldReturnPageNumberOfThePageInWhichThePIMWouldBePresent() {
-        PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("some-pipeline", "dev");
-        Pipeline pipeline1 = schedulePipelineWithStages(mingleConfig);
-        Pipeline pipeline2 = schedulePipelineWithStages(mingleConfig);
-        Pipeline pipeline3 = schedulePipelineWithStages(mingleConfig);
-        Pipeline pipeline4 = schedulePipelineWithStages(mingleConfig);
-        Pipeline pipeline5 = schedulePipelineWithStages(mingleConfig);
-
-        assertThat(pipelineDao.getPageNumberForCounter("some-pipeline", pipeline4.getCounter(), 1)).isEqualTo(2);
-        assertThat(pipelineDao.getPageNumberForCounter("some-pipeline", pipeline5.getCounter(), 1)).isEqualTo(1);
-        assertThat(pipelineDao.getPageNumberForCounter("some-pipeline", pipeline1.getCounter(), 2)).isEqualTo(3);
-        assertThat(pipelineDao.getPageNumberForCounter("some-pipeline", pipeline2.getCounter(), 3)).isEqualTo(2);
-        assertThat(pipelineDao.getPageNumberForCounter("some-pipeline", pipeline3.getCounter(), 10)).isEqualTo(1);
     }
 
     @Test
@@ -1331,13 +1024,9 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldThrowExceptionWhenBuildCauseIsAskedForANonExistentPipeline() {
-        try {
-            pipelineDao.findBuildCauseOfPipelineByNameAndCounter("foo", 1);
-            fail("should have thrown RecordNotFoundException");
-        } catch (Exception e) {
-            assertThat(e instanceof RecordNotFoundException).isTrue();
-            assertThat(e.getMessage()).isEqualTo("Pipeline foo with counter 1 was not found");
-        }
+        assertThatThrownBy(() -> pipelineDao.findBuildCauseOfPipelineByNameAndCounter("foo", 1))
+            .isInstanceOf(RecordNotFoundException.class)
+            .hasMessage("Pipeline foo with counter 1 was not found");
     }
 
     @Test
@@ -1350,13 +1039,10 @@ public class PipelineSqlMapDaoIntegrationTest {
         dbHelper.pass(pipeline);
         BuildCause buildCause = pipelineDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, 1);
         assertThat(buildCause).isNotNull();
-        try {
-            pipelineDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, 10);
-            fail("should have thrown RecordNotFoundException");
-        } catch (Exception e) {
-            assertThat(e instanceof RecordNotFoundException).isTrue();
-            assertThat(e.getMessage()).isEqualTo("Pipeline P1 with counter 10 was not found");
-        }
+
+        assertThatThrownBy(() -> pipelineDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, 10))
+            .isInstanceOf(RecordNotFoundException.class)
+            .hasMessage("Pipeline P1 with counter 10 was not found");
     }
 
     @Test
@@ -1513,36 +1199,12 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void ensureActivePipelineCacheUsedByOldDashboardIsCaseInsensitiveWRTPipelineNames() {
-        GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
-        u.checkinInOrder(g1, "g_1");
-
-        ScheduleTestUtil.AddedPipeline pipeline1 = u.saveConfigWith("pipeline1", u.m(g1));
-        Pipeline pipeline1_1 = dbHelper.schedulePipeline(pipeline1.config, new TestingClock());
-        pipelineDao.loadActivePipelines(); //to initialize cache
-
-        dbHelper.pass(pipeline1_1);
-        pipelineDao.stageStatusChanged(pipeline1_1.getFirstStage());
-        assertThat(getActivePipelinesForPipelineName(pipeline1).count()).isEqualTo(1L);
-        assertThat(getActivePipelinesForPipelineName(pipeline1).findFirst().get().getName()).isEqualTo(pipeline1.config.name().toString());
-
-        configHelper.removePipeline(pipeline1.config.name().toString());
-        ScheduleTestUtil.AddedPipeline p1ReincarnatedWithDifferentCase = u.saveConfigWith("PIPELINE1", u.m(g1));
-        Pipeline pipelineReincarnatedWithDifferentCase_1 = dbHelper.schedulePipeline(p1ReincarnatedWithDifferentCase.config, new TestingClock());
-        pipelineDao.loadActivePipelines(); //to initialize cache
-        pipelineDao.stageStatusChanged(pipelineReincarnatedWithDifferentCase_1.getFirstStage());
-
-        assertThat(getActivePipelinesForPipelineName(p1ReincarnatedWithDifferentCase).count()).isEqualTo(1L);
-        assertThat(getActivePipelinesForPipelineName(p1ReincarnatedWithDifferentCase).findFirst().get().getName()).isEqualTo(p1ReincarnatedWithDifferentCase.config.name().toString());
-    }
-
-    @Test
     public void shouldRemoveDuplicateEntriesForPipelineCounterFromDbForAGivenPipelineName() {
         String pipelineName = "Pipeline-Name";
         configHelper.addPipeline(pipelineName, "stage-name");
-        pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
-        pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap());
-        pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName).and("count", 30).asMap());
+        pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName.toLowerCase(), "count", 10));
+        pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName.toUpperCase(), "count", 20));
+        pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName, "count", 30));
         assertThat(pipelineDao.getPipelineNamesWithMultipleEntriesForLabelCount().size()).isEqualTo(1);
         assertThat(pipelineDao.getPipelineNamesWithMultipleEntriesForLabelCount().get(0).equalsIgnoreCase(pipelineName)).isTrue();
 
@@ -1551,10 +1213,6 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertThat(pipelineDao.getCounterForPipeline(pipelineName)).isEqualTo(30);
         assertThat(pipelineDao.getCounterForPipeline(pipelineName.toLowerCase())).isEqualTo(30);
         assertThat(pipelineDao.getCounterForPipeline(pipelineName.toUpperCase())).isEqualTo(30);
-    }
-
-    private Stream<PipelineInstanceModel> getActivePipelinesForPipelineName(ScheduleTestUtil.AddedPipeline pipeline1) {
-        return pipelineDao.loadActivePipelines().stream().filter(pipelineInstanceModel -> pipelineInstanceModel.getName().equalsIgnoreCase(pipeline1.config.name().toString()));
     }
 
     @Test

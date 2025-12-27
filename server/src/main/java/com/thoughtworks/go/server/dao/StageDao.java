@@ -38,8 +38,6 @@ public interface StageDao extends JobDurationStrategy {
     @TestOnly
     Stage saveWithJobs(Pipeline pipeline, Stage stage);
 
-    int getCount(String pipelineName, String stageName);
-
     @NotNull Stages getStagesByPipelineId(long pipelineId);
 
     @NotNull Stage stageById(long stageId);
@@ -48,15 +46,13 @@ public interface StageDao extends JobDurationStrategy {
 
     boolean isStageActive(String pipelineName, String stageName);
 
-    Long getDurationOfLastSuccessfulOnAgent(String pipelineName, String stageName, JobInstance job);
+    @Nullable Long getDurationOfLastSuccessfulOnAgent(String pipelineName, String stageName, JobInstance job);
 
     int getMaxStageOrder(long pipelineId);
 
     @Nullable Integer getStageOrderInPipeline(long pipelineId, String stageName);
 
     void updateResult(Stage stage, StageResult result, String username);
-
-    int getMaxStageCounter(long pipelineId, String stageName);
 
     int findLatestStageCounter(PipelineIdentifier pipelineIdentifier, String stageName);
 
@@ -66,8 +62,10 @@ public interface StageDao extends JobDurationStrategy {
 
     Stage mostRecentCompleted(StageConfigIdentifier identifier);
 
+    @TestOnly
     Stage mostRecentStage(StageConfigIdentifier identifier);
 
+    @TestOnly
     List<JobInstance> mostRecentJobsForStage(String pipelineName, String stageName);
 
     @TestOnly
@@ -92,8 +90,6 @@ public interface StageDao extends JobDurationStrategy {
     StageHistoryPage findStageHistoryPageByNumber(String pipelineName, String stageName, int pageNumber, int pageSize);
 
     StageInstanceModels findDetailedStageHistoryViaCursor(String pipelineName, String stageName, FeedModifier feedModifier, long cursor, int pageSize);
-
-    List<StageIdentifier> findFailedStagesBetween(String pipelineName, String stageName, double fromNaturalOrder, double toNaturalOrder);
 
     void clearCachedAllStages(String pipelineName, int pipelineCounter, String stageName);
 

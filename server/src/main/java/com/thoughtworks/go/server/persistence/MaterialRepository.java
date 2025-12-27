@@ -878,7 +878,7 @@ public class MaterialRepository extends HibernateDaoSupport {
         });
     }
 
-    private String cacheKeyForHasPipelineEverRunWithModification(Object pipelineName,
+    private String cacheKeyForHasPipelineEverRunWithModification(String pipelineName,
                                                                  long materialId,
                                                                  long modificationId) {
         return cacheKeyGenerator.generate("hasPipelineEverRunWithModification", pipelineName, materialId, modificationId);

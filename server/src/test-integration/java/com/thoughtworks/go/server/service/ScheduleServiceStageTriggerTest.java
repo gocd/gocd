@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
-import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.fixture.SchedulerFixture;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -85,7 +84,6 @@ public class ScheduleServiceStageTriggerTest {
     @Autowired private PipelineLockService pipelineLockService;
     @Autowired private ServerHealthService serverHealthService;
     @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private StageStatusCache stageStatusCache;
     @Autowired private ChangesetService changesetService;
     @Autowired private TransactionSynchronizationManager transactionSynchronizationManager;
     @Autowired private GoCache goCache;
@@ -276,7 +274,7 @@ public class ScheduleServiceStageTriggerTest {
         StageStatusListener stageStatusListener = mock(StageStatusListener.class);
 
         JobInstanceService jobInstanceService = jobInstanceService(jobResultTopic);
-        StageService stageService = new StageService(stageDao, jobInstanceService, stageStatusTopic, stageStatusCache, securityService, pipelineDao, changesetService, goConfigService,
+        StageService stageService = new StageService(stageDao, jobInstanceService, stageStatusTopic, securityService, pipelineDao, changesetService, goConfigService,
                 transactionTemplate,
                 transactionSynchronizationManager, goCache, stageStatusListener);
 

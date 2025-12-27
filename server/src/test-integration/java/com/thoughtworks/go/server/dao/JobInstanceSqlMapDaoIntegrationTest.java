@@ -321,15 +321,6 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         );
     }
 
-    @Test
-    public void shouldLoadOldestBuild() {
-        JobStateTransition jobStateTransition = jobInstanceDao.oldestBuild();
-        assertThat(stageDao.stageById(stageId).getJobInstances().first().getTransitions())
-            .first()
-            .extracting(JobStateTransition::getId)
-            .isEqualTo(jobStateTransition.getId());
-    }
-
     private JobInstance savedJobForAgent(final String jobName, final String uuid, final boolean runOnAllAgents, final boolean runMultipleInstance) {
         return transactionTemplate.execute(status -> {
             JobInstance jobInstance = scheduled(jobName, Date.from(Instant.now().plus(1, MINUTES)));
@@ -578,45 +569,6 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         JobInstances instances =
                 jobInstanceDao.latestCompletedJobs(PIPELINE_NAME, STAGE_NAME, JOB_NAME, 25);
         assertThat(instances.size()).isEqualTo(0);
-    }
-
-    @Test
-    public void shouldCorrectly_getJobHistoryCount_findJobHistoryPage() {
-        // has a scheduled job
-        long stageId = createSomeJobs(JOB_NAME, 2); // create 4 instances completed, scheduled, completed, scheduled
-        createCopiedJobs(stageId, JOB_NAME, 2);
-
-        JobInstance shouldNotLoadInstance = JobInstanceMother.completed("shouldnotload", JobResult.Passed); // create job with a different name
-        jobInstanceDao.save(stageId, shouldNotLoadInstance);
-
-        JobInstance building = JobInstanceMother.building(JOB_NAME); // create a building job
-        JobInstance saved = jobInstanceDao.save(stageId, building);
-
-        int jobHistoryCount = jobInstanceDao.getJobHistoryCount(PIPELINE_NAME, STAGE_NAME, JOB_NAME);
-        assertThat(jobHistoryCount).isEqualTo(6);
-
-        JobInstances instances = jobInstanceDao.findJobHistoryPage(PIPELINE_NAME, STAGE_NAME, JOB_NAME, 4, 0);
-        assertThat(instances.size()).isEqualTo(4);
-
-        assertThat(instances.get(0).getState()).isEqualTo(JobState.Building);
-        assertThat(instances.get(1).getState()).isEqualTo(JobState.Completed);
-        assertThat(instances.get(2).getState()).isEqualTo(JobState.Scheduled);
-        assertThat(instances.get(3).getState()).isEqualTo(JobState.Completed);
-        assertJobHistoryCorrectness(instances, JOB_NAME);
-
-        instances = jobInstanceDao.findJobHistoryPage(PIPELINE_NAME, STAGE_NAME, JOB_NAME, 4, 4);
-        assertThat(instances.size()).isEqualTo(2);
-
-        assertThat(instances.get(0).getState()).isEqualTo(JobState.Scheduled);
-        assertThat(instances.get(1).getState()).isEqualTo(JobState.Scheduled);
-        assertJobHistoryCorrectness(instances, JOB_NAME);
-    }
-
-    private void assertJobHistoryCorrectness(JobInstances instances, String jobName) {
-        for (JobInstance instance : instances) {
-            assertThat(instance.getIdentifier().getBuildName()).isEqualTo(jobName);
-            assertThat(instance.isCopy()).isFalse();
-        }
     }
 
     @Test
@@ -1027,22 +979,6 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         jobInstanceDao.save(stageId, simpleJob);
 
         assertThat(jobInstanceDao.totalCompletedJobsOnAgent(agentUuid)).isEqualTo(3);
-    }
-
-    @Test
-    public void shouldGetJobInstanceBasedOnParametersProvided() {
-        createSomeJobs(JOB_NAME, 1); // create 2 instances completed, scheduled
-        JobInstance jobInstance = jobInstanceDao.findJobInstance(PIPELINE_NAME, STAGE_NAME, JOB_NAME, 1, 1);
-
-        assertThat(jobInstance.isNull()).isFalse();
-    }
-
-    @Test
-    public void shouldReturnNullJobInstanceWhenTheSaidCountersAreNotYetRun() {
-        long stageId = createSomeJobs(JOB_NAME, 1); // create 2 instances completed, scheduled
-        JobInstance jobInstance = jobInstanceDao.findJobInstance(PIPELINE_NAME, STAGE_NAME, JOB_NAME, 10, 10);
-
-        assertThat(jobInstance.isNull()).isTrue();
     }
 
     private List<ArtifactPlan> artifactPlans() {

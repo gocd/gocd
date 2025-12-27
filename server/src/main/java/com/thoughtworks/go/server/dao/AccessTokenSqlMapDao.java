@@ -134,7 +134,6 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
                 .add(Restrictions.eq("deletedBecauseUserDeleted", false))
                 .setCacheable(true)
                 .uniqueResult());
-
     }
 
     @Override
@@ -152,5 +151,4 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
             return Boolean.TRUE;
         });
     }
-
 }

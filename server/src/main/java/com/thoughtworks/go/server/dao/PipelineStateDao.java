@@ -34,6 +34,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.PropertyProjection;
 import org.hibernate.criterion.Restrictions;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
@@ -170,6 +171,7 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
         }
     }
 
+    @VisibleForTesting
     String pipelineLockStateCacheKey(String pipelineName) {
         return cacheKeyGenerator.generate("lockedPipeline", pipelineName.toLowerCase());
     }

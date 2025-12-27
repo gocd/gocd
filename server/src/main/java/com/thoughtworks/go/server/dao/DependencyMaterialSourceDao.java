@@ -24,5 +24,5 @@ import java.util.List;
 public interface DependencyMaterialSourceDao {
     List<Modification> getPassedStagesByName(DependencyMaterial dependencyMaterial, Pagination pagination);
 
-    List<Modification> getPassedStagesAfter(final String lastRevision, DependencyMaterial limit, Pagination offset);
+    List<Modification> getPassedStagesAfter(final String lastRevision, Pagination offset);
 }

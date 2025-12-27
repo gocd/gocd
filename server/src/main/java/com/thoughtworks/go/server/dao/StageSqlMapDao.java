@@ -43,7 +43,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
-import org.mybatis.spring.support.SqlSessionDaoSupport;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,21 +65,21 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     private final CacheKeyGenerator cacheKeyGenerator;
     private final TransactionTemplate transactionTemplate;
     private final JobInstanceSqlMapDao buildInstanceDao;
-    private final Cache cache;
+    private final Cache buildDurationCache;
     private final TransactionSynchronizationManager transactionSynchronizationManager;
     private final Cloner cloner = ClonerFactory.instance();
     private final DynamicReadWriteLock readWriteLock = new DynamicReadWriteLock();
 
     @Autowired
     public StageSqlMapDao(JobInstanceSqlMapDao buildInstanceDao,
-                          Cache cache,
+                          Cache buildDurationCache,
                           TransactionTemplate transactionTemplate,
                           SqlSessionFactory sqlSessionFactory,
                           GoCache goCache,
                           TransactionSynchronizationManager transactionSynchronizationManager) {
         super(goCache, sqlSessionFactory);
         this.buildInstanceDao = buildInstanceDao;
-        this.cache = cache;
+        this.buildDurationCache = buildDurationCache;
         this.transactionTemplate = transactionTemplate;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
@@ -150,15 +150,14 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return stage;
     }
 
-    @Override
-    public int getMaxStageCounter(long pipelineId, String stageName) {
+    @VisibleForTesting
+    int getMaxStageCounter(long pipelineId, String stageName) {
         Map<String, Object> toGet = arguments("pipelineId", pipelineId).and("name", stageName).asMap();
         Integer maxCounter = getSqlMapClientTemplate().queryForObject("getMaxStageCounter", toGet);
         return maxCounter == null ? 0 : maxCounter;
     }
 
-    @Override
-    public int getCount(String pipelineName, String stageName) {
+    private int getCount(String pipelineName, String stageName) {
         Map<String, Object> toGet = arguments("pipelineName", pipelineName).and("stageName", stageName).asMap();
         String key = cacheKeyForStageCount(pipelineName, stageName);
         Integer count = goCache.get(key);
@@ -169,7 +168,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return count;
     }
 
-
+    @VisibleForTesting
     String cacheKeyForStageCount(String pipelineName, String stageName) {
         return cacheKeyGenerator.generate("numberOfStages", pipelineName, stageName);
     }
@@ -183,11 +182,10 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
     @Override
     public int findLatestStageCounter(PipelineIdentifier pipeline, String stageName) {
-        Map<String, Object> toGet = arguments("pipelineName", pipeline.getName()).and("pipelineCounter",
-            pipeline.getCounter()).and(
-            "stageName", stageName).asMap();
-        Integer maxCounter = getSqlMapClientTemplate().queryForObject(
-            "findMaxStageCounter", toGet);
+        Map<String, Object> toGet = arguments("pipelineName", pipeline.getName())
+            .and("pipelineCounter", pipeline.getCounter())
+            .and("stageName", stageName).asMap();
+        Integer maxCounter = getSqlMapClientTemplate().queryForObject("findMaxStageCounter", toGet);
         return maxCounter == null ? 0 : maxCounter;
     }
 
@@ -216,11 +214,13 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         }
     }
 
+    @VisibleForTesting
     String cacheKeyForListOfStageIdentifiers(StageIdentifier stageIdentifier) {
         return cacheKeyGenerator.generate("stageRunIdentifier", stageIdentifier.getPipelineName(), stageIdentifier.getPipelineCounter(),
             stageIdentifier.getStageName());
     }
 
+    @VisibleForTesting
     String cacheKeyForStageIdentifier(StageIdentifier stageIdentifier) {
         return cacheKeyGenerator.generate("stageIdentifier", stageIdentifier.getPipelineName(), stageIdentifier.getPipelineCounter(),
             stageIdentifier.getStageName(), stageIdentifier.getStageCounter());
@@ -237,22 +237,22 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     // TODO: this performans (miserably) on an environment with elastic agents, and there is no result or ETA
     // TODO: to show because of this implementation
     @Override
-    public Long getDurationOfLastSuccessfulOnAgent(String pipelineName, String stageName, JobInstance job) {
+    public @Nullable Long getDurationOfLastSuccessfulOnAgent(String pipelineName, String stageName, JobInstance job) {
         String key = job.getBuildDurationKey(pipelineName, stageName);
         Long duration;
         try {
-            duration = (Long) cache.getFromCache(key, CacheEntry.INDEFINITE_EXPIRY);
+            duration = (Long) buildDurationCache.getFromCache(key, CacheEntry.INDEFINITE_EXPIRY);
         } catch (NeedsRefreshException nre) {
             boolean updated = false;
             try {
                 duration = recalculateBuildDuration(pipelineName, stageName, job);
-                cache.putInCache(key, duration);
+                buildDurationCache.putInCache(key, duration);
                 updated = true;
             } finally {
                 if (!updated) {
                     // It is essential that cancelUpdate is called if the
                     // cached content could not be rebuilt
-                    cache.cancelUpdate(key);
+                    buildDurationCache.cancelUpdate(key);
                     LOGGER.warn("refresh cancelled for {}", key);
                 }
             }
@@ -260,7 +260,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return duration;
     }
 
-    private Long recalculateBuildDuration(String pipelineName, String stageName, JobInstance job) {
+    private @Nullable Long recalculateBuildDuration(String pipelineName, String stageName, JobInstance job) {
         Map<String, Object> toGet =
             arguments("buildName", job.getName())
                 .and("agentUuid", job.getAgentUuid())
@@ -269,8 +269,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
                 .asMap();
 
         // Return a list of job id's and stage names, entries sorted by id.
-        Long buildId =
-            getSqlMapClientTemplate().queryForObject("getLastSuccessfulBuildIdOnAgent", toGet);
+        Long buildId = getSqlMapClientTemplate().queryForObject("getLastSuccessfulBuildIdOnAgent", toGet);
         if (buildId == null) {
             return null;
         }
@@ -328,12 +327,14 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return getSqlMapClientTemplate().queryForObject("getMostRecentCompletedStage", toGet);
     }
 
+    @TestOnly
     @Override
     public Stage mostRecentStage(StageConfigIdentifier identifier) {
         Map<String, Object> toGet = arguments("pipelineName", identifier.getPipelineName()).and("stageName", identifier.getStageName()).asMap();
         return getSqlMapClientTemplate().queryForObject("getMostRecentStage", toGet);
     }
 
+    @TestOnly
     @Override
     public List<JobInstance> mostRecentJobsForStage(String pipelineName, String stageName) {
         long mostRecentId = mostRecentId(pipelineName, stageName);
@@ -378,6 +379,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         }
     }
 
+    @VisibleForTesting
     String cacheKeyForAllStageOfPipeline(String pipelineName, int pipelineCounter, String stageName) {
         return cacheKeyGenerator.generate("allStageOfPipeline", new CaseInsensitiveString(pipelineName), pipelineCounter, new CaseInsensitiveString(stageName));
     }
@@ -477,6 +479,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         });
     }
 
+    @VisibleForTesting
     public StageHistoryPage findStageHistoryPage(String pipelineName,
                                                  String stageName,
                                                  Supplier<Pagination> function) {
@@ -499,6 +502,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         }
     }
 
+    @VisibleForTesting
     public StageHistoryEntry findImmediateChronologicallyForwardStageHistoryEntry(StageHistoryEntry stageHistoryEntry) {
         StageIdentifier stageIdentifier = stageHistoryEntry.getIdentifier();
         Map<String, Object> args =
@@ -510,32 +514,22 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return getSqlMapClientTemplate().queryForObject("findStageHistoryEntryBefore", args);
     }
 
+    @VisibleForTesting
     String mutexForStageHistory(String pipelineName, String stageName) {
         return format("%s_stageHistoryMutex_%s_<>_%s", getClass().getName(), pipelineName, stageName).intern();
     }
 
+    @VisibleForTesting
     String cacheKeyForStageHistories(String pipelineName, String stageName) {
         return cacheKeyGenerator.generate("stageHistories", new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
     }
 
+    @VisibleForTesting
     String cacheKeyForStageHistoryViaCursor(String pipelineName, String stageName) {
         return cacheKeyGenerator.generate("findDetailedStageHistoryViaCursor", pipelineName, stageName);
     }
 
-    @Override
-    public List<StageIdentifier> findFailedStagesBetween(String pipelineName,
-                                                         String stageName,
-                                                         double fromNaturalOrder,
-                                                         double toNaturalOrder) {
-        Map<String, Object> args =
-            arguments("pipelineName", pipelineName)
-                .and("stageName", stageName)
-                .and("fromNaturalOrder", fromNaturalOrder)
-                .and("toNaturalOrder", toNaturalOrder)
-                .asMap();
-        return getSqlMapClientTemplate().queryForList("findFailedStagesBetween", args);
-    }
-
+    @VisibleForTesting
     List<StageHistoryEntry> findStages(Pagination pagination, String pipelineName, String stageName) {
         Map<String, Object> args =
             arguments("pipelineName", pipelineName)
@@ -562,6 +556,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return offset;
     }
 
+    @VisibleForTesting
     String cacheKeyForStageOffset(Stage stage) {
         return cacheKeyGenerator.generate("stageOffsetMap", stage.getIdentifier().getPipelineName(), stage.getIdentifier().getStageName()).intern();
     }
@@ -600,6 +595,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return getSqlMapClientTemplate().queryForList("allCompletedStagesForPipeline" + feedModifier.suffix(), parameters);
     }
 
+    @VisibleForTesting
     long mostRecentId(String pipelineName, String stageName) {
         String key = cacheKeyForMostRecentId(pipelineName, stageName);
         Long id = goCache.get(key);
@@ -629,7 +625,6 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         removeFromCache(cacheKeyForLatestStageInstances());
     }
 
-
     @Override
     public @NotNull Stage stageById(long id) {
         String key = cacheKeyForStageById(id);
@@ -650,6 +645,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return cloner.deepClone(stage);
     }
 
+    @VisibleForTesting
     String cacheKeyForStageById(long id) {
         return cacheKeyGenerator.generate("stageById", id);
     }
@@ -719,6 +715,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         getSqlMapClientTemplate().update("markStageArtifactDeleted", arguments("stageId", stage.getId()).asMap());
     }
 
+    @VisibleForTesting
     String cacheKeyForPipelineAndCounter(String pipelineName, int counter) {
         return cacheKeyGenerator.generate("allStagesOfPipelineInstance", pipelineName, counter);
     }
@@ -734,11 +731,12 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         clearCachedAllStages(stageIdentifier.getPipelineName(), stageIdentifier.getPipelineCounter(), stageIdentifier.getStageName());
     }
 
-
+    @VisibleForTesting
     String cacheKeyForLatestStageInstances() {
         return cacheKeyGenerator.generate("latestStageInstances");
     }
 
+    @VisibleForTesting
     String cacheKeyForStageCountForGraph(String pipelineName, String stageName) {
         return cacheKeyGenerator.generate("totalStageCountForChart", pipelineName, stageName);
     }
@@ -749,6 +747,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         }
     }
 
+    @VisibleForTesting
     String cacheKeyForMostRecentId(String pipelineName, String stageName) {
         return cacheKeyGenerator.generate("mostRecentId", pipelineName, stageName);
     }

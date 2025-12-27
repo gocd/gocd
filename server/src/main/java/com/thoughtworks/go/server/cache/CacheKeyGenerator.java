@@ -30,15 +30,27 @@ public class CacheKeyGenerator {
         this.clazz = clazz;
     }
 
+    public @NotNull String generate(@NotNull String identifier, long arg) {
+        return String.join(DELIMITER, clazz.getName(), identifier, Long.toString(arg)).intern();
+    }
+
+    public @NotNull String generate(@NotNull String identifier, String arg) {
+        return String.join(DELIMITER, clazz.getName(), identifier, toStringSafe(arg)).intern();
+    }
+
     public @NotNull String generate(@NotNull String identifier, Object... args) {
         return Stream.concat(
                 Stream.of(clazz.getName(), identifier),
-                Arrays.stream(args).map(CacheKeyGenerator::validateArg).map(CacheKeyGenerator::toString))
+                Arrays.stream(args).map(CacheKeyGenerator::validateArg).map(CacheKeyGenerator::toStringSafe))
             .collect(Collectors.joining(DELIMITER))
             .intern();
     }
 
-    private static String toString(Object arg) {
+    private static String toStringSafe(String arg) {
+        return arg == null ? "" : arg;
+    }
+
+    private static String toStringSafe(Object arg) {
         if (arg instanceof CaseInsensitiveString) {
             return ((CaseInsensitiveString) arg).toLower();
         } else {

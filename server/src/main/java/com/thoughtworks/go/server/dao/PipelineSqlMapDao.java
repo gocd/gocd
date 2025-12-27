@@ -35,7 +35,6 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -49,6 +48,7 @@ import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
@@ -59,9 +59,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -72,7 +69,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     private static final Marker FATAL = MarkerFactory.getMarker("FATAL");
     private final LazyCache pipelineByBuildIdCache;
     private final CacheKeyGenerator cacheKeyGenerator;
-    private StageDao stageDao;
+    private final StageDao stageDao;
     private final MaterialRepository materialRepository;
     private final EnvironmentVariableDao environmentVariableDao;
     private final TransactionTemplate transactionTemplate;
@@ -80,9 +77,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     private final GoConfigDao configFileDao;
     private final Cloner cloner = ClonerFactory.instance();
     private final Clock timeProvider;
-    private final ReadWriteLock activePipelineRWLock = new ReentrantReadWriteLock();
-    private final Lock activePipelineReadLock = activePipelineRWLock.readLock();
-    private final Lock activePipelineWriteLock = activePipelineRWLock.writeLock();
 
     @Autowired
     public PipelineSqlMapDao(StageDao stageDao,
@@ -128,7 +122,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     public void initialize() {
         try {
             LOGGER.info("Loading active pipelines into memory.");
-            cacheActivePipelines();
+            cacheActivePipelineHistory();
             LOGGER.info("Done loading active pipelines into memory.");
         } catch (Exception e) {
             LOGGER.error(FATAL, e.getMessage(), e);
@@ -176,21 +170,21 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     public void deleteOldPipelineLabelCountForPipelineInConfig(String pipelineName) {
-        Map<String, Object> args = arguments("pipelineName", pipelineName).asMap();
+        Map<String, Object> args = Map.of("pipelineName", pipelineName);
         getSqlMapClientTemplate().delete("deleteOldPipelineLabelCountForPipelineInConfig", args);
     }
 
     public void deleteOldPipelineLabelCountForPipelineCurrentlyNotInConfig(String pipelineName) {
-        Map<String, Object> args = arguments("pipelineName", pipelineName).asMap();
+        Map<String, Object> args = Map.of("pipelineName", pipelineName);
         getSqlMapClientTemplate().delete("deleteOldPipelineLabelCountForPipelineCurrentlyNotInConfig", args);
     }
 
     @Override
     public void insertOrUpdatePipelineCounter(Pipeline pipeline, int lastCount, int newCount) {
-        Map<String, Object> args = arguments("pipelineName", pipeline.getName()).and("count", newCount).asMap();
         Integer hasPipelineRow = getSqlMapClientTemplate().queryForObject("hasPipelineInfoRow", pipeline.getName());
         transactionTemplate.execute(status -> {
             pipelineByBuildIdCache.flushOnCommit();
+            Map<String, Object> args = Map.of("pipelineName", pipeline.getName(), "count", newCount);
             if (hasPipelineRow == 0) {
                 getSqlMapClientTemplate().insert("insertPipelineLabelCounter", args);
             } else if (newCount > lastCount) {
@@ -204,7 +198,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     @Override
     public Pipeline findPipelineByNameAndCounter(String name, int counter) {
-        Map<String, Object> map = arguments("name", name).and("counter", counter).asMap();
+        Map<String, Object> map = Map.of("name", name, "counter", counter);
         return getSqlMapClientTemplate().queryForObject("findPipelineByNameAndCounter", map);
     }
 
@@ -231,12 +225,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     String cacheKeyForBuildCauseByNameAndCounter(String name, int counter) {
         return cacheKeyGenerator.generate("buildCauseByNameAndCounter", name.toLowerCase(), counter);
-    }
-
-    @Override
-    public Pipeline findPipelineByNameAndLabel(String name, String label) {
-        Map<String, Object> map = arguments("name", name).and("label", label).asMap();
-        return getSqlMapClientTemplate().queryForObject("findPipelineByNameAndLabel", map);
     }
 
     protected void updateCachedLatestSuccessfulStage(Stage stage) {
@@ -369,19 +357,13 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return cacheKeyGenerator.generate("cacheKeyForPipelineHistoryByName", pipelineName.toLowerCase(), "AndCounter", pipelineCounter);
     }
 
-    @Override
-    public Pipeline findEarlierPipelineThatPassedForStage(String pipelineName, String stageName, double naturalOrder) {
-        return getSqlMapClientTemplate().queryForObject("findEarlierPipelineThatPassedForStage",
-            arguments("pipelineName", pipelineName).and("stageName", stageName).and("naturalOrder", naturalOrder).asMap());
-    }
-
-    public void cacheActivePipelines() {
+    private void cacheActivePipelineHistory() {
         LOGGER.info("Retrieving Active Pipelines from Database...");
         final List<PipelineInstanceModel> pipelines = getAllPIMs();
         if (pipelines.isEmpty()) {
             return;
         }
-        List<Thread> loaderThreads = loadActivePipelineAndHistoryToCache(pipelines);
+        List<Thread> loaderThreads = loadPipelineHistoryToCache(pipelines);
         cacheMaterialRevisions(pipelines);
         waitForLoaderThreadsToJoin(loaderThreads);
     }
@@ -404,13 +386,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         }
     }
 
-    private List<Thread> loadActivePipelineAndHistoryToCache(final List<PipelineInstanceModel> pipelines) {
-        final Thread activePipelinesCacheLoader = new Thread(() -> {
-            LOGGER.info("Loading Active Pipelines to cache...Started");
-            Map<CaseInsensitiveString, TreeSet<Long>> result = groupPipelineInstanceIdsByPipelineName(pipelines);
-            goCache.put(activePipelinesCacheKey(), result);
-            LOGGER.info("Loading Active Pipelines to cache...Done");
-        }, "goActivePipelinesCacheLoader");
+    private List<Thread> loadPipelineHistoryToCache(final List<PipelineInstanceModel> pipelines) {
         final Thread historyCacheLoader = new Thread(() -> {
             LOGGER.info("Loading pipeline history to cache...Started");
             for (PipelineInstanceModel pipeline : pipelines) {
@@ -419,25 +395,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
             LOGGER.info("Loading pipeline history to cache...Done");
         }, "goPipelineHistoryCacheLoader");
         historyCacheLoader.start();
-        activePipelinesCacheLoader.start();
-        return List.of(activePipelinesCacheLoader, historyCacheLoader);
-    }
-
-    @Override
-    public PipelineInstanceModels loadActivePipelines() {
-        return convertToPipelineInstanceModels(getAllActivePipelineNamesVsTheirInstanceIDs());
-    }
-
-    @Override
-    public PipelineInstanceModels loadActivePipelineInstancesFor(CaseInsensitiveString pipelineName) {
-        Map<CaseInsensitiveString, TreeSet<Long>> allActivePipelineNamesVsTheirInstanceIDs = getAllActivePipelineNamesVsTheirInstanceIDs();
-        Map<CaseInsensitiveString, TreeSet<Long>> similarMapForSinglePipeline = new HashMap<>();
-
-        if (allActivePipelineNamesVsTheirInstanceIDs.containsKey(pipelineName)) {
-            similarMapForSinglePipeline.put(pipelineName, allActivePipelineNamesVsTheirInstanceIDs.get(pipelineName));
-        }
-
-        return convertToPipelineInstanceModels(similarMapForSinglePipeline);
+        return List.of(historyCacheLoader);
     }
 
     private void cacheMaterialRevisions(List<PipelineInstanceModel> models) {
@@ -460,45 +418,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         materialRepository.cacheMaterialRevisionsForPipelines(ids);
     }
 
-    private PipelineInstanceModels convertToPipelineInstanceModels(Map<CaseInsensitiveString, TreeSet<Long>> result) {
-        List<PipelineInstanceModel> models = new ArrayList<>();
-
-        List<CaseInsensitiveString> pipelinesInConfig = getPipelineNamesInConfig();
-        if (pipelinesInConfig.isEmpty()) {
-            LOGGER.warn("No pipelines found in Config, Skipping PIM loading.");
-            return PipelineInstanceModels.createPipelineInstanceModels(models);
-        }
-
-        List<Long> pipelineIds = loadIdsFromHistory(result);
-        for (Long id : pipelineIds) {
-            PipelineInstanceModel model = loadHistory(id);
-            if (model == null) {
-                continue;
-            }
-            if (!pipelinesInConfig.contains(new CaseInsensitiveString(model.getName()))) {
-                LOGGER.debug("Skipping PIM for pipeline {} ,since its not found in current config", model.getName());
-                continue;
-            }
-            models.add(model);
-            loadPipelineHistoryBuildCause(model);
-
-        }
-        return PipelineInstanceModels.createPipelineInstanceModels(models);
-    }
-
-    private List<Long> loadIdsFromHistory(Map<CaseInsensitiveString, TreeSet<Long>> result) {
-        List<Long> idsForHistory = new ArrayList<>();
-        try {
-            activePipelineReadLock.lock();
-            for (Map.Entry<CaseInsensitiveString, TreeSet<Long>> pipelineToIds : result.entrySet()) {
-                idsForHistory.addAll(pipelineToIds.getValue().descendingSet());
-            }
-        } finally {
-            activePipelineReadLock.unlock();
-        }
-        return idsForHistory;
-    }
-
     @Override
     public PipelineInstanceModel loadHistoryByIdWithBuildCause(Long id) {
         PipelineInstanceModel model = loadHistory(id);
@@ -506,20 +425,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return model;
     }
 
-    private Map<CaseInsensitiveString, TreeSet<Long>> groupPipelineInstanceIdsByPipelineName(List<PipelineInstanceModel> pipelines) {
-        Map<CaseInsensitiveString, TreeSet<Long>> result = new HashMap<>();
-        for (PipelineInstanceModel pipeline : pipelines) {
-            TreeSet<Long> ids = initializePipelineInstances(result, new CaseInsensitiveString(pipeline.getName()));
-            ids.add(pipeline.getId());
-        }
-        return result;
-    }
-
-    String activePipelinesCacheKey() {
-        return cacheKeyGenerator.generate("activePipelines");
-    }
-
-    @Override
+    @VisibleForTesting
     public PipelineInstanceModel loadHistory(long id) {
         String cacheKey = pipelineHistoryCacheKey(id);
         PipelineInstanceModel result = goCache.get(cacheKey);
@@ -541,75 +447,12 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     @Override
     public void stageStatusChanged(Stage stage) {
         removeStageSpecificCache(stage);
-        syncCachedActivePipelines(stage);
         updateCachedLatestSuccessfulStage(stage);
-        String pipelineName = stage.getIdentifier().getPipelineName();
-        int pipelineCounter = stage.getIdentifier().getPipelineCounter();
-        clearPipelineHistoryCacheViaNameAndCounter(pipelineName, pipelineCounter);
+        clearPipelineHistoryCacheViaNameAndCounter(stage.getIdentifier().getPipelineName(), stage.getIdentifier().getPipelineCounter());
     }
 
     private void clearPipelineHistoryCacheViaNameAndCounter(String pipelineName, int pipelineCounter) {
         goCache.remove(cacheKeyForPipelineHistoryByNameAndCounter(pipelineName, pipelineCounter));
-    }
-
-
-    private void syncCachedActivePipelines(Stage stage) {
-        Map<CaseInsensitiveString, TreeSet<Long>> activePipelinesToIds = goCache.get(activePipelinesCacheKey());
-        if (activePipelinesToIds == null) {
-            return;
-        }
-        CaseInsensitiveString pipelineName = new CaseInsensitiveString(loadHistory(stage.getPipelineId()).getName());
-        try {
-            activePipelineWriteLock.lock();
-            addActiveAsLatest(stage, activePipelinesToIds, pipelineName);
-            removeCompletedIfNotLatest(stage, activePipelinesToIds, pipelineName);
-        } finally {
-            activePipelineWriteLock.unlock();
-        }
-    }
-
-    private void addActiveAsLatest(Stage stage,
-                                   Map<CaseInsensitiveString, TreeSet<Long>> activePipelinesToIds,
-                                   CaseInsensitiveString pipelineName) {
-        if (stage.getState().isActive()) {
-            TreeSet<Long> ids = initializePipelineInstances(activePipelinesToIds, pipelineName);
-            removeCurrentLatestIfNoLongerActive(stage, ids);
-            ids.add(stage.getPipelineId());
-        }
-    }
-
-    private void removeCompletedIfNotLatest(Stage stage,
-                                            Map<CaseInsensitiveString, TreeSet<Long>> activePipelinesToIds,
-                                            CaseInsensitiveString pipelineName) {
-        if (stage.getState().completed()) {
-            if (activePipelinesToIds.containsKey(pipelineName)) {
-                TreeSet<Long> ids = activePipelinesToIds.get(pipelineName);
-                if (!ids.last().equals(stage.getPipelineId())) {
-                    ids.remove(stage.getPipelineId());
-                }
-            }
-        }
-    }
-
-    private void removeCurrentLatestIfNoLongerActive(Stage stage, TreeSet<Long> ids) {
-        if (!ids.isEmpty()) {
-            if (isNewerThanCurrentLatest(stage, ids) && isCurrentLatestInactive(ids)) {
-                ids.remove(ids.last());
-            }
-        }
-    }
-
-    private boolean isNewerThanCurrentLatest(Stage stage, TreeSet<Long> ids) {
-        return stage.getPipelineId() > ids.last();
-    }
-
-    private boolean isCurrentLatestInactive(TreeSet<Long> ids) {
-        return !loadHistory(ids.last()).isAnyStageActive();
-    }
-
-    private TreeSet<Long> initializePipelineInstances(Map<CaseInsensitiveString, TreeSet<Long>> pipelineToIds,
-                                                      CaseInsensitiveString pipelineName) {
-        return pipelineToIds.computeIfAbsent(pipelineName, k -> new TreeSet<>());
     }
 
     private void removeStageSpecificCache(Stage stage) {
@@ -617,7 +460,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         goCache.remove(cacheKeyForLatestPassedStage(stage.getPipelineId(), stage.getName()));
     }
 
-    String pipelineHistoryCacheKey(Long id) {
+    String pipelineHistoryCacheKey(long id) {
         return cacheKeyGenerator.generate("pipelineHistory", id);
     }
 
@@ -649,25 +492,17 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     @Override
     public PipelineRunIdInfo getOldestAndLatestPipelineId(String pipelineName) {
-        Map<String, Object> params = arguments("pipelineName", pipelineName).asMap();
+        Map<String, Object> params = Map.of("pipelineName", pipelineName);
         return getSqlMapClientTemplate().queryForObject("getOldestAndLatestPipelineRun", params);
     }
 
     @Override
-    public int getPageNumberForCounter(String pipelineName, int pipelineCounter, int limit) {
-        int maxCounter = getCounterForPipeline(pipelineName);
-        Pagination pagination = Pagination.pageByOffset((maxCounter - pipelineCounter), maxCounter, limit);
-        return pagination.getCurrentPage();
-    }
-
-    @Override
     public PipelineInstanceModels findMatchingPipelineInstances(String pipelineName, String pattern, int limit) {
-        Map<String, Object> args =
-            arguments("pipelineName", pipelineName)
-                .and("pattern", "%" + pattern.toLowerCase() + "%")
-                .and("rawPattern", pattern.toLowerCase())
-                .and("limit", limit)
-                .asMap();
+        Map<String, Object> args = Map.of(
+            "pipelineName", pipelineName,
+            "pattern", "%" + pattern.toLowerCase() + "%",
+            "rawPattern", pattern.toLowerCase(),
+            "limit", limit);
         long begin = System.currentTimeMillis();
         List<PipelineInstanceModel> matchingPIMs = getSqlMapClientTemplate().queryForList("findMatchingPipelineInstances", args);
         List<PipelineInstanceModel> exactMatchingPims = getSqlMapClientTemplate().queryForList("findExactMatchingPipelineInstances", args);
@@ -677,7 +512,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         exactMatchingPims.addAll(matchingPIMs);
         return PipelineInstanceModels.createPipelineInstanceModels(exactMatchingPims);
     }
-
 
     List<Long> findPipelineIds(String pipelineName, int limit, int offset) {
         if (wantLatestIdOnly(limit, offset)) {
@@ -745,10 +579,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return pipeline;
     }
 
-    public void setStageDao(StageSqlMapDao stageDao) {
-        this.stageDao = stageDao;
-    }
-
     private Pipeline loadMaterialRevisions(Pipeline pipeline) {
         if (pipeline == null) {
             return null;
@@ -773,7 +603,11 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     public void pause(String pipelineName, String pauseCause, String pauseBy) {
         String cacheKey = cacheKeyForPauseState(pipelineName);
         synchronized (cacheKey) {
-            Map<String, Object> args = arguments("pipelineName", pipelineName).and("pauseCause", pauseCause).and("pauseBy", pauseBy).and("paused", true).and("pausedAt", timeProvider.currentTime()).asMap();
+            Map<String, Object> args = arguments("pipelineName", pipelineName)
+                .and("pauseCause", pauseCause)
+                .and("pauseBy", pauseBy)
+                .and("paused", true)
+                .and("pausedAt", timeProvider.currentTime()).asMap();
             PipelinePauseInfo pipelinePauseInfo = getSqlMapClientTemplate().queryForObject("getPipelinePauseState", pipelineName);
             if (pipelinePauseInfo == null) {
                 getSqlMapClientTemplate().insert("insertPipelinePauseState", args);
@@ -787,7 +621,11 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     public void unpause(String pipelineName) {
         String cacheKey = cacheKeyForPauseState(pipelineName);
         synchronized (cacheKey) {
-            Map<String, Object> args = arguments("pipelineName", pipelineName).and("pauseCause", null).and("pauseBy", null).and("paused", false).and("pausedAt", null).asMap();
+            Map<String, Object> args = arguments("pipelineName", pipelineName)
+                .and("pauseCause", null)
+                .and("pauseBy", null)
+                .and("paused", false)
+                .and("pausedAt", null).asMap();
             getSqlMapClientTemplate().update("updatePipelinePauseState", args);
             goCache.remove(cacheKey);
         }
@@ -884,7 +722,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
             return loadHistoryForDashboard(pipelineNames.get(0));
         }
 
-        Map<String, Object> args = arguments("pipelineNames", pipelineNames).asMap();
+        Map<String, Object> args = Map.of("pipelineNames", pipelineNames);
         List<PipelineInstanceModel> resultSet = getSqlMapClientTemplate().queryForList("getPipelinesForDashboard", args);
         return PipelineInstanceModels.createPipelineInstanceModels(resultSet);
     }
@@ -895,7 +733,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
             return PipelineInstanceModels.createPipelineInstanceModels();
         }
 
-        Map<String, Object> args = arguments("pipelineName", pipelineName).asMap();
+        Map<String, Object> args = Map.of("pipelineName", pipelineName);
         List<PipelineInstanceModel> resultSet = getSqlMapClientTemplate().queryForList("getPipelineForDashboard", args);
         return PipelineInstanceModels.createPipelineInstanceModels(resultSet);
     }
@@ -933,21 +771,5 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
         Pipeline pipeline = findPipelineByNameAndCounter(pipelineName, pipelineCounter);
         goCache.remove(pipelineHistoryCacheKey(pipeline.getId()));
-    }
-
-    private Map<CaseInsensitiveString, TreeSet<Long>> getAllActivePipelineNamesVsTheirInstanceIDs() {
-        String cacheKey = activePipelinesCacheKey();
-        Map<CaseInsensitiveString, TreeSet<Long>> result = goCache.get(cacheKey);
-        if (result == null) {
-            synchronized (cacheKey) {
-                result = goCache.get(cacheKey);
-                if (result == null) {
-                    List<PipelineInstanceModel> pipelines = getAllPIMs();
-                    result = groupPipelineInstanceIdsByPipelineName(pipelines);
-                    goCache.put(cacheKey, result);
-                }
-            }
-        }
-        return result;
     }
 }

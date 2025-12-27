@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 public class GoCacheFactory {
 
     private final CacheConfiguration cacheConfiguration;
-    private TransactionSynchronizationManager transactionSynchronizationManager;
+    private final TransactionSynchronizationManager transactionSynchronizationManager;
 
     public GoCacheFactory(TransactionSynchronizationManager transactionSynchronizationManager,
                           @Value("${cruise.cache.elements.limit}") int maxElementsInMemory,

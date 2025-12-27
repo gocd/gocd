@@ -30,10 +30,6 @@ public interface JobInstanceDao {
 
     JobInstances latestCompletedJobs(String pipelineName, String stageName, String jobConfigName, int count);
 
-    int getJobHistoryCount(String pipelineName, String stageName, String jobName);
-
-    JobInstances findJobHistoryPage(String pipelineName, String stageName, String jobConfigName, int count, int offset);
-
     JobInstance save(long stageId, JobInstance jobInstance);
 
     JobInstance updateAssignedInfo(JobInstance jobInstance);
@@ -50,8 +46,6 @@ public interface JobInstanceDao {
 
     JobInstance buildById(long buildId);
 
-    List<ActiveJob> activeJobs();
-
     JobInstance mostRecentJobWithTransitions(JobIdentifier jobIdentifier);
 
     void save(long id, JobPlan plan);
@@ -60,8 +54,6 @@ public interface JobInstanceDao {
 
     JobIdentifier findOriginalJobIdentifier(StageIdentifier stageIdentifier, String jobName);
 
-    List<JobIdentifier> getBuildingJobs();
-
     List<JobInstance> completedJobsOnAgent(String uuid, JobInstanceService.JobHistoryColumns jobHistoryColumns, SortOrder order, int offset, int limit);
 
     int totalCompletedJobsOnAgent(String uuid);
@@ -69,8 +61,6 @@ public interface JobInstanceDao {
     boolean isJobCompleted(JobIdentifier jobIdentifier);
 
     List<JobInstance> getRunningJobs();
-
-    JobInstance findJobInstance(String pipelineName, String stageName, String jobName, int pipelineCounter, int stageCounter);
 
     JobInstances findDetailedJobHistoryViaCursor(String pipelineName, String stageName, String jobConfigName, FeedModifier feedModifier, long cursor, int pageSize);
 

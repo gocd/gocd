@@ -161,69 +161,6 @@ public class JobInstanceSqlMapDaoCachingTest {
     }
 
     @Test
-    public void activeJobs_shouldCacheCurrentlyActiveJobIds() {
-        final ActiveJob first = new ActiveJob(1L, "pipeline", 1, "label", "stage", "job1");
-        final ActiveJob second = new ActiveJob(2L, "another", 2, "label", "stage", "job1");
-
-        when(mockTemplate.queryForList("getActiveJobIds")).thenReturn(List.of(1L, 2L));
-        when(mockTemplate.queryForObject("getActiveJobById", Map.of("id", 1L))).thenReturn(first);
-        when(mockTemplate.queryForObject("getActiveJobById", Map.of("id", 2L))).thenReturn(second);
-
-        jobInstanceDao.setSqlMapClientTemplate(mockTemplate);
-        jobInstanceDao.activeJobs();//populate the cache
-        List<ActiveJob> activeJobs = jobInstanceDao.activeJobs();
-
-        assertThat(activeJobs).isEqualTo(List.of(first, second));
-        verify(mockTemplate, times(1)).queryForList("getActiveJobIds");
-        verify(mockTemplate, times(1)).queryForObject("getActiveJobById", Map.of("id", 1L));
-        verify(mockTemplate, times(1)).queryForObject("getActiveJobById", Map.of("id", 2L));
-    }
-
-    @Test
-    public void activeJobs_shouldRemoveCacheActiveJobOnUpdateJobStatus() {
-        final ActiveJob first = new ActiveJob(1L, "pipeline", 1, "label", "stage", "first");
-        final ActiveJob second = new ActiveJob(2L, "another", 2, "label", "stage", "job1");
-
-        when(mockTemplate.queryForList("getActiveJobIds")).thenReturn(List.of(1L, 2L));
-        when(mockTemplate.queryForObject("getActiveJobById", Map.of("id", 1L))).thenReturn(first);
-        when(mockTemplate.queryForObject("getActiveJobById", Map.of("id", 2L))).thenReturn(second);
-
-        jobInstanceDao.setSqlMapClientTemplate(mockTemplate);
-        jobInstanceDao.activeJobs();//cache it first
-
-        jobInstanceDao.updateStateAndResult(instance(1L));//should remove from cache
-
-        List<ActiveJob> activeJobs = jobInstanceDao.activeJobs();
-
-        assertThat(activeJobs).isEqualTo(List.of(first, second));
-
-        verify(mockTemplate, times(2)).queryForList("getActiveJobIds");
-        verify(mockTemplate, times(2)).queryForObject("getActiveJobById", Map.of("id", 1L));
-        verify(mockTemplate, times(1)).queryForObject("getActiveJobById", Map.of("id", 2L));
-    }
-
-    @Test
-    public void activeJobs_shouldNotCacheAJobThatsNoLongerActive() {
-        final ActiveJob first = new ActiveJob(1L, "pipeline", 1, "label", "stage", "first");
-
-        when(mockTemplate.queryForList("getActiveJobIds")).thenReturn(List.of(1L, 2L));
-        when(mockTemplate.queryForObject("getActiveJobById", Map.of("id", 1L))).thenReturn(first);
-        when(mockTemplate.queryForObject("getActiveJobById", Map.of("id", 2L))).thenReturn(null);
-
-        jobInstanceDao.setSqlMapClientTemplate(mockTemplate);
-        jobInstanceDao.activeJobs();//cache it first
-
-        jobInstanceDao.updateStateAndResult(instance(1L));//should remove from cache
-
-        List<ActiveJob> activeJobs = jobInstanceDao.activeJobs();
-
-        assertThat(activeJobs).isEqualTo(List.of(first));
-
-        verify(mockTemplate, times(2)).queryForList("getActiveJobIds");
-        verify(mockTemplate, times(2)).queryForObject("getActiveJobById", Map.of("id", 1L));
-    }
-
-    @Test
     public void shouldCacheJobIdentifier() {
         jobInstanceDao.setSqlMapClientTemplate(mockTemplate);
 

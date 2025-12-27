@@ -16,22 +16,25 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.PipelinePauseInfo;
+import com.thoughtworks.go.domain.PipelineRunIdInfo;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.PipelineStatusModel;
-import com.thoughtworks.go.presentation.pipelinehistory.*;
+import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
+import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.domain.user.DashboardFilter;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -41,12 +44,9 @@ import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResul
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 import static com.thoughtworks.go.server.service.HistoryUtil.validateCursor;
 import static java.lang.String.format;
@@ -109,21 +109,6 @@ public class PipelineHistoryService {
         return pipeline;
     }
 
-    public PipelineInstanceModel load(long id, Username username, OperationResult result) {
-        PipelineInstanceModel pipeline = pipelineDao.loadHistory(id);
-        if (pipeline == null) {
-            result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
-            return null;
-        }
-        PipelineConfig pipelineConfig = goConfigService.currentCruiseConfig().pipelineConfigByName(new CaseInsensitiveString(pipeline.getName()));
-        if (!securityService.hasViewPermissionForPipeline(username, pipeline.getName())) {
-            result.forbidden("Forbidden", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipeline.getName())));
-            return null;
-        }
-        populatePipelineInstanceModel(username, false, pipelineConfig, pipeline);
-        return pipeline;
-    }
-
     public PipelineInstanceModels load(String pipelineName, Pagination pagination, String username, boolean populateCanRun) {
         PipelineInstanceModels history = pipelineDao.loadHistory(pipelineName, pagination.getPageSize(), pagination.getOffset());
 
@@ -134,26 +119,6 @@ public class PipelineHistoryService {
         }
         addEmptyPipelineInstanceIfNeeded(pipelineName, history, new Username(new CaseInsensitiveString(username)), pipelineConfig, populateCanRun);
         return history;
-    }
-
-    /*
-     * Load just enough data for Pipeline History API. The API is complete enough to build Pipeline History Page. Does following:
-     * Exists check, Authorized check, Loads paginated pipeline data, Populates build-cause,
-     * Populates future stages as empty, Populates can run for pipeline & each stage, Populate stage run permission
-     */
-    public PipelineInstanceModels loadMinimalData(String pipelineName, Pagination pagination, Username username, OperationResult result) {
-        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
-            result.notFound("Not Found", "Pipeline " + pipelineName + " not found", HealthStateType.general(HealthStateScope.GLOBAL));
-            return null;
-        }
-        if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
-            result.forbidden("Forbidden", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
-            return null;
-        }
-
-        PipelineInstanceModels history = pipelineDao.loadHistory(pipelineName, pagination.getPageSize(), pagination.getOffset());
-
-        return populatePipelineInstanceModels(username, history);
     }
 
     public PipelineInstanceModels loadPipelineHistoryData(Username username, String pipelineName, long afterCursor, long beforeCursor, int pageSize) {
@@ -264,10 +229,6 @@ public class PipelineHistoryService {
         pipelineInstanceModel.setCanRun(canPipelineRun);
     }
 
-    public int getPageNumberForCounter(String pipelineName, int pipelineCounter, int limit) {
-        return pipelineDao.getPageNumberForCounter(pipelineName, pipelineCounter, limit);
-    }
-
     private void addEmptyPipelineInstanceIfNeeded(String pipelineName, PipelineInstanceModels history, Username username, PipelineConfig pipelineConfig, boolean populateCanRun) {
         if (history.isEmpty()) {
             PipelineInstanceModel model = addEmptyPipelineInstance(pipelineName, username, pipelineConfig, populateCanRun);
@@ -284,7 +245,8 @@ public class PipelineHistoryService {
         return model;
     }
 
-    public PipelineInstanceModels loadWithEmptyAsDefault(String pipelineName, Pagination pagination, String userName) {
+    @VisibleForTesting
+    PipelineInstanceModels loadWithEmptyAsDefault(String pipelineName, Pagination pagination, String userName) {
         if (!securityService.hasViewPermissionForPipeline(new Username(new CaseInsensitiveString(userName)), pipelineName)) {
             return PipelineInstanceModels.createPipelineInstanceModels();
         }
@@ -321,13 +283,7 @@ public class PipelineHistoryService {
         return pipelineInstances;
     }
 
-    public PipelineInstanceModels findAllPipelineInstances(String pipelineName, Username username, HttpOperationResult result) {
-        if (!validate(pipelineName, username, result)) {
-            return null;
-        }
-        return pipelineDao.loadHistory(pipelineName);
-    }
-
+    @SuppressWarnings("unused") // May be used in Rails code
     public boolean validate(String pipelineName, Username username, OperationResult result) {
         if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
             String pipelineNotKnown = format("Pipeline named [%s] is not known.", pipelineName);
@@ -345,6 +301,7 @@ public class PipelineHistoryService {
         return decoratePIM(pipelineName, pipelineCounter, username, result, pipelineDao.findPipelineHistoryByNameAndCounter(pipelineName, pipelineCounter));
     }
 
+    @SuppressWarnings("unused") // May be used in Rails code
     public PipelineInstanceModel findPipelineInstance(String pipelineName, int pipelineCounter, long id, Username username, OperationResult result) {
         return decoratePIM(pipelineName, pipelineCounter, username, result, pipelineDao.loadHistoryByIdWithBuildCause(id));
     }
@@ -378,133 +335,6 @@ public class PipelineHistoryService {
         for (StageInstanceModel stage : pipelineInstanceModel.getStageHistory()) {
             stage.setOperatePermission(securityService.hasOperatePermissionForStage(pipelineInstanceModel.getName(), stage.getName(), CaseInsensitiveString.str(username.getUsername())));
         }
-    }
-
-    public List<PipelineGroupModel> getActivePipelineInstance(Username username, String pipeline) {
-        PipelineGroupModels models = allPipelineInstances(username);
-        filterSelections(models, singlePipelineFilter(pipeline));
-        removeEmptyGroups(models);
-        return models.asList();
-    }
-
-    private PipelineGroupModels allPipelineInstances(Username username) {
-        CruiseConfig currentConfig = goConfigService.currentCruiseConfig();
-        PipelineGroups groups = currentConfig.getGroups();
-        PipelineInstanceModels activePipelines = filterPermissions(pipelineDao.loadActivePipelines(), username);
-
-        PipelineGroupModels groupModels = new PipelineGroupModels();
-        for (PipelineConfig pipelineConfig : currentConfig.getAllPipelineConfigs()) {
-            CaseInsensitiveString pipelineName = pipelineConfig.name();
-            for (PipelineInstanceModel activePipeline : activePipelines.findAll(CaseInsensitiveString.str(pipelineName))) {
-                activePipeline.setTrackingTool(pipelineConfig.getTrackingTool());
-                populatePlaceHolderStages(activePipeline);
-
-                String groupName = groups.findGroupNameByPipeline(pipelineName);
-                if (groupName == null) {
-                    throw new RuntimeException("Unable to find group find pipeline " + pipelineName);
-                }
-                populatePreviousStageState(activePipeline);
-                populateLockStatus(activePipeline.getName(), username, activePipeline);
-                boolean canForce = schedulingCheckerService.canManuallyTrigger(CaseInsensitiveString.str(pipelineName), username);
-                PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(CaseInsensitiveString.str(pipelineName));
-                groupModels.addPipelineInstance(groupName, activePipeline, canForce, securityService.hasOperatePermissionForPipeline(
-                        username.getUsername(), CaseInsensitiveString.str(pipelineName)
-                ), pauseInfo);
-            }
-        }
-
-        for (PipelineConfigs group : groups) {
-            populateMissingPipelines(username, groupModels, group);
-        }
-        return groupModels;
-    }
-
-    private void filterSelections(PipelineGroupModels groupModels, DashboardFilter filter) {
-        for (PipelineGroupModel groupModel : groupModels.asList()) {
-            for (PipelineModel pipelineModel : groupModel.getPipelineModels()) {
-                if (!filter.isPipelineVisible(new CaseInsensitiveString(pipelineModel.getName()))) {
-                    groupModels.removePipeline(groupModel, pipelineModel);
-                }
-            }
-        }
-    }
-
-    private void removeEmptyGroups(PipelineGroupModels groupModels) {
-        for (PipelineGroupModel pipelineGroupModel : groupModels.asList()) {
-            if (pipelineGroupModel.getPipelineModels().isEmpty()) {
-                groupModels.remove(pipelineGroupModel);
-            }
-        }
-    }
-
-    private void populatePreviousStageState(PipelineInstanceModel activePipeline) {
-        if (activePipeline.isAnyStageActive()) {
-            StageInstanceModel activeStage = activePipeline.activeStage();
-            StageInstanceModel latestActive = null;
-            long id = activePipeline.getId();
-            do {
-                PipelineTimelineEntry timelineEntry = pipelineTimeline.runBefore(id, new CaseInsensitiveString(activePipeline.getName()));
-                if (timelineEntry == null) {
-                    break;
-                }
-                id = timelineEntry.getId();
-                PipelineInstanceModel instanceModel = pipelineDao.loadHistory(id);
-                if (instanceModel != null && instanceModel.hasStageBeenRun(activeStage.getName())) {
-                    latestActive = instanceModel.getStageHistory().byName(activeStage.getName());
-                }
-            } while (latestActive == null);
-            activeStage.setPreviousStage(latestActive);
-        }
-    }
-
-    private void populateMissingPipelines(Username username, PipelineGroupModels groupModels, PipelineConfigs group) {
-        String groupName = group.getGroup();
-        for (PipelineConfig pipelineConfig : group) {
-            if (!groupModels.containsPipeline(groupName, CaseInsensitiveString.str(pipelineConfig.name()))) {
-                PipelineModel latestPipeline = latestPipelineModel(username, CaseInsensitiveString.str(pipelineConfig.name()));
-                if (latestPipeline != null) {
-                    groupModels.addPipelineInstance(groupName, latestPipeline.getLatestPipelineInstance(), latestPipeline.canForce(), latestPipeline.canOperate(), latestPipeline.getPausedInfo());
-                }
-            }
-        }
-    }
-
-    private PipelineInstanceModels filterPermissions(PipelineInstanceModels pipelineInstanceModels, Username username) {
-        PipelineInstanceModels newModels = PipelineInstanceModels.createPipelineInstanceModels();
-        for (PipelineInstanceModel pipelineInstanceModel : pipelineInstanceModels) {
-            if (securityService.hasViewPermissionForPipeline(username, pipelineInstanceModel.getName())) {
-                newModels.add(pipelineInstanceModel);
-            }
-        }
-        return newModels;
-    }
-
-    public PipelineModel latestPipelineModel(Username username, String pipelineName) {
-        PipelineInstanceModel instanceModel = latest(pipelineName, username);
-        if (instanceModel != null) {
-            boolean canForce = schedulingCheckerService.canManuallyTrigger(pipelineName, username);
-            PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
-            PipelineModel pipelineModel = new PipelineModel(pipelineName, canForce, securityService.hasOperatePermissionForPipeline(
-                    username.getUsername(), pipelineName
-            ), pauseInfo);
-            populateLockStatus(instanceModel.getName(), username, instanceModel);
-            pipelineModel.addPipelineInstance(instanceModel);
-            String groupName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
-            if (goConfigService.isPipelineEditable(pipelineName)) {
-                pipelineModel.updateAdministrability(goConfigService.isUserAdminOfGroup(username.getUsername(), groupName));
-            } else {
-                pipelineModel.updateAdministrability(false);
-            }
-            return pipelineModel;
-        }
-        return null;
-    }
-
-    public PipelineInstanceModels findPipelineInstancesByPageNumber(String pipelineName, int pageNumber, int limit, String userName) {
-        Pagination pagination = Pagination.pageByNumber(pageNumber, totalCount(pipelineName), limit);
-        PipelineInstanceModels instanceModels = load(pipelineName, pagination, userName, false);
-        instanceModels.setPagination(pagination);
-        return instanceModels;
     }
 
     public PipelineInstanceModels findMatchingPipelineInstances(String pipelineName, String pattern, int limit, Username userName, HttpLocalizedOperationResult result) {
@@ -544,73 +374,5 @@ public class PipelineHistoryService {
             throw new RecordNotFoundException(format("Pipeline instance for '%s' with counter '%d' were not found!", pipelineName, pipelineCounter));
         }
         pipelineDao.updateComment(pipelineName, pipelineCounter, comment);
-    }
-
-    private DashboardFilter singlePipelineFilter(String pipeline) {
-        return new DashboardFilter() {
-            @Override
-            public String name() {
-                return null;
-            }
-
-            @Override
-            public Set<String> state() {
-                return null;
-            }
-
-            @Override
-            public boolean isPipelineVisible(CaseInsensitiveString pipelineName) {
-                return pipeline.equalsIgnoreCase(CaseInsensitiveString.str(pipelineName));
-            }
-
-            @Override
-            public boolean allowPipeline(CaseInsensitiveString pipeline) {
-                return false;
-            }
-        };
-    }
-
-    private static class PipelineGroupModels {
-        List<PipelineGroupModel> groupModels = new ArrayList<>();
-
-        public void addPipelineInstance(String groupName, PipelineInstanceModel pipelineInstanceModel, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {
-            PipelineModel pipelineModel = pipelineModelForPipelineName(groupName, pipelineInstanceModel.getName(), canForce, canOperate, pipelinePauseInfo);
-            pipelineModel.addPipelineInstance(pipelineInstanceModel);
-        }
-
-        public boolean containsPipeline(String groupName, String pipelineName) {
-            return get(groupName).containsPipeline(pipelineName);
-        }
-
-        public List<PipelineGroupModel> asList() {
-            return new ArrayList<>(groupModels);
-        }
-
-        private PipelineModel pipelineModelForPipelineName(String groupName, String pipelineName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {
-            PipelineGroupModel group = get(groupName);
-            return group.pipelineModelForPipelineName(pipelineName, canForce, canOperate, pipelinePauseInfo);
-        }
-
-        private PipelineGroupModel get(String groupName) {
-            for (PipelineGroupModel groupModel : groupModels) {
-                if (groupModel.getName().equals(groupName)) {
-                    return groupModel;
-                }
-            }
-            PipelineGroupModel newGroupModel = new PipelineGroupModel(groupName);
-            groupModels.add(newGroupModel);
-            return newGroupModel;
-        }
-
-        public void removePipeline(PipelineGroupModel groupModel, PipelineModel pipelineModel) {
-            groupModel.remove(pipelineModel);
-            if (groupModel.getPipelineModels().isEmpty()) {
-                groupModels.remove(groupModel);
-            }
-        }
-
-        public void remove(PipelineGroupModel pipelineGroupModel) {
-            groupModels.remove(pipelineGroupModel);
-        }
     }
 }

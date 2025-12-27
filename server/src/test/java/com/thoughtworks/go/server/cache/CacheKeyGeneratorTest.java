@@ -33,34 +33,56 @@ class CacheKeyGeneratorTest {
     }
 
     @Test
-    void shouldGenerateCacheKey() {
-        final String generatedCacheKey = cacheKeyGenerator.generate("foo", "bar", 1, 1L);
+    void shouldGenerateCacheKeyForMixedStringsAndNumbers() {
+        String generatedCacheKey = cacheKeyGenerator.generate("foo", "bar", 1, 1L);
         assertThat(generatedCacheKey).isEqualTo("com.thoughtworks.go.domain.Pipeline.$foo.$bar.$1.$1");
     }
 
     @Test
+    void shouldGenerateCacheKeyFastPathForLong() {
+        assertThat(cacheKeyGenerator.generate("foo", 1)).isEqualTo("com.thoughtworks.go.domain.Pipeline.$foo.$1");
+    }
+
+    @Test
+    void shouldGenerateCacheKeyFastPathForString() {
+        String generatedCacheKey = cacheKeyGenerator.generate("foo", "bar");
+        assertThat(generatedCacheKey).isEqualTo("com.thoughtworks.go.domain.Pipeline.$foo.$bar");
+
+    }
+
+    @Test
     void shouldConsiderNullAsEmptyStringAndGenerateCacheKey() {
-        final String generatedCacheKey = cacheKeyGenerator.generate("foo", "bar", null, 1L);
+        String generatedCacheKey = cacheKeyGenerator.generate("foo", "bar", null, 1L);
         assertThat(generatedCacheKey).isEqualTo("com.thoughtworks.go.domain.Pipeline.$foo.$bar.$.$1");
+
+        generatedCacheKey = cacheKeyGenerator.generate("foo", (String) null);
+        assertThat(generatedCacheKey).isEqualTo("com.thoughtworks.go.domain.Pipeline.$foo.$");
     }
 
     @Test
     void shouldAlwaysReturnInternedString() {
-        final String generatedCacheKey = cacheKeyGenerator.generate("foo", "bar", new CaseInsensitiveString("1"), 1L);
-        //noinspection StringEquality
-        assertThat(generatedCacheKey == "com.thoughtworks.go.domain.Pipeline.$foo.$bar.$1.$1")
-                .describedAs("Using '==' to check returned key is interned String").isTrue();
+        assertThat(cacheKeyGenerator.generate("foo", "bar", new CaseInsensitiveString("1"), 1L))
+            .describedAs("Using '==' to check returned key is interned String")
+            .isSameAs("com.thoughtworks.go.domain.Pipeline.$foo.$bar.$1.$1");
+
+        assertThat(cacheKeyGenerator.generate("foo", 1))
+            .describedAs("Using '==' to check returned key is interned String")
+            .isSameAs("com.thoughtworks.go.domain.Pipeline.$foo.$1");
+
+        assertThat(cacheKeyGenerator.generate("foo", "bar"))
+            .describedAs("Using '==' to check returned key is interned String")
+            .isSameAs("com.thoughtworks.go.domain.Pipeline.$foo.$bar");
     }
 
     @Test
     void shouldAllowBooleanInArgs() {
-        final String generatedCacheKey = cacheKeyGenerator.generate("foo", "bar", true, false);
+        String generatedCacheKey = cacheKeyGenerator.generate("foo", "bar", true, false);
         assertThat(generatedCacheKey).isEqualTo("com.thoughtworks.go.domain.Pipeline.$foo.$bar.$true.$false");
     }
 
     @Test
     void shouldAllowEnumInArgs() {
-        final String generatedCacheKey = cacheKeyGenerator.generate("foo", "bar", StageState.Passed);
+        String generatedCacheKey = cacheKeyGenerator.generate("foo", "bar", StageState.Passed);
         assertThat(generatedCacheKey).isEqualTo("com.thoughtworks.go.domain.Pipeline.$foo.$bar.$Passed");
     }
 
@@ -73,7 +95,7 @@ class CacheKeyGeneratorTest {
 
     @Test
     void shouldConvertCaseInsensitiveStringToLowerCase() {
-        final String generatedCacheKey = cacheKeyGenerator.generate("Foo", "bAR", new CaseInsensitiveString("FAST"), 1L);
+        String generatedCacheKey = cacheKeyGenerator.generate("Foo", "bAR", new CaseInsensitiveString("FAST"), 1L);
         assertThat(generatedCacheKey).isEqualTo("com.thoughtworks.go.domain.Pipeline.$Foo.$bAR.$fast.$1");
     }
 }

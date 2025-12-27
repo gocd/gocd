@@ -77,16 +77,12 @@
         <collection property="identifier" resultMap="Stage.stageIdentifier"/>
     </resultMap>
 
-    <resultMap id="stageIdentifier-without-id" type="com.thoughtworks.go.domain.StageIdentifier">
+    <resultMap id="stageIdentifier" type="com.thoughtworks.go.domain.StageIdentifier">
         <result property="pipelineName" column="pipelineName"/>
         <result property="pipelineCounter" column="pipelineCounter"/>
         <result property="pipelineLabel" column="pipelineLabel"/>
         <result property="stageName" column="stageName"/>
         <result property="stageCounter" column="stageCounter"/>
-    </resultMap>
-
-    <resultMap id="stageIdentifier" type="com.thoughtworks.go.domain.StageIdentifier"
-               extends="stageIdentifier-without-id">
         <result property="id" column="stageId"/>
     </resultMap>
 
@@ -214,17 +210,6 @@
         ORDER BY id DESC
         LIMIT 1
     </select>
-
-    <select id="findFailedStagesBetween" resultMap="stageIdentifier-without-id">
-        SELECT name as stageName, max(counter) as stageCounter,  pipelineName,  pipelineCounter,  pipelineLabel
-        FROM _stages
-        WHERE pipelineName = #{pipelineName} AND name = #{stageName}
-            AND naturalOrder &gt; #{fromNaturalOrder} AND naturalOrder &lt;= #{toNaturalOrder}
-            AND result != 'Passed' AND state in ('Failed', 'Unknown')
-        GROUP BY name, naturalOrder, pipelineName, pipelineCounter, pipelineLabel
-        ORDER BY naturalOrder DESC
-    </select>
-
 
     <select id="getMostRecentStage" resultMap="select-stage-with-identifier">
         SELECT id as stageId, name as stageName, result as stageResult, counter as stageCounter, state as stageState, s.*

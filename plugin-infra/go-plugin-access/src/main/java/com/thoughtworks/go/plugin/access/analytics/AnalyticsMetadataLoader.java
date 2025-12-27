@@ -23,12 +23,12 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
 public class AnalyticsMetadataLoader extends MetadataLoader<AnalyticsPluginInfo> {
-    private List<PluginMetadataChangeListener> listeners = new ArrayList<>();
+    private final List<PluginMetadataChangeListener> listeners = new CopyOnWriteArrayList<>();
 
     @Autowired
     public AnalyticsMetadataLoader(PluginManager pluginManager, AnalyticsPluginInfoBuilder builder,
@@ -62,7 +62,6 @@ public class AnalyticsMetadataLoader extends MetadataLoader<AnalyticsPluginInfo>
             }
         }
     }
-
 
     public void registerListeners(PluginMetadataChangeListener listener) {
         listeners.add(listener);

@@ -179,7 +179,7 @@ public class ScheduleServiceIntegrationTest {
     public void shouldNotSchedulePausedPipeline() {
         Pipeline pipeline = PipelineMother.schedule(mingleConfig, modifySomeFiles(mingleConfig));
         pipeline = dbHelper.savePipelineWithStagesAndMaterials(pipeline);
-        pipelinePauseService.pause(pipeline.getName(), "", null);
+        pipelinePauseService.pause(pipeline.getName(), "", Username.valueOf("anyone"));
         dbHelper.passStage(pipeline.getStages().first());
         Pipeline newPipeline = manualSchedule(str(mingleConfig.name()));
         assertThat(newPipeline.getId()).isEqualTo(pipeline.getId());

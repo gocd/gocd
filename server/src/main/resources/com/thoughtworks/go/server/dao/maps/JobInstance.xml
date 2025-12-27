@@ -89,26 +89,6 @@
         LIMIT #{count}
     </select>
 
-    <select id="getJobHistoryCount" resultType="java.lang.Integer">
-        SELECT COUNT(1)
-        FROM _builds
-            WHERE name = #{jobConfigName}
-                AND pipelineName = #{pipelineName}
-                AND stageName = #{stageName}
-                AND originalJobId IS NULL
-    </select>
-
-    <select id="findJobHistoryPage" resultMap="select-build-with-identifier">
-        SELECT b.*, id AS buildId
-        FROM _builds b
-        WHERE name = #{jobConfigName}
-            AND pipelineName = #{pipelineName}
-            AND stageName = #{stageName}
-            AND originalJobId IS NULL
-        ORDER BY id DESC
-        LIMIT #{count} OFFSET #{offset}
-    </select>
-
     <sql id="select-job-id">
         FROM _builds
         WHERE name = #{jobName} AND ignored != true
@@ -125,10 +105,6 @@
         )
         ORDER BY scheduledDate DESC
         LIMIT 1
-    </select>
-
-    <select id="findJobInstance" resultMap="select-build-with-identifier">
-        SELECT * <include refid="select-job-id"/>
     </select>
 
     <resultMap id="select-job-plan" type="com.thoughtworks.go.domain.DefaultJobPlan">
@@ -270,38 +246,6 @@
     <update id="ignoreBuildById" parameterType="java.lang.Long">
         UPDATE builds SET ignored=true WHERE id = #{id}
     </update>
-
-    <resultMap id="active-jobs" type="com.thoughtworks.go.server.dao.ActiveJob">
-        <result property="id" column="jobId"/>
-        <result property="buildName" column="buildName"/>
-        <result property="pipelineName" column="pipelineName"/>
-        <result property="pipelineCounter" column="pipelineCounter"/>
-        <result property="pipelineLabel" column="pipelineLabel"/>
-        <result property="stageName" column="stageName"/>
-    </resultMap>
-
-    <select id="getActiveJobById" resultMap="active-jobs">
-        SELECT id as jobId, name as buildName, stageName, pipelineName, pipelineCounter, pipelineLabel
-        FROM _builds
-        WHERE ignored != true
-        AND id = #{id}
-        AND state IN ('Scheduled', 'Assigned', 'Preparing', 'Building', 'Completing')
-    </select>
-
-    <select id="getBuildingJobIdentifier" resultMap="jobIdentifier">
-        SELECT pipelineName, pipelineCounter, pipelineLabel, stageName, stageCounter, name, id AS buildId, rerunOfCounter
-        FROM _builds
-        WHERE ignored != true
-        AND id = #{id}
-        AND state IN ('Preparing', 'Building', 'Completing')
-    </select>
-
-    <select id="getActiveJobIds" resultType="long">
-        SELECT builds.id
-        FROM builds
-        WHERE ignored != true
-        AND builds.state in ('Scheduled', 'Assigned', 'Preparing', 'Building', 'Completing')
-    </select>
 
     <select id="getRunningJobs" resultMap="select-build-with-identifier">
         <include refid="select-builds-with-identifier"/>

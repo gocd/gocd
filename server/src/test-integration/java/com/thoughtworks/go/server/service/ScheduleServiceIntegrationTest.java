@@ -455,7 +455,7 @@ public class ScheduleServiceIntegrationTest {
         scheduleService.jobCompleting(jobIdentifier, JobResult.Passed, job.getAgentUuid());
 
         scheduleService.updateJobStatus(jobIdentifier, JobState.Completed);
-        assertThat(stageService.findLatestStage(pipelineName, secondStage)).isNotNull();
+        assertThat(stageDao.mostRecentStage(new StageConfigIdentifier(pipelineName, secondStage))).isNotNull();
     }
 
     // This could happen during race condition between rescheduleHungJobs and rescheduleAbandonedBuildIfNecessary.

@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.domain.feed.Author;
 import com.thoughtworks.go.domain.feed.FeedEntries;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
@@ -35,7 +34,6 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
-import com.thoughtworks.go.server.domain.StageIdentity;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.StageStatusMessage;
@@ -63,12 +61,11 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.thoughtworks.go.server.service.HistoryUtil.validateCursor;
-import static java.util.stream.Collectors.toList;
 
 @Service
 public class StageService implements StageFinder {
@@ -87,7 +84,6 @@ public class StageService implements StageFinder {
     private final TransactionSynchronizationManager transactionSynchronizationManager;
     private final List<StageStatusListener> stageStatusListeners;
     private final StageStatusTopic stageStatusTopic;
-    private final StageStatusCache stageStatusCache;
     private final Cloner cloner = ClonerFactory.instance();
     private final GoCache goCache;
 
@@ -95,7 +91,6 @@ public class StageService implements StageFinder {
     public StageService(StageDao stageDao,
                         JobInstanceService jobInstanceService,
                         StageStatusTopic stageStatusTopic,
-                        StageStatusCache stageStatusCache,
                         SecurityService securityService,
                         PipelineDao pipelineDao,
                         ChangesetService changesetService,
@@ -107,7 +102,6 @@ public class StageService implements StageFinder {
         this.stageDao = stageDao;
         this.jobInstanceService = jobInstanceService;
         this.stageStatusTopic = stageStatusTopic;
-        this.stageStatusCache = stageStatusCache;
         this.securityService = securityService;
         this.pipelineDao = pipelineDao;
         this.changesetService = changesetService;
@@ -116,7 +110,7 @@ public class StageService implements StageFinder {
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.goCache = goCache;
         this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
-        this.stageStatusListeners = Arrays.stream(stageStatusListeners).collect(toList());
+        this.stageStatusListeners = new CopyOnWriteArrayList<>(stageStatusListeners);
     }
 
     public void addStageStatusListener(StageStatusListener listener) {
@@ -189,6 +183,7 @@ public class StageService implements StageFinder {
         return stageDao.findStageWithIdentifier(identifier);
     }
 
+    @SuppressWarnings("unused") // May be used by Rails code
     public StageSummaryModel findStageSummaryByIdentifier(StageIdentifier stageId,
                                                           Username username,
                                                           LocalizedOperationResult result) {
@@ -251,10 +246,6 @@ public class StageService implements StageFinder {
 
     public Stage mostRecentPassed(String pipelineName, String stageName) {
         return stageDao.mostRecentPassed(pipelineName, stageName);
-    }
-
-    public int getCount(String pipelineName, String stageName) {
-        return stageDao.getCount(pipelineName, stageName);
     }
 
     public Stage save(final Pipeline pipeline, final Stage stage) {
@@ -334,10 +325,6 @@ public class StageService implements StageFinder {
                 stageDao.updateResult(stage, stage.getResult(), username);
             }
         });
-    }
-
-    public Stage findLatestStage(String pipelineName, String stageName) {
-        return stageStatusCache.currentStage(new StageConfigIdentifier(pipelineName, stageName));
     }
 
     public FeedEntries feed(String pipelineName, Username username) {
@@ -433,6 +420,7 @@ public class StageService implements StageFinder {
         }
     }
 
+    @SuppressWarnings("unused") // May be used by rails code
     public StageSummaryModels findStageHistoryForChart(String pipelineName,
                                                        String stageName,
                                                        int pageNumber,
@@ -455,10 +443,12 @@ public class StageService implements StageFinder {
         return stageSummaryModels;
     }
 
+    @SuppressWarnings("unused") // May be used by rails code
     public StageHistoryPage findStageHistoryPage(Stage stage, int pageSize) {
         return stageDao.findStageHistoryPage(stage, pageSize);
     }
 
+    @SuppressWarnings("unused") // May be used by rails code
     public StageHistoryPage findStageHistoryPageByNumber(String pipelineName,
                                                          String stageName,
                                                          int pageNumber,
@@ -535,14 +525,6 @@ public class StageService implements StageFinder {
 
     public List<Stage> oldestStagesWithDeletableArtifacts() {
         return stageDao.oldestStagesHavingArtifacts();
-    }
-
-    public void markArtifactsDeletedFor(Stage stage) {
-        stageDao.markArtifactsDeletedFor(stage);
-    }
-
-    public List<StageIdentity> findLatestStageInstances() {
-        return stageDao.findLatestStageInstances();
     }
 
     public interface JobOperation {

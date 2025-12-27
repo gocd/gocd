@@ -20,9 +20,9 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
 public class StageActiveChecker implements SchedulingChecker {
-    private String pipelineName;
-    private String stageName;
-    private StageService stageService;
+    private final String pipelineName;
+    private final String stageName;
+    private final StageService stageService;
 
     public StageActiveChecker(String pipelineName, String stageName, StageService stageService) {
         this.pipelineName = pipelineName;

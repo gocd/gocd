@@ -505,7 +505,6 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
         def stageModels = getStageModels()
         def runIdInfo = new PipelineRunIdInfo(5, 2)
 
-        when(stageService.getCount(eq(pipelineName), eq(stageName))).thenReturn(20)
         when(stageService.findStageHistoryViaCursor(currentUsername(), pipelineName, stageName, 0, 0, 10)).thenReturn(stageModels)
         when(stageService.getOldestAndLatestStageInstanceId(currentUsername(), pipelineName, stageName)).thenReturn(runIdInfo)
 
@@ -527,7 +526,6 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
         def stageModels = getStageModels()
         def runIdInfo = new PipelineRunIdInfo(5, 2)
 
-        when(stageService.getCount(eq(pipelineName), eq(stageName))).thenReturn(20)
         when(stageService.findStageHistoryViaCursor(currentUsername(), pipelineName, stageName, 3, 0, 10)).thenReturn(stageModels)
         when(stageService.getOldestAndLatestStageInstanceId(currentUsername(), pipelineName, stageName)).thenReturn(runIdInfo)
 
@@ -550,7 +548,6 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
         def stageModels = getStageModels()
         def runIdInfo = new PipelineRunIdInfo(5, 2)
 
-        when(stageService.getCount(eq(pipelineName), eq(stageName))).thenReturn(20)
         when(stageService.findStageHistoryViaCursor(currentUsername(), pipelineName, stageName, 0, 3, 10)).thenReturn(stageModels)
         when(stageService.getOldestAndLatestStageInstanceId(currentUsername(), pipelineName, stageName)).thenReturn(runIdInfo)
 

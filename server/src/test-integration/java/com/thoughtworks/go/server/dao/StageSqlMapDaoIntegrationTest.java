@@ -907,14 +907,6 @@ public class StageSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldGetCount() {
-        Pipeline[] pipelines = pipelineWithOnePassedAndOneCurrentlyRunning(mingleConfig);
-        Pipeline completed = pipelines[0];
-
-        assertThat(stageDao.getCount(completed.getName(), STAGE_DEV)).isEqualTo(2);
-    }
-
-    @Test
     public void shouldGetStagesByPipelineId() {
         Pipeline[] pipelines = pipelineWithOnePassedAndOneCurrentlyRunning(mingleConfig);
         Pipeline completed = pipelines[0];
@@ -1207,122 +1199,6 @@ public class StageSqlMapDaoIntegrationTest {
         assertThat(completedStages.size()).isEqualTo(2);
         assertFeed(completedStages.get(0), stages[2].stage);
         assertFeed(completedStages.get(1), stages[1].stage);
-    }
-
-    @Test
-    public void shouldFindStagesBetween() {
-        PipelineConfig config = PipelineMother.createPipelineConfig("pipeline", new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig()), "firstStage", "secondStage");
-        Pipeline pipeline0 = dbHelper.newPipelineWithAllStagesPassed(config);
-        dbHelper.updateNaturalOrder(pipeline0.getId(), 4.0);
-
-        //First run Failed, Rerun Passed
-        Pipeline pipeline1 = dbHelper.newPipelineWithFirstStagePassed(config);
-        Stage stage = dbHelper.scheduleStage(pipeline1, config.get(1));
-        dbHelper.failStage(stage);
-        stage = dbHelper.scheduleStage(pipeline1, config.get(1));
-        dbHelper.passStage(stage);
-        dbHelper.updateNaturalOrder(pipeline1.getId(), 5.0);
-
-        Pipeline pipeline2 = dbHelper.newPipelineWithFirstStagePassed(config);
-        stage = dbHelper.scheduleStage(pipeline2, config.get(1));
-        dbHelper.failStage(stage);
-        dbHelper.updateNaturalOrder(pipeline2.getId(), 6.0);
-
-        Pipeline pipeline3 = dbHelper.newPipelineWithFirstStagePassed(config);
-        dbHelper.updateNaturalOrder(pipeline3.getId(), 7.0);
-
-        Pipeline pipeline4 = dbHelper.newPipelineWithFirstStagePassed(config);
-        stage = dbHelper.scheduleStage(pipeline4, config.get(1));
-        dbHelper.cancelStage(stage);
-        dbHelper.updateNaturalOrder(pipeline4.getId(), 8.0);
-
-        Pipeline pipeline5 = dbHelper.newPipelineWithFirstStagePassed(config);
-        dbHelper.scheduleStage(pipeline5, config.get(1));
-        dbHelper.updateNaturalOrder(pipeline5.getId(), 9.0);
-
-        //First run passed, rerun failed.
-        Pipeline pipeline6 = dbHelper.newPipelineWithAllStagesPassed(config);
-        stage = dbHelper.scheduleStage(pipeline6, config.get(1));
-        dbHelper.failStage(stage);
-        dbHelper.updateNaturalOrder(pipeline6.getId(), 10.0);
-
-        Pipeline pipeline7 = dbHelper.newPipelineWithFirstStagePassed(config);
-        stage = dbHelper.scheduleStage(pipeline7, config.get(1));
-        dbHelper.failStage(stage);
-        dbHelper.updateNaturalOrder(pipeline7.getId(), 11.0);
-
-        pipeline7 = pipelineDao.loadPipeline(pipeline7.getId());
-        pipeline6 = pipelineDao.loadPipeline(pipeline6.getId());
-        pipeline4 = pipelineDao.loadPipeline(pipeline4.getId());
-        pipeline2 = pipelineDao.loadPipeline(pipeline2.getId());
-
-        List<StageIdentifier> list = stageDao.findFailedStagesBetween("pipeline", "secondStage", 5.0, 11.0);
-
-        assertThat(list.size()).isEqualTo(3);
-        StageIdentifier identifier = list.get(0);
-        assertThat(identifier).isEqualTo(new StageIdentifier("pipeline", 8, "secondStage", "1"));
-        assertThat(identifier).isEqualTo(pipeline7.findStage("secondStage").getIdentifier());
-        assertThat(list.get(1)).isEqualTo(pipeline6.findStage("secondStage").getIdentifier());
-        assertThat(list.get(2)).isEqualTo(pipeline2.findStage("secondStage").getIdentifier());
-
-        list = stageDao.findFailedStagesBetween("pipeline", "secondStage", 5.0, 10.0);
-        assertThat(list.size()).isEqualTo(2);
-        assertThat(list.get(0)).isEqualTo(pipeline6.findStage("secondStage").getIdentifier());
-        assertThat(list.get(1)).isEqualTo(pipeline2.findStage("secondStage").getIdentifier());
-
-        list = stageDao.findFailedStagesBetween("pipeline", "secondStage", 5.0, 9.0);
-        assertThat(list.size()).isEqualTo(1);
-        assertThat(list.get(0)).isEqualTo(pipeline2.findStage("secondStage").getIdentifier());
-
-        list = stageDao.findFailedStagesBetween("pipeline", "secondStage", 5.0, 4.0);
-        assertThat(list.size()).isEqualTo(0);
-    }
-
-    @Test
-    public void shouldFindRerunStagesWhenFindStagesBetween() {
-        Pipeline pipeline = dbHelper.newPipelineWithFirstStageFailed(mingleConfig);
-        dbHelper.updateNaturalOrder(pipeline.getId(), 5.0);
-        Stage rerunedStage = rerunFirstStage(pipeline);
-        dbHelper.failStage(rerunedStage);
-
-        List<StageIdentifier> list = stageDao.findFailedStagesBetween(PIPELINE_NAME, STAGE_DEV, 3.0, 5.0);
-        assertThat(list.size()).isEqualTo(1);
-        assertThat(list.get(0)).isEqualTo(rerunedStage.getIdentifier());
-    }
-
-    @Test
-    public void shouldFindStagesBetweenAtTheBeginingOfAPipeline() {
-        PipelineConfig config = PipelineMother.createPipelineConfig("pipeline", new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig()), "firstStage", "secondStage");
-
-        Pipeline pipeline1 = dbHelper.newPipelineWithFirstStagePassed(config);
-        dbHelper.updateNaturalOrder(pipeline1.getId(), 1.0);
-
-        Pipeline pipeline2 = dbHelper.newPipelineWithFirstStagePassed(config);
-        Stage stage = dbHelper.scheduleStage(pipeline2, config.get(1));
-        dbHelper.failStage(stage);
-        dbHelper.updateNaturalOrder(pipeline2.getId(), 2.0);
-
-        Pipeline pipeline3 = dbHelper.newPipelineWithFirstStagePassed(config);
-        dbHelper.updateNaturalOrder(pipeline3.getId(), 1.5);
-
-        Pipeline pipeline4 = dbHelper.newPipelineWithFirstStagePassed(config);
-        stage = dbHelper.scheduleStage(pipeline4, config.get(1));
-        dbHelper.cancelStage(stage);
-        dbHelper.updateNaturalOrder(pipeline4.getId(), 0.5);
-
-        Pipeline pipeline7 = dbHelper.newPipelineWithFirstStagePassed(config);
-        stage = dbHelper.scheduleStage(pipeline7, config.get(1));
-        dbHelper.failStage(stage);
-        dbHelper.updateNaturalOrder(pipeline7.getId(), 11.0);
-
-        pipeline7 = pipelineDao.loadPipeline(pipeline7.getId());
-        pipeline4 = pipelineDao.loadPipeline(pipeline4.getId());
-        pipeline2 = pipelineDao.loadPipeline(pipeline2.getId());
-
-        List<StageIdentifier> list = stageDao.findFailedStagesBetween("pipeline", "secondStage", 0.0, 11.0);
-        assertThat(list.size()).isEqualTo(2);
-        assertThat(list.get(0)).isEqualTo(pipeline7.findStage("secondStage").getIdentifier());
-        assertThat(list.get(1)).isEqualTo(pipeline2.findStage("secondStage").getIdentifier());
     }
 
     @Test

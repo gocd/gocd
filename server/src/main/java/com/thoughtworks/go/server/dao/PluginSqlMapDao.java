@@ -24,6 +24,7 @@ import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
@@ -35,9 +36,9 @@ import java.util.List;
 @Component
 public class PluginSqlMapDao extends HibernateDaoSupport implements PluginDao {
     private final CacheKeyGenerator cacheKeyGenerator;
-    private SessionFactory sessionFactory;
-    private TransactionTemplate transactionTemplate;
-    private GoCache goCache;
+    private final SessionFactory sessionFactory;
+    private final TransactionTemplate transactionTemplate;
+    private final GoCache goCache;
 
     @Autowired
     public PluginSqlMapDao(SessionFactory sessionFactory, TransactionTemplate transactionTemplate, GoCache goCache) {
@@ -89,6 +90,7 @@ public class PluginSqlMapDao extends HibernateDaoSupport implements PluginDao {
         }
     }
 
+    @VisibleForTesting
     String cacheKeyForPluginSettings(String pluginId) {
         return cacheKeyGenerator.generate("plugin_settings", pluginId);
     }

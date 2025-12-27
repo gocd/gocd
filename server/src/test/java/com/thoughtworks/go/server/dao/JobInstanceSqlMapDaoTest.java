@@ -154,51 +154,6 @@ class JobInstanceSqlMapDaoTest {
     }
 
     @Nested
-    class CacheKeyForGetJobHistoryCount {
-        @Test
-        void shouldGenerateCacheKey() {
-            assertThat(jobInstanceSqlMapDao.cacheKeyForGetJobHistoryCount("Foo", "Bar", "Baz"))
-                .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$getJobHistoryCount.$foo.$bar.$baz");
-        }
-
-        @Test
-        void shouldGenerateADifferentMutexWhenPartOfPipelineIsInterchangedWithStageName() {
-            assertThat(jobInstanceSqlMapDao.cacheKeyForGetJobHistoryCount("Foo", "Bar_Jaz", "Baz"))
-                .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForGetJobHistoryCount("Foo_Bar", "Jaz", "Baz"));
-        }
-    }
-
-    @Nested
-    class CacheKeyForFindJobHistoryPage {
-        @Test
-        void shouldGenerateCacheKey() {
-            assertThat(jobInstanceSqlMapDao.cacheKeyForFindJobHistoryPage("Foo", "Bar", "Baz", 1, 1))
-                .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$findJobHistoryPage.$foo.$bar.$baz.$1.$1");
-        }
-
-        @Test
-        void shouldGenerateADifferentMutexWhenPartOfPipelineIsInterchangedWithStageName() {
-            assertThat(jobInstanceSqlMapDao.cacheKeyForFindJobHistoryPage("Foo", "Bar_Jaz", "Baz", 1, 1))
-                .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForFindJobHistoryPage("Foo_Bar", "Jaz", "Baz", 1, 1));
-        }
-    }
-
-    @Nested
-    class CacheKeyForFindJobInstance {
-        @Test
-        void shouldGenerateCacheKey() {
-            assertThat(jobInstanceSqlMapDao.cacheKeyForFindJobInstance("Foo", "Bar", "Baz", 1, 1))
-                .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$findJobInstance.$foo.$bar.$baz.$1.$1");
-        }
-
-        @Test
-        void shouldGenerateADifferentMutexWhenPartOfPipelineIsInterchangedWithStageName() {
-            assertThat(jobInstanceSqlMapDao.cacheKeyForFindJobInstance("Foo", "Bar_Jaz", "Baz", 1, 1))
-                .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForFindJobInstance("Foo_Bar", "Jaz", "Baz", 1, 1));
-        }
-    }
-
-    @Nested
     class CacheKeyForJobPlan {
         @Test
         void shouldGenerateCacheKey() {

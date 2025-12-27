@@ -242,10 +242,6 @@ public class PipelineService implements UpstreamPipelineResolver {
 
     /* DIAMOND END */
 
-    public PipelineTimeline getPipelineTimeline() {
-        return pipelineTimeline;
-    }
-
     public PipelineIdentifier mostRecentPipelineIdentifier(String pipelineName) {
         return pipelineDao.mostRecentPipelineIdentifier(pipelineName);
     }

@@ -19,7 +19,6 @@ import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.domain.Users;
 
 import java.util.List;
-import java.util.Set;
 
 public interface UserDao {
     void saveOrUpdate(User user);
@@ -30,15 +29,11 @@ public interface UserDao {
 
     Users allUsers();
 
-    long enabledUserCount();
-
     void disableUsers(List<String> usernames);
 
     void enableUsers(List<String> usernames);
 
     List<User> enabledUsers();
-
-    Set<String> findUsernamesForIds(Set<Long> userIds);
 
     User load(long id);
 

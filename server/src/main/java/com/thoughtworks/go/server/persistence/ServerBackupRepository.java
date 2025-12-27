@@ -58,10 +58,6 @@ public class ServerBackupRepository extends HibernateDaoSupport {
         return serverBackup;
     }
 
-    public void deleteAll() {
-        getHibernateTemplate().execute(session -> session.createQuery(String.format("DELETE FROM %s", ServerBackup.class.getName())).executeUpdate());
-    }
-
     public void markInProgressBackupsAsAborted(String message) {
         getHibernateTemplate().execute(session -> {
             Query query = session.createQuery(String.format("UPDATE %s set status = :abortedStatus, message = :abortedMessage WHERE status = :inProgressStatus", ServerBackup.class.getName()));

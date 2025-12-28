@@ -879,13 +879,6 @@ public class Routes {
         public static final String BASE = "/api/internal/pipelines/:pipeline_name/:stage_name/upstream";
     }
 
-    public static class VersionInfos {
-        public static final String BASE = "/api/version_infos";
-        public static final String STALE = "/stale";
-        public static final String LATEST_VERSION = "/latest_version";
-        public static final String GO_SERVER = "/go_server";
-    }
-
     public static class MaterialsSPA {
         public static final String BASE = "/materials";
     }

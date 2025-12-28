@@ -260,22 +260,6 @@ class SystemEnvironmentTest {
     }
 
     @Test
-    void shouldGetUpdateServerPublicKeyFilePath() {
-        assertThat(SystemEnvironment.GO_UPDATE_SERVER_PUBLIC_KEY_FILE_NAME.propertyName()).isEqualTo("go.update.server.public.key.file.name");
-
-        System.setProperty("go.update.server.public.key.file.name", "public_key");
-        assertThat(systemEnvironment.getUpdateServerPublicKeyPath()).isEqualTo(systemEnvironment.getConfigDir() + "/public_key");
-    }
-
-    @Test
-    void shouldGetUpdateServerUrl() {
-        assertThat(SystemEnvironment.GO_UPDATE_SERVER_URL.propertyName()).isEqualTo("go.update.server.url");
-
-        System.setProperty("go.update.server.url", "http://update_server_url");
-        assertThat(systemEnvironment.getUpdateServerUrl()).isEqualTo("http://update_server_url");
-    }
-
-    @Test
     void shouldGetMaxNumberOfRequestsForEncryptionApi() {
         assertThat(SystemEnvironment.GO_ENCRYPTION_API_MAX_REQUESTS.propertyName()).isEqualTo("go.encryption.api.max.requests");
         assertThat(SystemEnvironment.getMaxEncryptionAPIRequestsPerMinute()).isEqualTo(30);
@@ -283,15 +267,6 @@ class SystemEnvironmentTest {
         System.setProperty("go.encryption.api.max.requests", "50");
 
         assertThat(SystemEnvironment.getMaxEncryptionAPIRequestsPerMinute()).isEqualTo(50);
-    }
-
-    @Test
-    void shouldCheckIfGOUpdatesIsEnabled() {
-        assertThat(SystemEnvironment.GO_CHECK_UPDATES.propertyName()).isEqualTo("go.check.updates");
-        assertThat(systemEnvironment.isGOUpdateCheckEnabled()).isTrue();
-
-        System.setProperty("go.check.updates", "false");
-        assertThat(systemEnvironment.isGOUpdateCheckEnabled()).isFalse();
     }
 
     @Test

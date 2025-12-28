@@ -19,16 +19,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DatesTest {
 
@@ -92,12 +87,5 @@ public class DatesTest {
         Locale.setDefault(Locale.forLanguageTag("en-SG"));
         assertThat(Dates.formatToSimpleDate(Date.from(ZonedDateTime.parse("2008-09-09T18:56:14+08:00").toInstant())))
             .isEqualTo("09 Sept 2008");
-    }
-
-    @Test
-    public void shouldAnswerIfTheProvidedDateIsToday() {
-        assertTrue(Dates.isToday(new Date()));
-        assertFalse(Dates.isToday(Date.from(LocalDateTime.now().minusDays(1).atZone(ZoneOffset.systemDefault()).toInstant())));
-        assertFalse(Dates.isToday(Date.from(LocalDate.now().minusDays(1).atStartOfDay(ZoneOffset.systemDefault()).toInstant())));
     }
 }

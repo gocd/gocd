@@ -118,8 +118,6 @@ public class ApplicationInitializerTest {
     @Mock
     private PipelineConfigService pipelineConfigService;
     @Mock
-    private ServerVersionInfoManager serverVersionInfoManager;
-    @Mock
     private EntityHashingService entityHashingService;
     @Mock
     private RevokeStaleAccessTokenService revokeStaleAccessTokenService;

@@ -121,10 +121,6 @@ module ApplicationHelper
     security_service.isAuthorizedToViewTemplates(current_user)
   end
 
-  def current_gocd_version
-    com.thoughtworks.go.CurrentGoCDVersion.getInstance().getGocdDistVersion()
-  end
-
   def render_json(options = {})
     options = options.merge({locals: {scope: {}}}) unless options.has_key? :locals
     render(options).to_json
@@ -142,14 +138,6 @@ module ApplicationHelper
     end
 
     @page_name
-  end
-
-  def version
-    @@version ||= com.thoughtworks.go.CurrentGoCDVersion.getInstance().formatted()
-  end
-
-  def full_version
-    @@full_version ||= com.thoughtworks.go.CurrentGoCDVersion.getInstance().fullVersion()
   end
 
   def id_for(obj, prefix = nil)

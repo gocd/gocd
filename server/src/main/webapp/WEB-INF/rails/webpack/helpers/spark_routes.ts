@@ -22,18 +22,6 @@ type CounterLike = number | string;
 
 export class SparkRoutes {
 
-  static staleVersionInfoPath() {
-    return "/go/api/version_infos/stale";
-  }
-
-  static latestVersionInfoPath() {
-    return "/go/api/version_infos/latest_version";
-  }
-
-  static updateServerVersionInfoPath() {
-    return "/go/api/version_infos/go_server";
-  }
-
   static serverHealthMessagesPath() {
     return `/go/api/server_health_messages`;
   }

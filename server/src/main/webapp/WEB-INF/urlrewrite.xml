@@ -62,12 +62,6 @@
   </rule>
 
   <rule>
-    <name>Update Check URLs</name>
-    <from>^/(api/version_infos/.*)$</from>
-    <to last="true">/spark/$1</to>
-  </rule>
-
-  <rule>
     <name>Materials SPA</name>
     <from>^/materials(/?)$</from>
     <to last="true">/spark/materials</to>

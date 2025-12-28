@@ -64,7 +64,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -117,7 +116,6 @@ public class GoFileConfigDataSourceIntegrationTest {
         upstreamPipeline = goConfigService.pipelineConfigNamed(new CaseInsensitiveString("upstream"));
         partialConfig = PartialConfigMother.pipelineWithDependencyMaterial(remoteDownstream, upstreamPipeline, new RepoConfigOrigin(configRepo, "r1"));
         partialConfigService.onSuccessPartialConfig(configRepo, partialConfig);
-        systemEnvironment.set(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE, true);
     }
 
     @AfterEach
@@ -126,7 +124,6 @@ public class GoFileConfigDataSourceIntegrationTest {
         dataSource.reloadIfModified();
         configHelper.onTearDown();
         systemEnvironment.clearProperty(SystemEnvironment.CONFIG_FILE_PROPERTY);
-        systemEnvironment.set(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE, true);
     }
 
     @Test
@@ -411,36 +408,15 @@ public class GoFileConfigDataSourceIntegrationTest {
         goConfigDao.updateConfig(configHelper.addPipelineCommand(originalMd5, "p1", "s1", "b1"));
         GoConfigHolder goConfigHolder = dataSource.forceLoad(dataSource.location());
 
-        try {
-            dataSource.writeWithLock(configHelper.addPipelineCommand(originalMd5, "p2", "s", "b"), goConfigHolder);
-            fail("Should throw ConfigFileHasChanged exception");
-        } catch (Exception e) {
-            assertThat(e.getCause()).isInstanceOf(ConfigMergeException.class);
-        }
-    }
-
-    @Test
-    public void shouldThrowConfigMergeExceptionWhenConfigMergeFeatureIsTurnedOff() throws Exception {
-        String firstMd5 = dataSource.forceLoad(dataSource.location()).configForEdit.getMd5();
-        goConfigDao.updateConfig(configHelper.addPipelineCommand(firstMd5, "p0", "s0", "b0"));
-        String originalMd5 = dataSource.forceLoad(dataSource.location()).configForEdit.getMd5();
-        goConfigDao.updateConfig(configHelper.addPipelineCommand(originalMd5, "p1", "s1", "j1"));
-        GoConfigHolder goConfigHolder = dataSource.forceLoad(dataSource.location());
-
-        systemEnvironment.set(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE, Boolean.FALSE);
-
-        try {
-            dataSource.writeWithLock(configHelper.changeJobNameCommand(originalMd5, "p0", "s0", "b0", "j0"), goConfigHolder);
-            fail("Should throw ConfigMergeException");
-        } catch (RuntimeException e) {
-            ConfigMergeException cme = (ConfigMergeException) e.getCause();
-            assertThat(cme.getMessage()).isEqualTo(ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH);
-        }
+        assertThatThrownBy(() -> dataSource.writeWithLock(configHelper.addPipelineCommand(originalMd5, "p2", "s", "b"), goConfigHolder))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("Configuration file has been modified by someone else.")
+            .cause().isInstanceOf(ConfigMergeException.class).hasMessage("Configuration file has been modified by someone else.")
+            .cause().isInstanceOf(ConfigFileHasChangedException.class).hasMessage("Configuration file has been modified by someone else.");
     }
 
     @Test
     public void shouldGetConfigMergedStateWhenAMergerOccurs() throws Exception {
-        System.out.println("systemEnvironment.get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE) = " + systemEnvironment.get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE));
         configHelper.addMailHost(getMailHost("mailhost.local.old"));
         String originalMd5 = dataSource.forceLoad(dataSource.location()).configForEdit.getMd5();
         configHelper.addMailHost(getMailHost("mailhost.local"));

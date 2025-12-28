@@ -559,9 +559,6 @@ public class GoFileConfigDataSource {
         LOGGER.debug("[Config Save] ==-- Getting modified config");
 
         if (shouldMergeConfig(updatingCommand, configHolder)) {
-            if (!systemEnvironment.get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)) {
-                throw new ConfigMergeException(ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH);
-            }
             goConfigHolder = this.fullConfigSaveMergeFlow.execute(updatingCommand, partials, userName);
         } else {
             goConfigHolder = this.fullConfigSaveNormalFlow.execute(updatingCommand, partials, userName);
@@ -577,9 +574,6 @@ public class GoFileConfigDataSource {
         GoConfigHolder validatedConfigHolder;
         LOGGER.debug("[Config Save] ==-- Getting modified config");
         if (shouldMergeConfig(updatingCommand, configHolder)) {
-            if (!systemEnvironment.get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)) {
-                throw new ConfigMergeException(ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH);
-            }
             configAsXml = getMergedConfig((NoOverwriteUpdateConfigCommand) updatingCommand, configHolder.configForEdit.getMd5(), partials);
             try {
                 validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand), partials);

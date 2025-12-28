@@ -60,9 +60,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final String RESOLVE_FANIN_REVISIONS = "resolve.fanin.revisions";
 
-    public static final String ENABLE_CONFIG_MERGE_PROPERTY = "enable.config.merge";
-    public static final GoSystemProperty<Boolean> ENABLE_CONFIG_MERGE_FEATURE = new CachedProperty<>(new GoBooleanSystemProperty(ENABLE_CONFIG_MERGE_PROPERTY, Boolean.TRUE));
-
     public static final String CRUISE_PROPERTIES = "/cruise.properties";
 
     public static final String USE_COMPRESSED_JAVASCRIPT = "rails.use.compressed.js";

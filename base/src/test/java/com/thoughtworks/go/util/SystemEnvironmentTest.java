@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.util;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,11 +41,6 @@ class SystemEnvironmentTest {
     void before() {
         systemEnvironment = new SystemEnvironment();
         systemEnvironment.clearProperty("any");
-    }
-
-    @AfterEach
-    void after() {
-        new SystemEnvironment().reset(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE);
     }
 
     @Test
@@ -172,32 +166,6 @@ class SystemEnvironmentTest {
         assertThat(systemEnvironment.enforceRevisionCompatibilityWithUpstream()).isTrue();
         System.setProperty(SystemEnvironment.RESOLVE_FANIN_REVISIONS, SystemEnvironment.CONFIGURATION_NO);
         assertThat(systemEnvironment.enforceRevisionCompatibilityWithUpstream()).isTrue();
-    }
-
-    @Test
-    void shouldTurnOnConfigMergeFeature_byDefault() {
-        assertThat(System.getProperty(SystemEnvironment.ENABLE_CONFIG_MERGE_PROPERTY)).isNull();
-        assertThat(new SystemEnvironment().get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)).isTrue();
-    }
-
-    @Test
-    void should_NOT_TurnOnConfigMergeFeature_whenExplicitlyDisabled() {
-        System.setProperty(SystemEnvironment.ENABLE_CONFIG_MERGE_PROPERTY, SystemEnvironment.CONFIGURATION_NO);
-        assertThat(new SystemEnvironment().get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)).isFalse();
-    }
-
-    @Test
-    void shouldTurnOnConfigMergeFeature_whenEnabledExplicitly() {
-        System.setProperty(SystemEnvironment.ENABLE_CONFIG_MERGE_PROPERTY, SystemEnvironment.CONFIGURATION_YES);
-        assertThat(new SystemEnvironment().get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)).isTrue();
-    }
-
-    @Test
-    void should_cache_whetherToTurnOnConfigMergeFeature() {//because access to properties is synchronized
-        assertThat(System.getProperty(SystemEnvironment.ENABLE_CONFIG_MERGE_PROPERTY)).isNull();
-        assertThat(new SystemEnvironment().get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)).isTrue();
-        System.setProperty(SystemEnvironment.ENABLE_CONFIG_MERGE_PROPERTY, SystemEnvironment.CONFIGURATION_NO);
-        assertThat(new SystemEnvironment().get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)).isTrue();
     }
 
     @Test

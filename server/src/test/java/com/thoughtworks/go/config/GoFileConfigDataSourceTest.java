@@ -129,7 +129,6 @@ public class GoFileConfigDataSourceTest {
     @Test
     public void shouldEnsureMergeFlowWithLastKnownPartialsIfConfigHasChangedBetweenUpdates_OnWriteFullConfigWithLock() throws Exception {
         com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAs("loser_boozer");
-        when(systemEnvironment.get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)).thenReturn(true);
         BasicCruiseConfig configForEdit = new BasicCruiseConfig();
         MagicalGoConfigXmlLoader.setMd5(configForEdit, "new_md5");
         FullConfigUpdateCommand updatingCommand = new FullConfigUpdateCommand(new BasicCruiseConfig(), "old_md5");
@@ -204,23 +203,6 @@ public class GoFileConfigDataSourceTest {
 
         assertThatThrownBy(() -> dataSource.writeFullConfigWithLock(updatingCommand, configHolder))
             .isInstanceOf(RuntimeException.class);
-    }
-
-    @Test
-    public void shouldErrorOutOnTryingToMergeConfigsIfConfigMergeFeatureIsDisabled_OnWriteFullConfigWithLock() throws Exception {
-        BasicCruiseConfig configForEdit = new BasicCruiseConfig();
-        MagicalGoConfigXmlLoader.setMd5(configForEdit, "new_md5");
-        FullConfigUpdateCommand updatingCommand = new FullConfigUpdateCommand(new BasicCruiseConfig(), "old_md5");
-        GoConfigHolder configHolder = new GoConfigHolder(new BasicCruiseConfig(), configForEdit);
-        List<PartialConfig> lastKnownPartials = new ArrayList<>();
-        when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
-        systemEnvironment.set(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE, false);
-
-        assertThatThrownBy(() -> dataSource.writeFullConfigWithLock(updatingCommand, configHolder))
-            .isInstanceOf(RuntimeException.class);
-
-        verify(fullConfigSaveMergeFlow, never()).execute(any(), anyList(), any());
-        verify(fullConfigSaveNormalFlow, never()).execute(any(), anyList(), any());
     }
 
     @Test

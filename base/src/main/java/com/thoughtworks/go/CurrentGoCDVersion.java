@@ -28,7 +28,6 @@ public class CurrentGoCDVersion {
     private final String fullVersion;
     private final String baseDocsUrl;
     private final String baseApiDocsUrl;
-    private final String gocdDistVersion;
 
     private CurrentGoCDVersion() {
         try (InputStream in = getClass().getClassLoader().getResourceAsStream("gocd-version.properties")) {
@@ -40,7 +39,6 @@ public class CurrentGoCDVersion {
             this.gitRevision = properties.getProperty("gitRevision", "unknown");
             this.fullVersion = properties.getProperty("fullVersion", "unknown");
             this.formatted = String.format("%s (%s-%s)", goVersion, distVersion, gitRevision);
-            this.gocdDistVersion = String.format("%s-%s", goVersion, distVersion);
             this.baseDocsUrl = "https://docs.gocd.org/" + this.goVersion;
             this.baseApiDocsUrl = "https://api.gocd.org/" + this.goVersion;
         } catch (IOException e) {
@@ -70,10 +68,6 @@ public class CurrentGoCDVersion {
 
     public String baseDocsUrl() {
         return baseDocsUrl;
-    }
-
-    public String getGocdDistVersion() {
-        return gocdDistVersion;
     }
 
     public String baseApiDocsUrl() {

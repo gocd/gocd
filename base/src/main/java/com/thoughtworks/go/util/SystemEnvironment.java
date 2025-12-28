@@ -148,10 +148,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final GoSystemProperty<Long> GO_CONFIG_REPO_GC_LOOSE_OBJECT_WARNING_THRESHOLD = new GoLongSystemProperty("go.config.repo.gc.warning.looseobject.threshold", 10000L);
     public static final GoSystemProperty<Boolean> GO_CONFIG_REPO_PERIODIC_GC = new GoBooleanSystemProperty("go.config.repo.gc.periodic", false);
 
-    public static final GoSystemProperty<String> GO_UPDATE_SERVER_PUBLIC_KEY_FILE_NAME = new GoStringSystemProperty("go.update.server.public.key.file.name", "go_update_server.pub");
-    public static final GoSystemProperty<String> GO_UPDATE_SERVER_URL = new GoStringSystemProperty("go.update.server.url", "https://update.gocd.org/channels/supported/latest.json");
-    public static final GoSystemProperty<Boolean> GO_CHECK_UPDATES = new GoBooleanSystemProperty("go.check.updates", true);
-
     public static final GoSystemProperty<Integer> GO_ELASTIC_PLUGIN_CREATE_AGENT_THREADS = new GoIntSystemProperty("go.elasticplugin.createagent.threads", 5);
     public static final GoSystemProperty<Integer> GO_ELASTIC_PLUGIN_SERVER_PING_THREADS = new GoIntSystemProperty("go.elasticplugin.serverping.threads", 1);
     public static final GoSystemProperty<Integer> GO_ENCRYPTION_API_MAX_REQUESTS = new GoIntSystemProperty("go.encryption.api.max.requests", 30);
@@ -556,20 +552,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
 
-    public String getUpdateServerPublicKeyPath() {
-        return String.format("%s/%s", getConfigDir(), GO_UPDATE_SERVER_PUBLIC_KEY_FILE_NAME.getValue());
-    }
-
-    public boolean isGOUpdateCheckEnabled() {
-        return GO_CHECK_UPDATES.getValue();
-    }
-
     public boolean isFetchArtifactTemplateAutoSuggestEnabled() {
         return GO_FETCH_ARTIFACT_TEMPLATE_AUTO_SUGGEST.getValue();
-    }
-
-    public String getUpdateServerUrl() {
-        return GO_UPDATE_SERVER_URL.getValue();
     }
 
     public boolean isAutoRegisterLocalAgentEnabled() {

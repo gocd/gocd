@@ -41,27 +41,17 @@ import static org.mockito.Mockito.when;
 class InitialContextProviderTest {
 
     private InitialContextProvider initialContextProvider;
-    private RailsAssetsService railsAssetsService;
-    private WebpackAssetsService webpackAssetsService;
     private SecurityService securityService;
-    private VersionInfoService versionInfoService;
     private DefaultPluginInfoFinder pluginInfoFinder;
-    private FeatureToggleService featureToggleService;
-    private MaintenanceModeService maintenanceModeService;
-    private ServerConfigService serverConfigService;
 
     @BeforeEach
     void setup() {
-        railsAssetsService = mock(RailsAssetsService.class);
-        webpackAssetsService = mock(WebpackAssetsService.class);
         securityService = mock(SecurityService.class);
-        versionInfoService = mock(VersionInfoService.class);
         pluginInfoFinder = mock(DefaultPluginInfoFinder.class);
-        featureToggleService = mock(FeatureToggleService.class);
-        maintenanceModeService = mock(MaintenanceModeService.class);
-        serverConfigService = mock(ServerConfigService.class);
-        Toggles.initializeWith(featureToggleService);
-        initialContextProvider = new InitialContextProvider(railsAssetsService, webpackAssetsService, securityService,
+        MaintenanceModeService maintenanceModeService = mock(MaintenanceModeService.class);
+        ServerConfigService serverConfigService = mock(ServerConfigService.class);
+        Toggles.initializeWith(mock(FeatureToggleService.class));
+        initialContextProvider = new InitialContextProvider(mock(RailsAssetsService.class), mock(WebpackAssetsService.class), securityService,
             pluginInfoFinder, maintenanceModeService, serverConfigService);
         SessionUtils.setCurrentUser(new GoUserPrincipal("bob", "Bob"));
     }
@@ -70,8 +60,7 @@ class InitialContextProviderTest {
     void shouldShowAnalyticsDashboard() {
         Map<String, Object> modelMap = new HashMap<>();
         when(securityService.isUserAdmin(any())).thenReturn(true);
-        CombinedPluginInfo combinedPluginInfo = new CombinedPluginInfo(analyticsPluginInfo());
-        when(pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)).thenReturn(List.of(combinedPluginInfo));
+        when(pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)).thenReturn(List.of(new CombinedPluginInfo(analyticsPluginInfo())));
         Map<String, Object> contect = initialContextProvider.getContext(modelMap, dummySparkController.getClass(), "viewName");
         assertThat(contect.get("showAnalyticsDashboard")).isEqualTo(true);
     }
@@ -80,8 +69,7 @@ class InitialContextProviderTest {
     void shouldNotShowAnalyticsDashboardWhenUserIsNotAdmin() {
         Map<String, Object> modelMap = new HashMap<>();
         when(securityService.isUserAdmin(any())).thenReturn(false);
-        CombinedPluginInfo combinedPluginInfo = new CombinedPluginInfo(analyticsPluginInfo());
-        when(pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)).thenReturn(List.of(combinedPluginInfo));
+        when(pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)).thenReturn(List.of(new CombinedPluginInfo(analyticsPluginInfo())));
         Map<String, Object> contect = initialContextProvider.getContext(modelMap, dummySparkController.getClass(), "viewName");
         assertThat(contect.get("showAnalyticsDashboard")).isEqualTo(false);
     }
@@ -112,7 +100,7 @@ class InitialContextProviderTest {
         return analyticsPluginInfo;
     }
 
-    private SparkController dummySparkController = new SparkController() {
+    private final SparkController dummySparkController = new SparkController() {
         @Override
         public String controllerBasePath() {
             return null;

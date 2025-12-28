@@ -76,7 +76,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private FeatureToggleService featureToggleService;
     @Autowired private CcTrayActivityListener ccTrayActivityListener;
     @Autowired private GoDashboardActivityListener dashboardActivityListener;
-    @Autowired private ServerVersionInfoManager serverVersionInfoManager;
     @Autowired private EntityHashingService entityHashingService;
     @Autowired private DependencyMaterialUpdateNotifier dependencyMaterialUpdateNotifier;
     @Autowired private SCMMaterialSource scmMaterialSource;
@@ -143,7 +142,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             ServletHelper.init();
             // initialize static accessors
             Toggles.initializeWith(featureToggleService);
-            serverVersionInfoManager.initialize();
 
             dependencyMaterialUpdateNotifier.initialize();
             scmMaterialSource.initialize();

@@ -149,7 +149,6 @@ def fatJar = tasks.register('fatJar', Jar) {
 
   from("${project(':installers').projectDir}/go-server/release/cruise-config.xml") { into 'defaultFiles/config' }
   from("${project(':server').projectDir}/config/jetty.xml") { into 'defaultFiles/config' }
-  from("${project(':server').projectDir}/config/go_update_server.pub") { into 'defaultFiles/config' }
   from("${project(':config:config-server').projectDir}/src/main/resources/cruise-config.xsd") { into 'defaultFiles/config' }
   from({ configurations.pluginsZip }) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
 

@@ -81,8 +81,4 @@ public class Dates {
     public static String formatToSimpleDate(Date date) {
         return FORMATTER_SIMPLE_DISPLAY_DATE.withLocale(Locale.getDefault()).format(date.toInstant());
     }
-
-    public static boolean isToday(Date date) {
-        return LocalDate.now().isEqual(LocalDate.ofInstant(date.toInstant(), ZoneId.systemDefault()));
-    }
 }

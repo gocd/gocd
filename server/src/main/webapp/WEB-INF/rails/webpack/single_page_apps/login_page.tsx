@@ -25,10 +25,6 @@ export class LoginPageSPA extends SinglePageAppBase {
   protected showHeader() {
     return false;
   }
-
-  protected enableVersionUpdating() {
-    return false;
-  }
 }
 
 //tslint:disable-next-line

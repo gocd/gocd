@@ -84,7 +84,6 @@ public class InitialContextProvider {
         context.put("maintenanceModeService", maintenanceModeService);
         context.put("currentUser", SessionUtils.currentUsername());
         context.put("currentVersion", CurrentGoCDVersion.getInstance());
-        context.put("currentGoCDVersion", CurrentGoCDVersion.getInstance().getGocdDistVersion());
         context.put("controllerName", humanizedControllerName(controller));
         context.put("viewName", viewName);
         context.put("serverTimezoneUTCOffset", TimeZone.getDefault().getOffset(new Date().getTime()));

@@ -21,7 +21,10 @@ import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.domain.analytics.Capabilities;
 import com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics;
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
-import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.MaintenanceModeService;
+import com.thoughtworks.go.server.service.RailsAssetsService;
+import com.thoughtworks.go.server.service.SecurityService;
+import com.thoughtworks.go.server.service.WebpackAssetsService;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
@@ -44,7 +47,6 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ANALYTICS
 import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.setAuthenticationToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,8 +59,6 @@ class GoCDFreeMarkerViewTest {
     private RailsAssetsService railsAssetsService;
     @Mock
     private FeatureToggleService featureToggleService;
-    @Mock
-    private VersionInfoService versionInfoService;
     @Mock
     private DefaultPluginInfoFinder pluginInfoFinder;
     @Mock
@@ -74,7 +74,6 @@ class GoCDFreeMarkerViewTest {
         Toggles.initializeWith(featureToggleService);
         view = spy(new GoCDFreeMarkerView());
         lenient().doReturn(railsAssetsService).when(view).getRailsAssetsService();
-        lenient().doReturn(versionInfoService).when(view).getVersionInfoService();
         lenient().doReturn(pluginInfoFinder).when(view).getPluginInfoFinder();
         lenient().doReturn(webpackAssetsService).when(view).webpackAssetsService();
         lenient().doReturn(securityService).when(view).getSecurityService();
@@ -189,7 +188,6 @@ class GoCDFreeMarkerViewTest {
         when(railsAssetsService.getAssetPath("cruise.ico")).thenReturn("assets/cruise.ico");
         GoCDFreeMarkerView view = spy(new GoCDFreeMarkerView(systemEnvironment));
         doReturn(railsAssetsService).when(view).getRailsAssetsService();
-        doReturn(versionInfoService).when(view).getVersionInfoService();
         doReturn(webpackAssetsService).when(view).webpackAssetsService();
         doReturn(maintenanceModeService).when(view).getMaintenanceModeService();
         doReturn(securityService).when(view).getSecurityService();
@@ -202,19 +200,4 @@ class GoCDFreeMarkerViewTest {
         assertThat(context.get(GoCDFreeMarkerView.CONCATENATED_CRUISE_ICON_FILE_PATH)).isEqualTo("assets/cruise.ico");
         assertThat(context.get(GoCDFreeMarkerView.PATH_RESOLVER)).isEqualTo(railsAssetsService);
     }
-
-    @Test
-    public void shouldSetGoUpdateFeatureValues() throws Exception {
-        Request servletRequest = mock(Request.class);
-
-        when(versionInfoService.isGOUpdateCheckEnabled()).thenReturn(true);
-        when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
-        when(versionInfoService.getGoUpdate()).thenReturn("16.1.0-123");
-
-        view.exposeHelpers(context, servletRequest);
-
-        assertTrue((Boolean) context.get(GoCDFreeMarkerView.GO_UPDATE_CHECK_ENABLED));
-        assertThat(context.get(GoCDFreeMarkerView.GO_UPDATE)).isEqualTo("16.1.0-123");
-    }
-
 }

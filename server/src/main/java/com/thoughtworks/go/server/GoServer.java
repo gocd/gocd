@@ -104,7 +104,6 @@ public class GoServer {
         validators.add(FileValidator.configFileAlwaysOverwrite("cruise-config.xsd", systemEnvironment));
         validators.add(FileValidator.configFile("jetty.xml", systemEnvironment));
         validators.add(new JettyWorkDirValidator());
-        validators.add(FileValidator.configFile(systemEnvironment.get(SystemEnvironment.GO_UPDATE_SERVER_PUBLIC_KEY_FILE_NAME), systemEnvironment));
         return validators;
     }
 }

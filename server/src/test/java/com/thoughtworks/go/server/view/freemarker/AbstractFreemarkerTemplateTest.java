@@ -16,7 +16,10 @@
 
 package com.thoughtworks.go.server.view.freemarker;
 
-import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.MaintenanceModeService;
+import com.thoughtworks.go.server.service.RailsAssetsService;
+import com.thoughtworks.go.server.service.SecurityService;
+import com.thoughtworks.go.server.service.WebpackAssetsService;
 import org.jsoup.parser.Parser;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,8 +40,6 @@ public class AbstractFreemarkerTemplateTest {
     @Mock
     private SecurityService securityService;
     @Mock
-    private VersionInfoService versionInfoService;
-    @Mock
     private WebpackAssetsService webpackAssetsService;
     @Mock
     private MaintenanceModeService maintenanceModeService;
@@ -51,7 +52,6 @@ public class AbstractFreemarkerTemplateTest {
 
         when(railsAssetsService.getAssetPath(any())).then(AdditionalAnswers.returnsFirstArg());
 
-        lenient().doReturn(versionInfoService).when(view).getVersionInfoService();
         lenient().doReturn(webpackAssetsService).when(view).webpackAssetsService();
         lenient().doReturn(securityService).when(view).getSecurityService();
         lenient().doReturn(maintenanceModeService).when(view).getMaintenanceModeService();

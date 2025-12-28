@@ -43,7 +43,6 @@
 </head>
 <body
   data-is-user-admin="${userHasAdministratorRights?c}"
-  data-current-gocd-version="${currentGoCDVersion.getGocdDistVersion()}"
   data-can-user-view-admin="${userHasViewAdministratorRights?c}"
   data-is-user-group-admin="${userHasGroupAdministratorRights?c}"
   data-can-user-view-templates="${userHasTemplateViewUserRights?c}"

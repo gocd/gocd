@@ -17,5 +17,5 @@
   data-show-empty-pipeline-groups="${showEmptyPipelineGroups?c}"
   data-should-show-analytics-icon="${shouldShowAnalyticsIcon?c}"
   data-test-drive="${testDrive?c}">
-  <span class="page-spinner"/>
+  <span class="page-spinner"></span>
 </div>

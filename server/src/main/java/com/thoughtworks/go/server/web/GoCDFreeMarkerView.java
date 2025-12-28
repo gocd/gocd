@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.web;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
@@ -40,6 +41,7 @@ public class GoCDFreeMarkerView extends FreeMarkerView {
     public static final String TEMPLATE_VIEW_USER = "userHasTemplateViewUserRights";
     public static final String GROUP_ADMINISTRATOR = "userHasGroupAdministratorRights";
     public static final String USE_COMPRESS_JS = "useCompressJS";
+    public static final String CURRENT_GOCD_VERSION = "currentGoCDVersion";
     public static final String CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH = "concatenatedStageBarCancelledIconFilePath";
     public static final String CONCATENATED_CRUISE_ICON_FILE_PATH = "concatenatedCruiseIconFilePath";
     public static final String PATH_RESOLVER = "pathResolver";
@@ -94,6 +96,7 @@ public class GoCDFreeMarkerView extends FreeMarkerView {
         model.put(TEMPLATE_VIEW_USER, securityService.isAuthorizedToViewTemplates(username));
         model.put(USE_COMPRESS_JS, systemEnvironment.useCompressedJs());
 
+        model.put(CURRENT_GOCD_VERSION, CurrentGoCDVersion.getInstance());
         model.put(CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH, railsAssetsService.getAssetPath("g9/stage_bar_cancelled_icon.png"));
         model.put(CONCATENATED_CRUISE_ICON_FILE_PATH, railsAssetsService.getAssetPath("cruise.ico"));
 

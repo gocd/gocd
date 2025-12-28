@@ -60,7 +60,8 @@ class InitialContextProviderTest {
     void shouldShowAnalyticsDashboard() {
         Map<String, Object> modelMap = new HashMap<>();
         when(securityService.isUserAdmin(any())).thenReturn(true);
-        when(pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)).thenReturn(List.of(new CombinedPluginInfo(analyticsPluginInfo())));
+        CombinedPluginInfo combinedPluginInfo = new CombinedPluginInfo(analyticsPluginInfo());
+        when(pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)).thenReturn(List.of(combinedPluginInfo));
         Map<String, Object> contect = initialContextProvider.getContext(modelMap, dummySparkController.getClass(), "viewName");
         assertThat(contect.get("showAnalyticsDashboard")).isEqualTo(true);
     }
@@ -69,7 +70,8 @@ class InitialContextProviderTest {
     void shouldNotShowAnalyticsDashboardWhenUserIsNotAdmin() {
         Map<String, Object> modelMap = new HashMap<>();
         when(securityService.isUserAdmin(any())).thenReturn(false);
-        when(pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)).thenReturn(List.of(new CombinedPluginInfo(analyticsPluginInfo())));
+        CombinedPluginInfo combinedPluginInfo = new CombinedPluginInfo(analyticsPluginInfo());
+        when(pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)).thenReturn(List.of(combinedPluginInfo));
         Map<String, Object> contect = initialContextProvider.getContext(modelMap, dummySparkController.getClass(), "viewName");
         assertThat(contect.get("showAnalyticsDashboard")).isEqualTo(false);
     }

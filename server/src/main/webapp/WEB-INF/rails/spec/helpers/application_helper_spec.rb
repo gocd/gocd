@@ -53,10 +53,6 @@ describe ApplicationHelper do
     end
   end
 
-  it "should give the server version" do
-    version == "N/A"
-  end
-
   it "should ask security service whether user is an admin" do
     expect(self).to receive(:security_service).and_return(security_service = double("security_service"))
     expect(self).to receive(:current_user).and_return(:user)

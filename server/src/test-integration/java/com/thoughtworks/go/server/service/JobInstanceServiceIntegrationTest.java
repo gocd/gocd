@@ -275,23 +275,6 @@ public class JobInstanceServiceIntegrationTest {
     }
 
     @Test
-    public void shouldLoadAllBuildingJobs() {
-        PipelineConfig goConfig = PipelineMother.withSingleStageWithMaterials("go", "dev", withBuildPlans("unit"));
-        Stage goDev = dbHelper.schedulePipeline(goConfig, new TimeProvider()).getStages().get(0);
-        dbHelper.buildingBuildInstance(goDev);
-
-        PipelineConfig mingleConfig = PipelineMother.withSingleStageWithMaterials("mingle", "test", withBuildPlans("integration"));
-        Stage mingleTest = dbHelper.schedulePipeline(mingleConfig, new TimeProvider()).getStages().get(0);
-        dbHelper.buildingBuildInstance(mingleTest);
-
-        dbHelper.newPipelineWithAllStagesPassed(PipelineMother.withSingleStageWithMaterials("twist", "acceptance", withBuildPlans("firefox"))).getStages().get(0);//a completed pipeline
-
-        assertThat(jobInstanceService.allBuildingJobs().size()).isEqualTo(2);
-        assertThat(jobInstanceService.allBuildingJobs()).contains(goDev.getFirstJob().getIdentifier());
-        assertThat(jobInstanceService.allBuildingJobs()).contains(mingleTest.getFirstJob().getIdentifier());
-    }
-
-    @Test
     public void shouldFailRequestedJobAndNotifyStageChange() {
         PipelineConfig goConfig = PipelineMother.withSingleStageWithMaterials("go", "dev", withBuildPlans("unit"));
         Stage goDev = dbHelper.schedulePipeline(goConfig, new TimeProvider()).getStages().get(0);

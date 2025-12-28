@@ -41,7 +41,6 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.dao.StageDao;
-import com.thoughtworks.go.server.domain.StageIdentity;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
@@ -316,7 +315,7 @@ public class StageServiceIntegrationTest {
     public void shouldSaveStageWithStateBuilding() {
         Stage stage = instanceFactory.createStageInstance(pipelineConfig.first(), new DefaultSchedulingContext("anonumous"), md5, new TimeProvider());
         stageService.save(savedPipeline, stage);
-        Stage latestStage = stageService.findLatestStage(CaseInsensitiveString.str(pipelineConfig.name()), CaseInsensitiveString.str(pipelineConfig.first().name()));
+        Stage latestStage = stageService.findStageWithIdentifier(stage.getIdentifier());
         assertThat(latestStage.getState()).isEqualTo(StageState.Building);
     }
 
@@ -485,7 +484,7 @@ public class StageServiceIntegrationTest {
         StageDao stageDao = mock(StageDao.class);
         Stage stage = StageMother.custom("stage");
         when(stageDao.findStageWithIdentifier(jobId.getStageIdentifier())).thenReturn(stage);
-        StageService service = new StageService(stageDao, jobInstanceService, null, null, null, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
+        StageService service = new StageService(stageDao, jobInstanceService, null, null, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
             goCache, listener);
         try {
             service.cancelJob(job);
@@ -506,7 +505,7 @@ public class StageServiceIntegrationTest {
         StageDao stageDao = mock(StageDao.class);
         Stage stage = StageMother.custom("stage");
         when(stageDao.findStageWithIdentifier(jobId.getStageIdentifier())).thenReturn(stage);
-        StageService service = new StageService(stageDao, jobInstanceService, null, null, null, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
+        StageService service = new StageService(stageDao, jobInstanceService, null, null, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
             goCache, listener);
         service.cancelJob(job);
         verify(listener).stageStatusChanged(stage);
@@ -553,7 +552,7 @@ public class StageServiceIntegrationTest {
         for (int i = 0; i < 100; i++) {
             Stage stage = stages.get(i);
             assertThat(stage.getIdentifier()).isEqualTo(pipelines[i].getFirstStage().getIdentifier());
-            stageService.markArtifactsDeletedFor(stage);
+            stageDao.markArtifactsDeletedFor(stage);
         }
         assertThat(stages.size()).isEqualTo(100);
 
@@ -561,7 +560,7 @@ public class StageServiceIntegrationTest {
         assertThat(stages.size()).isEqualTo(1);
         Stage stage = stages.get(0);
         assertThat(stage.getIdentifier()).isEqualTo(pipelines[100].getFirstStage().getIdentifier());
-        stageService.markArtifactsDeletedFor(stage);
+        stageDao.markArtifactsDeletedFor(stage);
 
         assertThat(stageService.oldestStagesWithDeletableArtifacts().size()).isEqualTo(0);
     }
@@ -668,17 +667,6 @@ public class StageServiceIntegrationTest {
         FeedEntries feed = stageService.feedBefore(Integer.MAX_VALUE, downstream.name().toString(), new Username(new CaseInsensitiveString("loser")));
 
         assertStageEntryAuthor(feed);
-    }
-
-    @Test
-    public void shouldFetchLatestStageInstanceForEachStage() {
-        setup2DependentInstances();
-        List<StageIdentity> latestStageInstances = stageService.findLatestStageInstances();
-        assertThat(latestStageInstances.size()).isEqualTo(4);
-        assertThat(latestStageInstances.contains(new StageIdentity("mingle", "dev", 8L))).isTrue();
-        assertThat(latestStageInstances.contains(new StageIdentity("upstream-without-mingle", "stage", 13L))).isTrue();
-        assertThat(latestStageInstances.contains(new StageIdentity("downstream", "down-stage", 14L))).isTrue();
-        assertThat(latestStageInstances.contains(new StageIdentity("upstream-with-mingle", "stage", 10L))).isTrue();
     }
 
     @Test

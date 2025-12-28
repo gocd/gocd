@@ -21,6 +21,8 @@ import org.springframework.stereotype.Component;
 import java.lang.management.*;
 import java.util.*;
 
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+
 @Component
 public class ThreadInformationProvider implements ServerInfoProvider {
     private final DaemonThreadStatsCollector daemonThreadStatsCollector;
@@ -78,9 +80,9 @@ public class ThreadInformationProvider implements ServerInfoProvider {
             threadStackTrace.put("Id", threadInfo.getThreadId());
             threadStackTrace.put("Name", threadInfo.getThreadName());
             threadStackTrace.put("State", threadInfo.getThreadState());
-            threadStackTrace.put("UserTime(nanoseconds)", threadMXBean.getThreadUserTime(threadInfo.getThreadId()));
-            threadStackTrace.put("CPUTime(nanoseconds)", threadMXBean.getThreadCpuTime(threadInfo.getThreadId()));
-            threadStackTrace.put("DaemonThreadInfo", daemonThreadStatsCollector.statsFor(threadInfo.getThreadId()));
+            threadStackTrace.put("UserTime(ms)", NANOSECONDS.toMillis(threadMXBean.getThreadUserTime(threadInfo.getThreadId())));
+            threadStackTrace.put("CPUTime(ms)", NANOSECONDS.toMillis(threadMXBean.getThreadCpuTime(threadInfo.getThreadId())));
+            threadStackTrace.put("CurrentMessageUsage", daemonThreadStatsCollector.statsFor(threadInfo.getThreadId()));
             threadStackTrace.put("AllocatedMemory(Bytes)", getAllocatedMemory(threadInfo));
 
             Map<String, Object> lockMonitorInfo = new LinkedHashMap<>();

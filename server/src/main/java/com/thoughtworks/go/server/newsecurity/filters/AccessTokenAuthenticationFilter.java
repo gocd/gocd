@@ -49,7 +49,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Component
 public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
+    protected final Logger LOGGER = LoggerFactory.getLogger(AccessTokenAuthenticationFilter.class);
     protected final Logger ACCESS_TOKEN_LOGGER = LoggerFactory.getLogger(AccessToken.class);
     private static final String BAD_CREDENTIALS_MSG = "Invalid Personal Access Token.";
     protected final SecurityService securityService;

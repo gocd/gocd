@@ -29,7 +29,7 @@ public class JobStateTransitions extends LinkedHashSet<JobStateTransition> {
     }
 
     @TestOnly
-    JobStateTransitions(JobStateTransition... list) {
+    public JobStateTransitions(JobStateTransition... list) {
         super(Arrays.asList(list));
     }
 

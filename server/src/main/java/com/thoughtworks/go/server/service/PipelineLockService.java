@@ -32,8 +32,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionSynchronization;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Understands how/whether to lock/unlock a pipeline instance
@@ -42,8 +42,8 @@ import java.util.List;
 public class PipelineLockService implements ConfigChangedListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineLockService.class);
     private final GoConfigService goConfigService;
-    private PipelineStateDao pipelineStateDao;
-    private List<PipelineLockStatusChangeListener> listeners = new ArrayList<>();
+    private final PipelineStateDao pipelineStateDao;
+    private final List<PipelineLockStatusChangeListener> listeners = new CopyOnWriteArrayList<>();
 
     @Autowired
     public PipelineLockService(GoConfigService goConfigService, PipelineStateDao pipelineStateDao) {

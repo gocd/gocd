@@ -38,7 +38,7 @@ public class PluginInfoProvider implements ServerInfoProvider {
 
     @Override
     public double priority() {
-        return 14.0;
+        return 5.5;
     }
 
     @Override

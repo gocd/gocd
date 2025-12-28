@@ -31,7 +31,6 @@ import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.JobResultMessage;
 import com.thoughtworks.go.server.messaging.JobResultTopic;
-import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -279,54 +278,6 @@ public class JobInstanceServiceTest {
         verify(jobInstanceDao).buildByIdWithTransitions(scheduledJob.getId());
         verify(jobInstanceDao).updateStateAndResult(scheduledJob);
         assertThat(scheduledJob.isFailed()).isTrue();
-    }
-
-    @Test
-    public void shouldDelegateToDAO_findJobHistoryPage() {
-        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
-        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
-
-        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic,
-                transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
-
-        Pagination pagination = Pagination.pageByOffset(1, 1, 1);
-        jobService.findJobHistoryPage("pipeline", "stage", "job", pagination, "looser", new HttpOperationResult());
-
-        verify(jobInstanceDao).findJobHistoryPage("pipeline", "stage", "job", pagination.getPageSize(), pagination.getOffset());
-    }
-
-    @Test
-    public void shouldPopulateErrorWhenPipelineNotFound_findJobHistoryPage() {
-        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
-        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-
-        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic,
-                transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
-
-        Pagination pagination = Pagination.pageByOffset(1, 1, 1);
-        HttpOperationResult result = new HttpOperationResult();
-        JobInstances jobHistoryPage = jobService.findJobHistoryPage("pipeline", "stage", "job", pagination, "looser", result);
-
-        assertThat(jobHistoryPage).isNull();
-        assertThat(result.httpCode()).isEqualTo(404);
-    }
-
-    @Test
-    public void shouldPopulateErrorWhenUnauthorized_findJobHistoryPage() {
-        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
-        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(false);
-
-        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic,
-                transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
-
-        Pagination pagination = Pagination.pageByOffset(1, 1, 1);
-        HttpOperationResult result = new HttpOperationResult();
-        JobInstances jobHistoryPage = jobService.findJobHistoryPage("pipeline", "stage", "job", pagination, "looser", result);
-
-        assertThat(jobHistoryPage).isNull();
-        assertThat(result.canContinue()).isFalse();
     }
 
     @Test

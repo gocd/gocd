@@ -24,7 +24,7 @@ import java.util.Map;
 
 @Component
 public class FeatureToggleInfoProvider implements ServerInfoProvider {
-    private FeatureToggleService featureToggleService;
+    private final FeatureToggleService featureToggleService;
 
     @Autowired
     public FeatureToggleInfoProvider(FeatureToggleService featureToggleService) {
@@ -33,7 +33,7 @@ public class FeatureToggleInfoProvider implements ServerInfoProvider {
 
     @Override
     public double priority() {
-        return 12.5;
+        return 5.25;
     }
 
     @Override

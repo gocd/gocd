@@ -23,6 +23,7 @@ import com.thoughtworks.go.server.exceptions.UserEnabledException;
 import com.thoughtworks.go.server.service.AccessTokenFilter;
 import com.thoughtworks.go.server.service.AccessTokenService;
 import org.hibernate.SessionFactory;
+import org.hibernate.stat.SecondLevelCacheStatistics;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -233,50 +234,6 @@ public class UserSqlMapDaoIntegrationTest {
         assertThat(user.getNotificationFilters().get(1).getId()).isEqualTo(filter2.getId());
     }
 
-    @Test
-    public void shouldGetCountForEnabledUsersOnly() {
-        User user = new User("user", "*.*,user", "user@mail.com", true);
-        User loser = new User("loser", "loser,user", "loser@mail.com", true);
-        User boozer = new User("boozer", "boozer", "boozer@mail.com", true);
-        userDao.saveOrUpdate(user);
-        userDao.saveOrUpdate(loser);
-        userDao.saveOrUpdate(boozer);
-        assertThat(userDao.enabledUserCount()).isEqualTo(3L);
-        userDao.disableUsers(List.of("loser"));
-        assertThat(userDao.enabledUserCount()).isEqualTo(2L);
-        userDao.enableUsers(List.of("loser"));
-        assertThat(userDao.enabledUserCount()).isEqualTo(3L);
-    }
-
-    @Test
-    public void shouldClearCountCacheOnSaveOrStatusChange() {
-        User user = new User("user", "*.*,user", "user@mail.com", true);
-        userDao.saveOrUpdate(user);
-        assertThat(userDao.enabledUserCount()).isEqualTo(1L);
-        User loser = new User("loser", "Loser", "loser@mail.com");
-        loser.disable();
-        User foo = new User("foo", "Foo", "foo@mail.com");
-        userDao.saveOrUpdate(loser);
-        userDao.saveOrUpdate(foo);
-        userDao.saveOrUpdate(user);
-        assertThat(userDao.enabledUserCount()).isEqualTo(2L);
-        userDao.enableUsers(List.of(loser.getName()));
-        assertThat(userDao.enabledUserCount()).isEqualTo(3L);
-        userDao.disableUsers(List.of(user.getName()));
-        assertThat(userDao.enabledUserCount()).isEqualTo(2L);
-        userDao.saveOrUpdate(new User("bozer", "Bozer", "bozer@emai.com"));
-        assertThat(userDao.enabledUserCount()).isEqualTo(3L);
-    }
-
-    @Test
-    public void shouldFetchEnabledUsersCount() {
-        User user = new User("user", "*.*,user", "user@mail.com", true);
-        userDao.saveOrUpdate(user);
-        assertThat(userDao.enabledUserCount()).isEqualTo(1L);
-        userDao.saveOrUpdate(new User("loser", "loser,user", "loser@mail.com", true));
-        assertThat(userDao.enabledUserCount()).isEqualTo(2L);
-    }
-
     private User saveUser(final String user) {
         User user1 = user(user);
         userDao.saveOrUpdate(user1);
@@ -293,6 +250,21 @@ public class UserSqlMapDaoIntegrationTest {
         userDao.saveOrUpdate(found);
         assertThat(userDao.findUser(userName).isEnabled()).isFalse();
         assertThat(userDao.findUser(userName.toLowerCase()).isEnabled()).isFalse();
+    }
+
+    @Test
+    public void shouldCacheUserOnFind() {
+        User first = new User("first");
+        first.addNotificationFilter(new NotificationFilter("pipeline", "stage1", StageEvent.Fails, true));
+        first.addNotificationFilter(new NotificationFilter("pipeline", "stage2", StageEvent.Fails, true));
+        int originalUserCacheSize = sessionFactory.getStatistics().getSecondLevelCacheStatistics(User.class.getCanonicalName()).getEntries().size();
+        int originalNotificationsCacheSize = sessionFactory.getStatistics().getSecondLevelCacheStatistics(User.class.getCanonicalName() + ".notificationFilters").getEntries().size();
+        userDao.saveOrUpdate(first);
+        long userId = userDao.findUser("first").getId();
+        assertThat(sessionFactory.getStatistics().getSecondLevelCacheStatistics(User.class.getCanonicalName()).getEntries().size()).isEqualTo(originalUserCacheSize + 1);
+        SecondLevelCacheStatistics notificationFilterCollectionCache = sessionFactory.getStatistics().getSecondLevelCacheStatistics(User.class.getCanonicalName() + ".notificationFilters");
+        assertThat(notificationFilterCollectionCache.getEntries().size()).isEqualTo(originalNotificationsCacheSize + 1);
+        assertThat(notificationFilterCollectionCache.getEntries().get(userId)).isNotNull();
     }
 
     @Test

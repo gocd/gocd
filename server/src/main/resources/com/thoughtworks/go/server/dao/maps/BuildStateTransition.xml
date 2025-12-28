@@ -54,9 +54,4 @@
             </if>
         </selectKey>
     </insert>
-
-    <select id="oldestBuild" resultMap="build-transition">
-      SELECT * FROM BUILDSTATETRANSITIONS
-      ORDER BY ID ASC LIMIT 1;
-    </select>
 </mapper>

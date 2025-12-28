@@ -15,9 +15,7 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
@@ -25,8 +23,14 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
-import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.presentation.pipelinehistory.*;
+import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.ModificationsMother;
+import com.thoughtworks.go.helper.PipelineMother;
+import com.thoughtworks.go.helper.StageMother;
+import com.thoughtworks.go.presentation.pipelinehistory.JobHistory;
+import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -62,9 +66,7 @@ class PipelineSqlMapDaoCachingTest {
     private TransactionTemplate transactionTemplate;
     private TransactionSynchronizationManager transactionSynchronizationManager;
     private SqlMapClientTemplate mockTemplate;
-    private EnvironmentVariableDao environmentVariableDao;
     private MaterialRepository repository;
-    private TimeProvider timeProvider;
 
     @BeforeEach
     void setup() {
@@ -72,14 +74,12 @@ class PipelineSqlMapDaoCachingTest {
         goCache = new StubGoCache(new TestTransactionSynchronizationManager());
         mockTemplate = mock(SqlMapClientTemplate.class);
         repository = mock(MaterialRepository.class);
-        environmentVariableDao = mock(EnvironmentVariableDao.class);
         SessionFactory mockSessionFactory = mock(SessionFactory.class);
         repository = mock(MaterialRepository.class);
         transactionTemplate = mock(TransactionTemplate.class);
         GoConfigDao configFileDao = mock(GoConfigDao.class);
-        timeProvider = mock(TimeProvider.class);
-        pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
-                transactionSynchronizationManager, null, configFileDao, mock(Database.class), timeProvider);
+        pipelineDao = new PipelineSqlMapDao(null, repository, goCache, mock(EnvironmentVariableDao.class), transactionTemplate, null,
+                transactionSynchronizationManager, null, configFileDao, mock(Database.class), mock(TimeProvider.class));
         pipelineDao.setSqlMapClientTemplate(mockTemplate);
         Session session = mock(Session.class);
         when(mockSessionFactory.getCurrentSession()).thenReturn(session);
@@ -176,35 +176,6 @@ class PipelineSqlMapDaoCachingTest {
         verify(mockTemplate, times(1)).queryForObject(eq("getPipelineHistoryById"), any());
     }
 
-    @Test
-    void loadActivePipelines_shouldCacheResult() {
-        final String pipelineName = "pipeline";
-        CruiseConfig mockCruiseConfig = mock(BasicCruiseConfig.class);
-        GoConfigDao mockconfigFileDao = mock(GoConfigDao.class);
-        when(mockconfigFileDao.currentConfig()).thenReturn(mockCruiseConfig);
-        when(mockCruiseConfig.getAllPipelineNames()).thenReturn(List.of(new CaseInsensitiveString(pipelineName)));
-
-        //need to mock configFileDao for this test
-        pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
-                transactionSynchronizationManager, null, mockconfigFileDao, null, timeProvider);
-        pipelineDao.setSqlMapClientTemplate(mockTemplate);
-
-        StageInstanceModels models = new StageInstanceModels();
-        models.add(new StageInstanceModel("stage", "1", new JobHistory()));
-        PipelineInstanceModel pipeline = new PipelineInstanceModel(pipelineName, -2, "label", BuildCause.createManualForced(), models);
-        PipelineInstanceModels pims = PipelineInstanceModels.createPipelineInstanceModels(pipeline);
-        doReturn(pims).when(mockTemplate).queryForList("allActivePipelines");
-        when(mockTemplate.queryForObject(eq("getPipelineHistoryById"), any())).thenReturn(pipeline);
-        pipelineDao.loadActivePipelines();
-        PipelineInstanceModels loaded = pipelineDao.loadActivePipelines();
-        assertThat(loaded).isNotSameAs(pims);
-        assertThat(EqualsBuilder.reflectionEquals(loaded, pims)).as(ToStringBuilder.reflectionToString(loaded) + " not equal to\n" + ToStringBuilder.reflectionToString(pipeline)).isTrue();
-        verify(mockTemplate, times(1)).queryForList("allActivePipelines");
-        verify(mockTemplate, times(1)).queryForObject(eq("getPipelineHistoryById"), any());
-        verify(mockconfigFileDao, times(2)).currentConfig();
-        verify(mockCruiseConfig, times(2)).getAllPipelineNames();
-    }
-
     private void changeStageStatus() {
         changeStageStatus(99);
     }
@@ -238,114 +209,6 @@ class PipelineSqlMapDaoCachingTest {
     }
 
     @Test
-    void shouldIgnoreStageStatusChangeWhenActivePipelineCacheIsNotYetInitialized() {
-        changeStageStatus(1);
-        assertThat(goCache.<Object>get(pipelineDao.activePipelinesCacheKey())).isNull();
-    }
-
-    @Test
-    void shouldCacheActivePipelineIdWhenStageStatusChanges() {
-        PipelineInstanceModel first = model(1, JobState.Building, JobResult.Unknown);
-        PipelineInstanceModel second = model(2, JobState.Building, JobResult.Unknown);
-        List<PipelineInstanceModel> pims = PipelineInstanceModels.createPipelineInstanceModels(first);
-        doReturn(pims).when(mockTemplate).queryForList("allActivePipelines");
-        when(mockTemplate.queryForObject("getPipelineHistoryById", arguments("id", 1L).asMap())).thenReturn(first);
-        when(mockTemplate.queryForObject("getPipelineHistoryById", arguments("id", 2L).asMap())).thenReturn(second);
-
-        // ensure cache is initialized
-        pipelineDao.loadActivePipelines();
-
-        changeStageStatus(2);
-
-        pipelineDao.loadActivePipelines();
-        verify(mockTemplate, times(1)).queryForObject("getPipelineHistoryById", arguments("id", 1L).asMap());
-        verify(mockTemplate, times(1)).queryForObject("getPipelineHistoryById", arguments("id", 2L).asMap());
-    }
-
-    @Test
-    void stageStatusChanged_shouldNotRaiseErrorWhenNoPipelinesAreActive() {
-        PipelineInstanceModel first = model(1, JobState.Building, JobResult.Unknown);
-        List<PipelineInstanceModel> pims = PipelineInstanceModels.createPipelineInstanceModels();
-        doReturn(pims).when(mockTemplate).queryForList("allActivePipelines");
-        when(mockTemplate.queryForObject("getPipelineHistoryById", arguments("id", 1L).asMap())).thenReturn(first);
-
-        // ensure cache is initialized
-        pipelineDao.loadActivePipelines();
-
-        changeStageStatus(1);
-
-        pipelineDao.loadActivePipelines();
-        verify(mockTemplate, times(1)).queryForObject("getPipelineHistoryById", arguments("id", 1L).asMap());
-    }
-
-    @Test
-    void shouldRemovePipelineIdFromCacheWhenStageFinishesForNonLatestPipeline() {
-        final String pipelineName = "pipeline";
-        CruiseConfig mockCruiseConfig = mock(BasicCruiseConfig.class);
-        GoConfigDao mockconfigFileDao = mock(GoConfigDao.class);
-        when(mockconfigFileDao.currentConfig()).thenReturn(mockCruiseConfig);
-        when(mockCruiseConfig.getAllPipelineNames()).thenReturn(List.of(new CaseInsensitiveString(pipelineName)));
-
-        //need to mock configfileDao for this test
-        pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
-                transactionSynchronizationManager, null, mockconfigFileDao, null, timeProvider);
-        pipelineDao.setSqlMapClientTemplate(mockTemplate);
-
-        PipelineInstanceModel first = model(1, JobState.Building, JobResult.Unknown);
-        PipelineInstanceModel second = model(2, JobState.Building, JobResult.Unknown);
-        List<PipelineInstanceModel> pims = PipelineInstanceModels.createPipelineInstanceModels(first, second);
-        doReturn(pims).when(mockTemplate).queryForList("allActivePipelines");
-        when(mockTemplate.queryForObject("getPipelineHistoryById", arguments("id", 1L).asMap())).thenReturn(first);
-        when(mockTemplate.queryForObject("getPipelineHistoryById", arguments("id", 2L).asMap())).thenReturn(second);
-
-        // ensure cache is initialized
-        pipelineDao.loadActivePipelines();
-
-        Stage stage = new Stage("first", new JobInstances(JobInstanceMother.assigned("job")), "me", null, "whatever", new TimeProvider());
-        stage.fail();
-        stage.calculateResult();
-        changeStageStatus(stage, 1);
-
-        //notifying latest id should not remove it from the cache
-        stage.setPipelineId(2L);
-        pipelineDao.stageStatusChanged(stage);
-
-        PipelineInstanceModels models = pipelineDao.loadActivePipelines();
-        assertThat(models.size()).isEqualTo(1);
-        assertThat(models.get(0).getId()).isEqualTo(2L);
-    }
-
-    @Test
-    void shouldRemovePipelineIdFromCacheWhenPipelineCeasesToBeTheLatestAndIsNotActive() {
-        final String pipelineName = "pipeline";
-        CruiseConfig mockCruiseConfig = mock(BasicCruiseConfig.class);
-        GoConfigDao mockconfigFileDao = mock(GoConfigDao.class);
-        when(mockconfigFileDao.currentConfig()).thenReturn(mockCruiseConfig);
-        when(mockCruiseConfig.getAllPipelineNames()).thenReturn(List.of(new CaseInsensitiveString(pipelineName)));
-
-        //need to mock configfileDao for this test
-        pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
-                transactionSynchronizationManager, null, mockconfigFileDao, null, timeProvider);
-        pipelineDao.setSqlMapClientTemplate(mockTemplate);
-
-        PipelineInstanceModel first = model(1, JobState.Completed, JobResult.Passed);
-        PipelineInstanceModel second = model(2, JobState.Building, JobResult.Unknown);
-        List<PipelineInstanceModel> pims = PipelineInstanceModels.createPipelineInstanceModels(first);
-        doReturn(pims).when(mockTemplate).queryForList("allActivePipelines");
-        when(mockTemplate.queryForObject("getPipelineHistoryById", arguments("id", 1L).asMap())).thenReturn(first);
-        when(mockTemplate.queryForObject("getPipelineHistoryById", arguments("id", 2L).asMap())).thenReturn(second);
-
-        // ensure cache is initialized
-        pipelineDao.loadActivePipelines();
-
-        changeStageStatus(2);
-
-        PipelineInstanceModels models = pipelineDao.loadActivePipelines();
-        assertThat(models.size()).isEqualTo(1);
-        assertThat(models.get(0).getId()).isEqualTo(2L);
-    }
-
-    @Test
     void shouldCachePipelinePauseState() {
         String pipelineName = "pipelineName";
         PipelinePauseInfo pauseInfo = new PipelinePauseInfo(true, "pause cause", "admin");
@@ -364,7 +227,7 @@ class PipelineSqlMapDaoCachingTest {
         StageIdentifier identifier = new StageIdentifier();
         long pipelineId = 10;
         String stage = "stage";
-        Map<String, Object> args = arguments("id", pipelineId).and("stage", stage).asMap();
+        Map<String, Object> args = Map.of("id", pipelineId, "stage", stage);
 
         when(mockTemplate.queryForObject("latestPassedStageForPipelineId", args)).thenReturn(identifier);
 
@@ -379,7 +242,7 @@ class PipelineSqlMapDaoCachingTest {
     void shouldCacheNullStageIdentifierIfNoneOfTheRunsForStageHasEverPassed() {
         long pipelineId = 10;
         String stage = "stage";
-        Map<String, Object> args = arguments("id", pipelineId).and("stage", stage).asMap();
+        Map<String, Object> args = Map.of("id", pipelineId, "stage", stage);
 
         when(mockTemplate.queryForObject("latestPassedStageForPipelineId", args)).thenReturn(null);
 
@@ -426,7 +289,7 @@ class PipelineSqlMapDaoCachingTest {
         String pipelineName = "pipelineName";
         String pauseBy = "foo";
         String pauseCause = "waiting";
-        Map<String, Object> args = arguments("pipelineName", pipelineName).and("pauseCause", pauseCause).and("pauseBy", pauseBy).and("paused", true).asMap();
+        Map<String, Object> args = Map.of("pipelineName", pipelineName, "pauseCause", pauseCause, "pauseBy", pauseBy, "paused", true);
         when(mockTemplate.update("updatePipelinePauseState", args)).thenReturn(0);
 
         PipelinePauseInfo notPausedPipelineInfo = new PipelinePauseInfo(true, pauseCause, pauseBy);

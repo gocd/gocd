@@ -62,12 +62,12 @@ import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.helper.PipelineMother.custom;
 import static com.thoughtworks.go.helper.PipelineMother.twoBuildPlansWithResourcesAndMaterials;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings({"unused", "UnusedAssignment"})
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
     "classpath:/applicationContext-global.xml",
@@ -190,12 +190,10 @@ public class StageSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldGetStageInstancesOfTheSameStageRunStartingFromTheLatest() {
-        List<Pipeline> completedPipelines = new ArrayList<>();
         mingleConfig.add(StageConfigMother.custom("new-stage", "job-1"));
         for (int i = 0; i < 10; i++) {
             Pipeline completed = dbHelper.schedulePipelineWithAllStages(mingleConfig, ModificationsMother.modifySomeFiles(mingleConfig));
             dbHelper.pass(completed);
-            completedPipelines.add(completed);
         }
         List<Stage> stages = stageDao.findStageHistoryForChart(mingleConfig.name().toString(), mingleConfig.first().name().toString(), 10, 0);
         assertStagesFound(stages, 10, str(mingleConfig.first().name()));
@@ -203,12 +201,10 @@ public class StageSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldGetStageInstancesBasedUponAPageNumberAndLimit() {
-        List<Pipeline> completedPipelines = new ArrayList<>();
         mingleConfig.add(StageConfigMother.custom("new-stage", "job-1"));
         for (int i = 0; i < 10; i++) {
             Pipeline completed = dbHelper.schedulePipelineWithAllStages(mingleConfig, ModificationsMother.modifySomeFiles(mingleConfig));
             dbHelper.pass(completed);
-            completedPipelines.add(completed);
         }
 
         List<Stage> stages = stageDao.findStageHistoryForChart(mingleConfig.name().toString(), mingleConfig.first().name().toString(), 5, 0);
@@ -239,12 +235,10 @@ public class StageSqlMapDaoIntegrationTest {
     public void shouldNotIncludeCancelledStagesWhileGettingLastStageInstances() {
         configHelper.addPipeline(mingleConfig);
         configHelper.turnOffSecurity();
-        List<Pipeline> completedPipelines = new ArrayList<>();
         Pipeline pipeline;
         for (int i = 0; i < 3; i++) {
             pipeline = dbHelper.schedulePipelineWithAllStages(mingleConfig, ModificationsMother.modifySomeFiles(mingleConfig));
             dbHelper.pass(pipeline);
-            completedPipelines.add(pipeline);
         }
         List<Stage> stages = stageDao.findStageHistoryForChart(mingleConfig.name().toString(), mingleConfig.first().name().toString(), 10, 0);
         assertThat(stages.size()).isEqualTo(3);
@@ -260,12 +254,10 @@ public class StageSqlMapDaoIntegrationTest {
     public void shouldGetTotalStageCountForChart() {
         configHelper.addPipeline(mingleConfig);
         configHelper.turnOffSecurity();
-        List<Pipeline> completedPipelines = new ArrayList<>();
         Pipeline pipeline;
         for (int i = 0; i < 3; i++) {
             pipeline = dbHelper.schedulePipelineWithAllStages(mingleConfig, ModificationsMother.modifySomeFiles(mingleConfig));
             dbHelper.pass(pipeline);
-            completedPipelines.add(pipeline);
         }
         assertThat(stageDao.getTotalStageCountForChart(mingleConfig.name().toString(), mingleConfig.first().name().toString())).isEqualTo(3);
 
@@ -280,7 +272,7 @@ public class StageSqlMapDaoIntegrationTest {
         SqlMapClientTemplate mockClient = mock(SqlMapClientTemplate.class);
         stageDao.setSqlMapClientTemplate(mockClient);
 
-        Map<String, Object> toGet = arguments("pipelineName", "maar").and("stageName", "khoon").asMap();
+        Map<String, Object> toGet = Map.of("pipelineName", "maar", "stageName", "khoon");
 
         when(mockClient.queryForObject("getTotalStageCountForChart", toGet)).thenReturn(3);
 
@@ -296,7 +288,7 @@ public class StageSqlMapDaoIntegrationTest {
         SqlMapClientTemplate mockClient = mock(SqlMapClientTemplate.class);
         stageDao.setSqlMapClientTemplate(mockClient);
 
-        Map<String, Object> toGet = arguments("pipelineName", "maar").and("stageName", "khoon").asMap();
+        Map<String, Object> toGet = Map.of("pipelineName", "maar", "stageName", "khoon");
 
         when(mockClient.queryForObject("getTotalStageCountForChart", toGet)).thenReturn(3).thenReturn(4);
 
@@ -316,7 +308,7 @@ public class StageSqlMapDaoIntegrationTest {
         SqlMapClientTemplate mockClient = mock(SqlMapClientTemplate.class);
         stageDao.setSqlMapClientTemplate(mockClient);
 
-        Map<String, Object> toGet = arguments("pipelineName", "maar").and("stageName", "khoon").asMap();
+        Map<String, Object> toGet = Map.of("pipelineName", "maar", "stageName", "khoon");
 
         when(mockClient.queryForObject("getTotalStageCountForChart", toGet)).thenReturn(3).thenReturn(4);
 
@@ -915,14 +907,6 @@ public class StageSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldGetCount() {
-        Pipeline[] pipelines = pipelineWithOnePassedAndOneCurrentlyRunning(mingleConfig);
-        Pipeline completed = pipelines[0];
-
-        assertThat(stageDao.getCount(completed.getName(), STAGE_DEV)).isEqualTo(2);
-    }
-
-    @Test
     public void shouldGetStagesByPipelineId() {
         Pipeline[] pipelines = pipelineWithOnePassedAndOneCurrentlyRunning(mingleConfig);
         Pipeline completed = pipelines[0];
@@ -1218,122 +1202,6 @@ public class StageSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldFindStagesBetween() {
-        PipelineConfig config = PipelineMother.createPipelineConfig("pipeline", new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig()), "firstStage", "secondStage");
-        Pipeline pipeline0 = dbHelper.newPipelineWithAllStagesPassed(config);
-        dbHelper.updateNaturalOrder(pipeline0.getId(), 4.0);
-
-        //First run Failed, Rerun Passed
-        Pipeline pipeline1 = dbHelper.newPipelineWithFirstStagePassed(config);
-        Stage stage = dbHelper.scheduleStage(pipeline1, config.get(1));
-        dbHelper.failStage(stage);
-        stage = dbHelper.scheduleStage(pipeline1, config.get(1));
-        dbHelper.passStage(stage);
-        dbHelper.updateNaturalOrder(pipeline1.getId(), 5.0);
-
-        Pipeline pipeline2 = dbHelper.newPipelineWithFirstStagePassed(config);
-        stage = dbHelper.scheduleStage(pipeline2, config.get(1));
-        dbHelper.failStage(stage);
-        dbHelper.updateNaturalOrder(pipeline2.getId(), 6.0);
-
-        Pipeline pipeline3 = dbHelper.newPipelineWithFirstStagePassed(config);
-        dbHelper.updateNaturalOrder(pipeline3.getId(), 7.0);
-
-        Pipeline pipeline4 = dbHelper.newPipelineWithFirstStagePassed(config);
-        stage = dbHelper.scheduleStage(pipeline4, config.get(1));
-        dbHelper.cancelStage(stage);
-        dbHelper.updateNaturalOrder(pipeline4.getId(), 8.0);
-
-        Pipeline pipeline5 = dbHelper.newPipelineWithFirstStagePassed(config);
-        dbHelper.scheduleStage(pipeline5, config.get(1));
-        dbHelper.updateNaturalOrder(pipeline5.getId(), 9.0);
-
-        //First run passed, rerun failed.
-        Pipeline pipeline6 = dbHelper.newPipelineWithAllStagesPassed(config);
-        stage = dbHelper.scheduleStage(pipeline6, config.get(1));
-        dbHelper.failStage(stage);
-        dbHelper.updateNaturalOrder(pipeline6.getId(), 10.0);
-
-        Pipeline pipeline7 = dbHelper.newPipelineWithFirstStagePassed(config);
-        stage = dbHelper.scheduleStage(pipeline7, config.get(1));
-        dbHelper.failStage(stage);
-        dbHelper.updateNaturalOrder(pipeline7.getId(), 11.0);
-
-        pipeline7 = pipelineDao.loadPipeline(pipeline7.getId());
-        pipeline6 = pipelineDao.loadPipeline(pipeline6.getId());
-        pipeline4 = pipelineDao.loadPipeline(pipeline4.getId());
-        pipeline2 = pipelineDao.loadPipeline(pipeline2.getId());
-
-        List<StageIdentifier> list = stageDao.findFailedStagesBetween("pipeline", "secondStage", 5.0, 11.0);
-
-        assertThat(list.size()).isEqualTo(3);
-        StageIdentifier identifier = list.get(0);
-        assertThat(identifier).isEqualTo(new StageIdentifier("pipeline", 8, "secondStage", "1"));
-        assertThat(identifier).isEqualTo(pipeline7.findStage("secondStage").getIdentifier());
-        assertThat(list.get(1)).isEqualTo(pipeline6.findStage("secondStage").getIdentifier());
-        assertThat(list.get(2)).isEqualTo(pipeline2.findStage("secondStage").getIdentifier());
-
-        list = stageDao.findFailedStagesBetween("pipeline", "secondStage", 5.0, 10.0);
-        assertThat(list.size()).isEqualTo(2);
-        assertThat(list.get(0)).isEqualTo(pipeline6.findStage("secondStage").getIdentifier());
-        assertThat(list.get(1)).isEqualTo(pipeline2.findStage("secondStage").getIdentifier());
-
-        list = stageDao.findFailedStagesBetween("pipeline", "secondStage", 5.0, 9.0);
-        assertThat(list.size()).isEqualTo(1);
-        assertThat(list.get(0)).isEqualTo(pipeline2.findStage("secondStage").getIdentifier());
-
-        list = stageDao.findFailedStagesBetween("pipeline", "secondStage", 5.0, 4.0);
-        assertThat(list.size()).isEqualTo(0);
-    }
-
-    @Test
-    public void shouldFindRerunStagesWhenFindStagesBetween() {
-        Pipeline pipeline = dbHelper.newPipelineWithFirstStageFailed(mingleConfig);
-        dbHelper.updateNaturalOrder(pipeline.getId(), 5.0);
-        Stage rerunedStage = rerunFirstStage(pipeline);
-        dbHelper.failStage(rerunedStage);
-
-        List<StageIdentifier> list = stageDao.findFailedStagesBetween(PIPELINE_NAME, STAGE_DEV, 3.0, 5.0);
-        assertThat(list.size()).isEqualTo(1);
-        assertThat(list.get(0)).isEqualTo(rerunedStage.getIdentifier());
-    }
-
-    @Test
-    public void shouldFindStagesBetweenAtTheBeginingOfAPipeline() {
-        PipelineConfig config = PipelineMother.createPipelineConfig("pipeline", new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig()), "firstStage", "secondStage");
-
-        Pipeline pipeline1 = dbHelper.newPipelineWithFirstStagePassed(config);
-        dbHelper.updateNaturalOrder(pipeline1.getId(), 1.0);
-
-        Pipeline pipeline2 = dbHelper.newPipelineWithFirstStagePassed(config);
-        Stage stage = dbHelper.scheduleStage(pipeline2, config.get(1));
-        dbHelper.failStage(stage);
-        dbHelper.updateNaturalOrder(pipeline2.getId(), 2.0);
-
-        Pipeline pipeline3 = dbHelper.newPipelineWithFirstStagePassed(config);
-        dbHelper.updateNaturalOrder(pipeline3.getId(), 1.5);
-
-        Pipeline pipeline4 = dbHelper.newPipelineWithFirstStagePassed(config);
-        stage = dbHelper.scheduleStage(pipeline4, config.get(1));
-        dbHelper.cancelStage(stage);
-        dbHelper.updateNaturalOrder(pipeline4.getId(), 0.5);
-
-        Pipeline pipeline7 = dbHelper.newPipelineWithFirstStagePassed(config);
-        stage = dbHelper.scheduleStage(pipeline7, config.get(1));
-        dbHelper.failStage(stage);
-        dbHelper.updateNaturalOrder(pipeline7.getId(), 11.0);
-
-        pipeline7 = pipelineDao.loadPipeline(pipeline7.getId());
-        pipeline4 = pipelineDao.loadPipeline(pipeline4.getId());
-        pipeline2 = pipelineDao.loadPipeline(pipeline2.getId());
-
-        List<StageIdentifier> list = stageDao.findFailedStagesBetween("pipeline", "secondStage", 0.0, 11.0);
-        assertThat(list.size()).isEqualTo(2);
-        assertThat(list.get(0)).isEqualTo(pipeline7.findStage("secondStage").getIdentifier());
-        assertThat(list.get(1)).isEqualTo(pipeline2.findStage("secondStage").getIdentifier());
-    }
-
-    @Test
     public void shouldReturnAllTheStagesOfAGivenPipeline() {
         StageConfig first = StageConfigMother.custom("first", "job1");
         StageConfig second = StageConfigMother.custom("second", "job1");
@@ -1354,14 +1222,14 @@ public class StageSqlMapDaoIntegrationTest {
         Stage stage1 = StageMother.passedStageInstance("first", "job", "pipeline");
         Stage stage2 = StageMother.passedStageInstance("second", "job", "pipeline");
         List<Stage> stages = List.of(stage1, stage2);
-        doReturn(stages).when(mockTemplate).queryForList("getStagesByPipelineNameAndCounter", arguments("pipelineName", "pipeline").and("pipelineCounter", 1).asMap());
+        doReturn(stages).when(mockTemplate).queryForList("getStagesByPipelineNameAndCounter", Map.of("pipelineName", "pipeline", "pipelineCounter", 1));
 
         Stages actual = stageDao.findAllStagesFor("pipeline", 1);
         assertThat(actual).isEqualTo(new Stages(stages));
         actual = stageDao.findAllStagesFor("pipeline", 1); //Should return from cache
         assertThat(actual).isEqualTo(new Stages(stages));
 
-        verify(mockTemplate, times(1)).queryForList("getStagesByPipelineNameAndCounter", arguments("pipelineName", "pipeline").and("pipelineCounter", 1).asMap());
+        verify(mockTemplate, times(1)).queryForList("getStagesByPipelineNameAndCounter", Map.of("pipelineName", "pipeline", "pipelineCounter", 1));
     }
 
     @Test
@@ -1372,7 +1240,7 @@ public class StageSqlMapDaoIntegrationTest {
         Stage stage1 = StageMother.passedStageInstance("first", "job", "pipeline");
         Stage stage2 = StageMother.passedStageInstance("second", "job", "pipeline");
         List<Stage> stages = List.of(stage1, stage2);
-        doReturn(stages).when(mockTemplate).queryForList("getStagesByPipelineNameAndCounter", arguments("pipelineName", "pipeline").and("pipelineCounter", 1).asMap());
+        doReturn(stages).when(mockTemplate).queryForList("getStagesByPipelineNameAndCounter", Map.of("pipelineName", "pipeline", "pipelineCounter", 1));
 
         Stages actual = stageDao.findAllStagesFor("pipeline", 1);
         assertThat(actual).isEqualTo(new Stages(stages));
@@ -1382,7 +1250,7 @@ public class StageSqlMapDaoIntegrationTest {
         actual = stageDao.findAllStagesFor("pipeline", 1);
         assertThat(actual).isEqualTo(new Stages(stages));
 
-        verify(mockTemplate, times(2)).queryForList("getStagesByPipelineNameAndCounter", arguments("pipelineName", "pipeline").and("pipelineCounter", 1).asMap());
+        verify(mockTemplate, times(2)).queryForList("getStagesByPipelineNameAndCounter", Map.of("pipelineName", "pipeline", "pipelineCounter", 1));
     }
 
     @Test
@@ -1393,7 +1261,7 @@ public class StageSqlMapDaoIntegrationTest {
         Stage stage1 = StageMother.passedStageInstance("first", "job", "pipeline");
         Stage stage2 = StageMother.passedStageInstance("second", "job", "pipeline");
         List<Stage> stages = List.of(stage1, stage2);
-        doReturn(stages).when(mockTemplate).queryForList("getStagesByPipelineNameAndCounter", arguments("pipelineName", "pipeline").and("pipelineCounter", 1).asMap());
+        doReturn(stages).when(mockTemplate).queryForList("getStagesByPipelineNameAndCounter", Map.of("pipelineName", "pipeline", "pipelineCounter", 1));
 
         Stages actual = stageDao.findAllStagesFor("pipeline", 1);
         assertThat(actual).isEqualTo(new Stages(stages));
@@ -1403,7 +1271,7 @@ public class StageSqlMapDaoIntegrationTest {
         actual = stageDao.findAllStagesFor("pipeline", 1);
         assertThat(actual).isEqualTo(new Stages(stages));
 
-        verify(mockTemplate, times(1)).queryForList("getStagesByPipelineNameAndCounter", arguments("pipelineName", "pipeline").and("pipelineCounter", 1).asMap());
+        verify(mockTemplate, times(1)).queryForList("getStagesByPipelineNameAndCounter", Map.of("pipelineName", "pipeline", "pipelineCounter", 1));
     }
 
     @Test

@@ -179,7 +179,7 @@ public class ScheduleServiceIntegrationTest {
     public void shouldNotSchedulePausedPipeline() {
         Pipeline pipeline = PipelineMother.schedule(mingleConfig, modifySomeFiles(mingleConfig));
         pipeline = dbHelper.savePipelineWithStagesAndMaterials(pipeline);
-        pipelinePauseService.pause(pipeline.getName(), "", null);
+        pipelinePauseService.pause(pipeline.getName(), "", Username.valueOf("anyone"));
         dbHelper.passStage(pipeline.getStages().first());
         Pipeline newPipeline = manualSchedule(str(mingleConfig.name()));
         assertThat(newPipeline.getId()).isEqualTo(pipeline.getId());
@@ -455,7 +455,7 @@ public class ScheduleServiceIntegrationTest {
         scheduleService.jobCompleting(jobIdentifier, JobResult.Passed, job.getAgentUuid());
 
         scheduleService.updateJobStatus(jobIdentifier, JobState.Completed);
-        assertThat(stageService.findLatestStage(pipelineName, secondStage)).isNotNull();
+        assertThat(stageDao.mostRecentStage(new StageConfigIdentifier(pipelineName, secondStage))).isNotNull();
     }
 
     // This could happen during race condition between rescheduleHungJobs and rescheduleAbandonedBuildIfNecessary.

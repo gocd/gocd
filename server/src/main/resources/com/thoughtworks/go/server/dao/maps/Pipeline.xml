@@ -67,7 +67,6 @@
         <collection property="stageHistory" resultMap="Stage.stage-with-job-history"/>
     </resultMap>
 
-
     <resultMap id="stage-identifier" type="com.thoughtworks.go.domain.StageIdentifier">
         <result property="pipelineName" column="pipelineName"/>
         <result property="pipelineCounter" column="pipelineCounter"/>
@@ -147,26 +146,6 @@
         SELECT id as pipelineId, name as pipelineName, buildCauseType, label, buildCauseMessage, pipelines.counter as pipelineCounter, pipelines.naturalOrder
         FROM pipelines
         WHERE name = #{name} AND counter=#{counter}
-    </select>
-
-    <select id="findEarlierPipelineThatPassedForStage" resultMap="select-pipeline">
-        SELECT pipelineId, pipelineName, buildCauseType, pipelineLabel AS label, buildCauseMessage, pipelineCounter, naturalOrder
-        FROM _stages
-        WHERE pipelineName = #{pipelineName}
-            AND naturalOrder &lt; #{naturalOrder}
-            AND name = #{stageName}
-            AND result = 'Passed'
-            AND latestRun = true
-        ORDER BY naturalOrder DESC
-        LIMIT 1
-    </select>
-
-    <select id="findPipelineByNameAndLabel" resultMap="select-pipeline">
-        SELECT id as pipelineId, name as pipelineName, buildCauseType, label, buildCauseMessage, pipelines.counter as pipelineCounter, pipelines.naturalOrder
-        FROM pipelines
-        WHERE name=#{name} AND label=#{label}
-        ORDER BY pipelineId DESC
-        LIMIT 1
     </select>
 
     <select id="pipelineById" parameterType="java.lang.Long" resultMap="select-pipeline">
@@ -461,22 +440,6 @@
         <include refid="getPipelineHistory"/>
         WHERE pipelines.name = #{name}
         ORDER BY stages.orderId ASC
-    </select>
-
-     <select id="pipelineAndItsDepedenciesByNameAndCounter" resultMap="select-pipeline-history">
-        SELECT
-         pipelineId, pipelineName, buildCauseType, label, buildCauseMessage, pipelineCounter, pipelineLabel,
-         naturalOrder, pipelineComment, stageName, stageCounter, stageId, approvedBy, approvalType, stageResult,
-         buildId, buildName, buildState, buildResult, scheduledDate, orderId, rerunOfCounter
-         FROM (
-            <include refid="getPipelineHistoryByNameAndCounterSQL"/>
-              UNION
-            <include refid="getPipelineHistory"/>
-              INNER JOIN pipelinematerialrevisions on pipelinematerialrevisions.pipelineid=pipelines.id
-              INNER JOIN modifications ON modifications.id = pipelinematerialrevisions.torevisionid AND modifications.revision LIKE #{stageLocator}
-              INNER JOIN materials ON materials.id=modifications.materialid AND materials.type = 'DependencyMaterial' AND materials.pipelinename = #{pipelineName}
-        ) AS temp
-        ORDER BY orderId ASC
     </select>
 
     <select id="pipelineInstancesTriggeredOutOfDependencyMaterial" resultMap="select-pipeline-identifier">

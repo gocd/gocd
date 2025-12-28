@@ -180,12 +180,10 @@ public class MaterialDatabaseDependencyUpdaterTest {
                 mods.add(new Modification(stage.completedDate(), id.stageLocator(), id.getPipelineLabel(), stage.getPipelineId()));
             }
             when(dependencyMaterialSourceDao.getPassedStagesAfter(identifier.stageLocator(),
-                material,
                 Pagination.pageByOffsetUnknownTotal(i * MaterialDatabaseUpdater.STAGES_PER_PAGE, MaterialDatabaseUpdater.STAGES_PER_PAGE)
             )).thenReturn(mods);
         }
         when(dependencyMaterialSourceDao.getPassedStagesAfter(identifier.stageLocator(),
-            material,
             Pagination.pageByOffsetUnknownTotal(MaterialDatabaseUpdater.STAGES_PER_PAGE * stageses.length, MaterialDatabaseUpdater.STAGES_PER_PAGE)
         )).thenReturn(new ArrayList<>());
     }
@@ -257,7 +255,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
         // update subsequently should hit database
         updater.updateMaterial(dependencyMaterial);
 
-        verify(dependencyMaterialSourceDao, times(2)).getPassedStagesAfter(any(), any(), any());
+        verify(dependencyMaterialSourceDao, times(2)).getPassedStagesAfter(any(), any());
         verify(dependencyMaterialSourceDao, times(2)).getPassedStagesByName(any(), any());
     }
 

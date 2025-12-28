@@ -355,10 +355,6 @@ public class BackupService implements BackupStatusProvider {
         return serverBackupRepository.lastSuccessfulBackup().map((ServerBackup::getUsername));
     }
 
-    public void deleteAll() {
-        serverBackupRepository.deleteAll();
-    }
-
     @Override
     public boolean isBackingUp() {
         return runningBackup != null;

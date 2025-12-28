@@ -34,7 +34,7 @@ public class DaemonThreadStatsCollectorTest {
         long threadId = Thread.currentThread().getId();
         collector.captureStats(threadId);
         assertThat(collector.statsFor(threadId))
-            .hasEntrySatisfying("CPUTime(nanoseconds)", value -> assertThat(value).asInstanceOf(InstanceOfAssertFactories.LONG).isGreaterThanOrEqualTo(0))
+            .hasEntrySatisfying("CPUTime(ms)", value -> assertThat(value).asInstanceOf(InstanceOfAssertFactories.LONG).isGreaterThanOrEqualTo(0))
             .hasEntrySatisfying("UUID", value -> assertThat(value).asInstanceOf(InstanceOfAssertFactories.STRING).isNotBlank());
     }
     @Test

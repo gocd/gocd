@@ -151,7 +151,6 @@ describe StagesController do
     end
 
     it "should render response code returned by the api result" do
-      stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
       allow(@pipeline_history_service).to receive(:validate).with("pipeline", @user, @status)
 
       expect(@status).to receive(:canContinue).and_return(false)

@@ -15,14 +15,12 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 
 import java.util.List;
-
 
 public interface PipelineDao {
 
@@ -31,8 +29,6 @@ public interface PipelineDao {
     Pipeline loadPipeline(long pipelineId);
 
     Pipeline mostRecentPipeline(String pipelineName);
-
-    PipelineInstanceModel loadHistory(long id);
 
     PipelineInstanceModels loadHistory(String pipelineName, int resultsPerPage, int start);
 
@@ -52,23 +48,13 @@ public interface PipelineDao {
 
     Pipeline findPipelineByNameAndCounter(String pipelineName, int pipelineCounter);
 
-    Pipeline findPipelineByNameAndLabel(String pipelineName, String pipelineLabel);
-
     Pipeline loadAssociations(Pipeline pipeline, String pipelineName);
 
     PipelineInstanceModels loadHistory(String pipelineName);
 
     PipelineInstanceModel findPipelineHistoryByNameAndCounter(String pipelineName, int pipelineCounter);
 
-    PipelineInstanceModels loadActivePipelines();
-
-    Pipeline findEarlierPipelineThatPassedForStage(String pipelineName, String stageName, double naturalOrder);
-
-    PipelineInstanceModels loadActivePipelineInstancesFor(CaseInsensitiveString pipelineName);
-
     PipelineInstanceModel loadHistoryByIdWithBuildCause(Long id);
-
-    int getPageNumberForCounter(String pipelineName, int pipelineCounter, int limit);
 
     PipelineInstanceModels findMatchingPipelineInstances(String pipelineName, String pattern, int limit);
 

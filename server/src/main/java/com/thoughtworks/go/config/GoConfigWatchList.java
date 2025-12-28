@@ -21,13 +21,14 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.service.GoConfigService;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Provides a list of configuration repositories.
@@ -36,9 +37,10 @@ import java.util.List;
 public class GoConfigWatchList extends EntityConfigChangedListener<ConfigRepoConfig> implements ConfigChangedListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigWatchList.class);
 
-    private List<ChangedRepoConfigWatchListListener> listeners = new ArrayList<>();
-    private ConfigReposConfig reposConfig;
-    private GoConfigService goConfigService;
+    private final List<ChangedRepoConfigWatchListListener> listeners = new CopyOnWriteArrayList<>();
+    private final GoConfigService goConfigService;
+
+    private volatile ConfigReposConfig reposConfig; // TODO ConfigReposConfig is not obviously thread-safe given it's a regular list.
 
     @Autowired
     public GoConfigWatchList(CachedGoConfig cachedGoConfig, GoConfigService goConfigService) {
@@ -47,16 +49,15 @@ public class GoConfigWatchList extends EntityConfigChangedListener<ConfigRepoCon
         cachedGoConfig.registerListener(this);
     }
 
+    @TestOnly
     public ConfigReposConfig getCurrentConfigRepos() {
         return reposConfig;
     }
 
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
-        ConfigReposConfig partSources = newCruiseConfig.getConfigRepos();
-
-        this.reposConfig = partSources;
-        notifyListeners(partSources);
+        this.reposConfig = newCruiseConfig.getConfigRepos();
+        notifyListeners(this.reposConfig);
     }
 
     @Override

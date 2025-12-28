@@ -32,10 +32,6 @@ public class GoCacheFactory {
     private final CacheConfiguration cacheConfiguration;
     private TransactionSynchronizationManager transactionSynchronizationManager;
 
-    static {
-        System.setProperty("net.sf.ehcache.skipUpdateCheck", "true");
-    }
-
     public GoCacheFactory(TransactionSynchronizationManager transactionSynchronizationManager,
                           @Value("${cruise.cache.elements.limit}") int maxElementsInMemory,
                           @Value("${cruise.cache.is.eternal}") boolean eternal) {

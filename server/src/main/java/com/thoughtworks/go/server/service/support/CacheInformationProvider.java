@@ -71,8 +71,6 @@ public class CacheInformationProvider implements ServerInfoProvider {
             "Expired", statistics.cacheMissExpiredCount(),
             "NotFound", statistics.cacheMissNotFoundCount())
         );
-        cacheCount.put("MissExpired", statistics.cacheMissExpiredCount());
-        cacheCount.put("MissNotFound", statistics.cacheMissNotFoundCount());
         cacheCount.put("Expired", statistics.cacheExpiredCount());
         cacheCount.put("Evicted", statistics.cacheEvictedCount());
         cacheCount.put("Put", Map.of(

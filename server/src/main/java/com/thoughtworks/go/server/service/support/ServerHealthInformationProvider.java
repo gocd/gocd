@@ -32,7 +32,7 @@ import java.util.Map;
 @Component
 public class ServerHealthInformationProvider implements ServerInfoProvider {
 
-    private ServerHealthService service;
+    private final ServerHealthService service;
 
     @Override
     public double priority() {

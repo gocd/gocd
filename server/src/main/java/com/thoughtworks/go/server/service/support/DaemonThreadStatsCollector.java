@@ -24,6 +24,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+
 @Component
 public class DaemonThreadStatsCollector {
     private final ConcurrentMap<Long, Info> cpuInfoByThreadId = new ConcurrentHashMap<>();
@@ -47,7 +49,7 @@ public class DaemonThreadStatsCollector {
         }
         long start = info.time;
         Map<String, Object> map = new HashMap<>();
-        map.put("CPUTime(nanoseconds)", end - start);
+        map.put("CPUTime(ms)", NANOSECONDS.toMillis(end - start));
         map.put("UUID", info.uuid);
         return map;
     }

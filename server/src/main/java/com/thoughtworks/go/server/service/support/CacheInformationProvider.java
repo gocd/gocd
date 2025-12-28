@@ -19,7 +19,6 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.statistics.StatisticsGateway;
-import net.sf.ehcache.statistics.extended.ExtendedStatistics;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
@@ -30,7 +29,7 @@ public class CacheInformationProvider implements ServerInfoProvider {
 
     @Override
     public double priority() {
-        return 7.0;
+        return 11.5;
     }
 
     @Override
@@ -60,21 +59,27 @@ public class CacheInformationProvider implements ServerInfoProvider {
     }
 
     public Map<String, Object> getCacheRuntimeInformationAsJson(Cache cache) {
-        LinkedHashMap<String, Object> json = new LinkedHashMap<>();
+        Map<String, Object> json = new LinkedHashMap<>();
         StatisticsGateway statistics = cache.getStatistics();
-
-        json.put("Get Time in milliseconds", getStatisticsFrom(statistics.cacheGetOperation()));
-        json.put("Put Time in milliseconds", getStatisticsFrom(statistics.cachePutOperation()));
-        json.put("Remove Time in milliseconds", getStatisticsFrom(statistics.cacheRemoveOperation()));
 
         json.put("Cache Size", statistics.getSize());
 
-        LinkedHashMap<String, Long> cacheCount = new LinkedHashMap<>();
+        Map<String, Object> cacheCount = new LinkedHashMap<>();
         cacheCount.put("Hits", statistics.cacheHitCount());
-        cacheCount.put("Miss", statistics.cacheMissCount());
+        cacheCount.put("Miss", Map.of(
+            "Total", statistics.cacheMissCount(),
+            "Expired", statistics.cacheMissExpiredCount(),
+            "NotFound", statistics.cacheMissNotFoundCount())
+        );
+        cacheCount.put("MissExpired", statistics.cacheMissExpiredCount());
+        cacheCount.put("MissNotFound", statistics.cacheMissNotFoundCount());
         cacheCount.put("Expired", statistics.cacheExpiredCount());
-        cacheCount.put("Eviction", statistics.cacheEvictedCount());
-        cacheCount.put("Put", statistics.cachePutCount());
+        cacheCount.put("Evicted", statistics.cacheEvictedCount());
+        cacheCount.put("Put", Map.of(
+            "Total", statistics.cachePutCount(),
+            "Added", statistics.cachePutAddedCount(),
+            "Updated", statistics.cachePutUpdatedCount())
+        );
         cacheCount.put("Remove", statistics.cacheRemoveCount());
         json.put("Cache Counts", cacheCount);
 
@@ -82,14 +87,6 @@ public class CacheInformationProvider implements ServerInfoProvider {
         json.put("Cache Count (Disk)", statistics.localDiskHitCount());
 
         return json;
-    }
-
-    private Map<String, Object> getStatisticsFrom(ExtendedStatistics.Result result) {
-        LinkedHashMap<String, Object> time = new LinkedHashMap<>();
-        time.put("Average", String.valueOf(result.latency().average().value()));
-        time.put("Minimum", String.valueOf(result.latency().minimum().value()));
-        time.put("Maximum", String.valueOf(result.latency().maximum().value()));
-        return time;
     }
 
     public Map<String, Object> getCacheConfigurationInformationAsJson(Cache cache) {
@@ -115,10 +112,8 @@ public class CacheInformationProvider implements ServerInfoProvider {
         json.put("Disk Access Stripes", config.getDiskAccessStripes());
         json.put("Disk Expiry Thread Interval Seconds", config.getDiskExpiryThreadIntervalSeconds());
         json.put("Logging Enabled", config.getLogging());
-        json.put("Terracotta Configuration", config.getTerracottaConfiguration());
         json.put("Cache Writer Configuration", config.getCacheWriterConfiguration());
         json.put("Cache Loader Configurations", config.getCacheLoaderConfigurations());
-        json.put("Frozen", config.isFrozen());
         json.put("Transactional Mode", config.getTransactionalMode());
         json.put("Statistics Enabled", config.getStatistics());
 

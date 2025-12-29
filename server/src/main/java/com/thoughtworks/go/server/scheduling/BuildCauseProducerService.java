@@ -175,7 +175,7 @@ public class BuildCauseProducerService {
                     buildCause = buildType.onModifications(revisions, materialConfigurationChanged, null);
                     if (buildCause != null) {
                         if (!buildCause.materialsMatch(expandedMaterialConfigs)) {
-                            LOGGER.warn("Error while scheduling pipeline: {}. Possible Reasons: (1) Upstream pipelines have not been built yet. (2) Materials do not match between configuration and build-cause.", pipelineName);
+                            LOGGER.debug("Error while scheduling pipeline: {}. Possible Reasons: (1) Upstream pipelines have not been built yet. (2) Materials do not match between configuration and build-cause.", pipelineName);
                             return ServerHealthState.success(HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
                         }
                     }
@@ -216,7 +216,7 @@ public class BuildCauseProducerService {
             LOGGER.debug(message, ncure);
             return showError(pipelineName, message, ncure.getMessage());
         } catch (NoModificationsPresentForDependentMaterialException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.info(e.getMessage(), e);
             return ServerHealthState.success(HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
         } catch (Exception e) {
             String message = "Error while scheduling pipeline: " + pipelineName;

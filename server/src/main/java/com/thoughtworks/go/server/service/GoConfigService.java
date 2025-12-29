@@ -248,11 +248,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     public Duration getUnresponsiveJobTerminationThreshold(JobIdentifier identifier) {
         JobConfig jobConfig = getJob(identifier);
-        if (jobConfig == null) {
-            return Duration.ofMinutes(Long.parseLong(serverConfig().getJobTimeout()));
-        }
-        String timeout = jobConfig.getTimeout();
-        return Duration.ofMinutes(timeout != null ? Long.parseLong(timeout) : Long.parseLong(serverConfig().getJobTimeout()));
+        String jobTimeout = jobConfig != null ? jobConfig.getTimeout() : null;
+        return Duration.ofMinutes(Long.parseLong(jobTimeout != null ? jobTimeout : serverConfig().getJobTimeout()));
     }
 
     private JobConfig getJob(JobIdentifier identifier) {

@@ -314,7 +314,7 @@ class ConsoleActivityMonitorTest {
         when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1972, 1, 1, 1, 1, 0, 0, UTC).toInstant().toEpochMilli());
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
-        verify(consoleService).appendToConsoleLog(unresponsiveJob, "Go cancelled this job as it has not generated any console output for more than 5 minute(s)");
+        verify(consoleService).appendToConsoleLogSafe(unresponsiveJob, "Go cancelled this job as it has not generated any console output for more than 5 minute(s)");
     }
 
     @Test
@@ -445,7 +445,7 @@ class ConsoleActivityMonitorTest {
             when(timeProvider.currentTimeMillis()).thenReturn(ZonedDateTime.of(1972, 1, 1, 1, 1, 0, 0, UTC).toInstant().toEpochMilli());
             consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
-            verify(consoleService).appendToConsoleLog(unresponsiveJob, "Go cancelled this job as it has not been assigned an agent for more than 5 minute(s)");
+            verify(consoleService).appendToConsoleLogSafe(unresponsiveJob, "Go cancelled this job as it has not been assigned an agent for more than 5 minute(s)");
         }
 
         @Test

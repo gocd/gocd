@@ -17,7 +17,7 @@ package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.domain.FileHandler;
 import com.thoughtworks.go.server.domain.ZippedArtifact;
-import com.thoughtworks.go.util.ArtifactLogUtil;
+import com.thoughtworks.go.util.ArtifactUtil;
 import com.thoughtworks.go.util.GoConstants;
 import lombok.experimental.UtilityClass;
 import org.springframework.web.servlet.ModelAndView;
@@ -92,7 +92,7 @@ public class FileModelAndView {
     }
 
     public static ModelAndView fileNotFound(String filePath) {
-        if ((ArtifactLogUtil.getConsoleOutputFolderAndFileName()).equals(filePath)) {
+        if (ArtifactUtil.CONSOLE_LOG_FILE_RELATIVE_PATH.equals(filePath)) {
             return ResponseCodeView.create(HTTP_NOT_FOUND, "Console log for this job is unavailable as it may have been purged by Go or deleted externally.");
         }
         return ResponseCodeView.create(HTTP_NOT_FOUND, "Artifact '" + filePath + "' is unavailable as it may have been purged by Go or deleted externally.");

@@ -48,7 +48,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.zip.ZipInputStream;
 
-import static com.thoughtworks.go.server.service.ArtifactsService.LOG_XML_NAME;
 import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -56,12 +55,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ArtifactsServiceTest {
+    private static final String TEST_ARTIFACT_FILE = "log.txt";
+
     @TempDir
     Path tempDir;
 
     private ArtifactsDirHolder artifactsDirHolder;
     private ZipUtil zipUtil;
-    private List<File> resourcesToBeCleanedOnTeardown = new ArrayList<>();
+    private final List<File> resourcesToBeCleanedOnTeardown = new ArrayList<>();
     private File fakeRoot;
     private JobResolverService resolverService;
     private StageDao stageService;
@@ -88,7 +89,7 @@ public class ArtifactsServiceTest {
         final File logsDir = new File("logs");
         final ByteArrayInputStream stream = new ByteArrayInputStream("".getBytes());
         String buildInstanceId = "1";
-        final File destFile = new File(logsDir, buildInstanceId + File.separator + LOG_XML_NAME);
+        final File destFile = new File(logsDir, buildInstanceId + File.separator + TEST_ARTIFACT_FILE);
 
         assumeArtifactsRoot(logsDir);
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
@@ -103,7 +104,7 @@ public class ArtifactsServiceTest {
 
         try (InputStream stream = Objects.requireNonNull(getClass().getResourceAsStream("/archive_traversal_attack.zip"))) {
             String buildInstanceId = "1";
-            final File destFile = new File(logsDir, buildInstanceId + File.separator + LOG_XML_NAME);
+            final File destFile = new File(logsDir, buildInstanceId + File.separator + TEST_ARTIFACT_FILE);
             assumeArtifactsRoot(logsDir);
             ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, new ZipUtil());
             boolean saved = artifactsService.saveFile(destFile, stream, true, 1);
@@ -116,8 +117,7 @@ public class ArtifactsServiceTest {
         final File logsDir = new File("logs");
         final ByteArrayInputStream stream = new ByteArrayInputStream("".getBytes());
         String buildInstanceId = "1";
-        final File destFile = new File(logsDir,
-                String.join(File.separator, buildInstanceId, "generated", LOG_XML_NAME));
+        final File destFile = new File(logsDir, String.join(File.separator, buildInstanceId, "generated", TEST_ARTIFACT_FILE));
         final IOException ioException = new IOException();
 
         assumeArtifactsRoot(logsDir);
@@ -139,8 +139,7 @@ public class ArtifactsServiceTest {
         final File logsDir = new File("logs");
         final ByteArrayInputStream stream = new ByteArrayInputStream("".getBytes());
         String buildInstanceId = "1";
-        final File destFile = new File(logsDir,
-                String.join(File.separator, buildInstanceId, "generated", LOG_XML_NAME));
+        final File destFile = new File(logsDir, String.join(File.separator, buildInstanceId, "generated", TEST_ARTIFACT_FILE));
         final IOException ioException = new IOException();
 
         doThrow(ioException).when(zipUtil).unzip(any(ZipInputStream.class), any(File.class));

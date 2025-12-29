@@ -22,7 +22,7 @@ import com.thoughtworks.go.domain.ArtifactPlanType;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.artifact.models.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
-import com.thoughtworks.go.util.ArtifactLogUtil;
+import com.thoughtworks.go.util.ArtifactUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
@@ -67,7 +67,7 @@ public class ArtifactsPublisher implements Serializable {
             if (isMetadataFolderEmpty(pluggableArtifactFolder)) {
                 LOGGER.info("Pluggable metadata folder is empty.");
             } else if (pluggableArtifactFolder != null) {
-                mergedPlans.add(0, new ArtifactPlan(ArtifactPlanType.file, format("%s%s*", pluggableArtifactFolder.getName(), File.separator), ArtifactLogUtil.PLUGGABLE_ARTIFACT_METADATA_FOLDER));
+                mergedPlans.add(0, new ArtifactPlan(ArtifactPlanType.file, format("%s%s*", pluggableArtifactFolder.getName(), File.separator), ArtifactUtil.PLUGGABLE_ARTIFACT_METADATA_FOLDER));
             }
 
             for (ArtifactPlan artifactPlan : mergedPlans) {

@@ -16,6 +16,8 @@
 package com.thoughtworks.go.server.view.artifacts;
 
 import com.thoughtworks.go.domain.LocatableEntity;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
@@ -23,7 +25,7 @@ public interface ArtifactLocator {
 
     boolean directoryExists(LocatableEntity locatableEntity);
 
-    File directoryFor(LocatableEntity locatableEntity);
+    @NotNull File directoryFor(LocatableEntity locatableEntity);
 
-    File findCachedArtifact(LocatableEntity locatableEntity);
+    @Nullable File findCachedArtifact(LocatableEntity locatableEntity);
 }

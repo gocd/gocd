@@ -16,6 +16,8 @@
 package com.thoughtworks.go.server.view.artifacts;
 
 import com.thoughtworks.go.domain.LocatableEntity;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
@@ -32,12 +34,12 @@ public class BuildIdArtifactLocator implements ArtifactLocator {
     }
 
     @Override
-    public File directoryFor(LocatableEntity locatableEntity) {
+    public @NotNull File directoryFor(LocatableEntity locatableEntity) {
         return new File(artifactsRoot, String.valueOf(locatableEntity.getId()));
     }
 
     @Override
-    public File findCachedArtifact(LocatableEntity locatableEntity) {
+    public @Nullable File findCachedArtifact(LocatableEntity locatableEntity) {
         return null;
     }
 }

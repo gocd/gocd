@@ -104,11 +104,7 @@ public class ConsoleActivityMonitor {
             JobIdentifier jobIdentifier = jobTimeEntry.getKey();
             if (shouldCancelHungJob(jobIdentifier, difference)) {
                 scheduleService.cancelJob(jobIdentifier);
-                try {
-                    consoleService.appendToConsoleLog(jobIdentifier, messages.consoleMessage(jobTerminationThreshold(jobIdentifier)));
-                } catch (Exception e) {
-                    LOGGER.error("Failed to update console log with reason for cancelling hung job '{}'", jobIdentifier.buildLocator(), e);
-                }
+                consoleService.appendToConsoleLogSafe(jobIdentifier, messages.consoleMessage(jobTerminationThreshold(jobIdentifier)));
                 jobActivityMap.remove(jobIdentifier);
                 removeHungJobWarning(jobIdentifier);
                 LOGGER.info("Cancelled hung job '{}' as it was hung for more than '{}' minutes", jobIdentifier.toFullString(), difference);

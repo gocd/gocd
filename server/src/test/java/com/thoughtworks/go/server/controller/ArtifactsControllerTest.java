@@ -77,7 +77,7 @@ public class ArtifactsControllerTest {
         String path = "cruise-output/console.log";
         File artifactFile = new File("junk");
         when(consoleService.consoleLogFile(jobIdentifier)).thenReturn(artifactFile);
-        when(consoleService.updateConsoleLog(eq(artifactFile), any())).thenReturn(true);
+        when(consoleService.appendToConsoleLogIoSafe(eq(artifactFile), any())).thenReturn(true);
         assertThat(((ResponseCodeView) artifactsController.putArtifact("pipeline", "10", "stage", "2", "build", 103L, path, "agent-id", request).getView()).getStatusCode()).isEqualTo(HttpURLConnection.HTTP_OK);
         verify(consoleActivityMonitor).consoleUpdatedFor(jobIdentifier);
     }

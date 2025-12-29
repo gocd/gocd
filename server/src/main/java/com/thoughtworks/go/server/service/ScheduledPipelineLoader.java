@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
@@ -80,8 +79,8 @@ public class ScheduledPipelineLoader {
 
                 updateServerHealthStateToError(jobInstance, message, description);
 
-                appendToConsoleLog(jobInstance, message);
-                appendToConsoleLog(jobInstance, description);
+                consoleService.appendToConsoleLogUnchecked(jobInstance.getIdentifier(), "\n" + message + "\n");
+                consoleService.appendToConsoleLogUnchecked(jobInstance.getIdentifier(), "\n" + description + "\n");
 
                 throw new StaleMaterialsOnBuildCause(message);
             }
@@ -124,13 +123,5 @@ public class ScheduledPipelineLoader {
         }
 
         return knownMaterials;
-    }
-
-    private void appendToConsoleLog(JobInstance jobInstance, String message) {
-        try {
-            consoleService.appendToConsoleLog(jobInstance.getIdentifier(), "\n" + message + "\n");
-        } catch (IllegalArtifactLocationException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

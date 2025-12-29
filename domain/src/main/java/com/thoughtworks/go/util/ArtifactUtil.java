@@ -15,25 +15,20 @@
  */
 package com.thoughtworks.go.util;
 
-public class ArtifactLogUtil {
-    public static final String CONSOLE_LOG_FILE_NAME = "console.log";
+public class ArtifactUtil {
     public static final String CRUISE_OUTPUT_FOLDER = "cruise-output";
-    public static final String MD5_CHECKSUM_FILENAME = "md5.checksum";
     public static final String PLUGGABLE_ARTIFACT_METADATA_FOLDER = "pluggable-artifact-metadata";
 
-    public static String getConsoleOutputFolderAndFileNameUrl() {
-        return getOutputFolderAndFileName(CONSOLE_LOG_FILE_NAME, "/");
-    }
+    public static final String CONSOLE_LOG_FILE_NAME = "console.log";
+    public static final String CONSOLE_LOG_FILE_RELATIVE_PATH = CRUISE_OUTPUT_FOLDER + "/" + CONSOLE_LOG_FILE_NAME;
 
-    public static String getConsoleOutputFolderAndFileName() {
-        return CRUISE_OUTPUT_FOLDER + "/" + CONSOLE_LOG_FILE_NAME;
-    }
-
-    private static String getOutputFolderAndFileName(String fileName, String separator) {
-        return separator + CRUISE_OUTPUT_FOLDER + separator + fileName;
-    }
+    public static final String MD5_CHECKSUM_FILENAME = "md5.checksum";
 
     public static boolean isConsoleOutput(String filePath) {
-        return getConsoleOutputFolderAndFileName().equalsIgnoreCase(filePath);
+        return CONSOLE_LOG_FILE_RELATIVE_PATH.equalsIgnoreCase(filePath);
+    }
+
+    public static boolean artifactDirectoryIsSystemManaged(String filePath) {
+        return filePath.equals(CRUISE_OUTPUT_FOLDER) || filePath.equals(PLUGGABLE_ARTIFACT_METADATA_FOLDER);
     }
 }

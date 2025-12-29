@@ -17,10 +17,10 @@ package com.thoughtworks.go.util;
 
 import org.junit.jupiter.api.Test;
 
-import static com.thoughtworks.go.util.ArtifactLogUtil.isConsoleOutput;
+import static com.thoughtworks.go.util.ArtifactUtil.isConsoleOutput;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ArtifactLogUtilTest {
+public class ArtifactUtilTest {
     @Test
     public void shouldIdentifyConsoleLog() {
         assertThat(isConsoleOutput("cruise-output/console.log")).isTrue();

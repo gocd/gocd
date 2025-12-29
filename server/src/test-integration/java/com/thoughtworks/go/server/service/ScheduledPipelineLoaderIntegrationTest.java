@@ -292,7 +292,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         assertThat(expiryTime.isAfter(currentTime)).isTrue();
         assertThat(expiryTime.isBefore(currentTime.plus(5, HOURS))).isTrue();
 
-        String logText = Files.readString(consoleService.consoleLogArtifact(reloadedJobInstance.getIdentifier()).toPath(), UTF_8);
+        String logText = Files.readString(consoleService.consoleLogFile(reloadedJobInstance.getIdentifier()).toPath(), UTF_8);
         assertThat(logText).contains("Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config.");
         assertThat(logText).contains("Job for pipeline 'last/" + pipeline.getCounter() + "/stage/1/job-one' has been failed as one or more material configurations were either changed or removed.");
     }

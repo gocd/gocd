@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.ConsoleOutputTransmitter;
 import com.thoughtworks.go.remote.work.RemoteConsoleAppender;
+import com.thoughtworks.go.util.ArtifactUtil;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.util.ZipUtil;
@@ -45,7 +46,6 @@ import java.util.Collection;
 import java.util.Properties;
 import java.util.zip.Deflater;
 
-import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileNameUrl;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH;
@@ -188,7 +188,7 @@ public class GoArtifactsManipulator {
 
     public ConsoleOutputTransmitter createConsoleOutputTransmitter(JobIdentifier jobIdentifier,
                                                                    AgentIdentifier agentIdentifier, Charset consoleLogCharset) {
-        String consoleUrl = urlService.getUploadUrlOfAgent(jobIdentifier, getConsoleOutputFolderAndFileNameUrl());
+        String consoleUrl = urlService.getUploadUrlOfAgent(jobIdentifier, ArtifactUtil.CONSOLE_LOG_FILE_RELATIVE_PATH);
         return new ConsoleOutputTransmitter(new RemoteConsoleAppender(consoleUrl, httpService, consoleLogCharset));
     }
 }

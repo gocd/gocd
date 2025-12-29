@@ -27,7 +27,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.io.File;
 import java.io.IOException;
 
-import static com.thoughtworks.go.util.ArtifactLogUtil.isConsoleOutput;
+import static com.thoughtworks.go.util.ArtifactUtil.isConsoleOutput;
 
 public class LocalArtifactsView implements ArtifactsView {
     private final ArtifactsService artifactsService;

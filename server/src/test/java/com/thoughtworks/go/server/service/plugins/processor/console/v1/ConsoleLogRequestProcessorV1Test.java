@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service.plugins.processor.console.v1;
 
-import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.plugin.api.request.DefaultGoApiRequest;
@@ -67,7 +66,7 @@ public class ConsoleLogRequestProcessorV1Test {
         assertThat(response.responseCode()).isEqualTo(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
 
         final JobIdentifier jobIdentifier = new JobIdentifier("p1", 1, null, "s1", "2", "j1");
-        verify(consoleService).appendToConsoleLog(jobIdentifier, "message1");
+        verify(consoleService).appendToConsoleLogIoSafe(jobIdentifier, "message1");
     }
 
     @Test

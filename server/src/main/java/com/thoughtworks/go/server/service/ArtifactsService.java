@@ -39,7 +39,6 @@ import static java.lang.String.format;
 @Service
 public class ArtifactsService implements ArtifactUrlReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactsService.class);
-    public static final String LOG_XML_NAME = "log.xml";
     private final ArtifactsDirHolder artifactsDirHolder;
     private final ZipUtil zipUtil;
     private final JobResolverService jobResolverService;
@@ -195,11 +194,7 @@ public class ArtifactsService implements ArtifactUrlReader {
     }
 
     private static boolean shouldDeleteArtifact(File artifact) {
-        return !artifact.isDirectory() || !artifactDirectoryIsSystemManaged(artifact);
-    }
-
-    private static boolean artifactDirectoryIsSystemManaged(File artifact) {
-        return artifact.getName().equals(ArtifactLogUtil.CRUISE_OUTPUT_FOLDER) || artifact.getName().equals(ArtifactLogUtil.PLUGGABLE_ARTIFACT_METADATA_FOLDER);
+        return !artifact.isDirectory() || !ArtifactUtil.artifactDirectoryIsSystemManaged(artifact.getName());
     }
 
 }

@@ -378,7 +378,7 @@ class BuildAssignmentServiceTest {
                     .isInstanceOf(SecretResolutionFailureException.class);
 
             InOrder inOrder = inOrder(scheduleService, jobStatusTopic, consoleService);
-            inOrder.verify(consoleService, times(2)).appendToConsoleLog(eq(jobPlan1.getIdentifier()), anyString());
+            inOrder.verify(consoleService, times(2)).appendToConsoleLogSafe(eq(jobPlan1.getIdentifier()), anyString());
             inOrder.verify(scheduleService).failJob(jobInstance);
             inOrder.verify(jobStatusTopic).post(new JobStatusMessage(jobPlan1.getIdentifier(), JobState.Completed, "agent_uuid"));
         }
@@ -408,7 +408,7 @@ class BuildAssignmentServiceTest {
                     .isInstanceOf(RulesViolationException.class);
 
             InOrder inOrder = inOrder(scheduleService, jobStatusTopic, consoleService);
-            inOrder.verify(consoleService, times(1)).appendToConsoleLog(eq(jobPlan1.getIdentifier()), anyString());
+            inOrder.verify(consoleService, times(1)).appendToConsoleLogSafe(eq(jobPlan1.getIdentifier()), anyString());
             inOrder.verify(scheduleService).failJob(jobInstance);
             inOrder.verify(jobStatusTopic).post(new JobStatusMessage(jobPlan1.getIdentifier(), JobState.Completed, "agent_uuid"));
         }
@@ -533,7 +533,7 @@ class BuildAssignmentServiceTest {
 
         InOrder inOrder = inOrder(jobInstanceService, scheduleService, consoleService, jobStatusTopic);
         inOrder.verify(jobInstanceService).buildById(jobPlan.getJobId());
-        inOrder.verify(consoleService).appendToConsoleLog(jobPlan.getIdentifier(), "\nThis job was failed by GoCD. This job is configured to run on an elastic agent, there were errors while resolving secrets for the the associated elastic configurations.\nReasons: some rules related violation message");
+        inOrder.verify(consoleService).appendToConsoleLogSafe(jobPlan.getIdentifier(), "\nThis job was failed by GoCD. This job is configured to run on an elastic agent, there were errors while resolving secrets for the the associated elastic configurations.\nReasons: some rules related violation message");
         inOrder.verify(scheduleService).failJob(jobInstance);
         inOrder.verify(jobStatusTopic).post(new JobStatusMessage(jobPlan.getIdentifier(), JobState.Scheduled, elasticAgentInstance.getUuid()));
     }
@@ -561,7 +561,7 @@ class BuildAssignmentServiceTest {
 
         InOrder inOrder = inOrder(jobInstanceService, scheduleService, consoleService, jobStatusTopic);
         inOrder.verify(jobInstanceService).buildById(jobPlan.getJobId());
-        inOrder.verify(consoleService).appendToConsoleLog(jobPlan.getIdentifier(), "\nThis job was failed by GoCD. This job is configured to run on an elastic agent, there were errors while resolving secrets for the the associated elastic configurations.\nReasons: some secret resolution related failure message");
+        inOrder.verify(consoleService).appendToConsoleLogSafe(jobPlan.getIdentifier(), "\nThis job was failed by GoCD. This job is configured to run on an elastic agent, there were errors while resolving secrets for the the associated elastic configurations.\nReasons: some secret resolution related failure message");
         inOrder.verify(scheduleService).failJob(jobInstance);
         inOrder.verify(jobStatusTopic).post(new JobStatusMessage(jobPlan.getIdentifier(), JobState.Scheduled, elasticAgentInstance.getUuid()));
     }

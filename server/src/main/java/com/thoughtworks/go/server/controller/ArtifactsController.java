@@ -31,7 +31,6 @@ import com.thoughtworks.go.server.util.ErrorHandler;
 import com.thoughtworks.go.server.view.artifacts.ArtifactsView;
 import com.thoughtworks.go.server.view.artifacts.LocalArtifactsView;
 import com.thoughtworks.go.server.web.*;
-import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +52,7 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.ArtifactLogUtil.isConsoleOutput;
+import static com.thoughtworks.go.util.ArtifactUtil.*;
 import static com.thoughtworks.go.util.GoConstants.*;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
@@ -181,7 +180,7 @@ public class ArtifactsController {
     private boolean updateChecksumFile(MultipartHttpServletRequest request, JobIdentifier jobIdentifier, String filePath) throws IOException, IllegalArtifactLocationException {
         MultipartFile checksumMultipartFile = getChecksumFile(request);
         if (checksumMultipartFile != null) {
-            String checksumFilePath = String.format("%s/%s/%s", artifactsService.findArtifactRoot(jobIdentifier), ArtifactLogUtil.CRUISE_OUTPUT_FOLDER, ArtifactLogUtil.MD5_CHECKSUM_FILENAME);
+            String checksumFilePath = String.format("%s/%s/%s", artifactsService.findArtifactRoot(jobIdentifier), CRUISE_OUTPUT_FOLDER, MD5_CHECKSUM_FILENAME);
             File checksumFile = artifactsService.getArtifactLocation(checksumFilePath);
             synchronized (checksumFilePath.intern()) {
                 return artifactsService.saveOrAppendFile(checksumFile, checksumMultipartFile.getInputStream());
@@ -313,7 +312,7 @@ public class ArtifactsController {
 
     private ModelAndView putConsoleOutput(final JobIdentifier jobIdentifier, final InputStream inputStream) throws IllegalArtifactLocationException {
         File consoleLogFile = consoleService.consoleLogFile(jobIdentifier);
-        boolean updated = consoleService.updateConsoleLog(consoleLogFile, inputStream);
+        boolean updated = consoleService.appendToConsoleLogIoSafe(consoleLogFile, inputStream);
         if (updated) {
             consoleActivityMonitor.consoleUpdatedFor(jobIdentifier);
             return FileModelAndView.fileAppended(consoleLogFile.getPath());

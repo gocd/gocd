@@ -23,35 +23,35 @@ import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
 import com.thoughtworks.go.server.view.artifacts.BuildIdArtifactLocator;
 import com.thoughtworks.go.server.view.artifacts.PathBasedArtifactsLocator;
+import com.thoughtworks.go.util.ArtifactUtil;
 import com.thoughtworks.go.util.FileUtil;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-
-import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
 
 @Component
 public class ConsoleService {
-
-    public static final Logger LOGGER = LoggerFactory.getLogger(ConsoleService.class);
-    public static final int DEFAULT_CONSOLE_LOG_LINE_BUFFER_SIZE = 1024;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleService.class);
 
     private final ArtifactDirectoryChooser chooser;
-    private ArtifactsDirHolder artifactsDirHolder;
-
-
-    public ConsoleService(ArtifactDirectoryChooser chooser) {
-        this.chooser = chooser;
-    }
+    private final ArtifactsDirHolder artifactsDirHolder;
 
     @Autowired
     public ConsoleService(ArtifactsDirHolder artifactsDirHolder) {
-        this(new ArtifactDirectoryChooser());
+        this(new ArtifactDirectoryChooser(), artifactsDirHolder);
+    }
+
+    @VisibleForTesting
+    ConsoleService(ArtifactDirectoryChooser chooser, ArtifactsDirHolder artifactsDirHolder) {
+        this.chooser = chooser;
         this.artifactsDirHolder = artifactsDirHolder;
     }
 
@@ -65,10 +65,6 @@ public class ConsoleService {
         return new ConsoleStreamer(path, startingLine);
     }
 
-    public File consoleLogArtifact(LocatableEntity jobIdentifier) throws IllegalArtifactLocationException {
-        return chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName());
-    }
-
     public boolean doesLogExist(JobIdentifier jobIdentifier) {
         try {
             return consoleLogFile(jobIdentifier).exists();
@@ -77,43 +73,63 @@ public class ConsoleService {
         }
     }
 
-    public File consoleLogFile(LocatableEntity jobIdentifier) throws IllegalArtifactLocationException {
+    public @NotNull File consoleLogFile(LocatableEntity jobIdentifier) throws IllegalArtifactLocationException {
         File artifact = consoleLogArtifact(jobIdentifier);
         return artifact.exists() ? artifact : chooser.temporaryConsoleFile(jobIdentifier);
     }
 
-    public void appendToConsoleLog(JobIdentifier jobIdentifier, String text) throws IllegalArtifactLocationException {
-        updateConsoleLog(consoleLogFile(jobIdentifier), new ByteArrayInputStream(text.getBytes()));
+    private @NotNull File consoleLogArtifact(LocatableEntity locatableEntity) throws IllegalArtifactLocationException {
+        return chooser.findArtifact(locatableEntity, ArtifactUtil.CONSOLE_LOG_FILE_RELATIVE_PATH);
     }
 
-    public boolean updateConsoleLog(File dest, InputStream in) {
-        FileUtil.mkdirsParentQuietly(dest);
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Updating console log [{}]", dest.getAbsolutePath());
+    private @NotNull File consoleLogArtifactUnchecked(LocatableEntity locatableEntity) {
+        try {
+            return consoleLogArtifact(locatableEntity);
+        } catch (IllegalArtifactLocationException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    public void appendToConsoleLogIoSafe(JobIdentifier jobIdentifier, String text) throws IllegalArtifactLocationException {
+        appendToConsoleLogIoSafe(consoleLogFile(jobIdentifier), new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    public boolean appendToConsoleLogIoSafe(File dest, InputStream in) {
+        FileUtil.mkdirsParentQuietly(dest);
         try (OutputStream out = new FileOutputStream(dest, dest.exists())) {
             in.transferTo(out);
         } catch (IOException e) {
             LOGGER.error("Failed to update console log at : [{}]", dest.getAbsolutePath(), e);
             return false;
         }
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Console log [{}] saved.", dest.getAbsolutePath());
-        }
         return true;
     }
 
-    public void moveConsoleArtifacts(LocatableEntity locatableEntity) {
+    void appendToConsoleLogSafe(JobIdentifier jobIdentifier, String errorMessage) {
         try {
-            File from = chooser.temporaryConsoleFile(locatableEntity);
+            appendToConsoleLogIoSafe(jobIdentifier, errorMessage);
+        } catch (IllegalArtifactLocationException e) {
+            LOGGER.error("Failed to add message({}) to the job({}) console log", errorMessage, jobIdentifier, e);
+        }
+    }
 
-            // Job cancellation skips temporary file creation. Force create one if it does not exist.
-            FileUtils.touch(from);
-
-            File to = consoleLogArtifact(locatableEntity);
-            FileUtils.moveFile(from, to);
-        } catch (IOException | IllegalArtifactLocationException e) {
+    void appendToConsoleLogUnchecked(JobIdentifier identifier, String errorMessage) {
+        try {
+            appendToConsoleLogIoSafe(identifier, errorMessage);
+        } catch (IllegalArtifactLocationException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void moveConsoleArtifacts(LocatableEntity locatableEntity) {
+        File from = chooser.temporaryConsoleFile(locatableEntity);
+        File to = consoleLogArtifactUnchecked(locatableEntity);
+        try {
+            // Job cancellation can skip temporary file creation. Force create one if it does not exist.
+            FileUtils.touch(from);
+            FileUtils.moveFile(from, to);
+        } catch (IOException e) {
+            throw new RuntimeException("Unexpected error moving console log from temporary location [%s] to permanent artifact location [%s]".formatted(from, to), e);
         }
     }
 }

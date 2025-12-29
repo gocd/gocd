@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
@@ -81,16 +80,16 @@ public class ElasticAgentPluginService {
     private final ServerHealthService serverHealthService;
     private final ConcurrentHashMap<Long, Long> jobCreationTimeMap = new ConcurrentHashMap<>();
     private final ScheduleService scheduleService;
-    private ConsoleService consoleService;
+    private final ConsoleService consoleService;
     private EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService;
     private final SecretParamResolver secretParamResolver;
-    private JobInstanceSqlMapDao jobInstanceSqlMapDao;
-    private JobStatusTopic jobStatusTopic;
+    private final JobInstanceSqlMapDao jobInstanceSqlMapDao;
+    private final JobStatusTopic jobStatusTopic;
 
     @Value("${go.elasticplugin.heartbeat.interval}")
     private long elasticPluginHeartBeatInterval;
     private final ElasticAgentMetadataStore elasticAgentMetadataStore;
-    private ClusterProfilesService clusterProfilesService;
+    private final ClusterProfilesService clusterProfilesService;
 
     @TestOnly
     public void setElasticPluginHeartBeatInterval(long elasticPluginHeartBeatInterval) {
@@ -220,7 +219,7 @@ public class ElasticAgentPluginService {
                         The possible reason for the missing cluster information on the elastic profile could be, an upgrade of the GoCD server to a version >= 19.3.0 before the completion of the job.
 
                         A re-run of this job should fix this issue.""";
-                logToJobConsole(jobIdentifier, cancellationMessage);
+                consoleService.appendToConsoleLogSafe(jobIdentifier, cancellationMessage);
                 scheduleService.cancelJob(jobIdentifier);
             } else if (elasticAgentPluginRegistry.has(clusterProfile.getPluginId())) {
                 String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
@@ -231,7 +230,7 @@ public class ElasticAgentPluginService {
                 } catch (RulesViolationException | SecretResolutionFailureException e) {
                     JobInstance jobInstance = jobInstanceSqlMapDao.buildById(plan.getJobId());
                     String failureMessage = format("\nThis job was failed by GoCD. This job is configured to run on an elastic agent, there were errors while resolving secrets for the the associated elastic configurations.\nReasons: %s", e.getMessage());
-                    logToJobConsole(jobIdentifier, failureMessage);
+                    consoleService.appendToConsoleLogSafe(jobIdentifier, failureMessage);
                     scheduleService.failJob(jobInstance);
                     jobStatusTopic.post(new JobStatusMessage(jobIdentifier, jobInstance.getState(), plan.getAgentUuid()));
                 }
@@ -349,14 +348,6 @@ public class ElasticAgentPluginService {
             healthState.setTimeout(Timeout.FIVE_MINUTES);
             serverHealthService.update(healthState);
             LOGGER.error(description);
-        }
-    }
-
-    private void logToJobConsole(JobIdentifier identifier, String message) {
-        try {
-            consoleService.appendToConsoleLog(identifier, message);
-        } catch (IllegalArtifactLocationException e) {
-            LOGGER.error("Failed to add message({}) to the job({}) console", message, identifier, e);
         }
     }
 

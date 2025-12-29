@@ -65,7 +65,7 @@ public class ConsoleLogRequestProcessor implements GoPluginApiRequestProcessor {
 
             final MessageHandlerForConsoleLogRequestProcessor handler = versionToMessageHandlerMap.get(request.apiVersion());
             final ConsoleLogAppendRequest logUpdateRequest = handler.deserializeConsoleLogAppendRequest(request.requestBody());
-            consoleService.appendToConsoleLog(logUpdateRequest.jobIdentifier(), logUpdateRequest.text());
+            consoleService.appendToConsoleLogIoSafe(logUpdateRequest.jobIdentifier(), logUpdateRequest.text());
         } catch (Exception e) {
             DefaultGoApiResponse response = new DefaultGoApiResponse(DefaultGoApiResponse.INTERNAL_ERROR);
             response.setResponseBody(format("'{' \"message\": \"Error: {0}\" '}'", e.getMessage()));

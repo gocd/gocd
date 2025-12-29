@@ -32,7 +32,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.config.TestArtifactConfig.TEST_OUTPUT_FOLDER;
 import static com.thoughtworks.go.server.web.JsonRenderer.render;
-import static com.thoughtworks.go.util.ArtifactLogUtil.*;
+import static com.thoughtworks.go.util.ArtifactUtil.*;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class JobDetailPresentationModel {
@@ -114,9 +114,8 @@ public class JobDetailPresentationModel {
     public DirectoryEntries getArtifactFiles(final DirectoryReader directoryReader) throws IllegalArtifactLocationException {
         return new DirectoryEntries() {{
             if (!job.isCompleted()) {
-                addFolder(CRUISE_OUTPUT_FOLDER).addFile(CONSOLE_LOG_FILE_NAME,
-                        artifactsService.findArtifactUrl(jobIdentifier,
-                                getConsoleOutputFolderAndFileName()));
+                addFolder(CRUISE_OUTPUT_FOLDER)
+                    .addFile(CONSOLE_LOG_FILE_NAME, artifactsService.findArtifactUrl(jobIdentifier, CONSOLE_LOG_FILE_RELATIVE_PATH));
             }
             addAll(directoryReader.listEntries(artifactsService.findArtifact(jobIdentifier, ""), ""));
             setIsArtifactsDeleted(stage.isArtifactsDeleted());

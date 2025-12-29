@@ -354,48 +354,6 @@ public class ArtifactsControllerIntegrationTest {
     }
 
     @Test
-    public void shouldPutConsoleOutput_whenContentMoreThanBufferSizeUsed() throws Exception {
-        String refContent = "This is one full line of text. With 2 sentences without newline separating them.\n";
-        int numberOfLines = ConsoleService.DEFAULT_CONSOLE_LOG_LINE_BUFFER_SIZE / 10;
-        String allContent = refContent.repeat(2 * numberOfLines);
-        ModelAndView mav = putConsoleLogContent("cruise-output/console.log", allContent);
-
-        String consoleLogContent = readString(consoleLogFile.toPath(), UTF_8);
-        String[] lines = consoleLogContent.split("\n");
-        assertThat(lines.length).isEqualTo(2 * numberOfLines);
-        for (int i = 0; i < lines.length; i++) {
-            String line = lines[i];
-            if (i != numberOfLines) {
-                assertThat(line + "\n").as("Line " + i + " doesn't have desired content.").isEqualTo(refContent);
-            }
-        }
-        assertStatus(mav, HTTP_OK);
-    }
-
-    @Test
-    public void shouldPutConsoleOutput_withHugeSingleLine() throws Exception {
-        StringBuilder builder = new StringBuilder();
-        String str = "a ";
-        int numberOfChars = ConsoleService.DEFAULT_CONSOLE_LOG_LINE_BUFFER_SIZE * 4;
-
-        String longLineStr = str.repeat(numberOfChars);
-
-        builder.append(longLineStr);
-        builder.append("\nTesting:\n");
-        builder.append(longLineStr);
-
-        ModelAndView mav = putConsoleLogContent("cruise-output/console.log", builder.toString());
-
-        String consoleLogContent = readString(consoleLogFile.toPath(), UTF_8);
-        String[] lines = consoleLogContent.split("\n");
-        assertThat(lines.length).isEqualTo(3);
-        assertThat(lines[0]).isEqualTo(longLineStr);
-        assertThat(lines[1] + "\n").isEqualTo("Testing:\n");
-        assertThat(lines[2]).isEqualTo(longLineStr);
-        assertStatus(mav, HTTP_OK);
-    }
-
-    @Test
     public void shouldPutConsoleOutput_withNoNewLineAtTheAtOfTheLog() throws Exception {
         String log = "junit report\nstart\n....";
         ModelAndView mav = putConsoleLogContent("cruise-output/console.log", log);

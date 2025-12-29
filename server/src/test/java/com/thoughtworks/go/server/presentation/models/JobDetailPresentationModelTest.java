@@ -30,7 +30,7 @@ import java.util.UUID;
 
 import static com.thoughtworks.go.helper.JobInstanceMother.building;
 import static com.thoughtworks.go.helper.StageMother.custom;
-import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
+import static com.thoughtworks.go.util.ArtifactUtil.CONSOLE_LOG_FILE_RELATIVE_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -74,7 +74,7 @@ public class JobDetailPresentationModelTest {
             null, null, null, artifactsService, custom("stage"));
 
         when(artifactsService.findArtifact(job.getIdentifier(), "")).thenReturn(mock(File.class));
-        when(artifactsService.findArtifactUrl(job.getIdentifier(), getConsoleOutputFolderAndFileName())).thenReturn("path/to/console");
+        when(artifactsService.findArtifactUrl(job.getIdentifier(), CONSOLE_LOG_FILE_RELATIVE_PATH)).thenReturn("path/to/console");
         when(directoryReader.listEntries(any(), eq(""))).thenReturn(new DirectoryEntries());
 
         DirectoryEntries expected = new DirectoryEntries();

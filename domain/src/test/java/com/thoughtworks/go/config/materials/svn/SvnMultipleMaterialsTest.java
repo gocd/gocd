@@ -21,7 +21,7 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.util.ArtifactLogUtil;
+import com.thoughtworks.go.util.ArtifactUtil;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.InMemoryConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
@@ -128,8 +128,8 @@ public class SvnMultipleMaterialsTest {
         testFile.createNewFile();
         assertThat(testFile.exists()).isTrue();
         //simulates what a build will do
-        new File(pipelineDir, ArtifactLogUtil.CRUISE_OUTPUT_FOLDER).mkdir();
-        assertThat(pipelineDir.listFiles().length).isEqualTo(3);
+        new File(pipelineDir, ArtifactUtil.CRUISE_OUTPUT_FOLDER).mkdir();
+        assertThat(pipelineDir.listFiles()).hasSize(3);
 
         updateMaterials(materials, revision);
 
@@ -174,8 +174,8 @@ public class SvnMultipleMaterialsTest {
         testFile.createNewFile();
         assertThat(testFile.exists()).isTrue();
         //simulates what a build will do
-        new File(pipelineDir, ArtifactLogUtil.CRUISE_OUTPUT_FOLDER).mkdir();
-        assertThat(pipelineDir.listFiles().length).isEqualTo(2);
+        new File(pipelineDir, ArtifactUtil.CRUISE_OUTPUT_FOLDER).mkdir();
+        assertThat(pipelineDir.listFiles()).hasSize(2);
 
         updateMaterials(materials, revision);
 

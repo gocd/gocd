@@ -535,7 +535,7 @@ class ElasticAgentPluginServiceTest {
 
             verifyNoInteractions(createAgentQueue);
             verify(scheduleService).cancelJob(jobPlan.getIdentifier());
-            verify(consoleService).appendToConsoleLog(jobPlan.getIdentifier(), """
+            verify(consoleService).appendToConsoleLogSafe(jobPlan.getIdentifier(), """
 
                     This job was cancelled by GoCD. The version of your GoCD server requires elastic profiles to be associated with a cluster(required from Version 19.3.0). This job is configured to run on an Elastic Agent, but the associated elastic profile does not have information about the cluster. \s
 
@@ -654,7 +654,7 @@ class ElasticAgentPluginServiceTest {
             inOrder.verify(secretParamResolver).resolve(plan2.getClusterProfile());
             inOrder.verify(secretParamResolver).resolve(plan2.getElasticProfile());
             inOrder.verify(jobInstanceSqlMapDao).buildById(plan2.getJobId());
-            inOrder.verify(consoleService).appendToConsoleLog(plan2.getIdentifier(), "\nThis job was failed by GoCD. This job is configured to run on an elastic agent, there were errors while resolving secrets for the the associated elastic configurations.\nReasons: some-rules-violation-message");
+            inOrder.verify(consoleService).appendToConsoleLogSafe(plan2.getIdentifier(), "\nThis job was failed by GoCD. This job is configured to run on an elastic agent, there were errors while resolving secrets for the the associated elastic configurations.\nReasons: some-rules-violation-message");
             inOrder.verify(scheduleService).failJob(jobInstance);
             verifyNoInteractions(createAgentQueue);
         }

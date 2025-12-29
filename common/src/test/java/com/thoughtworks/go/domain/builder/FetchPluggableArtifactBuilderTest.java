@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
-import static com.thoughtworks.go.util.ArtifactLogUtil.PLUGGABLE_ARTIFACT_METADATA_FOLDER;
+import static com.thoughtworks.go.util.ArtifactUtil.PLUGGABLE_ARTIFACT_METADATA_FOLDER;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.OUT;
 import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_OK;

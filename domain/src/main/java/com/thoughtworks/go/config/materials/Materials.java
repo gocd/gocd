@@ -32,7 +32,7 @@ import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigVisitor;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.*;
-import com.thoughtworks.go.util.ArtifactLogUtil;
+import com.thoughtworks.go.util.ArtifactUtil;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.jetbrains.annotations.TestOnly;
@@ -119,7 +119,7 @@ public class Materials extends BaseCollection<Material> {
                 allowed.add(material.getFolder());
             }
         }
-        allowed.add(ArtifactLogUtil.CRUISE_OUTPUT_FOLDER);
+        allowed.add(ArtifactUtil.CRUISE_OUTPUT_FOLDER);
         return allowed;
     }
 

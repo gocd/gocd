@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.helper.JobIdentifierMother;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
+import org.apache.commons.io.FileExistsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -26,8 +27,9 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
+import static com.thoughtworks.go.util.ArtifactUtil.CONSOLE_LOG_FILE_RELATIVE_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -39,7 +41,7 @@ public class ConsoleServiceTest {
     @BeforeEach
     public void setUp() {
         chooser = mock(ArtifactDirectoryChooser.class);
-        service = new ConsoleService(chooser);
+        service = new ConsoleService(chooser, mock(ArtifactsDirHolder.class));
     }
 
     @Test
@@ -53,7 +55,7 @@ public class ConsoleServiceTest {
         when(notExist.exists()).thenReturn(false);
 
         when(chooser.temporaryConsoleFile(jobIdentifier)).thenReturn(consoleFile);
-        when(chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName())).thenReturn(notExist);
+        when(chooser.findArtifact(jobIdentifier, CONSOLE_LOG_FILE_RELATIVE_PATH)).thenReturn(notExist);
 
         File file = service.consoleLogFile(jobIdentifier);
 
@@ -71,7 +73,7 @@ public class ConsoleServiceTest {
 
         File finalConsoleFile = mock(File.class);
 
-        when(chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName())).thenReturn(finalConsoleFile);
+        when(chooser.findArtifact(jobIdentifier, CONSOLE_LOG_FILE_RELATIVE_PATH)).thenReturn(finalConsoleFile);
         when(finalConsoleFile.exists()).thenReturn(true);
 
         File file = service.consoleLogFile(jobIdentifier);
@@ -90,7 +92,7 @@ public class ConsoleServiceTest {
 
         File finalConsoleFile = mock(File.class);
 
-        when(chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName())).thenReturn(finalConsoleFile);
+        when(chooser.findArtifact(jobIdentifier, CONSOLE_LOG_FILE_RELATIVE_PATH)).thenReturn(finalConsoleFile);
         when(finalConsoleFile.exists()).thenReturn(false);
 
         File file = service.consoleLogFile(jobIdentifier);
@@ -106,7 +108,7 @@ public class ConsoleServiceTest {
         File finalConsoleLog = testFolder.resolve("final_console.log").toFile();
 
         when(chooser.temporaryConsoleFile(jobIdentifier)).thenReturn(temporaryConsoleLog);
-        when(chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName())).thenReturn(finalConsoleLog);
+        when(chooser.findArtifact(jobIdentifier, CONSOLE_LOG_FILE_RELATIVE_PATH)).thenReturn(finalConsoleLog);
 
         service.moveConsoleArtifacts(jobIdentifier);
 
@@ -122,12 +124,32 @@ public class ConsoleServiceTest {
         File finalConsoleLog = testFolder.resolve("final_console.log").toFile();
 
         when(chooser.temporaryConsoleFile(jobIdentifier)).thenReturn(temporaryConsoleLog);
-        when(chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName())).thenReturn(finalConsoleLog);
+        when(chooser.findArtifact(jobIdentifier, CONSOLE_LOG_FILE_RELATIVE_PATH)).thenReturn(finalConsoleLog);
 
         service.moveConsoleArtifacts(jobIdentifier);
 
         assertThat(temporaryConsoleLog.exists()).isFalse();
         assertThat(finalConsoleLog.exists()).isTrue();
+    }
+
+    @Test
+    public void shouldReturnUsefulErrorIfMoveConsoleArtifactsFails(@TempDir Path testFolder) throws Exception {
+        JobIdentifier jobIdentifier = JobIdentifierMother.anyBuildIdentifier();
+
+        File temporaryConsoleLog = testFolder.resolve("temporary_console.log").toFile();
+        File finalConsoleLog = Files.createFile(testFolder.resolve("final_console.log")).toFile();
+
+        when(chooser.temporaryConsoleFile(jobIdentifier)).thenReturn(temporaryConsoleLog);
+        when(chooser.findArtifact(jobIdentifier, CONSOLE_LOG_FILE_RELATIVE_PATH)).thenReturn(finalConsoleLog);
+
+        assertThatThrownBy(() -> service.moveConsoleArtifacts(jobIdentifier))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("Unexpected error moving console log from temporary location")
+            .hasMessageContaining("temporary_console.log")
+            .hasMessageContaining("final_console.log")
+            .cause()
+            .isInstanceOf(FileExistsException.class)
+            .hasMessageContaining("File element in parameter 'destFile' already exists");
     }
 
 }

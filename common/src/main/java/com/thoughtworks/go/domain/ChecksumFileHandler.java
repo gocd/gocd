@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.util.ArtifactLogUtil;
+import com.thoughtworks.go.util.ArtifactUtil;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -40,7 +40,7 @@ public class ChecksumFileHandler implements FetchHandler {
 
     @Override
     public String url(String remoteHost, String workingUrl) {
-        return String.format("%s/remoting/files/%s/%s/%s", remoteHost, workingUrl, ArtifactLogUtil.CRUISE_OUTPUT_FOLDER, ArtifactLogUtil.MD5_CHECKSUM_FILENAME);
+        return String.format("%s/remoting/files/%s/%s/%s", remoteHost, workingUrl, ArtifactUtil.CRUISE_OUTPUT_FOLDER, ArtifactUtil.MD5_CHECKSUM_FILENAME);
     }
 
     @Override

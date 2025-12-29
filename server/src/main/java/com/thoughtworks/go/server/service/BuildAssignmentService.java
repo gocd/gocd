@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.Builder;
-import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
@@ -211,7 +210,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                     JobInstance instance = jobInstanceService.buildById(jobPlan.getJobId());
                     JobIdentifier jobIdentifier = jobPlan.getIdentifier();
                     String failureMessage = format("\nThis job was failed by GoCD. This job is configured to run on an elastic agent, there were errors while resolving secrets for the the associated elastic configurations.\nReasons: %s", e.getMessage());
-                    logToJobConsole(jobIdentifier, failureMessage);
+                    consoleService.appendToConsoleLogSafe(jobIdentifier, failureMessage);
                     scheduleService.failJob(instance);
                     jobStatusTopic.post(new JobStatusMessage(jobIdentifier, instance.getState(), agent.getUuid()));
                 }
@@ -363,30 +362,12 @@ public class BuildAssignmentService implements ConfigChangedListener {
     }
 
     private void logSecretsResolutionFailure(JobIdentifier jobIdentifier, SecretResolutionFailureException e) {
-        try {
-            final String description = format("\nJob for pipeline '%s' failed due to errors while resolving secret params.", jobIdentifier.buildLocator());
-            consoleService.appendToConsoleLog(jobIdentifier, description);
-            consoleService.appendToConsoleLog(jobIdentifier, format("\nReason: %s\n", e.getMessage()));
-        } catch (IllegalArtifactLocationException e1) {
-            LOGGER.error(e1.getMessage(), e1);
-        }
+        consoleService.appendToConsoleLogSafe(jobIdentifier, format("\nJob for pipeline '%s' failed due to errors while resolving secret params.", jobIdentifier.buildLocator()));
+        consoleService.appendToConsoleLogSafe(jobIdentifier, format("\nReason: %s\n", e.getMessage()));
     }
 
     private void logRulesViolation(JobIdentifier jobIdentifier, RulesViolationException e) {
-        try {
-            final String description = format("\nJob for pipeline '%s' failed due to errors: %s", jobIdentifier.buildLocator(), e.getMessage());
-            consoleService.appendToConsoleLog(jobIdentifier, description);
-        } catch (IllegalArtifactLocationException e1) {
-            LOGGER.error(e1.getMessage(), e1);
-        }
-    }
-
-    private void logToJobConsole(JobIdentifier jobIdentifier, String errorMessage) {
-        try {
-            consoleService.appendToConsoleLog(jobIdentifier, errorMessage);
-        } catch (IllegalArtifactLocationException e) {
-            LOGGER.error("Failed to add message({}) to the job({}) console", errorMessage, jobIdentifier, e);
-        }
+        consoleService.appendToConsoleLogSafe(jobIdentifier, format("\nJob for pipeline '%s' failed due to errors: %s", jobIdentifier.buildLocator(), e.getMessage()));
     }
 
     private Set<String> getArtifactStoreIdsRequiredByArtifactPlans(List<ArtifactPlan> artifactPlans) {

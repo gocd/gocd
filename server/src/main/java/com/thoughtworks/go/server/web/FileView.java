@@ -118,7 +118,7 @@ public class FileView implements View, ServletContextAware {
         handleFile(file, needToZip, httpServletResponse);
 
         long timeTaken = System.currentTimeMillis() - before;
-        LOGGER.info("[Artifact Download] Finished downloading: {}. ShouldZip? = {}. The time taken is: {}ms", file.getAbsolutePath(), needToZip, timeTaken);
+        LOGGER.info("[Artifact Download] Finished downloading: {}. ShouldZip? = {}. The time taken is: {} ms", file.getAbsolutePath(), needToZip, timeTaken);
     }
 
 }

@@ -111,7 +111,7 @@ public class GoDashboardCurrentStateLoader {
             pipelines.add(createGoDashboardPipeline(pipelineConfig, permissions, historyForDashboard, group));
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("It took {}ms to process pipeline {}", (System.currentTimeMillis() - start), pipelineConfig.getName());
+                LOGGER.debug("It took {} ms to process pipeline {}", (System.currentTimeMillis() - start), pipelineConfig.getName());
             }
         }));
         LOGGER.debug("Done populating dashboard pipelines");

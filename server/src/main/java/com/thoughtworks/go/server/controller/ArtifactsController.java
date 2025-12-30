@@ -290,7 +290,7 @@ public class ArtifactsController {
         view = new LocalArtifactsView(folderViewFactory, artifactsService, translatedId, consoleService);
 
         ModelAndView createdView = view.createView(filePath, sha);
-        LOGGER.info("[Artifact Download] Successfully resolved '{}' for '{}/{}/{}/{}/{}'. It took: {}ms", filePath, pipelineName, counterOrLabel, stageName, stageCounter, buildName, System.currentTimeMillis() - before);
+        LOGGER.info("[Artifact Download] Successfully resolved '{}' for '{}/{}/{}/{}/{}'. It took: {} ms", filePath, pipelineName, counterOrLabel, stageName, stageCounter, buildName, System.currentTimeMillis() - before);
         return createdView;
     }
 

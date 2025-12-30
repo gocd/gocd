@@ -107,7 +107,7 @@ public class PipelineConfigServicePerformanceTest {
         run(() -> {
             PipelineConfig pipelineConfig = goConfigService.getConfigForEditing().pipelineConfigByName(new CaseInsensitiveString(Thread.currentThread().getName()));
             pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
-            PerfTimer updateTimer = PerfTimer.start("Saving pipelineConfig : " + pipelineConfig.name());
+            PerfTimer updateTimer = PerfTimer.start(LOG, "Saving pipelineConfig : " + pipelineConfig.name());
             pipelineConfigService.updatePipelineConfig(user, pipelineConfig, "group", entityHashingService.hashForEntity(pipelineConfig, "group"), result);
             updateTimer.stop();
             results.put(Thread.currentThread().getName(), result.isSuccessful());
@@ -125,7 +125,7 @@ public class PipelineConfigServicePerformanceTest {
         run(() -> {
             PipelineConfig pipelineConfig = goConfigService.getConfigForEditing().pipelineConfigByName(new CaseInsensitiveString(Thread.currentThread().getName()));
             pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
-            PerfTimer updateTimer = PerfTimer.start("Saving pipelineConfig : " + pipelineConfig.name());
+            PerfTimer updateTimer = PerfTimer.start(LOG, "Saving pipelineConfig : " + pipelineConfig.name());
             pipelineConfigService.deletePipelineConfig(user, pipelineConfig, result);
             updateTimer.stop();
             results.put(Thread.currentThread().getName(), result.isSuccessful());
@@ -144,7 +144,7 @@ public class PipelineConfigServicePerformanceTest {
             JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"));
             StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig));
             PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(Thread.currentThread().getName()), new MaterialConfigs(git("FOO")), stageConfig);
-            PerfTimer updateTimer = PerfTimer.start("Saving pipelineConfig : " + pipelineConfig.name());
+            PerfTimer updateTimer = PerfTimer.start(LOG, "Saving pipelineConfig : " + pipelineConfig.name());
             pipelineConfigService.createPipelineConfig(user, pipelineConfig, result, "jumbo");
             updateTimer.stop();
             results.put(Thread.currentThread().getName(), result.isSuccessful());

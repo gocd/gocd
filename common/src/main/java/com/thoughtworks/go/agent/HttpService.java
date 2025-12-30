@@ -88,7 +88,7 @@ public class HttpService {
         HttpGet toGet = null;
         try {
             toGet = httpClientFactory.createGet(url);
-            PerfTimer timer = PerfTimer.start(String.format("Downloading from url [%s]", url));
+            PerfTimer timer = PerfTimer.start(LOGGER, String.format("Downloading from url [%s]", url));
             try (CloseableHttpResponse response = execute(toGet)) {
                 timer.stop();
                 int statusCode = response.getStatusLine().getStatusCode();

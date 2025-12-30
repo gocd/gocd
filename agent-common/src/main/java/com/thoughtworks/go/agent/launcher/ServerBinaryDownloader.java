@@ -84,7 +84,7 @@ public class ServerBinaryDownloader implements Downloader {
             try {
                 fetchUpdateCheckHeaders(downloadableFile);
                 if (downloadableFile.doesNotExist() || !downloadableFile.isChecksumEquals(getMd5())) {
-                    PerfTimer timer = PerfTimer.start("Downloading new " + downloadableFile.getLocalFile() + " with md5 signature: " + md5);
+                    PerfTimer timer = PerfTimer.start(LOG, "Downloading new " + downloadableFile.getLocalFile() + " with md5 signature: " + md5);
                     downloaded = download(downloadableFile);
                     timer.stop();
                 }

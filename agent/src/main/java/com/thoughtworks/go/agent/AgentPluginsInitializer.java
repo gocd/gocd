@@ -60,7 +60,7 @@ public class AgentPluginsInitializer implements ApplicationListener<ContextRefre
             }
             zipUtil.unzip(DownloadableFile.AGENT_PLUGINS.getLocalFile(), pluginsFolder);
 
-            PerfTimer timer = PerfTimer.start("Agent plugins load");
+            PerfTimer timer = PerfTimer.start(LOG, "Agent plugins load");
             defaultPluginJarLocationMonitor.initialize();
             pluginManager.startInfrastructure(false);
             timer.stop();

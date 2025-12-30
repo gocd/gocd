@@ -27,9 +27,10 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -38,11 +39,13 @@ import static com.thoughtworks.go.util.SystemEnvironment.*;
 @Component
 public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPluginJarLocationMonitor.class);
-    private final List<WeakReference<PluginJarChangeListener>> pluginJarChangeListeners = new CopyOnWriteArrayList<>();
 
+    private final SystemEnvironment systemEnvironment;
     private final File bundledPluginDirectory;
     private final File externalPluginDirectory;
-    private final SystemEnvironment systemEnvironment;
+    private final List<WeakReference<PluginJarChangeListener>> pluginJarChangeListeners = new CopyOnWriteArrayList<>();
+    private final CountDownLatch firstLoadLatch = new CountDownLatch(1);
+
     private volatile PluginLocationMonitorThread monitorThread;
 
     @Autowired
@@ -78,26 +81,26 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         monitorThread.start();
     }
 
-    @Override
-    public boolean hasRunAtLeastOnce() {
-        return hasRunSince(0);
-    }
-
-    public boolean hasRunSince(long timestamp) {
-        return Optional.ofNullable(monitorThread).map(t -> t.hasRunSince(timestamp)).orElse(false);
-    }
-
     private void initializeMonitorThread() {
         if (monitorThread != null) {
             throw new IllegalStateException("Cannot start the monitor multiple times.");
         }
-        monitorThread = new PluginLocationMonitorThread(bundledPluginDirectory, externalPluginDirectory, pluginJarChangeListeners, systemEnvironment);
+        monitorThread = new PluginLocationMonitorThread();
     }
 
     @Override
     public void oneShot() {
         initializeMonitorThread();
         monitorThread.oneShot();
+    }
+
+    @Override
+    public void awaitFirstLoad() throws InterruptedException {
+        firstLoadLatch.await();
+    }
+
+    boolean hasLoadedAtLeastOnce() throws InterruptedException {
+        return firstLoadLatch.await(0, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -116,28 +119,24 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
     }
 
     public void validateBundledPluginDirectory() {
-        if (bundledPluginDirectory.exists()) {
-            return;
-        }
-        try {
-            LOGGER.debug("Force creating the plugins jar directory as it does not exist {}", bundledPluginDirectory.getAbsolutePath());
-            FileUtils.forceMkdir(bundledPluginDirectory);
-        } catch (IOException e) {
-            String message = "Failed to create plugins folder in location " + bundledPluginDirectory.getAbsolutePath();
-            LOGGER.warn(message, e);
-            throw new RuntimeException(message, e);
-        }
+        validateDirectory(bundledPluginDirectory, "bundled plugins");
     }
 
     private void validateExternalPluginDirectory() {
-        if (externalPluginDirectory.exists()) {
+        validateDirectory(externalPluginDirectory, "external plugins");
+    }
+
+    private void validateDirectory(File directory, String type) {
+        if (directory.exists()) {
             return;
         }
         try {
-            LOGGER.debug("Force creating the plugins jar directory as it does not exist {}", externalPluginDirectory.getAbsolutePath());
-            FileUtils.forceMkdir(externalPluginDirectory);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Force creating the plugins jar directory as it does not exist {}", directory.getAbsolutePath());
+            }
+            FileUtils.forceMkdir(directory);
         } catch (IOException e) {
-            String message = "Failed to create external plugins folder in location " + externalPluginDirectory.getAbsolutePath();
+            String message = "Failed to create " + type + " folder in location " + directory.getAbsolutePath();
             LOGGER.warn(message, e);
             throw new RuntimeException(message, e);
         }
@@ -147,26 +146,14 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         pluginJarChangeListeners.removeIf(next -> next.get() == null);
     }
 
-    private static class PluginLocationMonitorThread extends Thread {
+    private class PluginLocationMonitorThread extends Thread {
         private Set<BundleOrPluginFileDetails> knownBundledBundleOrPluginFileDetails = new HashSet<>();
         private Set<BundleOrPluginFileDetails> knownExternalBundleOrPluginFileDetails = new HashSet<>();
         private final PluginChangeNotifier pluginChangeNotifier = new PluginChangeNotifier();
-        private final File bundledPluginDirectory;
-        private final File externalPluginDirectory;
-        private final List<WeakReference<PluginJarChangeListener>> pluginJarChangeListener;
-        private final SystemEnvironment systemEnvironment;
-        private volatile long lastRun;
 
-        public PluginLocationMonitorThread(File bundledPluginDirectory,
-                                           File externalPluginDirectory,
-                                           List<WeakReference<PluginJarChangeListener>> pluginJarChangeListener,
-                                           SystemEnvironment systemEnvironment) {
+        public PluginLocationMonitorThread() {
             super("goPluginLocationMonitor");
             setDaemon(true);
-            this.bundledPluginDirectory = bundledPluginDirectory;
-            this.externalPluginDirectory = externalPluginDirectory;
-            this.pluginJarChangeListener = pluginJarChangeListener;
-            this.systemEnvironment = systemEnvironment;
         }
 
         @Override
@@ -182,17 +169,10 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
             } while (!Thread.currentThread().isInterrupted());
         }
 
-
-        //Added synchronized because the compiler can change the order of instructions, meaning that the lastRun can be
-        //updated before the listeners are notified.
-        public synchronized void oneShot() {
+        public void oneShot() {
             knownBundledBundleOrPluginFileDetails = loadAndNotifyPluginsFrom(bundledPluginDirectory, knownBundledBundleOrPluginFileDetails, true);
             knownExternalBundleOrPluginFileDetails = loadAndNotifyPluginsFrom(externalPluginDirectory, knownExternalBundleOrPluginFileDetails, false);
-            lastRun = System.currentTimeMillis();
-        }
-
-        boolean hasRunSince(long timestamp) {
-            return lastRun > timestamp;
+            firstLoadLatch.countDown();
         }
 
         private Set<BundleOrPluginFileDetails> loadAndNotifyPluginsFrom(File pluginDirectory,
@@ -204,7 +184,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         }
 
         private PluginJarChangeListener doOnAllListeners() {
-            return new DoOnAllListeners(pluginJarChangeListener);
+            return new DoOnAllListeners(pluginJarChangeListeners);
         }
 
         private void waitForMonitorInterval(long intervalMillis) {

@@ -45,6 +45,7 @@ public class AgentWorkRetrievalScheduler implements Runnable {
 
     @PostConstruct
     public void schedule() {
+        LOG.info("Scheduling Agent work Loop...");
         // Schedule constantly, to ensure any unexpected exceptions in the loop don't cause a zombie agent
         scheduler.schedule(this, new PeriodicTrigger(1, TimeUnit.MILLISECONDS));
     }
@@ -54,13 +55,17 @@ public class AgentWorkRetrievalScheduler implements Runnable {
         BackOffExecution backOffExecution = backoffStrategy.start();
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                long nextBackOffMillis = backOffExecution.nextBackOff();
-                LOG.debug("[Agent Loop] Waiting {} ms before retrieving next work.", nextBackOffMillis);
-                waitFor(nextBackOffMillis);
                 WorkAttempt result = controller.performWork();
                 LOG.debug("[Agent Loop] Work attempted was {}", result);
-                if (result.shouldResetDelay()) {
+
+                if (WorkAttempt.OK.equals(result)) {
+                    // On successful work; reset any backoff accumulation; and try immediately to get more work
                     backOffExecution = backoffStrategy.start();
+                    LOG.debug("[Agent Loop] Immediately retrieving next work.");
+                } else {
+                    long nextBackOffMillis = backOffExecution.nextBackOff();
+                    LOG.debug("[Agent Loop] Waiting {} ms before retrieving next work.", nextBackOffMillis);
+                    waitFor(nextBackOffMillis);
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

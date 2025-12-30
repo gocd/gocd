@@ -97,9 +97,7 @@ public class AgentUpgradeService {
             validateMd5(tfsImplMd5, response, RESPONSE_AGENT_TFS_SDK_MD5, "tfs-impl jar");
             updateExtraProperties(response.getFirstHeader(RESPONSE_AGENT_EXTRA_PROPERTIES));
         } catch (IOException ioe) {
-            String message = String.format("[Agent Upgrade] Couldn't connect to: %s: %s", urlService.getAgentLatestStatusUrl(), ioe);
-            LOGGER.error(message);
-            LOGGER.debug(message, ioe);
+            LOGGER.error("[Agent Upgrade] Can't verify agent is compatible with server as cannot connect to: {}: {}", urlService.getAgentLatestStatusUrl(), ioe.toString());
             throw ioe;
         } finally {
             method.releaseConnection();

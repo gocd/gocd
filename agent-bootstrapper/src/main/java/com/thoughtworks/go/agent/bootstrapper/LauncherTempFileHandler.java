@@ -36,14 +36,21 @@ import static java.nio.file.StandardOpenOption.*;
 
 class LauncherTempFileHandler implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(LauncherTempFileHandler.class);
+
     private static final Path LAUNCHER_TMP_FILE_LIST = Path.of(".tmp.file.list");
+    private static final int LAUNCHER_TMP_CLEANUP_INTERVAL_MINUTES = 10;
+
     private static volatile Thread reaperThread;
 
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             reapFiles();
-            sleepForAMoment();
+            try {
+                Thread.sleep(TimeUnit.MINUTES.toMillis(LAUNCHER_TMP_CLEANUP_INTERVAL_MINUTES));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
@@ -65,7 +72,7 @@ class LauncherTempFileHandler implements Runnable {
         }
     }
 
-    public synchronized static void startTempFileReaper() {
+    public synchronized static void startReaperIfNecessary() {
         if (reaperThread == null) {
             reaperThread = new Thread(new LauncherTempFileHandler());
             reaperThread.setName("TempFileReaper" + reaperThread.getName());
@@ -82,11 +89,4 @@ class LauncherTempFileHandler implements Runnable {
         }
     }
 
-    private static void sleepForAMoment() {
-        try {
-            Thread.sleep(TimeUnit.MINUTES.toMillis(10));
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
 }

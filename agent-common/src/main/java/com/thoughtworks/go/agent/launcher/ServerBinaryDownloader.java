@@ -22,6 +22,7 @@ import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.common.util.HeaderUtil;
 import com.thoughtworks.go.util.PerfTimer;
 import com.thoughtworks.go.util.SslVerificationMode;
+import com.thoughtworks.go.util.SystemUtil;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.config.RequestConfig;
@@ -43,12 +44,13 @@ import static com.thoughtworks.go.remote.StandardHeaders.RESPONSE_CONTENT_MD5;
 
 public class ServerBinaryDownloader implements Downloader {
     private static final Logger LOG = LoggerFactory.getLogger(ServerBinaryDownloader.class);
-    private static final String DEFAULT_FAILED_DOWNLOAD_SLEEP_MS = "60000";
     private static final int HTTP_TIMEOUT_IN_MILLISECONDS = 5000;
+    private static final int DEFAULT_FAILED_DOWNLOAD_WAIT_IN_MILLISECONDS = 10000;
 
+    private final int failedDownloadSleepMillis = SystemUtil.getIntProperty("sleep.for.download", DEFAULT_FAILED_DOWNLOAD_WAIT_IN_MILLISECONDS);
     private final ServerUrlGenerator urlGenerator;
-
     private final GoAgentServerHttpClientBuilder httpClientBuilder;
+
     private String md5;
     private Map<String, String> extraProperties;
 
@@ -82,16 +84,15 @@ public class ServerBinaryDownloader implements Downloader {
             try {
                 fetchUpdateCheckHeaders(downloadableFile);
                 if (downloadableFile.doesNotExist() || !downloadableFile.isChecksumEquals(getMd5())) {
-                    PerfTimer timer = PerfTimer.start("Downloading new " + downloadableFile + " with md5 signature: " + md5);
+                    PerfTimer timer = PerfTimer.start("Downloading new " + downloadableFile.getLocalFile() + " with md5 signature: " + md5);
                     downloaded = download(downloadableFile);
                     timer.stop();
                 }
                 updated = true;
             } catch (Exception e) {
                 try {
-                    int period = Integer.parseInt(System.getProperty("sleep.for.download", DEFAULT_FAILED_DOWNLOAD_SLEEP_MS));
-                    LOG.error("Couldn't update {}. Sleeping for {}s. Error: ", downloadableFile, TimeUnit.SECONDS.convert(period, TimeUnit.MILLISECONDS), e);
-                    Thread.sleep(period);
+                    LOG.error("Couldn't update {}. Sleeping for {} s. Error: ", downloadableFile, TimeUnit.SECONDS.convert(failedDownloadSleepMillis, TimeUnit.MILLISECONDS), e);
+                    Thread.sleep(failedDownloadSleepMillis);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                 }

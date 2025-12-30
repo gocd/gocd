@@ -57,7 +57,7 @@ public class PerfTimerTest {
 
         try (LogFixture fixture = logFixtureFor(PerfTimer.class, Level.INFO)) {
             timer.stop();
-            assertThat(fixture.getLog()).contains("Performance: Message took 1000ms");
+            assertThat(fixture.getLog()).contains("Performance: Message took 1000 ms");
         }
     }
 

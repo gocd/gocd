@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginManagerReference;
-import com.thoughtworks.go.plugin.infra.monitor.PluginJarLocationMonitor;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
@@ -52,7 +51,6 @@ public abstract class AgentController {
     private final SubprocessLogger subprocessLogger;
     private final AgentUpgradeService agentUpgradeService;
     private final AgentHealthHolder agentHealthHolder;
-    private final PluginJarLocationMonitor pluginJarLocationMonitor;
     private final String hostName;
     private final String ipAddress;
 
@@ -62,14 +60,12 @@ public abstract class AgentController {
                            PluginManager pluginManager,
                            SubprocessLogger subprocessLogger,
                            AgentUpgradeService agentUpgradeService,
-                           AgentHealthHolder agentHealthHolder,
-                           PluginJarLocationMonitor pluginJarLocationMonitor) {
+                           AgentHealthHolder agentHealthHolder) {
         this.sslInfrastructureService = sslInfrastructureService;
         this.agentRegistry = agentRegistry;
         this.subprocessLogger = subprocessLogger;
         this.agentUpgradeService = agentUpgradeService;
         this.agentHealthHolder = agentHealthHolder;
-        this.pluginJarLocationMonitor = pluginJarLocationMonitor;
         PluginManagerReference.reference().setPluginManager(pluginManager);
         hostName = SystemUtil.getLocalhostNameOrRandomNameIfNotFound();
         ipAddress = SystemUtil.getClientIp(systemEnvironment.getServiceUrl());
@@ -85,12 +81,7 @@ public abstract class AgentController {
             agentUpgradeService.checkForUpgradeAndExtraProperties();
             sslInfrastructureService.registerIfNecessary(getAgentAutoRegistrationProperties());
 
-            if (pluginJarLocationMonitor.hasRunAtLeastOnce()) {
-                return tryDoWork();
-            } else {
-                LOG.debug("[Agent Loop] PluginLocationMonitor has not yet run. Not retrieving work since plugins may not be initialized.");
-                return WorkAttempt.FAILED;
-            }
+            return tryDoWork();
 
         } catch (Exception e) {
             if (isCausedBySecurity(e)) {
@@ -103,10 +94,10 @@ public abstract class AgentController {
     }
 
     private void handleSecurityException(Exception e) {
-        LOG.error("There has been a problem with one of GoCD's TLS certificates. This can be caused by a man-in-the-middle attack, or a change to the HTTPS certificates of the GoCD Server. Review the agent TLS trust settings and any mutual TLS configuration of the agent.", e);
+        LOG.error("[Agent Loop] There has been a problem with one of GoCD's TLS certificates. This can be caused by a man-in-the-middle attack, or a change to the HTTPS certificates of the GoCD Server. Review the agent TLS trust settings and any mutual TLS configuration of the agent.", e);
     }
 
-    abstract WorkAttempt tryDoWork();
+    abstract WorkAttempt tryDoWork() throws InterruptedException;
 
     protected AgentAutoRegistrationProperties getAgentAutoRegistrationProperties() {
         return agentAutoRegistrationProperties;

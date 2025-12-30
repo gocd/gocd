@@ -52,7 +52,7 @@ public class PerfTimer {
         }
         elapsed = elapsed + (clock.currentTimeMillis() - startTime);
         startTime = 0;
-        LOG.info("Performance: {} took {}ms", message, elapsed());
+        LOG.info("Performance: {} took {} ms", message, elapsed());
     }
 
     public long elapsed() {

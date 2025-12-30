@@ -17,7 +17,6 @@ package com.thoughtworks.go.agent.launcher;
 
 import com.thoughtworks.cruise.agent.common.launcher.AgentLaunchDescriptor;
 import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
-import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.agent.ServerUrlGenerator;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.common.UrlConstructor;
@@ -71,6 +70,7 @@ public class AgentLauncherImpl implements AgentLauncher {
             if (!lockFile.tryLock()) {
                 return IRRECOVERABLE_ERROR;
             }
+            LOG.info("Starting with launcher version {}", version());
 
             shutdownHook = registerShutdownHook();
 
@@ -81,13 +81,17 @@ public class AgentLauncherImpl implements AgentLauncher {
 
             ServerBinaryDownloader launcherDownloader = new ServerBinaryDownloader(urlGenerator, bootstrapperArgs);
             if (launcherDownloader.downloadIfNecessary(DownloadableFile.LAUNCHER)) {
+                LOG.info("Launcher not up to date - new version required.");
                 return NOT_UP_TO_DATE;
             }
+            LOG.info("Launcher version matches; checking agent version...");
 
             ServerBinaryDownloader agentDownloader = new ServerBinaryDownloader(urlGenerator, bootstrapperArgs);
             agentDownloader.downloadIfNecessary(DownloadableFile.AGENT);
 
-            return agentProcessParentRunner.run(getLauncherVersion(), launcherDownloader.getMd5(), urlGenerator, System.getenv(), context);
+            LOG.info("Launching agent process from jar...");
+
+            return agentProcessParentRunner.run(version(), launcherDownloader.getMd5(), urlGenerator, System.getenv(), context);
         } catch (Exception e) {
             LOG.error("Launch encountered an unknown exception", e);
             return UNKNOWN_EXCEPTION_OCCURRED;
@@ -112,8 +116,9 @@ public class AgentLauncherImpl implements AgentLauncher {
         return shutdownHook;
     }
 
-    private String getLauncherVersion() {
-        return CurrentGoCDVersion.getInstance().fullVersion();
+    private String version() {
+        String version = getClass().getPackage().getImplementationVersion();
+        return version == null ? "UNKNOWN" : version;
     }
 
     public interface AgentProcessParentRunner {

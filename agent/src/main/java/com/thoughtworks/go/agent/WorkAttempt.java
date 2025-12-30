@@ -34,8 +34,4 @@ enum WorkAttempt {
         return WORK_TO_RESULT.getOrDefault(work.getClass(), OK);
     }
 
-    boolean shouldResetDelay() {
-        // Reset backoff delays once we have executed real work successfully
-        return OK.equals(this);
-    }
 }

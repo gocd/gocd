@@ -16,8 +16,6 @@
 package com.thoughtworks.go.agent.launcher;
 
 import com.thoughtworks.cruise.agent.common.launcher.AgentLaunchDescriptor;
-import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
-import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.testhelper.FakeGoServer;
 import com.thoughtworks.go.agent.testhelper.FakeGoServerExtension;
@@ -33,8 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -67,20 +63,6 @@ public class AgentLauncherImplTest {
         Files.deleteIfExists(AGENT_LAUNCHER_JAR.toPath());
         Files.deleteIfExists(TFS_IMPL_JAR.toPath());
         new File(AgentLauncherImpl.AGENT_BOOTSTRAPPER_LOCK_FILE).delete();
-    }
-
-    @Test
-    public void shouldPassLauncherVersionToAgent() throws IOException {
-        final List<String> actualVersion = new ArrayList<>();
-        final AgentLauncher launcher = new AgentLauncherImpl((launcherVersion, launcherMd5, urlConstructor, environmentVariables, context) -> {
-            actualVersion.add(launcherVersion);
-            return 0;
-        });
-        TEST_AGENT_LAUNCHER.copyTo(AGENT_LAUNCHER_JAR);
-        launcher.launch(launchDescriptor());
-
-        assertThat(actualVersion.size()).isEqualTo(1);
-        assertThat(actualVersion.get(0)).isEqualTo(CurrentGoCDVersion.getInstance().fullVersion());
     }
 
     @Test

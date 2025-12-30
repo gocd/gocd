@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class PluginRequestProcessorRegistry {
 
-    private Map<String, GoPluginApiRequestProcessor> processorMap = new ConcurrentHashMap<>();
+    private final Map<String, GoPluginApiRequestProcessor> processorMap = new ConcurrentHashMap<>();
 
     public void registerProcessorFor(String request, GoPluginApiRequestProcessor processor) {
         processorMap.put(request, processor);

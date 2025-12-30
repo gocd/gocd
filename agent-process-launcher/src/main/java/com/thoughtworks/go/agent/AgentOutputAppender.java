@@ -53,6 +53,7 @@ class AgentOutputAppender {
         ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<>();
         appender.setTarget(target.target.getName());
         appender.setEncoder(LogHelper.encoder("%msg%n"));
+        appender.setContext(LogHelper.LOGGER_CONTEXT);
         appender.start();
         appenders.add(appender);
     }

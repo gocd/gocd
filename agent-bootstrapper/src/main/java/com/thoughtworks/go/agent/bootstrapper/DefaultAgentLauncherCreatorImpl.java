@@ -75,25 +75,24 @@ public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        LauncherTempFileHandler.startTempFileReaper();
+        LauncherTempFileHandler.startReaperIfNecessary();
     }
 
     private void attemptToCleanupMaxRetryTimes() {
-        boolean shouldRetry;
         int retryCount = 0;
         do {
             forceGCToReleaseAnyReferences();
-            sleepForAMoment();
-            LOG.info("Attempt No: {} to cleanup launcher temp files", retryCount + 1);
+            if (retryCount > 0) {
+                sleepForAMoment();
+            }
+            LOG.info("Attempt {} to cleanup launcher temp files", retryCount + 1);
 
             FileUtils.deleteQuietly(inUseLauncher);
             FileUtils.deleteQuietly(getDepsDir());
 
             ++retryCount;
 
-            shouldRetry = tempFilesExist() && retryCount < maxRetryAttempts;
-
-        } while (shouldRetry);
+        } while (tempFilesExist() && retryCount < maxRetryAttempts && !Thread.currentThread().isInterrupted());
     }
 
     private File getDepsDir() {
@@ -113,6 +112,7 @@ public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
         try {
             Thread.sleep(oneSec);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 

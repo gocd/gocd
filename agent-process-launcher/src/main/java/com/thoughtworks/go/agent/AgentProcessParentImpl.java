@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,10 +43,10 @@ public class AgentProcessParentImpl implements AgentProcessParent {
     @Override
     public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> env, Map<String, String> context) {
         int exitValue = 0;
-        LOG.info("Agent launcher is version: {}", CurrentGoCDVersion.getInstance().fullVersion());
         String[] command = new String[]{};
 
         try {
+            LOG.info("Preparing for agent boot from launcher {} by downloading plugins...", CurrentGoCDVersion.getInstance().fullVersion());
             AgentBootstrapperArgs bootstrapperArgs = AgentBootstrapperArgs.fromProperties(context);
 
             ServerBinaryDownloader agentDownloader = new ServerBinaryDownloader(urlGenerator, bootstrapperArgs);
@@ -59,7 +60,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
 
             command = agentInvocationCommand(agentDownloader.getMd5(), launcherMd5, pluginZipDownloader.getMd5(), tfsImplDownloader.getMd5(),
                     env, context, agentDownloader.getExtraProperties());
-            LOG.info("Launching Agent with command: {}", String.join(" ", command));
+            LOG.info("Launching Agent (took {} ms since first boot) with command: {}", ManagementFactory.getRuntimeMXBean().getUptime(), String.join(" ", command));
 
             Process agent = invoke(command);
 
@@ -82,6 +83,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
             Shutdown shutdownHook = new Shutdown(agent);
             Runtime.getRuntime().addShutdownHook(shutdownHook);
             try {
+                LOG.info("Waiting for agent to complete...");
                 exitValue = agent.waitFor();
             } catch (InterruptedException ie) {
                 LOG.error("Agent was interrupted. Terminating agent and respawning. {}", ie.toString());

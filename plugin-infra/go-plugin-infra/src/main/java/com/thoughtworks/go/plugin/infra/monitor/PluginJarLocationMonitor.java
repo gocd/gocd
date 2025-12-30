@@ -27,5 +27,5 @@ public interface PluginJarLocationMonitor {
 
     void oneShot();
 
-    boolean hasRunAtLeastOnce();
+    void awaitFirstLoad() throws InterruptedException;
 }

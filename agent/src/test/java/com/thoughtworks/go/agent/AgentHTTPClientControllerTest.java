@@ -36,6 +36,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -87,7 +88,7 @@ public class AgentHTTPClientControllerTest {
     }
 
     @Test
-    void shouldRetrieveWorkFromServerAndDoIt() {
+    void shouldRetrieveWorkFromServerAndDoIt() throws Exception {
         prepareForWork();
         agentController.ping();
         assertThat(agentController.tryDoWork()).isEqualTo(WorkAttempt.OK);
@@ -96,7 +97,7 @@ public class AgentHTTPClientControllerTest {
     }
 
     @Test
-    void shouldRetrieveCookieIfNotPresent() {
+    void shouldRetrieveCookieIfNotPresent() throws Exception {
         agentController = createAgentController();
         agentController.init();
 
@@ -104,13 +105,19 @@ public class AgentHTTPClientControllerTest {
         when(sslInfrastructureService.isRegistered()).thenReturn(true);
         when(loopServer.getWork(agentController.getAgentRuntimeInfo())).thenReturn(work);
         when(agentRegistry.uuid()).thenReturn(agentUuid);
-        when(pluginJarLocationMonitor.hasRunAtLeastOnce()).thenReturn(true);
+
         assertThat(agentController.performWork()).isEqualTo(WorkAttempt.OK);
-        verify(work).doWork(any(), any());
+
+        InOrder inOrder = inOrder(agentUpgradeService, sslInfrastructureService, loopServer, pluginJarLocationMonitor, work);
+        inOrder.verify(agentUpgradeService).checkForUpgradeAndExtraProperties();
+        inOrder.verify(sslInfrastructureService).registerIfNecessary(agentController.getAgentAutoRegistrationProperties());
+        inOrder.verify(loopServer).getCookie(any());
+        inOrder.verify(pluginJarLocationMonitor).awaitFirstLoad();
+        inOrder.verify(work).doWork(any(), any());
     }
 
     @Test
-    void shouldNotTellServerWorkIsCompletedWhenThereIsNoWork() {
+    void shouldNotTellServerWorkIsCompletedWhenThereIsNoWork() throws Exception {
         prepareForWork();
         assertThat(agentController.tryDoWork()).isEqualTo(WorkAttempt.OK);
         verify(work).doWork(any(), any());
@@ -118,7 +125,7 @@ public class AgentHTTPClientControllerTest {
     }
 
     @Test
-    void workStatusShouldBeFailedWhenUnregisteredAgentExceptionThrown() {
+    void workStatusShouldBeFailedWhenUnregisteredAgentExceptionThrown() throws Exception {
         prepareForWork();
 
         doThrow(UnregisteredAgentException.class).when(work).doWork(any(), any());
@@ -127,14 +134,14 @@ public class AgentHTTPClientControllerTest {
     }
 
     @Test
-    void workStatusShouldDeriveFromWorkTypeForNoWork() {
+    void workStatusShouldDeriveFromWorkTypeForNoWork() throws Exception {
         work = mock(NoWork.class);
         prepareForWork();
         assertThat(agentController.tryDoWork()).isEqualTo(WorkAttempt.NOTHING_TO_DO);
     }
 
     @Test
-    void workStatusShouldDeriveFromWorkTypeForDeniedWork() {
+    void workStatusShouldDeriveFromWorkTypeForDeniedWork() throws Exception {
         work = mock(DeniedAgentWork.class);
         prepareForWork();
         assertThat(agentController.tryDoWork()).isEqualTo(WorkAttempt.NOTHING_TO_DO);
@@ -161,8 +168,20 @@ public class AgentHTTPClientControllerTest {
 
         agentController = createAgentController();
         agentController.init();
+        agentController.getAgentRuntimeInfo().setCookie("some-cookie");
         agentController.ping();
         verify(sslInfrastructureService).createSslInfrastructure();
+    }
+
+    @Test
+    void shouldNotPingIfNoCookie() {
+        when(agentRegistry.uuid()).thenReturn(agentUuid);
+
+        agentController = createAgentController();
+        agentController.init();
+        agentController.ping();
+        verify(sslInfrastructureService).createSslInfrastructure();
+        verifyNoMoreInteractions(sslInfrastructureService);
     }
 
     @Test
@@ -171,6 +190,7 @@ public class AgentHTTPClientControllerTest {
         when(sslInfrastructureService.isRegistered()).thenReturn(true);
         agentController = createAgentController();
         agentController.init();
+        agentController.getAgentRuntimeInfo().setCookie("some-cookie");
         agentController.ping();
         verify(sslInfrastructureService).createSslInfrastructure();
         verify(loopServer).ping(any());

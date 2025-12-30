@@ -19,6 +19,8 @@ import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.common.AgentCLI;
 import com.thoughtworks.go.logging.LogConfigurator;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.Map;
@@ -40,7 +42,10 @@ public final class AgentMain {
             new SystemEnvironment().setProperty(entry.getKey(), entry.getValue());
         }
 
+        Logger logger = LoggerFactory.getLogger(AgentMain.class); // Deliberately initializing logger late
+        logger.info("Go Agent starting...");
         ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
         ctx.registerShutdownHook();
+        logger.info("Go Agent started & running in background.");
     }
 }

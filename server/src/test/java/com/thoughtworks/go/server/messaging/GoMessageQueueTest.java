@@ -54,13 +54,13 @@ class GoMessageQueueTest {
         verifyNoInteractions(messagingService);
 
         MessageSender firstSender = mock(MessageSender.class);
-        when(messagingService.createSender(QUEUE)).thenReturn(firstSender, mock(MessageSender.class));
+        when(messagingService.createQueueSender(QUEUE)).thenReturn(firstSender, mock(MessageSender.class));
 
         queue.post(mock(GoMessage.class));
         queue.post(mock(GoMessage.class));
         queue.post(mock(GoMessage.class), 123);
 
-        verify(messagingService).createSender(QUEUE);
+        verify(messagingService).createQueueSender(QUEUE);
 
         verify(firstSender, times(2)).sendMessage(any());
         verify(firstSender, times(1)).sendMessage(any(), eq(123L));

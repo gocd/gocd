@@ -15,29 +15,30 @@
  */
 package com.thoughtworks.go.util;
 
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class PerfTimer {
-    private static final Logger LOG = LoggerFactory.getLogger(PerfTimer.class);
-
-    public static PerfTimer start(String message) {
-        return start(message, new SystemTimeClock());
+    public static PerfTimer start(Logger logger, String message) {
+        return start(logger, message, new SystemTimeClock());
     }
 
-    static PerfTimer start(String message, Clock clock) {
-        PerfTimer timer = new PerfTimer(message, clock);
+    @VisibleForTesting
+    static PerfTimer start(Logger logger, String message, Clock clock) {
+        PerfTimer timer = new PerfTimer(logger, message, clock);
         timer.start();
         return timer;
     }
 
+    private final Logger logger;
     private final String message;
     private final Clock clock;
 
     private long startTime;
     private long elapsed;
 
-    private PerfTimer(String message, Clock clock) {
+    private PerfTimer(Logger logger, String message, Clock clock) {
+        this.logger = logger;
         this.message = message;
         this.clock = clock;
     }
@@ -52,7 +53,7 @@ public class PerfTimer {
         }
         elapsed = elapsed + (clock.currentTimeMillis() - startTime);
         startTime = 0;
-        LOG.info("Performance: {} took {}ms", message, elapsed());
+        logger.info("{} took {} ms", message, elapsed());
     }
 
     public long elapsed() {

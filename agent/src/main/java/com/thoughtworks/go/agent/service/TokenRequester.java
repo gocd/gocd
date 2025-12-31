@@ -52,7 +52,6 @@ public class TokenRequester {
 
         try (CloseableHttpResponse response = httpClient.execute(getTokenRequest)) {
             if (response.getStatusLine().getStatusCode() == HTTP_OK) {
-                LOGGER.info("The server has generated token for the agent.");
                 return responseBody(response);
             } else {
                 LOGGER.error("[Agent Registration] Got status {} from GoCD", response.getStatusLine());

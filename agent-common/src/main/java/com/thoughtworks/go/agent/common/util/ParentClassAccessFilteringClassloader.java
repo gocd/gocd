@@ -40,7 +40,9 @@ public final class ParentClassAccessFilteringClassloader extends ClassLoader {
         for (Class<?> permittedParentDefn : permittedParentDefinitions) {
             if (permittedParentDefn.getCanonicalName().equals(name)) {
                 ClassLoader parent = getParent();
-                LOG.info("Loading {} using {}", name, parent == null ? "null classloader" : parent.getClass().getCanonicalName());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Loading {} using {}", name, parent == null ? "null classloader" : parent.getClass().getCanonicalName());
+                }
                 return super.loadClass(name, false);
             }
         }

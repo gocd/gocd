@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.infra.PluginLoader;
 import com.thoughtworks.go.plugin.infra.monitor.BundleOrPluginFileDetails;
 import com.thoughtworks.go.plugin.infra.monitor.PluginJarChangeListener;
 import com.thoughtworks.go.plugin.infra.plugininfo.*;
+import com.thoughtworks.go.util.PerfTimer;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
@@ -63,15 +64,17 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
     public void pluginJarAdded(BundleOrPluginFileDetails bundleOrPluginFileDetails) {
         final GoPluginBundleDescriptor bundleDescriptor = goPluginBundleDescriptorBuilder.build(bundleOrPluginFileDetails);
 
+        PerfTimer timer = PerfTimer.start(LOGGER, "Plugin load finished: " + bundleOrPluginFileDetails.file());
         try {
             LOGGER.info("Plugin load starting: {}", bundleOrPluginFileDetails.file());
 
             validateIfExternalPluginRemovingBundledPlugin(bundleDescriptor);
             validatePluginCompatibilityWithCurrentOS(bundleDescriptor);
             validatePluginCompatibilityWithGoCD(bundleDescriptor);
+            LOGGER.info("Plugin validated: {}", bundleOrPluginFileDetails.file());
             addPlugin(bundleOrPluginFileDetails, bundleDescriptor);
         } finally {
-            LOGGER.info("Plugin load finished: {}", bundleOrPluginFileDetails.file());
+            timer.stop();
         }
     }
 
@@ -118,7 +121,9 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
     private void addPlugin(BundleOrPluginFileDetails bundleOrPluginFileDetails,
                            GoPluginBundleDescriptor bundleDescriptor) {
         explodePluginJarToBundleDir(bundleOrPluginFileDetails.file(), bundleDescriptor.bundleLocation());
+        LOGGER.info("Plugin unpacked: {}", bundleOrPluginFileDetails.file());
         installActivatorJarToBundleDir(bundleDescriptor.bundleLocation());
+        LOGGER.info("Plugin activator installed: {}", bundleOrPluginFileDetails.file());
         registry.loadPlugin(bundleDescriptor);
         refreshBundle(bundleDescriptor);
     }

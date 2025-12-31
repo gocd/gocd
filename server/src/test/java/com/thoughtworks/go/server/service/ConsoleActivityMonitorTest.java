@@ -19,7 +19,6 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -304,7 +303,7 @@ class ConsoleActivityMonitorTest {
     }
 
     @Test
-    void shouldAppendToConsoleLog_JobKilledDueToInactivityMessage() throws IllegalArtifactLocationException {
+    void shouldAppendToConsoleLog_JobKilledDueToInactivityMessage() {
         JobIdentifier unresponsiveJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25L);
         activeJobListener.jobStatusChanged(buildingInstance(unresponsiveJob));
 
@@ -438,7 +437,7 @@ class ConsoleActivityMonitorTest {
         }
 
         @Test
-        void shouldAppendToConsoleLog_JobKilledAsItWasntAssignedAnAgentMessage() throws IllegalArtifactLocationException {
+        void shouldAppendToConsoleLog_JobKilledAsItWasntAssignedAnAgentMessage() {
             JobIdentifier unresponsiveJob = new JobIdentifier("pipelines", 10, "label-10", "stage", "3", "job", 25L);
             scheduledJobListener.jobStatusChanged(scheduledInstance(unresponsiveJob));
 

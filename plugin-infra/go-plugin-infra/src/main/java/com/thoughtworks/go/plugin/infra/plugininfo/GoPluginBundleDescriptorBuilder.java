@@ -48,12 +48,12 @@ public class GoPluginBundleDescriptorBuilder {
         try {
             InputStream bundleXml = bundleOrPluginJarFile.getBundleXml();
             if (bundleXml.available() > 0) {
-                return GoPluginBundleDescriptorParser.parseXML(bundleXml, bundleOrPluginJarFile);
+                return GoPluginDescriptorParser.parseBundleXml(bundleXml, bundleOrPluginJarFile);
             }
 
             InputStream pluginXml = bundleOrPluginJarFile.getPluginXml();
             if (pluginXml.available() > 0) {
-                return GoPluginDescriptorParser.parseXML(pluginXml, bundleOrPluginJarFile);
+                return GoPluginDescriptorParser.parseXml(pluginXml, bundleOrPluginJarFile);
             }
 
             goPluginBundleDescriptor.markAsInvalid(List.of(format("Plugin with ID (%s) is not valid. The plugin does not seem to contain plugin.xml or gocd-bundle.xml", defaultId)), new RuntimeException("The plugin does not seem to contain plugin.xml or gocd-bundle.xml"));

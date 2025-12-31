@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import static com.thoughtworks.go.agent.bootstrapper.AgentBootstrapper.returnDesc;
 import static com.thoughtworks.go.util.TestUtils.doInterruptiblyQuietlyRethrowInterrupt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -228,4 +229,12 @@ public class AgentBootstrapperTest {
         return spy;
     }
 
+    @Test
+    void shouldFormatLauncherReturnDescriptions() {
+        assertThat(returnDesc(0xBADBAD)).isEqualTo("IRRECOVERABLE_ERROR (12245933 / 0xbadbad)");
+        assertThat(returnDesc(60)).isEqualTo("NOT_UP_TO_DATE (60 / 0x3c)");
+        assertThat(returnDesc(0)).isEqualTo("DONE (0 / 0x0)");
+        assertThat(returnDesc(-1)).isEqualTo("UNKNOWN (-1 / 0xffffffff)");
+        assertThat(returnDesc(-373)).isEqualTo("AGENT_FATAL_EXCEPTION_OCCURRED (-373 / 0xfffffe8b)");
+    }
 }

@@ -18,6 +18,7 @@ package com.thoughtworks.go.agent;
 import com.thoughtworks.go.agent.launcher.DownloadableFile;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
+import com.thoughtworks.go.util.PerfTimer;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
@@ -35,9 +36,9 @@ import java.io.IOException;
 public class AgentPluginsInitializer implements ApplicationListener<ContextRefreshedEvent> {
     private static final Logger LOG = LoggerFactory.getLogger(AgentPluginsInitializer.class);
     private final DefaultPluginJarLocationMonitor defaultPluginJarLocationMonitor;
-    private PluginManager pluginManager;
-    private ZipUtil zipUtil;
-    private SystemEnvironment systemEnvironment;
+    private final PluginManager pluginManager;
+    private final ZipUtil zipUtil;
+    private final SystemEnvironment systemEnvironment;
 
     @Autowired
     public AgentPluginsInitializer(PluginManager pluginManager, DefaultPluginJarLocationMonitor defaultPluginJarLocationMonitor,
@@ -51,14 +52,18 @@ public class AgentPluginsInitializer implements ApplicationListener<ContextRefre
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         try {
+            LOG.info("Agent plugins initializing...");
             File pluginsFolder = new File(systemEnvironment.get(SystemEnvironment.AGENT_PLUGINS_PATH));
 
             if (pluginsFolder.exists()) {
                 FileUtils.forceDelete(pluginsFolder);
             }
             zipUtil.unzip(DownloadableFile.AGENT_PLUGINS.getLocalFile(), pluginsFolder);
+
+            PerfTimer timer = PerfTimer.start(LOG, "Agent plugins load");
             defaultPluginJarLocationMonitor.initialize();
             pluginManager.startInfrastructure(false);
+            timer.stop();
         } catch (IOException e) {
             LOG.warn("could not extract plugin zip", e);
         } catch (RuntimeException e) {

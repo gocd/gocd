@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-
 public class AgentBootstrapper {
 
     private static final int DEFAULT_WAIT_TIME_BEFORE_RELAUNCH_IN_MS = 10000;
@@ -64,6 +63,7 @@ public class AgentBootstrapper {
     }
 
     public void go(AgentBootstrapperArgs bootstrapperArgs) {
+        LOG.info("Agent Bootstrapper {} started; cleaning up last bootstrap...", version());
         validate();
         cleanupTempFiles();
 
@@ -73,12 +73,13 @@ public class AgentBootstrapper {
         do {
             ClassLoader tccl = Thread.currentThread().getContextClassLoader();
             try (AgentLauncherCreator agentLauncherCreator = getLauncherCreator()) {
+                LOG.info("Creating launcher to download agent binaries...");
                 AgentLauncher launcher = agentLauncherCreator.createLauncher();
-                LOG.info("Attempting create and start launcher...");
+                LOG.info("Starting launcher...");
                 setContextClassLoader(launcher.getClass().getClassLoader());
                 returnValue = launcher.launch(descriptor);
                 resetContextClassLoader(tccl);
-                LOG.info("Launcher returned with code {}(0x{})", returnValue, Integer.toHexString(returnValue).toUpperCase());
+                LOG.info("Launcher returned with {}", returnDesc(returnValue));
                 if (returnValue == AgentLauncher.IRRECOVERABLE_ERROR) {
                     break;
                 }
@@ -100,6 +101,16 @@ public class AgentBootstrapper {
         if (jvmExitOnFailure) {
             jvmExit(returnValue);
         }
+    }
+
+    static String returnDesc(int code) {
+        return switch (code) {
+            case AgentLauncher.IRRECOVERABLE_ERROR -> "IRRECOVERABLE_ERROR (%d / 0x%x)".formatted(code, code);
+            case AgentLauncher.NOT_UP_TO_DATE -> "NOT_UP_TO_DATE (%d / 0x%x)".formatted(code, code);
+            case -373 -> "AGENT_FATAL_EXCEPTION_OCCURRED (%d / 0x%x)".formatted(code, code);
+            case 0 -> "DONE (%d / 0x%x)".formatted(code, code);
+            default -> "UNKNOWN (%d / 0x%x)".formatted(code, code);
+        };
     }
 
     private void cleanupTempFiles() {

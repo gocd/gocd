@@ -146,20 +146,20 @@ public class SslInfrastructureService {
             try (CloseableHttpResponse response = httpClient.execute(postMethod)) {
                 switch (getStatusCode(response)) {
                     case SC_ACCEPTED:
-                        LOGGER.debug("The server has accepted the registration request.");
+                        LOGGER.debug("[Agent Registration] The server has accepted the registration request.");
                         break;
                     case SC_FORBIDDEN:
-                        LOGGER.debug("Server denied registration request due to invalid token. Deleting existing token from disk.");
+                        LOGGER.debug("[Agent Registration] Server denied registration request due to invalid token. Deleting existing token from disk.");
                         agentRegistry.deleteToken();
                         break;
                     case SC_OK:
-                        LOGGER.info("This agent is now approved by the server.");
+                        LOGGER.info("[Agent Registration] This agent is now approved by the server.");
                         return true;
                     case SC_UNPROCESSABLE_ENTITY:
-                        LOGGER.error("Error occurred during agent registration process: {}", responseBody(response));
+                        LOGGER.error("[Agent Registration] Error occurred during agent registration process: {}", responseBody(response));
                         break;
                     default:
-                        LOGGER.warn("The server sent a response that we could not understand. The HTTP status was {}. The response body was:\n{}", response.getStatusLine(), responseBody(response));
+                        LOGGER.warn("[Agent Registration] The server sent a response that we could not understand. The HTTP status was {}. The response body was:\n{}", response.getStatusLine(), responseBody(response));
                 }
             } finally {
                 postMethod.releaseConnection();

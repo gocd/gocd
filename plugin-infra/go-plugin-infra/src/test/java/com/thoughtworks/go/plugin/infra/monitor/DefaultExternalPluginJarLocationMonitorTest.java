@@ -108,7 +108,7 @@ class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefaultPluginJ
         BundleOrPluginFileDetails plugin = pluginFileDetails(pluginExternalDir, "descriptor-aware-test-plugin.something-other-than-jar.zip", false);
         
         addPlugin(plugin);
-        assertTimeout(Duration.ofMillis(TEST_TIMEOUT), () -> monitor.hasRunAtLeastOnce());
+        assertTimeout(Duration.ofMillis(TEST_TIMEOUT), () -> monitor.awaitFirstLoad());
 
         verifyNoMoreInteractions(changeListener);
     }

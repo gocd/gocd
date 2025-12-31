@@ -38,16 +38,19 @@ class AgentWorkRetrievalSchedulerTest {
 
     @Test
     void shouldLoopForWorkWithExponentialBackoffs() throws InterruptedException {
-        AgentWorkRetrievalScheduler scheduler = createSchedulerForIterations(exponentialBackOffTwoToTen(), 10);
-
         when(controller.performWork())
             .thenReturn(WorkAttempt.FAILED)
             .thenReturn(WorkAttempt.FAILED)
             .thenReturn(WorkAttempt.NOTHING_TO_DO)
             .thenReturn(WorkAttempt.NOTHING_TO_DO)
+            .thenReturn(WorkAttempt.NOTHING_TO_DO)
             .thenReturn(WorkAttempt.OK)
             .thenReturn(WorkAttempt.OK)
-            .thenReturn(WorkAttempt.NOTHING_TO_DO);
+            .thenReturn(WorkAttempt.NOTHING_TO_DO); // after this for as many iterations as needed
+
+        int numWaits = 10; // failure & nothing
+        int expectedWork = numWaits + 2; // +2 for the OK results
+        AgentWorkRetrievalScheduler scheduler = createSchedulerForIterations(exponentialBackOffTwoToTen(), numWaits);
 
         try (LogFixture logging = LogFixture.logFixtureFor(AgentWorkRetrievalScheduler.class, Level.DEBUG)) {
             Thread runner = new Thread(scheduler);
@@ -55,28 +58,28 @@ class AgentWorkRetrievalSchedulerTest {
             runner.start();
             runner.join();
 
-            verify(controller, times(10)).performWork();
+            verify(controller, times(expectedWork)).performWork();
 
-            assertThat(logging.getRawMessages().stream().filter(x -> x.startsWith("[Agent Loop] Waiting")))
+            assertThat(logging.getRawMessages().stream().filter(x -> x.endsWith("retrieving next work.")))
                 .containsExactly(
-                    "[Agent Loop] Waiting 2 ms before retrieving next work.", // Initial delay
-                    "[Agent Loop] Waiting 4 ms before retrieving next work.", // Failed 1
-                    "[Agent Loop] Waiting 8 ms before retrieving next work.", // Failed 2
-                    "[Agent Loop] Waiting 10 ms before retrieving next work.", // Nothing to do 1 (at maximum)
+                    "[Agent Loop] Waiting 2 ms before retrieving next work.",  // Failed 1
+                    "[Agent Loop] Waiting 4 ms before retrieving next work.",  // Failed 2
+                    "[Agent Loop] Waiting 8 ms before retrieving next work.",  // Nothing to do 1
                     "[Agent Loop] Waiting 10 ms before retrieving next work.", // Nothing to do 2 (at maximum)
-                    "[Agent Loop] Waiting 2 ms before retrieving next work.", // After OK - reset
-                    "[Agent Loop] Waiting 2 ms before retrieving next work.", // After OK - reset
-                    "[Agent Loop] Waiting 4 ms before retrieving next work.", // Nothing to do
-                    "[Agent Loop] Waiting 8 ms before retrieving next work.", // Nothing to do
-                    "[Agent Loop] Waiting 10 ms before retrieving next work." // Nothing to do
+                    "[Agent Loop] Waiting 10 ms before retrieving next work.", // Nothing to do 3 (at maximum)
+                    "[Agent Loop] Immediately retrieving next work.",          // After OK
+                    "[Agent Loop] Immediately retrieving next work.",          // After OK 2
+                    "[Agent Loop] Waiting 2 ms before retrieving next work.",  // Nothing to do (reset)
+                    "[Agent Loop] Waiting 4 ms before retrieving next work.",  // Nothing to do
+                    "[Agent Loop] Waiting 8 ms before retrieving next work.",  // Nothing to do
+                    "[Agent Loop] Waiting 10 ms before retrieving next work.", // Nothing to do (at maximum)
+                    "[Agent Loop] Waiting 10 ms before retrieving next work."  // Nothing to do (at maximum)
                 );
         }
     }
 
     @Test
     void shouldLoopForWorkWithInstantMaxBackoff() throws InterruptedException {
-        AgentWorkRetrievalScheduler scheduler = createSchedulerForIterations(instantBackOffTwoToTen(), 9);
-
         when(controller.performWork())
             .thenReturn(WorkAttempt.FAILED)
             .thenReturn(WorkAttempt.FAILED)
@@ -84,7 +87,11 @@ class AgentWorkRetrievalSchedulerTest {
             .thenReturn(WorkAttempt.NOTHING_TO_DO)
             .thenReturn(WorkAttempt.OK)
             .thenReturn(WorkAttempt.OK)
-            .thenReturn(WorkAttempt.NOTHING_TO_DO);
+            .thenReturn(WorkAttempt.NOTHING_TO_DO); // after this for as many iterations as needed
+
+        int numWaits = 7; // failure & nothing
+        int expectedWork = numWaits + 2; // +2 for the OK results
+        AgentWorkRetrievalScheduler scheduler = createSchedulerForIterations(instantBackOffTwoToTen(), numWaits);
 
         try (LogFixture logging = LogFixture.logFixtureFor(AgentWorkRetrievalScheduler.class, Level.DEBUG)) {
             Thread runner = new Thread(scheduler);
@@ -92,30 +99,30 @@ class AgentWorkRetrievalSchedulerTest {
             runner.start();
             runner.join();
 
-            verify(controller, times(9)).performWork();
+            verify(controller, times(expectedWork)).performWork();
 
-            assertThat(logging.getRawMessages().stream().filter(x -> x.startsWith("[Agent Loop] Waiting")))
+            assertThat(logging.getRawMessages().stream().filter(x -> x.endsWith("retrieving next work.")))
                 .containsExactly(
-                    "[Agent Loop] Waiting 2 ms before retrieving next work.", // Initial delay
-                    "[Agent Loop] Waiting 10 ms before retrieving next work.", // Failed 1 (at maximum)
+                    "[Agent Loop] Waiting 2 ms before retrieving next work.",  // Failed 1
                     "[Agent Loop] Waiting 10 ms before retrieving next work.", // Failed 2 (at maximum)
                     "[Agent Loop] Waiting 10 ms before retrieving next work.", // Nothing to do 1 (at maximum)
                     "[Agent Loop] Waiting 10 ms before retrieving next work.", // Nothing to do 2 (at maximum)
-                    "[Agent Loop] Waiting 2 ms before retrieving next work.", // After OK - reset
-                    "[Agent Loop] Waiting 2 ms before retrieving next work.", // After OK - reset
+                    "[Agent Loop] Immediately retrieving next work.",          // After OK
+                    "[Agent Loop] Immediately retrieving next work.",          // After OK 2
+                    "[Agent Loop] Waiting 2 ms before retrieving next work.",  // Nothing to do (at maximum)
                     "[Agent Loop] Waiting 10 ms before retrieving next work.", // Nothing to do (at maximum)
-                    "[Agent Loop] Waiting 10 ms before retrieving next work." // Nothing to do (at maximum)
+                    "[Agent Loop] Waiting 10 ms before retrieving next work."  // Nothing to do (at maximum)
                 );
         }
     }
 
-    private AgentWorkRetrievalScheduler createSchedulerForIterations(final ExponentialBackOff backoffStrategy, final int numIterations) {
+    private AgentWorkRetrievalScheduler createSchedulerForIterations(final ExponentialBackOff backoffStrategy, final int numWaits) {
         return new AgentWorkRetrievalScheduler(controller, backoffStrategy, taskScheduler) {
             int iterations;
 
             @Override
             void waitFor(long waitMillis) {
-                if (++iterations >= numIterations) {
+                if (++iterations >= numWaits) {
                     Thread.currentThread().interrupt();
                 }
             }

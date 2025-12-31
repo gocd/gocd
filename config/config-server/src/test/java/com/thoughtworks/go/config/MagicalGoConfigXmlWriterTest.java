@@ -48,6 +48,7 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.xmlunit.assertj.XmlAssert;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
@@ -297,7 +298,7 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldBeAValidXSD() throws Exception {
-        SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         try (InputStream xsdStream = getClass().getResourceAsStream("/cruise-config.xsd")) {
             factory.newSchema(new StreamSource(xsdStream));
         }

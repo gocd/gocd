@@ -61,7 +61,7 @@ public class DirHandler implements FetchHandler {
                 LOG.info("[Agent Fetch Artifact] Downloading a directory from '{}' to '{}'. Handling the entry: '{}'", srcFile, destOnAgent.getAbsolutePath(), entry.getName());
                 new ChecksumValidator(artifactMd5Checksums).validate(getSrcFilePath(entry), DigestUtils.md5Hex(entryStream), checksumValidationPublisher);
             }).unzip(zipInputStream, destOnAgent);
-            LOG.info("[Agent Fetch Artifact] Downloading a directory from '{}' to '{}'. Took: {}ms", srcFile, destOnAgent.getAbsolutePath(), System.currentTimeMillis() - before);
+            LOG.info("[Agent Fetch Artifact] Downloading a directory from '{}' to '{}'. Took: {} ms", srcFile, destOnAgent.getAbsolutePath(), System.currentTimeMillis() - before);
         }
     }
 

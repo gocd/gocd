@@ -16,18 +16,21 @@
 package com.thoughtworks.go.util;
 
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PerfTimerTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PerfTimerTest.class);
 
     @Test
     public void shouldRecordElapsedTime() {
         TestingClock clock = new TestingClock();
 
-        PerfTimer timer = PerfTimer.start("Message", clock);
+        PerfTimer timer = PerfTimer.start(LOGGER, "Message", clock);
         clock.addSeconds(1);
         timer.stop();
 
@@ -38,7 +41,7 @@ public class PerfTimerTest {
     public void shouldRecordElapsedTimeForDifferentTimes() {
         TestingClock clock = new TestingClock();
 
-        PerfTimer timer = PerfTimer.start("Message", clock);
+        PerfTimer timer = PerfTimer.start(LOGGER, "Message", clock);
 
         clock.addSeconds(1);
         clock.addSeconds(1);
@@ -51,13 +54,13 @@ public class PerfTimerTest {
     public void shouldLogTimeWithMessage() {
         TestingClock clock = new TestingClock();
 
-        PerfTimer timer = PerfTimer.start("Message", clock);
+        PerfTimer timer = PerfTimer.start(LOGGER, "Message", clock);
 
         clock.addSeconds(1);
 
-        try (LogFixture fixture = logFixtureFor(PerfTimer.class, Level.INFO)) {
+        try (LogFixture fixture = logFixtureFor(PerfTimerTest.class, Level.INFO)) {
             timer.stop();
-            assertThat(fixture.getLog()).contains("Performance: Message took 1000ms");
+            assertThat(fixture.getLog()).contains("Message took 1000 ms");
         }
     }
 
@@ -65,7 +68,7 @@ public class PerfTimerTest {
     public void shouldStopBeforeReportingElapsed() {
         TestingClock clock = new TestingClock();
 
-        PerfTimer timer = PerfTimer.start("Message", clock);
+        PerfTimer timer = PerfTimer.start(LOGGER, "Message", clock);
 
         clock.addSeconds(1);
 

@@ -80,11 +80,22 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
     }
 
     @Test
+    void shouldAllowAwaitingFirstLoad() throws Exception {
+        monitor.start();
+        assertThat(monitor.hasLoadedAtLeastOnce()).isFalse();
+
+        assertTimeout(Duration.ofMillis(TEST_TIMEOUT), () -> monitor.awaitFirstLoad());
+        assertThat(monitor.hasLoadedAtLeastOnce()).isTrue();
+
+        verifyNoMoreInteractions(changeListener);
+    }
+
+    @Test
     void shouldNotFailIfNoListenerIsPresentWhenAPluginJarIsAdded() throws Exception {
         addPlugin(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.jar", true));
         monitor.start();
 
-        assertTimeout(Duration.ofMillis(TEST_TIMEOUT), () -> monitor.hasRunAtLeastOnce());
+        assertTimeout(Duration.ofMillis(TEST_TIMEOUT), () -> monitor.awaitFirstLoad());
 
         verifyNoMoreInteractions(changeListener);
     }
@@ -108,7 +119,7 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
 
         addPlugin(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.something-other-than-jar.zip", true));
 
-        assertTimeout(Duration.ofMillis(TEST_TIMEOUT), () -> monitor.hasRunAtLeastOnce());
+        assertTimeout(Duration.ofMillis(TEST_TIMEOUT), () -> monitor.awaitFirstLoad());
 
         verifyNoMoreInteractions(changeListener);
     }
@@ -298,7 +309,7 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
     void shouldNotCreatePluginZipIfPluginJarIsNeitherUpdatedNorAddedOrRemoved() {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
-        assertTimeout(Duration.ofMillis(TEST_TIMEOUT), () -> monitor.hasRunAtLeastOnce());
+        assertTimeout(Duration.ofMillis(TEST_TIMEOUT), () -> monitor.awaitFirstLoad());
     }
 
     @Test
@@ -314,8 +325,7 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
 
         monitor.removePluginJarChangeListener(changeListener);
         addPlugin(plugin2);
-        long removed = System.currentTimeMillis();
-        assertTimeout(Duration.ofMillis(TEST_TIMEOUT), () -> monitor.hasRunSince(removed));
+        assertTimeout(Duration.ofMillis(TEST_TIMEOUT), () -> monitor.awaitFirstLoad());
 
         verifyNoMoreInteractions(changeListener);
     }

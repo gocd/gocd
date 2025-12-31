@@ -50,7 +50,7 @@ public class PluginAwareMessageQueue<T extends PluginAwareMessage> extends GoMes
     }
 
     @TestOnly
-    int numberListeners() {
+    public int numberListeners() {
         return jmsListeners.size();
     }
 }

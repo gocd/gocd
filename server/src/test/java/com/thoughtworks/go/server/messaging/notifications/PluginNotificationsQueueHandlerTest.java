@@ -21,18 +21,13 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.messaging.GoMessage;
 import com.thoughtworks.go.server.messaging.MessagingService;
 import com.thoughtworks.go.server.messaging.PluginAwareMessageQueue;
-import com.thoughtworks.go.server.messaging.activemq.JMSMessageListenerAdapter;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -72,12 +67,10 @@ public class PluginNotificationsQueueHandlerTest {
         handler.pluginLoaded(getPluginDescriptor(pluginId3));
         assertThat(handler.getQueues().size()).isEqualTo(2);
         PluginAwareMessageQueue<PluginNotificationMessage<?>> queueForPlugin1 = handler.getQueues().get(pluginId1);
-        Map<String, List<JMSMessageListenerAdapter<?>>> listenersForPlugin1 = ReflectionUtil.getField(queueForPlugin1, "listeners");
-        assertThat(listenersForPlugin1.get(pluginId1).size()).isEqualTo(10);
+        assertThat(queueForPlugin1.numberListeners()).isEqualTo(10);
         assertFalse(handler.getQueues().containsKey(pluginId2));
         PluginAwareMessageQueue<PluginNotificationMessage<?>> queueForPlugin3 = handler.getQueues().get(pluginId3);
-        Map<String, List<JMSMessageListenerAdapter<?>>> listenersForPlugin3 = ReflectionUtil.getField(queueForPlugin3, "listeners");
-        assertThat(listenersForPlugin3.get(pluginId3).size()).isEqualTo(2);
+        assertThat(queueForPlugin3.numberListeners()).isEqualTo(2);
     }
 
     private GoPluginDescriptor getPluginDescriptor(String pluginId) {

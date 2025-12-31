@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ServerPingQueueHandler extends PluginMessageQueueHandler<ServerPingMessage> {
+public class ServerPingQueueHandler extends PluginAwareMessageQueueHandler<ServerPingMessage> {
     final static String QUEUE_NAME_PREFIX = ServerPingQueueHandler.class.getSimpleName() + ".";
 
     @Autowired
@@ -33,7 +33,7 @@ public class ServerPingQueueHandler extends PluginMessageQueueHandler<ServerPing
         super(elasticAgentExtension, messaging, pluginManager, new QueueFactory<ServerPingMessage>() {
             @Override
             public PluginAwareMessageQueue<ServerPingMessage> create(GoPluginDescriptor pluginDescriptor) {
-                return new PluginAwareMessageQueue<>(messaging, pluginDescriptor.id(), QUEUE_NAME_PREFIX + pluginDescriptor.id(), systemEnvironment.get(SystemEnvironment.GO_ELASTIC_PLUGIN_SERVER_PING_THREADS), listener());
+                return new PluginAwareMessageQueue<>(messaging, QUEUE_NAME_PREFIX + pluginDescriptor.id(), systemEnvironment.get(SystemEnvironment.GO_ELASTIC_PLUGIN_SERVER_PING_THREADS), listener());
             }
 
             public ListenerFactory<ServerPingMessage> listener() {

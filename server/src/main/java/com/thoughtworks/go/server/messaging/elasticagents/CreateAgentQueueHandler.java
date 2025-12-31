@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CreateAgentQueueHandler extends PluginMessageQueueHandler<CreateAgentMessage> {
+public class CreateAgentQueueHandler extends PluginAwareMessageQueueHandler<CreateAgentMessage> {
     final static String QUEUE_NAME_PREFIX = CreateAgentQueueHandler.class.getSimpleName() + ".";
 
     @Autowired
@@ -33,7 +33,7 @@ public class CreateAgentQueueHandler extends PluginMessageQueueHandler<CreateAge
         super(elasticAgentExtension, messaging, pluginManager, new QueueFactory<CreateAgentMessage>() {
             @Override
             public PluginAwareMessageQueue<CreateAgentMessage> create(GoPluginDescriptor pluginDescriptor) {
-                return new PluginAwareMessageQueue<>(messaging, pluginDescriptor.id(), QUEUE_NAME_PREFIX + pluginDescriptor.id(), systemEnvironment.get(SystemEnvironment.GO_ELASTIC_PLUGIN_CREATE_AGENT_THREADS), listener());
+                return new PluginAwareMessageQueue<>(messaging, QUEUE_NAME_PREFIX + pluginDescriptor.id(), systemEnvironment.get(SystemEnvironment.GO_ELASTIC_PLUGIN_CREATE_AGENT_THREADS), listener());
             }
 
             public ListenerFactory<CreateAgentMessage> listener() {

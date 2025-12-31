@@ -21,13 +21,14 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.messaging.*;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.jetbrains.annotations.TestOnly;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Component
-public class PluginNotificationsQueueHandler extends PluginMessageQueueHandler<PluginNotificationMessage<?>> {
+public class PluginNotificationsQueueHandler extends PluginAwareMessageQueueHandler<PluginNotificationMessage<?>> {
     private final static String QUEUE_NAME_PREFIX = PluginNotificationsQueueHandler.class.getSimpleName() + ".";
 
     @Autowired
@@ -36,7 +37,7 @@ public class PluginNotificationsQueueHandler extends PluginMessageQueueHandler<P
         super(notificationExtension, messaging, pluginManager, new QueueFactory<PluginNotificationMessage<?>>() {
             @Override
             public PluginAwareMessageQueue<PluginNotificationMessage<?>> create(GoPluginDescriptor pluginDescriptor) {
-                return new PluginAwareMessageQueue<>(messaging, pluginDescriptor.id(),
+                return new PluginAwareMessageQueue<>(messaging,
                     QUEUE_NAME_PREFIX + pluginDescriptor.id(),
                     systemEnvironment.getNotificationListenerCountForPlugin(pluginDescriptor.id()), listener());
             }
@@ -47,6 +48,7 @@ public class PluginNotificationsQueueHandler extends PluginMessageQueueHandler<P
         });
     }
 
+    @TestOnly
     Map<String, PluginAwareMessageQueue<PluginNotificationMessage<?>>> getQueues() {
         return queues;
     }

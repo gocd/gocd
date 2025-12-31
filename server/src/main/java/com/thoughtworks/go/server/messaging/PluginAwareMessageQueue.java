@@ -17,46 +17,40 @@ package com.thoughtworks.go.server.messaging;
 
 import com.thoughtworks.go.server.messaging.activemq.JMSMessageListenerAdapter;
 import jakarta.jms.JMSException;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.IntStream;
 
 public class PluginAwareMessageQueue<T extends PluginAwareMessage> extends GoMessageQueue<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(PluginAwareMessageQueue.class.getName());
 
-    protected final Map<String, List<JMSMessageListenerAdapter<T>>> listeners = new HashMap<>();
-    private final String pluginId;
+    private final List<JMSMessageListenerAdapter<T>> jmsListeners = new CopyOnWriteArrayList<>();
 
-
-    public PluginAwareMessageQueue(MessagingService<GoMessage> messaging, String pluginId, String queueName, int numberOfListeners, ListenerFactory<T> listenerFactory) {
+    public PluginAwareMessageQueue(MessagingService<GoMessage> messaging, String queueName, int numberOfListeners, ListenerFactory<T> listenerFactory) {
         super(messaging, queueName);
-        this.pluginId = pluginId;
-        for (int i = 0; i < numberOfListeners; i++) {
-            JMSMessageListenerAdapter<T> listenerAdapter = this.addListener(listenerFactory.create());
-            listeners.computeIfAbsent(pluginId, key -> new ArrayList<>())
-                .add(listenerAdapter);
-        }
+
+        IntStream.range(0, numberOfListeners).forEach(i -> jmsListeners.add(this.addListener(listenerFactory.create())));
     }
 
     @Override
     public void stop() {
         super.stop();
-        List<JMSMessageListenerAdapter<T>> listenerAdapters = listeners.get(pluginId);
-        for (JMSMessageListenerAdapter<T> listenerAdapter : listenerAdapters) {
+        for (JMSMessageListenerAdapter<T> jmsListener : jmsListeners) {
             try {
-                listenerAdapter.stop();
+                jmsListener.stop();
             } catch (JMSException e) {
-                LOGGER.error("Unable to stop listener for {} {}, ERROR: {}", queueName, listenerAdapter.thread.getName(), e.getMessage(), e);
-                bomb(e);
-            } finally {
-                this.listeners.remove(pluginId);
+                LOGGER.warn("Unable to stop listener for {} {}, ERROR: {}", queueName, jmsListener.thread.getName(), e.getMessage(), e);
             }
         }
+        jmsListeners.clear();
+    }
+
+    @TestOnly
+    int numberListeners() {
+        return jmsListeners.size();
     }
 }

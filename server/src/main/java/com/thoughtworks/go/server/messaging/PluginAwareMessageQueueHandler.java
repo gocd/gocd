@@ -27,15 +27,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
-public abstract class PluginMessageQueueHandler<T extends PluginAwareMessage> implements PluginChangeListener {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PluginMessageQueueHandler.class);
+public abstract class PluginAwareMessageQueueHandler<T extends PluginAwareMessage> implements PluginChangeListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginAwareMessageQueueHandler.class);
     protected final MessagingService<T> messaging;
     protected final GoPluginExtension extension;
     protected final Map<String, PluginAwareMessageQueue<T>> queues = new ConcurrentHashMap<>();
     private final QueueFactory<T> queueFactory;
 
     @SuppressWarnings("unchecked")
-    public PluginMessageQueueHandler(GoPluginExtension extension, MessagingService<? extends GoMessage> messaging, PluginManager pluginManager, QueueFactory<T> queueFactory) {
+    public PluginAwareMessageQueueHandler(GoPluginExtension extension, MessagingService<? extends GoMessage> messaging, PluginManager pluginManager, QueueFactory<T> queueFactory) {
         this.messaging = (MessagingService<T>) messaging;
         this.extension = extension;
         pluginManager.addPluginChangeListener(this);

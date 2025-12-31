@@ -19,7 +19,7 @@ import com.thoughtworks.go.server.messaging.activemq.JMSMessageListenerAdapter;
 
 public class GoMessageQueue<T extends GoMessage> implements GoMessageChannel<T> {
     private final MessagingService<T> messaging;
-    protected String queueName;
+    final String queueName;
     private MessageSender queueSender;
 
     @SuppressWarnings("unchecked")

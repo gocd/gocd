@@ -110,9 +110,8 @@ public class InvalidateAuthenticationOnSecurityConfigChangeFilter extends OncePe
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         SecurityConfig newSecurityConfig = securityConfig(newCruiseConfig);
         SecurityConfig existingSecurityConfig = this.securityConfig.get();
-        if (!Objects.equals(existingSecurityConfig, newSecurityConfig)) {
+        if (!Objects.equals(existingSecurityConfig, newSecurityConfig) && securityConfig.compareAndSet(existingSecurityConfig, newSecurityConfig)) {
             invalidateCache();
-            securityConfig.compareAndSet(existingSecurityConfig, newSecurityConfig);
         }
     }
 

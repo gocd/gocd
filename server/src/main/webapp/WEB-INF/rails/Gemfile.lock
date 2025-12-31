@@ -110,7 +110,8 @@ GEM
     erb (4.0.4-java)
       cgi (>= 0.3.3)
     erubi (1.13.1)
-    ffi (1.17.2-java)
+    ffi (1.17.3-java)
+    ffi (1.17.3-x86_64-linux-gnu)
     ffi-compiler (1.3.2)
       ffi (>= 1.15.5)
       rake

@@ -18,7 +18,6 @@ package com.thoughtworks.go.config.validation;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.util.SystemEnvironment;
 
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -35,12 +34,8 @@ public class ServerIdImmutabilityValidator implements GoConfigValidator {
     @Override
     public void validate(CruiseConfig cruiseConfig) {
         String newServerId = cruiseConfig.server().getServerId();
-        if (initialIdHolder.compareAndSet(null, newServerId)) {
-            return;
-        }
-
-        String initialId = initialIdHolder.get();
-        if (!Objects.equals(initialId, newServerId) && env.enforceServerImmutability()) {
+        String initialId = initialIdHolder.compareAndExchange(null, newServerId);
+        if (initialId != null && !initialId.equals(newServerId) && env.enforceServerImmutability()) {
             throw new RuntimeException(String.format("The value of 'serverId' uniquely identifies a Go server instance. This field cannot be modified (attempting to change from [%s] to [%s]).", initialId, newServerId));
         }
     }

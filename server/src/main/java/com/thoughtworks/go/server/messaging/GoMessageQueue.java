@@ -16,23 +16,20 @@
 package com.thoughtworks.go.server.messaging;
 
 import com.thoughtworks.go.server.messaging.activemq.JMSMessageListenerAdapter;
+import com.thoughtworks.go.util.SupplierUtils;
+
+import java.util.function.Supplier;
 
 public class GoMessageQueue<T extends GoMessage> implements GoMessageChannel<T> {
     private final MessagingService<T> messaging;
     final String queueName;
-    private MessageSender queueSender;
+    private final Supplier<MessageSender> queueSender;
 
     @SuppressWarnings("unchecked")
     public GoMessageQueue(MessagingService<GoMessage> messaging, String queueName) {
         this.messaging = (MessagingService<T>) messaging;
         this.queueName = queueName;
-    }
-
-    protected MessageSender sender() {
-        if (queueSender == null) {
-            queueSender = messaging.createQueueSender(queueName);
-        }
-        return queueSender;
+        this.queueSender = SupplierUtils.memoize(() -> messaging.createSender(queueName));
     }
 
     @Override
@@ -42,11 +39,11 @@ public class GoMessageQueue<T extends GoMessage> implements GoMessageChannel<T> 
 
     @Override
     public void post(T message) {
-        sender().sendMessage(message);
+        queueSender.get().sendMessage(message);
     }
 
     public void post(T message, long timeToLive) {
-        sender().sendMessage(message, timeToLive);
+        queueSender.get().sendMessage(message, timeToLive);
     }
 
     public void stop() {

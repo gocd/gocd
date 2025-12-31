@@ -747,11 +747,12 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         @Override
         @NotNull T convertValue(@Nullable String propertyValueFromSystem, @NotNull T defaultValue) {
             T value = cachedValue.get();
-            if (value == null) {
-                value = wrappedProperty.convertValue(propertyValueFromSystem, defaultValue);
-                cachedValue.set(value);
+            if (value != null) {
+                return value;
             }
-            return value;
+            T computed = wrappedProperty.convertValue(propertyValueFromSystem, defaultValue);
+            T prev = cachedValue.compareAndExchange(null, computed);
+            return prev == null ? computed : prev;
         }
 
         @Override

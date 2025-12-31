@@ -23,7 +23,6 @@ import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import jakarta.jms.*;
-import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.ConnectionContext;
@@ -48,12 +47,10 @@ public class ActiveMqMessagingService implements MessagingService<GoMessage> {
     private static final String BROKER_NAME = "go-server";
     private static final String BROKER_URL = "vm://go-server";
     private final DaemonThreadStatsCollector daemonThreadStatsCollector;
-    private final ActiveMQConnection connection;
+    private final Connection connection;
     private final BrokerService broker;
     private final SystemEnvironment systemEnvironment;
     private final ServerHealthService serverHealthService;
-
-    public ActiveMQConnectionFactory factory;
 
     @Autowired
     public ActiveMqMessagingService(DaemonThreadStatsCollector daemonThreadStatsCollector, SystemEnvironment systemEnvironment, ServerHealthService serverHealthService) throws Exception {
@@ -69,16 +66,14 @@ public class ActiveMqMessagingService implements MessagingService<GoMessage> {
         broker.start();
 
 
-        factory = new ActiveMQConnectionFactory(BROKER_URL);
+        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(BROKER_URL);
         factory.getPrefetchPolicy().setQueuePrefetch(systemEnvironment.getActivemqQueuePrefetch());
         factory.setCopyMessageOnSend(false);
         factory.setTrustAllPackages(true);
 
-        connection = (ActiveMQConnection) factory.createConnection();
+        connection = factory.createConnection();
         connection.start();
-
     }
-
 
     @Override
     public MessageSender createSender(String topic) {
@@ -98,19 +93,6 @@ public class ActiveMqMessagingService implements MessagingService<GoMessage> {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageConsumer consumer = session.createConsumer(session.createTopic(topic));
             return JMSMessageListenerAdapter.startListening(consumer, listener, daemonThreadStatsCollector, systemEnvironment, serverHealthService);
-        } catch (Exception e) {
-            throw bomb(e);
-        }
-    }
-
-
-    @Override
-    public MessageSender createQueueSender(String queueName) {
-        try {
-            Session session = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-            MessageProducer producer = session.createProducer(session.createQueue(queueName));
-            producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-            return new ActiveMqMessageSender(session, producer);
         } catch (Exception e) {
             throw bomb(e);
         }

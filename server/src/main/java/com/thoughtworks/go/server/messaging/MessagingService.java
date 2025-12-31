@@ -27,4 +27,6 @@ public interface MessagingService<T extends GoMessage> {
     void stop() throws Exception;
     JMSMessageListenerAdapter<T> addQueueListener(String topic, GoMessageListener<T> listener);
 
+    MessageSender createQueueSender(String queueName);
+
 }

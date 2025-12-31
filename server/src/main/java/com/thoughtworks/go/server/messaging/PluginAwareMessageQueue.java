@@ -43,7 +43,7 @@ public class PluginAwareMessageQueue<T extends PluginAwareMessage> extends GoMes
             try {
                 jmsListener.stop();
             } catch (JMSException e) {
-                LOGGER.warn("Unable to stop listener for {} {}, ERROR: {}", queueName, jmsListener.thread.getName(), e.getMessage(), e);
+                LOGGER.warn("Unable to stop listener for {} {}, ERROR: {}", queueName, jmsListener.listenerThreadName(), e.getMessage(), e);
             }
         }
         jmsListeners.clear();

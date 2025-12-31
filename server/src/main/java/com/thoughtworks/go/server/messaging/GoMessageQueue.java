@@ -29,7 +29,7 @@ public class GoMessageQueue<T extends GoMessage> implements GoMessageChannel<T> 
     public GoMessageQueue(MessagingService<GoMessage> messaging, String queueName) {
         this.messaging = (MessagingService<T>) messaging;
         this.queueName = queueName;
-        this.queueSender = SupplierUtils.memoize(() -> messaging.createSender(queueName));
+        this.queueSender = SupplierUtils.memoize(() -> messaging.createQueueSender(queueName));
     }
 
     @Override

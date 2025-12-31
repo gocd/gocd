@@ -39,8 +39,7 @@ public class JMSMessageListenerAdapter<T extends GoMessage> implements Runnable 
     private final DaemonThreadStatsCollector daemonThreadStatsCollector;
     private final SystemEnvironment systemEnvironment;
     private final ServerHealthService serverHealthService;
-
-    public Thread thread;
+    private final Thread thread;
 
     private JMSMessageListenerAdapter(MessageConsumer consumer, GoMessageListener<T> listener, DaemonThreadStatsCollector daemonThreadStatsCollector,
                                       SystemEnvironment systemEnvironment, ServerHealthService serverHealthService) {
@@ -106,8 +105,11 @@ public class JMSMessageListenerAdapter<T extends GoMessage> implements Runnable 
         }
     }
 
-    public static <T extends GoMessage> JMSMessageListenerAdapter<T> startListening(MessageConsumer consumer, GoMessageListener<T> listener, DaemonThreadStatsCollector daemonThreadStatsCollector, SystemEnvironment systemEnvironment, ServerHealthService serverHealthService) {
+    static <T extends GoMessage> JMSMessageListenerAdapter<T> startListening(MessageConsumer consumer, GoMessageListener<T> listener, DaemonThreadStatsCollector daemonThreadStatsCollector, SystemEnvironment systemEnvironment, ServerHealthService serverHealthService) {
         return new JMSMessageListenerAdapter<>(consumer, listener, daemonThreadStatsCollector, systemEnvironment, serverHealthService);
     }
 
+    public String listenerThreadName() {
+        return thread.getName();
+    }
 }

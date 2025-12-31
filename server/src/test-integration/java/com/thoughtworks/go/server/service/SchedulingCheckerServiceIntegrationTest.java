@@ -110,7 +110,7 @@ public class SchedulingCheckerServiceIntegrationTest {
         pipelineFixture.onTearDown();
         diskSpaceSimulator.onTearDown();
         pipelineScheduleQueue.clear();
-        triggerMonitor.clear_for_test();
+        triggerMonitor.clear();
     }
 
     @Test

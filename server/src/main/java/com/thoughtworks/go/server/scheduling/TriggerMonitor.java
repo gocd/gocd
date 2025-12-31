@@ -17,8 +17,10 @@ package com.thoughtworks.go.server.scheduling;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
+import org.jetbrains.annotations.TestOnly;
 import org.springframework.stereotype.Component;
 
+import java.util.NavigableSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
@@ -26,7 +28,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
  */
 @Component
 public class TriggerMonitor {
-    ConcurrentSkipListSet<CaseInsensitiveString> triggeredPipelines = new ConcurrentSkipListSet<>();
+    private final NavigableSet<CaseInsensitiveString> triggeredPipelines = new ConcurrentSkipListSet<>();
 
     public boolean isAlreadyTriggered(CaseInsensitiveString pipelineName) {
         return triggeredPipelines.contains(pipelineName);
@@ -44,7 +46,8 @@ public class TriggerMonitor {
         triggeredPipelines.remove(pipelineConfig.name());
     }
 
-    public void clear_for_test() {
+    @TestOnly
+    public void clear() {
         triggeredPipelines.clear();
     }
 }

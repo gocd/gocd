@@ -28,11 +28,15 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static com.thoughtworks.go.domain.AgentConfigStatus.*;
@@ -52,17 +56,18 @@ public class AgentInstance implements Comparable<AgentInstance> {
     private final SystemEnvironment systemEnvironment;
     private final ConfigErrors errors = new ConfigErrors();
 
-    private Agent agent;
+    private @NotNull Agent agent;
     private AgentRuntimeInfo agentRuntimeInfo;
 
     private AgentConfigStatus agentConfigStatus;
 
-    private volatile boolean killRunningTasks;
-    private volatile Date lastHeardTime;
-    private volatile Date cancelledAt;
+    private final AtomicBoolean killRunningTasks = new AtomicBoolean(false);
+    private volatile @Nullable Date lastHeardTime;
+    private volatile @Nullable Date cancelledAt;
 
-    protected AgentInstance(Agent agent, AgentType agentType, SystemEnvironment systemEnvironment,
-                            AgentStatusChangeListener agentStatusChangeListener, TimeProvider timeProvider) {
+    @VisibleForTesting
+    AgentInstance(@NotNull Agent agent, AgentType agentType, SystemEnvironment systemEnvironment,
+                  AgentStatusChangeListener agentStatusChangeListener, TimeProvider timeProvider) {
         this.systemEnvironment = systemEnvironment;
         this.agentRuntimeInfo = AgentRuntimeInfo.initialState(agent);
         this.agentStatusChangeListener = agentStatusChangeListener;
@@ -72,23 +77,23 @@ public class AgentInstance implements Comparable<AgentInstance> {
         this.timeProvider = timeProvider;
     }
 
-    protected AgentInstance(Agent agent, AgentType agentType, SystemEnvironment systemEnvironment,
+    AgentInstance(@NotNull Agent agent, AgentType agentType, SystemEnvironment systemEnvironment,
                             AgentStatusChangeListener agentStatusChangeListener) {
         this(agent, agentType, systemEnvironment, agentStatusChangeListener, new TimeProvider());
     }
 
-    protected AgentInstance(Agent agent, AgentType agentType, SystemEnvironment systemEnvironment,
+    AgentInstance(@NotNull Agent agent, AgentType agentType, SystemEnvironment systemEnvironment,
                             AgentStatusChangeListener agentStatusChangeListener, AgentRuntimeInfo agentRuntimeInfo) {
         this(agent, agentType, systemEnvironment, agentStatusChangeListener);
         this.agentRuntimeInfo = agentRuntimeInfo;
     }
 
     public String getHostname() {
-        return getAgent().getHostname();
+        return agent.getHostname();
     }
 
     public String getUuid() {
-        return getAgent().getUuid();
+        return agent.getUuid();
     }
 
     @Override
@@ -103,7 +108,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return comparison;
     }
 
-    public void syncAgentFrom(Agent agent) {
+    public void syncAgentFrom(@NotNull Agent agent) {
         this.agent = agent;
 
         if (agent.isElastic()) {
@@ -122,7 +127,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
             updateRuntimeStatus(Idle);
             agentRuntimeInfo.clearBuildingInfo();
             clearCancelledState();
-        } else if (!(agentRuntimeInfo.isCancelled())) {
+        } else if (!agentRuntimeInfo.isCancelled()) {
             updateRuntimeStatus(runtimeStatus);
         }
     }
@@ -160,11 +165,9 @@ public class AgentInstance implements Comparable<AgentInstance> {
                 "to kill running tasks. Current Agent state is: '%s'", agentRuntimeInfo.getRuntimeStatus().buildState().name()));
         }
 
-        if (killRunningTasks) {
+        if (!killRunningTasks.compareAndSet(false, true)) {
             throw new InvalidAgentInstructionException("There is a pending request to kill running task.");
         }
-
-        this.killRunningTasks = true;
     }
 
     public void deny() {
@@ -189,11 +192,11 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return agentRuntimeInfo.getBuildingInfo();
     }
 
-    public Agent getAgent() {
+    public @NotNull Agent getAgent() {
         return agent;
     }
 
-    public Date getLastHeardTime() {
+    public @Nullable Date getLastHeardTime() {
         return lastHeardTime;
     }
 
@@ -224,7 +227,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     boolean isTimeout(Date lastHeardTime) {
-        return (timeProvider.currentTimeMillis() - lastHeardTime.getTime()) / 1000 >= systemEnvironment.getAgentConnectionTimeout();
+        return lastHeardTime != null && (timeProvider.currentTimeMillis() - lastHeardTime.getTime()) / 1000 >= systemEnvironment.getAgentConnectionTimeout();
     }
 
     @Override
@@ -248,7 +251,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     private void syncIp(AgentRuntimeInfo info) {
-        String ipAddress = (agentType == AgentType.LOCAL || agentType == AgentType.REMOTE) ? info.getIpAddress() : agent.getIpaddress();
+        String ipAddress = agentType == AgentType.LOCAL || agentType == AgentType.REMOTE ? info.getIpAddress() : agent.getIpaddress();
         this.agent.setIpaddress(ipAddress);
     }
 
@@ -269,7 +272,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public boolean isDisabled() {
-        return getAgent().isDisabled();
+        return agent.isDisabled();
     }
 
     public boolean isIdle() {
@@ -289,16 +292,16 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public boolean shouldKillRunningTasks() {
-        return killRunningTasks;
+        return killRunningTasks.get();
     }
 
     public AgentIdentifier getAgentIdentifier() {
-        return getAgent().getAgentIdentifier();
+        return agent.getAgentIdentifier();
     }
 
     @TestOnly
     public Stream<String> getResourceNames() {
-        return getAgent().getResourcesAsStream();
+        return agent.getResourcesAsStream();
     }
 
     public String getIpAddress() {
@@ -327,7 +330,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     private void clearCancelledState() {
         this.cancelledAt = null;
-        this.killRunningTasks = false;
+        this.killRunningTasks.set(false);
     }
 
     public String getBuildLocator() {
@@ -373,8 +376,9 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public boolean isStuckInCancel() {
         int TEN_MINUTES = 600000;
-        if (isCancelled() && cancelledAt != null) {
-            return (timeProvider.currentUtilDate().getTime() - cancelledAt.getTime()) > TEN_MINUTES;
+        Date cancelled = cancelledAt;
+        if (isCancelled() && cancelled != null) {
+            return timeProvider.currentUtilDate().getTime() - cancelled.getTime() > TEN_MINUTES;
         }
 
         return false;
@@ -444,7 +448,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     private boolean equals(AgentInstance that) {
-        return Objects.equals(this.agent, that.agent) &&
+        return this.agent.equals(that.agent) &&
             Objects.equals(this.agentRuntimeInfo, that.agentRuntimeInfo) &&
             this.agentConfigStatus == that.agentConfigStatus &&
             this.agentType == that.agentType &&
@@ -454,12 +458,11 @@ public class AgentInstance implements Comparable<AgentInstance> {
     @Override
     public int hashCode() {
         int result;
-        result = (agent != null ? agent.hashCode() : 0);
-        result = 31 * result + (agentType != null ? agentType.hashCode() : 0);
+        result = agent.hashCode();
         result = 31 * result + (agentRuntimeInfo != null ? agentRuntimeInfo.hashCode() : 0);
-        result = 31 * result + (lastHeardTime != null ? lastHeardTime.hashCode() : 0);
-        result = 31 * result + (timeProvider != null ? timeProvider.hashCode() : 0);
         result = 31 * result + (agentConfigStatus != null ? agentConfigStatus.hashCode() : 0);
+        result = 31 * result + (agentType != null ? agentType.hashCode() : 0);
+        result = 31 * result + Objects.hashCode(lastHeardTime);
         return result;
     }
 

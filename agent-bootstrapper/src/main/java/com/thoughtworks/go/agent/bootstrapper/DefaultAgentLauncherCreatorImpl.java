@@ -20,7 +20,6 @@ import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.common.util.JarUtil;
 import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.SystemUtil;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,10 +40,8 @@ public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
     private static final String GO_AGENT_LAUNCHER_CLASS = "Go-Agent-Launcher-Class";
     private static final String GO_AGENT_LAUNCHER_LIB_DIR = "Go-Agent-Launcher-Lib-Dir";
 
-    private static final int DEFAULT_MAX_RETRY_FOR_CLEANUP = 5;
-    private static final String MAX_RETRY_FOR_LAUNCHER_TEMP_CLEANUP_PROPERTY = "MaxRetryCount.ForLauncher.TempFiles.cleanup";
+    private static final int MAX_RETRY_FOR_CLEANUP = 50;
 
-    private final int maxRetryAttempts = SystemUtil.getIntProperty(MAX_RETRY_FOR_LAUNCHER_TEMP_CLEANUP_PROPERTY, DEFAULT_MAX_RETRY_FOR_CLEANUP);
     private final File inUseLauncher = new File(FileUtil.TMP_PARENT_DIR, new BigInteger(64, new SecureRandom()).toString(16) + "-" + Downloader.AGENT_LAUNCHER);
 
     private URLClassLoader urlClassLoader;
@@ -92,7 +89,7 @@ public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
 
             ++retryCount;
 
-        } while (tempFilesExist() && retryCount < maxRetryAttempts && !Thread.currentThread().isInterrupted());
+        } while (tempFilesExist() && retryCount < MAX_RETRY_FOR_CLEANUP && !Thread.currentThread().isInterrupted());
     }
 
     private File getDepsDir() {
@@ -108,7 +105,7 @@ public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
     }
 
     private void sleepForAMoment() {
-        int oneSec = 1000;
+        int oneSec = 100;
         try {
             Thread.sleep(oneSec);
         } catch (InterruptedException e) {

@@ -95,11 +95,13 @@ public class AgentBootstrapperTest {
             doInterruptiblyQuietlyRethrowInterrupt(waitForLauncherCreation::acquire);
             spyBootstrapper.stopLooping();
         });
+        stopLoopThd.setDaemon(true);
         stopLoopThd.start();
         try {
             spyBootstrapper.go(new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "ghost-name" + ":" + 3518 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
             stopLoopThd.join();
         } catch (Exception e) {
+            stopLoopThd.interrupt();
             fail("should not have propagated exception thrown while creating launcher", e);
         }
         assertThat(reLaunchWaitIsCalled[0]).isTrue();
@@ -171,11 +173,13 @@ public class AgentBootstrapperTest {
             doInterruptiblyQuietlyRethrowInterrupt(waitForLauncherInvocation::acquire);
             spyBootstrapper.stopLooping();
         });
+        stopLoopThd.setDaemon(true);
         stopLoopThd.start();
         try {
             spyBootstrapper.go(new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "ghost-name" + ":" + 3518 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
             stopLoopThd.join();
         } catch (Exception e) {
+            stopLoopThd.interrupt();
             fail("should not have propagated exception thrown while invoking the launcher", e);
         }
     }

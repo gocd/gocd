@@ -121,7 +121,7 @@ tasks.register('downloadChromeDriver', DownloaderTask) { thisTask ->
 
   String osURIPart
   if (CURRENT_OS.isMacOsX()) {
-    osURIPart = currentArch == Architecture.aarch64 ? 'mac-arm64' : 'mac-x64'
+    osURIPart = 'mac-arm64'
   } else if (CURRENT_OS.isWindows()) {
     osURIPart = 'win64'
   } else if (CURRENT_OS.isLinux()) {

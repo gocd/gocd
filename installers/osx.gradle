@@ -20,20 +20,6 @@ private File destFile(String url) {
   new File(gradle.gradleUserHomeDir, "download-cache/${TextUtils.md5Hex(url)}/${new File(URI.create(url).toURL().path).name}")
 }
 
-tasks.register('downloadMacJreX64Checksum', DownloadFile) {
-  def goVersions = project.goVersions as GoVersions
-  src goVersions.packagedJavaVersion.toSha256SumURLFor(OperatingSystem.mac, Architecture.x64)
-  dest destFile(src.toString())
-}
-
-tasks.register('downloadMacJreX64', DownloadFile) {
-  dependsOn downloadMacJreX64Checksum
-  def goVersions = project.goVersions as GoVersions
-  src goVersions.packagedJavaVersion.toDownloadURLFor(OperatingSystem.mac, Architecture.x64)
-  dest destFile(src.toString())
-  checksum = { downloadMacJreX64Checksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
-}
-
 tasks.register('downloadMacJreArm64Checksum', DownloadFile) {
   def goVersions = project.goVersions as GoVersions
   src goVersions.packagedJavaVersion.toSha256SumURLFor(OperatingSystem.mac, Architecture.aarch64)
@@ -49,7 +35,7 @@ tasks.register('downloadMacJreArm64', DownloadFile) {
 }
 
 def configureMacZip(Zip zipTask, InstallerType installerType, Zip genericZipTask, Architecture arch) {
-  DownloadFile downloadTask = arch == Architecture.aarch64 ? downloadMacJreArm64 : downloadMacJreX64
+  DownloadFile downloadTask = downloadMacJreArm64
 
   zipTask.with {
     group = project.name
@@ -105,14 +91,6 @@ def configureMacZip(Zip zipTask, InstallerType installerType, Zip genericZipTask
   zipTask.finalizedBy "${zipTask.name}Metadata"
 }
 
-tasks.register('agentMacX64Zip', Zip) { Zip thisTask ->
-  configureMacZip(thisTask, InstallerTypeAgent.instance, agentGenericZip, Architecture.x64)
-}
-
-tasks.register('serverMacX64Zip', Zip) { Zip thisTask ->
-  configureMacZip(thisTask, InstallerTypeServer.instance, serverGenericZip, Architecture.x64)
-}
-
 tasks.register('agentMacArm64Zip', Zip) { Zip thisTask ->
   configureMacZip(thisTask, InstallerTypeAgent.instance, agentGenericZip, Architecture.aarch64)
 }
@@ -122,14 +100,12 @@ tasks.register('serverMacArm64Zip', Zip) { Zip thisTask ->
 }
 
 ['agent', 'server'].each { installerType ->
-  ['X64', 'Arm64'].each { arch ->
-    def packageTaskName = "${installerType}Mac${arch}Zip"
-    tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
-      architecture = Architecture.canonicalize(arch)
-      packageTask = project.tasks.named(packageTaskName)
-      type = installerType == "agent" ? InstallerTypeAgent.instance : InstallerTypeServer.instance
-    }
+  def packageTaskName = "${installerType}MacArm64Zip"
+  tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
+    architecture = Architecture.aarch64
+    packageTask = project.tasks.named(packageTaskName)
+    type = installerType == "agent" ? InstallerTypeAgent.instance : InstallerTypeServer.instance
   }
 }
 
-assemble.dependsOn(":installers:agentMacX64Zip", ":installers:serverMacX64Zip", ":installers:agentMacArm64Zip", ":installers:serverMacArm64Zip")
+assemble.dependsOn(":installers:agentMacArm64Zip", ":installers:serverMacArm64Zip")

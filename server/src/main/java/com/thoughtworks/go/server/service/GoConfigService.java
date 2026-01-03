@@ -142,11 +142,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         }
     }
 
-    @Override
-    public void startDaemon() {
-
-    }
-
     boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result) {
         return canEditPipeline(pipelineName, username, result, findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)));
     }

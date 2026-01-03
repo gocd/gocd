@@ -56,11 +56,6 @@ public class PluginsInitializerTest {
         elasticAgentInformationMigrator = mock(ElasticAgentInformationMigrator.class);
         pluginsInitializer = new PluginsInitializer(pluginManager, systemEnvironment, new ZipUtil(), pluginExtensionsAndVersionValidator, elasticAgentInformationMigrator) {
             @Override
-            public void startDaemon() {
-
-            }
-
-            @Override
             ZipInputStream getPluginsZipStream() {
                 return new ZipInputStream(getClass().getResourceAsStream("/dummy-plugins.zip"));
             }
@@ -76,11 +71,6 @@ public class PluginsInitializerTest {
     public void shouldUnzipPluginsAndRegisterZipUpdaterBeforeStartingPluginsFramework() throws IOException {
         ZipUtil zipUtil = mock(ZipUtil.class);
         pluginsInitializer = new PluginsInitializer(pluginManager, systemEnvironment, zipUtil, pluginExtensionsAndVersionValidator, elasticAgentInformationMigrator) {
-            @Override
-            public void startDaemon() {
-
-            }
-
             @Override
             ZipInputStream getPluginsZipStream() {
                 return new ZipInputStream(getClass().getResourceAsStream("/dummy-plugins.zip"));

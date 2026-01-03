@@ -28,26 +28,39 @@ import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.listener.SecurityConfigChangeListener;
 import com.thoughtworks.go.server.service.GoConfigService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.*;
 
 public class CcTrayActivityListenerTest {
     private GoConfigService goConfigService;
+    private CcTrayActivityListener listener;
 
     @BeforeEach
     public void setUp() {
         goConfigService = mock(GoConfigService.class);
     }
 
+    @AfterEach
+    void tearDown() throws InterruptedException {
+        if (listener != null) {
+            listener.stop();
+            listener.stop();
+            listener.stop();
+        }
+    }
+
     @Test
     public void shouldRegisterSelfForConfigChangeHandlingOnInitialization() {
-        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, null, null, null);
+        listener = new CcTrayActivityListener(goConfigService, null, null, null);
 
         listener.initialize();
 
@@ -58,10 +71,10 @@ public class CcTrayActivityListenerTest {
     public void onInitializationAndStartOfDaemon_ShouldRegisterAListener_WhichInvokesJobChangeHandler_WhenJobStatusChanges() throws Exception {
         JobInstance aJob = JobInstanceMother.cancelled("job1");
         CcTrayJobStatusChangeHandler handler = mock(CcTrayJobStatusChangeHandler.class);
-        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, handler, null, null);
+        listener = new CcTrayActivityListener(goConfigService, handler, null, null);
 
         listener.initialize();
-        listener.startDaemon();
+        listener.start();
         listener.jobStatusChanged(aJob);
         waitForProcessingToHappen();
 
@@ -72,10 +85,10 @@ public class CcTrayActivityListenerTest {
     public void onInitializationAndStartOfDaemon_ShouldRegisterAListener_WhichInvokesStageChangeHandler_WhenStageStatusChanges() throws Exception {
         Stage aStage = StageMother.custom("stage1");
         CcTrayStageStatusChangeHandler handler = mock(CcTrayStageStatusChangeHandler.class);
-        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, null, handler, null);
+        listener = new CcTrayActivityListener(goConfigService, null, handler, null);
 
         listener.initialize();
-        listener.startDaemon();
+        listener.start();
         listener.stageStatusChanged(aStage);
         waitForProcessingToHappen();
 
@@ -86,10 +99,10 @@ public class CcTrayActivityListenerTest {
     public void onInitializationAndStartOfDaemon_ShouldRegisterAListener_WhichInvokesConfigChangeHandler_WhenConfigChanges() throws Exception {
         CruiseConfig aConfig = GoConfigMother.defaultCruiseConfig();
         CcTrayConfigChangeHandler handler = mock(CcTrayConfigChangeHandler.class);
-        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, null, null, handler);
+        listener = new CcTrayActivityListener(goConfigService, null, null, handler);
 
         listener.initialize();
-        listener.startDaemon();
+        listener.start();
         listener.onConfigChange(aConfig);
         waitForProcessingToHappen();
 
@@ -106,9 +119,9 @@ public class CcTrayActivityListenerTest {
         ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
         doNothing().when(goConfigService).register(captor.capture());
 
-        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, mock(CcTrayJobStatusChangeHandler.class),  mock(CcTrayStageStatusChangeHandler.class), ccTrayConfigChangeHandler);
+        listener = new CcTrayActivityListener(goConfigService, mock(CcTrayJobStatusChangeHandler.class),  mock(CcTrayStageStatusChangeHandler.class), ccTrayConfigChangeHandler);
         listener.initialize();
-        listener.startDaemon();
+        listener.start();
 
         List<ConfigChangedListener> listeners = captor.getAllValues();
         assertThat(listeners.get(1) instanceof EntityConfigChangedListener).isTrue();
@@ -129,10 +142,10 @@ public class CcTrayActivityListenerTest {
         doNothing().when(goConfigService).register(captor.capture());
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
-        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, mock(CcTrayJobStatusChangeHandler.class), mock(CcTrayStageStatusChangeHandler.class), ccTrayConfigChangeHandler);
+        listener = new CcTrayActivityListener(goConfigService, mock(CcTrayJobStatusChangeHandler.class), mock(CcTrayStageStatusChangeHandler.class), ccTrayConfigChangeHandler);
 
         listener.initialize();
-        listener.startDaemon();
+        listener.start();
 
         List<ConfigChangedListener> listeners = captor.getAllValues();
         assertThat(listeners.get(2) instanceof SecurityConfigChangeListener).isTrue();
@@ -145,6 +158,10 @@ public class CcTrayActivityListenerTest {
     }
 
     private void waitForProcessingToHappen() throws InterruptedException {
-        Thread.sleep(1000); /* Prevent potential race, of queue not being processed. Being a little lazy. :( */
+        await()
+            .pollDelay(10, TimeUnit.MILLISECONDS)
+            .timeout(2, TimeUnit.SECONDS)
+            .until(listener::isEmpty);
+        listener.stop();
     }
 }

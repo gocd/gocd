@@ -211,10 +211,6 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     }
 
     @Override
-    public void startDaemon() {
-    }
-
-    @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         goCache.remove(ETAG_CACHE_KEY);
     }

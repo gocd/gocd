@@ -150,8 +150,8 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             revokeStaleAccessTokenService.initialize();
 
             if (this.daemonsEnabled) {
-                dashboardActivityListener.startDaemon();
-                ccTrayActivityListener.startDaemon();
+                dashboardActivityListener.start();
+                ccTrayActivityListener.start();
             }
         } catch (Throwable throwable) {
             // Raise a Spring exception to ensure that existing beans are disposed of cleanly

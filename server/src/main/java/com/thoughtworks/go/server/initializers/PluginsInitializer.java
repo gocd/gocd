@@ -68,11 +68,6 @@ public class PluginsInitializer implements Initializer {
         }
     }
 
-    @Override
-    public void startDaemon() {
-
-    }
-
     ZipInputStream getPluginsZipStream() {
         return new ZipInputStream(Objects.requireNonNull(this.getClass().getResourceAsStream(systemEnvironment.get(DEFAULT_PLUGINS_ZIP))));
     }

@@ -81,11 +81,6 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
     }
 
     @Override
-    public void startDaemon() {
-
-    }
-
-    @Override
     public void onMaterialUpdate(Material material) {
         if (material instanceof DependencyMaterial) {
             if (retryQueue.remove(material)) {

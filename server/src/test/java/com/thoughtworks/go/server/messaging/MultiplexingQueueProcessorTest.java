@@ -19,12 +19,14 @@ import com.thoughtworks.go.server.messaging.MultiplexingQueueProcessor.Action;
 import com.thoughtworks.go.util.LogFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
 import org.mockito.InOrder;
 import org.slf4j.event.Level;
 
+import java.util.concurrent.TimeUnit;
+
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
@@ -75,7 +77,6 @@ public class MultiplexingQueueProcessorTest {
     }
 
     @Test
-    @Timeout(5)
     public void shouldLogAndIgnoreAnyActionsWhichFail() throws Exception {
         Action successfulAction1 = mock(Action.class);
         Action successfulAction2 = mock(Action.class);
@@ -88,14 +89,10 @@ public class MultiplexingQueueProcessorTest {
             queueProcessor.add(failingAction);
             queueProcessor.add(successfulAction2);
             queueProcessor.start();
-            while (!queueProcessor.queue.isEmpty()) {
-                waitForProcessingToHappen(100);
-            }
+            waitForProcessingToHappen();
 
-            synchronized (logFixture) {
-                assertThat(logFixture.contains(Level.WARN, "Failed to handle action in queue1 queue")).isTrue();
-                assertThat(logFixture.getLog()).contains("Ouch. Failed.");
-            }
+            assertThat(logFixture.contains(Level.WARN, "Failed to handle action in queue1 queue")).isTrue();
+            assertThat(logFixture.getLog()).contains("Ouch. Failed.");
         }
 
         verify(successfulAction1).call();
@@ -121,6 +118,16 @@ public class MultiplexingQueueProcessorTest {
         inOrder.verify(action3).call();
     }
 
+    @Test
+    public void shouldAllowBeingStoppedMultipleTimes() throws InterruptedException {
+        queueProcessor.stop(); // without being started
+
+        queueProcessor.start();
+
+        queueProcessor.stop();
+        queueProcessor.stop();
+    }
+
     private Thread setupNewThreadToAddActionIn(final ThreadNameAccumulator threadNameAccumulator) {
         return new Thread(() -> {
             threadNameAccumulator.threadOfQueueAdd = Thread.currentThread().getName();
@@ -140,11 +147,11 @@ public class MultiplexingQueueProcessorTest {
     }
 
     private void waitForProcessingToHappen() throws InterruptedException {
-        waitForProcessingToHappen(1000); /* Prevent potential race, of queue not being processed. Being a little lazy. :( */
-    }
-
-    private void waitForProcessingToHappen(int time) throws InterruptedException {
-        Thread.sleep(time);
+        await()
+            .pollDelay(10, TimeUnit.MILLISECONDS)
+            .timeout(2, TimeUnit.SECONDS)
+            .until(queueProcessor::isEmpty);
+        queueProcessor.stop();
     }
 
     private static class ThreadNameAccumulator {

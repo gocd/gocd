@@ -131,11 +131,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     @Override
-    public void startDaemon() {
-
-    }
-
-    @Override
     public Pipeline save(final Pipeline pipeline) {
         return transactionTemplate.execute(status -> {
             transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {

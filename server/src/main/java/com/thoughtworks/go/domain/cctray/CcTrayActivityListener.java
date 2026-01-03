@@ -24,19 +24,23 @@ import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.listener.SecurityConfigChangeListener;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.domain.StageStatusListener;
+import com.thoughtworks.go.server.initializers.Daemonized;
 import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.server.messaging.MultiplexingQueueProcessor;
 import com.thoughtworks.go.server.messaging.MultiplexingQueueProcessor.Action;
 import com.thoughtworks.go.server.service.GoConfigService;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PreDestroy;
+
 /* Listens to all activity that is needed to keep CCTray updated and sets it up for processing.
  */
 @Component
-public class CcTrayActivityListener implements Initializer, JobStatusListener, StageStatusListener, ConfigChangedListener {
+public class CcTrayActivityListener implements Initializer, Daemonized, JobStatusListener, StageStatusListener, ConfigChangedListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(CcTrayActivityListener.class);
     private final GoConfigService goConfigService;
     private final CcTrayJobStatusChangeHandler jobStatusChangeHandler;
@@ -65,8 +69,19 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
     }
 
     @Override
-    public void startDaemon() {
+    public void start() {
         processor.start();
+    }
+
+    @PreDestroy
+    @Override
+    public void stop() throws InterruptedException {
+        processor.stop();
+    }
+
+    @TestOnly
+    boolean isEmpty() {
+        return processor.isEmpty();
     }
 
     protected SecurityConfigChangeListener securityConfigChangeListener() {

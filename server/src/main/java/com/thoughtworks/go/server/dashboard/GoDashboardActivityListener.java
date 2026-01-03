@@ -25,6 +25,7 @@ import com.thoughtworks.go.listener.SecurityConfigChangeListener;
 import com.thoughtworks.go.server.domain.PipelineLockStatusChangeListener;
 import com.thoughtworks.go.server.domain.PipelinePauseChangeListener;
 import com.thoughtworks.go.server.domain.StageStatusListener;
+import com.thoughtworks.go.server.initializers.Daemonized;
 import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.server.messaging.MultiplexingQueueProcessor;
 import com.thoughtworks.go.server.messaging.MultiplexingQueueProcessor.Action;
@@ -32,13 +33,16 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PipelineLockService;
 import com.thoughtworks.go.server.service.PipelinePauseService;
 import com.thoughtworks.go.server.service.StageService;
+import org.jetbrains.annotations.TestOnly;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PreDestroy;
 
 /* Listens to all activity that is needed to keep the dashboard updated and sets it up for processing.
  */
 @Component
-public class GoDashboardActivityListener implements Initializer, ConfigChangedListener, PipelinePauseChangeListener,
+public class GoDashboardActivityListener implements Initializer, Daemonized, ConfigChangedListener, PipelinePauseChangeListener,
         PipelineLockStatusChangeListener {
     private final GoConfigService goConfigService;
     private final StageService stageService;
@@ -89,8 +93,19 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
     }
 
     @Override
-    public void startDaemon() {
+    public void start() {
         processor.start();
+    }
+
+    @PreDestroy
+    @Override
+    public void stop() throws InterruptedException {
+        processor.stop();
+    }
+
+    @TestOnly
+    boolean isEmpty() {
+        return processor.isEmpty();
     }
 
     @Override

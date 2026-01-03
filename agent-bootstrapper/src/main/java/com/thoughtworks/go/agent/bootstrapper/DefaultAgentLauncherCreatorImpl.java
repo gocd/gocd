@@ -119,6 +119,7 @@ public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
 
     @Override
     public void close() throws IOException {
+        LauncherTempFileHandler.stopReaperIfNecessary();
         urlClassLoader.close();
         urlClassLoader = null;
         recordCleanup();

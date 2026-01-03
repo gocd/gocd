@@ -81,6 +81,13 @@ class LauncherTempFileHandler implements Runnable {
         }
     }
 
+    public synchronized static void stopReaperIfNecessary() {
+        if (reaperThread != null && reaperThread.isAlive()) {
+            reaperThread.interrupt();
+            reaperThread = null;
+        }
+    }
+
     synchronized static void writeToFile(final List<String> rows, final boolean append) {
         try {
             Files.writeString(LAUNCHER_TMP_FILE_LIST, join(lineSeparator(), rows), UTF_8, CREATE, WRITE, append ? APPEND : TRUNCATE_EXISTING);

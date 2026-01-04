@@ -1,0 +1,13 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question / Support (GitHub)
+    url: https://github.com/gocd/gocd/discussions
+    about: >
+      Ask questions or get support from the GoCD community. Start here (or the mailing list) if you are not sure that
+      what you are observing is a bug or not.
+
+  - name: Question / Support (Forums / Email)
+    url: https://groups.google.com/forum/#!forum/go-cd
+    about: >
+      Ask questions or get support from the GoCD community. Start here (or the mailing list) if you are not sure that
+      what you are observing is a bug or not.

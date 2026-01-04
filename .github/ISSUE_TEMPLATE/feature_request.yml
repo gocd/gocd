@@ -1,0 +1,74 @@
+name: Feature / Enhancement Proposal
+description: Suggest an idea for improvement to GoCD
+labels: []
+type: Feature
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Provide a brief summary of the feature proposal or enhancement.
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation / Use Case
+      description: Why is this feature needed? What problem does it solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Describe your proposed solution or enhancement.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Alternatives
+      description: Are there mitigations or alternatives you've considered?
+
+  - type: textarea
+    id: other-info
+    attributes:
+      label: Any other info
+      description: Provide any other information or context (e.g., screenshots, diagrams).
+
+  - type: textarea
+    id: environment-basic
+    attributes:
+      label: Environment
+      description: |
+        Describing your environment can help us better understand the context of your request. Most can be obtained from 
+        [/go/about](https://go-server-host:port/go/about)
+      value: |
+        ### Basic Details:
+        - *Go Server Version*: 
+        - *JVM Version*: 
+        - *OS Information*: 
+        
+        ### Additional Details _(if relevant)_:
+        - *Browser vendor/version*:
+        - *Relevant plugins in use*:
+        
+        ### Deployment mechanism _(e.g. static vs elastic, Docker, Kubernetes, RPM package etc)_
+        - *Go Server*:
+        - *Go Agent(s)*:
+
+  - type: textarea
+    id: environment-support
+    attributes:
+      label: Support Environment
+      description: |
+        The most effective support can be given if you fetch details as a logged-in admin from the GoCD support API 
+        at [/go/api/support](https://go-server-host:port/go/api/support) via a browser. You can redact confidential 
+        information from the response, but please leave structure intact. If redacting, pay attention to the system properties, 
+        environment variables and server health messages.
+      placeholder: |
+        Paste the (potentially redacted) JSON output from `/go/api/support` here.
+      render: json

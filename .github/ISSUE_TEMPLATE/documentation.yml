@@ -1,0 +1,34 @@
+name: Documentation Report
+description: Report an issue with GoCD documentation
+labels: ["documentation"]
+type: task
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Provide a brief summary of the documentation issue.
+    validations:
+      required: true
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Location
+      description: Provide a link to the documentation page or describe where the issue is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe what is wrong or missing.
+    validations:
+      required: true
+
+  - type: textarea
+    id: other-info
+    attributes:
+      label: Any other info
+      description: Provide any other information you would like to share.

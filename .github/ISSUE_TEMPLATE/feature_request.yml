@@ -1,7 +1,7 @@
 name: Feature / Enhancement Proposal
 description: Suggest an idea for improvement to GoCD
 labels: []
-type: Feature
+type: feature
 body:
   - type: textarea
     id: summary
@@ -28,7 +28,7 @@ body:
       required: true
 
   - type: textarea
-    id: proposal
+    id: alternatives
     attributes:
       label: Alternatives
       description: Are there mitigations or alternatives you've considered?

@@ -1,5 +1,9 @@
 # Security Policy
 
+## Reporting a Vulnerability
+
+Please report any issues to https://hackerone.com/gocd according to the listed policy.
+
 ## Supported Versions
 
 The GoCD community only actively maintains and fixes security issues on top of the most recent released version.
@@ -21,10 +25,6 @@ This represents the oldest versions which have **no known exploitable vulnerabil
 Please note that this does *not* mean that there are zero potential vulnerabilities known from GoCD's dependencies
 in this or subsequent versions. However where such vulnerabilities exist, none have been confirmed to be exploitable via GoCD
 itself (without a prior non-GoCD breach).
-
-## Reporting a Vulnerability
-
-Please report any issues to https://hackerone.com/gocd according to the listed policy.
 
 ## Disclosure policy
 

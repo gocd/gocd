@@ -32,6 +32,7 @@ import com.thoughtworks.go.server.domain.ServerMaintenanceMode;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.Clock;
@@ -76,7 +77,7 @@ public class ServerMaintenanceModeControllerV1 extends ApiController implements 
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);

@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.spark.spring;
 
-import com.thoughtworks.go.spark.GlobalExceptionMapper;
+package com.thoughtworks.go.spark;
 
-public interface SparkSpringController {
+import spark.ExceptionHandler;
 
-    void setupRoutes(GlobalExceptionMapper exceptionMapper);
+@FunctionalInterface
+public interface GlobalExceptionMapper {
+    <T extends Exception> void register(Class<T> exceptionClass, ExceptionHandler<? super T> handler);
 }

@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv2.apiinfo.representers;
 
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.spark.DeprecatedAPI;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import spark.Request;
 import spark.Response;
@@ -26,7 +27,7 @@ import spark.RouteImpl;
 @DeprecatedAPI(deprecatedApiVersion = ApiVersion.v1, successorApiVersion = ApiVersion.v2, deprecatedIn = "20.2.0", removalIn = "20.5.0", entityName = "Do Nothing")
 class DummyDeprecatedWithSuccessorApiController implements SparkSpringController {
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
     }
 
     public String doNothing(Request request, Response response) {
@@ -41,7 +42,7 @@ class DummyDeprecatedWithSuccessorApiController implements SparkSpringController
 @DeprecatedAPI(deprecatedApiVersion = ApiVersion.v1, successorApiVersion = ApiVersion.none, deprecatedIn = "23.4.0", removalIn = "23.5.0", entityName = "", replacementSuggestion = "Use something else")
 class DummyDeprecatedPermanentlyApiController implements SparkSpringController {
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
     }
 
     public String doNothing(Request request, Response response) {

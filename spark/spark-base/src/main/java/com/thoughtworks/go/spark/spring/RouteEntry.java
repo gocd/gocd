@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.spark.spring;
 
-import org.apache.commons.lang3.Strings;
 import spark.route.HttpMethod;
 
 import java.util.Set;
@@ -25,7 +24,8 @@ public record RouteEntry(HttpMethod httpMethod, String path, String acceptedType
     private final static Set<String> METHODS = Set.of("get", "post", "put", "patch", "delete", "trace");
 
     public boolean isAPI() {
-        return METHODS.contains(httpMethod.name().toLowerCase()) &&
-            Strings.CS.startsWith(acceptedType, "application/vnd.go.cd");
+        return METHODS.contains(httpMethod.name().toLowerCase())
+            && acceptedType != null
+            && acceptedType.startsWith("application/vnd.go.cd");
     }
 }

@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv1.admin.encryption.spring;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.admin.encryption.EncryptionControllerDelegate;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.SystemEnvironment;
 import io.github.bucket4j.TimeMeter;
@@ -35,7 +36,7 @@ public class EncryptionController implements SparkSpringController {
     }
 
     @Override
-    public void setupRoutes() {
-        delegate.setupRoutes();
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
+        delegate.setupRoutes(exceptionMapper);
     }
 }

@@ -22,6 +22,7 @@ import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.api.ControllerMethods;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.support.ServerStatusService;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -63,7 +64,7 @@ public class ApiSupportController implements SparkController, ControllerMethods,
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             get("", this::show);
             get(Routes.Support.PROCESS_LIST, this::processList);

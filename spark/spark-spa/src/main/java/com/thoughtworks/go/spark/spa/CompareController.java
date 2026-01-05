@@ -18,6 +18,7 @@ package com.thoughtworks.go.spark.spa;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.server.service.PipelineService;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -49,7 +50,7 @@ public class CompareController implements SparkController {
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before(Routes.Compare.COMPARE, authenticationHelper::checkPipelineViewPermissionsAnd403);
             get(Routes.Compare.COMPARE, this::index, engine);

@@ -16,6 +16,7 @@
 package com.thoughtworks.go.spark.spa;
 
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import spark.ModelAndView;
@@ -42,7 +43,7 @@ public class LogoutPageController implements SparkController {
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         get(controllerBasePath(), this::show, engine);
     }
 

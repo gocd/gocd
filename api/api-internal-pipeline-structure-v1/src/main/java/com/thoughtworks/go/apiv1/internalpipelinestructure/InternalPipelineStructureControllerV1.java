@@ -26,6 +26,7 @@ import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.config.TemplatesConfig;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes.InternalPipelineStructure;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.Node;
@@ -80,7 +81,7 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);

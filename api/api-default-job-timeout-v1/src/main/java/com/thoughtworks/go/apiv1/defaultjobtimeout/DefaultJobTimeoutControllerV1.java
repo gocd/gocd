@@ -20,14 +20,12 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.defaultjobtimeout.representers.DefaultJobTimeOutRepresenter;
-import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.server.service.ServerConfigService;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes.DefaultJobTimeout;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
@@ -55,7 +53,7 @@ public class DefaultJobTimeoutControllerV1 extends ApiController implements Spar
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
@@ -64,12 +62,6 @@ public class DefaultJobTimeoutControllerV1 extends ApiController implements Spar
             get("", mimeType, this::index);
             post("", mimeType, this::createOrUpdate);
             put("", mimeType, this::createOrUpdate);
-
-
-            exception(GoConfigInvalidException.class, (Exception exception, Request request, Response response) -> {
-                response.status(HttpStatus.UNPROCESSABLE_ENTITY.value());
-                response.body(MessageJson.create(exception.getMessage()));
-            });
         });
     }
 

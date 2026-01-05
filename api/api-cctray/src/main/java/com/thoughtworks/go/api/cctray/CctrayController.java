@@ -18,6 +18,7 @@ package com.thoughtworks.go.api.cctray;
 import com.thoughtworks.go.api.ControllerMethods;
 import com.thoughtworks.go.server.service.CcTrayService;
 import com.thoughtworks.go.server.service.SecurityService;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
@@ -57,7 +58,7 @@ public class CctrayController implements SparkSpringController, SparkController 
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         before(controllerBasePath(), this::setContentType);
         before(controllerBasePath(), this::checkUserAnd403);
         get(controllerBasePath(), this::index);

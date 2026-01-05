@@ -26,6 +26,7 @@ import com.thoughtworks.go.apiv1.internalscms.representers.VerifyConnectionResul
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.server.service.materials.PluggableScmService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +58,7 @@ public class InternalSCMsControllerV1 extends ApiController implements SparkSpri
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before(Routes.SCM.VERIFY_CONNECTION, mimeType, this::setContentType);
             before(Routes.SCM.VERIFY_CONNECTION, mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);

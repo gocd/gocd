@@ -22,6 +22,7 @@ import com.thoughtworks.go.apiv1.usersearch.representers.UserSearchResultsRepres
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.server.security.UserSearchService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,7 @@ public class UserSearchControllerV1 extends ApiController implements SparkSpring
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
 

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.spark.spring
 
 import com.thoughtworks.go.config.exceptions.HttpException
+import com.thoughtworks.go.spark.GlobalExceptionMapper
 import com.thoughtworks.go.spark.SparkController
 import com.thoughtworks.go.spark.mocks.TestApplication
 import com.thoughtworks.go.spark.mocks.TestSparkPreFilter
@@ -96,7 +97,7 @@ class RouteInformationProviderTest {
       }
 
       @Override
-      void setupRoutes() {
+      void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), { ->
           // some filters
           before("/bar", "application/vnd.go.cd." + "v11" + "+json", apiv11BeforeFilter1)
@@ -108,7 +109,7 @@ class RouteInformationProviderTest {
           after("/bar", "application/vnd.go.cd." + "v11" + "+json", apiv11AfterFilter2)
 
           // some exception handlers
-          exception(HttpException.class, apiv11ExceptionHandler1)
+          exceptionMapper.register(HttpException.class, apiv11ExceptionHandler1)
         })
       }
     }
@@ -120,7 +121,7 @@ class RouteInformationProviderTest {
       }
 
       @Override
-      void setupRoutes() {
+      void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), { ->
           // some filters
           before("/bar", "application/vnd.go.cd." + "v10" + "+json", apiv10BeforeFilter1)
@@ -132,7 +133,7 @@ class RouteInformationProviderTest {
           after("/bar", "application/vnd.go.cd." + "v10" + "+json", apiv10AfterFilter1)
 
           // some exception handlers
-          exception(HttpException.class, apiv10ExceptionHandler1)
+          exceptionMapper.register(HttpException.class, apiv10ExceptionHandler1)
         })
       }
     }
@@ -144,7 +145,7 @@ class RouteInformationProviderTest {
       }
 
       @Override
-      void setupRoutes() {
+      void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), { ->
           // some filters
           before("/bar", "application/vnd.go.cd." + "v1" + "+json", apiv1BeforeFilter1)
@@ -153,7 +154,7 @@ class RouteInformationProviderTest {
           get("/bar", "application/vnd.go.cd." + "v1" + "+json", apiv1GetMethod)
 
           // some exception handlers
-          exception(Exception.class, apiv1ExceptionHandler1)
+          exceptionMapper.register(Exception.class, apiv1ExceptionHandler1)
         })
       }
     }

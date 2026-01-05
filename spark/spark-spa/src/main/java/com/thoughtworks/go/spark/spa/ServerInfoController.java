@@ -18,6 +18,7 @@ package com.thoughtworks.go.spark.spa;
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.server.service.ArtifactsDirHolder;
 import com.thoughtworks.go.server.service.PipelineConfigService;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -50,7 +51,7 @@ public class ServerInfoController implements SparkController {
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before("", authenticationHelper::checkUserAnd403);
             get("", this::index, engine);

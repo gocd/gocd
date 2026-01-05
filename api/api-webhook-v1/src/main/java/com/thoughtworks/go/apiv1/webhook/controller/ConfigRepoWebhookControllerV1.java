@@ -40,6 +40,7 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.service.ConfigRepoService;
 import com.thoughtworks.go.server.service.ServerConfigService;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +70,7 @@ public class ConfigRepoWebhookControllerV1 extends BaseWebhookController {
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             post(Routes.Webhook.ConfigRepo.GITHUB, mimeType, this::github);
             post(Routes.Webhook.ConfigRepo.GITLAB, mimeType, this::gitlab);

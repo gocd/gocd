@@ -21,6 +21,7 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.server.service.FeedService;
 import com.thoughtworks.go.spark.DeprecatedAPI;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -70,7 +71,7 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before("/*", mimeType, super::setContentType);
             before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);

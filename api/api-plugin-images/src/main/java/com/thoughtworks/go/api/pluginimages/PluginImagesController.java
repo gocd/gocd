@@ -19,6 +19,7 @@ import com.thoughtworks.go.api.ControllerMethods;
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -44,7 +45,7 @@ public class PluginImagesController implements SparkController, ControllerMethod
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             get(Routes.PluginImages.PLUGIN_ID_HASH_PATH, this::show);
             head(Routes.PluginImages.PLUGIN_ID_HASH_PATH, this::show);

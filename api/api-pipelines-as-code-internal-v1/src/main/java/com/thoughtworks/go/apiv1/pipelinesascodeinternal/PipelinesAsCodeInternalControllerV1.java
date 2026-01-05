@@ -38,6 +38,7 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigFileList;
 import com.thoughtworks.go.plugin.access.configrepo.ExportedConfig;
 import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -113,7 +114,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before(PREVIEW, this.mimeType, this::setContentType, this::verifyContentType, this.apiAuthenticationHelper::checkAdminUserAnd403);
             before(CONFIG_FILES, this.mimeType, this::setContentType, this::verifyContentType, this.apiAuthenticationHelper::checkAdminUserAnd403);

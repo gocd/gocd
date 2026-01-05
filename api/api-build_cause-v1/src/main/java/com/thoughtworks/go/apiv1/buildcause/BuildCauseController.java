@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.server.service.PipelineHistoryService;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +54,7 @@ public class BuildCauseController extends ApiController implements SparkSpringCo
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerPath(Routes.BuildCause.PATH), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);

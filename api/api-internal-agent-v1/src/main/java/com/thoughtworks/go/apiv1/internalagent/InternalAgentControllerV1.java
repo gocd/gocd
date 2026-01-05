@@ -24,6 +24,7 @@ import com.thoughtworks.go.remote.StandardHeaders;
 import com.thoughtworks.go.remote.request.*;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.messaging.BuildRepositoryMessageProducer;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.apache.commons.lang3.Strings;
@@ -52,7 +53,7 @@ public class InternalAgentControllerV1 extends ApiController implements SparkSpr
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);

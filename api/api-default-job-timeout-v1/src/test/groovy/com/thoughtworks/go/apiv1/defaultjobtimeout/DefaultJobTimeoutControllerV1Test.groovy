@@ -129,7 +129,7 @@ class DefaultJobTimeoutControllerV1Test implements SecurityServiceTrait, Control
 
       assertThatResponse()
         .isUnprocessableEntity()
-        .hasJsonMessage("Timeout should be a valid number as it represents number of minutes")
+        .hasJsonMessage("Your request could not be processed. Timeout should be a valid number as it represents number of minutes")
     }
 
     @Test
@@ -141,7 +141,7 @@ class DefaultJobTimeoutControllerV1Test implements SecurityServiceTrait, Control
 
       assertThatResponse()
         .isUnprocessableEntity()
-        .hasJsonMessage("Timeout should be a valid number as it represents number of minutes")
+        .hasJsonMessage("Your request could not be processed. Timeout should be a valid number as it represents number of minutes")
     }
   }
 
@@ -187,7 +187,7 @@ class DefaultJobTimeoutControllerV1Test implements SecurityServiceTrait, Control
 
       assertThatResponse()
         .isUnprocessableEntity()
-        .hasJsonMessage("Timeout should be a valid number as it represents number of minutes")
+        .hasJsonMessage("Your request could not be processed. Timeout should be a valid number as it represents number of minutes")
     }
 
     @Test
@@ -199,7 +199,7 @@ class DefaultJobTimeoutControllerV1Test implements SecurityServiceTrait, Control
 
       assertThatResponse()
         .isUnprocessableEntity()
-        .hasJsonMessage("Timeout should be a valid number as it represents number of minutes")
+        .hasJsonMessage("Your request could not be processed. Timeout should be a valid number as it represents number of minutes")
     }
   }
 }

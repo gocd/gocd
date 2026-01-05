@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.spark.spa;
 
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -43,7 +44,7 @@ public class ElasticAgentConfigurationsController implements SparkController {
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before("", authenticationHelper::checkUserAnd403);
             get("", this::index, engine);

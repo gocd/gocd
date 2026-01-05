@@ -17,17 +17,8 @@ package com.thoughtworks.go.spark.mocks;
 
 import com.thoughtworks.go.spark.RoutesHelper;
 import com.thoughtworks.go.spark.SparkController;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.util.ReflectionUtils;
-import spark.ExceptionMapper;
-import spark.Service;
 import spark.Spark;
-import spark.route.Routes;
 import spark.servlet.SparkApplication;
-import spark.staticfiles.StaticFilesConfiguration;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 public class TestApplication implements SparkApplication {
 
@@ -44,27 +35,7 @@ public class TestApplication implements SparkApplication {
 
     @Override
     public void destroy() {
-        //hacky way to reset the state of the routes between tests
-        //see Service.stop(), (not invoked directly because it spawns a thread)
-        try {
-            Method getInstance = Spark.class.getDeclaredMethod("getInstance");
-            getInstance.setAccessible(true);
-            Service service = (Service) getInstance.invoke(null);
-            //Dependent on current version of Spark
-            //This is likely to fail in case of upgrades
-            clear(service, "routes", Routes.class);
-            clear(service, "exceptionMapper", ExceptionMapper.class);
-            clear(service, "staticFilesConfiguration", StaticFilesConfiguration.class);
-            ReflectionTestUtils.setField(service, "initialized", false);
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void clear(Service service, String fieldName, Class<?> fieldType) {
-        Field field = ReflectionUtils.findField(Service.class, fieldName);
-        field.setAccessible(true);
-        Object routes = ReflectionUtils.getField(field, service);
-        ReflectionUtils.invokeMethod(ReflectionUtils.findMethod(fieldType, "clear"), routes);
+        Spark.stop();
+        Spark.awaitStop();
     }
 }

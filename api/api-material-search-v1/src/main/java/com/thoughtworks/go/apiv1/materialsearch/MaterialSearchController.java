@@ -23,6 +23,7 @@ import com.thoughtworks.go.apiv1.materialsearch.representers.MatchedRevisionRepr
 import com.thoughtworks.go.domain.materials.MatchedRevision;
 import com.thoughtworks.go.server.service.MaterialService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +55,7 @@ public class MaterialSearchController extends ApiController implements SparkSpri
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);

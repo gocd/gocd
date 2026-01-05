@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv1.version;
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class VersionControllerV1 extends ApiController implements SparkSpringCon
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> Spark.get("", mimeType, this::show));
     }
 

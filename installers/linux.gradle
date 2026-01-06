@@ -24,14 +24,22 @@ enum PackageType {
     // Debian packages allow either most recent or minimum Java version in dependencies because
     // Java 21 was not available on Debian releases despite it being preferred, although was available for Ubuntu.
     String jreDependency(GoVersions goVersions) {
-      goVersions.preferredJavaVersions().collect { "openjdk-${it}-jre-headless" }.join(' | ')
+      goVersions.preferredJavaVersions()
+        .collectMany { ["openjdk-${it}-jre-headless", "temurin-${it}-jre"] }
+        .join(' | ')
     }
 
     @SuppressWarnings('unused')
     String jreBinaryLocator(GoVersions goVersions) {
       // Find the most recent version that was installed
-      """ls ${goVersions.preferredJavaVersions().collect { "/usr/lib/jvm/java-${it}-openjdk-\$(dpkg --print-architecture)/bin/java" }.join(' \\\n   ') } \\
-           2>/dev/null | tail -1"""
+      'arch=$(dpkg --print-architecture) ls ' +
+        goVersions.preferredJavaVersions()
+          .collectMany {[
+              "/usr/lib/jvm/java-${it}-openjdk-\${arch}/bin/java",
+              "/usr/lib/jvm/java-${it}-temurin-jdk-\${arch}/bin/java"
+          ] }
+          .join(' \\\n   ') +
+        ' \\\n   2>/dev/null | tail -1'
     }
 
     @SuppressWarnings('unused')
@@ -62,14 +70,24 @@ enum PackageType {
   },
   rpm {
     String jreDependency(GoVersions goVersions) {
-      "(${goVersions.preferredJavaVersions().collect { "java-${it}-openjdk-headless" }.join(' or ')})"
+      '(' +
+        goVersions.preferredJavaVersions()
+          .collectMany { ["java-${it}-openjdk-headless", "temurin-${it}-jre"] }
+          .join(' or ') +
+        ')'
     }
 
     @SuppressWarnings('unused')
     String jreBinaryLocator(GoVersions goVersions) {
       // Find the most recent version that was installed
-      """ls ${goVersions.preferredJavaVersions().collect { "/usr/lib/jvm/jre-${it}/bin/java" }.join(' \\\n   ') } \\
-           2>/dev/null | tail -1"""
+      'ls ' +
+        goVersions.preferredJavaVersions()
+          .collectMany { [
+              "/usr/lib/jvm/jre-${it}/bin/java",
+              "/usr/lib/jvm/java-${it}-temurin-jdk/bin/java"
+          ] }
+          .join(' \\\n   ') +
+        ' \\\n   2>/dev/null | tail -1'
     }
 
     @SuppressWarnings('unused')

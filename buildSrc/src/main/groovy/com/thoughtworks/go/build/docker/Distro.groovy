@@ -154,7 +154,7 @@ enum Distro implements DistroBehavior {
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       [
         "microdnf remove -y shadow-utils",
-        "microdnf install -y git-core openssh-clients bash unzip curl-minimal procps-ng coreutils-single glibc-langpack-en tar",
+        "microdnf install -y git-core openssh-clients bash unzip curl-minimal procps-ng coreutils-single glibc-langpack-en tar${v.lessThan(10) ? "" : "-1.35-7.el10"}",
         "microdnf clean all",
         "rm -rf /var/cache/dnf",
       ]

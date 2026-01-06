@@ -137,7 +137,7 @@ class RoutesHelperTest {
     @DeprecatedAPI(deprecatedApiVersion = ApiVersion.v1, successorApiVersion = ApiVersion.v2, deprecatedIn = "20.2.0", removalIn = "20.5.0", entityName = "Do Nothing")
     private static class DoNothingApiForUpgrade implements SparkSpringController {
         @Override
-        public void setupRoutes() {
+        public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         }
     }
 
@@ -145,14 +145,14 @@ class RoutesHelperTest {
         replacementSuggestion = "Users are suggested to migrate to use of another API.")
     private static class DoNothingApiForRemovalWithSuggestion implements SparkSpringController {
         @Override
-        public void setupRoutes() {
+        public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         }
     }
 
     @DeprecatedAPI(deprecatedApiVersion = ApiVersion.v2, successorApiVersion = ApiVersion.none, deprecatedIn = "20.2.0", removalIn = "20.5.0", entityName = "Do Nothing")
     private static class DoNothingApiForRemovalWithoutSuggestion implements SparkSpringController {
         @Override
-        public void setupRoutes() {
+        public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         }
     }
 }

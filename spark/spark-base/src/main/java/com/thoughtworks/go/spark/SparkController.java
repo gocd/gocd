@@ -54,7 +54,7 @@ public interface SparkController {
 
     String controllerBasePath();
 
-    void setupRoutes();
+    void setupRoutes(GlobalExceptionMapper exceptionMapper);
 
     default Username currentUsername() {
         return SessionUtils.currentUsername();

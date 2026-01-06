@@ -29,6 +29,7 @@ import com.thoughtworks.go.apiv1.admin.encryption.representers.EncryptedValueRep
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.BucketConfiguration;
@@ -70,7 +71,7 @@ public class EncryptionControllerDelegate extends ApiController {
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
@@ -84,7 +85,7 @@ public class EncryptionControllerDelegate extends ApiController {
 
             post("", mimeType, this::encrypt);
 
-            exception(CryptoException.class, (CryptoException exception, Request request, Response response) -> {
+            exceptionMapper.register(CryptoException.class, (CryptoException exception, Request request, Response response) -> {
                 response.status(HTTP_INTERNAL_ERROR);
                 response.body(MessageJson.create(HaltApiMessages.errorWhileEncryptingMessage()));
             });

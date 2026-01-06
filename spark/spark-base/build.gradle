@@ -23,7 +23,6 @@ dependencies {
   implementation project(':server')
   implementation project(':config:config-api')
 
-  implementation project.deps.commonsLang3
   implementation project.deps.commonsText
   implementation project.deps.gson
   implementation platform(project.deps.jacksonBom)

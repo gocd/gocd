@@ -29,6 +29,7 @@ import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.SecurityAuthConfigService;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +63,7 @@ public class SecurityAuthConfigInternalControllerV2 extends ApiController implem
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before(Routes.SecurityAuthConfigAPI.VERIFY_CONNECTION, mimeType, this::setContentType);
             before(Routes.SecurityAuthConfigAPI.VERIFY_CONNECTION, mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);

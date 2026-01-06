@@ -28,6 +28,7 @@ import com.thoughtworks.go.apiv1.webhook.request.HostedBitbucketRequest;
 import com.thoughtworks.go.apiv1.webhook.request.payload.push.*;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.service.ServerConfigService;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,7 @@ public class PushWebhookControllerV1 extends BaseWebhookController {
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             post(Routes.Webhook.Notify.GITHUB, mimeType, this::github);
             post(Routes.Webhook.Notify.GITLAB, mimeType, this::gitlab);

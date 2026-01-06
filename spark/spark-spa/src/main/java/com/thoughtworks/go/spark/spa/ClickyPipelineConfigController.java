@@ -18,6 +18,7 @@ package com.thoughtworks.go.spark.spa;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -48,7 +49,7 @@ public class ClickyPipelineConfigController implements SparkController {
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before(Routes.PipelineConfig.NAME + "/edit", authenticationHelper::checkPipelineGroupAdminOfPipelineOrGroupInURLUserAnd403);
             get(Routes.PipelineConfig.NAME + "/edit", this::index, engine);

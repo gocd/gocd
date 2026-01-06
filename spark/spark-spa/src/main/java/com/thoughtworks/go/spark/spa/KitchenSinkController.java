@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.spark.spa;
 
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import spark.ModelAndView;
@@ -40,7 +41,7 @@ public class KitchenSinkController implements SparkController {
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> get("", this::index, engine));
     }
 

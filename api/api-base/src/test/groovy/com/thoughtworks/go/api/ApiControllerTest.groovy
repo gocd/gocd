@@ -19,6 +19,7 @@ import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
 import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.api.util.MessageJson
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder
+import com.thoughtworks.go.spark.GlobalExceptionMapper
 import com.thoughtworks.go.spark.util.SecureRandom
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -46,7 +47,7 @@ class ApiControllerTest {
       }
 
       @Override
-      void setupRoutes() {
+      void setupRoutes(GlobalExceptionMapper exceptionMapper) {
 
       }
     }

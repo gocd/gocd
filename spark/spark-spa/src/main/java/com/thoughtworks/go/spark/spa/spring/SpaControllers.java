@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStor
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
+import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spa.*;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -101,9 +102,9 @@ public class SpaControllers implements SparkSpringController {
     }
 
     @Override
-    public void setupRoutes() {
+    public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         for (SparkController sparkController : sparkControllers) {
-            sparkController.setupRoutes();
+            sparkController.setupRoutes(exceptionMapper);
         }
     }
 }

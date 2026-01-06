@@ -36,8 +36,8 @@ import spark.Response;
 import java.util.List;
 
 import static com.thoughtworks.go.config.exceptions.EntityType.Pipeline;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static spark.utils.StringUtils.isBlank;
+import static spark.utils.StringUtils.isNotBlank;
 
 public abstract class AbstractAuthenticationHelper {
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractAuthenticationHelper.class);

@@ -18,7 +18,6 @@ package com.thoughtworks.go.build.docker
 
 import com.thoughtworks.go.build.AdoptiumVersion
 import com.thoughtworks.go.build.Architecture
-import com.thoughtworks.go.build.OperatingSystem
 
 enum Distro implements DistroBehavior {
 
@@ -228,11 +227,6 @@ enum Distro implements DistroBehavior {
   },
 
   docker {
-    @Override
-    OperatingSystem getOperatingSystem() {
-      alpine.getOperatingSystem()
-    }
-
     @Override
     boolean isPrivilegedModeSupport() {
       true

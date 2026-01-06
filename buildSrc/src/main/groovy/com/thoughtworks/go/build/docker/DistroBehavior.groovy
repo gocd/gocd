@@ -66,7 +66,7 @@ trait DistroBehavior {
   }
 
   List<String> getInstallJavaCommands(AdoptiumVersion version) {
-    def downloadUrl = version.toDownloadURLFor(getOperatingSystem(), Architecture.dockerDynamic)
+    def downloadUrl = version.toDownloadURLFor(OperatingSystem.linux, Architecture.dockerDynamic)
 
     return [
       "curl --fail --location --silent --show-error \"${downloadUrl}\" --output /tmp/jre.tar.gz",
@@ -74,10 +74,6 @@ trait DistroBehavior {
       'tar -xf /tmp/jre.tar.gz -C /gocd-jre --strip 1',
       'rm -rf /tmp/jre.tar.gz'
     ]
-  }
-
-  OperatingSystem getOperatingSystem() {
-    OperatingSystem.linux
   }
 
   Set<Architecture> getSupportedArchitectures() {

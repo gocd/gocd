@@ -37,7 +37,7 @@ class GoVersions implements Serializable {
   AdoptiumVersion packagedJavaVersion
 
   List<String> preferredJavaVersions() {
-    [VERSION_11, VERSION_17, VERSION_21, VERSION_25, VERSION_29] // LTS versions
+    [VERSION_21, VERSION_25, VERSION_29] // LTS versions
       .findAll { v -> v.ordinal() >= toVersion(targetJavaVersion).ordinal() && v.ordinal() <= toVersion(buildJavaVersion).ordinal() }
       .sort()
       .reverse()

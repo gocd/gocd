@@ -36,7 +36,7 @@ enum PackageType {
         goVersions.preferredJavaVersions()
           .collectMany {[
               "/usr/lib/jvm/java-${it}-openjdk-\${arch}/bin/java",
-              "/usr/lib/jvm/java-${it}-temurin-jdk-\${arch}/bin/java"
+              "/usr/lib/jvm/temurin-${it}-jre-\${arch}/bin/java"
           ] }
           .join(' \\\n   ') +
         ' \\\n   2>/dev/null | tail -1'
@@ -84,7 +84,7 @@ enum PackageType {
         goVersions.preferredJavaVersions()
           .collectMany { [
               "/usr/lib/jvm/jre-${it}/bin/java",
-              "/usr/lib/jvm/java-${it}-temurin-jdk/bin/java"
+              "/usr/lib/jvm/temurin-${it}-jre/bin/java"
           ] }
           .join(' \\\n   ') +
         ' \\\n   2>/dev/null | tail -1'

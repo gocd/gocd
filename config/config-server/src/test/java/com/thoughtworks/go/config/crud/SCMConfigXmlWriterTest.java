@@ -61,10 +61,10 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
 
         SCMs scms = goConfigHolder.config.getSCMs();
         assertThat(scms).isEqualTo(cruiseConfig.getSCMs());
-        assertThat(scms.get(0).getConfiguration().first().getConfigurationValue().getValue()).isEqualTo("http://go");
-        assertThat(scms.get(0).getConfiguration().first().getEncryptedConfigurationValue()).isNull();
-        assertThat(scms.get(0).getConfiguration().last().getEncryptedValue()).isEqualTo(new GoCipher().encrypt("secure"));
-        assertThat(scms.get(0).getConfiguration().last().getConfigurationValue()).isNull();
+        assertThat(scms.get(0).getConfiguration().getFirstOrNull().getConfigurationValue().getValue()).isEqualTo("http://go");
+        assertThat(scms.get(0).getConfiguration().getFirstOrNull().getEncryptedConfigurationValue()).isNull();
+        assertThat(scms.get(0).getConfiguration().getLastOrNull().getEncryptedValue()).isEqualTo(new GoCipher().encrypt("secure"));
+        assertThat(scms.get(0).getConfiguration().getLastOrNull().getConfigurationValue()).isNull();
     }
 
     @Test

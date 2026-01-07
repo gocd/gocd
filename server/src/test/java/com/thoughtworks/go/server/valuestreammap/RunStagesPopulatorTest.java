@@ -97,7 +97,7 @@ public class RunStagesPopulatorTest {
         Stages stagesForP1_1 = stages("s1_p1");
         Stages stagesForP2_1 = stages("s1_p2");
         Stages stagesForP3_1 = stages("s1_p3");
-        stagesForP1_1.first().setLatestRun(false);
+        stagesForP1_1.getFirstOrNull().setLatestRun(false);
         Stage latestStage = StageMother.createPassedStage(p1.toString(), 1, "s1_p1", 2, "sample", Instant.now());
         stagesForP1_1.add(latestStage);
 

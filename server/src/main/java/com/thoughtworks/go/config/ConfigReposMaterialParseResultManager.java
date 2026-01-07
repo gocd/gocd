@@ -58,7 +58,7 @@ public class ConfigReposMaterialParseResultManager {
         if (result != null && result.isSuccessful()) {
             List<ServerHealthState> serverHealthStates = serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(fingerprint));
             if (!serverHealthStates.isEmpty()) {
-                result.setException(asError(serverHealthStates.get(0)));
+                result.setException(asError(serverHealthStates.getFirst()));
 
                 //clear out the good modification, in case good modification is same as of latest parsed modification
                 if (Objects.equals(result.getLatestParsedModification(), result.getGoodModification())) {
@@ -108,7 +108,7 @@ public class ConfigReposMaterialParseResultManager {
 
         return serverHealthStates.isEmpty() ?
                 null :
-                PartialConfigParseResult.parseFailed(null, asError(serverHealthStates.get(0)));
+                PartialConfigParseResult.parseFailed(null, asError(serverHealthStates.getFirst()));
     }
 
     private Exception asError(ServerHealthState serverHealthState) {

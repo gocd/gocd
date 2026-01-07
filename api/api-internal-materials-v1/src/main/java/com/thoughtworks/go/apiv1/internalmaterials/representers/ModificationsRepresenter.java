@@ -33,8 +33,8 @@ public class ModificationsRepresenter {
             return;
         }
         if (latestAndOldestModId != null) {
-            Modification latest = modifications.get(0);
-            Modification oldest = modifications.get(modifications.size() - 1);
+            Modification latest = modifications.getFirst();
+            Modification oldest = modifications.getLast();
             String previousLink = null, nextLink = null;
             if (latest.getId() != latestAndOldestModId.getLatestRunId()) {
                 previousLink = Routes.InternalMaterialConfig.previous(fingerprint, latest.getId(), pattern, pageSize);

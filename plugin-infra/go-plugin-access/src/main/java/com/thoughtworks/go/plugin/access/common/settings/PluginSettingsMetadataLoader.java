@@ -71,7 +71,7 @@ public class PluginSettingsMetadataLoader implements PluginChangeListener {
                     "Only one extension should support it and respond to %s and %s.", pluginId, REQUEST_PLUGIN_SETTINGS_CONFIGURATION, REQUEST_PLUGIN_SETTINGS_VIEW));
         }
 
-        ExtensionSettingsInfo extensionSettingsInfo = validMetadata.get(0);
+        ExtensionSettingsInfo extensionSettingsInfo = validMetadata.getFirst();
         metadataStore.addMetadataFor(pluginId, extensionSettingsInfo.extensionName, extensionSettingsInfo.configuration, extensionSettingsInfo.viewTemplate);
     }
 

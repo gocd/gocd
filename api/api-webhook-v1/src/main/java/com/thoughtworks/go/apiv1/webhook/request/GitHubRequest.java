@@ -50,7 +50,7 @@ public class GitHubRequest extends WebhookRequest {
         String raw = request().body();
 
         if (APPLICATION_FORM_URLENCODED.equals(contentType())) {
-            return URLEncodedUtils.parse(raw, StandardCharsets.UTF_8).get(0).getValue();
+            return URLEncodedUtils.parse(raw, StandardCharsets.UTF_8).getFirst().getValue();
         }
 
         return raw;

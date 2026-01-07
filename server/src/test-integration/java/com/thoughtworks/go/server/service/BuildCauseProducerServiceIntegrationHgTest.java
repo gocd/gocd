@@ -129,7 +129,7 @@ public class BuildCauseProducerServiceIntegrationHgTest {
 
         Pipeline latestPipeline = PipelineMother.schedule(mingleConfig, buildCause);
         latestPipeline = dbHelper.savePipelineWithStagesAndMaterials(latestPipeline);
-        dbHelper.passStage(latestPipeline.getStages().first());
+        dbHelper.passStage(latestPipeline.getStages().getFirstOrNull());
     }
 
     private void checkInFiles(String... files) throws Exception {

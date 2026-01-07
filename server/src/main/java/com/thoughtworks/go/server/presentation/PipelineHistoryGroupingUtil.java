@@ -25,8 +25,8 @@ public class PipelineHistoryGroupingUtil {
     public PipelineHistoryGroups createGroups(PipelineInstanceModels pipelineHistory) {
         PipelineHistoryGroups groups = new PipelineHistoryGroups();
         for (PipelineInstanceModel pipelineInstanceModel : pipelineHistory) {
-            if (!groups.isEmpty() && groups.last().hasSameStagesAs(pipelineInstanceModel)) {
-                groups.last().getPipelineInstances().add(pipelineInstanceModel);
+            if (!groups.isEmpty() && groups.getLast().hasSameStagesAs(pipelineInstanceModel)) {
+                groups.getLast().getPipelineInstances().add(pipelineInstanceModel);
             } else {
                 groups.add(createGroupFor(pipelineInstanceModel));
             }

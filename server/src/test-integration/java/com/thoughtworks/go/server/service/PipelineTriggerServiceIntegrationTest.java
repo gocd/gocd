@@ -147,7 +147,7 @@ public class PipelineTriggerServiceIntegrationTest {
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(pipelineNameCaseInsensitive);
         assertNotNull(buildCause);
         assertThat(buildCause.getApprover()).isEqualTo(CaseInsensitiveString.str(admin.getUsername()));
-        assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().first()).getLatestRevisionString()).isEqualTo("s3");
+        assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().getFirstOrNull()).getLatestRevisionString()).isEqualTo("s3");
         assertThat(buildCause.getBuildCauseMessage()).isEqualTo("Forced by admin1");
         assertTrue(buildCause.getVariables().isEmpty());
     }
@@ -158,7 +158,7 @@ public class PipelineTriggerServiceIntegrationTest {
         assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
         String peggedRevision = "s2";
-        MaterialForScheduling material = new MaterialForScheduling(pipelineConfig.materialConfigs().first().getFingerprint(), peggedRevision);
+        MaterialForScheduling material = new MaterialForScheduling(pipelineConfig.materialConfigs().getFirstOrNull().getFingerprint(), peggedRevision);
         pipelineScheduleOptions.getMaterials().add(material);
 
         pipelineTriggerService.schedule(pipelineName, pipelineScheduleOptions, admin, result);
@@ -173,7 +173,7 @@ public class PipelineTriggerServiceIntegrationTest {
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(pipelineNameCaseInsensitive);
         assertNotNull(buildCause);
         assertThat(buildCause.getApprover()).isEqualTo(CaseInsensitiveString.str(admin.getUsername()));
-        assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().first()).getLatestRevisionString()).isEqualTo("s2");
+        assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().getFirstOrNull()).getLatestRevisionString()).isEqualTo("s2");
         assertThat(buildCause.getBuildCauseMessage()).isEqualTo("Forced by admin1");
         assertTrue(buildCause.getVariables().isEmpty());
     }
@@ -185,7 +185,7 @@ public class PipelineTriggerServiceIntegrationTest {
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
         pipelineScheduleOptions.shouldPerformMDUBeforeScheduling(false);
         String peggedRevision = "s2";
-        MaterialForScheduling material = new MaterialForScheduling(pipelineConfig.materialConfigs().first().getFingerprint(), peggedRevision);
+        MaterialForScheduling material = new MaterialForScheduling(pipelineConfig.materialConfigs().getFirstOrNull().getFingerprint(), peggedRevision);
         pipelineScheduleOptions.getMaterials().add(material);
 
         pipelineTriggerService.schedule(this.pipelineName, pipelineScheduleOptions, admin, result);
@@ -197,7 +197,7 @@ public class PipelineTriggerServiceIntegrationTest {
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(pipelineNameCaseInsensitive);
         assertNotNull(buildCause);
         assertThat(buildCause.getApprover()).isEqualTo(CaseInsensitiveString.str(admin.getUsername()));
-        assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().first()).getLatestRevisionString()).isEqualTo("s2");
+        assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().getFirstOrNull()).getLatestRevisionString()).isEqualTo("s2");
         assertThat(buildCause.getBuildCauseMessage()).isEqualTo("Forced by admin1");
         assertTrue(buildCause.getVariables().isEmpty());
     }
@@ -209,14 +209,14 @@ public class PipelineTriggerServiceIntegrationTest {
         PipelineScheduleOptions pipelineScheduleOptions = new PipelineScheduleOptions();
         pipelineScheduleOptions.shouldPerformMDUBeforeScheduling(false);
         String peggedRevision = "unseen-revision";
-        String fingerprint = pipelineConfig.materialConfigs().first().getFingerprint();
+        String fingerprint = pipelineConfig.materialConfigs().getFirstOrNull().getFingerprint();
         MaterialForScheduling material = new MaterialForScheduling(fingerprint, peggedRevision);
         pipelineScheduleOptions.getMaterials().add(material);
 
         pipelineTriggerService.schedule(this.pipelineName, pipelineScheduleOptions, admin, result);
 
         assertThat(result.isSuccess()).isFalse();
-        assertThat(result.fullMessage()).isEqualTo(String.format("Error while scheduling pipeline: %s { Unable to find revision [%s] for material [%s] }", this.pipelineName, peggedRevision, new MaterialConfigConverter().toMaterial(pipelineConfig.materialConfigs().first())));
+        assertThat(result.fullMessage()).isEqualTo(String.format("Error while scheduling pipeline: %s { Unable to find revision [%s] for material [%s] }", this.pipelineName, peggedRevision, new MaterialConfigConverter().toMaterial(pipelineConfig.materialConfigs().getFirstOrNull())));
         assertThat(result.httpCode()).isEqualTo(422);
         assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
     }
@@ -249,7 +249,7 @@ public class PipelineTriggerServiceIntegrationTest {
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(pipelineNameCaseInsensitive);
         assertNotNull(buildCause);
         assertThat(buildCause.getApprover()).isEqualTo(CaseInsensitiveString.str(admin.getUsername()));
-        assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().first()).getLatestRevisionString()).isEqualTo("s3");
+        assertThat(buildCause.getMaterialRevisions().findRevisionFor(pipelineConfig.materialConfigs().getFirstOrNull()).getLatestRevisionString()).isEqualTo("s3");
         assertThat(buildCause.getBuildCauseMessage()).isEqualTo("Forced by admin1");
         assertThat(buildCause.getVariables().size()).isEqualTo(2);
         EnvironmentVariable plainTextVariable = buildCause.getVariables().stream().filter(variable -> variable.getName().equals("ENV_VAR1")).findAny().orElseThrow();
@@ -392,7 +392,7 @@ public class PipelineTriggerServiceIntegrationTest {
 
         assertThat(result.isSuccess()).isFalse();
         assertThat(result.fullMessage()).isEqualTo(String.format("Failed to trigger pipeline [%s] { User foo does not have permission to schedule %s/%s }", pipelineName, pipelineName, stageName));
-        assertThat(result.getServerHealthState().getDescription()).isEqualTo(String.format("User foo does not have permission to schedule %s/%s", pipelineName, pipelineConfig.first().name()));
+        assertThat(result.getServerHealthState().getDescription()).isEqualTo(String.format("User foo does not have permission to schedule %s/%s", pipelineName, pipelineConfig.getFirstOrNull().name()));
         assertThat(result.httpCode()).isEqualTo(403);
         assertThat(triggerMonitor.isAlreadyTriggered(pipelineNameCaseInsensitive)).isFalse();
     }

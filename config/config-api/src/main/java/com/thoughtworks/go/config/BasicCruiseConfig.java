@@ -305,7 +305,7 @@ public class BasicCruiseConfig implements CruiseConfig {
                     // this cruise configuration may be changed (and cloned) later
                     // if all parts are immutable then we must add a piece for edits
                     if (oneEnv.size() == 1) {
-                        EnvironmentConfig sole = oneEnv.get(0);
+                        EnvironmentConfig sole = oneEnv.getFirst();
                         if (sole.isLocal()) {
                             // the sole part is editable anyway
                             environments.add(sole);
@@ -328,7 +328,7 @@ public class BasicCruiseConfig implements CruiseConfig {
                     // there will not be any modifications on this config.
                     // just keep all parts in simple form
                     if (oneEnv.size() == 1) {
-                        environments.add(oneEnv.get(0));
+                        environments.add(oneEnv.getFirst());
                     } else {
                         environments.add(new MergeEnvironmentConfig(oneEnv));
                     }
@@ -383,7 +383,7 @@ public class BasicCruiseConfig implements CruiseConfig {
                     // this cruise configuration may be changed (and cloned) later
                     // if all parts are immutable then we must add a piece for edits
                     if (oneGroup.size() == 1) {
-                        PipelineConfigs sole = oneGroup.get(0);
+                        PipelineConfigs sole = oneGroup.getFirst();
                         if (sole.isLocal()) {
                             // the sole part is editable anyway
                             groups.add(sole);
@@ -408,7 +408,7 @@ public class BasicCruiseConfig implements CruiseConfig {
                     // there will not be any modifications on this config.
                     // just keep all parts in simple form
                     if (oneGroup.size() == 1) {
-                        groups.add(oneGroup.get(0));
+                        groups.add(oneGroup.getFirst());
                     } else {
                         groups.add(new MergePipelineConfigs(oneGroup));
                     }
@@ -936,7 +936,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         if (groups.isEmpty()) {
             throw new IllegalStateException("No pipeline group defined yet!");
         }
-        return groups.first().hasPipeline(pipelineName);
+        return groups.getFirstOrNull().hasPipeline(pipelineName);
     }
 
     @Override

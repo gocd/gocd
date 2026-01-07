@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.domain;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,39 +36,30 @@ public class BaseCollection<T> extends ArrayList<T> {
         this(Arrays.asList(items));
     }
 
-    public T first() {
-        if (this.isEmpty()) {
-            return null;
-        }
-        return get(0);
+    public @Nullable T getFirstOrNull() {
+        return isEmpty() ? null : getFirst();
     }
 
-    public T last() {
-        if (this.isEmpty()) {
-            return null;
-        }
-        return this.get(this.size() - 1);
+    public @Nullable T getLastOrNull() {
+        return isEmpty() ? null : getLast();
     }
 
     public void replace(T oldItem, T newItem) {
-        if (this.isEmpty()) {
-            return;
+        if (!isEmpty()) {
+            replace(indexOf(oldItem), newItem);
         }
-
-        int indexOfOldItem = this.indexOf(oldItem);
-        replace(indexOfOldItem, newItem);
     }
 
     public void replace(int indexOfOldItem, T newItem) {
-        if (this.isEmpty()) {
+        if (isEmpty()) {
             return;
         }
 
-        if (indexOfOldItem < 0 || indexOfOldItem >= this.size()) {
-            throw new IndexOutOfBoundsException(String.format("There is no object at index '%s' in this collection of %s", indexOfOldItem, this.first().getClass().getName()));
+        if (indexOfOldItem < 0 || indexOfOldItem >= size()) {
+            throw new IndexOutOfBoundsException(String.format("There is no object at index '%s' in this collection of %s", indexOfOldItem, this.getFirstOrNull().getClass().getName()));
         }
 
-        this.set(indexOfOldItem, newItem);
+        set(indexOfOldItem, newItem);
     }
 
 }

@@ -249,7 +249,7 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
             }
             UserType type = UserType.valueOf((String) userMap.get(TYPE));
             Admin admin = type.makeUser(name);
-            for (Map.Entry<String, String> privilegeEntry : ((List<Map<String, String>>) userMap.get(PRIVILEGES)).get(0).entrySet()) {
+            for (Map.Entry<String, String> privilegeEntry : ((List<Map<String, String>>) userMap.get(PRIVILEGES)).getFirst().entrySet()) {
                 PrivilegeType privilegeType = PrivilegeType.valueOf(privilegeEntry.getKey().toUpperCase());
                 AdminsConfig privilegeGroup = privilegeType.group(this);
                 PrivilegeState state = PrivilegeState.valueOf(privilegeEntry.getValue());

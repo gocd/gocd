@@ -206,9 +206,9 @@ class RulesRepresenterTest {
       Rules rules = RulesRepresenter.fromJSON(jsonObject.optJsonArray("rules").get())
 
       assertThat(rules).hasSize(1)
-      assertThat(rules.first()).isInstanceOf(Unknown.class)
+      assertThat(rules.getFirstOrNull()).isInstanceOf(Unknown.class)
 
-      Unknown rule = rules.first()
+      Unknown rule = rules.getFirstOrNull() as Unknown
       assertThat(rule.getDirective()).isEqualTo("foobar")
       assertThat(rule.action()).isEqualTo("refer")
       assertThat(rule.type()).isEqualTo("PipelineGroup")

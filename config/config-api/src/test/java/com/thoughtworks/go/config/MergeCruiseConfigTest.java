@@ -117,7 +117,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
                 new FileConfigOrigin());
         cruiseConfig.merge(new ArrayList<>(List.of(localSCM, completeSCM)), true);
         assertThat(cruiseConfig.getSCMs().size()).isEqualTo(1);
-        assertThat(cruiseConfig.getSCMs().contains(localSCM.getScms().first())).isTrue();
+        assertThat(cruiseConfig.getSCMs().contains(localSCM.getScms().getFirstOrNull())).isTrue();
     }
 
     @Test
@@ -508,7 +508,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         cruiseConfig.setConfigRepos(reposConfig);
 
         cruiseConfig.merge(List.of(partial), false);
-        PipelineConfig pipeline3 = partial.getGroups().first().findBy(new CaseInsensitiveString("pipeline3"));
+        PipelineConfig pipeline3 = partial.getGroups().getFirstOrNull().findBy(new CaseInsensitiveString("pipeline3"));
         assertThat(cruiseConfig.getAllPipelineConfigs().contains(pipeline3)).isTrue();
         assertThat(cruiseConfig.getAllPipelineNames().contains(pipeline3.name())).isTrue();
     }

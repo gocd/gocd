@@ -46,7 +46,7 @@ class DependencyMaterialRepresenterTest implements MaterialRepresenterTrait {
     def pipeline = new PipelineConfig(new CaseInsensitiveString("p"), materialConfigs)
     pipeline.setOrigins(new FileConfigOrigin())
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), pipeline))
-    return materialConfigs.first()
+    return materialConfigs.getFirstOrNull()
   }
 
   def materialHash =

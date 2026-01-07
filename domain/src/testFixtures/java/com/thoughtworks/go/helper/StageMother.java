@@ -69,7 +69,7 @@ public class StageMother {
         }
         Stage stage = new Stage(stageName, builds, DEFAULT_APPROVED_BY, null, null, new TimeProvider());
         stage.calculateResult();
-        stage.setCompletedByTransitionId(stage.getJobInstances().last().getTransitions().latestTransitionId());
+        stage.setCompletedByTransitionId(stage.getJobInstances().getLastOrNull().getTransitions().latestTransitionId());
         return stage;
     }
 

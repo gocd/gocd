@@ -39,26 +39,24 @@ public abstract class ArtifactCache<T extends Comparable<T>> {
 
     public boolean cacheCreated(T artifactLocation) throws IOException {
         if (currentlyCreatingCache(artifactLocation)) { return false; }
-        if (exceptionCreatingCache(artifactLocation)) {
-            Exception e = pendingExceptions.remove(artifactLocation);
-            if (e == null) {
-                return false;
-            } else if (e instanceof IOException ioe) {
-                throw ioe;
-            } else if (e instanceof RuntimeException re) {
-                throw re;
-            } else {
-                throw new RuntimeException(e); // unexpected
-            }
-        }
+
+        throwOnExceptionFor(artifactLocation);
+
         if (cacheAlreadyCreated(artifactLocation)) { return true; }
 
         startCacheCreationThread(artifactLocation);
         return false;
     }
 
-    private boolean exceptionCreatingCache(T artifactLocation) {
-        return pendingExceptions.containsKey(artifactLocation);
+    private void throwOnExceptionFor(T artifactLocation) throws IOException {
+        Exception e = pendingExceptions.remove(artifactLocation);
+        if (e != null) {
+            switch (e) {
+                case IOException ioe -> throw ioe;
+                case RuntimeException re -> throw re;
+                default -> throw new RuntimeException(e); // unexpected
+            }
+        }
     }
 
     private boolean cacheAlreadyCreated(T artifactLocation) {

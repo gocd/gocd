@@ -166,7 +166,7 @@ public class ValueStreamMapServiceTest {
         PipelineConfig downstreamConfig = PipelineConfigMother.pipelineConfig(downstreamPipelineName, new MaterialConfigs(
                 materialConfig1, new DependencyMaterialConfig(
                 new CaseInsensitiveString(p1Config.name().toUpper()),
-                new CaseInsensitiveString(p1Config.first().name().toUpper()))));
+                new CaseInsensitiveString(p1Config.getFirstOrNull().name().toUpper()))));
 
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs("default", new Authorization(), p1Config, downstreamConfig));
 
@@ -206,7 +206,7 @@ public class ValueStreamMapServiceTest {
         PipelineConfig downstreamConfig = PipelineConfigMother.pipelineConfig(downstreamPipelineName, new MaterialConfigs(
                 materialConfig1, new DependencyMaterialConfig(
                 new CaseInsensitiveString(p1Config.name().toUpper()),
-                new CaseInsensitiveString(p1Config.first().name().toUpper()))));
+                new CaseInsensitiveString(p1Config.getFirstOrNull().name().toUpper()))));
 
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs("default", new Authorization(), p1Config, downstreamConfig));
 
@@ -218,7 +218,7 @@ public class ValueStreamMapServiceTest {
         when(materialRepository.findModificationWithRevision(material, revision)).thenReturn(materialRevision.getLatestModification());
         when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(materialRevision.getMaterial().createMaterialInstance());
         when(goConfigService.groups()).thenReturn(cruiseConfig.getGroups());
-        when(securityService.hasViewPermissionForGroup(user.getUsername().toString(), cruiseConfig.getGroups().first().getGroup())).thenReturn(true);
+        when(securityService.hasViewPermissionForGroup(user.getUsername().toString(), cruiseConfig.getGroups().getFirstOrNull().getGroup())).thenReturn(true);
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(materialConfig.getFingerprint(), revision, user, result);
         assertThat(graph.getCurrentMaterial().getName()).isEqualTo(materialConfig.getDisplayName());

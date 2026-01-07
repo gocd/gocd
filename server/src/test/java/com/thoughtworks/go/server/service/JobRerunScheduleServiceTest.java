@@ -110,7 +110,7 @@ public class JobRerunScheduleServiceTest {
         stub(mingleConfig, pipeline, firstStage);
         stubConfigMd5Cal("latest-md5");
 
-        when(instanceFactory.createStageForRerunOfJobs(eq(firstStage), eq(List.of("unit")), any(), eq(mingleConfig.first()), eq(timeProvider), eq("latest-md5")))
+        when(instanceFactory.createStageForRerunOfJobs(eq(firstStage), eq(List.of("unit")), any(), eq(mingleConfig.getFirstOrNull()), eq(timeProvider), eq("latest-md5")))
                 .thenReturn(expectedStageToBeCreated);
 
         Stage stage = service.rerunJobs(firstStage, List.of("unit"), new HttpOperationResult());

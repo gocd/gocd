@@ -135,7 +135,7 @@ public class GoFileConfigDataSourceIntegrationTest {
             task.setCommand("powershell");
             task.setArgs("Get-ChildItem -Path . â€“Recurse");
             job.addTask(task);
-            pipelineConfig.first().getJobs().add(job);
+            pipelineConfig.getFirstOrNull().getJobs().add(job);
             cruiseConfig.addPipeline(UUID.randomUUID().toString(), pipelineConfig);
             return cruiseConfig;
         }, new GoConfigHolder(goConfigService.currentCruiseConfig(), goConfigService.getConfigForEditing()));
@@ -181,7 +181,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstream))).isTrue();
 
         //Introducing a change to make the latest version of remote pipeline invalid
-        PipelineConfig remoteDownstreamPipeline = partialConfig.getGroups().first().getPipelines().get(0);
+        PipelineConfig remoteDownstreamPipeline = partialConfig.getGroups().getFirstOrNull().getPipelines().get(0);
         DependencyMaterialConfig dependencyMaterial = remoteDownstreamPipeline.materialConfigs().findDependencyMaterial(upstreamPipeline.name());
         dependencyMaterial.setStageName(new CaseInsensitiveString("upstream_stage_renamed"));
         partialConfigService.onSuccessPartialConfig(configRepo, partialConfig);
@@ -189,7 +189,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName()).isEqualTo(new CaseInsensitiveString("upstream_stage_original"));
 
         final CaseInsensitiveString upstreamStageRenamed = new CaseInsensitiveString("upstream_stage_renamed");
-        updateConfigOnFileSystem(cruiseConfig -> cruiseConfig.getPipelineConfigByName(upstreamPipeline.name()).first().setName(upstreamStageRenamed));
+        updateConfigOnFileSystem(cruiseConfig -> cruiseConfig.getPipelineConfigByName(upstreamPipeline.name()).getFirstOrNull().setName(upstreamStageRenamed));
 
         GoConfigHolder goConfigHolder = dataSource.forceLoad(Path.of(systemEnvironment.getCruiseConfigFile()));
         assertThat(goConfigHolder.config.getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstream))).isTrue();

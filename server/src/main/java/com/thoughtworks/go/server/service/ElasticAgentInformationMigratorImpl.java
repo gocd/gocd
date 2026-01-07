@@ -61,7 +61,7 @@ public class ElasticAgentInformationMigratorImpl implements ElasticAgentInformat
     @Override
     public Result run(GoPluginDescriptor pluginDescriptor, Map<String, List<String>> extensionsInfoFromThePlugin) {
         final boolean migrationResult = migrate(pluginDescriptor);
-        return new PluginPostLoadHook.Result(!migrationResult, !migrationResult ? pluginDescriptor.getStatus().getMessages().get(0) : "Success");
+        return new PluginPostLoadHook.Result(!migrationResult, !migrationResult ? pluginDescriptor.getStatus().getMessages().getFirst() : "Success");
     }
 
     private boolean migrate(GoPluginDescriptor pluginDescriptor) {

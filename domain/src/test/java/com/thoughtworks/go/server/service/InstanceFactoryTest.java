@@ -344,7 +344,7 @@ class InstanceFactoryTest {
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("stage_foo"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
 
-        JobInstance jobInstance = jobs.first();
+        JobInstance jobInstance = jobs.getFirstOrNull();
         assertThat(jobConfig.name()).isEqualTo(new CaseInsensitiveString(jobInstance.getName()));
         assertThat(jobInstance.getState()).isEqualTo(JobState.Scheduled);
         assertThat(jobInstance.getScheduledDate()).isNotNull();

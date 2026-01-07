@@ -446,7 +446,7 @@ Above scenario allowed
         attributeMap.put(SvnMaterialConfig.TYPE, svnAttrMap);
         materialConfigs.setConfigAttributes(attributeMap);
 
-        assertThat(materialConfigs.first()).isEqualTo(svn("foo", "bar", "baz", false));
+        assertThat(materialConfigs.getFirstOrNull()).isEqualTo(svn("foo", "bar", "baz", false));
     }
 
     @Test
@@ -468,7 +468,7 @@ Above scenario allowed
 
         TfsMaterialConfig tfsMaterialConfig = tfs(new GoCipher(), new UrlArgument("foo"), "bar", "CORPORATE", "baz", "to_hell");
         tfsMaterialConfig.setName(new CaseInsensitiveString("crapy_material"));
-        assertThat(materialConfigs.first()).isEqualTo(tfsMaterialConfig);
+        assertThat(materialConfigs.getFirstOrNull()).isEqualTo(tfsMaterialConfig);
         assertThat(tfsMaterialConfig.getPassword()).isEqualTo("baz");
     }
 
@@ -487,7 +487,7 @@ Above scenario allowed
         materialConfigs.setConfigAttributes(attributeMap);
 
         assertThat(materialConfigs).hasSize(1);
-        assertThat(materialConfigs.first()).isEqualTo(hg("foo", null));
+        assertThat(materialConfigs.getFirstOrNull()).isEqualTo(hg("foo", null));
     }
 
     @Test
@@ -506,7 +506,7 @@ Above scenario allowed
         assertThat(materialConfigs).hasSize(1);
         GitMaterialConfig expected = git("foo");
         expected.setConfigAttributes(Map.of(GitMaterialConfig.BRANCH, "master"));
-        assertThat(materialConfigs.first()).isEqualTo(expected);
+        assertThat(materialConfigs.getFirstOrNull()).isEqualTo(expected);
     }
 
     @Test
@@ -527,7 +527,7 @@ Above scenario allowed
         assertThat(materialConfigs).hasSize(1);
         P4MaterialConfig expected = p4("localhost:1666", "foo", "username");
         expected.setPassword("password");
-        assertThat(materialConfigs.first()).isEqualTo(expected);
+        assertThat(materialConfigs.getFirstOrNull()).isEqualTo(expected);
     }
 
     @Test
@@ -544,7 +544,7 @@ Above scenario allowed
 
         assertThat(materialConfigs).hasSize(1);
         DependencyMaterialConfig expected = new DependencyMaterialConfig(new CaseInsensitiveString("blah"), new CaseInsensitiveString("foo"));
-        assertThat(materialConfigs.first()).isEqualTo(expected);
+        assertThat(materialConfigs.getFirstOrNull()).isEqualTo(expected);
     }
 
     @Test
@@ -562,7 +562,7 @@ Above scenario allowed
         materialConfigs.setConfigAttributes(attributeMap);
 
         assertThat(materialConfigs).hasSize(1);
-        assertThat(((PackageMaterialConfig) materialConfigs.first()).getPackageId()).isEqualTo(packageId);
+        assertThat(((PackageMaterialConfig) materialConfigs.getFirstOrNull()).getPackageId()).isEqualTo(packageId);
     }
 
     @Test
@@ -590,7 +590,7 @@ Above scenario allowed
         materialConfigs.setConfigAttributes(attributeMap);
 
         assertThat(materialConfigs).hasSize(1);
-        assertThat(((PluggableSCMMaterialConfig) materialConfigs.first()).getScmId()).isEqualTo(scmId);
+        assertThat(((PluggableSCMMaterialConfig) materialConfigs.getFirstOrNull()).getScmId()).isEqualTo(scmId);
     }
 
     @Test

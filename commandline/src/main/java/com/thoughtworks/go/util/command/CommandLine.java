@@ -114,34 +114,31 @@ public class CommandLine {
         while (tok.hasMoreTokens()) {
             String nextTok = tok.nextToken();
             switch (state) {
-                case inQuote:
-                    if ("'".equals(nextTok)) {
-                        state = normal;
-                    } else {
-                        current.append(nextTok);
+                case inQuote -> {
+                    switch (nextTok) {
+                        case "'" -> state = normal;
+                        case null, default -> current.append(nextTok);
                     }
-                    break;
-                case inDoubleQuote:
-                    if ("\"".equals(nextTok)) {
-                        state = normal;
-                    } else {
-                        current.append(nextTok);
+                }
+                case inDoubleQuote -> {
+                    switch (nextTok) {
+                        case "\"" -> state = normal;
+                        case null, default -> current.append(nextTok);
                     }
-                    break;
-                default:
-                    if ("'".equals(nextTok)) {
-                        state = inQuote;
-                    } else if ("\"".equals(nextTok)) {
-                        state = inDoubleQuote;
-                    } else if (" ".equals(nextTok)) {
-                        if (!current.isEmpty()) {
-                            v.addElement(current.toString());
-                            current.setLength(0);
+                }
+                default -> {
+                    switch (nextTok) {
+                        case "'" -> state = inQuote;
+                        case "\"" -> state = inDoubleQuote;
+                        case " " -> {
+                            if (!current.isEmpty()) {
+                                v.addElement(current.toString());
+                                current.setLength(0);
+                            }
                         }
-                    } else {
-                        current.append(nextTok);
+                        case null, default -> current.append(nextTok);
                     }
-                    break;
+                }
             }
         }
 
@@ -310,7 +307,10 @@ public class CommandLine {
         try {
             process = startProcess(environmentVariableContext, streamConsumer, processTag);
         } catch (CommandLineException e) {
-            String message = format("Error happened while attempting to execute '%s'. \nPlease make sure [%s] can be executed on this agent.\n", toStringForDisplay(), getExecutable());
+            String message = format("""
+                Error happened while attempting to execute '%s'.\s
+                Please make sure [%s] can be executed on this agent.
+                """, toStringForDisplay(), getExecutable());
             String path = System.getenv("PATH");
             streamConsumer.errOutput(message);
             streamConsumer.errOutput(format("[Debug Information] Environment variable PATH: %s", path));

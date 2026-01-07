@@ -190,7 +190,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         mingleConfig = configHelper.addPipeline(MINGLE_PIPELINE_NAME, STAGE_NAME, repository, new Filter(new IgnoredFiles("**/*.doc")), "unit", "functional");
         latestPipeline = PipelineMother.schedule(this.mingleConfig, buildCause);
         latestPipeline = pipelineDao.saveWithStages(latestPipeline);
-        dbHelper.passStage(latestPipeline.getStages().first());
+        dbHelper.passStage(latestPipeline.getStages().getFirstOrNull());
         pipelineScheduleQueue.clear();
         result = new HttpOperationResult();
         scheduleOptions = new ScheduleOptions();
@@ -237,7 +237,7 @@ public class BuildCauseProducerServiceIntegrationTest {
     public void should_NOT_schedulePipeline_whenOneOfTheMaterialsHasNoModificationsPresent() throws Exception {
         Pipeline latestGoInstance = PipelineMother.schedule(goPipelineConfig, BuildCause.createManualForced(svnMaterialRevs, new Username(new CaseInsensitiveString("loser"))));
         latestGoInstance = pipelineDao.saveWithStages(latestGoInstance);
-        dbHelper.passStage(latestGoInstance.getStages().first());
+        dbHelper.passStage(latestGoInstance.getStages().getFirstOrNull());
         configHelper.addMaterialToPipeline(GO_PIPELINE_NAME, new DependencyMaterialConfig(new CaseInsensitiveString(GO_PIPELINE_UPSTREAM), new CaseInsensitiveString(STAGE_NAME)));
         svnRepository.checkInOneFile("a.java");
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(GO_PIPELINE_NAME);
@@ -474,7 +474,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         repoConfig.getRules().add(new Allow("refer", "*", "*"));
         configHelper.addConfigRepo(repoConfig);
         PartialConfig partialConfig = PartialConfigMother.withPipelineMultipleMaterials("remote_pipeline", new RepoConfigOrigin(repoConfig, "4567"));
-        PipelineConfig remotePipeline = partialConfig.getGroups().first().getPipelines().get(0);
+        PipelineConfig remotePipeline = partialConfig.getGroups().getFirstOrNull().getPipelines().get(0);
         GitMaterial git = u.wf((GitMaterial) new MaterialConfigConverter().toMaterial(remotePipeline.materialConfigs().getGitMaterial()), "git");
         u.checkinInOrder(git, u.d(1), "g1r1");
         SvnMaterial svn = u.wf((SvnMaterial) new MaterialConfigConverter().toMaterial(remotePipeline.materialConfigs().getSvnMaterial()), "svn");
@@ -549,7 +549,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         BuildCause buildCause = BuildCause.createWithModifications(mingleRev, "boozer");
         latestPipeline = PipelineMother.schedule(mingleConfig, buildCause);
         latestPipeline = pipelineDao.saveWithStages(latestPipeline);
-        dbHelper.passStage(latestPipeline.getStages().first());
+        dbHelper.passStage(latestPipeline.getStages().getFirstOrNull());
     }
 
     private MaterialRevisions checkinFile(SvnMaterial svn, String checkinFile, final SvnTestRepo svnRepository) throws Exception {

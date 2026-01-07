@@ -358,7 +358,7 @@ class PipelineInstanceModelTest {
     @Test
     void shouldReturnTrueIfThePipelineHasStage() {
         PipelineInstanceModel pim = PipelineHistoryMother.pipelineHistoryItemWithOneStage("pipeline", "stage", Instant.now());
-        assertThat(pim.hasStage(pim.getStageHistory().first().getIdentifier())).isTrue();
+        assertThat(pim.hasStage(pim.getStageHistory().getFirstOrNull().getIdentifier())).isTrue();
         assertThat(pim.hasStage(new StageIdentifier("pipeline", 1, "1", "stagex", "2"))).isFalse();
 
     }

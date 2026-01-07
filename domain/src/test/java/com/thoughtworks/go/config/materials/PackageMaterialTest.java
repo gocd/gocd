@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.materials;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.SecretParam;
@@ -363,7 +362,7 @@ class PackageMaterialTest {
     @Test
     void shouldFailEqualsCheckIfFingerprintDiffers() {
         PackageMaterial material1 = MaterialsMother.packageMaterial();
-        material1.getPackageDefinition().getConfiguration().first().setConfigurationValue(new ConfigurationValue("new-url"));
+        material1.getPackageDefinition().getConfiguration().getFirstOrNull().setConfigurationValue(new ConfigurationValue("new-url"));
         PackageMaterial material2 = MaterialsMother.packageMaterial();
 
         assertThat(material1.equals(material2)).isFalse();

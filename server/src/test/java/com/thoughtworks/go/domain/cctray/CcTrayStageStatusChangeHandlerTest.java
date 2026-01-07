@@ -182,7 +182,7 @@ public class CcTrayStageStatusChangeHandlerTest {
     public void shouldUpdateCacheWhenStageWhichHasChangedIsNotANullStage() {
         Stage completedStage = StageMother.createPassedStage("pipeline", 1, "stage1", 1, "job1", Instant.now());
         ProjectStatus jobStatus = new ProjectStatus("job1_name", "activity1", "lastBuildStatus1", "lastBuildLabel1", new Date(), "webUrl1");
-        when(jobStatusChangeHandler.statusFor(completedStage.getJobInstances().first(), new HashSet<>())).thenReturn(jobStatus);
+        when(jobStatusChangeHandler.statusFor(completedStage.getJobInstances().getFirstOrNull(), new HashSet<>())).thenReturn(jobStatus);
 
         handler.call(completedStage);
 

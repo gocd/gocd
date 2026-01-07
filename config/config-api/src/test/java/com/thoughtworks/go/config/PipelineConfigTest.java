@@ -606,7 +606,7 @@ public class PipelineConfigTest {
 
         assertThat(pipelineConfig.name()).isEqualTo(new CaseInsensitiveString("startup"));
         assertThat(pipelineConfig.get(0).name()).isEqualTo(new CaseInsensitiveString("someStage"));
-        assertThat(pipelineConfig.get(0).getJobs().first().name()).isEqualTo(new CaseInsensitiveString("JobName"));
+        assertThat(pipelineConfig.get(0).getJobs().getFirstOrNull().name()).isEqualTo(new CaseInsensitiveString("JobName"));
     }
 
     @Test
@@ -637,7 +637,7 @@ public class PipelineConfigTest {
         assertThat(pipelineConfig.name()).isEqualTo(new CaseInsensitiveString("startup"));
         assertThat(pipelineConfig.size()).isEqualTo(1);
         assertThat(pipelineConfig.get(0).name()).isEqualTo(new CaseInsensitiveString("someStage"));
-        assertThat(pipelineConfig.get(0).getJobs().first().name()).isEqualTo(new CaseInsensitiveString("JobName"));
+        assertThat(pipelineConfig.get(0).getJobs().getFirstOrNull().name()).isEqualTo(new CaseInsensitiveString("JobName"));
     }
 
     @Test
@@ -768,7 +768,7 @@ public class PipelineConfigTest {
     @Test
     public void shouldReturnTrueWhenOneOfPipelineMaterialsIsTheSameAsConfigOrigin() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
-        MaterialConfig material = pipelineConfig.materialConfigs().first();
+        MaterialConfig material = pipelineConfig.materialConfigs().getFirstOrNull();
         pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(material, "plugin", "id"), "1233"));
 
         assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials()).isTrue();
@@ -809,7 +809,7 @@ public class PipelineConfigTest {
     @Test
     public void shouldReturnTrueWhenConfigRevisionIsEqualToQuery() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
-        MaterialConfig material = pipelineConfig.materialConfigs().first();
+        MaterialConfig material = pipelineConfig.materialConfigs().getFirstOrNull();
         pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(material, "plugin", "id"), "1233"));
 
         assertThat(pipelineConfig.isConfigOriginFromRevision("1233")).isTrue();
@@ -818,7 +818,7 @@ public class PipelineConfigTest {
     @Test
     public void shouldReturnFalseWhenConfigRevisionIsNotEqualToQuery() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
-        MaterialConfig material = pipelineConfig.materialConfigs().first();
+        MaterialConfig material = pipelineConfig.materialConfigs().getFirstOrNull();
         pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(material, "plugin", "id"), "1233"));
 
         assertThat(pipelineConfig.isConfigOriginFromRevision("32")).isFalse();

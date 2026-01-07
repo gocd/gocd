@@ -220,7 +220,7 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
 
     @Override
     public CaseInsensitiveString name() {
-        return this.first().name();
+        return this.getFirstOrNull().name();
     }
 
     @Override

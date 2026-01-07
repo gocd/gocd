@@ -45,7 +45,7 @@ public class PipelineHistoryGroupingUtilTest {
         PipelineHistoryGroups historyGroups = groupingUtil.createGroups(
                 PipelineInstanceModels.createPipelineInstanceModels(pipelineInstanceModel));
         assertThat(historyGroups.size()).isEqualTo(1);
-        assertThat(historyGroups.first().hasSameStagesAs(pipelineInstanceModel)).isTrue();
+        assertThat(historyGroups.getFirstOrNull().hasSameStagesAs(pipelineInstanceModel)).isTrue();
     }
 
     @Test
@@ -55,8 +55,8 @@ public class PipelineHistoryGroupingUtilTest {
         PipelineInstanceModels history = PipelineInstanceModels.createPipelineInstanceModels(pipelineHistoryItem1, pipelineHistoryItem2);
         PipelineHistoryGroups historyGroups = groupingUtil.createGroups(history);
         assertThat(historyGroups.size()).isEqualTo(1);
-        assertThat(historyGroups.first().hasSameStagesAs(pipelineHistoryItem1)).isTrue();
-        assertThat(historyGroups.first().hasSameStagesAs(pipelineHistoryItem2)).isTrue();
+        assertThat(historyGroups.getFirstOrNull().hasSameStagesAs(pipelineHistoryItem1)).isTrue();
+        assertThat(historyGroups.getFirstOrNull().hasSameStagesAs(pipelineHistoryItem2)).isTrue();
     }
 
     @Test
@@ -66,7 +66,7 @@ public class PipelineHistoryGroupingUtilTest {
         PipelineInstanceModels history = PipelineInstanceModels.createPipelineInstanceModels(pipelineHistoryItem1, pipelineHistoryItem2);
         PipelineHistoryGroups historyGroups = groupingUtil.createGroups(history);
         assertThat(historyGroups.size()).isEqualTo(2);
-        assertThat(historyGroups.first().hasSameStagesAs(pipelineHistoryItem1)).isTrue();
+        assertThat(historyGroups.getFirstOrNull().hasSameStagesAs(pipelineHistoryItem1)).isTrue();
         assertThat(historyGroups.get(1).hasSameStagesAs(pipelineHistoryItem2)).isTrue();
     }
 
@@ -81,7 +81,7 @@ public class PipelineHistoryGroupingUtilTest {
                 pipelineHistoryItem4);
         PipelineHistoryGroups historyGroups = groupingUtil.createGroups(history);
         assertThat(historyGroups.size()).isEqualTo(3);
-        assertThat(historyGroups.first().hasSameStagesAs(pipelineHistoryItem1)).isTrue();
+        assertThat(historyGroups.getFirstOrNull().hasSameStagesAs(pipelineHistoryItem1)).isTrue();
         assertThat(historyGroups.get(1).hasSameStagesAs(pipelineHistoryItem3)).isTrue();
         assertThat(historyGroups.get(2).hasSameStagesAs(pipelineHistoryItem4)).isTrue();
     }

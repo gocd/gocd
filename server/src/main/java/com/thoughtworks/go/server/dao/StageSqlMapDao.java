@@ -493,7 +493,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
             StageHistoryPage stageHistoryPage = (StageHistoryPage) goCache.get(key, subKey);
             if (stageHistoryPage == null) {
                 List<StageHistoryEntry> stageHistoryEntries = findStages(pagination, pipelineName, stageName);
-                stageHistoryPage = new StageHistoryPage(stageHistoryEntries, pagination, findImmediateChronologicallyForwardStageHistoryEntry(stageHistoryEntries.get(0)));
+                stageHistoryPage = new StageHistoryPage(stageHistoryEntries, pagination, findImmediateChronologicallyForwardStageHistoryEntry(stageHistoryEntries.getFirst()));
                 goCache.put(key, subKey, stageHistoryPage);
             }
             return cloner.deepClone(stageHistoryPage);

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.materials.scm;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.SecretParam;
@@ -391,7 +390,7 @@ class PluggableSCMMaterialTest {
     @Test
     void shouldFailEqualsCheckIfFingerprintDiffers() {
         PluggableSCMMaterial material1 = MaterialsMother.pluggableSCMMaterial();
-        material1.getScmConfig().getConfiguration().first().setConfigurationValue(new ConfigurationValue("new-url"));
+        material1.getScmConfig().getConfiguration().getFirstOrNull().setConfigurationValue(new ConfigurationValue("new-url"));
         PluggableSCMMaterial material2 = MaterialsMother.pluggableSCMMaterial();
 
         assertThat(material1.equals(material2)).isFalse();

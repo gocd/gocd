@@ -60,7 +60,7 @@ public class PipelineHistoryMother {
         Modification modification = new Modification(committer, commitMessage, committerEmail, Date.from(modificationDate), revision);
         modification.createModifiedFile(committedFileName, dirModified, ModifiedAction.added);
         MaterialRevisions revisions = new MaterialRevisions();
-        Material material = new MaterialConfigConverter().toMaterial(pipelineConfig.materialConfigs().first());
+        Material material = new MaterialConfigConverter().toMaterial(pipelineConfig.materialConfigs().getFirstOrNull());
         material.setId(10);
         revisions.addRevision(material, modification);
         BuildCause buildCause = BuildCause.createManualForced(revisions, Username.ANONYMOUS);
@@ -89,7 +89,7 @@ public class PipelineHistoryMother {
         Modification modification = new Modification("user", "Comment", "email", Date.from(modificationDate), REVISION);
         modification.createModifiedFile("file", "dir", ModifiedAction.added);
         MaterialRevisions revisions = new MaterialRevisions();
-        Material material = new MaterialConfigConverter().toMaterial(pipelineConfig.materialConfigs().first());
+        Material material = new MaterialConfigConverter().toMaterial(pipelineConfig.materialConfigs().getFirstOrNull());
         material.setId(10);
         revisions.addRevision(material, modification);
         BuildCause buildCause = BuildCause.createManualForced(revisions, Username.ANONYMOUS);

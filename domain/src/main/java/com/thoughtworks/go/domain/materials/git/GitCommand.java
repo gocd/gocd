@@ -215,7 +215,7 @@ public class GitCommand extends SCMCommand {
         String[] args = new String[]{"config", "remote.origin.url"};
         CommandLine gitConfig = gitWd().withArgs(args);
 
-        return new UrlArgument(runOrBomb(gitConfig).outputForDisplay().get(0));
+        return new UrlArgument(runOrBomb(gitConfig).outputForDisplay().getFirst());
     }
 
     public void checkConnection(UrlArgument repoUrl) {

@@ -52,6 +52,7 @@ import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.jdom2.JDOMException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -516,7 +517,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public StageConfig findFirstStageOfPipeline(final CaseInsensitiveString pipelineName) {
-        return getCurrentConfig().pipelineConfigByName(pipelineName).first();
+        return getCurrentConfig().pipelineConfigByName(pipelineName).getFirstOrNull();
     }
 
     public StageConfig nextStage(String pipelineName, String lastStageName) {
@@ -718,15 +719,12 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         goConfigDao.reloadListeners();
     }
 
-    public PipelineConfig findPipelineByName(CaseInsensitiveString pipelineName) {
+    public @Nullable PipelineConfig findPipelineByName(CaseInsensitiveString pipelineName) {
         List<PipelineConfig> pipelineConfigs = getAllPipelineConfigs()
                 .stream()
                 .filter((pipelineConfig) -> pipelineConfig.getName().equals(pipelineName))
                 .toList();
-        if (!pipelineConfigs.isEmpty()) {
-            return pipelineConfigs.get(0);
-        }
-        return null;
+        return pipelineConfigs.isEmpty() ? null : pipelineConfigs.getFirst();
     }
 
     public SecretConfig getSecretConfigById(String secretConfigId) {

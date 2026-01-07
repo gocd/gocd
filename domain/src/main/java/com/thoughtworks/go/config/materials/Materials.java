@@ -41,6 +41,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -234,7 +235,7 @@ public class Materials extends BaseCollection<Material> {
     }
 
     public String getMaterialOptions() {
-        return first() == null ? "" : first().getMaterialType();
+        return Optional.ofNullable(getFirstOrNull()).map(Material::getMaterialType).orElse("");
     }
 
     private Material convertToMaterial(MaterialConfig materialConfig) {

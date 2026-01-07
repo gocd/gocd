@@ -116,7 +116,7 @@ public class ConfigRepositoryInitializer implements ConfigChangedListener, Plugi
 
     private void initializeConfigRepository(ConfigRepoConfig repo) {
         MaterialConfig materialConfig = repo.getRepo();
-        Material material = new Materials(new MaterialConfigs(materialConfig)).first();
+        Material material = new Materials(new MaterialConfigs(materialConfig)).getFirstOrNull();
         MaterialInstance materialInstance = this.materialRepository.findMaterialInstance(materialConfig);
 
         if (materialInstance != null) {

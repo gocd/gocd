@@ -212,7 +212,7 @@ class DependencyFanInNode extends FanInNode<DependencyMaterialConfig> {
                                     FanInGraphContext context, Set<CaseInsensitiveString> visitedNodes) {
         for (Map.Entry<String, List<PipelineTimelineEntry.Revision>> revisionList : entry.revisions().entrySet()) {
             String fingerprint = revisionList.getKey();
-            PipelineTimelineEntry.Revision revision = revisionList.getValue().get(0);
+            PipelineTimelineEntry.Revision revision = revisionList.getValue().getFirst();
             if (context.isScmMaterial(fingerprint)) {
                 scmMaterials.add(new FaninScmMaterial(fingerprint, revision));
                 continue;

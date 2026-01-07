@@ -40,8 +40,8 @@ public class PartialConfigMother {
 
     public static PartialConfig pipelineWithDependencyMaterial(String name, PipelineConfig upstream, RepoConfigOrigin repoConfig) {
         PartialConfig partialConfig = withPipeline(name, repoConfig);
-        PipelineConfig pipeline = partialConfig.getGroups().first().get(0);
-        pipeline.materialConfigs().add(new DependencyMaterialConfig(upstream.name(), upstream.first().name()));
+        PipelineConfig pipeline = partialConfig.getGroups().getFirstOrNull().get(0);
+        pipeline.materialConfigs().add(new DependencyMaterialConfig(upstream.name(), upstream.getFirstOrNull().name()));
         return partialConfig;
     }
 

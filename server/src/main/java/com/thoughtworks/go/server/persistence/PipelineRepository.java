@@ -241,11 +241,7 @@ public class PipelineRepository extends HibernateDaoSupport {
                 return goCache.get(key);
             }
             @SuppressWarnings("unchecked") List<PipelineSelections> list = (List<PipelineSelections>) getHibernateTemplate().find("FROM PipelineSelections WHERE userId = ?", new Object[]{userId});
-            if (list.isEmpty()) {
-                pipelineSelections = null;
-            } else {
-                pipelineSelections = list.get(0);
-            }
+            pipelineSelections = list.isEmpty() ? null : list.getFirst();
 
             goCache.put(key, pipelineSelections);
             return pipelineSelections;

@@ -165,7 +165,7 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
     protected abstract void unMap(File workDir) throws IOException;
 
     private List<Modification> modificationsSinceRevInHistory(Revision revision) {
-        Modification latest = latestInHistory().get(0);
+        Modification latest = latestInHistory().getFirst();
         long latestRev = Long.parseLong(latest.getRevision());
         long sinceRev = Long.parseLong(revision.getRevision());
         long numberOfModifications = latestRev - sinceRev;

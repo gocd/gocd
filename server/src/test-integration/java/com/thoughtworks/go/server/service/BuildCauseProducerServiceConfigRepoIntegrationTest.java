@@ -291,9 +291,9 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         BuildCause buildCause = BuildCause.createWithModifications(firstRevisions, "Rick Sanchez");
         Pipeline x = PipelineMother.schedule(pipelineConfig, buildCause);
         x = pipelineDao.saveWithStages(x);
-        dbHelper.passStage(x.getStages().first());
+        dbHelper.passStage(x.getStages().getFirstOrNull());
 
-        DependencyMaterialConfig upstreamMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(PIPELINE_NAME), new CaseInsensitiveString(x.getStages().first().getName()));
+        DependencyMaterialConfig upstreamMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(PIPELINE_NAME), new CaseInsensitiveString(x.getStages().getFirstOrNull().getName()));
         String downstreamPipelineName = "pipe2";
         PipelineConfig downstreamConfig = PipelineConfigMother.createPipelineConfigWithStages(downstreamPipelineName, "build", "blah");
         downstreamConfig.materialConfigs().clear();

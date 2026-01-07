@@ -41,11 +41,11 @@ public class Modifications extends BaseCollection<Modification> {
     }
 
     public String getUsername() {
-        return isEmpty() ? "Unknown" : first().getUserDisplayName();
+        return isEmpty() ? "Unknown" : getFirstOrNull().getUserDisplayName();
     }
 
     public String getRevision() {
-        return isEmpty() ? "Unknown" : first().getRevision();
+        return isEmpty() ? "Unknown" : getFirstOrNull().getRevision();
     }
 
     public static List<Modification> filterOutRevision(List<Modification> modifications,

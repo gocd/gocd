@@ -306,7 +306,7 @@ public class CachedGoConfigIntegrationTest {
         final PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("pipe1", "ut",
             "www.spring.com");
         assertThatThrownBy(() -> goConfigDao.updateConfig(cruiseConfig -> {
-            cruiseConfig.getGroups().first().add(dupPipelineConfig);
+            cruiseConfig.getGroups().getFirstOrNull().add(dupPipelineConfig);
             return cruiseConfig;
         })).isInstanceOf(RuntimeException.class)
             .satisfies(ex -> {
@@ -474,14 +474,14 @@ public class CachedGoConfigIntegrationTest {
         cachedGoConfig.forceReload();
 
         CruiseConfig cruiseConfig = cachedGoConfig.currentConfig();
-        ExecTask devExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().first();
+        ExecTask devExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().getFirstOrNull();
         assertThat(devExec).isEqualTo(new ExecTask("/bin/ls", "/tmp", (String) null));
 
-        ExecTask acceptanceExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("acceptance")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().first();
+        ExecTask acceptanceExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("acceptance")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().getFirstOrNull();
         assertThat(acceptanceExec).isEqualTo(new ExecTask("/bin/twist", "./acceptance", (String) null));
 
         cruiseConfig = cachedGoConfig.loadForEditing();
-        devExec = (ExecTask) cruiseConfig.getTemplateByName(new CaseInsensitiveString("abc")).get(0).jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().first();
+        devExec = (ExecTask) cruiseConfig.getTemplateByName(new CaseInsensitiveString("abc")).get(0).jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().getFirstOrNull();
         assertThat(devExec).isEqualTo(new ExecTask("/bin/#{command}", "#{dir}", (String) null));
 
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).size()).isEqualTo(0);
@@ -524,7 +524,7 @@ public class CachedGoConfigIntegrationTest {
         cachedGoConfig.forceReload();
 
         CruiseConfig cruiseConfig = cachedGoConfig.currentConfig();
-        ExecTask devExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().first();
+        ExecTask devExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().getFirstOrNull();
         assertThat(devExec).isEqualTo(new ExecTask("/bin/ls#{a}#{b}", "/tmp", (String) null));
     }
 
@@ -879,7 +879,7 @@ public class CachedGoConfigIntegrationTest {
             }
         });
         assertThat(saveState).isEqualTo(ConfigSaveState.MERGED);
-        assertThat(cachedGoPartials.lastValidPartials().get(0).getGroups().first().get(0).materialConfigs().getDependencyMaterial().getStageName()).isEqualTo(new CaseInsensitiveString("new_name"));
+        assertThat(cachedGoPartials.lastValidPartials().get(0).getGroups().getFirstOrNull().get(0).materialConfigs().getDependencyMaterial().getStageName()).isEqualTo(new CaseInsensitiveString("new_name"));
         assertThat(goConfigService.getConfigForEditing().getPipelineConfigByName(new CaseInsensitiveString(upstream)).getFirstStageConfig().name()).isEqualTo(new CaseInsensitiveString("new_name"));
         assertThat(goConfigService.getCurrentConfig().getPipelineConfigByName(new CaseInsensitiveString(upstream)).getFirstStageConfig().name()).isEqualTo(new CaseInsensitiveString("new_name"));
     }

@@ -130,7 +130,7 @@ class ConfigRepositoryInitializerTest {
         repoConfigs.add(repoConfig2);
 
         GitMaterialConfig gitMaterialConfig = (GitMaterialConfig) repoConfigs.get(0).getRepo();
-        Material gitMaterial = new Materials(new MaterialConfigs(gitMaterialConfig)).first();
+        Material gitMaterial = new Materials(new MaterialConfigs(gitMaterialConfig)).getFirstOrNull();
         TestingMaterialInstance gitMaterialInstance = new TestingMaterialInstance("git-repo", "flyweight");
         File folder = new File("repo-folder");
         MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(gitMaterial, oneModifiedFile("revision1")));
@@ -165,7 +165,7 @@ class ConfigRepositoryInitializerTest {
     @Test
     void shouldInitializeConfigRepositoriesWhenCruiseConfigAndAllInUsePluginsAreLoaded() {
         GitMaterialConfig gitMaterialConfig = (GitMaterialConfig) repoConfigs.get(0).getRepo();
-        Material gitMaterial = new Materials(new MaterialConfigs(gitMaterialConfig)).first();
+        Material gitMaterial = new Materials(new MaterialConfigs(gitMaterialConfig)).getFirstOrNull();
         TestingMaterialInstance gitMaterialInstance = new TestingMaterialInstance("git-repo", "flyweight");
         File folder = new File("repo-folder");
         MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(gitMaterial, oneModifiedFile("revision1")));
@@ -195,7 +195,7 @@ class ConfigRepositoryInitializerTest {
     @Test
     void shouldNotReInitializeConfigRepositoriesWhenCruiseConfigListenerIsInvokedAgain() {
         GitMaterialConfig gitMaterialConfig = (GitMaterialConfig) repoConfigs.get(0).getRepo();
-        Material gitMaterial = new Materials(new MaterialConfigs(gitMaterialConfig)).first();
+        Material gitMaterial = new Materials(new MaterialConfigs(gitMaterialConfig)).getFirstOrNull();
         TestingMaterialInstance gitMaterialInstance = new TestingMaterialInstance("git-repo", "flyweight");
         File folder = new File("repo-folder");
         MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(gitMaterial, oneModifiedFile("revision1")));

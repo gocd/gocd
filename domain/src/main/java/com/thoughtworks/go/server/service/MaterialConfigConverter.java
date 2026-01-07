@@ -59,7 +59,7 @@ public class MaterialConfigConverter {
         );
 
     public Material toMaterial(MaterialConfig materialConfig) {
-        return new Materials(new MaterialConfigs(materialConfig)).first();
+        return new Materials(new MaterialConfigs(materialConfig)).getFirstOrNull();
     }
 
     public Class<? extends MaterialInstance> getInstanceType(MaterialConfig materialConfig) {

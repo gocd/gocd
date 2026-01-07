@@ -328,7 +328,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     }
 
     public String getMaterialOptions() {
-        return first() == null ? "" : first().getType();
+        return Optional.ofNullable(getFirstOrNull()).map(MaterialConfig::getType).orElse("");
     }
 
     @SuppressWarnings("unchecked")
@@ -384,7 +384,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
                 .filter(materialConfig -> materialConfig.getFingerprint().equals(materialFingerprint))
                 .toList();
         if (!materialConfigs.isEmpty()) {
-            return materialConfigs.get(0);
+            return materialConfigs.getFirst();
         }
         return null;
     }

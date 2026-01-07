@@ -204,7 +204,7 @@ public class Modification extends PersistentObject implements Comparable<Modific
         if (modifications.isEmpty()) {
             throw new RuntimeException("Cannot find latest revision.");
         } else {
-            return new StringRevision(modifications.get(0).getRevision());
+            return new StringRevision(modifications.getFirst().getRevision());
         }
     }
 
@@ -297,7 +297,7 @@ public class Modification extends PersistentObject implements Comparable<Modific
         if (modifications.isEmpty()) {
             throw new RuntimeException("Cannot find oldest revision.");
         } else {
-            return new StringRevision(modifications.get(modifications.size() - 1).getRevision());
+            return new StringRevision(modifications.getLast().getRevision());
         }
     }
 

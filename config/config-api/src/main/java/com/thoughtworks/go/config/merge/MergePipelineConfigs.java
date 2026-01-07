@@ -58,7 +58,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
     }
 
     private void validateGroupNameUniqueness(List<PipelineConfigs> parts) {
-        String name = parts.get(0).getGroup();
+        String name = parts.getFirst().getGroup();
         for (PipelineConfigs part : parts) {
             String otherName = part.getGroup();
             if (!Strings.CS.equals(otherName, name)) {
@@ -237,7 +237,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public void validateGroupNameAndAddErrorsTo(ConfigErrors errors) {
-        this.parts.get(0).validateGroupNameAndAddErrorsTo(errors);
+        this.parts.getFirst().validateGroupNameAndAddErrorsTo(errors);
     }
 
     @Override
@@ -294,7 +294,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
             }
             start = end;
         }
-        return this.parts.get(this.parts.size() - 1);
+        return this.parts.getLast();
     }
 
 
@@ -419,7 +419,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public String getGroup() {
-        return this.parts.get(0).getGroup();
+        return this.parts.getFirst().getGroup();
     }
 
     @Override

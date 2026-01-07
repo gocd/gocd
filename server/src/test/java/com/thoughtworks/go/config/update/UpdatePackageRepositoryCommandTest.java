@@ -108,7 +108,7 @@ public class UpdatePackageRepositoryCommandTest {
         assertThat(result).isEqualTo(expectedResult);
         assertThat(cruiseConfig.getPackageRepositories().find(repoId)).isEqualTo(newPackageRepo);
         assertThat(cruiseConfig.getPackageRepositories().find(repoId).getPackages().size()).isEqualTo(1);
-        assertThat(cruiseConfig.getPackageRepositories().find(repoId).getPackages().first()).isEqualTo(nodePackage);
+        assertThat(cruiseConfig.getPackageRepositories().find(repoId).getPackages().getFirstOrNull()).isEqualTo(nodePackage);
     }
 
     @Test

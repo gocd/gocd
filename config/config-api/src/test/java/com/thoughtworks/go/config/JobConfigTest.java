@@ -106,7 +106,7 @@ class JobConfigTest {
     void shouldReturnAntTaskAsDefaultIfNoTasksSpecified() {
         JobConfig jobConfig = new JobConfig();
         assertThat(jobConfig.tasks()).hasSize(1);
-        Task task = jobConfig.tasks().first();
+        Task task = jobConfig.tasks().getFirstOrNull();
         assertThat(task).isInstanceOf(NullTask.class);
     }
 

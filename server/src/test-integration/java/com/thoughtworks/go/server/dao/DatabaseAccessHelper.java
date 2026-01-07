@@ -269,7 +269,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     public Pipeline newPipelineWithAllStagesPassed(PipelineConfig config) {
         Pipeline pipeline = newPipelineWithFirstStagePassed(config);
         for (StageConfig stageConfig : config) {
-            if (config.first().equals(stageConfig)) {
+            if (config.getFirstOrNull().equals(stageConfig)) {
                 continue;
             }
             Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext(

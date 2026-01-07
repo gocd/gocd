@@ -123,7 +123,7 @@ public class CrossingMinimization {
     }
 
     void initializeNodeDepths(NodeLevelMap nodeLevelMap) {
-        Node pipeline = nodeLevelMap.get(LEVEL_OF_CURRENT_PIPELINE).get(0);
+        Node pipeline = nodeLevelMap.get(LEVEL_OF_CURRENT_PIPELINE).getFirst();
 
         Map<Integer, Integer> levelToDepthMap = new HashMap<>();
 

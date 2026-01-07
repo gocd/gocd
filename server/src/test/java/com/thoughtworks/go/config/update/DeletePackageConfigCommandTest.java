@@ -85,11 +85,11 @@ public class DeletePackageConfigCommandTest {
     @Test
     public void shouldDeleteTheSpecifiedPackage() {
         DeletePackageConfigCommand command = new DeletePackageConfigCommand(goConfigService, packageDefinition, currentUser, result);
-        assertThat(cruiseConfig.getPackageRepositories().first().getPackages().size()).isEqualTo(1);
-        assertThat(cruiseConfig.getPackageRepositories().first().getPackages().find(packageUuid)).isEqualTo(packageDefinition);
+        assertThat(cruiseConfig.getPackageRepositories().getFirstOrNull().getPackages().size()).isEqualTo(1);
+        assertThat(cruiseConfig.getPackageRepositories().getFirstOrNull().getPackages().find(packageUuid)).isEqualTo(packageDefinition);
         command.update(cruiseConfig);
-        assertThat(cruiseConfig.getPackageRepositories().first().getPackages().size()).isEqualTo(0);
-        assertNull(cruiseConfig.getPackageRepositories().first().getPackages().find(packageUuid));
+        assertThat(cruiseConfig.getPackageRepositories().getFirstOrNull().getPackages().size()).isEqualTo(0);
+        assertNull(cruiseConfig.getPackageRepositories().getFirstOrNull().getPackages().find(packageUuid));
     }
 
     @Test

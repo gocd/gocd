@@ -150,7 +150,7 @@ public class ChangeMaterialsTest {
 
             scheduleService.autoSchedulePipelinesFromRequestBuffer();
             Pipeline mostRecent = pipelineService.mostRecentFullPipelineByName(PIPELINE_NAME);
-            assertThat(mostRecent.getMaterials().first()).isEqualTo(new MaterialConfigConverter().toMaterial(mingle.materialConfigs().first()));
+            assertThat(mostRecent.getMaterials().getFirstOrNull()).isEqualTo(new MaterialConfigConverter().toMaterial(mingle.materialConfigs().getFirstOrNull()));
         }
     }
 

@@ -36,8 +36,8 @@ public class JobInstancesRepresenter {
     }
 
     private static void addLinks(OutputWriter outputWriter, JobInstances jobInstances, PipelineRunIdInfo runIdInfo) {
-        JobInstance latest = jobInstances.first();
-        JobInstance oldest = jobInstances.last();
+        JobInstance latest = jobInstances.getFirstOrNull();
+        JobInstance oldest = jobInstances.getLastOrNull();
         String previousLink = (latest.getId() != runIdInfo.getLatestRunId())
                 ? Routes.Job.previous(latest.getPipelineName(), latest.getStageName(), latest.getName(), latest.getId())
                 : null;

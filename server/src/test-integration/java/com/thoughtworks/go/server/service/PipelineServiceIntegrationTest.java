@@ -198,7 +198,7 @@ public class PipelineServiceIntegrationTest {
     @Test
     public void returnPipelineForBuildDetailViewShouldContainOnlyMods() {
         Pipeline pipeline = createPipelineWithStagesAndMods();
-        JobInstance job = pipeline.getFirstStage().getJobInstances().first();
+        JobInstance job = pipeline.getFirstStage().getJobInstances().getFirstOrNull();
 
         Pipeline slimPipeline = pipelineService.wrapBuildDetails(job);
         assertThat(slimPipeline.getBuildCause().getMaterialRevisions().totalNumberOfModifications()).isEqualTo(1);
@@ -263,7 +263,7 @@ public class PipelineServiceIntegrationTest {
 
     private Pipeline createPipelineWithStagesAndMods() {
         PipelineConfig config = PipelineMother.twoBuildPlansWithResourcesAndMaterials("tester", "dev");
-        configHelper.addPipeline(CaseInsensitiveString.str(config.name()), CaseInsensitiveString.str(config.first().name()));
+        configHelper.addPipeline(CaseInsensitiveString.str(config.name()), CaseInsensitiveString.str(config.getFirstOrNull().name()));
         Pipeline pipeline = instanceFactory.createPipelineInstance(config, modifySomeFiles(config), new DefaultSchedulingContext(GoConstants.DEFAULT_APPROVED_BY), "md5-test", new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline);
         return pipeline;

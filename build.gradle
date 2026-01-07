@@ -45,7 +45,7 @@ def goVersions = new GoVersions(
   nextVersion: GO_VERSION_NEXT,
 
   // Default target version. Can be overridden by sub-projects.
-  targetJavaVersion: 17,
+  targetJavaVersion: 21,
 
   // Version of JVM to compile and test using.
   buildJavaVersion: 25,

@@ -226,7 +226,7 @@ public class PipelineConfigDependencyGraph {
         public List<PipelineConfig> pathWithoutHead() {
             List<PipelineConfig> copy = new ArrayList<>(path);
             if (!copy.isEmpty()) {
-                copy.remove(0);
+                copy.removeFirst();
             }
             return copy;
         }

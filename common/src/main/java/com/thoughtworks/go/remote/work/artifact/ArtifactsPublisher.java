@@ -67,7 +67,7 @@ public class ArtifactsPublisher implements Serializable {
             if (isMetadataFolderEmpty(pluggableArtifactFolder)) {
                 LOGGER.info("Pluggable metadata folder is empty.");
             } else if (pluggableArtifactFolder != null) {
-                mergedPlans.add(0, new ArtifactPlan(ArtifactPlanType.file, format("%s%s*", pluggableArtifactFolder.getName(), File.separator), ArtifactUtil.PLUGGABLE_ARTIFACT_METADATA_FOLDER));
+                mergedPlans.addFirst(new ArtifactPlan(ArtifactPlanType.file, format("%s%s*", pluggableArtifactFolder.getName(), File.separator), ArtifactUtil.PLUGGABLE_ARTIFACT_METADATA_FOLDER));
             }
 
             for (ArtifactPlan artifactPlan : mergedPlans) {

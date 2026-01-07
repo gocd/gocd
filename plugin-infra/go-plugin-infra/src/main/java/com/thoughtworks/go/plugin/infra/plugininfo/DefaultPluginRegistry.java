@@ -44,7 +44,7 @@ public class DefaultPluginRegistry implements PluginRegistry {
     }
 
     public GoPluginBundleDescriptor unloadPlugin(GoPluginBundleDescriptor bundleDescriptor) {
-        final GoPluginDescriptor firstPluginDescriptor = bundleDescriptor.descriptors().get(0);
+        final GoPluginDescriptor firstPluginDescriptor = bundleDescriptor.descriptors().getFirst();
         final GoPluginDescriptor pluginInBundle = getPluginByIdOrFileName(firstPluginDescriptor.id(), firstPluginDescriptor.fileName());
 
         if (pluginInBundle == null) {
@@ -112,7 +112,7 @@ public class DefaultPluginRegistry implements PluginRegistry {
     public String pluginIDFor(String bundleSymbolicName, String extensionClassCanonicalName) {
         final GoPluginBundleDescriptor bundleDescriptor = getBundleDescriptor(bundleSymbolicName);
 
-        final GoPluginDescriptor firstPluginDescriptor = bundleDescriptor.descriptors().get(0);
+        final GoPluginDescriptor firstPluginDescriptor = bundleDescriptor.descriptors().getFirst();
         if (firstPluginDescriptor.extensionClasses().isEmpty()) {
             return firstPluginDescriptor.id();
         }

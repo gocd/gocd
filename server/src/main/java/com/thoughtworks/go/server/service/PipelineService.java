@@ -176,11 +176,11 @@ public class PipelineService implements UpstreamPipelineResolver {
     private MaterialRevision getRevisionFor(List<PipelineConfig> path, DependencyMaterialRevision initialRevision, Material matchedMaterial) {
         Pipeline byNameAndCounter = pipelineDao.findPipelineByNameAndCounter(initialRevision.getPipelineName(), initialRevision.getPipelineCounter());
         MaterialRevisions revisions = materialRepository.findMaterialRevisionsForPipeline(byNameAndCounter.getId());
-        path.remove(0);
+        path.removeFirst();
         if (path.isEmpty()) {
             return revisions.findRevisionForFingerPrint(matchedMaterial.getFingerprint());
         }
-        return getRevisionFor(path, revisions.findDependencyMaterialRevision(CaseInsensitiveString.str(path.get(0).name())), matchedMaterial);
+        return getRevisionFor(path, revisions.findDependencyMaterialRevision(CaseInsensitiveString.str(path.getFirst().name())), matchedMaterial);
     }
 
     private void copyMissingRevisions(MaterialRevisions srcRevisions, MaterialRevisions destRevisions) {

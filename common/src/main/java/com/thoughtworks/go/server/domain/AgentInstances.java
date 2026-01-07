@@ -231,7 +231,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
             throw new IllegalStateException("Found multiple agents with the same elastic agent id [" + join(", ", uuids) + "]");
         }
 
-        return matchingElasticInstances.iterator().next();
+        return matchingElasticInstances.getFirst();
     }
 
     public List<Agent> filterPendingAgents(List<String> uuids) {

@@ -99,8 +99,8 @@ public class ArtifactStoreServiceTest {
 
         artifactStoreService.create(new Username("admin"), artifactStore, new HttpLocalizedOperationResult());
 
-        assertThat(artifactStore.first().errors().size()).isEqualTo(1);
-        assertThat(artifactStore.first().errors().firstErrorOn("key")).isEqualTo("some-error");
+        assertThat(artifactStore.getFirstOrNull().errors().size()).isEqualTo(1);
+        assertThat(artifactStore.getFirstOrNull().errors().firstErrorOn("key")).isEqualTo("some-error");
     }
 
     @Test
@@ -114,8 +114,8 @@ public class ArtifactStoreServiceTest {
 
         artifactStoreService.update(new Username("admin"), "md5", artifactStore, new HttpLocalizedOperationResult());
 
-        assertThat(artifactStore.first().errors().size()).isEqualTo(1);
-        assertThat(artifactStore.first().errors().firstErrorOn("key")).isEqualTo("some-error");
+        assertThat(artifactStore.getFirstOrNull().errors().size()).isEqualTo(1);
+        assertThat(artifactStore.getFirstOrNull().errors().firstErrorOn("key")).isEqualTo("some-error");
     }
 
     @Test

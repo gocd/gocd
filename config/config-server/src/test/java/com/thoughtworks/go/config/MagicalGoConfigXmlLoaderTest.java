@@ -148,20 +148,20 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(plan.name()).isEqualTo(new CaseInsensitiveString("plan1"));
         assertThat(plan.resourceConfigs().resourceNames()).contains("tiger", "lion");
         assertThat(plan.getTabs().size()).isEqualTo(2);
-        assertThat(plan.getTabs().first().getName()).isEqualTo("Emma");
-        assertThat(plan.getTabs().first().getPath()).isEqualTo("logs/emma/index.html");
+        assertThat(plan.getTabs().getFirstOrNull().getName()).isEqualTo("Emma");
+        assertThat(plan.getTabs().getFirstOrNull().getPath()).isEqualTo("logs/emma/index.html");
         assertThat(pipelineConfig1.materialConfigs().size()).isEqualTo(1);
-        shouldBeSvnMaterial(pipelineConfig1.materialConfigs().first());
+        shouldBeSvnMaterial(pipelineConfig1.materialConfigs().getFirstOrNull());
 
         PipelineConfig pipelineConfig2 = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline2"));
-        shouldBeHgMaterial(pipelineConfig2.materialConfigs().first());
+        shouldBeHgMaterial(pipelineConfig2.materialConfigs().getFirstOrNull());
 
         PipelineConfig pipelineConfig3 = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline3"));
-        MaterialConfig p4Material = pipelineConfig3.materialConfigs().first();
+        MaterialConfig p4Material = pipelineConfig3.materialConfigs().getFirstOrNull();
         shouldBeP4Material(p4Material);
 
         PipelineConfig pipelineConfig4 = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline4"));
-        shouldBeGitMaterial(pipelineConfig4.materialConfigs().first());
+        shouldBeGitMaterial(pipelineConfig4.materialConfigs().getFirstOrNull());
     }
 
     @Test
@@ -309,7 +309,7 @@ public class MagicalGoConfigXmlLoaderTest {
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline1", "mingle", "cardlist", true);
 
         assertThat(plan.tasks()).hasSize(1);
-        AntTask builder = (AntTask) plan.tasks().first();
+        AntTask builder = (AntTask) plan.tasks().getFirstOrNull();
         assertThat(builder.getTarget()).isEqualTo("all");
         final ArtifactTypeConfigs cardListArtifacts = cruiseConfig.jobConfigByName("pipeline1", "mingle",
             "cardlist", true).artifactTypeConfigs();
@@ -499,10 +499,10 @@ public class MagicalGoConfigXmlLoaderTest {
                 </jobs>""";
 
         JobConfigs jobs = xmlLoader.fromXmlPartial(buildXmlPartial, JobConfigs.class);
-        JobConfig job = jobs.first();
+        JobConfig job = jobs.getFirstOrNull();
         Tasks fetch = job.tasks();
         assertThat(fetch.size()).isEqualTo(1);
-        FetchTask task = (FetchTask) fetch.first();
+        FetchTask task = (FetchTask) fetch.getFirstOrNull();
         assertThat(task.getStage()).isEqualTo(new CaseInsensitiveString("dev"));
         assertThat(task.getJob().toString()).isEqualTo("unit");
         assertThat(task.getSrc()).isEqualTo("dist");
@@ -524,7 +524,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 </jobs>""";
 
         JobConfigs jobs = xmlLoader.fromXmlPartial(buildXmlPartial, JobConfigs.class);
-        JobConfig job = jobs.first();
+        JobConfig job = jobs.getFirstOrNull();
         Tasks tasks = job.tasks();
         assertThat(tasks.size()).isEqualTo(1);
         ExecTask execTask = (ExecTask) tasks.get(0);
@@ -822,7 +822,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 """;
         PipelineConfig pipeline = xmlLoader.fromXmlPartial(pipelineWithP4MaterialXmlPartial, PipelineConfig.class);
         assertThat(pipeline.name()).isEqualTo(new CaseInsensitiveString("pipeline"));
-        MaterialConfig material = pipeline.materialConfigs().first();
+        MaterialConfig material = pipeline.materialConfigs().getFirstOrNull();
         assertThat(material).isInstanceOf(P4MaterialConfig.class);
         assertThat(((P4MaterialConfig) material).getUseTickets()).isTrue();
     }
@@ -933,7 +933,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 """;
         String configWithCommand = withCommand(jobWithCommand);
         CruiseConfig cruiseConfig = xmlLoader.deserializeConfig(configWithCommand);
-        Task task = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).first().allBuildPlans().first().tasks().first();
+        Task task = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getFirstOrNull().allBuildPlans().getFirstOrNull().tasks().getFirstOrNull();
 
         assertThat(task).isInstanceOf(ExecTask.class);
         assertThat(task).isEqualTo(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null));
@@ -1211,7 +1211,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadPipelinesWithGroupName() throws Exception {
         CruiseConfig config = xmlLoader.deserializeConfig(PIPELINE_GROUPS);
-        assertThat(config.getGroups().first().getGroup()).isEqualTo("studios");
+        assertThat(config.getGroups().getFirstOrNull().getGroup()).isEqualTo("studios");
         assertThat(config.getGroups().get(1).getGroup()).isEqualTo("perfessionalservice");
     }
 
@@ -2837,7 +2837,7 @@ public class MagicalGoConfigXmlLoaderTest {
             </pipelines></cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
-        PackageDefinition packageDefinition = goConfigHolder.config.getPackageRepositories().first().getPackages().first();
+        PackageDefinition packageDefinition = goConfigHolder.config.getPackageRepositories().getFirstOrNull().getPackages().getFirstOrNull();
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("new_name"));
         PackageMaterialConfig packageMaterialConfig = (PackageMaterialConfig) pipelineConfig.materialConfigs().get(0);
         assertThat(packageMaterialConfig.getPackageDefinition()).isEqualTo(packageDefinition);
@@ -2913,7 +2913,7 @@ public class MagicalGoConfigXmlLoaderTest {
         RepositoryMetadataStore.getInstance().addMetadataFor("plugin-id", packageConfigurations);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
-        PackageDefinition packageDefinition = goConfigHolder.config.getPackageRepositories().first().getPackages().first();
+        PackageDefinition packageDefinition = goConfigHolder.config.getPackageRepositories().getFirstOrNull().getPackages().getFirstOrNull();
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("new_name"));
         PackageMaterialConfig packageMaterialConfig = (PackageMaterialConfig) pipelineConfig.materialConfigs().get(0);
         assertThat(packageMaterialConfig.getPackageDefinition()).isEqualTo(packageDefinition);
@@ -2954,8 +2954,8 @@ public class MagicalGoConfigXmlLoaderTest {
               </repositories></cruise>""").formatted(CONFIG_SCHEMA_VERSION);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
-        PackageRepository packageRepository = goConfigHolder.config.getPackageRepositories().first();
-        PackageDefinition packageDefinition = packageRepository.getPackages().first();
+        PackageRepository packageRepository = goConfigHolder.config.getPackageRepositories().getFirstOrNull();
+        PackageDefinition packageDefinition = packageRepository.getPackages().getFirstOrNull();
         assertThat(packageDefinition.getRepository()).isEqualTo(packageRepository);
     }
 
@@ -3368,7 +3368,7 @@ public class MagicalGoConfigXmlLoaderTest {
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(configString);
 
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
-        PluggableTask task = (PluggableTask) pipelineConfig.getStage("mingle").getJobs().getJob(new CaseInsensitiveString("do-something")).getTasks().first();
+        PluggableTask task = (PluggableTask) pipelineConfig.getStage("mingle").getJobs().getJob(new CaseInsensitiveString("do-something")).getTasks().getFirstOrNull();
 
         assertThat(task.getConfiguration().getProperty("username").isSecure()).isFalse();
         assertThat(task.getConfiguration().getProperty("password").isSecure()).isTrue();
@@ -4272,11 +4272,11 @@ public class MagicalGoConfigXmlLoaderTest {
         PipelineConfig parent = config.pipelineConfigByName(new CaseInsensitiveString("parent"));
         PipelineConfig child = config.pipelineConfigByName(new CaseInsensitiveString("child"));
 
-        Configuration ancestorPublishArtifactConfig = ancestor.get(0).getJobs().first().artifactTypeConfigs().getPluggableArtifactConfigs().get(0).getConfiguration();
-        Configuration parentPublishArtifactConfig = parent.get(0).getJobs().first().artifactTypeConfigs().getPluggableArtifactConfigs().get(0).getConfiguration();
-        Configuration childFetchArtifactFromAncestorConfig = ((FetchPluggableArtifactTask) child.get(0).getJobs().first().tasks().get(0)).getConfiguration();
-        Configuration childFetchArtifactFromParentConfig = ((FetchPluggableArtifactTask) child.get(0).getJobs().first().tasks().get(1)).getConfiguration();
-        ArtifactStore dockerhubStore = config.getArtifactStores().first();
+        Configuration ancestorPublishArtifactConfig = ancestor.get(0).getJobs().getFirstOrNull().artifactTypeConfigs().getPluggableArtifactConfigs().get(0).getConfiguration();
+        Configuration parentPublishArtifactConfig = parent.get(0).getJobs().getFirstOrNull().artifactTypeConfigs().getPluggableArtifactConfigs().get(0).getConfiguration();
+        Configuration childFetchArtifactFromAncestorConfig = ((FetchPluggableArtifactTask) child.get(0).getJobs().getFirstOrNull().tasks().get(0)).getConfiguration();
+        Configuration childFetchArtifactFromParentConfig = ((FetchPluggableArtifactTask) child.get(0).getJobs().getFirstOrNull().tasks().get(1)).getConfiguration();
+        ArtifactStore dockerhubStore = config.getArtifactStores().getFirstOrNull();
 
         assertConfigProperty(ancestorPublishArtifactConfig, "Image", "IMAGE_SECRET", true);
         assertConfigProperty(ancestorPublishArtifactConfig, "Tag", "ancestor_tag_${GO_PIPELINE_COUNTER}", false);
@@ -4335,7 +4335,7 @@ public class MagicalGoConfigXmlLoaderTest {
         SecretConfigs secretConfigs = config.getSecretConfigs();
         assertThat(secretConfigs.size()).isEqualTo(1);
 
-        SecretConfig secretConfig = secretConfigs.first();
+        SecretConfig secretConfig = secretConfigs.getFirstOrNull();
         assertThat(secretConfig.getId()).isEqualTo("my_secret");
         assertThat(secretConfig.getPluginId()).isEqualTo("gocd_file_based_plugin");
         assertThat(secretConfig.getDescription()).isEqualTo("All secrets for env1");
@@ -4457,7 +4457,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         SecretConfig secretConfig = config.getSecretConfigs().find("example");
 
-        assertThat(secretConfig.getRules().first().action()).isEqualTo("*");
+        assertThat(secretConfig.getRules().getFirstOrNull().action()).isEqualTo("*");
         assertThat(secretConfig.getRules().get(1).type()).isEqualTo("*");
     }
 

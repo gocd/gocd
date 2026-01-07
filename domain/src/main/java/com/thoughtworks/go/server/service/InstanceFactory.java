@@ -39,7 +39,7 @@ public class InstanceFactory {
         EnvironmentVariables variables = EnvironmentVariables.toEnvironmentVariables(pipelineConfig.getVariables());
         variables.overrideWith(buildCause.getVariables());
 
-        return new Pipeline(CaseInsensitiveString.str(pipelineConfig.name()), pipelineConfig.getLabelTemplate(), buildCause, variables, createStageInstance(pipelineConfig.first(), context, md5, clock));
+        return new Pipeline(CaseInsensitiveString.str(pipelineConfig.name()), pipelineConfig.getLabelTemplate(), buildCause, variables, createStageInstance(pipelineConfig.getFirstOrNull(), context, md5, clock));
     }
 
     public Stage createStageInstance(PipelineConfig pipelineConfig, CaseInsensitiveString stageName, SchedulingContext context, String md5, Clock clock) {

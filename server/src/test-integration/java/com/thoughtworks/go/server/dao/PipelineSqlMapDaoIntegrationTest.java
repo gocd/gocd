@@ -402,15 +402,15 @@ public class PipelineSqlMapDaoIntegrationTest {
         Stage firstStage = mingle.getFirstStage();
         Pipeline mingle2 = schedulePipelineWithStages(mingleConfig);
 
-        JobInstance instance = firstStage.getJobInstances().first();
+        JobInstance instance = firstStage.getJobInstances().getFirstOrNull();
         jobInstanceDao.ignore(instance);
 
         PipelineInstanceModels pipelineHistories = pipelineDao.loadHistory(mingle.getName(), 10, 0);
         assertThat(pipelineHistories.size()).isEqualTo(2);
-        StageInstanceModels stageHistories = pipelineHistories.first().getStageHistory();
+        StageInstanceModels stageHistories = pipelineHistories.getFirstOrNull().getStageHistory();
         assertThat(stageHistories.size()).isEqualTo(1);
 
-        StageInstanceModel history = stageHistories.first();
+        StageInstanceModel history = stageHistories.getFirstOrNull();
         assertThat(history.getName()).isEqualTo(dev);
         assertThat(history.getApprovalType()).isEqualTo(GoConstants.APPROVAL_SUCCESS);
         assertThat(history.getBuildHistory().size()).isEqualTo(2);
@@ -462,9 +462,9 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         PipelineInstanceModels pipelineHistories = pipelineDao.loadHistory(mingle.getName(), 10, 0);
         assertThat(pipelineHistories.size()).isEqualTo(1);
-        StageInstanceModels stageHistories = pipelineHistories.first().getStageHistory();
+        StageInstanceModels stageHistories = pipelineHistories.getFirstOrNull().getStageHistory();
         assertThat(stageHistories.size()).isEqualTo(1);
-        StageInstanceModel history = stageHistories.first();
+        StageInstanceModel history = stageHistories.getFirstOrNull();
         assertThat(history.getName()).isEqualTo(stageName);
         assertThat(history.getId()).isEqualTo(newInstance.getId());
         assertThat(history.getBuildHistory().size()).isEqualTo(2);
@@ -711,7 +711,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     public void shouldHaveServerAndPortAndViewAndUseTicketsInP4Materials() {
         String p4view = "//depot/... //localhost/...";
         Materials p4Materials = MaterialsMother.p4Materials(p4view);
-        P4Material p4Material = (P4Material) p4Materials.first();
+        P4Material p4Material = (P4Material) p4Materials.getFirstOrNull();
         p4Material.setUseTickets(true);
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
         pipelineConfig.setMaterialConfigs(p4Materials.convertToConfigs());
@@ -1110,7 +1110,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(p1));
 
         Pipeline p1_1_s_1 = u.runAndPassAndReturnPipelineInstance(p1, u.d(0), "g_1");
-        Pipeline p2_1 = u.runAndPassAndReturnPipelineInstance(p2, u.d(1), p1_1_s_1.getStages().first().stageLocator());
+        Pipeline p2_1 = u.runAndPassAndReturnPipelineInstance(p2, u.d(1), p1_1_s_1.getStages().getFirstOrNull().stageLocator());
         String p1_1_s_2 = u.rerunStageAndCancel(p1_1_s_1, p1.config.get(0));
 
         List<PipelineIdentifier> pipelineIdentifiers = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial(p2.config.name().toString(),

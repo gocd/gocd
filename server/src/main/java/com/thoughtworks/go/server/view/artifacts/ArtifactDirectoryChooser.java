@@ -46,7 +46,7 @@ public class ArtifactDirectoryChooser {
     }
 
     public File preferredRoot(LocatableEntity locatableEntity) {
-        return locators.get(0).directoryFor(locatableEntity);
+        return locators.getFirst().directoryFor(locatableEntity);
     }
 
     public @NotNull File findArtifact(LocatableEntity locatableEntity, String path) throws IllegalArtifactLocationException {

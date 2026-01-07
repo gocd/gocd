@@ -124,7 +124,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         savedStage = savedPipeline.getFirstStage();
         stageId = savedStage.getId();
         counter = savedPipeline.getFirstStage().getCounter();
-        JobInstance job = savedPipeline.getStages().first().getJobInstances().first();
+        JobInstance job = savedPipeline.getStages().getFirstOrNull().getJobInstances().getFirstOrNull();
         job.setIgnored(true);
         goCache.clear();
         configHelper.usingCruiseConfigDao(goConfigDao);
@@ -205,7 +205,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         Pipeline oldPipeline = createNewPipeline(pipelineConfig);
         Pipeline newPipeline = createNewPipeline(pipelineConfig);
 
-        JobInstance expected = oldPipeline.getFirstStage().getJobInstances().first();
+        JobInstance expected = oldPipeline.getFirstStage().getJobInstances().getFirstOrNull();
         JobInstance actual = jobInstanceDao.mostRecentJobWithTransitions(
                 new JobIdentifier(oldPipeline, oldPipeline.getFirstStage(), expected));
         assertThat(actual.getId()).isEqualTo(expected.getId());
@@ -1006,8 +1006,8 @@ public class JobInstanceSqlMapDaoIntegrationTest {
 
         PipelineRunIdInfo runIdInfo = jobInstanceDao.getOldestAndLatestJobInstanceId(pipelineName, STAGE_NAME, JOB_NAME);
 
-        assertThat(runIdInfo.getLatestRunId()).isEqualTo(jobInstances.last().getId());
-        assertThat(runIdInfo.getOldestRunId()).isEqualTo(jobInstances.first().getId());
+        assertThat(runIdInfo.getLatestRunId()).isEqualTo(jobInstances.getLastOrNull().getId());
+        assertThat(runIdInfo.getOldestRunId()).isEqualTo(jobInstances.getFirstOrNull().getId());
     }
 
     @Test

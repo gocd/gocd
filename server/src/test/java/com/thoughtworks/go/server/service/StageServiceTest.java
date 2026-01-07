@@ -473,7 +473,7 @@ public class StageServiceTest {
         StageStatusTopic topic = mock(StageStatusTopic.class);
         final Stage cancelledStage = StageMother.cancelledStage("stage", "job");
         cancelledStage.setIdentifier(new StageIdentifier("pipeline/1/stage/1"));
-        cancelledStage.getJobInstances().first().setAgentUuid("soem-agent");
+        cancelledStage.getJobInstances().getFirstOrNull().setAgentUuid("soem-agent");
 
         final StageService service = new StageService(stageDao, jobInstanceService, topic, null, null, changesetService, goConfigService, transactionTemplate,
             transactionSynchronizationManager,

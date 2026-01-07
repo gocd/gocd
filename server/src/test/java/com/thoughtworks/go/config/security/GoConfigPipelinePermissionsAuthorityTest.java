@@ -735,8 +735,8 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         configMother.addRoleAsOperatorOfPipelineGroup(config, "role1", "group1");
         configMother.addRoleAsOperatorOfPipelineGroup(config, "role2", "group1");
 
-        StageConfigMother.addApprovalWithUsers(pipelineConfig.first(), "user1");
-        StageConfigMother.addApprovalWithRoles(pipelineConfig.first(), "role1");
+        StageConfigMother.addApprovalWithUsers(pipelineConfig.getFirstOrNull(), "user1");
+        StageConfigMother.addApprovalWithRoles(pipelineConfig.getFirstOrNull(), "role1");
 
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
 
@@ -759,7 +759,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         configMother.addRoleAsOperatorOfPipelineGroup(config, "group_operator", "group1");
         configMother.addUserAsOperatorOfPipelineGroup(config, "user1", "group1");
 
-        StageConfigMother.addApprovalWithRoles(pipelineConfig.first(), "group_operator");
+        StageConfigMother.addApprovalWithRoles(pipelineConfig.getFirstOrNull(), "group_operator");
 
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
 

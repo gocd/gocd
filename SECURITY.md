@@ -17,7 +17,7 @@ Having said this, wherever possible we will try and provide suggested mitigation
 This represents the oldest versions which have **no known exploitable vulnerabilities** of a given severity, as assessed by GoCD maintainers and/or NIST NVD via CVSS 4.0 or 3.1. Users are strongly recommended to be on at least these versions; and preferably the latest version. 
 
 | Without known vulns             | Version                                            |
-| ------------------------------- | -------------------------------------------------- |
+|---------------------------------|----------------------------------------------------|
 | No >= **high** severity vulns   | [`24.5.0`](https://www.gocd.org/releases/#24-5-0)+ |
 | No >= **medium** severity vulns | [`24.5.0`](https://www.gocd.org/releases/#24-5-0)+ |
 | No known vulns of any severity  | [`24.5.0`](https://www.gocd.org/releases/#24-5-0)+ |
@@ -31,7 +31,7 @@ itself (without a prior non-GoCD breach).
 GoCD does not have a formal disclosure policy for vulnerability details, however generally our practice has been
 
 | Severity                     | During fix/patch development     | Upon fix/patched release             | Detailed disclosure / published CVE         |
-| ---------------------------- | -------------------------------- | ------------------------------------ | ------------------------------------------- |
+|------------------------------|----------------------------------|--------------------------------------|---------------------------------------------|
 | >= **high** severity vulns   | Limited _(*)_ or zero disclosure | Limited disclosure with mitigations. | 2-4 weeks after patched version's release.  |
 | <= **medium** severity vulns | Limited _(*)_ disclosure         | More detailed disclosure             | Immediately upon patched version's release. |
 

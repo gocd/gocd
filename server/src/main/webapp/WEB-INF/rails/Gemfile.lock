@@ -261,7 +261,7 @@ GEM
       activesupport (>= 6.1)
       sprockets (>= 3.0.0)
     stringio (3.2.0)
-    thor (1.4.0)
+    thor (1.5.0)
     tilt (2.6.1)
     timeout (0.6.0)
     ts_routes (1.0.3)

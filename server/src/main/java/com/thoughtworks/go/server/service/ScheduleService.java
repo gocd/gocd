@@ -180,7 +180,7 @@ public class ScheduleService {
             if (canSchedule(pipelineConfig)) {
                 final Pipeline pipelineInstance = pipelineScheduleQueue.createPipeline(buildCause, pipelineConfig, schedulingContext(buildCause.getApprover(), pipelineConfig, pipelineConfig.first()),
                         goConfigService.getCurrentConfig().getMd5(), timeProvider);
-                serverHealthService.update(stageSchedulingSuccessfulState(pipelineName.toString(), CaseInsensitiveString.str(pipelineConfig.get(0).name())));
+                serverHealthService.update(stageSchedulingSuccessfulState(pipelineName.toString(), CaseInsensitiveString.str(pipelineConfig.getFirst().name())));
                 return pipelineInstance;
             }
         } catch (RecordNotFoundException e) {

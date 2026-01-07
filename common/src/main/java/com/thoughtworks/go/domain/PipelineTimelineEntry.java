@@ -56,7 +56,7 @@ public class PipelineTimelineEntry implements Comparable<PipelineTimelineEntry> 
     }
 
     @Override
-    public int compareTo(PipelineTimelineEntry o) {
+    public int compareTo(@NotNull PipelineTimelineEntry o) {
         if (this.equals(o)) {
             return 0;
         }
@@ -81,7 +81,7 @@ public class PipelineTimelineEntry implements Comparable<PipelineTimelineEntry> 
                     continue;
                 }
 
-                earliestAcrossMaterials = earliestAcrossMaterials.chooseEarliest(o1Revs.get(0), o2Revs.get(0));
+                earliestAcrossMaterials = earliestAcrossMaterials.chooseEarliest(o1Revs.getFirst(), o2Revs.getFirst());
             }
 
             return earliestAcrossMaterials.asCompareToResult();

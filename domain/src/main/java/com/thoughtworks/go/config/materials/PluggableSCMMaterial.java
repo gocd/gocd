@@ -252,7 +252,7 @@ public class PluggableSCMMaterial extends AbstractMaterial implements SecretPara
         if (modifications.isEmpty()) {
             return new NullRevision();
         }
-        Modification modification = modifications.get(modifications.size() - 1);
+        Modification modification = modifications.getLast();
         return new PluggableSCMMaterialRevision(modification.getRevision(), modification.getModifiedTime());
     }
 

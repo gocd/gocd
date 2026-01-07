@@ -110,7 +110,7 @@ public class DependencyMaterial extends AbstractMaterial {
         if (modifications.size() > 1) {
             LOGGER.warn("Dependency material {} has multiple modifications", this.getDisplayName());
         }
-        Modification oldestModification = modifications.get(modifications.size() - 1);
+        Modification oldestModification = modifications.getLast();
         String revision = oldestModification.getRevision();
         return DependencyMaterialRevision.create(revision, oldestModification.getPipelineLabel());
     }

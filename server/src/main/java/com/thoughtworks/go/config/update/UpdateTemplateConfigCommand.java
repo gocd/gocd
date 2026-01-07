@@ -61,7 +61,7 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
         preprocessedTemplateConfig = findAddedTemplate(preprocessedConfig);
 
         if (!preprocessedConfig.getAllErrors().isEmpty()) {
-            templateConfig.errors().addAll(preprocessedConfig.getAllErrors().get(0));
+            templateConfig.errors().addAll(preprocessedConfig.getAllErrors().getFirst());
             return false;
         }
 

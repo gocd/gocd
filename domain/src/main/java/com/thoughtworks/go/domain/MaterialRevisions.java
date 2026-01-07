@@ -107,7 +107,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
                 return revision;
             }
         }
-        return revisions.isEmpty() ? new NullMaterialRevision() : revisions.get(0);
+        return revisions.isEmpty() ? new NullMaterialRevision() : revisions.getFirst();
     }
 
     @Override

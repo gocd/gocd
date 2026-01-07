@@ -25,7 +25,10 @@ import com.thoughtworks.go.server.presentation.PipelineHistoryGroupingUtil;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.json.JsonAware;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.util.UrlUtil.encodeInUtf8;
@@ -90,7 +93,7 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
     private void createGroupForCurrentConfig() {
         PipelineInstanceGroupModel group = new PipelineInstanceGroupModel(
                 new StageConfigurationModels(pipelineConfig));
-        pipelineHistoryGroups.add(0, group);
+        pipelineHistoryGroups.addFirst(group);
     }
 
     @Override

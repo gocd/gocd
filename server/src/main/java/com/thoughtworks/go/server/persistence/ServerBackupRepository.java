@@ -50,7 +50,7 @@ public class ServerBackupRepository extends HibernateDaoSupport {
             return criteria.list();
         });
 
-        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.getFirst());
     }
 
     public ServerBackup save(ServerBackup serverBackup) {

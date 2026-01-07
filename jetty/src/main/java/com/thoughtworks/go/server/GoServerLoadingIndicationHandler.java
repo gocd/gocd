@@ -83,7 +83,7 @@ class GoServerLoadingIndicationHandler extends ContextHandler {
 
         private String acceptHeaderValue(Request baseRequest) {
             List<String> qualityCSV = baseRequest.getHttpFields().getQualityCSV(HttpHeader.ACCEPT);
-            return qualityCSV.isEmpty() ? MimeTypes.Type.TEXT_HTML.asString() : qualityCSV.get(0);
+            return qualityCSV.isEmpty() ? MimeTypes.Type.TEXT_HTML.asString() : qualityCSV.getFirst();
         }
 
         private boolean isWebAppStarting() {

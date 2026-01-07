@@ -41,7 +41,7 @@ public class MaterialPollResult {
     }
 
     public SCMRevision getLatestRevision() {
-        return revisions == null ? null : revisions.get(0);
+        return revisions == null ? null : revisions.getFirst();
     }
 
     public List<SCMRevision> getRevisions() {

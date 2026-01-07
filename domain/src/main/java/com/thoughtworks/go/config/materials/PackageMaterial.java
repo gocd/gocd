@@ -238,7 +238,7 @@ public class PackageMaterial extends AbstractMaterial implements SecretParamAwar
         if (modifications.isEmpty()) {
             return new NullRevision();
         }
-        Modification modification = modifications.get(0);
+        Modification modification = modifications.getFirst();
         return new PackageMaterialRevision(modification.getRevision(), modification.getModifiedTime());
     }
 

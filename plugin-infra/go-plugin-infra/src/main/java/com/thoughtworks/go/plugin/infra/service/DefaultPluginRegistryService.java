@@ -47,7 +47,7 @@ public class DefaultPluginRegistryService implements PluginRegistryService {
 
     @Override
     public String getPluginIDOfFirstPluginInBundle(String bundleSymbolicName) {
-        return pluginRegistry.getBundleDescriptor(bundleSymbolicName).descriptors().get(0).id();
+        return pluginRegistry.getBundleDescriptor(bundleSymbolicName).descriptors().getFirst().id();
     }
 
     @Override

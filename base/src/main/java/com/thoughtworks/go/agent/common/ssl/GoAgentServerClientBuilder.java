@@ -36,7 +36,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.security.*;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.Provider;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -103,32 +106,36 @@ public abstract class GoAgentServerClientBuilder<T> {
     }
 
     private PrivateKey getPrivateKey() throws IOException, OperatorCreationException, PKCSException {
-        PrivateKey privateKey;
         try (PEMParser reader = new PEMParser(new FileReader(this.agentSslPrivateKey, StandardCharsets.UTF_8))) {
             Object pemObject = reader.readObject();
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider(BouncyCastleProviderHolder.INSTANCE);
 
-            if (pemObject instanceof PEMEncryptedKeyPair) {
-                PEMDecryptorProvider decProv = new JcePEMDecryptorProviderBuilder()
-                    .setProvider(BouncyCastleProviderHolder.INSTANCE)
-                    .build(passphrase());
-                KeyPair keyPair = converter.getKeyPair(((PEMEncryptedKeyPair) pemObject).decryptKeyPair(decProv));
-                privateKey = keyPair.getPrivate();
-            } else if (pemObject instanceof PEMKeyPair) {
-                KeyPair keyPair = converter.getKeyPair((PEMKeyPair) pemObject);
-                privateKey = keyPair.getPrivate();
-            } else if (pemObject instanceof PKCS8EncryptedPrivateKeyInfo) {
-                InputDecryptorProvider decProv = new JceOpenSSLPKCS8DecryptorProviderBuilder()
-                    .setProvider(BouncyCastleProviderHolder.INSTANCE)
-                    .build(passphrase());
-                privateKey = converter.getPrivateKey(((PKCS8EncryptedPrivateKeyInfo) pemObject).decryptPrivateKeyInfo(decProv));
-            } else if (pemObject instanceof PrivateKeyInfo privateKeyInfo) {
-                privateKey = converter.getPrivateKey(privateKeyInfo);
-            } else {
-                throw new RuntimeException("Unable to parse key of type " + pemObject.getClass());
-            }
-            return privateKey;
+            return switch (pemObject) {
+                case PEMEncryptedKeyPair pemEncryptedKeyPair ->
+                    converter.getKeyPair(pemEncryptedKeyPair.decryptKeyPair(newPemDecryptorProvider())).getPrivate();
+                case PEMKeyPair pemKeyPair ->
+                    converter.getKeyPair(pemKeyPair).getPrivate();
+                case PKCS8EncryptedPrivateKeyInfo pkcs8EncryptedPrivateKeyInfo ->
+                    converter.getPrivateKey(pkcs8EncryptedPrivateKeyInfo.decryptPrivateKeyInfo(newInputDecryptorProvider()));
+                case PrivateKeyInfo privateKeyInfo ->
+                    converter.getPrivateKey(privateKeyInfo);
+                default -> throw new RuntimeException("Unable to parse key of type " + pemObject.getClass());
+            };
         }
+    }
+
+    private InputDecryptorProvider newInputDecryptorProvider() throws OperatorCreationException, IOException {
+        InputDecryptorProvider decProv = new JceOpenSSLPKCS8DecryptorProviderBuilder()
+            .setProvider(BouncyCastleProviderHolder.INSTANCE)
+            .build(passphrase());
+        return decProv;
+    }
+
+    private PEMDecryptorProvider newPemDecryptorProvider() throws IOException {
+        PEMDecryptorProvider decProv = new JcePEMDecryptorProviderBuilder()
+            .setProvider(BouncyCastleProviderHolder.INSTANCE)
+            .build(passphrase());
+        return decProv;
     }
 
     private List<X509Certificate> agentCertificate() throws IOException, CertificateException {

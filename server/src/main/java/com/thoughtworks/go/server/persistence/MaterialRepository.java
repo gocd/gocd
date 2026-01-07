@@ -251,7 +251,7 @@ public class MaterialRepository extends HibernateDaoSupport {
             if (items.isEmpty()) {
                 break;
             }
-            ids.add(items.remove(0));
+            ids.add(items.removeFirst());
         }
         return ids;
     }
@@ -533,10 +533,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     @SuppressWarnings("unchecked")
     private <T> T firstResult(DetachedCriteria criteria) {
         List<T> results = (List<T>) getHibernateTemplate().findByCriteria(criteria);
-        if (results.isEmpty()) {
-            return null;
-        }
-        return results.get(0);
+        return results.isEmpty() ? null : results.getFirst();
     }
 
     public void savePipelineMaterialRevision(Pipeline pipeline, long pipelineId, MaterialRevision materialRevision) {
@@ -730,7 +727,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     Modification findLatestModification(final MaterialInstance expandedInstance) {
         Modifications modifications = cachedModifications(expandedInstance);
         if (modifications != null && !modifications.isEmpty()) {
-            return modifications.get(0);
+            return modifications.getFirst();
         }
         String cacheKey = latestMaterialModificationsKey(expandedInstance);
         synchronized (cacheKey) {

@@ -101,6 +101,6 @@ public class GoPluginBundleDescriptor {
     }
 
     private GoPluginDescriptor first() {
-        return this.pluginDescriptors.get(0);
+        return this.pluginDescriptors.getFirst();
     }
 }

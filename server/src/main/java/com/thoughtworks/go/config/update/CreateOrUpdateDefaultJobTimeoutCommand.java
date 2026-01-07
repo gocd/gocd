@@ -42,7 +42,7 @@ public class CreateOrUpdateDefaultJobTimeoutCommand implements EntityConfigUpdat
         preprocessedServerConfig.validate(new ConfigSaveValidationContext(preprocessedConfig));
         List<String> jobTimeoutErrors = preprocessedServerConfig.errors().getAllOn(ServerConfig.JOB_TIMEOUT);
         if (!jobTimeoutErrors.isEmpty()) {
-            throw new GoConfigInvalidException(preprocessedConfig, jobTimeoutErrors.get(0));
+            throw new GoConfigInvalidException(preprocessedConfig, jobTimeoutErrors.getFirst());
         }
         return true;
     }

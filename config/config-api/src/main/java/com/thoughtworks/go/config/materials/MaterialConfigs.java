@@ -384,7 +384,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
                 .filter(materialConfig -> materialConfig.getFingerprint().equals(materialFingerprint))
                 .toList();
         if (!materialConfigs.isEmpty()) {
-            return materialConfigs.get(0);
+            return materialConfigs.getFirst();
         }
         return null;
     }

@@ -44,6 +44,7 @@ import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResul
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -265,9 +266,9 @@ public class PipelineHistoryService {
         return pipelineInstanceModels;
     }
 
-    public PipelineInstanceModel latest(String pipelineName, Username username) {
+    public @Nullable PipelineInstanceModel latest(String pipelineName, Username username) {
         PipelineInstanceModels models = loadWithEmptyAsDefault(pipelineName, Pagination.ONE_ITEM, CaseInsensitiveString.str(username.getUsername()));
-        return models.isEmpty() ? null : models.get(0);
+        return models.isEmpty() ? null : models.getFirst();
     }
 
     public PipelineInstanceModels latestInstancesForConfiguredPipelines(Username username) {

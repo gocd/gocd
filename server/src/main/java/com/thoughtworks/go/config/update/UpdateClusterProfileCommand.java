@@ -49,7 +49,7 @@ public class UpdateClusterProfileCommand extends ClusterProfileCommand {
         allElasticAgentProfiles.validateTree(new ConfigSaveValidationContext(preprocessedConfig));
         List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(allElasticAgentProfiles);
         if (!allErrors.isEmpty()) {
-            throw new GoConfigInvalidException(preprocessedConfig, allErrors.get(0).firstError());
+            throw new GoConfigInvalidException(preprocessedConfig, allErrors.getFirst().firstError());
         }
 
         return isValidForCreateOrUpdate(preprocessedConfig);

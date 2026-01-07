@@ -158,7 +158,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     public List<String> getPipelineNamesWithMultipleEntriesForLabelCount() {
         List<String> pipelineNames = getSqlMapClientTemplate().queryForList("getPipelineNamesWithMultipleEntriesForLabelCount");
-        if (!pipelineNames.isEmpty() && isBlank(pipelineNames.get(0))) {
+        if (!pipelineNames.isEmpty() && isBlank(pipelineNames.getFirst())) {
             return new ArrayList<>();
         }
         return pipelineNames;
@@ -463,7 +463,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     public PipelineInstanceModels loadHistory(String pipelineName, int limit, int offset) {
         List<Long> ids = findPipelineIds(pipelineName, limit, offset);
         if (ids.size() == 1) {
-            return PipelineInstanceModels.createPipelineInstanceModels(loadHistoryByIdWithBuildCause(ids.get(0)));
+            return PipelineInstanceModels.createPipelineInstanceModels(loadHistoryByIdWithBuildCause(ids.getFirst()));
         }
         return loadHistory(pipelineName, ids);
     }
@@ -472,7 +472,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     public PipelineInstanceModels loadHistory(String pipelineName, FeedModifier modifier, long cursor, int pageSize) {
         List<Long> ids = findPipelineIds(pipelineName, modifier, cursor, pageSize);
         if (ids.size() == 1) {
-            return PipelineInstanceModels.createPipelineInstanceModels(loadHistoryByIdWithBuildCause(ids.get(0)));
+            return PipelineInstanceModels.createPipelineInstanceModels(loadHistoryByIdWithBuildCause(ids.getFirst()));
         }
         return loadHistory(pipelineName, ids);
     }
@@ -714,7 +714,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
         // this is done to pick up an SQL query optimized for a single pipeline (no IN clause)
         if (pipelineNames.size() == 1) {
-            return loadHistoryForDashboard(pipelineNames.get(0));
+            return loadHistoryForDashboard(pipelineNames.getFirst());
         }
 
         Map<String, Object> args = Map.of("pipelineNames", pipelineNames);

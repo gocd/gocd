@@ -37,7 +37,7 @@ public class PipelineInstanceModels extends BaseCollection<PipelineInstanceModel
 
     public PipelineInstanceModel find(String pipelineName) {
         PipelineInstanceModels found = findAll(pipelineName);
-        return found.isEmpty() ? null : found.get(0);
+        return found.isEmpty() ? null : found.getFirst();
     }
 
     public PipelineInstanceModels findAll(String pipelineName) {

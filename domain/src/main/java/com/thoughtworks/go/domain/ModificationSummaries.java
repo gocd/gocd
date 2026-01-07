@@ -44,7 +44,7 @@ public class ModificationSummaries extends ModificationVisitorAdapter {
         if (mods.isEmpty()) {
             return "";
         }
-        return mods.get(0).getRevision();
+        return mods.getFirst().getRevision();
     }
 
     public int getModificationCount() {

@@ -50,7 +50,7 @@ public class DownstreamInstancePopulator {
 	}
 
 	private void populateRevisionsFor(Node currentMaterial, MaterialInstance currentMaterialInstance, Set<Revision> visitedRevisions) {
-		String revision = currentMaterial.revisions().get(0).getRevisionString();
+		String revision = currentMaterial.revisions().getFirst().getRevisionString();
 		List<Node> downstreamPipelines = currentMaterial.getChildren();
 		for (Node downstreamPipeline : downstreamPipelines) {
 			List<PipelineIdentifier> pipelineIdentifiers = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial(downstreamPipeline.getName(), currentMaterialInstance, revision);

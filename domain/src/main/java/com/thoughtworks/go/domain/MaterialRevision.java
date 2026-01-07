@@ -63,7 +63,7 @@ public class MaterialRevision implements Serializable {
 
     public Date getDateOfLatestModification() {
         if (!modifications.isEmpty()) {
-            return modifications.get(0).getModifiedTime();
+            return modifications.getFirst().getModifiedTime();
         } else {
             return null;
         }
@@ -161,7 +161,7 @@ public class MaterialRevision implements Serializable {
         if (newModifications.isEmpty()) {
             List<Modification> result = new ArrayList<>();
             if (!oldModifications.isEmpty()) {
-                result.add(new Modification(oldModifications.get(0)));
+                result.add(new Modification(oldModifications.getFirst()));
             }
             MaterialRevision materialRevision = new MaterialRevision(newMaterial, result);
             materialRevision.markAsNotChanged();
@@ -222,12 +222,12 @@ public class MaterialRevision implements Serializable {
 
     public Modification getLatestModification() {
         assertHasModifications();
-        return modifications.get(0);
+        return modifications.getFirst();
     }
 
     public Modification getOldestModification() {
         assertHasModifications();
-        return modifications.get(modifications.size() - 1);
+        return modifications.getLast();
     }
 
     private void assertHasModifications() {

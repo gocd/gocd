@@ -124,7 +124,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     }
 
     Framework getFelixFramework(List<FrameworkFactory> frameworkFactories) {
-        return frameworkFactories.get(0).newFramework(generateOSGiFrameworkConfig());
+        return frameworkFactories.getFirst().newFramework(generateOSGiFrameworkConfig());
     }
 
     protected Map<String, String> generateOSGiFrameworkConfig() {

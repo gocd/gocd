@@ -101,7 +101,7 @@ public class PipelineMother {
 
     private static Pipeline withState(PipelineConfig pipelineConfig, JobState state, MaterialRevisions revisions) {
         Pipeline pipeline = schedule(pipelineConfig, BuildCause.createWithModifications(revisions, ""));
-        for (JobInstance instance : pipeline.getStages().first().getJobInstances()) {
+        for (JobInstance instance : pipeline.getStages().getFirstOrNull().getJobInstances()) {
             instance.changeState(state, new Date());
             instance.setAgentUuid("uuid");
         }

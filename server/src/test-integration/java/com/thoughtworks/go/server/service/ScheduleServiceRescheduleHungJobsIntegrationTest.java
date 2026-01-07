@@ -153,11 +153,11 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
     }
 
     private JobInstance buildOf(Pipeline pipeline) {
-        return stageOf(pipeline).getJobInstances().first();
+        return stageOf(pipeline).getJobInstances().getFirstOrNull();
     }
 
     private Stage stageOf(Pipeline pipeline) {
-        Stage stage = pipeline.getStages().first();
+        Stage stage = pipeline.getStages().getFirstOrNull();
         for (JobInstance jobInstance : stage.getJobInstances()) {
             jobInstance.setIdentifier(new JobIdentifier(pipeline.getName(), -1, pipeline.getLabel(), stage.getName(),
                     String.valueOf(stage.getCounter()), jobInstance.getName()));

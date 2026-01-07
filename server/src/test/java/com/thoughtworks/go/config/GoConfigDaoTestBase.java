@@ -55,7 +55,7 @@ public abstract class GoConfigDaoTestBase {
         assertThat(cardList.name()).isEqualTo(new CaseInsensitiveString("cardlist"));
         assertThat(stageConfig.jobConfigByInstanceName("bluemonkeybutt", true).name()).isEqualTo(new CaseInsensitiveString("bluemonkeybutt"));
         assertThat(cardList.tasks()).hasSize(1);
-        assertThat(cardList.tasks().first()).isInstanceOf(AntTask.class);
+        assertThat(cardList.tasks().getFirstOrNull()).isInstanceOf(AntTask.class);
     }
 
     @Test

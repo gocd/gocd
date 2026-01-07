@@ -52,7 +52,7 @@ class PluggableScmMaterialRepresenterTest {
     def materialConfigs = new MaterialConfigs(pluggableScmMaterial)
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
 
-    def actualJson = toObjectString(MaterialsRepresenter.toJSON(materialConfigs.first()))
+    def actualJson = toObjectString(MaterialsRepresenter.toJSON(materialConfigs.getFirstOrNull()))
     assertThatJson(actualJson).isEqualTo([
       type       : "plugin",
       fingerprint: pluggableScmMaterial.fingerprint,

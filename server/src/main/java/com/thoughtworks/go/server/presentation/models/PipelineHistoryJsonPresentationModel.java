@@ -87,7 +87,7 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
     }
 
     private boolean hasPipelineConfigChanged() {
-        return !pipelineHistoryGroups.first().match(pipelineConfig);
+        return !pipelineHistoryGroups.getFirstOrNull().match(pipelineConfig);
     }
 
     private void createGroupForCurrentConfig() {

@@ -118,12 +118,12 @@ public class GoConfigParallelGraphWalkerTest {
 
         PipelineConfig pipelineWithErrors = GoConfigMother.deepClone(pipelineConfig);
         pipelineWithErrors.getVariables().get(0).addError("name", "error on environment variable");
-        pipelineWithErrors.first().addError("name", "error on stage");
-        pipelineWithErrors.first().getJobs().first().addError("name", "error on job");
+        pipelineWithErrors.getFirstOrNull().addError("name", "error on stage");
+        pipelineWithErrors.getFirstOrNull().getJobs().getFirstOrNull().addError("name", "error on job");
         Validatable.copyErrors(pipelineWithErrors, pipelineConfig);
         assertThat(pipelineConfig.getVariables().get(0).errors().firstErrorOn("name")).isEqualTo("error on environment variable");
-        assertThat(pipelineConfig.first().errors().firstErrorOn("name")).isEqualTo("error on stage");
-        assertThat(pipelineConfig.first().getJobs().first().errors().firstErrorOn("name")).isEqualTo("error on job");
+        assertThat(pipelineConfig.getFirstOrNull().errors().firstErrorOn("name")).isEqualTo("error on stage");
+        assertThat(pipelineConfig.getFirstOrNull().getJobs().getFirstOrNull().errors().firstErrorOn("name")).isEqualTo("error on job");
     }
 
     private static class AValidatableObjectWithAList implements Validatable {

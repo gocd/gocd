@@ -307,7 +307,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         cruiseConfig.getArtifactStores().add(new ArtifactStore("store1", "cd.go.s3"));
         PipelineConfig pipelineConfig = new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
         cruiseConfig.addPipeline("first", pipelineConfig);
-        PipelineTemplateConfig templateConfig = cruiseConfig.getTemplates().first();
+        PipelineTemplateConfig templateConfig = cruiseConfig.getTemplates().getFirstOrNull();
         JobConfig jobConfig = templateConfig.getStages().get(0).getJobs().get(0);
         PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("foo", "store1");
         artifactConfig.addConfigurations(List.of(
@@ -456,7 +456,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
                 new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("pub_v1")),
                 new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("pub_v2")),
                 new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("pub_v3")));
-        ancestor.getStage("stage1").getJobs().first().artifactTypeConfigs().add(pluggableArtifactConfig);
+        ancestor.getStage("stage1").getJobs().getFirstOrNull().artifactTypeConfigs().add(pluggableArtifactConfig);
 
         PipelineConfig parent = config.pipelineConfigByName(new CaseInsensitiveString("parent"));
         parent.add(StageConfigMother.stageConfig("stage1", new JobConfigs(new JobConfig("job1"))));

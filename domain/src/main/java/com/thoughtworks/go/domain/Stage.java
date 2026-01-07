@@ -367,7 +367,7 @@ public class Stage extends PersistentObject {
     }
 
     public JobInstance getFirstJob() {
-        return jobInstances.first();
+        return jobInstances.getFirstOrNull();
     }
 
     public JobInstances jobsWithResult(JobResult... results) {

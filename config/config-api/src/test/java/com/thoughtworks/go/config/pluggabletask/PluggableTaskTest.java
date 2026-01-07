@@ -226,8 +226,8 @@ public class PluggableTaskTest {
         task.setTaskConfigAttributes(attributeMap);
 
         assertThat(task.getConfiguration().size()).isEqualTo(1);
-        assertTrue(task.getConfiguration().first().isSecure());
-        assertThat(task.getConfiguration().first().getValue()).isEqualTo("value1");
+        assertTrue(task.getConfiguration().getFirstOrNull().isSecure());
+        assertThat(task.getConfiguration().getFirstOrNull().getValue()).isEqualTo("value1");
     }
 
     @Test

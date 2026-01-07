@@ -74,7 +74,7 @@ public class StageInstanceModels extends BaseCollection<StageInstanceModel> impl
         if (size() == 0) {
             return null;
         }
-        StageInstanceModel latest = first();
+        StageInstanceModel latest = getFirstOrNull();
         for (int i = 1; i < size(); i++) {
             StageInstanceModel current = get(i);
             if (!(current instanceof NullStageHistoryItem) && current.getScheduledDate().after(latest.getScheduledDate())) {
@@ -106,7 +106,7 @@ public class StageInstanceModels extends BaseCollection<StageInstanceModel> impl
     }
 
     public void updateFutureStagesFrom(PipelineConfig pipelineConfig) {
-        StageInstanceModel lastStage = this.last();
+        StageInstanceModel lastStage = getLastOrNull();
 
         StageConfig nextStage = lastStage == null ? pipelineConfig.getFirstStageConfig() : pipelineConfig.nextStage(new CaseInsensitiveString(lastStage.getName()));
         while (nextStage != null && !this.hasStage(str(nextStage.name()))) {

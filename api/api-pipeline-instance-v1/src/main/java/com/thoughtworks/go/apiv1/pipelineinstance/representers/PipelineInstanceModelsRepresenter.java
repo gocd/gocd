@@ -35,8 +35,8 @@ public class PipelineInstanceModelsRepresenter {
     }
 
     private static void addLinks(OutputWriter outputWriter, PipelineInstanceModels pipelineInstanceModels, PipelineRunIdInfo latestAndOldestPipelineId) {
-        PipelineInstanceModel latest = pipelineInstanceModels.first();
-        PipelineInstanceModel oldest = pipelineInstanceModels.last();
+        PipelineInstanceModel latest = pipelineInstanceModels.getFirstOrNull();
+        PipelineInstanceModel oldest = pipelineInstanceModels.getLastOrNull();
         String previousLink = null, nextLink = null;
         if (latest.getId() != latestAndOldestPipelineId.getLatestRunId()) {
             previousLink = Routes.PipelineInstance.previous(latest.getName(), latest.getId());

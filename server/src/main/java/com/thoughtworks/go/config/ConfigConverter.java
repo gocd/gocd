@@ -878,7 +878,7 @@ public class ConfigConverter {
         if (runIfs == null || runIfs.isEmpty()) {
             return CRRunIf.passed;
         }
-        RunIfConfig runIf = runIfs.first();
+        RunIfConfig runIf = runIfs.getFirstOrNull();
         if (runIf.equals(RunIfConfig.ANY)) {
             return CRRunIf.any;
         } else if (runIf.equals(RunIfConfig.PASSED)) {

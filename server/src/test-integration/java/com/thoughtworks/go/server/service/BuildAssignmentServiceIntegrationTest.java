@@ -272,7 +272,7 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onConfigChange(goConfigService.getCurrentConfig());
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(pipelineFixture.pipelineName);
-        JobInstance job = pipeline.getFirstStage().getJobInstances().first();
+        JobInstance job = pipeline.getFirstStage().getJobInstances().getFirstOrNull();
         assertThat(job.getState()).isEqualTo(JobState.Completed);
         assertThat(job.getResult()).isEqualTo(JobResult.Cancelled);
     }
@@ -293,7 +293,7 @@ public class BuildAssignmentServiceIntegrationTest {
         pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, pipelineFixture.groupName, md5, result);
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(pipelineFixture.pipelineName);
-        JobInstance job = pipeline.getFirstStage().getJobInstances().first();
+        JobInstance job = pipeline.getFirstStage().getJobInstances().getFirstOrNull();
         assertThat(job.getState()).isEqualTo(JobState.Completed);
         assertThat(job.getResult()).isEqualTo(JobResult.Cancelled);
 
@@ -372,7 +372,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         assertThat(buildAssignmentService.assignWorkToAgent(agent(agent))).isEqualTo((BuildAssignmentService.NO_WORK));
         Pipeline pipeline = pipelineDao.mostRecentPipeline(pipelineFixture.pipelineName);
-        JobInstance job = pipeline.getFirstStage().getJobInstances().first();
+        JobInstance job = pipeline.getFirstStage().getJobInstances().getFirstOrNull();
         assertThat(job.getState()).isEqualTo(JobState.Completed);
         assertThat(job.getResult()).isEqualTo(JobResult.Cancelled);
         Stage stage = stageDao.findStageWithIdentifier(job.getIdentifier().getStageIdentifier());
@@ -384,7 +384,7 @@ public class BuildAssignmentServiceIntegrationTest {
     public void shouldNotReloadScheduledJobPlansWhenAgentWorkAssignmentIsInProgress() throws Exception {
         pipelineFixture.createPipelineWithFirstStageScheduled();
         Pipeline pipeline = pipelineDao.mostRecentPipeline(pipelineFixture.pipelineName);
-        JobInstance job = pipeline.getFirstStage().getJobInstances().first();
+        JobInstance job = pipeline.getFirstStage().getJobInstances().getFirstOrNull();
 
         final JobInstanceService mockJobInstanceService = mock(JobInstanceService.class);
 
@@ -435,7 +435,7 @@ public class BuildAssignmentServiceIntegrationTest {
         Pipeline pipeline = pipelineDao.mostRecentPipeline(pipelineFixture.pipelineName);
 
         ScheduledPipelineLoader scheduledPipelineLoader = mock(ScheduledPipelineLoader.class);
-        when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(pipeline.getFirstStage().getJobInstances().first().getId())).thenThrow(
+        when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(pipeline.getFirstStage().getJobInstances().getFirstOrNull().getId())).thenThrow(
                 new RecordNotFoundException(EntityType.Pipeline, pipelineFixture.pipelineName));
 
         GoConfigService mockGoConfigService = mock(GoConfigService.class);
@@ -460,7 +460,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         pipeline = pipelineDao.mostRecentPipeline(pipelineFixture.pipelineName);
 
-        JobInstance job = pipeline.getFirstStage().getJobInstances().first();
+        JobInstance job = pipeline.getFirstStage().getJobInstances().getFirstOrNull();
         assertThat(job.getState()).isEqualTo(JobState.Completed);
         assertThat(job.getResult()).isEqualTo(JobResult.Cancelled);
         Stage stage = stageDao.findStageWithIdentifier(job.getIdentifier().getStageIdentifier());
@@ -764,7 +764,7 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onTimer();   // To Reload Job Plans
         buildAssignmentService.onConfigChange(cruiseConfig);
         Stages allStages = stageDao.findAllStagesFor(originalPipelineRun.getName(), originalPipelineRun.getCounter());
-        assertThat(allStages.byName(CaseInsensitiveString.str(p1.config.first().name())).getState()).isEqualTo(StageState.Cancelled);
+        assertThat(allStages.byName(CaseInsensitiveString.str(p1.config.getFirstOrNull().name())).getState()).isEqualTo(StageState.Cancelled);
 
         u.checkinInOrder(hgMaterial, "h2");
         BuildCause buildCauseForRenamedPipeline = BuildCause.createWithModifications(u.mrs(u.mr(u.m(hgMaterial).material, true, "h2")), "user");
@@ -782,13 +782,13 @@ public class BuildAssignmentServiceIntegrationTest {
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("ANOTHER_PIPELINE_WHICH_WILL_EVENTUALLY_CHANGE_CASE", "STAGE_WHICH_WILL_EVENTUALLY_CHANGE_CASE", u.m(hgMaterial));
         BuildCause buildCause = BuildCause.createWithModifications(u.mrs(u.mr(u.m(hgMaterial).material, true, hgRevs)), "user");
         Pipeline originalPipelineRun = scheduleService.schedulePipeline(p1.config.name(), buildCause);
-        ScheduleTestUtil.AddedPipeline renamedPipeline = u.renamePipelineAndFirstStage(p1, p1.config.name().toLower(), p1.config.getStages().first().name().toLower());
+        ScheduleTestUtil.AddedPipeline renamedPipeline = u.renamePipelineAndFirstStage(p1, p1.config.name().toLower(), p1.config.getStages().getFirstOrNull().name().toLower());
         CruiseConfig cruiseConfig = configHelper.load();
         buildAssignmentService.onTimer();   // To Reload Job Plans
         buildAssignmentService.onConfigChange(cruiseConfig);
 
         Stages allStages = stageDao.findAllStagesFor(originalPipelineRun.getName(), originalPipelineRun.getCounter());
-        assertThat(allStages.byName(CaseInsensitiveString.str(p1.config.first().name())).getState()).isEqualTo(StageState.Building);
+        assertThat(allStages.byName(CaseInsensitiveString.str(p1.config.getFirstOrNull().name())).getState()).isEqualTo(StageState.Building);
 
         u.checkinInOrder(hgMaterial, "h2");
         BuildCause buildCauseForRenamedPipeline = BuildCause.createWithModifications(u.mrs(u.mr(u.m(hgMaterial).material, true, "h2")), "user");
@@ -797,6 +797,6 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     private JobInstance buildOf(Pipeline pipeline) {
-        return pipeline.getStages().first().getJobInstances().first();
+        return pipeline.getStages().getFirstOrNull().getJobInstances().getFirstOrNull();
     }
 }

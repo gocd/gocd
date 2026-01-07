@@ -129,7 +129,7 @@ class BuildAssignmentServiceTest {
     @Test
     void shouldMatchAnElasticJobToAnElasticAgentOnlyIfThePluginAgreesToTheAssignment() {
         PipelineConfig pipelineWithElasticJob = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1);
-        JobPlan jobPlan = new InstanceFactory().createJobPlan(pipelineWithElasticJob.first().getJobs().first(), schedulingContext);
+        JobPlan jobPlan = new InstanceFactory().createJobPlan(pipelineWithElasticJob.getFirstOrNull().getJobs().getFirstOrNull(), schedulingContext);
         jobPlans.add(jobPlan);
         when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), null, jobPlan.getElasticProfile(), jobPlan.getClusterProfile(), jobPlan.getIdentifier())).thenReturn(true);
         buildAssignmentService.onTimer();
@@ -142,7 +142,7 @@ class BuildAssignmentServiceTest {
     @Test
     void shouldNotMatchAnElasticJobToAnElasticAgentOnlyIfThePluginIdMatches() {
         PipelineConfig pipelineWithElasticJob = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1);
-        JobPlan jobPlan1 = new InstanceFactory().createJobPlan(pipelineWithElasticJob.first().getJobs().first(), schedulingContext);
+        JobPlan jobPlan1 = new InstanceFactory().createJobPlan(pipelineWithElasticJob.getFirstOrNull().getJobs().getFirstOrNull(), schedulingContext);
         jobPlans.add(jobPlan1);
         lenient().when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), null, jobPlan1.getElasticProfile(), jobPlan1.getClusterProfile(), null)).thenReturn(false);
         buildAssignmentService.onTimer();
@@ -155,8 +155,8 @@ class BuildAssignmentServiceTest {
     @Test
     void shouldMatchAnElasticJobToAnElasticAgentOnlyIfThePluginAgreesToTheAssignmentWhenMultipleElasticJobsRequiringTheSamePluginAreScheduled() {
         PipelineConfig pipelineWith2ElasticJobs = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1, elasticProfileId2);
-        JobPlan jobPlan1 = new InstanceFactory().createJobPlan(pipelineWith2ElasticJobs.first().getJobs().first(), schedulingContext);
-        JobPlan jobPlan2 = new InstanceFactory().createJobPlan(pipelineWith2ElasticJobs.first().getJobs().last(), schedulingContext);
+        JobPlan jobPlan1 = new InstanceFactory().createJobPlan(pipelineWith2ElasticJobs.getFirstOrNull().getJobs().getFirstOrNull(), schedulingContext);
+        JobPlan jobPlan2 = new InstanceFactory().createJobPlan(pipelineWith2ElasticJobs.getFirstOrNull().getJobs().getLastOrNull(), schedulingContext);
         jobPlans.add(jobPlan1);
         jobPlans.add(jobPlan2);
         when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), null, jobPlan1.getElasticProfile(), jobPlan1.getClusterProfile(), jobPlan1.getIdentifier())).thenReturn(false);
@@ -171,10 +171,10 @@ class BuildAssignmentServiceTest {
     @Test
     void shouldMatchNonElasticJobToNonElasticAgentIfResourcesMatch() {
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
-        pipeline.first().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
-        pipeline.first().getJobs().add(JobConfigMother.elasticJob(elasticProfileId1));
-        JobPlan elasticJobPlan = new InstanceFactory().createJobPlan(pipeline.first().getJobs().last(), schedulingContext);
-        JobPlan regularJobPlan = new InstanceFactory().createJobPlan(pipeline.first().getJobs().first(), schedulingContext);
+        pipeline.getFirstOrNull().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+        pipeline.getFirstOrNull().getJobs().add(JobConfigMother.elasticJob(elasticProfileId1));
+        JobPlan elasticJobPlan = new InstanceFactory().createJobPlan(pipeline.getFirstOrNull().getJobs().getLastOrNull(), schedulingContext);
+        JobPlan regularJobPlan = new InstanceFactory().createJobPlan(pipeline.getFirstOrNull().getJobs().getFirstOrNull(), schedulingContext);
         jobPlans.add(elasticJobPlan);
         jobPlans.add(regularJobPlan);
         buildAssignmentService.onTimer();
@@ -189,10 +189,10 @@ class BuildAssignmentServiceTest {
     void shouldNotMatchJobsDuringMaintenanceMode() {
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
-        pipeline.first().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
-        pipeline.first().getJobs().add(JobConfigMother.elasticJob(elasticProfileId1));
-        JobPlan elasticJobPlan = new InstanceFactory().createJobPlan(pipeline.first().getJobs().last(), schedulingContext);
-        JobPlan regularJobPlan = new InstanceFactory().createJobPlan(pipeline.first().getJobs().first(), schedulingContext);
+        pipeline.getFirstOrNull().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+        pipeline.getFirstOrNull().getJobs().add(JobConfigMother.elasticJob(elasticProfileId1));
+        JobPlan elasticJobPlan = new InstanceFactory().createJobPlan(pipeline.getFirstOrNull().getJobs().getLastOrNull(), schedulingContext);
+        JobPlan regularJobPlan = new InstanceFactory().createJobPlan(pipeline.getFirstOrNull().getJobs().getFirstOrNull(), schedulingContext);
         jobPlans.add(elasticJobPlan);
         jobPlans.add(regularJobPlan);
         buildAssignmentService.onTimer();
@@ -215,9 +215,9 @@ class BuildAssignmentServiceTest {
         PipelineConfig irrelevantPipeline = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
         irrelevantPipeline.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
 
-        JobPlan jobPlan1 = getJobPlan(pipeline.getName(), pipeline.get(0).name(), pipeline.get(0).getJobs().last());
-        JobPlan jobPlan2 = getJobPlan(pipeline.getName(), pipeline.get(1).name(), pipeline.get(1).getJobs().first());
-        JobPlan jobPlan3 = getJobPlan(irrelevantPipeline.getName(), irrelevantPipeline.get(0).name(), irrelevantPipeline.get(0).getJobs().first());
+        JobPlan jobPlan1 = getJobPlan(pipeline.getName(), pipeline.get(0).name(), pipeline.get(0).getJobs().getLastOrNull());
+        JobPlan jobPlan2 = getJobPlan(pipeline.getName(), pipeline.get(1).name(), pipeline.get(1).getJobs().getFirstOrNull());
+        JobPlan jobPlan3 = getJobPlan(irrelevantPipeline.getName(), irrelevantPipeline.get(0).name(), irrelevantPipeline.get(0).getJobs().getFirstOrNull());
 
         //need to get hold of original jobPlans in the tests
         jobPlans = buildAssignmentService.jobPlans();
@@ -251,9 +251,9 @@ class BuildAssignmentServiceTest {
         PipelineConfig irrelevantPipeline = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
         irrelevantPipeline.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
 
-        JobPlan jobPlan1 = getJobPlan(pipeline.getName(), pipeline.get(0).name(), pipeline.get(0).getJobs().last());
-        JobPlan jobPlan2 = getJobPlan(pipeline.getName(), pipeline.get(1).name(), pipeline.get(1).getJobs().first());
-        JobPlan jobPlan3 = getJobPlan(irrelevantPipeline.getName(), irrelevantPipeline.get(0).name(), irrelevantPipeline.get(0).getJobs().first());
+        JobPlan jobPlan1 = getJobPlan(pipeline.getName(), pipeline.get(0).name(), pipeline.get(0).getJobs().getLastOrNull());
+        JobPlan jobPlan2 = getJobPlan(pipeline.getName(), pipeline.get(1).name(), pipeline.get(1).getJobs().getFirstOrNull());
+        JobPlan jobPlan3 = getJobPlan(irrelevantPipeline.getName(), irrelevantPipeline.get(0).name(), irrelevantPipeline.get(0).getJobs().getFirstOrNull());
 
         //need to get hold of original jobPlans in the tests
         jobPlans = buildAssignmentService.jobPlans();
@@ -285,7 +285,7 @@ class BuildAssignmentServiceTest {
 
             final AgentInstance agentInstance = mock(AgentInstance.class);
             final Pipeline pipeline = mock(Pipeline.class);
-            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
+            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().getLastOrNull());
 
             when(agentInstance.isRegistered()).thenReturn(true);
             when(agentInstance.getAgent()).thenReturn(agent);
@@ -325,7 +325,7 @@ class BuildAssignmentServiceTest {
             final AgentInstance agentInstance = mock(AgentInstance.class);
 
             final Pipeline pipeline = mock(Pipeline.class);
-            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
+            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().getLastOrNull());
 
             when(agentInstance.isRegistered()).thenReturn(true);
             when(agentInstance.getAgent()).thenReturn(mock(Agent.class));
@@ -359,7 +359,7 @@ class BuildAssignmentServiceTest {
             pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
             final AgentInstance agentInstance = mock(AgentInstance.class);
             final Pipeline pipeline = mock(Pipeline.class);
-            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
+            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().getLastOrNull());
             JobInstance jobInstance = mock(JobInstance.class);
 
             when(agentInstance.isRegistered()).thenReturn(true);
@@ -389,7 +389,7 @@ class BuildAssignmentServiceTest {
             pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
             final AgentInstance agentInstance = mock(AgentInstance.class);
             final Pipeline pipeline = mock(Pipeline.class);
-            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
+            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().getLastOrNull());
             JobInstance jobInstance = mock(JobInstance.class);
 
             when(jobInstance.getState()).thenReturn(JobState.Completed);
@@ -433,7 +433,7 @@ class BuildAssignmentServiceTest {
             final AgentInstance agentInstance = mock(AgentInstance.class);
 
             final Pipeline pipeline = mock(Pipeline.class);
-            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
+            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().getLastOrNull());
 
             when(agentInstance.isRegistered()).thenReturn(true);
             when(agentInstance.getAgent()).thenReturn(mock(Agent.class));
@@ -513,7 +513,7 @@ class BuildAssignmentServiceTest {
     @Test
     void shouldFailTheJobWhenRulesViolationErrorOccursForElasticConfiguration() throws IllegalArtifactLocationException {
         PipelineConfig pipelineWithElasticJob = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1);
-        JobPlan jobPlan = new InstanceFactory().createJobPlan(pipelineWithElasticJob.first().getJobs().first(), schedulingContext);
+        JobPlan jobPlan = new InstanceFactory().createJobPlan(pipelineWithElasticJob.getFirstOrNull().getJobs().getFirstOrNull(), schedulingContext);
         jobPlans.add(jobPlan);
         JobInstance jobInstance = mock(JobInstance.class);
 
@@ -541,7 +541,7 @@ class BuildAssignmentServiceTest {
     @Test
     void shouldFailTheJobWhenSecretResolutionErrorOccursForElasticConfiguration() throws IllegalArtifactLocationException {
         PipelineConfig pipelineWithElasticJob = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1);
-        JobPlan jobPlan = new InstanceFactory().createJobPlan(pipelineWithElasticJob.first().getJobs().first(), schedulingContext);
+        JobPlan jobPlan = new InstanceFactory().createJobPlan(pipelineWithElasticJob.getFirstOrNull().getJobs().getFirstOrNull(), schedulingContext);
         jobPlans.add(jobPlan);
         JobInstance jobInstance = mock(JobInstance.class);
 

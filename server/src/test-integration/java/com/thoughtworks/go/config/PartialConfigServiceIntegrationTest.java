@@ -163,7 +163,7 @@ public class PartialConfigServiceIntegrationTest {
     }
 
     private PartialConfig findPartial(final String invalidPipelineInPartial, List<PartialConfig> partials) {
-        return partials.stream().filter(item -> item.getGroups().first().findBy(new CaseInsensitiveString(invalidPipelineInPartial)) != null).findFirst().orElse(null);
+        return partials.stream().filter(item -> item.getGroups().getFirstOrNull().findBy(new CaseInsensitiveString(invalidPipelineInPartial)) != null).findFirst().orElse(null);
     }
 
     @Test
@@ -174,12 +174,12 @@ public class PartialConfigServiceIntegrationTest {
         PartialConfig repo1 = PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1"));
         PartialConfig repo2 = PartialConfigMother.withPipeline("p2_repo2", new RepoConfigOrigin(repoConfig2, "1"));
         PartialConfig repo3 = PartialConfigMother.withPipeline("p3_repo3", new RepoConfigOrigin(repoConfig3, "1"));
-        PipelineConfig p1 = repo1.getGroups().first().getPipelines().get(0);
-        PipelineConfig p2 = repo2.getGroups().first().getPipelines().get(0);
-        PipelineConfig p3 = repo3.getGroups().first().getPipelines().get(0);
-        p2.addMaterialConfig(new DependencyMaterialConfig(p1.name(), p1.first().name()));
-        p2.addMaterialConfig(new DependencyMaterialConfig(p3.name(), p3.first().name()));
-        p1.addMaterialConfig(new DependencyMaterialConfig(p3.name(), p3.first().name()));
+        PipelineConfig p1 = repo1.getGroups().getFirstOrNull().getPipelines().get(0);
+        PipelineConfig p2 = repo2.getGroups().getFirstOrNull().getPipelines().get(0);
+        PipelineConfig p3 = repo3.getGroups().getFirstOrNull().getPipelines().get(0);
+        p2.addMaterialConfig(new DependencyMaterialConfig(p1.name(), p1.getFirstOrNull().name()));
+        p2.addMaterialConfig(new DependencyMaterialConfig(p3.name(), p3.getFirstOrNull().name()));
+        p1.addMaterialConfig(new DependencyMaterialConfig(p3.name(), p3.getFirstOrNull().name()));
 
         partialConfigService.onSuccessPartialConfig(repoConfig2, repo2);
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(p2.name())).isFalse();
@@ -250,7 +250,7 @@ public class PartialConfigServiceIntegrationTest {
         expectedSCM.setOrigins(origin);
         expectedSCM.setName("name");
         assertThat(scms.size()).isEqualTo(1);
-        assertThat(scms.first()).isEqualTo(expectedSCM);
+        assertThat(scms.getFirstOrNull()).isEqualTo(expectedSCM);
         assertThat(cacheContainsPartial(cachedGoPartials.lastKnownPartials(), scmPartial)).isTrue();
     }
 

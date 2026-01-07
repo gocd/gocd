@@ -122,7 +122,7 @@ public class PipelineHistoryServiceIntegrationTest {
                 Pagination.pageByOffset(0, 1, 10),
                 "jez", true);
         assertThat(history.size()).isEqualTo(1);
-        StageInstanceModels stageHistory = history.first().getStageHistory();
+        StageInstanceModels stageHistory = history.getFirstOrNull().getStageHistory();
         assertThat(stageHistory.size()).isEqualTo(3);
         for (StageInstanceModel stageHistoryItem : stageHistory) {
             assertThat(stageHistoryItem.isScheduled()).isTrue();
@@ -135,7 +135,7 @@ public class PipelineHistoryServiceIntegrationTest {
         configHelper.setViewPermissionForGroup("group1", "jez");
         PipelineInstanceModels history = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, Pagination.pageByOffset(0, 1, 1), "jez");
         assertThat(history.size()).isEqualTo(1);
-        StageInstanceModels stageHistory = history.first().getStageHistory();
+        StageInstanceModels stageHistory = history.getFirstOrNull().getStageHistory();
         assertThat(stageHistory.size()).isEqualTo(3);
         assertStageHistory(stageHistory.get(0), false, true);
         assertStageHistory(stageHistory.get(1), false, false);
@@ -161,11 +161,11 @@ public class PipelineHistoryServiceIntegrationTest {
         PipelineInstanceModels history = pipelineHistoryService.load(pipelineOne.pipelineName,
                 Pagination.pageByOffset(0, 1, 10),
                 "jez", true);
-        StageInstanceModels stageHistory = history.first().getStageHistory();
+        StageInstanceModels stageHistory = history.getFirstOrNull().getStageHistory();
         assertThat(stageHistory.size()).isEqualTo(3);
-        assertThat(stageHistory.first().isScheduled()).isTrue();
-        assertThat(stageHistory.first().isAutoApproved()).isTrue();
-        assertThat(stageHistory.first().getCanRun()).isTrue();
+        assertThat(stageHistory.getFirstOrNull().isScheduled()).isTrue();
+        assertThat(stageHistory.getFirstOrNull().isAutoApproved()).isTrue();
+        assertThat(stageHistory.getFirstOrNull().getCanRun()).isTrue();
         assertThat(stageHistory.get(1).isScheduled()).isFalse();
         assertThat(stageHistory.get(1).isAutoApproved()).isFalse();
         assertThat(stageHistory.get(1).getCanRun()).isTrue();
@@ -183,8 +183,8 @@ public class PipelineHistoryServiceIntegrationTest {
                 Pagination.pageByOffset(0, 1, 10),
                 "jez", true);
         assertThat(history.size()).isEqualTo(1);
-        assertThat(history.first().getCanRun()).isFalse();
-        StageInstanceModels stageHistory = history.first().getStageHistory();
+        assertThat(history.getFirstOrNull().getCanRun()).isFalse();
+        StageInstanceModels stageHistory = history.getFirstOrNull().getStageHistory();
         assertThat(stageHistory.size()).isEqualTo(3);
         for (StageInstanceModel stageHistoryItem : stageHistory) {
             assertThat(stageHistoryItem.isScheduled()).isTrue();
@@ -198,12 +198,12 @@ public class PipelineHistoryServiceIntegrationTest {
         configHelper.addPipeline("pipeline-group", pipelineConfig);
 
         PipelineInstanceModels history = pipelineHistoryService.load("pipeline", Pagination.pageByOffset(0, 1, 10), "anyone", true);
-        PipelineInstanceModel instanceModel = history.first();
+        PipelineInstanceModel instanceModel = history.getFirstOrNull();
 
         assertThat(instanceModel instanceof EmptyPipelineInstanceModel).isTrue();
         StageInstanceModels stageHistory = instanceModel.getStageHistory();
         assertThat(stageHistory.size()).isEqualTo(1);
-        assertThat(stageHistory.first() instanceof NullStageHistoryItem).isTrue();
+        assertThat(stageHistory.getFirstOrNull() instanceof NullStageHistoryItem).isTrue();
     }
 
     @Test
@@ -301,7 +301,7 @@ public class PipelineHistoryServiceIntegrationTest {
         configHelper.setViewPermissionForGroup("group1", "foo");
         PipelineInstanceModels pipelines = pipelineHistoryService.latestInstancesForConfiguredPipelines(new Username(new CaseInsensitiveString("foo")));
         assertThat(pipelines.size()).isEqualTo(1);
-        assertThat(pipelines.first().getId()).isEqualTo(pipeline.getId());
+        assertThat(pipelines.getFirstOrNull().getId()).isEqualTo(pipeline.getId());
     }
 
     @Test
@@ -314,7 +314,7 @@ public class PipelineHistoryServiceIntegrationTest {
         assertThat(pipelines.size()).isEqualTo(0);
         pipelines = pipelineHistoryService.latestInstancesForConfiguredPipelines(new Username(new CaseInsensitiveString("admin")));
         assertThat(pipelines.size()).isEqualTo(1);
-        assertThat(pipelines.first().getId()).isEqualTo(pipeline.getId());
+        assertThat(pipelines.getFirstOrNull().getId()).isEqualTo(pipeline.getId());
     }
 
     @Test

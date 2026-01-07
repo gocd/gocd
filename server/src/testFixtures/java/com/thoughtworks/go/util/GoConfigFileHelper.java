@@ -623,7 +623,7 @@ public class GoConfigFileHelper {
 
     public void addAuthorizedUserForPipelineGroup(String user) {
         CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfigs group = cruiseConfig.getGroups().first();
+        PipelineConfigs group = cruiseConfig.getGroups().getFirstOrNull();
         group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString(user)));
         writeConfigFile(cruiseConfig);
     }

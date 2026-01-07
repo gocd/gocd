@@ -69,12 +69,12 @@ public class Tasks extends BaseCollection<Task> implements Validatable {
     }
 
     public boolean isExecTask() {
-        return first() instanceof ExecTask;
+        return getFirstOrNull() instanceof ExecTask;
     }
 
     public Task execTask() {
         if (isExecTask()) {
-            return first();
+            return getFirstOrNull();
         }
         return new ExecTask();
     }
@@ -93,7 +93,7 @@ public class Tasks extends BaseCollection<Task> implements Validatable {
     public Task findFirstByType(Class<? extends Task> type) {
         Tasks tasks = findByType(type);
         if (tasks.size() > 0) {
-            return tasks.first();
+            return tasks.getFirstOrNull();
         } else {
             throw bomb("Unable to find task of type " + type);
         }
@@ -126,7 +126,7 @@ public class Tasks extends BaseCollection<Task> implements Validatable {
     }
 
      public String getTaskOptions() {
-        return first() == null ? "" : first().getTaskType();
+        return getFirstOrNull() == null ? "" : getFirstOrNull().getTaskType();
     }
 
     private void moveTask(int taskIndex, final int moveBy) {

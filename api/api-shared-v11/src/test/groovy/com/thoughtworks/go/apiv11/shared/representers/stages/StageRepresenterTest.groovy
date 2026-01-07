@@ -147,7 +147,7 @@ class StageRepresenterTest  {
       ])
 
       def stageConfig = StageRepresenter.fromJSON(jsonReader)
-      assertEquals(JobConfigMother.jobConfig(), stageConfig.getJobs().first())
+      assertEquals(JobConfigMother.jobConfig(), stageConfig.getJobs().getFirstOrNull())
     }
 
     @Test

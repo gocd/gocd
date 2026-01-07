@@ -517,7 +517,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public StageConfig findFirstStageOfPipeline(final CaseInsensitiveString pipelineName) {
-        return getCurrentConfig().pipelineConfigByName(pipelineName).first();
+        return getCurrentConfig().pipelineConfigByName(pipelineName).getFirstOrNull();
     }
 
     public StageConfig nextStage(String pipelineName, String lastStageName) {

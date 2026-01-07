@@ -346,7 +346,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
         SCMMetadataStore.getInstance().addMetadataFor("plugin-id", new SCMConfigurations(scmConfiguration), null);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
-        SCM scmConfig = goConfigHolder.config.getSCMs().first();
+        SCM scmConfig = goConfigHolder.config.getSCMs().getFirstOrNull();
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("new_name"));
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = (PluggableSCMMaterialConfig) pipelineConfig.materialConfigs().get(0);
         assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(scmConfig);

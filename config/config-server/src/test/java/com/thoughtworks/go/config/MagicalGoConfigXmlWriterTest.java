@@ -577,7 +577,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldRemoveDuplicatedIgnoreTag() {
         CruiseConfig cruiseConfig = ConfigMigrator.load(ConfigFileFixture.TWO_DUPLICATED_FILTER);
 
-        int size = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).materialConfigs().first().filter().size();
+        int size = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).materialConfigs().getFirstOrNull().filter().size();
         assertThat(size).isEqualTo(1);
     }
 
@@ -642,7 +642,7 @@ public class MagicalGoConfigXmlWriterTest {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(buffer.toByteArray());
         CruiseConfig config = xmlLoader.loadConfigHolder(new String(inputStream.readAllBytes(), UTF_8)).config;
         assertThat(config.getGroups().size()).isEqualTo(2);
-        assertThat(config.getGroups().first().getGroup()).isEqualTo("studios");
+        assertThat(config.getGroups().getFirstOrNull().getGroup()).isEqualTo("studios");
     }
 
     @Test
@@ -730,13 +730,13 @@ public class MagicalGoConfigXmlWriterTest {
 
         PackageRepositories packageRepositories = goConfigHolder.config.getPackageRepositories();
         assertThat(packageRepositories).isEqualTo(cruiseConfig.getPackageRepositories());
-        assertThat(packageRepositories.get(0).getConfiguration().first().getConfigurationValue().getValue()).isEqualTo("http://go");
-        assertThat(packageRepositories.get(0).getConfiguration().first().getEncryptedConfigurationValue()).isNull();
-        assertThat(packageRepositories.get(0).getConfiguration().last().getEncryptedValue()).isEqualTo(new GoCipher().encrypt("secure"));
-        assertThat(packageRepositories.get(0).getConfiguration().last().getConfigurationValue()).isNull();
+        assertThat(packageRepositories.get(0).getConfiguration().getFirstOrNull().getConfigurationValue().getValue()).isEqualTo("http://go");
+        assertThat(packageRepositories.get(0).getConfiguration().getFirstOrNull().getEncryptedConfigurationValue()).isNull();
+        assertThat(packageRepositories.get(0).getConfiguration().getLastOrNull().getEncryptedValue()).isEqualTo(new GoCipher().encrypt("secure"));
+        assertThat(packageRepositories.get(0).getConfiguration().getLastOrNull().getConfigurationValue()).isNull();
         assertThat(packageRepositories.get(0).getPackages().get(0)).isEqualTo(packageDefinition);
-        assertThat(packageRepositories.get(0).getPackages().get(0).getConfiguration().first().getConfigurationValue().getValue()).isEqualTo("go-agent");
-        assertThat(packageRepositories.get(0).getPackages().get(0).getConfiguration().first().getEncryptedConfigurationValue()).isNull();
+        assertThat(packageRepositories.get(0).getPackages().get(0).getConfiguration().getFirstOrNull().getConfigurationValue().getValue()).isEqualTo("go-agent");
+        assertThat(packageRepositories.get(0).getPackages().get(0).getConfiguration().getFirstOrNull().getEncryptedConfigurationValue()).isNull();
     }
 
     @Test
@@ -821,7 +821,7 @@ public class MagicalGoConfigXmlWriterTest {
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("test"));
         assertThat(pipelineConfig.materialConfigs().get(0) instanceof PackageMaterialConfig).isTrue();
         assertThat(((PackageMaterialConfig) pipelineConfig.materialConfigs().get(0)).getPackageId()).isEqualTo(packageId);
-        PackageDefinition packageDefinition = goConfigHolder.config.getPackageRepositories().first().getPackages().first();
+        PackageDefinition packageDefinition = goConfigHolder.config.getPackageRepositories().getFirstOrNull().getPackages().getFirstOrNull();
         assertThat(((PackageMaterialConfig) pipelineConfig.materialConfigs().get(0)).getPackageDefinition()).isEqualTo(packageDefinition);
     }
 

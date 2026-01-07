@@ -47,8 +47,8 @@ public class FeedEntriesRepresenter implements XmlRepresentable {
             .textNode("updated", feedEntries.lastUpdatedDate())
             .link(selfUrl, "self");
 
-        if (feedEntries.last() != null) {
-            StageFeedEntry last = (StageFeedEntry) feedEntries.last();
+        if (!feedEntries.isEmpty()) {
+            StageFeedEntry last = (StageFeedEntry) feedEntries.getLast();
             documentBuilder.link(ctx.stagesXmlLink(pipelineName, last.getStageIdentifier().getPipelineCounter()), "next");
         }
 

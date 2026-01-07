@@ -87,7 +87,7 @@ class PipelineConfigSaveValidationContextTest {
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig);
         MaterialConfigs allMaterialsByFingerPrint = context.getAllMaterialsByFingerPrint(expectedMaterial.getFingerprint());
         assertThat(allMaterialsByFingerPrint.size()).isEqualTo(1);
-        assertThat(allMaterialsByFingerPrint.first()).isEqualTo(expectedMaterial);
+        assertThat(allMaterialsByFingerPrint.getFirstOrNull()).isEqualTo(expectedMaterial);
     }
 
     @Test

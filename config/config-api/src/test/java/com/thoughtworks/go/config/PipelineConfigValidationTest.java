@@ -225,7 +225,7 @@ class PipelineConfigValidationTest {
         pipeline.getStages().add(stage1);
         pipeline.getStages().add(stage2);
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs("group", new Authorization(), pipeline));
-        boolean isValid = pipeline.validateTree(PipelineConfigSaveValidationContext.forChain(true, cruiseConfig.getGroups().first().getGroup(), cruiseConfig, pipeline));
+        boolean isValid = pipeline.validateTree(PipelineConfigSaveValidationContext.forChain(true, cruiseConfig.getGroups().getFirstOrNull().getGroup(), cruiseConfig, pipeline));
         assertThat(isValid).isTrue();
         assertThat(pipeline.materialConfigs().errors().isEmpty()).isTrue();
         assertThat(pipeline.materialConfigs().get(0).errors().isEmpty()).isTrue();
@@ -254,7 +254,7 @@ class PipelineConfigValidationTest {
         pipeline.getStages().add(stage1);
         pipeline.getStages().add(stage2);
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs("group", new Authorization(), pipeline));
-        boolean isValid = pipeline.validateTree(PipelineConfigSaveValidationContext.forChain(true, cruiseConfig.getGroups().first().getGroup(), cruiseConfig, pipeline));
+        boolean isValid = pipeline.validateTree(PipelineConfigSaveValidationContext.forChain(true, cruiseConfig.getGroups().getFirstOrNull().getGroup(), cruiseConfig, pipeline));
         assertThat(isValid).isFalse();
         assertThat(pipeline.getVariables().get(0).errors().firstError()).isEqualTo("Environment Variable cannot have an empty name for pipeline 'pipeline'.");
         assertThat(pipeline.getParams().get(0).errors().firstError()).isEqualTo("Parameter cannot have an empty name for pipeline 'pipeline'.");
@@ -271,10 +271,10 @@ class PipelineConfigValidationTest {
                 new DependencyMaterialConfig(new CaseInsensitiveString(upstreamPipeline), new CaseInsensitiveString("non-existant")));
 
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig));
-        boolean isValid = pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, cruiseConfig.getGroups().first().getGroup(), cruiseConfig, pipelineConfig));
+        boolean isValid = pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, cruiseConfig.getGroups().getFirstOrNull().getGroup(), cruiseConfig, pipelineConfig));
         assertThat(isValid).isFalse();
 
-        ConfigErrors materialErrors = pipelineConfig.materialConfigs().first().errors();
+        ConfigErrors materialErrors = pipelineConfig.materialConfigs().getFirstOrNull().errors();
         assertThat(materialErrors.isEmpty()).isFalse();
         assertThat(materialErrors.firstError()).isEqualTo("Pipeline with name 'non-existant' does not exist, it is defined as a dependency for pipeline 'pipeline' (cruise-config.xml)");
     }
@@ -287,9 +287,9 @@ class PipelineConfigValidationTest {
         PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig("downstream",
                 new DependencyMaterialConfig(new CaseInsensitiveString(upstreamPipeline), new CaseInsensitiveString(upstreamStage)));
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig, upstream));
-        boolean isValid = pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, cruiseConfig.getGroups().first().getGroup(), cruiseConfig, pipelineConfig));
+        boolean isValid = pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, cruiseConfig.getGroups().getFirstOrNull().getGroup(), cruiseConfig, pipelineConfig));
         assertThat(isValid).isFalse();
-        ConfigErrors materialErrors = pipelineConfig.materialConfigs().first().errors();
+        ConfigErrors materialErrors = pipelineConfig.materialConfigs().getFirstOrNull().errors();
         assertThat(materialErrors.isEmpty()).isFalse();
         assertThat(materialErrors.firstError()).isEqualTo("Stage with name 'non-existant' does not exist on pipeline 'upstream', it is being referred to from pipeline 'downstream' (cruise-config.xml)");
     }
@@ -374,7 +374,7 @@ class PipelineConfigValidationTest {
         PipelineConfig p1 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString(pipelineName));
         p1 = GoConfigMother.deepClone(p1); // Do not remove cloning else it changes the underlying cache object defeating the purpose of the test.
         p1.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p3"), new CaseInsensitiveString("stage")));
-        p1.validateTree(PipelineConfigSaveValidationContext.forChain(true, cruiseConfig.getGroups().first().getGroup(), cruiseConfig, p1));
+        p1.validateTree(PipelineConfigSaveValidationContext.forChain(true, cruiseConfig.getGroups().getFirstOrNull().getGroup(), cruiseConfig, p1));
         assertThat(p1.materialConfigs().errors().isEmpty()).isFalse();
         assertThat(p1.materialConfigs().errors().firstErrorOn("base")).isEqualTo("Circular dependency: p1 <- p2 <- p3 <- p1");
     }
@@ -414,9 +414,9 @@ class PipelineConfigValidationTest {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2");
         PipelineConfig p1 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p1"));
         PipelineConfig p2 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p2"));
-        p2.addMaterialConfig(new DependencyMaterialConfig(p1.name(), p1.first().name()));
+        p2.addMaterialConfig(new DependencyMaterialConfig(p1.name(), p1.getFirstOrNull().name()));
 
-        String group = cruiseConfig.getGroups().first().getGroup();
+        String group = cruiseConfig.getGroups().getFirstOrNull().getGroup();
         StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("s1"), new JobConfigs(new JobConfig(new CaseInsensitiveString("j1"))));
         PipelineConfig pipelineConfig = new PipelineConfig(p1.name(), new MaterialConfigs(), stageConfig);
         cruiseConfig.update(group, pipelineConfig.name().toString(), pipelineConfig);
@@ -432,16 +432,16 @@ class PipelineConfigValidationTest {
         PipelineConfig p1 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p1"));
         PipelineConfig p2 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p2"));
         PipelineConfig p3 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p3"));
-        p2.addMaterialConfig(new DependencyMaterialConfig(p1.name(), p1.first().name()));
+        p2.addMaterialConfig(new DependencyMaterialConfig(p1.name(), p1.getFirstOrNull().name()));
         JobConfig p2S2J2 = new JobConfig(new CaseInsensitiveString("j2"));
         p2S2J2.addTask(fetchTaskFromSamePipeline(p2));
         p2.add(new StageConfig(new CaseInsensitiveString("stage2"), new JobConfigs(p2S2J2)));
-        p3.addMaterialConfig(new DependencyMaterialConfig(p2.name(), p2.first().name()));
-        p3.first().getJobs().first().addTask(new FetchTask(new CaseInsensitiveString("p1/p2"), p1.first().name(), p1.first().getJobs().first().name(), "src", "dest"));
+        p3.addMaterialConfig(new DependencyMaterialConfig(p2.name(), p2.getFirstOrNull().name()));
+        p3.getFirstOrNull().getJobs().getFirstOrNull().addTask(new FetchTask(new CaseInsensitiveString("p1/p2"), p1.getFirstOrNull().name(), p1.getFirstOrNull().getJobs().getFirstOrNull().name(), "src", "dest"));
 
         StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("new-job"))));
         PipelineConfig pipelineConfig = new PipelineConfig(p1.name(), new MaterialConfigs(), stageConfig);
-        String group = cruiseConfig.getGroups().first().getGroup();
+        String group = cruiseConfig.getGroups().getFirstOrNull().getGroup();
         cruiseConfig.update(group, pipelineConfig.name().toString(), pipelineConfig);
         PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(false, group, cruiseConfig, pipelineConfig);
 
@@ -451,8 +451,8 @@ class PipelineConfigValidationTest {
 
     private FetchTask fetchTaskFromSamePipeline(PipelineConfig pipelineConfig) {
         FetchTask fetchTask = new FetchTask();
-        fetchTask.setStage(pipelineConfig.first().name());
-        fetchTask.setJob(pipelineConfig.first().getJobs().first().name());
+        fetchTask.setStage(pipelineConfig.getFirstOrNull().name());
+        fetchTask.setJob(pipelineConfig.getFirstOrNull().getJobs().getFirstOrNull().name());
         return fetchTask;
     }
 
@@ -462,13 +462,13 @@ class PipelineConfigValidationTest {
         PipelineConfig p1 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p1"));
         PipelineConfig p2 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p2"));
         PipelineConfig p3 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p3"));
-        p2.addMaterialConfig(new DependencyMaterialConfig(p1.name(), p1.first().name()));
-        p3.addMaterialConfig(new DependencyMaterialConfig(p2.name(), p2.first().name()));
-        p3.first().getJobs().first().addTask(new FetchTask(new CaseInsensitiveString("p1/p2"), p1.first().name(), p1.first().getJobs().first().name(), "src", "dest"));
+        p2.addMaterialConfig(new DependencyMaterialConfig(p1.name(), p1.getFirstOrNull().name()));
+        p3.addMaterialConfig(new DependencyMaterialConfig(p2.name(), p2.getFirstOrNull().name()));
+        p3.getFirstOrNull().getJobs().getFirstOrNull().addTask(new FetchTask(new CaseInsensitiveString("p1/p2"), p1.getFirstOrNull().name(), p1.getFirstOrNull().getJobs().getFirstOrNull().name(), "src", "dest"));
 
         StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("new-job"))));
         PipelineConfig pipelineConfig = new PipelineConfig(p1.name(), new MaterialConfigs(), stageConfig);
-        String group = cruiseConfig.getGroups().first().getGroup();
+        String group = cruiseConfig.getGroups().getFirstOrNull().getGroup();
         cruiseConfig.update(group, pipelineConfig.name().toString(), pipelineConfig);
         PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(false, group, cruiseConfig, pipelineConfig);
 

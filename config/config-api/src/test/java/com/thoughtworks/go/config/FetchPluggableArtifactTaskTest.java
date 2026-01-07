@@ -100,7 +100,7 @@ class FetchPluggableArtifactTaskTest {
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("uppest_stream/upstream"), new CaseInsensitiveString("uppest-stage2"), new CaseInsensitiveString("uppest-job2"), "s3");
 
         StageConfig stage = downstream.getStage(new CaseInsensitiveString("stage"));
-        task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, stage, stage.getJobs().first()));
+        task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, stage, stage.getJobs().getFirstOrNull()));
 
         assertThat(task.errors().isEmpty()).isFalse();
         assertThat(task.errors().firstErrorOn(FetchTask.ARTIFACT_ORIGIN)).startsWith("\"downstream :: stage :: job\" tries to fetch artifact from job \"uppest_stream :: uppest-stage2 :: uppest-job2\" which is defined in");
@@ -266,7 +266,7 @@ class FetchPluggableArtifactTaskTest {
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("uppest_stream/upstream"), new CaseInsensitiveString("uppest-stage3"), new CaseInsensitiveString("uppest-job3"), "s3");
         StageConfig stage = downstream.getStage(new CaseInsensitiveString("stage"));
 
-        task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, stage, stage.getJobs().first()));
+        task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, stage, stage.getJobs().getFirstOrNull()));
 
         assertThat(task.errors().isEmpty()).isFalse();
         assertThat(task.errors().firstErrorOn(FetchTask.STAGE)).isEqualTo("\"downstream :: stage :: job\" tries to fetch artifact from stage \"uppest_stream :: uppest-stage3\" which does not complete before \"downstream\" pipeline's dependencies.");
@@ -365,12 +365,12 @@ class FetchPluggableArtifactTaskTest {
         downstream.setMaterialConfigs(new MaterialConfigs(MaterialConfigsMother.dependencyMaterialConfig("upstream", "up-stage1"), MaterialConfigsMother.dependencyMaterialConfig("upstreams_peer", "peer-stage")));
 
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("uppest_stream/upstreams_peer"), new CaseInsensitiveString("uppest-stage1"), new CaseInsensitiveString("uppest-job1"), "s3");
-        task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage")), downstream.getStage(new CaseInsensitiveString("stage")).getJobs().first()));
+        task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage")), downstream.getStage(new CaseInsensitiveString("stage")).getJobs().getFirstOrNull()));
 
         assertThat(task.errors().isEmpty()).isTrue();
 
         task = new FetchPluggableArtifactTask(new CaseInsensitiveString("uppest_stream/upstreams_peer"), new CaseInsensitiveString("uppest-stage2"), new CaseInsensitiveString("uppest-job2"), "s3");
-        task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage")), downstream.getStage(new CaseInsensitiveString("stage")).getJobs().first()));
+        task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage")), downstream.getStage(new CaseInsensitiveString("stage")).getJobs().getFirstOrNull()));
 
         assertThat(task.errors().isEmpty()).isFalse();
         assertThat(task.errors().firstErrorOn(FetchTask.STAGE)).isEqualTo("\"downstream :: stage :: job\" tries to fetch artifact from stage \"uppest_stream :: uppest-stage2\" which does not complete before \"downstream\" pipeline's dependencies.");
@@ -380,7 +380,7 @@ class FetchPluggableArtifactTaskTest {
     void shouldFailWhenFetchArtifactIsFromAnyStage_AFTER_theDependencyStageOnTheUpstreamPipeline() {
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("up-stage2"), new CaseInsensitiveString("up-job2"), "s3");
 
-        task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage")), downstream.getStage(new CaseInsensitiveString("stage")).getJobs().first()));
+        task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage")), downstream.getStage(new CaseInsensitiveString("stage")).getJobs().getFirstOrNull()));
 
         assertThat(task.errors().isEmpty()).isFalse();
         assertThat(task.errors().firstErrorOn(FetchTask.STAGE)).isEqualTo("\"downstream :: stage :: job\" tries to fetch artifact from stage \"upstream :: up-stage2\" which does not complete before \"downstream\" pipeline's dependencies.");
@@ -403,7 +403,7 @@ class FetchPluggableArtifactTaskTest {
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job-does-not-exist"), "s3");
         StageConfig stage = downstream.getStage(new CaseInsensitiveString("stage"));
 
-        task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, stage, stage.getJobs().first()));
+        task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, stage, stage.getJobs().getFirstOrNull()));
 
         assertThat(task.errors().isEmpty()).isFalse();
         assertThat(task.errors().firstErrorOn(FetchTask.JOB)).isEqualTo("\"downstream :: stage :: job\" tries to fetch artifact from job "
@@ -651,7 +651,7 @@ class FetchPluggableArtifactTaskTest {
 
         task.addConfigurations(configurationProperties);
         PipelineConfig pipelineWhichHasTheFetchTask = PipelineConfigMother.createPipelineConfigWithStage("p2", "anotherStage");
-        pipelineWhichHasTheFetchTask.first().getJobs().first().addTask(task);
+        pipelineWhichHasTheFetchTask.getFirstOrNull().getJobs().getFirstOrNull().addTask(task);
         pipelineWhichHasTheFetchTask.setParams(new ParamsConfig(new ParamConfig("pipeline", "pipeline"), new ParamConfig("stage", "stage"), new ParamConfig("job", "job"), new ParamConfig("artifactId", "s3")));
         task.encryptSecureProperties(cruiseConfig, pipelineWhichHasTheFetchTask, preprocessedTask);
 

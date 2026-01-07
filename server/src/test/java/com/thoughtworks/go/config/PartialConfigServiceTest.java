@@ -117,7 +117,7 @@ public class PartialConfigServiceTest {
         }).when(goConfigService).updateConfig(any());
         service.onSuccessPartialConfig(configRepoConfig, withPipeline("p1"));
         assertEquals(1, cruiseConfig.getPartials().size());
-        assertEquals("group", cruiseConfig.getPartials().get(0).getGroups().first().getGroup());
+        assertEquals("group", cruiseConfig.getPartials().get(0).getGroups().getFirstOrNull().getGroup());
     }
 
     @Test
@@ -129,7 +129,7 @@ public class PartialConfigServiceTest {
         }).when(goConfigService).updateConfig(any());
         service.onSuccessPartialConfig(configRepoConfig, withEnvironment("env1"));
         assertEquals(1, cruiseConfig.getPartials().size());
-        assertEquals(new CaseInsensitiveString("env1"), cruiseConfig.getPartials().get(0).getEnvironments().first().name());
+        assertEquals(new CaseInsensitiveString("env1"), cruiseConfig.getPartials().get(0).getEnvironments().getFirstOrNull().name());
     }
 
     @Test

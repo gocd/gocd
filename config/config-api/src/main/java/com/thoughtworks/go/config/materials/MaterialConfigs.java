@@ -328,7 +328,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     }
 
     public String getMaterialOptions() {
-        return first() == null ? "" : first().getType();
+        return Optional.ofNullable(getFirstOrNull()).map(MaterialConfig::getType).orElse("");
     }
 
     @SuppressWarnings("unchecked")

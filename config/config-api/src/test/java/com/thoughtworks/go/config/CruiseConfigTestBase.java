@@ -325,7 +325,7 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
         pipelineConfig.addMaterialConfig(p4MaterialConfig);
         p4MaterialConfig.errors().add("materialName", "material name does not follow pattern");
 
-        StageConfig stage = pipelineConfig.first();
+        StageConfig stage = pipelineConfig.getFirstOrNull();
         stage.errors().add("role", "Roles must be proper");
 
         List<ConfigErrors> allErrors = config.validateAfterPreprocess();
@@ -355,7 +355,7 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
         pipelineConfig.addMaterialConfig(p4MaterialConfig);
         p4MaterialConfig.errors().add("materialName", "material name does not follow pattern");
 
-        StageConfig stage = pipelineConfig.first();
+        StageConfig stage = pipelineConfig.getFirstOrNull();
         stage.errors().add("role", "Roles must be proper");
 
         List<ConfigErrors> allErrors = config.getAllErrors();
@@ -383,7 +383,7 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
         pipelineConfig.addMaterialConfig(p4MaterialConfig);
         p4MaterialConfig.errors().add("materialName", "material name does not follow pattern");
 
-        StageConfig stage = pipelineConfig.first();
+        StageConfig stage = pipelineConfig.getFirstOrNull();
         stage.errors().add("role", "Roles must be proper");
 
         List<ConfigErrors> allErrors = config.getAllErrorsExceptFor(p4MaterialConfig);
@@ -410,7 +410,7 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
         pipelineConfig.addMaterialConfig(p4MaterialConfig);
         p4MaterialConfig.errors().add("materialName", "material name does not follow pattern");
 
-        StageConfig stage = pipelineConfig.first();
+        StageConfig stage = pipelineConfig.getFirstOrNull();
         stage.errors().add("role", "Roles must be proper");
 
         List<ConfigErrors> allErrors = config.getAllErrorsExceptFor(null);

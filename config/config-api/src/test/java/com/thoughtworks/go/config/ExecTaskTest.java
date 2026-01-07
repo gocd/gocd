@@ -188,12 +188,12 @@ public class ExecTaskTest {
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("some_pipeline");
         StageConfig templateStage = StageConfigMother.stageWithTasks("templateStage");
         ExecTask execTask = new ExecTask("ls", "-la", "/");
-        templateStage.getJobs().first().addTask(execTask);
+        templateStage.getJobs().getFirstOrNull().addTask(execTask);
         PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template_name"), templateStage);
         cruiseConfig.addTemplate(template);
 
         try {
-            execTask.validateTask(ConfigSaveValidationContext.forChain(cruiseConfig, template, templateStage, templateStage.getJobs().first()));
+            execTask.validateTask(ConfigSaveValidationContext.forChain(cruiseConfig, template, templateStage, templateStage.getJobs().getFirstOrNull()));
             assertThat(execTask.errors().isEmpty()).isFalse();
             assertThat(execTask.errors().firstErrorOn(ExecTask.WORKING_DIR)).isEqualTo("The path of the working directory for the custom command in job 'job' in stage 'templateStage' of template 'template_name' is outside the agent sandbox. It must be relative to the directory where the agent checks out materials.");
         } catch (Exception e) {

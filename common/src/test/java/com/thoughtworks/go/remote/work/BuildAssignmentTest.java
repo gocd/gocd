@@ -164,7 +164,7 @@ public class BuildAssignmentTest {
         additionalData.put("a1", "v1");
         additionalData.put("a2", "v2");
         String additionalDataAsString = JsonHelper.toJson(additionalData);
-        packageMaterialRevision.getModifications().first().setAdditionalData(additionalDataAsString);
+        packageMaterialRevision.getModifications().getFirstOrNull().setAdditionalData(additionalDataAsString);
         MaterialRevisions materialRevisions = new MaterialRevisions(packageMaterialRevision);
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "user1");
 

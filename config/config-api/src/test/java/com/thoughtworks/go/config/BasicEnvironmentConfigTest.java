@@ -173,7 +173,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
             cruiseConfig.addEnvironment(environmentConfig);
 
             environmentConfig.validate(forChain(cruiseConfig, environmentConfig));
-            EnvironmentPipelineConfig reference = environmentConfig.getPipelines().first();
+            EnvironmentPipelineConfig reference = environmentConfig.getPipelines().getFirstOrNull();
 
             assertThat(reference.errors()).isNotEmpty();
             assertThat(reference.errors().firstErrorOn(EnvironmentPipelineConfig.ORIGIN)).startsWith("Environment defined in");
@@ -233,7 +233,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
         cruiseConfig.addEnvironment(environmentConfig);
 
         environmentConfig.validate(forChain(cruiseConfig, environmentConfig));
-        EnvironmentPipelineConfig reference = environmentConfig.getPipelines().first();
+        EnvironmentPipelineConfig reference = environmentConfig.getPipelines().getFirstOrNull();
 
         assertThat(reference.errors().isEmpty()).isTrue();
     }
@@ -253,7 +253,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
             cruiseConfig.addEnvironment(environmentConfig);
 
             environmentConfig.validateTree(forChain(cruiseConfig, environmentConfig), cruiseConfig);
-            EnvironmentPipelineConfig reference = environmentConfig.getPipelines().first();
+            EnvironmentPipelineConfig reference = environmentConfig.getPipelines().getFirstOrNull();
 
             assertThat(reference.errors()).isNotEmpty();
             assertThat(reference.errors().firstErrorOn(EnvironmentPipelineConfig.ORIGIN)).startsWith("Environment defined in");
@@ -315,7 +315,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
             cruiseConfig.addEnvironment(environmentConfig);
 
             environmentConfig.validate(forChain(cruiseConfig, environmentConfig));
-            EnvironmentPipelineConfig reference = environmentConfig.getPipelines().first();
+            EnvironmentPipelineConfig reference = environmentConfig.getPipelines().getFirstOrNull();
 
             assertThat(reference.errors().isEmpty()).isTrue();
         }
@@ -546,7 +546,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
         cruiseConfig.addEnvironment(environmentConfig);
 
         environmentConfig.validate(forChain(cruiseConfig, environmentConfig));
-        EnvironmentPipelineConfig reference = environmentConfig.getPipelines().first();
+        EnvironmentPipelineConfig reference = environmentConfig.getPipelines().getFirstOrNull();
 
         assertThat(reference.errors().isEmpty()).isTrue();
     }
@@ -560,7 +560,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
         cruiseConfig.addEnvironment(environmentConfig);
 
         environmentConfig.validateTree(forChain(cruiseConfig, environmentConfig), cruiseConfig);
-        EnvironmentPipelineConfig reference = environmentConfig.getPipelines().first();
+        EnvironmentPipelineConfig reference = environmentConfig.getPipelines().getFirstOrNull();
 
         assertThat(reference.errors().isEmpty()).isTrue();
     }

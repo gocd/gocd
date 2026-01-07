@@ -90,7 +90,7 @@ public class JobStatusListenerIntegrationTest {
         PipelineConfig pipelineConfig = withSingleStageWithMaterials(PIPELINE_NAME, STAGE_NAME, withBuildPlans(JOB_NAME));
         configHelper.addPipeline(PIPELINE_NAME, STAGE_NAME);
         savedPipeline = scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), GoConstants.DEFAULT_APPROVED_BY);
-        JobInstance job = savedPipeline.getStages().first().getJobInstances().first();
+        JobInstance job = savedPipeline.getStages().getFirstOrNull().getJobInstances().getFirstOrNull();
         job.setAgentUuid(UUID);
 
         stageStatusTopic = mock(StageStatusTopic.class);

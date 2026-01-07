@@ -359,7 +359,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public StageConfig getFirstStageConfig() {
-        return this.first();
+        return this.getFirstOrNull();
     }
 
     @Override
@@ -566,7 +566,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         if (isEmpty()) {
             return false;
         }
-        return first().requiresApproval();
+        return getFirstOrNull().requiresApproval();
     }
 
     public void lockExplicitly() {
@@ -790,7 +790,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
             }
         }
         if (attributeMap.containsKey(StageConfig.APPROVAL)) {
-            StageConfig firstStage = first();
+            StageConfig firstStage = getFirstOrNull();
             firstStage.setConfigAttributes(attributeMap);
         }
     }

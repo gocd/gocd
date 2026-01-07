@@ -37,14 +37,14 @@ public class FeedEntries extends BaseCollection<FeedEntry> {
     }
 
     public Long firstEntryId() {
-        return isEmpty() ? null : first().getEntryId();
+        return isEmpty() ? null : getFirst().getEntryId();
     }
 
     public Long lastEntryId() {
-        return isEmpty() ? null : last().getEntryId();
+        return isEmpty() ? null : getLast().getEntryId();
     }
 
     public Date lastUpdatedDate() {
-        return isEmpty() ? new Date() : first().getUpdatedDate();
+        return isEmpty() ? new Date() : getFirst().getUpdatedDate();
     }
 }

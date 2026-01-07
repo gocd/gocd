@@ -53,6 +53,6 @@ class ConfigRepoPartialPreprocessorTest {
         cruiseConfig.setPartials(List.of(partialConfig));
         preprocessor.process(cruiseConfig);
         assertThat(cruiseConfig.getAllPipelineNames().contains(pipelineInMain.name())).isTrue();
-        assertThat(cruiseConfig.getAllPipelineNames().contains(partialConfig.getGroups().first().get(0).name())).isTrue();
+        assertThat(cruiseConfig.getAllPipelineNames().contains(partialConfig.getGroups().getFirstOrNull().get(0).name())).isTrue();
     }
 }

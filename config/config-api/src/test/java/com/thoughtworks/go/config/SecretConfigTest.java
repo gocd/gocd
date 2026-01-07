@@ -85,7 +85,7 @@ public class SecretConfigTest extends AbstractRuleAwarePluginProfileTest {
             secretConfig.addConfigurations(List.of(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
 
             assertThat(secretConfig.getConfiguration()).hasSize(1);
-            assertThat(secretConfig.getConfiguration().first().isSecure()).isTrue();
+            assertThat(secretConfig.getConfiguration().getFirstOrNull().isSecure()).isTrue();
         }
 
         @Test
@@ -99,7 +99,7 @@ public class SecretConfigTest extends AbstractRuleAwarePluginProfileTest {
             assertThat(secretConfig.getConfiguration())
                     .hasSize(1)
                     .contains(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
-            assertThat(secretConfig.getConfiguration().first().isSecure()).isFalse();
+            assertThat(secretConfig.getConfiguration().getFirstOrNull().isSecure()).isFalse();
         }
     }
 
@@ -117,7 +117,7 @@ public class SecretConfigTest extends AbstractRuleAwarePluginProfileTest {
             secretConfig.encryptSecureConfigurations();
 
             assertThat(secretConfig.getConfiguration()).hasSize(1);
-            assertThat(secretConfig.getConfiguration().first().isSecure()).isTrue();
+            assertThat(secretConfig.getConfiguration().getFirstOrNull().isSecure()).isTrue();
         }
 
         @Test
@@ -127,7 +127,7 @@ public class SecretConfigTest extends AbstractRuleAwarePluginProfileTest {
             secretConfig.encryptSecureConfigurations();
 
             assertThat(secretConfig.getConfiguration()).hasSize(1);
-            assertThat(secretConfig.getConfiguration().first().isSecure()).isFalse();
+            assertThat(secretConfig.getConfiguration().getFirstOrNull().isSecure()).isFalse();
         }
     }
 

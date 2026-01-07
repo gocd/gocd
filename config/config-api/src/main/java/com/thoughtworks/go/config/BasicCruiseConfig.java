@@ -936,7 +936,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         if (groups.isEmpty()) {
             throw new IllegalStateException("No pipeline group defined yet!");
         }
-        return groups.first().hasPipeline(pipelineName);
+        return groups.getFirstOrNull().hasPipeline(pipelineName);
     }
 
     @Override

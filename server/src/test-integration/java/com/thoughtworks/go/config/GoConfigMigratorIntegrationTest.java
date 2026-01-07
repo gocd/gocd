@@ -231,7 +231,7 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldMigrateMaterialFolderAttributeToDest() throws Exception {
         CruiseConfig cruiseConfig = loadConfigFileWithContent(ConfigFileFixture.VERSION_2);
-        MaterialConfig actual = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("multiple")).materialConfigs().first();
+        MaterialConfig actual = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("multiple")).materialConfigs().getFirstOrNull();
         assertThat(actual.getFolder()).isEqualTo("part1");
     }
 
@@ -244,7 +244,7 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldMigrateRevision7To8() throws Exception {
         CruiseConfig cruiseConfig = loadConfigFileWithContent(ConfigFileFixture.VERSION_7);
-        HgMaterialConfig hgConfig = (HgMaterialConfig) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework")).materialConfigs().first();
+        HgMaterialConfig hgConfig = (HgMaterialConfig) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework")).materialConfigs().getFirstOrNull();
         assertThat(hgConfig.getFolder()).isNull();
         assertThat(hgConfig.filter()).isNotNull();
     }
@@ -254,7 +254,7 @@ public class GoConfigMigratorIntegrationTest {
         String content = Files.readString(
                 Path.of("../common/src/test/resources/data/config/version4/cruise-config-dependency-migration.xml"), UTF_8);
         CruiseConfig cruiseConfig = loadConfigFileWithContent(content);
-        MaterialConfig actual = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("depends")).materialConfigs().first();
+        MaterialConfig actual = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("depends")).materialConfigs().getFirstOrNull();
         assertThat(actual).isInstanceOf(DependencyMaterialConfig.class);
         DependencyMaterialConfig depends = (DependencyMaterialConfig) actual;
         assertThat(depends.getPipelineName()).isEqualTo(new CaseInsensitiveString("multiple"));
@@ -733,11 +733,11 @@ public class GoConfigMigratorIntegrationTest {
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
         EnvironmentVariablesConfig variables = pipelineConfig.getVariables();
-        assertThat(variables.getPlainTextVariables().first().getName()).isEqualTo("test");
-        assertThat(variables.getPlainTextVariables().first().getValue()).isEqualTo("foobar");
-        assertThat(variables.getSecureVariables().first().getName()).isEqualTo("PATH");
+        assertThat(variables.getPlainTextVariables().getFirstOrNull().getName()).isEqualTo("test");
+        assertThat(variables.getPlainTextVariables().getFirstOrNull().getValue()).isEqualTo("foobar");
+        assertThat(variables.getSecureVariables().getFirstOrNull().getName()).isEqualTo("PATH");
         // encrypted value for "abcd" is "trMHp15AjUE=" for the cipher "269298bc31c44620"
-        assertThat(variables.getSecureVariables().first().getValue()).isEqualTo("abcd");
+        assertThat(variables.getSecureVariables().getFirstOrNull().getValue()).isEqualTo("abcd");
     }
 
     @Test

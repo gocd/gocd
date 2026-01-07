@@ -107,12 +107,12 @@ public class GoConfigServiceTest {
 
         PipelineConfig otherPipeline = createPipelineConfig("pipeline_other", "stage_other", "plan_other");
         otherPipeline.setVariables(env("OTHER_PIPELINE_LEVEL", "other pipeline"));
-        otherPipeline.first().setVariables(env("OTHER_STAGE_LEVEL", "other stage"));
-        otherPipeline.first().jobConfigByConfigName(new CaseInsensitiveString("plan_other")).setVariables(env("OTHER_JOB_LEVEL", "other job"));
+        otherPipeline.getFirstOrNull().setVariables(env("OTHER_STAGE_LEVEL", "other stage"));
+        otherPipeline.getFirstOrNull().jobConfigByConfigName(new CaseInsensitiveString("plan_other")).setVariables(env("OTHER_JOB_LEVEL", "other job"));
 
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         pipelineConfig.setVariables(env("PIPELINE_LEVEL", "pipeline value"));
-        StageConfig stageConfig = pipelineConfig.first();
+        StageConfig stageConfig = pipelineConfig.getFirstOrNull();
         stageConfig.setVariables(env("STAGE_LEVEL", "stage value"));
         stageConfig.jobConfigByConfigName(new CaseInsensitiveString("plan")).setVariables(env("JOB_LEVEL", "job value"));
 
@@ -627,8 +627,8 @@ public class GoConfigServiceTest {
         PipelineConfig pipeline = group.findBy(new CaseInsensitiveString("new_name"));
         assertThat(pipeline.name()).isEqualTo(new CaseInsensitiveString("new_name"));
         assertThat(pipeline.getLabelTemplate()).isEqualTo("${COUNT}-#{foo}");
-        assertThat(pipeline.materialConfigs().first()).isInstanceOf(SvnMaterialConfig.class);
-        assertThat(pipeline.materialConfigs().first().getUriForDisplay()).isEqualTo("file:///tmp/foo");
+        assertThat(pipeline.materialConfigs().getFirstOrNull()).isInstanceOf(SvnMaterialConfig.class);
+        assertThat(pipeline.materialConfigs().getFirstOrNull().getUriForDisplay()).isEqualTo("file:///tmp/foo");
     }
 
     @Test
@@ -679,8 +679,8 @@ public class GoConfigServiceTest {
         PipelineConfig pipeline = group.findBy(new CaseInsensitiveString("new_name"));
         assertThat(pipeline.name()).isEqualTo(new CaseInsensitiveString("new_name"));
         assertThat(pipeline.getLabelTemplate()).isEqualTo("${COUNT}-#{foo}");
-        assertThat(pipeline.materialConfigs().first()).isInstanceOf(SvnMaterialConfig.class);
-        assertThat(pipeline.materialConfigs().first().getUriForDisplay()).isEqualTo("file:///tmp/foo");
+        assertThat(pipeline.materialConfigs().getFirstOrNull()).isInstanceOf(SvnMaterialConfig.class);
+        assertThat(pipeline.materialConfigs().getFirstOrNull().getUriForDisplay()).isEqualTo("file:///tmp/foo");
     }
 
     @Test

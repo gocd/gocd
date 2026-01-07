@@ -272,7 +272,7 @@ class JobRepresenterTest {
 
       def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
       assertEquals(actualJobConfig.tasks().size(), 1)
-      def task = actualJobConfig.tasks().first()
+      def task = actualJobConfig.tasks().getFirstOrNull()
       assertEquals(task.getTaskType(), 'ant')
     }
 

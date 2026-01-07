@@ -83,7 +83,7 @@ public class AgentAssignmentTest {
     @Test
     public void shouldGetLatestActiveJobOnAgentFromDatabase() {
         Pipeline pipeline = pipelineFixture.createPipelineWithFirstStageAssigned("uuid");
-        JobInstance expected = pipeline.getFirstStage().getJobInstances().first();
+        JobInstance expected = pipeline.getFirstStage().getJobInstances().getFirstOrNull();
 
         assertThat(agentAssignment.latestActiveJobOnAgent("uuid").getId()).isEqualTo(expected.getId());
     }

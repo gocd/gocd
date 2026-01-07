@@ -365,9 +365,9 @@ class PipelineConfigRepresenterTest {
       def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer))
 
       assertEquals('stage1', pipelineConfig.getStages().get(0).name().toString())
-      assertEquals('some-job', pipelineConfig.getStages().first().getJobs().get(0).name().toString())
-      assertEquals('plain', pipelineConfig.getStages().first().getVariables().get(0).name)
-      assertEquals('secure', pipelineConfig.getStages().first().getVariables().get(1).name)
+      assertEquals('some-job', pipelineConfig.getStages().getFirstOrNull().getJobs().get(0).name().toString())
+      assertEquals('plain', pipelineConfig.getStages().getFirstOrNull().getVariables().get(0).name)
+      assertEquals('secure', pipelineConfig.getStages().getFirstOrNull().getVariables().get(1).name)
     }
 
     @Test

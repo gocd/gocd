@@ -27,15 +27,15 @@ public class BaseCollectionTest {
         Object item1 = new Object();
         Object item2 = new Object();
         BaseCollection<Object> collection = new BaseCollection<>(item1, item2);
-        assertThat(collection.first()).isEqualTo(item1);
-        assertThat(collection.last()).isEqualTo(item2);
+        assertThat(collection.getFirstOrNull()).isEqualTo(item1);
+        assertThat(collection.getLastOrNull()).isEqualTo(item2);
     }
 
     @Test
     public void shouldReturnNullForEmptyCollection() {
         BaseCollection<Object> collection = new BaseCollection<>();
-        assertThat(collection.first()).isNull();
-        assertThat(collection.last()).isNull();
+        assertThat(collection.getFirstOrNull()).isNull();
+        assertThat(collection.getLastOrNull()).isNull();
     }
 
     @Test
@@ -46,12 +46,12 @@ public class BaseCollectionTest {
         BaseCollection<Object> collection = new BaseCollection<>(oldItem);
 
         assertThat(collection.size()).isEqualTo(1);
-        assertThat(collection.first()).isEqualTo(oldItem);
+        assertThat(collection.getFirstOrNull()).isEqualTo(oldItem);
 
         collection.replace(oldItem, newItem);
 
         assertThat(collection.size()).isEqualTo(1);
-        assertThat(collection.first()).isEqualTo(newItem);
+        assertThat(collection.getFirstOrNull()).isEqualTo(newItem);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class BaseCollectionTest {
 
         collection.replace(1, newItem);
 
-        assertThat(collection.last()).isEqualTo(newItem);
+        assertThat(collection.getLastOrNull()).isEqualTo(newItem);
     }
 
     @Test

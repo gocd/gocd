@@ -70,7 +70,7 @@ public class FanInGraph {
         this.materialConfigConverter = materialConfigConverter;
 
         PipelineConfig target = cruiseConfig.pipelineConfigByName(root);
-        this.root = (DependencyFanInNode) FanInNode.create(new DependencyMaterialConfig(target.name(), target.first().name()));
+        this.root = (DependencyFanInNode) FanInNode.create(new DependencyMaterialConfig(target.name(), target.getFirstOrNull().name()));
 
         buildGraph(target);
     }

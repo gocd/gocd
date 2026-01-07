@@ -20,13 +20,11 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.label.PipelineLabel;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 public class Pipeline extends PersistentObject implements PipelineInfo {
 
@@ -84,8 +82,8 @@ public class Pipeline extends PersistentObject implements PipelineInfo {
         this.stages = stages;
     }
 
-    public Stage getFirstStage() {
-        return stages.first() == null ? new NullStage("unknown") : stages.first();
+    public @NotNull Stage getFirstStage() {
+        return Objects.requireNonNullElseGet(stages.getFirstOrNull(), () -> new NullStage("unknown"));
     }
 
     public Materials getMaterials() {

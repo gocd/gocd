@@ -112,7 +112,7 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
         assertThat(goDashboardPipeline.model().getActivePipelineInstances().size()).isEqualTo(1);
         assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(0)).isEqualTo(goDashboardPipeline.model().getLatestPipelineInstance());
         assertThat(goDashboardPipeline.model().getLatestPipelineInstance().getId()).isEqualTo(pipeline.getId());
-        assertThat(goDashboardPipeline.model().getLatestPipelineInstance().stage(pipelineConfig.getStages().first().name().toString()).getId()).isEqualTo(pipeline.getFirstStage().getId());
+        assertThat(goDashboardPipeline.model().getLatestPipelineInstance().stage(pipelineConfig.getStages().getFirstOrNull().name().toString()).getId()).isEqualTo(pipeline.getFirstStage().getId());
     }
 
     @Test

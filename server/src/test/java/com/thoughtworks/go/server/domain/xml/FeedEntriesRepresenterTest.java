@@ -57,6 +57,7 @@ public class FeedEntriesRepresenterTest {
         String pipelineName = "up42";
         XmlWriterContext context = new XmlWriterContext("https://go-server/go", null, null);
         FeedEntries feedEntries = mock(FeedEntries.class);
+        when(feedEntries.isEmpty()).thenReturn(true);
         when(feedEntries.lastUpdatedDate()).thenReturn(Dates.parseIso8601StrictOffset("2019-12-31T07:28:30+05:30"));
 
         Document document = new FeedEntriesRepresenter(pipelineName, feedEntries).toXml(context);

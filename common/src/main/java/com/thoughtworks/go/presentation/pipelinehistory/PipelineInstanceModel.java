@@ -270,7 +270,7 @@ public class PipelineInstanceModel implements PipelineInfo {
     }
 
     public String getApprovedBy() {
-        return getStageHistory().first().getApprovedBy();
+        return getStageHistory().getFirstOrNull().getApprovedBy();
     }
 
     public Boolean isLatestStageUnsuccessful() {

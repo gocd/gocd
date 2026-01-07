@@ -128,7 +128,7 @@ public class JobInstanceServiceIntegrationTest {
         }
 
         JobInstances jobs1 = jobInstanceService.latestCompletedJobs(
-            pipelineFixture.pipelineName, pipelineFixture.devStage, stage.getJobInstances().first().getName());
+            pipelineFixture.pipelineName, pipelineFixture.devStage, stage.getJobInstances().getFirstOrNull().getName());
         assertThat(jobs1.size()).isEqualTo(25);
     }
 
@@ -157,10 +157,10 @@ public class JobInstanceServiceIntegrationTest {
     public void shouldContainIdentifierAfterSaved() {
         final Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
 
-        JobConfig jobConfig = pipelineFixture.devStage().allBuildPlans().first();
+        JobConfig jobConfig = pipelineFixture.devStage().allBuildPlans().getFirstOrNull();
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
         JobInstances instances = instanceFactory.createJobInstance(new CaseInsensitiveString("someStage"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
-        final JobInstance newJob = instances.first();
+        final JobInstance newJob = instances.getFirstOrNull();
 
         final StageIdentifier stageIdentifier = new StageIdentifier(pipeline.getName(), pipeline.getCounter(), pipeline.getLabel(),
             pipeline.getFirstStage().getName(), String.valueOf(pipeline.getFirstStage().getCounter()));

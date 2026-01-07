@@ -65,7 +65,7 @@ class PipelineRepresenterTest {
       _embedded             : [
         instances: [
           toObject({
-            PipelineInstanceRepresenter.toJSON(it, pipeline.model().activePipelineInstances.first(), pipeline, username)
+            PipelineInstanceRepresenter.toJSON(it, pipeline.model().activePipelineInstances.getFirstOrNull(), pipeline, username)
           })
         ]
       ],

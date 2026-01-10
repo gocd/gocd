@@ -117,8 +117,8 @@ public class GoDashboardServiceIntegrationTest {
         goDashboardService.updateCacheForAllPipelinesIn(goConfigService.cruiseConfig());
         List<GoDashboardPipelineGroup> pipelineGroupsOnDashboard = goDashboardService.allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user"));
         assertThat(pipelineGroupsOnDashboard).hasSize(1);
-        assertThat(pipelineGroupsOnDashboard.get(0).allPipelines().size()).isEqualTo(1);
-        assertThat(pipelineGroupsOnDashboard.get(0).allPipelines().iterator().next().model().getLatestPipelineInstance()
+        assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().size()).isEqualTo(1);
+        assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().iterator().next().model().getLatestPipelineInstance()
                 .getCounter()).isEqualTo((new StageIdentifier(p1_1).getPipelineCounter()));
 
         BuildCause buildCauseForThirdRun = BuildCause.createWithModifications(u.mrs(u.mr(u.m(g1).material, true, "g_2")), "user");
@@ -127,16 +127,16 @@ public class GoDashboardServiceIntegrationTest {
 
         pipelineGroupsOnDashboard = goDashboardService.allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user"));
         assertThat(pipelineGroupsOnDashboard).hasSize(1);
-        assertThat(pipelineGroupsOnDashboard.get(0).allPipelines().size()).isEqualTo(1);
-        assertThat(pipelineGroupsOnDashboard.get(0).allPipelines().iterator().next().model().getLatestPipelineInstance().getId()).isEqualTo((p1_2.getId()));
+        assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().size()).isEqualTo(1);
+        assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().iterator().next().model().getLatestPipelineInstance().getId()).isEqualTo((p1_2.getId()));
 
         addDummyEnvironmentToConfig("environment");
         goDashboardService.updateCacheForAllPipelinesIn(goConfigService.cruiseConfig());
 
         pipelineGroupsOnDashboard = goDashboardService.allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user"));
         assertThat(pipelineGroupsOnDashboard).hasSize(1);
-        assertThat(pipelineGroupsOnDashboard.get(0).allPipelines().size()).isEqualTo(1);
-        assertThat(pipelineGroupsOnDashboard.get(0).allPipelines().iterator().next().model().getLatestPipelineInstance().getId()).isEqualTo((p1_2.getId()));
+        assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().size()).isEqualTo(1);
+        assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().iterator().next().model().getLatestPipelineInstance().getId()).isEqualTo((p1_2.getId()));
     }
 
     private void addDummyEnvironmentToConfig(String environmentName) {
@@ -156,8 +156,8 @@ public class GoDashboardServiceIntegrationTest {
         goDashboardService.updateCacheForAllPipelinesIn(goConfigService.cruiseConfig());
         List<GoDashboardPipelineGroup> pipelineGroupsOnDashboard = goDashboardService.allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user"));
         assertThat(pipelineGroupsOnDashboard).hasSize(1);
-        assertThat(pipelineGroupsOnDashboard.get(0).allPipelines().size()).isEqualTo(1);
-        assertThat(pipelineGroupsOnDashboard.get(0).allPipelines().iterator().next().model().getLatestPipelineInstance()
+        assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().size()).isEqualTo(1);
+        assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().iterator().next().model().getLatestPipelineInstance()
                 .getCounter()).isEqualTo((new StageIdentifier(p1_1).getPipelineCounter()));
 
         BuildCause buildCauseForThirdRun = BuildCause.createWithModifications(u.mrs(u.mr(u.m(g1).material, true, "g_2")), "user");
@@ -166,8 +166,8 @@ public class GoDashboardServiceIntegrationTest {
 
         pipelineGroupsOnDashboard = goDashboardService.allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user"));
         assertThat(pipelineGroupsOnDashboard).hasSize(1);
-        assertThat(pipelineGroupsOnDashboard.get(0).allPipelines().size()).isEqualTo(1);
-        assertThat(pipelineGroupsOnDashboard.get(0).allPipelines().iterator().next().model().getLatestPipelineInstance().getId()).isEqualTo((p1_2.getId()));
+        assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().size()).isEqualTo(1);
+        assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().iterator().next().model().getLatestPipelineInstance().getId()).isEqualTo((p1_2.getId()));
 
         pipelineConfigService.deletePipelineConfig(new Username("user"), addedPipeline.config, new DefaultLocalizedOperationResult());
         goDashboardService.updateCacheForPipeline(addedPipeline.config);
@@ -193,17 +193,17 @@ public class GoDashboardServiceIntegrationTest {
 
         List<GoDashboardPipelineGroup> originalDashboard = goDashboardService.allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, user);
         assertThat(originalDashboard).hasSize(1);
-        assertThat(originalDashboard.get(0).allPipelines()).hasSize(1);
-        assertThat(originalDashboard.get(0).allPipelines().iterator().next().model().getActivePipelineInstances()).hasSize(1);
+        assertThat(originalDashboard.getFirst().allPipelines()).hasSize(1);
+        assertThat(originalDashboard.getFirst().allPipelines().iterator().next().model().getActivePipelineInstances()).hasSize(1);
 
         PipelineConfig newPipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), g1.config());
-        pipelineConfigService.createPipelineConfig(user, newPipeline, new DefaultLocalizedOperationResult(), goConfigService.cruiseConfig().getGroups().getFirstOrNull().getGroup());
+        pipelineConfigService.createPipelineConfig(user, newPipeline, new DefaultLocalizedOperationResult(), goConfigService.cruiseConfig().getGroups().getFirst().getGroup());
         goDashboardConfigChangeHandler.call(goConfigService.cruiseConfig().pipelineConfigByName(newPipeline.name()));
 
         assertThereIsExactlyOneInstanceOfEachPipelineOnDashboard(goDashboardService.allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, user));
 
-        u.runAndPass(new ScheduleTestUtil.AddedPipeline(newPipeline, new DependencyMaterial(newPipeline.name(), newPipeline.getFirstOrNull().name())), "g_1");
-        goDashboardStageStatusChangeHandler.call(stageSqlMapDao.mostRecentPassed(newPipeline.name().toString(), newPipeline.getFirstOrNull().name().toString()));
+        u.runAndPass(new ScheduleTestUtil.AddedPipeline(newPipeline, new DependencyMaterial(newPipeline.name(), newPipeline.getFirst().name())), "g_1");
+        goDashboardStageStatusChangeHandler.call(stageSqlMapDao.mostRecentPassed(newPipeline.name().toString(), newPipeline.getFirst().name().toString()));
 
         assertThereIsExactlyOneInstanceOfEachPipelineOnDashboard(goDashboardService.allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, user));
 
@@ -215,8 +215,8 @@ public class GoDashboardServiceIntegrationTest {
 
     private void assertThereIsExactlyOneInstanceOfEachPipelineOnDashboard(List<GoDashboardPipelineGroup> dashboardAfterPipelineCreationViaApi) {
         assertThat(dashboardAfterPipelineCreationViaApi).hasSize(1);//pipeline group
-        assertThat(dashboardAfterPipelineCreationViaApi.get(0).allPipelines()).hasSize(goConfigService.cruiseConfig().getAllPipelineNames().size());
-        for (GoDashboardPipeline dashboardPipeline : dashboardAfterPipelineCreationViaApi.get(0).allPipelines()) {
+        assertThat(dashboardAfterPipelineCreationViaApi.getFirst().allPipelines()).hasSize(goConfigService.cruiseConfig().getAllPipelineNames().size());
+        for (GoDashboardPipeline dashboardPipeline : dashboardAfterPipelineCreationViaApi.getFirst().allPipelines()) {
             assertThat(dashboardPipeline.model().getActivePipelineInstances()).hasSize(1);
         }
     }

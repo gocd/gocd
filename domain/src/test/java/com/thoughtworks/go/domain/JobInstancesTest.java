@@ -34,7 +34,7 @@ public class JobInstancesTest {
         JobInstances instances = new JobInstances(instance1, instance2);
         JobInstances actual = instances.filterByState(JobState.Assigned);
         assertThat(actual.size()).isEqualTo(1);
-        assertThat(actual.get(0).getState()).isEqualTo(JobState.Assigned);
+        assertThat(actual.getFirst().getState()).isEqualTo(JobState.Assigned);
     }
 
     @Test

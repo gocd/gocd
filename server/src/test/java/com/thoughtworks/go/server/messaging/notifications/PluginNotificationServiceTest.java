@@ -56,7 +56,6 @@ import static org.mockito.Mockito.*;
 public class PluginNotificationServiceTest {
     public static final String PLUGIN_ID_1 = "plugin-id-1";
     public static final String PLUGIN_ID_2 = "plugin-id-2";
-    public static final String PLUGIN_ID_3 = "plugin-id-3";
 
     @Mock
     private NotificationPluginRegistry notificationPluginRegistry;
@@ -132,6 +131,7 @@ public class PluginNotificationServiceTest {
     public void shouldConstructDataForStageNotification() {
         Stage stage = StageMother.custom("Stage");
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1)));
+        when(goConfigService.isFirstStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(true);
         when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(stage.getIdentifier().getPipelineName()))).thenReturn("group1");
         when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS)).thenReturn(1000L);
         BuildCause buildCause = BuildCause.createManualForced();
@@ -159,7 +159,7 @@ public class PluginNotificationServiceTest {
 
         stage.setApprovedBy("changes");
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1)));
-        when(goConfigService.hasPreviousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(true);
+        when(goConfigService.isFirstStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(false);
         when(goConfigService.previousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(previousStage);
         when(stageDao.findLatestStageCounter(stage.getIdentifier().pipelineIdentifier(), previousStage.name().toString())).thenReturn(1);
         when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS)).thenReturn(1000L);
@@ -185,7 +185,7 @@ public class PluginNotificationServiceTest {
         stage.setApprovedBy("admins");
         stage.setApprovalType("manual");
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1)));
-        when(goConfigService.hasPreviousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(true);
+        when(goConfigService.isFirstStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(false);
         when(goConfigService.previousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(previousStage);
         when(stageDao.findLatestStageCounter(stage.getIdentifier().pipelineIdentifier(), previousStage.name().toString())).thenReturn(1);
         when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS)).thenReturn(1000L);
@@ -211,7 +211,7 @@ public class PluginNotificationServiceTest {
         stage.setApprovalType("manual");
         stage.setCounter(2);
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1)));
-        when(goConfigService.hasPreviousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(true);
+        when(goConfigService.isFirstStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(false);
         when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS)).thenReturn(1000L);
 
         pluginNotificationService.notifyStageStatus(stage);
@@ -232,7 +232,7 @@ public class PluginNotificationServiceTest {
         stage.setApprovalType("manual");
 
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1)));
-        when(goConfigService.hasPreviousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(false);
+        when(goConfigService.isFirstStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(true);
         when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS)).thenReturn(1000L);
 
         pluginNotificationService.notifyStageStatus(stage);
@@ -258,8 +258,8 @@ public class PluginNotificationServiceTest {
         verify(pluginNotificationsQueueHandler, times(2)).post(captor.capture(), eq(1000L));
         List<PluginNotificationMessage<?>> messages = captor.getAllValues();
         assertThat(messages.size()).isEqualTo(2);
-        assertMessage(messages.get(0), PLUGIN_ID_1, NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION, agentInstance);
-        assertMessage(messages.get(1), PLUGIN_ID_2, NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION, agentInstance);
+        assertMessage(messages.getFirst(), PLUGIN_ID_1, NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION, agentInstance);
+        assertMessage(messages.getLast(), PLUGIN_ID_2, NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION, agentInstance);
     }
 
     private void assertMessage(PluginNotificationMessage<?> notificationMessage, String pluginId, String requestName, AgentInstance agentInstance) {

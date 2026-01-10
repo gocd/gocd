@@ -56,7 +56,7 @@ class JobConfigTest {
         config.setConfigAttributes(Map.of(JobConfig.NAME, "foo-job", JobConfig.TASKS, Map.of(Tasks.TASK_OPTIONS, "exec", "exec",
                 Map.of(Task.TASK_TYPE, "exec", ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "/tmp"))), taskFactory);
         assertThat(config.name()).isEqualTo(new CaseInsensitiveString("foo-job"));
-        assertThat(config.getTasks().get(0)).isEqualTo(new ExecTask("ls", "-la", "/tmp"));
+        assertThat(config.getTasks().getFirst()).isEqualTo(new ExecTask("ls", "-la", "/tmp"));
         assertThat(config.getTasks().size()).isEqualTo(1);
     }
 
@@ -106,7 +106,7 @@ class JobConfigTest {
     void shouldReturnAntTaskAsDefaultIfNoTasksSpecified() {
         JobConfig jobConfig = new JobConfig();
         assertThat(jobConfig.tasks()).hasSize(1);
-        Task task = jobConfig.tasks().getFirstOrNull();
+        Task task = jobConfig.tasks().getFirst();
         assertThat(task).isInstanceOf(NullTask.class);
     }
 
@@ -117,7 +117,7 @@ class JobConfigTest {
         task.setTarget("hello");
         config.addTask(task);
         config.setConfigAttributes(Map.of());
-        AntTask taskAfterUpdate = (AntTask) config.getTasks().get(0);
+        AntTask taskAfterUpdate = (AntTask) config.getTasks().getFirst();
         assertThat(taskAfterUpdate.getTarget()).isEqualTo("hello");
         assertThat(config.getTasks().size()).isEqualTo(1);
         Map<String, Object> attributes = new HashMap<>();
@@ -209,7 +209,7 @@ class JobConfigTest {
         when(validationContext.getStage()).thenReturn(pipelineConfig.getFirstStageConfig());
         jobConfig.validate(validationContext);
         assertThat(jobConfig.errors().isEmpty()).isFalse();
-        assertThat(jobConfig.errors().getAll().get(0)).isEqualTo("Empty resource name in job \"defaultJob\" of stage \"mingle\" of pipeline \"pipeline1\". If a template is used, please ensure that the resource parameters are defined for this pipeline.");
+        assertThat(jobConfig.errors().getAll().getFirst()).isEqualTo("Empty resource name in job \"defaultJob\" of stage \"mingle\" of pipeline \"pipeline1\". If a template is used, please ensure that the resource parameters are defined for this pipeline.");
     }
 
     @Test
@@ -319,10 +319,10 @@ class JobConfigTest {
         jobConfig.setConfigAttributes(Map.of(JobConfig.TABS, List.of(Map.of(Tab.NAME, "tab1", Tab.PATH, "path1"), Map.of(Tab.NAME, "tab2", Tab.PATH, "path2"))));
 
         assertThat(jobConfig.getTabs().size()).isEqualTo(2);
-        assertThat(jobConfig.getTabs().get(0).getName()).isEqualTo("tab1");
-        assertThat(jobConfig.getTabs().get(1).getName()).isEqualTo("tab2");
-        assertThat(jobConfig.getTabs().get(0).getPath()).isEqualTo("path1");
-        assertThat(jobConfig.getTabs().get(1).getPath()).isEqualTo("path2");
+        assertThat(jobConfig.getTabs().getFirst().getName()).isEqualTo("tab1");
+        assertThat(jobConfig.getTabs().getFirst().getPath()).isEqualTo("path1");
+        assertThat(jobConfig.getTabs().getLast().getName()).isEqualTo("tab2");
+        assertThat(jobConfig.getTabs().getLast().getPath()).isEqualTo("path2");
     }
 
     @Test

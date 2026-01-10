@@ -41,8 +41,6 @@ public interface Role extends Validatable, PolicyAware {
 
     void addUser(RoleUser user);
 
-    void removeUser(RoleUser roleUser);
-
     default boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
         getPolicy().validateTree(new DelegatingValidationContext(validationContext) {

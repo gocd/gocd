@@ -143,7 +143,7 @@ public class CachedGoConfigIntegrationTest {
         latestModification = setupExternalConfigRepo(externalConfigRepo);
         configHelper.addConfigRepo(createConfigRepoWithDefaultRules(git(externalConfigRepo.getAbsolutePath()), XmlPartialConfigProvider.providerName, "gocd-id"));
         goConfigService.forceNotifyListeners();
-        configRepo = configWatchList.getCurrentConfigRepos().get(0);
+        configRepo = configWatchList.getCurrentConfigRepos().getFirst();
         cachedGoPartials.clear();
         configHelper.addEnvironments("some_environment");
         magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(registry);
@@ -177,13 +177,13 @@ public class CachedGoConfigIntegrationTest {
         // So parsing fails and proper message is shown:
         List<ServerHealthState> messageForInvalidMerge = serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(downstreamConfigRepo));
         assertThat(messageForInvalidMerge.isEmpty()).isFalse();
-        assertThat(messageForInvalidMerge.get(0).getDescription()).contains("tries to fetch artifact from pipeline &quot;pipe1&quot;");
+        assertThat(messageForInvalidMerge.getFirst().getDescription()).contains("tries to fetch artifact from pipeline &quot;pipe1&quot;");
         // and current config is still old
         assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream"))).isFalse();
         assertThat(cachedGoPartials.lastKnownPartials().size()).isEqualTo(1);
         assertThat(cachedGoPartials.lastValidPartials().size()).isEqualTo(0);
         //here downstream partial is waiting to be merged
-        assertThat(cachedGoPartials.lastKnownPartials().get(0).getGroups().get(0).hasPipeline(new CaseInsensitiveString("downstream"))).isTrue();
+        assertThat(cachedGoPartials.lastKnownPartials().getFirst().getGroups().getFirst().hasPipeline(new CaseInsensitiveString("downstream"))).isTrue();
 
         // Finally upstream config repository is parsed
         repoConfigDataSource.onCheckoutComplete(configRepo.getRepo(), externalConfigRepo, latestModification);
@@ -218,13 +218,13 @@ public class CachedGoConfigIntegrationTest {
         List<ServerHealthState> messageForInvalidMerge = serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(secondDownstreamConfigRepo));
 
         assertThat(messageForInvalidMerge.isEmpty()).isFalse();
-        assertThat(messageForInvalidMerge.get(0).getDescription()).contains("tries to fetch artifact from pipeline &quot;downstream&quot;");
+        assertThat(messageForInvalidMerge.getFirst().getDescription()).contains("tries to fetch artifact from pipeline &quot;downstream&quot;");
         // and current config is still old
         assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream2"))).isFalse();
         assertThat(cachedGoPartials.lastKnownPartials().size()).isEqualTo(1);
         assertThat(cachedGoPartials.lastValidPartials().size()).isEqualTo(0);
         //here downstream2 partial is waiting to be merged
-        assertThat(cachedGoPartials.lastKnownPartials().get(0).getGroups().get(0).hasPipeline(new CaseInsensitiveString("downstream2"))).isTrue();
+        assertThat(cachedGoPartials.lastKnownPartials().getFirst().getGroups().getFirst().hasPipeline(new CaseInsensitiveString("downstream2"))).isTrue();
 
         // Then middle upstream config repository is parsed
         repoConfigDataSource.onCheckoutComplete(firstDownstreamConfigRepo.getRepo(), firstDownstreamExternalConfigRepo, firstDownstreamLatestModification);
@@ -232,7 +232,7 @@ public class CachedGoConfigIntegrationTest {
         // and errors are still shown
         messageForInvalidMerge = serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(firstDownstreamConfigRepo));
         assertThat(messageForInvalidMerge.isEmpty()).isFalse();
-        assertThat(messageForInvalidMerge.get(0).getDescription()).contains("Pipeline 'pipe1' does not exist. It is used from pipeline 'downstream'");
+        assertThat(messageForInvalidMerge.getFirst().getDescription()).contains("Pipeline 'pipe1' does not exist. It is used from pipeline 'downstream'");
         // and current config is still old
         assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream"))).isFalse();
         assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream2"))).isFalse();
@@ -306,7 +306,7 @@ public class CachedGoConfigIntegrationTest {
         final PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("pipe1", "ut",
             "www.spring.com");
         assertThatThrownBy(() -> goConfigDao.updateConfig(cruiseConfig -> {
-            cruiseConfig.getGroups().getFirstOrNull().add(dupPipelineConfig);
+            cruiseConfig.getGroups().getFirst().add(dupPipelineConfig);
             return cruiseConfig;
         })).isInstanceOf(RuntimeException.class)
             .satisfies(ex -> {
@@ -353,7 +353,7 @@ public class CachedGoConfigIntegrationTest {
     @Test
     public void shouldNotNotifyListenersWhenMergeFails() throws IOException {
         checkinPartial("config_repo_with_invalid_partial");
-        ConfigRepoConfig configRepo = configWatchList.getCurrentConfigRepos().get(0);
+        ConfigRepoConfig configRepo = configWatchList.getCurrentConfigRepos().getFirst();
 
 
         ConfigChangeListenerStub listener = new ConfigChangeListenerStub();
@@ -369,19 +369,19 @@ public class CachedGoConfigIntegrationTest {
     @Test
     public void shouldSetErrorHealthStateWhenMergeFails() throws IOException {
         checkinPartial("config_repo_with_invalid_partial");
-        ConfigRepoConfig configRepo = configWatchList.getCurrentConfigRepos().get(0);
+        ConfigRepoConfig configRepo = configWatchList.getCurrentConfigRepos().getFirst();
 
         repoConfigDataSource.onCheckoutComplete(configRepo.getRepo(), externalConfigRepo, latestModification);
 
         List<ServerHealthState> messageForInvalidMerge = serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(configRepo));
 
         assertThat(messageForInvalidMerge.isEmpty()).isFalse();
-        assertThat(messageForInvalidMerge.get(0).getDescription().contains("Pipeline 'pipeline_with_no_stage' does not have any stages configured")).isTrue();
+        assertThat(messageForInvalidMerge.getFirst().getDescription().contains("Pipeline 'pipeline_with_no_stage' does not have any stages configured")).isTrue();
     }
 
     @Test
     public void shouldUnSetErrorHealthStateWhenMergePasses() throws IOException {
-        ConfigRepoConfig configRepo = configWatchList.getCurrentConfigRepos().get(0);
+        ConfigRepoConfig configRepo = configWatchList.getCurrentConfigRepos().getFirst();
         checkinPartial("config_repo_with_invalid_partial/bad_partial.gocd.xml");
         repoConfigDataSource.onCheckoutComplete(configRepo.getRepo(), externalConfigRepo, latestModification);
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(configRepo)).isEmpty()).isFalse();
@@ -402,17 +402,17 @@ public class CachedGoConfigIntegrationTest {
     @Test
     public void shouldReloadCachedConfigWhenWriting() {
         cachedGoConfig.writeWithLock(updateEnvironmentVariables("var1", "value1"));
-        EnvironmentVariableConfig variable = cachedGoConfig.currentConfig().getEnvironments().get(0).getVariables().getVariable("var1");
+        EnvironmentVariableConfig variable = cachedGoConfig.currentConfig().getEnvironments().getFirst().getVariables().getVariable("var1");
 
-        assertThat(cachedGoConfig.currentConfig().getEnvironments().get(0).getVariables().size()).isEqualTo(1);
+        assertThat(cachedGoConfig.currentConfig().getEnvironments().getFirst().getVariables().size()).isEqualTo(1);
         assertThat(variable).isNotNull();
         assertThat(variable.getValue()).isEqualTo("value1");
 
         cachedGoConfig.writeWithLock(updateEnvironmentVariables("var2", "value2"));
 
-        EnvironmentVariableConfig secondVariable = cachedGoConfig.currentConfig().getEnvironments().get(0).getVariables().getVariable("var2");
+        EnvironmentVariableConfig secondVariable = cachedGoConfig.currentConfig().getEnvironments().getFirst().getVariables().getVariable("var2");
 
-        assertThat(cachedGoConfig.currentConfig().getEnvironments().get(0).getVariables().size()).isEqualTo(2);
+        assertThat(cachedGoConfig.currentConfig().getEnvironments().getFirst().getVariables().size()).isEqualTo(2);
         assertThat(secondVariable).isNotNull();
         assertThat(secondVariable.getValue()).isEqualTo("value2");
     }
@@ -474,14 +474,14 @@ public class CachedGoConfigIntegrationTest {
         cachedGoConfig.forceReload();
 
         CruiseConfig cruiseConfig = cachedGoConfig.currentConfig();
-        ExecTask devExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().getFirstOrNull();
+        ExecTask devExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().getFirst();
         assertThat(devExec).isEqualTo(new ExecTask("/bin/ls", "/tmp", (String) null));
 
-        ExecTask acceptanceExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("acceptance")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().getFirstOrNull();
+        ExecTask acceptanceExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("acceptance")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().getFirst();
         assertThat(acceptanceExec).isEqualTo(new ExecTask("/bin/twist", "./acceptance", (String) null));
 
         cruiseConfig = cachedGoConfig.loadForEditing();
-        devExec = (ExecTask) cruiseConfig.getTemplateByName(new CaseInsensitiveString("abc")).get(0).jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().getFirstOrNull();
+        devExec = (ExecTask) cruiseConfig.getTemplateByName(new CaseInsensitiveString("abc")).getFirst().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().getFirst();
         assertThat(devExec).isEqualTo(new ExecTask("/bin/#{command}", "#{dir}", (String) null));
 
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).size()).isEqualTo(0);
@@ -524,7 +524,7 @@ public class CachedGoConfigIntegrationTest {
         cachedGoConfig.forceReload();
 
         CruiseConfig cruiseConfig = cachedGoConfig.currentConfig();
-        ExecTask devExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().getFirstOrNull();
+        ExecTask devExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().getFirst();
         assertThat(devExec).isEqualTo(new ExecTask("/bin/ls#{a}#{b}", "/tmp", (String) null));
     }
 
@@ -844,8 +844,8 @@ public class CachedGoConfigIntegrationTest {
         String remoteDownstream = "remote-downstream";
         setupExternalConfigRepoWithDependencyMaterialOnPipelineInMainXml(upstream, remoteDownstream);
 
-        PartialConfig partialWithStageRenamed = GoConfigMother.deepClone(cachedGoPartials.lastValidPartials().get(0));
-        PipelineConfig pipelineInRemoteConfigRepo = partialWithStageRenamed.getGroups().get(0).getPipelines().get(0);
+        PartialConfig partialWithStageRenamed = GoConfigMother.deepClone(cachedGoPartials.lastValidPartials().getFirst());
+        PipelineConfig pipelineInRemoteConfigRepo = partialWithStageRenamed.getGroups().getFirst().getPipelines().getFirst();
         pipelineInRemoteConfigRepo.materialConfigs().getDependencyMaterial().setStageName(new CaseInsensitiveString("new_name"));
         partialWithStageRenamed.setOrigin(new RepoConfigOrigin(configRepo, "r2"));
 
@@ -879,7 +879,7 @@ public class CachedGoConfigIntegrationTest {
             }
         });
         assertThat(saveState).isEqualTo(ConfigSaveState.MERGED);
-        assertThat(cachedGoPartials.lastValidPartials().get(0).getGroups().getFirstOrNull().get(0).materialConfigs().getDependencyMaterial().getStageName()).isEqualTo(new CaseInsensitiveString("new_name"));
+        assertThat(cachedGoPartials.lastValidPartials().getFirst().getGroups().getFirst().getFirst().materialConfigs().getDependencyMaterial().getStageName()).isEqualTo(new CaseInsensitiveString("new_name"));
         assertThat(goConfigService.getConfigForEditing().getPipelineConfigByName(new CaseInsensitiveString(upstream)).getFirstStageConfig().name()).isEqualTo(new CaseInsensitiveString("new_name"));
         assertThat(goConfigService.getCurrentConfig().getPipelineConfigByName(new CaseInsensitiveString(upstream)).getFirstStageConfig().name()).isEqualTo(new CaseInsensitiveString("new_name"));
     }
@@ -938,8 +938,8 @@ public class CachedGoConfigIntegrationTest {
         PartialConfig invalidPartialInRepo1Revision2 = PartialConfigMother.invalidPartial("pipeline_in_repo1", new RepoConfigOrigin(repoConfig1, "repo1_r2"));
         partialConfigService.onSuccessPartialConfig(repoConfig1, invalidPartialInRepo1Revision2);
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size()).isEqualTo(1);
-        assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage()).isEqualTo("Invalid Merged Configuration");
-        assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription()).isEqualTo("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.\n- For Config Repo: url1 at revision repo1_r2");
+        assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).getFirst().getMessage()).isEqualTo("Invalid Merged Configuration");
+        assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).getFirst().getDescription()).isEqualTo("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.\n- For Config Repo: url1 at revision repo1_r2");
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty()).isTrue();
 
         int countBeforeDeletion = cachedGoConfig.currentConfig().getConfigRepos().size();
@@ -953,10 +953,10 @@ public class CachedGoConfigIntegrationTest {
         assertThat(cachedGoConfig.currentConfig().getAllPipelineNames().contains(new CaseInsensitiveString("pipeline_in_repo1"))).isFalse();
         assertThat(cachedGoConfig.currentConfig().getAllPipelineNames().contains(new CaseInsensitiveString("pipeline_in_repo2"))).isTrue();
         assertThat(cachedGoPartials.lastKnownPartials().size()).isEqualTo(1);
-        assertThat(((RepoConfigOrigin) cachedGoPartials.lastKnownPartials().get(0).getOrigin()).getMaterial().getFingerprint().equals(repoConfig2.getRepo().getFingerprint())).isTrue();
+        assertThat(((RepoConfigOrigin) cachedGoPartials.lastKnownPartials().getFirst().getOrigin()).getMaterial().getFingerprint().equals(repoConfig2.getRepo().getFingerprint())).isTrue();
         assertThat(cachedGoPartials.lastKnownPartials().stream().filter(item -> ((RepoConfigOrigin) item.getOrigin()).getMaterial().getFingerprint().equals(repoConfig1.getRepo().getFingerprint())).findFirst().orElse(null)).isNull();
         assertThat(cachedGoPartials.lastValidPartials().size()).isEqualTo(1);
-        assertThat(((RepoConfigOrigin) cachedGoPartials.lastValidPartials().get(0).getOrigin()).getMaterial().getFingerprint().equals(repoConfig2.getRepo().getFingerprint())).isTrue();
+        assertThat(((RepoConfigOrigin) cachedGoPartials.lastValidPartials().getFirst().getOrigin()).getMaterial().getFingerprint().equals(repoConfig2.getRepo().getFingerprint())).isTrue();
         assertThat(cachedGoPartials.lastValidPartials().stream().filter(item -> ((RepoConfigOrigin) item.getOrigin()).getMaterial().getFingerprint().equals(repoConfig1.getRepo().getFingerprint())).findFirst().orElse(null)).isNull();
 
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty()).isTrue();
@@ -1101,7 +1101,7 @@ public class CachedGoConfigIntegrationTest {
             assertThat(cachedGoConfig.loadForEditing().getMd5()).isEqualTo(configRepository.getCurrentRevision().getMd5());
             assertThat(cachedGoConfig.currentConfig().getMd5()).isEqualTo(configRepository.getCurrentRevision().getMd5());
             assertThat(configXmlFromConfigFolder).isEqualTo(configRepository.getCurrentRevision().getContent());
-            RepoConfigOrigin origin = (RepoConfigOrigin) cachedGoPartials.lastValidPartials().get(0).getOrigin();
+            RepoConfigOrigin origin = (RepoConfigOrigin) cachedGoPartials.lastValidPartials().getFirst().getOrigin();
             assertThat(origin.getRevision()).isEqualTo("r1");
         }
     }
@@ -1131,7 +1131,7 @@ public class CachedGoConfigIntegrationTest {
         assertThat(cachedGoConfig.loadForEditing().getMd5()).isEqualTo(configRepository.getCurrentRevision().getMd5());
         assertThat(cachedGoConfig.currentConfig().getMd5()).isEqualTo(configRepository.getCurrentRevision().getMd5());
         assertThat(configXmlFromConfigFolder).isEqualTo(configRepository.getCurrentRevision().getContent());
-        RepoConfigOrigin origin = (RepoConfigOrigin) cachedGoPartials.lastValidPartials().get(0).getOrigin();
+        RepoConfigOrigin origin = (RepoConfigOrigin) cachedGoPartials.lastValidPartials().getFirst().getOrigin();
         assertThat(origin.getRevision()).isEqualTo("r2");
         assertThat(cachedGoPartials.lastKnownPartials().contains(partialConfig)).isTrue();
         assertThat(cachedGoPartials.lastValidPartials().contains(partialConfig)).isTrue();
@@ -1152,7 +1152,7 @@ public class CachedGoConfigIntegrationTest {
 
         Configuration ancestorPluggablePublishArtifactConfigAfterEncryption = goConfigDao.loadConfigHolder()
             .configForEdit.pipelineConfigByName(new CaseInsensitiveString("ancestor"))
-            .getExternalArtifactConfigs().get(0).getConfiguration();
+            .getExternalArtifactConfigs().getFirst().getConfiguration();
         assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getValue()).isEqualTo("IMAGE_SECRET");
         assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getEncryptedValue()).isEqualTo(new GoCipher().encrypt("IMAGE_SECRET"));
         assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getConfigValue()).isNull();
@@ -1173,7 +1173,7 @@ public class CachedGoConfigIntegrationTest {
 
         PipelineConfig child = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(new CaseInsensitiveString("child"));
         Configuration childFetchConfigAfterEncryption = ((FetchPluggableArtifactTask) child
-            .get(0).getJobs().get(0).tasks().get(0)).getConfiguration();
+            .getFirst().getJobs().getFirst().tasks().getFirst()).getConfiguration();
 
         assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getValue()).isEqualTo("SECRET");
         assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getEncryptedValue()).isEqualTo(new GoCipher().encrypt("SECRET"));
@@ -1216,7 +1216,7 @@ public class CachedGoConfigIntegrationTest {
 
     private UpdateConfigCommand updateEnvironmentVariables(final String name, final String value) {
         return cruiseConfig -> {
-            EnvironmentConfig environmentConfig = cruiseConfig.getEnvironments().get(0);
+            EnvironmentConfig environmentConfig = cruiseConfig.getEnvironments().getFirst();
             environmentConfig.addEnvironmentVariable(name, value);
             return cruiseConfig;
         };

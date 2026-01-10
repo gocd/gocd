@@ -26,7 +26,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.ModificationsMother.aCheckIn;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -188,7 +189,7 @@ class UserTest {
         assertThat(clonedUser).isNotSameAs(user);
         assertThat(clonedUser.getNotificationFilters()).isEqualTo(user.getNotificationFilters());
         assertThat(clonedUser.getNotificationFilters()).isNotSameAs(user.getNotificationFilters());
-        assertThat(clonedUser.getNotificationFilters().get(0)).isNotSameAs(user.getNotificationFilters().get(0));
+        assertThat(clonedUser.getNotificationFilters().getFirst()).isNotSameAs(user.getNotificationFilters().getFirst());
     }
 
     @Test

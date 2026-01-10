@@ -273,7 +273,7 @@ class PackageDefinitionTest extends PackageMaterialTestBase {
         packageDefinition.clearEmptyConfigurations();
 
         assertThat(packageDefinition.getConfiguration().size()).isEqualTo(1);
-        assertThat(packageDefinition.getConfiguration().get(0).getConfigurationKey().getName()).isEqualTo("name-four");
+        assertThat(packageDefinition.getConfiguration().getFirst().getConfigurationKey().getName()).isEqualTo("name-four");
     }
 
     @Test
@@ -282,7 +282,7 @@ class PackageDefinitionTest extends PackageMaterialTestBase {
         packageDefinition.setName("some name");
         packageDefinition.validate(new ConfigSaveValidationContext(null));
         assertThat(packageDefinition.errors().isEmpty()).isFalse();
-        assertThat(packageDefinition.errors().getAllOn(PackageDefinition.NAME).get(0)).isEqualTo("Invalid Package name 'some name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(packageDefinition.errors().getAllOn(PackageDefinition.NAME).getFirst()).isEqualTo("Invalid Package name 'some name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -422,8 +422,8 @@ class PackageDefinitionTest extends PackageMaterialTestBase {
             pkgDef.setRepository(pkgRepo);
 
             assertThat(pkgDef.getSecretParams().size()).isEqualTo(2);
-            assertThat(pkgDef.getSecretParams().get(0)).isEqualTo(new SecretParam("secret_config_id", "lookup_username"));
-            assertThat(pkgDef.getSecretParams().get(1)).isEqualTo(new SecretParam("secret_config_id", "lookup_password"));
+            assertThat(pkgDef.getSecretParams().getFirst()).isEqualTo(new SecretParam("secret_config_id", "lookup_username"));
+            assertThat(pkgDef.getSecretParams().getLast()).isEqualTo(new SecretParam("secret_config_id", "lookup_password"));
         }
 
         @Test

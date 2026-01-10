@@ -139,8 +139,8 @@ public class ExternalArtifactsServiceTest {
 
         externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore, true);
 
-        assertThat(configuration.getProperty("Image").errors().get("Image").get(0)).isEqualTo("invalid");
-        assertThat(configuration.getProperty("Tag").errors().get("Tag").get(0)).isEqualTo("invalid");
+        assertThat(configuration.getProperty("Image").errors().get("Image").getFirst()).isEqualTo("invalid");
+        assertThat(configuration.getProperty("Tag").errors().get("Tag").getFirst()).isEqualTo("invalid");
     }
 
     @Test
@@ -156,6 +156,6 @@ public class ExternalArtifactsServiceTest {
 
         externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore, true);
 
-        assertThat(pluggableArtifactConfig.errors().getAllOn("configuration").get(0)).isEqualTo("Either Image or BuildFile is required");
+        assertThat(pluggableArtifactConfig.errors().getAllOn("configuration").getFirst()).isEqualTo("Either Image or BuildFile is required");
     }
 }

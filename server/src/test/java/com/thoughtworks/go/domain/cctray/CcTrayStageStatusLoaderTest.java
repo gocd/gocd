@@ -62,7 +62,7 @@ public class CcTrayStageStatusLoaderTest {
     public void shouldConvertToStatusesIfAStageIsFoundInDB() {
         List<ProjectStatus> expectedStatuses = List.of(new ProjectStatus("pipeline1 :: stage1", "Sleeping", "some-status", "some-label", new Date(), "some-url"));
         List<Stage> stages = setupStagesInDB(new StageIdentity("pipeline1", "stage1", 12L), new StageIdentity("pipeline2", "stage2", 14L));
-        when(stageChangeHandler.statusesOfStageAndItsJobsFor(stages.get(0))).thenReturn(expectedStatuses);
+        when(stageChangeHandler.statusesOfStageAndItsJobsFor(stages.getFirst())).thenReturn(expectedStatuses);
 
         List<ProjectStatus> actualStatuses = loader.getStatusesForStageAndJobsOf(pipelineConfigFor("pipeline1"), stageConfigFor("stage1"));
 

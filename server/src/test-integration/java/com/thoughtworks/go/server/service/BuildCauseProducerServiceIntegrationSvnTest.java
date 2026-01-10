@@ -123,7 +123,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
         assertThat(materialRevisions.getRevisions().size()).isEqualTo(1);
         Materials materials = materialRevisions.getMaterials();
         assertThat(materials.size()).isEqualTo(1);
-        assertThat(materials.get(0)).isEqualTo(svnMaterial);
+        assertThat(materials.getFirst()).isEqualTo(svnMaterial);
     }
 
     @Test
@@ -146,8 +146,8 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
         assertThat(materialRevisions.getRevisions().size()).isEqualTo(2);
         Materials materials = materialRevisions.getMaterials();
         assertThat(materials.size()).isEqualTo(2);
-        assertThat(materials.get(0)).isEqualTo(svnMaterial);
-        SvnMaterial external = (SvnMaterial) materials.get(1);
+        assertThat(materials.getFirst()).isEqualTo(svnMaterial);
+        SvnMaterial external = (SvnMaterial) materials.getLast();
         assertThat(external.getUrl()).isEqualTo(repo.externalRepositoryUrl());
     }
 
@@ -158,7 +158,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
 
         Pipeline latestPipeline = PipelineMother.schedule(mingleConfig, buildCause);
         latestPipeline = dbHelper.savePipelineWithStagesAndMaterials(latestPipeline);
-        dbHelper.passStage(latestPipeline.getStages().getFirstOrNull());
+        dbHelper.passStage(latestPipeline.getStages().getFirst());
     }
 
     private void checkInFiles(String... files) throws Exception {

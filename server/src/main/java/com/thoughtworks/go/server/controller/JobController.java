@@ -160,7 +160,7 @@ public class JobController {
         Tabs customizedTabs = goConfigService.getCustomizedTabs(pipelineWithOneBuild.getName(),
                 pipelineWithOneBuild.getFirstStage().getName(), current.getName());
         TrackingTool trackingTool = goConfigService.pipelineConfigNamed(
-                new CaseInsensitiveString(pipelineWithOneBuild.getName())).trackingTool();
+                new CaseInsensitiveString(pipelineWithOneBuild.getName())).trackingToolOrDefault();
         Stage stage = stageService.getStageByBuild(current);
         return new JobDetailPresentationModel(current, recent25, pipelineWithOneBuild, customizedTabs, trackingTool, artifactService, stage);
     }

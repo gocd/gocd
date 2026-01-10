@@ -57,8 +57,8 @@ public abstract class AbstractRuleAwarePluginProfileTest {
 
         assertThat(profile.errors().size()).isEqualTo(0);
 
-        ConfigurationProperty configProp1 = profile.getConfiguration().get(0);
-        ConfigurationProperty configProp2 = profile.getConfiguration().get(1);
+        ConfigurationProperty configProp1 = profile.getConfiguration().getFirst();
+        ConfigurationProperty configProp2 = profile.getConfiguration().getLast();
 
         assertThat(configProp1.errors().size()).isEqualTo(1);
         assertThat(configProp2.errors().size()).isEqualTo(1);

@@ -48,7 +48,7 @@ class CreateAgentMessageTest {
     void shouldReturnResolvedValues() {
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("key", "value");
         ConfigurationProperty k2 = ConfigurationPropertyMother.create("key1", false, "{{SECRET:[config_id][lookup_key]}}");
-        k2.getSecretParams().get(0).setValue("some-resolved-value");
+        k2.getSecretParams().getFirst().setValue("some-resolved-value");
         ElasticProfile elasticProfile = new ElasticProfile("foo", "prod-cluster", k1, k2);
         ClusterProfile clusterProfile = new ClusterProfile("foo", "plugin-id", k1, k2);
 

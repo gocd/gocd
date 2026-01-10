@@ -428,7 +428,7 @@ class RulesServiceTest {
         @Test
         void shouldErrorOutIfPackageRepositoryDoesNotHavePermissionToReferASecretConfig() {
             PackageMaterial material = MaterialsMother.packageMaterial();
-            material.getPackageDefinition().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+            material.getPackageDefinition().getConfiguration().getFirst().setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
 
             Rules rules = new Rules(new Allow("refer", "package_repository", "repo1-*"));
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);
@@ -443,7 +443,7 @@ class RulesServiceTest {
         @Test
         void shouldValidateIfPackageRepoHasPermissionToReferASecretConfig() {
             PackageMaterial material = MaterialsMother.packageMaterial();
-            material.getPackageDefinition().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+            material.getPackageDefinition().getConfiguration().getFirst().setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
 
             Rules rules = new Rules(new Allow("refer", "package_repository", "repo-*"));
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);
@@ -459,7 +459,7 @@ class RulesServiceTest {
         @Test
         void shouldErrorOutWhenPackageMaterialIsReferringToNoneExistingSecretConfig() {
             PackageMaterial material = MaterialsMother.packageMaterial();
-            material.getPackageDefinition().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[unknown_id][password]}}"));
+            material.getPackageDefinition().getConfiguration().getFirst().setConfigurationValue(new ConfigurationValue("{{SECRET:[unknown_id][password]}}"));
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(material))
                     .isInstanceOf(RulesViolationException.class)
@@ -478,8 +478,8 @@ class RulesServiceTest {
         @Test
         void shouldAddErrorForASecretConfigIdOnlyOnce() {
             PackageMaterial material = MaterialsMother.packageMaterial();
-            material.getPackageDefinition().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
-            material.getPackageDefinition().getRepository().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][token]}}"));
+            material.getPackageDefinition().getConfiguration().getFirst().setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+            material.getPackageDefinition().getRepository().getConfiguration().getFirst().setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][token]}}"));
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(material))
                     .isInstanceOf(RulesViolationException.class)
@@ -489,8 +489,8 @@ class RulesServiceTest {
         @Test
         void shouldConcatenateMultipleErrorsWithNewLineChar() {
             PackageMaterial material = MaterialsMother.packageMaterial();
-            material.getPackageDefinition().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
-            material.getPackageDefinition().getRepository().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[unknown_id][password]}}"));
+            material.getPackageDefinition().getConfiguration().getFirst().setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+            material.getPackageDefinition().getRepository().getConfiguration().getFirst().setConfigurationValue(new ConfigurationValue("{{SECRET:[unknown_id][password]}}"));
 
             Rules rules = new Rules(new Allow("refer", "package_repository", "abc-*"));
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);

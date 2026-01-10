@@ -132,7 +132,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
 
         GoConfigHolder configHolder = xmlLoader.loadConfigHolder(xml);
 
-        assertThat(configHolder.config.getSCMs().get(0).getId()).isNotNull();
+        assertThat(configHolder.config.getSCMs().getFirst().getId()).isNotNull();
     }
 
     @Test
@@ -250,8 +250,8 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("new_name"));
-        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = (PluggableSCMMaterialConfig) pipelineConfig.materialConfigs().get(0);
-        assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(goConfigHolder.config.getSCMs().get(0));
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = (PluggableSCMMaterialConfig) pipelineConfig.materialConfigs().getFirst();
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(goConfigHolder.config.getSCMs().getFirst());
         assertThat(pluggableSCMMaterialConfig.getFolder()).isNull();
         assertThat(pluggableSCMMaterialConfig.filter()).isEqualTo(new Filter());
     }
@@ -293,8 +293,8 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("new_name"));
-        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = (PluggableSCMMaterialConfig) pipelineConfig.materialConfigs().get(0);
-        assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(goConfigHolder.config.getSCMs().get(0));
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = (PluggableSCMMaterialConfig) pipelineConfig.materialConfigs().getFirst();
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(goConfigHolder.config.getSCMs().getFirst());
         assertThat(pluggableSCMMaterialConfig.getFolder()).isEqualTo("dest");
         assertThat(pluggableSCMMaterialConfig.filter()).isEqualTo(new Filter(new IgnoredFiles("x"), new IgnoredFiles("y")));
     }
@@ -346,9 +346,9 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
         SCMMetadataStore.getInstance().addMetadataFor("plugin-id", new SCMConfigurations(scmConfiguration), null);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
-        SCM scmConfig = goConfigHolder.config.getSCMs().getFirstOrNull();
+        SCM scmConfig = goConfigHolder.config.getSCMs().getFirst();
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("new_name"));
-        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = (PluggableSCMMaterialConfig) pipelineConfig.materialConfigs().get(0);
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = (PluggableSCMMaterialConfig) pipelineConfig.materialConfigs().getFirst();
         assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(scmConfig);
         Configuration configuration = pluggableSCMMaterialConfig.getSCMConfig().getConfiguration();
         assertThat(configuration.get(0).getConfigurationValue().getValue()).isEqualTo("value");

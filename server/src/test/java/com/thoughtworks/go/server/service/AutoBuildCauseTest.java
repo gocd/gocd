@@ -380,10 +380,10 @@ public class AutoBuildCauseTest {
     }
 
     private HgMaterial firstHgMaterial(PipelineConfigDependencyGraph dependencyGraph) {
-        return ((HgMaterial) new MaterialConfigConverter().toMaterial(daddy(dependencyGraph).materialConfigs().getFirstOrNull()));
+        return ((HgMaterial) new MaterialConfigConverter().toMaterial(daddy(dependencyGraph).materialConfigs().getFirst()));
     }
 
     private PipelineConfig daddy(PipelineConfigDependencyGraph dependencyGraph) {
-        return dependencyGraph.getUpstreamDependencies().get(0).getCurrent();
+        return dependencyGraph.getUpstreamDependencies().getFirst().getCurrent();
     }
 }

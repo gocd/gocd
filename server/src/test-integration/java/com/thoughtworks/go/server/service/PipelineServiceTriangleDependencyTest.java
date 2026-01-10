@@ -223,9 +223,14 @@ public class PipelineServiceTriangleDependencyTest {
         actual.addAll(createHgMaterialWithMultipleRevisions(1L, third));
         actual.addAll(createSvnMaterialWithMultipleRevisions(2L, third));
 
-        PipelineConfig current = createPipelineConfigWithMaterialConfig("current", new DependencyMaterialConfig(new CaseInsensitiveString("up1"), new CaseInsensitiveString("first")),
-                actual.getMaterials().get(0).config());
-        PipelineConfig up1 = createPipelineConfigWithMaterialConfig("up1", expected.getMaterials().get(1).config(), expected.getMaterials().get(2).config());
+        PipelineConfig current = createPipelineConfigWithMaterialConfig(
+            "current",
+            new DependencyMaterialConfig(new CaseInsensitiveString("up1"), new CaseInsensitiveString("first")),
+            actual.getMaterials().get(0).config());
+        PipelineConfig up1 = createPipelineConfigWithMaterialConfig(
+            "up1",
+            expected.getMaterials().get(1).config(),
+            expected.getMaterials().get(2).config());
 
         Pipeline pipeline = PipelineMother.passedPipelineInstance("up1", "stage", "job");
         pipeline.setId(10);
@@ -590,7 +595,7 @@ public class PipelineServiceTriangleDependencyTest {
         MaterialRevisions actual = createHgMaterialWithMultipleRevisions(1L, third);
         actual.addRevision(up1Revision);
 
-        PipelineConfig current = createPipelineConfigWithMaterialConfig("current", actual.getMaterials().get(0).config(),
+        PipelineConfig current = createPipelineConfigWithMaterialConfig("current", actual.getMaterials().getFirst().config(),
                 new DependencyMaterialConfig(new CaseInsensitiveString("up1"), new CaseInsensitiveString("first")));
         PipelineConfig up1 = createPipelineConfigWithMaterialConfig("up1");//The pipeline does not have the material anymore
 
@@ -608,14 +613,14 @@ public class PipelineServiceTriangleDependencyTest {
         MaterialRevisions upRevision = new MaterialRevisions(secondHgRevision.getMaterialRevision(0), dependencyMaterialRevision("up0", 2, "label", "stage", 1, new Date()));
 
         MaterialRevisions actual = createHgMaterialWithMultipleRevisions(1L, third);
-        ((HgMaterial) actual.getMaterials().get(0)).setFolder("mother");
+        ((HgMaterial) actual.getMaterials().getFirst()).setFolder("mother");
         MaterialRevision up1Modification = dependencyMaterialRevision("up1", 1, "label", "stage", 1, new Date());
         up1Modification.markAsChanged();
         actual.addRevision(up1Modification);
 
-        PipelineConfig current = createPipelineConfigWithMaterialConfig("current", actual.getMaterials().get(0).config(),
+        PipelineConfig current = createPipelineConfigWithMaterialConfig("current", actual.getMaterials().getFirst().config(),
                 new DependencyMaterialConfig(new CaseInsensitiveString("up1"), new CaseInsensitiveString("stage")));
-        PipelineConfig up1 = createPipelineConfigWithMaterialConfig("up1", upRevision.getMaterials().get(0).config(), upRevision.getMaterials().get(1).config());
+        PipelineConfig up1 = createPipelineConfigWithMaterialConfig("up1", upRevision.getMaterials().getFirst().config(), upRevision.getMaterials().get(1).config());
         PipelineConfig up0 = createPipelineConfigWithMaterialConfig("up0", MaterialConfigsMother.hgMaterialConfig());
 
         Pipeline pipeline = PipelineMother.passedPipelineInstance("up1", "stage", "job");
@@ -646,9 +651,9 @@ public class PipelineServiceTriangleDependencyTest {
         actual.addRevision(up1Revision);
         up1Revision.markAsNotChanged();
 
-        PipelineConfig current = createPipelineConfigWithMaterialConfig("current", actual.getMaterials().get(0).config(),
+        PipelineConfig current = createPipelineConfigWithMaterialConfig("current", actual.getMaterials().getFirst().config(),
                 new DependencyMaterialConfig(new CaseInsensitiveString("up1"), new CaseInsensitiveString("first")));
-        PipelineConfig up1 = createPipelineConfigWithMaterialConfig("up1", expected.getMaterials().get(0).config());
+        PipelineConfig up1 = createPipelineConfigWithMaterialConfig("up1", expected.getMaterials().getFirst().config());
 
         when(pipelineDao.findBuildCauseOfPipelineByNameAndCounter("up1", 1)).thenReturn(BuildCause.createManualForced(expected, new Username(str("loser"))));
 
@@ -669,10 +674,10 @@ public class PipelineServiceTriangleDependencyTest {
         MaterialRevisions actual = createHgMaterialWithMultipleRevisions(1L, third);
         actual.addRevision(up1Revision);
 
-        PipelineConfig current = createPipelineConfigWithMaterialConfig("current", actual.getMaterials().get(0).config(),
+        PipelineConfig current = createPipelineConfigWithMaterialConfig("current", actual.getMaterials().getFirst().config(),
                 new DependencyMaterialConfig(new CaseInsensitiveString("up1"), new CaseInsensitiveString("stage")));
-        PipelineConfig up1 = createPipelineConfigWithMaterialConfig("up1", upRevision.getMaterials().get(0).config());
-        PipelineConfig up0 = createPipelineConfigWithMaterialConfig("up0", uppestRevision.getMaterials().get(0).config());
+        PipelineConfig up1 = createPipelineConfigWithMaterialConfig("up1", upRevision.getMaterials().getFirst().config());
+        PipelineConfig up0 = createPipelineConfigWithMaterialConfig("up0", uppestRevision.getMaterials().getFirst().config());
 
         Pipeline pipeline = PipelineMother.passedPipelineInstance("up1", "stage", "job");
         pipeline.setId(10);

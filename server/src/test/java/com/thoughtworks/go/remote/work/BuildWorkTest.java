@@ -440,7 +440,7 @@ class BuildWorkTest {
         } catch (AssertionError e) {
             assertThat(buildRepository.results.isEmpty()).isTrue();
             assertThat(buildRepository.states.size()).isEqualTo(1);
-            assertThat(buildRepository.states.get(0)).isEqualTo(JobState.Preparing);
+            assertThat(buildRepository.states.getFirst()).isEqualTo(JobState.Preparing);
         }
     }
 
@@ -458,7 +458,7 @@ class BuildWorkTest {
             fail("Should have thrown an assertion error");
         } catch (AssertionError e) {
             assertThat(buildRepository.results.isEmpty()).isFalse();
-            assertThat(buildRepository.results.get(0)).isEqualTo(JobResult.Failed);
+            assertThat(buildRepository.results.getFirst()).isEqualTo(JobResult.Failed);
         }
     }
 

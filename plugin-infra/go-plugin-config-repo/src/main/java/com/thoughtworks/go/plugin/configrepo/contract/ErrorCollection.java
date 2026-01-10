@@ -60,6 +60,7 @@ public class ErrorCollection {
                 sb.append('\n').append("  ").append('-').append(' ').append(message);
             }
             if (it.hasNext()) {
+                //noinspection TextBlockMigration
                 sb.append("\n\n");
             }
         }

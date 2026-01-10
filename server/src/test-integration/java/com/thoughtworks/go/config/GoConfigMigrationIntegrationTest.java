@@ -327,7 +327,7 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = migrateXmlString(configString, 67);
         GoConfigHolder holder = loader.loadConfigHolder(migratedContent);
-        PackageRepository packageRepository = holder.config.getPackageRepositories().find("2ef830d7-dd66-42d6-b393-64a84646e557");
+        PackageRepository packageRepository = holder.config.getPackageRepositories().findByRepoId("2ef830d7-dd66-42d6-b393-64a84646e557");
         PackageDefinition aPackage = packageRepository.findPackage("88a3beca-cbe2-4c4d-9744-aa0cda3f371c");
         assertThat(aPackage.isAutoUpdate()).isTrue();
     }
@@ -1700,7 +1700,7 @@ public class GoConfigMigrationIntegrationTest {
 
         CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
-        assertThat(plan.artifactTypeConfigs().getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("*");
+        assertThat(plan.artifactTypeConfigs().getBuiltInArtifactConfigs().getFirst().getSource()).isEqualTo("*");
     }
 
     @Test
@@ -1709,7 +1709,7 @@ public class GoConfigMigrationIntegrationTest {
 
         CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
-        assertThat(plan.artifactTypeConfigs().getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("*");
+        assertThat(plan.artifactTypeConfigs().getBuiltInArtifactConfigs().getFirst().getSource()).isEqualTo("*");
     }
 
     @Test

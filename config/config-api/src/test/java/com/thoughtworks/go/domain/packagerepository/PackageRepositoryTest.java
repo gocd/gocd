@@ -37,6 +37,7 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration.PART_OF_IDENTITY;
 import static com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration.SECURE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PackageRepositoryTest extends PackageMaterialTestBase {
 
@@ -254,14 +255,14 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
     @Test
     void shouldAddPackageDefinitionToRepo() {
         PackageRepository repository = PackageRepositoryMother.create("repo1");
-        String existingPackageId = repository.getPackages().get(0).getId();
+        String existingPackageId = repository.getPackages().getFirst().getId();
         PackageDefinition pkg = PackageDefinitionMother.create("pkg");
 
         repository.addPackage(pkg);
 
         assertThat(repository.getPackages().size()).isEqualTo(2);
-        assertThat(repository.getPackages().get(0).getId()).isEqualTo(existingPackageId);
-        assertThat(repository.getPackages().get(1).getId()).isEqualTo(pkg.getId());
+        assertThat(repository.getPackages().getFirst().getId()).isEqualTo(existingPackageId);
+        assertThat(repository.getPackages().getLast().getId()).isEqualTo(pkg.getId());
     }
 
     @Test
@@ -288,7 +289,7 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
         packageRepository.clearEmptyConfigurations();
 
         assertThat(packageRepository.getConfiguration().size()).isEqualTo(1);
-        assertThat(packageRepository.getConfiguration().get(0).getConfigurationKey().getName()).isEqualTo("name-four");
+        assertThat(packageRepository.getConfiguration().getFirst().getConfigurationKey().getName()).isEqualTo("name-four");
 
     }
 
@@ -298,7 +299,7 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
         packageRepository.setName("some name");
         packageRepository.validate(new ConfigSaveValidationContext(null));
         assertThat(packageRepository.errors().isEmpty()).isFalse();
-        assertThat(packageRepository.errors().getAllOn(PackageRepository.NAME).get(0)).isEqualTo("Invalid PackageRepository name 'some name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(packageRepository.errors().getAllOn(PackageRepository.NAME).getFirst()).isEqualTo("Invalid PackageRepository name 'some name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -317,11 +318,9 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
     @Test
     void shouldThrowErrorWhenGivenPackageNotFoundDuringRemove() {
         PackageRepository packageRepository = new PackageRepository();
-        try {
-            packageRepository.removePackage("invalid");
-        } catch (RuntimeException e) {
-            assertThat(e.getMessage()).isEqualTo("Could not find package with id:[invalid]");
-        }
+        assertThatThrownBy(() -> packageRepository.removePackage("invalid"))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Could not find package with id: invalid");
     }
 
     @Test
@@ -423,8 +422,8 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
             PackageRepository pkgRepo = new PackageRepository("pkg-repo-id", "pkg-repo-name", new PluginConfiguration(), new Configuration(k1, k2));
 
             assertThat(pkgRepo.getSecretParams().size()).isEqualTo(2);
-            assertThat(pkgRepo.getSecretParams().get(0)).isEqualTo(new SecretParam("secret_config_id", "lookup_username"));
-            assertThat(pkgRepo.getSecretParams().get(1)).isEqualTo(new SecretParam("secret_config_id", "lookup_password"));
+            assertThat(pkgRepo.getSecretParams().getFirst()).isEqualTo(new SecretParam("secret_config_id", "lookup_username"));
+            assertThat(pkgRepo.getSecretParams().getLast()).isEqualTo(new SecretParam("secret_config_id", "lookup_password"));
         }
 
         @Test

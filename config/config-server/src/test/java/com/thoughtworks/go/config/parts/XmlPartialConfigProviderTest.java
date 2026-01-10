@@ -55,27 +55,27 @@ public class XmlPartialConfigProviderTest {
     @Test
     public void shouldParseFileWithOnePipeline() throws Exception {
         GoConfigMother mother = new GoConfigMother();
-        PipelineConfig pipe1 = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
+        PipelineConfig pipe1 = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().getFirst();
 
         File file = helper.addFileWithPipeline("pipe1.gocd.xml", pipe1);
 
         PartialConfig part = xmlPartialProvider.parseFile(file);
-        PipelineConfig pipeRead = part.getGroups().get(0).get(0);
+        PipelineConfig pipeRead = part.getGroups().getFirst().getFirst();
         assertThat(pipeRead).isEqualTo(pipe1);
     }
 
     @Test
     public void shouldParseFileWithOnePipelineGroup() throws Exception {
         GoConfigMother mother = new GoConfigMother();
-        PipelineConfigs group1 = mother.cruiseConfigWithOnePipelineGroup().getGroups().get(0);
+        PipelineConfigs group1 = mother.cruiseConfigWithOnePipelineGroup().getGroups().getFirst();
 
         File file = helper.addFileWithPipelineGroup("group1.gocd.xml", group1);
 
         PartialConfig part = xmlPartialProvider.parseFile(file);
-        PipelineConfigs groupRead = part.getGroups().get(0);
+        PipelineConfigs groupRead = part.getGroups().getFirst();
         assertThat(groupRead).isEqualTo(group1);
         assertThat(groupRead.size()).isEqualTo(group1.size());
-        assertThat(groupRead.get(0)).isEqualTo(group1.get(0));
+        assertThat(groupRead.getFirst()).isEqualTo(group1.getFirst());
     }
 
     @Test
@@ -88,34 +88,34 @@ public class XmlPartialConfigProviderTest {
 
         EnvironmentsConfig loadedEnvs = part.getEnvironments();
         assertThat(loadedEnvs.size()).isEqualTo(1);
-        assertThat(loadedEnvs.get(0)).isEqualTo(env);
+        assertThat(loadedEnvs.getFirst()).isEqualTo(env);
     }
 
 
     @Test
     public void shouldLoadDirectoryWithOnePipeline() throws Exception {
         GoConfigMother mother = new GoConfigMother();
-        PipelineConfig pipe1 = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
+        PipelineConfig pipe1 = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().getFirst();
 
         helper.addFileWithPipeline("pipe1.gocd.xml", pipe1);
 
         PartialConfig part = xmlPartialProvider.load(tmpFolder, mock(PartialConfigLoadContext.class));
-        PipelineConfig pipeRead = part.getGroups().get(0).get(0);
+        PipelineConfig pipeRead = part.getGroups().getFirst().getFirst();
         assertThat(pipeRead).isEqualTo(pipe1);
     }
 
     @Test
     public void shouldLoadDirectoryWithOnePipelineGroup() throws Exception {
         GoConfigMother mother = new GoConfigMother();
-        PipelineConfigs group1 = mother.cruiseConfigWithOnePipelineGroup().getGroups().get(0);
+        PipelineConfigs group1 = mother.cruiseConfigWithOnePipelineGroup().getGroups().getFirst();
 
         helper.addFileWithPipelineGroup("group1.gocd.xml", group1);
 
         PartialConfig part = xmlPartialProvider.load(tmpFolder, mock(PartialConfigLoadContext.class));
-        PipelineConfigs groupRead = part.getGroups().get(0);
+        PipelineConfigs groupRead = part.getGroups().getFirst();
         assertThat(groupRead).isEqualTo(group1);
         assertThat(groupRead.size()).isEqualTo(group1.size());
-        assertThat(groupRead.get(0)).isEqualTo(group1.get(0));
+        assertThat(groupRead.getFirst()).isEqualTo(group1.getFirst());
     }
 
     @Test
@@ -124,8 +124,8 @@ public class XmlPartialConfigProviderTest {
         PipelineGroups groups = mother.cruiseConfigWithTwoPipelineGroups().getGroups();
         EnvironmentConfig env = EnvironmentConfigMother.environment("dev");
 
-        helper.addFileWithPipelineGroup("group1.gocd.xml", groups.get(0));
-        helper.addFileWithPipelineGroup("group2.gocd.xml", groups.get(1));
+        helper.addFileWithPipelineGroup("group1.gocd.xml", groups.getFirst());
+        helper.addFileWithPipelineGroup("group2.gocd.xml", groups.getLast());
         helper.addFileWithEnvironment("dev-env.gocd.xml", env);
 
         PartialConfig part = xmlPartialProvider.load(tmpFolder, mock(PartialConfigLoadContext.class));
@@ -135,13 +135,13 @@ public class XmlPartialConfigProviderTest {
 
         EnvironmentsConfig loadedEnvs = part.getEnvironments();
         assertThat(loadedEnvs.size()).isEqualTo(1);
-        assertThat(loadedEnvs.get(0)).isEqualTo(env);
+        assertThat(loadedEnvs.getFirst()).isEqualTo(env);
     }
 
     @Test
     public void shouldGetFilesToLoadMatchingPattern() throws Exception {
         GoConfigMother mother = new GoConfigMother();
-        PipelineConfig pipe1 = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
+        PipelineConfig pipe1 = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().getFirst();
 
         File file1 = helper.addFileWithPipeline("pipe1.gocd.xml", pipe1);
         File file2 = helper.addFileWithPipeline("pipe1.gcd.xml", pipe1);
@@ -157,7 +157,7 @@ public class XmlPartialConfigProviderTest {
     @Test
     public void shouldUseExplicitPatternWhenProvided() throws Exception {
         GoConfigMother mother = new GoConfigMother();
-        PipelineConfig pipe1 = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
+        PipelineConfig pipe1 = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().getFirst();
 
         File file1 = helper.addFileWithPipeline("pipe1.myextension", pipe1);
         File file2 = helper.addFileWithPipeline("pipe1.gcd.xml", pipe1);
@@ -179,7 +179,7 @@ public class XmlPartialConfigProviderTest {
     @Test
     public void shouldFailToLoadDirectoryWithDuplicatedPipeline() throws Exception {
         GoConfigMother mother = new GoConfigMother();
-        PipelineConfig pipe1 = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
+        PipelineConfig pipe1 = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().getFirst();
 
         helper.addFileWithPipeline("pipe1.gocd.xml", pipe1);
         helper.addFileWithPipeline("pipedup.gocd.xml", pipe1);

@@ -190,24 +190,24 @@ public class TfsSDKCommand extends AbstractTfsCommand {
     }
 
     private void closeCollection() {
-        try {
-            if (collection != null) {
+        if (collection != null) {
+            try {
                 collection.close();
-                collection = null;
+            } catch (Exception ignore) {
             }
-        } catch (Exception e) {
+            collection = null;
         }
     }
 
     private void closeClient() {
-        try {
-            if (client != null) {
+        if (client != null) {
+            try {
                 client.close();
-                client = null;
+            } catch (Exception ignore) {
             }
-        } catch (Exception e) {
-
+            client = null;
         }
+
     }
 
     private static String getCanonicalPath(File workDir) {

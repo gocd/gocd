@@ -384,7 +384,7 @@ public class JsonMessageHandler4_0_Test {
         stage.setCreatedTime(new Timestamp(getFixedDate().getTime()));
         stage.setLastTransitionedTime(new Timestamp(getFixedDate().getTime()));
         stage.setPreviousStage(new StageIdentifier("pipeline-name", 1, "1", "previous-stage", "1"));
-        JobInstance job = stage.getJobInstances().get(0);
+        JobInstance job = stage.getJobInstances().getFirst();
         job.setScheduledDate(getFixedDate());
         job.getTransition(JobState.Assigned).setStateChangeTime(getFixedDate());
         job.getTransition(JobState.Completed).setStateChangeTime(getFixedDate());

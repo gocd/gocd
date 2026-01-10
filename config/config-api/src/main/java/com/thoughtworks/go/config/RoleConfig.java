@@ -21,6 +21,9 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toSet;
 
 @ConfigTag("role")
 public class RoleConfig implements Role {
@@ -109,17 +112,13 @@ public class RoleConfig implements Role {
         this.policy = policy;
     }
 
-    @Override
-    public void removeUser(RoleUser roleUser) {
-        this.users.remove(roleUser);
-    }
-
     public void addUsersWithName(List<String> usersToAdd) {
         usersToAdd.forEach(user -> addUser(new RoleUser(user)));
     }
 
     public void removeUsersWithName(List<String> usersToRemove) {
-        usersToRemove.forEach(user -> removeUser(new RoleUser(user)));
+        Set<CaseInsensitiveString> users = usersToRemove.stream().map(CaseInsensitiveString::new).collect(toSet());
+        this.users.removeFirstIf(u -> users.contains(u.getName()));
     }
 
     @Override

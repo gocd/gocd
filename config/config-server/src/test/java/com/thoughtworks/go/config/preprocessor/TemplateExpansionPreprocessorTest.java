@@ -69,7 +69,7 @@ class TemplateExpansionPreprocessorTest {
         template.add(stageConfigFromTemplate);
         pipelineConfig.usingTemplate(template);
 
-        StageConfig stageConfigFromPipeline = pipelineConfig.get(0);
+        StageConfig stageConfigFromPipeline = pipelineConfig.getFirst();
         EnvironmentVariablesConfig variablesConfig = new EnvironmentVariablesConfig();
         variablesConfig.add("FOO", "BAR");
         stageConfigFromPipeline.setVariables(variablesConfig);

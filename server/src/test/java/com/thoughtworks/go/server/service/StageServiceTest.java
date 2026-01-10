@@ -170,7 +170,7 @@ public class StageServiceTest {
 
         StageSummaryModel stageForView = service.findStageSummaryByIdentifier(stageId, ALWAYS_ALLOW_USER, new HttpLocalizedOperationResult());
 
-        JobInstanceModel job = stageForView.passedJobs().get(0);
+        JobInstanceModel job = stageForView.passedJobs().getFirst();
         assertThat(job.getElapsedTime()).isEqualTo(theJob.getElapsedTime());
         assertThat(job.getPercentComplete()).isEqualTo(90);
         verify(stageDao).getExpectedDuration(theJob.getPipelineName(), theJob.getStageName(), theJob);
@@ -296,11 +296,11 @@ public class StageServiceTest {
 
             FeedEntries feedEntries = service.feed("cruise", Username.ANONYMOUS);//Should prime the cache
             assertThat(feedEntries).hasSize(1).contains(expected);
-            assertThat(feedEntries.get(0).getAuthors()).hasSize(1).contains(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS));
+            assertThat(feedEntries.getFirst().getAuthors()).hasSize(1).contains(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS));
 
             feedEntries = service.feed("cruise", Username.ANONYMOUS);//Should use the cache
             assertThat(feedEntries).hasSize(1).contains(expected);
-            assertThat(feedEntries.get(0).getAuthors()).hasSize(1).contains(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS));
+            assertThat(feedEntries.getFirst().getAuthors()).hasSize(1).contains(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS));
 
             verify(stageDao).findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 25);
             verify(changesetService).modificationsOfPipelines(of(1L), "cruise", Username.ANONYMOUS);
@@ -318,7 +318,7 @@ public class StageServiceTest {
 
             FeedEntries feedEntries = service.feed("cruise", Username.ANONYMOUS);//Should cache
             assertThat(feedEntries).hasSize(1).contains(expected);
-            assertThat(feedEntries.get(0).getAuthors()).hasSize(1).contains(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS));
+            assertThat(feedEntries.getFirst().getAuthors()).hasSize(1).contains(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS));
 
             Stage stage = StageMother.createPassedStage("cruise", 1, "stage", 1, "job", updateDate.toInstant());
             stage.setIdentifier(new StageIdentifier("cruise", 1, "stage", String.valueOf(1)));
@@ -326,7 +326,7 @@ public class StageServiceTest {
 
             feedEntries = service.feed("cruise", Username.ANONYMOUS);// Should retrieve from db again.
             assertThat(feedEntries).hasSize(1).contains(expected);
-            assertThat(feedEntries.get(0).getAuthors()).hasSize(1).contains(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS));
+            assertThat(feedEntries.getFirst().getAuthors()).hasSize(1).contains(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS));
 
             verify(stageDao, times(2)).findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 25);
             verify(changesetService, times(2)).modificationsOfPipelines(of(1L), "cruise", Username.ANONYMOUS);
@@ -343,11 +343,11 @@ public class StageServiceTest {
 
             FeedEntries feedEntries = service.feedBefore(1L, "cruise", Username.ANONYMOUS);
             assertThat(feedEntries).hasSize(1).contains(expected);
-            assertThat(feedEntries.get(0).getAuthors()).hasSize(1).contains(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS));
+            assertThat(feedEntries.getFirst().getAuthors()).hasSize(1).contains(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS));
 
             feedEntries = service.feedBefore(1L, "cruise", Username.ANONYMOUS);
             assertThat(feedEntries).hasSize(1).contains(expected);
-            assertThat(feedEntries.get(0).getAuthors()).hasSize(1).contains(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS));
+            assertThat(feedEntries.getFirst().getAuthors()).hasSize(1).contains(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS));
 
             verify(stageDao, times(2)).findCompletedStagesFor("cruise", FeedModifier.Before, 1L, 25);
             verifyNoMoreInteractions(stageDao);
@@ -440,8 +440,8 @@ public class StageServiceTest {
 
         FeedEntries feedEntries = service.feed("down", Username.ANONYMOUS);
         assertThat(feedEntries).isEqualTo(new FeedEntries(List.of(expected, expected)));
-        assertThat(feedEntries.get(0).getAuthors()).isEqualTo(of(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS)));
-        assertThat(feedEntries.get(1).getAuthors()).isEqualTo(of(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS)));
+        assertThat(feedEntries.getFirst().getAuthors()).isEqualTo(of(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS)));
+        assertThat(feedEntries.getLast().getAuthors()).isEqualTo(of(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS)));
     }
 
     private StageFeedEntry stageFeedEntry(String pipelineName, final Date updateDate) {
@@ -473,7 +473,7 @@ public class StageServiceTest {
         StageStatusTopic topic = mock(StageStatusTopic.class);
         final Stage cancelledStage = StageMother.cancelledStage("stage", "job");
         cancelledStage.setIdentifier(new StageIdentifier("pipeline/1/stage/1"));
-        cancelledStage.getJobInstances().getFirstOrNull().setAgentUuid("soem-agent");
+        cancelledStage.getJobInstances().getFirst().setAgentUuid("soem-agent");
 
         final StageService service = new StageService(stageDao, jobInstanceService, topic, null, null, changesetService, goConfigService, transactionTemplate,
             transactionSynchronizationManager,

@@ -22,12 +22,10 @@ import java.util.Objects;
  * Represents error reported when validation fails
  */
 public class ValidationError {
-
     private static final String EMPTY_KEY = "";
 
-    private String key;
-
-    private String message;
+    private final String key;
+    private final String message;
 
     /**
      * creates instance of ValidationError

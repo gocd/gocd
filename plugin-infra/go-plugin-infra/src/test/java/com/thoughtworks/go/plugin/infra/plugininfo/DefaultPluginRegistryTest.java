@@ -47,7 +47,7 @@ class DefaultPluginRegistryTest {
 
         registry.markPluginInvalid(descriptor.bundleSymbolicName(), List.of(message));
 
-        GoPluginDescriptor loadedDescriptor1 = registry.plugins().get(0);
+        GoPluginDescriptor loadedDescriptor1 = registry.plugins().getFirst();
         assertThat(loadedDescriptor1.isInvalid()).isTrue();
         assertThat(loadedDescriptor1.getStatus().getMessages()).contains(message);
 
@@ -222,7 +222,7 @@ class DefaultPluginRegistryTest {
             registry.loadPlugin(newPluginBundle);
         } catch (RuntimeException e) {
             assertThat(registry.plugins().size()).isEqualTo(1);
-            assertThat(registry.plugins().get(0)).isEqualTo(pluginDescriptor);
+            assertThat(registry.plugins().getFirst()).isEqualTo(pluginDescriptor);
         }
     }
 

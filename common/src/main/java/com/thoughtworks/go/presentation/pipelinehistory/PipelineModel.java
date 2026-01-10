@@ -72,7 +72,7 @@ public class PipelineModel {
     }
 
     public PipelineInstanceModel getLatestPipelineInstance() {
-        return activePipelineInstances.getFirstOrNull();
+        return activePipelineInstances.getFirst();
     }
 
     public PipelineInstanceModels getActivePipelineInstances() {

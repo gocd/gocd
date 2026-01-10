@@ -35,7 +35,7 @@ public class TabTest {
         tab.validateTabNameUniqueness(visitedTabs);
 
         assertThat(tab.errors().firstErrorOn(Tab.NAME)).isEqualTo("Tab name 'foo' is not unique.");
-        assertThat(visitedTabs.get(0).errors().firstErrorOn(Tab.NAME)).isEqualTo("Tab name 'foo' is not unique.");
+        assertThat(visitedTabs.getFirst().errors().firstErrorOn(Tab.NAME)).isEqualTo("Tab name 'foo' is not unique.");
         assertThat(visitedTabs.size()).isEqualTo(1);
     }
 

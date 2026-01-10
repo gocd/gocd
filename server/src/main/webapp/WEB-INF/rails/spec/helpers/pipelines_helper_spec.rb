@@ -44,7 +44,7 @@ describe PipelinesHelper do
   describe "run_stage_label" do
     it "should show Rerun for scheduled stage" do
       stages = PipelineHistoryMother.stagePerJob("stage_name", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, @now.to_instant)])
-      stage = stages.get(0)
+      stage = stages.getFirst()
       expect(run_stage_label(stage)).to eq("rerun")
     end
 

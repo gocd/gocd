@@ -78,7 +78,7 @@ public class RoleConfigTest {
         v.validate(role, ValidationContextMother.validationContext(new SecurityConfig()));
 
         assertThat(role.errors().size()).isEqualTo(1);
-        assertThat(role.errors().get("name").get(0)).isEqualTo("Invalid role name name ''. This must be alphanumeric and can" +
+        assertThat(role.errors().get("name").getFirst()).isEqualTo("Invalid role name name ''. This must be alphanumeric and can" +
                 " contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
@@ -88,7 +88,7 @@ public class RoleConfigTest {
         v.validate(role, ValidationContextMother.validationContext(new SecurityConfig()));
 
         assertThat(role.errors().size()).isEqualTo(1);
-        assertThat(role.errors().get("name").get(0)).isEqualTo("Invalid role name name 'null'. This must be alphanumeric and can" +
+        assertThat(role.errors().get("name").getFirst()).isEqualTo("Invalid role name name 'null'. This must be alphanumeric and can" +
                 " contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
@@ -103,7 +103,7 @@ public class RoleConfigTest {
         v.validate(role, validationContext);
 
         assertThat(role.errors().size()).isEqualTo(1);
-        assertThat(role.errors().get("name").get(0)).isEqualTo("Role names should be unique. Role with the same name exists.");
+        assertThat(role.errors().get("name").getFirst()).isEqualTo("Role names should be unique. Role with the same name exists.");
     }
 
     private void validatePolicyIsInvalid(Validator validator) {
@@ -118,7 +118,7 @@ public class RoleConfigTest {
         validator.validate(role, validationContext);
 
         assertThat(role.getPolicy().hasErrors()).isTrue();
-        assertThat(role.getPolicy().get(0).errors().firstErrorOn("action")).isEqualTo("Invalid action, must be one of [view, administer].");
+        assertThat(role.getPolicy().getFirst().errors().firstErrorOn("action")).isEqualTo("Invalid action, must be one of [view, administer].");
     }
 
     interface Validator {

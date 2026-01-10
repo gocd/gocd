@@ -263,8 +263,8 @@ public class PluggableScmServiceTest {
         when(scmExtension.isSCMConfigurationValid(any(), any())).thenReturn(validationResult);
 
         assertFalse(pluggableScmService.isValid(scmConfig));
-        assertThat(configuration.getProperty("url").errors().get("url").get(0)).isEqualTo("invalid");
-        assertThat(configuration.getProperty("username").errors().get("username").get(0)).isEqualTo("invalid");
+        assertThat(configuration.getProperty("url").errors().get("url").getFirst()).isEqualTo("invalid");
+        assertThat(configuration.getProperty("username").errors().get("username").getFirst()).isEqualTo("invalid");
     }
 
     @Test
@@ -297,7 +297,7 @@ public class PluggableScmServiceTest {
         when(scmExtension.isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any())).thenReturn(validationResult);
         doAnswer(invocation -> {
             SCM config = invocation.getArgument(0);
-            config.getSecretParams().get(0).setValue("resolved-value");
+            config.getSecretParams().getFirst().setValue("resolved-value");
             return config;
         }).when(secretParamResolver).resolve(modifiedSCM);
 
@@ -308,7 +308,7 @@ public class PluggableScmServiceTest {
         assertThat(modifiedSCM.getConfiguration().getProperty("KEY1").errors().firstError()).isEqualTo("error message");
         ArgumentCaptor<SCMPropertyConfiguration> captor = ArgumentCaptor.forClass(SCMPropertyConfiguration.class);
         verify(scmExtension).isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), captor.capture());
-        assertThat(captor.getValue().list().get(0).getValue()).isEqualTo("resolved-value");
+        assertThat(captor.getValue().list().getFirst().getValue()).isEqualTo("resolved-value");
     }
 
     @Test
@@ -325,7 +325,7 @@ public class PluggableScmServiceTest {
         when(scmConfig.getConfiguration()).thenReturn(configuration);
         when(scmExtension.isSCMConfigurationValid(any(), any())).thenReturn(new ValidationResult());
         doAnswer(invocation -> {
-            configuration.get(1).getSecretParams().get(0).setValue("resolved-value");
+            configuration.get(1).getSecretParams().getFirst().setValue("resolved-value");
             return scmConfig;
         }).when(secretParamResolver).resolve(any(SCM.class));
 
@@ -346,7 +346,7 @@ public class PluggableScmServiceTest {
         ArgumentCaptor<SCMPropertyConfiguration> captor = ArgumentCaptor.forClass(SCMPropertyConfiguration.class);
         when(scmExtension.checkConnectionToSCM(eq(modifiedSCM.getPluginConfiguration().getId()), captor.capture())).thenReturn(resultFromPlugin);
         doAnswer(invocation -> {
-            configuration.get(0).getSecretParams().get(0).setValue("resolved-value");
+            configuration.getFirst().getSecretParams().getFirst().setValue("resolved-value");
             return modifiedSCM;
         }).when(secretParamResolver).resolve(any(SCM.class));
 
@@ -354,7 +354,7 @@ public class PluggableScmServiceTest {
 
         assertTrue(result.isSuccessful());
         assertThat(result.message()).isEqualTo("Connection OK. message");
-        assertThat(captor.getValue().list().get(0).getValue()).isEqualTo("resolved-value");
+        assertThat(captor.getValue().list().getFirst().getValue()).isEqualTo("resolved-value");
     }
 
     private ValidationError getValidationErrorFor(List<ValidationError> validationErrors, final String key) {

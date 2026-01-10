@@ -108,8 +108,9 @@ public class AdminRole implements Admin {
         SecurityConfig securityConfig = validationContext.getServerSecurityConfig();
         if (!securityConfig.isRoleExist(this.name)) {
             // This is needed for the old UI while validating roles. Errors will be added on the name field.
-            configErrors.add(NAME, String.format("Role \"%s\" does not exist.", this.name));
-            configErrors.add(ADMIN, String.format("Role \"%s\" does not exist.", this.name));
+            String message = String.format("Role \"%s\" does not exist.", this.name);
+            configErrors.add(NAME, message);
+            configErrors.add(ADMIN, message);
         }
     }
 

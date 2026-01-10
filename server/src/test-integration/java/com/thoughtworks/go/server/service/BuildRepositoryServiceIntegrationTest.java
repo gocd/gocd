@@ -172,7 +172,7 @@ public class BuildRepositoryServiceIntegrationTest {
         dbHelper.savePipelineWithStagesAndMaterials(pipelineInPreparingState);
         Pipeline reloadedPipeline = pipelineDao.mostRecentPipeline("product");
         Stage stage = reloadedPipeline.getFirstStage();
-        JobInstance job = stage.getJobInstances().getFirstOrNull();
+        JobInstance job = stage.getJobInstances().getFirst();
         String agentUuid = job.getAgentUuid();
         long buildId = job.getId();
 
@@ -190,12 +190,12 @@ public class BuildRepositoryServiceIntegrationTest {
 
         int oldSize = latestPipeline.getStages().size();
 
-        Stage stage = oldPipeline.getStages().getFirstOrNull();
+        Stage stage = oldPipeline.getStages().getFirst();
         scheduleService.automaticallyTriggerRelevantStagesFollowingCompletionOf(stage);
 
         oldPipeline = pipelineDao.loadPipeline(oldPipeline.getId());
         Stage ftStage = oldPipeline.getStages().byName(FT_STAGE);
-        JobInstance secondJob = ftStage.getJobInstances().getFirstOrNull();
+        JobInstance secondJob = ftStage.getJobInstances().getFirst();
         secondJob.setIdentifier(new JobIdentifier(oldPipeline, ftStage, secondJob));
         secondJob.setAgentUuid(AGENT_UUID);
 
@@ -210,7 +210,7 @@ public class BuildRepositoryServiceIntegrationTest {
     @Test
     public void shouldNotUpdateIgnoredBuildStatus() throws Exception {
         Stage stage = dbHelper.saveBuildingStage("studios", "dev");
-        JobInstance job = stage.getJobInstances().get(0);
+        JobInstance job = stage.getJobInstances().getFirst();
         scheduleService.rescheduleJob(job);
         reportJobPassed(job);
         JobInstance reloaded = jobInstanceDao.buildByIdWithTransitions(job.getId());
@@ -220,7 +220,7 @@ public class BuildRepositoryServiceIntegrationTest {
     @Test
     public void shouldNotUpdateIgnoredBuildResult() {
         Stage stage = dbHelper.saveBuildingStage("studios", "dev");
-        JobInstance job = stage.getJobInstances().get(0);
+        JobInstance job = stage.getJobInstances().getFirst();
         scheduleService.rescheduleJob(job);
         buildRepositoryService.completing(job.getIdentifier(), JobResult.Passed, AGENT_UUID);
         JobInstance reloaded = jobInstanceDao.buildByIdWithTransitions(job.getId());
@@ -236,7 +236,7 @@ public class BuildRepositoryServiceIntegrationTest {
         Stage stage1 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(DEV_STAGE)));
         assertThat(stage1.isApproved()).isTrue();
         assertThat(stage1.getApprovedBy()).isEqualTo(GoConstants.DEFAULT_APPROVED_BY);
-        assertThat(stage1.getJobInstances().getFirstOrNull().getResult()).isEqualTo(JobResult.Passed);
+        assertThat(stage1.getJobInstances().getFirst().getResult()).isEqualTo(JobResult.Passed);
 
         Stage stage2 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
         assertThat(stage2.getPipelineId()).isEqualTo(pipeline.getId());
@@ -272,7 +272,7 @@ public class BuildRepositoryServiceIntegrationTest {
         createNewPipelineWithFirstStageFailed();
 
         dbHelper.passStage(oldFtStage);
-        reportJobPassed(oldFtStage.getJobInstances().get(0));
+        reportJobPassed(oldFtStage.getJobInstances().getFirst());
 
         Stage mingleFt = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
         assertThat(mingleFt.getPipelineId()).isEqualTo(mostRecentPassedStage.getPipelineId());
@@ -291,8 +291,8 @@ public class BuildRepositoryServiceIntegrationTest {
         Stage after = stageService.stageById(stage1.getId());
         JobInstances instances = after.getJobInstances();
         assertThat(instances.size()).isEqualTo(1);
-        assertThat(instances.get(0).getResult()).isEqualTo(JobResult.Passed);
-        assertThat(instances.get(0).getState()).isEqualTo(JobState.Completed);
+        assertThat(instances.getFirst().getResult()).isEqualTo(JobResult.Passed);
+        assertThat(instances.getFirst().getState()).isEqualTo(JobState.Completed);
 
         assertThat(after.getResult()).isEqualTo(StageResult.Passed);
     }
@@ -302,7 +302,7 @@ public class BuildRepositoryServiceIntegrationTest {
     public void shouldNotScheduleCurrentStageIfAlreadyMostRecentPipeline() throws Exception {
         Stage mostRecent = createPipelineWithFirstStageCompletedAndNextStageBuilding(StageState.Passed);
 
-        reportJobPassed(mostRecent.getJobInstances().get(0));
+        reportJobPassed(mostRecent.getJobInstances().getFirst());
 
         Stage mingleFt = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
         assertThat(mingleFt.getPipelineId()).isEqualTo(mostRecent.getPipelineId());
@@ -337,7 +337,7 @@ public class BuildRepositoryServiceIntegrationTest {
 
     @SuppressWarnings("UnusedReturnValue")
     private JobInstance completeStageAndTrigger(Stage oldFtStage) throws Exception {
-        JobInstance job = oldFtStage.getJobInstances().getFirstOrNull();
+        JobInstance job = oldFtStage.getJobInstances().getFirst();
         buildRepositoryService.completing(job.getIdentifier(), JobResult.Passed, AGENT_UUID);
         reportJobPassed(job);
         return jobInstanceService.buildByIdWithTransitions(job.getId());
@@ -347,7 +347,7 @@ public class BuildRepositoryServiceIntegrationTest {
     public void shouldCancelAllJobs() {
         mingle = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl(PIPELINE_NAME, DEV_STAGE,
                 svnTestRepo.projectRepositoryUrl());
-        StageConfig devStage = mingle.get(0);
+        StageConfig devStage = mingle.getFirst();
         schedulePipeline(mingle);
         final Stage stage = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(mingle.name()), devStage);
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -375,7 +375,7 @@ public class BuildRepositoryServiceIntegrationTest {
         } else {
             dbHelper.passStage(mostRecent);
         }
-        reportJobPassed(mostRecent.getJobInstances().getFirstOrNull());
+        reportJobPassed(mostRecent.getJobInstances().getFirst());
         Stage nextStage = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
         dbHelper.buildingBuildInstance(nextStage);
         return nextStage;
@@ -392,8 +392,8 @@ public class BuildRepositoryServiceIntegrationTest {
     @SuppressWarnings("UnusedReturnValue")
     private Pipeline createPipelineWithFirstStageCompleted(PipelineConfig pipeline) throws Exception {
         Stage firstStage = createPipelineWithFirstStageBuilding(pipeline).getFirstStage();
-        reportJobCompleting(firstStage.getJobInstances().getFirstOrNull());
-        reportJobPassed(firstStage.getJobInstances().getFirstOrNull());
+        reportJobCompleting(firstStage.getJobInstances().getFirst());
+        reportJobPassed(firstStage.getJobInstances().getFirst());
         return pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(pipeline.name()));
     }
 

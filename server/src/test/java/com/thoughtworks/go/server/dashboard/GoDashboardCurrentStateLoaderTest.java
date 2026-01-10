@@ -46,6 +46,7 @@ import org.mockito.stubbing.Answer;
 import java.util.*;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
+import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels.createPipelineInstanceModels;
 import static com.thoughtworks.go.presentation.pipelinehistory.PreparingToScheduleInstance.PreparingToScheduleBuildCause;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -96,7 +97,7 @@ public class GoDashboardCurrentStateLoaderTest {
 
         assertThat(models.size()).isEqualTo(2);
         assertModel(models.get(1), "group1", pimForP1);  /* Pipeline is actually added in reverse order. */
-        assertModel(models.get(0), "group2", pimForP2);
+        assertModel(models.getFirst(), "group2", pimForP2);
     }
 
     @Test
@@ -110,7 +111,7 @@ public class GoDashboardCurrentStateLoaderTest {
         List<GoDashboardPipeline> models = loader.allPipelines(config);
 
         assertThat(models.size()).isEqualTo(1);
-        assertModel(models.get(0), "group1", pimForP1);
+        assertModel(models.getFirst(), "group1", pimForP1);
     }
 
     @Test
@@ -122,10 +123,10 @@ public class GoDashboardCurrentStateLoaderTest {
 
         List<GoDashboardPipeline> models = loader.allPipelines(config);
         assertThat(models.size()).isEqualTo(1);
-        assertThat(models.get(0).groupName()).isEqualTo("group1");
-        assertThat(models.get(0).model().getName()).isEqualTo("pipeline1");
+        assertThat(models.getFirst().groupName()).isEqualTo("group1");
+        assertThat(models.getFirst().model().getName()).isEqualTo("pipeline1");
 
-        PipelineModel model = models.get(0).model();
+        PipelineModel model = models.getFirst().model();
         assertThat(model.getActivePipelineInstances().size()).isEqualTo(1);
 
         PipelineInstanceModel specialPIM = model.getLatestPipelineInstance();
@@ -146,10 +147,10 @@ public class GoDashboardCurrentStateLoaderTest {
 
         List<GoDashboardPipeline> models = loader.allPipelines(config);
         assertThat(models.size()).isEqualTo(1);
-        assertThat(models.get(0).groupName()).isEqualTo("group1");
-        assertThat(models.get(0).model().getName()).isEqualTo("pipeline1");
+        assertThat(models.getFirst().groupName()).isEqualTo("group1");
+        assertThat(models.getFirst().model().getName()).isEqualTo("pipeline1");
 
-        PipelineModel model = models.get(0).model();
+        PipelineModel model = models.getFirst().model();
         assertThat(model.getActivePipelineInstances().size()).isEqualTo(1);
 
         PipelineInstanceModel emptyPIM = model.getLatestPipelineInstance();
@@ -171,10 +172,10 @@ public class GoDashboardCurrentStateLoaderTest {
 
         List<GoDashboardPipeline> models = loader.allPipelines(config);
 
-        PipelineModel model = models.get(0).model();
+        PipelineModel model = models.getFirst().model();
         assertThat(model.getActivePipelineInstances().size()).isEqualTo(2);
-        assertThat(model.getActivePipelineInstances().get(0)).isEqualTo(firstInstance);
-        assertThat(model.getActivePipelineInstances().get(1)).isEqualTo(secondInstance);
+        assertThat(model.getActivePipelineInstances().getFirst()).isEqualTo(firstInstance);
+        assertThat(model.getActivePipelineInstances().getLast()).isEqualTo(secondInstance);
     }
 
     @Test
@@ -230,7 +231,7 @@ public class GoDashboardCurrentStateLoaderTest {
     @Test
     public void shouldAddPipelineLockInformationAtPipelineInstanceLevel() {
         PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
-        p1Config.lockExplicitly();
+        p1Config.setLockBehaviorIfNecessary(LOCK_VALUE_LOCK_ON_FAILURE);
 
         PipelineConfig p2Config = goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2", "job2");
 
@@ -248,7 +249,7 @@ public class GoDashboardCurrentStateLoaderTest {
         assertThat(modelForPipeline1.getLatestPipelineInstance().isCurrentlyLocked()).isTrue();
         assertThat(modelForPipeline1.getLatestPipelineInstance().canUnlock()).isTrue();
 
-        PipelineModel modelForPipeline2 = models.get(0).model();
+        PipelineModel modelForPipeline2 = models.getFirst().model();
         assertThat(modelForPipeline2.getLatestPipelineInstance().isLockable()).isFalse();
         assertThat(modelForPipeline2.getLatestPipelineInstance().isCurrentlyLocked()).isFalse();
         assertThat(modelForPipeline2.getLatestPipelineInstance().canUnlock()).isFalse();
@@ -314,7 +315,7 @@ public class GoDashboardCurrentStateLoaderTest {
 
         List<GoDashboardPipeline> models = loader.allPipelines(config);
 
-        Permissions permissions = models.get(0).permissions();
+        Permissions permissions = models.getFirst().permissions();
         assertThat(permissions.viewers()).isEqualTo(NoOne.INSTANCE);
         assertThat(permissions.operators()).isEqualTo(NoOne.INSTANCE);
         assertThat(permissions.admins()).isEqualTo(NoOne.INSTANCE);
@@ -359,7 +360,7 @@ public class GoDashboardCurrentStateLoaderTest {
 
         List<GoDashboardPipeline> models = loader.allPipelines(config);
 
-        assertThat(models.get(0).getTrackingTool()).isEqualTo(Optional.of(trackingTool));
+        assertThat(models.getFirst().getTrackingTool()).isEqualTo(Optional.of(trackingTool));
     }
 
     @Test
@@ -435,7 +436,7 @@ public class GoDashboardCurrentStateLoaderTest {
         config.getAllPipelineConfigs().remove(pipeline2);
         goDashboardPipelines = loader.allPipelines(config);
         assertThat(goDashboardPipelines).hasSize(1);
-        assertThat(goDashboardPipelines.get(0).name()).isEqualTo(pipeline3.name());
+        assertThat(goDashboardPipelines.getFirst().name()).isEqualTo(pipeline3.name());
     }
 
     private void assertModel(GoDashboardPipeline pipeline, String group, PipelineInstanceModel... pims) {

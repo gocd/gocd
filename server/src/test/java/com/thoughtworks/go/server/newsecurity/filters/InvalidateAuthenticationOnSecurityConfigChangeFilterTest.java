@@ -95,9 +95,9 @@ class InvalidateAuthenticationOnSecurityConfigChangeFilterTest {
 
         List<ConfigChangedListener> registeredListeners = configChangedListenerArgumentCaptor.getAllValues();
 
-        assertThat(registeredListeners.get(0)).isInstanceOf(InvalidateAuthenticationOnSecurityConfigChangeFilter.class);
-        assertThat(registeredListeners.get(0)).isSameAs(filter);
-        assertThat(registeredListeners.get(1)).isInstanceOf(SecurityConfigChangeListener.class);
+        assertThat(registeredListeners.getFirst()).isInstanceOf(InvalidateAuthenticationOnSecurityConfigChangeFilter.class);
+        assertThat(registeredListeners.getFirst()).isSameAs(filter);
+        assertThat(registeredListeners.getLast()).isInstanceOf(SecurityConfigChangeListener.class);
     }
 
     @Test

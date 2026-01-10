@@ -123,7 +123,7 @@ public class PackageRepositoryServiceTest {
 
         service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, entityHashingService, secretParamResolver);
         service.performPluginValidationsFor(packageRepository);
-        assertThat(packageRepository.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value")).isEqualTo(List.of("url format incorrect"));
+        assertThat(packageRepository.getConfiguration().getFirst().getConfigurationValue().errors().getAllOn("value")).isEqualTo(List.of("url format incorrect"));
     }
 
     @Test
@@ -215,14 +215,14 @@ public class PackageRepositoryServiceTest {
     void shouldSendResolvedValuesForCheckConnectionOnPlugin() {
         String pluginId = "yum";
         PackageRepository packageRepository = packageRepository(pluginId);
-        packageRepository.getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][username]}}"));
+        packageRepository.getConfiguration().getFirst().setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][username]}}"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, entityHashingService, secretParamResolver);
 
         when(packageRepositoryExtension.checkConnectionToRepository(eq(pluginId), any())).thenReturn(new Result().withErrorMessages("Repo invalid!!", "Could not connect"));
         doAnswer(invocation -> {
             PackageRepository config = invocation.getArgument(0);
-            config.getSecretParams().get(0).setValue("resolved-value");
+            config.getSecretParams().getFirst().setValue("resolved-value");
             return config;
         }).when(secretParamResolver).resolve(packageRepository);
 
@@ -234,7 +234,7 @@ public class PackageRepositoryServiceTest {
         ArgumentCaptor<RepositoryConfiguration> argumentCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
         verify(packageRepositoryExtension).checkConnectionToRepository(eq(pluginId), argumentCaptor.capture());
         RepositoryConfiguration packageConfigurations = argumentCaptor.getValue();
-        assertThat(packageConfigurations.list().get(0).getValue()).isEqualTo("resolved-value");
+        assertThat(packageConfigurations.list().getFirst().getValue()).isEqualTo("resolved-value");
 
     }
 
@@ -243,13 +243,13 @@ public class PackageRepositoryServiceTest {
         String pluginId = "yum";
         RepositoryMetadataStore.getInstance().addMetadataFor(pluginId, new PackageConfigurations());
         PackageRepository packageRepository = packageRepository(pluginId);
-        packageRepository.getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][username]}}"));
+        packageRepository.getConfiguration().getFirst().setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][username]}}"));
         PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, entityHashingService, secretParamResolver);
 
         when(packageRepositoryExtension.isRepositoryConfigurationValid(eq(pluginId), any())).thenReturn(new ValidationResult());
         doAnswer(invocation -> {
             PackageRepository config = invocation.getArgument(0);
-            config.getSecretParams().get(0).setValue("resolved-value");
+            config.getSecretParams().getFirst().setValue("resolved-value");
             return config;
         }).when(secretParamResolver).resolve(packageRepository);
 
@@ -259,7 +259,7 @@ public class PackageRepositoryServiceTest {
         ArgumentCaptor<RepositoryConfiguration> argumentCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
         verify(packageRepositoryExtension).isRepositoryConfigurationValid(eq(pluginId), argumentCaptor.capture());
         RepositoryConfiguration packageConfigurations = argumentCaptor.getValue();
-        assertThat(packageConfigurations.list().get(0).getValue()).isEqualTo("resolved-value");
+        assertThat(packageConfigurations.list().getFirst().getValue()).isEqualTo("resolved-value");
 
     }
 

@@ -19,6 +19,7 @@ import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.service.TaskFactory;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -68,35 +69,12 @@ public class Tasks extends BaseCollection<Task> implements Validatable {
         configErrors.add(fieldName, message);
     }
 
-    public boolean isExecTask() {
-        return getFirstOrNull() instanceof ExecTask;
-    }
-
-    public Task execTask() {
-        if (isExecTask()) {
-            return getFirstOrNull();
-        }
-        return new ExecTask();
-    }
-
-    public Tasks findByType(Class<? extends Task> type) {
-        Tasks matchedTasks = new Tasks();
-        for (Task t : this) {
-            if (type.isInstance(t)) {
-                matchedTasks.add(t);
-            }
-        }
-
-        return matchedTasks;
-    }
-
+    @TestOnly
     public Task findFirstByType(Class<? extends Task> type) {
-        Tasks tasks = findByType(type);
-        if (tasks.size() > 0) {
-            return tasks.getFirstOrNull();
-        } else {
-            throw bomb("Unable to find task of type " + type);
-        }
+        return this.stream()
+            .filter(type::isInstance)
+            .findFirst()
+            .orElseThrow(() -> bomb("Unable to find task of type " + type));
     }
 
     @SuppressWarnings("unchecked")
@@ -123,10 +101,6 @@ public class Tasks extends BaseCollection<Task> implements Validatable {
 
     public void decrementIndex(int taskIndex) {
         moveTask(taskIndex, DECREMENT_INDEX);
-    }
-
-     public String getTaskOptions() {
-        return getFirstOrNull() == null ? "" : getFirstOrNull().getTaskType();
     }
 
     private void moveTask(int taskIndex, final int moveBy) {

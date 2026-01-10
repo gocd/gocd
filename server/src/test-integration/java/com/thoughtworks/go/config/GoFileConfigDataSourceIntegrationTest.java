@@ -112,7 +112,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         configHelper.addPipeline("upstream", "upstream_stage_original");
         goConfigService.forceNotifyListeners();
         cachedGoPartials.clear();
-        configRepo = configWatchList.getCurrentConfigRepos().get(0);
+        configRepo = configWatchList.getCurrentConfigRepos().getFirst();
         upstreamPipeline = goConfigService.pipelineConfigNamed(new CaseInsensitiveString("upstream"));
         partialConfig = PartialConfigMother.pipelineWithDependencyMaterial(remoteDownstream, upstreamPipeline, new RepoConfigOrigin(configRepo, "r1"));
         partialConfigService.onSuccessPartialConfig(configRepo, partialConfig);
@@ -135,7 +135,7 @@ public class GoFileConfigDataSourceIntegrationTest {
             task.setCommand("powershell");
             task.setArgs("Get-ChildItem -Path . â€“Recurse");
             job.addTask(task);
-            pipelineConfig.getFirstOrNull().getJobs().add(job);
+            pipelineConfig.getFirst().getJobs().add(job);
             cruiseConfig.addPipeline(UUID.randomUUID().toString(), pipelineConfig);
             return cruiseConfig;
         }, new GoConfigHolder(goConfigService.currentCruiseConfig(), goConfigService.getConfigForEditing()));
@@ -181,7 +181,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstream))).isTrue();
 
         //Introducing a change to make the latest version of remote pipeline invalid
-        PipelineConfig remoteDownstreamPipeline = partialConfig.getGroups().getFirstOrNull().getPipelines().get(0);
+        PipelineConfig remoteDownstreamPipeline = partialConfig.getGroups().getFirst().getPipelines().getFirst();
         DependencyMaterialConfig dependencyMaterial = remoteDownstreamPipeline.materialConfigs().findDependencyMaterial(upstreamPipeline.name());
         dependencyMaterial.setStageName(new CaseInsensitiveString("upstream_stage_renamed"));
         partialConfigService.onSuccessPartialConfig(configRepo, partialConfig);
@@ -189,7 +189,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName()).isEqualTo(new CaseInsensitiveString("upstream_stage_original"));
 
         final CaseInsensitiveString upstreamStageRenamed = new CaseInsensitiveString("upstream_stage_renamed");
-        updateConfigOnFileSystem(cruiseConfig -> cruiseConfig.getPipelineConfigByName(upstreamPipeline.name()).getFirstOrNull().setName(upstreamStageRenamed));
+        updateConfigOnFileSystem(cruiseConfig -> cruiseConfig.getPipelineConfigByName(upstreamPipeline.name()).getFirst().setName(upstreamStageRenamed));
 
         GoConfigHolder goConfigHolder = dataSource.forceLoad(Path.of(systemEnvironment.getCruiseConfigFile()));
         assertThat(goConfigHolder.config.getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstream))).isTrue();
@@ -319,7 +319,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         GoConfigHolder configHolder = dataSource.load();
 
         PipelineConfig pipelineConfig = configHolder.config.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
-        SvnMaterialConfig svnMaterialConfig = (SvnMaterialConfig) pipelineConfig.materialConfigs().get(0);
+        SvnMaterialConfig svnMaterialConfig = (SvnMaterialConfig) pipelineConfig.materialConfigs().getFirst();
         assertThat(svnMaterialConfig.getEncryptedPassword()).isNotNull();
     }
 
@@ -343,7 +343,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         GoConfigHolder configHolder = dataSource.load();
 
         PipelineConfig pipelineConfig = configHolder.config.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
-        TfsMaterialConfig tfsMaterial = (TfsMaterialConfig) pipelineConfig.materialConfigs().get(0);
+        TfsMaterialConfig tfsMaterial = (TfsMaterialConfig) pipelineConfig.materialConfigs().getFirst();
         assertThat(tfsMaterial.getEncryptedPassword()).isNotNull();
     }
 
@@ -454,7 +454,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         assertThat(result.getConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(pipelineOneFromConfigRepo))).isTrue();
         assertThat(result.getConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(pipelineInMain))).isTrue();
         assertThat(cachedGoPartials.lastValidPartials().size()).isEqualTo(1);
-        PartialConfig partialConfig = cachedGoPartials.lastValidPartials().get(0);
+        PartialConfig partialConfig = cachedGoPartials.lastValidPartials().getFirst();
         assertThat(partialConfig.getGroups()).isEqualTo(validPartialConfig.getGroups());
         assertThat(partialConfig.getEnvironments()).isEqualTo(validPartialConfig.getEnvironments());
         assertThat(partialConfig.getOrigin()).isEqualTo(validPartialConfig.getOrigin());
@@ -467,7 +467,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         PartialConfig partialConfig = PartialConfigMother.withPipeline(pipelineFromConfigRepo, new RepoConfigOrigin(repoConfig, "r2"));
         cachedGoPartials.cacheAsLastKnown(repoConfig.getRepo().getFingerprint(), partialConfig);
         assertThat(cachedGoPartials.lastValidPartials().size()).isEqualTo(1);
-        assertThat(cachedGoPartials.lastValidPartials().get(0).getGroups().findGroup("group").hasPipeline(new CaseInsensitiveString(pipelineFromConfigRepo))).isFalse();
+        assertThat(cachedGoPartials.lastValidPartials().getFirst().getGroups().findGroup("group").hasPipeline(new CaseInsensitiveString(pipelineFromConfigRepo))).isFalse();
 
         GoFileConfigDataSource.GoConfigSaveResult result = dataSource.writeWithLock(cruiseConfig -> {
             cruiseConfig.addPipeline("default", PipelineConfigMother.createPipelineConfig(pipelineInMain, "stage", "job"));
@@ -476,7 +476,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         assertThat(result.getConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(pipelineFromConfigRepo))).isTrue();
         assertThat(result.getConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(pipelineInMain))).isTrue();
         assertThat(cachedGoPartials.lastValidPartials().size()).isEqualTo(1);
-        PartialConfig actualPartial = cachedGoPartials.lastValidPartials().get(0);
+        PartialConfig actualPartial = cachedGoPartials.lastValidPartials().getFirst();
         assertThat(actualPartial.getGroups().findGroup("group").hasPipeline(new CaseInsensitiveString(pipelineFromConfigRepo))).isTrue();
         assertThat(actualPartial.getGroups()).isEqualTo(partialConfig.getGroups());
         assertThat(actualPartial.getEnvironments()).isEqualTo(partialConfig.getEnvironments());

@@ -71,15 +71,15 @@ public class SvnCommandRemoteTest {
     @Test
     public void shouldSupportSvnLog() {
         List<Modification> info = command.latestModification();
-        assertThat(info.get(0).getComment()).isEqualTo("Added simple build shell to dump the environment to console.");
+        assertThat(info.getFirst().getComment()).isEqualTo("Added simple build shell to dump the environment to console.");
     }
 
     @Test
     public void shouldSupportModificationsSince() {
         List<Modification> info = command.modificationsSince(new SubversionRevision(2));
         assertThat(info.size()).isEqualTo(2);
-        assertThat(info.get(0).getRevision()).isEqualTo("4");
-        assertThat(info.get(1).getRevision()).isEqualTo("3");
+        assertThat(info.getFirst().getRevision()).isEqualTo("4");
+        assertThat(info.getLast().getRevision()).isEqualTo("3");
     }
 
     @Test

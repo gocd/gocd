@@ -178,7 +178,7 @@ public class ScheduleService {
             PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(pipelineName);
 
             if (canSchedule(pipelineConfig)) {
-                final Pipeline pipelineInstance = pipelineScheduleQueue.createPipeline(buildCause, pipelineConfig, schedulingContext(buildCause.getApprover(), pipelineConfig, pipelineConfig.getFirstOrNull()),
+                final Pipeline pipelineInstance = pipelineScheduleQueue.createPipeline(buildCause, pipelineConfig, schedulingContext(buildCause.getApprover(), pipelineConfig, pipelineConfig.getFirst()),
                         goConfigService.getCurrentConfig().getMd5(), timeProvider);
                 serverHealthService.update(stageSchedulingSuccessfulState(pipelineName.toString(), CaseInsensitiveString.str(pipelineConfig.getFirst().name())));
                 return pipelineInstance;

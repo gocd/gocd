@@ -117,8 +117,8 @@ public class PluggableTaskServiceTest {
         when(taskExtension.validate(any(), any())).thenReturn(validationResult);
 
         assertFalse(pluggableTaskService.isValid(pluggableTask));
-        assertThat(configuration.getProperty("source").errors().get("source").get(0)).isEqualTo("source directory format is invalid");
-        assertThat(configuration.getProperty("destination").errors().get("destination").get(0)).isEqualTo("destination directory format is invalid");
+        assertThat(configuration.getProperty("source").errors().get("source").getFirst()).isEqualTo("source directory format is invalid");
+        assertThat(configuration.getProperty("destination").errors().get("destination").getFirst()).isEqualTo("destination directory format is invalid");
     }
 
     @Test

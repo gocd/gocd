@@ -96,7 +96,7 @@ public class FanInPerformanceTest {
         int numberOfLevels = 10;
         int numberOfInstancesForUpstream = 1;
 
-        ScmMaterial svn = u.wf((ScmMaterial) MaterialsMother.defaultMaterials().get(0), "folder1");
+        ScmMaterial svn = u.wf((ScmMaterial) MaterialsMother.defaultMaterials().getFirst(), "folder1");
         String[] svn_revs = {"svn_1"};
         u.checkinInOrder(svn, svn_revs);
 

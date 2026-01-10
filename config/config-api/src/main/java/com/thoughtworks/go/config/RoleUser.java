@@ -68,11 +68,7 @@ public class RoleUser implements Validatable {
             return false;
         }
 
-        return equals((RoleUser) that);
-    }
-
-    private boolean equals(RoleUser that) {
-        return Objects.equals(this.name, that.name);
+        return Objects.equals(this.name, ((RoleUser) that).name);
     }
 
     @Override

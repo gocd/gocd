@@ -25,7 +25,11 @@ import org.apache.commons.lang3.Strings;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.BiPredicate;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -33,7 +37,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @ConfigTag(value = "pipelines", label = "PipelineGroup")
 @ConfigCollection(PipelineConfig.class)
 public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> implements PipelineConfigs, Serializable {
-
 
     @ConfigAttribute(value = "group", optional = true)
     @SkipParameterResolution
@@ -68,11 +71,6 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         super(pipelineConfigs);
         this.group = group;
         this.authorization = authorization;
-    }
-
-    @Override
-    public boolean contains(PipelineConfig pipelineConfig) {
-        return super.contains(pipelineConfig);
     }
 
     @Override
@@ -168,11 +166,8 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         if (!isSameGroup(groupName)) {
             return;
         }
-        this.set(getIndex(pipelineName), pipeline);
-    }
-
-    private int getIndex(String pipelineName) {
-        return this.indexOf(this.findBy(new CaseInsensitiveString(pipelineName)));
+        CaseInsensitiveString caseName = new CaseInsensitiveString(pipelineName);
+        this.replaceIfNotEmpty(c -> c.name().equals(caseName), pipeline);
     }
 
     @Override
@@ -187,16 +182,6 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     private boolean isSameGroup(String groupName) {
         return Strings.CI.equals(groupName, this.getGroup());
-    }
-
-    @Override
-    public void add(List<String> allGroup) {
-        allGroup.add(group);
-    }
-
-    @Override
-    public boolean exist(int pipelineIndex) {
-        return pipelineIndex < this.size();
     }
 
     @Override
@@ -278,16 +263,6 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     @Override
-    public boolean hasTemplate() {
-        for (PipelineConfig pipelineConfig : this) {
-            if (pipelineConfig.hasTemplate()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
     public PipelineConfigs getCopyForEditing() {
         BasicPipelineConfigs clone = (BasicPipelineConfigs) clone();
         clone.clear();
@@ -357,34 +332,6 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         configErrors.add(fieldName, message);
     }
 
-    @Override
-    public List<AdminUser> getOperateUsers() {
-        return authorization.getOperationConfig().getUsers();
-    }
-
-    @Override
-    public List<AdminRole> getOperateRoles() {
-        return authorization.getOperationConfig().getRoles();
-    }
-
-    @Override
-    public List<String> getOperateRoleNames() {
-        List<String> roles = new ArrayList<>();
-        for (AdminRole role : getOperateRoles()) {
-            roles.add(CaseInsensitiveString.str(role.getName()));
-        }
-        return roles;
-    }
-
-    @Override
-    public List<String> getOperateUserNames() {
-        List<String> users = new ArrayList<>();
-        for (AdminUser user : getOperateUsers()) {
-            users.add(CaseInsensitiveString.str(user.getName()));
-        }
-        return users;
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {
@@ -403,7 +350,6 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         }
     }
 
-
     @Override
     public void cleanupAllUsagesOfRole(Role roleToDelete) {
         getAuthorization().removeAllUsagesOfRole(roleToDelete);
@@ -413,8 +359,15 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     @Override
-    public int indexOf(PipelineConfig pipelineConfig) {
-        return super.indexOf(pipelineConfig);
+    public boolean tryReplace(BiPredicate<PipelineConfigs, PipelineConfig> matcher, PipelineConfig newItem) {
+        if (!isEmpty()) {
+            int indexOfOldItem = indexOfMatcher(c -> matcher.test(this, c));
+            if (indexOfOldItem != -1) {
+                setIfNotEmpty(indexOfOldItem, newItem);
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -450,10 +403,5 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     public void setOrigin(ConfigOrigin origin) {
         this.configOrigin = origin;
-    }
-
-    @Override
-    public boolean hasRemoteParts() {
-        return getOrigin() != null && !getOrigin().isLocal();
     }
 }

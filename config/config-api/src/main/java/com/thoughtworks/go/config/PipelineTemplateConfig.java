@@ -284,10 +284,9 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         return result;
     }
 
-    public boolean matches(CaseInsensitiveString templateName) {
+    boolean matches(CaseInsensitiveString templateName) {
         return this.name.equals(templateName);
     }
-
 
     @SuppressWarnings("unchecked")
     @Override

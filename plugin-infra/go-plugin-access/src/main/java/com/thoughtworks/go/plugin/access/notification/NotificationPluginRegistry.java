@@ -42,8 +42,8 @@ public class NotificationPluginRegistry {
     }
 
     public void removePluginInterests(String pluginId) {
-        for (String key : notificationNameToPluginsInterestedMap.keySet()) {
-            notificationNameToPluginsInterestedMap.get(key).remove(pluginId);
+        for (Set<String> pluginsInterested : notificationNameToPluginsInterestedMap.values()) {
+            pluginsInterested.remove(pluginId);
         }
     }
 
@@ -58,11 +58,11 @@ public class NotificationPluginRegistry {
 
     public Set<String> getPluginInterests(String pluginId) {
         Set<String> pluginInterests = new HashSet<>();
-        for (String key : notificationNameToPluginsInterestedMap.keySet()) {
-            if (notificationNameToPluginsInterestedMap.get(key).contains(pluginId)) {
-                pluginInterests.add(key);
+        notificationNameToPluginsInterestedMap.forEach((notificationName, pluginsInterested) -> {
+            if (pluginsInterested.contains(pluginId)) {
+                pluginInterests.add(notificationName);
             }
-        }
+        });
         return pluginInterests;
     }
 

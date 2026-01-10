@@ -82,7 +82,7 @@ abstract class P4CommandTestBase extends PerforceFixture {
     void shouldGetLatestChange() {
         List<Modification> modificationList = p4.latestChange();
         assertThat(modificationList.size()).isEqualTo(1);
-        assertThat(modificationList.get(0).getRevision()).isEqualTo("4");
+        assertThat(modificationList.getFirst().getRevision()).isEqualTo("4");
     }
 
     @Test

@@ -118,7 +118,7 @@ public class ValueStreamMapPerformanceTest {
         int numberOfInstancesForUpstream = 1;
         int numberOfInstancesForDownstream = 10;
 
-        ScmMaterial svn = u.wf((ScmMaterial) MaterialsMother.defaultMaterials().get(0), "folder1");
+        ScmMaterial svn = u.wf((ScmMaterial) MaterialsMother.defaultMaterials().getFirst(), "folder1");
         String[] svn_revs = {"svn_1"};
         u.checkinInOrder(svn, svn_revs);
 
@@ -163,7 +163,7 @@ public class ValueStreamMapPerformanceTest {
         String previousRun = up_r;
 
         for (int i = 0; i < numberOfDownstreamPipelines; i++) {
-            DependencyMaterial dep = new DependencyMaterial(previouslyCreatedPipeline.config.name(), previouslyCreatedPipeline.config.get(0).name());
+            DependencyMaterial dep = new DependencyMaterial(previouslyCreatedPipeline.config.name(), previouslyCreatedPipeline.config.getFirst().name());
             ScheduleTestUtil.AddedPipeline d = u.saveConfigWith("d" + i, new ScheduleTestUtil.MaterialDeclaration(dep, "random"));
             String currentRun = u.runAndPass(d, previousRun);
             previouslyCreatedPipeline = d;

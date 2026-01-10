@@ -209,7 +209,7 @@ public class ScheduleServiceTest {
     @Test
     public void shouldClearServerHealthMessageWhenPipelineGetsCreatedSuccessfully() {
         final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline-quux");
-        final MaterialConfig materialConfig = pipelineConfig.materialConfigs().get(0);
+        final MaterialConfig materialConfig = pipelineConfig.materialConfigs().getFirst();
         when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipeline-quux"))).thenReturn(pipelineConfig);
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
         when(cruiseConfig.getMd5()).thenReturn("md5-test");

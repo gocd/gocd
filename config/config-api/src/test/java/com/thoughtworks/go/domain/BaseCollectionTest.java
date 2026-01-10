@@ -17,27 +17,13 @@ package com.thoughtworks.go.domain;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.function.Predicate;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 public class BaseCollectionTest {
-    @Test
-    public void shouldReturnFirstOrLastItem() {
-        Object item1 = new Object();
-        Object item2 = new Object();
-        BaseCollection<Object> collection = new BaseCollection<>(item1, item2);
-        assertThat(collection.getFirstOrNull()).isEqualTo(item1);
-        assertThat(collection.getLastOrNull()).isEqualTo(item2);
-    }
-
-    @Test
-    public void shouldReturnNullForEmptyCollection() {
-        BaseCollection<Object> collection = new BaseCollection<>();
-        assertThat(collection.getFirstOrNull()).isNull();
-        assertThat(collection.getLastOrNull()).isNull();
-    }
-
     @Test
     public void shouldReplaceOldItemWithNewItem() {
         Object oldItem = new Object();
@@ -46,12 +32,12 @@ public class BaseCollectionTest {
         BaseCollection<Object> collection = new BaseCollection<>(oldItem);
 
         assertThat(collection.size()).isEqualTo(1);
-        assertThat(collection.getFirstOrNull()).isEqualTo(oldItem);
+        assertThat(collection.getFirst()).isEqualTo(oldItem);
 
-        collection.replace(oldItem, newItem);
+        collection.replaceIfNotEmpty(oldItem, newItem);
 
         assertThat(collection.size()).isEqualTo(1);
-        assertThat(collection.getFirstOrNull()).isEqualTo(newItem);
+        assertThat(collection.getFirst()).isEqualTo(newItem);
     }
 
     @Test
@@ -59,9 +45,9 @@ public class BaseCollectionTest {
         Object newItem = new Object();
         BaseCollection<Object> collection = new BaseCollection<>(new Object(), new Object());
 
-        collection.replace(1, newItem);
+        collection.setIfNotEmpty(1, newItem);
 
-        assertThat(collection.getLastOrNull()).isEqualTo(newItem);
+        assertThat(collection.getLast()).isEqualTo(newItem);
     }
 
     @Test
@@ -71,19 +57,48 @@ public class BaseCollectionTest {
 
         BaseCollection<Object> collection = new BaseCollection<>("foobar");
 
-        assertThatThrownBy(() -> collection.replace(oldItem, newItem))
+        assertThatThrownBy(() -> collection.replaceIfNotEmpty(oldItem, newItem))
                 .isExactlyInstanceOf(IndexOutOfBoundsException.class)
                 .hasMessage("There is no object at index '-1' in this collection of java.lang.String");
     }
 
     @Test
-    public void shouldThrowAnExceptionWhenIndexIsInvalid() {
+    public void setShouldThrowAnExceptionWhenIndexIsInvalid() {
         Object newItem = new Object();
         BaseCollection<Object> collection = new BaseCollection<>(new Object(), new Object());
 
-        assertThatThrownBy(() -> collection.replace(-1, newItem))
+        assertThatThrownBy(() -> collection.setIfNotEmpty(-1, newItem))
                 .isExactlyInstanceOf(IndexOutOfBoundsException.class)
                 .hasMessage("There is no object at index '-1' in this collection of java.lang.Object");
+    }
+
+    @Test
+    public void shouldReplaceByPredicateWithNewItem() {
+        BaseCollection<String> collection = new BaseCollection<>("hello1", "hello2", "world");
+
+        Predicate<String> prefixedByHello = s -> s.startsWith("hello");
+        collection.replaceIfNotEmpty(prefixedByHello, "replaced");
+
+        assertThat(collection).containsExactly("replaced", "hello2", "world");
+    }
+
+    @Test
+    public void replaceShouldNotThrowExceptionIfEmpty() {
+        BaseCollection<String> collection = new BaseCollection<>();
+        Predicate<String> prefixedByHello = s -> s.startsWith("hello");
+        collection.replaceIfNotEmpty(prefixedByHello, "replaced");
+
+        assertThat(collection).isEmpty();
+    }
+
+    @Test
+    public void replaceShouldThrowExceptionIfInvalid() {
+        BaseCollection<String> collection = new BaseCollection<>("world");
+
+        Predicate<String> prefixedByHello = s -> s.startsWith("hello");
+        assertThatThrownBy(() -> collection.replaceIfNotEmpty(prefixedByHello, "replaced"))
+            .isExactlyInstanceOf(IndexOutOfBoundsException.class)
+            .hasMessage("There is no object at index '-1' in this collection of java.lang.String");
     }
 
     @Test
@@ -91,9 +106,29 @@ public class BaseCollectionTest {
         Object newItem = new Object();
         BaseCollection<Object> collection = new BaseCollection<>(new Object(), new Object());
 
-        assertThatThrownBy(() -> collection.replace(3, newItem))
+        assertThatThrownBy(() -> collection.setIfNotEmpty(3, newItem))
                 .isExactlyInstanceOf(IndexOutOfBoundsException.class)
                 .hasMessage("There is no object at index '3' in this collection of java.lang.Object");
+    }
+
+    @Test
+    public void shouldRemoveFirstIfWithEmptyCollection() {
+        BaseCollection<String> collection = new BaseCollection<>();
+        assertThat(collection.removeFirstIf(o -> true)).isFalse();
+        assertThat(collection.removeFirstIf(o -> false)).isFalse();
+        assertThat(collection).isEmpty();
+    }
+
+    @Test
+    public void shouldRemoveFirstIfOnlyFirstElement() {
+        BaseCollection<String> collection = new BaseCollection<>("hello1", "hello2", "world");
+        Predicate<String> prefixedByHello = s -> s.startsWith("hello");
+        assertThat(collection.removeFirstIf(prefixedByHello)).isTrue();
+        assertThat(collection).containsExactly("hello2", "world");
+        assertThat(collection.removeFirstIf(prefixedByHello)).isTrue();
+        assertThat(collection).containsExactly("world");
+        assertThat(collection.removeFirstIf(prefixedByHello)).isFalse();
+        assertThat(collection).containsExactly("world");
     }
 
 }

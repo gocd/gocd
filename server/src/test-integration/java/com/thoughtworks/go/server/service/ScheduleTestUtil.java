@@ -82,7 +82,7 @@ public class ScheduleTestUtil {
         List<Modification> modifications = new ArrayList<>();
         for (String rev : revs) {
             Modification mod = modForRev(rev);
-            modifications.add(0, mod);
+            modifications.addFirst(mod);
         }
         MaterialRevision materialRevision = new MaterialRevision(material, modifications);
         if (changed) {
@@ -178,7 +178,7 @@ public class ScheduleTestUtil {
         PipelineConfig oldConfig = pipeline.config;
         configHelper.removePipeline(CaseInsensitiveString.str(oldConfig.name()));
         PipelineConfig newPipeline = PipelineConfigMother.renamePipeline(oldConfig, newPipelineName);
-        StageConfigMother.renameStage(newPipeline.get(0), stageName);
+        StageConfigMother.renameStage(newPipeline.getFirst(), stageName);
         configHelper.addPipeline(newPipeline);
         return new AddedPipeline(newPipeline, pipeline.material);
     }
@@ -204,7 +204,7 @@ public class ScheduleTestUtil {
             for (Modification modification : modForRev(revisions[i++])) {
                 modifications.add(identityMap.computeIfAbsent(modification, k -> k));
             }
-            MaterialInstance modificationsMaterialInstance = modifications.get(0).getMaterialInstance();
+            MaterialInstance modificationsMaterialInstance = modifications.getFirst().getMaterialInstance();
             if (modMap.containsKey(material)) {
                 modifications = modMap.get(material);
             } else {
@@ -254,7 +254,7 @@ public class ScheduleTestUtil {
             if (list.isEmpty()) {
                 throw new RuntimeException("you are trying to load revision " + revision + " which doesn't exist");
             }
-            return list.get(0);
+            return list.getFirst();
         });
     }
 

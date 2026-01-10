@@ -124,13 +124,13 @@ class SecretParamResolverTest {
             when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password")))
                     .thenReturn(List.of(new Secret("password", "some-password")));
 
-            assertThat(material.getSecretParams().get(0).isUnresolved()).isTrue();
+            assertThat(material.getSecretParams().getFirst().isUnresolved()).isTrue();
 
             secretParamResolver.resolve(material);
 
             verify(rulesService).validateSecretConfigReferences(material);
-            assertThat(material.getSecretParams().get(0).isUnresolved()).isFalse();
-            assertThat(material.getSecretParams().get(0).getValue()).isEqualTo("some-password");
+            assertThat(material.getSecretParams().getFirst().isUnresolved()).isFalse();
+            assertThat(material.getSecretParams().getFirst().getValue()).isEqualTo("some-password");
         }
 
         @Test
@@ -163,13 +163,13 @@ class SecretParamResolverTest {
             when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password")))
                     .thenReturn(List.of(new Secret("password", "some-password")));
 
-            assertThat(scm.getSecretParams().get(0).isUnresolved()).isTrue();
+            assertThat(scm.getSecretParams().getFirst().isUnresolved()).isTrue();
 
             secretParamResolver.resolve(scm);
 
             verify(rulesService).validateSecretConfigReferences(scm);
-            assertThat(scm.getSecretParams().get(0).isUnresolved()).isFalse();
-            assertThat(scm.getSecretParams().get(0).getValue()).isEqualTo("some-password");
+            assertThat(scm.getSecretParams().getFirst().isUnresolved()).isFalse();
+            assertThat(scm.getSecretParams().getFirst().getValue()).isEqualTo("some-password");
         }
 
         @Test
@@ -207,7 +207,7 @@ class SecretParamResolverTest {
             secretParamResolver.resolve(buildAssigment);
 
             verify(rulesService).validateSecretConfigReferences(buildAssigment);
-            assertThat(buildAssigment.getSecretParams().get(0).getValue()).isEqualTo("some-password");
+            assertThat(buildAssigment.getSecretParams().getFirst().getValue()).isEqualTo("some-password");
         }
 
         @Test
@@ -258,7 +258,7 @@ class SecretParamResolverTest {
             secretParamResolver.resolve(environmentConfig);
 
             verify(rulesService).validateSecretConfigReferences(environmentConfig);
-            assertThat(environmentConfig.getSecretParams().get(0).getValue()).isEqualTo("some-password");
+            assertThat(environmentConfig.getSecretParams().getFirst().getValue()).isEqualTo("some-password");
         }
 
         @Test
@@ -323,8 +323,8 @@ class SecretParamResolverTest {
         secretParamResolver.resolve(allSecretParams);
 
         assertThat(allSecretParams).hasSize(2);
-        assertThat(allSecretParams.get(0).getValue()).isEqualTo("some-username");
-        assertThat(allSecretParams.get(1).getValue()).isEqualTo("some-username");
+        assertThat(allSecretParams.getFirst().getValue()).isEqualTo("some-username");
+        assertThat(allSecretParams.getLast().getValue()).isEqualTo("some-username");
     }
 
     @Nested
@@ -347,7 +347,7 @@ class SecretParamResolverTest {
             verify(rulesService).validateSecretConfigReferences(pluggableSCMMaterial);
 
             assertThat(gitMaterial.passwordForCommandLine()).isEqualTo("some-password");
-            assertThat(pluggableSCMMaterial.getSecretParams().get(0).getValue()).isEqualTo("some-token");
+            assertThat(pluggableSCMMaterial.getSecretParams().getFirst().getValue()).isEqualTo("some-token");
         }
 
         @Test
@@ -356,9 +356,9 @@ class SecretParamResolverTest {
             gitMaterial.setPassword("{{SECRET:[secret_config_id][password]}}");
             DependencyMaterial dependencyMaterial = dependencyMaterial("{{SECRET:[secret_id][pipeline]}}", "defaultStage");
             PackageMaterial packageMaterial = packageMaterial();
-            packageMaterial.getPackageDefinition().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][package_token]}}"));
+            packageMaterial.getPackageDefinition().getConfiguration().getFirst().setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][package_token]}}"));
             PluggableSCMMaterial pluggableSCMMaterial = pluggableSCMMaterial();
-            pluggableSCMMaterial.getScmConfig().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][token]}}"));
+            pluggableSCMMaterial.getScmConfig().getConfiguration().getFirst().setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][token]}}"));
 
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
             when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
@@ -380,26 +380,26 @@ class SecretParamResolverTest {
         @Test
         void shouldResolveSecretParams_IfAMaterialCanReferToASecretConfig() {
             PackageMaterial material = MaterialsMother.packageMaterial();
-            material.getPackageDefinition().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+            material.getPackageDefinition().getConfiguration().getFirst().setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
 
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
 
             when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
             when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password"))).thenReturn(List.of(new Secret("password", "some-password")));
 
-            assertThat(material.getSecretParams().get(0).isUnresolved()).isTrue();
+            assertThat(material.getSecretParams().getFirst().isUnresolved()).isTrue();
 
             secretParamResolver.resolve(material);
 
             verify(rulesService).validateSecretConfigReferences(material);
-            assertThat(material.getSecretParams().get(0).isUnresolved()).isFalse();
-            assertThat(material.getSecretParams().get(0).getValue()).isEqualTo("some-password");
+            assertThat(material.getSecretParams().getFirst().isUnresolved()).isFalse();
+            assertThat(material.getSecretParams().getFirst().getValue()).isEqualTo("some-password");
         }
 
         @Test
         void shouldErrorOut_IfMaterialsDoNotHavePermissionToReferToASecretConfig() {
             PackageMaterial material = MaterialsMother.packageMaterial();
-            material.getPackageDefinition().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+            material.getPackageDefinition().getConfiguration().getFirst().setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
 
             doThrow(new RuntimeException()).when(rulesService).validateSecretConfigReferences(material);
 
@@ -423,13 +423,13 @@ class SecretParamResolverTest {
             when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
             when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password"))).thenReturn(List.of(new Secret("password", "some-password")));
 
-            assertThat(repository.getSecretParams().get(0).isUnresolved()).isTrue();
+            assertThat(repository.getSecretParams().getFirst().isUnresolved()).isTrue();
 
             secretParamResolver.resolve(repository);
 
             verify(rulesService).validateSecretConfigReferences(repository);
-            assertThat(repository.getSecretParams().get(0).isUnresolved()).isFalse();
-            assertThat(repository.getSecretParams().get(0).getValue()).isEqualTo("some-password");
+            assertThat(repository.getSecretParams().getFirst().isUnresolved()).isFalse();
+            assertThat(repository.getSecretParams().getFirst().getValue()).isEqualTo("some-password");
         }
 
         @Test
@@ -462,13 +462,13 @@ class SecretParamResolverTest {
             when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
             when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password"))).thenReturn(List.of(new Secret("password", "some-password")));
 
-            assertThat(packageDefinition.getSecretParams().get(0).isUnresolved()).isTrue();
+            assertThat(packageDefinition.getSecretParams().getFirst().isUnresolved()).isTrue();
 
             secretParamResolver.resolve(packageDefinition);
 
             verify(rulesService).validateSecretConfigReferences(packageDefinition);
-            assertThat(packageDefinition.getSecretParams().get(0).isUnresolved()).isFalse();
-            assertThat(packageDefinition.getSecretParams().get(0).getValue()).isEqualTo("some-password");
+            assertThat(packageDefinition.getSecretParams().getFirst().isUnresolved()).isFalse();
+            assertThat(packageDefinition.getSecretParams().getFirst().getValue()).isEqualTo("some-password");
         }
 
         @Test
@@ -501,13 +501,13 @@ class SecretParamResolverTest {
             when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
             when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password"))).thenReturn(List.of(new Secret("password", "some-password")));
 
-            assertThat(clusterProfile.getSecretParams().get(0).isUnresolved()).isTrue();
+            assertThat(clusterProfile.getSecretParams().getFirst().isUnresolved()).isTrue();
 
             secretParamResolver.resolve(clusterProfile);
 
             verify(rulesService).validateSecretConfigReferences(clusterProfile);
-            assertThat(clusterProfile.getSecretParams().get(0).isUnresolved()).isFalse();
-            assertThat(clusterProfile.getSecretParams().get(0).getValue()).isEqualTo("some-password");
+            assertThat(clusterProfile.getSecretParams().getFirst().isUnresolved()).isFalse();
+            assertThat(clusterProfile.getSecretParams().getFirst().getValue()).isEqualTo("some-password");
         }
 
         @Test
@@ -538,13 +538,13 @@ class SecretParamResolverTest {
             when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
             when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password"))).thenReturn(List.of(new Secret("password", "some-password")));
 
-            assertThat(elasticProfile.getSecretParams().get(0).isUnresolved()).isTrue();
+            assertThat(elasticProfile.getSecretParams().getFirst().isUnresolved()).isTrue();
 
             secretParamResolver.resolve(elasticProfile);
 
             verify(rulesService).validateSecretConfigReferences(elasticProfile);
-            assertThat(elasticProfile.getSecretParams().get(0).isUnresolved()).isFalse();
-            assertThat(elasticProfile.getSecretParams().get(0).getValue()).isEqualTo("some-password");
+            assertThat(elasticProfile.getSecretParams().getFirst().isUnresolved()).isFalse();
+            assertThat(elasticProfile.getSecretParams().getFirst().getValue()).isEqualTo("some-password");
         }
 
         @Test

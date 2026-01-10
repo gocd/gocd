@@ -94,7 +94,7 @@ class PartialConfigHelperTest {
 
         ConfigRepoConfig repo = createConfigRepoConfig(svnMaterialConfig(), "plugin", "id");
         PartialConfig partialConfig = withPipeline("p", new RepoConfigOrigin(repo, "git"));
-        partialConfig.getGroups().get(0).get(0).getFirstOrNull().getJobs().add(invalidJob);
+        partialConfig.getGroups().getFirst().getFirst().getFirst().getJobs().add(invalidJob);
 
         List<PartialConfig> a = List.of(partialConfig, git("git"));
         List<PartialConfig> b = Collections.emptyList();

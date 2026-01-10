@@ -44,6 +44,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.MaterialFingerprintTag;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -182,11 +183,11 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         return !allGitMaterials.isEmpty();
     }
 
-    public boolean updateMaterial(MaterialConfig config) {
+    public boolean updateMaterial(@NotNull MaterialConfig config) {
         return updateMaterial(materialConfigConverter.toMaterial(config));
     }
 
-    public boolean updateMaterial(Material material) {
+    public boolean updateMaterial(@NotNull Material material) {
         Date inProgressSince = inProgress.putIfAbsent(material, new Date());
         if (inProgressSince == null || !material.isAutoUpdate()) {
             LOGGER.debug("[Material Update] Starting update of material {}", material);

@@ -191,7 +191,7 @@ public class PluginServiceTest {
         pluginService.validatePluginSettings(pluginSettings);
 
         assertThat(pluginSettings.hasErrors()).isTrue();
-        List<String> allErrorsOnProperty = pluginSettings.getPluginSettingsProperties().get(0).errors().getAll();
+        List<String> allErrorsOnProperty = pluginSettings.getPluginSettingsProperties().getFirst().errors().getAll();
         assertThat(allErrorsOnProperty.size()).isEqualTo(1);
         assertTrue(allErrorsOnProperty.contains("Encrypted value for property with key 'secure-key' is invalid. This usually happens when the cipher text is modified to have an invalid value."));
         verify(elasticAgentExtension, never()).validatePluginSettings(eq(elasticAgentPluginId), any());

@@ -196,7 +196,7 @@ public class PatchEnvironmentCommandTest {
         assertFalse(cruiseConfig.getEnvironments().find(environmentName).containsPipeline(new CaseInsensitiveString(pipelineName.toString())));
         command.update(cruiseConfig);
 
-        cruiseConfig.getEnvironments().replace(cruiseConfig.getEnvironments().find(environmentName), mergedConfig); //preprocess
+        cruiseConfig.getEnvironments().replaceIfNotEmpty(cruiseConfig.getEnvironments().find(environmentName), mergedConfig); //preprocess
 
         boolean isValid = command.isValid(cruiseConfig);
         assertFalse(isValid);
@@ -226,7 +226,7 @@ public class PatchEnvironmentCommandTest {
         assertFalse(cruiseConfig.getEnvironments().find(environmentName).getVariables().hasVariable(variableName));
         command.update(cruiseConfig);
 
-        cruiseConfig.getEnvironments().replace(cruiseConfig.getEnvironments().find(environmentName), mergedConfig); //preprocess
+        cruiseConfig.getEnvironments().replaceIfNotEmpty(cruiseConfig.getEnvironments().find(environmentName), mergedConfig); //preprocess
 
         boolean isValid = command.isValid(cruiseConfig);
         assertFalse(isValid);

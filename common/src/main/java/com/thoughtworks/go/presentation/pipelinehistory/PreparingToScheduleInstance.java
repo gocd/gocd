@@ -33,11 +33,6 @@ public class PreparingToScheduleInstance extends PipelineInstanceModel {
     }
 
     @Override
-    public boolean hasHistoricalData() {
-        return true;
-    }
-
-    @Override
     public Revision getCurrentRevision(String requestedMaterialName) {
         return new PreparingToScheduleRevision();
     }

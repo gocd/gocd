@@ -127,7 +127,7 @@ public class RestfulServiceTest {
     public void shouldFindJobByPipelineCounter() {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         Stage stage = pipeline.getStages().byName(pipelineFixture.devStage);
-        JobInstance job = stage.getJobInstances().getFirstOrNull();
+        JobInstance job = stage.getJobInstances().getFirst();
 
         JobIdentifier result = restfulService.findJob(pipeline.getName(), String.valueOf(pipeline.getCounter()), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), job.getId());
         JobIdentifier expect = new JobIdentifier(pipeline, stage, job);
@@ -171,7 +171,7 @@ public class RestfulServiceTest {
         pipelineFixture.createdPipelineWithAllStagesPassed();
 
         Stage stage = oldPipeline.getStages().byName(pipelineFixture.devStage);
-        JobInstance job = stage.getJobInstances().getFirstOrNull();
+        JobInstance job = stage.getJobInstances().getFirst();
 
         JobIdentifier result = restfulService.findJob(oldPipeline.getName(), String.valueOf(oldPipeline.getCounter()), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), null);
         JobIdentifier expect = new JobIdentifier(oldPipeline, stage, job);
@@ -183,7 +183,7 @@ public class RestfulServiceTest {
         configHelper.setPipelineLabelTemplate(pipelineFixture.pipelineName, "label-${COUNT}");
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         Stage stage = pipeline.getStages().byName(pipelineFixture.devStage);
-        JobInstance job = stage.getJobInstances().getFirstOrNull();
+        JobInstance job = stage.getJobInstances().getFirst();
 
         JobIdentifier result = restfulService.findJob(pipeline.getName(), String.valueOf(pipeline.getCounter()),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName(), job.getId());

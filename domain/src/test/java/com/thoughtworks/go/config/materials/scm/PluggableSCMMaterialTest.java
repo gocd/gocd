@@ -390,7 +390,7 @@ class PluggableSCMMaterialTest {
     @Test
     void shouldFailEqualsCheckIfFingerprintDiffers() {
         PluggableSCMMaterial material1 = MaterialsMother.pluggableSCMMaterial();
-        material1.getScmConfig().getConfiguration().getFirstOrNull().setConfigurationValue(new ConfigurationValue("new-url"));
+        material1.getScmConfig().getConfiguration().getFirst().setConfigurationValue(new ConfigurationValue("new-url"));
         PluggableSCMMaterial material2 = MaterialsMother.pluggableSCMMaterial();
 
         assertThat(material1.equals(material2)).isFalse();
@@ -555,7 +555,7 @@ class PluggableSCMMaterialTest {
     @Test
     void shouldPopulateEnvironmentContextWithConfigurationWithSecretParamsAsSecure() {
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
-        k1.getSecretParams().get(0).setValue("some-resolved-value");
+        k1.getSecretParams().getFirst().setValue("some-resolved-value");
         ConfigurationProperty k2 = ConfigurationPropertyMother.create("scm-secure", true, "value");
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setSCMConfig(SCMMother.create("scm-id", "tw-dev", "pluginid", "version", new Configuration(k1, k2)));

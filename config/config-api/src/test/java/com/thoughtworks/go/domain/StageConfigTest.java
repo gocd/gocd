@@ -154,8 +154,8 @@ public class StageConfigTest {
         StageConfig config = new StageConfig();
         Map<String, List<Map<String, String>>> stageAttrs = Map.of(StageConfig.JOBS, List.of(Map.of(JobConfig.NAME, "con-job"), Map.of(JobConfig.NAME, "boring-job")));
         config.setConfigAttributes(stageAttrs);
-        assertThat(config.getJobs().get(0).name()).isEqualTo(new CaseInsensitiveString("con-job"));
-        assertThat(config.getJobs().get(1).name()).isEqualTo(new CaseInsensitiveString("boring-job"));
+        assertThat(config.getJobs().getFirst().name()).isEqualTo(new CaseInsensitiveString("con-job"));
+        assertThat(config.getJobs().getLast().name()).isEqualTo(new CaseInsensitiveString("boring-job"));
     }
 
     @Test
@@ -195,7 +195,7 @@ public class StageConfigTest {
         config.initializeServer();
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage-1", "con-job");
         config.addPipeline("group-foo", pipelineConfig);
-        StageConfig stageConfig = pipelineConfig.get(0);
+        StageConfig stageConfig = pipelineConfig.getFirst();
 
         JobConfig newJob = new JobConfig("foo!");
         StageConfig newlyAddedStage = new StageConfig(new CaseInsensitiveString("."), new JobConfigs(newJob));
@@ -209,8 +209,8 @@ public class StageConfigTest {
         assertThat(allErrors.get(1).firstErrorOn(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique.");
         assertThat(allErrors.get(2).firstErrorOn(StageConfig.NAME)).isEqualTo("Invalid stage name '.'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
         assertThat(allErrors.get(3).firstErrorOn(JobConfig.NAME)).isEqualTo("Invalid job name 'foo!'. This must be alphanumeric and may contain underscores and periods. The maximum allowed length is 255 characters.");
-        assertThat(stageConfig.getJobs().get(0).errors().firstErrorOn(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique.");
-        assertThat(stageConfig.getJobs().get(1).errors().firstErrorOn(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique.");
+        assertThat(stageConfig.getJobs().getFirst().errors().firstErrorOn(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique.");
+        assertThat(stageConfig.getJobs().getLast().errors().firstErrorOn(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique.");
         assertThat(newlyAddedStage.errors().firstErrorOn(StageConfig.NAME)).isEqualTo("Invalid stage name '.'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
         assertThat(newJob.errors().firstErrorOn(JobConfig.NAME)).isEqualTo("Invalid job name 'foo!'. This must be alphanumeric and may contain underscores and periods. The maximum allowed length is 255 characters.");
     }

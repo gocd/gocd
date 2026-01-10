@@ -67,6 +67,7 @@ import com.thoughtworks.go.util.TestUtils;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.hibernate.SessionFactory;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -270,8 +271,8 @@ public class MaterialRepositoryIntegrationTest {
         repo.setHibernateTemplate(mockTemplate);
         List<Modification> modifications = repo.findModificationsSince(material, first);
         assertThat(modifications.size()).isEqualTo(2);
-        assertEquals(third.getLatestModification(), modifications.get(0));
-        assertEquals(second.getLatestModification(), modifications.get(1));
+        assertEquals(third.getLatestModification(), modifications.getFirst());
+        assertEquals(second.getLatestModification(), modifications.getLast());
         verifyNoMoreInteractions(mockTemplate);
     }
 
@@ -347,7 +348,7 @@ public class MaterialRepositoryIntegrationTest {
         HibernateTemplate mockTemplate = mock(HibernateTemplate.class);
         repo = new MaterialRepository(repo.getSessionFactory(), goCache, 200, transactionSynchronizationManager, materialConfigConverter, materialExpansionService, databaseStrategy) {
             @Override
-            public MaterialInstance findMaterialInstance(Material material) {
+            public MaterialInstance findMaterialInstance(@NonNull Material material) {
                 MaterialInstance result = super.findMaterialInstance(material);
                 TestUtils.sleepQuietly(20); // force multiple threads to try to create the material
                 return result;
@@ -455,7 +456,7 @@ public class MaterialRepositoryIntegrationTest {
         MaterialRevision later = saveOneScmModification(original, "user2", "file2");
 
         List<Modification> modifications = repo.findModificationsSince(original, originalRevision);
-        assertEquals(later.getLatestModification(), modifications.get(0));
+        assertEquals(later.getLatestModification(), modifications.getFirst());
     }
 
     @Test
@@ -687,8 +688,8 @@ public class MaterialRepositoryIntegrationTest {
 
         List<Modification> modificationsSince = repo.findModificationsSince(material, firstRevision);
 
-        assertThat(modificationsSince.get(0).getRevision()).isEqualTo("10");
-        assertThat(modificationsSince.get(modificationsSince.size() - 1).getRevision()).isEqualTo("13");
+        assertThat(modificationsSince.getFirst().getRevision()).isEqualTo("10");
+        assertThat(modificationsSince.getLast().getRevision()).isEqualTo("13");
     }
 
     @Test
@@ -712,8 +713,8 @@ public class MaterialRepositoryIntegrationTest {
 
         MaterialRevisions revisionsFor12 = repo.findMaterialRevisionsForPipeline(secondPipeline.getId());
         assertThat(revisionsFor12.getModifications(material).size()).isEqualTo(2);
-        assertThat(revisionsFor12.getModifications(material).get(0).getRevision()).isEqualTo("11");
-        assertThat(revisionsFor12.getModifications(material).get(1).getRevision()).isEqualTo("10.5");
+        assertThat(revisionsFor12.getModifications(material).getFirst().getRevision()).isEqualTo("11");
+        assertThat(revisionsFor12.getModifications(material).getLast().getRevision()).isEqualTo("10.5");
 
         MaterialRevision thirdRevision = new MaterialRevision(material, new Modifications(modification("12")));
         saveMaterialRev(thirdRevision);
@@ -722,7 +723,7 @@ public class MaterialRepositoryIntegrationTest {
 
         MaterialRevisions revisionsFor13 = repo.findMaterialRevisionsForPipeline(thirdPipeline.getId());
         assertThat(revisionsFor13.getModifications(material).size()).isEqualTo(1);
-        assertThat(revisionsFor13.getModifications(material).get(0).getRevision()).isEqualTo("12");
+        assertThat(revisionsFor13.getModifications(material).getFirst().getRevision()).isEqualTo("12");
     }
 
     @Test
@@ -734,7 +735,7 @@ public class MaterialRepositoryIntegrationTest {
         savePMR(firstRevision, firstPipeline);
         MaterialRevisions revisionsFor11 = repo.findMaterialRevisionsForPipeline(firstPipeline.getId());
         assertThat(revisionsFor11.getModifications(material).size()).isEqualTo(1);
-        assertThat(revisionsFor11.getModifications(material).get(0).getRevision()).isEqualTo("pipeline_name/10/stage_name/1");
+        assertThat(revisionsFor11.getModifications(material).getFirst().getRevision()).isEqualTo("pipeline_name/10/stage_name/1");
 
         MaterialRevision secondRevision = new MaterialRevision(material, new Modifications(modification("pipeline_name/11/stage_name/2"), modification("pipeline_name/11/stage_name/1")));
         saveMaterialRev(secondRevision);
@@ -743,7 +744,7 @@ public class MaterialRepositoryIntegrationTest {
 
         MaterialRevisions revisionsFor12 = repo.findMaterialRevisionsForPipeline(secondPipeline.getId());
         assertThat(revisionsFor12.getModifications(material).size()).isEqualTo(1);
-        assertThat(revisionsFor12.getModifications(material).get(0).getRevision()).isEqualTo("pipeline_name/11/stage_name/2");
+        assertThat(revisionsFor12.getModifications(material).getFirst().getRevision()).isEqualTo("pipeline_name/11/stage_name/2");
 
         MaterialRevision thirdRevision = new MaterialRevision(material, new Modifications(modification("pipeline_name/12/stage_name/1")));
         saveMaterialRev(thirdRevision);
@@ -754,7 +755,7 @@ public class MaterialRepositoryIntegrationTest {
 
         MaterialRevisions revisionsFor13 = repo.findMaterialRevisionsForPipeline(thirdPipeline.getId());
         assertThat(revisionsFor13.getModifications(material).size()).isEqualTo(1);
-        assertThat(revisionsFor13.getModifications(material).get(0).getRevision()).isEqualTo("pipeline_name/12/stage_name/1");
+        assertThat(revisionsFor13.getModifications(material).getFirst().getRevision()).isEqualTo("pipeline_name/12/stage_name/1");
     }
 
     @Test
@@ -765,7 +766,7 @@ public class MaterialRepositoryIntegrationTest {
         Pipeline firstPipeline = createPipeline();
         savePMR(firstRevision, firstPipeline);
         List<PipelineMaterialRevision> pmrs = repo.findPipelineMaterialRevisions(firstPipeline.getId());
-        assertThat(pmrs.get(0).getActualFromRevisionId()).isEqualTo(pmrs.get(0).getFromModification().getId());
+        assertThat(pmrs.getFirst().getActualFromRevisionId()).isEqualTo(pmrs.getFirst().getFromModification().getId());
     }
 
     @Test
@@ -779,8 +780,8 @@ public class MaterialRepositoryIntegrationTest {
         savePMR(firstRevision, firstPipeline);
 
         List<PipelineMaterialRevision> pmrs = repo.findPipelineMaterialRevisions(firstPipeline.getId());
-        assertThat(pmrs.get(0).getActualFromRevisionId()).isEqualTo(actualFrom.getId());
-        assertEquals(from, pmrs.get(0).getFromModification());
+        assertThat(pmrs.getFirst().getActualFromRevisionId()).isEqualTo(actualFrom.getId());
+        assertEquals(from, pmrs.getFirst().getFromModification());
     }
 
     @Test
@@ -803,8 +804,8 @@ public class MaterialRepositoryIntegrationTest {
 
         List<PipelineMaterialRevision> pmrs = repo.findPipelineMaterialRevisions(firstPipeline.getId());
 
-        assertThat(pmrs.get(0).getActualFromRevisionId()).isEqualTo(from.getId());
-        assertEquals(from, pmrs.get(0).getFromModification());
+        assertThat(pmrs.getFirst().getActualFromRevisionId()).isEqualTo(from.getId());
+        assertEquals(from, pmrs.getFirst().getFromModification());
     }
 
     @Test
@@ -821,8 +822,8 @@ public class MaterialRepositoryIntegrationTest {
 
         List<PipelineMaterialRevision> pmrs = repo.findPipelineMaterialRevisions(firstPipeline.getId());
 
-        assertThat(pmrs.get(0).getActualFromRevisionId()).isEqualTo(actualFrom.getId());
-        assertEquals(actualFrom, pmrs.get(0).getFromModification());
+        assertThat(pmrs.getFirst().getActualFromRevisionId()).isEqualTo(actualFrom.getId());
+        assertEquals(actualFrom, pmrs.getFirst().getFromModification());
     }
 
     @Test
@@ -842,7 +843,7 @@ public class MaterialRepositoryIntegrationTest {
         assertEquals(secondRevision, materialRevisions.getMaterialRevision(0));
 
         List<PipelineMaterialRevision> pipelineMaterialRevisions = repo.findPipelineMaterialRevisions(secondPipeline.getId());
-        assertThat(pipelineMaterialRevisions.get(0).getMaterialId()).isEqualTo(material.getId());
+        assertThat(pipelineMaterialRevisions.getFirst().getMaterialId()).isEqualTo(material.getId());
     }
 
     @Test
@@ -865,7 +866,7 @@ public class MaterialRepositoryIntegrationTest {
 
         List<MatchedRevision> revisions = repo.findRevisionsMatching(material.config(), "pavan");
         assertThat(revisions.size()).isEqualTo(1);
-        assertMatchedRevision(revisions.get(0), materialRevision.getLatestShortRevision(), materialRevision.getLatestRevisionString(), "pavan", materialRevision.getDateOfLatestModification(), "comment");
+        assertMatchedRevision(revisions.getFirst(), materialRevision.getLatestShortRevision(), materialRevision.getLatestRevisionString(), "pavan", materialRevision.getDateOfLatestModification(), "comment");
     }
 
     @Test
@@ -877,11 +878,11 @@ public class MaterialRepositoryIntegrationTest {
 
         List<MatchedRevision> revisions = repo.findRevisionsMatching(material.config(), "my-random");
         assertThat(revisions.size()).isEqualTo(1);
-        assertMatchedRevision(revisions.get(0), first.getLatestShortRevision(), first.getLatestRevisionString(), null, first.getDateOfLatestModification(), "my-random-label-123");
+        assertMatchedRevision(revisions.getFirst(), first.getLatestShortRevision(), first.getLatestRevisionString(), null, first.getDateOfLatestModification(), "my-random-label-123");
 
         revisions = repo.findRevisionsMatching(material.config(), "other-label");
         assertThat(revisions.size()).isEqualTo(1);
-        assertMatchedRevision(revisions.get(0), second.getLatestShortRevision(), second.getLatestRevisionString(), null, second.getDateOfLatestModification(), "other-label-456");
+        assertMatchedRevision(revisions.getFirst(), second.getLatestShortRevision(), second.getLatestRevisionString(), null, second.getDateOfLatestModification(), "other-label-456");
 
         revisions = repo.findRevisionsMatching(material.config(), "something-else");
         assertThat(revisions.size()).isEqualTo(0);
@@ -896,11 +897,11 @@ public class MaterialRepositoryIntegrationTest {
 
         List<MatchedRevision> revisions = repo.findRevisionsMatching(material.config(), "pavan co");
         assertThat(revisions.size()).isEqualTo(1);
-        assertMatchedRevision(revisions.get(0), first.getLatestShortRevision(), first.getLatestRevisionString(), "pavan", first.getDateOfLatestModification(), "comment");
+        assertMatchedRevision(revisions.getFirst(), first.getLatestShortRevision(), first.getLatestRevisionString(), "pavan", first.getDateOfLatestModification(), "comment");
 
         revisions = repo.findRevisionsMatching(material.config(), "her co");
         assertThat(revisions.size()).isEqualTo(1);
-        assertMatchedRevision(revisions.get(0), second.getLatestShortRevision(), second.getLatestRevisionString(), "turn_her", second.getDateOfLatestModification(), "comment");
+        assertMatchedRevision(revisions.getFirst(), second.getLatestShortRevision(), second.getLatestRevisionString(), "turn_her", second.getDateOfLatestModification(), "comment");
 
         revisions = repo.findRevisionsMatching(material.config(), "of_curs");
         assertThat(revisions.size()).isEqualTo(0);
@@ -915,8 +916,8 @@ public class MaterialRepositoryIntegrationTest {
 
         List<MatchedRevision> revisions = repo.findRevisionsMatching(material.config(), "");
         assertThat(revisions.size()).isEqualTo(2);
-        assertMatchedRevision(revisions.get(0), second.getLatestShortRevision(), second.getLatestRevisionString(), "turn_her", second.getDateOfLatestModification(), "comment");
-        assertMatchedRevision(revisions.get(1), first.getLatestShortRevision(), first.getLatestRevisionString(), "pavan", first.getDateOfLatestModification(), "comment");
+        assertMatchedRevision(revisions.getFirst(), second.getLatestShortRevision(), second.getLatestRevisionString(), "turn_her", second.getDateOfLatestModification(), "comment");
+        assertMatchedRevision(revisions.getLast(), first.getLatestShortRevision(), first.getLatestRevisionString(), "pavan", first.getDateOfLatestModification(), "comment");
     }
 
     @Test
@@ -928,11 +929,11 @@ public class MaterialRepositoryIntegrationTest {
 
         List<MatchedRevision> revisions = repo.findRevisionsMatching(material.config(), "bring");
         assertThat(revisions.size()).isEqualTo(1);
-        assertMatchedRevision(revisions.get(0), userIsNullRevision.getLatestShortRevision(), userIsNullRevision.getLatestRevisionString(), null, userIsNullRevision.getDateOfLatestModification(), "bring it on!");
+        assertMatchedRevision(revisions.getFirst(), userIsNullRevision.getLatestShortRevision(), userIsNullRevision.getLatestRevisionString(), null, userIsNullRevision.getDateOfLatestModification(), "bring it on!");
 
         revisions = repo.findRevisionsMatching(material.config(), "c04 turn");
         assertThat(revisions.size()).isEqualTo(1);
-        assertMatchedRevision(revisions.get(0), commentIsNullRevision.getLatestShortRevision(), commentIsNullRevision.getLatestRevisionString(), "turn_her",
+        assertMatchedRevision(revisions.getFirst(), commentIsNullRevision.getLatestShortRevision(), commentIsNullRevision.getLatestRevisionString(), "turn_her",
                 commentIsNullRevision.getDateOfLatestModification(), null);
 
         revisions = repo.findRevisionsMatching(material.config(), "null");
@@ -949,7 +950,7 @@ public class MaterialRepositoryIntegrationTest {
         MaterialRevisions materialRevisions = repo.findLatestModification(material);
         List<MaterialRevision> revisions = materialRevisions.getRevisions();
         assertThat(revisions.size()).isEqualTo(1);
-        MaterialRevision materialRevision = revisions.get(0);
+        MaterialRevision materialRevision = revisions.getFirst();
         assertThat(materialRevision.getLatestRevisionString()).isEqualTo(second.getLatestRevisionString());
     }
 
@@ -1018,8 +1019,8 @@ public class MaterialRepositoryIntegrationTest {
         modifications = repo.getModificationsFor(materialInstance, Pagination.pageByOffset(3, 5, 3));
 
         assertThat(modifications.size()).isEqualTo(2);
-        assertThat(modifications.get(0).getRevision()).isEqualTo(second.getLatestRevisionString());
-        assertThat(modifications.get(1).getRevision()).isEqualTo(first.getLatestRevisionString());
+        assertThat(modifications.getFirst().getRevision()).isEqualTo(second.getLatestRevisionString());
+        assertThat(modifications.getLast().getRevision()).isEqualTo(first.getLatestRevisionString());
     }
 
     @Test
@@ -1058,8 +1059,8 @@ public class MaterialRepositoryIntegrationTest {
         modificationsFromCache = (Modifications) goCache.get(repo.materialModificationsWithPaginationKey(materialInstance), repo.materialModificationsWithPaginationSubKey(page));
 
         assertThat(modificationsFromCache.size()).isEqualTo(2);
-        assertThat(modificationsFromCache.get(0).getRevision()).isEqualTo(second.getLatestRevisionString());
-        assertThat(modificationsFromCache.get(1).getRevision()).isEqualTo(first.getLatestRevisionString());
+        assertThat(modificationsFromCache.getFirst().getRevision()).isEqualTo(second.getLatestRevisionString());
+        assertThat(modificationsFromCache.getLast().getRevision()).isEqualTo(first.getLatestRevisionString());
 
         final Modification modOne = new Modification("user", "comment", "email@gmail.com", new Date(), "123");
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -1105,7 +1106,7 @@ public class MaterialRepositoryIntegrationTest {
         StageIdentifier stageIdentifier = new StageIdentifier("P1", 2, "2", "S1", "1");
         List<Modification> modifications = repo.modificationFor(stageIdentifier);
         assertThat(modifications.size()).isEqualTo(1);
-        assertThat(modifications.get(0).getRevision()).isEqualTo("P1/2/S1/1");
+        assertThat(modifications.getFirst().getRevision()).isEqualTo("P1/2/S1/1");
         assertThat(goCache.<Object>get(repo.cacheKeyForModificationsForStageLocator(stageIdentifier))).isEqualTo(modifications);
 
         StageIdentifier p2_s1_stageId = new StageIdentifier("P2", 1, "S1", "1");
@@ -1262,12 +1263,12 @@ public class MaterialRepositoryIntegrationTest {
         SvnMaterial material = MaterialsMother.svnMaterial("http://username:password@localhost");
         MaterialRevisions materialRevisions = saveModifications(material, 1);
         Modifications modificationList = materialRevisions.getModifications(material);
-        Modification expectedModification = modificationList.get(0);
+        Modification expectedModification = modificationList.getFirst();
 
         List<Modification> modifications = repo.getLatestModificationForEachMaterial();
 
         assertThat(modifications.size()).isEqualTo(1);
-        Modification modification = modifications.get(0);
+        Modification modification = modifications.getFirst();
 
         assertModificationAreEqual(modification, expectedModification);
 
@@ -1289,9 +1290,9 @@ public class MaterialRepositoryIntegrationTest {
         Modifications modificationList = materialRevisions.getModifications(material);
 
         List<Modification> modifications = repo.getLatestModificationForEachMaterial();
-        assertModificationAreEqual(modificationList.get(0), modifications.get(0));
+        assertModificationAreEqual(modificationList.getFirst(), modifications.getFirst());
 
-        MaterialInstance instance = modifications.get(0).getMaterialInstance();
+        MaterialInstance instance = modifications.getFirst().getMaterialInstance();
 
         assertThat(instance).isInstanceOf(HgMaterialInstance.class);
         assertThat(instance.getFingerprint()).isEqualTo(material.getFingerprint());
@@ -1309,9 +1310,9 @@ public class MaterialRepositoryIntegrationTest {
         List<Modification> modifications = repo.getLatestModificationForEachMaterial();
 
         assertThat(modifications.size()).isEqualTo(1);
-        assertModificationAreEqual(modifications.get(0), modificationList.get(0));
+        assertModificationAreEqual(modifications.getFirst(), modificationList.getFirst());
 
-        MaterialInstance instance = modifications.get(0).getMaterialInstance();
+        MaterialInstance instance = modifications.getFirst().getMaterialInstance();
 
         assertThat(instance).isInstanceOf(P4MaterialInstance.class);
         assertThat(instance.getFingerprint()).isEqualTo(material.getFingerprint());
@@ -1330,9 +1331,9 @@ public class MaterialRepositoryIntegrationTest {
         List<Modification> modifications = repo.getLatestModificationForEachMaterial();
 
         assertThat(modifications.size()).isEqualTo(1);
-        assertModificationAreEqual(modifications.get(0), modificationList.get(0));
+        assertModificationAreEqual(modifications.getFirst(), modificationList.getFirst());
 
-        MaterialInstance instance = modifications.get(0).getMaterialInstance();
+        MaterialInstance instance = modifications.getFirst().getMaterialInstance();
 
         assertThat(instance).isInstanceOf(TfsMaterialInstance.class);
         assertThat(instance.getFingerprint()).isEqualTo(material.getFingerprint());
@@ -1351,9 +1352,9 @@ public class MaterialRepositoryIntegrationTest {
         List<Modification> modifications = repo.getLatestModificationForEachMaterial();
 
         assertThat(modifications.size()).isEqualTo(1);
-        assertModificationAreEqual(modifications.get(0), modificationList.get(0));
+        assertModificationAreEqual(modifications.getFirst(), modificationList.getFirst());
 
-        MaterialInstance instance = modifications.get(0).getMaterialInstance();
+        MaterialInstance instance = modifications.getFirst().getMaterialInstance();
 
         assertThat(instance).isInstanceOf(PackageMaterialInstance.class);
         assertThat(instance.getFingerprint()).isEqualTo(material.getFingerprint());
@@ -1371,9 +1372,9 @@ public class MaterialRepositoryIntegrationTest {
         List<Modification> modifications = repo.getLatestModificationForEachMaterial();
 
         assertThat(modifications.size()).isEqualTo(1);
-        assertModificationAreEqual(modifications.get(0), modificationList.get(0));
+        assertModificationAreEqual(modifications.getFirst(), modificationList.getFirst());
 
-        MaterialInstance instance = modifications.get(0).getMaterialInstance();
+        MaterialInstance instance = modifications.getFirst().getMaterialInstance();
 
         assertThat(instance).isInstanceOf(PluggableSCMMaterialInstance.class);
         assertThat(instance.getFingerprint()).isEqualTo(material.getFingerprint());
@@ -1389,7 +1390,7 @@ public class MaterialRepositoryIntegrationTest {
 
         Modifications mods = materialRevisions.getModifications(material);
         //modifications gets updated with the material instance which contains the id
-        long materialId = mods.get(0).getMaterialInstance().getId();
+        long materialId = mods.getFirst().getMaterialInstance().getId();
 
         List<Modification> modifications = repo.loadHistory(materialId, FeedModifier.Latest, 0, 3);
 
@@ -1407,7 +1408,7 @@ public class MaterialRepositoryIntegrationTest {
 
         Modifications mods = materialRevisions.getModifications(material);
         //modifications gets updated with the material instance which contains the id
-        long materialId = mods.get(0).getMaterialInstance().getId();
+        long materialId = mods.getFirst().getMaterialInstance().getId();
 
         // Give me the older instances
         List<Modification> modifications = repo.loadHistory(materialId, FeedModifier.After, mods.get(2).getId(), 3);
@@ -1424,7 +1425,7 @@ public class MaterialRepositoryIntegrationTest {
 
         Modifications mods = materialRevisions.getModifications(material);
         //modifications gets updated with the material instance which contains the id
-        long materialId = mods.get(0).getMaterialInstance().getId();
+        long materialId = mods.getFirst().getMaterialInstance().getId();
 
         // Give me the newer instances
         List<Modification> modifications = repo.loadHistory(materialId, FeedModifier.Before, mods.get(2).getId(), 3);
@@ -1441,7 +1442,7 @@ public class MaterialRepositoryIntegrationTest {
 
         Modifications mods = materialRevisions.getModifications(material);
         //modifications gets updated with the material instance which contains the id
-        long materialId = mods.get(0).getMaterialInstance().getId();
+        long materialId = mods.getFirst().getMaterialInstance().getId();
 
         PipelineRunIdInfo info = repo.getOldestAndLatestModificationId(materialId, "");
 
@@ -1457,7 +1458,7 @@ public class MaterialRepositoryIntegrationTest {
 
         Modifications mods = materialRevisions.getModifications(material);
         //modifications gets updated with the material instance which contains the id
-        long materialId = mods.get(0).getMaterialInstance().getId();
+        long materialId = mods.getFirst().getMaterialInstance().getId();
 
         PipelineRunIdInfo info = repo.getOldestAndLatestModificationId(materialId, "revision");
 
@@ -1478,7 +1479,7 @@ public class MaterialRepositoryIntegrationTest {
 
         dbHelper.saveRevs(materialRevisions);
         //modifications gets updated with the material instance which contains the id
-        long materialId = mods.get(0).getMaterialInstance().getId();
+        long materialId = mods.getFirst().getMaterialInstance().getId();
 
         PipelineRunIdInfo info = repo.getOldestAndLatestModificationId(materialId, "ello");
 
@@ -1501,7 +1502,7 @@ public class MaterialRepositoryIntegrationTest {
 
         dbHelper.saveRevs(materialRevisions);
         //modifications gets updated with the material instance which contains the id
-        long materialId = mods.get(0).getMaterialInstance().getId();
+        long materialId = mods.getFirst().getMaterialInstance().getId();
 
         List<Modification> matchingMods = repo.findMatchingModifications(materialId, "ello", FeedModifier.Latest, 0, 10);
 
@@ -1525,7 +1526,7 @@ public class MaterialRepositoryIntegrationTest {
 
         dbHelper.saveRevs(materialRevisions);
         //modifications gets updated with the material instance which contains the id
-        long materialId = mods.get(0).getMaterialInstance().getId();
+        long materialId = mods.getFirst().getMaterialInstance().getId();
 
         List<Modification> matchingMods = repo.findMatchingModifications(materialId, "revisions", FeedModifier.Latest, 0, 10);
 
@@ -1541,7 +1542,7 @@ public class MaterialRepositoryIntegrationTest {
 
         Modifications mods = materialRevisions.getModifications(material);
         //modifications gets updated with the material instance which contains the id
-        long materialId = mods.get(0).getMaterialInstance().getId();
+        long materialId = mods.getFirst().getMaterialInstance().getId();
 
         List<Modification> matchingMods = repo.findMatchingModifications(materialId, "comment", FeedModifier.After, mods.get(2).getId(), 10);
 
@@ -1557,7 +1558,7 @@ public class MaterialRepositoryIntegrationTest {
 
         Modifications mods = materialRevisions.getModifications(material);
         //modifications gets updated with the material instance which contains the id
-        long materialId = mods.get(0).getMaterialInstance().getId();
+        long materialId = mods.getFirst().getMaterialInstance().getId();
 
         List<Modification> matchingMods = repo.findMatchingModifications(materialId, "comment", FeedModifier.Before, mods.get(2).getId(), 10);
 

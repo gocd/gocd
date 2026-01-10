@@ -190,7 +190,7 @@ class ScmMaterialTest {
             dummyMaterial.setPassword("{{SECRET:[secret_config_id][lookup_password]}}");
 
             assertThat(dummyMaterial.getSecretParams().size()).isEqualTo(1);
-            assertThat(dummyMaterial.getSecretParams().get(0)).isEqualTo(new SecretParam("secret_config_id", "lookup_password"));
+            assertThat(dummyMaterial.getSecretParams().getFirst()).isEqualTo(new SecretParam("secret_config_id", "lookup_password"));
         }
 
         @Test

@@ -80,14 +80,14 @@ public class ExecTaskTest {
         ExecTask task = new ExecTask("ls", "-l", "../../../assertTaskInvalid");
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline");
         PipelineConfig pipeline = config.pipelineConfigByName(new CaseInsensitiveString("pipeline"));
-        StageConfig stage = pipeline.get(0);
-        JobConfig job = stage.getJobs().get(0);
+        StageConfig stage = pipeline.getFirst();
+        JobConfig job = stage.getJobs().getFirst();
         job.addTask(task);
 
         List<ConfigErrors> errors = config.validateAfterPreprocess();
         assertThat(errors.size()).isEqualTo(1);
         String message = "The path of the working directory for the custom command in job 'job' in stage 'stage' of pipeline 'pipeline' is outside the agent sandbox. It must be relative to the directory where the agent checks out materials.";
-        assertThat(errors.get(0).firstError()).isEqualTo(message);
+        assertThat(errors.getFirst().firstError()).isEqualTo(message);
         assertThat(task.errors().firstErrorOn(ExecTask.WORKING_DIR)).isEqualTo(message);
     }
 
@@ -188,12 +188,12 @@ public class ExecTaskTest {
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("some_pipeline");
         StageConfig templateStage = StageConfigMother.stageWithTasks("templateStage");
         ExecTask execTask = new ExecTask("ls", "-la", "/");
-        templateStage.getJobs().getFirstOrNull().addTask(execTask);
+        templateStage.getJobs().getFirst().addTask(execTask);
         PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template_name"), templateStage);
         cruiseConfig.addTemplate(template);
 
         try {
-            execTask.validateTask(ConfigSaveValidationContext.forChain(cruiseConfig, template, templateStage, templateStage.getJobs().getFirstOrNull()));
+            execTask.validateTask(ConfigSaveValidationContext.forChain(cruiseConfig, template, templateStage, templateStage.getJobs().getFirst()));
             assertThat(execTask.errors().isEmpty()).isFalse();
             assertThat(execTask.errors().firstErrorOn(ExecTask.WORKING_DIR)).isEqualTo("The path of the working directory for the custom command in job 'job' in stage 'templateStage' of template 'template_name' is outside the agent sandbox. It must be relative to the directory where the agent checks out materials.");
         } catch (Exception e) {

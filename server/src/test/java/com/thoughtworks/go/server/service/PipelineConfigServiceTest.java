@@ -157,8 +157,8 @@ public class PipelineConfigServiceTest {
         List<PipelineConfigs> pipelineConfigs = pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(username);
 
         assertThat(pipelineConfigs.size()).isEqualTo(2);
-        assertThat(pipelineConfigs.get(0).getGroup()).isEqualTo("group2");
-        assertThat(pipelineConfigs.get(1).getGroup()).isEqualTo("group1");
+        assertThat(pipelineConfigs.getFirst().getGroup()).isEqualTo("group2");
+        assertThat(pipelineConfigs.getLast().getGroup()).isEqualTo("group1");
     }
 
 
@@ -180,6 +180,6 @@ public class PipelineConfigServiceTest {
         List<PipelineConfigs> pipelineConfigs = pipelineConfigService.viewableGroupsFor(username);
 
         assertThat(pipelineConfigs.size()).isEqualTo(1);
-        assertThat(pipelineConfigs.get(0).getGroup()).isEqualTo("group1");
+        assertThat(pipelineConfigs.getFirst().getGroup()).isEqualTo("group1");
     }
 }

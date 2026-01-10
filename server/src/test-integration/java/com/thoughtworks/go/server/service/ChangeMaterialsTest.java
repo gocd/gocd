@@ -127,7 +127,7 @@ public class ChangeMaterialsTest {
 
         assertThat(mostRecent.getId()).isNotEqualTo(pipeline.getId());
         MaterialRevisions materialRevisions = mostRecent.getBuildCause().getMaterialRevisions();
-        assertEquals(hgTestRepo.latestModifications().get(0).getModifiedTime(), materialRevisions.getDateOfLatestModification());
+        assertEquals(hgTestRepo.latestModifications().getFirst().getModifiedTime(), materialRevisions.getDateOfLatestModification());
     }
 
     @Nested
@@ -144,13 +144,13 @@ public class ChangeMaterialsTest {
             cruiseConfig.replaceMaterialConfigForPipeline(PIPELINE_NAME, p4Fixture.materialConfig("//depot/... //localhost/..."));
             mingle = goConfigDao.currentConfig().pipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME));
 
-            assertThat(mingle.materialConfigs().get(0)).isInstanceOf(P4MaterialConfig.class);
+            assertThat(mingle.materialConfigs().getFirst()).isInstanceOf(P4MaterialConfig.class);
 
             scheduleHelper.manuallySchedulePipelineWithRealMaterials(PIPELINE_NAME, username);
 
             scheduleService.autoSchedulePipelinesFromRequestBuffer();
             Pipeline mostRecent = pipelineService.mostRecentFullPipelineByName(PIPELINE_NAME);
-            assertThat(mostRecent.getMaterials().getFirstOrNull()).isEqualTo(new MaterialConfigConverter().toMaterial(mingle.materialConfigs().getFirstOrNull()));
+            assertThat(mostRecent.getMaterials().getFirst()).isEqualTo(new MaterialConfigConverter().toMaterial(mingle.materialConfigs().getFirst()));
         }
     }
 

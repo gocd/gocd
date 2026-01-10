@@ -58,7 +58,7 @@ public class PipelineConfigRepresenter {
         }
 
         jsonWriter.add("label_template", pipelineConfig.getLabelTemplate());
-        jsonWriter.add("lock_behavior", pipelineConfig.getLockBehavior());
+        jsonWriter.add("lock_behavior", pipelineConfig.getLockBehaviorOrDefault());
         jsonWriter.add("name", pipelineConfig.name());
         jsonWriter.add("template", pipelineConfig.getTemplateName());
         jsonWriter.add("group", groupName);

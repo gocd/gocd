@@ -81,12 +81,6 @@ public class EnvironmentVariablesConfig extends BaseCollection<EnvironmentVariab
         }
     }
 
-    public void addToIfExists(EnvironmentVariableContext variableContext) {
-        for (EnvironmentVariableConfig variable : this) {
-            variable.addToIfExists(variableContext);
-        }
-    }
-
     public EnvironmentVariablesConfig overrideWith(EnvironmentVariablesConfig environmentVariablesConfig) {
         EnvironmentVariablesConfig variablesConfig = new EnvironmentVariablesConfig();
         variablesConfig.addAll(this);
@@ -99,16 +93,7 @@ public class EnvironmentVariablesConfig extends BaseCollection<EnvironmentVariab
     }
 
     public void removeIfExists(String name) {
-        EnvironmentVariableConfig configToRemove = null;
-        for (EnvironmentVariableConfig config : this) {
-            if (config.getName().equals(name)) {
-                configToRemove = config;
-                break;
-            }
-        }
-        if (configToRemove != null) {
-            this.remove(configToRemove);
-        }
+        removeFirstIf(config -> config.getName().equals(name));
     }
 
     public boolean hasVariable(String variableName) {

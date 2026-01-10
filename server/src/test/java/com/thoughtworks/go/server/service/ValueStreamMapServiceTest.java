@@ -138,13 +138,13 @@ public class ValueStreamMapServiceTest {
         List<List<Node>> nodesAtEachLevel = graph.getNodesAtEachLevel();
         assertThat(nodesAtEachLevel.size()).isEqualTo(2);
 
-        List<Node> firstLevel = nodesAtEachLevel.get(0);
+        List<Node> firstLevel = nodesAtEachLevel.getFirst();
         assertThat(firstLevel.size()).isEqualTo(1);
-        assertNode(-1, firstLevel.get(0), materialConfig.getDisplayName(), materialConfig.getFingerprint(), 0, new CaseInsensitiveString(pipelineName));
+        assertNode(-1, firstLevel.getFirst(), materialConfig.getDisplayName(), materialConfig.getFingerprint(), 0, new CaseInsensitiveString(pipelineName));
 
         List<Node> secondLevel = nodesAtEachLevel.get(1);
         assertThat(secondLevel.size()).isEqualTo(1);
-        assertNode(0, secondLevel.get(0), pipelineName, pipelineName, 0);
+        assertNode(0, secondLevel.getFirst(), pipelineName, pipelineName, 0);
     }
 
     @Test
@@ -166,7 +166,7 @@ public class ValueStreamMapServiceTest {
         PipelineConfig downstreamConfig = PipelineConfigMother.pipelineConfig(downstreamPipelineName, new MaterialConfigs(
                 materialConfig1, new DependencyMaterialConfig(
                 new CaseInsensitiveString(p1Config.name().toUpper()),
-                new CaseInsensitiveString(p1Config.getFirstOrNull().name().toUpper()))));
+                new CaseInsensitiveString(p1Config.getFirst().name().toUpper()))));
 
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs("default", new Authorization(), p1Config, downstreamConfig));
 
@@ -180,17 +180,17 @@ public class ValueStreamMapServiceTest {
         List<List<Node>> nodesAtEachLevel = graph.getNodesAtEachLevel();
         assertThat(nodesAtEachLevel.size()).isEqualTo(3);
 
-        List<Node> firstLevel = nodesAtEachLevel.get(0);
+        List<Node> firstLevel = nodesAtEachLevel.getFirst();
         assertThat(firstLevel.size()).isEqualTo(1);
-        assertNode(-1, firstLevel.get(0), materialConfig.getDisplayName(), materialConfig.getFingerprint(), 0, new CaseInsensitiveString(pipelineName));
+        assertNode(-1, firstLevel.getFirst(), materialConfig.getDisplayName(), materialConfig.getFingerprint(), 0, new CaseInsensitiveString(pipelineName));
 
         List<Node> secondLevel = nodesAtEachLevel.get(1);
         assertThat(secondLevel.size()).isEqualTo(1);
-        assertNode(0, secondLevel.get(0), pipelineName, pipelineName, 0, new CaseInsensitiveString(downstreamPipelineName));
+        assertNode(0, secondLevel.getFirst(), pipelineName, pipelineName, 0, new CaseInsensitiveString(downstreamPipelineName));
 
         List<Node> thirdLevel = nodesAtEachLevel.get(2);
         assertThat(thirdLevel.size()).isEqualTo(1);
-        assertNode(1, thirdLevel.get(0), downstreamPipelineName, downstreamPipelineName, 0);
+        assertNode(1, thirdLevel.getFirst(), downstreamPipelineName, downstreamPipelineName, 0);
     }
 
     @Test
@@ -206,7 +206,7 @@ public class ValueStreamMapServiceTest {
         PipelineConfig downstreamConfig = PipelineConfigMother.pipelineConfig(downstreamPipelineName, new MaterialConfigs(
                 materialConfig1, new DependencyMaterialConfig(
                 new CaseInsensitiveString(p1Config.name().toUpper()),
-                new CaseInsensitiveString(p1Config.getFirstOrNull().name().toUpper()))));
+                new CaseInsensitiveString(p1Config.getFirst().name().toUpper()))));
 
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs("default", new Authorization(), p1Config, downstreamConfig));
 
@@ -218,21 +218,21 @@ public class ValueStreamMapServiceTest {
         when(materialRepository.findModificationWithRevision(material, revision)).thenReturn(materialRevision.getLatestModification());
         when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(materialRevision.getMaterial().createMaterialInstance());
         when(goConfigService.groups()).thenReturn(cruiseConfig.getGroups());
-        when(securityService.hasViewPermissionForGroup(user.getUsername().toString(), cruiseConfig.getGroups().getFirstOrNull().getGroup())).thenReturn(true);
+        when(securityService.hasViewPermissionForGroup(user.getUsername().toString(), cruiseConfig.getGroups().getFirst().getGroup())).thenReturn(true);
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(materialConfig.getFingerprint(), revision, user, result);
         assertThat(graph.getCurrentMaterial().getName()).isEqualTo(materialConfig.getDisplayName());
         List<List<Node>> nodesAtEachLevel = graph.getNodesAtEachLevel();
         assertThat(nodesAtEachLevel.size()).isEqualTo(3);
 
-        List<Node> firstLevel = nodesAtEachLevel.get(0);
+        List<Node> firstLevel = nodesAtEachLevel.getFirst();
         assertThat(firstLevel.size()).isEqualTo(1);
-        assertNode(0, firstLevel.get(0), materialConfig.getDisplayName(), materialConfig.getFingerprint(), 1, new CaseInsensitiveString(pipelineName));
+        assertNode(0, firstLevel.getFirst(), materialConfig.getDisplayName(), materialConfig.getFingerprint(), 1, new CaseInsensitiveString(pipelineName));
 
         List<Node> secondLevel = nodesAtEachLevel.get(1);
         assertThat(secondLevel.size()).isEqualTo(2);
-        assertNode(1, secondLevel.get(0), pipelineName, pipelineName, 0, new CaseInsensitiveString(downstreamPipelineName));
-        Node dummyNode = secondLevel.get(1);
+        assertNode(1, secondLevel.getFirst(), pipelineName, pipelineName, 0, new CaseInsensitiveString(downstreamPipelineName));
+        Node dummyNode = secondLevel.getLast();
         assertThat(dummyNode.getType()).isEqualTo(DependencyNodeType.DUMMY);
         assertThat(dummyNode.getLevel()).isEqualTo(1);
         assertThat(dummyNode.getChildren().size()).isEqualTo(1);
@@ -240,7 +240,7 @@ public class ValueStreamMapServiceTest {
 
         List<Node> thirdLevel = nodesAtEachLevel.get(2);
         assertThat(thirdLevel.size()).isEqualTo(1);
-        assertNode(2, thirdLevel.get(0), downstreamPipelineName, downstreamPipelineName, 0);
+        assertNode(2, thirdLevel.getFirst(), downstreamPipelineName, downstreamPipelineName, 0);
     }
 
     @Test
@@ -266,13 +266,13 @@ public class ValueStreamMapServiceTest {
         assertThat(graph.getCurrentPipeline().getName()).isEqualTo(pipeline);
         assertThat(nodesAtEachLevel.size()).isEqualTo(2);
 
-        List<Node> firstLevel = nodesAtEachLevel.get(0);
+        List<Node> firstLevel = nodesAtEachLevel.getFirst();
         assertThat(firstLevel.size()).isEqualTo(1);
-        assertNode(-1, firstLevel.get(0), material.getDisplayName(), material.getFingerprint(), 0, new CaseInsensitiveString(pipeline));
+        assertNode(-1, firstLevel.getFirst(), material.getDisplayName(), material.getFingerprint(), 0, new CaseInsensitiveString(pipeline));
 
         List<Node> secondLevel = nodesAtEachLevel.get(1);
         assertThat(secondLevel.size()).isEqualTo(1);
-        assertNode(0, secondLevel.get(0), pipeline, pipeline, 0);
+        assertNode(0, secondLevel.getFirst(), pipeline, pipeline, 0);
     }
 
     @Test
@@ -310,9 +310,9 @@ public class ValueStreamMapServiceTest {
         assertThat(graph.getCurrentPipeline().getName()).isEqualTo("p3");
         assertThat(nodesAtEachLevel.size()).isEqualTo(3);
 
-        List<Node> firstLevel = nodesAtEachLevel.get(0);
+        List<Node> firstLevel = nodesAtEachLevel.getFirst();
         assertThat(firstLevel.size()).isEqualTo(1);
-        assertNode(-2, firstLevel.get(0), git.getDisplayName(), git.getFingerprint(), 0, new CaseInsensitiveString("p1"), new CaseInsensitiveString("p2"));
+        assertNode(-2, firstLevel.getFirst(), git.getDisplayName(), git.getFingerprint(), 0, new CaseInsensitiveString("p1"), new CaseInsensitiveString("p2"));
 
         List<Node> secondLevel = nodesAtEachLevel.get(1);
         assertThat(secondLevel.size()).isEqualTo(2);
@@ -321,7 +321,7 @@ public class ValueStreamMapServiceTest {
 
         List<Node> thirdLevel = nodesAtEachLevel.get(2);
         assertThat(thirdLevel.size()).isEqualTo(1);
-        assertNode(0, thirdLevel.get(0), "p3", "p3", 0);
+        assertNode(0, thirdLevel.getFirst(), "p3", "p3", 0);
     }
 
     @Test
@@ -338,7 +338,7 @@ public class ValueStreamMapServiceTest {
         MaterialConfig gitConfig = gitMaterial.config();
         GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("git", null, "master", "submodule", "flyweight");
         BuildCause p2buildCause = createBuildCause(new ArrayList<>(), List.of(gitMaterial));
-        Modification gitModification = p2buildCause.getMaterialRevisions().getRevisions().get(0).getModifications().get(0);
+        Modification gitModification = p2buildCause.getMaterialRevisions().getRevisions().getFirst().getModifications().getFirst();
         String gitRevision = gitModification.getRevision();
 
         PipelineConfig p1Config = PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(gitConfig));
@@ -360,22 +360,22 @@ public class ValueStreamMapServiceTest {
         assertThat(graph.getCurrentMaterial().getId().toString()).isEqualTo(gitMaterial.getFingerprint());
         assertThat(nodesAtEachLevel.size()).isEqualTo(3);
 
-        List<Node> firstLevel = nodesAtEachLevel.get(0);
+        List<Node> firstLevel = nodesAtEachLevel.getFirst();
         assertThat(firstLevel.size()).isEqualTo(1);
-        assertNode(0, firstLevel.get(0), gitMaterial.getDisplayName(), gitMaterial.getFingerprint(), 0, new CaseInsensitiveString("p1"), new CaseInsensitiveString("p2"));
-        assertDepth(graph, firstLevel.get(0).getId(), 1);
+        assertNode(0, firstLevel.getFirst(), gitMaterial.getDisplayName(), gitMaterial.getFingerprint(), 0, new CaseInsensitiveString("p1"), new CaseInsensitiveString("p2"));
+        assertDepth(graph, firstLevel.getFirst().getId(), 1);
 
         List<Node> secondLevel = nodesAtEachLevel.get(1);
         assertThat(secondLevel.size()).isEqualTo(2);
-        assertNode(1, secondLevel.get(0), "p1", "p1", 0, new CaseInsensitiveString("p3"));
-        assertDepth(graph, secondLevel.get(0).getId(), 1);
-        assertNode(1, secondLevel.get(1), "p2", "p2", 0, new CaseInsensitiveString("p3"));
-        assertDepth(graph, secondLevel.get(1).getId(), 2);
+        assertNode(1, secondLevel.getFirst(), "p1", "p1", 0, new CaseInsensitiveString("p3"));
+        assertDepth(graph, secondLevel.getFirst().getId(), 1);
+        assertNode(1, secondLevel.getLast(), "p2", "p2", 0, new CaseInsensitiveString("p3"));
+        assertDepth(graph, secondLevel.getLast().getId(), 2);
 
         List<Node> thirdLevel = nodesAtEachLevel.get(2);
         assertThat(thirdLevel.size()).isEqualTo(1);
-        assertNode(2, thirdLevel.get(0), "p3", "p3", 0);
-        assertDepth(graph, thirdLevel.get(0).getId(), 1);
+        assertNode(2, thirdLevel.getFirst(), "p3", "p3", 0);
+        assertDepth(graph, thirdLevel.getFirst().getId(), 1);
     }
 
     @Test
@@ -416,7 +416,7 @@ public class ValueStreamMapServiceTest {
         assertThat(graph.getCurrentPipeline().getName()).isEqualTo(p3);
         assertThat(nodesAtEachLevel.size()).isEqualTo(4);
 
-        List<Node> firstLevel = nodesAtEachLevel.get(0);
+        List<Node> firstLevel = nodesAtEachLevel.getFirst();
         assertThat(firstLevel.size()).isEqualTo(1);
         assertLayerHasNode(firstLevel, git.getDisplayName(), git.getFingerprint(), new CaseInsensitiveString(p1));
 
@@ -510,24 +510,24 @@ public class ValueStreamMapServiceTest {
         assertThat(graph.getCurrentPipeline().getName()).isEqualTo(p2);
         assertThat(nodesAtEachLevel.size()).isEqualTo(4);
 
-        assertThatLevelHasNodes(nodesAtEachLevel.get(0), 0, new CaseInsensitiveString(git.getFingerprint()));
-        Node gitNode = nodesAtEachLevel.get(0).get(0);
+        assertThatLevelHasNodes(nodesAtEachLevel.getFirst(), 0, new CaseInsensitiveString(git.getFingerprint()));
+        Node gitNode = nodesAtEachLevel.get(0).getFirst();
         assertNode(-2, gitNode, git.getDisplayName(), git.getFingerprint(), 1, new CaseInsensitiveString(p1));
         VSMTestHelper.assertThatNodeHasParents(gitNode, 0);
 
         assertThatLevelHasNodes(nodesAtEachLevel.get(1), 1, new CaseInsensitiveString(p1));
         assertLayerHasDummyNodeWithDependents(nodesAtEachLevel.get(1), new CaseInsensitiveString(p2));
-        Node p1Node = nodesAtEachLevel.get(1).get(0);
+        Node p1Node = nodesAtEachLevel.get(1).getFirst();
         assertNode(-1, p1Node, p1, p1, 0, new CaseInsensitiveString(p2));
         VSMTestHelper.assertThatNodeHasParents(p1Node, 0, new CaseInsensitiveString(git.getFingerprint()));
 
         assertThatLevelHasNodes(nodesAtEachLevel.get(2), 0, new CaseInsensitiveString(p2));
-        Node p2Node = nodesAtEachLevel.get(2).get(0);
+        Node p2Node = nodesAtEachLevel.get(2).getFirst();
         assertNode(0, p2Node, p2, p2, 0, new CaseInsensitiveString(p3));
         VSMTestHelper.assertThatNodeHasParents(p2Node, 1, new CaseInsensitiveString(p1));
 
         assertThatLevelHasNodes(nodesAtEachLevel.get(3), 0, new CaseInsensitiveString(p3));
-        Node p3Node = nodesAtEachLevel.get(3).get(0);
+        Node p3Node = nodesAtEachLevel.get(3).getFirst();
         assertNode(1, p3Node, p3, p3, 0);
         VSMTestHelper.assertThatNodeHasParents(p3Node, 0, new CaseInsensitiveString(p2));
     }
@@ -784,7 +784,7 @@ public class ValueStreamMapServiceTest {
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString(pipelineName), 1, user, result);
 
-        PipelineRevision revision = (PipelineRevision) graph.getCurrentPipeline().revisions().get(0);
+        PipelineRevision revision = (PipelineRevision) graph.getCurrentPipeline().revisions().getFirst();
         assertThat(revision.getLabel()).isEqualTo("label-1");
     }
 
@@ -832,7 +832,7 @@ public class ValueStreamMapServiceTest {
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("p3"), 1, user, result);
 
-        PipelineDependencyNode node = (PipelineDependencyNode) graph.getNodesAtEachLevel().get(1).get(0);
+        PipelineDependencyNode node = (PipelineDependencyNode) graph.getNodesAtEachLevel().get(1).getFirst();
         assertThat(node.revisions().isEmpty()).isTrue();
         assertThat(node.getViewType()).isEqualTo(VSMViewType.DELETED);
         assertThat(node.getMessage()).isEqualTo("Pipeline has been deleted.");
@@ -881,8 +881,8 @@ public class ValueStreamMapServiceTest {
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("p2"), 1, user, result);
 
-        PipelineDependencyNode p1 = (PipelineDependencyNode) graph.getNodesAtEachLevel().get(1).get(0);
-        PipelineDependencyNode p2 = (PipelineDependencyNode) graph.getNodesAtEachLevel().get(2).get(0);
+        PipelineDependencyNode p1 = (PipelineDependencyNode) graph.getNodesAtEachLevel().get(1).getFirst();
+        PipelineDependencyNode p2 = (PipelineDependencyNode) graph.getNodesAtEachLevel().get(2).getFirst();
         assertTrue(p1.canEdit());
         assertFalse(p2.canEdit());
     }
@@ -916,8 +916,8 @@ public class ValueStreamMapServiceTest {
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("p2"), 1, user, result);
 
-        PipelineDependencyNode p1 = (PipelineDependencyNode) graph.getNodesAtEachLevel().get(1).get(0);
-        PipelineDependencyNode p2 = (PipelineDependencyNode) graph.getNodesAtEachLevel().get(2).get(0);
+        PipelineDependencyNode p1 = (PipelineDependencyNode) graph.getNodesAtEachLevel().get(1).getFirst();
+        PipelineDependencyNode p2 = (PipelineDependencyNode) graph.getNodesAtEachLevel().get(2).getFirst();
         assertTrue(p1.canEdit());
         assertFalse(p2.canEdit());
 

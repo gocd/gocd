@@ -101,7 +101,7 @@ public class PipelineMother {
 
     private static Pipeline withState(PipelineConfig pipelineConfig, JobState state, MaterialRevisions revisions) {
         Pipeline pipeline = schedule(pipelineConfig, BuildCause.createWithModifications(revisions, ""));
-        for (JobInstance instance : pipeline.getStages().getFirstOrNull().getJobInstances()) {
+        for (JobInstance instance : pipeline.getStages().getFirst().getJobInstances()) {
             instance.changeState(state, new Date());
             instance.setAgentUuid("uuid");
         }
@@ -126,7 +126,7 @@ public class PipelineMother {
         }
 
         Stages stages = new Stages();
-        stages.add(StageMother.stageWithNBuildsHavingEndState(JobState.Building, null, stageNames.get(0), buildNames));
+        stages.add(StageMother.stageWithNBuildsHavingEndState(JobState.Building, null, stageNames.getFirst(), buildNames));
         List<String> remainder = stageNames.subList(1, stageNames.size());
 
         Collections.addAll(stages, stagesAndBuildsWithEndState(JobState.Scheduled, null, buildNames, remainder));

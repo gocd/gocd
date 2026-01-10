@@ -37,7 +37,7 @@ public class TrackingToolSerializationTest {
     public void shouldLoadTrackingTool() throws Exception {
         CruiseConfig cruiseConfig = loader.loadConfigHolder(CONFIG_WITH_TRACKINGTOOL).config;
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
-        TrackingTool trackingTool = pipelineConfig.trackingTool();
+        TrackingTool trackingTool = pipelineConfig.trackingToolOrDefault();
 
         assertThat(trackingTool.getLink()).isEqualTo("http://mingle05/projects/cce/cards/${ID}");
         assertThat(trackingTool.getRegex()).isEqualTo("(evo-\\d+)");
@@ -56,7 +56,7 @@ public class TrackingToolSerializationTest {
     public void shouldNotReturnNullWhenTrackingToolIsNotConfigured() throws Exception {
         CruiseConfig cruiseConfig = loader.loadConfigHolder(ONE_PIPELINE).config;
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
-        TrackingTool trackingTool = pipelineConfig.trackingTool();
+        TrackingTool trackingTool = pipelineConfig.trackingToolOrDefault();
 
         assertThat(trackingTool).isNotNull();
         assertThat(trackingTool.getLink()).isEmpty();

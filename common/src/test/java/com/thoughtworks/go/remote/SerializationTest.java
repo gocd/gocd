@@ -220,10 +220,10 @@ class SerializationTest {
             Map<String, Object> actual = JsonHelper.fromJson(json, Map.class);
             List<Map<String, Object>> props = (List<Map<String, Object>>) actual.get("configuration");
             assertEquals(2, props.size());
-            assertEquals("plain", props.get(0).get("key"));
-            assertEquals("text", props.get(0).get("value"));
-            assertEquals("secret", props.get(1).get("key"));
-            assertEquals("don't tell!", props.get(1).get("value"));
+            assertEquals("plain", props.getFirst().get("key"));
+            assertEquals("text", props.getFirst().get("value"));
+            assertEquals("secret", props.getLast().get("key"));
+            assertEquals("don't tell!", props.getLast().get("value"));
         }, "ArtifactStore should serialize without error because its type adapter hides the nested GoCipher from Gson");
     }
 
@@ -252,7 +252,7 @@ class SerializationTest {
     void configurationPropertyWithSecretParamsShouldSerializeResolvedValues() {
         ConfigurationProperty configurationProperty = new ConfigurationProperty(new ConfigurationKey("db_password"),
                 new ConfigurationValue("{{SECRET:[test_id][password]}}"));
-        configurationProperty.getSecretParams().get(0).setValue("secret");
+        configurationProperty.getSecretParams().getFirst().setValue("secret");
 
         String json = Serialization.toJson(configurationProperty);
 

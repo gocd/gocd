@@ -327,10 +327,6 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
             .orElse(defaultMaterial);
     }
 
-    public String getMaterialOptions() {
-        return Optional.ofNullable(getFirstOrNull()).map(MaterialConfig::getType).orElse("");
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public void setConfigAttributes(Object attributes) {

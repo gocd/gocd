@@ -120,7 +120,7 @@ public class GoConfigRepoConfigDataSourceTest {
         assertNotNull(partialConfig.getOrigin());
         assertThat(partialConfig.getOrigin()).isEqualTo(repoConfigOrigin);
 
-        PipelineConfig pipe = partialConfig.getGroups().get(0).get(0);
+        PipelineConfig pipe = partialConfig.getGroups().getFirst().getFirst();
         assertThat(pipe.getOrigin()).isEqualTo(repoConfigOrigin);
     }
 
@@ -142,7 +142,7 @@ public class GoConfigRepoConfigDataSourceTest {
         assertNotNull(partialConfig.getOrigin());
         assertThat(partialConfig.getOrigin()).isEqualTo(repoConfigOrigin);
 
-        EnvironmentConfig environmentConfig = partialConfig.getEnvironments().get(0);
+        EnvironmentConfig environmentConfig = partialConfig.getEnvironments().getFirst();
         assertThat(environmentConfig.getOrigin()).isEqualTo(repoConfigOrigin);
     }
 

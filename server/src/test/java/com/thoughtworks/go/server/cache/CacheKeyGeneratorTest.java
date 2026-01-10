@@ -47,7 +47,12 @@ class CacheKeyGeneratorTest {
     void shouldGenerateCacheKeyFastPathForString() {
         String generatedCacheKey = cacheKeyGenerator.generate("foo", "bar");
         assertThat(generatedCacheKey).isEqualTo("com.thoughtworks.go.domain.Pipeline.$foo.$bar");
+    }
 
+    @Test
+    void shouldGenerateCacheKeyFastPathForAllStrings() {
+        String generatedCacheKey = cacheKeyGenerator.generate("foo", "bar", "baz");
+        assertThat(generatedCacheKey).isEqualTo("com.thoughtworks.go.domain.Pipeline.$foo.$bar.$baz");
     }
 
     @Test
@@ -72,6 +77,10 @@ class CacheKeyGeneratorTest {
         assertThat(cacheKeyGenerator.generate("foo", "bar"))
             .describedAs("Using '==' to check returned key is interned String")
             .isSameAs("com.thoughtworks.go.domain.Pipeline.$foo.$bar");
+
+        assertThat(cacheKeyGenerator.generate("foo", "bar", "baz"))
+            .describedAs("Using '==' to check returned key is interned String")
+            .isSameAs("com.thoughtworks.go.domain.Pipeline.$foo.$bar.$baz");
     }
 
     @Test

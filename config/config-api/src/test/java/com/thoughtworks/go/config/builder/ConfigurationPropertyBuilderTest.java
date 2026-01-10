@@ -68,8 +68,8 @@ public class ConfigurationPropertyBuilderTest {
 
         ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", "value", "enc_value", true);
 
-        assertThat(property.errors().get("configurationValue").get(0)).isEqualTo("You may only specify `value` or `encrypted_value`, not both!");
-        assertThat(property.errors().get("encryptedValue").get(0)).isEqualTo("You may only specify `value` or `encrypted_value`, not both!");
+        assertThat(property.errors().get("configurationValue").getFirst()).isEqualTo("You may only specify `value` or `encrypted_value`, not both!");
+        assertThat(property.errors().get("encryptedValue").getFirst()).isEqualTo("You may only specify `value` or `encrypted_value`, not both!");
         assertThat(property.getConfigurationValue().getValue()).isEqualTo("value");
         assertThat(property.getEncryptedValue()).isEqualTo("enc_value");
     }
@@ -81,8 +81,8 @@ public class ConfigurationPropertyBuilderTest {
 
         ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", "value", "enc_value", false);
 
-        assertThat(property.errors().get("configurationValue").get(0)).isEqualTo("You may only specify `value` or `encrypted_value`, not both!");
-        assertThat(property.errors().get("encryptedValue").get(0)).isEqualTo("You may only specify `value` or `encrypted_value`, not both!");
+        assertThat(property.errors().get("configurationValue").getFirst()).isEqualTo("You may only specify `value` or `encrypted_value`, not both!");
+        assertThat(property.errors().get("encryptedValue").getFirst()).isEqualTo("You may only specify `value` or `encrypted_value`, not both!");
         assertThat(property.getConfigurationValue().getValue()).isEqualTo("value");
         assertThat(property.getEncryptedValue()).isEqualTo("enc_value");
     }
@@ -94,7 +94,7 @@ public class ConfigurationPropertyBuilderTest {
 
         ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", null, "enc_value", false);
 
-        assertThat(property.errors().get("encryptedValue").get(0)).isEqualTo("encrypted_value cannot be specified to a unsecured property.");
+        assertThat(property.errors().get("encryptedValue").getFirst()).isEqualTo("encrypted_value cannot be specified to a unsecured property.");
         assertThat(property.getEncryptedValue()).isEqualTo("enc_value");
     }
 

@@ -142,7 +142,7 @@ public class ArtifactStoreTest {
         artifactStore.encryptSecureConfigurations();
 
         assertThat(artifactStore.size()).isEqualTo(1);
-        assertTrue(artifactStore.getFirstOrNull().isSecure());
+        assertTrue(artifactStore.getFirst().isSecure());
     }
 
     @Test
@@ -152,7 +152,7 @@ public class ArtifactStoreTest {
         artifactStore.encryptSecureConfigurations();
 
         assertThat(artifactStore.size()).isEqualTo(1);
-        assertFalse(artifactStore.getFirstOrNull().isSecure());
+        assertFalse(artifactStore.getFirst().isSecure());
     }
 
     private PluginDescriptor pluginDescriptor(String pluginId) {

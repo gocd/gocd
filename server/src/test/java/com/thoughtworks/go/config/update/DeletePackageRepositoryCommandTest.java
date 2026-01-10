@@ -66,11 +66,11 @@ public class DeletePackageRepositoryCommandTest {
     @Test
     public void shouldDeletePackageRepository() {
         assertThat(cruiseConfig.getPackageRepositories().size()).isEqualTo(1);
-        assertThat(cruiseConfig.getPackageRepositories().find(repoId)).isEqualTo(packageRepository);
+        assertThat(cruiseConfig.getPackageRepositories().findByRepoId(repoId)).isEqualTo(packageRepository);
         DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, packageRepository, currentUser, result);
         command.update(cruiseConfig);
         assertThat(cruiseConfig.getPackageRepositories().size()).isEqualTo(0);
-        assertNull(cruiseConfig.getPackageRepositories().find(repoId));
+        assertNull(cruiseConfig.getPackageRepositories().findByRepoId(repoId));
     }
 
     @Test
@@ -84,7 +84,7 @@ public class DeletePackageRepositoryCommandTest {
         cruiseConfig.addPipeline("first", pipeline);
 
         assertThat(cruiseConfig.getPackageRepositories().size()).isEqualTo(1);
-        assertThat(cruiseConfig.getPackageRepositories().find(repoId)).isEqualTo(packageRepository);
+        assertThat(cruiseConfig.getPackageRepositories().findByRepoId(repoId)).isEqualTo(packageRepository);
         DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, packageRepository, currentUser, result);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));

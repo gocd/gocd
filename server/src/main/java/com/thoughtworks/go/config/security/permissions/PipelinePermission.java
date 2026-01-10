@@ -44,7 +44,7 @@ public class PipelinePermission extends ArrayList<StagePermission> {
     }
 
     public Users getPipelineOperators() {
-        return this.get(0).getStageOperators();
+        return this.getFirst().getStageOperators();
     }
 
     public Users getStageOperators(String stageName) {

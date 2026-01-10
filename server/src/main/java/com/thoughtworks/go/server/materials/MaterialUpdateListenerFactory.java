@@ -53,7 +53,7 @@ public class MaterialUpdateListenerFactory {
     private final MDUPerformanceLogger mduPerformanceLogger;
 
     @Autowired
-    public MaterialUpdateListenerFactory(MaterialUpdateCompletedTopic topic,
+    MaterialUpdateListenerFactory(MaterialUpdateCompletedTopic topic,
                                          MaterialUpdateQueue queue,
                                          ConfigMaterialUpdateQueue configQueue,
                                          MaterialRepository materialRepository,

@@ -52,10 +52,10 @@ public class TwoPipelineGroups {
     }
 
     public CaseInsensitiveString pipelineInFirstGroup() {
-        return configHelper.currentConfig().getGroups().get(0).get(0).name();
+        return configHelper.currentConfig().getGroups().getFirst().getFirst().name();
     }
 
     public CaseInsensitiveString pipelineInSecondGroup() {
-        return configHelper.currentConfig().getGroups().get(1).get(0).name();
+        return configHelper.currentConfig().getGroups().get(1).getFirst().name();
     }
 }

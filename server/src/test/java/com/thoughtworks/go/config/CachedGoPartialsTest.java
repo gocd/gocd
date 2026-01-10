@@ -99,7 +99,7 @@ public class CachedGoPartialsTest {
         serverHealthService.update(ServerHealthState.error("error-repo-2", "error-desc-2", HealthStateType.general(HealthStateScope.forPartialConfigRepo(fingerprintForRepo2))));
         partials.markAsValid(fingerprintForRepo1, part1);
         assertTrue(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo1)).isEmpty());
-        assertEquals("error-repo-2", serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo2)).get(0).getMessage());
+        assertEquals("error-repo-2", serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo2)).getFirst().getMessage());
         partials.markAllKnownAsValid();
         assertTrue(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo1)).isEmpty());
         assertTrue(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo2)).isEmpty());

@@ -59,9 +59,9 @@ public class EnvironmentVariableSqlMapDaoIntegrationTest {
 
         EnvironmentVariables actual = dao.load(1L, Job);
 
-        assertThat(actual.get(0).getName()).isEqualTo(key);
-        assertThat(actual.get(0).getValue()).isEqualTo(plainText);
-        assertThat(actual.get(0).isSecure()).isFalse();
+        assertThat(actual.getFirst().getName()).isEqualTo(key);
+        assertThat(actual.getFirst().getValue()).isEqualTo(plainText);
+        assertThat(actual.getFirst().isSecure()).isFalse();
     }
 
     @Test
@@ -74,9 +74,9 @@ public class EnvironmentVariableSqlMapDaoIntegrationTest {
 
         EnvironmentVariables actual = dao.load(1L, Job);
 
-        assertThat(actual.get(0).getName()).isEqualTo(key);
-        assertThat(actual.get(0).getValue()).isEqualTo(plainText);
-        assertThat(actual.get(0).isSecure()).isTrue();
+        assertThat(actual.getFirst().getName()).isEqualTo(key);
+        assertThat(actual.getFirst().getValue()).isEqualTo(plainText);
+        assertThat(actual.getFirst().isSecure()).isTrue();
     }
 
     @Test

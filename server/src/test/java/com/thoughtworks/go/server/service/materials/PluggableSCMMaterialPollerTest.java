@@ -96,10 +96,10 @@ class PluggableSCMMaterialPollerTest {
 
         List<Modification> modifications = poller.latestModification(material, new File(flyweightFolderPath), null);
 
-        assertThat(modifications.get(0).getRevision()).isEqualTo("revision-123");
-        assertThat(modifications.get(0).getModifiedTime()).isEqualTo(timestamp);
-        assertThat(modifications.get(0).getUserName()).isEqualTo("user");
-        assertThat(modifications.get(0).getComment()).isEqualTo("comment");
+        assertThat(modifications.getFirst().getRevision()).isEqualTo("revision-123");
+        assertThat(modifications.getFirst().getModifiedTime()).isEqualTo(timestamp);
+        assertThat(modifications.getFirst().getUserName()).isEqualTo("user");
+        assertThat(modifications.getFirst().getComment()).isEqualTo("comment");
         assertConfiguration(scmConfiguration.getValue(), "k1", "v1");
         assertConfiguration(scmConfiguration.getValue(), "k2", "v2");
         assertThat(materialData.getValue().size()).isEqualTo(1);
@@ -130,16 +130,16 @@ class PluggableSCMMaterialPollerTest {
 
         List<Modification> modifications = poller.latestModification(material, new File(flyweightFolderPath), null);
 
-        assertThat(modifications.get(0).getRevision()).isEqualTo("revision-123");
-        assertThat(modifications.get(0).getModifiedTime()).isEqualTo(timestamp);
-        assertThat(modifications.get(0).getUserName()).isEqualTo("user");
-        assertThat(modifications.get(0).getComment()).isEqualTo("comment");
-        assertThat(modifications.get(0).getAdditionalData()).isEqualTo(JsonHelper.toJsonExposeOnly(data));
-        assertThat(modifications.get(0).getModifiedFiles().size()).isEqualTo(3);
+        assertThat(modifications.getFirst().getRevision()).isEqualTo("revision-123");
+        assertThat(modifications.getFirst().getModifiedTime()).isEqualTo(timestamp);
+        assertThat(modifications.getFirst().getUserName()).isEqualTo("user");
+        assertThat(modifications.getFirst().getComment()).isEqualTo("comment");
+        assertThat(modifications.getFirst().getAdditionalData()).isEqualTo(JsonHelper.toJsonExposeOnly(data));
+        assertThat(modifications.getFirst().getModifiedFiles().size()).isEqualTo(3);
         com.thoughtworks.go.domain.materials.ModifiedFile f1 = new com.thoughtworks.go.domain.materials.ModifiedFile("f1", null, com.thoughtworks.go.domain.materials.ModifiedAction.added);
         com.thoughtworks.go.domain.materials.ModifiedFile f2 = new com.thoughtworks.go.domain.materials.ModifiedFile("f2", null, com.thoughtworks.go.domain.materials.ModifiedAction.modified);
         com.thoughtworks.go.domain.materials.ModifiedFile f3 = new com.thoughtworks.go.domain.materials.ModifiedFile("f3", null, com.thoughtworks.go.domain.materials.ModifiedAction.deleted);
-        assertThat(new HashSet<>(modifications.get(0).getModifiedFiles())).isEqualTo(new HashSet<>(List.of(f1, f2, f3)));
+        assertThat(new HashSet<>(modifications.getFirst().getModifiedFiles())).isEqualTo(new HashSet<>(List.of(f1, f2, f3)));
         assertConfiguration(scmConfiguration.getValue(), material.getScmConfig().getConfiguration());
         assertThat(materialData.getValue().size()).isEqualTo(1);
         assertThat(materialData.getValue().get("mk-1")).isEqualTo("mv-1");
@@ -156,10 +156,10 @@ class PluggableSCMMaterialPollerTest {
 
         List<Modification> modifications = poller.modificationsSince(material, new File(flyweightFolderPath), knownRevision, null);
 
-        assertThat(modifications.get(0).getRevision()).isEqualTo("rev-123");
-        assertThat(modifications.get(0).getModifiedTime()).isEqualTo(timestamp);
-        assertThat(modifications.get(0).getUserName()).isEqualTo("user");
-        assertThat(modifications.get(0).getComment()).isNull();
+        assertThat(modifications.getFirst().getRevision()).isEqualTo("rev-123");
+        assertThat(modifications.getFirst().getModifiedTime()).isEqualTo(timestamp);
+        assertThat(modifications.getFirst().getUserName()).isEqualTo("user");
+        assertThat(modifications.getFirst().getComment()).isNull();
         assertConfiguration(scmConfiguration.getValue(), "k1", "v1");
         assertConfiguration(scmConfiguration.getValue(), "k2", "v2");
         assertThat(knownSCMRevision.getValue().getRevision()).isEqualTo("rev-122");
@@ -209,7 +209,7 @@ class PluggableSCMMaterialPollerTest {
         Map<String, String> expected = new HashMap<>();
         expected.put(dataKey, dataValue);
 
-        Modification firstModification = modifications.get(0);
+        Modification firstModification = modifications.getFirst();
         assertThat(firstModification.getRevision()).isEqualTo("rev-123");
         assertThat(firstModification.getModifiedTime()).isEqualTo(timestamp);
         assertThat(firstModification.getUserName()).isEqualTo("user");
@@ -226,7 +226,7 @@ class PluggableSCMMaterialPollerTest {
         void forLatestModification() {
             ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
             ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", true, "{{SECRET:[secret_config_id][lookup_password]}}");
-            k2.getSecretParams().get(0).setValue("some-dummy-value");
+            k2.getSecretParams().getFirst().setValue("some-dummy-value");
             SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(k1, k2));
             material = new PluggableSCMMaterial();
             material.setSCMConfig(scmConfig);
@@ -252,7 +252,7 @@ class PluggableSCMMaterialPollerTest {
         void forModificationsSince() {
             ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
             ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", true, "{{SECRET:[secret_config_id][lookup_password]}}");
-            k2.getSecretParams().get(0).setValue("some-dummy-value");
+            k2.getSecretParams().getFirst().setValue("some-dummy-value");
             SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(k1, k2));
             material = new PluggableSCMMaterial();
             material.setSCMConfig(scmConfig);
@@ -283,7 +283,7 @@ class PluggableSCMMaterialPollerTest {
         void forCheckout() {
             ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
             ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", true, "{{SECRET:[secret_config_id][lookup_password]}}");
-            k2.getSecretParams().get(0).setValue("some-dummy-value");
+            k2.getSecretParams().getFirst().setValue("some-dummy-value");
             SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(k1, k2));
             material = new PluggableSCMMaterial();
             material.setSCMConfig(scmConfig);

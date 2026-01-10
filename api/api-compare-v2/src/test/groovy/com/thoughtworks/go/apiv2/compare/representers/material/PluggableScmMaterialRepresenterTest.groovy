@@ -53,7 +53,7 @@ class PluggableScmMaterialRepresenterTest {
     def materialConfigs = new MaterialConfigs(pluggableScmMaterial)
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
 
-    def actualJson = toObjectString({ MaterialRepresenter.toJSON(it, materialConfigs.getFirstOrNull()) })
+    def actualJson = toObjectString({ MaterialRepresenter.toJSON(it, materialConfigs.getFirst()) })
     assertThatJson(actualJson).isEqualTo(expectedMaterialHashWithErrors)
   }
 

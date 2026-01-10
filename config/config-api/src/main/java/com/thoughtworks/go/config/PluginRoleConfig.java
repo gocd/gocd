@@ -84,11 +84,6 @@ public class PluginRoleConfig extends Configuration implements Role {
     }
 
     @Override
-    public void removeUser(RoleUser roleUser) {
-        throw new UnsupportedOperationException("PluginRoleConfig does not support removing users, should be removed through PluginRoleService");
-    }
-
-    @Override
     public ConfigErrors errors() {
         return configErrors;
     }

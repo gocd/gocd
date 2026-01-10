@@ -48,10 +48,10 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
 
     @Override
     public void update(CruiseConfig modifiedConfig) {
-        PackageRepository oldRepo = modifiedConfig.getPackageRepositories().find(newRepo.getRepoId());
+        PackageRepository oldRepo = modifiedConfig.getPackageRepositories().findByRepoId(newRepo.getRepoId());
         this.newRepo.setPackages(oldRepo.getPackages());
         PackageRepositories repositories = modifiedConfig.getPackageRepositories();
-        repositories.replace(oldRepo, newRepo);
+        repositories.replaceIfNotEmpty(oldRepo, newRepo);
         modifiedConfig.setPackageRepositories(repositories);
 
         updatePackageRepositoryConfigurationOnAssociatedPipelines(modifiedConfig);

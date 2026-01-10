@@ -36,7 +36,7 @@ public class PipelineTemplateConfigMother {
     public static PipelineTemplateConfig createTemplateWithParams(String templateName, String... paramNameAndValue) {
         PipelineTemplateConfig template = createTemplate(templateName);
         for (String nameAndValue : paramNameAndValue) {
-            template.get(0).getJobs().get(0).addVariable(String.format("name-%s", nameAndValue), String.format("value-#{%s}", nameAndValue));
+            template.getFirst().getJobs().getFirst().addVariable(String.format("name-%s", nameAndValue), String.format("value-#{%s}", nameAndValue));
         }
         return template;
     }

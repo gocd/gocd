@@ -56,9 +56,9 @@ public class ConfigRepositoryGCWarningServiceTest {
                 "'&lt;go server installation directory&gt;/db/config.git/' to address this problem. Go can do this " +
                 "automatically on a periodic basis if you enable automatic GC. <a target='_blank' href='" + docsUrl("/advanced_usage/config_repo.html") + "'>read more...</a>";
 
-        assertThat(healthStates.get(0).getDescription()).isEqualTo(description);
-        assertThat(healthStates.get(0).getLogLevel()).isEqualTo(HealthStateLevel.WARNING);
-        assertThat(healthStates.get(0).getMessage()).isEqualTo(message);
+        assertThat(healthStates.getFirst().getDescription()).isEqualTo(description);
+        assertThat(healthStates.getFirst().getLogLevel()).isEqualTo(HealthStateLevel.WARNING);
+        assertThat(healthStates.getFirst().getMessage()).isEqualTo(message);
     }
 
     @Test

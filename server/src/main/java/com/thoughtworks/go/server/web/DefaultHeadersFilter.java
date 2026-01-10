@@ -28,10 +28,6 @@ public class DefaultHeadersFilter implements Filter {
     private SystemEnvironment systemEnvironment = new SystemEnvironment();
 
     @Override
-    public void destroy() {
-    }
-
-    @Override
     public void init(FilterConfig config) {
         // No default config
     }

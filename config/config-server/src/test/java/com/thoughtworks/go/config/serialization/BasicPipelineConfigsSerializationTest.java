@@ -111,7 +111,7 @@ public class BasicPipelineConfigsSerializationTest {
     public void shouldLoadOperationPermissionForPipelines() {
         CruiseConfig cruiseConfig = ConfigMigrator.load(configureAuthorization(OPERATION_PERMISSION));
         cruiseConfig.initializeServer();
-        PipelineConfigs group = cruiseConfig.getGroups().getFirstOrNull();
+        PipelineConfigs group = cruiseConfig.getGroups().getFirst();
 
         assertThat(group.getAuthorization()).isInstanceOf(Authorization.class);
 
@@ -124,7 +124,7 @@ public class BasicPipelineConfigsSerializationTest {
     public void shouldLoadOperationAndViewPermissionForPipelinesNoMatterTheConfigOrder() {
         CruiseConfig cruiseConfig = ConfigMigrator.load(configureAuthorization(OPERATION_PERMISSION + VIEW_PERMISSION));
         cruiseConfig.initializeServer();
-        PipelineConfigs group = cruiseConfig.getGroups().getFirstOrNull();
+        PipelineConfigs group = cruiseConfig.getGroups().getFirst();
 
         assertThat(group.getAuthorization()).isInstanceOf(Authorization.class);
 
@@ -139,7 +139,7 @@ public class BasicPipelineConfigsSerializationTest {
     public void shouldLoadViewAndOperationPermissionForPipelinesNoMatterTheConfigOrder() {
         CruiseConfig cruiseConfig = ConfigMigrator.load(configureAuthorization(VIEW_PERMISSION + OPERATION_PERMISSION));
         cruiseConfig.initializeServer();
-        PipelineConfigs group = cruiseConfig.getGroups().getFirstOrNull();
+        PipelineConfigs group = cruiseConfig.getGroups().getFirst();
 
         assertThat(group.getAuthorization()).isInstanceOf(Authorization.class);
 

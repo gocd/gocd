@@ -29,7 +29,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.plugin.api.config.Property.PART_OF_IDENTITY;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PackageRepositoriesTest {
 
@@ -46,13 +46,13 @@ class PackageRepositoriesTest {
         PackageRepository packageRepository2 = PackageRepositoryMother.create("repo-id2", "repo2", "plugin-id", "1.0", null);
 
         PackageRepositories packageRepositories = new PackageRepositories(packageRepository1, packageRepository2);
-        assertThat(packageRepositories.find("repo-id2")).isEqualTo(packageRepository2);
+        assertThat(packageRepositories.findByRepoId("repo-id2")).isEqualTo(packageRepository2);
     }
 
     @Test
     void shouldReturnNullIfNoMatchingRepoFound() {
         PackageRepositories packageRepositories = new PackageRepositories();
-        assertThat(packageRepositories.find("not-found")).isNull();
+        assertThat(packageRepositories.findByRepoId("not-found")).isNull();
     }
 
     @Test
@@ -70,26 +70,13 @@ class PackageRepositoriesTest {
 
         PackageRepositories packageRepositories = new PackageRepositories(repo1, repo2);
 
-        assertThat(packageRepositories.findPackageRepositoryHaving("pid3")).isEqualTo(repo2);
-        assertThat(packageRepositories.findPackageRepositoryWithPackageIdOrBomb("pid3")).isEqualTo(repo2);
+        assertThat(packageRepositories.findByPackageId("pid3")).isEqualTo(repo2);
     }
 
     @Test
     void shouldReturnNullWhenRepositoryForGivenPackageNotFound() {
         PackageRepositories packageRepositories = new PackageRepositories();
-        assertThat(packageRepositories.findPackageRepositoryHaving("invalid")).isNull();
-    }
-
-    @Test
-    void shouldThrowExceptionWhenRepositoryForGivenPackageNotFound() {
-        PackageRepositories packageRepositories = new PackageRepositories();
-
-        try {
-            packageRepositories.findPackageRepositoryWithPackageIdOrBomb("invalid");
-            fail("should have thrown exception for not finding package repository");
-        } catch (RuntimeException e) {
-            assertThat(e.getMessage()).isEqualTo("Could not find repository for given package id:[invalid]");
-        }
+        assertThat(packageRepositories.findByPackageId("invalid")).isNull();
     }
 
     @Test
@@ -104,14 +91,10 @@ class PackageRepositoriesTest {
     }
 
     @Test
-    void shouldReturnNullExceptionWhenRepoIdIsNotFound() {
-        PackageRepositories packageRepositories = new PackageRepositories();
-        try {
-            packageRepositories.removePackageRepository("repo1");
-            fail("This should have thrown an exception");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo(String.format("Could not find repository with id '%s'", "repo1"));
-        }
+    void shouldThrowExceptionWhenRepoIdIsNotFound() {
+        assertThatThrownBy(() -> new PackageRepositories().removePackageRepository("repo1"))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Could not find repository with id: repo1");
     }
 
     @Test
@@ -180,10 +163,9 @@ class PackageRepositoriesTest {
         PackageDefinition packageDefinitionFour = PackageDefinitionMother.create("pid4", repo2);
         repo2.getPackages().addAll(List.of(packageDefinitionThree, packageDefinitionFour));
 
-
         PackageRepositories packageRepositories = new PackageRepositories(repo1, repo2);
-        assertThat(packageRepositories.findPackageDefinitionWith("pid3")).isEqualTo(packageDefinitionThree);
-        assertThat(packageRepositories.findPackageDefinitionWith("pid5")).isNull();
+        assertThat(packageRepositories.findDefinitionByPackageId("pid3")).isEqualTo(packageDefinitionThree);
+        assertThat(packageRepositories.findDefinitionByPackageId("pid5")).isNull();
     }
 
     @BeforeEach

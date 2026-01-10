@@ -63,7 +63,7 @@ public class DependencyMaterialUpdater implements MaterialUpdater {
         Pagination pagination = Pagination.pageByOffsetUnknownTotal(0, MaterialDatabaseUpdater.STAGES_PER_PAGE);
         List<Modification> modifications;
         do {
-            modifications = dependencyMaterialSourceDao.getPassedStagesAfter(list.getLastOrNull().getRevision(), pagination);
+            modifications = dependencyMaterialSourceDao.getPassedStagesAfter(list.getLast().getRevision(), pagination);
             for (Modification modification : modifications) {
                 MaterialRevision revision = new MaterialRevision(dependencyMaterial, modification);
                 materialRepository.saveMaterialRevision(revision);

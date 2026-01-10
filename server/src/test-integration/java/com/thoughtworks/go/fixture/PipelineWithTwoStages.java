@@ -114,7 +114,7 @@ public class PipelineWithTwoStages {
         svnClient = new SvnCommand(null, svnTestRepo.projectRepositoryUrl());
 
         MaterialConfigs materialConfigs = MaterialConfigsMother.mockMaterialConfigs(svnTestRepo.projectRepositoryUrl());
-        SvnMaterialConfig svnMaterialConfig = (SvnMaterialConfig) materialConfigs.getFirstOrNull();
+        SvnMaterialConfig svnMaterialConfig = (SvnMaterialConfig) materialConfigs.getFirst();
         svnMaterialConfig.setName(new CaseInsensitiveString(DEFAULT_MATERIAL));
         svnMaterialConfig.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "default-folder"));
         configHelper.addPipelineWithGroup(groupName, pipelineName, materialConfigs, devStage, jobsOfDevStage);

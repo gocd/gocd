@@ -72,8 +72,8 @@ public class ArtifactTypeConfigsTest {
         TestArtifactConfig plan = new TestArtifactConfig();
         plan.setSource("blah");
         plan.setDestination("something");
-        assertThat(artifactTypeConfigs.get(0)).isEqualTo(plan);
-        assertThat(artifactTypeConfigs.get(1)).isEqualTo(new BuildArtifactConfig("blah2", "something2"));
+        assertThat(artifactTypeConfigs.getFirst()).isEqualTo(plan);
+        assertThat(artifactTypeConfigs.getLast()).isEqualTo(new BuildArtifactConfig("blah2", "something2"));
     }
 
     @Test
@@ -104,8 +104,8 @@ public class ArtifactTypeConfigsTest {
         TestArtifactConfig plan = new TestArtifactConfig();
         plan.setSource("blah");
         plan.setDestination("something");
-        assertThat(artifactTypeConfigs.get(0)).isEqualTo(plan);
-        assertThat(artifactTypeConfigs.get(1)).isEqualTo(new BuildArtifactConfig("blah2", "something2"));
+        assertThat(artifactTypeConfigs.getFirst()).isEqualTo(plan);
+        assertThat(artifactTypeConfigs.getLast()).isEqualTo(new BuildArtifactConfig("blah2", "something2"));
     }
 
     @Test
@@ -142,7 +142,7 @@ public class ArtifactTypeConfigsTest {
 
         assertThat(artifactTypeConfigs.size()).isEqualTo(1);
 
-        PluggableArtifactConfig artifactConfig = (PluggableArtifactConfig) artifactTypeConfigs.get(0);
+        PluggableArtifactConfig artifactConfig = (PluggableArtifactConfig) artifactTypeConfigs.getFirst();
         assertThat(artifactConfig.getArtifactType()).isEqualTo(ArtifactType.external);
         assertThat(artifactConfig.getId()).isEqualTo("artifactId");
         assertThat(artifactConfig.getStoreId()).isEqualTo("storeId");
@@ -178,7 +178,7 @@ public class ArtifactTypeConfigsTest {
 
         assertThat(artifactTypeConfigs.size()).isEqualTo(1);
 
-        PluggableArtifactConfig artifactConfig = (PluggableArtifactConfig) artifactTypeConfigs.get(0);
+        PluggableArtifactConfig artifactConfig = (PluggableArtifactConfig) artifactTypeConfigs.getFirst();
         assertThat(artifactConfig.getArtifactType()).isEqualTo(ArtifactType.external);
         assertThat(artifactConfig.getId()).isEqualTo("artifactId");
         assertThat(artifactConfig.getStoreId()).isEqualTo("storeId");

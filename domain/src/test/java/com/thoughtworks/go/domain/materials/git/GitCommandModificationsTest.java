@@ -46,7 +46,7 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
 
     @Test
     void shouldRetrieveLatestModification() {
-        Modification mod = git.latestModification().get(0);
+        Modification mod = git.latestModification().getFirst();
         assertEquals("Chris Turner <cturner@thoughtworks.com>", mod.getUserName());
         assertEquals("Added 'run-till-file-exists' ant target", mod.getComment());
         assertEquals(parseIso8601StrictOffset("2010-02-12T16:12:04-08:00"), mod.getModifiedTime());
@@ -54,14 +54,14 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
 
         List<ModifiedFile> files = mod.getModifiedFiles();
         assertEquals(1, files.size());
-        assertEquals("build.xml", files.get(0).getFileName());
-        assertEquals(ModifiedAction.modified, files.get(0).getAction());
+        assertEquals("build.xml", files.getFirst().getFileName());
+        assertEquals(ModifiedAction.modified, files.getFirst().getAction());
     }
 
     @Test
     void shouldRetrieveLatestModificationWhenColoringIsSetToAlways() {
         setColoring();
-        Modification mod = git.latestModification().get(0);
+        Modification mod = git.latestModification().getFirst();
         assertEquals("Chris Turner <cturner@thoughtworks.com>", mod.getUserName());
         assertEquals("Added 'run-till-file-exists' ant target", mod.getComment());
         assertEquals(parseIso8601StrictOffset("2010-02-12T16:12:04-08:00"), mod.getModifiedTime());
@@ -69,14 +69,14 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
 
         List<ModifiedFile> files = mod.getModifiedFiles();
         assertEquals(1, files.size());
-        assertEquals("build.xml", files.get(0).getFileName());
-        assertEquals(ModifiedAction.modified, files.get(0).getAction());
+        assertEquals("build.xml", files.getFirst().getFileName());
+        assertEquals(ModifiedAction.modified, files.getFirst().getAction());
     }
 
     @Test
     void shouldRetrieveLatestModificationWhenLogDecorationIsPresent() {
         setLogDecoration();
-        Modification mod = git.latestModification().get(0);
+        Modification mod = git.latestModification().getFirst();
         assertEquals("Chris Turner <cturner@thoughtworks.com>", mod.getUserName());
         assertEquals("Added 'run-till-file-exists' ant target", mod.getComment());
         assertEquals(parseIso8601StrictOffset("2010-02-12T16:12:04-08:00"), mod.getModifiedTime());
@@ -84,8 +84,8 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
 
         List<ModifiedFile> files = mod.getModifiedFiles();
         assertEquals(1, files.size());
-        assertEquals("build.xml", files.get(0).getFileName());
-        assertEquals(ModifiedAction.modified, files.get(0).getAction());
+        assertEquals("build.xml", files.getFirst().getFileName());
+        assertEquals(ModifiedAction.modified, files.getFirst().getAction());
     }
 
     @Test
@@ -103,7 +103,7 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
         gitInRepo("remote", "add", "origin", remoteRepo.projectRepositoryUrl());
         GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, null);
 
-        Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").get(0);
+        Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").getFirst();
 
         assertTrue(command.modificationsSince(new StringRevision(modification.getRevision())).isEmpty());
 
@@ -116,9 +116,9 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
         gitInRepo("remote", "add", "origin", remoteRepo.projectRepositoryUrl());
         GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, null);
 
-        Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").get(0);
+        Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").getFirst();
 
-        assertEquals(modification, command.modificationsSince(REVISION_4).get(0));
+        assertEquals(modification, command.modificationsSince(REVISION_4).getFirst());
     }
 
     @Test
@@ -128,10 +128,10 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
         gitInRepo("remote", "add", "origin", remoteRepo.projectRepositoryUrl());
         GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, null);
 
-        Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").get(0);
+        Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").getFirst();
         setColoring();
 
-        assertEquals(modification, command.modificationsSince(REVISION_4).get(0));
+        assertEquals(modification, command.modificationsSince(REVISION_4).getFirst());
     }
 
     @Test
@@ -141,10 +141,10 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
         gitInRepo("remote", "add", "origin", remoteRepo.projectRepositoryUrl());
         GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, null);
 
-        Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").get(0);
+        Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").getFirst();
         setLogDecoration();
 
-        assertEquals(modification, command.modificationsSince(REVISION_4).get(0));
+        assertEquals(modification, command.modificationsSince(REVISION_4).getFirst());
     }
 
     @Test
@@ -154,7 +154,7 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
         gitInRepo("remote", "add", "origin", remoteRepo.projectRepositoryUrl());
         GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, null);
 
-        Modification modification = remoteRepo.checkInOneFile("foo", "Adding a commit").get(0);
+        Modification modification = remoteRepo.checkInOneFile("foo", "Adding a commit").getFirst();
         remoteRepo.addFileAndAmend("bar", "amendedCommit");
 
         assertThrows(CommandLineException.class, () -> command.modificationsSince(new StringRevision(modification.getRevision())));
@@ -167,7 +167,7 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
         gitInRepo("remote", "add", "origin", remoteRepo.projectRepositoryUrl());
         GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "non-existent-branch", false, null);
 
-        Modification modification = remoteRepo.checkInOneFile("foo", "Adding a commit").get(0);
+        Modification modification = remoteRepo.checkInOneFile("foo", "Adding a commit").getFirst();
 
         assertThrows(CommandLineException.class, () -> command.modificationsSince(new StringRevision(modification.getRevision())));
     }
@@ -187,9 +187,9 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
     void shouldRetrieveFilenameForInitialRevision() throws IOException {
         GitTestRepo testRepo = new GitTestRepo(GitTestRepo.GIT_SUBMODULE_REF_BUNDLE, tempDir);
         GitCommand gitCommand = new GitCommand(null, testRepo.gitRepository(), GitMaterialConfig.DEFAULT_BRANCH, false, null);
-        Modification modification = gitCommand.latestModification().get(0);
+        Modification modification = gitCommand.latestModification().getFirst();
         assertEquals(1, modification.getModifiedFiles().size());
-        assertEquals("remote.txt", modification.getModifiedFiles().get(0).getFileName());
+        assertEquals("remote.txt", modification.getModifiedFiles().getFirst().getFileName());
     }
 
     @Test
@@ -198,7 +198,7 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
         GitCommand branchedGit = new GitCommand(null, createTempWorkingDirectory(), TEST_BRANCH, false, null);
         branchedGit.clone(inMemoryConsumer(), branchedRepo.projectRepositoryUrl());
 
-        Modification mod = branchedGit.latestModification().get(0);
+        Modification mod = branchedGit.latestModification().getFirst();
 
         assertEquals("Chris Turner <cturner@thoughtworks.com>", mod.getUserName());
         assertEquals("Started foo branch", mod.getComment());
@@ -207,29 +207,29 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
 
         List<ModifiedFile> files = mod.getModifiedFiles();
         assertEquals(1, files.size());
-        assertEquals("first.txt", files.get(0).getFileName());
-        assertEquals(ModifiedAction.modified, files.get(0).getAction());
+        assertEquals("first.txt", files.getFirst().getFileName());
+        assertEquals(ModifiedAction.modified, files.getFirst().getAction());
     }
 
     @Test
     void shouldIncludeNewChangesInModificationCheck() throws Exception {
-        String originalNode = git.latestModification().get(0).getRevision();
+        String originalNode = git.latestModification().getFirst().getRevision();
         File testingFile = checkInNewRemoteFile();
 
-        Modification modification = git.latestModification().get(0);
+        Modification modification = git.latestModification().getFirst();
         assertNotEquals(originalNode, modification.getRevision());
         assertEquals("New checkin of " + testingFile.getName(), modification.getComment());
         assertEquals(1, modification.getModifiedFiles().size());
-        assertEquals(testingFile.getName(), modification.getModifiedFiles().get(0).getFileName());
+        assertEquals(testingFile.getName(), modification.getModifiedFiles().getFirst().getFileName());
     }
 
     @Test
     void shouldIncludeChangesFromTheFutureInModificationCheck() throws Exception {
-        String originalNode = git.latestModification().get(0).getRevision();
+        String originalNode = git.latestModification().getFirst().getRevision();
         Date threeDaysFromNow = Date.from(Instant.now().plus(3, ChronoUnit.DAYS).with(ChronoField.NANO_OF_SECOND, 0));
         File testingFile = checkInNewRemoteFileInFuture(threeDaysFromNow);
 
-        Modification modification = git.latestModification().get(0);
+        Modification modification = git.latestModification().getFirst();
         assertNotEquals(originalNode, modification.getRevision());
         assertEquals("New checkin of " + testingFile.getName(), modification.getComment());
         assertEquals(threeDaysFromNow, modification.getModifiedTime());

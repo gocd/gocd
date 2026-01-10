@@ -206,7 +206,7 @@ module ApplicationHelper
   def vsm_analytics_chart_info
     plugin_info = first_plugin_which_supports_vsm_analytics
     if plugin_info
-      supported_analytics = plugin_info.getCapabilities().supportedVSMAnalytics().get(0)
+      supported_analytics = plugin_info.getCapabilities().supportedVSMAnalytics().getFirst()
       {
         "type" => 'vsm',
         "id" => supported_analytics.getId(),

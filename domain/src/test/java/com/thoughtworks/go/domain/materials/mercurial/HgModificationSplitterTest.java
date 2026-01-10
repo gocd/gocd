@@ -49,7 +49,7 @@ public class HgModificationSplitterTest {
         HgModificationSplitter splitter = new HgModificationSplitter(result);
         List<Modification> list = splitter.modifications();
         assertThat(list.size()).isEqualTo(1);
-        assertThat(list.get(0).getModifiedTime()).isEqualTo(Dates.parseIso8601StrictOffset("2008-12-09T18:56:14+08:00"));
+        assertThat(list.getFirst().getModifiedTime()).isEqualTo(Dates.parseIso8601StrictOffset("2008-12-09T18:56:14+08:00"));
     }
 
 

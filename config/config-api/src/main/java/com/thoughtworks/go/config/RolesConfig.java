@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.config.Admin;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -62,11 +61,6 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
 
     public boolean add(CaseInsensitiveString roleName) {
         return add(new RoleConfig(roleName));
-    }
-
-    public boolean remove(Role role) {
-        bombIf(!this.contains(role), () -> "Role '" + CaseInsensitiveString.str(role.getName()) + "' does not exist.");
-        return super.remove(role);
     }
 
     public void removeIfExists(Role role) {

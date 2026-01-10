@@ -115,20 +115,20 @@ public class PipelineConfigDependencyGraphTest {
         PipelineConfigDependencyGraph dependencyGraph = new PipelineConfigDependencyGraph(current, up1Graph, up2Graph);
 
         assertThat(dependencyGraph.unsharedMaterialConfigs().size()).isEqualTo(2);
-        assertThat(dependencyGraph.unsharedMaterialConfigs().get(0)).isEqualTo(up1DependencyMaterial);
-        assertThat(dependencyGraph.unsharedMaterialConfigs().get(1)).isEqualTo(up2DependencyMaterial);
+        assertThat(dependencyGraph.unsharedMaterialConfigs().getFirst()).isEqualTo(up1DependencyMaterial);
+        assertThat(dependencyGraph.unsharedMaterialConfigs().getLast()).isEqualTo(up2DependencyMaterial);
 
         assertThat(up1Graph.unsharedMaterialConfigs().size()).isEqualTo(2);
-        assertThat(up1Graph.unsharedMaterialConfigs().get(0)).isEqualTo(firstOrderGitMaterial);
-        assertThat(up1Graph.unsharedMaterialConfigs().get(1)).isEqualTo(uppestDependencyMaterial);
+        assertThat(up1Graph.unsharedMaterialConfigs().getFirst()).isEqualTo(firstOrderGitMaterial);
+        assertThat(up1Graph.unsharedMaterialConfigs().getLast()).isEqualTo(uppestDependencyMaterial);
 
         assertThat(up2Graph.unsharedMaterialConfigs().size()).isEqualTo(2);
-        assertThat(up2Graph.unsharedMaterialConfigs().get(0)).isEqualTo(firstOrderSVNMaterial);
-        assertThat(up2Graph.unsharedMaterialConfigs().get(1)).isEqualTo(uppestDependencyMaterial);
+        assertThat(up2Graph.unsharedMaterialConfigs().getFirst()).isEqualTo(firstOrderSVNMaterial);
+        assertThat(up2Graph.unsharedMaterialConfigs().getLast()).isEqualTo(uppestDependencyMaterial);
 
         assertThat(uppestGraph.unsharedMaterialConfigs().size()).isEqualTo(2);
-        assertThat(uppestGraph.unsharedMaterialConfigs().get(0)).isEqualTo(common1);
-        assertThat(uppestGraph.unsharedMaterialConfigs().get(1)).isEqualTo(firstOrderP4Material);
+        assertThat(uppestGraph.unsharedMaterialConfigs().getFirst()).isEqualTo(common1);
+        assertThat(uppestGraph.unsharedMaterialConfigs().getLast()).isEqualTo(firstOrderP4Material);
     }
 
     @Test

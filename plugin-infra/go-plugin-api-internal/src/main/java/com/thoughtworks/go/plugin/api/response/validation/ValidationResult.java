@@ -16,7 +16,6 @@
 package com.thoughtworks.go.plugin.api.response.validation;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -24,7 +23,7 @@ import java.util.List;
  */
 public class ValidationResult {
 
-    private List<ValidationError> errors = new ArrayList<>();
+    private final List<ValidationError> errors = new ArrayList<>();
 
     /**
      * Adds provided ValidationError to error container
@@ -34,29 +33,6 @@ public class ValidationResult {
         errors.add(validationError);
     }
 
-    /**
-     * Adds collection of ValidationError to the error container
-     * @param validationErrors collection of errors to be added to container
-     */
-    public void addErrors(Collection<ValidationError> validationErrors) {
-        errors.addAll(validationErrors);
-    }
-
-    /**
-     * Removes specified validation error from the error container
-     * @param validationError the validation error to be removed from error container
-     */
-    public void removeError(ValidationError validationError) {
-        errors.remove(validationError);
-    }
-
-    /**
-     * Removes specified collection of validation errors from the container
-     * @param validationErrors collection of validations errors to be removed
-     */
-    public void removeErrors(Collection<ValidationError> validationErrors) {
-        errors.removeAll(validationErrors);
-    }
 
     /**
      * Checks if result of the validation is successful based on the size of error container

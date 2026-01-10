@@ -90,8 +90,8 @@ public class JsonMessageHandler1_0Test {
     public void shouldBuildValidationResultFromCheckRepositoryConfigurationValidResponse() {
         String responseBody = "[{\"key\":\"key-one\",\"message\":\"incorrect value\"},{\"message\":\"general error\"}]";
         ValidationResult validationResult = messageHandler.responseMessageForIsRepositoryConfigurationValid(responseBody);
-        assertValidationError(validationResult.getErrors().get(0), "key-one", "incorrect value");
-        assertValidationError(validationResult.getErrors().get(1), "", "general error");
+        assertValidationError(validationResult.getErrors().getFirst(), "key-one", "incorrect value");
+        assertValidationError(validationResult.getErrors().getLast(), "", "general error");
     }
 
     @Test
@@ -110,8 +110,8 @@ public class JsonMessageHandler1_0Test {
     public void shouldBuildValidationResultForCheckRepositoryConfigurationValidResponse() {
         String responseBody = "[{\"key\":\"key-one\",\"message\":\"incorrect value\"},{\"message\":\"general error\"}]";
         ValidationResult validationResult = messageHandler.responseMessageForIsPackageConfigurationValid(responseBody);
-        assertValidationError(validationResult.getErrors().get(0), "key-one", "incorrect value");
-        assertValidationError(validationResult.getErrors().get(1), "", "general error");
+        assertValidationError(validationResult.getErrors().getFirst(), "key-one", "incorrect value");
+        assertValidationError(validationResult.getErrors().getLast(), "", "general error");
     }
 
     @Test

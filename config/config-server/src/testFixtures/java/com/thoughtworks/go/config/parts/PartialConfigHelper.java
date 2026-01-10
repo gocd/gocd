@@ -49,8 +49,8 @@ public class PartialConfigHelper {
         FileUtil.mkdirsParentQuietly(dest);
 
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
-        cruiseConfig.setGroup(partialConfig.getGroups());
-        cruiseConfig.setEnvironments(partialConfig.getEnvironments());
+        partialConfig.getGroups().forEach(c -> cruiseConfig.getGroups().add(c));
+        partialConfig.getEnvironments().forEach(cruiseConfig::addEnvironment);
 
         try (FileOutputStream output = new FileOutputStream(dest)) {
             writer.write(cruiseConfig, output, true);

@@ -168,26 +168,4 @@ public class SCMsTest {
         assertThat(scms.findDuplicate(scm2)).isEqualTo(scm1);
         assertThat(scms.findDuplicate(scm3)).isEqualTo(scm1);
     }
-
-    @Test
-    void shouldDetermineIfAddingAnSCMWouldCreateDuplication() {
-        Configuration config = new Configuration();
-        config.addNewConfigurationWithValue("url", "url", false);
-        PluginConfiguration pluginConfig = new PluginConfiguration("plugin_id", "1.0");
-        SCM scm1 = new SCM("scmid", pluginConfig, config);
-        scm1.setName("noName");
-        SCMs scms = new SCMs(scm1);
-
-        SCM scm2 = new SCM("scmid", new PluginConfiguration(), new Configuration());
-        SCM scm3 = new SCM("id", pluginConfig, config);
-        SCM scm4 = new SCM("something", new PluginConfiguration(), new Configuration());
-        scm4.setName("noName");
-        SCM scm5 = new SCM("arbitrary", new PluginConfiguration(), new Configuration());
-        scm5.setName("aRandomName");
-
-        assertThat(scms.canAdd(scm2)).isFalse();
-        assertThat(scms.canAdd(scm3)).isFalse();
-        assertThat(scms.canAdd(scm4)).isFalse();
-        assertThat(scms.canAdd(scm5)).isTrue();
-    }
 }

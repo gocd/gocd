@@ -199,8 +199,8 @@ public class BuildTaskTest {
         task.setWorkingDirectory("/blah");
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline");
         PipelineConfig pipeline = config.pipelineConfigByName(new CaseInsensitiveString("pipeline"));
-        StageConfig stage = pipeline.get(0);
-        JobConfig job = stage.getJobs().get(0);
+        StageConfig stage = pipeline.getFirst();
+        JobConfig job = stage.getJobs().getFirst();
         job.addTask(task);
 
         List<ConfigErrors> errors = config.validateAfterPreprocess();
@@ -216,7 +216,7 @@ public class BuildTaskTest {
         BuildTask task = new AntTask();
         task.setWorkingDirectory("/blah");
         StageConfig stageConfig = StageConfigMother.manualStage("manualStage");
-        stageConfig.getJobs().get(0).addTask(task);
+        stageConfig.getJobs().getFirst().addTask(task);
         PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("some-template"), stageConfig);
         config.addTemplate(template);
 

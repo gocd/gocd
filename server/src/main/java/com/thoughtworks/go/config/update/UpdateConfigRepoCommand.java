@@ -44,7 +44,7 @@ public class UpdateConfigRepoCommand extends ConfigRepoCommand {
     @Override
     public void update(CruiseConfig preprocessedConfig) {
         ConfigReposConfig configRepos = preprocessedConfig.getConfigRepos();
-        configRepos.replace(configRepos.getConfigRepo(repoIdToUpdate), newConfigRepo);
+        configRepos.replaceIfNotEmpty(configRepos.getConfigRepo(repoIdToUpdate), newConfigRepo);
     }
 
     @Override

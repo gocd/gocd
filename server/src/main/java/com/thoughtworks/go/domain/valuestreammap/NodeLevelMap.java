@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.domain.valuestreammap;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.*;
 
 public class NodeLevelMap {
@@ -22,13 +24,15 @@ public class NodeLevelMap {
     private final Map<Integer, List<Node>> map = new HashMap<>();
 
     public void add(Node node) {
-        int level = node.getLevel();
-        map.computeIfAbsent(level, k -> new ArrayList<>()).add(node);
+        map.computeIfAbsent(node.getLevel(), k -> new ArrayList<>()).add(node);
     }
 
-
-    public List<Node> get(int level) {
+    public @Nullable List<Node> get(int level) {
         return map.get(level);
+    }
+
+    public boolean contains(int level) {
+        return map.containsKey(level);
     }
 
     public int lowestLevel() {
@@ -39,13 +43,13 @@ public class NodeLevelMap {
         return sortedLevelNumbers().last();
     }
 
-    private TreeSet<Integer> sortedLevelNumbers() {
+    private SortedSet<Integer> sortedLevelNumbers() {
         return new TreeSet<>(map.keySet());
     }
 
     public List<List<Node>> nodesAtEachLevel() {
         List<List<Node>> nodesAtEachLevel = new ArrayList<>();
-        TreeSet<Integer> sortedLevels = sortedLevelNumbers();
+        SortedSet<Integer> sortedLevels = sortedLevelNumbers();
         for (Integer level : sortedLevels) {
             nodesAtEachLevel.add(map.get(level));
         }

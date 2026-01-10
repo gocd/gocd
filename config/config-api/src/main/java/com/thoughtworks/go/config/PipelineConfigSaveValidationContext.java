@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.util.Node;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -108,11 +109,6 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     }
 
     @Override
-    public boolean isWithinEnvironment() {
-        return false;
-    }
-
-    @Override
     public StageConfig getStage() {
         return this.stage;
     }
@@ -148,8 +144,8 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     }
 
     @Override
-    public PipelineConfigs getPipelineGroup() {
-        return cruiseConfig.hasPipelineGroup(groupName) ? cruiseConfig.findGroup(groupName) : null;
+    public @NotNull PipelineConfigs getPipelineGroup() {
+        return cruiseConfig.findGroup(groupName);
     }
 
     public Node getDependencyMaterialsFor(CaseInsensitiveString pipelineName) {
@@ -190,18 +186,13 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     }
 
     @Override
-    public boolean doesTemplateExist(CaseInsensitiveString template) {
-        return cruiseConfig.getTemplates().hasTemplateNamed(template);
-    }
-
-    @Override
     public SCM findScmById(String scmID) {
         return cruiseConfig.getSCMs().find(scmID);
     }
 
     @Override
     public PackageRepository findPackageById(String packageId) {
-        return cruiseConfig.getPackageRepositories().findPackageRepositoryHaving(packageId);
+        return cruiseConfig.getPackageRepositories().findByPackageId(packageId);
     }
 
     public Set<CaseInsensitiveString> getPipelinesWithDependencyMaterials() {

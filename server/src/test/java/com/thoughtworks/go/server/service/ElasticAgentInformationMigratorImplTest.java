@@ -118,7 +118,7 @@ class ElasticAgentInformationMigratorImplTest {
         assertThat(result.isAFailure()).isTrue();
         assertThat(result.getMessage()).isEqualTo(expectedErrorMessage);
         assertThat(goPluginDescriptor.isInvalid()).isTrue();
-        assertThat(goPluginDescriptor.getStatus().getMessages().get(0)).isEqualTo(expectedErrorMessage);
+        assertThat(goPluginDescriptor.getStatus().getMessages().getFirst()).isEqualTo(expectedErrorMessage);
     }
 
     @Test
@@ -151,7 +151,7 @@ class ElasticAgentInformationMigratorImplTest {
         assertThat(result.isAFailure()).isTrue();
         assertThat(result.getMessage()).isEqualTo(expectedErrorMessage);
         assertThat(goPluginDescriptor.isInvalid()).isTrue();
-        assertThat(goPluginDescriptor.getStatus().getMessages().get(0)).isEqualTo(expectedErrorMessage);
+        assertThat(goPluginDescriptor.getStatus().getMessages().getFirst()).isEqualTo(expectedErrorMessage);
 
         verify(goConfigService, times(1)).updateConfig(any());
         verify(pluginSqlMapDao, never()).deletePluginIfExists(goPluginDescriptor.id());

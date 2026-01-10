@@ -46,7 +46,7 @@ public class ValueStreamMapTest {
 
         List<List<Node>> nodesAtEachLevel = graph.presentationModel().getNodesAtEachLevel();
         assertThat(nodesAtEachLevel).hasSize(1);
-        assertThat(nodesAtEachLevel.get(0)).contains(graph.getCurrentPipeline());
+        assertThat(nodesAtEachLevel.getFirst()).contains(graph.getCurrentPipeline());
     }
 
     @Test
@@ -60,9 +60,9 @@ public class ValueStreamMapTest {
         List<List<Node>> nodesAtEachLevel = graph.presentationModel().getNodesAtEachLevel();
 
         assertThat(nodesAtEachLevel.size()).isEqualTo(2);
-        assertThat(nodesAtEachLevel.get(0).size()).isEqualTo(1);
+        assertThat(nodesAtEachLevel.getFirst().size()).isEqualTo(1);
 
-        Node gitScmNode = nodesAtEachLevel.get(0).get(0);
+        Node gitScmNode = nodesAtEachLevel.getFirst().getFirst();
         assertThat(gitScmNode.getId().toString()).isEqualTo("git_fingerprint");
         assertThat(gitScmNode.getName()).isEqualTo("git");
         VSMTestHelper.assertThatNodeHasChildren(graph, new CaseInsensitiveString("git_fingerprint"), 0, dependent);

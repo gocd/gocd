@@ -35,11 +35,11 @@ public class FanInGraphTest {
     @Test
     public void shouldConstructAFaninGraph() {
         PipelineConfig p1 = PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(git("giturl", "dest")));
-        DependencyMaterialConfig p1Dep = new DependencyMaterialConfig(p1.name(), p1.get(0).name());
+        DependencyMaterialConfig p1Dep = new DependencyMaterialConfig(p1.name(), p1.getFirst().name());
         PipelineConfig p2 = PipelineConfigMother.pipelineConfig("p2", new MaterialConfigs(p1Dep));
         PipelineConfig p3 = PipelineConfigMother.pipelineConfig("p3", new MaterialConfigs(p1Dep, hg("hgurl", "dest")));
-        DependencyMaterialConfig p2Dep = new DependencyMaterialConfig(p2.name(), p2.get(0).name());
-        DependencyMaterialConfig p3Dep = new DependencyMaterialConfig(p3.name(), p3.get(0).name());
+        DependencyMaterialConfig p2Dep = new DependencyMaterialConfig(p2.name(), p2.getFirst().name());
+        DependencyMaterialConfig p3Dep = new DependencyMaterialConfig(p3.name(), p3.getFirst().name());
         PipelineConfig p4 = PipelineConfigMother.pipelineConfig("p4", new MaterialConfigs(p2Dep, p3Dep));
 
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p1, p2, p3, p4));

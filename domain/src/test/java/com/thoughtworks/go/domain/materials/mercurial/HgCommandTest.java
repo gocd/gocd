@@ -94,7 +94,7 @@ public class HgCommandTest {
     public void shouldGetLatestModifications() {
         List<Modification> actual = hgCommand.latestOneModificationAsModifications();
         assertThat(actual.size()).isEqualTo(1);
-        final Modification modification = actual.get(0);
+        final Modification modification = actual.getFirst();
         assertThat(modification.getComment()).isEqualTo("test");
         assertThat(modification.getUserName()).isEqualTo("cruise");
         assertThat(modification.getModifiedFiles().size()).isEqualTo(1);
@@ -102,11 +102,11 @@ public class HgCommandTest {
 
     @Test
     public void shouldNotIncludeCommitFromAnotherBranchInGetLatestModifications() {
-        Modification lastCommit = hgCommand.latestOneModificationAsModifications().get(0);
+        Modification lastCommit = hgCommand.latestOneModificationAsModifications().getFirst();
 
         makeACommitToSecondBranch();
         hg(workingDirectory, "pull").runOrBomb(null);
-        Modification actual = hgCommand.latestOneModificationAsModifications().get(0);
+        Modification actual = hgCommand.latestOneModificationAsModifications().getFirst();
         assertThat(actual).isEqualTo(lastCommit);
         assertThat(actual.getComment()).isEqualTo(lastCommit.getComment());
     }
@@ -115,8 +115,8 @@ public class HgCommandTest {
     public void shouldGetModifications() {
         List<Modification> actual = hgCommand.modificationsSince(new StringRevision(REVISION_0));
         assertThat(actual.size()).isEqualTo(2);
-        assertThat(actual.get(0).getRevision()).isEqualTo(REVISION_2);
-        assertThat(actual.get(1).getRevision()).isEqualTo(REVISION_1);
+        assertThat(actual.getFirst().getRevision()).isEqualTo(REVISION_2);
+        assertThat(actual.getLast().getRevision()).isEqualTo(REVISION_1);
     }
 
     @Test
@@ -126,8 +126,8 @@ public class HgCommandTest {
 
         List<Modification> actual = hgCommand.modificationsSince(new StringRevision(REVISION_0));
         assertThat(actual.size()).isEqualTo(2);
-        assertThat(actual.get(0).getRevision()).isEqualTo(REVISION_2);
-        assertThat(actual.get(1).getRevision()).isEqualTo(REVISION_1);
+        assertThat(actual.getFirst().getRevision()).isEqualTo(REVISION_2);
+        assertThat(actual.getLast().getRevision()).isEqualTo(REVISION_1);
     }
 
     @Test

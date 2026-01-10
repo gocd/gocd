@@ -34,6 +34,7 @@ public class SvnExternalParser {
 
     public List<SvnExternal> parse(String externals, String repoUrl, String repoRoot) {
         List<SvnExternal> results = new ArrayList<>();
+        //noinspection TextBlockMigration
         for (String externalSection : externals.split("\n\n")) {
             parseSection(externalSection, repoUrl, repoRoot, results);
         }

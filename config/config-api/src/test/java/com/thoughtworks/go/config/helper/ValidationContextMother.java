@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
+import org.jetbrains.annotations.NotNull;
 
 public class ValidationContextMother {
 
@@ -89,12 +90,7 @@ public class ValidationContextMother {
         }
 
         @Override
-        public boolean isWithinEnvironment() {
-            return false;
-        }
-
-        @Override
-        public PipelineConfigs getPipelineGroup() {
+        public @NotNull PipelineConfigs getPipelineGroup() {
             return null;
         }
 
@@ -116,11 +112,6 @@ public class ValidationContextMother {
         @Override
         public SecurityConfig getServerSecurityConfig() {
             return securityConfig;
-        }
-
-        @Override
-        public boolean doesTemplateExist(CaseInsensitiveString template) {
-            return false;
         }
 
         @Override

@@ -48,7 +48,7 @@ abstract class PackageConfigCommand implements EntityConfigUpdateCommand<Package
 
     public boolean isValid(CruiseConfig preprocessedConfig, String repositoryId) {
         PackageRepositories packageRepositories = preprocessedConfig.getPackageRepositories();
-        PackageRepository repository = packageRepositories.find(repositoryId);
+        PackageRepository repository = packageRepositories.findByRepoId(repositoryId);
         Packages packages = repository.getPackages();
         preprocessedPackageDefinition = packages.find(this.packageDefinition.getId());
         preprocessedPackageDefinition.validate(null);

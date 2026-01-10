@@ -126,7 +126,7 @@ class AgentInstancesTest {
                 building.getUuid(),
                 disabled.getUuid()));
             assertThat(pendingAgents.size()).isEqualTo(1);
-            assertThat(pendingAgents.get(0).getUuid()).isEqualTo(pending.getUuid());
+            assertThat(pendingAgents.getFirst().getUuid()).isEqualTo(pending.getUuid());
         }
 
         @Test
@@ -152,7 +152,7 @@ class AgentInstancesTest {
 
             List<String> pendingAgentUUIDs = agentInstances.filterBy(List.of(idle.getUuid(), pending.getUuid(), building.getUuid(), disabled.getUuid()), Pending);
             assertThat(pendingAgentUUIDs.size()).isEqualTo(1);
-            assertThat(pendingAgentUUIDs.get(0)).isEqualTo(pending.getUuid());
+            assertThat(pendingAgentUUIDs.getFirst()).isEqualTo(pending.getUuid());
         }
 
         @Test
@@ -162,7 +162,7 @@ class AgentInstancesTest {
 
             List<String> nullAgentUUIDs = agentInstances.filterBy(List.of(idle.getUuid(), pending.getUuid(), nullInstance.getUuid()), Null);
             assertThat(nullAgentUUIDs.size()).isEqualTo(1);
-            assertThat(nullAgentUUIDs.get(0)).isEqualTo(nullInstance.getUuid());
+            assertThat(nullAgentUUIDs.getFirst()).isEqualTo(nullInstance.getUuid());
         }
 
         @Test
@@ -354,7 +354,7 @@ class AgentInstancesTest {
 
             List<String> nullAgentUUIDs = agentInstances.filterBy(List.of(idle.getUuid(), pending.getUuid(), elastic.getUuid()), Elastic);
             assertThat(nullAgentUUIDs.size()).isEqualTo(1);
-            assertThat(nullAgentUUIDs.get(0)).isEqualTo(elastic.getUuid());
+            assertThat(nullAgentUUIDs.getFirst()).isEqualTo(elastic.getUuid());
         }
 
         @Test

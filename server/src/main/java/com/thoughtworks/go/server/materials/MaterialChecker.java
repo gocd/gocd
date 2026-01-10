@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -45,7 +46,7 @@ public class MaterialChecker {
         this.materialRepository = materialRepository;
     }
 
-    public MaterialRevision findSpecificRevision(Material material, String revision) {
+    public @NotNull MaterialRevision findSpecificRevision(@NotNull Material material, String revision) {
         if (isEmpty(revision)) {
             throw new RuntimeException(format("Revision was not specified for material [%s]", material));
         }
@@ -56,7 +57,7 @@ public class MaterialChecker {
         return new MaterialRevision(material, modification);
     }
 
-    public MaterialRevisions findRevisionsSince(MaterialRevisions peggedRevisions, Materials newMaterials, MaterialRevisions previous, MaterialRevisions latestRevisions) {
+    public @NotNull MaterialRevisions findRevisionsSince(MaterialRevisions peggedRevisions, Materials newMaterials, MaterialRevisions previous, MaterialRevisions latestRevisions) {
         MaterialRevisions materialRevisions = new MaterialRevisions();
         for (Material material : newMaterials) {
             MaterialRevision previousRevision = previous.findRevisionFor(material);
@@ -76,7 +77,7 @@ public class MaterialChecker {
         return materialRevisions;
     }
 
-    public MaterialRevisions findLatestRevisions(MaterialRevisions peggedRevisions, Materials materials) {
+    public @NotNull MaterialRevisions findLatestRevisions(MaterialRevisions peggedRevisions, Materials materials) {
         MaterialRevisions revisions = new MaterialRevisions();
 
         for (Material material : materials) {

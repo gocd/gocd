@@ -47,14 +47,14 @@ class JobInstancesRepresenterTest {
           "state"                : "Building",
           "result"               : "Unknown",
           "original_job_id"      : null,
-          "scheduled_date"       : jobInstances.get(0).getScheduledDate().getTime(),
+          "scheduled_date"       : jobInstances.getFirst().getScheduledDate().getTime(),
           "rerun"                : false,
           "agent_uuid"           : "1234",
           "pipeline_name"        : "pipeline",
           "pipeline_counter"     : 1,
           "stage_name"           : "stage",
           "stage_counter"        : "1",
-          "job_state_transitions": jobInstances.get(0).getTransitions().collect { state ->
+          "job_state_transitions": jobInstances.getFirst().getTransitions().collect { state ->
             toObject({
               JobStateTransitionRepresenter.toJSON(it, state)
             })
@@ -99,14 +99,14 @@ class JobInstancesRepresenterTest {
           "state"                : "Building",
           "result"               : "Unknown",
           "original_job_id"      : null,
-          "scheduled_date"       : jobInstances.get(0).getScheduledDate().getTime(),
+          "scheduled_date"       : jobInstances.getFirst().getScheduledDate().getTime(),
           "rerun"                : false,
           "agent_uuid"           : "1234",
           "pipeline_name"        : "pipeline",
           "pipeline_counter"     : 1,
           "stage_name"           : "stage",
           "stage_counter"        : "1",
-          "job_state_transitions": jobInstances.get(0).getTransitions().collect { state ->
+          "job_state_transitions": jobInstances.getFirst().getTransitions().collect { state ->
             toObject({
               JobStateTransitionRepresenter.toJSON(it, state)
             })
@@ -137,14 +137,14 @@ class JobInstancesRepresenterTest {
           "state"                : "Building",
           "result"               : "Unknown",
           "original_job_id"      : null,
-          "scheduled_date"       : jobInstances.get(0).getScheduledDate().getTime(),
+          "scheduled_date"       : jobInstances.getFirst().getScheduledDate().getTime(),
           "rerun"                : false,
           "agent_uuid"           : "1234",
           "pipeline_name"        : "pipeline",
           "pipeline_counter"     : 1,
           "stage_name"           : "stage",
           "stage_counter"        : "1",
-          "job_state_transitions": jobInstances.get(0).getTransitions().collect { state ->
+          "job_state_transitions": jobInstances.getFirst().getTransitions().collect { state ->
             toObject({
               JobStateTransitionRepresenter.toJSON(it, state)
             })
@@ -170,14 +170,14 @@ class JobInstancesRepresenterTest {
           "state"                : "Building",
           "result"               : "Unknown",
           "original_job_id"      : null,
-          "scheduled_date"       : jobInstances.get(0).getScheduledDate().getTime(),
+          "scheduled_date"       : jobInstances.getFirst().getScheduledDate().getTime(),
           "rerun"                : false,
           "agent_uuid"           : "1234",
           "pipeline_name"        : "pipeline",
           "pipeline_counter"     : 1,
           "stage_name"           : "stage",
           "stage_counter"        : "1",
-          "job_state_transitions": jobInstances.get(0).getTransitions().collect { state ->
+          "job_state_transitions": jobInstances.getFirst().getTransitions().collect { state ->
             toObject({
               JobStateTransitionRepresenter.toJSON(it, state)
             })

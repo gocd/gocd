@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.ui;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobInstances;
 import com.thoughtworks.go.server.util.Pagination;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.Objects;
@@ -36,7 +37,7 @@ public class JobInstancesModel implements Iterable<JobInstance> {
     }
 
     @Override
-    public Iterator<JobInstance> iterator() {
+    public @NotNull Iterator<JobInstance> iterator() {
         return jobInstances.iterator();
     }
 

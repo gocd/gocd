@@ -114,7 +114,7 @@ public class PipelineStateDaoCachingTest {
         setupTransactionTemplate(transactionSynchronizationAdapters);
 
         final Pipeline pipeline = PipelineMother.pipeline("mingle");
-        PipelineState pipelineState = new PipelineState(pipeline.getName(), pipeline.getFirstStage().getIdentifier());
+        PipelineState pipelineState = new PipelineState(pipeline.getName());
         when(session.load(PipelineState.class, pipeline.getId())).thenReturn(pipelineState);
         goCache.put(pipelineStateDao.pipelineLockStateCacheKey(pipeline.getName()), pipelineState);
         pipelineStateDao.lockPipeline(pipeline);
@@ -147,7 +147,7 @@ public class PipelineStateDaoCachingTest {
         setupTransactionTemplate(transactionSynchronizationAdapters);
 
         final Pipeline pipeline = PipelineMother.pipeline("mingle");
-        PipelineState pipelineState = new PipelineState(pipeline.getName(), pipeline.getFirstStage().getIdentifier());
+        PipelineState pipelineState = new PipelineState(pipeline.getName());
         goCache.put(pipelineStateDao.pipelineLockStateCacheKey(pipeline.getName()), pipelineState);
         when(session.load(PipelineState.class, pipeline.getId())).thenReturn(pipelineState);
         pipelineStateDao.unlockPipeline(pipeline.getName());

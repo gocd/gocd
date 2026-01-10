@@ -94,8 +94,8 @@ class PluggableSCMMaterialAgentTest {
     @Test
     void shouldSendResolvedValuesToPluginCheckoutForPrepareWhenSecretParamsArePresent() {
         PluggableSCMMaterial pluggableSCMMaterial = MaterialsMother.pluggableSCMMaterial();
-        pluggableSCMMaterial.getScmConfig().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][lookup_username]}}"));
-        pluggableSCMMaterial.getScmConfig().getConfiguration().get(0).getSecretParams().get(0).setValue("some-dummy-value");
+        pluggableSCMMaterial.getScmConfig().getConfiguration().getFirst().setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][lookup_username]}}"));
+        pluggableSCMMaterial.getScmConfig().getConfiguration().getFirst().getSecretParams().getFirst().setValue("some-dummy-value");
         pluggableSCMMaterial.setFolder("destination-folder");
         Modification modification = ModificationsMother.oneModifiedFile("r1");
         Map<String, String> additionalData = new HashMap<>();

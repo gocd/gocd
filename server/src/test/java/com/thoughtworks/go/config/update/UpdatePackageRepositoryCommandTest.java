@@ -84,13 +84,13 @@ public class UpdatePackageRepositoryCommandTest {
         UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "digest", entityHashingService, result, repoId);
 
         assertThat(cruiseConfig.getPackageRepositories().size()).isEqualTo(1);
-        assertThat(cruiseConfig.getPackageRepositories().find(repoId)).isEqualTo(oldPackageRepo);
+        assertThat(cruiseConfig.getPackageRepositories().findByRepoId(repoId)).isEqualTo(oldPackageRepo);
 
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         assertThat(result).isEqualTo(expectedResult);
         assertThat(cruiseConfig.getPackageRepositories().size()).isEqualTo(1);
-        assertThat(cruiseConfig.getPackageRepositories().find(repoId)).isEqualTo(newPackageRepo);
+        assertThat(cruiseConfig.getPackageRepositories().findByRepoId(repoId)).isEqualTo(newPackageRepo);
     }
 
     @Test
@@ -99,16 +99,16 @@ public class UpdatePackageRepositoryCommandTest {
         oldPackageRepo.setPackages(new Packages(nodePackage));
         UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "digest", entityHashingService, result, repoId);
 
-        assertThat(cruiseConfig.getPackageRepositories().find(repoId)).isEqualTo(oldPackageRepo);
-        assertThat(cruiseConfig.getPackageRepositories().find(repoId).getPackages().size()).isEqualTo(1);
+        assertThat(cruiseConfig.getPackageRepositories().findByRepoId(repoId)).isEqualTo(oldPackageRepo);
+        assertThat(cruiseConfig.getPackageRepositories().findByRepoId(repoId).getPackages().size()).isEqualTo(1);
         assertThat(newPackageRepo.getPackages().size()).isEqualTo(0);
 
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         assertThat(result).isEqualTo(expectedResult);
-        assertThat(cruiseConfig.getPackageRepositories().find(repoId)).isEqualTo(newPackageRepo);
-        assertThat(cruiseConfig.getPackageRepositories().find(repoId).getPackages().size()).isEqualTo(1);
-        assertThat(cruiseConfig.getPackageRepositories().find(repoId).getPackages().getFirstOrNull()).isEqualTo(nodePackage);
+        assertThat(cruiseConfig.getPackageRepositories().findByRepoId(repoId)).isEqualTo(newPackageRepo);
+        assertThat(cruiseConfig.getPackageRepositories().findByRepoId(repoId).getPackages().size()).isEqualTo(1);
+        assertThat(cruiseConfig.getPackageRepositories().findByRepoId(repoId).getPackages().getFirst()).isEqualTo(nodePackage);
     }
 
     @Test
@@ -135,12 +135,12 @@ public class UpdatePackageRepositoryCommandTest {
         command.update(cruiseConfig);
 
         PackageMaterialConfig materialConfig1 = cruiseConfig
-                .getPipelineConfigByName(new CaseInsensitiveString("p1")).packageMaterialConfigs().get(0);
+                .getPipelineConfigByName(new CaseInsensitiveString("p1")).packageMaterialConfigs().getFirst();
 
         assertThat(materialConfig1.getPackageDefinition().getRepository()).isEqualTo(updatePackageRepo);
 
         PackageMaterialConfig materialConfig2 = cruiseConfig
-                .getPipelineConfigByName(new CaseInsensitiveString("p3")).packageMaterialConfigs().get(0);
+                .getPipelineConfigByName(new CaseInsensitiveString("p3")).packageMaterialConfigs().getFirst();
 
         assertThat(materialConfig2.getPackageDefinition().getRepository()).isEqualTo(updatePackageRepo);
     }

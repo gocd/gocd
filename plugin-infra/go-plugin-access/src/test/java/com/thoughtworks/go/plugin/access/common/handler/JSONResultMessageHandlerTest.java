@@ -38,8 +38,8 @@ public class JSONResultMessageHandlerTest {
     public void shouldBuildValidationResultFromResponseBody() {
         String responseBody = "[{\"key\":\"key-one\",\"message\":\"incorrect value\"},{\"message\":\"general error\"}]";
         ValidationResult validationResult = messageHandler.toValidationResult(responseBody);
-        assertValidationError(validationResult.getErrors().get(0), "key-one", "incorrect value");
-        assertValidationError(validationResult.getErrors().get(1), "", "general error");
+        assertValidationError(validationResult.getErrors().getFirst(), "key-one", "incorrect value");
+        assertValidationError(validationResult.getErrors().getLast(), "", "general error");
     }
 
     @Test

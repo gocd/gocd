@@ -108,7 +108,7 @@ public class JobControllerTest {
         verify(jobInstanceDao).mostRecentJobWithTransitions(job.getIdentifier());
         verify(stageService).getBuildDuration(pipelineName, stageName, newJob);
 
-        Object json1 = ((List<?>) modelAndView.getModel().get("json")).get(0);
+        Object json1 = ((List<?>) modelAndView.getModel().get("json")).getFirst();
 
         assertThatJson(json1)
             .and(

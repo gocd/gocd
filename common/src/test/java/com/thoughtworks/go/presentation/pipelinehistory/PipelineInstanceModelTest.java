@@ -291,7 +291,7 @@ class PipelineInstanceModelTest {
         stageInstanceModels.add(stageHistoryItem);
 
         PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
-        StageInstanceModel value = stageInstanceModels.get(0);
+        StageInstanceModel value = stageInstanceModels.getFirst();
         assertThat(instanceModel.latestStage()).isEqualTo(value);
     }
 
@@ -306,8 +306,8 @@ class PipelineInstanceModelTest {
 
         PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
 
-        assertThat(instanceModel.isLatestStage(stageInstanceModels.get(0))).isTrue();
-        assertThat(instanceModel.isLatestStage(stageInstanceModels.get(1))).isFalse();
+        assertThat(instanceModel.isLatestStage(stageInstanceModels.getFirst())).isTrue();
+        assertThat(instanceModel.isLatestStage(stageInstanceModels.getLast())).isFalse();
     }
 
     @Test
@@ -358,7 +358,7 @@ class PipelineInstanceModelTest {
     @Test
     void shouldReturnTrueIfThePipelineHasStage() {
         PipelineInstanceModel pim = PipelineHistoryMother.pipelineHistoryItemWithOneStage("pipeline", "stage", Instant.now());
-        assertThat(pim.hasStage(pim.getStageHistory().getFirstOrNull().getIdentifier())).isTrue();
+        assertThat(pim.hasStage(pim.getStageHistory().getFirst().getIdentifier())).isTrue();
         assertThat(pim.hasStage(new StageIdentifier("pipeline", 1, "1", "stagex", "2"))).isFalse();
 
     }

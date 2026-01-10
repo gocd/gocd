@@ -60,7 +60,7 @@ public class PipelineHistoryMother {
         Modification modification = new Modification(committer, commitMessage, committerEmail, Date.from(modificationDate), revision);
         modification.createModifiedFile(committedFileName, dirModified, ModifiedAction.added);
         MaterialRevisions revisions = new MaterialRevisions();
-        Material material = new MaterialConfigConverter().toMaterial(pipelineConfig.materialConfigs().getFirstOrNull());
+        Material material = new MaterialConfigConverter().toMaterial(pipelineConfig.materialConfigs().getFirst());
         material.setId(10);
         revisions.addRevision(material, modification);
         BuildCause buildCause = BuildCause.createManualForced(revisions, Username.ANONYMOUS);
@@ -89,7 +89,7 @@ public class PipelineHistoryMother {
         Modification modification = new Modification("user", "Comment", "email", Date.from(modificationDate), REVISION);
         modification.createModifiedFile("file", "dir", ModifiedAction.added);
         MaterialRevisions revisions = new MaterialRevisions();
-        Material material = new MaterialConfigConverter().toMaterial(pipelineConfig.materialConfigs().getFirstOrNull());
+        Material material = new MaterialConfigConverter().toMaterial(pipelineConfig.materialConfigs().getFirst());
         material.setId(10);
         revisions.addRevision(material, modification);
         BuildCause buildCause = BuildCause.createManualForced(revisions, Username.ANONYMOUS);
@@ -103,7 +103,7 @@ public class PipelineHistoryMother {
 
     public static StageInstanceModels stageHistoryWithErrorMessage(PipelineConfig pipelineConfig, Instant modificationDate) {
         StageInstanceModels history = new StageInstanceModels();
-        StageConfig devConfig = pipelineConfig.get(0);
+        StageConfig devConfig = pipelineConfig.getFirst();
         StageInstanceModel devModel = new StageInstanceModel(str(devConfig.name()), "1", buildCancelledHistory(devConfig, modificationDate));
         devModel.setCounter("1");
         devModel.setCanRun(true);

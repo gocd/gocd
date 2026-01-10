@@ -28,7 +28,7 @@ public class SvnExternalParserTest {
         String svnExternals = "http://10.18.3.171:8080/svn/connect4/trunk - http://10.18.3.171:8080/svn/CSharpProject/trunk externals-2 \n";
 
         List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "http://10.18.3.171:8080/svn/connect4/trunk", "http://10.18.3.171:8080/svn");
-        assertThat(externals.get(0)).isEqualTo(new SvnExternal("externals-2", "http://10.18.3.171:8080/svn/CSharpProject/trunk"));
+        assertThat(externals.getFirst()).isEqualTo(new SvnExternal("externals-2", "http://10.18.3.171:8080/svn/CSharpProject/trunk"));
     }
 
     @Test
@@ -38,7 +38,7 @@ public class SvnExternalParserTest {
             """;
 
         List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "http://10.18.3.171:8080/svn/connect4/trunk", "http://10.18.3.171:8080/svn");
-        assertThat(externals.get(0)).isEqualTo(new SvnExternal("dir1/dir2/externals-2", "http://10.18.3.171:8080/svn/CSharpProject/trunk"));
+        assertThat(externals.getFirst()).isEqualTo(new SvnExternal("dir1/dir2/externals-2", "http://10.18.3.171:8080/svn/CSharpProject/trunk"));
     }
 
     @Test
@@ -74,7 +74,7 @@ public class SvnExternalParserTest {
         String svnExternals = "file:///tmp/repo/project/trunk - file:///tmp/testSvnRepo-1246619674077/end2end end2end";
 
         List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "file:///tmp/repo/project", "http://10.18.3.171:8080/svn");
-        assertThat(externals.get(0)).isEqualTo(new SvnExternal("trunk/end2end", "file:///tmp/testSvnRepo-1246619674077/end2end"));
+        assertThat(externals.getFirst()).isEqualTo(new SvnExternal("trunk/end2end", "file:///tmp/testSvnRepo-1246619674077/end2end"));
     }
 
     @Test
@@ -82,7 +82,7 @@ public class SvnExternalParserTest {
         String svnExternals = "file:///C:/Program%20Files/trunk - file:///C:/Program%20Files/testSvnRepo-1246619674077/end2end end2end";
 
         List<SvnExternal> externals = new SvnExternalParser().parse(svnExternals, "file:///C:/Program%20Files", "http://10.18.3.171:8080/svn");
-        assertThat(externals.get(0)).isEqualTo(new SvnExternal("trunk/end2end", "file:///C:/Program%20Files/testSvnRepo-1246619674077/end2end"));
+        assertThat(externals.getFirst()).isEqualTo(new SvnExternal("trunk/end2end", "file:///C:/Program%20Files/testSvnRepo-1246619674077/end2end"));
     }
 
     @Test

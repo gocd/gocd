@@ -129,8 +129,8 @@ public class GoDashboardServiceTest {
         List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
 
         assertThat(pipelineGroups.size()).isEqualTo(1);
-        assertThat(pipelineGroups.get(0).pipelines()).contains("pipeline1", "pipeline2");
-        assertThat(pipelineGroups.get(0).allPipelines()).contains(pipeline1, pipeline2);
+        assertThat(pipelineGroups.getFirst().pipelines()).contains("pipeline1", "pipeline2");
+        assertThat(pipelineGroups.getFirst().allPipelines()).contains(pipeline1, pipeline2);
     }
 
     @Test
@@ -147,7 +147,7 @@ public class GoDashboardServiceTest {
         List<GoDashboardEnvironment> envs = allEnvironmentsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
 
         assertThat(envs.size()).isEqualTo(1);
-        assertThat(envs.get(0).pipelines()).contains("pipeline1", "pipeline2");
+        assertThat(envs.getFirst().pipelines()).contains("pipeline1", "pipeline2");
     }
 
     @Test
@@ -164,7 +164,7 @@ public class GoDashboardServiceTest {
         List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
 
         assertThat(pipelineGroups.size()).isEqualTo(1);
-        assertThat(pipelineGroups.get(0).pipelines()).contains("pipeline1");
+        assertThat(pipelineGroups.getFirst().pipelines()).contains("pipeline1");
     }
 
     @Test
@@ -182,7 +182,7 @@ public class GoDashboardServiceTest {
         List<GoDashboardEnvironment> envs = allEnvironmentsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
 
         assertThat(envs.size()).isEqualTo(1);
-        assertThat(envs.get(0).pipelines()).contains("pipeline1");
+        assertThat(envs.getFirst().pipelines()).contains("pipeline1");
     }
 
     @Test
@@ -206,8 +206,8 @@ public class GoDashboardServiceTest {
         List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(filter, new Username("user1"));
 
         assertThat(pipelineGroups.size()).isEqualTo(2);
-        assertThat(pipelineGroups.get(0).pipelines()).contains("pipeline1");
-        assertThat(pipelineGroups.get(1).pipelines()).contains("pipeline3");
+        assertThat(pipelineGroups.getFirst().pipelines()).contains("pipeline1");
+        assertThat(pipelineGroups.getLast().pipelines()).contains("pipeline3");
     }
 
     @Test
@@ -233,9 +233,9 @@ public class GoDashboardServiceTest {
         List<GoDashboardEnvironment> envs = allEnvironmentsForDashboard(filter, new Username("user1"));
 
         assertThat(envs.size()).isEqualTo(2);
-        assertThat(envs.get(0).pipelines()).contains("pipeline1");
+        assertThat(envs.getFirst().pipelines()).contains("pipeline1");
 
-        assertThat(envs.get(1).pipelines()).contains("pipeline3");
+        assertThat(envs.getLast().pipelines()).contains("pipeline3");
     }
 
     @Test
@@ -272,8 +272,8 @@ public class GoDashboardServiceTest {
         List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
 
         assertThat(pipelineGroups.size()).isEqualTo(1);
-        assertThat(pipelineGroups.get(0).pipelines()).contains("pipeline1");
-        assertThat(pipelineGroups.get(0).pipelines()).doesNotContain("pipeline2");
+        assertThat(pipelineGroups.getFirst().pipelines()).contains("pipeline1");
+        assertThat(pipelineGroups.getFirst().pipelines()).doesNotContain("pipeline2");
     }
 
     @Test
@@ -290,8 +290,8 @@ public class GoDashboardServiceTest {
         List<GoDashboardEnvironment> envs = allEnvironmentsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
 
         assertThat(envs.size()).isEqualTo(1);
-        assertThat(envs.get(0).pipelines()).contains("pipeline1");
-        assertThat(envs.get(0).pipelines()).doesNotContain("pipeline2");
+        assertThat(envs.getFirst().pipelines()).contains("pipeline1");
+        assertThat(envs.getFirst().pipelines()).doesNotContain("pipeline2");
     }
 
     @Test

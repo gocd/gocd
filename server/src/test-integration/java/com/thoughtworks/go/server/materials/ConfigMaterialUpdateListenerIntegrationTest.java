@@ -206,7 +206,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         String fileName = "pipe1.gocd.xml";
 
         GoConfigMother mother = new GoConfigMother();
-        PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
+        PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().getFirst();
 
         configTestRepo.addPipelineToRepositoryAndPush(fileName, pipelineConfig);
 
@@ -215,8 +215,8 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         waitForMaterialNotInProgress();
         PartialConfig partial = goConfigRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
         assertNotNull(partial);
-        assertThat(partial.getGroups().get(0).size()).isEqualTo(1);
-        assertThat(partial.getGroups().get(0).get(0)).isEqualTo(pipelineConfig);
+        assertThat(partial.getGroups().getFirst().size()).isEqualTo(1);
+        assertThat(partial.getGroups().getFirst().getFirst()).isEqualTo(pipelineConfig);
     }
 
     @Test
@@ -224,7 +224,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         String fileName = "pipe1.gocd.xml";
 
         GoConfigMother mother = new GoConfigMother();
-        PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
+        PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().getFirst();
 
         configTestRepo.addPipelineToRepositoryAndPush(fileName, pipelineConfig);
 
@@ -242,7 +242,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
     @Test
     public void shouldCheckoutNewMaterial() throws Exception {
         GoConfigMother mother = new GoConfigMother();
-        PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
+        PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().getFirst();
 
         configTestRepo.addPipelineToRepositoryAndPush("pipe1.gocd.xml", pipelineConfig);
 
@@ -258,7 +258,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
     @Test
     public void shouldCheckoutChangedInExistingMaterial() throws Exception {
         GoConfigMother mother = new GoConfigMother();
-        PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
+        PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().getFirst();
 
         configTestRepo.addPipelineToRepositoryAndPush("pipe1.gocd.xml", pipelineConfig);
 
@@ -283,7 +283,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         String fileName = "pipe1.gocd.xml";
 
         GoConfigMother mother = new GoConfigMother();
-        PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().get(0);
+        PipelineConfig pipelineConfig = mother.cruiseConfigWithOnePipelineGroup().getAllPipelineConfigs().getFirst();
 
         configTestRepo.addPipelineToRepositoryAndPush(fileName, pipelineConfig);
 

@@ -71,9 +71,9 @@ public class DirectoryEntriesTest {
         Element document = getRenderedDocument(renderer);
 
         assertThat(document.getChildren().size()).isEqualTo(2);
-        Element cruiseOutputElement = document.getChildren().get(0);
+        Element cruiseOutputElement = document.getChildren().getFirst();
         assertThat(cruiseOutputElement.getChild("div").getChild("span").getChild("a").getTextNormalize()).isEqualTo("cruise-output");
-        Element artifactElement = document.getChildren().get(1);
+        Element artifactElement = document.getChildren().getLast();
         assertThat(artifactElement.getChild("div").getChild("span").getChild("a").getTextNormalize()).isEqualTo("some-artifact");
     }
 

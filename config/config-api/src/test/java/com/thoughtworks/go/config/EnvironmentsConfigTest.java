@@ -184,14 +184,14 @@ class EnvironmentsConfigTest {
         @Test
         void shouldGetLocalPartsWhenOriginIsNull() {
             assertThat(envsConfig.getLocal().size()).isEqualTo(1);
-            assertThat(envsConfig.getLocal().get(0)).isEqualTo(basicEnvConfig);
+            assertThat(envsConfig.getLocal().getFirst()).isEqualTo(basicEnvConfig);
         }
 
         @Test
         void shouldGetLocalPartsWhenOriginIsFile() {
             basicEnvConfig.setOrigins(new FileConfigOrigin());
             assertThat(envsConfig.getLocal().size()).isEqualTo(1);
-            assertThat(envsConfig.getLocal().get(0)).isEqualTo(basicEnvConfig);
+            assertThat(envsConfig.getLocal().getFirst()).isEqualTo(basicEnvConfig);
         }
 
         @Test
@@ -238,7 +238,7 @@ class EnvironmentsConfigTest {
         void shouldValidateEnvsConfig() {
             envsConfig.validate(validationContext);
 
-            assertThat(envsConfig.get(0).errors().isEmpty()).isTrue();
+            assertThat(envsConfig.getFirst().errors().isEmpty()).isTrue();
         }
 
         @Test
@@ -252,8 +252,9 @@ class EnvironmentsConfigTest {
             envsConfig.add(clone);
             envsConfig.validate(validationContext);
 
-            assertThat(envsConfig.get(0).errors().isEmpty()).isTrue();
-            ConfigErrors configErrors = envsConfig.get(1).errors();
+            assertThat(envsConfig.getFirst().errors().isEmpty()).isTrue();
+
+            ConfigErrors configErrors = envsConfig.getLast().errors();
             assertThat(configErrors.isEmpty()).isFalse();
             assertThat(configErrors.firstErrorOn("name")).isEqualTo("Environment with name 'prod' already exists.");
         }
@@ -268,7 +269,7 @@ class EnvironmentsConfigTest {
 
             envsConfig.validate(validationContext);
 
-            ConfigErrors configErrors = envsConfig.get(0).errors();
+            ConfigErrors configErrors = envsConfig.getFirst().errors();
             assertThat(configErrors.isEmpty()).isFalse();
             assertThat(configErrors.firstErrorOn("pipeline")).isEqualTo("Environment 'prod' refers to an unknown pipeline 'non-existent-pipeline'.");
         }
@@ -287,8 +288,9 @@ class EnvironmentsConfigTest {
 
             envsConfig.validate(validationContext);
 
-            assertThat(envsConfig.get(0).errors().isEmpty()).isTrue();
-            ConfigErrors configErrors = envsConfig.get(1).errors();
+            assertThat(envsConfig.getFirst().errors().isEmpty()).isTrue();
+
+            ConfigErrors configErrors = envsConfig.getLast().errors();
             assertThat(configErrors.isEmpty()).isFalse();
             assertThat(configErrors.firstErrorOn("pipeline")).isEqualTo("Associating pipeline(s) which is already part of prod environment");
         }
@@ -339,7 +341,7 @@ class EnvironmentsConfigTest {
             List<CaseInsensitiveString> names = envsConfig.names();
 
             assertThat(names.size()).isEqualTo(1);
-            assertThat(names.get(0).toString()).isEqualTo("uat");
+            assertThat(names.getFirst().toString()).isEqualTo("uat");
         }
     }
 }

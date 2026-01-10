@@ -65,7 +65,7 @@ class GoPluginDescriptorParserTest {
 
             assertEquals(1, bundleDescriptor.descriptors().size());
 
-            final GoPluginDescriptor pluginDescriptor = bundleDescriptor.descriptors().get(0);
+            final GoPluginDescriptor pluginDescriptor = bundleDescriptor.descriptors().getFirst();
             assertPluginDescriptor(pluginDescriptor, "testplugin.descriptorValidator", "Plugin Descriptor Validator",
                 "1.0.1", "17.12", "Validates its own plugin descriptor",
                 "GoCD Team", "https://gocd.org", List.of("Linux", "Windows"));
@@ -98,7 +98,7 @@ class GoPluginDescriptorParserTest {
             final GoPluginBundleDescriptor bundle = parseBundleXml(pluginXml, "/tmp/a.jar", new File("/tmp/"), true);
             assertEquals(2, bundle.descriptors().size());
 
-            final GoPluginDescriptor pluginDescriptor1 = bundle.descriptors().get(0);
+            final GoPluginDescriptor pluginDescriptor1 = bundle.descriptors().getFirst();
             assertPluginDescriptor(pluginDescriptor1, "testplugin.multipluginbundle.plugin1",
                 "Plugin 1", "1.0.0", "19.5",
                 "Example plugin 1", "GoCD Team", "https://gocd.org", List.of("Linux", "Windows"),

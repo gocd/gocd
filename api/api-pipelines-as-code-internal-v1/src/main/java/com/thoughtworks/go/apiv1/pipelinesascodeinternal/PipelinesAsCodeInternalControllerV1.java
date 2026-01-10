@@ -228,7 +228,9 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
         try {
             future.get(timeout, TimeUnit.MILLISECONDS);
         } catch (TimeoutException e) {
-            LOGGER.debug("Failed to clone material {} in {} ms", material.getDescription(), timeout, e);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Failed to clone material {} in {} ms", material.getDescription(), timeout, e);
+            }
             future.cancel(true);
             throw e;
         } finally {

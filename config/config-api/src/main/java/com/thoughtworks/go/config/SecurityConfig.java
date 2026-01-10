@@ -56,10 +56,6 @@ public class SecurityConfig implements Validatable {
         rolesConfig.add(role);
     }
 
-    public boolean deleteRole(Role role) {
-        return rolesConfig.remove(role);
-    }
-
     public boolean isRoleExist(final CaseInsensitiveString role) {
         return rolesConfig.isRoleExist(role);
     }

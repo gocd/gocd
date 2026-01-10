@@ -122,7 +122,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
             config = configHelper.addPipeline(MINGLE_PIPELINE_NAME, STAGE_NAME, repository, new Filter(new IgnoredFiles("**/*.doc")), "unit", "functional");
             latest = PipelineMother.schedule(this.config, buildCause);
             latest = pipelineDao.saveWithStages(latest);
-            dbHelper.passStage(latest.getStages().getFirstOrNull());
+            dbHelper.passStage(latest.getStages().getFirst());
             pipelineScheduleQueue.clear();
         }
 
@@ -130,7 +130,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
             BuildCause buildCause = BuildCause.createWithModifications(rev, "boozer");
             latest = PipelineMother.schedule(config, buildCause);
             latest = pipelineDao.saveWithStages(latest);
-            dbHelper.passStage(latest.getStages().getFirstOrNull());
+            dbHelper.passStage(latest.getStages().getFirst());
         }
     }
 
@@ -143,7 +143,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
             config = configHelper.addPipeline(GO_PIPELINE_NAME, STAGE_NAME, repository, "unit");
             latest = PipelineMother.schedule(this.config, buildCause);
             latest = pipelineDao.saveWithStages(latest);
-            dbHelper.passStage(latest.getStages().getFirstOrNull());
+            dbHelper.passStage(latest.getStages().getFirst());
             pipelineScheduleQueue.clear();
         }
 
@@ -151,7 +151,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
             BuildCause buildCause = BuildCause.createWithModifications(rev, "boozer");
             latest = PipelineMother.schedule(config, buildCause);
             latest = pipelineDao.saveWithStages(latest);
-            dbHelper.passStage(latest.getStages().getFirstOrNull());
+            dbHelper.passStage(latest.getStages().getFirst());
         }
     }
 
@@ -213,14 +213,14 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         PipelineConfig downstreamPipelineConfig = configHelper.addPipeline(mingleDownstreamPipelineName, STAGE_NAME, new MaterialConfigs(mingleMaterialConfig), "unit");
 
         Pipeline latestMinglePipeline = minglePipeline.latest;
-        String revision = String.format("%s/%s/%s/%s", latestMinglePipeline.getName(), latestMinglePipeline.getCounter(), STAGE_NAME, latestMinglePipeline.getStages().getLastOrNull().getCounter());
+        String revision = String.format("%s/%s/%s/%s", latestMinglePipeline.getName(), latestMinglePipeline.getCounter(), STAGE_NAME, latestMinglePipeline.getStages().getLast().getCounter());
         MaterialRevision dependencyMaterialRevision = new MaterialRevision(new DependencyMaterial(mingleMaterialConfig), true, new Modification(latestMinglePipeline.getModifiedDate(), revision, latestMinglePipeline.getLabel(), latestMinglePipeline.getId()));
         MaterialRevisions dependencyMaterialRevisions = new MaterialRevisions(dependencyMaterialRevision);
         dbHelper.saveRevs(dependencyMaterialRevisions);
 
         Pipeline latestDownstreamInstance = PipelineMother.schedule(downstreamPipelineConfig, BuildCause.createManualForced(dependencyMaterialRevisions, new Username(new CaseInsensitiveString("loser"))));
         latestDownstreamInstance = pipelineDao.saveWithStages(latestDownstreamInstance);
-        dbHelper.passStage(latestDownstreamInstance.getStages().getFirstOrNull());
+        dbHelper.passStage(latestDownstreamInstance.getStages().getFirst());
 
         //trigger pipeline
         MaterialRevisions newRevs = checkinFile(svnMaterial, "bar.c", svnRepository);
@@ -244,11 +244,11 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         PipelineConfig downstreamPipelineConfig = configHelper.addPipeline(downstreamPipelineName, STAGE_NAME, new MaterialConfigs(mingleMaterialConfig, goMaterialConfig), "unit");
 
         Pipeline latestMinglePipeline = minglePipeline.latest;
-        String revision = String.format("%s/%s/%s/%s", latestMinglePipeline.getName(), latestMinglePipeline.getCounter(), STAGE_NAME, latestMinglePipeline.getStages().getLastOrNull().getCounter());
+        String revision = String.format("%s/%s/%s/%s", latestMinglePipeline.getName(), latestMinglePipeline.getCounter(), STAGE_NAME, latestMinglePipeline.getStages().getLast().getCounter());
         MaterialRevision mingleMaterialRevision = new MaterialRevision(new DependencyMaterial(mingleMaterialConfig), true, new Modification(latestMinglePipeline.getModifiedDate(), revision, latestMinglePipeline.getLabel(), latestMinglePipeline.getId()));
 
         Pipeline latestGoPipeline = goPipeline.latest;
-        revision = String.format("%s/%s/%s/%s", latestGoPipeline.getName(), latestGoPipeline.getCounter(), STAGE_NAME, latestGoPipeline.getStages().getLastOrNull().getCounter());
+        revision = String.format("%s/%s/%s/%s", latestGoPipeline.getName(), latestGoPipeline.getCounter(), STAGE_NAME, latestGoPipeline.getStages().getLast().getCounter());
         MaterialRevision goMaterialRevision = new MaterialRevision(new DependencyMaterial(goMaterialConfig), true, new Modification(latestGoPipeline.getModifiedDate(), revision, latestGoPipeline.getLabel(), latestGoPipeline.getId()));
 
         MaterialRevisions dependencyMaterialRevisions = new MaterialRevisions(mingleMaterialRevision, goMaterialRevision);
@@ -256,7 +256,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
 
         Pipeline latestDownstreamInstance = PipelineMother.schedule(downstreamPipelineConfig, BuildCause.createManualForced(dependencyMaterialRevisions, new Username(new CaseInsensitiveString("loser"))));
         latestDownstreamInstance = pipelineDao.saveWithStages(latestDownstreamInstance);
-        dbHelper.passStage(latestDownstreamInstance.getStages().getFirstOrNull());
+        dbHelper.passStage(latestDownstreamInstance.getStages().getFirst());
 
         //trigger upstream pipelines
         MaterialRevisions newRevs = checkinFile(svnMaterial, "bar.c", svnRepository);
@@ -281,11 +281,11 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         PipelineConfig downstreamPipelineConfig = configHelper.addPipeline(downstreamPipelineName, STAGE_NAME, new MaterialConfigs(mingleMaterialConfig, goMaterialConfig), "unit");
 
         Pipeline latestMinglePipeline = minglePipeline.latest;
-        String revision = String.format("%s/%s/%s/%s", latestMinglePipeline.getName(), latestMinglePipeline.getCounter(), STAGE_NAME, latestMinglePipeline.getStages().getLastOrNull().getCounter());
+        String revision = String.format("%s/%s/%s/%s", latestMinglePipeline.getName(), latestMinglePipeline.getCounter(), STAGE_NAME, latestMinglePipeline.getStages().getLast().getCounter());
         MaterialRevision mingleMaterialRevision = new MaterialRevision(new DependencyMaterial(mingleMaterialConfig), true, new Modification(latestMinglePipeline.getModifiedDate(), revision, latestMinglePipeline.getLabel(), latestMinglePipeline.getId()));
 
         Pipeline latestGoPipeline = goPipeline.latest;
-        revision = String.format("%s/%s/%s/%s", latestGoPipeline.getName(), latestGoPipeline.getCounter(), STAGE_NAME, latestGoPipeline.getStages().getLastOrNull().getCounter());
+        revision = String.format("%s/%s/%s/%s", latestGoPipeline.getName(), latestGoPipeline.getCounter(), STAGE_NAME, latestGoPipeline.getStages().getLast().getCounter());
         MaterialRevision goMaterialRevision = new MaterialRevision(new DependencyMaterial(goMaterialConfig), true, new Modification(latestGoPipeline.getModifiedDate(), revision, latestGoPipeline.getLabel(), latestGoPipeline.getId()));
 
         MaterialRevisions dependencyMaterialRevisions = new MaterialRevisions(mingleMaterialRevision, goMaterialRevision);
@@ -293,7 +293,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
 
         Pipeline latestDownstreamInstance = PipelineMother.schedule(downstreamPipelineConfig, BuildCause.createManualForced(dependencyMaterialRevisions, new Username(new CaseInsensitiveString("loser"))));
         latestDownstreamInstance = pipelineDao.saveWithStages(latestDownstreamInstance);
-        dbHelper.passStage(latestDownstreamInstance.getStages().getFirstOrNull());
+        dbHelper.passStage(latestDownstreamInstance.getStages().getFirst());
 
         //trigger upstream pipelines
         MaterialRevisions newRevs = checkinFile(svnMaterial, "bar.c", svnRepository);
@@ -314,7 +314,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         //setup the pipeline
         PipelineConfig downstreamPipelineConfig = configHelper.addPipeline(downstreamPipelineName, STAGE_NAME, new MaterialConfigs(mingleMaterialConfig, gitMaterial.config()), "unit");
         Pipeline latestMinglePipeline = minglePipeline.latest;
-        String revision = String.format("%s/%s/%s/%s", latestMinglePipeline.getName(), latestMinglePipeline.getCounter(), STAGE_NAME, latestMinglePipeline.getStages().getLastOrNull().getCounter());
+        String revision = String.format("%s/%s/%s/%s", latestMinglePipeline.getName(), latestMinglePipeline.getCounter(), STAGE_NAME, latestMinglePipeline.getStages().getLast().getCounter());
         MaterialRevision mingleMaterialRevision = new MaterialRevision(new DependencyMaterial(mingleMaterialConfig), true, new Modification(latestMinglePipeline.getModifiedDate(), revision, latestMinglePipeline.getLabel(), latestMinglePipeline.getId()));
 
         MaterialRevision gitMaterialRevision = new MaterialRevision(gitMaterial, gitTestRepo.checkInOneFile("new_file.c", "Adding a new file"));
@@ -322,7 +322,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         dbHelper.saveRevs(initialMaterialRevisions);
         Pipeline latestDownstreamInstance = PipelineMother.schedule(downstreamPipelineConfig, BuildCause.createManualForced(initialMaterialRevisions, new Username(new CaseInsensitiveString("loser"))));
         latestDownstreamInstance = pipelineDao.saveWithStages(latestDownstreamInstance);
-        dbHelper.passStage(latestDownstreamInstance.getStages().getFirstOrNull());
+        dbHelper.passStage(latestDownstreamInstance.getStages().getFirst());
 
         //make a commit on the git repo
         List<Modification> newGitModifications = gitTestRepo.checkInOneFile("another_file.c", "Adding a new file");
@@ -346,7 +346,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         //setup the pipeline
         PipelineConfig downstreamPipelineConfig = configHelper.addPipeline(downstreamPipelineName, STAGE_NAME, new MaterialConfigs(mingleMaterialConfig, gitMaterial.config()), "unit");
         Pipeline latestMinglePipeline = minglePipeline.latest;
-        String revision = String.format("%s/%s/%s/%s", latestMinglePipeline.getName(), latestMinglePipeline.getCounter(), STAGE_NAME, latestMinglePipeline.getStages().getLastOrNull().getCounter());
+        String revision = String.format("%s/%s/%s/%s", latestMinglePipeline.getName(), latestMinglePipeline.getCounter(), STAGE_NAME, latestMinglePipeline.getStages().getLast().getCounter());
         MaterialRevision mingleMaterialRevision = new MaterialRevision(new DependencyMaterial(mingleMaterialConfig), true, new Modification(latestMinglePipeline.getModifiedDate(), revision, latestMinglePipeline.getLabel(), latestMinglePipeline.getId()));
 
         MaterialRevision gitMaterialRevision = new MaterialRevision(gitMaterial, gitTestRepo.checkInOneFile("new_file.c", "Adding a new file"));
@@ -354,7 +354,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         dbHelper.saveRevs(initialMaterialRevisions);
         Pipeline latestDownstreamInstance = PipelineMother.schedule(downstreamPipelineConfig, BuildCause.createManualForced(initialMaterialRevisions, new Username(new CaseInsensitiveString("loser"))));
         latestDownstreamInstance = pipelineDao.saveWithStages(latestDownstreamInstance);
-        dbHelper.passStage(latestDownstreamInstance.getStages().getFirstOrNull());
+        dbHelper.passStage(latestDownstreamInstance.getStages().getFirst());
 
         //trigger upstream pipelines
         MaterialRevisions newRevs = checkinFile(svnMaterial, "bar.c", svnRepository);

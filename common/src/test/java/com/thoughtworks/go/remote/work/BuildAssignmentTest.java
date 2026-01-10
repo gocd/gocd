@@ -164,7 +164,7 @@ public class BuildAssignmentTest {
         additionalData.put("a1", "v1");
         additionalData.put("a2", "v2");
         String additionalDataAsString = JsonHelper.toJson(additionalData);
-        packageMaterialRevision.getModifications().getFirstOrNull().setAdditionalData(additionalDataAsString);
+        packageMaterialRevision.getModifications().getFirst().setAdditionalData(additionalDataAsString);
         MaterialRevisions materialRevisions = new MaterialRevisions(packageMaterialRevision);
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "user1");
 
@@ -173,7 +173,7 @@ public class BuildAssignmentTest {
         assertThat(buildAssignment.getBuildApprover()).isEqualTo("user1");
         assertThat(buildAssignment.materialRevisions().getRevisions().size()).isEqualTo(materialRevisions.getRevisions().size());
         assertRevisions(buildAssignment, packageMaterialRevision);
-        Modification actualModification = buildAssignment.materialRevisions().getRevisions().get(0).getModification(0);
+        Modification actualModification = buildAssignment.materialRevisions().getRevisions().getFirst().getModification(0);
         assertThat(actualModification.getAdditionalData()).isEqualTo(additionalDataAsString);
         assertThat(actualModification.getAdditionalDataMap()).isEqualTo(additionalData);
     }
@@ -266,7 +266,7 @@ public class BuildAssignmentTest {
             environmentVariableContext.setProperty("Token", "{{SECRET:[secret_config_id][token]}}", false);
 
             ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][token]}}");
-            k1.getSecretParams().get(0).setValue("resolved-value");
+            k1.getSecretParams().getFirst().setValue("resolved-value");
             ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
             PluggableSCMMaterial pluggableSCMMaterial = pluggableSCMMaterial("scm-id", "scm-name", k1, k2);
             MaterialRevision gitRevision = new MaterialRevision(pluggableSCMMaterial, new Modification());
@@ -286,7 +286,7 @@ public class BuildAssignmentTest {
             environmentVariableContext.setProperty("Token", "{{SECRET:[secret_config_id][token]}}", false);
 
             ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][token]}}");
-            k1.getSecretParams().get(0).setValue("resolved-value");
+            k1.getSecretParams().getFirst().setValue("resolved-value");
             PackageMaterial packageMaterial = packageMaterial();
             MaterialRevision gitRevision = new MaterialRevision(packageMaterial, new Modification());
             BuildCause buildCause = BuildCause.createManualForced(new MaterialRevisions(gitRevision), Username.ANONYMOUS);
@@ -324,7 +324,7 @@ public class BuildAssignmentTest {
                 ModificationsMother.oneModifiedFile(svnRepoFixture.latestRevision()));
 
         MaterialRevision hgRevision = new MaterialRevision(hgMaterial,
-                ModificationsMother.oneModifiedFile(hgTestRepo.latestModifications().get(0).getRevision()));
+                ModificationsMother.oneModifiedFile(hgTestRepo.latestModifications().getFirst().getRevision()));
 
         MaterialRevision dependencyRevision1 = ModificationsMother.dependencyMaterialRevision(0,
                 dependencyMaterial.getPipelineName() + "-label", 1,

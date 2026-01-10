@@ -69,7 +69,7 @@ public class StageMother {
         }
         Stage stage = new Stage(stageName, builds, DEFAULT_APPROVED_BY, null, null, new TimeProvider());
         stage.calculateResult();
-        stage.setCompletedByTransitionId(stage.getJobInstances().getLastOrNull().getTransitions().latestTransitionId());
+        stage.setCompletedByTransitionId(stage.getJobInstances().getLast().getTransitions().latestTransitionId());
         return stage;
     }
 
@@ -148,17 +148,6 @@ public class StageMother {
 
     private static long fakeId() {
         return (long) (Math.random() * 1000000000);
-    }
-
-    public static Stage failingStage(String stageName) {
-        StageConfig stageConfig = StageConfigMother.twoBuildPlansWithResourcesAndMaterials(stageName);
-        Stage stage = scheduleInstance(stageConfig);
-        stage.setId(fakeId());
-
-        stage.getJobInstances().get(0).fail();
-        stage.getJobInstances().get(1).completing(JobResult.Passed);
-
-        return stage;
     }
 
     public static Stage completedFailedStageInstance(String pipelineName, String stageName, String planName) {

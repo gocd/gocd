@@ -242,7 +242,7 @@ public class PipelineGroupsTest {
         PipelineConfigs defaultGroup = createGroup("defaultGroup", createPipelineConfig("pipeline1", "stage1"));
         PipelineGroups groups = new PipelineGroups(defaultGroup);
         assertThat(groups.getLocal().size()).isEqualTo(1);
-        assertThat(groups.getLocal().get(0)).isEqualTo(defaultGroup);
+        assertThat(groups.getLocal().getFirst()).isEqualTo(defaultGroup);
     }
 
     @Test
@@ -251,7 +251,7 @@ public class PipelineGroupsTest {
         defaultGroup.setOrigins(new FileConfigOrigin());
         PipelineGroups groups = new PipelineGroups(defaultGroup);
         assertThat(groups.getLocal().size()).isEqualTo(1);
-        assertThat(groups.getLocal().get(0)).isEqualTo(defaultGroup);
+        assertThat(groups.getLocal().getFirst()).isEqualTo(defaultGroup);
     }
 
     @Test

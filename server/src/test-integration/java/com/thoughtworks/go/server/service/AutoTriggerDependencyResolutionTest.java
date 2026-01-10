@@ -1728,7 +1728,7 @@ public class AutoTriggerDependencyResolutionTest {
 
         assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given)).isEqualTo(given);
 
-        p1.config.add(0, StageConfigMother.manualStage("renamed_stage"));
+        p1.config.addFirst(StageConfigMother.manualStage("renamed_stage"));
         configHelper.writeConfigFile(cruiseConfig);
         cruiseConfig = goConfigDao.currentConfig();
 
@@ -2019,7 +2019,7 @@ public class AutoTriggerDependencyResolutionTest {
         MaterialRevisions given = u.mrs(
             u.mr(p2, true, p2_1),
             u.mr(p3, true, p3_1),
-            u.mr(p4, true, p4_1.getStages().get(0).getIdentifier().getStageLocator()));
+            u.mr(p4, true, p4_1.getStages().getFirst().getIdentifier().getStageLocator()));
 
         assertThat(getRevisionsBasedOnDependencies(p5, cruiseConfig, given)).isEqualTo(given);
 

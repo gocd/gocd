@@ -36,8 +36,8 @@ public class StageXmlRepresenterTest {
         String jobName = "run-junit";
         XmlWriterContext context = new XmlWriterContext("https://go-server/go", null, null);
         Stage stage = StageMother.cancelledStage(stageName, jobName);
-        stage.getJobInstances().get(0).setIdentifier(new JobIdentifier(pipelineName, 1, null, stageName, "1", jobName));
-        stage.getJobInstances().get(0).getTransitions().stream().findFirst()
+        stage.getJobInstances().getFirst().setIdentifier(new JobIdentifier(pipelineName, 1, null, stageName, "1", jobName));
+        stage.getJobInstances().getFirst().getTransitions().stream().findFirst()
             .ifPresent(t -> t.setStateChangeTime(parseIso8601StrictOffset("2020-01-03T11:14:19+05:30")));
         stage.setIdentifier(new StageIdentifier(pipelineName, 10, stage.getName(), "4"));
 

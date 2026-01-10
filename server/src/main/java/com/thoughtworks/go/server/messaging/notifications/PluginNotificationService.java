@@ -106,7 +106,7 @@ public class PluginNotificationService {
             String pipelineGroup = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
             BuildCause buildCause = pipelineSqlMapDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, stage.getIdentifier().getPipelineCounter());
 
-            if (goConfigService.hasPreviousStage(pipelineName, stage.getName())) {
+            if (!goConfigService.isFirstStage(pipelineName, stage.getName())) {
                 stage.setPreviousStage(previousStage(stage));
             }
 

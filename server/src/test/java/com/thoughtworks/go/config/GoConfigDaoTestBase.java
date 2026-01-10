@@ -32,6 +32,7 @@ import static com.thoughtworks.go.helper.ConfigFileFixture.BASIC_CONFIG;
 import static com.thoughtworks.go.helper.ConfigFileFixture.INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -48,14 +49,14 @@ public abstract class GoConfigDaoTestBase {
         assertThat(cruiseConfig).isNotNull();
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
         assertThat(pipelineConfig.size()).isEqualTo(1);
-        StageConfig stageConfig = pipelineConfig.get(0);
+        StageConfig stageConfig = pipelineConfig.getFirst();
         assertThat(stageConfig.name()).isEqualTo(new CaseInsensitiveString("mingle"));
         assertThat(pipelineConfig.materialConfigs()).isNotNull();
         final JobConfig cardList = stageConfig.jobConfigByInstanceName("cardlist", true);
         assertThat(cardList.name()).isEqualTo(new CaseInsensitiveString("cardlist"));
         assertThat(stageConfig.jobConfigByInstanceName("bluemonkeybutt", true).name()).isEqualTo(new CaseInsensitiveString("bluemonkeybutt"));
         assertThat(cardList.tasks()).hasSize(1);
-        assertThat(cardList.tasks().getFirstOrNull()).isInstanceOf(AntTask.class);
+        assertThat(cardList.tasks().getFirst()).isInstanceOf(AntTask.class);
     }
 
     @Test
@@ -86,28 +87,25 @@ public abstract class GoConfigDaoTestBase {
         final String md5WhenPipelineIsAdded = goConfigDao.currentConfig().getMd5();
         goConfigDao.updateConfig(configHelper.changeJobNameCommand(md5WhenPipelineIsAdded, "p1", "stage1", "build1", "new_build"));
 
-        try {
-            goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
-                @Override
-                public String unmodifiedMd5() {
-                    return md5WhenPipelineIsAdded;
-                }
+        assertThatThrownBy(() -> goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
+            @Override
+            public String unmodifiedMd5() {
+                return md5WhenPipelineIsAdded;
+            }
 
-                @Override
-                public CruiseConfig update(CruiseConfig cruiseConfig) {
-                    deletePipeline(cruiseConfig);
-                    return cruiseConfig;
-                }
+            @Override
+            public CruiseConfig update(CruiseConfig cruiseConfig) {
+                removePipeline(cruiseConfig);
+                return cruiseConfig;
+            }
 
-                private void deletePipeline(CruiseConfig cruiseConfig) {
-                    cruiseConfig.getGroups().get(0).remove(0);
-                }
+            private void removePipeline(CruiseConfig cruiseConfig) {
+                PipelineConfigs configs = cruiseConfig.getGroups().getFirst();
+                configs.remove(configs.getFirst());
+            }
 
-            });
-            fail("should not have allowed no-overwrite stale update");
-        } catch (RuntimeException e) {
-            assertThat(e.getMessage()).isEqualTo(ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH);
-        }
+        })).isInstanceOf(RuntimeException.class)
+            .hasMessage(ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH);
     }
 
     @Test

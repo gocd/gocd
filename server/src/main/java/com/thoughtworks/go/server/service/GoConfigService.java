@@ -309,10 +309,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return GoSmtpMailSender.createSender(serverConfig().mailHost());
     }
 
-    public List<String> allGroups() {
-        List<String> allGroup = new ArrayList<>();
-        getCurrentConfig().groups(allGroup);
-        return allGroup;
+    public List<String> allGroupNames() {
+        return getCurrentConfig().getGroups().stream().map(PipelineConfigs::getGroup).toList();
     }
 
     public PipelineGroups groups() {
@@ -499,17 +497,12 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return getCurrentConfig().server();
     }
 
-    public boolean hasNextStage(String pipelineName, String lastStageName) {
-        return getCurrentConfig().hasNextStage(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(lastStageName));
-    }
-
-    public boolean hasPreviousStage(String pipelineName, String lastStageName) {
-        return getCurrentConfig().hasPreviousStage(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(lastStageName));
+    public boolean hasNextStage(String pipelineName, String stageName) {
+        return getCurrentConfig().hasNextStage(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
     }
 
     public boolean isFirstStage(String pipelineName, String stageName) {
-        boolean hasPreviousStage = getCurrentConfig().hasPreviousStage(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
-        return !hasPreviousStage;
+        return !getCurrentConfig().hasPreviousStage(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
     }
 
     public boolean requiresApproval(final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName) {
@@ -517,7 +510,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public StageConfig findFirstStageOfPipeline(final CaseInsensitiveString pipelineName) {
-        return getCurrentConfig().pipelineConfigByName(pipelineName).getFirstOrNull();
+        return getCurrentConfig().pipelineConfigByName(pipelineName).getFirst();
     }
 
     public StageConfig nextStage(String pipelineName, String lastStageName) {
@@ -673,7 +666,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public PackageRepository getPackageRepository(String repoId) {
-        return cruiseConfig().getPackageRepositories().find(repoId);
+        return cruiseConfig().getPackageRepositories().findByRepoId(repoId);
     }
 
     public PackageRepositories getPackageRepositories() {
@@ -720,11 +713,11 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public @Nullable PipelineConfig findPipelineByName(CaseInsensitiveString pipelineName) {
-        List<PipelineConfig> pipelineConfigs = getAllPipelineConfigs()
-                .stream()
-                .filter((pipelineConfig) -> pipelineConfig.getName().equals(pipelineName))
-                .toList();
-        return pipelineConfigs.isEmpty() ? null : pipelineConfigs.getFirst();
+        return getAllPipelineConfigs()
+            .stream()
+            .filter((pipelineConfig) -> pipelineConfig.getName().equals(pipelineName))
+            .findFirst()
+            .orElse(null);
     }
 
     public SecretConfig getSecretConfigById(String secretConfigId) {

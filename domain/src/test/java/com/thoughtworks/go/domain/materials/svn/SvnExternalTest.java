@@ -61,7 +61,7 @@ public class SvnExternalTest {
         materialRevisions.addRevision(svnExt, modifications);
 
         assertThat(materialRevisions.numberOfRevisions()).isEqualTo(1);
-        MaterialRevision materialRevision = materialRevisions.getRevisions().get(0);
+        MaterialRevision materialRevision = materialRevisions.getRevisions().getFirst();
         assertThat(materialRevision.getMaterial()).isEqualTo(svnExt);
         assertThat(materialRevision.getRevision().getRevision()).isEqualTo("4");
     }
@@ -75,7 +75,7 @@ public class SvnExternalTest {
         final MaterialRevisions materialRevisions = materials.latestModification(svnRepo.workingFolder(), new TestSubprocessExecutionContext());
         assertThat(materialRevisions.numberOfRevisions()).isEqualTo(2);
 
-        MaterialRevision main = materialRevisions.getRevisions().get(0);
+        MaterialRevision main = materialRevisions.getRevisions().getFirst();
         assertThat(main.getMaterial()).isEqualTo(svn);
         assertThat(main.getModifications().size()).isEqualTo(1);
         assertThat(main.getRevision().getRevision()).isEqualTo("5");

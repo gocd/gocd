@@ -38,7 +38,7 @@ class DependencyMaterialConfigTest {
     @BeforeEach
     void setUp() {
         config = GoConfigMother.configWithPipelines("pipeline1", "pipeline2", "pipeline3", "go");
-        pipelineConfig = config.getAllPipelineConfigs().get(0);
+        pipelineConfig = config.getAllPipelineConfigs().getFirst();
     }
 
     @Test

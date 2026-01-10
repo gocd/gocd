@@ -255,8 +255,8 @@ class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefaultPluginJ
         addPlugin(externalPlugin1);
         ArgumentCaptor<BundleOrPluginFileDetails> pluginFileDetailsArgumentCaptor = ArgumentCaptor.forClass(BundleOrPluginFileDetails.class);
         verify(changeListener, timeout(TEST_TIMEOUT).times(2)).pluginJarAdded(pluginFileDetailsArgumentCaptor.capture());
-        assertThat(pluginFileDetailsArgumentCaptor.getAllValues().get(0).isBundledPlugin()).isTrue();
-        assertThat(pluginFileDetailsArgumentCaptor.getAllValues().get(1).isBundledPlugin()).isFalse();
+        assertThat(pluginFileDetailsArgumentCaptor.getAllValues().getFirst().isBundledPlugin()).isTrue();
+        assertThat(pluginFileDetailsArgumentCaptor.getAllValues().getLast().isBundledPlugin()).isFalse();
 
         verifyNoMoreInteractions(changeListener);
     }

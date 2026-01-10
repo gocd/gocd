@@ -41,9 +41,9 @@ public class ParamResolverTest {
         securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("lo#{foo}")));
         securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("boo#{bar}"), new RoleUser(new CaseInsensitiveString("choo#{foo}"))));
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "ser"), param("bar", "zer")))).resolve(securityConfig);
-        assertThat(CaseInsensitiveString.str(securityConfig.adminsConfig().get(0).getName())).isEqualTo("loser");
-        assertThat(CaseInsensitiveString.str(securityConfig.getRoles().get(0).getName())).isEqualTo("boozer");
-        assertThat(CaseInsensitiveString.str(securityConfig.getRoles().get(0).getUsers().get(0).getName())).isEqualTo("chooser");
+        assertThat(CaseInsensitiveString.str(securityConfig.adminsConfig().getFirst().getName())).isEqualTo("loser");
+        assertThat(CaseInsensitiveString.str(securityConfig.getRoles().getFirst().getName())).isEqualTo("boozer");
+        assertThat(CaseInsensitiveString.str(securityConfig.getRoles().getFirst().getUsers().getFirst().getName())).isEqualTo("chooser");
     }
 
     @Test
@@ -53,7 +53,7 @@ public class ParamResolverTest {
         setField(pipelineConfig, PipelineConfig.LOCK_BEHAVIOR, "#{partial}Finished");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("partial", "unlockWhen"), param("COUNT", "quux")))).resolve(pipelineConfig);
         assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("2.1-${COUNT}");
-        assertThat(pipelineConfig.explicitLock()).isTrue();
+        assertThat(pipelineConfig.isLockable()).isTrue();
     }
 
     @Test
@@ -65,13 +65,13 @@ public class ParamResolverTest {
     @Test
     public void shouldNotResolveOptedOutConfigAttributes() throws NoSuchFieldException {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise-#{foo}-#{bar}", "dev", "ant");
-        SvnMaterialConfig svn = (SvnMaterialConfig) pipelineConfig.materialConfigs().get(0);
+        SvnMaterialConfig svn = (SvnMaterialConfig) pipelineConfig.materialConfigs().getFirst();
         svn.setPassword("#quux-#{foo}-#{bar}");
         pipelineConfig.setLabelTemplate("2.1-${COUNT}-#{foo}-bar-#{bar}");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj")))).resolve(pipelineConfig);
         assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("2.1-${COUNT}-pavan-bar-jj");
         assertThat(pipelineConfig.name()).isEqualTo(new CaseInsensitiveString("cruise-#{foo}-#{bar}"));
-        assertThat(((SvnMaterialConfig) pipelineConfig.materialConfigs().get(0)).getPassword()).isEqualTo("#quux-#{foo}-#{bar}");
+        assertThat(((SvnMaterialConfig) pipelineConfig.materialConfigs().getFirst()).getPassword()).isEqualTo("#quux-#{foo}-#{bar}");
         assertThat(pipelineConfig.getClass().getDeclaredField("name").getAnnotation(SkipParameterResolution.class)).isInstanceOf(SkipParameterResolution.class);
     }
 
@@ -82,7 +82,7 @@ public class ParamResolverTest {
         pipelineConfig.addParam(param("#{foo}-name", "#{foo}-#{bar}-baz"));
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj")))).resolve(pipelineConfig);
         assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("2.1-${COUNT}-pavan-bar-jj");
-        assertThat(pipelineConfig.getParams().get(0)).isEqualTo(param("#{foo}-name", "#{foo}-#{bar}-baz"));
+        assertThat(pipelineConfig.getParams().getFirst()).isEqualTo(param("#{foo}-name", "#{foo}-#{bar}-baz"));
         assertThat(pipelineConfig.getClass().getDeclaredField("params").getAnnotation(SkipParameterResolution.class)).isInstanceOf(SkipParameterResolution.class);
     }
 
@@ -129,7 +129,7 @@ public class ParamResolverTest {
     public void shouldResolveConfigValue() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("2.1-${COUNT}-#{foo}-bar-#{bar}");
-        StageConfig stageConfig = pipelineConfig.get(0);
+        StageConfig stageConfig = pipelineConfig.getFirst();
         stageConfig.updateApproval(new Approval(new AuthConfig(new AdminUser(new CaseInsensitiveString("#{foo}")), new AdminUser(new CaseInsensitiveString("#{bar}")))));
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj")))).resolve(pipelineConfig);
@@ -205,7 +205,7 @@ public class ParamResolverTest {
     public void shouldUseValidationErrorKeyAnnotationForFieldNameInCaseOfException() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant", "nant");
         FetchTask task = new FetchTask(new CaseInsensitiveString("cruise"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("ant"), "#a", "dest");
-        pipelineConfig.get(0).getJobs().getJob(new CaseInsensitiveString("nant")).addTask(task);
+        pipelineConfig.getFirst().getJobs().getJob(new CaseInsensitiveString("nant")).addTask(task);
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj")))).resolve(pipelineConfig);
         assertThat(task.errors().isEmpty()).isFalse();
         assertThat(task.errors().firstErrorOn(FetchTask.SRC)).isEqualTo("Error when processing params for '#a' used in field 'src', # must be followed by a parameter pattern or escaped by another #");
@@ -219,7 +219,7 @@ public class ParamResolverTest {
 
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("#a");
-        pipelineConfig.get(0).getJobs().addJobWithoutValidityAssertion(new JobConfig(new CaseInsensitiveString("another"), new ResourceConfigs(resourceConfig), new ArtifactTypeConfigs()));
+        pipelineConfig.getFirst().getJobs().addJobWithoutValidityAssertion(new JobConfig(new CaseInsensitiveString("another"), new ResourceConfigs(resourceConfig), new ArtifactTypeConfigs()));
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj")))).resolve(pipelineConfig);
 

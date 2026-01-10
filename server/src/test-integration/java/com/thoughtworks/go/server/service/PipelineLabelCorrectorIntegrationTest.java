@@ -92,7 +92,7 @@ public class PipelineLabelCorrectorIntegrationTest {
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName.toUpperCase(), "count", 20));
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName, "count", 30));
         assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().size()).isEqualTo(1);
-        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().get(0).equalsIgnoreCase(pipelineName)).isTrue();
+        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().getFirst().equalsIgnoreCase(pipelineName)).isTrue();
 
         pipelineLabelCorrector.correctPipelineLabelCountEntries();
         assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().isEmpty()).isTrue();
@@ -110,7 +110,7 @@ public class PipelineLabelCorrectorIntegrationTest {
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName.toUpperCase(), "count", 20));
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName, "count", 30));
         assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().size()).isEqualTo(1);
-        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().get(0).equalsIgnoreCase(pipelineName)).isTrue();
+        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().getFirst().equalsIgnoreCase(pipelineName)).isTrue();
         configHelper.removePipeline(pipelineName);
 
         pipelineLabelCorrector.correctPipelineLabelCountEntries();
@@ -140,7 +140,7 @@ public class PipelineLabelCorrectorIntegrationTest {
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName, "count", 20));
 
         assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().size()).isEqualTo(1);
-        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().get(0).equalsIgnoreCase(pipelineName)).isTrue();
+        assertThat(pipelineSqlMapDao.getPipelineNamesWithMultipleEntriesForLabelCount().getFirst().equalsIgnoreCase(pipelineName)).isTrue();
         configHelper.removePipeline(pipelineName);
 
         pipelineLabelCorrector.correctPipelineLabelCountEntries();
@@ -156,13 +156,13 @@ public class PipelineLabelCorrectorIntegrationTest {
         ConfigRepoConfig repoConfig = ConfigRepoConfig.createConfigRepoConfig(git("url2"), "plugin", "id2");
         configHelper.addConfigRepo(repoConfig);
         PipelineConfig pipelineConfig = addConfigRepoPipeline(repoConfig, pipelineName);
-        scheduleUtil.runAndPass(new ScheduleTestUtil.AddedPipeline(pipelineConfig, new DependencyMaterial(pipelineConfig.name(), pipelineConfig.getFirstOrNull().name())), "svn1r11");
+        scheduleUtil.runAndPass(new ScheduleTestUtil.AddedPipeline(pipelineConfig, new DependencyMaterial(pipelineConfig.name(), pipelineConfig.getFirst().name())), "svn1r11");
 
         pipelineConfig = addConfigRepoPipeline(repoConfig, pipelineName.toUpperCase());
-        scheduleUtil.runAndPass(new ScheduleTestUtil.AddedPipeline(pipelineConfig, new DependencyMaterial(pipelineConfig.name(), pipelineConfig.getFirstOrNull().name())), "svn1r11");
+        scheduleUtil.runAndPass(new ScheduleTestUtil.AddedPipeline(pipelineConfig, new DependencyMaterial(pipelineConfig.name(), pipelineConfig.getFirst().name())), "svn1r11");
         pipelineConfig = addConfigRepoPipeline(repoConfig, pipelineName.toLowerCase());
         scheduleUtil.runAndPass(new ScheduleTestUtil.AddedPipeline(pipelineConfig,
-                new DependencyMaterial(pipelineConfig.name(), pipelineConfig.getFirstOrNull().name())), "svn1r11");
+                new DependencyMaterial(pipelineConfig.name(), pipelineConfig.getFirst().name())), "svn1r11");
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName.toLowerCase(), "count", 10));
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName.toUpperCase(), "count", 20));
         addConfigRepoPipeline(repoConfig, "something-else");
@@ -179,7 +179,7 @@ public class PipelineLabelCorrectorIntegrationTest {
 
     private PipelineConfig addConfigRepoPipeline(ConfigRepoConfig repoConfig, String pipeline) {
         PartialConfig partialConfig = PartialConfigMother.withPipeline(pipeline, new RepoConfigOrigin(repoConfig, "4567"));
-        PipelineConfig remotePipeline = partialConfig.getGroups().getFirstOrNull().getPipelines().get(0);
+        PipelineConfig remotePipeline = partialConfig.getGroups().getFirst().getPipelines().getFirst();
         SvnMaterial svn = scheduleUtil.wf((SvnMaterial) new MaterialConfigConverter().toMaterial(remotePipeline.materialConfigs().getSvnMaterial()), "svn");
         scheduleUtil.checkinInOrder(svn, scheduleUtil.d(1), "svn1r11");
         GitMaterial configRepoMaterial = scheduleUtil.wf((GitMaterial) new MaterialConfigConverter().toMaterial(repoConfig.getRepo()), "git");

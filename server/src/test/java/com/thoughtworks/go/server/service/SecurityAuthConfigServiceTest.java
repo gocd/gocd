@@ -80,8 +80,8 @@ public class SecurityAuthConfigServiceTest {
         VerifyConnectionResponse response = securityAuthConfigService.verifyConnection(ldap);
 
         assertThat(response).isEqualTo(validationFailed);
-        assertThat(ldap.getProperty("username").errors().get("username").get(0)).isEqualTo("Username cannot be blank");
-        assertThat(ldap.getProperty("password").errors().get("password").get(0)).isEqualTo("Password cannot be blank");
+        assertThat(ldap.getProperty("username").errors().get("username").getFirst()).isEqualTo("Username cannot be blank");
+        assertThat(ldap.getProperty("password").errors().get("password").getFirst()).isEqualTo("Password cannot be blank");
     }
 
     @Test

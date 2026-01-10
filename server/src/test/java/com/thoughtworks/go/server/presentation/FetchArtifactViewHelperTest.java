@@ -381,7 +381,7 @@ public class FetchArtifactViewHelperTest {
 
         PipelineConfig pipeline = new PipelineConfig();
         pipeline.setName("my-pipeline");
-        pipeline.setTemplateName(templateName);
+        pipeline.setTemplateName(new CaseInsensitiveString(templateName));
 
         cruiseConfig.addTemplate(template);
         cruiseConfig.addPipeline("first", pipeline);
@@ -404,7 +404,7 @@ public class FetchArtifactViewHelperTest {
 
         PipelineConfig pipelineUsingTemplate = new PipelineConfig();
         pipelineUsingTemplate.setName("my-pipeline");
-        pipelineUsingTemplate.setTemplateName(templateName);
+        pipelineUsingTemplate.setTemplateName(new CaseInsensitiveString(templateName));
 
         PipelineConfig normalPipeline = PipelineConfigMother.createPipelineConfig("downest", "downest_stage_1", "downest_job_1", "downest_job_1a");
 

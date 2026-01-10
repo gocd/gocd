@@ -64,7 +64,7 @@ public class DeleteConfigRepoCommandTest {
 
     @Test
     public void shouldNotContinueWhenConfigRepoNoLongerExists() {
-        cruiseConfig.getConfigRepos().remove(0);
+        cruiseConfig.getConfigRepos().removeFirst();
         DeleteConfigRepoCommand command = new DeleteConfigRepoCommand(repoId);
         assertThat(command.canContinue(cruiseConfig)).isFalse();
     }

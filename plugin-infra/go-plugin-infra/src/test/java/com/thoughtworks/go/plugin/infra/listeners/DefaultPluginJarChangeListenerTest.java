@@ -471,10 +471,10 @@ class DefaultPluginJarChangeListenerTest {
         verifyNoMoreInteractions(pluginLoader);
 
         assertThat(pluginDescriptor1.getStatus().getMessages().size()).isEqualTo(1);
-        assertThat(pluginDescriptor1.getStatus().getMessages().get(0)).isEqualTo("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with current operating system 'Windows'. Valid operating systems are: [Linux, Mac OS X].");
+        assertThat(pluginDescriptor1.getStatus().getMessages().getFirst()).isEqualTo("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with current operating system 'Windows'. Valid operating systems are: [Linux, Mac OS X].");
 
         assertThat(pluginDescriptor2.getStatus().getMessages().size()).isEqualTo(1);
-        assertThat(pluginDescriptor2.getStatus().getMessages().get(0)).isEqualTo("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with current operating system 'Windows'. Valid operating systems are: [Linux, Mac OS X].");
+        assertThat(pluginDescriptor2.getStatus().getMessages().getFirst()).isEqualTo("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with current operating system 'Windows'. Valid operating systems are: [Linux, Mac OS X].");
     }
 
     @Test
@@ -501,10 +501,10 @@ class DefaultPluginJarChangeListenerTest {
         verify(registry, times(1)).loadPlugin(newBundleDescriptor);
 
         assertThat(pluginDescriptor1.getStatus().getMessages().size()).isEqualTo(1);
-        assertThat(pluginDescriptor1.getStatus().getMessages().get(0)).isEqualTo("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with current operating system 'Linux'. Valid operating systems are: [Windows, Mac OS X].");
+        assertThat(pluginDescriptor1.getStatus().getMessages().getFirst()).isEqualTo("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with current operating system 'Linux'. Valid operating systems are: [Windows, Mac OS X].");
 
         assertThat(pluginDescriptor2.getStatus().getMessages().size()).isEqualTo(1);
-        assertThat(pluginDescriptor2.getStatus().getMessages().get(0)).isEqualTo("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with current operating system 'Linux'. Valid operating systems are: [Windows, Mac OS X].");
+        assertThat(pluginDescriptor2.getStatus().getMessages().getFirst()).isEqualTo("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with current operating system 'Linux'. Valid operating systems are: [Windows, Mac OS X].");
     }
 
     @Test
@@ -561,10 +561,10 @@ class DefaultPluginJarChangeListenerTest {
         verifyNoMoreInteractions(pluginLoader);
 
         assertThat(pluginDescriptor1.getStatus().getMessages().size()).isEqualTo(1);
-        assertThat(pluginDescriptor1.getStatus().getMessages().get(0)).isEqualTo("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with GoCD version '" + CurrentGoCDVersion.getInstance().goVersion() + "'. Compatible version is: 9999.0.0.");
+        assertThat(pluginDescriptor1.getStatus().getMessages().getFirst()).isEqualTo("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with GoCD version '" + CurrentGoCDVersion.getInstance().goVersion() + "'. Compatible version is: 9999.0.0.");
 
         assertThat(pluginDescriptor2.getStatus().getMessages().size()).isEqualTo(1);
-        assertThat(pluginDescriptor2.getStatus().getMessages().get(0)).isEqualTo("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with GoCD version '" + CurrentGoCDVersion.getInstance().goVersion() + "'. Compatible version is: 9999.0.0.");
+        assertThat(pluginDescriptor2.getStatus().getMessages().getFirst()).isEqualTo("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with GoCD version '" + CurrentGoCDVersion.getInstance().goVersion() + "'. Compatible version is: 9999.0.0.");
     }
 
     @Test
@@ -586,10 +586,10 @@ class DefaultPluginJarChangeListenerTest {
         verifyNoMoreInteractions(pluginLoader);
 
         assertThat(pluginDescriptor1.getStatus().getMessages().size()).isEqualTo(1);
-        assertThat(pluginDescriptor1.getStatus().getMessages().get(0)).isEqualTo("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incorrect target GoCD version (17.5.0 & 9999.0.0.1.2) specified.");
+        assertThat(pluginDescriptor1.getStatus().getMessages().getFirst()).isEqualTo("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incorrect target GoCD version (17.5.0 & 9999.0.0.1.2) specified.");
 
         assertThat(pluginDescriptor2.getStatus().getMessages().size()).isEqualTo(1);
-        assertThat(pluginDescriptor2.getStatus().getMessages().get(0)).isEqualTo("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incorrect target GoCD version (17.5.0 & 9999.0.0.1.2) specified.");
+        assertThat(pluginDescriptor2.getStatus().getMessages().getFirst()).isEqualTo("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incorrect target GoCD version (17.5.0 & 9999.0.0.1.2) specified.");
     }
 
     @Test

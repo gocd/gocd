@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class DelegatingValidationContext implements ValidationContext {
     protected ValidationContext validationContext;
@@ -74,7 +75,7 @@ public abstract class DelegatingValidationContext implements ValidationContext {
     }
 
     @Override
-    public PipelineConfigs getPipelineGroup() {
+    public @NotNull PipelineConfigs getPipelineGroup() {
         return validationContext.getPipelineGroup();
     }
 
@@ -96,11 +97,6 @@ public abstract class DelegatingValidationContext implements ValidationContext {
     @Override
     public SecurityConfig getServerSecurityConfig() {
         return validationContext.getServerSecurityConfig();
-    }
-
-    @Override
-    public boolean doesTemplateExist(CaseInsensitiveString template) {
-        return validationContext.doesTemplateExist(template);
     }
 
     @Override
@@ -146,11 +142,6 @@ public abstract class DelegatingValidationContext implements ValidationContext {
     @Override
     public RulesValidationContext getRulesValidationContext() {
         return null;
-    }
-
-    @Override
-    public boolean isWithinEnvironment() {
-        return validationContext.isWithinEnvironment();
     }
 
     @Override

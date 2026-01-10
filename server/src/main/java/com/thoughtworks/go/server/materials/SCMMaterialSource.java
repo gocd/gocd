@@ -34,12 +34,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Provides a list of unique SCMMaterials to be updated which will be consumed by MaterialUpdateService
@@ -55,7 +55,7 @@ public class SCMMaterialSource extends EntityConfigChangedListener<ConfigRepoCon
     private final MaterialUpdateService materialUpdateService;
     private final long materialUpdateInterval;
     private final TimeProvider timeProvider;
-    private Set<Material> schedulableMaterials;
+    private final AtomicReference<Set<Material>> schedulableMaterials = new AtomicReference<>();
 
     @Autowired
     public SCMMaterialSource(GoConfigService goConfigService, SystemEnvironment systemEnvironment,
@@ -115,23 +115,21 @@ public class SCMMaterialSource extends EntityConfigChangedListener<ConfigRepoCon
 
     private Set<Material> materialsWithUpdateIntervalElapsed() {
         Set<Material> materialsForUpdate = new HashSet<>();
-        for (Material material : schedulableMaterials) {
+        for (Material material : schedulableMaterials.get()) {
             if (hasUpdateIntervalElapsedForScmMaterial(material)) {
                 materialsForUpdate.add(material);
+            } else if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("[Material Update] Skipping update of material {} which has been last updated less than {} ms ago", material, materialUpdateInterval);
             }
         }
 
         return materialsForUpdate;
     }
 
-    boolean hasUpdateIntervalElapsedForScmMaterial(Material material) {
+    private boolean hasUpdateIntervalElapsedForScmMaterial(Material material) {
         Long lastMaterialUpdateTime = materialLastUpdateTimeMap.get(material);
         if (lastMaterialUpdateTime != null) {
-            boolean shouldUpdateMaterial = (timeProvider.currentTimeMillis() - lastMaterialUpdateTime) >= materialUpdateInterval;
-            if (LOGGER.isDebugEnabled() && !shouldUpdateMaterial) {
-                LOGGER.debug("[Material Update] Skipping update of material {} which has been last updated at {}", material, new Date(lastMaterialUpdateTime));
-            }
-            return shouldUpdateMaterial;
+            return (timeProvider.currentTimeMillis() - lastMaterialUpdateTime) >= materialUpdateInterval;
         }
         return true;
     }
@@ -141,8 +139,9 @@ public class SCMMaterialSource extends EntityConfigChangedListener<ConfigRepoCon
     }
 
     private void updateSchedulableMaterials(boolean forceLoad) {
-        if (forceLoad || schedulableMaterials == null) {
-            schedulableMaterials = materialConfigConverter.toMaterials(goConfigService.getSchedulableSCMMaterials());
+        Set<Material> materials = schedulableMaterials.get();
+        if (materials == null || forceLoad) {
+            schedulableMaterials.compareAndSet(materials, materialConfigConverter.toMaterials(goConfigService.getSchedulableSCMMaterials()));
         }
     }
 

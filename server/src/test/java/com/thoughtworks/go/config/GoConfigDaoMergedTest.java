@@ -40,7 +40,7 @@ public class GoConfigDaoMergedTest extends GoConfigDaoTestBase {
         List<PartialConfig> parts = new ArrayList<>();
         parts.add(new PartialConfig(new PipelineGroups(
                 PipelineConfigMother.createGroup("part1", PipelineConfigMother.pipelineConfig("remote-pipe")))));
-        parts.get(0).setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(git("http://config-repo.git"), "someplugin", "id"), "3213455"));
+        parts.getFirst().setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(git("http://config-repo.git"), "someplugin", "id"), "3213455"));
 
         configHelper = new GoConfigFileHelper();
         goConfigDao = configHelper.getGoConfigDao();

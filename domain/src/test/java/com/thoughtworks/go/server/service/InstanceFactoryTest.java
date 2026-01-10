@@ -144,8 +144,8 @@ class InstanceFactoryTest {
 
         assertThat(pipeline.getName()).isEqualTo("mingle");
         assertThat(pipeline.getStages().size()).isEqualTo(1);
-        assertThat(pipeline.getStages().get(0).getName()).isEqualTo("dev");
-        assertThat(pipeline.getStages().get(0).getJobInstances().get(0).getName()).isEqualTo("functional");
+        assertThat(pipeline.getStages().getFirst().getName()).isEqualTo("dev");
+        assertThat(pipeline.getStages().getFirst().getJobInstances().getFirst().getName()).isEqualTo("functional");
     }
 
     @Test
@@ -344,7 +344,7 @@ class InstanceFactoryTest {
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("stage_foo"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
 
-        JobInstance jobInstance = jobs.getFirstOrNull();
+        JobInstance jobInstance = jobs.getFirst();
         assertThat(jobConfig.name()).isEqualTo(new CaseInsensitiveString(jobInstance.getName()));
         assertThat(jobInstance.getState()).isEqualTo(JobState.Scheduled);
         assertThat(jobInstance.getScheduledDate()).isNotNull();

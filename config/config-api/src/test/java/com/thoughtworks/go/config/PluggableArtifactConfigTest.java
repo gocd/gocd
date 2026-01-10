@@ -68,7 +68,7 @@ public class PluggableArtifactConfigTest {
         assertThat(artifactConfig.getStoreId()).isEqualTo("Store-ID");
         assertThat(artifactConfig.getArtifactType()).isEqualTo(ArtifactType.external);
         assertThat(artifactConfig.getArtifactTypeValue()).isEqualTo("Pluggable Artifact");
-        assertThat(artifactConfig.getConfiguration().get(0)).isEqualTo(create("Foo", false, "Bar"));
+        assertThat(artifactConfig.getConfiguration().getFirst()).isEqualTo(create("Foo", false, "Bar"));
     }
 
     @Test
@@ -104,8 +104,8 @@ public class PluggableArtifactConfigTest {
         artifactConfig.validate(validationContext);
         Configuration configuration = artifactConfig.getConfiguration();
 
-        assertThat(configuration.get(0).errors().getAllOn("configurationKey")).isEqualTo(List.of("Duplicate key 'Foo' found for Pluggable Artifact"));
-        assertThat(configuration.get(1).errors().getAllOn("configurationKey")).isEqualTo(List.of("Duplicate key 'Foo' found for Pluggable Artifact"));
+        assertThat(configuration.getFirst().errors().getAllOn("configurationKey")).isEqualTo(List.of("Duplicate key 'Foo' found for Pluggable Artifact"));
+        assertThat(configuration.getLast().errors().getAllOn("configurationKey")).isEqualTo(List.of("Duplicate key 'Foo' found for Pluggable Artifact"));
     }
 
     @Test

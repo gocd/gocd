@@ -20,11 +20,13 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.StageContainer;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Optional;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 
@@ -70,11 +72,11 @@ public class StageInstanceModels extends BaseCollection<StageInstanceModel> impl
         return latestStage().hasUnsuccessfullyCompleted();
     }
 
-    public StageInstanceModel latestStage() {
-        if (size() == 0) {
+    public @Nullable StageInstanceModel latestStage() {
+        if (isEmpty()) {
             return null;
         }
-        StageInstanceModel latest = getFirstOrNull();
+        StageInstanceModel latest = getFirst();
         for (int i = 1; i < size(); i++) {
             StageInstanceModel current = get(i);
             if (!(current instanceof NullStageHistoryItem) && current.getScheduledDate().after(latest.getScheduledDate())) {
@@ -106,12 +108,22 @@ public class StageInstanceModels extends BaseCollection<StageInstanceModel> impl
     }
 
     public void updateFutureStagesFrom(PipelineConfig pipelineConfig) {
-        StageInstanceModel lastStage = getLastOrNull();
+        Optional<StageInstanceModel> lastStage = getLastStage();
 
-        StageConfig nextStage = lastStage == null ? pipelineConfig.getFirstStageConfig() : pipelineConfig.nextStage(new CaseInsensitiveString(lastStage.getName()));
+        StageConfig nextStage;
+        if (lastStage.isEmpty()) {
+            nextStage = pipelineConfig.getFirstStageConfig();
+        } else {
+            nextStage = pipelineConfig.nextStageAfter(new CaseInsensitiveString(lastStage.get().getName()));
+        }
+
         while (nextStage != null && !this.hasStage(str(nextStage.name()))) {
             this.addFutureStage(str(nextStage.name()), !nextStage.requiresApproval());
-            nextStage = pipelineConfig.nextStage(nextStage.name());
+            nextStage = pipelineConfig.nextStageAfter(nextStage.name());
         }
+    }
+
+    private @NotNull Optional<StageInstanceModel> getLastStage() {
+        return isEmpty() ? Optional.empty() : Optional.of(getLast());
     }
 }

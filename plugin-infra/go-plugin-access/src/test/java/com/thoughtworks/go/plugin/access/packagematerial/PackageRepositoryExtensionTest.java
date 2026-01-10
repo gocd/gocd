@@ -201,8 +201,8 @@ public class PackageRepositoryExtensionTest {
         ValidationResult validationResult = extension.isRepositoryConfigurationValid(PLUGIN_ID, repositoryConfiguration);
 
         assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_VALIDATE_REPOSITORY_CONFIGURATION, expectedRequestBody);
-        assertValidationError(validationResult.getErrors().get(0), "key-one", "incorrect value");
-        assertValidationError(validationResult.getErrors().get(1), "", "general error");
+        assertValidationError(validationResult.getErrors().getFirst(), "key-one", "incorrect value");
+        assertValidationError(validationResult.getErrors().getLast(), "", "general error");
     }
 
     @Test
@@ -218,8 +218,8 @@ public class PackageRepositoryExtensionTest {
         ValidationResult validationResult = extension.isPackageConfigurationValid(PLUGIN_ID, packageConfiguration, repositoryConfiguration);
 
         assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_VALIDATE_PACKAGE_CONFIGURATION, expectedRequestBody);
-        assertValidationError(validationResult.getErrors().get(0), "key-one", "incorrect value");
-        assertValidationError(validationResult.getErrors().get(1), "", "general error");
+        assertValidationError(validationResult.getErrors().getFirst(), "key-one", "incorrect value");
+        assertValidationError(validationResult.getErrors().getLast(), "", "general error");
     }
 
     @Test

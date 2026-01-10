@@ -85,9 +85,9 @@ public class CreatePackageConfigCommandTest {
     @Test
     public void shouldAddTheSpecifiedPackage() {
         CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, packageDefinition, repoId, currentUser, result, packageDefinitionService);
-        assertNull(cruiseConfig.getPackageRepositories().findPackageDefinitionWith(packageId));
+        assertNull(cruiseConfig.getPackageRepositories().findDefinitionByPackageId(packageId));
         command.update(cruiseConfig);
-        assertThat(cruiseConfig.getPackageRepositories().find(repoId).getPackages().find(packageUuid)).isEqualTo(packageDefinition);
+        assertThat(cruiseConfig.getPackageRepositories().findByRepoId(repoId).getPackages().find(packageUuid)).isEqualTo(packageDefinition);
     }
 
     @Test
@@ -116,7 +116,7 @@ public class CreatePackageConfigCommandTest {
 
     @Test
     public void shouldValidateIfPackageNameIsInvalid() {
-        PackageRepository repository = cruiseConfig.getPackageRepositories().find(repoId);
+        PackageRepository repository = cruiseConfig.getPackageRepositories().findByRepoId(repoId);
         PackageDefinition pkg = new PackageDefinition("Id", "!$#", new Configuration());
         pkg.setRepository(repository);
         repository.addPackage(pkg);
@@ -130,7 +130,7 @@ public class CreatePackageConfigCommandTest {
 
     @Test
     public void shouldValidateDuplicatePropertiesInConfiguration() {
-        PackageRepository repository = cruiseConfig.getPackageRepositories().find(repoId);
+        PackageRepository repository = cruiseConfig.getPackageRepositories().findByRepoId(repoId);
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"));
         Configuration configuration = new Configuration();
         configuration.add(property);
@@ -146,7 +146,7 @@ public class CreatePackageConfigCommandTest {
 
     @Test
     public void shouldValidateDuplicatePackageName() {
-        PackageRepository repository = cruiseConfig.getPackageRepositories().find(repoId);
+        PackageRepository repository = cruiseConfig.getPackageRepositories().findByRepoId(repoId);
         PackageDefinition pkg = new PackageDefinition("Id", "prettyjson", new Configuration());
         pkg.setRepository(repository);
         repository.addPackage(pkg);
@@ -160,7 +160,7 @@ public class CreatePackageConfigCommandTest {
 
     @Test
     public void shouldValidateDuplicateIdentity() {
-        PackageRepository repository = cruiseConfig.getPackageRepositories().find(repoId);
+        PackageRepository repository = cruiseConfig.getPackageRepositories().findByRepoId(repoId);
         PackageDefinition pkg = new PackageDefinition("Id", "name", configuration);
         pkg.setRepository(repository);
         repository.addPackage(pkg);

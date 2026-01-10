@@ -70,7 +70,7 @@ public class ModificationsTest {
 
         List<Modification> filtered = Modifications.filterOutRevision(modifications, new StringRevision("1"));
         assertThat(filtered.size()).isEqualTo(1);
-        assertThat(filtered.get(0)).isEqualTo(modification2);
+        assertThat(filtered.getFirst()).isEqualTo(modification2);
     }
 
     @Test

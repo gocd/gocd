@@ -75,10 +75,10 @@ public class UnrunStagesPopulator {
 
     private void appendUnrunStages(PipelineConfig pipelineConfig, PipelineRevision pipelineRevision) {
         Stages stages = pipelineRevision.getStages();
-        StageConfig nextStage = pipelineConfig.nextStage(new CaseInsensitiveString(stages.getLastOrNull().getName()));
+        StageConfig nextStage = pipelineConfig.nextStageAfter(new CaseInsensitiveString(stages.getLast().getName()));
         while (nextStage != null && !stages.hasStage(nextStage.name().toString())) {
             pipelineRevision.addStage(new NullStage(nextStage.name().toString()));
-            nextStage = pipelineConfig.nextStage(nextStage.name());
+            nextStage = pipelineConfig.nextStageAfter(nextStage.name());
         }
     }
 

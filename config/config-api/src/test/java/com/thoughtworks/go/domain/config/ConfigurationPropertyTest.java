@@ -322,7 +322,7 @@ public class ConfigurationPropertyTest {
 
             assertThat(property.hasSecretParams()).isTrue();
             assertThat(property.getSecretParams().size()).isEqualTo(1);
-            assertThat(property.getSecretParams().get(0)).isEqualTo(new SecretParam("secret_config_id", "lookup_key"));
+            assertThat(property.getSecretParams().getFirst()).isEqualTo(new SecretParam("secret_config_id", "lookup_key"));
         }
 
         @Test
@@ -334,7 +334,7 @@ public class ConfigurationPropertyTest {
 
             assertThat(property.hasSecretParams()).isTrue();
             assertThat(property.getSecretParams().size()).isEqualTo(1);
-            assertThat(property.getSecretParams().get(0)).isEqualTo(new SecretParam("secret_config_id", "lookup_key"));
+            assertThat(property.getSecretParams().getFirst()).isEqualTo(new SecretParam("secret_config_id", "lookup_key"));
         }
 
         @Test
@@ -357,7 +357,7 @@ public class ConfigurationPropertyTest {
         @Test
         void shouldReturnResolvedValue() {
             ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("{{SECRET:[secret_config_id][lookup_key]}}"));
-            property.getSecretParams().get(0).setValue("some-dummy-value");
+            property.getSecretParams().getFirst().setValue("some-dummy-value");
 
             assertThat(property.getResolvedValue()).isEqualTo("some-dummy-value");
         }

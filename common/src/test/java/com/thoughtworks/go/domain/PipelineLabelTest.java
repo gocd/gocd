@@ -309,7 +309,7 @@ public class PipelineLabelTest {
                 List.of("#{my:fancy:param}", "#{my:fancy:param}")
         );
 
-        expectations.forEach((exp) -> assertThat(PipelineLabel.migratePipelineLabelTemplate(exp.get(0))).isEqualTo(exp.get(1)));
+        expectations.forEach((exp) -> assertThat(PipelineLabel.migratePipelineLabelTemplate(exp.getFirst())).isEqualTo(exp.get(1)));
     }
 
     @BeforeAll
@@ -366,7 +366,7 @@ public class PipelineLabelTest {
     private PipelineLabel getReplacedLabelFor(String name, String labelFormat) {
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         PipelineLabel label = PipelineLabel.create(labelFormat, InsecureEnvironmentVariables.EMPTY_ENV_VARS);
-        ((SvnMaterial) materialRevisions.getRevisions().get(0).getMaterial()).setName(new CaseInsensitiveString(name));
+        ((SvnMaterial) materialRevisions.getRevisions().getFirst().getMaterial()).setName(new CaseInsensitiveString(name));
         label.updateLabel(materialRevisions.getNamedRevisions(), 1);
         return label;
     }

@@ -173,7 +173,7 @@ class UpdatePipelineConfigCommandTest {
         preprocessedConfig.addPipelineWithoutValidation("group", preprocessedPipelineConfig);
 
         doAnswer(invocation -> {
-            FetchPluggableArtifactTask preprocessedFetchDockerTask = (FetchPluggableArtifactTask) preprocessedPipelineConfig.getStages().get(1).getJobs().get(0).getTasks().get(1);
+            FetchPluggableArtifactTask preprocessedFetchDockerTask = (FetchPluggableArtifactTask) preprocessedPipelineConfig.getStages().get(1).getJobs().getFirst().getTasks().get(1);
             preprocessedFetchDockerTask.getConfiguration().getProperty("key1").addError("key1", "badValue");
             return null;
         }).when(externalArtifactsService).validateFetchExternalArtifactTask(eq(fetchDockerTask), any(PipelineConfig.class), eq(preprocessedConfig));
@@ -280,7 +280,7 @@ class UpdatePipelineConfigCommandTest {
         boolean isValid = command.isValid(preprocessedConfig);
 
         assertThat(isValid).isFalse();
-        Task firstTask = preprocessedConfig.pipelineConfigByName(new CaseInsensitiveString("P1")).getFirstStageConfig().getJobs().get(0).getTasks().get(0);
+        Task firstTask = preprocessedConfig.pipelineConfigByName(new CaseInsensitiveString("P1")).getFirstStageConfig().getJobs().getFirst().getTasks().getFirst();
         assertThat(firstTask.cancelTask().errors().size()).isEqualTo(1);
         assertThat(firstTask.cancelTask().errors().firstErrorOn(ExecTask.COMMAND)).isEqualTo("Command cannot be empty");
     }

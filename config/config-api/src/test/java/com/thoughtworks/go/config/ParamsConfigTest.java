@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -52,26 +51,6 @@ public class ParamsConfigTest {
 
         assertThat(paramsConfig.size()).isEqualTo((2));
         assertThat(paramsConfig.getParamNamed("param-name").getValue()).isEqualTo(("param-value"));
-    }
-
-    @Test
-    public void getIndex() {
-        paramsConfig = new ParamsConfig();
-        ParamConfig one = new ParamConfig("name", "value");
-        paramsConfig.add(one);
-        ParamConfig two = new ParamConfig("other", "other-value");
-        paramsConfig.add(two);
-
-        assertThat(paramsConfig.getIndex("other")).isEqualTo((1));
-        assertThat(paramsConfig.getIndex("name")).isEqualTo(0);
-    }
-
-    @Test
-    public void getIndex_shouldThrowExceptionIfNameNotFound() {
-
-        assertThatThrownBy(() -> new ParamsConfig().getIndex("foo"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("param 'foo' not found");
     }
 
     private Map<String, String> createParamMap(final String name, final String value) {

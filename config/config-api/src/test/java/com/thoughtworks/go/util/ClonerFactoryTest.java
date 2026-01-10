@@ -44,7 +44,7 @@ class ClonerFactoryTest {
         final List<Boolean> dupe = cloner.deepClone(list);
 
         assertEquals(1, dupe.size());
-        assertEquals(list.get(0), dupe.get(0));
+        assertEquals(list.getFirst(), dupe.getFirst());
         assertEquals(list, dupe);
     }
 
@@ -54,8 +54,8 @@ class ClonerFactoryTest {
         final List<Boolean> dupe = cloner.deepClone(list);
 
         assertEquals(2, dupe.size());
-        assertEquals(list.get(0), dupe.get(0));
-        assertEquals(list.get(1), dupe.get(1));
+        assertEquals(list.getFirst(), dupe.getFirst());
+        assertEquals(list.getLast(), dupe.getLast());
         assertEquals(list, dupe);
     }
 

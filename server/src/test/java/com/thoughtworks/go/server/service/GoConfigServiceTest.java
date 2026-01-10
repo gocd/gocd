@@ -58,6 +58,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.helper.EnvironmentVariablesConfigMother.env;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
@@ -107,12 +108,12 @@ public class GoConfigServiceTest {
 
         PipelineConfig otherPipeline = createPipelineConfig("pipeline_other", "stage_other", "plan_other");
         otherPipeline.setVariables(env("OTHER_PIPELINE_LEVEL", "other pipeline"));
-        otherPipeline.getFirstOrNull().setVariables(env("OTHER_STAGE_LEVEL", "other stage"));
-        otherPipeline.getFirstOrNull().jobConfigByConfigName(new CaseInsensitiveString("plan_other")).setVariables(env("OTHER_JOB_LEVEL", "other job"));
+        otherPipeline.getFirst().setVariables(env("OTHER_STAGE_LEVEL", "other stage"));
+        otherPipeline.getFirst().jobConfigByConfigName(new CaseInsensitiveString("plan_other")).setVariables(env("OTHER_JOB_LEVEL", "other job"));
 
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         pipelineConfig.setVariables(env("PIPELINE_LEVEL", "pipeline value"));
-        StageConfig stageConfig = pipelineConfig.getFirstOrNull();
+        StageConfig stageConfig = pipelineConfig.getFirst();
         stageConfig.setVariables(env("STAGE_LEVEL", "stage value"));
         stageConfig.jobConfigByConfigName(new CaseInsensitiveString("plan")).setVariables(env("JOB_LEVEL", "job value"));
 
@@ -213,7 +214,7 @@ public class GoConfigServiceTest {
         expectLoad(new BasicCruiseConfig(group));
         assertThat(goConfigService.isLockable("pipeline")).isFalse();
 
-        pipelineConfig.lockExplicitly();
+        pipelineConfig.setLockBehaviorIfNecessary(LOCK_VALUE_LOCK_ON_FAILURE);
         expectLoad(new BasicCruiseConfig(group));
         assertThat(goConfigService.isLockable("pipeline")).isTrue();
     }
@@ -369,7 +370,7 @@ public class GoConfigServiceTest {
 
     private CruiseConfig unchangedConfigWithRunOnAllAgents() {
         PipelineConfig pipelineConfig = createPipelineConfig(PIPELINE, STAGE, JOB);
-        pipelineConfig.get(0).jobConfigByConfigName(new CaseInsensitiveString(JOB)).setRunOnAllAgents(true);
+        pipelineConfig.getFirst().jobConfigByConfigName(new CaseInsensitiveString(JOB)).setRunOnAllAgents(true);
         return configWith(pipelineConfig);
     }
 
@@ -627,8 +628,8 @@ public class GoConfigServiceTest {
         PipelineConfig pipeline = group.findBy(new CaseInsensitiveString("new_name"));
         assertThat(pipeline.name()).isEqualTo(new CaseInsensitiveString("new_name"));
         assertThat(pipeline.getLabelTemplate()).isEqualTo("${COUNT}-#{foo}");
-        assertThat(pipeline.materialConfigs().getFirstOrNull()).isInstanceOf(SvnMaterialConfig.class);
-        assertThat(pipeline.materialConfigs().getFirstOrNull().getUriForDisplay()).isEqualTo("file:///tmp/foo");
+        assertThat(pipeline.materialConfigs().getFirst()).isInstanceOf(SvnMaterialConfig.class);
+        assertThat(pipeline.materialConfigs().getFirst().getUriForDisplay()).isEqualTo("file:///tmp/foo");
     }
 
     @Test
@@ -679,8 +680,8 @@ public class GoConfigServiceTest {
         PipelineConfig pipeline = group.findBy(new CaseInsensitiveString("new_name"));
         assertThat(pipeline.name()).isEqualTo(new CaseInsensitiveString("new_name"));
         assertThat(pipeline.getLabelTemplate()).isEqualTo("${COUNT}-#{foo}");
-        assertThat(pipeline.materialConfigs().getFirstOrNull()).isInstanceOf(SvnMaterialConfig.class);
-        assertThat(pipeline.materialConfigs().getFirstOrNull().getUriForDisplay()).isEqualTo("file:///tmp/foo");
+        assertThat(pipeline.materialConfigs().getFirst()).isInstanceOf(SvnMaterialConfig.class);
+        assertThat(pipeline.materialConfigs().getFirst().getUriForDisplay()).isEqualTo("file:///tmp/foo");
     }
 
     @Test

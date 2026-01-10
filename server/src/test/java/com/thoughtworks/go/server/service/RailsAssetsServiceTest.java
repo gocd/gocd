@@ -118,7 +118,7 @@ public class RailsAssetsServiceTest {
                 }).toList();
         assertThat(fieldsAnnotatedWithSerializedNameAsAssets.isEmpty()).isFalse();
         assertThat(fieldsAnnotatedWithSerializedNameAsAssets.size()).isEqualTo(1);
-        assertThat(fieldsAnnotatedWithSerializedNameAsAssets.get(0).getType().getCanonicalName()).isEqualTo(Map.class.getCanonicalName());
+        assertThat(fieldsAnnotatedWithSerializedNameAsAssets.getFirst().getType().getCanonicalName()).isEqualTo(Map.class.getCanonicalName());
     }
 
     private final String json = """

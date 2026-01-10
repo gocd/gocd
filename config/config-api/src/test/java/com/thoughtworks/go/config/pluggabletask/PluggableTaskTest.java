@@ -226,8 +226,8 @@ public class PluggableTaskTest {
         task.setTaskConfigAttributes(attributeMap);
 
         assertThat(task.getConfiguration().size()).isEqualTo(1);
-        assertTrue(task.getConfiguration().getFirstOrNull().isSecure());
-        assertThat(task.getConfiguration().getFirstOrNull().getValue()).isEqualTo("value1");
+        assertTrue(task.getConfiguration().getFirst().isSecure());
+        assertThat(task.getConfiguration().getFirst().getValue()).isEqualTo("value1");
     }
 
     @Test
@@ -339,7 +339,7 @@ public class PluggableTaskTest {
 
         pluggableTask.isValid();
 
-        assertThat(pluggableTask.errors().get("pluggable_task").get(0)).isEqualTo("Could not find plugin for given pluggable id:[does_not_exist].");
+        assertThat(pluggableTask.errors().get("pluggable_task").getFirst()).isEqualTo("Could not find plugin for given pluggable id:[does_not_exist].");
     }
 
     @Test
@@ -400,7 +400,7 @@ public class PluggableTaskTest {
         when(pluggableTask.onCancelConfig.validateTree(null)).thenReturn(true);
 
         assertFalse(pluggableTask.validateTree(null));
-        assertThat(pluggableTask.errors().get("onCancelConfig").get(0)).isEqualTo("Cannot nest 'oncancel' within a cancel task");
+        assertThat(pluggableTask.errors().get("onCancelConfig").getFirst()).isEqualTo("Cannot nest 'oncancel' within a cancel task");
     }
 
     @Test

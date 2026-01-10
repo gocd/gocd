@@ -159,7 +159,7 @@ public class EnvironmentVariableContextTest {
         context.setProperty("GO_SERVER_URL", "{{SECRET:[secret_config_id][test]}}", false);
 
         assertThat(context.getSecureEnvironmentVariables()).hasSize(1);
-        assertThat(context.getSecureEnvironmentVariables().get(0).isSecure()).isTrue();
+        assertThat(context.getSecureEnvironmentVariables().getFirst().isSecure()).isTrue();
     }
 
     @Nested

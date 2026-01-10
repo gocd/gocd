@@ -72,7 +72,7 @@ public class FetchTaskBuilderTest {
 
         PipelineConfig downstream = config.pipelineConfigByName(new CaseInsensitiveString("downstream"));
         downstream.setMaterialConfigs(new MaterialConfigs(MaterialConfigsMother.dependencyMaterialConfig("upstream", "up-stage1")));
-        downstream.get(0).getJobs().get(0).addTask(new FetchTask(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar"), new CaseInsensitiveString("baz"), "abcd", "efg"));
+        downstream.getFirst().getJobs().getFirst().addTask(new FetchTask(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar"), new CaseInsensitiveString("baz"), "abcd", "efg"));
 
         config.getArtifactStores().add(new ArtifactStore("s3", "cd.go.s3"));
 

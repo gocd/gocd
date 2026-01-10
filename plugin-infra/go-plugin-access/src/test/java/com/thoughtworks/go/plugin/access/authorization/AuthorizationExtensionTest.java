@@ -235,7 +235,7 @@ public class AuthorizationExtensionTest {
 
         assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "2.0", REQUEST_AUTHENTICATE_USER, requestBody);
         assertThat(authenticationResponse.getUser()).isEqualTo(new User("bob", "Bob", "bob@example.com"));
-        assertThat(authenticationResponse.getRoles().get(0)).isEqualTo("blackbird");
+        assertThat(authenticationResponse.getRoles().getFirst()).isEqualTo("blackbird");
     }
 
     @Test
@@ -268,7 +268,7 @@ public class AuthorizationExtensionTest {
 
         assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "2.0", REQUEST_AUTHENTICATE_USER, requestBody);
         assertThat(authenticationResponse.getUser()).isEqualTo(new User("bob", "Bob", "bob@example.com"));
-        assertThat(authenticationResponse.getRoles().get(0)).isEqualTo("blackbird");
+        assertThat(authenticationResponse.getRoles().getFirst()).isEqualTo("blackbird");
     }
 
     @Test

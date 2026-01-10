@@ -90,6 +90,7 @@ public class Boot {
             Class<?> mainClass = jcl.loadClass(mainClassName);
             mainClass.getMethod("main", String[].class).invoke(null, new Object[]{args});
         } catch (IOException | ReflectiveOperationException e) {
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
             System.exit(1);
         }

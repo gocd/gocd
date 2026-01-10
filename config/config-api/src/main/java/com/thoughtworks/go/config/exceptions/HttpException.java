@@ -36,7 +36,11 @@ public abstract class HttpException extends RuntimeException {
 
     public String asXML() {
         String tag = status.name().toLowerCase().replaceAll("_", "-");
-        return format("<%s>\n  <message>%s</message>\n</%s>\n", tag, escapeXml11(getMessage()), tag);
+        return format("""
+            <%s>
+              <message>%s</message>
+            </%s>
+            """, tag, escapeXml11(getMessage()), tag);
     }
 
     @Override

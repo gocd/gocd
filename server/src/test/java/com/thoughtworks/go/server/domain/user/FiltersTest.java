@@ -172,7 +172,7 @@ class FiltersTest {
         String json = "{ \"filters\": [{\"name\": \"Default\", \"type\": \"whitelist\", \"pipelines\": [\"p1\"], \"state\": []}] }";
         final Filters filters = Filters.fromJson(json);
         assertEquals(1, filters.filters().size());
-        final DashboardFilter first = filters.filters().get(0);
+        final DashboardFilter first = filters.filters().getFirst();
         assertEquals(DEFAULT_NAME, first.name());
         assertInstanceOf(IncludesFilter.class, first);
         assertEquals(1, ((IncludesFilter) first).pipelines().size());

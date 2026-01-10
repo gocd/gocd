@@ -342,7 +342,7 @@ public class ConfigConverter {
     }
 
     private PackageDefinition getPackageDefinition(String packageId) {
-        PackageRepository packageRepositoryHaving = this.cachedGoConfig.currentConfig().getPackageRepositories().findPackageRepositoryHaving(packageId);
+        PackageRepository packageRepositoryHaving = this.cachedGoConfig.currentConfig().getPackageRepositories().findByPackageId(packageId);
         if (packageRepositoryHaving == null) {
             throw new ConfigConvertionException(
                     String.format("Failed to find package repository with package id '%s'", packageId));
@@ -700,7 +700,7 @@ public class ConfigConverter {
 
         crPipeline.setTrackingTool(trackingToolToCRTrackingTool(pipelineConfig.getTrackingTool()));
         crPipeline.setTimer(timerConfigToCRTimer(pipelineConfig.getTimer()));
-        crPipeline.setLockBehavior(pipelineConfig.getLockBehavior());
+        crPipeline.setLockBehavior(pipelineConfig.getLockBehaviorOrDefault());
 
         crPipeline.setLabelTemplate(pipelineConfig.getLabelTemplate());
         crPipeline.setDisplayOrderWeight(pipelineConfig.getDisplayOrderWeight());
@@ -878,7 +878,7 @@ public class ConfigConverter {
         if (runIfs == null || runIfs.isEmpty()) {
             return CRRunIf.passed;
         }
-        RunIfConfig runIf = runIfs.getFirstOrNull();
+        RunIfConfig runIf = runIfs.getFirst();
         if (runIf.equals(RunIfConfig.ANY)) {
             return CRRunIf.any;
         } else if (runIf.equals(RunIfConfig.PASSED)) {

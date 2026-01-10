@@ -30,8 +30,6 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.security.CryptoException;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.Node;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -64,30 +62,6 @@ public class PipelineConfigTest {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null, completedStage(), buildingStage());
         assertThat(pipelineConfig.getStage(new CaseInsensitiveString("COMpleTEd stage")).name()).isEqualTo(new CaseInsensitiveString("completed stage"));
         assertThat(pipelineConfig.getStage(new CaseInsensitiveString("Does-not-exist"))).isNull();
-    }
-
-    @Test
-    public void shouldReturnFalseIfThereIsNoNextStage() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null, completedStage(), buildingStage());
-        assertThat(pipelineConfig.hasNextStage(buildingStage().name())).isFalse();
-    }
-
-    @Test
-    public void shouldReturnFalseIfThereIsNextStage() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null, completedStage(), buildingStage());
-        assertThat(pipelineConfig.hasNextStage(completedStage().name())).isTrue();
-    }
-
-    @Test
-    public void shouldReturnFalseThePassInStageDoesNotExist() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null, completedStage(), buildingStage());
-        assertThat(pipelineConfig.hasNextStage(new CaseInsensitiveString("notExist"))).isFalse();
-    }
-
-    @Test
-    public void shouldReturnTrueIfThereNoStagesDefined() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null);
-        assertThat(pipelineConfig.hasNextStage(completedStage().name())).isFalse();
     }
 
     @Test
@@ -349,7 +323,7 @@ public class PipelineConfigTest {
 
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.setConfigAttributes(configMap);
-        assertThat(pipelineConfig.isPipelineUnlockableWhenFinished()).isTrue();
+        assertThat(pipelineConfig.isUnlockableWhenFinished()).isTrue();
     }
 
     @Test
@@ -371,7 +345,7 @@ public class PipelineConfigTest {
     public void isNotLockableWhenLockValueHasNotBeenSet() {
         PipelineConfig pipelineConfig = new PipelineConfig();
 
-        assertThat(pipelineConfig.hasExplicitLock()).isFalse();
+        assertThat(pipelineConfig.hasExplicitLockBehavior()).isFalse();
         assertThat(pipelineConfig.isLockable()).isFalse();
     }
 
@@ -497,51 +471,6 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldIncrementIndexBy1OfGivenStage() {
-        StageConfig moveMeStage = StageConfigMother.stageConfig("move-me");
-        StageConfig dontMoveMeStage = StageConfigMother.stageConfig("dont-move-me");
-        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline", moveMeStage, dontMoveMeStage);
-
-        pipelineConfig.incrementIndex(moveMeStage);
-
-        assertThat(pipelineConfig.indexOf(moveMeStage)).isEqualTo(1);
-        assertThat(pipelineConfig.indexOf(dontMoveMeStage)).isEqualTo(0);
-    }
-
-    @Test
-    public void shouldDecrementIndexBy1OfGivenStage() {
-        StageConfig moveMeStage = StageConfigMother.stageConfig("move-me");
-        StageConfig dontMoveMeStage = StageConfigMother.stageConfig("dont-move-me");
-        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline", dontMoveMeStage, moveMeStage);
-
-        pipelineConfig.decrementIndex(moveMeStage);
-
-        assertThat(pipelineConfig.indexOf(moveMeStage)).isEqualTo(0);
-        assertThat(pipelineConfig.indexOf(dontMoveMeStage)).isEqualTo(1);
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenTheStageIsNotFound() {
-        StageConfig moveMeStage = StageConfigMother.stageConfig("move-me");
-        StageConfig dontMoveMeStage = StageConfigMother.stageConfig("dont-move-me");
-        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline", dontMoveMeStage);
-
-        try {
-            pipelineConfig.incrementIndex(moveMeStage);
-            fail("Should fail to increment the index of a stage that is not found");
-        } catch (RuntimeException expected) {
-            assertThat(expected.getMessage()).isEqualTo("Cannot find the stage 'move-me' in pipeline 'pipeline'");
-        }
-
-        try {
-            pipelineConfig.decrementIndex(moveMeStage);
-            fail("Should fail to increment the index of a stage that is not found");
-        } catch (RuntimeException expected) {
-            assertThat(expected.getMessage()).isEqualTo("Cannot find the stage 'move-me' in pipeline 'pipeline'");
-        }
-    }
-
-    @Test
     public void shouldReturnListOfStageConfigWhichIsApplicableForFetchArtifact() {
         PipelineConfig superUpstream = PipelineConfigMother.createPipelineConfigWithStages("superUpstream", "s1", "s2", "s3");
         PipelineConfig upstream = PipelineConfigMother.createPipelineConfigWithStages("upstream", "s4", "s5", "s6");
@@ -562,7 +491,7 @@ public class PipelineConfigTest {
         PipelineConfig downstream = PipelineConfigMother.createPipelineConfigWithStages("downstream", "s1", "s2");
         @SuppressWarnings("CollectionAddedToSelf") List<StageConfig> fetchableStages = downstream.validStagesForFetchArtifact(downstream, new CaseInsensitiveString("s2"));
         assertThat(fetchableStages.size()).isEqualTo(1);
-        assertThat(fetchableStages).contains(downstream.get(0));
+        assertThat(fetchableStages).contains(downstream.getFirst());
     }
 
     @Test
@@ -586,7 +515,7 @@ public class PipelineConfigTest {
         pipelineConfig.setConfigAttributes(attributeMap);
 
         assertThat(pipelineConfig.name()).isEqualTo(new CaseInsensitiveString("startup"));
-        assertThat(pipelineConfig.materialConfigs().get(0)).isEqualTo(svn("http://url", "loser", "passwd", false));
+        assertThat(pipelineConfig.materialConfigs().getFirst()).isEqualTo(svn("http://url", "loser", "passwd", false));
     }
 
     @Test
@@ -605,8 +534,8 @@ public class PipelineConfigTest {
         pipelineConfig.setConfigAttributes(attributeMap);
 
         assertThat(pipelineConfig.name()).isEqualTo(new CaseInsensitiveString("startup"));
-        assertThat(pipelineConfig.get(0).name()).isEqualTo(new CaseInsensitiveString("someStage"));
-        assertThat(pipelineConfig.get(0).getJobs().getFirstOrNull().name()).isEqualTo(new CaseInsensitiveString("JobName"));
+        assertThat(pipelineConfig.getFirst().name()).isEqualTo(new CaseInsensitiveString("someStage"));
+        assertThat(pipelineConfig.getFirst().getJobs().getFirst().name()).isEqualTo(new CaseInsensitiveString("JobName"));
     }
 
     @Test
@@ -636,15 +565,15 @@ public class PipelineConfigTest {
 
         assertThat(pipelineConfig.name()).isEqualTo(new CaseInsensitiveString("startup"));
         assertThat(pipelineConfig.size()).isEqualTo(1);
-        assertThat(pipelineConfig.get(0).name()).isEqualTo(new CaseInsensitiveString("someStage"));
-        assertThat(pipelineConfig.get(0).getJobs().getFirstOrNull().name()).isEqualTo(new CaseInsensitiveString("JobName"));
+        assertThat(pipelineConfig.getFirst().name()).isEqualTo(new CaseInsensitiveString("someStage"));
+        assertThat(pipelineConfig.getFirst().getJobs().getFirst().name()).isEqualTo(new CaseInsensitiveString("JobName"));
     }
 
     @Test
     public void shouldGetAllFetchTasks() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("foo bar", "stage1", "job1");
         FetchTask firstFetch = new FetchTask();
-        JobConfig firstJob = pipelineConfig.getFirstStageConfig().getJobs().get(0);
+        JobConfig firstJob = pipelineConfig.getFirstStageConfig().getJobs().getFirst();
         firstJob.addTask(firstFetch);
         firstJob.addTask(new AntTask());
 
@@ -658,34 +587,6 @@ public class PipelineConfigTest {
         assertThat(fetchTasks.size()).isEqualTo(2);
         assertThat(fetchTasks.contains(firstFetch)).isTrue();
         assertThat(fetchTasks.contains(secondFetch)).isTrue();
-    }
-
-    @Test
-    public void shouldGetOnlyPlainTextVariables() throws CryptoException {
-        PipelineConfig pipelineConfig = new PipelineConfig();
-        EnvironmentVariableConfig username = new EnvironmentVariableConfig("username", "ram");
-        pipelineConfig.addEnvironmentVariable(username);
-        GoCipher goCipher = mock(GoCipher.class);
-        when(goCipher.encrypt("=%HG*^&*&^")).thenReturn("encrypted");
-        EnvironmentVariableConfig password = new EnvironmentVariableConfig(goCipher, "password", "=%HG*^&*&^", true);
-        pipelineConfig.addEnvironmentVariable(password);
-        EnvironmentVariablesConfig plainTextVariables = pipelineConfig.getPlainTextVariables();
-        assertThat(plainTextVariables).doesNotContain(password);
-        assertThat(plainTextVariables).contains(username);
-    }
-
-    @Test
-    public void shouldGetOnlySecureVariables() throws CryptoException {
-        PipelineConfig pipelineConfig = new PipelineConfig();
-        EnvironmentVariableConfig username = new EnvironmentVariableConfig("username", "ram");
-        pipelineConfig.addEnvironmentVariable(username);
-        GoCipher goCipher = mock(GoCipher.class);
-        when(goCipher.encrypt("=%HG*^&*&^")).thenReturn("encrypted");
-        EnvironmentVariableConfig password = new EnvironmentVariableConfig(goCipher, "password", "=%HG*^&*&^", true);
-        pipelineConfig.addEnvironmentVariable(password);
-        List<EnvironmentVariableConfig> plainTextVariables = pipelineConfig.getSecureVariables();
-        assertThat(plainTextVariables).contains(password);
-        assertThat(plainTextVariables).doesNotContain(username);
     }
 
     @Test
@@ -707,11 +608,11 @@ public class PipelineConfigTest {
         Map<String, Object> approvalAttributes = Map.of(Approval.TYPE, Approval.SUCCESS);
         Map<String, Map<String, Object>> map = Map.of(StageConfig.APPROVAL, approvalAttributes);
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("p1", "s1", "j1");
-        pipelineConfig.get(0).updateApproval(Approval.manualApproval());
+        pipelineConfig.getFirst().updateApproval(Approval.manualApproval());
 
         pipelineConfig.setConfigAttributes(map);
 
-        assertThat(pipelineConfig.get(0).getApproval().getType()).isEqualTo(Approval.SUCCESS);
+        assertThat(pipelineConfig.getFirst().getApproval().getType()).isEqualTo(Approval.SUCCESS);
     }
 
     @Test
@@ -719,11 +620,11 @@ public class PipelineConfigTest {
         Map<String, Object> approvalAttributes = Map.of(Approval.TYPE, Approval.MANUAL);
         Map<String, Map<String, Object>> map = Map.of(StageConfig.APPROVAL, approvalAttributes);
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("p1", "s1", "j1");
-        pipelineConfig.get(0).updateApproval(Approval.manualApproval());
+        pipelineConfig.getFirst().updateApproval(Approval.manualApproval());
 
         pipelineConfig.setConfigAttributes(map);
 
-        assertThat(pipelineConfig.get(0).getApproval().getType()).isEqualTo(Approval.MANUAL);
+        assertThat(pipelineConfig.getFirst().getApproval().getType()).isEqualTo(Approval.MANUAL);
     }
 
     @Test
@@ -735,8 +636,8 @@ public class PipelineConfigTest {
 
         pipelineConfig.setConfigAttributes(map);
 
-        assertThat(pipelineConfig.get(0).getApproval().getType()).isEqualTo(Approval.MANUAL);
-        assertThat(pipelineConfig.get(1).getApproval().getType()).isEqualTo(Approval.SUCCESS);
+        assertThat(pipelineConfig.getFirst().getApproval().getType()).isEqualTo(Approval.MANUAL);
+        assertThat(pipelineConfig.getLast().getApproval().getType()).isEqualTo(Approval.SUCCESS);
     }
 
     @Test
@@ -768,7 +669,7 @@ public class PipelineConfigTest {
     @Test
     public void shouldReturnTrueWhenOneOfPipelineMaterialsIsTheSameAsConfigOrigin() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
-        MaterialConfig material = pipelineConfig.materialConfigs().getFirstOrNull();
+        MaterialConfig material = pipelineConfig.materialConfigs().getFirst();
         pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(material, "plugin", "id"), "1233"));
 
         assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials()).isTrue();
@@ -809,7 +710,7 @@ public class PipelineConfigTest {
     @Test
     public void shouldReturnTrueWhenConfigRevisionIsEqualToQuery() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
-        MaterialConfig material = pipelineConfig.materialConfigs().getFirstOrNull();
+        MaterialConfig material = pipelineConfig.materialConfigs().getFirst();
         pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(material, "plugin", "id"), "1233"));
 
         assertThat(pipelineConfig.isConfigOriginFromRevision("1233")).isTrue();
@@ -818,7 +719,7 @@ public class PipelineConfigTest {
     @Test
     public void shouldReturnFalseWhenConfigRevisionIsNotEqualToQuery() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
-        MaterialConfig material = pipelineConfig.materialConfigs().getFirstOrNull();
+        MaterialConfig material = pipelineConfig.materialConfigs().getFirst();
         pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(material, "plugin", "id"), "1233"));
 
         assertThat(pipelineConfig.isConfigOriginFromRevision("32")).isFalse();

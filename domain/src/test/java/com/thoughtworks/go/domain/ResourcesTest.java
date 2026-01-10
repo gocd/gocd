@@ -37,8 +37,8 @@ class ResourcesTest {
         final ResourceConfigs resourceConfigs = resources.toResourceConfigs();
 
         assertThat(resourceConfigs.size()).isEqualTo(2);
-        assertThat(resourceConfigs.get(0)).isEqualTo(new ResourceConfig("foo"));
-        assertThat(resourceConfigs.get(1)).isEqualTo(new ResourceConfig("bar"));
+        assertThat(resourceConfigs.getFirst()).isEqualTo(new ResourceConfig("foo"));
+        assertThat(resourceConfigs.getLast()).isEqualTo(new ResourceConfig("bar"));
     }
 
     @Test

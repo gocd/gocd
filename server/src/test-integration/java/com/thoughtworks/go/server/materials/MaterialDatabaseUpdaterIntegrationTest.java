@@ -124,10 +124,10 @@ public class MaterialDatabaseUpdaterIntegrationTest {
 
 
         if (!threadOneExceptions.isEmpty()) {
-            throw threadOneExceptions.get(0);
+            throw threadOneExceptions.getFirst();
         }
         if (!threadTwoExceptions.isEmpty()) {
-            throw threadTwoExceptions.get(0);
+            throw threadTwoExceptions.getFirst();
         }
         assertThat(transactionTemplateWithInvocationCount.invocationCount).hasValue(1);
     }

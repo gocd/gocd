@@ -72,12 +72,12 @@ public class FeatureTogglesTest {
         FeatureToggles newToggles = existingToggles.changeToggleValue("key2", true);
 
         assertThat(existingToggles.all().size()).isEqualTo(2);
-        assertThat(existingToggles.all().get(0)).isEqualTo(new FeatureToggle("key1", "desc1", true));
-        assertThat(existingToggles.all().get(1)).isEqualTo(new FeatureToggle("key2", "desc2", false));
+        assertThat(existingToggles.all().getFirst()).isEqualTo(new FeatureToggle("key1", "desc1", true));
+        assertThat(existingToggles.all().getLast()).isEqualTo(new FeatureToggle("key2", "desc2", false));
 
         assertThat(newToggles.all().size()).isEqualTo(2);
-        assertThat(newToggles.all().get(0)).isEqualTo(new FeatureToggle("key1", "desc1", true));
-        assertThat(newToggles.all().get(1)).isEqualTo(new FeatureToggle("key2", "desc2", true));
+        assertThat(newToggles.all().getFirst()).isEqualTo(new FeatureToggle("key1", "desc1", true));
+        assertThat(newToggles.all().getLast()).isEqualTo(new FeatureToggle("key2", "desc2", true));
     }
 
     @Test
@@ -87,8 +87,8 @@ public class FeatureTogglesTest {
         FeatureToggles newToggles = existingToggles.changeToggleValue("key_NOT_EXISTENT", true);
 
         assertThat(existingToggles.all().size()).isEqualTo(2);
-        assertThat(existingToggles.all().get(0)).isEqualTo(new FeatureToggle("key1", "desc1", true));
-        assertThat(existingToggles.all().get(1)).isEqualTo(new FeatureToggle("key2", "desc2", false));
+        assertThat(existingToggles.all().getFirst()).isEqualTo(new FeatureToggle("key1", "desc1", true));
+        assertThat(existingToggles.all().getLast()).isEqualTo(new FeatureToggle("key2", "desc2", false));
 
         assertThat(newToggles.all().size()).isEqualTo(3);
         assertThat(newToggles.all().get(0)).isEqualTo(new FeatureToggle("key1", "desc1", true));

@@ -67,11 +67,11 @@ public class CreatePackageRepositoryCommandTest {
         PackageRepository repository = new PackageRepository("id", "name", new PluginConfiguration(), new Configuration());
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, repository, currentUser, result);
 
-        assertNull(cruiseConfig.getPackageRepositories().find("id"));
+        assertNull(cruiseConfig.getPackageRepositories().findByRepoId("id"));
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         assertThat(result).isEqualTo(expectedResult);
-        assertThat(cruiseConfig.getPackageRepositories().find("id")).isEqualTo(repository);
+        assertThat(cruiseConfig.getPackageRepositories().findByRepoId("id")).isEqualTo(repository);
     }
 
     @Test

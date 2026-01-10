@@ -75,7 +75,7 @@ public class SecurityAuthConfigTest {
         authConfig.addConfigurations(List.of(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
 
         assertThat(authConfig.size()).isEqualTo(1);
-        assertTrue(authConfig.getFirstOrNull().isSecure());
+        assertTrue(authConfig.getFirst().isSecure());
     }
 
     @Test
@@ -87,7 +87,7 @@ public class SecurityAuthConfigTest {
         authConfig.addConfigurations(List.of(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
 
         assertThat(authConfig.size()).isEqualTo(1);
-        assertFalse(authConfig.getFirstOrNull().isSecure());
+        assertFalse(authConfig.getFirst().isSecure());
         assertThat(authConfig).contains(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
     }
 
@@ -102,7 +102,7 @@ public class SecurityAuthConfigTest {
         authConfig.encryptSecureConfigurations();
 
         assertThat(authConfig.size()).isEqualTo(1);
-        assertTrue(authConfig.getFirstOrNull().isSecure());
+        assertTrue(authConfig.getFirst().isSecure());
     }
 
     @Test
@@ -112,7 +112,7 @@ public class SecurityAuthConfigTest {
         authConfig.encryptSecureConfigurations();
 
         assertThat(authConfig.size()).isEqualTo(1);
-        assertFalse(authConfig.getFirstOrNull().isSecure());
+        assertFalse(authConfig.getFirst().isSecure());
     }
 
     private PluginDescriptor pluginDescriptor(String pluginId) {

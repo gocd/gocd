@@ -24,7 +24,7 @@ public class AgentConsoleLogThread extends Thread {
     private volatile boolean keepRunning;
     private volatile boolean flushedAfterStop;
 
-    public AgentConsoleLogThread(InputStream inputStream, AgentOutputAppender agentOutputAppender) {
+    AgentConsoleLogThread(InputStream inputStream, AgentOutputAppender agentOutputAppender) {
         this.inputStream = inputStream;
         this.agentOutputAppender = agentOutputAppender;
 

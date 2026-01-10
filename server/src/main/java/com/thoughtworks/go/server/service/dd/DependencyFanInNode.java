@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.thoughtworks.go.server.service.dd.DependencyFanInNode.RevisionAlteration.*;
 
@@ -140,7 +139,7 @@ class DependencyFanInNode extends FanInNode<DependencyMaterialConfig> {
     private @Nullable Pair<StageIdentifier, List<FaninScmMaterial>> getRevisionNthFor(int n, FanInGraphContext context) {
         List<FaninScmMaterial> scmMaterials = new ArrayList<>();
         PipelineTimeline pipelineTimeline = context.pipelineTimeline();
-        Queue<PipelineTimelineEntry.Revision> revisionQueue = new ConcurrentLinkedQueue<>();
+        Queue<PipelineTimelineEntry.Revision> revisionQueue = new LinkedList<>();
         PipelineTimelineEntry entry = pipelineTimeline.instanceFor(materialConfig.getPipelineName(), totalInstanceCount - n);
 
         Set<CaseInsensitiveString> visitedNodes = new HashSet<>();
@@ -151,8 +150,8 @@ class DependencyFanInNode extends FanInNode<DependencyMaterialConfig> {
         } else {
             return null;
         }
-        while (!revisionQueue.isEmpty()) {
-            PipelineTimelineEntry.Revision revision = revisionQueue.poll();
+
+        for (PipelineTimelineEntry.Revision revision; (revision = revisionQueue.poll()) != null; ){
             DependencyMaterialRevision dmr = DependencyMaterialRevision.create(revision.revision(), null);
             PipelineTimelineEntry pte = pipelineTimeline.getEntryFor(new CaseInsensitiveString(dmr.getPipelineName()), dmr.getPipelineCounter());
             addToRevisionQueue(pte, revisionQueue, scmMaterials, context, visitedNodes);

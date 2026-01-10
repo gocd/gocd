@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
@@ -26,8 +25,6 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-
-import java.util.List;
 
 public class UpdatePackageConfigCommand extends PackageConfigCommand {
     private final GoConfigService goConfigService;
@@ -52,15 +49,11 @@ public class UpdatePackageConfigCommand extends PackageConfigCommand {
     @Override
     public void update(CruiseConfig modifiedConfig) {
         PackageRepositories packageRepositories = modifiedConfig.getPackageRepositories();
-        PackageRepository repository = packageRepositories.findPackageRepositoryHaving(oldPackageId);
-        int index = packageRepositories.indexOf(repository);
+        PackageRepository repository = packageRepositories.findByPackageIdOrBomb(oldPackageId);
 
         newPackage.setRepository(repository);
         repository.removePackage(oldPackageId);
         repository.addPackage(this.newPackage);
-
-        packageRepositories.replace(index, repository);
-        modifiedConfig.setPackageRepositories(packageRepositories);
 
         updatePackageConfigurationOnAssociatedPipelines(modifiedConfig);
     }
@@ -76,17 +69,16 @@ public class UpdatePackageConfigCommand extends PackageConfigCommand {
     }
 
     private void updatePackageConfigurationOnAssociatedPipelines(CruiseConfig modifiedConfig) {
-        List<PipelineConfig> pipelinesWithPackage = modifiedConfig.pipelinesAssociatedWithPackage(newPackage);
-        pipelinesWithPackage.forEach(pipelineConfig -> pipelineConfig.packageMaterialConfigs().forEach(packageMaterialConfig -> {
-            if (packageMaterialConfig.getPackageId().equals(newPackage.getId())) {
-                packageMaterialConfig.setPackageDefinition(newPackage);
-            }
-        }));
+        modifiedConfig.pipelinesAssociatedWithPackage(newPackage)
+            .stream()
+            .flatMap(pipelineConfig -> pipelineConfig.packageMaterialConfigs().stream())
+            .filter(packageConfig -> packageConfig.getPackageId().equals(newPackage.getId()))
+            .forEach(packageConfig -> packageConfig.setPackageDefinition(newPackage));
     }
 
     private boolean isRepositoryPresent(CruiseConfig cruiseConfig) {
         String repoId = newPackage.getRepository().getRepoId();
-        if (cruiseConfig.getPackageRepositories().find(repoId) == null) {
+        if (cruiseConfig.getPackageRepositories().findByRepoId(repoId) == null) {
             result.unprocessableEntity(EntityType.PackageRepository.notFoundMessage(repoId));
             return false;
         }
@@ -102,7 +94,7 @@ public class UpdatePackageConfigCommand extends PackageConfigCommand {
     }
 
     private boolean isRequestFresh() {
-        PackageDefinition oldPackage = goConfigService.getConfigForEditing().getPackageRepositories().findPackageDefinitionWith(oldPackageId);
+        PackageDefinition oldPackage = goConfigService.getConfigForEditing().getPackageRepositories().findDefinitionByPackageId(oldPackageId);
         boolean freshRequest = entityHashingService.hashForEntity(oldPackage).equals(digest);
         if (!freshRequest) {
             result.stale(EntityType.PackageDefinition.staleConfig(oldPackage.getId()));

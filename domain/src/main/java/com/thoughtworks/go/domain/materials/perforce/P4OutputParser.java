@@ -44,7 +44,10 @@ public class P4OutputParser {
     private static final Pattern FIRST_LINE_PATTERN = Pattern.compile("^Change (\\d+) by (\\S+@\\S+) on (\\d+/\\d+/\\d+ \\d+:\\d+:\\d+)$");
     private static final Pattern FILE_LINE_PATTERN = Pattern.compile("^\\.\\.\\. //.+?/(.+)#(\\d+) (\\w+)$");
 
-    private static final String SEPARATOR = "Affected files ...\n\n";
+    private static final String SEPARATOR = """
+        Affected files ...
+        
+        """;
 
     private final P4Client p4Client;
 

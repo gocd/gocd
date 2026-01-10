@@ -386,7 +386,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     @Test
     public void shouldSkipSecurityCheckingForCruiseUserWhenTimerTriggersPipeline() {
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
-        schedulingChecker.canTriggerPipelineWithTimer(goConfigService.getAllPipelineConfigs().get(0), result);
+        schedulingChecker.canTriggerPipelineWithTimer(goConfigService.getAllPipelineConfigs().getFirst(), result);
         assertThat(result.canContinue()).isTrue();
     }
 }

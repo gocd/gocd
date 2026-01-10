@@ -90,7 +90,7 @@ public class GitCommandSubmodulesTest extends GitCommandIntegrationTestBase {
         gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer, false);
         List<String> folders = gitWithSubmodule.submoduleFolders();
         assertEquals(1, folders.size());
-        assertEquals("sub1", folders.get(0));
+        assertEquals("sub1", folders.getFirst());
     }
 
     @Test
@@ -122,7 +122,7 @@ public class GitCommandSubmodulesTest extends GitCommandIntegrationTestBase {
         gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer, false);
         List<String> folders = gitWithSubmodule.submoduleFolders();
         assertEquals(1, folders.size());
-        assertEquals("sub1", folders.get(0));
+        assertEquals("sub1", folders.getFirst());
     }
 
     @Test
@@ -180,7 +180,7 @@ public class GitCommandSubmodulesTest extends GitCommandIntegrationTestBase {
         clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision("HEAD"), false);
 
         /* Simulate a local modification of file inside submodule, on agent side. */
-        File fileInSubmodule = allFilesIn(new File(cloneDirectory, submoduleDirectoryName)).get(0);
+        File fileInSubmodule = allFilesIn(new File(cloneDirectory, submoduleDirectoryName)).getFirst();
         Files.writeString(fileInSubmodule.toPath(), "Some other new content.", UTF_8);
 
         /* Commit a change to the file on the repo. */
@@ -189,7 +189,7 @@ public class GitCommandSubmodulesTest extends GitCommandIntegrationTestBase {
 
         /* Simulate start of a new build on agent. */
         clonedCopy.fetch(outputStreamConsumer);
-        clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision(modifications.get(0).getRevision()), false);
+        clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision(modifications.getFirst().getRevision()), false);
 
         assertEquals("NEW CONTENT OF FILE", Files.readString(fileInSubmodule.toPath(), UTF_8));
     }

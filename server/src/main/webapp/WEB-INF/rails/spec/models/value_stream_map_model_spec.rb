@@ -195,7 +195,7 @@ describe ValueStreamMapModel do
     expect(nodeGit.material_revisions.size).to eq(1)
     expect(nodeGit.material_revisions[0].modifications.size).to eq(1)
     git_instance = nodeGit.material_revisions[0].modifications[0]
-    modification = modifications.get(0)
+    modification = modifications.getFirst()
     expect(git_instance.revision).to eq(modification.getRevision())
     expect(git_instance.locator).to eq("some/path/to/git/r1")
   end
@@ -297,7 +297,7 @@ describe ValueStreamMapModel do
     expect(git_node.material_revisions[0].modifications.size).to eq(1)
 
     git_instance = git_node.material_revisions[0].modifications[0]
-    modification = modifications.get(0)
+    modification = modifications.getFirst()
     expect(git_instance.revision).to eq(modification.getRevision())
     expect(git_instance.user).to eq(modification.getUserName())
     expect(git_instance.comment).to eq(modification.getComment())
@@ -321,7 +321,7 @@ describe ValueStreamMapModel do
     expect(git_node.material_revisions[0].modifications.size).to eq(1)
 
     git_instance = git_node.material_revisions[0].modifications[0]
-    modification = modifications.get(0)
+    modification = modifications.getFirst()
     expect(git_instance.revision).to eq(modification.getRevision())
     expect(git_instance.user).to eq(modification.getUserName())
     expect(git_instance.comment).to eq(modification.getComment())

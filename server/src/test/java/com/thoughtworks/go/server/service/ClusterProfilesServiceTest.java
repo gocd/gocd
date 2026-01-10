@@ -91,7 +91,7 @@ public class ClusterProfilesServiceTest {
     @Test
     void shouldSendResolvedValueToThePluginWhileValidation() {
         clusterProfile.addNewConfigurationWithValue("key", "{{SECRET:[config_id][key]}}", false);
-        clusterProfile.getSecretParams().get(0).setValue("some-resolved-value");
+        clusterProfile.getSecretParams().getFirst().setValue("some-resolved-value");
         clusterProfilesService.update(clusterProfile, new Username("Bob"), new HttpLocalizedOperationResult());
 
         verify(secretParamResolver).resolve(clusterProfile);

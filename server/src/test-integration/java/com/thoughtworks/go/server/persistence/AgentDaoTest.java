@@ -128,8 +128,8 @@ public class AgentDaoTest {
             List<Agent> agents = agentDao.getAgentsByUUIDs(List.of(uuid1, uuid2, uuid3));
 
             assertThat(agents.size()).isEqualTo(2);
-            assertThat(agents.get(0).getUuid()).isEqualTo(uuid1);
-            assertThat(agents.get(1).getUuid()).isEqualTo(uuid3);
+            assertThat(agents.getFirst().getUuid()).isEqualTo(uuid1);
+            assertThat(agents.getLast().getUuid()).isEqualTo(uuid3);
         }
 
         @Test
@@ -151,8 +151,8 @@ public class AgentDaoTest {
             List<Agent> allAgents = agentDao.getAllAgents();
 
             assertThat(allAgents.size()).isEqualTo(2);
-            assertThat(allAgents.get(0).getUuid()).isEqualTo(uuid1);
-            assertThat(allAgents.get(1).getUuid()).isEqualTo(uuid3);
+            assertThat(allAgents.getFirst().getUuid()).isEqualTo(uuid1);
+            assertThat(allAgents.getLast().getUuid()).isEqualTo(uuid3);
         }
 
         @Test

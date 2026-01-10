@@ -36,8 +36,8 @@ public class StageInstancesRepresenter {
     }
 
     private static void addLinks(OutputWriter outputWriter, StageInstanceModels stageInstanceModels, PipelineRunIdInfo runIdInfo) {
-        StageInstanceModel latest = stageInstanceModels.getFirstOrNull();
-        StageInstanceModel oldest = stageInstanceModels.getLastOrNull();
+        StageInstanceModel latest = stageInstanceModels.getFirst();
+        StageInstanceModel oldest = stageInstanceModels.getLast();
         String previousLink = null, nextLink = null;
         if (latest.getId() != runIdInfo.getLatestRunId()) {
             previousLink = Routes.Stage.previous(latest.getPipelineName(), latest.getName(), latest.getId());

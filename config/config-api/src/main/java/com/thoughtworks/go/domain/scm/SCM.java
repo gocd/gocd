@@ -177,6 +177,10 @@ public class SCM implements Serializable, Validatable, ConfigOriginTraceable, Se
             Objects.equals(configuration, that.configuration);
     }
 
+    boolean equalsByIdOrFingerprint(SCM o) {
+        return getId().equals(o.getId()) || getFingerprint().equals(o.getFingerprint());
+    }
+
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;

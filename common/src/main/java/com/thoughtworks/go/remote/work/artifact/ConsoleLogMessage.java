@@ -35,7 +35,7 @@ public class ConsoleLogMessage {
         return JsonHelper.fromJson(json, ConsoleLogMessage.class);
     }
 
-    enum LogLevel {
+    public enum LogLevel {
         INFO, ERROR
     }
 }

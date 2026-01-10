@@ -73,7 +73,7 @@ public class MaterialDatabaseDependencyUpdaterIntegrationTest  {
         configHelper.addPipeline("pipeline-group", mingleConfig);
 
         Pipeline passed1 = dbHelper.schedulePipeline(mingleConfig, new TimeProvider());
-        dbHelper.passStage(passed1.getStages().get(0));
+        dbHelper.passStage(passed1.getStages().getFirst());
 
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("acceptance"), new CaseInsensitiveString("stage-name"));
         String revision1 = String.format("acceptance/%s/stage-name/1", passed1.getCounter());
@@ -82,10 +82,10 @@ public class MaterialDatabaseDependencyUpdaterIntegrationTest  {
         assertThat(materialRepository.findModificationWithRevision(dependencyMaterial, revision1)).isNotNull();
 
         Pipeline cancelledPipeline = dbHelper.schedulePipeline(mingleConfig, new TimeProvider());
-        dbHelper.cancelStage(cancelledPipeline.getStages().get(0));
+        dbHelper.cancelStage(cancelledPipeline.getStages().getFirst());
 
         Pipeline passed2 = dbHelper.schedulePipeline(mingleConfig, new TimeProvider());
-        dbHelper.passStage(passed2.getStages().get(0));
+        dbHelper.passStage(passed2.getStages().getFirst());
 
         updater.updateMaterial(dependencyMaterial);
         assertThat(materialRepository.findModificationWithRevision(dependencyMaterial, String.format("acceptance/%s/stage-name/1", cancelledPipeline.getCounter()))).isNull();

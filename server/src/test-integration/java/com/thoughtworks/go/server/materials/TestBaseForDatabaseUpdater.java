@@ -85,7 +85,7 @@ public abstract class TestBaseForDatabaseUpdater {
         updater.updateMaterial(material);
 
         Modification modification = materialRepository.findLatestModification(material).getMaterialRevision(0).getModification(0);
-        assertThat(testRepo.latestModification().get(0)).isEqualTo(modification);
+        assertThat(testRepo.latestModification().getFirst()).isEqualTo(modification);
 
     }
 
@@ -96,7 +96,7 @@ public abstract class TestBaseForDatabaseUpdater {
 
         Modification modification = materialRepository.findLatestModification(material).getMaterialRevision(0).getModification(0);
 
-        assertEquals(modifications.get(0), modification);
+        assertEquals(modifications.getFirst(), modification);
     }
 
     @Test

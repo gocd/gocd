@@ -229,7 +229,10 @@ public class ElasticAgentPluginService {
                     serverHealthService.removeByScope(scopeForJob(jobIdentifier));
                 } catch (RulesViolationException | SecretResolutionFailureException e) {
                     JobInstance jobInstance = jobInstanceSqlMapDao.buildById(plan.getJobId());
-                    String failureMessage = format("\nThis job was failed by GoCD. This job is configured to run on an elastic agent, there were errors while resolving secrets for the the associated elastic configurations.\nReasons: %s", e.getMessage());
+                    String failureMessage = format("""
+                        
+                        This job was failed by GoCD. This job is configured to run on an elastic agent, there were errors while resolving secrets for the the associated elastic configurations.
+                        Reasons: %s""", e.getMessage());
                     consoleService.appendToConsoleLogSafe(jobIdentifier, failureMessage);
                     scheduleService.failJob(jobInstance);
                     jobStatusTopic.post(new JobStatusMessage(jobIdentifier, jobInstance.getState(), plan.getAgentUuid()));

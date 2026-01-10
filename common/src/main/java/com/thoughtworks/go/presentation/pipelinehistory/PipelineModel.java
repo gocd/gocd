@@ -91,8 +91,8 @@ public class PipelineModel {
 
     @Override
     public int hashCode() {
-        int result = (canForce ? 1 : 0);
-        result = 31 * result + (activePipelineInstances.hashCode());
+        int result = canForce ? 1 : 0;
+        result = 31 * result + activePipelineInstances.hashCode();
         return result;
     }
 

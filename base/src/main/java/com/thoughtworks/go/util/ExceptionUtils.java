@@ -25,7 +25,7 @@ public final class ExceptionUtils {
     }
 
     public static RuntimeException bomb(Exception e) {
-        throw (e instanceof RuntimeException rt ? rt : new RuntimeException(e.getMessage(), e));
+        throw e instanceof RuntimeException rt ? rt : new RuntimeException(e.getMessage(), e);
     }
 
     public static RuntimeException bomb(String msg, Exception e) {
@@ -62,6 +62,6 @@ public final class ExceptionUtils {
 
     public static String messageOf(Throwable t) {
         String message = t.getMessage();
-        return (message == null || message.isEmpty()) ? t.getClass().toString() : message;
+        return message == null || message.isEmpty() ? t.getClass().toString() : message;
     }
 }

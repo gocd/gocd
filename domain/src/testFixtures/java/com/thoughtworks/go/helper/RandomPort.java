@@ -70,7 +70,7 @@ public class RandomPort {
     public void waitForPortToBeUsed(int port, long timeout) {
         long start = System.currentTimeMillis();
         while (isAvailable(port)) {
-            if ((System.currentTimeMillis() - start) > timeout) {
+            if (System.currentTimeMillis() - start > timeout) {
                 throw new RuntimeException("Timed out waiting for port " + port);
             }
             try {

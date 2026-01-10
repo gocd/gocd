@@ -52,6 +52,6 @@ public class ScheduleCheckMessage implements GoMessage {
 
     @Override
     public int hashCode() {
-        return (pipelineName != null ? pipelineName.hashCode() : 0);
+        return pipelineName != null ? pipelineName.hashCode() : 0;
     }
 }

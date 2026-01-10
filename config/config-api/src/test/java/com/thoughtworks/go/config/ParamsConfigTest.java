@@ -49,8 +49,8 @@ public class ParamsConfigTest {
 
         paramsConfig.setConfigAttributes(paramsMap);
 
-        assertThat(paramsConfig.size()).isEqualTo((2));
-        assertThat(paramsConfig.getParamNamed("param-name").getValue()).isEqualTo(("param-value"));
+        assertThat(paramsConfig.size()).isEqualTo(2);
+        assertThat(paramsConfig.getParamNamed("param-name").getValue()).isEqualTo("param-value");
     }
 
     private Map<String, String> createParamMap(final String name, final String value) {
@@ -70,9 +70,9 @@ public class ParamsConfigTest {
 
         paramsConfig.validate(context);
 
-        assertThat(one.errors().isEmpty()).isEqualTo((false));
+        assertThat(one.errors().isEmpty()).isEqualTo(false);
         assertThat(one.errors().firstError()).contains("Param name 'name' is not unique for pipeline 'some-pipeline'.");
-        assertThat(two.errors().isEmpty()).isEqualTo((false));
+        assertThat(two.errors().isEmpty()).isEqualTo(false);
         assertThat(two.errors().firstError()).contains("Param name 'name' is not unique for pipeline 'some-pipeline'.");
     }
 
@@ -84,7 +84,7 @@ public class ParamsConfigTest {
 
         paramsConfig.validate(context);
 
-        assertThat(empty.errors().isEmpty()).isEqualTo((false));
+        assertThat(empty.errors().isEmpty()).isEqualTo(false);
         assertThat(empty.errors().firstError()).contains("Parameter cannot have an empty name for pipeline 'some-pipeline'.");
     }
 

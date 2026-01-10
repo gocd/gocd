@@ -149,7 +149,7 @@ public class PackageMaterial extends AbstractMaterial implements SecretParamAwar
 
     @Override
     public CaseInsensitiveString getName() {
-        if (((name == null) || isEmpty(name.toString())) && packageDefinition != null) {
+        if ((name == null || isEmpty(name.toString())) && packageDefinition != null) {
             return new CaseInsensitiveString(getPackageDefinition().getRepository().getName() + "_" + packageDefinition.getName());
         } else {
             return name;
@@ -193,7 +193,7 @@ public class PackageMaterial extends AbstractMaterial implements SecretParamAwar
 
     @Override
     public String getDisplayName() {
-        return ((name == null || name.isEmpty()) && getPackageDefinition().getRepository().getName() == null) ? getUriForDisplay() : getName().toString();
+        return (name == null || name.isEmpty()) && getPackageDefinition().getRepository().getName() == null ? getUriForDisplay() : getName().toString();
     }
 
     @Override

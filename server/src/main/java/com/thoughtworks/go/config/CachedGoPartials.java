@@ -137,7 +137,7 @@ public class CachedGoPartials implements PartialConfigResolver {
         PartialConfig matching = null;
         if (partial != null) {
             for (PartialConfig partialConfig : cruiseConfig.getPartials()) {
-                if (partialConfig.getOrigin() instanceof RepoConfigOrigin && (((RepoConfigOrigin) partialConfig.getOrigin()).getMaterial().getFingerprint().equals(fingerprint))) {
+                if (partialConfig.getOrigin() instanceof RepoConfigOrigin && ((RepoConfigOrigin) partialConfig.getOrigin()).getMaterial().getFingerprint().equals(fingerprint)) {
                     matching = partialConfig;
                     break;
                 }

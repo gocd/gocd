@@ -37,14 +37,14 @@ public class PartialConfigRepresenter {
         PipelineGroups groups = config.getGroups();
 
         if (!uniqueEnvs.isEmpty()) {
-            json.addChildList("environments", (w) -> uniqueEnvs.forEach(
-                    (env) -> w.addChild((ew -> EnvironmentConfigRepresenter.toJSON(ew, env)))
+            json.addChildList("environments", w -> uniqueEnvs.forEach(
+                env -> w.addChild(ew -> EnvironmentConfigRepresenter.toJSON(ew, env))
             ));
         }
 
         if (!groups.isEmpty()) {
-            json.addChildList("groups", (w) -> groups.forEach(
-                    (group) -> w.addChild(gw -> PipelineGroupRepresenter.toJSON(gw, group))
+            json.addChildList("groups", w -> groups.forEach(
+                    group -> w.addChild(gw -> PipelineGroupRepresenter.toJSON(gw, group))
             ));
         }
     }

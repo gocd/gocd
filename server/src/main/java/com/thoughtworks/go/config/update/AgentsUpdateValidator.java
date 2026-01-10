@@ -108,6 +108,6 @@ public class AgentsUpdateValidator {
     }
 
     private List<String> actualOrEmptyList(List<String> list) {
-        return (list == null ? emptyList() : list);
+        return list == null ? emptyList() : list;
     }
 }

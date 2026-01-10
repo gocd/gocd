@@ -79,7 +79,7 @@ public class Stages extends BaseCollection<Stage> implements StageContainer {
         return stream()
             .filter(stage -> stage.getCounter() == counter)
             .findFirst()
-            .orElseThrow((() -> new RuntimeException("Cannot find a stage with counter '" + counter + "'. Actual stages are: " + this)));
+            .orElseThrow(() -> new RuntimeException("Cannot find a stage with counter '" + counter + "'. Actual stages are: " + this));
     }
 
     public Stages latestStagesInRunOrder() {

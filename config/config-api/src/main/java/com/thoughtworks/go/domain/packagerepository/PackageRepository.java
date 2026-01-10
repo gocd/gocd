@@ -240,10 +240,10 @@ public class PackageRepository implements Serializable, Validatable, SecretParam
 
     public void setConfigAttributes(Map<String, ?> attributes) {
         if (attributes.containsKey(NAME)) {
-            name = ((String) attributes.get(NAME));
+            name = (String) attributes.get(NAME);
         }
         if (attributes.containsKey(REPO_ID)) {
-            id = ((String) attributes.get(REPO_ID));
+            id = (String) attributes.get(REPO_ID);
         }
         if (attributes.containsKey(PLUGIN_CONFIGURATION)) {
             pluginConfiguration.setConfigAttributes(attributes.get(PLUGIN_CONFIGURATION));

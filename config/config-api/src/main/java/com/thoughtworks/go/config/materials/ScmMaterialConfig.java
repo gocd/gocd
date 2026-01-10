@@ -325,7 +325,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         if (dest == null) {
             return;
         }
-        if (!(FilenameUtil.isNormalizedPathOutsideWorkingDir(dest))) {
+        if (!FilenameUtil.isNormalizedPathOutsideWorkingDir(dest)) {
             setDestinationFolderError(format("Dest folder '%s' is not valid. It must be a sub-directory of the working folder.", dest));
         }
     }

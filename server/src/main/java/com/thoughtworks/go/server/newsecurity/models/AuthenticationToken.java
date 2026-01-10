@@ -80,7 +80,7 @@ public class AuthenticationToken<T extends Credentials> {
 
     private boolean isExpired(Clock clock, SystemEnvironment systemEnvironment) {
         return systemEnvironment.isReAuthenticationEnabled() &&
-                (clock.currentTimeMillis() - authenticatedAt) > systemEnvironment.getReAuthenticationTimeInterval();
+                clock.currentTimeMillis() - authenticatedAt > systemEnvironment.getReAuthenticationTimeInterval();
     }
 
     @Override

@@ -79,7 +79,7 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
         HttpOperationResult result = new HttpOperationResult();
         PipelineInstanceModel pipelineInstance = pipelineHistoryService.findPipelineInstance(pipelineName, pipelineCounter, currentUsername(), result);
         if (result.canContinue()) {
-            return writerForTopLevelObject(request, response, (outputWriter) -> PipelineInstanceModelRepresenter.toJSON(outputWriter, pipelineInstance));
+            return writerForTopLevelObject(request, response, outputWriter -> PipelineInstanceModelRepresenter.toJSON(outputWriter, pipelineInstance));
         }
         return renderHTTPOperationResult(result, request, response);
     }
@@ -91,7 +91,7 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
         long before = getCursor(request, "before");
         PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadPipelineHistoryData(currentUsername(), pipelineName, after, before, pageSize);
         PipelineRunIdInfo latestAndOldestPipelineIds = pipelineHistoryService.getOldestAndLatestPipelineId(pipelineName, currentUsername());
-        return writerForTopLevelObject(request, response, (outputWriter) -> PipelineInstanceModelsRepresenter.toJSON(outputWriter, pipelineInstanceModels, latestAndOldestPipelineIds));
+        return writerForTopLevelObject(request, response, outputWriter -> PipelineInstanceModelsRepresenter.toJSON(outputWriter, pipelineInstanceModels, latestAndOldestPipelineIds));
     }
 
     String comment(Request request, Response response) {

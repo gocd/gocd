@@ -81,7 +81,7 @@ public class StageInstanceModelsTest {
             StageInstanceModels history = new StageInstanceModels();
             history.add(new StageHistoryItemStub(EARLIER_DATE));
             history.add(new StageHistoryItemStub(DATE));
-            assertThat(history.getScheduledDate()).isEqualTo((EARLIER_DATE));
+            assertThat(history.getScheduledDate()).isEqualTo(EARLIER_DATE);
         }
 
         @Test
@@ -89,7 +89,7 @@ public class StageInstanceModelsTest {
             StageInstanceModels history = new StageInstanceModels();
             history.add(new NullStageHistoryItemStub(EARLIER_DATE));
             history.add(new StageHistoryItemStub(DATE));
-            assertThat(history.getScheduledDate()).isEqualTo((DATE));
+            assertThat(history.getScheduledDate()).isEqualTo(DATE);
         }
 
         @Test

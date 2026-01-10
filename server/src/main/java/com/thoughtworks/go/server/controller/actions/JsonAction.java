@@ -83,7 +83,7 @@ public class JsonAction implements RestfulAction {
     }
 
     public static JsonAction jsonByValidity(Object json, GoConfigValidity.InvalidGoConfig configValidity) {
-        return (Stream.of(GoConfigValidity.VT_CONFLICT, GoConfigValidity.VT_MERGE_OPERATION_ERROR, GoConfigValidity.VT_MERGE_POST_VALIDATION_ERROR, GoConfigValidity.VT_MERGE_PRE_VALIDATION_ERROR).anyMatch(configValidity::isType)) ? jsonConflict(json) : jsonNotFound(json);
+        return Stream.of(GoConfigValidity.VT_CONFLICT, GoConfigValidity.VT_MERGE_OPERATION_ERROR, GoConfigValidity.VT_MERGE_POST_VALIDATION_ERROR, GoConfigValidity.VT_MERGE_PRE_VALIDATION_ERROR).anyMatch(configValidity::isType) ? jsonConflict(json) : jsonNotFound(json);
     }
 
     @Override

@@ -84,7 +84,7 @@ public abstract class Builder implements Serializable {
     @Override
     public int hashCode() {
         int result;
-        result = (conditions != null ? conditions.hashCode() : 0);
+        result = conditions != null ? conditions.hashCode() : 0;
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (cancelBuilder != null ? cancelBuilder.hashCode() : 0);
         return result;

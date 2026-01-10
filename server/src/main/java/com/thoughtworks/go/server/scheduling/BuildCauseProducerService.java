@@ -186,7 +186,7 @@ public class BuildCauseProducerService {
                 if (!latestRevisions.isMissingModifications()) {
                     MaterialRevisions original = previousBuild.getMaterialRevisions();
                     MaterialRevisions revisions = materialChecker.findRevisionsSince(peggedRevisions, expandedMaterials, original, latestRevisions);
-                    if (!revisions.hasChangedSince(original) || (buildType.shouldCheckWhetherOlderRunsHaveRunWithLatestMaterials() && materialChecker.hasPipelineEverRunWith(pipelineName, latestRevisions))) {
+                    if (!revisions.hasChangedSince(original) || buildType.shouldCheckWhetherOlderRunsHaveRunWithLatestMaterials() && materialChecker.hasPipelineEverRunWith(pipelineName, latestRevisions)) {
                         LOGGER.debug("Repository for [{}] not modified", pipelineName);
                         buildCause = buildType.onEmptyModifications(pipelineConfig, latestRevisions);
                     } else {

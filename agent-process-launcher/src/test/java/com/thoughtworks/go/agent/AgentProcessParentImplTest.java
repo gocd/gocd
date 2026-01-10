@@ -89,7 +89,7 @@ public class AgentProcessParentImplTest {
         int returnCode = bootstrapper.run("launcher_version", "bar", getURLGenerator(), new HashMap<>(), context());
         assertThat(returnCode).isEqualTo(42);
         assertThat(cmd).containsExactly(
-                (getProperty("java.home") + FileSystems.getDefault().getSeparator() + "bin" + FileSystems.getDefault().getSeparator() + "java"),
+            getProperty("java.home") + FileSystems.getDefault().getSeparator() + "bin" + FileSystems.getDefault().getSeparator() + "java",
                 "-Dagent.plugins.md5=" + expectedAgentPluginsMd5,
                 "-Dagent.binary.md5=" + expectedAgentMd5,
                 "-Dagent.launcher.md5=bar",
@@ -120,7 +120,7 @@ public class AgentProcessParentImplTest {
 
         assertThat(returnCode).isEqualTo(42);
         assertThat(cmd).containsExactly(
-                (getProperty("java.home") + FileSystems.getDefault().getSeparator() + "bin" + FileSystems.getDefault().getSeparator() + "java"),
+            getProperty("java.home") + FileSystems.getDefault().getSeparator() + "bin" + FileSystems.getDefault().getSeparator() + "java",
                 "-Dagent.plugins.md5=" + expectedAgentPluginsMd5,
                 "-Dagent.binary.md5=" + expectedAgentMd5,
                 "-Dagent.launcher.md5=bar",
@@ -150,7 +150,7 @@ public class AgentProcessParentImplTest {
 
         assertThat(returnCode).isEqualTo(42);
         assertThat(cmd).containsExactly(
-                (getProperty("java.home") + FileSystems.getDefault().getSeparator() + "bin" + FileSystems.getDefault().getSeparator() + "java"),
+            getProperty("java.home") + FileSystems.getDefault().getSeparator() + "bin" + FileSystems.getDefault().getSeparator() + "java",
                 "-Dextra.property=value1 with space",
                 "-Dextra property with space=value2 with space",
                 "-Dagent.plugins.md5=" + expectedAgentPluginsMd5,
@@ -186,7 +186,7 @@ public class AgentProcessParentImplTest {
 
         assertThat(returnCode).isEqualTo(42);
         assertThat(cmd).containsExactly(
-                (getProperty("java.home") + FileSystems.getDefault().getSeparator() + "bin" + FileSystems.getDefault().getSeparator() + "java"),
+            getProperty("java.home") + FileSystems.getDefault().getSeparator() + "bin" + FileSystems.getDefault().getSeparator() + "java",
                 "-Dagent.plugins.md5=" + expectedAgentPluginsMd5,
                 "-Dagent.binary.md5=" + expectedAgentMd5,
                 "-Dagent.launcher.md5=bar",
@@ -233,7 +233,7 @@ public class AgentProcessParentImplTest {
 
         assertThat(returnCode).isEqualTo(42);
         assertThat(cmd).containsExactly(
-                (getProperty("java.home") + FileSystems.getDefault().getSeparator() + "bin" + FileSystems.getDefault().getSeparator() + "java"),
+            getProperty("java.home") + FileSystems.getDefault().getSeparator() + "bin" + FileSystems.getDefault().getSeparator() + "java",
                 "foo",
                 "bar",
                 "baz",

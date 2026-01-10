@@ -58,7 +58,7 @@ public class SecretParamResolver {
 
     public void resolve(List<Material> materials) {
         materials.stream()
-                .filter((material) -> material instanceof SecretParamAware)
+                .filter(material -> material instanceof SecretParamAware)
                 .forEach(this::resolve);
     }
 

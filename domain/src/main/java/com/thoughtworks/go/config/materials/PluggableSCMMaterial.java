@@ -188,7 +188,7 @@ public class PluggableSCMMaterial extends AbstractMaterial implements SecretPara
     }
 
     private boolean scmNameIsEmpty() {
-        return (scmConfig == null || scmConfig.getName() == null || scmConfig.getName().isEmpty());
+        return scmConfig == null || scmConfig.getName() == null || scmConfig.getName().isEmpty();
     }
 
     @Override
@@ -214,7 +214,7 @@ public class PluggableSCMMaterial extends AbstractMaterial implements SecretPara
     @Override
     public String getDisplayName() {
         CaseInsensitiveString name = getName();
-        return (name == null || name.isEmpty()) ? getUriForDisplay() : name.toString();
+        return name == null || name.isEmpty() ? getUriForDisplay() : name.toString();
     }
 
     @Override

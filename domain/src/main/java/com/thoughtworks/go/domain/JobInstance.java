@@ -465,15 +465,6 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
             return new SingleJobInstance();
         }
     }
-
-    public boolean isSameStageConfig(JobInstance other) {
-        return this.getIdentifier().isSameStageConfig(other.getIdentifier());
-    }
-
-    public boolean isSamePipelineInstance(JobInstance other) {
-        return (getIdentifier().getPipelineLabel().equals(other.getIdentifier().getPipelineLabel()));
-    }
-
     public String getTitle() {
         return getIdentifier().buildLocatorForDisplay();
     }

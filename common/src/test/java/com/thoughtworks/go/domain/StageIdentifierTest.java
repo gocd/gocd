@@ -64,7 +64,7 @@ public class StageIdentifierTest {
         assertThat(stage1).isEqualTo(stage2);
         assertThat(stage1).isEqualTo(stage3);
         assertThat(stage2).isEqualTo(stage3);
-        assertThat(stage2).isNotEqualTo((stage4));
+        assertThat(stage2).isNotEqualTo(stage4);
     }
 
 

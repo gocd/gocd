@@ -370,7 +370,7 @@ public class BuildAssignmentServiceIntegrationTest {
         Agent agent = AgentMother.localAgent();
         agent.setResources("some-other-resource");
 
-        assertThat(buildAssignmentService.assignWorkToAgent(agent(agent))).isEqualTo((BuildAssignmentService.NO_WORK));
+        assertThat(buildAssignmentService.assignWorkToAgent(agent(agent))).isEqualTo(BuildAssignmentService.NO_WORK);
         Pipeline pipeline = pipelineDao.mostRecentPipeline(pipelineFixture.pipelineName);
         JobInstance job = pipeline.getFirstStage().getJobInstances().getFirst();
         assertThat(job.getState()).isEqualTo(JobState.Completed);

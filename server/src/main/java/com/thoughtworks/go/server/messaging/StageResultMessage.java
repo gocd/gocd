@@ -63,7 +63,7 @@ public class StageResultMessage implements GoMessage {
     @Override
     public int hashCode() {
         int result;
-        result = (stageIdentifier != null ? stageIdentifier.hashCode() : 0);
+        result = stageIdentifier != null ? stageIdentifier.hashCode() : 0;
         result = 31 * result + (event != null ? event.hashCode() : 0);
         result = 31 * result + (cancelledBy != null ? cancelledBy.hashCode() : 0);
         return result;

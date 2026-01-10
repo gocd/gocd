@@ -102,7 +102,7 @@ public class GoCDFreeMarkerView extends FreeMarkerView {
 
         model.put(PATH_RESOLVER, railsAssetsService);
 
-        model.put(SHOW_ANALYTICS_DASHBOARD, (securityService.isUserAdmin(username) && supportsAnalyticsDashboard()));
+        model.put(SHOW_ANALYTICS_DASHBOARD, securityService.isUserAdmin(username) && supportsAnalyticsDashboard());
         model.put(WEBPACK_ASSETS_SERVICE, webpackAssetsService());
         model.put(MAINTENANCE_MODE_SERVICE, getMaintenanceModeService());
 

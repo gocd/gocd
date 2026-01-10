@@ -98,7 +98,7 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
     @SuppressWarnings("unchecked")
     public <T extends Role> T findByNameAndType(final CaseInsensitiveString roleName, Class<T> cls) {
         for (Role role : this) {
-            if (role.getName().equals(roleName) && (role.getClass().getCanonicalName().equals(cls.getCanonicalName()))) {
+            if (role.getName().equals(roleName) && role.getClass().getCanonicalName().equals(cls.getCanonicalName())) {
                 return (T) role;
             }
         }

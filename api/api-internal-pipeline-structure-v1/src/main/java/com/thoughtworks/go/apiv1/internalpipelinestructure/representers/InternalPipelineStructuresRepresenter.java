@@ -89,13 +89,13 @@ public class InternalPipelineStructuresRepresenter {
         }
         pipelineWriter
             .addChildList("stages", stagesWriter -> pipelineConfig.forEach(stage -> stagesWriter.addChild(stageWriter -> stageWriter.add("name", stage.name())
-                .addChildList("jobs", (jobsWriter) -> stage.getJobs().forEach(job -> jobsWriter.addChild(jobWriter -> jobWriter.add("name", job.name())
+                .addChildList("jobs", jobsWriter -> stage.getJobs().forEach(job -> jobsWriter.addChild(jobWriter -> jobWriter.add("name", job.name())
                     .add("is_elastic", job.usesElasticAgent())))))));
     }
 
     public static void toJSON(OutputWriter outputWriter, PipelineStructureViewModel pipelineStructureViewModel, Collection<String> users, Collection<String> roles) {
         toJSON(outputWriter, pipelineStructureViewModel);
-        outputWriter.addChild("additional_info", (writer) -> writer.addChildList("users", users)
+        outputWriter.addChild("additional_info", writer -> writer.addChildList("users", users)
             .addChildList("roles", roles));
     }
 }

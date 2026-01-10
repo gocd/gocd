@@ -309,7 +309,7 @@ public class PipelineLabelTest {
                 List.of("#{my:fancy:param}", "#{my:fancy:param}")
         );
 
-        expectations.forEach((exp) -> assertThat(PipelineLabel.migratePipelineLabelTemplate(exp.getFirst())).isEqualTo(exp.get(1)));
+        expectations.forEach(exp -> assertThat(PipelineLabel.migratePipelineLabelTemplate(exp.getFirst())).isEqualTo(exp.get(1)));
     }
 
     @BeforeAll

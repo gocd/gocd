@@ -83,7 +83,7 @@ public class ValidationBean implements JsonAware {
     @Override
     public int hashCode() {
         int result;
-        result = (isValid ? 1 : 0);
+        result = isValid ? 1 : 0;
         result = 31 * result + (message != null ? message.hashCode() : 0);
         return result;
     }

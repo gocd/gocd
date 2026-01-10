@@ -30,7 +30,7 @@ public class PluggableScmMaterialRepresenter implements MaterialRepresenter<Plug
         return jsonWriter -> jsonWriter.add("ref", pluggableSCMMaterialConfig.getScmId())
                 .add("auto_update", pluggableSCMMaterialConfig.isAutoUpdate())
                 .add("scm_name", pluggableSCMMaterialConfig.getSCMConfig().getName())
-                .addChild("origin", (writer) -> renderOrigin(writer, pluggableSCMMaterialConfig.getSCMConfig().getOrigin()));
+                .addChild("origin", writer -> renderOrigin(writer, pluggableSCMMaterialConfig.getSCMConfig().getOrigin()));
     }
 
     private void renderOrigin(OutputWriter outputWriter, ConfigOrigin origin) {

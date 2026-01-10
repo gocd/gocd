@@ -287,7 +287,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             return configUpdateQueue;
         }
 
-        return (material instanceof DependencyMaterial) ? dependencyMaterialUpdateQueue : updateQueue;
+        return material instanceof DependencyMaterial ? dependencyMaterialUpdateQueue : updateQueue;
     }
 
     ProcessManager getProcessManager() {

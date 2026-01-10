@@ -105,7 +105,7 @@ public class SCMDependencyNode extends Node {
         @Override
         public int hashCode() {
             int result;
-            result = (materialRevision.getMaterial() != null ? materialRevision.getMaterial().getFingerprint().hashCode() : 0);
+            result = materialRevision.getMaterial() != null ? materialRevision.getMaterial().getFingerprint().hashCode() : 0;
             result = 31 * result + (materialRevision.getModifications() != null ? materialRevision.getModifications().hashCode() : 0);
             return result;
         }

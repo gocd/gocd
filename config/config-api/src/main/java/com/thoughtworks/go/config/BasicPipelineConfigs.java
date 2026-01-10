@@ -281,7 +281,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     public void validate(ValidationContext validationContext) {
         this.validateGroupNameAndAddErrorsTo(this.configErrors);
         if (this.configOrigin != null && //when there is no origin specified we should not check it at all
-                !(this.configOrigin.isLocal()) &&
+                !this.configOrigin.isLocal() &&
                 this.hasAuthorizationDefined()) {
             this.configErrors.add(NO_REMOTE_AUTHORIZATION,
                     "Authorization can be defined only in configuration file");

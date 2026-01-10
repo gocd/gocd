@@ -74,7 +74,7 @@ public class Filters {
 
     private void updateIndex() {
         this.filterMap = new HashMap<>();
-        this.filters.forEach((f) -> {
+        this.filters.forEach(f -> {
             FilterValidator.validateFilter(filterMap, f);
             filterMap.put(f.name().toLowerCase(), f);
         });

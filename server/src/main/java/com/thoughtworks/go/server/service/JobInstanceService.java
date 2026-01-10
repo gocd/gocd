@@ -172,8 +172,8 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
     public List<WaitingJobPlan> waitingJobPlans(Username username) {
         List<JobPlan> jobPlans = orderedScheduledBuilds();
         return jobPlans.stream()
-                .filter((jobPlan) -> securityService.hasViewPermissionForPipeline(username, jobPlan.getPipelineName()))
-                .map((jobPlan) -> {
+                .filter(jobPlan -> securityService.hasViewPermissionForPipeline(username, jobPlan.getPipelineName()))
+                .map(jobPlan -> {
                     String envForJob = environmentConfigService.envForPipeline(jobPlan.getPipelineName());
                     return new WaitingJobPlan(jobPlan, envForJob);
                 }).collect(toList());

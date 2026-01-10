@@ -51,7 +51,7 @@ public class PerfTimer {
         if (startTime == 0) {
             return;
         }
-        elapsed = elapsed + (clock.currentTimeMillis() - startTime);
+        elapsed = elapsed + clock.currentTimeMillis() - startTime;
         startTime = 0;
         logger.info("{} took {} ms", message, elapsed());
     }

@@ -60,7 +60,7 @@ public class Marshaling {
 
             final List<DashboardFilter> viewFilters = new ArrayList<>();
 
-            filters.getAsJsonArray().forEach((f) -> viewFilters.add(context.deserialize(f, DashboardFilter.class)));
+            filters.getAsJsonArray().forEach(f -> viewFilters.add(context.deserialize(f, DashboardFilter.class)));
 
             return new Filters(viewFilters);
         }

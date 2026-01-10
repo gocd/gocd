@@ -82,6 +82,6 @@ public class KillAllChildProcessTaskBuilderTest {
     public long getSystemTime() {
         ThreadMXBean bean = ManagementFactory.getThreadMXBean();
         return bean.isCurrentThreadCpuTimeSupported() ?
-            (bean.getCurrentThreadCpuTime() - bean.getCurrentThreadUserTime()) : 0L;
+                bean.getCurrentThreadCpuTime() - bean.getCurrentThreadUserTime() : 0L;
     }
 }

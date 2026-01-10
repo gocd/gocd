@@ -67,7 +67,7 @@ public class GoServer {
 
     AppServer configureServer() throws Exception {
         Constructor<?> constructor = Class.forName(systemEnvironment.get(SystemEnvironment.APP_SERVER)).getConstructor(SystemEnvironment.class);
-        AppServer server = ((AppServer) constructor.newInstance(systemEnvironment));
+        AppServer server = (AppServer) constructor.newInstance(systemEnvironment);
         server.configure();
         logMessageIfUsingAddons();
         server.setSessionConfig();

@@ -109,7 +109,7 @@ public class FetchTaskBuilderTest {
 
         FetchArtifactBuilder builder = (FetchArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.getJobIdentifier()).isEqualTo((new JobIdentifier("mingle", 1, "label-1", "dev", "2", "linux-firefox", 0L)));
+        assertThat(builder.getJobIdentifier()).isEqualTo(new JobIdentifier("mingle", 1, "label-1", "dev", "2", "linux-firefox", 0L));
     }
 
     @Test
@@ -300,7 +300,7 @@ public class FetchTaskBuilderTest {
 
         FetchPluggableArtifactBuilder builder = (FetchPluggableArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.getJobIdentifier()).isEqualTo((new JobIdentifier("uppest_stream", 1, "label-1", "uppest-stage1", "2", "uppest-job1", 0L)));
+        assertThat(builder.getJobIdentifier()).isEqualTo(new JobIdentifier("uppest_stream", 1, "label-1", "uppest-stage1", "2", "uppest-job1", 0L));
     }
 
     @Test

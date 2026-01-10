@@ -29,7 +29,7 @@ public class HgModificationSplitterTest {
 
     @Test
     public void shouldBeAbleToParseModifications() {
-        ConsoleResult result = new ConsoleResult(0, List.of(("""
+        ConsoleResult result = new ConsoleResult(0, List.of("""
                 <changeset>
                 <node>ca3ebb67f527c0ad7ed26b789056823d8b9af23f</node>
                 <author>cruise</author>
@@ -45,7 +45,7 @@ public class HgModificationSplitterTest {
                 <deleted>
                 </deleted>
                 </files>
-                </changeset>""").split("\n")), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                </changeset>""".split("\n")), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         HgModificationSplitter splitter = new HgModificationSplitter(result);
         List<Modification> list = splitter.modifications();
         assertThat(list.size()).isEqualTo(1);

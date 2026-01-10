@@ -48,7 +48,7 @@ class CapabilitiesDTO {
 
     @Override
     public int hashCode() {
-        int result = (supportsStatusReport ? 1 : 0);
+        int result = supportsStatusReport ? 1 : 0;
         result = 31 * result + (supportsAgentStatusReport ? 1 : 0);
         return result;
     }

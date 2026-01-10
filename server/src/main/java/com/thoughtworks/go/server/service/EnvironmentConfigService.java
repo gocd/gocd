@@ -159,7 +159,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
     }
 
     public EnvironmentConfig find(String envName) {
-        return environments.find(new CaseInsensitiveString((envName)));
+        return environments.find(new CaseInsensitiveString(envName));
     }
 
     public EnvironmentConfig getEnvironmentForEdit(String envName) {
@@ -335,7 +335,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         try {
             goConfigService.updateConfig(updateEnvCmd, currentUser);
         } catch (Exception e) {
-            if ((e instanceof GoConfigInvalidException) && !result.hasMessage()) {
+            if (e instanceof GoConfigInvalidException && !result.hasMessage()) {
                 result.unprocessableEntity(entityConfigValidationFailed(config.getClass().getAnnotation(ConfigTag.class).value(), config.name(), e.getMessage()));
             } else if (!result.hasMessage()) {
                 result.badRequest(LocalizedMessage.composite(actionFailed, e.getMessage()));

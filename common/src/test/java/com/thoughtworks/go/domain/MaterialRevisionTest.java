@@ -305,12 +305,12 @@ public class MaterialRevisionTest {
 
     @Test
     public void shouldReturnMaterialName() {
-        assertThat(hgRevision().getMaterialName()).isEqualTo((hgMaterial.getDisplayName()));
+        assertThat(hgRevision().getMaterialName()).isEqualTo(hgMaterial.getDisplayName());
     }
 
     @Test
     public void shouldReturnTruncatedMaterialName() {
-        assertThat(hgRevision().getTruncatedMaterialName()).isEqualTo((hgMaterial.getTruncatedDisplayName()));
+        assertThat(hgRevision().getTruncatedMaterialName()).isEqualTo(hgMaterial.getTruncatedDisplayName());
     }
 
     @Test

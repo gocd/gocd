@@ -348,11 +348,11 @@ public class BackupService implements BackupStatusProvider {
     }
 
     public Optional<Date> lastBackupTime() {
-        return serverBackupRepository.lastSuccessfulBackup().map((ServerBackup::getTime));
+        return serverBackupRepository.lastSuccessfulBackup().map(ServerBackup::getTime);
     }
 
     public Optional<String> lastBackupUser() {
-        return serverBackupRepository.lastSuccessfulBackup().map((ServerBackup::getUsername));
+        return serverBackupRepository.lastSuccessfulBackup().map(ServerBackup::getUsername);
     }
 
     @Override

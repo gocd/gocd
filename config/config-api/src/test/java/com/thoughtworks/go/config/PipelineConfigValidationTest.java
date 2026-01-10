@@ -39,7 +39,7 @@ class PipelineConfigValidationTest {
     private CruiseConfig config;
     private PipelineConfig pipeline;
     private GoConfigMother goConfigMother;
-    private LabelErrorsFn emptyCheck = (errors) -> assertThat(errors).isEmpty();
+    private LabelErrorsFn emptyCheck = errors -> assertThat(errors).isEmpty();
 
     @BeforeEach
     void setup() {

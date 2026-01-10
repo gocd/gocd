@@ -54,7 +54,7 @@ public class SvnExternal {
     @Override
     public int hashCode() {
         int result;
-        result = (folder != null ? folder.hashCode() : 0);
+        result = folder != null ? folder.hashCode() : 0;
         result = 31 * result + (url != null ? url.hashCode() : 0);
         return result;
     }

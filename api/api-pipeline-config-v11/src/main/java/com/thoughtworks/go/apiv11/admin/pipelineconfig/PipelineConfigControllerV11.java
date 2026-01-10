@@ -148,9 +148,9 @@ public class PipelineConfigControllerV11 extends ApiController implements SparkS
 
     private String getUserSpecifiedOrDefaultPauseCause(Request req) {
         String pauseCauseHeaderVal = req.headers("X-pause-cause");
-        return (isBlank(pauseCauseHeaderVal)
+        return isBlank(pauseCauseHeaderVal)
                 ? "No pause cause was specified when pipeline was created via API"
-                : pauseCauseHeaderVal);
+                : pauseCauseHeaderVal;
     }
 
     public String create(Request req, Response res) {

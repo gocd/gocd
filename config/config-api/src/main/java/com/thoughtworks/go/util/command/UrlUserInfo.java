@@ -33,7 +33,7 @@ public class UrlUserInfo {
             final String[] parts = colonSeparatedCredentials.split(":", 2);
             this.username = parts[0];
             this.password = parts.length == 2 ? parts[1] : null;
-            this.possiblyToken = (parts.length == 1);
+            this.possiblyToken = parts.length == 1;
         }
     }
 

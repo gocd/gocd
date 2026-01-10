@@ -52,9 +52,9 @@ public class ModifiedFile extends PersistentObject implements Serializable {
 
         boolean folderNamesAreEqual = Objects.equals(folderName, mod.folderName);
 
-        return (action.equals(mod.action)
+        return action.equals(mod.action)
                 && fileName.equals(mod.fileName)
-                && folderNamesAreEqual);
+                && folderNamesAreEqual;
     }
 
     @Override

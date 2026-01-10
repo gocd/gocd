@@ -1027,7 +1027,7 @@ public class GoConfigMigrationIntegrationTest {
                                          </configuration>
                                      </fetchartifact>""";
 
-        String artifactId3 = ("""
+        String artifactId3 = """
                 <fetchartifact artifactOrigin="external" pipeline="foo" stage="stage1" job="job1" artifactId="artifactId3">
                                          <configuration>
                                              <property>
@@ -1035,7 +1035,7 @@ public class GoConfigMigrationIntegrationTest {
                                                  <encryptedValue>%s</encryptedValue>
                                              </property>
                                          </configuration>
-                                     </fetchartifact>""").formatted(new GoCipher().encrypt("abcd"));
+                                     </fetchartifact>""".formatted(new GoCipher().encrypt("abcd"));
 
         assertThat(migratedContent).contains("<fetchartifact artifactOrigin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId1\"");
         assertThat(migratedContent).containsIgnoringNewLines(artifactId2);

@@ -115,7 +115,7 @@ public abstract class AgentController {
         if (e == null) {
             return false;
         }
-        return (e instanceof GeneralSecurityException) || isCausedBySecurity(e.getCause());
+        return e instanceof GeneralSecurityException || isCausedBySecurity(e.getCause());
     }
 
     @PostConstruct

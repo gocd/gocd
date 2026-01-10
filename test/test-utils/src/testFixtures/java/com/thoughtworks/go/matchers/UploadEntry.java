@@ -45,7 +45,7 @@ public class UploadEntry {
     @Override
     public int hashCode() {
         int result;
-        result = (file != null ? file.hashCode() : 0);
+        result = file != null ? file.hashCode() : 0;
         result = 31 * result + (destiname != null ? destiname.hashCode() : 0);
         return result;
     }

@@ -49,7 +49,7 @@ public class SendEmailMessage implements GoMessage {
     @Override
     public int hashCode() {
         int result;
-        result = (subject != null ? subject.hashCode() : 0);
+        result = subject != null ? subject.hashCode() : 0;
         result = 31 * result + (body != null ? body.hashCode() : 0);
         result = 31 * result + (to != null ? to.hashCode() : 0);
         return result;

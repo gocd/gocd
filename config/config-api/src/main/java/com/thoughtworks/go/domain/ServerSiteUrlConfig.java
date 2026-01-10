@@ -47,7 +47,7 @@ public abstract class ServerSiteUrlConfig {
         if (this == o) {
             return true;
         }
-        if (!(o.getClass().equals(this.getClass()))) {
+        if (!o.getClass().equals(this.getClass())) {
             return false;
         }
 

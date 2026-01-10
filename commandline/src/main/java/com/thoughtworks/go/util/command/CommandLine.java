@@ -234,7 +234,7 @@ public class CommandLine {
     }
 
     public CommandLine when(boolean condition, Consumer<CommandLine> thenDo) {
-        return this.tap((cmd) -> {
+        return this.tap(cmd -> {
             if (condition) {
                 thenDo.accept(cmd);
             }

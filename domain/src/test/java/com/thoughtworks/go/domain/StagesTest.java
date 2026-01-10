@@ -81,8 +81,8 @@ public class StagesTest {
     @Test
     public void shouldFindStageWhenStageNameIsOfDifferentCase() {
         Stages stages = new Stages(StageMother.custom("stageName"));
-        assertThat(stages.hasStage("Stagename")).isEqualTo((true));
-        assertThat(stages.hasStage("stageName")).isEqualTo((true));
+        assertThat(stages.hasStage("Stagename")).isEqualTo(true);
+        assertThat(stages.hasStage("stageName")).isEqualTo(true);
     }
 
     @Test

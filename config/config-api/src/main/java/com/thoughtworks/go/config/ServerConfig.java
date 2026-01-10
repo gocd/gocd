@@ -315,7 +315,7 @@ public class ServerConfig implements Validatable {
     }
 
     public boolean shouldAutoRegisterAgentWith(String agentKey) {
-        return (!isBlank(getAgentAutoRegisterKey())) && getAgentAutoRegisterKey().equals(agentKey);
+        return !isBlank(getAgentAutoRegisterKey()) && getAgentAutoRegisterKey().equals(agentKey);
     }
 
     public String getServerId() {

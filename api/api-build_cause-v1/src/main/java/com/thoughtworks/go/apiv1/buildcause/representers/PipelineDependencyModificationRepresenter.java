@@ -24,7 +24,7 @@ public class PipelineDependencyModificationRepresenter {
 
     public static void toJSON(OutputWriter jsonOutputWriter, Modification model, DependencyMaterialRevision latestRevision) {
         jsonOutputWriter
-            .addLinks((linksWriter) -> linksWriter
+            .addLinks(linksWriter -> linksWriter
                 .addLink("vsm", Routes.PipelineInstance.vsm(
                     latestRevision.getPipelineName(),
                     latestRevision.getPipelineCounter()))

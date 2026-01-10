@@ -262,12 +262,12 @@ public class GoConfigServiceTest {
     public void shouldReturnInvalidWhenWholeConfigIsInvalid() {
         CruiseConfig config = configWithPipeline();
         when(goConfigDao.loadForEditing()).thenReturn(config);
-        String configContent = ("""
+        String configContent = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
                 <server><artifacts>
                 <artifactsDir>artifacts</artifactsDir>
-                </artifacts></server><unknown/></cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+                </artifacts></server><unknown/></cruise>""".formatted(GoConstants.CONFIG_SCHEMA_VERSION);
         GoConfigValidity validity = goConfigService.fileSaver(false).saveXml(configContent, "md5");
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).contains("Invalid content was found starting with element 'unknown'");
     }
@@ -315,10 +315,10 @@ public class GoConfigServiceTest {
     public void shouldProvideDetailsWhenXmlConfigDomIsInvalid() {
         expectLoadForEditing(configWith(createPipelineConfig("pipeline", "stage", "build")));
         GoConfigService.XmlPartialSaver<?>saver = goConfigService.fileSaver(false);
-        String configContent = ("""
+        String configContent = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
-                <server artifactsdir='artifactsDir></cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+                <server artifactsdir='artifactsDir></cruise>""".formatted(GoConstants.CONFIG_SCHEMA_VERSION);
         GoConfigValidity validity = saver.saveXml(configContent, "junk_md5");
         assertThat(validity.isValid()).isFalse();
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).isEqualTo("Invalid Configuration - Error on line 3: The value of attribute \"artifactsdir\" associated with an element type \"server\" must not contain the '<' character.");
@@ -617,7 +617,7 @@ public class GoConfigServiceTest {
         GoConfigService.XmlPartialSaver<?>partialSaver = goConfigService.groupSaver(groupName);
         String renamedGroupName = "renamed_group_name";
         GoConfigValidity validity = partialSaver.saveXml(groupXml(renamedGroupName), md5);
-        assertThat(validity.isValid()).isEqualTo((true));
+        assertThat(validity.isValid()).isEqualTo(true);
 
         ArgumentCaptor<FullConfigUpdateCommand> commandArgCaptor = ArgumentCaptor.forClass(FullConfigUpdateCommand.class);
         verify(goConfigDao).updateFullConfig(commandArgCaptor.capture());
@@ -649,7 +649,7 @@ public class GoConfigServiceTest {
 
         PipelineConfigs group = commandArgumentCaptor.getValue().configForEdit().findGroup("group_name");
         PipelineConfig pipeline = group.findBy(new CaseInsensitiveString("pipeline1"));
-        assertThat(validity.isValid()).isEqualTo((true));
+        assertThat(validity.isValid()).isEqualTo(true);
 
         String entityValue = pipeline.getParams().getParamNamed("foo").getValue();
         assertThat(entityValue).doesNotContain("CONTENTS_OF_FILE");
@@ -673,7 +673,7 @@ public class GoConfigServiceTest {
 
         GoConfigValidity validity = partialSaver.saveXml(groupXml(renamedGroupName), md5);
 
-        assertThat(validity.isValid()).isEqualTo((true));
+        assertThat(validity.isValid()).isEqualTo(true);
         CruiseConfig updatedConfig = commandArgumentCaptor.getValue().configForEdit();
 
         PipelineConfigs group = updatedConfig.findGroup(renamedGroupName);
@@ -694,7 +694,7 @@ public class GoConfigServiceTest {
 
         String pipelineGroupContent = groupXmlWithInvalidElement(groupName);
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml(pipelineGroupContent, "md5");
-        assertThat(validity.isValid()).isEqualTo((false));
+        assertThat(validity.isValid()).isEqualTo(false);
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).contains("Invalid content was found starting with element 'unknown'");
         verify(goConfigDao, never()).updateConfig(any());
     }
@@ -709,7 +709,7 @@ public class GoConfigServiceTest {
 
         String pipelineGroupContent = groupXmlWithInvalidAttributeValue(groupName);
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml(pipelineGroupContent, "md5");
-        assertThat(validity.isValid()).isEqualTo((false));
+        assertThat(validity.isValid()).isEqualTo(false);
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).contains("Name is invalid. \"pipeline@$^\"");
         verify(goConfigDao, never()).updateConfig(any());
     }
@@ -724,7 +724,7 @@ public class GoConfigServiceTest {
         expectLoadForEditing(cruiseConfig);
 
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml("<foobar>", "md5");
-        assertThat(validity.isValid()).isEqualTo((false));
+        assertThat(validity.isValid()).isEqualTo(false);
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).contains("XML document structures must start and end within the same entity");
         verify(goConfigDao, never()).updateConfig(any());
     }
@@ -939,7 +939,7 @@ public class GoConfigServiceTest {
     }
 
     private String groupXml(final String groupName) {
-        return ("""
+        return """
                 <pipelines group="%s">
                   <pipeline name="new_name" labeltemplate="${COUNT}-#{foo}">
                      <params>
@@ -954,11 +954,11 @@ public class GoConfigServiceTest {
                       </jobs>
                     </stage>
                   </pipeline>
-                </pipelines>""").formatted(groupName);
+                </pipelines>""".formatted(groupName);
     }
 
     private String groupXmlWithEntity(String filePathToReferToInEntity) {
-        return ("""
+        return """
                 <!DOCTYPE foo [ \s
                 <!ELEMENT param ANY >
                 <!ENTITY myentity SYSTEM "file://%s" >]>
@@ -976,11 +976,11 @@ public class GoConfigServiceTest {
                       </jobs>
                     </stage>
                   </pipeline>
-                </pipelines>""").formatted(filePathToReferToInEntity);
+                </pipelines>""".formatted(filePathToReferToInEntity);
     }
 
     private String groupXmlWithInvalidElement(final String groupName) {
-        return ("""
+        return """
                 <pipelines group='%s'>
                   <unknown/>
                 <pipeline name='pipeline'>
@@ -993,11 +993,11 @@ public class GoConfigServiceTest {
                       </jobs>
                   </stage>
                 </pipeline>
-                </pipelines>""").formatted(groupName);
+                </pipelines>""".formatted(groupName);
     }
 
     private String groupXmlWithInvalidAttributeValue(final String groupName) {
-        return ("""
+        return """
                 <pipelines group='%s'>
                 <pipeline name='pipeline@$^'>
                     <materials>
@@ -1009,6 +1009,6 @@ public class GoConfigServiceTest {
                       </jobs>
                   </stage>
                 </pipeline>
-                </pipelines>""").formatted(groupName);
+                </pipelines>""".formatted(groupName);
     }
 }

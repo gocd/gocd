@@ -661,7 +661,7 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
 
         cruiseConfig.validate(mock(ValidationContext.class));
         List<ConfigErrors> allErrors = cruiseConfig.getAllErrors();
-        assertThat((allErrors.getFirst().firstErrorOn("base"))).isEqualTo("Circular dependency: p1 <- p2 <- p3 <- p1");
+        assertThat(allErrors.getFirst().firstErrorOn("base")).isEqualTo("Circular dependency: p1 <- p2 <- p3 <- p1");
 
     }
 

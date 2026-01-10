@@ -22,10 +22,9 @@ import com.thoughtworks.go.spark.Routes;
 public class PipelineSummaryRepresenter {
 
     public static void toJSON(OutputWriter outputWriter, PipelineEditabilityInfo pipelineEditabilityInfo) {
-        outputWriter.addLinks((
-                outputLinkWriter -> outputLinkWriter.addAbsoluteLink("doc", Routes.PipelineConfig.DOC)
-                        .addLink("find", Routes.PipelineConfig.find())
-                        .addLink("self", Routes.PipelineConfig.name(pipelineEditabilityInfo.getPipelineName().toString()))));
+        outputWriter.addLinks(outputLinkWriter -> outputLinkWriter.addAbsoluteLink("doc", Routes.PipelineConfig.DOC)
+                .addLink("find", Routes.PipelineConfig.find())
+                .addLink("self", Routes.PipelineConfig.name(pipelineEditabilityInfo.getPipelineName().toString())));
 
         outputWriter.add("name", pipelineEditabilityInfo.getPipelineName());
         outputWriter.add("can_administer", pipelineEditabilityInfo.canUserEditPipeline());

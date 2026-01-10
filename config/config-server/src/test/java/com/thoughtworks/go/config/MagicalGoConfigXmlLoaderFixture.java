@@ -41,7 +41,7 @@ public class MagicalGoConfigXmlLoaderFixture {
 
         MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(registry);
         String pipelineXmlPartial =
-                ("""
+                """
                         <?xml version="1.0" encoding="utf-8"?>
                         <cruise         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"         xsi:noNamespaceSchemaLocation="cruise-config.xsd"         schemaVersion="%d">
                         <server>
@@ -65,7 +65,7 @@ public class MagicalGoConfigXmlLoaderFixture {
                         </pipeline>
                         </pipelines>
                         </cruise>
-                        """).formatted(GoConstants.CONFIG_SCHEMA_VERSION, materials);
+                        """.formatted(GoConstants.CONFIG_SCHEMA_VERSION, materials);
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(pipelineXmlPartial).config;
         return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline")).materialConfigs();
     }

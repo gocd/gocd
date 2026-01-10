@@ -67,9 +67,9 @@ public class BuildTaskTest {
             }
         };
         task.setConfigAttributes(Map.of(BuildTask.BUILD_FILE, "foo/build.xml", BuildTask.TARGET, "foo.target", BuildTask.WORKING_DIRECTORY, "work_dir"));
-        assertThat(task.getBuildFile()).isEqualTo(("foo/build.xml"));
-        assertThat(task.getTarget()).isEqualTo(("foo.target"));
-        assertThat(task.workingDirectory()).isEqualTo(("work_dir"));
+        assertThat(task.getBuildFile()).isEqualTo("foo/build.xml");
+        assertThat(task.getTarget()).isEqualTo("foo.target");
+        assertThat(task.workingDirectory()).isEqualTo("work_dir");
         task.setConfigAttributes(Map.of(BuildTask.BUILD_FILE, "", BuildTask.TARGET, "", BuildTask.WORKING_DIRECTORY, ""));
         assertThat(task.getBuildFile()).isNull();
         assertThat(task.getTarget()).isNull();
@@ -132,9 +132,9 @@ public class BuildTaskTest {
         };
         task.setConfigAttributes(Map.of(BuildTask.BUILD_FILE, "foo/build.xml", BuildTask.TARGET, "foo.target", BuildTask.WORKING_DIRECTORY, "work_dir"));
         task.setConfigAttributes(Map.of());
-        assertThat(task.getBuildFile()).isEqualTo(("foo/build.xml"));
-        assertThat(task.getTarget()).isEqualTo(("foo.target"));
-        assertThat(task.workingDirectory()).isEqualTo(("work_dir"));
+        assertThat(task.getBuildFile()).isEqualTo("foo/build.xml");
+        assertThat(task.getTarget()).isEqualTo("foo.target");
+        assertThat(task.workingDirectory()).isEqualTo("work_dir");
     }
 
     @Test

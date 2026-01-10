@@ -72,7 +72,7 @@ public class JobStatusMessage implements GoMessage {
     @Override
     public int hashCode() {
         int result;
-        result = (jobIdentifier != null ? jobIdentifier.hashCode() : 0);
+        result = jobIdentifier != null ? jobIdentifier.hashCode() : 0;
         result = 31 * result + (state != null ? state.hashCode() : 0);
         result = 31 * result + (agentUuid != null ? agentUuid.hashCode() : 0);
         return result;

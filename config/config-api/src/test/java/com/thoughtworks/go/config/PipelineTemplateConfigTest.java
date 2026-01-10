@@ -72,7 +72,7 @@ public class PipelineTemplateConfigTest {
                 Map.of(Authorization.NAME, "geezer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))))));
         Authorization authorization = templateConfig.getAuthorization();
 
-        assertThat(authorization.getAdminsConfig().size()).isEqualTo((3));
+        assertThat(authorization.getAdminsConfig().size()).isEqualTo(3);
         assertThat(authorization.getAdminsConfig()).contains(new AdminUser(new CaseInsensitiveString("loser")));
         assertThat(authorization.getAdminsConfig()).contains(new AdminUser(new CaseInsensitiveString("boozer")));
         assertThat(authorization.getAdminsConfig()).contains(new AdminUser(new CaseInsensitiveString("geezer")));
@@ -90,7 +90,7 @@ public class PipelineTemplateConfigTest {
                 Map.of(Authorization.NAME, "geezer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))))));
         Authorization authorization = templateConfig.getAuthorization();
 
-        assertThat(authorization.getAdminsConfig().size()).isEqualTo((3));
+        assertThat(authorization.getAdminsConfig().size()).isEqualTo(3);
 
         templateConfig.setConfigAttributes(Map.of());
 
@@ -107,7 +107,7 @@ public class PipelineTemplateConfigTest {
                 Map.of(Authorization.NAME, "geezer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))))));
         Authorization authorization = templateConfig.getAuthorization();
 
-        assertThat(authorization.getAdminsConfig().size()).isEqualTo((1));
+        assertThat(authorization.getAdminsConfig().size()).isEqualTo(1);
         assertThat(authorization.getAdminsConfig()).contains(new AdminUser(new CaseInsensitiveString("geezer")));
     }
 

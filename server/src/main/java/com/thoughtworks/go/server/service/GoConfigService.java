@@ -715,7 +715,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     public @Nullable PipelineConfig findPipelineByName(CaseInsensitiveString pipelineName) {
         return getAllPipelineConfigs()
             .stream()
-            .filter((pipelineConfig) -> pipelineConfig.getName().equals(pipelineName))
+            .filter(pipelineConfig -> pipelineConfig.getName().equals(pipelineName))
             .findFirst()
             .orElse(null);
     }
@@ -744,7 +744,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             Document document = documentRoot();
             Element root = document.getRootElement();
 
-            Element configElement = ((Element) root.selectSingleNode(getXpath()));
+            Element configElement = (Element) root.selectSingleNode(getXpath());
             List<Node> nodes = configElement.getParent().content();
             int index = nodes.indexOf(configElement);
 

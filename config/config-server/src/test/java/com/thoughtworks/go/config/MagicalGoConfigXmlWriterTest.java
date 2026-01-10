@@ -175,7 +175,7 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteConfigWithTemplates() throws Exception {
-        String content = ("""
+        String content = """
                 <cruise schemaVersion='%d'>
                 <server>
                      <artifacts>
@@ -208,7 +208,7 @@ public class MagicalGoConfigXmlWriterTest {
                     </stage>
                   </pipeline>
                 </templates>
-                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
+                </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).configForEdit;
         xmlWriter.write(config, output, false);
         assertThat(output.toString().replaceAll("\\s+", " ")).contains(
@@ -317,7 +317,7 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldEncryptPasswordBeforeWriting(ResetCipher resetCipher) throws Exception {
         resetCipher.setupDESCipherFile();
-        String content = ("""
+        String content = """
                 <cruise schemaVersion='%d'>
                 <server>
                     <artifacts>
@@ -341,7 +341,7 @@ public class MagicalGoConfigXmlWriterTest {
                     </stage>
                   </pipeline>
                 </templates>
-                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
+                </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).configForEdit;
         xmlWriter.write(config, output, false);
         assertThat(output.toString().replaceAll("\\s+", " ")).contains(
@@ -361,10 +361,10 @@ public class MagicalGoConfigXmlWriterTest {
                 P4MaterialConfig.VIEW, "//depot/dir1/... //lumberjack/...",
                 P4MaterialConfig.AUTO_UPDATE, "true"));
         assertThat(xmlWriter.toXmlPartial(p4MaterialConfig)).isEqualTo(
-                ("""
+                """
                         <p4 port="localhost:1666" username="cruise" encryptedPassword="%s">
                           <view><![CDATA[//depot/dir1/... //lumberjack/...]]></view>
-                        </p4>""").formatted(encryptedPassword));
+                        </p4>""".formatted(encryptedPassword));
     }
 
     @Test
@@ -414,7 +414,7 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldAllowParamsInsidePipeline() throws Exception {
-        String content = ("""
+        String content = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
                 <server>
@@ -438,7 +438,7 @@ public class MagicalGoConfigXmlWriterTest {
                   </stage>
                 </pipeline>
                 </pipelines>
-                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
+                </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework"));
@@ -456,7 +456,7 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteFetchMaterialsFlagToStage() throws Exception {
-        String content = ("""
+        String content = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
                 <server>
@@ -476,7 +476,7 @@ public class MagicalGoConfigXmlWriterTest {
                   </stage>
                 </pipeline>
                 </pipelines>
-                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
+                </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         StageConfig stageConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework")).getFirst();
@@ -489,7 +489,7 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteCleanWorkingDirFlagToStage() throws Exception {
-        String content = ("""
+        String content = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
                 <server>
@@ -509,7 +509,7 @@ public class MagicalGoConfigXmlWriterTest {
                   </stage>
                 </pipeline>
                 </pipelines>
-                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
+                </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         xmlWriter.write(cruiseConfig, out, false);
@@ -523,7 +523,7 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteArtifactPurgeSettings() throws Exception {
-        String content = ("""
+        String content = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
                 <server>
@@ -543,7 +543,7 @@ public class MagicalGoConfigXmlWriterTest {
                   </stage>
                 </pipeline>
                 </pipelines>
-                </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
+                </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         StageConfig stageConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework")).getFirst();

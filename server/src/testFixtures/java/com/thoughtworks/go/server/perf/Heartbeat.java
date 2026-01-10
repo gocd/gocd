@@ -28,6 +28,6 @@ public class Heartbeat {
     }
 
     public long getAgeInMillis() {
-        return startTime > 0 && endTime > 0 ? (endTime - startTime) : 0;
+        return startTime > 0 && endTime > 0 ? endTime - startTime : 0;
     }
 }

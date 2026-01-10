@@ -225,7 +225,7 @@ public class StageInstanceModel implements StageConfigurationModel {
     }
 
     public boolean getCanApprove() {
-        return (getCanRun() && !isScheduled());
+        return getCanRun() && !isScheduled();
     }
 
     public boolean hasUnsuccessfullyCompleted() {

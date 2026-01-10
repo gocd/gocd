@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BasicPipelineConfigsSerializationTest {
-    private static final String PIPELINES_WITH_PERMISSION = ("""
+    private static final String PIPELINES_WITH_PERMISSION = """
             <?xml version="1.0" encoding="utf-8"?>
             <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
               <server>
@@ -59,7 +59,7 @@ public class BasicPipelineConfigsSerializationTest {
               </pipelines>
             </cruise>
 
-            """).formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConstants.CONFIG_SCHEMA_VERSION);
 
     private static final String VIEW_PERMISSION = """
                 <view>

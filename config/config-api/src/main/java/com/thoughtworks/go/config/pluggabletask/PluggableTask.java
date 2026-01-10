@@ -155,7 +155,7 @@ public class PluggableTask extends AbstractTask {
     @Override
     public boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
-        return (onCancelConfig.validateTree(validationContext) && errors.isEmpty() && !configuration.hasErrors());
+        return onCancelConfig.validateTree(validationContext) && errors.isEmpty() && !configuration.hasErrors();
     }
 
     //  This method is called from PluggableTaskService to validate Tasks.
@@ -166,7 +166,7 @@ public class PluggableTask extends AbstractTask {
 
         configuration.validateTree();
 
-        return (errors.isEmpty() && !configuration.hasErrors());
+        return errors.isEmpty() && !configuration.hasErrors();
     }
 
     @Override

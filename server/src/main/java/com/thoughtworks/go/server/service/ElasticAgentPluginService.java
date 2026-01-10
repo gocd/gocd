@@ -192,7 +192,7 @@ public class ElasticAgentPluginService {
                     continue;
                 }
                 long lastTryTime = jobCreationTimeMap.get(jobPlan.getJobId());
-                if ((timeProvider.currentTimeMillis() - lastTryTime) >= goConfigService.elasticJobStarvationThreshold()) {
+                if (timeProvider.currentTimeMillis() - lastTryTime >= goConfigService.elasticJobStarvationThreshold()) {
                     starvingJobs.add(jobPlan);
                 }
             }
@@ -270,7 +270,7 @@ public class ElasticAgentPluginService {
         if (pluginInfo.getCapabilities().supportsPluginStatusReport()) {
             List<Map<String, String>> clusterProfiles = clusterProfilesService.getPluginProfiles().findByPluginId(pluginId)
                     .stream()
-                    .map((profile) -> {
+                    .map(profile -> {
                         secretParamResolver.resolve(profile);
                         return profile.getConfigurationAsMap(true, true);
                     })

@@ -396,7 +396,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
     private void resolveSecretsForMaterials(MaterialRevisions materialRevisions) {
         List<Material> materials = stream(materialRevisions.spliterator(), true)
                 .map(MaterialRevision::getMaterial)
-                .filter((material) -> material instanceof PluggableSCMMaterial || material instanceof PackageMaterial)
+                .filter(material -> material instanceof PluggableSCMMaterial || material instanceof PackageMaterial)
                 .collect(toList());
         secretParamResolver.resolve(materials);
     }

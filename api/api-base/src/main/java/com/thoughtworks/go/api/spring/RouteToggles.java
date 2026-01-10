@@ -31,7 +31,7 @@ class RouteToggles {
     }
 
     boolean matches(RouteEntry entry) {
-        return matchers.stream().anyMatch((routeToggle -> routeToggle.matches(entry)));
+        return matchers.stream().anyMatch(routeToggle -> routeToggle.matches(entry));
     }
 
     boolean isToggledOn(RouteEntry entry) {

@@ -30,7 +30,7 @@ public class ConfigRepoWithResultListRepresenter {
                 "config_repos", all -> repos.forEach(
                         repo -> all.addChild(el -> ConfigRepoWithResultRepresenter.toJSON(el, repo))
                 )
-        )).addChildList("auto_completion", (suggestionWriter) -> autoSuggestions.forEach(
+        )).addChildList("auto_completion", suggestionWriter -> autoSuggestions.forEach(
                 (key, value) -> suggestionWriter.addChild(childWriter -> childWriter
                         .add("key", key)
                         .addChildList("value", value))

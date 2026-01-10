@@ -206,7 +206,7 @@ public class ExecTaskTest {
         File absoluteFile = new File("test").getAbsoluteFile();
         ExecTask task = new ExecTask("command", "arguments", absoluteFile.getAbsolutePath());
 
-        assertThat(task.workingDirectory()).isEqualTo((absoluteFile.getPath()));
+        assertThat(task.workingDirectory()).isEqualTo(absoluteFile.getPath());
     }
 
     @Test

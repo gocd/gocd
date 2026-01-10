@@ -427,7 +427,7 @@ public class CachedGoConfigIntegrationTest {
 
     @Test
     public void shouldInterpolateParamsInTemplate() {
-        String content = ("""
+        String content = """
             <cruise schemaVersion='%d'>
             <server>
             <artifacts>
@@ -467,7 +467,7 @@ public class CachedGoConfigIntegrationTest {
                 </stage>
               </pipeline>
             </templates>
-            </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
+            </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
 
         configHelper.writeXmlToConfigFile(content);
 
@@ -490,7 +490,7 @@ public class CachedGoConfigIntegrationTest {
 
     @Test
     public void shouldHandleParamQuotingCorrectly() {
-        String content = ("""
+        String content = """
             <cruise schemaVersion='%d'>
             <server>
             <artifacts>
@@ -517,7 +517,7 @@ public class CachedGoConfigIntegrationTest {
                 </stage>
             </pipeline>
             </pipelines>
-            </cruise>""").formatted(CONFIG_SCHEMA_VERSION);
+            </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
 
         configHelper.writeXmlToConfigFile(content);
 

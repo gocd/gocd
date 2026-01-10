@@ -85,42 +85,42 @@ class BuildWorkTest {
     private static final String SERVER_URL = "somewhere-does-not-matter";
     private static final JobIdentifier JOB_IDENTIFIER = new JobIdentifier(PIPELINE_NAME, -3, PIPELINE_LABEL, STAGE_NAME, String.valueOf(STAGE_COUNTER), JOB_PLAN_NAME, 1L);
 
-    private static final String NANT = ("""
+    private static final String NANT = """
             <job name="%s">
               <tasks>
                 <nant target="-help"/>
               </tasks>
-            </job>""").formatted(JOB_PLAN_NAME);
+            </job>""".formatted(JOB_PLAN_NAME);
 
-    private static final String NANT_WITH_WORKING_DIR = ("""
+    private static final String NANT_WITH_WORKING_DIR = """
             <job name="%s">
               <tasks>
                 <nant target="-help" workingdir="not-exists" />
               </tasks>
-            </job>""").formatted(JOB_PLAN_NAME);
+            </job>""".formatted(JOB_PLAN_NAME);
 
-    private static final String RAKE = ("""
+    private static final String RAKE = """
             <job name="%s">
               <tasks>
                 <rake target="--help"/>
               </tasks>
-            </job>""").formatted(JOB_PLAN_NAME);
+            </job>""".formatted(JOB_PLAN_NAME);
 
-    private static final String WILL_FAIL = ("""
+    private static final String WILL_FAIL = """
             <job name="%s">
               <tasks>
                 <ant target="something-not-really-exist" />
               </tasks>
-            </job>""").formatted(JOB_PLAN_NAME);
+            </job>""".formatted(JOB_PLAN_NAME);
 
-    private static final String WILL_PASS = ("""
+    private static final String WILL_PASS = """
             <job name="%s">
               <tasks>
                 <ant target="-help" />
               </tasks>
-            </job>""").formatted(JOB_PLAN_NAME);
+            </job>""".formatted(JOB_PLAN_NAME);
 
-    private static final String WITH_ENV_VAR = ("""
+    private static final String WITH_ENV_VAR = """
             <job name="%s">
               <environmentvariables>
                 <variable name="JOB_ENV">
@@ -133,9 +133,9 @@ class BuildWorkTest {
               <tasks>
                 <ant target="-help" />
               </tasks>
-            </job>""").formatted(JOB_PLAN_NAME, SystemUtils.IS_OS_WINDOWS ? "PATHEXT" : "PATH");
+            </job>""".formatted(JOB_PLAN_NAME, SystemUtils.IS_OS_WINDOWS ? "PATHEXT" : "PATH");
 
-    private static final String WITH_SECRET_ENV_VAR = ("""
+    private static final String WITH_SECRET_ENV_VAR = """
             <job name="%s">
               <environmentvariables>
                 <variable name="foo">
@@ -148,27 +148,27 @@ class BuildWorkTest {
               <tasks>
                 <ant target="-help" />
               </tasks>
-            </job>""").formatted(JOB_PLAN_NAME);
+            </job>""".formatted(JOB_PLAN_NAME);
 
     private static final String SOMETHING_NOT_EXIST = "something-not-exist";
 
-    private static final String CMD_NOT_EXIST = ("""
+    private static final String CMD_NOT_EXIST = """
             <job name="%s">
               <tasks>
                 <exec command="%s" />
               </tasks>
-            </job>""").formatted(JOB_PLAN_NAME, SOMETHING_NOT_EXIST);
+            </job>""".formatted(JOB_PLAN_NAME, SOMETHING_NOT_EXIST);
 
-    private static final String WILL_NOT_RUN = ("""
+    private static final String WILL_NOT_RUN = """
             <job name="%s">
               <tasks>
                 <exec command="echo" args="run when status is failed">
                   <runif status="failed" />
                 </exec>
               </tasks>
-            </job>""").formatted(JOB_PLAN_NAME);
+            </job>""".formatted(JOB_PLAN_NAME);
 
-    private static final String MULTIPLE_TASKS = ("""
+    private static final String MULTIPLE_TASKS = """
             <job name="%s">
               <tasks>
                 <exec command="command-not-found" >
@@ -183,9 +183,9 @@ class BuildWorkTest {
                   <runif status="any" />
                 </exec>
               </tasks>
-            </job>""").formatted(JOB_PLAN_NAME);
+            </job>""".formatted(JOB_PLAN_NAME);
 
-    private static final String MULTIPLE_RUN_IFS = ("""
+    private static final String MULTIPLE_RUN_IFS = """
             <job name="%s">
               <tasks>
                 <exec command="echo" args="run when status is failed, passed or cancelled">
@@ -193,9 +193,9 @@ class BuildWorkTest {
                   <runif status="passed" />
                 </exec>
               </tasks>
-            </job>""").formatted(JOB_PLAN_NAME);
+            </job>""".formatted(JOB_PLAN_NAME);
 
-    private static final String WITH_GO_SERVER_URL_ENV_VAR = ("""
+    private static final String WITH_GO_SERVER_URL_ENV_VAR = """
             <job name="%s">
               <environmentvariables>
                 <variable name="GO_SERVER_URL">
@@ -205,13 +205,13 @@ class BuildWorkTest {
               <tasks>
                 <ant target="-help" />
               </tasks>
-            </job>""").formatted(JOB_PLAN_NAME);
+            </job>""".formatted(JOB_PLAN_NAME);
 
     private static final BuilderFactory builderFactory = new BuilderFactory(new AntTaskBuilder(), new ExecTaskBuilder(), new NantTaskBuilder(),
         new RakeTaskBuilder(), new PluggableTaskBuilderCreator(), new KillAllChildProcessTaskBuilder(),
         new FetchTaskBuilder(mock(GoConfigService.class)), new NullTaskBuilder());
     private static String willUpload(String file) {
-        return ("""
+        return """
                 <job name="%s">
                    <artifacts>
                       <artifact type="build" src="something-not-there.txt" dest="dist" />
@@ -220,12 +220,12 @@ class BuildWorkTest {
                   <tasks>
                     <ant target="-help" />
                   </tasks>
-                </job>""").formatted(JOB_PLAN_NAME, file);
+                </job>""".formatted(JOB_PLAN_NAME, file);
 
     }
 
     private static String pluggableArtifact() {
-        return ("""
+        return """
                 <job name="%s">
                    <artifacts>
                       <artifact type="external" id="installers" storeId="s3">
@@ -240,12 +240,12 @@ class BuildWorkTest {
                   <tasks>
                     <ant target="-help" />
                   </tasks>
-                </job>""").formatted(JOB_PLAN_NAME);
+                </job>""".formatted(JOB_PLAN_NAME);
 
     }
 
     private static String willUploadToDest(String file, String dest) {
-        return ("""
+        return """
                 <job name="%s">
                    <artifacts>
                       <artifact type= "build" src="%s" dest="%s" />
@@ -253,7 +253,7 @@ class BuildWorkTest {
                   <tasks>
                     <ant target="-help" />
                   </tasks>
-                </job>""").formatted(JOB_PLAN_NAME, file, dest);
+                </job>""".formatted(JOB_PLAN_NAME, file, dest);
 
     }
 

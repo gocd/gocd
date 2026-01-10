@@ -180,7 +180,7 @@ public class PipelineConfigServicePerformanceTest {
         for (Thread t : threads) {
             int i = threads.indexOf(t);
             // noinspection PointlessBooleanExpression
-            if (false && i == (numberOfRequests - 1)) {
+            if (false && i == numberOfRequests - 1) {
                 takeHeapDump(i);
             }
             t.join();

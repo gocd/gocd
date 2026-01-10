@@ -39,7 +39,7 @@ class UserTest {
     void shouldTrimTheUserNameAndMatcher() {
         user = new User(" UserName ", "Full User Name", " README ", " user@mail.com ", true);
         assertThat(user.getName()).isEqualTo("UserName");
-        assertThat(user.getMatcher()).isEqualTo(("README"));
+        assertThat(user.getMatcher()).isEqualTo("README");
         assertThat(user.getEmail()).isEqualTo("user@mail.com");
         assertThat(user.getDisplayName()).isEqualTo("Full User Name");
     }

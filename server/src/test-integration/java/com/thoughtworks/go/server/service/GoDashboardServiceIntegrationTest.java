@@ -119,7 +119,7 @@ public class GoDashboardServiceIntegrationTest {
         assertThat(pipelineGroupsOnDashboard).hasSize(1);
         assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().size()).isEqualTo(1);
         assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().iterator().next().model().getLatestPipelineInstance()
-                .getCounter()).isEqualTo((new StageIdentifier(p1_1).getPipelineCounter()));
+                .getCounter()).isEqualTo(new StageIdentifier(p1_1).getPipelineCounter());
 
         BuildCause buildCauseForThirdRun = BuildCause.createWithModifications(u.mrs(u.mr(u.m(g1).material, true, "g_2")), "user");
         Pipeline p1_2 = scheduleService.schedulePipeline(p1.config.name(), buildCauseForThirdRun);
@@ -128,7 +128,7 @@ public class GoDashboardServiceIntegrationTest {
         pipelineGroupsOnDashboard = goDashboardService.allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user"));
         assertThat(pipelineGroupsOnDashboard).hasSize(1);
         assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().size()).isEqualTo(1);
-        assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().iterator().next().model().getLatestPipelineInstance().getId()).isEqualTo((p1_2.getId()));
+        assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().iterator().next().model().getLatestPipelineInstance().getId()).isEqualTo(p1_2.getId());
 
         addDummyEnvironmentToConfig("environment");
         goDashboardService.updateCacheForAllPipelinesIn(goConfigService.cruiseConfig());
@@ -136,7 +136,7 @@ public class GoDashboardServiceIntegrationTest {
         pipelineGroupsOnDashboard = goDashboardService.allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user"));
         assertThat(pipelineGroupsOnDashboard).hasSize(1);
         assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().size()).isEqualTo(1);
-        assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().iterator().next().model().getLatestPipelineInstance().getId()).isEqualTo((p1_2.getId()));
+        assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().iterator().next().model().getLatestPipelineInstance().getId()).isEqualTo(p1_2.getId());
     }
 
     private void addDummyEnvironmentToConfig(String environmentName) {
@@ -158,7 +158,7 @@ public class GoDashboardServiceIntegrationTest {
         assertThat(pipelineGroupsOnDashboard).hasSize(1);
         assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().size()).isEqualTo(1);
         assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().iterator().next().model().getLatestPipelineInstance()
-                .getCounter()).isEqualTo((new StageIdentifier(p1_1).getPipelineCounter()));
+                .getCounter()).isEqualTo(new StageIdentifier(p1_1).getPipelineCounter());
 
         BuildCause buildCauseForThirdRun = BuildCause.createWithModifications(u.mrs(u.mr(u.m(g1).material, true, "g_2")), "user");
         Pipeline p1_2 = scheduleService.schedulePipeline(addedPipeline.config.name(), buildCauseForThirdRun);
@@ -167,7 +167,7 @@ public class GoDashboardServiceIntegrationTest {
         pipelineGroupsOnDashboard = goDashboardService.allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user"));
         assertThat(pipelineGroupsOnDashboard).hasSize(1);
         assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().size()).isEqualTo(1);
-        assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().iterator().next().model().getLatestPipelineInstance().getId()).isEqualTo((p1_2.getId()));
+        assertThat(pipelineGroupsOnDashboard.getFirst().allPipelines().iterator().next().model().getLatestPipelineInstance().getId()).isEqualTo(p1_2.getId());
 
         pipelineConfigService.deletePipelineConfig(new Username("user"), addedPipeline.config, new DefaultLocalizedOperationResult());
         goDashboardService.updateCacheForPipeline(addedPipeline.config);

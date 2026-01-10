@@ -68,7 +68,7 @@ public class SvnRemoteRepository {
         enableAuthentication();
         File passwdFile = new File(repo.projectRepositoryRoot(), "conf/passwd");
         String passwd = String.join(System.lineSeparator(), Files.readAllLines(passwdFile.toPath()));
-        if (!(passwd.contains("\n[users]\n"))) {
+        if (!passwd.contains("\n[users]\n")) {
             passwd = passwd + "\n[users]\n";
         }
         passwd = passwd + String.format("\n%s = %s\n", username, password);

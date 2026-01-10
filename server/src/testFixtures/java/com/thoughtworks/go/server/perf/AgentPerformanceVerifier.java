@@ -146,7 +146,7 @@ public class AgentPerformanceVerifier {
         Set<String> difference = SetUtils.difference(agentEnvsInDB, agentEnvsInEnvCache);
         HashSet<String> knownEnvNames = new HashSet<>(environmentConfigService.getEnvironmentNames());
 
-        boolean containsOnlyUnknownEnvs = (difference.isEmpty() || !knownEnvNames.containsAll(difference));
+        boolean containsOnlyUnknownEnvs = difference.isEmpty() || !knownEnvNames.containsAll(difference);
         if (!containsOnlyUnknownEnvs) {
             LOG.error("Throwing RuntimeException as verification of agent environments {} in db and environments cache has failed. There are some agent environment associations in DB that does not exist in environment cache", agentInCache.getUuid());
             throw new RuntimeException("WARNING : There is some threading issue found during agent performance test!!!");

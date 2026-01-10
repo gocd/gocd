@@ -63,7 +63,7 @@ public class Metadata {
 
     @Override
     public int hashCode() {
-        int result = (required ? 1 : 0);
+        int result = required ? 1 : 0;
         result = 31 * result + (secure ? 1 : 0);
         return result;
     }

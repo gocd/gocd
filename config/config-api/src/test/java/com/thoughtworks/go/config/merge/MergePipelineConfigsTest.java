@@ -76,7 +76,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         secondPart.setOrigin(new RepoConfigOrigin());
         MergePipelineConfigs merge = new MergePipelineConfigs(filePart, secondPart);
 
-        assertThat(merge.getLocal()).isEqualTo((filePart));
+        assertThat(merge.getLocal()).isEqualTo(filePart);
     }
 
     @Test
@@ -287,7 +287,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         MergePipelineConfigs group = new MergePipelineConfigs(
                 part1, new BasicPipelineConfigs());
 
-        assertThat(group.getFirstEditablePartOrNull()).isEqualTo((part1));
+        assertThat(group.getFirstEditablePartOrNull()).isEqualTo(part1);
 
     }
 
@@ -311,7 +311,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         MergePipelineConfigs group = new MergePipelineConfigs(
                 part1, new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")));
 
-        assertThat(group.getPartWithPipeline(new CaseInsensitiveString("pipeline1"))).isEqualTo((part1));
+        assertThat(group.getPartWithPipeline(new CaseInsensitiveString("pipeline1"))).isEqualTo(part1);
 
     }
 

@@ -161,7 +161,7 @@ public class MaterialService {
     }
 
     private void resolveSecretParams(Material material) {
-        if ((material instanceof SecretParamAware)) {
+        if (material instanceof SecretParamAware) {
             this.secretParamResolver.resolve(material);
         }
     }

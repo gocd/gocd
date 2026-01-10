@@ -29,7 +29,7 @@ public class LastOperationTime {
     }
 
     public boolean pastWaitingPeriod() {
-        return (System.currentTimeMillis() - recentOperationTime) > waitFor;
+        return System.currentTimeMillis() - recentOperationTime > waitFor;
     }
 
     public void refresh() {

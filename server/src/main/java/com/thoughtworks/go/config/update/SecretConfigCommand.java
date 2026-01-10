@@ -54,7 +54,7 @@ public abstract class SecretConfigCommand extends RuleAwarePluginProfileCommand<
 
     @Override
     protected boolean isAuthorized() {
-        if (!(goConfigService.isUserAdmin(currentUser))) {
+        if (!goConfigService.isUserAdmin(currentUser)) {
             result.forbidden(EntityType.SecretConfig.forbiddenToEdit(profile.getId(), currentUser.getUsername()), forbidden());
             return false;
         }

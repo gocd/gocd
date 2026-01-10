@@ -155,7 +155,6 @@ public class GoDashboardCurrentStateLoaderTest {
 
         PipelineInstanceModel emptyPIM = model.getLatestPipelineInstance();
         assertThat(emptyPIM.getName()).isEqualTo("pipeline1");
-        assertThat(emptyPIM.hasHistoricalData()).isFalse();
         assertThat(emptyPIM.isPreparingToSchedule()).isFalse();
         assertThat(emptyPIM.getCounter()).isEqualTo(0);
         assertThat(emptyPIM.getBuildCause()).isEqualTo(BuildCause.createWithEmptyModifications());

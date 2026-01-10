@@ -32,16 +32,6 @@ public class EmptyPipelineInstanceModelTest {
     }
 
     @Test
-    public void shouldAdvertiseAsUnrealPipeline() {
-        assertThat(instanceModel.hasHistoricalData()).isFalse();
-    }
-
-    @Test
-    public void shouldReturnUnknownModificationAsCurrent() {
-        assertThat(instanceModel.getCurrentRevision("foo")).isEqualTo(PipelineInstanceModel.UNKNOWN_REVISION);
-    }
-
-    @Test
     public void shouldBeCapableOfGeneratingPipelineIdentifier() {
         assertThat(instanceModel.getPipelineIdentifier()).isEqualTo(new PipelineIdentifier("pipeline", 0, "unknown"));
     }

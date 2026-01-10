@@ -68,10 +68,6 @@ public class StageInstanceModels extends BaseCollection<StageInstanceModel> impl
         return null;
     }
 
-    public Boolean isLatestStageUnsuccessful() {
-        return latestStage().hasUnsuccessfullyCompleted();
-    }
-
     public @Nullable StageInstanceModel latestStage() {
         if (isEmpty()) {
             return null;
@@ -86,10 +82,6 @@ public class StageInstanceModels extends BaseCollection<StageInstanceModel> impl
         return latest;
     }
 
-    public Boolean isLatestStageSuccessful() {
-        return latestStage().hasPassed();
-    }
-
     /**
      * Use {@link #add(StageInstanceModel)} instead
      */
@@ -101,10 +93,6 @@ public class StageInstanceModels extends BaseCollection<StageInstanceModel> impl
     public StageInstanceModels addFutureStage(String name, boolean isAutoApproved) {
         add(new NullStageHistoryItem(name, isAutoApproved));
         return this;
-    }
-
-    public boolean isLatestStage(StageInstanceModel stage) {
-        return latestStage().equals(stage);
     }
 
     public void updateFutureStagesFrom(PipelineConfig pipelineConfig) {

@@ -16,8 +16,6 @@
 package com.thoughtworks.go.presentation.pipelinehistory;
 
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.domain.materials.Revision;
 
 import java.util.Date;
 
@@ -33,16 +31,6 @@ public class PreparingToScheduleInstance extends PipelineInstanceModel {
     }
 
     @Override
-    public Revision getCurrentRevision(String requestedMaterialName) {
-        return new PreparingToScheduleRevision();
-    }
-
-    @Override
-    public Revision getCurrentRevision(MaterialConfig material) {
-        return new PreparingToScheduleRevision();
-    }
-
-    @Override
     public String getBuildCauseMessage() {
         return "Preparing to schedule";
     }
@@ -54,27 +42,4 @@ public class PreparingToScheduleInstance extends PipelineInstanceModel {
 
     public static class PreparingToScheduleBuildCause extends BuildCause {}
 
-    @Override
-    public String getPipelineStatusMessage() {
-        return String.format("Preparing to schedule (%s/%s)", 0, numberOfStages());
-    }
-
-    private static class PreparingToScheduleRevision implements Revision {
-        public static final String PREPARING = "Preparing to schedule...";
-
-        @Override
-        public String getRevision() {
-            return PREPARING;
-        }
-
-        @Override
-        public String getRevisionUrl() {
-            return PREPARING;
-        }
-
-        @Override
-        public boolean isRealRevision() {
-            return false;
-        }
-    }
 }

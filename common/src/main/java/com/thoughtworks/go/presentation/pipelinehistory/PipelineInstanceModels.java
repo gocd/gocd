@@ -35,11 +35,6 @@ public class PipelineInstanceModels extends BaseCollection<PipelineInstanceModel
         return new PipelineInstanceModels(instances.toArray(new PipelineInstanceModel[]{}));
     }
 
-    public PipelineInstanceModel find(String pipelineName) {
-        PipelineInstanceModels found = findAll(pipelineName);
-        return found.isEmpty() ? null : found.getFirst();
-    }
-
     public PipelineInstanceModels findAll(String pipelineName) {
         PipelineInstanceModels found = PipelineInstanceModels.createPipelineInstanceModels();
         for (PipelineInstanceModel pipelineInstanceModel : this) {

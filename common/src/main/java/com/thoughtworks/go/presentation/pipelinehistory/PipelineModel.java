@@ -59,10 +59,6 @@ public class PipelineModel {
         return pipelineName;
     }
 
-    public boolean hasNewRevisions() {
-        return getLatestPipelineInstance().hasNewRevisions();
-    }
-
     /**
      * Note: this check should be part of the scheduling checker.
      * We will refactor it down to that point.

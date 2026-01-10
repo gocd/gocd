@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.domain.materials.svn.SubversionRevision;
@@ -258,31 +257,9 @@ public class PipelineHistoryServiceIntegrationTest {
         PipelineInstanceModels instanceModels = pipelineHistoryService.loadWithEmptyAsDefault("new-pipeline", Pagination.ONE_ITEM, "username");
         PipelineInstanceModel instanceModel = instanceModels.getFirst();
         assertThat(instanceModel.getMaterials()).isEqualTo(new MaterialConfigs(svnMaterial));
-        assertThat(instanceModel.getCurrentRevision(svnMaterial).getRevision()).isEqualTo("No historical data");
         assertThat(instanceModel.getLatestRevision(svnMaterial).getRevision()).isEqualTo("No historical data");
         assertThat(instanceModel.getStageHistory().size()).isEqualTo(1);
         assertThat(instanceModel.getStageHistory().getFirst().getName()).isEqualTo("new-stage");
-    }
-
-    @Test
-    public void shouldUnderstandIfMaterialHasNewModifications() {
-        Pipeline pipeline = pipelineOne.createPipelineWithFirstStageScheduled();
-        Material material = pipeline.getMaterialRevisions().getMaterialRevision(0).getMaterial();
-        saveRev(new MaterialRevision(material, new Modification(new Date(), "2", "MOCK_LABEL-12", null)));
-        configHelper.setViewPermissionForGroup("group1", "username");
-        PipelineInstanceModels latest = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, Pagination.ONE_ITEM, "username");
-        PipelineInstanceModel model = latest.getFirst();
-        assertThat(model.hasNewRevisions(material.config())).isTrue();
-    }
-
-    @Test
-    public void shouldUnderstandIfMaterialHasNoNewModifications() {
-        Pipeline pipeline = pipelineOne.createPipelineWithFirstStageScheduled();
-        Material material = pipeline.getMaterialRevisions().getMaterialRevision(0).getMaterial();
-        configHelper.setViewPermissionForGroup("group1", "username");
-        PipelineInstanceModels latest = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, Pagination.ONE_ITEM, "username");
-        PipelineInstanceModel model = latest.getFirst();
-        assertThat(model.hasNewRevisions(material.config())).isFalse();
     }
 
     @Test

@@ -103,7 +103,7 @@ public class ResourceRepositoryIntegrationTest {
 
         // Assert
         assertThat(resources.size()).isEqualTo(1);
-        assertThat(resources.get(0)).isEqualTo(savedResource);
+        assertThat(resources.getFirst()).isEqualTo(savedResource);
     }
 
     @Test
@@ -121,7 +121,7 @@ public class ResourceRepositoryIntegrationTest {
         // Assert
         Resources firstJobResources = resourceRepository.findByBuildId(firstJobInstance.getId());
         assertThat(firstJobResources.size()).isEqualTo(1);
-        assertThat(firstJobResources.get(0).getId()).isEqualTo(resourceOfFirstJob.getId());
+        assertThat(firstJobResources.getFirst().getId()).isEqualTo(resourceOfFirstJob.getId());
         assertThat(firstJobResources).contains(resourceOfFirstJob);
 
         Resources secondJobResources = resourceRepository.findByBuildId(secondJobInstance.getId());

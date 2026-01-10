@@ -73,7 +73,7 @@ public class StageOrderTest {
     public void shouldSetOrderTo1ForUnScheduledFirstStage() {
         pipelineService.save(pipelineFixture.schedulePipeline());
         Pipeline pipeline = pipelineService.mostRecentFullPipelineByName(pipelineFixture.pipelineName);
-        assertThat(pipeline.getStages().getFirstOrNull().getOrderId()).isEqualTo(1);
+        assertThat(pipeline.getStages().getFirst().getOrderId()).isEqualTo(1);
     }
 
     @Test

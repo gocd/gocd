@@ -309,7 +309,7 @@ public class BuildWorkEnvironmentVariablesTest {
                 ModificationsMother.oneModifiedFile(repo.latestRevision()));
 
         MaterialRevision hgRevision = new MaterialRevision(hgMaterial,
-                ModificationsMother.oneModifiedFile(hgTestRepo.latestModifications().get(0).getRevision()));
+                ModificationsMother.oneModifiedFile(hgTestRepo.latestModifications().getFirst().getRevision()));
 
         MaterialRevision dependencyRevision1 = ModificationsMother.dependencyMaterialRevision(0,
                 dependencyMaterial.getPipelineName() + "-label", 1,

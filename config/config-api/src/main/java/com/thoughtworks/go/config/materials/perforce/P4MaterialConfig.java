@@ -188,9 +188,4 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     public void setUseTickets(boolean useTickets) {
         this.useTickets = useTickets;
     }
-
-    @Override
-    public String getFolder() {
-        return folder;
-    }
 }

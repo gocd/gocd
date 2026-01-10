@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BasicPipelineConfigsSerializationTest {
-    private static final String PIPELINES_WITH_PERMISSION = ("""
+    private static final String PIPELINES_WITH_PERMISSION = """
             <?xml version="1.0" encoding="utf-8"?>
             <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
               <server>
@@ -59,7 +59,7 @@ public class BasicPipelineConfigsSerializationTest {
               </pipelines>
             </cruise>
 
-            """).formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConstants.CONFIG_SCHEMA_VERSION);
 
     private static final String VIEW_PERMISSION = """
                 <view>
@@ -111,7 +111,7 @@ public class BasicPipelineConfigsSerializationTest {
     public void shouldLoadOperationPermissionForPipelines() {
         CruiseConfig cruiseConfig = ConfigMigrator.load(configureAuthorization(OPERATION_PERMISSION));
         cruiseConfig.initializeServer();
-        PipelineConfigs group = cruiseConfig.getGroups().getFirstOrNull();
+        PipelineConfigs group = cruiseConfig.getGroups().getFirst();
 
         assertThat(group.getAuthorization()).isInstanceOf(Authorization.class);
 
@@ -124,7 +124,7 @@ public class BasicPipelineConfigsSerializationTest {
     public void shouldLoadOperationAndViewPermissionForPipelinesNoMatterTheConfigOrder() {
         CruiseConfig cruiseConfig = ConfigMigrator.load(configureAuthorization(OPERATION_PERMISSION + VIEW_PERMISSION));
         cruiseConfig.initializeServer();
-        PipelineConfigs group = cruiseConfig.getGroups().getFirstOrNull();
+        PipelineConfigs group = cruiseConfig.getGroups().getFirst();
 
         assertThat(group.getAuthorization()).isInstanceOf(Authorization.class);
 
@@ -139,7 +139,7 @@ public class BasicPipelineConfigsSerializationTest {
     public void shouldLoadViewAndOperationPermissionForPipelinesNoMatterTheConfigOrder() {
         CruiseConfig cruiseConfig = ConfigMigrator.load(configureAuthorization(VIEW_PERMISSION + OPERATION_PERMISSION));
         cruiseConfig.initializeServer();
-        PipelineConfigs group = cruiseConfig.getGroups().getFirstOrNull();
+        PipelineConfigs group = cruiseConfig.getGroups().getFirst();
 
         assertThat(group.getAuthorization()).isInstanceOf(Authorization.class);
 

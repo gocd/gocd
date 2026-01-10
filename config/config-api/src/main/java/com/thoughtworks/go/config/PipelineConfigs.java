@@ -20,9 +20,12 @@ import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PipelineConfigVisitor;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.BiPredicate;
 
 public interface PipelineConfigs extends Iterable<PipelineConfig>, Cloneable, Validatable,
         ParamsAttributeAware, ConfigOriginTraceable {
@@ -34,22 +37,20 @@ public interface PipelineConfigs extends Iterable<PipelineConfig>, Cloneable, Va
 
     int size();
 
-    boolean contains(PipelineConfig pipelineConfig);
-
     boolean isEmpty();
-
-    boolean hasRemoteParts();
 
     @Override
     ConfigOrigin getOrigin();
+
+    default boolean isEditable() {
+        return Optional.ofNullable(getOrigin()).map(ConfigOrigin::canEdit).orElse(false);
+    }
 
     @Nullable PipelineConfig findBy(CaseInsensitiveString pipelineName);
 
     boolean add(PipelineConfig pipelineConfig);
 
     boolean addWithoutValidation(PipelineConfig pipelineConfig);
-
-    PipelineConfig set(int index, PipelineConfig pipelineConfig);
 
     void addToTop(PipelineConfig pipelineConfig);
 
@@ -63,11 +64,9 @@ public interface PipelineConfigs extends Iterable<PipelineConfig>, Cloneable, Va
 
     void update(String groupName, PipelineConfig pipeline, String pipelineName);
 
+    boolean tryReplace(BiPredicate<PipelineConfigs, PipelineConfig> matcher, PipelineConfig newItem);
+
     boolean save(PipelineConfig pipeline, String groupName);
-
-    void add(List<String> allGroup);
-
-    boolean exist(int pipelineIndex);
 
     boolean hasPipeline(CaseInsensitiveString pipelineName);
 
@@ -87,8 +86,6 @@ public interface PipelineConfigs extends Iterable<PipelineConfig>, Cloneable, Va
 
     boolean hasAuthorizationDefined();
 
-    boolean hasTemplate();
-
     PipelineConfigs getCopyForEditing();
 
     boolean isUserAnAdmin(CaseInsensitiveString userName, List<Role> memberRoles);
@@ -106,30 +103,21 @@ public interface PipelineConfigs extends Iterable<PipelineConfig>, Cloneable, Va
     @Override
     void addError(String fieldName, String message);
 
-    List<AdminUser> getOperateUsers();
-
-    List<AdminRole> getOperateRoles();
-
-    List<String> getOperateRoleNames();
-
-    List<String> getOperateUserNames();
-
     @Override
     void setConfigAttributes(Object attributes);
 
     void cleanupAllUsagesOfRole(Role roleToDelete);
 
-    int indexOf(PipelineConfig pipelineConfig);
-
     PipelineConfig get(int i);
 
     void remove(PipelineConfig pipelineConfig);
-
-    PipelineConfig remove(int i);
 
     void validateGroupNameAndAddErrorsTo(ConfigErrors errors);
 
     PipelineConfigs getLocal();
 
     boolean isLocal();
+
+    @TestOnly
+    PipelineConfig getFirst();
 }

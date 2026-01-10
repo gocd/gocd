@@ -166,7 +166,7 @@ public class ElasticProfileService {
 
     private String getPluginIdForElasticAgentProfile(ElasticProfile elasticProfile) {
         ClusterProfile clusterProfile = this.goConfigService.getElasticConfig().getClusterProfiles().find(elasticProfile.getClusterProfileId());
-        return (clusterProfile != null) ? clusterProfile.getPluginId() : null;
+        return clusterProfile != null ? clusterProfile.getPluginId() : null;
     }
 
     private String getTagName(Class<?> clazz) {

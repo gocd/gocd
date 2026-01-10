@@ -124,7 +124,7 @@ public abstract class RuleAwarePluginProfile implements Validatable, RulesAware 
 
 
     public boolean hasErrors() {
-        return (!this.errors().isEmpty()) || rules.hasErrors() || configuration.hasErrors();
+        return !this.errors().isEmpty() || rules.hasErrors() || configuration.hasErrors();
     }
 
     public void validateTree(ValidationContext validationContext) {

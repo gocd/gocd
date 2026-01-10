@@ -125,7 +125,7 @@ public class PackageDefinitionServiceIntegrationTest {
         PackageDefinition packageDefinition = new PackageDefinition(packageUuid, packageName, configuration);
 
         PackageRepositories repositories = goConfigService.getConfigForEditing().getPackageRepositories();
-        PackageRepository repository = repositories.find(repoId);
+        PackageRepository repository = repositories.findByRepoId(repoId);
         repository.addPackage(packageDefinition);
         repositories.removePackageRepository(repoId);
         repositories.add(repository);
@@ -135,10 +135,10 @@ public class PackageDefinitionServiceIntegrationTest {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.setMessage(EntityType.PackageDefinition.deleteSuccessful(packageDefinition.getId()));
 
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId).getPackages().find(packageUuid)).isEqualTo(packageDefinition);
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().findByRepoId(repoId).getPackages().find(packageUuid)).isEqualTo(packageDefinition);
         service.deletePackage(packageDefinition, user, result);
 
         assertThat(result).isEqualTo(expectedResult);
-        assertNull(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId).getPackages().find(packageUuid));
+        assertNull(goConfigService.getConfigForEditing().getPackageRepositories().findByRepoId(repoId).getPackages().find(packageUuid));
     }
 }

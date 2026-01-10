@@ -101,7 +101,7 @@ public class StageIntegrationTest {
     private Stage createPipelineWithFirstStageCompletedAndNextStageBuilding(StageState stageState) throws Exception {
         Pipeline newPipeline = createPipelineWithFirstStageBuilding();
         Stage mostRecent = newPipeline.getFirstStage();
-        JobInstance job = mostRecent.getJobInstances().getFirstOrNull();
+        JobInstance job = mostRecent.getJobInstances().getFirst();
         if (stageState.equals(StageState.Failed)) {
             dbHelper.failStage(mostRecent);
         } else {

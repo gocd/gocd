@@ -145,7 +145,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         Pipeline building = PipelineMother.building(pipelineConfig);
         Pipeline pipeline = dbHelper.savePipelineWithStagesAndMaterials(building);
 
-        final long jobId = pipeline.getStages().get(0).getJobInstances().get(0).getId();
+        final long jobId = pipeline.getStages().getFirst().getJobInstances().getFirst().getId();
         Pipeline loadedPipeline = loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
 
         MaterialRevisions revisions = loadedPipeline.getBuildCause().getMaterialRevisions();
@@ -159,7 +159,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         PipelineConfig pipelineConfig = setupPipelineWithScmMaterial("pipeline_with_pluggable_scm_mat", "stage", jobName);
         final Pipeline previousSuccessfulBuildWithOlderScmConfig = simulateSuccessfulPipelineRun(pipelineConfig);
         PipelineConfig updatedPipelineConfig = configHelper.updatePipeline(pipelineConfig.name(), config -> {
-            PluggableSCMMaterialConfig materialConfig = (PluggableSCMMaterialConfig) config.materialConfigs().getFirstOrNull();
+            PluggableSCMMaterialConfig materialConfig = (PluggableSCMMaterialConfig) config.materialConfigs().getFirst();
             materialConfig.getSCMConfig().getConfiguration().getProperty("password").setConfigurationValue(new ConfigurationValue("new_value"));
         });
 
@@ -168,7 +168,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         Pipeline loadedPipeline = loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
 
         MaterialRevisions revisions = loadedPipeline.getBuildCause().getMaterialRevisions();
-        Configuration updatedConfiguration = ((PluggableSCMMaterial) revisions.findRevisionFor(updatedPipelineConfig.materialConfigs().getFirstOrNull()).getMaterial()).getScmConfig().getConfiguration();
+        Configuration updatedConfiguration = ((PluggableSCMMaterial) revisions.findRevisionFor(updatedPipelineConfig.materialConfigs().getFirst()).getMaterial()).getScmConfig().getConfiguration();
         assertThat(updatedConfiguration.size()).isEqualTo(2);
         assertThat(updatedConfiguration.getProperty("password").getConfigurationValue()).isEqualTo(new ConfigurationValue("new_value"));
     }
@@ -179,7 +179,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         PipelineConfig pipelineConfig = setupPipelineWithPackageMaterial("pipeline_with_pluggable_scm_mat", "stage", jobName);
         final Pipeline previousSuccessfulBuildWithOlderPackageConfig = simulateSuccessfulPipelineRun(pipelineConfig);
         PipelineConfig updatedPipelineConfig = configHelper.updatePipeline(pipelineConfig.name(), config -> {
-            PackageMaterialConfig materialConfig = (PackageMaterialConfig) config.materialConfigs().getFirstOrNull();
+            PackageMaterialConfig materialConfig = (PackageMaterialConfig) config.materialConfigs().getFirst();
             materialConfig.getPackageDefinition().getConfiguration().getProperty("package-key2").setConfigurationValue(new ConfigurationValue("package-updated-value"));
             materialConfig.getPackageDefinition().getRepository().getConfiguration().getProperty("repo-key2").setConfigurationValue(new ConfigurationValue("repo-updated-value"));
         });
@@ -187,7 +187,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         Pipeline loadedPipeline = loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
 
         MaterialRevisions revisions = loadedPipeline.getBuildCause().getMaterialRevisions();
-        PackageMaterial updatedMaterial = (PackageMaterial) revisions.findRevisionFor(updatedPipelineConfig.materialConfigs().getFirstOrNull()).getMaterial();
+        PackageMaterial updatedMaterial = (PackageMaterial) revisions.findRevisionFor(updatedPipelineConfig.materialConfigs().getFirst()).getMaterial();
         Configuration updatedConfiguration = updatedMaterial.getPackageDefinition().getConfiguration();
         assertThat(updatedConfiguration.size()).isEqualTo(2);
         assertThat(updatedConfiguration.getProperty("package-key2").getConfigurationValue()).isEqualTo(new ConfigurationValue("package-updated-value"));
@@ -265,7 +265,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
 
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPipeline("last")).size()).isEqualTo(0);
 
-        final long jobId = pipeline.getStages().get(0).getJobInstances().get(0).getId();
+        final long jobId = pipeline.getStages().getFirst().getJobInstances().getFirst().getId();
 
         Instant currentTime = Instant.now();
 
@@ -286,7 +286,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
 
         HealthStateScope scope = HealthStateScope.forJob("last", "stage", "job-one");
         assertThat(serverHealthService.logsSortedForScope(scope).size()).isEqualTo(1);
-        ServerHealthState error = serverHealthService.logsSortedForScope(HealthStateScope.forJob("last", "stage", "job-one")).get(0);
+        ServerHealthState error = serverHealthService.logsSortedForScope(HealthStateScope.forJob("last", "stage", "job-one")).getFirst();
         assertThat(error).isEqualTo(ServerHealthState.error("Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config.", "Job for pipeline 'last/" + pipeline.getCounter() + "/stage/1/job-one' has been failed as one or more material configurations were either changed or removed.", HealthStateType.general(HealthStateScope.forJob("last", "stage", "job-one"))));
         Instant expiryTime = ReflectionUtil.getField(error, "expiryTime");
         assertThat(expiryTime.isAfter(currentTime)).isTrue();
@@ -313,8 +313,8 @@ public class ScheduledPipelineLoaderIntegrationTest {
 
         MaterialRevisions revisions = loadedPipeline.getBuildCause().getMaterialRevisions();
         assertThat(revisions.getRevisions().size()).isEqualTo(2);
-        assertThat(((SvnMaterial) revisions.getRevisions().get(0).getMaterial()).getPassword()).isEqualTo("boozer");
-        assertThat(((SvnMaterial) revisions.getRevisions().get(1).getMaterial()).getPassword()).isEqualTo("boozer");
+        assertThat(((SvnMaterial) revisions.getRevisions().getFirst().getMaterial()).getPassword()).isEqualTo("boozer");
+        assertThat(((SvnMaterial) revisions.getRevisions().getLast().getMaterial()).getPassword()).isEqualTo("boozer");
     }
 
     @Test
@@ -336,11 +336,11 @@ public class ScheduledPipelineLoaderIntegrationTest {
 
         Pipeline shallowPipelineInstance = createAndLoadModifyOneFilePipeline(shallowPipeline);
         MaterialRevisions shallowRevisions = shallowPipelineInstance.getBuildCause().getMaterialRevisions();
-        assertThat(((GitMaterial) shallowRevisions.getRevisions().get(0).getMaterial()).isShallowClone()).isTrue();
+        assertThat(((GitMaterial) shallowRevisions.getRevisions().getFirst().getMaterial()).isShallowClone()).isTrue();
 
         Pipeline fullPipelineInstance = createAndLoadModifyOneFilePipeline(fullPipeline);
         MaterialRevisions fullRevisions = fullPipelineInstance.getBuildCause().getMaterialRevisions();
-        assertThat(((GitMaterial) fullRevisions.getRevisions().get(0).getMaterial()).isShallowClone()).isFalse();
+        assertThat(((GitMaterial) fullRevisions.getRevisions().getFirst().getMaterial()).isShallowClone()).isFalse();
     }
 
     private Pipeline createAndLoadModifyOneFilePipeline(PipelineConfig pipelineConfig) {
@@ -348,7 +348,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         MaterialRevisions materialRevisions = ModificationsMother.modifyOneFile(new MaterialConfigConverter().toMaterials(expandedConfigs));
         Pipeline building = PipelineMother.buildingWithRevisions(pipelineConfig, materialRevisions);
         Pipeline pipeline = dbHelper.savePipelineWithStagesAndMaterials(building);
-        final long jobId = pipeline.getStages().get(0).getJobInstances().get(0).getId();
+        final long jobId = pipeline.getStages().getFirst().getJobInstances().getFirst().getId();
         return loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
     }
 }

@@ -32,7 +32,7 @@ public class M002 {
     private static final Gson GSON = new Gson();
 
     static Migration ensureFilterStateIsNotNull() {
-        return (cxn) -> {
+        return cxn -> {
             if (!required(cxn)) {
                 return;
             }

@@ -15,34 +15,27 @@
  */
 package com.thoughtworks.go.presentation.pipelinehistory;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import com.thoughtworks.go.config.materials.svn.SvnMaterial;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.JobResult;
+import com.thoughtworks.go.domain.JobState;
+import com.thoughtworks.go.domain.MaterialRevision;
+import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.helper.ModificationsMother;
-import com.thoughtworks.go.helper.PipelineHistoryMother;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Map;
 
 import static com.thoughtworks.go.domain.buildcause.BuildCause.createWithEmptyModifications;
-import static com.thoughtworks.go.helper.MaterialsMother.hgMaterial;
-import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
 import static com.thoughtworks.go.helper.PipelineHistoryMother.job;
 import static com.thoughtworks.go.helper.PipelineHistoryMother.stagePerJob;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 class PipelineInstanceModelTest {
     private static final Modification HG_MATERIAL_MODIFICATION = new Modification("user", "Comment", "email", new Date(), "a087402bd2a7828a130c1bdf43f2d9ef8f48fd46");
@@ -85,29 +78,6 @@ class PipelineInstanceModelTest {
     }
 
     @Test
-    void shouldUnderstandPipelineStatusMessage() {
-        MaterialRevisions revisions = ModificationsMother.modifyOneFile(MaterialsMother.hgMaterials("url"), "revision");
-
-        StageInstanceModels stages = new StageInstanceModels();
-        stages.addStage("unit1", JobHistory.withJob("test", JobState.Completed, JobResult.Passed, new Date()));
-        stages.addFutureStage("unit2", false);
-
-        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createWithModifications(revisions, ""), stages);
-
-        assertThat(model.getPipelineStatusMessage()).isEqualTo("Passed: unit1");
-    }
-
-    @Test
-    void shouldGetCurrentRevisionForMaterial() {
-        MaterialRevisions revisions = new MaterialRevisions();
-        HgMaterial material = MaterialsMother.hgMaterial();
-        revisions.addRevision(material, HG_MATERIAL_MODIFICATION);
-        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createWithModifications(revisions, ""), new StageInstanceModels());
-
-        assertThat(model.getCurrentRevision(material.config()).getRevision()).isEqualTo("a087402bd2a7828a130c1bdf43f2d9ef8f48fd46");
-    }
-
-    @Test
     void shouldGetCurrentMaterialRevisionForMaterial() {
         MaterialRevisions revisions = new MaterialRevisions();
         HgMaterial material = MaterialsMother.hgMaterial();
@@ -130,20 +100,6 @@ class PipelineInstanceModelTest {
     }
 
     @Test
-    void shouldGetCurrentRevisionForMaterialByName() {
-        MaterialRevisions revisions = new MaterialRevisions();
-        HgMaterial material = MaterialsMother.hgMaterial();
-        SvnMaterial svnMaterial = MaterialsMother.svnMaterial();
-        material.setName(new CaseInsensitiveString("hg_material"));
-        revisions.addRevision(svnMaterial, new Modification(new Date(), "1024", "MOCK_LABEL-12", null));
-        revisions.addRevision(material, HG_MATERIAL_MODIFICATION);
-        BuildCause buildCause = BuildCause.createWithModifications(revisions, "");
-        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", -1, "label", buildCause, new StageInstanceModels());
-
-        assertThat(model.getCurrentRevision("hg_material").getRevision()).isEqualTo("a087402bd2a7828a130c1bdf43f2d9ef8f48fd46");
-    }
-
-    @Test
     void shouldGetLatestMaterialRevisionForMaterial() {
         HgMaterial material = MaterialsMother.hgMaterial();
         assertThat(setUpModificationForHgMaterial().getLatestMaterialRevision(material.config())).isEqualTo(new MaterialRevision(material, HG_MATERIAL_MODIFICATION));
@@ -158,24 +114,6 @@ class PipelineInstanceModelTest {
     @Test
     void shouldGetLatestRevisionForMaterialWithNoModifications() {
         assertThat(hgMaterialWithNoModifications().getLatestRevision(MaterialConfigsMother.hgMaterialConfig()).getRevision()).isEqualTo("No historical data");
-    }
-
-    @Test
-    void shouldGetCurrentRevisionForMaterialName() {
-        HgMaterial material = MaterialsMother.hgMaterial();
-        material.setName(new CaseInsensitiveString("foo"));
-        assertThat(setUpModificationFor(material).getCurrentRevision(CaseInsensitiveString.str(material.getName())).getRevision()).isEqualTo("a087402bd2a7828a130c1bdf43f2d9ef8f48fd46");
-    }
-
-    @Test
-    void shouldThrowExceptionWhenCurrentRevisionForUnknownMaterialNameRequested() {
-        HgMaterial material = MaterialsMother.hgMaterial();
-        material.setName(new CaseInsensitiveString("foo"));
-        try {
-            assertThat(setUpModificationFor(material).getCurrentRevision("blah").getRevision()).isEqualTo("a087402bd2a7828a130c1bdf43f2d9ef8f48fd46");
-            fail("should have raised an exception for unknown material name");
-        } catch (Exception ignored) {
-        }
     }
 
     @Test
@@ -195,88 +133,6 @@ class PipelineInstanceModelTest {
         assertThat(model.getApprovedByForDisplay()).isEqualTo("Triggered by some_user");
     }
 
-    @Test
-    void shouldUnderstandIfReal() {
-        assertThat(PipelineInstanceModel.createEmptyModel().hasHistoricalData()).isTrue();
-        assertThat(PipelineInstanceModel.createEmptyPipelineInstanceModel("pipeline", createWithEmptyModifications(), new StageInstanceModels()).hasHistoricalData()).isFalse();
-    }
-
-    //Pipeline: Red -> Green -> Has_Not_Run_Yet
-    @Test
-    void shouldBeSuccessfulOnAForceContinuedPass_Red_AND_Green_AND_Has_Not_Run_Yet() {
-        ZonedDateTime occurredFirst = newDate(2008, 12, 13);
-        ZonedDateTime occurredSecond = newDate(2008, 12, 14);
-
-        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Failed, occurredFirst.toInstant()), job(JobResult.Passed, occurredSecond.toInstant()));
-        stageInstanceModels.add(new NullStageHistoryItem("stage-3", false));
-
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
-
-        assertThat(instanceModel.isLatestStageUnsuccessful()).isFalse();
-        assertThat(instanceModel.isLatestStageSuccessful()).isTrue();
-        assertThat(instanceModel.isRunning()).isTrue();
-    }
-
-    //Pipeline: Red(Rerun after second stage passed i.e. latest stage) -> Green -> Has_Not_Run_Yet
-    @Test
-    void shouldReturnStatusOfAFailedRerunAndIncompleteStage() {
-        ZonedDateTime occurredFirst = newDate(2008, 12, 13);
-        ZonedDateTime occurredSecond = newDate(2008, 12, 14);
-
-        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Failed, occurredSecond.toInstant()), job(JobResult.Passed, occurredFirst.toInstant()));
-        stageInstanceModels.add(new NullStageHistoryItem("stage-3", false));
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
-
-        assertThat(instanceModel.isLatestStageUnsuccessful()).isTrue();
-        assertThat(instanceModel.isLatestStageSuccessful()).isFalse();
-        assertThat(instanceModel.isRunning()).isTrue();
-    }
-
-    @Test
-    void shouldReturnStatusOfAFailedRerun() {
-        ZonedDateTime occurredFirst = newDate(2008, 12, 13);
-        ZonedDateTime occurredSecond = newDate(2008, 12, 14);
-
-        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Failed, occurredSecond.toInstant()), job(JobResult.Passed, occurredFirst.toInstant()));
-
-
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
-
-        assertThat(instanceModel.isLatestStageUnsuccessful()).isTrue();
-        assertThat(instanceModel.isLatestStageSuccessful()).isFalse();
-        assertThat(instanceModel.isRunning()).isFalse();
-    }
-
-    @Test
-    void shouldReturnStatusOfAPassedForceThrough() {
-        ZonedDateTime occurredFirst = newDate(2008, 12, 13);
-        ZonedDateTime occurredSecond = newDate(2008, 12, 14);
-
-        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Failed, occurredFirst.toInstant()), job(JobResult.Passed, occurredSecond.toInstant()));
-
-
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
-
-        assertThat(instanceModel.isLatestStageUnsuccessful()).isFalse();
-        assertThat(instanceModel.isLatestStageSuccessful()).isTrue();
-        assertThat(instanceModel.isRunning()).isFalse();
-    }
-
-    @Test
-    void shouldReturnPipelineStatusAsPassedWhenAllTheStagesPass() {
-        ZonedDateTime occurredFirst = newDate(2008, 12, 13);
-        ZonedDateTime occurredSecond = newDate(2008, 12, 14);
-
-        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Passed, occurredSecond.toInstant()), job(JobResult.Passed, occurredFirst.toInstant()));
-
-
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
-
-        assertThat(instanceModel.isLatestStageUnsuccessful()).isFalse();
-        assertThat(instanceModel.isLatestStageSuccessful()).isTrue();
-        assertThat(instanceModel.isRunning()).isFalse();
-    }
-
     @SuppressWarnings("SameParameterValue")
     private static ZonedDateTime newDate(int year, int month, int dayOfMonth) {
         return ZonedDateTime.of(year, month, dayOfMonth, 0, 0, 0, 0, ZoneId.systemDefault());
@@ -291,76 +147,8 @@ class PipelineInstanceModelTest {
         stageInstanceModels.add(stageHistoryItem);
 
         PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
-        StageInstanceModel value = stageInstanceModels.get(0);
+        StageInstanceModel value = stageInstanceModels.getFirst();
         assertThat(instanceModel.latestStage()).isEqualTo(value);
-    }
-
-    @Test
-    void shouldReturnIfAStageIsLatest() {
-        ZonedDateTime occurredFirst = ZonedDateTime.now().minusDays(1);
-        ZonedDateTime occurredSecond = ZonedDateTime.now();
-
-        StageInstanceModels stageInstanceModels = stagePerJob("stage", job(JobResult.Passed, occurredSecond.toInstant()), job(JobResult.Passed, occurredFirst.toInstant()));
-        NullStageHistoryItem stageHistoryItem = new NullStageHistoryItem("not_yet_run", false);
-        stageInstanceModels.add(stageHistoryItem);
-
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
-
-        assertThat(instanceModel.isLatestStage(stageInstanceModels.get(0))).isTrue();
-        assertThat(instanceModel.isLatestStage(stageInstanceModels.get(1))).isFalse();
-    }
-
-    @Test
-    void shouldReturnIfAnyMaterialHasModifications() {
-        final SvnMaterial svnMaterial = svnMaterial("http://svnurl");
-        final HgMaterial hgMaterial = hgMaterial("http://hgurl", "hgdir");
-
-        MaterialRevisions currentRevisions = ModificationsMother.getMaterialRevisions(Map.of(
-            svnMaterial, "1",
-            hgMaterial, "a"
-        ));
-
-        MaterialRevisions latestRevisions = ModificationsMother.getMaterialRevisions(Map.of(
-            svnMaterial, "1",
-            hgMaterial, "b"
-        ));
-
-        MaterialConfigs materialConfigs = new MaterialConfigs();
-        materialConfigs.add(svnMaterial.config());
-        materialConfigs.add(hgMaterial.config());
-
-        StageInstanceModels stages = new StageInstanceModels();
-        stages.addStage("unit1", JobHistory.withJob("test", JobState.Completed, JobResult.Passed, new Date()));
-        stages.addFutureStage("unit2", false);
-
-        PipelineInstanceModel model = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createWithModifications(currentRevisions, ""), stages);
-        model.setLatestRevisions(latestRevisions);
-        model.setMaterialConfigs(materialConfigs);
-
-        assertThat(model.hasNewRevisions(svnMaterial.config())).as("svnMaterial hasNewRevisions").isFalse();
-        assertThat(model.hasNewRevisions(hgMaterial.config())).as("hgMaterial hasNewRevisions").isTrue();
-        assertThat(model.hasNewRevisions()).as("all materials hasNewRevisions").isTrue();
-    }
-
-    @Test
-    void shouldUnderstandIfItHasNeverCheckedForRevisions() {
-        StageInstanceModels stages = new StageInstanceModels();
-        stages.addStage("unit1", JobHistory.withJob("test", JobState.Completed, JobResult.Passed, new Date()));
-        stages.addFutureStage("unit2", false);
-
-        PipelineInstanceModel pim = PipelineInstanceModel.createPipeline("pipeline", -1, "label", BuildCause.createNeverRun(), stages);
-        pim.setLatestRevisions(MaterialRevisions.EMPTY);
-
-        assertThat(pim.hasNeverCheckedForRevisions()).as("pim.hasNeverCheckedForRevisions()").isTrue();
-
-    }
-
-    @Test
-    void shouldReturnTrueIfThePipelineHasStage() {
-        PipelineInstanceModel pim = PipelineHistoryMother.pipelineHistoryItemWithOneStage("pipeline", "stage", Instant.now());
-        assertThat(pim.hasStage(pim.getStageHistory().getFirstOrNull().getIdentifier())).isTrue();
-        assertThat(pim.hasStage(new StageIdentifier("pipeline", 1, "1", "stagex", "2"))).isFalse();
-
     }
 
     @Test

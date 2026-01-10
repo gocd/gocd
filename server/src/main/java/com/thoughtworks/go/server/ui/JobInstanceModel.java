@@ -91,7 +91,7 @@ public class JobInstanceModel {
         if (eta.compareTo(elapsedTime) < 0) {
             return 100;
         }
-        return (int) ((elapsedTime.toMillis() * 100) / eta.toMillis());
+        return (int) (elapsedTime.toMillis() * 100 / eta.toMillis());
     }
 
     private Duration eta() {

@@ -180,7 +180,7 @@ public class UserServiceIntegrationTest {
         userService.addNotificationFilter(user.getId(), filter);
         user = userService.findUserByName(user.getName());
         assertThat(user.getNotificationFilters().size()).isEqualTo(1);
-        long deletedNotificationId = user.getNotificationFilters().get(0).getId();
+        long deletedNotificationId = user.getNotificationFilters().getFirst().getId();
         userService.removeNotificationFilter(user.getId(), deletedNotificationId);
         assertThat(userService.findUserByName(user.getName()).getNotificationFilters().size()).isEqualTo(0);
     }
@@ -227,8 +227,8 @@ public class UserServiceIntegrationTest {
 
         Users users = userService.findValidSubscribers(new StageConfigIdentifier("pipeline1", "stage"));
         assertThat(users.size()).isEqualTo(1);
-        assertThat(users.get(0)).isEqualTo(jez);
-        assertThat(users.get(0).getNotificationFilters().size()).isEqualTo(2);
+        assertThat(users.getFirst()).isEqualTo(jez);
+        assertThat(users.getFirst().getNotificationFilters().size()).isEqualTo(2);
     }
 
     @Test
@@ -244,8 +244,8 @@ public class UserServiceIntegrationTest {
 
         Users users = userService.findValidSubscribers(new StageConfigIdentifier("mingle", "dev"));
         assertThat(users.size()).isEqualTo(1);
-        assertThat(users.get(0)).isEqualTo(jez);
-        assertThat(users.get(0).getNotificationFilters().size()).isEqualTo(1);
+        assertThat(users.getFirst()).isEqualTo(jez);
+        assertThat(users.getFirst().getNotificationFilters().size()).isEqualTo(1);
     }
 
     @Test
@@ -258,8 +258,8 @@ public class UserServiceIntegrationTest {
 
         assertThat(result.isSuccessful()).isTrue();
         List<User> users = userService.allUsers();
-        assertThat(users.get(0).isEnabled()).isFalse();
-        assertThat(users.get(1).isEnabled()).isTrue();
+        assertThat(users.getFirst().isEnabled()).isFalse();
+        assertThat(users.getLast().isEnabled()).isTrue();
     }
 
     @Test
@@ -275,8 +275,8 @@ public class UserServiceIntegrationTest {
 
         assertThat(result.isSuccessful()).isTrue();
         List<User> users = userService.allUsers();
-        assertThat(users.get(0).isEnabled()).isTrue();
-        assertThat(users.get(1).isEnabled()).isFalse();
+        assertThat(users.getFirst().isEnabled()).isTrue();
+        assertThat(users.getLast().isEnabled()).isFalse();
     }
 
     @Test

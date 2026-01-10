@@ -53,7 +53,7 @@ public class JobConfigIdentifier {
     @Override
     public int hashCode() {
         int result;
-        result = (pipelineName != null ? pipelineName.hashCode() : 0);
+        result = pipelineName != null ? pipelineName.hashCode() : 0;
         result = 31 * result + (stageName != null ? stageName.hashCode() : 0);
         result = 31 * result + (jobName != null ? jobName.hashCode() : 0);
         return result;

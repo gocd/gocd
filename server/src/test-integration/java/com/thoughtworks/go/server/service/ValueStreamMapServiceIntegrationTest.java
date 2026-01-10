@@ -238,7 +238,7 @@ public class ValueStreamMapServiceIntegrationTest {
         List<List<Node>> nodesAtEachLevel = graph.getNodesAtEachLevel();
         VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(2), 0, pipelineName(p2));
         VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(1), 0, pipelineName(p1));
-        VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.get(0), 0, new CaseInsensitiveString(g1.getFingerprint()), new CaseInsensitiveString(g2.getFingerprint()));
+        VSMTestHelper.assertThatLevelHasNodes(nodesAtEachLevel.getFirst(), 0, new CaseInsensitiveString(g1.getFingerprint()), new CaseInsensitiveString(g2.getFingerprint()));
 
         // PDG for P2/1
         nodesAtEachLevel = valueStreamMapService.getValueStreamMap(pipelineName(p2), 1, username, result).getNodesAtEachLevel();
@@ -332,14 +332,14 @@ public class ValueStreamMapServiceIntegrationTest {
 
         List<List<Node>> allLevels = graph.getNodesAtEachLevel();
         int CURRENT_PIPELINE_LEVEL = 2;
-        Node currentNode = allLevels.get(CURRENT_PIPELINE_LEVEL).get(0);
-        assertEquals(currentNode.revisions().get(0), new PipelineRevision(currentNode.getName(), 1, "1"));
+        Node currentNode = allLevels.get(CURRENT_PIPELINE_LEVEL).getFirst();
+        assertEquals(currentNode.revisions().getFirst(), new PipelineRevision(currentNode.getName(), 1, "1"));
 
         Node p1_node = allLevels.get(CURRENT_PIPELINE_LEVEL - 1).get(1);
         assertInstances(p1_node, "p1", 1);
         assertStageDetails(p1_node, 1, "s", 1, StageState.Passed);
 
-        assertInstances(allLevels.get(CURRENT_PIPELINE_LEVEL + 1).get(0), "p3", 1);
+        assertInstances(allLevels.get(CURRENT_PIPELINE_LEVEL + 1).getFirst(), "p3", 1);
 
         Node p2_node = allLevels.get(CURRENT_PIPELINE_LEVEL + 1).get(1);
         assertInstances(p2_node, "p2", 1, 2);
@@ -348,7 +348,7 @@ public class ValueStreamMapServiceIntegrationTest {
         assertStageDetails(p2_node, 1, "unrun_stage", 0, StageState.Unknown);
         assertStageDetails(p2_node, 2, "unrun_stage", 0, StageState.Unknown);
 
-        assertInstances(allLevels.get(CURRENT_PIPELINE_LEVEL + 2).get(0), "p4", 1);
+        assertInstances(allLevels.get(CURRENT_PIPELINE_LEVEL + 2).getFirst(), "p4", 1);
     }
 
     @Test
@@ -478,7 +478,7 @@ public class ValueStreamMapServiceIntegrationTest {
         String p3_1 = u.runAndPass(p3, p1_1, p2_1);
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("p3"), 1, username, result);
-        Node nodeForGit = graph.getNodesAtEachLevel().get(0).get(0);
+        Node nodeForGit = graph.getNodesAtEachLevel().getFirst().getFirst();
         assertThat(nodeForGit.revisions().size()).isEqualTo(2);
         Stream<String> revisionStrings = nodeForGit.revisions().stream().map(Revision::getRevisionString);
         assertThat(revisionStrings).contains("g1-1", "g1-2");

@@ -22,12 +22,13 @@ import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import static java.lang.String.format;
+import java.util.Objects;
 
 @ConfigTag("repositories")
 @ConfigCollection(value = PackageRepository.class)
@@ -40,27 +41,35 @@ public class PackageRepositories extends BaseCollection<PackageRepository> imple
         Collections.addAll(this, packageRepositories);
     }
 
-    public PackageRepository find(final String repoId) {
+    public @NotNull PackageRepository findByRepoIdOrBomb(final String repoId) {
+        return Objects.requireNonNullElseGet(findByRepoId(repoId), () -> {
+            throw new RuntimeException("Could not find repository for given id: " + repoId);
+        });
+    }
+
+    public @Nullable PackageRepository findByRepoId(final String repoId) {
         return stream().filter(repository -> repository.getId().equals(repoId)).findFirst().orElse(null);
     }
 
-    public PackageRepository findPackageRepositoryWithPackageIdOrBomb(String packageId) {
-        PackageRepository packageRepository = findPackageRepositoryHaving(packageId);
-        if (packageRepository == null) {
-            throw new RuntimeException(format("Could not find repository for given package id:[%s]", packageId));
-        }
-        return packageRepository;
+    public @NotNull PackageRepository findByPackageIdOrBomb(String packageId) {
+        return Objects.requireNonNullElseGet(findByPackageId(packageId), () -> {
+            throw new RuntimeException("Could not find repository for given package id: " + packageId);
+        });
     }
 
-    public PackageRepository findPackageRepositoryHaving(String packageId) {
-        for (PackageRepository packageRepository : this) {
-            for (PackageDefinition packageDefinition : packageRepository.getPackages()) {
-                if (packageDefinition.getId().equals(packageId)) {
-                    return packageRepository;
-                }
-            }
-        }
-        return null;
+    public @Nullable PackageRepository findByPackageId(String packageId) {
+        return stream()
+            .filter(r -> r.findPackage(packageId) != null)
+            .findFirst()
+            .orElse(null);
+    }
+
+    public @Nullable PackageDefinition findDefinitionByPackageId(String packageId) {
+        return stream()
+            .map(r -> r.findPackage(packageId))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
     }
 
     @Override
@@ -69,23 +78,18 @@ public class PackageRepositories extends BaseCollection<PackageRepository> imple
         validateFingerprintUniqueness();
     }
 
-
     @Override
     public ConfigErrors errors() {
         return new ConfigErrors();
     }
 
     @Override
-    public void addError(String fieldName, String message) {
+    public void addError(String fieldName, String message) {}
 
-    }
-
-    public void removePackageRepository(String id) {
-        PackageRepository packageRepositoryToBeDeleted = this.find(id);
-        if (packageRepositoryToBeDeleted == null) {
-            throw new RuntimeException(String.format("Could not find repository with id '%s'", id));
+    public void removePackageRepository(String repoId) {
+        if (!removeFirstIf(repository -> repository.getId().equals(repoId))) {
+            throw new RuntimeException("Could not find repository with id: " + repoId);
         }
-        this.remove(packageRepositoryToBeDeleted);
     }
 
     private void validateNameUniqueness() {
@@ -109,17 +113,6 @@ public class PackageRepositories extends BaseCollection<PackageRepository> imple
                 packageDefinition.validateFingerprintUniqueness(map);
             }
         }
-    }
-
-    public PackageDefinition findPackageDefinitionWith(String packageId) {
-        for (PackageRepository packageRepository : this) {
-            for (PackageDefinition packageDefinition : packageRepository.getPackages()) {
-                if (packageDefinition.getId().equals(packageId)) {
-                    return packageDefinition;
-                }
-            }
-        }
-        return null;
     }
 }
 

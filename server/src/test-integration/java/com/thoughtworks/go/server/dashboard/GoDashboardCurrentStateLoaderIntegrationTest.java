@@ -106,13 +106,13 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
         List<GoDashboardPipeline> goDashboardPipelines = goDashboardCurrentStateLoader.allPipelines(goConfigService.currentCruiseConfig());
 
         assertThat(goDashboardPipelines).hasSize(1);
-        GoDashboardPipeline goDashboardPipeline = goDashboardPipelines.get(0);
+        GoDashboardPipeline goDashboardPipeline = goDashboardPipelines.getFirst();
 
         assertThat(goDashboardPipeline.name()).isEqualTo(pipelineConfig.name());
         assertThat(goDashboardPipeline.model().getActivePipelineInstances().size()).isEqualTo(1);
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(0)).isEqualTo(goDashboardPipeline.model().getLatestPipelineInstance());
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getFirst()).isEqualTo(goDashboardPipeline.model().getLatestPipelineInstance());
         assertThat(goDashboardPipeline.model().getLatestPipelineInstance().getId()).isEqualTo(pipeline.getId());
-        assertThat(goDashboardPipeline.model().getLatestPipelineInstance().stage(pipelineConfig.getStages().getFirstOrNull().name().toString()).getId()).isEqualTo(pipeline.getFirstStage().getId());
+        assertThat(goDashboardPipeline.model().getLatestPipelineInstance().stage(pipelineConfig.getStages().getFirst().name().toString()).getId()).isEqualTo(pipeline.getFirstStage().getId());
     }
 
     @Test
@@ -130,12 +130,12 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
         List<GoDashboardPipeline> goDashboardPipelines = goDashboardCurrentStateLoader.allPipelines(goConfigService.currentCruiseConfig());
         assertThat(goDashboardPipelines).hasSize(1);
 
-        GoDashboardPipeline goDashboardPipeline = goDashboardPipelines.get(0);
+        GoDashboardPipeline goDashboardPipeline = goDashboardPipelines.getFirst();
 
         assertThat(goDashboardPipeline.name()).isEqualTo(pipelineConfig.name());
         assertThat(goDashboardPipeline.model().getActivePipelineInstances().size()).isEqualTo(2);
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(0).getId()).isEqualTo(p2.getId());
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(1).getId()).isEqualTo(p1.getId());
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getFirst().getId()).isEqualTo(p2.getId());
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getLast().getId()).isEqualTo(p1.getId());
 
         assertThat(goDashboardPipeline.model().getLatestPipelineInstance().getId()).isEqualTo(p2.getId());
 
@@ -144,15 +144,15 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
         assertThat(goDashboardPipeline.model().getLatestPipelineInstance().stage("a-stage").getState()).isEqualTo(StageState.Building);
         assertThat(goDashboardPipeline.model().getLatestPipelineInstance().stage("b-stage")).isInstanceOf(NullStageHistoryItem.class);
 
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(0).stage("a-stage").getResult()).isEqualTo(StageResult.Unknown);
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(0).stage("a-stage").getState()).isEqualTo(StageState.Building);
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(0).stage("b-stage")).isInstanceOf(NullStageHistoryItem.class);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getFirst().stage("a-stage").getResult()).isEqualTo(StageResult.Unknown);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getFirst().stage("a-stage").getState()).isEqualTo(StageState.Building);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getFirst().stage("b-stage")).isInstanceOf(NullStageHistoryItem.class);
 
         // one previous pipeline run
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(1).stage("a-stage").getResult()).isEqualTo(StageResult.Passed);
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(1).stage("a-stage").getState()).isEqualTo(StageState.Passed);
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(1).stage("b-stage").getResult()).isEqualTo(StageResult.Unknown);
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(1).stage("b-stage").getState()).isEqualTo(StageState.Building);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getLast().stage("a-stage").getResult()).isEqualTo(StageResult.Passed);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getLast().stage("a-stage").getState()).isEqualTo(StageState.Passed);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getLast().stage("b-stage").getResult()).isEqualTo(StageResult.Unknown);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getLast().stage("b-stage").getState()).isEqualTo(StageState.Building);
     }
 
     @Test
@@ -163,10 +163,10 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
         List<GoDashboardPipeline> goDashboardPipelines = goDashboardCurrentStateLoader.allPipelines(goConfigService.currentCruiseConfig());
         assertThat(goDashboardPipelines).hasSize(1);
 
-        GoDashboardPipeline goDashboardPipeline = goDashboardPipelines.get(0);
+        GoDashboardPipeline goDashboardPipeline = goDashboardPipelines.getFirst();
 
         assertThat(goDashboardPipeline.model().getActivePipelineInstances().size()).isEqualTo(1);
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(0)).isInstanceOf(EmptyPipelineInstanceModel.class);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getFirst()).isInstanceOf(EmptyPipelineInstanceModel.class);
         assertThat(goDashboardPipeline.model().getLatestPipelineInstance()).isInstanceOf(EmptyPipelineInstanceModel.class);
     }
 
@@ -186,7 +186,7 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
         List<GoDashboardPipeline> goDashboardPipelines = goDashboardCurrentStateLoader.allPipelines(goConfigService.currentCruiseConfig());
         assertThat(goDashboardPipelines).hasSize(1);
 
-        GoDashboardPipeline goDashboardPipeline = goDashboardPipelines.get(0);
+        GoDashboardPipeline goDashboardPipeline = goDashboardPipelines.getFirst();
 
         // latest pipeline run
         assertThat(goDashboardPipeline.model().getLatestPipelineInstance().stage("a-stage").getResult()).isEqualTo(StageResult.Passed);
@@ -194,20 +194,20 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
         assertThat(goDashboardPipeline.model().getLatestPipelineInstance().stage("b-stage").getResult()).isEqualTo(StageResult.Passed);
         assertThat(goDashboardPipeline.model().getLatestPipelineInstance().stage("b-stage").getState()).isEqualTo(StageState.Passed);
 
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(0).stage("a-stage").getResult()).isEqualTo(StageResult.Passed);
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(0).stage("a-stage").getState()).isEqualTo(StageState.Passed);
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(0).stage("b-stage").getResult()).isEqualTo(StageResult.Passed);
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(0).stage("b-stage").getState()).isEqualTo(StageState.Passed);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getFirst().stage("a-stage").getResult()).isEqualTo(StageResult.Passed);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getFirst().stage("a-stage").getState()).isEqualTo(StageState.Passed);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getFirst().stage("b-stage").getResult()).isEqualTo(StageResult.Passed);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getFirst().stage("b-stage").getState()).isEqualTo(StageState.Passed);
 
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(0).getId()).isEqualTo(p2.getId());
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getFirst().getId()).isEqualTo(p2.getId());
 
         // one previous pipeline run
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(1).stage("a-stage").getResult()).isEqualTo(StageResult.Unknown);
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(1).stage("a-stage").getState()).isEqualTo(StageState.Building);
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(1).stage("b-stage").getResult()).isEqualTo(StageResult.Passed);
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(1).stage("b-stage").getState()).isEqualTo(StageState.Passed);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getLast().stage("a-stage").getResult()).isEqualTo(StageResult.Unknown);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getLast().stage("a-stage").getState()).isEqualTo(StageState.Building);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getLast().stage("b-stage").getResult()).isEqualTo(StageResult.Passed);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getLast().stage("b-stage").getState()).isEqualTo(StageState.Passed);
 
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(1).getId()).isEqualTo(p1.getId());
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getLast().getId()).isEqualTo(p1.getId());
     }
 
     @Test
@@ -224,7 +224,7 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
         List<GoDashboardPipeline> goDashboardPipelines = goDashboardCurrentStateLoader.allPipelines(goConfigService.currentCruiseConfig());
         assertThat(goDashboardPipelines).hasSize(1);
 
-        GoDashboardPipeline goDashboardPipeline = goDashboardPipelines.get(0);
+        GoDashboardPipeline goDashboardPipeline = goDashboardPipelines.getFirst();
 
         // latest pipeline run
 
@@ -236,10 +236,10 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
         assertThat(goDashboardPipeline.model().getLatestPipelineInstance().stage("b-stage").getState()).isEqualTo(StageState.Passed);
 
         assertThat(goDashboardPipeline.model().getActivePipelineInstances().size()).isEqualTo(1);
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(0).getId()).isEqualTo(p2.getId());
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(0).stage("a-stage").getResult()).isEqualTo(StageResult.Passed);
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(0).stage("a-stage").getState()).isEqualTo(StageState.Passed);
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(0).stage("b-stage").getResult()).isEqualTo(StageResult.Passed);
-        assertThat(goDashboardPipeline.model().getActivePipelineInstances().get(0).stage("b-stage").getState()).isEqualTo(StageState.Passed);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getFirst().getId()).isEqualTo(p2.getId());
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getFirst().stage("a-stage").getResult()).isEqualTo(StageResult.Passed);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getFirst().stage("a-stage").getState()).isEqualTo(StageState.Passed);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getFirst().stage("b-stage").getResult()).isEqualTo(StageResult.Passed);
+        assertThat(goDashboardPipeline.model().getActivePipelineInstances().getFirst().stage("b-stage").getState()).isEqualTo(StageState.Passed);
     }
 }

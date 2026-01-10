@@ -89,7 +89,7 @@ public class RescheduleJobTest {
 
     @Test
     public void rescheduleBuildShouldNotRescheduleIfReloadedJobIsCompleted() {
-        final JobInstance hungJob = stage.getJobInstances().get(0);
+        final JobInstance hungJob = stage.getJobInstances().getFirst();
         hungJob.changeState(JobState.Completed, new Date());
         //Need to do this in transaction because of caching
         dbHelper.txTemplate().execute(new TransactionCallbackWithoutResult() {
@@ -108,7 +108,7 @@ public class RescheduleJobTest {
 
     @Test
     public void rescheduleHungBuildShouldScheduleNewBuild()  {
-        JobInstance hungJob = stage.getJobInstances().get(0);
+        JobInstance hungJob = stage.getJobInstances().getFirst();
         dbHelper.getBuildInstanceDao().save(stage.getId(), hungJob);
         scheduleService.rescheduleJob(hungJob);
 
@@ -116,7 +116,7 @@ public class RescheduleJobTest {
         assertThat(reloaded.isIgnored()).isTrue();
         assertThat(reloaded.getState()).isEqualTo(JobState.Rescheduled);
 
-        JobPlan newPlan = dbHelper.getBuildInstanceDao().orderedScheduledBuilds().get(0);
+        JobPlan newPlan = dbHelper.getBuildInstanceDao().orderedScheduledBuilds().getFirst();
         assertThat(newPlan.getJobId()).isNotEqualTo(hungJob.getId());
         assertThat(newPlan.getStageName()).isEqualTo(hungJob.getStageName());
 
@@ -134,7 +134,7 @@ public class RescheduleJobTest {
 
         dbHelper.schedulePipeline(configHelper.currentConfig().getPipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME)), new TimeProvider());
 
-        JobPlan oldJobPlan = dbHelper.getBuildInstanceDao().orderedScheduledBuilds().get(0);
+        JobPlan oldJobPlan = dbHelper.getBuildInstanceDao().orderedScheduledBuilds().getFirst();
         assertThat(oldJobPlan.getResources().size()).isEqualTo(2);
         assertThat(oldJobPlan.getArtifactPlans().size()).isEqualTo(2);
 
@@ -181,7 +181,7 @@ public class RescheduleJobTest {
 
         scheduleService.rescheduleJob(job);
 
-        JobPlan newPlan = dbHelper.getBuildInstanceDao().orderedScheduledBuilds().get(0);
+        JobPlan newPlan = dbHelper.getBuildInstanceDao().orderedScheduledBuilds().getFirst();
         assertThat(newPlan.getResources()).isEqualTo(oldPlan.getResources());
         assertThat(newPlan.getArtifactPlans()).isEqualTo(oldPlan.getArtifactPlans());
     }
@@ -191,7 +191,7 @@ public class RescheduleJobTest {
     }
 
     private JobInstance scheduledJob() {
-        JobInstance hungJob = stage.getJobInstances().get(0);
+        JobInstance hungJob = stage.getJobInstances().getFirst();
         return jobInstanceService.buildByIdWithTransitions(hungJob.getId());
     }
 }

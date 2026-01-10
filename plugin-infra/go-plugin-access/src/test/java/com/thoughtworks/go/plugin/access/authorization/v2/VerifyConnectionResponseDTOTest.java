@@ -75,7 +75,7 @@ public class VerifyConnectionResponseDTOTest {
         assertThat(response.getStatus()).isEqualTo("validation-failed");
         assertThat(response.getMessage()).isEqualTo("Validation failed");
         assertFalse(response.getValidationResult().isSuccessful());
-        assertThat(response.getValidationResult().getErrors().get(0)).isEqualTo(new com.thoughtworks.go.plugin.domain.common.ValidationError("url", "URL cannot be blank"));
-        assertThat(response.getValidationResult().getErrors().get(1)).isEqualTo(new com.thoughtworks.go.plugin.domain.common.ValidationError("password", "Password cannot be blank"));
+        assertThat(response.getValidationResult().getErrors().getFirst()).isEqualTo(new com.thoughtworks.go.plugin.domain.common.ValidationError("url", "URL cannot be blank"));
+        assertThat(response.getValidationResult().getErrors().getLast()).isEqualTo(new com.thoughtworks.go.plugin.domain.common.ValidationError("password", "Password cannot be blank"));
     }
 }

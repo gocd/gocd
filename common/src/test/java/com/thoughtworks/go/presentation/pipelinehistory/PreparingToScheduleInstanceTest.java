@@ -22,18 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PreparingToScheduleInstanceTest {
 
     @Test
-    public void shouldUnderstandPipelineStatusMessage() {
-        StageInstanceModels stages = new StageInstanceModels();
-        stages.addFutureStage("unit1", false);
-        stages.addFutureStage("unit2", false);
-
-        PipelineInstanceModel pipeline = PipelineInstanceModel.createPreparingToSchedule("pipeline-name", stages);
-
-        assertThat(pipeline.getPipelineStatusMessage()).isEqualTo(("Preparing to schedule (0/2)"));
-    }
-
-
-    @Test
     public void shouldNotReturnNullForScheduledDate() {
         PipelineInstanceModel pipeline = PipelineInstanceModel.createPreparingToSchedule("pipeline-name", new StageInstanceModels());
         assertThat(pipeline.getScheduledDate()).isNotNull();

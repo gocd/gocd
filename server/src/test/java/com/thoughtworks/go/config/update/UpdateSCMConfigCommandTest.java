@@ -100,12 +100,12 @@ public class UpdateSCMConfigCommandTest {
         command.update(cruiseConfig);
 
         PluggableSCMMaterialConfig materialConfig1 = (PluggableSCMMaterialConfig) cruiseConfig
-                .getPipelineConfigByName(new CaseInsensitiveString("p1")).materialConfigs().get(0);
+                .getPipelineConfigByName(new CaseInsensitiveString("p1")).materialConfigs().getFirst();
 
         assertThat(materialConfig1.getSCMConfig()).isEqualTo(updatedSCM);
 
         PluggableSCMMaterialConfig materialConfig2 = (PluggableSCMMaterialConfig) cruiseConfig
-                .getPipelineConfigByName(new CaseInsensitiveString("p2")).materialConfigs().get(0);
+                .getPipelineConfigByName(new CaseInsensitiveString("p2")).materialConfigs().getFirst();
         assertThat(materialConfig2.getSCMConfig()).isEqualTo(updatedSCM);
     }
 

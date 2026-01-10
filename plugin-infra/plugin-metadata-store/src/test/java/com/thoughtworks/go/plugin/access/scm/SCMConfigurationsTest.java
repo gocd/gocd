@@ -48,7 +48,7 @@ public class SCMConfigurationsTest {
         SCMConfigurations scmConfigurations = new SCMConfigurations(scmPropertyConfiguration);
 
         assertThat(scmConfigurations.list().size()).isEqualTo(1);
-        SCMConfiguration scmConfiguration = scmConfigurations.list().get(0);
+        SCMConfiguration scmConfiguration = scmConfigurations.list().getFirst();
         assertThat(scmConfiguration.getKey()).isEqualTo("k1");
         assertThat(scmConfiguration.getValue()).isEqualTo("v1");
         assertThat(scmConfiguration.getOption(SCMConfiguration.REQUIRED)).isEqualTo(true);

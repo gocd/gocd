@@ -48,7 +48,7 @@ public abstract class PackageRepositoryCommand implements EntityConfigUpdateComm
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         PackageRepositories repositories = preprocessedConfig.getPackageRepositories();
-        this.preprocessedRepository = repositories.find(this.repository.getRepoId());
+        this.preprocessedRepository = repositories.findByRepoId(this.repository.getRepoId());
         preprocessedRepository.validate(null);
         repositories.validate(null);
         boolean isValidConfiguration = packageRepositoryService.validatePluginId(preprocessedRepository) && packageRepositoryService.validateRepositoryConfiguration(preprocessedRepository);

@@ -217,7 +217,7 @@ public class PipelineScheduleQueueIntegrationTest {
         queue.schedule(new CaseInsensitiveString(pipelineFixture.pipelineName), cause);
 
         Pipeline pipeline = queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider());
-        Stage stage = pipeline.getStages().getFirstOrNull();
+        Stage stage = pipeline.getStages().getFirst();
         assertThat(stage.getApprovedBy()).isEqualTo("cruise-developer");
     }
 
@@ -292,7 +292,7 @@ public class PipelineScheduleQueueIntegrationTest {
         queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider());
 
         List<JobPlan> plans = jobService.orderedScheduledBuilds();
-        JobPlan plan = plans.get(0);
+        JobPlan plan = plans.getFirst();
         assertThat(plan.getName()).isEqualTo("test-job");
         assertThat(plan.getArtifactPlans()).isEqualTo(artifactTypeConfigs);
         assertThat(plan.getResources().toResourceConfigs()).isEqualTo(resourceConfigs);
@@ -413,7 +413,7 @@ public class PipelineScheduleQueueIntegrationTest {
     public void shouldReturnNullWhenPipelineConfigOriginDoesNotMatchBuildCauseRevision() {
         PipelineConfig pipelineConfig = pipelineFixture.pipelineConfig();
         BuildCause cause = modifySomeFilesAndTriggerAs(pipelineConfig, "cruise-developer");
-        MaterialConfig materialConfig = pipelineConfig.materialConfigs().getFirstOrNull();
+        MaterialConfig materialConfig = pipelineConfig.materialConfigs().getFirst();
         cause.getMaterialRevisions().findRevisionFor(materialConfig);
         pipelineConfig.setOrigins(new RepoConfigOrigin(
             ConfigRepoConfig.createConfigRepoConfig(materialConfig, "123", "id1"), "plug"));

@@ -404,7 +404,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
         assertThatResponse().isOk()
 
-        assertEquals(packageRepository.findPackage("package-name"), ((PackageMaterialConfig) pipelineBeingSaved.materialConfigs().getFirstOrNull()).getPackageDefinition())
+        assertEquals(packageRepository.findPackage("package-name"), ((PackageMaterialConfig) pipelineBeingSaved.materialConfigs().getFirst()).getPackageDefinition())
       }
 
       @Test
@@ -422,7 +422,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
         postWithApiHeader(controller.controllerPath(), [group: "group", pipeline: pipelineWithPluggableMaterial("pipeline1", "plugin", "scm-id")])
 
         assertThatResponse().isOk()
-        assertEquals(scm, (((PluggableSCMMaterialConfig) pipelineBeingSaved.materialConfigs().getFirstOrNull()).getSCMConfig()))
+        assertEquals(scm, (((PluggableSCMMaterialConfig) pipelineBeingSaved.materialConfigs().getFirst()).getSCMConfig()))
       }
     }
   }
@@ -645,7 +645,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
         putWithApiHeader(controller.controllerPath("/pipeline1"), headers, pipelineWithPluggableMaterial("pipeline1", "package", "package-name"))
 
         assertThatResponse().isOk()
-        assertEquals(packageRepository.findPackage("package-name"), ((PackageMaterialConfig) pipelineBeingSaved.materialConfigs().getFirstOrNull()).getPackageDefinition())
+        assertEquals(packageRepository.findPackage("package-name"), ((PackageMaterialConfig) pipelineBeingSaved.materialConfigs().getFirst()).getPackageDefinition())
       }
 
       @Test
@@ -676,7 +676,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
         putWithApiHeader(controller.controllerPath("/pipeline1"), headers, pipelineWithPluggableMaterial("pipeline1", "plugin", "scm-id"))
 
         assertThatResponse().isOk()
-        assertEquals(scm, (((PluggableSCMMaterialConfig) pipelineBeingSaved.materialConfigs().getFirstOrNull()).getSCMConfig()))
+        assertEquals(scm, (((PluggableSCMMaterialConfig) pipelineBeingSaved.materialConfigs().getFirst()).getSCMConfig()))
       }
     }
   }

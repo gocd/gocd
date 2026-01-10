@@ -93,7 +93,7 @@ public class RerouteLatestApisImpl implements RerouteLatestApis, ApplicationCont
                 if (routeEntry.target() instanceof Route) {
                     service.addRoute(routeEntry.httpMethod(), RouteImpl.create(routeEntry.path(), LATEST_VERSION_MIMETYPE, (Route) routeEntry.target()));
                 } else if (routeEntry.target() instanceof Filter) {
-                    service.addFilter(routeEntry.httpMethod(), new FilterImpl(routeEntry.path(), LATEST_VERSION_MIMETYPE, ((Filter) routeEntry.target())) {
+                    service.addFilter(routeEntry.httpMethod(), new FilterImpl(routeEntry.path(), LATEST_VERSION_MIMETYPE, (Filter) routeEntry.target()) {
                         @Override
                         public void handle(Request request, Response response) throws Exception {
                             ((Filter) routeEntry.target()).handle(request, response);

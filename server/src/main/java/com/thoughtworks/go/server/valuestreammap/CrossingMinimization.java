@@ -176,7 +176,7 @@ public class CrossingMinimization {
 
         @Override
         public boolean hasNext() {
-            return nodeLevelMap.get(index) != null;
+            return nodeLevelMap.contains(index);
         }
 
         @Override
@@ -211,7 +211,7 @@ public class CrossingMinimization {
 
         @Override
         public boolean hasNext() {
-            return nodeLevelMap.get(index) != null;
+            return nodeLevelMap.contains(index);
         }
 
         @Override

@@ -230,8 +230,8 @@ public class UserSqlMapDaoIntegrationTest {
 
         user = userDao.findUser("user");
         assertThat(user.getNotificationFilters().size()).isEqualTo(2);
-        assertThat(user.getNotificationFilters().get(0)).isEqualTo(filter1);
-        assertThat(user.getNotificationFilters().get(1).getId()).isEqualTo(filter2.getId());
+        assertThat(user.getNotificationFilters().getFirst()).isEqualTo(filter1);
+        assertThat(user.getNotificationFilters().getLast().getId()).isEqualTo(filter2.getId());
     }
 
     private User saveUser(final String user) {
@@ -310,9 +310,9 @@ public class UserSqlMapDaoIntegrationTest {
         user.addNotificationFilter(new NotificationFilter("pipeline2", "stage", StageEvent.Fails, true));
         userDao.saveOrUpdate(user);
         user = userDao.findUser(user.getName());
-        NotificationFilter filter1 = user.getNotificationFilters().get(0);
+        NotificationFilter filter1 = user.getNotificationFilters().getFirst();
         long filter1Id = filter1.getId();
-        NotificationFilter filter2 = user.getNotificationFilters().get(1);
+        NotificationFilter filter2 = user.getNotificationFilters().getLast();
         user.removeNotificationFilter(filter1.getId());
         userDao.saveOrUpdate(user);
         user = userDao.findUser(user.getName());

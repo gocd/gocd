@@ -132,8 +132,8 @@ public class PluginSettingsTest {
 
         List<ConfigurationProperty> pluginSettingsProperties = pluginSettings.getPluginSettingsProperties();
         assertThat(pluginSettingsProperties.size()).isEqualTo(2);
-        assertThat(pluginSettingsProperties.get(0)).isEqualTo(configProperty1);
-        assertThat(pluginSettingsProperties.get(1)).isEqualTo(configProperty2);
+        assertThat(pluginSettingsProperties.getFirst()).isEqualTo(configProperty1);
+        assertThat(pluginSettingsProperties.getLast()).isEqualTo(configProperty2);
     }
 
     @Test
@@ -147,7 +147,7 @@ public class PluginSettingsTest {
         pluginSettings.validateTree();
 
         assertThat(pluginSettings.hasErrors()).isTrue();
-        assertThat(pluginSettings.getPluginSettingsProperties().get(0).errors().firstError()).isEqualTo("Encrypted value for property with key 'supposedly-secure-key' is invalid. This usually happens when the cipher text is modified to have an invalid value.");
+        assertThat(pluginSettings.getPluginSettingsProperties().getFirst().errors().firstError()).isEqualTo("Encrypted value for property with key 'supposedly-secure-key' is invalid. This usually happens when the cipher text is modified to have an invalid value.");
     }
 
     @Test

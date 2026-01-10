@@ -95,7 +95,7 @@ public class ClusterProfilesServiceIntegrationTest {
         assertThat(clusterProfilesService.getPluginProfiles().size()).isEqualTo(1);
         assertThat(result.isSuccessful()).isFalse();
         assertThat(clusterProfile.getAllErrors()).hasSize(1);
-        assertThat(clusterProfile.errors().get("id").get(0)).isEqualTo("Cluster Profile id 'cluster1' is not unique");
+        assertThat(clusterProfile.errors().get("id").getFirst()).isEqualTo("Cluster Profile id 'cluster1' is not unique");
     }
 
     @Test

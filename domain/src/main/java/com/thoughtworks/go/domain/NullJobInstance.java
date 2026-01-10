@@ -16,6 +16,7 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.TimeProvider;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 
@@ -64,7 +65,7 @@ public class NullJobInstance extends JobInstance {
     }
 
     @Override
-    public JobInstance mostRecentPassed(JobInstance champion) {
+    public @NotNull JobInstance mostRecentPassed(@NotNull JobInstance champion) {
         return champion;
     }
 

@@ -204,7 +204,7 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public int hashCode() {
-        int result = (name != null ? name.hashCode() : 0);
+        int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (agents != null ? agents.hashCode() : 0);
         result = 31 * result + (pipelines != null ? pipelines.hashCode() : 0);
         result = 31 * result + (variables != null ? variables.hashCode() : 0);

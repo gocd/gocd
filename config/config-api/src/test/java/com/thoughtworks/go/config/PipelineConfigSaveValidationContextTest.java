@@ -87,7 +87,7 @@ class PipelineConfigSaveValidationContextTest {
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig);
         MaterialConfigs allMaterialsByFingerPrint = context.getAllMaterialsByFingerPrint(expectedMaterial.getFingerprint());
         assertThat(allMaterialsByFingerPrint.size()).isEqualTo(1);
-        assertThat(allMaterialsByFingerPrint.getFirstOrNull()).isEqualTo(expectedMaterial);
+        assertThat(allMaterialsByFingerPrint.getFirst()).isEqualTo(expectedMaterial);
     }
 
     @Test
@@ -124,7 +124,7 @@ class PipelineConfigSaveValidationContextTest {
     void shouldFindPipelineByName() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1");
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, new PipelineConfig(new CaseInsensitiveString("p2"), new MaterialConfigs()));
-        assertThat(context.getPipelineConfigByName(new CaseInsensitiveString("p1"))).isEqualTo(cruiseConfig.allPipelines().get(0));
+        assertThat(context.getPipelineConfigByName(new CaseInsensitiveString("p1"))).isEqualTo(cruiseConfig.allPipelines().getFirst());
     }
 
     @Test
@@ -163,16 +163,6 @@ class PipelineConfigSaveValidationContextTest {
     }
 
     @Test
-    void shouldCheckForExistenceOfTemplate() {
-        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
-        cruiseConfig.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("t1")));
-        PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, new PipelineConfig());
-
-        assertThat(context.doesTemplateExist(new CaseInsensitiveString("t1"))).isTrue();
-        assertThat(context.doesTemplateExist(new CaseInsensitiveString("t2"))).isFalse();
-    }
-
-    @Test
     void shouldCheckForExistenceOfSCM() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setSCMs(new SCMs(SCMMother.create("scm-id")));
@@ -186,7 +176,7 @@ class PipelineConfigSaveValidationContextTest {
     void shouldCheckForExistenceOfPackage() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setPackageRepositories(new PackageRepositories(PackageRepositoryMother.create("repo-id")));
-        cruiseConfig.getPackageRepositories().find("repo-id").setPackages(new Packages(PackageDefinitionMother.create("package-id")));
+        cruiseConfig.getPackageRepositories().findByRepoId("repo-id").setPackages(new Packages(PackageDefinitionMother.create("package-id")));
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
 
         assertThat(context.findPackageById("package-id").getId()).isEqualTo("repo-id");

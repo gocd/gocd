@@ -102,7 +102,7 @@ public class PackageRepositoryServiceIntegrationTest {
         npmRepo.setId(repoId);
         goConfigService.getConfigForEditing().setPackageRepositories(new PackageRepositories(npmRepo));
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size()).isEqualTo(1);
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId)).isEqualTo(npmRepo);
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().findByRepoId(repoId)).isEqualTo(npmRepo);
 
         service.deleteRepository(username, npmRepo, result);
 
@@ -111,7 +111,7 @@ public class PackageRepositoryServiceIntegrationTest {
 
         assertThat(result).isEqualTo(expectedResult);
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size()).isEqualTo(0);
-        assertNull(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId));
+        assertNull(goConfigService.getConfigForEditing().getPackageRepositories().findByRepoId(repoId));
     }
 
     @Test
@@ -125,13 +125,13 @@ public class PackageRepositoryServiceIntegrationTest {
         expectedResult.forbidden(EntityType.PackageRepository.forbiddenToDelete("npm", "UnauthorizedUser"), forbidden());
 
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size()).isEqualTo(1);
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId)).isEqualTo(npmRepo);
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().findByRepoId(repoId)).isEqualTo(npmRepo);
 
         service.deleteRepository(new Username("UnauthorizedUser"), npmRepo, result);
 
         assertThat(result).isEqualTo(expectedResult);
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size()).isEqualTo(1);
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId)).isEqualTo(npmRepo);
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().findByRepoId(repoId)).isEqualTo(npmRepo);
     }
 
     @Test
@@ -145,13 +145,13 @@ public class PackageRepositoryServiceIntegrationTest {
         expectedResult.forbidden(EntityType.PackageRepository.forbiddenToEdit("npm", "UnauthorizedUser"), forbidden());
 
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size()).isEqualTo(1);
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId)).isEqualTo(npmRepo);
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().findByRepoId(repoId)).isEqualTo(npmRepo);
 
         service.createPackageRepository(npmRepo, new Username("UnauthorizedUser"), result);
 
         assertThat(result).isEqualTo(expectedResult);
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size()).isEqualTo(1);
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId)).isEqualTo(npmRepo);
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().findByRepoId(repoId)).isEqualTo(npmRepo);
     }
 
 
@@ -181,12 +181,12 @@ public class PackageRepositoryServiceIntegrationTest {
         goConfigService.getConfigForEditing().setPackageRepositories(new PackageRepositories(oldPackageRepo));
 
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size()).isEqualTo(1);
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(oldRepoId)).isEqualTo(oldPackageRepo);
-        assertNull(goConfigService.getConfigForEditing().getPackageRepositories().find(newRepoId));
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().findByRepoId(oldRepoId)).isEqualTo(oldPackageRepo);
+        assertNull(goConfigService.getConfigForEditing().getPackageRepositories().findByRepoId(newRepoId));
         service.updatePackageRepository(newPackageRepo, new Username("UnauthorizedUser"), "md5", result, oldRepoId);
         assertThat(result).isEqualTo(expectedResult);
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size()).isEqualTo(1);
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(oldRepoId)).isEqualTo(oldPackageRepo);
-        assertNull(goConfigService.getConfigForEditing().getPackageRepositories().find(newRepoId));
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().findByRepoId(oldRepoId)).isEqualTo(oldPackageRepo);
+        assertNull(goConfigService.getConfigForEditing().getPackageRepositories().findByRepoId(newRepoId));
     }
 }

@@ -179,7 +179,7 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
 
     @Override
     public int hashCode() {
-        int result = (type != null ? type.hashCode() : 0);
+        int result = type != null ? type.hashCode() : 0;
         result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
         result = 31 * result + (stageName != null ? stageName.hashCode() : 0);
         return result;
@@ -220,7 +220,7 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
     public void validateUniqueness(Set<CaseInsensitiveString> dependencies) {
         CaseInsensitiveString upstreamPipelineName = pipelineName;
         if (dependencies.contains(upstreamPipelineName)) {
-            String message = (String.format("A pipeline can depend on each upstream pipeline only once. Remove one of the occurrences of '%s' from the current pipeline dependencies.", upstreamPipelineName));
+            String message = String.format("A pipeline can depend on each upstream pipeline only once. Remove one of the occurrences of '%s' from the current pipeline dependencies.", upstreamPipelineName);
             errors.add(PIPELINE_STAGE_NAME, message);
         }
         dependencies.add(pipelineName);

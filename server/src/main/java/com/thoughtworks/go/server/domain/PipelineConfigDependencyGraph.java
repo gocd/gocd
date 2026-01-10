@@ -70,20 +70,17 @@ public class PipelineConfigDependencyGraph {
 
     public Queue<PipelineConfigQueueEntry> buildQueue() {
         Queue<PipelineConfigQueueEntry> configQueue = new LinkedList<>();
-        Queue<PipelineConfigDependencyEntry> tmp = new LinkedList<>();
-        tmp.add(new PipelineConfigDependencyEntry(this, new ArrayList<>()));
-        while (true) {
-            PipelineConfigDependencyEntry currentHead = tmp.poll();
-            if (currentHead == null) {
-                break;
-            }
+
+        Queue<PipelineConfigDependencyEntry> toProcess = new LinkedList<>();
+        toProcess.add(new PipelineConfigDependencyEntry(this, new ArrayList<>()));
+        for (PipelineConfigDependencyEntry currentHead; (currentHead = toProcess.poll()) != null;) {
             PipelineConfigDependencyGraph current = currentHead.getNode();
             List<PipelineConfig> currentPath = currentHead.getPath();
             currentPath.add(current.getCurrent());
             configQueue.add(new PipelineConfigQueueEntry(current.getCurrent(), new ArrayList<>(currentPath)));
             for (PipelineConfigDependencyGraph upstream : current.getUpstreamDependencies()) {
                 List<PipelineConfig> parentsPath = new ArrayList<>(currentPath);
-                tmp.add(new PipelineConfigDependencyEntry(upstream, parentsPath));
+                toProcess.add(new PipelineConfigDependencyEntry(upstream, parentsPath));
             }
         }
         return removeHead(configQueue);

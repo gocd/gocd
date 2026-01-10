@@ -60,7 +60,7 @@ class StageRepresenterTest  {
         [
           secure:          true,
           name:            'MULTIPLE_LINES',
-          encrypted_value: getStageConfig().variables.get(0).getEncryptedValue()
+          encrypted_value: getStageConfig().variables.getFirst().getEncryptedValue()
         ],
         [
           secure: false,
@@ -122,7 +122,7 @@ class StageRepresenterTest  {
             secure: true,
             name: 'MULTIPLE_LINES',
             encrypted_value:
-            getStageConfig().variables.get(0).getEncryptedValue()
+            getStageConfig().variables.getFirst().getEncryptedValue()
           ],
           [
             secure: false,
@@ -136,8 +136,8 @@ class StageRepresenterTest  {
       def stageConfig = StageRepresenter.fromJSON(jsonReader)
 
       def listOfEnvVars = stageConfig.getVariables().name
-      assertEquals("MULTIPLE_LINES", listOfEnvVars.get(0))
-      assertEquals("COMPLEX", listOfEnvVars.get(1))
+      assertEquals("MULTIPLE_LINES", listOfEnvVars.getFirst())
+      assertEquals("COMPLEX", listOfEnvVars.getLast())
     }
 
     @Test
@@ -147,7 +147,7 @@ class StageRepresenterTest  {
       ])
 
       def stageConfig = StageRepresenter.fromJSON(jsonReader)
-      assertEquals(JobConfigMother.jobConfig(), stageConfig.getJobs().getFirstOrNull())
+      assertEquals(JobConfigMother.jobConfig(), stageConfig.getJobs().getFirst())
     }
 
     @Test
@@ -167,7 +167,7 @@ class StageRepresenterTest  {
       run_instance_count:    3,
       timeout:               100,
       environment_variables: [
-        [secure: true, name: 'MULTIPLE_LINES', encrypted_value: JobConfigMother.jobConfig().variables.get(0).getEncryptedValue()],
+        [secure: true, name: 'MULTIPLE_LINES', encrypted_value: JobConfigMother.jobConfig().variables.getFirst().getEncryptedValue()],
         [secure: false, name: 'COMPLEX', value: 'This has very <complex> data']
       ],
       resources:             ['Linux', 'Java'],
@@ -191,7 +191,7 @@ class StageRepresenterTest  {
   @Test
   void 'should render errors'() {
     def stageConfig = StageConfigMother.stageConfigWithEnvironmentVariable("stage#1")
-    stageConfig.getJobs().get(0).setTasks(new Tasks(new FetchTask(new CaseInsensitiveString(""), new CaseInsensitiveString(""), new CaseInsensitiveString(""), null, null)))
+    stageConfig.getJobs().getFirst().setTasks(new Tasks(new FetchTask(new CaseInsensitiveString(""), new CaseInsensitiveString(""), new CaseInsensitiveString(""), null, null)))
     stageConfig.addError('name', 'Invalid stage name')
 
     def actualJson = toObjectString({ StageRepresenter.toJSON(it, stageConfig) })
@@ -223,7 +223,7 @@ class StageRepresenterTest  {
           secure: true,
           name: "MULTIPLE_LINES",
           encrypted_value:
-          stageConfig.variables.get(0).getEncryptedValue()
+          stageConfig.variables.getFirst().getEncryptedValue()
         ],
         [
           secure: false,

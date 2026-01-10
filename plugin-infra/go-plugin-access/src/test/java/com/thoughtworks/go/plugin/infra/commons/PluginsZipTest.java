@@ -88,14 +88,14 @@ class PluginsZipTest {
         GoPluginBundleDescriptor externalPackageMaterialPlugin = new GoPluginBundleDescriptor(getPluginDescriptor("external-package-material-4", externalPackageMaterialJar, false));
 
         when(pluginManager.plugins()).thenReturn(List.of(
-                bundledTaskPlugin.descriptors().get(0),
-                bundledAuthPlugin.descriptors().get(0),
-                bundledSCMPlugin.descriptors().get(0),
-                bundledPackageMaterialPlugin.descriptors().get(0),
-                externalTaskPlugin.descriptors().get(0),
-                externalElasticAgentPlugin.descriptors().get(0),
-                externalSCMPlugin.descriptors().get(0),
-                externalPackageMaterialPlugin.descriptors().get(0)
+                bundledTaskPlugin.descriptors().getFirst(),
+                bundledAuthPlugin.descriptors().getFirst(),
+                bundledSCMPlugin.descriptors().getFirst(),
+                bundledPackageMaterialPlugin.descriptors().getFirst(),
+                externalTaskPlugin.descriptors().getFirst(),
+                externalElasticAgentPlugin.descriptors().getFirst(),
+                externalSCMPlugin.descriptors().getFirst(),
+                externalPackageMaterialPlugin.descriptors().getFirst()
         ));
 
         when(pluginManager.isPluginOfType("task", "bundled-task-1")).thenReturn(true);
@@ -179,19 +179,19 @@ class PluginsZipTest {
 
     @Test
     void shouldCreatePluginsWhenTaskPluginsAreRemoved() {
-        pluginsZip.pluginUnLoaded(externalTaskPlugin.descriptors().get(0));
+        pluginsZip.pluginUnLoaded(externalTaskPlugin.descriptors().getFirst());
         verify(pluginsZip, times(1)).create();
     }
 
     @Test
     void shouldDoNothingWhenAPluginThatIsNotATaskOrScmOrPackageMaterialPluginPluginIsAdded() {
-        pluginsZip.pluginLoaded(externalElasticAgentPlugin.descriptors().get(0));
+        pluginsZip.pluginLoaded(externalElasticAgentPlugin.descriptors().getFirst());
         verify(pluginsZip, never()).create();
     }
 
     @Test
     void shouldDoNothingWhenAPluginThatIsNotATaskOrScmOrPackageMaterialPluginPluginIsRemoved() {
-        pluginsZip.pluginUnLoaded(externalElasticAgentPlugin.descriptors().get(0));
+        pluginsZip.pluginUnLoaded(externalElasticAgentPlugin.descriptors().getFirst());
         verify(pluginsZip, never()).create();
     }
 
@@ -211,11 +211,11 @@ class PluginsZipTest {
         );
 
         when(pluginManager.plugins()).thenReturn(List.of(
-                bundledTaskPlugin.descriptors().get(0),
-                bundledTaskPlugin.descriptors().get(1),
+                bundledTaskPlugin.descriptors().getFirst(),
+                bundledTaskPlugin.descriptors().getLast(),
 
-                externalTaskPlugin.descriptors().get(0),
-                externalTaskPlugin.descriptors().get(1)
+                externalTaskPlugin.descriptors().getFirst(),
+                externalTaskPlugin.descriptors().getLast()
         ));
 
         when(pluginManager.isPluginOfType("task", "bundled-plugin-1")).thenReturn(true);

@@ -245,9 +245,9 @@ public class AccessTokenSqlMapDaoIntegrationTest {
 
         final List<AccessToken> allTokensForUser = accessTokenSqlMapDao.findAllTokensForUser("bob", AccessTokenFilter.all);
         assertThat(allTokensForUser).hasSize(2);
-        assertThat(allTokensForUser.get(0).getLastUsed())
+        assertThat(allTokensForUser.getFirst().getLastUsed())
                 .isEqualTo(lastUsedTimeForToken1);
-        assertThat(allTokensForUser.get(1).getLastUsed())
+        assertThat(allTokensForUser.getLast().getLastUsed())
                 .isEqualTo(lastUsedTimeForToken2);
     }
 }

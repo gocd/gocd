@@ -110,7 +110,7 @@ public class JobRerunScheduleServiceTest {
         stub(mingleConfig, pipeline, firstStage);
         stubConfigMd5Cal("latest-md5");
 
-        when(instanceFactory.createStageForRerunOfJobs(eq(firstStage), eq(List.of("unit")), any(), eq(mingleConfig.getFirstOrNull()), eq(timeProvider), eq("latest-md5")))
+        when(instanceFactory.createStageForRerunOfJobs(eq(firstStage), eq(List.of("unit")), any(), eq(mingleConfig.getFirst()), eq(timeProvider), eq("latest-md5")))
                 .thenReturn(expectedStageToBeCreated);
 
         Stage stage = service.rerunJobs(firstStage, List.of("unit"), new HttpOperationResult());
@@ -192,7 +192,7 @@ public class JobRerunScheduleServiceTest {
         String latestMd5 = "latest-md5";
 
         PipelineConfig mingleConfig = PipelineConfigMother.createPipelineConfig("mingle", "build", "unit", "functional");
-        StageConfig stageConfig = mingleConfig.get(0);
+        StageConfig stageConfig = mingleConfig.getFirst();
         stageConfig.getJobs().getJob(new CaseInsensitiveString("unit")).setRunOnAllAgents(true);
 
         Pipeline pipeline = PipelineMother.passedPipelineInstance("mingle", "build", "unit");
@@ -346,7 +346,7 @@ public class JobRerunScheduleServiceTest {
     private void stub(PipelineConfig mingleConfig, Pipeline pipeline, Stage lastStage) {
         StageIdentifier identifier = lastStage.getIdentifier();
         when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("mingle"))).thenReturn(mingleConfig);
-        when(goConfigService.stageConfigNamed("mingle", identifier.getStageName())).thenReturn(mingleConfig.get(0));
+        when(goConfigService.stageConfigNamed("mingle", identifier.getStageName())).thenReturn(mingleConfig.getFirst());
 
         when(schedulingChecker.canSchedule(any())).thenReturn(true);
         when(schedulingChecker.canRerunStage(eq(pipeline.getIdentifier()), eq(lastStage.getName()), eq("anonymous"), any())).thenReturn(true);

@@ -212,7 +212,7 @@ public class ConfigReposControllerV4 extends ApiController implements SparkSprin
             return notModified(res);
         }
 
-        return jsonizeAsTopLevelObject(req, (w) -> PartialConfigRepresenter.toJSON(w, def));
+        return jsonizeAsTopLevelObject(req, w -> PartialConfigRepresenter.toJSON(w, def));
     }
 
     private ConfigRepoConfig repoFromRequest(Request req) {

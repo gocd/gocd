@@ -59,7 +59,7 @@ public class JobResultMessage implements GoMessage {
     @Override
     public int hashCode() {
         int result1;
-        result1 = (jobIdentifier != null ? jobIdentifier.hashCode() : 0);
+        result1 = jobIdentifier != null ? jobIdentifier.hashCode() : 0;
         result1 = 31 * result1 + (result != null ? result.hashCode() : 0);
         result1 = 31 * result1 + (agentUuid != null ? agentUuid.hashCode() : 0);
         return result1;

@@ -57,7 +57,7 @@ public class IgnoredFiles implements Serializable, Validatable {
 
     @Override
     public int hashCode() {
-        return (pattern != null ? pattern.hashCode() : 1);
+        return pattern != null ? pattern.hashCode() : 1;
     }
 
     //our algorithom is replace the ** with ([^/]*/)* and replace the * with [^/]*

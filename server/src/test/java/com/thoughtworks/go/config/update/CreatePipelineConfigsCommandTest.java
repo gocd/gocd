@@ -92,7 +92,7 @@ public class CreatePipelineConfigsCommandTest {
         CreatePipelineConfigsCommand command = new CreatePipelineConfigsCommand(newPipelineConfigs, user, new HttpLocalizedOperationResult(), securityService);
         assertFalse(command.isValid(cruiseConfig));
 
-        assertThat(authorization.getAllErrors().get(0).getAllOn("roles")).isEqualTo(List.of("Role \"invalidRole\" does not exist."));
+        assertThat(authorization.getAllErrors().getFirst().getAllOn("roles")).isEqualTo(List.of("Role \"invalidRole\" does not exist."));
     }
 
     @Test

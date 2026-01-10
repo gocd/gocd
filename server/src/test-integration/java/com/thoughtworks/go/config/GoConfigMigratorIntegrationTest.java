@@ -172,7 +172,7 @@ public class GoConfigMigratorIntegrationTest {
         Files.writeString(configFile, "<cruise></cruise>", UTF_8);
         goConfigMigrator.migrate();
         assertThat(exceptions.size()).isEqualTo(1);
-        assertThat(exceptions.get(0).getMessage()).contains("Cruise config file with version 0 is invalid. Unable to upgrade.");
+        assertThat(exceptions.getFirst().getMessage()).contains("Cruise config file with version 0 is invalid. Unable to upgrade.");
     }
 
     @Test
@@ -182,11 +182,11 @@ public class GoConfigMigratorIntegrationTest {
             loadConfigFileWithContent("<cruise></cruise>");
             ServerHealthStates states = serverHealthService.logsSorted();
             assertThat(states.size()).isEqualTo(1);
-            assertThat(states.get(0).getDescription()).contains("Go encountered an invalid configuration file while starting up. The invalid configuration file has been renamed to &lsquo;");
-            assertThat(states.get(0).getDescription()).contains("&rsquo; and a new configuration file has been automatically created using the last good configuration.");
-            assertThat(states.get(0).getMessage()).contains("Invalid Configuration");
-            assertThat(states.get(0).getType()).isEqualTo(HealthStateType.general(HealthStateScope.forInvalidConfig()));
-            assertThat(states.get(0).getLogLevel()).isEqualTo(HealthStateLevel.WARNING);
+            assertThat(states.getFirst().getDescription()).contains("Go encountered an invalid configuration file while starting up. The invalid configuration file has been renamed to &lsquo;");
+            assertThat(states.getFirst().getDescription()).contains("&rsquo; and a new configuration file has been automatically created using the last good configuration.");
+            assertThat(states.getFirst().getMessage()).contains("Invalid Configuration");
+            assertThat(states.getFirst().getType()).isEqualTo(HealthStateType.general(HealthStateScope.forInvalidConfig()));
+            assertThat(states.getFirst().getLogLevel()).isEqualTo(HealthStateLevel.WARNING);
         } catch (Exception e) {
             fail("Should not Throw an exception, should revert to the last valid file versioned in config.git");
         }
@@ -197,7 +197,7 @@ public class GoConfigMigratorIntegrationTest {
         configRepository.checkin(new GoConfigRevision("<cruise></cruise>", "md5", "ps", "123", new TimeProvider()));
         Files.writeString(configFile, "<cruise></cruise>", UTF_8);
         goConfigMigrator.migrate();
-        assertThat(exceptions.get(0).getMessage()).contains("Cruise config file with version 0 is invalid. Unable to upgrade.");
+        assertThat(exceptions.getFirst().getMessage()).contains("Cruise config file with version 0 is invalid. Unable to upgrade.");
     }
 
     @Test
@@ -231,7 +231,7 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldMigrateMaterialFolderAttributeToDest() throws Exception {
         CruiseConfig cruiseConfig = loadConfigFileWithContent(ConfigFileFixture.VERSION_2);
-        MaterialConfig actual = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("multiple")).materialConfigs().getFirstOrNull();
+        MaterialConfig actual = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("multiple")).materialConfigs().getFirst();
         assertThat(actual.getFolder()).isEqualTo("part1");
     }
 
@@ -244,7 +244,7 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldMigrateRevision7To8() throws Exception {
         CruiseConfig cruiseConfig = loadConfigFileWithContent(ConfigFileFixture.VERSION_7);
-        HgMaterialConfig hgConfig = (HgMaterialConfig) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework")).materialConfigs().getFirstOrNull();
+        HgMaterialConfig hgConfig = (HgMaterialConfig) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework")).materialConfigs().getFirst();
         assertThat(hgConfig.getFolder()).isNull();
         assertThat(hgConfig.filter()).isNotNull();
     }
@@ -254,7 +254,7 @@ public class GoConfigMigratorIntegrationTest {
         String content = Files.readString(
                 Path.of("../common/src/test/resources/data/config/version4/cruise-config-dependency-migration.xml"), UTF_8);
         CruiseConfig cruiseConfig = loadConfigFileWithContent(content);
-        MaterialConfig actual = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("depends")).materialConfigs().getFirstOrNull();
+        MaterialConfig actual = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("depends")).materialConfigs().getFirst();
         assertThat(actual).isInstanceOf(DependencyMaterialConfig.class);
         DependencyMaterialConfig depends = (DependencyMaterialConfig) actual;
         assertThat(depends.getPipelineName()).isEqualTo(new CaseInsensitiveString("multiple"));
@@ -270,7 +270,7 @@ public class GoConfigMigratorIntegrationTest {
         assertThat(frameworkPipeline).isNull();
 
         assertThat(exceptions.size()).isEqualTo(1);
-        assertThat(exceptions.get(0).getMessage()).contains("You have defined multiple Jobs called 'Test'");
+        assertThat(exceptions.getFirst().getMessage()).contains("You have defined multiple Jobs called 'Test'");
     }
 
     @Test
@@ -349,7 +349,7 @@ public class GoConfigMigratorIntegrationTest {
 
         RolesConfig roles = cruiseConfig.server().security().getRoles();
         assertThat(roles.size()).isEqualTo(2);
-        assertThat(roles.get(0)).isEqualTo(new RoleConfig(new CaseInsensitiveString("bAr"),
+        assertThat(roles.getFirst()).isEqualTo(new RoleConfig(new CaseInsensitiveString("bAr"),
                 new RoleUser(new CaseInsensitiveString("quux")),
                 new RoleUser(new CaseInsensitiveString("bang")),
                 new RoleUser(new CaseInsensitiveString("LoSeR")),
@@ -514,7 +514,7 @@ public class GoConfigMigratorIntegrationTest {
         Files.writeString(configFile, config, UTF_8);
         goConfigMigrator.migrate();
         assertThat(exceptions.size()).isEqualTo(1);
-        assertThat(exceptions.get(0).getCause().getMessage()).contains("'' is not a valid value for 'boolean'");
+        assertThat(exceptions.getFirst().getCause().getMessage()).contains("'' is not a valid value for 'boolean'");
     }
 
     @Test
@@ -523,7 +523,7 @@ public class GoConfigMigratorIntegrationTest {
         Files.writeString(configFile, config, UTF_8);
         goConfigMigrator.migrate();
         assertThat(exceptions.size()).isEqualTo(1);
-        assertThat(exceptions.get(0).getCause().getMessage()).contains("'junk-non-boolean' is not a valid value for 'boolean'");
+        assertThat(exceptions.getFirst().getCause().getMessage()).contains("'junk-non-boolean' is not a valid value for 'boolean'");
     }
 
     @Test
@@ -554,14 +554,14 @@ public class GoConfigMigratorIntegrationTest {
         PackageRepositories packageRepositories = cruiseConfig.getPackageRepositories();
         assertThat(packageRepositories.size()).isEqualTo(1);
 
-        assertThat(packageRepositories.get(0).getId()).isEqualTo("go-repo");
-        assertThat(packageRepositories.get(0).getName()).isEqualTo("go-repo");
-        assertThat(packageRepositories.get(0).getPluginConfiguration().getId()).isEqualTo("plugin-id");
-        assertThat(packageRepositories.get(0).getPluginConfiguration().getVersion()).isEqualTo("1.0");
-        assertThat(packageRepositories.get(0).getConfiguration()).isNotNull();
-        assertThat(packageRepositories.get(0).getPackages().size()).isEqualTo(1);
+        assertThat(packageRepositories.getFirst().getId()).isEqualTo("go-repo");
+        assertThat(packageRepositories.getFirst().getName()).isEqualTo("go-repo");
+        assertThat(packageRepositories.getFirst().getPluginConfiguration().getId()).isEqualTo("plugin-id");
+        assertThat(packageRepositories.getFirst().getPluginConfiguration().getVersion()).isEqualTo("1.0");
+        assertThat(packageRepositories.getFirst().getConfiguration()).isNotNull();
+        assertThat(packageRepositories.getFirst().getPackages().size()).isEqualTo(1);
 
-        assertConfiguration(packageRepositories.get(0).getConfiguration(),
+        assertConfiguration(packageRepositories.getFirst().getConfiguration(),
                 List.of(
                     List.of("url", Boolean.FALSE, "http://fake-yum-repo"),
                     List.of("username", Boolean.FALSE, "godev"),
@@ -569,9 +569,9 @@ public class GoConfigMigratorIntegrationTest {
                 )
         );
 
-        assertThat(packageRepositories.get(0).getPackages().get(0).getId()).isEqualTo("go-server");
-        assertThat(packageRepositories.get(0).getPackages().get(0).getName()).isEqualTo("go-server");
-        assertConfiguration(packageRepositories.get(0).getPackages().get(0).getConfiguration(),
+        assertThat(packageRepositories.getFirst().getPackages().getFirst().getId()).isEqualTo("go-server");
+        assertThat(packageRepositories.getFirst().getPackages().getFirst().getName()).isEqualTo("go-server");
+        assertConfiguration(packageRepositories.getFirst().getPackages().getFirst().getConfiguration(),
                 List.of(List.of("name", Boolean.FALSE, "go-server-13.2.0-1-i386")));
 
     }
@@ -596,14 +596,14 @@ public class GoConfigMigratorIntegrationTest {
         PackageRepositories packageRepositories = cruiseConfig.getPackageRepositories();
         assertThat(packageRepositories.size()).isEqualTo(1);
 
-        assertThat(packageRepositories.get(0).getId()).isEqualTo("go-repo");
-        assertThat(packageRepositories.get(0).getName()).isEqualTo("go-repo");
-        assertThat(packageRepositories.get(0).getPluginConfiguration().getId()).isEqualTo("plugin-id");
-        assertThat(packageRepositories.get(0).getPluginConfiguration().getVersion()).isEqualTo("1.0");
-        assertThat(packageRepositories.get(0).getConfiguration()).isNotNull();
-        assertThat(packageRepositories.get(0).getPackages().size()).isEqualTo(0);
+        assertThat(packageRepositories.getFirst().getId()).isEqualTo("go-repo");
+        assertThat(packageRepositories.getFirst().getName()).isEqualTo("go-repo");
+        assertThat(packageRepositories.getFirst().getPluginConfiguration().getId()).isEqualTo("plugin-id");
+        assertThat(packageRepositories.getFirst().getPluginConfiguration().getVersion()).isEqualTo("1.0");
+        assertThat(packageRepositories.getFirst().getConfiguration()).isNotNull();
+        assertThat(packageRepositories.getFirst().getPackages().size()).isEqualTo(0);
 
-        assertConfiguration(packageRepositories.get(0).getConfiguration(),
+        assertConfiguration(packageRepositories.getFirst().getConfiguration(),
                 List.of(
                     List.of("url", Boolean.FALSE, "http://fake-yum-repo"),
                     List.of("username", Boolean.FALSE, "godev"),
@@ -638,11 +638,11 @@ public class GoConfigMigratorIntegrationTest {
                         </pipeline></pipelines>
                         </cruise>""";
         CruiseConfig cruiseConfig = loadConfigFileWithContent(configString);
-        PipelineConfig pipelineConfig = cruiseConfig.getAllPipelineConfigs().get(0);
-        JobConfig jobConfig = pipelineConfig.getFirstStageConfig().getJobs().get(0);
+        PipelineConfig pipelineConfig = cruiseConfig.getAllPipelineConfigs().getFirst();
+        JobConfig jobConfig = pipelineConfig.getFirstStageConfig().getJobs().getFirst();
         Tasks tasks = jobConfig.getTasks();
         assertThat(tasks.size()).isEqualTo(1);
-        assertThat(tasks.get(0) instanceof PluggableTask).isTrue();
+        assertThat(tasks.getFirst() instanceof PluggableTask).isTrue();
     }
 
     @Test
@@ -668,7 +668,7 @@ public class GoConfigMigratorIntegrationTest {
                           </pipelines>
                         </cruise>""";
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
-        Task task = migratedConfig.tasksForJob("Test", "Functional", "Functional").get(0);
+        Task task = migratedConfig.tasksForJob("Test", "Functional", "Functional").getFirst();
         assertThat(task).isInstanceOf(ExecTask.class);
         assertThat(task).isEqualTo(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null));
     }
@@ -700,7 +700,7 @@ public class GoConfigMigratorIntegrationTest {
                           </templates>
                         </cruise>""";
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
-        Task task = migratedConfig.tasksForJob("Test", "Functional", "Functional").get(0);
+        Task task = migratedConfig.tasksForJob("Test", "Functional", "Functional").getFirst();
         assertThat(task).isInstanceOf(ExecTask.class);
         assertThat(task).isEqualTo(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null));
     }
@@ -733,11 +733,11 @@ public class GoConfigMigratorIntegrationTest {
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
         EnvironmentVariablesConfig variables = pipelineConfig.getVariables();
-        assertThat(variables.getPlainTextVariables().getFirstOrNull().getName()).isEqualTo("test");
-        assertThat(variables.getPlainTextVariables().getFirstOrNull().getValue()).isEqualTo("foobar");
-        assertThat(variables.getSecureVariables().getFirstOrNull().getName()).isEqualTo("PATH");
+        assertThat(variables.getPlainTextVariables().getFirst().getName()).isEqualTo("test");
+        assertThat(variables.getPlainTextVariables().getFirst().getValue()).isEqualTo("foobar");
+        assertThat(variables.getSecureVariables().getFirst().getName()).isEqualTo("PATH");
         // encrypted value for "abcd" is "trMHp15AjUE=" for the cipher "269298bc31c44620"
-        assertThat(variables.getSecureVariables().getFirstOrNull().getValue()).isEqualTo("abcd");
+        assertThat(variables.getSecureVariables().getFirst().getValue()).isEqualTo("abcd");
     }
 
     @Test
@@ -769,7 +769,7 @@ public class GoConfigMigratorIntegrationTest {
 
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
-        JobConfig jobConfig = pipelineConfig.getStages().get(0).getJobs().get(0);
+        JobConfig jobConfig = pipelineConfig.getStages().getFirst().getJobs().getFirst();
 
         assertThat(migratedConfig.schemaVersion()).isGreaterThan(86);
 
@@ -779,7 +779,7 @@ public class GoConfigMigratorIntegrationTest {
         ElasticProfile expectedProfile = new ElasticProfile(jobConfig.getElasticProfileId(), "no-op-cluster-for-docker",
                 new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
 
-        ElasticProfile elasticProfile = profiles.get(0);
+        ElasticProfile elasticProfile = profiles.getFirst();
         assertThat(elasticProfile).isEqualTo(expectedProfile);
     }
 
@@ -828,14 +828,14 @@ public class GoConfigMigratorIntegrationTest {
 
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
-        JobConfigs jobs = pipelineConfig.getStages().get(0).getJobs();
+        JobConfigs jobs = pipelineConfig.getStages().getFirst().getJobs();
 
         ElasticProfiles profiles = migratedConfig.getElasticConfig().getProfiles();
         assertThat(profiles.size()).isEqualTo(2);
 
-        ElasticProfile expectedDockerProfile = new ElasticProfile(jobs.get(0).getElasticProfileId(), "no-op-cluster-for-docker",
+        ElasticProfile expectedDockerProfile = new ElasticProfile(jobs.getFirst().getElasticProfileId(), "no-op-cluster-for-docker",
                 new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
-        assertThat(profiles.get(0)).isEqualTo(expectedDockerProfile);
+        assertThat(profiles.getFirst()).isEqualTo(expectedDockerProfile);
 
         ElasticProfile expectedAWSProfile = new ElasticProfile(jobs.get(1).getElasticProfileId(), "no-op-cluster-for-aws",
                 new ConfigurationProperty(new ConfigurationKey("ami"), new ConfigurationValue("some.ami")),
@@ -907,7 +907,7 @@ public class GoConfigMigratorIntegrationTest {
         ElasticProfiles profiles = migratedConfig.getElasticConfig().getProfiles();
         assertThat(profiles.size()).isEqualTo(3);
 
-        ElasticProfile expectedDockerProfile = new ElasticProfile(buildJobs.get(0).getElasticProfileId(), "no-op-cluster-for-docker",
+        ElasticProfile expectedDockerProfile = new ElasticProfile(buildJobs.getFirst().getElasticProfileId(), "no-op-cluster-for-docker",
                 new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
         assertThat(profiles.get(0)).isEqualTo(expectedDockerProfile);
 
@@ -917,7 +917,7 @@ public class GoConfigMigratorIntegrationTest {
                 new ConfigurationProperty(new ConfigurationKey("diskSpace"), new ConfigurationValue("10G")));
         assertThat(profiles.get(1)).isEqualTo(expectedAWSProfile);
 
-        ElasticProfile expectedSecondDockerProfile = new ElasticProfile(distJobs.get(0).getElasticProfileId(), "no-op-cluster-for-docker",
+        ElasticProfile expectedSecondDockerProfile = new ElasticProfile(distJobs.getFirst().getElasticProfileId(), "no-op-cluster-for-docker",
                 new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
         assertThat(profiles.get(2)).isEqualTo(expectedSecondDockerProfile);
     }
@@ -977,17 +977,17 @@ public class GoConfigMigratorIntegrationTest {
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         PipelineConfig up42 = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
         PipelineConfig up43 = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up43"));
-        JobConfigs up42Jobs = up42.getStages().get(0).getJobs();
-        JobConfigs up43Jobs = up43.getStages().get(0).getJobs();
+        JobConfigs up42Jobs = up42.getStages().getFirst().getJobs();
+        JobConfigs up43Jobs = up43.getStages().getFirst().getJobs();
 
         ElasticProfiles profiles = migratedConfig.getElasticConfig().getProfiles();
         assertThat(profiles.size()).isEqualTo(2);
 
-        ElasticProfile expectedDockerProfile = new ElasticProfile(up42Jobs.get(0).getElasticProfileId(), "no-op-cluster-for-docker",
+        ElasticProfile expectedDockerProfile = new ElasticProfile(up42Jobs.getFirst().getElasticProfileId(), "no-op-cluster-for-docker",
                 new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
         assertThat(profiles.get(0)).isEqualTo(expectedDockerProfile);
 
-        ElasticProfile expectedAWSProfile = new ElasticProfile(up43Jobs.get(0).getElasticProfileId(), "no-op-cluster-for-aws",
+        ElasticProfile expectedAWSProfile = new ElasticProfile(up43Jobs.getFirst().getElasticProfileId(), "no-op-cluster-for-aws",
                 new ConfigurationProperty(new ConfigurationKey("ami"), new ConfigurationValue("some.ami")),
                 new ConfigurationProperty(new ConfigurationKey("ram"), new ConfigurationValue("1024")),
                 new ConfigurationProperty(new ConfigurationKey("diskSpace"), new ConfigurationValue("10G")));
@@ -1069,7 +1069,7 @@ public class GoConfigMigratorIntegrationTest {
         assertThat(cruiseConfig.server().getWebhookSecret()).isEqualTo("5f8b5eac-1148-4145-aa01-7b2934b6e1ab");
         assertThat(cruiseConfig.server().artifactsDir()).isEqualTo("artifactsDir");
         assertThat(cruiseConfig.getElasticConfig().getProfiles()).hasSize(1);
-        assertThat(cruiseConfig.getElasticConfig().getProfiles().get(0)).isEqualTo(new ElasticProfile("dev-build", "no-op-cluster-for-cd.go.contrib.elastic-agent.docker-swarm",
+        assertThat(cruiseConfig.getElasticConfig().getProfiles().getFirst()).isEqualTo(new ElasticProfile("dev-build", "no-op-cluster-for-cd.go.contrib.elastic-agent.docker-swarm",
                 ConfigurationPropertyMother.create("Image", false, "bar"),
                 ConfigurationPropertyMother.create("ReservedMemory", false, "3GB"),
                 ConfigurationPropertyMother.create("MaxMemory", false, "3GB")
@@ -1141,7 +1141,7 @@ public class GoConfigMigratorIntegrationTest {
                 </cruise>""";
 
         final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml);
-        assertThat(cruiseConfig.getElasticConfig().getProfiles().get(0)).isEqualTo(new ElasticProfile("dev-build", "no-op-cluster-for-cd.go.contrib.elastic-agent.docker-swarm",
+        assertThat(cruiseConfig.getElasticConfig().getProfiles().getFirst()).isEqualTo(new ElasticProfile("dev-build", "no-op-cluster-for-cd.go.contrib.elastic-agent.docker-swarm",
                 ConfigurationPropertyMother.create("Image", false, "#bar")
         ));
     }
@@ -1229,15 +1229,15 @@ public class GoConfigMigratorIntegrationTest {
     public void shouldRunMigration59_convertLogTypeToArtifact() throws Exception {
         final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(ConfigFileFixture.WITH_LOG_ARTIFACT_CONFIG);
 
-        ArtifactTypeConfigs artifactTypeConfigs = cruiseConfig.getAllPipelineConfigs().get(0).getStage(new CaseInsensitiveString("mingle")).getJobs().getJob(
+        ArtifactTypeConfigs artifactTypeConfigs = cruiseConfig.getAllPipelineConfigs().getFirst().getStage(new CaseInsensitiveString("mingle")).getJobs().getJob(
                 new CaseInsensitiveString("bluemonkeybutt")).artifactTypeConfigs();
 
         assertThat(artifactTypeConfigs.getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("from1");
-        assertThat("").isEqualTo(artifactTypeConfigs.getBuiltInArtifactConfigs().get(0).getDestination());
+        assertThat(artifactTypeConfigs.getBuiltInArtifactConfigs().get(0).getDestination()).isEqualTo("");
         assertThat(artifactTypeConfigs.getBuiltInArtifactConfigs().get(1).getSource()).isEqualTo("from2");
         assertThat(artifactTypeConfigs.getBuiltInArtifactConfigs().get(1).getDestination()).isEqualTo("to2");
         assertThat(artifactTypeConfigs.getBuiltInArtifactConfigs().get(2).getSource()).isEqualTo("from3");
-        assertThat("").isEqualTo(artifactTypeConfigs.getBuiltInArtifactConfigs().get(2).getDestination());
+        assertThat(artifactTypeConfigs.getBuiltInArtifactConfigs().get(2).getDestination()).isEqualTo("");
         assertThat(artifactTypeConfigs.getBuiltInArtifactConfigs().get(3).getSource()).isEqualTo("from4");
         assertThat(artifactTypeConfigs.getBuiltInArtifactConfigs().get(3).getDestination()).isEqualTo("to4");
     }
@@ -1273,8 +1273,8 @@ public class GoConfigMigratorIntegrationTest {
 
         XmlAssert.assertThat(newConfigWithoutNameInTask).hasXPath("//cruise/pipelines/pipeline/stage/jobs/job/tasks/task");
         XmlAssert.assertThat(newConfigWithoutNameInTask).doesNotHaveXPath("//cruise/pipelines/pipeline/stage/jobs/job/tasks/task[@name]");
-        PipelineConfig pipelineConfig = cruiseConfig.getAllPipelineConfigs().get(0);
-        JobConfig jobConfig = pipelineConfig.getFirstStageConfig().getJobs().get(0);
+        PipelineConfig pipelineConfig = cruiseConfig.getAllPipelineConfigs().getFirst();
+        JobConfig jobConfig = pipelineConfig.getFirstStageConfig().getJobs().getFirst();
 
         Configuration configuration = new Configuration(
                 create("url", false, "http://fake-yum-repo"),
@@ -1283,7 +1283,7 @@ public class GoConfigMigratorIntegrationTest {
 
         Tasks tasks = jobConfig.getTasks();
         assertThat(tasks.size()).isEqualTo(1);
-        assertThat(tasks.get(0)).isEqualTo(new PluggableTask(new PluginConfiguration("plugin-id", "1.0"), configuration));
+        assertThat(tasks.getFirst()).isEqualTo(new PluggableTask(new PluginConfiguration("plugin-id", "1.0"), configuration));
     }
 
     @Test

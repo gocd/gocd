@@ -280,7 +280,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     @Override
     public int getMaxStageOrder(long pipelineId) {
         Integer order = getSqlMapClientTemplate().queryForObject("getMaxStageOrder", pipelineId);
-        return (order == null ? 0 : order);
+        return order == null ? 0 : order;
     }
 
     @Override
@@ -741,6 +741,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return cacheKeyGenerator.generate("totalStageCountForChart", pipelineName, stageName);
     }
 
+    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter") // keys here have always been internred by CacheKeyGenerator
     private void removeFromCache(String key) {
         synchronized (key) {
             goCache.remove(key);

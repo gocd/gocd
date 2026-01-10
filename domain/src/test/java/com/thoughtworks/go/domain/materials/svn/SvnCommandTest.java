@@ -143,7 +143,7 @@ public class SvnCommandTest {
         subversion = new SvnCommand(null, testRepo.end2endRepositoryUrl() + "/unit-reports", "user", "pass", false);
         List<Modification> list = subversion.modificationsSince(new SubversionRevision(0));
 
-        Modification modification = list.get(0);
+        Modification modification = list.getFirst();
         assertThat(modification.getModifiedFiles().size()).isEqualTo(3);
         for (ModifiedFile file : modification.getModifiedFiles()) {
             assertThat(file.getFileName().startsWith("/unit-reports")).isTrue();
@@ -156,7 +156,7 @@ public class SvnCommandTest {
         subversion = new SvnCommand(null, testRepo.end2endRepositoryUrl(), "user", "pass", false);
         List<Modification> list = subversion.modificationsSince(new SubversionRevision(0));
 
-        Modification modification = list.get(list.size() - 1);
+        Modification modification = list.getLast();
         assertThat(modification.getModifiedFiles().size()).isEqualTo(7);
     }
 
@@ -188,7 +188,7 @@ public class SvnCommandTest {
     void shouldGetLatestModificationFromSubversion() {
         final List<Modification> materialRevisions = subversion.latestModification();
         assertThat(materialRevisions.size()).isEqualTo(1);
-        final Modification modification = materialRevisions.get(0);
+        final Modification modification = materialRevisions.getFirst();
         assertThat(modification.getComment()).isEqualTo("Added simple build shell to dump the environment to console.");
         assertThat(modification.getModifiedFiles().size()).isEqualTo(1);
     }
@@ -435,9 +435,9 @@ public class SvnCommandTest {
         String filename = "司徒空在此.scn";
         testRepo.checkInOneFile(filename, message);
 
-        Modification modification = subversion.latestModification().get(0);
+        Modification modification = subversion.latestModification().getFirst();
         assertThat(modification.getComment()).isEqualTo(message);
-        assertThat(modification.getModifiedFiles().get(0).getFileName()).contains(filename);
+        assertThat(modification.getModifiedFiles().getFirst().getFileName()).contains(filename);
     }
 
     @Test

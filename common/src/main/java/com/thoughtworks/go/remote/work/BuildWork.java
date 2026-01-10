@@ -151,7 +151,7 @@ public class BuildWork implements Work {
         ConsoleOutputStreamConsumer safeOutput = new LabeledOutputStreamConsumer(DefaultGoPublisher.PREP, DefaultGoPublisher.PREP_ERR, safeOutputStreamConsumer(environmentVariableContext));
         for (int i = 0; i < report.size(); i++) {
             String line = report.get(i);
-            safeOutput.stdOutput((i == report.size() - 1) ? line + "\n" : line);
+            safeOutput.stdOutput(i == report.size() - 1 ? line + "\n" : line);
         }
     }
 
@@ -268,7 +268,7 @@ public class BuildWork implements Work {
     @Override
     public int hashCode() {
         int result;
-        result = (assignment != null ? assignment.hashCode() : 0);
+        result = assignment != null ? assignment.hashCode() : 0;
         result = 31 * result + (goPublisher != null ? goPublisher.hashCode() : 0);
         result = 31 * result + (timeProvider != null ? timeProvider.hashCode() : 0);
         return result;

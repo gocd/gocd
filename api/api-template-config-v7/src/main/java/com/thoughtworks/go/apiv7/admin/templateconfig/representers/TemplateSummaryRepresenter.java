@@ -21,10 +21,9 @@ import com.thoughtworks.go.spark.Routes;
 
 public class TemplateSummaryRepresenter {
     public static void toJSON(OutputWriter jsonWriter, TemplateToPipelines templateToPipelines) {
-        jsonWriter.addLinks((
-                outputLinkWriter -> outputLinkWriter.addAbsoluteLink("doc", Routes.PipelineTemplateConfig.DOC)
-                        .addLink("find", Routes.PipelineTemplateConfig.find())
-                        .addLink("self", Routes.PipelineTemplateConfig.name(templateToPipelines.getTemplateName().toString()))));
+        jsonWriter.addLinks(outputLinkWriter -> outputLinkWriter.addAbsoluteLink("doc", Routes.PipelineTemplateConfig.DOC)
+                .addLink("find", Routes.PipelineTemplateConfig.find())
+                .addLink("self", Routes.PipelineTemplateConfig.name(templateToPipelines.getTemplateName().toString())));
 
         jsonWriter.add("name", templateToPipelines.getTemplateName())
                 .add("can_edit", templateToPipelines.canEditTemplate())

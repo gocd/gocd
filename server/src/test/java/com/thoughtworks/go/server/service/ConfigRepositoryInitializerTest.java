@@ -129,8 +129,8 @@ class ConfigRepositoryInitializerTest {
         repoConfig2.setRepo(MaterialConfigsMother.git("git-repo"));
         repoConfigs.add(repoConfig2);
 
-        GitMaterialConfig gitMaterialConfig = (GitMaterialConfig) repoConfigs.get(0).getRepo();
-        Material gitMaterial = new Materials(new MaterialConfigs(gitMaterialConfig)).getFirstOrNull();
+        GitMaterialConfig gitMaterialConfig = (GitMaterialConfig) repoConfigs.getFirst().getRepo();
+        Material gitMaterial = new Materials(new MaterialConfigs(gitMaterialConfig)).getFirst();
         TestingMaterialInstance gitMaterialInstance = new TestingMaterialInstance("git-repo", "flyweight");
         File folder = new File("repo-folder");
         MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(gitMaterial, oneModifiedFile("revision1")));
@@ -164,8 +164,8 @@ class ConfigRepositoryInitializerTest {
 
     @Test
     void shouldInitializeConfigRepositoriesWhenCruiseConfigAndAllInUsePluginsAreLoaded() {
-        GitMaterialConfig gitMaterialConfig = (GitMaterialConfig) repoConfigs.get(0).getRepo();
-        Material gitMaterial = new Materials(new MaterialConfigs(gitMaterialConfig)).getFirstOrNull();
+        GitMaterialConfig gitMaterialConfig = (GitMaterialConfig) repoConfigs.getFirst().getRepo();
+        Material gitMaterial = new Materials(new MaterialConfigs(gitMaterialConfig)).getFirst();
         TestingMaterialInstance gitMaterialInstance = new TestingMaterialInstance("git-repo", "flyweight");
         File folder = new File("repo-folder");
         MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(gitMaterial, oneModifiedFile("revision1")));
@@ -183,7 +183,7 @@ class ConfigRepositoryInitializerTest {
 
     @Test
     void shouldNotInitializeConfigRepositoryWhenTheRepositoryIsNotAvailableUnderFlyweightFolder() {
-        GitMaterialConfig gitMaterialConfig = (GitMaterialConfig) repoConfigs.get(0).getRepo();
+        GitMaterialConfig gitMaterialConfig = (GitMaterialConfig) repoConfigs.getFirst().getRepo();
         when(materialRepository.findMaterialInstance(gitMaterialConfig)).thenReturn(null);
 
         configRepositoryInitializer.onConfigChange(new BasicCruiseConfig());
@@ -194,8 +194,8 @@ class ConfigRepositoryInitializerTest {
 
     @Test
     void shouldNotReInitializeConfigRepositoriesWhenCruiseConfigListenerIsInvokedAgain() {
-        GitMaterialConfig gitMaterialConfig = (GitMaterialConfig) repoConfigs.get(0).getRepo();
-        Material gitMaterial = new Materials(new MaterialConfigs(gitMaterialConfig)).getFirstOrNull();
+        GitMaterialConfig gitMaterialConfig = (GitMaterialConfig) repoConfigs.getFirst().getRepo();
+        Material gitMaterial = new Materials(new MaterialConfigs(gitMaterialConfig)).getFirst();
         TestingMaterialInstance gitMaterialInstance = new TestingMaterialInstance("git-repo", "flyweight");
         File folder = new File("repo-folder");
         MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(gitMaterial, oneModifiedFile("revision1")));

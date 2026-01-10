@@ -47,6 +47,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
+import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -623,7 +624,7 @@ public class GoConfigFileHelper {
 
     public void addAuthorizedUserForPipelineGroup(String user) {
         CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfigs group = cruiseConfig.getGroups().getFirstOrNull();
+        PipelineConfigs group = cruiseConfig.getGroups().getFirst();
         group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString(user)));
         writeConfigFile(cruiseConfig);
     }
@@ -782,7 +783,7 @@ public class GoConfigFileHelper {
     public void lockPipeline(String name) {
         CruiseConfig config = loadForEdit();
         PipelineConfig pipeline = config.pipelineConfigByName(new CaseInsensitiveString(name));
-        pipeline.lockExplicitly();
+        pipeline.setLockBehaviorIfNecessary(LOCK_VALUE_LOCK_ON_FAILURE);
         writeConfigFile(config);
     }
 

@@ -71,7 +71,7 @@ public class ModificationSummary {
     @Override
     public int hashCode() {
         int result;
-        result = (modification != null ? modification.hashCode() : 0);
+        result = modification != null ? modification.hashCode() : 0;
         result = 31 * result + (getComment() != null ? getComment().hashCode() : 0);
         result = 31 * result + (getRevision() != null ? getRevision().hashCode() : 0);
         result = 31 * result + (getUserName() != null ? getUserName().hashCode() : 0);

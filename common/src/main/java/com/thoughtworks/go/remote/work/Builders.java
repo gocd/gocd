@@ -154,7 +154,7 @@ public class Builders {
     @Override
     public int hashCode() {
         int result;
-        result = (builders != null ? builders.hashCode() : 0);
+        result = builders != null ? builders.hashCode() : 0;
         result = 31 * result + (goPublisher != null ? goPublisher.hashCode() : 0);
         result = 31 * result + (currentBuilder != null ? currentBuilder.hashCode() : 0);
         result = 31 * result + (cancelStarted ? 1 : 0);

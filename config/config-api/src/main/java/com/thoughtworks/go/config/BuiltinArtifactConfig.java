@@ -51,7 +51,7 @@ public abstract class BuiltinArtifactConfig implements ArtifactTypeConfig {
 
     @Override
     public void validate(ValidationContext validationContext) {
-        if (!isBlank(destination) && (!(destination.equals(DEFAULT_ROOT.getPath()) || new FilePathTypeValidator().isPathValid(destination)))) {
+        if (!isBlank(destination) && !(destination.equals(DEFAULT_ROOT.getPath()) || new FilePathTypeValidator().isPathValid(destination))) {
             addError(DEST, "Invalid destination path. Destination path should match the pattern " + FilePathTypeValidator.PATH_PATTERN);
         }
         if (isBlank(source)) {

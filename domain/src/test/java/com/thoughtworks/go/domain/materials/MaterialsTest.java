@@ -158,11 +158,11 @@ public class MaterialsTest {
         MaterialConfigs materials = pipelineOne.materialConfigs();
         materials.validate(ConfigSaveValidationContext.forChain(config));
 
-        assertThat(materials.get(0).errors().isEmpty()).isFalse();
-        assertThat(materials.get(1).errors().isEmpty()).isFalse();
+        assertThat(materials.getFirst().errors().isEmpty()).isFalse();
+        assertThat(materials.getLast().errors().isEmpty()).isFalse();
 
-        assertThat(materials.get(0).errors().firstErrorOn(ScmMaterialConfig.FOLDER)).isEqualTo("The destination directory must be unique across materials.");
-        assertThat(materials.get(1).errors().firstErrorOn(ScmMaterialConfig.FOLDER)).isEqualTo("The destination directory must be unique across materials.");
+        assertThat(materials.getFirst().errors().firstErrorOn(ScmMaterialConfig.FOLDER)).isEqualTo("The destination directory must be unique across materials.");
+        assertThat(materials.getLast().errors().firstErrorOn(ScmMaterialConfig.FOLDER)).isEqualTo("The destination directory must be unique across materials.");
     }
 
     @Test

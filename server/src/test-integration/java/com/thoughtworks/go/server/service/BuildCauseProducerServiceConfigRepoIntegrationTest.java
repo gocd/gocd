@@ -269,7 +269,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
         String lastValidPushedRevision = this.firstRevisions.latestRevision();
         assertThat(configOriginAfterSchedule.getRevision()).isEqualTo(lastValidPushedRevision);
-        assertThat(cause.getMaterialRevisions().latestRevision()).isEqualTo(lastPush.get(0).getRevision());
+        assertThat(cause.getMaterialRevisions().latestRevision()).isEqualTo(lastPush.getFirst().getRevision());
     }
 
     @Test
@@ -291,9 +291,9 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         BuildCause buildCause = BuildCause.createWithModifications(firstRevisions, "Rick Sanchez");
         Pipeline x = PipelineMother.schedule(pipelineConfig, buildCause);
         x = pipelineDao.saveWithStages(x);
-        dbHelper.passStage(x.getStages().getFirstOrNull());
+        dbHelper.passStage(x.getStages().getFirst());
 
-        DependencyMaterialConfig upstreamMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(PIPELINE_NAME), new CaseInsensitiveString(x.getStages().getFirstOrNull().getName()));
+        DependencyMaterialConfig upstreamMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(PIPELINE_NAME), new CaseInsensitiveString(x.getStages().getFirst().getName()));
         String downstreamPipelineName = "pipe2";
         PipelineConfig downstreamConfig = PipelineConfigMother.createPipelineConfigWithStages(downstreamPipelineName, "build", "blah");
         downstreamConfig.materialConfigs().clear();
@@ -347,7 +347,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         BuildCause cause = afterLoad.get(new CaseInsensitiveString(PIPELINE_NAME));
         assertThat(cause.getBuildCauseMessage()).contains("Forced by anonymous");
 
-        assertThat(cause.getMaterialRevisions().latestRevision()).isEqualTo(lastPush.get(0).getRevision());
+        assertThat(cause.getMaterialRevisions().latestRevision()).isEqualTo(lastPush.getFirst().getRevision());
     }
 
 
@@ -373,7 +373,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         PipelineConfig pipelineConfigAfterSchedule = goConfigService.pipelineConfigNamed(pipelineConfig.name());
         RepoConfigOrigin configOriginAfterSchedule = (RepoConfigOrigin) pipelineConfigAfterSchedule.getOrigin();
 
-        String lastPushedRevision = mod.get(0).getRevision();
+        String lastPushedRevision = mod.getFirst().getRevision();
         assertThat(configOriginAfterSchedule.getRevision()).isEqualTo(lastPushedRevision);
         assertThat(cause.getMaterialRevisions().latestRevision()).isEqualTo(lastPushedRevision);
     }
@@ -430,14 +430,14 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         PipelineConfig pipelineConfigAfterSchedule = goConfigService.pipelineConfigNamed(pipelineConfig.name());
         RepoConfigOrigin configOriginAfterSchedule = (RepoConfigOrigin) pipelineConfigAfterSchedule.getOrigin();
 
-        String lastPushedRevision = mod.get(0).getRevision();
+        String lastPushedRevision = mod.getFirst().getRevision();
         assertThat(configOriginAfterSchedule.getRevision()).isEqualTo(lastPushedRevision);
         assertThat(pipelineConfig.materialConfigs()).contains(otherMaterialConfig);
         assertThat(cause.getMaterialRevisions().latestRevision()).isEqualTo(lastPushedRevision);
 
         // update of committed material happened during manual trigger
         MaterialRevisions modificationsInDb = materialRepository.findLatestModification(gitMaterial);
-        assertThat(modificationsInDb.latestRevision()).isEqualTo(otherGitRepo.latestModification().get(0).getRevision());
+        assertThat(modificationsInDb.latestRevision()).isEqualTo(otherGitRepo.latestModification().getFirst().getRevision());
     }
 
 
@@ -467,7 +467,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
         // revision will be older by 1 commit -
         // formally this is scm-config-consistency violation but we let this schedule because of manual trigger
-        String explicitRevision = firstBuildModifications.get(0).getRevision();
+        String explicitRevision = firstBuildModifications.getFirst().getRevision();
         revisions.put(materialConfig.getPipelineUniqueFingerprint(), explicitRevision);
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, new Username(new CaseInsensitiveString("Admin")),
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
@@ -481,7 +481,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         PipelineConfig pipelineConfigAfterSchedule = goConfigService.pipelineConfigNamed(pipelineConfig.name());
         RepoConfigOrigin configOriginAfterSchedule = (RepoConfigOrigin) pipelineConfigAfterSchedule.getOrigin();
 
-        String lastPushedRevision = secondBuildModifications.get(0).getRevision();
+        String lastPushedRevision = secondBuildModifications.getFirst().getRevision();
         assertThat(configOriginAfterSchedule.getRevision()).isEqualTo(lastPushedRevision);
         assertThat(cause.getMaterialRevisions().latestRevision()).isEqualTo(explicitRevision);
     }
@@ -522,7 +522,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         pipelineScheduleQueue.clear();
 
         // revision in dest 1 will be older by 1 commit - this is kind of scm-config-consistency violation
-        String explicitRevision = firstBuildModifications.get(0).getRevision();
+        String explicitRevision = firstBuildModifications.getFirst().getRevision();
         revisions.put(materialConfig.getPipelineUniqueFingerprint(), explicitRevision);
         buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, new Username(new CaseInsensitiveString("Admin")),
                 new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
@@ -536,7 +536,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         PipelineConfig pipelineConfigAfterSchedule = goConfigService.pipelineConfigNamed(pipelineConfig.name());
         RepoConfigOrigin configOriginAfterSchedule = (RepoConfigOrigin) pipelineConfigAfterSchedule.getOrigin();
 
-        String lastPushedRevision = secondBuildModifications.get(0).getRevision();
+        String lastPushedRevision = secondBuildModifications.getFirst().getRevision();
         assertThat(configOriginAfterSchedule.getRevision()).isEqualTo(lastPushedRevision);
         assertThat(pipelineConfigAfterSchedule.materialConfigs()).contains(otherMaterialConfig);
         assertThat(cause.getMaterialRevisions().latestRevision()).isEqualTo(explicitRevision);

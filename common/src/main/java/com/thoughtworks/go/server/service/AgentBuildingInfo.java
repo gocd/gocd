@@ -63,7 +63,7 @@ public class AgentBuildingInfo implements Serializable {
     @Override
     public int hashCode() {
         int result;
-        result = (buildingInfo != null ? buildingInfo.hashCode() : 0);
+        result = buildingInfo != null ? buildingInfo.hashCode() : 0;
         result = 31 * result + (buildLocator != null ? buildLocator.hashCode() : 0);
         return result;
     }

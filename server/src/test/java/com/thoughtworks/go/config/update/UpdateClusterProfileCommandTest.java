@@ -66,9 +66,9 @@ class UpdateClusterProfileCommandTest {
 
     @Test
     void shouldUpdateClusterProfile() {
-        assertThat(config.getElasticConfig().getClusterProfiles().get(0)).isEqualTo(clusterProfile);
+        assertThat(config.getElasticConfig().getClusterProfiles().getFirst()).isEqualTo(clusterProfile);
         command.update(config);
-        assertThat(config.getElasticConfig().getClusterProfiles().get(0)).isEqualTo(clusterProfile);
+        assertThat(config.getElasticConfig().getClusterProfiles().getFirst()).isEqualTo(clusterProfile);
     }
 
     @Test

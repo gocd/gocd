@@ -316,7 +316,7 @@ class AgentServiceTest {
                 verify(agentDao).getAgentsByUUIDs(uuids);
                 @SuppressWarnings("unchecked") ArgumentCaptor<List<Agent>> argumentCaptor = ArgumentCaptor.forClass(List.class);
                 verify(agentDao).bulkUpdateAgents(argumentCaptor.capture());
-                assertEquals("env1", argumentCaptor.getValue().get(0).getEnvironments());
+                assertEquals("env1", argumentCaptor.getValue().getFirst().getEnvironments());
                 verify(agentServiceSpy).updateIdsAndGenerateCookiesForPendingAgents(eq(agents), eq(TRUE));
             }
 

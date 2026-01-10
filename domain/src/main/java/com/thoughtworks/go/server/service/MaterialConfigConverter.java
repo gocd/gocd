@@ -36,11 +36,13 @@ import com.thoughtworks.go.domain.materials.perforce.P4MaterialInstance;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialInstance;
 import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
 import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /* To convert a MaterialConfig into a Material. */
 
@@ -58,15 +60,12 @@ public class MaterialConfigConverter {
             PluggableSCMMaterialConfig.class, PluggableSCMMaterialInstance.class
         );
 
-    public Material toMaterial(MaterialConfig materialConfig) {
-        return new Materials(new MaterialConfigs(materialConfig)).getFirstOrNull();
+    public @NotNull Material toMaterial(@NotNull MaterialConfig materialConfig) {
+        return Materials.convertToMaterial(materialConfig);
     }
 
     public Class<? extends MaterialInstance> getInstanceType(MaterialConfig materialConfig) {
-        if (!CONVERTERS.containsKey(materialConfig.getClass())) {
-            throw new RuntimeException("Unexpected type: " + materialConfig.getClass().getSimpleName());
-        }
-        return CONVERTERS.get(materialConfig.getClass());
+        return Objects.requireNonNull(CONVERTERS.get(materialConfig.getClass()), "Unexpected type: " + materialConfig.getClass().getSimpleName());
     }
 
     public Materials toMaterials(MaterialConfigs materialConfigs) {
@@ -74,10 +73,6 @@ public class MaterialConfigConverter {
     }
 
     public Set<Material> toMaterials(Set<MaterialConfig> materialConfigs) {
-        HashSet<Material> materials = new HashSet<>();
-        for (MaterialConfig materialConfig : materialConfigs) {
-            materials.add(toMaterial(materialConfig));
-        }
-        return materials;
+        return materialConfigs.stream().map(this::toMaterial).collect(Collectors.toSet());
     }
 }

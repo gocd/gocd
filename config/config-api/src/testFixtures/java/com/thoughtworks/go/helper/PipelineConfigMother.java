@@ -110,9 +110,9 @@ public class PipelineConfigMother {
 
     public static PipelineConfig pipelineWithElasticJob(String... elasticProfileIds) {
         PipelineConfig pipelineConfig = pipelineConfig(UUID.randomUUID().toString());
-        pipelineConfig.getFirstOrNull().getJobs().clear();
+        pipelineConfig.getFirst().getJobs().clear();
         for (String elasticProfileId : elasticProfileIds) {
-            pipelineConfig.getFirstOrNull().getJobs().add(JobConfigMother.elasticJob(elasticProfileId));
+            pipelineConfig.getFirst().getJobs().add(JobConfigMother.elasticJob(elasticProfileId));
         }
         return pipelineConfig;
     }
@@ -187,7 +187,7 @@ public class PipelineConfigMother {
         materialConfig.setName(new CaseInsensitiveString(String.format("%s-%s", pipelineName, materialConfig.getType())));
         materialConfig.setAutoUpdate(false);
         pipelineConfig.materialConfigs().add(materialConfig);
-        pipelineConfig.getFirstOrNull().setApproval(Approval.manualApproval());
+        pipelineConfig.getFirst().setApproval(Approval.manualApproval());
         return pipelineConfig;
     }
 }

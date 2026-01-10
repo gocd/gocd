@@ -153,7 +153,7 @@ public class BuildAssignment implements Serializable, SecretParamAware {
 
     @Override
     public int hashCode() {
-        int result = (fetchMaterials ? 1 : 0);
+        int result = fetchMaterials ? 1 : 0;
         result = 31 * result + (cleanWorkingDirectory ? 1 : 0);
         result = 31 * result + (builders != null ? builders.hashCode() : 0);
         result = 31 * result + (artifactPlans != null ? artifactPlans.hashCode() : 0);

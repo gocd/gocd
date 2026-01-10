@@ -39,7 +39,7 @@ public class InstanceFactory {
         EnvironmentVariables variables = EnvironmentVariables.toEnvironmentVariables(pipelineConfig.getVariables());
         variables.overrideWith(buildCause.getVariables());
 
-        return new Pipeline(CaseInsensitiveString.str(pipelineConfig.name()), pipelineConfig.getLabelTemplate(), buildCause, variables, createStageInstance(pipelineConfig.getFirstOrNull(), context, md5, clock));
+        return new Pipeline(CaseInsensitiveString.str(pipelineConfig.name()), pipelineConfig.getLabelTemplate(), buildCause, variables, createStageInstance(pipelineConfig.getFirst(), context, md5, clock));
     }
 
     public Stage createStageInstance(PipelineConfig pipelineConfig, CaseInsensitiveString stageName, SchedulingContext context, String md5, Clock clock) {
@@ -86,8 +86,7 @@ public class InstanceFactory {
     private void createRerunJobs(Stage newStage, List<String> jobNames, SchedulingContext context, StageConfig stageConfig, Clock clock) {
         for (String jobName : jobNames) {
             JobInstances jobInstances = newStage.getJobInstances();
-            JobInstance oldJob = jobInstances.getByName(jobName);
-            jobInstances.remove(oldJob);
+            JobInstance oldJob = jobInstances.removeByName(jobName);
             createJobType(oldJob.isRunOnAllAgents(), oldJob.isRunMultipleInstance()).createRerunInstances(oldJob, jobInstances, context, stageConfig, clock, this);
         }
     }

@@ -39,6 +39,7 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.*;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 
@@ -53,7 +54,6 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Understands the configuration for cruise
@@ -609,16 +609,10 @@ public class BasicCruiseConfig implements CruiseConfig {
         if (pipelineNameToConfigMap == null) {
             pipelineNameToConfigMap = new PipelineNameToConfigMap();
         }
-        if (pipelineNameToConfigMap.containsKey(name)) {
-            return pipelineNameToConfigMap.get(name);
-        }
-        PipelineConfig pipelineConfig = getPipelineConfigByName(name);
-        if (pipelineConfig == null) {
-            throw new RecordNotFoundException(Pipeline, name);
-        }
-        pipelineNameToConfigMap.putIfAbsent(pipelineConfig.name(), pipelineConfig);
 
-        return pipelineConfig;
+        return pipelineNameToConfigMap.computeIfAbsent(name, n -> Objects.requireNonNullElseGet(getPipelineConfigByName(n), () -> {
+            throw new RecordNotFoundException(Pipeline, n);
+        }));
     }
 
     @Override
@@ -647,7 +641,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         if (pipelineConfig == null) {
             return false;
         }
-        return pipelineConfig.nextStage(lastStageName) != null;
+        return pipelineConfig.nextStageAfter(lastStageName) != null;
     }
 
     @Override
@@ -656,30 +650,28 @@ public class BasicCruiseConfig implements CruiseConfig {
         if (pipelineConfig == null) {
             return false;
         }
-        return pipelineConfig.previousStage(stageName) != null;
+        return pipelineConfig.previousStageBefore(stageName) != null;
     }
 
     @Override
     public StageConfig nextStage(final CaseInsensitiveString pipelineName, final CaseInsensitiveString lastStageName) {
-        StageConfig stageConfig = pipelineConfigByName(pipelineName).nextStage(lastStageName);
+        StageConfig stageConfig = pipelineConfigByName(pipelineName).nextStageAfter(lastStageName);
         bombIfNull(stageConfig, () -> "Build stage after '" + lastStageName + "' not found.");
         return stageConfig;
     }
 
     @Override
     public StageConfig previousStage(final CaseInsensitiveString pipelineName, final CaseInsensitiveString lastStageName) {
-        StageConfig stageConfig = pipelineConfigByName(pipelineName).previousStage(lastStageName);
+        StageConfig stageConfig = pipelineConfigByName(pipelineName).previousStageBefore(lastStageName);
         bombIfNull(stageConfig, () -> "Build stage after '" + lastStageName + "' not found.");
         return stageConfig;
     }
 
     @Override
     public JobConfig jobConfigByName(String pipelineName, String stageName, String jobInstanceName, boolean ignoreCase) {
-        JobConfig jobConfig = stageConfigByName(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName)).jobConfigByInstanceName(jobInstanceName,
-                ignoreCase);
-        bombIfNull(jobConfig,
-                String.format("Job [%s] is not found in pipeline [%s] stage [%s].", jobInstanceName,
-                        pipelineName, stageName));
+        JobConfig jobConfig = stageConfigByName(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName))
+            .jobConfigByInstanceName(jobInstanceName, ignoreCase);
+        bombIfNull(jobConfig, String.format("Job [%s] is not found in pipeline [%s] stage [%s].", jobInstanceName, pipelineName, stageName));
         return jobConfig;
     }
 
@@ -716,7 +708,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public PipelineConfigs pipelines(String groupName) {
+    public @NotNull PipelineConfigs pipelines(String groupName) {
         PipelineGroups pipelineGroups = this.getGroups();
         for (PipelineConfigs pipelineGroup : pipelineGroups) {
             if (pipelineGroup.isNamed(groupName)) {
@@ -798,21 +790,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public void accept(TaskConfigVisitor visitor) {
-        for (PipelineConfig pipelineConfig : pipelinesFromAllGroups()) {
-            for (StageConfig stageConfig : pipelineConfig) {
-                for (JobConfig jobConfig : stageConfig.allBuildPlans()) {
-                    for (Task task : jobConfig.tasks()) {
-                        if (!(task instanceof NullTask)) {
-                            visitor.visit(pipelineConfig, stageConfig, jobConfig, task);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
     public void accept(final PipelineConfigVisitor visitor) {
         accept((PipelineGroupVisitor) group -> group.accept(visitor));
     }
@@ -856,11 +833,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public void setSecretConfigs(SecretConfigs secretConfigs) {
-        this.secretConfigs = secretConfigs;
-    }
-
-    @Override
     public SecretConfigs getSecretConfigs() {
         return secretConfigs;
     }
@@ -881,39 +853,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public boolean exist(int pipelineIndex) {
-        return pipelineIndex < pipelinesFromAllGroups().size();
-    }
-
-    @Override
-    public boolean hasPipeline() {
-        return pipelinesFromAllGroups().isEmpty();
-    }
-
-    @Override
-    public PipelineConfig find(String groupName, int pipelineIndex) {
-        return groups.findPipeline(groupName, pipelineIndex);
-    }
-
-    @TestOnly
-    @Override
-    public int numberOfPipelines() {
-        return pipelinesFromAllGroups().size();
-    }
-
-    @Override
-    public int numbersOfPipeline(String groupName) {
-        return pipelines(groupName).size();
-    }
-
-    @Override
-    public void groups(List<String> allGroup) {
-        for (PipelineConfigs group : groups) {
-            group.add(allGroup);
-        }
-    }
-
-    @Override
     public boolean exist(String groupName, String pipelineName) {
         PipelineConfigs configs = groups.findGroup(groupName);
         PipelineConfig pipelineConfig = configs.findBy(new CaseInsensitiveString(pipelineName));
@@ -929,19 +868,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     public boolean isSmtpEnabled() {
         MailHost mailHost = server().mailHost();
         return mailHost != null && !mailHost.equals(new MailHost(new GoCipher()));
-    }
-
-    @Override
-    public boolean isInFirstGroup(final CaseInsensitiveString pipelineName) {
-        if (groups.isEmpty()) {
-            throw new IllegalStateException("No pipeline group defined yet!");
-        }
-        return groups.getFirstOrNull().hasPipeline(pipelineName);
-    }
-
-    @Override
-    public boolean hasMultiplePipelineGroups() {
-        return groups.size() > 1;
     }
 
     @Override
@@ -974,7 +900,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public PipelineConfigs findGroup(String groupName) {
+    public @NotNull PipelineConfigs findGroup(String groupName) {
         return groups.findGroup(groupName);
     }
 
@@ -1021,13 +947,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         return server().security().isAdmin(admin);
     }
 
-    // For tests
-
-    @Override
-    public void setEnvironments(EnvironmentsConfig environments) {
-        this.environments = environments;
-    }
-
+    @TestOnly
     @Override
     public Set<MaterialConfig> getAllUniqueMaterialsBelongingToAutoPipelines() {
         return getUniqueMaterials(true, true);
@@ -1091,23 +1011,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public Set<StageConfig> getStagesUsedAsMaterials(PipelineConfig pipelineConfig) {
-        Set<String> stagesUsedAsMaterials = new HashSet<>();
-        for (MaterialConfig materialConfig : getAllUniqueMaterials()) {
-            if (materialConfig instanceof DependencyMaterialConfig dep) {
-                stagesUsedAsMaterials.add(dep.getPipelineName() + "|" + dep.getStageName());
-            }
-        }
-        Set<StageConfig> stages = new HashSet<>();
-        for (StageConfig stage : pipelineConfig) {
-            if (stagesUsedAsMaterials.contains(pipelineConfig.name() + "|" + stage.name())) {
-                stages.add(stage);
-            }
-        }
-        return stages;
-    }
-
-    @Override
     public EnvironmentConfig addEnvironment(String environmentName) {
         BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         this.addEnvironment(environmentConfig);
@@ -1115,22 +1018,19 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public void addEnvironment(BasicEnvironmentConfig config) {
+    public void addEnvironment(EnvironmentConfig config) {
         environments.add(config);
     }
 
     @Override
-    public Boolean isPipelineLockable(String pipelineName) {
+    public boolean isPipelineLockable(String pipelineName) {
         PipelineConfig pipelineConfig = pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        if (pipelineConfig.hasExplicitLock()) {
-            return pipelineConfig.explicitLock();
-        }
-        return false;
+        return pipelineConfig.isLockable();
     }
 
     @Override
     public boolean isPipelineUnlockableWhenFinished(String pipelineName) {
-        return pipelineConfigByName(new CaseInsensitiveString(pipelineName)).isPipelineUnlockableWhenFinished();
+        return pipelineConfigByName(new CaseInsensitiveString(pipelineName)).isUnlockableWhenFinished();
     }
 
     @Override
@@ -1167,17 +1067,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public Iterable<PipelineConfig> getDownstreamPipelines(String pipelineName) {
-        List<PipelineConfig> configs = new ArrayList<>();
-        for (PipelineConfig pipelineConfig : pipelinesFromAllGroups()) {
-            if (pipelineConfig.dependsOn(new CaseInsensitiveString(pipelineName))) {
-                configs.add(pipelineConfig);
-            }
-        }
-        return configs;
-    }
-
-    @Override
     public boolean hasVariableInScope(String pipelineName, String variableName) {
         EnvironmentConfig environmentConfig = environments.findEnvironmentForPipeline(new CaseInsensitiveString(pipelineName));
         if (environmentConfig != null) {
@@ -1211,15 +1100,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public List<ConfigErrors> getAllErrors() {
         return ErrorCollector.getAllErrors(this);
-    }
-
-    @Override
-    public List<ConfigErrors> getAllErrorsExceptFor(Validatable skipValidatable) {
-        List<ConfigErrors> all = getAllErrors();
-        if (skipValidatable != null) {
-            all.removeAll(ErrorCollector.getAllErrors(skipValidatable));
-        }
-        return all;
     }
 
     @Override
@@ -1303,25 +1183,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public boolean isArtifactCleanupProhibited(String pipelineName, String stageName) {
-        if (!hasStageConfigNamed(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName), true)) {
-            return false;
-        }
-        StageConfig stageConfig = stageConfigByName(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
-        return stageConfig.isArtifactCleanupProhibited();
-    }
-
-    @Override
-    public MaterialConfig materialConfigFor(String fingerprint) {
-        for (MaterialConfig materialConfig : getUniqueMaterialConfigs()) {
-            if (materialConfig.getFingerprint().equals(fingerprint)) {
-                return materialConfig;
-            }
-        }
-        return null;
-    }
-
-    @Override
     public MaterialConfig materialConfigFor(CaseInsensitiveString pipelineName, String fingerprint) {
         PipelineConfig pipelineConfig = pipelineConfigByName(pipelineName);
         MaterialConfigs materialConfigs = pipelineConfig.materialConfigs();
@@ -1339,35 +1200,14 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public void removePackageRepository(String id) {
-        packageRepositories.removePackageRepository(id);
-    }
-
-    @Override
     public PackageRepositories getPackageRepositories() {
         return packageRepositories;
     }
 
     @Override
-    public void savePackageRepository(final PackageRepository packageRepository) {
-        packageRepository.clearEmptyConfigurations();
-        if (isBlank(packageRepository.getRepoId())) {
-            packageRepository.setId(UUID.randomUUID().toString());
-        }
-        PackageRepository existingPackageRepository = packageRepositories.find(packageRepository.getRepoId());
-        if (existingPackageRepository == null) {
-            packageRepositories.add(packageRepository);
-        } else {
-            existingPackageRepository.setName(packageRepository.getName());
-            existingPackageRepository.setPluginConfiguration(packageRepository.getPluginConfiguration());
-            existingPackageRepository.setConfiguration(packageRepository.getConfiguration());
-        }
-    }
-
-    @Override
     public void savePackageDefinition(PackageDefinition packageDefinition) {
         packageDefinition.clearEmptyConfigurations();
-        PackageRepository packageRepository = packageRepositories.find(packageDefinition.getRepository().getId());
+        PackageRepository packageRepository = packageRepositories.findByRepoIdOrBomb(packageDefinition.getRepository().getId());
         packageDefinition.setId(UUID.randomUUID().toString());
         packageRepository.addPackage(packageDefinition);
     }
@@ -1520,7 +1360,6 @@ public class BasicCruiseConfig implements CruiseConfig {
             Objects.equals(groups, that.groups) &&
             Objects.equals(templatesConfig, that.templatesConfig) &&
             Objects.equals(environments, that.environments);
-
     }
 
     @Override

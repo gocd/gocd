@@ -364,7 +364,7 @@ public class GitCommand extends SCMCommand {
         CommandLine gitCommand = gitWd().withArgs(args);
         try {
             ConsoleResult consoleResult = runOrBomb(gitCommand);
-            return (consoleResult.outputAsString()).contains(remoteBranch());
+            return consoleResult.outputAsString().contains(remoteBranch());
         } catch (CommandLineException e) {
             return false;
         }

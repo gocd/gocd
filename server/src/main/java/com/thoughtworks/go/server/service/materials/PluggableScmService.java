@@ -117,7 +117,7 @@ public class PluggableScmService {
     public SCM findPluggableScmMaterial(String materialName) {
         return listAllScms()
                 .stream()
-                .filter((scm) -> materialName.equals(scm.getName()))
+                .filter(scm -> materialName.equals(scm.getName()))
                 .findFirst()
                 .orElse(null);
     }

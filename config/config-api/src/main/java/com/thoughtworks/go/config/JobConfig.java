@@ -352,7 +352,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         if (isBlank(CaseInsensitiveString.str(jobName))) {
             errors.add(NAME, "Name is a required field");
         } else {
-            if ((CaseInsensitiveString.str(jobName).length() > 255 || XmlUtils.doesNotMatchUsingXsdRegex(JOB_NAME_PATTERN_REGEX, CaseInsensitiveString.str(jobName)))) {
+            if (CaseInsensitiveString.str(jobName).length() > 255 || XmlUtils.doesNotMatchUsingXsdRegex(JOB_NAME_PATTERN_REGEX, CaseInsensitiveString.str(jobName))) {
                 String message = String.format("Invalid job name '%s'. This must be alphanumeric and may contain underscores and periods. The maximum allowed length is %d characters.", jobName,
                     NameTypeValidator.MAX_LENGTH);
                 errors.add(NAME, message);

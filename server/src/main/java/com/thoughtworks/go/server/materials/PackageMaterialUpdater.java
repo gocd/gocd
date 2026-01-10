@@ -34,7 +34,7 @@ public class PackageMaterialUpdater implements MaterialUpdater {
 
 
     @Autowired
-    public PackageMaterialUpdater(MaterialRepository materialRepository, ScmMaterialUpdater scmMaterialUpdater, TransactionTemplate transactionTemplate) {
+    PackageMaterialUpdater(MaterialRepository materialRepository, ScmMaterialUpdater scmMaterialUpdater, TransactionTemplate transactionTemplate) {
         this.materialRepository = materialRepository;
         this.scmMaterialUpdater = scmMaterialUpdater;
         this.transactionTemplate = transactionTemplate;

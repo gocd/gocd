@@ -137,7 +137,7 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
         buildAssignmentService.onTimer();
 
         Stage stage = pipeline.getFirstStage();
-        JobInstance jobInstance = stage.getJobInstances().get(0);
+        JobInstance jobInstance = stage.getJobInstances().getFirst();
         jobInstance.setAgentUuid(agent.getUuid());
         jobInstance.changeState(JobState.Building);
         pipelineDao.saveWithStages(pipeline);
@@ -153,11 +153,11 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
     }
 
     private JobInstance buildOf(Pipeline pipeline) {
-        return stageOf(pipeline).getJobInstances().getFirstOrNull();
+        return stageOf(pipeline).getJobInstances().getFirst();
     }
 
     private Stage stageOf(Pipeline pipeline) {
-        Stage stage = pipeline.getStages().getFirstOrNull();
+        Stage stage = pipeline.getStages().getFirst();
         for (JobInstance jobInstance : stage.getJobInstances()) {
             jobInstance.setIdentifier(new JobIdentifier(pipeline.getName(), -1, pipeline.getLabel(), stage.getName(),
                     String.valueOf(stage.getCounter()), jobInstance.getName()));

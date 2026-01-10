@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -88,26 +87,6 @@ public class SecurityConfigTest {
         assertUserRoles(securityConfig, "chris", SecurityConfigMother.DEFAULT_ROLES);
         assertUserRoles(securityConfig, "jez", SecurityConfigMother.DEFAULT_ROLES[0]);
         assertUserRoles(securityConfig, "loser");
-    }
-
-    @Test
-    public void shouldReturnTrueIfDeletingARoleGoesThroughSuccessfully() {
-        SecurityConfig securityConfig = SecurityConfigMother.security(SecurityConfigMother.passwordFileAuthConfig(), SecurityConfigMother.admins());
-        securityConfig.deleteRole(SecurityConfigMother.ROLE1);
-
-        assertUserRoles(securityConfig, "chris", SecurityConfigMother.ROLE2);
-        assertUserRoles(securityConfig, "jez");
-    }
-
-    @Test
-    public void shouldBombIfDeletingARoleWhichDoesNotExist() {
-        try {
-            SecurityConfig securityConfig = SecurityConfigMother.security(SecurityConfigMother.passwordFileAuthConfig(), SecurityConfigMother.admins());
-            securityConfig.deleteRole(new RoleConfig(new CaseInsensitiveString("role99")));
-            fail("Should have blown up with an exception on the previous line as deleting role99 should blow up");
-        } catch (RuntimeException e) {
-            assertTrue(Pattern.compile("does not exist").matcher(e.getMessage()).find());
-        }
     }
 
     private void assertUserRoles(SecurityConfig securityConfig, String username, Role... roles) {

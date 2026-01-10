@@ -61,7 +61,7 @@ public class PipelinePauseInfo implements Serializable {
     }
 
     public String getPauseCause() {
-        return (pauseCause == null) ? "" : pauseCause;
+        return pauseCause == null ? "" : pauseCause;
     }
 
     public void setPauseCause(String pauseCause) {
@@ -69,7 +69,7 @@ public class PipelinePauseInfo implements Serializable {
     }
 
     public String getPauseBy() {
-        return (pauseBy == null) ? "" : pauseBy;
+        return pauseBy == null ? "" : pauseBy;
     }
 
     public void setPauseBy(String pauseBy) {
@@ -113,7 +113,7 @@ public class PipelinePauseInfo implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = (paused ? 1 : 0);
+        int result = paused ? 1 : 0;
         result = 31 * result + (pauseCause != null ? pauseCause.hashCode() : 0);
         result = 31 * result + (pauseBy != null ? pauseBy.hashCode() : 0);
         result = 31 * result + (pausedAt != null ? pausedAt.hashCode() : 0);

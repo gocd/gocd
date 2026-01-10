@@ -72,7 +72,7 @@ public class PipelineTemplateConfigTest {
                 Map.of(Authorization.NAME, "geezer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))))));
         Authorization authorization = templateConfig.getAuthorization();
 
-        assertThat(authorization.getAdminsConfig().size()).isEqualTo((3));
+        assertThat(authorization.getAdminsConfig().size()).isEqualTo(3);
         assertThat(authorization.getAdminsConfig()).contains(new AdminUser(new CaseInsensitiveString("loser")));
         assertThat(authorization.getAdminsConfig()).contains(new AdminUser(new CaseInsensitiveString("boozer")));
         assertThat(authorization.getAdminsConfig()).contains(new AdminUser(new CaseInsensitiveString("geezer")));
@@ -90,7 +90,7 @@ public class PipelineTemplateConfigTest {
                 Map.of(Authorization.NAME, "geezer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))))));
         Authorization authorization = templateConfig.getAuthorization();
 
-        assertThat(authorization.getAdminsConfig().size()).isEqualTo((3));
+        assertThat(authorization.getAdminsConfig().size()).isEqualTo(3);
 
         templateConfig.setConfigAttributes(Map.of());
 
@@ -107,7 +107,7 @@ public class PipelineTemplateConfigTest {
                 Map.of(Authorization.NAME, "geezer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))))));
         Authorization authorization = templateConfig.getAuthorization();
 
-        assertThat(authorization.getAdminsConfig().size()).isEqualTo((1));
+        assertThat(authorization.getAdminsConfig().size()).isEqualTo(1);
         assertThat(authorization.getAdminsConfig()).contains(new AdminUser(new CaseInsensitiveString("geezer")));
     }
 
@@ -126,10 +126,10 @@ public class PipelineTemplateConfigTest {
         PipelineTemplateConfig pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.manualStage("stage1"),
                 StageConfigMother.manualStage("stage1"));
         pipelineTemplateConfig.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
-        assertThat(pipelineTemplateConfig.get(0).errors().isEmpty()).isFalse();
-        assertThat(pipelineTemplateConfig.get(1).errors().isEmpty()).isFalse();
-        assertThat(pipelineTemplateConfig.get(0).errors().firstErrorOn(StageConfig.NAME)).isEqualTo("You have defined multiple stages called 'stage1'. Stage names are case-insensitive and must be unique.");
-        assertThat(pipelineTemplateConfig.get(1).errors().firstErrorOn(StageConfig.NAME)).isEqualTo("You have defined multiple stages called 'stage1'. Stage names are case-insensitive and must be unique.");
+        assertThat(pipelineTemplateConfig.getFirst().errors().isEmpty()).isFalse();
+        assertThat(pipelineTemplateConfig.getLast().errors().isEmpty()).isFalse();
+        assertThat(pipelineTemplateConfig.getFirst().errors().firstErrorOn(StageConfig.NAME)).isEqualTo("You have defined multiple stages called 'stage1'. Stage names are case-insensitive and must be unique.");
+        assertThat(pipelineTemplateConfig.getLast().errors().firstErrorOn(StageConfig.NAME)).isEqualTo("You have defined multiple stages called 'stage1'. Stage names are case-insensitive and must be unique.");
     }
 
     @Test
@@ -144,7 +144,7 @@ public class PipelineTemplateConfigTest {
 
         template.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
 
-        assertThat(template.getAllErrors().get(0).getAllOn("name")).isEqualTo(List.of("Role \"non-existent-role\" does not exist."));
+        assertThat(template.getAllErrors().getFirst().getAllOn("name")).isEqualTo(List.of("Role \"non-existent-role\" does not exist."));
     }
 
     @Test
@@ -159,7 +159,7 @@ public class PipelineTemplateConfigTest {
 
         template.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
 
-        assertThat(template.getAllErrors().get(0).getAllOn("name")).isEqualTo(List.of("Role \"non-existent-role\" does not exist."));
+        assertThat(template.getAllErrors().getFirst().getAllOn("name")).isEqualTo(List.of("Role \"non-existent-role\" does not exist."));
     }
 
     @Test
@@ -341,7 +341,7 @@ public class PipelineTemplateConfigTest {
         PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.addTemplate(template);
-        template.getStages().get(0).setName(new CaseInsensitiveString("updatedStageName"));
+        template.getStages().getFirst().setName(new CaseInsensitiveString("updatedStageName"));
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
@@ -353,7 +353,7 @@ public class PipelineTemplateConfigTest {
         PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job2"));
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.addTemplate(template);
-        template.getStages().get(0).getJobs().get(0).setName(new CaseInsensitiveString("updatedJobName"));
+        template.getStages().getFirst().getJobs().getFirst().setName(new CaseInsensitiveString("updatedJobName"));
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 

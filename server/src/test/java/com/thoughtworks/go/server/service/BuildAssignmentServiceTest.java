@@ -25,7 +25,6 @@ import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
-import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.*;
@@ -129,7 +128,7 @@ class BuildAssignmentServiceTest {
     @Test
     void shouldMatchAnElasticJobToAnElasticAgentOnlyIfThePluginAgreesToTheAssignment() {
         PipelineConfig pipelineWithElasticJob = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1);
-        JobPlan jobPlan = new InstanceFactory().createJobPlan(pipelineWithElasticJob.getFirstOrNull().getJobs().getFirstOrNull(), schedulingContext);
+        JobPlan jobPlan = new InstanceFactory().createJobPlan(pipelineWithElasticJob.getFirst().getJobs().getFirst(), schedulingContext);
         jobPlans.add(jobPlan);
         when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), null, jobPlan.getElasticProfile(), jobPlan.getClusterProfile(), jobPlan.getIdentifier())).thenReturn(true);
         buildAssignmentService.onTimer();
@@ -142,7 +141,7 @@ class BuildAssignmentServiceTest {
     @Test
     void shouldNotMatchAnElasticJobToAnElasticAgentOnlyIfThePluginIdMatches() {
         PipelineConfig pipelineWithElasticJob = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1);
-        JobPlan jobPlan1 = new InstanceFactory().createJobPlan(pipelineWithElasticJob.getFirstOrNull().getJobs().getFirstOrNull(), schedulingContext);
+        JobPlan jobPlan1 = new InstanceFactory().createJobPlan(pipelineWithElasticJob.getFirst().getJobs().getFirst(), schedulingContext);
         jobPlans.add(jobPlan1);
         lenient().when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), null, jobPlan1.getElasticProfile(), jobPlan1.getClusterProfile(), null)).thenReturn(false);
         buildAssignmentService.onTimer();
@@ -155,8 +154,8 @@ class BuildAssignmentServiceTest {
     @Test
     void shouldMatchAnElasticJobToAnElasticAgentOnlyIfThePluginAgreesToTheAssignmentWhenMultipleElasticJobsRequiringTheSamePluginAreScheduled() {
         PipelineConfig pipelineWith2ElasticJobs = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1, elasticProfileId2);
-        JobPlan jobPlan1 = new InstanceFactory().createJobPlan(pipelineWith2ElasticJobs.getFirstOrNull().getJobs().getFirstOrNull(), schedulingContext);
-        JobPlan jobPlan2 = new InstanceFactory().createJobPlan(pipelineWith2ElasticJobs.getFirstOrNull().getJobs().getLastOrNull(), schedulingContext);
+        JobPlan jobPlan1 = new InstanceFactory().createJobPlan(pipelineWith2ElasticJobs.getFirst().getJobs().getFirst(), schedulingContext);
+        JobPlan jobPlan2 = new InstanceFactory().createJobPlan(pipelineWith2ElasticJobs.getFirst().getJobs().getLast(), schedulingContext);
         jobPlans.add(jobPlan1);
         jobPlans.add(jobPlan2);
         when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), null, jobPlan1.getElasticProfile(), jobPlan1.getClusterProfile(), jobPlan1.getIdentifier())).thenReturn(false);
@@ -171,10 +170,10 @@ class BuildAssignmentServiceTest {
     @Test
     void shouldMatchNonElasticJobToNonElasticAgentIfResourcesMatch() {
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
-        pipeline.getFirstOrNull().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
-        pipeline.getFirstOrNull().getJobs().add(JobConfigMother.elasticJob(elasticProfileId1));
-        JobPlan elasticJobPlan = new InstanceFactory().createJobPlan(pipeline.getFirstOrNull().getJobs().getLastOrNull(), schedulingContext);
-        JobPlan regularJobPlan = new InstanceFactory().createJobPlan(pipeline.getFirstOrNull().getJobs().getFirstOrNull(), schedulingContext);
+        pipeline.getFirst().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+        pipeline.getFirst().getJobs().add(JobConfigMother.elasticJob(elasticProfileId1));
+        JobPlan elasticJobPlan = new InstanceFactory().createJobPlan(pipeline.getFirst().getJobs().getLast(), schedulingContext);
+        JobPlan regularJobPlan = new InstanceFactory().createJobPlan(pipeline.getFirst().getJobs().getFirst(), schedulingContext);
         jobPlans.add(elasticJobPlan);
         jobPlans.add(regularJobPlan);
         buildAssignmentService.onTimer();
@@ -189,10 +188,10 @@ class BuildAssignmentServiceTest {
     void shouldNotMatchJobsDuringMaintenanceMode() {
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
-        pipeline.getFirstOrNull().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
-        pipeline.getFirstOrNull().getJobs().add(JobConfigMother.elasticJob(elasticProfileId1));
-        JobPlan elasticJobPlan = new InstanceFactory().createJobPlan(pipeline.getFirstOrNull().getJobs().getLastOrNull(), schedulingContext);
-        JobPlan regularJobPlan = new InstanceFactory().createJobPlan(pipeline.getFirstOrNull().getJobs().getFirstOrNull(), schedulingContext);
+        pipeline.getFirst().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+        pipeline.getFirst().getJobs().add(JobConfigMother.elasticJob(elasticProfileId1));
+        JobPlan elasticJobPlan = new InstanceFactory().createJobPlan(pipeline.getFirst().getJobs().getLast(), schedulingContext);
+        JobPlan regularJobPlan = new InstanceFactory().createJobPlan(pipeline.getFirst().getJobs().getFirst(), schedulingContext);
         jobPlans.add(elasticJobPlan);
         jobPlans.add(regularJobPlan);
         buildAssignmentService.onTimer();
@@ -209,15 +208,15 @@ class BuildAssignmentServiceTest {
         second.getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
 
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
-        pipeline.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+        pipeline.getFirst().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
         pipeline.add(second);
 
         PipelineConfig irrelevantPipeline = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
-        irrelevantPipeline.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+        irrelevantPipeline.getFirst().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
 
-        JobPlan jobPlan1 = getJobPlan(pipeline.getName(), pipeline.get(0).name(), pipeline.get(0).getJobs().getLastOrNull());
-        JobPlan jobPlan2 = getJobPlan(pipeline.getName(), pipeline.get(1).name(), pipeline.get(1).getJobs().getFirstOrNull());
-        JobPlan jobPlan3 = getJobPlan(irrelevantPipeline.getName(), irrelevantPipeline.get(0).name(), irrelevantPipeline.get(0).getJobs().getFirstOrNull());
+        JobPlan jobPlan1 = getJobPlan(pipeline.getName(), pipeline.getFirst().name(), pipeline.getFirst().getJobs().getLast());
+        JobPlan jobPlan2 = getJobPlan(pipeline.getName(), pipeline.getLast().name(), pipeline.getLast().getJobs().getFirst());
+        JobPlan jobPlan3 = getJobPlan(irrelevantPipeline.getName(), irrelevantPipeline.getFirst().name(), irrelevantPipeline.getFirst().getJobs().getFirst());
 
         //need to get hold of original jobPlans in the tests
         jobPlans = buildAssignmentService.jobPlans();
@@ -235,8 +234,8 @@ class BuildAssignmentServiceTest {
         buildAssignmentService.pipelineConfigChangedListener().onEntityConfigChange(pipeline);
 
         assertThat(jobPlans.size()).isEqualTo(2);
-        assertThat(jobPlans.get(0)).isEqualTo(jobPlan1);
-        assertThat(jobPlans.get(1)).isEqualTo(jobPlan3);
+        assertThat(jobPlans.getFirst()).isEqualTo(jobPlan1);
+        assertThat(jobPlans.getLast()).isEqualTo(jobPlan3);
     }
 
     @Test
@@ -245,15 +244,15 @@ class BuildAssignmentServiceTest {
         second.getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
 
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
-        pipeline.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+        pipeline.getFirst().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
         pipeline.add(second);
 
         PipelineConfig irrelevantPipeline = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
-        irrelevantPipeline.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+        irrelevantPipeline.getFirst().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
 
-        JobPlan jobPlan1 = getJobPlan(pipeline.getName(), pipeline.get(0).name(), pipeline.get(0).getJobs().getLastOrNull());
-        JobPlan jobPlan2 = getJobPlan(pipeline.getName(), pipeline.get(1).name(), pipeline.get(1).getJobs().getFirstOrNull());
-        JobPlan jobPlan3 = getJobPlan(irrelevantPipeline.getName(), irrelevantPipeline.get(0).name(), irrelevantPipeline.get(0).getJobs().getFirstOrNull());
+        JobPlan jobPlan1 = getJobPlan(pipeline.getName(), pipeline.getFirst().name(), pipeline.getFirst().getJobs().getLast());
+        JobPlan jobPlan2 = getJobPlan(pipeline.getName(), pipeline.getLast().name(), pipeline.getLast().getJobs().getFirst());
+        JobPlan jobPlan3 = getJobPlan(irrelevantPipeline.getName(), irrelevantPipeline.getFirst().name(), irrelevantPipeline.getFirst().getJobs().getFirst());
 
         //need to get hold of original jobPlans in the tests
         jobPlans = buildAssignmentService.jobPlans();
@@ -266,7 +265,7 @@ class BuildAssignmentServiceTest {
         buildAssignmentService.pipelineConfigChangedListener().onEntityConfigChange(pipeline);
 
         assertThat(jobPlans.size()).isEqualTo(1);
-        assertThat(jobPlans.get(0)).isEqualTo(jobPlan3);
+        assertThat(jobPlans.getFirst()).isEqualTo(jobPlan3);
     }
 
     @Nested
@@ -278,14 +277,14 @@ class BuildAssignmentServiceTest {
             environmentConfig.addEnvironmentVariable("GIT_TOKEN", "{{SECRET:[secret_config_id][GIT_TOKEN]}}");
 
             final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
-            pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+            pipelineConfig.getFirst().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
 
             Agent agent = mock(Agent.class);
             when(agent.getResourcesNormalized()).thenReturn("resource-1");
 
             final AgentInstance agentInstance = mock(AgentInstance.class);
             final Pipeline pipeline = mock(Pipeline.class);
-            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().getLastOrNull());
+            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.getFirst().name(), pipelineConfig.getFirst().getJobs().getLast());
 
             when(agentInstance.isRegistered()).thenReturn(true);
             when(agentInstance.getAgent()).thenReturn(agent);
@@ -320,12 +319,12 @@ class BuildAssignmentServiceTest {
             final MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(gitMaterial, modification));
 
             final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
-            pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+            pipelineConfig.getFirst().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
 
             final AgentInstance agentInstance = mock(AgentInstance.class);
 
             final Pipeline pipeline = mock(Pipeline.class);
-            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().getLastOrNull());
+            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.getFirst().name(), pipelineConfig.getFirst().getJobs().getLast());
 
             when(agentInstance.isRegistered()).thenReturn(true);
             when(agentInstance.getAgent()).thenReturn(mock(Agent.class));
@@ -353,13 +352,13 @@ class BuildAssignmentServiceTest {
         }
 
         @Test
-        void shouldFailJobIfSecretsResolutionFails() throws Exception {
+        void shouldFailJobIfSecretsResolutionFails() {
             final MaterialRevisions materialRevisions = new MaterialRevisions();
             final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
-            pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+            pipelineConfig.getFirst().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
             final AgentInstance agentInstance = mock(AgentInstance.class);
             final Pipeline pipeline = mock(Pipeline.class);
-            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().getLastOrNull());
+            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.getFirst().name(), pipelineConfig.getFirst().getJobs().getLast());
             JobInstance jobInstance = mock(JobInstance.class);
 
             when(agentInstance.isRegistered()).thenReturn(true);
@@ -378,18 +377,18 @@ class BuildAssignmentServiceTest {
                     .isInstanceOf(SecretResolutionFailureException.class);
 
             InOrder inOrder = inOrder(scheduleService, jobStatusTopic, consoleService);
-            inOrder.verify(consoleService, times(2)).appendToConsoleLogSafe(eq(jobPlan1.getIdentifier()), anyString());
+            inOrder.verify(consoleService).appendToConsoleLogSafe(eq(jobPlan1.getIdentifier()), anyString());
             inOrder.verify(scheduleService).failJob(jobInstance);
             inOrder.verify(jobStatusTopic).post(new JobStatusMessage(jobPlan1.getIdentifier(), JobState.Completed, "agent_uuid"));
         }
 
         @Test
-        void shouldFailJobIfEnvironmentVariableInEnvironmentConfigCanNotReferToSecretConfig() throws Exception {
+        void shouldFailJobIfEnvironmentVariableInEnvironmentConfigCanNotReferToSecretConfig() {
             final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
-            pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+            pipelineConfig.getFirst().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
             final AgentInstance agentInstance = mock(AgentInstance.class);
             final Pipeline pipeline = mock(Pipeline.class);
-            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().getLastOrNull());
+            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.getFirst().name(), pipelineConfig.getFirst().getJobs().getLast());
             JobInstance jobInstance = mock(JobInstance.class);
 
             when(jobInstance.getState()).thenReturn(JobState.Completed);
@@ -408,7 +407,7 @@ class BuildAssignmentServiceTest {
                     .isInstanceOf(RulesViolationException.class);
 
             InOrder inOrder = inOrder(scheduleService, jobStatusTopic, consoleService);
-            inOrder.verify(consoleService, times(1)).appendToConsoleLogSafe(eq(jobPlan1.getIdentifier()), anyString());
+            inOrder.verify(consoleService).appendToConsoleLogSafe(eq(jobPlan1.getIdentifier()), anyString());
             inOrder.verify(scheduleService).failJob(jobInstance);
             inOrder.verify(jobStatusTopic).post(new JobStatusMessage(jobPlan1.getIdentifier(), JobState.Completed, "agent_uuid"));
         }
@@ -419,21 +418,21 @@ class BuildAssignmentServiceTest {
             gitMaterial.setUserName("bob");
             gitMaterial.setPassword("{{SECRET:[secret_config_id][GIT_PASSWORD]}}");
             PluggableSCMMaterial pluggableSCMMaterial = pluggableSCMMaterial();
-            pluggableSCMMaterial.getScmConfig().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][SCM_PASSWORD]}}"));
+            pluggableSCMMaterial.getScmConfig().getConfiguration().getFirst().setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][SCM_PASSWORD]}}"));
             PackageMaterial packageMaterial = packageMaterial();
-            packageMaterial.getPackageDefinition().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][PKG_PASSWORD]}}"));
+            packageMaterial.getPackageDefinition().getConfiguration().getFirst().setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][PKG_PASSWORD]}}"));
             final Modification modification = new Modification("user", null, null, null, "rev1");
             final MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(gitMaterial, modification));
             materialRevisions.addRevision(new MaterialRevision(pluggableSCMMaterial, new Modification("user2", null, null, null, "rev")));
             materialRevisions.addRevision(new MaterialRevision(packageMaterial, new Modification("user3", null, null, null, "rev-pkg")));
 
             final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
-            pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+            pipelineConfig.getFirst().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
 
             final AgentInstance agentInstance = mock(AgentInstance.class);
 
             final Pipeline pipeline = mock(Pipeline.class);
-            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().getLastOrNull());
+            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.getFirst().name(), pipelineConfig.getFirst().getJobs().getLast());
 
             when(agentInstance.isRegistered()).thenReturn(true);
             when(agentInstance.getAgent()).thenReturn(mock(Agent.class));
@@ -450,8 +449,8 @@ class BuildAssignmentServiceTest {
             }).when(secretParamResolver).resolve(any(BuildAssignment.class));
             doAnswer(invocation -> {
                 List<Material> materials = invocation.getArgument(0);
-                ((PluggableSCMMaterial) materials.get(0)).getScmConfig().getConfiguration().get(0).getSecretParams().get(0).setValue("some-scm-password");
-                ((PackageMaterial) materials.get(1)).getPackageDefinition().getConfiguration().get(0).getSecretParams().get(0).setValue("some-pkg-password");
+                ((PluggableSCMMaterial) materials.get(0)).getScmConfig().getConfiguration().getFirst().getSecretParams().getFirst().setValue("some-scm-password");
+                ((PackageMaterial) materials.get(1)).getPackageDefinition().getConfiguration().getFirst().getSecretParams().getFirst().setValue("some-pkg-password");
                 return materials;
             }).when(secretParamResolver).resolve(anyList());
 
@@ -467,9 +466,9 @@ class BuildAssignmentServiceTest {
             ScmMaterial material = (ScmMaterial) work.getAssignment().materialRevisions().getMaterialRevision(0).getMaterial();
             assertThat(material.passwordForCommandLine()).isEqualTo("some-password");
             PluggableSCMMaterial material1 = (PluggableSCMMaterial) work.getAssignment().materialRevisions().getMaterialRevision(1).getMaterial();
-            assertThat(material1.getScmConfig().getConfiguration().get(0).getResolvedValue()).isEqualTo("some-scm-password");
+            assertThat(material1.getScmConfig().getConfiguration().getFirst().getResolvedValue()).isEqualTo("some-scm-password");
             PackageMaterial material2 = (PackageMaterial) work.getAssignment().materialRevisions().getMaterialRevision(2).getMaterial();
-            assertThat(material2.getPackageDefinition().getConfiguration().get(0).getResolvedValue()).isEqualTo("some-pkg-password");
+            assertThat(material2.getPackageDefinition().getConfiguration().getFirst().getResolvedValue()).isEqualTo("some-pkg-password");
         }
     }
 
@@ -511,9 +510,9 @@ class BuildAssignmentServiceTest {
     }
 
     @Test
-    void shouldFailTheJobWhenRulesViolationErrorOccursForElasticConfiguration() throws IllegalArtifactLocationException {
+    void shouldFailTheJobWhenRulesViolationErrorOccursForElasticConfiguration() {
         PipelineConfig pipelineWithElasticJob = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1);
-        JobPlan jobPlan = new InstanceFactory().createJobPlan(pipelineWithElasticJob.getFirstOrNull().getJobs().getFirstOrNull(), schedulingContext);
+        JobPlan jobPlan = new InstanceFactory().createJobPlan(pipelineWithElasticJob.getFirst().getJobs().getFirst(), schedulingContext);
         jobPlans.add(jobPlan);
         JobInstance jobInstance = mock(JobInstance.class);
 
@@ -539,9 +538,9 @@ class BuildAssignmentServiceTest {
     }
 
     @Test
-    void shouldFailTheJobWhenSecretResolutionErrorOccursForElasticConfiguration() throws IllegalArtifactLocationException {
+    void shouldFailTheJobWhenSecretResolutionErrorOccursForElasticConfiguration() {
         PipelineConfig pipelineWithElasticJob = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1);
-        JobPlan jobPlan = new InstanceFactory().createJobPlan(pipelineWithElasticJob.getFirstOrNull().getJobs().getFirstOrNull(), schedulingContext);
+        JobPlan jobPlan = new InstanceFactory().createJobPlan(pipelineWithElasticJob.getFirst().getJobs().getFirst(), schedulingContext);
         jobPlans.add(jobPlan);
         JobInstance jobInstance = mock(JobInstance.class);
 

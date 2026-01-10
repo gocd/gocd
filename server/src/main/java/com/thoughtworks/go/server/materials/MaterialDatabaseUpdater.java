@@ -56,16 +56,16 @@ public class MaterialDatabaseUpdater {
 
     private final MaterialRepository materialRepository;
     private final ServerHealthService healthService;
-    private TransactionTemplate transactionTemplate;
+    private final TransactionTemplate transactionTemplate;
     private final DependencyMaterialUpdater dependencyMaterialUpdater;
     private final ScmMaterialUpdater scmMaterialUpdater;
-    private MaterialExpansionService materialExpansionService;
-    private GoConfigService goConfigService;
-    private PackageMaterialUpdater packageMaterialUpdater;
-    private PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater;
+    private final MaterialExpansionService materialExpansionService;
+    private final GoConfigService goConfigService;
+    private final PackageMaterialUpdater packageMaterialUpdater;
+    private final PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater;
 
     @Autowired
-    public MaterialDatabaseUpdater(MaterialRepository materialRepository, ServerHealthService healthService, TransactionTemplate transactionTemplate,
+    MaterialDatabaseUpdater(MaterialRepository materialRepository, ServerHealthService healthService, TransactionTemplate transactionTemplate,
                                    DependencyMaterialUpdater dependencyMaterialUpdater, ScmMaterialUpdater scmMaterialUpdater, PackageMaterialUpdater packageMaterialUpdater,
                                    PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater, MaterialExpansionService materialExpansionService, GoConfigService goConfigService) {
         this.materialRepository = materialRepository;

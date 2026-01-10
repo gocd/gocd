@@ -175,7 +175,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         Pipeline pipeline = new Pipeline("Test", BuildCause.createManualForced(), new Stage("dev", new JobInstances(new JobInstance("unit")), "anonymous", null, "manual", new TimeProvider()));
         savePipeline(pipeline);
         dbHelper.updateNaturalOrder(pipeline.getId(), 2.5);
-        PipelineInstanceModel loaded = pipelineDao.loadHistory("Test").get(0);
+        PipelineInstanceModel loaded = pipelineDao.loadHistory("Test").getFirst();
         PipelineInstanceModel loadedById = pipelineDao.loadHistory(pipeline.getId());
         assertThat(loadedById.getNaturalOrder()).isEqualTo(2.5);
         assertThat(loaded.getNaturalOrder()).isEqualTo(2.5);
@@ -188,10 +188,10 @@ public class PipelineSqlMapDaoIntegrationTest {
         stage.building();
         Pipeline pipeline = new Pipeline("Test", BuildCause.createManualForced(), stage);
         savePipeline(pipeline);
-        PipelineInstanceModel loaded = pipelineDao.loadHistory("Test").get(0);
-        assertThat(loaded.getStageHistory().get(0).getResult()).isEqualTo(StageResult.Unknown);
+        PipelineInstanceModel loaded = pipelineDao.loadHistory("Test").getFirst();
+        assertThat(loaded.getStageHistory().getFirst().getResult()).isEqualTo(StageResult.Unknown);
         PipelineInstanceModel loadedById = pipelineDao.loadHistory(pipeline.getId());
-        assertThat(loadedById.getStageHistory().get(0).getResult()).isEqualTo(StageResult.Unknown);
+        assertThat(loadedById.getStageHistory().getFirst().getResult()).isEqualTo(StageResult.Unknown);
     }
 
     @Test
@@ -200,11 +200,11 @@ public class PipelineSqlMapDaoIntegrationTest {
         stage.building();
         Pipeline pipeline = new Pipeline("Test", BuildCause.createManualForced(), stage);
         savePipeline(pipeline);
-        PipelineInstanceModel loaded = pipelineDao.loadHistory("Test").get(0);
-        StageInstanceModel historicalStage = loaded.getStageHistory().get(0);
+        PipelineInstanceModel loaded = pipelineDao.loadHistory("Test").getFirst();
+        StageInstanceModel historicalStage = loaded.getStageHistory().getFirst();
         assertThat(historicalStage.getIdentifier()).isEqualTo(new StageIdentifier("Test", loaded.getCounter(), loaded.getLabel(), "dev", historicalStage.getCounter()));
         PipelineInstanceModel loadedById = pipelineDao.loadHistory(pipeline.getId());
-        StageInstanceModel historicalStageModelById = loadedById.getStageHistory().get(0);
+        StageInstanceModel historicalStageModelById = loadedById.getStageHistory().getFirst();
         assertThat(historicalStageModelById.getIdentifier()).isEqualTo(new StageIdentifier("Test", loadedById.getCounter(), loadedById.getLabel(), "dev", historicalStage.getCounter()));
     }
 
@@ -277,7 +277,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         Pipeline loaded = pipelineDao.loadPipeline(pipeline.getId());
         Modification loadedModification = loaded.getBuildCause().getMaterialRevisions().getMaterialRevision(
                 0).getModification(0);
-        assertThat(loadedModification.getModifiedFiles().get(0).getFileName().length()).isEqualTo(ModifiedFile.MAX_NAME_LENGTH);
+        assertThat(loadedModification.getModifiedFiles().getFirst().getFileName().length()).isEqualTo(ModifiedFile.MAX_NAME_LENGTH);
     }
 
     @Test
@@ -402,15 +402,15 @@ public class PipelineSqlMapDaoIntegrationTest {
         Stage firstStage = mingle.getFirstStage();
         Pipeline mingle2 = schedulePipelineWithStages(mingleConfig);
 
-        JobInstance instance = firstStage.getJobInstances().getFirstOrNull();
+        JobInstance instance = firstStage.getJobInstances().getFirst();
         jobInstanceDao.ignore(instance);
 
         PipelineInstanceModels pipelineHistories = pipelineDao.loadHistory(mingle.getName(), 10, 0);
         assertThat(pipelineHistories.size()).isEqualTo(2);
-        StageInstanceModels stageHistories = pipelineHistories.getFirstOrNull().getStageHistory();
+        StageInstanceModels stageHistories = pipelineHistories.getFirst().getStageHistory();
         assertThat(stageHistories.size()).isEqualTo(1);
 
-        StageInstanceModel history = stageHistories.getFirstOrNull();
+        StageInstanceModel history = stageHistories.getFirst();
         assertThat(history.getName()).isEqualTo(dev);
         assertThat(history.getApprovalType()).isEqualTo(GoConstants.APPROVAL_SUCCESS);
         assertThat(history.getBuildHistory().size()).isEqualTo(2);
@@ -462,9 +462,9 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         PipelineInstanceModels pipelineHistories = pipelineDao.loadHistory(mingle.getName(), 10, 0);
         assertThat(pipelineHistories.size()).isEqualTo(1);
-        StageInstanceModels stageHistories = pipelineHistories.getFirstOrNull().getStageHistory();
+        StageInstanceModels stageHistories = pipelineHistories.getFirst().getStageHistory();
         assertThat(stageHistories.size()).isEqualTo(1);
-        StageInstanceModel history = stageHistories.getFirstOrNull();
+        StageInstanceModel history = stageHistories.getFirst();
         assertThat(history.getName()).isEqualTo(stageName);
         assertThat(history.getId()).isEqualTo(newInstance.getId());
         assertThat(history.getBuildHistory().size()).isEqualTo(2);
@@ -508,7 +508,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         Pipeline pipelineFromDB = pipelineDao.loadPipeline(pipeline.getId());
         final Materials materials = pipelineFromDB.getMaterials();
 
-        assertThat(materials.get(0)).isEqualTo(svnMaterial);
+        assertThat(materials.getFirst()).isEqualTo(svnMaterial);
     }
 
     @Test
@@ -534,10 +534,10 @@ public class PipelineSqlMapDaoIntegrationTest {
         Pipeline pipelineFromDB = pipelineDao.mostRecentPipeline(pipeline.getName());
 
         List<MaterialRevision> revisionsFromDB = pipelineFromDB.getMaterialRevisions().getRevisions();
-        List<Modification> modificationsFromDB = revisionsFromDB.get(0).getModifications();
+        List<Modification> modificationsFromDB = revisionsFromDB.getFirst().getModifications();
         assertThat(modificationsFromDB.size()).isEqualTo(2);
-        assertThat(modificationsFromDB.get(0).getRevision()).isEqualTo("1");
-        assertThat(modificationsFromDB.get(1).getRevision()).isEqualTo("2");
+        assertThat(modificationsFromDB.getFirst().getRevision()).isEqualTo("1");
+        assertThat(modificationsFromDB.getLast().getRevision()).isEqualTo("2");
     }
 
     @Test
@@ -560,7 +560,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         final Materials materials = pipelineFromDB.getMaterials();
 
-        assertThat(materials.get(0)).isEqualTo(dependencyMaterial);
+        assertThat(materials.getFirst()).isEqualTo(dependencyMaterial);
     }
 
     @Test
@@ -588,7 +588,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         final Materials materials = pipelineFromDB.getMaterials();
 
-        assertThat(materials.get(0)).isEqualTo(dependencyMaterial);
+        assertThat(materials.getFirst()).isEqualTo(dependencyMaterial);
     }
 
     @Test
@@ -668,7 +668,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         savePipeline(pipeline);
         Pipeline pipelineFromDB = pipelineDao.loadPipeline(pipeline.getId());
         Materials materials = pipelineFromDB.getMaterials();
-        GitMaterial gitMaterial = (GitMaterial) materials.get(0);
+        GitMaterial gitMaterial = (GitMaterial) materials.getFirst();
         assertThat(gitMaterial.getUrl()).isEqualTo("gitUrl");
     }
 
@@ -686,7 +686,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         savePipeline(pipeline);
         Pipeline pipelineFromDB = pipelineDao.loadPipeline(pipeline.getId());
         Materials materials = pipelineFromDB.getMaterials();
-        GitMaterial gitMaterial = (GitMaterial) materials.get(0);
+        GitMaterial gitMaterial = (GitMaterial) materials.getFirst();
         assertThat(gitMaterial.getBranch()).isEqualTo("foo");
     }
 
@@ -703,7 +703,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         Pipeline pipelineFromDB = pipelineDao.loadPipeline(pipeline.getId());
 
         Materials materialsFromDB = pipelineFromDB.getMaterials();
-        GitMaterial gitMaterial = (GitMaterial) materialsFromDB.get(0);
+        GitMaterial gitMaterial = (GitMaterial) materialsFromDB.getFirst();
         assertThat(gitMaterial.getSubmoduleFolder()).isEqualTo("submoduleFolder");
     }
 
@@ -711,7 +711,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     public void shouldHaveServerAndPortAndViewAndUseTicketsInP4Materials() {
         String p4view = "//depot/... //localhost/...";
         Materials p4Materials = MaterialsMother.p4Materials(p4view);
-        P4Material p4Material = (P4Material) p4Materials.getFirstOrNull();
+        P4Material p4Material = (P4Material) p4Materials.getFirst();
         p4Material.setUseTickets(true);
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
         pipelineConfig.setMaterialConfigs(p4Materials.convertToConfigs());
@@ -725,15 +725,15 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         Pipeline pipelineFromDB = pipelineDao.loadPipeline(pipeline.getId());
         Materials materials = pipelineFromDB.getMaterials();
-        assertThat(materials.get(0)).isEqualTo(p4Material);
+        assertThat(materials.getFirst()).isEqualTo(p4Material);
     }
 
     @Test
     public void shouldSupportMultipleP4Materials() {
         String p4view1 = "//depot1/... //localhost1/...";
         String p4view2 = "//depot2/... //localhost2/...";
-        Material p4Material1 = MaterialsMother.p4Materials(p4view1).get(0);
-        Material p4Material2 = MaterialsMother.p4Materials(p4view2).get(0);
+        Material p4Material1 = MaterialsMother.p4Materials(p4view1).getFirst();
+        Material p4Material2 = MaterialsMother.p4Materials(p4view2).getFirst();
         Materials materials = new Materials(p4Material1, p4Material2);
 
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
@@ -747,8 +747,8 @@ public class PipelineSqlMapDaoIntegrationTest {
         savePipeline(pipeline);
         Pipeline pipelineFromDB = pipelineDao.loadPipeline(pipeline.getId());
         final Materials loaded = pipelineFromDB.getMaterials();
-        assertThat(loaded.get(0)).isEqualTo(p4Material1);
-        assertThat(loaded.get(1)).isEqualTo(p4Material2);
+        assertThat(loaded.getFirst()).isEqualTo(p4Material1);
+        assertThat(loaded.getLast()).isEqualTo(p4Material2);
     }
 
     @Test
@@ -965,7 +965,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         Pipeline pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
         dbHelper.pass(pipeline);
-        String stage = pipelineConfig.get(0).name().toString();
+        String stage = pipelineConfig.getFirst().name().toString();
         assertThat(pipelineDao.latestPassedStageIdentifier(pipeline.getId(), stage)).isEqualTo(new StageIdentifier(pipelineName, pipeline.getCounter(), pipeline.getLabel(), stage, "1"));
     }
 
@@ -975,7 +975,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(pipelineName);
         Pipeline pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
         dbHelper.failStage(pipeline.getFirstStage());
-        String stage = pipelineConfig.get(0).name().toString();
+        String stage = pipelineConfig.getFirst().name().toString();
         assertThat(pipelineDao.latestPassedStageIdentifier(pipeline.getId(), stage)).isEqualTo(StageIdentifier.NULL);
     }
 
@@ -988,7 +988,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         dbHelper.pass(pipeline);
         Stage stage = dbHelper.scheduleStage(pipeline, pipelineConfig.getFirstStageConfig());
         dbHelper.cancelStage(stage);
-        String stageName = pipelineConfig.get(0).name().toString();
+        String stageName = pipelineConfig.getFirst().name().toString();
         assertThat(pipelineDao.latestPassedStageIdentifier(pipeline.getId(), stageName)).isEqualTo(new StageIdentifier(pipelineName, pipeline.getCounter(), pipeline.getLabel(), stageName, "1"));
     }
 
@@ -1015,7 +1015,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         BuildCause manualForced = BuildCause.createManualForced(modifyOneFile(pipelineConfig), new Username(new CaseInsensitiveString(username)));
         Pipeline pipeline = dbHelper.schedulePipeline(pipelineConfig, manualForced, username, new TimeProvider());
         dbHelper.pass(pipeline);
-        long jobId = pipeline.getStages().get(0).getJobInstances().get(0).getId();
+        long jobId = pipeline.getStages().getFirst().getJobInstances().getFirst().getId();
         Pipeline pipelineFromDB = pipelineDao.pipelineWithMaterialsAndModsByBuildId(jobId);
         assertThat(pipelineFromDB.getBuildCause().getApprover()).isEqualTo(username);
         assertThat(pipelineFromDB.getBuildCause().getBuildCauseMessage()).isEqualTo("Forced by username");
@@ -1110,8 +1110,8 @@ public class PipelineSqlMapDaoIntegrationTest {
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(p1));
 
         Pipeline p1_1_s_1 = u.runAndPassAndReturnPipelineInstance(p1, u.d(0), "g_1");
-        Pipeline p2_1 = u.runAndPassAndReturnPipelineInstance(p2, u.d(1), p1_1_s_1.getStages().getFirstOrNull().stageLocator());
-        String p1_1_s_2 = u.rerunStageAndCancel(p1_1_s_1, p1.config.get(0));
+        Pipeline p2_1 = u.runAndPassAndReturnPipelineInstance(p2, u.d(1), p1_1_s_1.getStages().getFirst().stageLocator());
+        String p1_1_s_2 = u.rerunStageAndCancel(p1_1_s_1, p1.config.getFirst());
 
         List<PipelineIdentifier> pipelineIdentifiers = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial(p2.config.name().toString(),
                 new PipelineIdentifier(p1.config.name().toString(), 1));
@@ -1128,12 +1128,12 @@ public class PipelineSqlMapDaoIntegrationTest {
         Pipeline p1_1 = dbHelper.schedulePipeline(p1.config, new TestingClock());
         dbHelper.pass(p1_1);
         PipelineInstanceModel pim1 = pipelineDao.findPipelineHistoryByNameAndCounter(p1.config.name().toUpper(), 1); //prime cache
-        scheduleService.rerunStage(p1_1.getName(), p1_1.getCounter(), p1_1.getStages().get(0).getName());
+        scheduleService.rerunStage(p1_1.getName(), p1_1.getCounter(), p1_1.getStages().getFirst().getName());
 
         PipelineInstanceModel pim2 = pipelineDao.findPipelineHistoryByNameAndCounter(p1.config.name().toUpper(), 1);
 
         assertThat(pim2).isNotEqualTo(pim1);
-        assertThat(pim2.getStageHistory().get(0).getIdentifier().getStageCounter()).isEqualTo("2");
+        assertThat(pim2.getStageHistory().getFirst().getIdentifier().getStageCounter()).isEqualTo("2");
     }
 
     @Test
@@ -1189,7 +1189,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         PipelineInstanceModels allRunningInstancesOfPipeline2 = pipelineInstanceModels.findAll(pipeline2);
         assertThat(allRunningInstancesOfPipeline2.size()).isEqualTo(1);
-        assertThat(allRunningInstancesOfPipeline2.get(0).getCounter()).isEqualTo(1);
+        assertThat(allRunningInstancesOfPipeline2.getFirst().getCounter()).isEqualTo(1);
 
         PipelineInstanceModels pipelineInstanceModelsForPipeline1 = pipelineDao.loadHistoryForDashboard(List.of(pipeline1)); // Load for single pipeline
         assertThat(pipelineInstanceModelsForPipeline1.size()).isEqualTo(3);
@@ -1206,7 +1206,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName.toUpperCase(), "count", 20));
         pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", Map.of("pipelineName", pipelineName, "count", 30));
         assertThat(pipelineDao.getPipelineNamesWithMultipleEntriesForLabelCount().size()).isEqualTo(1);
-        assertThat(pipelineDao.getPipelineNamesWithMultipleEntriesForLabelCount().get(0).equalsIgnoreCase(pipelineName)).isTrue();
+        assertThat(pipelineDao.getPipelineNamesWithMultipleEntriesForLabelCount().getFirst().equalsIgnoreCase(pipelineName)).isTrue();
 
         pipelineDao.deleteOldPipelineLabelCountForPipelineInConfig(pipelineName);
         assertThat(pipelineDao.getPipelineNamesWithMultipleEntriesForLabelCount().isEmpty()).isTrue();
@@ -1293,8 +1293,8 @@ public class PipelineSqlMapDaoIntegrationTest {
         PipelineInstanceModels pipelineInstanceModels = pipelineDao.loadHistory(pipelineName, FeedModifier.After, pipeline3.getId(), 3);
 
         assertThat(pipelineInstanceModels.size()).isEqualTo(2);
-        assertThat(pipelineInstanceModels.get(0).getId()).isEqualTo(pipeline2.getId());
-        assertThat(pipelineInstanceModels.get(1).getId()).isEqualTo(pipeline1.getId());
+        assertThat(pipelineInstanceModels.getFirst().getId()).isEqualTo(pipeline2.getId());
+        assertThat(pipelineInstanceModels.getLast().getId()).isEqualTo(pipeline1.getId());
     }
 
     @Test
@@ -1315,8 +1315,8 @@ public class PipelineSqlMapDaoIntegrationTest {
         PipelineInstanceModels pipelineInstanceModels = pipelineDao.loadHistory(pipelineName, FeedModifier.Before, pipeline3.getId(), 3);
 
         assertThat(pipelineInstanceModels.size()).isEqualTo(2);
-        assertThat(pipelineInstanceModels.get(0).getId()).isEqualTo(pipeline5.getId());
-        assertThat(pipelineInstanceModels.get(1).getId()).isEqualTo(pipeline4.getId());
+        assertThat(pipelineInstanceModels.getFirst().getId()).isEqualTo(pipeline5.getId());
+        assertThat(pipelineInstanceModels.getLast().getId()).isEqualTo(pipeline4.getId());
     }
 
     @Test
@@ -1365,7 +1365,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         }
 
         public Modification first() {
-            return mods.get(0);
+            return mods.getFirst();
         }
 
         public int numberOfModifications() {

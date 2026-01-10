@@ -33,7 +33,7 @@ public class PluggableSCMMaterialUpdater implements MaterialUpdater {
     private final TransactionTemplate transactionTemplate;
 
     @Autowired
-    public PluggableSCMMaterialUpdater(MaterialRepository materialRepository, ScmMaterialUpdater scmMaterialUpdater, TransactionTemplate transactionTemplate) {
+    PluggableSCMMaterialUpdater(MaterialRepository materialRepository, ScmMaterialUpdater scmMaterialUpdater, TransactionTemplate transactionTemplate) {
         this.materialRepository = materialRepository;
         this.scmMaterialUpdater = scmMaterialUpdater;
         this.transactionTemplate = transactionTemplate;

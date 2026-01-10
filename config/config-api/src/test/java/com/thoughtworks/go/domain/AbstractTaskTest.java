@@ -177,8 +177,8 @@ public class AbstractTaskTest {
     public void shouldValidateTree() {
         String pipelineName = "p1";
         PipelineConfig pipelineConfig = GoConfigMother.configWithPipelines(pipelineName).pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        StageConfig stageConfig = pipelineConfig.getStages().get(0);
-        JobConfig jobConfig = stageConfig.getJobs().get(0);
+        StageConfig stageConfig = pipelineConfig.getStages().getFirst();
+        JobConfig jobConfig = stageConfig.getJobs().getFirst();
 
         AbstractTask execTask = new ExecTask("ls", "-la", "42");
         AntTask antTask = new AntTask();

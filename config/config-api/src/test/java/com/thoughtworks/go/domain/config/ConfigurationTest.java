@@ -99,7 +99,7 @@ class ConfigurationTest {
         configuration.clearEmptyConfigurations();
 
         assertThat(configuration.size()).isEqualTo(1);
-        assertThat(configuration.get(0).getConfigurationKey().getName()).isEqualTo("name-four");
+        assertThat(configuration.getFirst().getConfigurationKey().getName()).isEqualTo("name-four");
 
     }
 
@@ -213,7 +213,7 @@ class ConfigurationTest {
             Configuration configuration = new Configuration(k1, k2);
 
             assertThat(configuration.getSecretParams().size()).isEqualTo(1);
-            assertThat(configuration.getSecretParams().get(0)).isEqualTo(new SecretParam("secret_config_id", "lookup_password"));
+            assertThat(configuration.getSecretParams().getFirst()).isEqualTo(new SecretParam("secret_config_id", "lookup_password"));
         }
 
         @Test
@@ -277,12 +277,12 @@ class ConfigurationTest {
         @Test
         void shouldReturnConfigAsMapWithSecretsResolved() throws CryptoException {
             ConfigurationProperty configurationProperty1 = ConfigurationPropertyMother.create("property1", false, "{{SECRET:[config_id][lookup_key]}}");
-            configurationProperty1.getSecretParams().get(0).setValue("some-value");
+            configurationProperty1.getSecretParams().getFirst().setValue("some-value");
             ConfigurationProperty configurationProperty2 = ConfigurationPropertyMother.create("property2", false, null);
             String password = new GoCipher().encrypt("{{SECRET:[config_id][password]}}");
             ConfigurationProperty configurationProperty3 = ConfigurationPropertyMother.create("property3");
             configurationProperty3.setEncryptedValue(new EncryptedConfigurationValue(password));
-            configurationProperty3.getSecretParams().get(0).setValue("some-password");
+            configurationProperty3.getSecretParams().getFirst().setValue("some-password");
 
             Map<String, String> configMap = new Configuration(configurationProperty1, configurationProperty2, configurationProperty3)
                     .getConfigurationAsMap(true, true);

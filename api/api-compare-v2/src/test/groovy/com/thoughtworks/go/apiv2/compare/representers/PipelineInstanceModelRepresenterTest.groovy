@@ -17,6 +17,7 @@ package com.thoughtworks.go.apiv2.compare.representers
 
 import com.thoughtworks.go.domain.buildcause.BuildCause
 import com.thoughtworks.go.helper.ModificationsMother
+import com.thoughtworks.go.helper.StageInstanceModelMother
 import com.thoughtworks.go.helper.StageMother
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels
@@ -33,7 +34,7 @@ class PipelineInstanceModelRepresenterTest {
   void 'should serialize into json'() {
     def date = Instant.now()
     def stage = StageMother.passedStageInstance("pipelineName", "stageName", 4, "buildName", date)
-    def stageInstanceModel = StageMother.toStageInstanceModel(stage)
+    def stageInstanceModel = StageInstanceModelMother.fromStage(stage)
     def stageInstanceModels = new StageInstanceModels()
     stageInstanceModels.add(stageInstanceModel)
 

@@ -156,10 +156,10 @@ public class ElasticAgentExtensionConverterV4Test {
         ValidationResult result = new ElasticAgentExtensionConverterV4().getElasticProfileValidationResultResponseFromBody(responseBody);
         assertThat(result.isSuccessful()).isEqualTo(false);
         assertThat(result.getErrors().size()).isEqualTo(2);
-        assertThat(result.getErrors().get(0).getKey()).isEqualTo("key-one");
-        assertThat(result.getErrors().get(0).getMessage()).isEqualTo("error on key one");
-        assertThat(result.getErrors().get(1).getKey()).isEqualTo("key-two");
-        assertThat(result.getErrors().get(1).getMessage()).isEqualTo("error on key two");
+        assertThat(result.getErrors().getFirst().getKey()).isEqualTo("key-one");
+        assertThat(result.getErrors().getFirst().getMessage()).isEqualTo("error on key one");
+        assertThat(result.getErrors().getLast().getKey()).isEqualTo("key-two");
+        assertThat(result.getErrors().getLast().getMessage()).isEqualTo("error on key two");
     }
 
     @Test

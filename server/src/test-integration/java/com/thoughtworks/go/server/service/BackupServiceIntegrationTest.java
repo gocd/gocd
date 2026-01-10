@@ -225,7 +225,7 @@ public class BackupServiceIntegrationTest {
         GitMaterial git = new GitMaterial(repoDir.getAbsolutePath());
 
         List<Modification> modifications = git.latestModification(cloneDir, subprocessExecutionContext);
-        String latestChangeRev = modifications.get(0).getRevision();
+        String latestChangeRev = modifications.getFirst().getRevision();
         git.checkout(cloneDir, new StringRevision(latestChangeRev), subprocessExecutionContext);
         assertThat(Files.readString(new File(cloneDir, "cruise-config.xml").toPath(), UTF_8).indexOf("too-unique-to-be-present")).isGreaterThan(0);
         StringRevision revision = new StringRevision(latestChangeRev + "~1");
@@ -611,7 +611,7 @@ public class BackupServiceIntegrationTest {
     }
 
     private File backedUpFile(final String filename) {
-        return new ArrayList<>(FileUtils.listFiles(backupsDirectory, new NameFileFilter(filename), TrueFileFilter.TRUE)).get(0);
+        return new ArrayList<>(FileUtils.listFiles(backupsDirectory, new NameFileFilter(filename), TrueFileFilter.TRUE)).getFirst();
     }
 
     private void cleanupBackups() {

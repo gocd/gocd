@@ -91,7 +91,7 @@ public class PipelineConfigsServiceIntegrationTest {
 
         PipelineConfig ancestor = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(new CaseInsensitiveString("ancestor"));
         Configuration ancestorPluggablePublishArtifactConfigAfterEncryption = ancestor
-                .getExternalArtifactConfigs().get(0).getConfiguration();
+                .getExternalArtifactConfigs().getFirst().getConfiguration();
         assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getValue()).isEqualTo("SECRET");
         assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getEncryptedValue()).startsWith("AES:");
         assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getConfigValue()).isNull();
@@ -106,7 +106,7 @@ public class PipelineConfigsServiceIntegrationTest {
 
         PipelineConfig child = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(new CaseInsensitiveString("child"));
         Configuration childFetchConfigAfterEncryption = ((FetchPluggableArtifactTask) child
-                .get(0).getJobs().get(0).tasks().get(0)).getConfiguration();
+                .getFirst().getJobs().getFirst().tasks().getFirst()).getConfiguration();
 
         assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getValue()).isEqualTo("SECRET");
         assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getEncryptedValue()).startsWith("AES:");
@@ -175,9 +175,9 @@ public class PipelineConfigsServiceIntegrationTest {
 
         String expectedError = "Role \"non-existing-role\" does not exist.";
 
-        assertThat(updated.getAuthorization().getViewConfig().errors().getAllOn("roles").get(0)).isEqualTo(expectedError);
-        assertThat(updated.getAuthorization().getOperationConfig().errors().getAllOn("roles").get(0)).isEqualTo(expectedError);
-        assertThat(updated.getAuthorization().getAdminsConfig().errors().getAllOn("roles").get(0)).isEqualTo(expectedError);
+        assertThat(updated.getAuthorization().getViewConfig().errors().getAllOn("roles").getFirst()).isEqualTo(expectedError);
+        assertThat(updated.getAuthorization().getOperationConfig().errors().getAllOn("roles").getFirst()).isEqualTo(expectedError);
+        assertThat(updated.getAuthorization().getAdminsConfig().errors().getAllOn("roles").getFirst()).isEqualTo(expectedError);
     }
 
     private void setupMetadataForPlugin() {

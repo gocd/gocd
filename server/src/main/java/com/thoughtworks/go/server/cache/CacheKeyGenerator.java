@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Stream.of;
+
 public class CacheKeyGenerator {
     private static final String DELIMITER = ".$";
     private final Class<?> clazz;
@@ -31,19 +33,23 @@ public class CacheKeyGenerator {
     }
 
     public @NotNull String generate(@NotNull String identifier, long arg) {
-        return String.join(DELIMITER, clazz.getName(), identifier, Long.toString(arg)).intern();
+        return generate(identifier, Long.toString(arg));
     }
 
     public @NotNull String generate(@NotNull String identifier, String arg) {
         return String.join(DELIMITER, clazz.getName(), identifier, toStringSafe(arg)).intern();
     }
 
+    public @NotNull String generate(@NotNull String identifier, String... arg) {
+        return generateFor(identifier, Arrays.stream(arg).map(CacheKeyGenerator::toStringSafe));
+    }
+
     public @NotNull String generate(@NotNull String identifier, Object... args) {
-        return Stream.concat(
-                Stream.of(clazz.getName(), identifier),
-                Arrays.stream(args).map(CacheKeyGenerator::validateArg).map(CacheKeyGenerator::toStringSafe))
-            .collect(Collectors.joining(DELIMITER))
-            .intern();
+        return generateFor(identifier, Arrays.stream(args).map(CacheKeyGenerator::validateArg).map(CacheKeyGenerator::toStringSafe));
+    }
+
+    private @NotNull String generateFor(@NotNull String identifier, Stream<String> args) {
+        return Stream.concat(of(clazz.getName(), identifier), args).collect(Collectors.joining(DELIMITER)).intern();
     }
 
     private static String toStringSafe(String arg) {

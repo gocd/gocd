@@ -41,11 +41,11 @@ public class Modifications extends BaseCollection<Modification> {
     }
 
     public String getUsername() {
-        return isEmpty() ? "Unknown" : getFirstOrNull().getUserDisplayName();
+        return isEmpty() ? "Unknown" : getFirst().getUserDisplayName();
     }
 
     public String getRevision() {
-        return isEmpty() ? "Unknown" : getFirstOrNull().getRevision();
+        return isEmpty() ? "Unknown" : getFirst().getRevision();
     }
 
     public static List<Modification> filterOutRevision(List<Modification> modifications,
@@ -94,16 +94,16 @@ public class Modifications extends BaseCollection<Modification> {
             return new SubversionRevision(revision);
         }
         if (material instanceof DependencyMaterial) {
-            Modification latestModification = this.get(0);
+            Modification latestModification = this.getFirst();
             String revision = latestModification.getRevision();
             return DependencyMaterialRevision.create(revision, latestModification.getPipelineLabel());
         }
         if (material instanceof PackageMaterial) {
-            Modification latestModification = this.get(0);
+            Modification latestModification = this.getFirst();
             return new PackageMaterialRevision(latestModification.getRevision(), latestModification.getModifiedTime(), latestModification.getAdditionalDataMap());
         }
         if (material instanceof PluggableSCMMaterial) {
-            Modification latestModification = this.get(0);
+            Modification latestModification = this.getFirst();
             return new PluggableSCMMaterialRevision(latestModification.getRevision(), latestModification.getModifiedTime(), latestModification.getAdditionalDataMap());
         }
         return Modification.latestRevision(this);

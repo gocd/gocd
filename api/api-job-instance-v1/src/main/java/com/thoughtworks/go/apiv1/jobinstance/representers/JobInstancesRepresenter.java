@@ -36,12 +36,12 @@ public class JobInstancesRepresenter {
     }
 
     private static void addLinks(OutputWriter outputWriter, JobInstances jobInstances, PipelineRunIdInfo runIdInfo) {
-        JobInstance latest = jobInstances.getFirstOrNull();
-        JobInstance oldest = jobInstances.getLastOrNull();
-        String previousLink = (latest.getId() != runIdInfo.getLatestRunId())
+        JobInstance latest = jobInstances.getFirst();
+        JobInstance oldest = jobInstances.getLast();
+        String previousLink = latest.getId() != runIdInfo.getLatestRunId()
                 ? Routes.Job.previous(latest.getPipelineName(), latest.getStageName(), latest.getName(), latest.getId())
                 : null;
-        String nextLink = (oldest.getId() != runIdInfo.getOldestRunId())
+        String nextLink = oldest.getId() != runIdInfo.getOldestRunId()
                 ? Routes.Job.next(oldest.getPipelineName(), oldest.getStageName(), oldest.getName(), oldest.getId())
                 : null;
         if (isNotBlank(previousLink) || isNotBlank(nextLink)) {

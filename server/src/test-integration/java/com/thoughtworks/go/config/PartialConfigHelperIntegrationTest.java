@@ -71,7 +71,7 @@ public class PartialConfigHelperIntegrationTest {
         ExecTask invalidExecTask = new ExecTask("docker", new Arguments(new Argument(null)));
         JobConfig invalidJob = new JobConfig("up42_job");
         invalidJob.addTask(invalidExecTask);
-        partial1.getGroups().get(0).get(0).getFirstOrNull().getJobs().add(invalidJob);
+        partial1.getGroups().getFirst().getFirst().getFirst().getJobs().add(invalidJob);
 
         PartialConfig partial2 = git("1");
         assertFalse(helper.isEquivalent(partial1, partial2));

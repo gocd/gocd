@@ -17,6 +17,7 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.TimeProvider;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 
 import java.io.Serializable;
@@ -24,8 +25,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
-
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import java.util.Optional;
 
 
 public class JobInstance extends PersistentObject implements Serializable, Comparable<JobInstance>, BuildStateAware, Cloneable {
@@ -228,7 +228,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         return state == JobState.Completed ? result.toString().toLowerCase() : state.toString().toLowerCase();
     }
 
-    public JobInstance mostRecentPassed(JobInstance champion) {
+    public @NotNull JobInstance mostRecentPassed(@NotNull JobInstance champion) {
         if (!champion.isPassed()) {
             return this;
         }
@@ -238,19 +238,10 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         return mostRecentCompleted(champion);
     }
 
-    public JobInstance mostRecentCompleted(JobInstance champion) {
-        try {
-            if (getCompletedDate() != null && this.moreRecent(champion)) {
-                return this;
-            }
-        } catch (Exception ex) {
-            throw bomb(ex);
-        }
-        return champion;
-    }
-
-    private boolean moreRecent(JobInstance champion) {
-        return getCompletedDate().compareTo(champion.getCompletedDate()) >= 0;
+    public @NotNull JobInstance mostRecentCompleted(@NotNull JobInstance champion) {
+        return Optional.ofNullable(getCompletedDate())
+            .filter(f -> f.compareTo(champion.getCompletedDate()) >= 0)
+            .isPresent() ? this : champion;
     }
 
     public void discontinue() {
@@ -474,15 +465,6 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
             return new SingleJobInstance();
         }
     }
-
-    public boolean isSameStageConfig(JobInstance other) {
-        return this.getIdentifier().isSameStageConfig(other.getIdentifier());
-    }
-
-    public boolean isSamePipelineInstance(JobInstance other) {
-        return (getIdentifier().getPipelineLabel().equals(other.getIdentifier().getPipelineLabel()));
-    }
-
     public String getTitle() {
         return getIdentifier().buildLocatorForDisplay();
     }

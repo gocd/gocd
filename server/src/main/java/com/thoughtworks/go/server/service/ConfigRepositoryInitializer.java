@@ -38,7 +38,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_REPO_EXTENSION;
 
@@ -47,16 +48,17 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_RE
  */
 @Service
 public class ConfigRepositoryInitializer implements ConfigChangedListener, PluginChangeListener {
-    private PluginManager pluginManager;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigRepositoryInitializer.class);
+
+    private final PluginManager pluginManager;
     private final ConfigRepoService configRepoService;
     private final MaterialRepository materialRepository;
     private final GoConfigRepoConfigDataSource goConfigRepoConfigDataSource;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigRepositoryInitializer.class);
 
-    private boolean isConfigLoaded = false;
+    private final AtomicBoolean isConfigLoaded = new AtomicBoolean(false);
 
     // list of config repo plugins which are loaded, but not yet processed. Once processed, these plugins will be removed from the list.
-    private final LinkedList<String> pluginsQueue = new LinkedList<>();
+    private final ConcurrentLinkedQueue<String> pluginsQueue = new ConcurrentLinkedQueue<>();
 
     @Autowired
     public ConfigRepositoryInitializer(PluginManager pluginManager, ConfigRepoService configRepoService, MaterialRepository materialRepository, GoConfigRepoConfigDataSource goConfigRepoConfigDataSource, GoConfigService goConfigService, SystemEnvironment systemEnvironment) {
@@ -74,8 +76,7 @@ public class ConfigRepositoryInitializer implements ConfigChangedListener, Plugi
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         // mark config loaded only once!
-        if (!this.isConfigLoaded) {
-            this.isConfigLoaded = true;
+        if (this.isConfigLoaded.compareAndSet(false, true)) {
             this.initializeConfigRepositories();
         }
     }
@@ -98,28 +99,26 @@ public class ConfigRepositoryInitializer implements ConfigChangedListener, Plugi
 
     private void initializeConfigRepositories() {
         // do nothing if the cruise config is not loaded yet..
-        if (!this.isConfigLoaded) {
+        if (!this.isConfigLoaded.get()) {
             return;
         }
 
-        synchronized (this.pluginsQueue) {
-            while (!pluginsQueue.isEmpty()) {
-                String pluginId = pluginsQueue.poll();
-                LOGGER.info("[Config Repository Initializer] Start initializing the config repositories for plugin '{}' ", pluginId);
-                this.configRepoService.getConfigRepos().stream()
-                        .filter(configRepoConfig -> configRepoConfig.getPluginId().equalsIgnoreCase(pluginId))
-                        .forEach(this::initializeConfigRepository);
-                LOGGER.info("[Config Repository Initializer] Done initializing the config repositories for plugin '{}' ", pluginId);
-            }
+        for (String pluginId; (pluginId = pluginsQueue.poll()) != null; ) {
+            LOGGER.info("[Config Repository Initializer] Start initializing the config repositories for plugin '{}' ", pluginId);
+            String finalPluginId = pluginId;
+            this.configRepoService.getConfigRepos().stream()
+                    .filter(configRepoConfig -> configRepoConfig.getPluginId().equalsIgnoreCase(finalPluginId))
+                    .forEach(this::initializeConfigRepository);
+            LOGGER.info("[Config Repository Initializer] Done initializing the config repositories for plugin '{}' ", pluginId);
         }
     }
 
     private void initializeConfigRepository(ConfigRepoConfig repo) {
         MaterialConfig materialConfig = repo.getRepo();
-        Material material = new Materials(new MaterialConfigs(materialConfig)).getFirstOrNull();
         MaterialInstance materialInstance = this.materialRepository.findMaterialInstance(materialConfig);
 
         if (materialInstance != null) {
+            Material material = new Materials(new MaterialConfigs(materialConfig)).getFirst();
             File folder = materialRepository.folderFor(material);
             MaterialRevisions latestModification = materialRepository.findLatestModification(material);
             Modification modification = latestModification.firstModifiedMaterialRevision().getLatestModification();

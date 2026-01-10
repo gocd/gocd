@@ -84,7 +84,7 @@ public class Tab implements Validatable {
     @Override
     public int hashCode() {
         int result;
-        result = (name != null ? name.hashCode() : 0);
+        result = name != null ? name.hashCode() : 0;
         result = 31 * result + (path != null ? path.hashCode() : 0);
         return result;
     }

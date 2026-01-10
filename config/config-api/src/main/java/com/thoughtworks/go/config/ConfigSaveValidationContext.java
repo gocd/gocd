@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.rules.RulesAware;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -122,7 +123,7 @@ public class ConfigSaveValidationContext implements ValidationContext {
 
         if (immediateParent == null) {
             return null;
-        } else if (immediateParent.getClass().equals(klass)) {
+        } else if (immediateParent.getClass() == klass) {
             return (T) immediateParent;
         } else {
             // added because of higher hierarchy of configuration types.
@@ -167,18 +168,13 @@ public class ConfigSaveValidationContext implements ValidationContext {
     }
 
     @Override
-    public boolean doesTemplateExist(CaseInsensitiveString template) {
-        return getCruiseConfig().getTemplates().hasTemplateNamed(template);
-    }
-
-    @Override
     public SCM findScmById(String scmID) {
         return getCruiseConfig().getSCMs().find(scmID);
     }
 
     @Override
     public PackageRepository findPackageById(String packageId) {
-        return getCruiseConfig().getPackageRepositories().findPackageRepositoryHaving(packageId);
+        return getCruiseConfig().getPackageRepositories().findByPackageId(packageId);
     }
 
     @Override
@@ -205,17 +201,12 @@ public class ConfigSaveValidationContext implements ValidationContext {
         return hasParentOfType(PipelineConfigs.class);
     }
 
-    @Override
-    public boolean isWithinEnvironment() {
-        return hasParentOfType(EnvironmentConfig.class);
-    }
-
     private <T> boolean hasParentOfType(Class<T> validatable) {
         return getFirstOfType(validatable) != null;
     }
 
     @Override
-    public PipelineConfigs getPipelineGroup() {
+    public @NotNull PipelineConfigs getPipelineGroup() {
         return loadFirstOfType(PipelineConfigs.class);
     }
 

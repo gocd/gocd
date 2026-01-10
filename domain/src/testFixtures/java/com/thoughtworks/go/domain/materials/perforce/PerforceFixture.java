@@ -58,7 +58,7 @@ public abstract class PerforceFixture {
     }
 
     protected static String clientConfig(String clientName, File clientFolder) {
-        return ("""
+        return """
                 Client: %s
 
                 Owner: cruise
@@ -71,7 +71,7 @@ public abstract class PerforceFixture {
 
                 View:
                 \t//depot/... //%s/...
-                """).formatted(clientName, clientFolder.getAbsolutePath(), clientName);
+                """.formatted(clientName, clientFolder.getAbsolutePath(), clientName);
 
     }
 }

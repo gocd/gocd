@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.util.FilenameUtil;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.Map;
@@ -138,7 +139,7 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
     }
 
     @Override
-    public String getFingerprint() {
+    public @Nullable String getFingerprint() {
         if (scmConfig == null) {
             return null;
         }
@@ -199,11 +200,11 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
     }
 
     private boolean nameIsEmpty() {
-        return (name == null || name.isEmpty());
+        return name == null || name.isEmpty();
     }
 
     private boolean scmNameIsEmpty() {
-        return (scmConfig == null || scmConfig.getName() == null || scmConfig.getName().isEmpty());
+        return scmConfig == null || scmConfig.getName() == null || scmConfig.getName().isEmpty();
     }
 
     @Override
@@ -275,7 +276,7 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
         if (dest == null) {
             return;
         }
-        if (!(FilenameUtil.isNormalizedPathOutsideWorkingDir(dest))) {
+        if (!FilenameUtil.isNormalizedPathOutsideWorkingDir(dest)) {
             addError(FOLDER, String.format("Dest folder '%s' is not valid. It must be a sub-directory of the working folder.", dest));
         }
     }

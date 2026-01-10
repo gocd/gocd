@@ -115,8 +115,8 @@ class EnvironmentVariableRepresenterTest {
 
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(json)
     def environmentVariableConfig = EnvironmentVariableRepresenter.fromJSONArray(jsonReader)
-    def secureVariable = environmentVariableConfig.get(0)
-    def plainVariable = environmentVariableConfig.get(1)
+    def secureVariable = environmentVariableConfig.getFirst()
+    def plainVariable = environmentVariableConfig.getLast()
 
     assertThat(secureVariable.secure).isEqualTo(true)
     assertThat(secureVariable.name).isEqualTo("secured")

@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.presentation.pipelinehistory;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Revision;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.Date;
@@ -42,8 +42,6 @@ public class PipelineInstanceModel implements PipelineInfo {
     private boolean canUnlock;
     private boolean lockable;
     private double naturalOrder;
-    private int previousPipelineCounter;
-    private String previousPipelineLabel;
     private boolean isCurrentlyLocked;
     private TrackingTool trackingTool;
     private String comment;
@@ -58,10 +56,6 @@ public class PipelineInstanceModel implements PipelineInfo {
         this.label = label;
         this.buildCause = buildCause;
         this.stageHistory = stageHistory;
-    }
-
-    public boolean hasHistoricalData() {
-        return true;
     }
 
     public BuildCause getBuildCause() {
@@ -208,10 +202,6 @@ public class PipelineInstanceModel implements PipelineInfo {
         return findMaterialRevisionOf(materialConfig, latest);
     }
 
-    public Revision getCurrentRevision(MaterialConfig materialConfig) {
-        return revisionFor(findMaterialRevisionOf(materialConfig, buildCause.getMaterialRevisions()));
-    }
-
     private MaterialRevision findMaterialRevisionOf(MaterialConfig materialConfig, MaterialRevisions materialRevisions) {
         for (MaterialRevision materialRevision : materialRevisions) {
             if (materialRevision.getMaterial().hasSameFingerprint(materialConfig)) {
@@ -221,7 +211,7 @@ public class PipelineInstanceModel implements PipelineInfo {
         return new NullMaterialRevision();
     }
 
-    public MaterialRevision findCurrentMaterialRevisionForUI(MaterialConfig materialConfig) {
+    public @Nullable MaterialRevision findCurrentMaterialRevisionForUI(MaterialConfig materialConfig) {
         MaterialRevision materialRevision = findCurrentMaterialRevisionUsingPipelineUniqueFingerprint(materialConfig);
         if (materialRevision == null) {
             materialRevision = findCurrentMaterialRevisionUsingFingerprint(materialConfig);
@@ -229,7 +219,7 @@ public class PipelineInstanceModel implements PipelineInfo {
         return materialRevision;
     }
 
-    private MaterialRevision findCurrentMaterialRevisionUsingFingerprint(MaterialConfig materialConfig) {
+    private @Nullable MaterialRevision findCurrentMaterialRevisionUsingFingerprint(MaterialConfig materialConfig) {
         for (MaterialRevision materialRevision : buildCause.getMaterialRevisions()) {
             if (materialRevision.getMaterial().hasSameFingerprint(materialConfig)) {
                 return materialRevision;
@@ -238,7 +228,7 @@ public class PipelineInstanceModel implements PipelineInfo {
         return null;
     }
 
-    private MaterialRevision findCurrentMaterialRevisionUsingPipelineUniqueFingerprint(MaterialConfig materialConfig) {
+    private @Nullable MaterialRevision findCurrentMaterialRevisionUsingPipelineUniqueFingerprint(MaterialConfig materialConfig) {
         for (MaterialRevision materialRevision : buildCause.getMaterialRevisions()) {
             if (materialRevision.getMaterial().getPipelineUniqueFingerprint().equals(materialConfig.getPipelineUniqueFingerprint())) {
                 return materialRevision;
@@ -259,26 +249,8 @@ public class PipelineInstanceModel implements PipelineInfo {
         return getLatestRevision(materialConfig).isRealRevision();
     }
 
-    public Revision getCurrentRevision(String requestedMaterialName) {
-        for (MaterialRevision materialRevision : getCurrentRevisions()) {
-            String materialName = CaseInsensitiveString.str(materialRevision.getMaterial().getName());
-            if (materialName != null && materialName.equals(requestedMaterialName)) {
-                return materialRevision.getRevision();
-            }
-        }
-        throw new RuntimeException("material not known for pipeline " + getName());
-    }
-
     public String getApprovedBy() {
-        return getStageHistory().getFirstOrNull().getApprovedBy();
-    }
-
-    public Boolean isLatestStageUnsuccessful() {
-        return stageHistory.isLatestStageUnsuccessful();
-    }
-
-    public Boolean isLatestStageSuccessful() {
-        return stageHistory.isLatestStageSuccessful();
+        return getStageHistory().getFirst().getApprovedBy();
     }
 
     public StageInstanceModel latestStage() {
@@ -289,40 +261,13 @@ public class PipelineInstanceModel implements PipelineInfo {
         return stageHistory.indexOf(stageInstanceModel);
     }
 
+    @SuppressWarnings("unused") // may be used within Ruby/Rails code
     public int numberOfStages() {
         return stageHistory.size();
     }
 
-    public Boolean isRunning() {
-        for (StageInstanceModel model : stageHistory) {
-            if (model instanceof NullStageHistoryItem || model.isRunning()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean hasNeverCheckedForRevisions() {
-        return latest.isEmpty();
-    }
-
-    public boolean hasNewRevisions() {
-        return materialConfigs.stream().anyMatch(this::hasNewRevisions);
-    }
-
-    public boolean hasNewRevisions(MaterialConfig materialConfig) {
-        Revision currentRevision = getCurrentRevision(materialConfig);
-        Revision revision = getLatestRevision(materialConfig);
-        return !currentRevision.equals(revision);
-    }
-
     public boolean isPreparingToSchedule() {
         return isPreparingToSchedule;
-    }
-
-    public String getPipelineStatusMessage() {
-        StageInstanceModel latestStage = stageHistory.latestStage();
-        return String.format("%s: %s", latestStage.getState(), latestStage.getName());
     }
 
     @TestOnly
@@ -341,10 +286,6 @@ public class PipelineInstanceModel implements PipelineInfo {
 
     public static EmptyPipelineInstanceModel createEmptyPipelineInstanceModel(String pipelineName, BuildCause withEmptyModifications, StageInstanceModels stageHistory) {
         return new EmptyPipelineInstanceModel(pipelineName, withEmptyModifications, stageHistory);
-    }
-
-    public boolean isLatestStage(StageInstanceModel stage) {
-        return stageHistory.isLatestStage(stage);
     }
 
     public PipelineTimelineEntry getPipelineBefore() {
@@ -419,22 +360,7 @@ public class PipelineInstanceModel implements PipelineInfo {
         return getStageHistory().byName(stageName);
     }
 
-    public String getPreviousLabel() {
-        return previousPipelineLabel;
-    }
-
-    public int getPreviousCounter() {
-        return previousPipelineCounter;
-    }
-
-    public void setPreviousPipelineCounter(int counter) {
-        this.previousPipelineCounter = counter;
-    }
-
-    public void setPreviousPipelineLabel(String label) {
-        this.previousPipelineLabel = label;
-    }
-
+    @SuppressWarnings("unused") // may be used within Ruby/Rails code
     public boolean hasStage(StageIdentifier identifier) {
         for (StageInstanceModel instanceModel : stageHistory) {
             if (identifier.equals(instanceModel.getIdentifier())) {

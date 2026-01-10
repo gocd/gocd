@@ -111,8 +111,8 @@ public class PackageDefinitionServiceTest {
                 any(),
                 any())).thenReturn(expectedValidationResult);
         service.performPluginValidationsFor(packageDefinition);
-        assertThat(packageDefinition.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value").size()).isEqualTo(2);
-        assertThat(packageDefinition.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value")).contains("error-one", "error-two");
+        assertThat(packageDefinition.getConfiguration().getFirst().getConfigurationValue().errors().getAllOn("value").size()).isEqualTo(2);
+        assertThat(packageDefinition.getConfiguration().getFirst().getConfigurationValue().errors().getAllOn("value")).contains("error-one", "error-two");
     }
 
     @Test
@@ -217,7 +217,7 @@ public class PackageDefinitionServiceTest {
         when(packageRepositoryExtension.isPackageConfigurationValid(anyString(), any(), any())).thenReturn(new ValidationResult());
         doAnswer(invocation -> {
             PackageDefinition config = invocation.getArgument(0);
-            config.getSecretParams().get(0).setValue("resolved-value");
+            config.getSecretParams().getFirst().setValue("resolved-value");
             return config;
         }).when(secretParamResolver).resolve(packageDefinition);
 
@@ -226,7 +226,7 @@ public class PackageDefinitionServiceTest {
         verify(secretParamResolver).resolve(packageDefinition);
         ArgumentCaptor<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration> pkgCaptor = ArgumentCaptor.forClass(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class);
         verify(packageRepositoryExtension).isPackageConfigurationValid(eq(packageRepository.getPluginConfiguration().getId()), pkgCaptor.capture(), any());
-        assertThat(pkgCaptor.getValue().list().get(0).getValue()).isEqualTo("resolved-value");
+        assertThat(pkgCaptor.getValue().list().getFirst().getValue()).isEqualTo("resolved-value");
     }
 
     @Test
@@ -240,7 +240,7 @@ public class PackageDefinitionServiceTest {
         when(packageRepositoryExtension.checkConnectionToPackage(eq(packageRepository.getPluginConfiguration().getId()), any(), any())).thenReturn(new Result().withSuccessMessages("Got Package!!!"));
         doAnswer(invocation -> {
             PackageDefinition config = invocation.getArgument(0);
-            config.getSecretParams().get(0).setValue("resolved-value");
+            config.getSecretParams().getFirst().setValue("resolved-value");
             return config;
         }).when(secretParamResolver).resolve(packageDefinition);
 
@@ -252,7 +252,7 @@ public class PackageDefinitionServiceTest {
         assertThat(result.message()).isEqualTo("OK. Got Package!!!");
         verify(packageRepositoryExtension).checkConnectionToPackage(anyString(), packageConfigurationsCaptor.capture(), packageRepositoryConfigurationsCaptor.capture());
         assertPackageConfiguration(packageRepositoryConfigurationsCaptor.getValue().list(), packageRepository.getConfiguration());
-        assertThat(packageConfigurationsCaptor.getValue().list().get(0).getValue()).isEqualTo("resolved-value");
+        assertThat(packageConfigurationsCaptor.getValue().list().getFirst().getValue()).isEqualTo("resolved-value");
     }
 
     @Test

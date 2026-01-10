@@ -51,11 +51,6 @@ public class NullStageHistoryItem extends StageInstanceModel {
     }
 
     @Override
-    public boolean getCanReRun() {
-        return false;
-    }
-
-    @Override
     public String getApprovalTypeDescription() {
         return autoApproved ? "auto" : "manual";
     }

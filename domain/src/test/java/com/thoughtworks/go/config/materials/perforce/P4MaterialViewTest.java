@@ -45,7 +45,7 @@ public class P4MaterialViewTest {
                     //depot/dir1/... //cws/...\r
                     //depot/dir1/...    //cws/...
                 \t\t//depot/rel1/... //cws/release1/...""";
-        String to = ("""
+        String to = """
 
                 \t//depot/dir1/... //%s/...
                 \t//depot/dir1/... //%s/...
@@ -53,7 +53,7 @@ public class P4MaterialViewTest {
                 \t//foo/dir2/... //%s/foo2/...
                 \t//depot/dir1/... //%s/...
                 \t//depot/dir1/... //%s/...
-                \t//depot/rel1/... //%s/release1/...""").formatted(CLIENT_NAME, CLIENT_NAME, CLIENT_NAME, CLIENT_NAME, CLIENT_NAME, CLIENT_NAME, CLIENT_NAME);
+                \t//depot/rel1/... //%s/release1/...""".formatted(CLIENT_NAME, CLIENT_NAME, CLIENT_NAME, CLIENT_NAME, CLIENT_NAME, CLIENT_NAME, CLIENT_NAME);
         assertMapsTo(from, to);
     }
 
@@ -63,11 +63,11 @@ public class P4MaterialViewTest {
                 //depot/dir1/... //cws/...
                 -//depot/dir1/exclude/... //cws/dir1/exclude/...
                 +//depot/dir1/include/... //cws/dir1/include/...""";
-        String to = ("""
+        String to = """
 
                 \t//depot/dir1/... //%s/...
                 \t-//depot/dir1/exclude/... //%s/dir1/exclude/...
-                \t+//depot/dir1/include/... //%s/dir1/include/...""").formatted(CLIENT_NAME, CLIENT_NAME, CLIENT_NAME);
+                \t+//depot/dir1/include/... //%s/dir1/include/...""".formatted(CLIENT_NAME, CLIENT_NAME, CLIENT_NAME);
         assertMapsTo(from, to);
     }
 
@@ -80,14 +80,14 @@ public class P4MaterialViewTest {
                 "-//depot/with spaces/..." "//cws/with spaces/..."
 
                 """;
-        String to = ("""
+        String to = """
 
                 \t//depot/dir1/old.* //%s/renamed/new.*
                 \t//depot/dir1/%%1.%%2 //%s/dir1/%%2.%%1
                 \t//foobar/dir1/%%1.%%2 //%s/dir1/%%2.%%1
                 \t"-//depot/with spaces/..." "//%s/with spaces/..."
 
-                """).formatted(CLIENT_NAME, CLIENT_NAME, CLIENT_NAME, CLIENT_NAME);
+                """.formatted(CLIENT_NAME, CLIENT_NAME, CLIENT_NAME, CLIENT_NAME);
         assertMapsTo(from, to);
     }
 

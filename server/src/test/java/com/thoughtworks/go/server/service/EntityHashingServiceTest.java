@@ -113,8 +113,8 @@ public class EntityHashingServiceTest {
             final PluginSettings p2 = pluginSettings(id, key, secret);
 
             assertNotEquals(
-                p1.getPluginSettingsProperties().get(0).getEncryptedValue(),
-                p2.getPluginSettingsProperties().get(0).getEncryptedValue(),
+                p1.getPluginSettingsProperties().getFirst().getEncryptedValue(),
+                p2.getPluginSettingsProperties().getFirst().getEncryptedValue(),
                 "both entities should have different cipherTexts even though the input values are equal"
             );
 
@@ -153,7 +153,7 @@ public class EntityHashingServiceTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("P1");
         listener.onEntityConfigChange(pipelineConfig);
 
-        verify(goCache).remove(ETAG_CACHE_KEY, (pipelineConfig.getClass().getName() + "." + "p1"));
+        verify(goCache).remove(ETAG_CACHE_KEY, pipelineConfig.getClass().getName() + "." + "p1");
     }
 
     @Test
@@ -214,7 +214,7 @@ public class EntityHashingServiceTest {
 
         artifactConfigChangeListener.onEntityConfigChange(artifactConfig);
 
-        verify(goCache).remove(ETAG_CACHE_KEY, (artifactConfig.getClass().getName() + ".cacheKey"));
+        verify(goCache).remove(ETAG_CACHE_KEY, artifactConfig.getClass().getName() + ".cacheKey");
     }
 
     @Test

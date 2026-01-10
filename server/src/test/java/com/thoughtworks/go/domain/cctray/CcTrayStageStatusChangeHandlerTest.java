@@ -83,7 +83,7 @@ public class CcTrayStageStatusChangeHandlerTest {
 
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(stage);
 
-        assertThat(statuses.get(0).getBreakers()).isEqualTo(Set.of("breaker1", "breaker2"));
+        assertThat(statuses.getFirst().getBreakers()).isEqualTo(Set.of("breaker1", "breaker2"));
     }
 
     @Test
@@ -104,7 +104,7 @@ public class CcTrayStageStatusChangeHandlerTest {
         Stage stage = StageMother.custom("stage1", JobInstanceMother.building("job1"));
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(stage);
 
-        ProjectStatus statusOfStage = statuses.get(0);
+        ProjectStatus statusOfStage = statuses.getFirst();
         assertThat(activityOf(statusOfStage)).isEqualTo("Building");
         assertThat(webUrlOf(statusOfStage)).isEqualTo(webUrlFor("stage1"));
     }
@@ -117,7 +117,7 @@ public class CcTrayStageStatusChangeHandlerTest {
         Stage stage = StageMother.custom("stage1", JobInstanceMother.building("job1"));
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(stage);
 
-        ProjectStatus statusOfStage = statuses.get(0);
+        ProjectStatus statusOfStage = statuses.getFirst();
         assertThat(stage.getState().completed()).isNotEqualTo(true);
         assertThat(statusOfStage.getLastBuildStatus()).isEqualTo(defaultStatus.getLastBuildStatus());
         assertThat(statusOfStage.getLastBuildTime()).isEqualTo(defaultStatus.getLastBuildTime());
@@ -133,7 +133,7 @@ public class CcTrayStageStatusChangeHandlerTest {
         Stage stage = StageMother.custom("stage1", JobInstanceMother.building("job1"));
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(stage);
 
-        ProjectStatus statusOfStage = statuses.get(0);
+        ProjectStatus statusOfStage = statuses.getFirst();
         assertThat(stage.getState().completed()).isNotEqualTo(true);
         assertThat(statusOfStage.getLastBuildStatus()).isEqualTo(existingStageStatus.getLastBuildStatus());
         assertThat(statusOfStage.getLastBuildTime()).isEqualTo(existingStageStatus.getLastBuildTime());
@@ -146,7 +146,7 @@ public class CcTrayStageStatusChangeHandlerTest {
         completedStage.setCompletedByTransitionId(1L);
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(completedStage);
 
-        ProjectStatus statusOfStage = statuses.get(0);
+        ProjectStatus statusOfStage = statuses.getFirst();
         assertThat(completedStage.isCompleted()).isTrue();
         assertThat(statusOfStage.getLastBuildStatus()).isEqualTo("Success");
         assertThat(statusOfStage.getLastBuildTime()).isEqualTo(completedStage.completedDate());
@@ -165,7 +165,7 @@ public class CcTrayStageStatusChangeHandlerTest {
         Stage stage = StageMother.custom("stage1", JobInstanceMother.building("job1"));
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(stage);
 
-        ProjectStatus statusOfStage = statuses.get(0);
+        ProjectStatus statusOfStage = statuses.getFirst();
         assertThat(statusOfStage.viewers()).isEqualTo(viewers);
     }
 
@@ -182,7 +182,7 @@ public class CcTrayStageStatusChangeHandlerTest {
     public void shouldUpdateCacheWhenStageWhichHasChangedIsNotANullStage() {
         Stage completedStage = StageMother.createPassedStage("pipeline", 1, "stage1", 1, "job1", Instant.now());
         ProjectStatus jobStatus = new ProjectStatus("job1_name", "activity1", "lastBuildStatus1", "lastBuildLabel1", new Date(), "webUrl1");
-        when(jobStatusChangeHandler.statusFor(completedStage.getJobInstances().getFirstOrNull(), new HashSet<>())).thenReturn(jobStatus);
+        when(jobStatusChangeHandler.statusFor(completedStage.getJobInstances().getFirst(), new HashSet<>())).thenReturn(jobStatus);
 
         handler.call(completedStage);
 
@@ -191,10 +191,10 @@ public class CcTrayStageStatusChangeHandlerTest {
 
         List<ProjectStatus> statusesWhichWereCached = statusesCaptor.getValue();
         assertThat(statusesWhichWereCached.size()).isEqualTo(2);
-        assertThat(statusesWhichWereCached.get(0).name()).isEqualTo("pipeline :: stage1");
-        assertThat(statusesWhichWereCached.get(0).getLastBuildStatus()).isEqualTo("Success");
-        assertThat(activityOf(statusesWhichWereCached.get(0))).isEqualTo("Sleeping");
-        assertThat(statusesWhichWereCached.get(1)).isEqualTo(jobStatus);
+        assertThat(statusesWhichWereCached.getFirst().name()).isEqualTo("pipeline :: stage1");
+        assertThat(statusesWhichWereCached.getFirst().getLastBuildStatus()).isEqualTo("Success");
+        assertThat(activityOf(statusesWhichWereCached.getFirst())).isEqualTo("Sleeping");
+        assertThat(statusesWhichWereCached.getLast()).isEqualTo(jobStatus);
     }
 
     private String activityOf(ProjectStatus status) {

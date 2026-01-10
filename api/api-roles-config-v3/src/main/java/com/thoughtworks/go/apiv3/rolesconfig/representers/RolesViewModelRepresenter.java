@@ -22,7 +22,7 @@ public class RolesViewModelRepresenter {
     public static void toJSON(OutputWriter outputWriter, RolesViewModel rolesViewModel) {
         outputWriter
                 .addChild("_embedded", embeddedWriter -> embeddedWriter.addChildList("roles", rolesWriter -> rolesViewModel.getRolesConfig().forEach(role -> rolesWriter.addChild(roleWriter -> RoleRepresenter.toJSON(roleWriter, role)))))
-                .addChildList("auto_completion", (suggestionWriter) -> rolesViewModel.getAutoSuggestions()
+                .addChildList("auto_completion", suggestionWriter -> rolesViewModel.getAutoSuggestions()
                         .forEach((key, value) -> suggestionWriter.addChild(childWriter -> childWriter
                                 .add("key", key)
                                 .addChildList("value", value))));

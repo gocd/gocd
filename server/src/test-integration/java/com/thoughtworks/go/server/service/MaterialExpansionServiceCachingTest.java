@@ -73,8 +73,8 @@ public class MaterialExpansionServiceCachingTest {
         materialExpansionService.expandForScheduling(svnMaterialConfig, materialConfigs);
 
         assertThat(materialConfigs.size()).isEqualTo(2);
-        assertThat(materialConfigs.get(0)).isEqualTo(svnMaterialConfig);
-        assertThat(((SvnMaterialConfig) materialConfigs.get(1)).getUrl()).endsWith("end2end/");
+        assertThat(materialConfigs.getFirst()).isEqualTo(svnMaterialConfig);
+        assertThat(((SvnMaterialConfig) materialConfigs.getLast()).getUrl()).endsWith("end2end/");
     }
 
     @Test

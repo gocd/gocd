@@ -192,7 +192,7 @@ public class ElasticAgentPluginService {
                     continue;
                 }
                 long lastTryTime = jobCreationTimeMap.get(jobPlan.getJobId());
-                if ((timeProvider.currentTimeMillis() - lastTryTime) >= goConfigService.elasticJobStarvationThreshold()) {
+                if (timeProvider.currentTimeMillis() - lastTryTime >= goConfigService.elasticJobStarvationThreshold()) {
                     starvingJobs.add(jobPlan);
                 }
             }
@@ -229,7 +229,10 @@ public class ElasticAgentPluginService {
                     serverHealthService.removeByScope(scopeForJob(jobIdentifier));
                 } catch (RulesViolationException | SecretResolutionFailureException e) {
                     JobInstance jobInstance = jobInstanceSqlMapDao.buildById(plan.getJobId());
-                    String failureMessage = format("\nThis job was failed by GoCD. This job is configured to run on an elastic agent, there were errors while resolving secrets for the the associated elastic configurations.\nReasons: %s", e.getMessage());
+                    String failureMessage = format("""
+                        
+                        This job was failed by GoCD. This job is configured to run on an elastic agent, there were errors while resolving secrets for the the associated elastic configurations.
+                        Reasons: %s""", e.getMessage());
                     consoleService.appendToConsoleLogSafe(jobIdentifier, failureMessage);
                     scheduleService.failJob(jobInstance);
                     jobStatusTopic.post(new JobStatusMessage(jobIdentifier, jobInstance.getState(), plan.getAgentUuid()));
@@ -267,7 +270,7 @@ public class ElasticAgentPluginService {
         if (pluginInfo.getCapabilities().supportsPluginStatusReport()) {
             List<Map<String, String>> clusterProfiles = clusterProfilesService.getPluginProfiles().findByPluginId(pluginId)
                     .stream()
-                    .map((profile) -> {
+                    .map(profile -> {
                         secretParamResolver.resolve(profile);
                         return profile.getConfigurationAsMap(true, true);
                     })

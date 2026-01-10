@@ -36,6 +36,9 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.Node;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.TestOnly;
 
 import java.text.MessageFormat;
 import java.util.*;
@@ -79,6 +82,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public static final String LABEL_TEMPLATE_ERROR_MESSAGE = "Invalid label '%s'. ".concat(LABEL_TEMPLATE_FORMAT_MESSAGE);
     public static final String BLANK_LABEL_TEMPLATE_ERROR_MESSAGE = "Label cannot be blank. ".concat(LABEL_TEMPLATE_FORMAT_MESSAGE);
 
+    public static final String NAME = "name";
+    public static final String MATERIALS = "materials";
+    public static final String STAGE = "stage";
+    public static final Pattern LABEL_TEMPLATE_TOKEN_PATTERN = Pattern.compile("(?<groupName>[^\\[]*)(\\[:(?<truncationLength>\\d+)\\])?$");
+
     @SkipParameterResolution
     @ConfigAttribute(value = "name", optional = false)
     private CaseInsensitiveString name;
@@ -118,10 +126,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     private CachedFetchPluggableArtifactTasks fetchExternalArtifactTasks = null;
 
     private ConfigErrors errors = new ConfigErrors();
-    public static final String NAME = "name";
-    public static final String MATERIALS = "materials";
-    public static final String STAGE = "stage";
-    public static final Pattern LABEL_TEMPLATE_TOKEN_PATTERN = Pattern.compile("(?<groupName>[^\\[]*)(\\[:(?<truncationLength>\\d+)\\])?$");
+
 
     public PipelineConfig() {
     }
@@ -338,28 +343,33 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return getStage(new CaseInsensitiveString(stageName));
     }
 
-    public StageConfig findBy(final CaseInsensitiveString stageName) {
-        for (StageConfig stageConfig : this) {
-            if (stageConfig.name().equals(stageName)) {
-                return stageConfig;
-            }
-        }
-        return null;
+    public @Nullable StageConfig findBy(final CaseInsensitiveString stageName) {
+        return stream().filter(stageConfig -> stageConfig.name().equals(stageName)).findFirst().orElse(null);
     }
 
-    public StageConfig nextStage(final CaseInsensitiveString lastStageName) {
+    public @Nullable StageConfig nextStageAfter(final CaseInsensitiveString stageName) {
         for (int i = 0; i < this.size(); i++) {
             StageConfig stageConfig = this.get(i);
-            boolean hasNextStage = i + 1 < this.size();
-            if (hasNextStage && stageConfig.name().equals(lastStageName)) {
+            if (stageConfig.name().equals(stageName) && i + 1 < this.size()) {
                 return this.get(i + 1);
             }
         }
         return null;
     }
 
-    public StageConfig getFirstStageConfig() {
-        return this.getFirstOrNull();
+    public @Nullable StageConfig previousStageBefore(final CaseInsensitiveString stageName) {
+        StageConfig previous = null;
+        for (StageConfig current : this) {
+            if (current.name().equals(stageName)) {
+                return previous;
+            }
+            previous = current;
+        }
+        return null;
+    }
+
+    public @NotNull StageConfig getFirstStageConfig() {
+        return this.getFirst();
     }
 
     @Override
@@ -405,19 +415,8 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return name;
     }
 
-    public StageConfig previousStage(final CaseInsensitiveString stageName) {
-        StageConfig lastStageConfig = null;
-        for (StageConfig currentStageConfig : this) {
-            if (currentStageConfig.name().equals(stageName)) {
-                return lastStageConfig;
-            }
-            lastStageConfig = currentStageConfig;
-        }
-        return null;
-    }
-
     public boolean isConfigOriginSameAsOneOfMaterials() {
-        if (!(isConfigDefinedRemotely())) {
+        if (!isConfigDefinedRemotely()) {
             return false;
         }
 
@@ -437,7 +436,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public boolean hasSameConfigOrigin(PipelineConfig other) {
-        if (!(isConfigDefinedRemotely())) {
+        if (!isConfigDefinedRemotely()) {
             return false;
         }
 
@@ -445,7 +444,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public boolean isConfigOriginFromRevision(String revision) {
-        if (!(isConfigDefinedRemotely())) {
+        if (!isConfigDefinedRemotely()) {
             return false;
         }
 
@@ -482,18 +481,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         this.labelTemplate = labelFormat;
     }
 
-    public boolean hasNextStage(final CaseInsensitiveString lastStageName) {
-        if (this.isEmpty()) {
-            return false;
-        }
-        return nextStage(lastStageName) != null;
-    }
-
-    public TrackingTool getTrackingTool() {
+    public @Nullable TrackingTool getTrackingTool() {
         return trackingTool;
     }
 
-    public TrackingTool trackingTool() {
+    public @NotNull TrackingTool trackingToolOrDefault() {
         return trackingTool == null ? new TrackingTool() : trackingTool;
     }
 
@@ -501,10 +493,12 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         this.trackingTool = trackingTool;
     }
 
+    @TestOnly
     public void addMaterialConfig(MaterialConfig materialConfig) {
         this.materialConfigs.add(materialConfig);
     }
 
+    @TestOnly
     public void removeMaterialConfig(MaterialConfig materialConfig) {
         this.materialConfigs.remove(materialConfig);
     }
@@ -562,54 +556,28 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         this.timer = timer;
     }
 
-    public boolean requiresApproval() {
-        if (isEmpty()) {
-            return false;
-        }
-        return getFirstOrNull().requiresApproval();
-    }
-
-    public void lockExplicitly() {
-        this.lockBehavior = LOCK_VALUE_LOCK_ON_FAILURE;
-    }
-
-    public void unlockExplicitly() {
-        lockBehavior = LOCK_VALUE_NONE;
-    }
-
-    public boolean hasExplicitLock() {
+    public boolean hasExplicitLockBehavior() {
         return lockBehavior != null;
     }
 
-    public Boolean explicitLock() {
-        if (!hasExplicitLock()) {
-            throw new RuntimeException(format("There is no explicit lock on the pipeline '%s'.", name));
-        }
-
-        return isLockable();
-    }
-
     public boolean isLockable() {
-        return isLockableOnFailure() || isPipelineUnlockableWhenFinished();
+        return isLockableOnFailure() || isUnlockableWhenFinished();
     }
 
     public boolean isLockableOnFailure() {
         return LOCK_VALUE_LOCK_ON_FAILURE.equals(lockBehavior);
     }
 
-    public boolean isPipelineUnlockableWhenFinished() {
+    public boolean isUnlockableWhenFinished() {
         return LOCK_VALUE_UNLOCK_WHEN_FINISHED.equals(lockBehavior);
     }
 
-    public String getLockBehavior() {
+    public @NotNull String getLockBehaviorOrDefault() {
         return lockBehavior == null ? LOCK_VALUE_NONE : lockBehavior;
     }
 
-    public void setLockBehaviorIfNecessary(String newLockBehavior) {
-        boolean oldBehaviorWasEmpty = !hasExplicitLock();
-        boolean newBehaviorIsNone = LOCK_VALUE_NONE.equals(newLockBehavior);
-        boolean doNotSet = oldBehaviorWasEmpty && newBehaviorIsNone;
-        if (!doNotSet) {
+    public void setLockBehaviorIfNecessary(@Nullable String newLockBehavior) {
+        if (hasExplicitLockBehavior() || !LOCK_VALUE_NONE.equals(newLockBehavior)) {
             lockBehavior = newLockBehavior;
         }
     }
@@ -622,14 +590,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return variables;
     }
 
-    public EnvironmentVariablesConfig getPlainTextVariables() {
-        return variables.getPlainTextVariables();
-    }
-
-    public EnvironmentVariablesConfig getSecureVariables() {
-        return variables.getSecureVariables();
-    }
-
+    @TestOnly
     public void addEnvironmentVariable(String name, String value) {
         variables.add(new EnvironmentVariableConfig(name.trim(), value));
     }
@@ -662,10 +623,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         this.templateName = templateName;
     }
 
-    public void setTemplateName(String templateName) {
-        setTemplateName(new CaseInsensitiveString(templateName));
-    }
-
     private void ensureNoStagesDefined(CaseInsensitiveString newTemplateName) {
         bombIf(!isEmpty(), () -> format("Cannot set template '%s' on pipeline '%s' because it already has stages defined", newTemplateName, name));
     }
@@ -676,15 +633,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
             pipelineConfig.clear();
         }
         return pipelineConfig;
-    }
-
-    public boolean dependsOn(final CaseInsensitiveString pipelineName) {
-        for (MaterialConfig material : materialConfigs) {
-            if (material instanceof DependencyMaterialConfig && ((DependencyMaterialConfig) material).getPipelineName().equals(pipelineName)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public List<DependencyMaterialConfig> dependencyMaterialConfigs() {
@@ -717,16 +665,13 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return materialConfigs.hasMaterialWithFingerprint(material);
     }
 
+    @TestOnly
     public void addParam(ParamConfig paramConfig) {
         this.params.add(paramConfig);
     }
 
     public void setParams(ParamsConfig paramsConfig) {
         this.params = paramsConfig;
-    }
-
-    public void setParams(List<ParamConfig> paramsConfig) {
-        setParams(new ParamsConfig(paramsConfig));
     }
 
     @Override
@@ -784,23 +729,18 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         if (attributeMap.containsKey(ENVIRONMENT_VARIABLES)) {
             variables.setConfigAttributes(attributeMap.get(ENVIRONMENT_VARIABLES));
         }
-        if (!attributeMap.containsKey(CONFIGURATION_TYPE) || (attributeMap.containsKey(CONFIGURATION_TYPE) && getConfigurationType().equals(CONFIGURATION_TYPE_TEMPLATE))) {
+        if (!attributeMap.containsKey(CONFIGURATION_TYPE) || attributeMap.containsKey(CONFIGURATION_TYPE) && getConfigurationType().equals(CONFIGURATION_TYPE_TEMPLATE)) {
             if (attributeMap.containsKey(PARAMS)) {
                 params.setConfigAttributes(attributeMap.get(PARAMS));
             }
         }
         if (attributeMap.containsKey(StageConfig.APPROVAL)) {
-            StageConfig firstStage = getFirstOrNull();
-            firstStage.setConfigAttributes(attributeMap);
+            getFirst().setConfigAttributes(attributeMap);
         }
     }
 
     public void setName(String name) {
         this.name = new CaseInsensitiveString(name);
-    }
-
-    public void setName(CaseInsensitiveString name) {
-        this.name = name;
     }
 
     private void setConfigurationType(Map<String, Object> attributeMap) {
@@ -819,31 +759,14 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         trackingTool = TrackingTool.createTrackingTool(attributeMap);
     }
 
-    public String getConfigurationType() {
+    public @NotNull String getConfigurationType() {
         if (hasTemplate()) {
             return CONFIGURATION_TYPE_TEMPLATE;
         }
         return CONFIGURATION_TYPE_STAGES;
     }
 
-    public void incrementIndex(StageConfig stageToBeMoved) {
-        moveStage(stageToBeMoved, 1);
-    }
-
-    public void decrementIndex(StageConfig stageToBeMoved) {
-        moveStage(stageToBeMoved, -1);
-    }
-
-    private void moveStage(StageConfig moveMeStage, int moveBy) {
-        int current = this.indexOf(moveMeStage);
-        if (current == -1) {
-            throw new RuntimeException(format("Cannot find the stage '%s' in pipeline '%s'", moveMeStage.name(), name()));
-        }
-        this.remove(moveMeStage);
-        this.add(current + moveBy, moveMeStage);
-    }
-
-    public List<StageConfig> allStagesBefore(CaseInsensitiveString stage) {
+    public @NotNull List<StageConfig> allStagesBefore(CaseInsensitiveString stage) {
         List<StageConfig> stages = new ArrayList<>();
         for (StageConfig stageConfig : this) {
             if (stage.equals(stageConfig.name())) {
@@ -854,7 +777,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return stages;
     }
 
-    public List<StageConfig> validStagesForFetchArtifact(PipelineConfig downstreamPipeline, CaseInsensitiveString currentDownstreamStage) {
+    public @Nullable List<StageConfig> validStagesForFetchArtifact(PipelineConfig downstreamPipeline, CaseInsensitiveString currentDownstreamStage) {
         for (DependencyMaterialConfig dependencyMaterial : downstreamPipeline.dependencyMaterialConfigs()) {
             if (dependencyMaterial.getPipelineName().equals(name)) {
                 List<StageConfig> stageConfigs = allStagesBefore(dependencyMaterial.getStageName());
@@ -869,7 +792,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public CommentRenderer getCommentRenderer() {
-        return trackingTool();
+        return trackingToolOrDefault();
     }
 
     public void validateNameUniqueness(Map<CaseInsensitiveString, PipelineConfig> pipelineNameMap) {
@@ -901,6 +824,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     }
 
+    @TestOnly
     public void addEnvironmentVariable(EnvironmentVariableConfig environmentVariableConfig) {
         variables.add(environmentVariableConfig);
     }
@@ -951,14 +875,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     public boolean isLocal() {
         return origin == null || this.origin.isLocal();
-    }
-
-    public void setLock(boolean lock) {
-        if (lock) {
-            this.lockExplicitly();
-        } else {
-            this.unlockExplicitly();
-        }
     }
 
     public String getOriginDisplayName() {

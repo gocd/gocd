@@ -180,7 +180,7 @@ public class ScheduleServiceIntegrationTest {
         Pipeline pipeline = PipelineMother.schedule(mingleConfig, modifySomeFiles(mingleConfig));
         pipeline = dbHelper.savePipelineWithStagesAndMaterials(pipeline);
         pipelinePauseService.pause(pipeline.getName(), "", Username.valueOf("anyone"));
-        dbHelper.passStage(pipeline.getStages().getFirstOrNull());
+        dbHelper.passStage(pipeline.getStages().getFirst());
         Pipeline newPipeline = manualSchedule(str(mingleConfig.name()));
         assertThat(newPipeline.getId()).isEqualTo(pipeline.getId());
     }
@@ -224,9 +224,9 @@ public class ScheduleServiceIntegrationTest {
         });
         pipelineService.save(pipeline);
         assertThat(pipelineLockService.isLocked(pipelineName)).isTrue();
-        scheduleService.unlockIfNecessary(pipeline, pipeline.getStages().getFirstOrNull());
+        scheduleService.unlockIfNecessary(pipeline, pipeline.getStages().getFirst());
         assertThat(pipelineLockService.isLocked(pipelineName)).isTrue();
-        scheduleService.unlockIfNecessary(pipeline, pipeline.getStages().getLastOrNull());
+        scheduleService.unlockIfNecessary(pipeline, pipeline.getStages().getLast());
         assertThat(pipelineLockService.isLocked(pipelineName)).isFalse();
     }
 
@@ -248,7 +248,7 @@ public class ScheduleServiceIntegrationTest {
 
         pipelineService.save(pipeline);
         assertThat(pipelineLockService.isLocked(pipelineName)).isTrue();
-        scheduleService.automaticallyTriggerRelevantStagesFollowingCompletionOf(pipeline.getStages().getLastOrNull());
+        scheduleService.automaticallyTriggerRelevantStagesFollowingCompletionOf(pipeline.getStages().getLast());
         assertThat(pipelineLockService.isLocked(pipelineName)).isFalse();
     }
 
@@ -508,7 +508,7 @@ public class ScheduleServiceIntegrationTest {
 
         //define a job in the config requiring elastic agent
         PipelineConfig pipelineToBeAdded = PipelineConfigMother.createPipelineConfigWithStages(UUID.randomUUID().toString(), "s1");
-        pipelineToBeAdded.getFirstOrNull().getJobs().getFirstOrNull().setElasticProfileId("elastic_agent_profile");
+        pipelineToBeAdded.getFirst().getJobs().getFirst().setElasticProfileId("elastic_agent_profile");
         PipelineConfig pipelineConfig = configHelper.addPipeline(pipelineToBeAdded);
 
         //trigger the pipeline

@@ -168,7 +168,7 @@ public class SchedulingCheckerService {
             return ScheduleStageResult.CanSchedule;
         }
         String pipelineName = pipeline.getName();
-        if (!goConfigService.hasPreviousStage(pipelineName, stageName)) {
+        if (goConfigService.isFirstStage(pipelineName, stageName)) {
             return ScheduleStageResult.CanSchedule;
         }
         CaseInsensitiveString previousStageName = goConfigService.previousStage(pipelineName, stageName).name();

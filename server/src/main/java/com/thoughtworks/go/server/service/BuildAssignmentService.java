@@ -209,7 +209,10 @@ public class BuildAssignmentService implements ConfigChangedListener {
                 } catch (RulesViolationException | SecretResolutionFailureException e) {
                     JobInstance instance = jobInstanceService.buildById(jobPlan.getJobId());
                     JobIdentifier jobIdentifier = jobPlan.getIdentifier();
-                    String failureMessage = format("\nThis job was failed by GoCD. This job is configured to run on an elastic agent, there were errors while resolving secrets for the the associated elastic configurations.\nReasons: %s", e.getMessage());
+                    String failureMessage = format("""
+                        
+                        This job was failed by GoCD. This job is configured to run on an elastic agent, there were errors while resolving secrets for the the associated elastic configurations.
+                        Reasons: %s""", e.getMessage());
                     consoleService.appendToConsoleLogSafe(jobIdentifier, failureMessage);
                     scheduleService.failJob(instance);
                     jobStatusTopic.post(new JobStatusMessage(jobIdentifier, instance.getState(), agent.getUuid()));
@@ -362,12 +365,17 @@ public class BuildAssignmentService implements ConfigChangedListener {
     }
 
     private void logSecretsResolutionFailure(JobIdentifier jobIdentifier, SecretResolutionFailureException e) {
-        consoleService.appendToConsoleLogSafe(jobIdentifier, format("\nJob for pipeline '%s' failed due to errors while resolving secret params.", jobIdentifier.buildLocator()));
-        consoleService.appendToConsoleLogSafe(jobIdentifier, format("\nReason: %s\n", e.getMessage()));
+        consoleService.appendToConsoleLogSafe(jobIdentifier, format("""
+            
+            Job for pipeline '%s' failed due to errors while resolving secret params.
+            Reason: %s
+            """, jobIdentifier.buildLocator(), e.getMessage()));
     }
 
     private void logRulesViolation(JobIdentifier jobIdentifier, RulesViolationException e) {
-        consoleService.appendToConsoleLogSafe(jobIdentifier, format("\nJob for pipeline '%s' failed due to errors: %s", jobIdentifier.buildLocator(), e.getMessage()));
+        consoleService.appendToConsoleLogSafe(jobIdentifier, format("""
+            
+            Job for pipeline '%s' failed due to errors: %s""", jobIdentifier.buildLocator(), e.getMessage()));
     }
 
     private Set<String> getArtifactStoreIdsRequiredByArtifactPlans(List<ArtifactPlan> artifactPlans) {
@@ -388,7 +396,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
     private void resolveSecretsForMaterials(MaterialRevisions materialRevisions) {
         List<Material> materials = stream(materialRevisions.spliterator(), true)
                 .map(MaterialRevision::getMaterial)
-                .filter((material) -> material instanceof PluggableSCMMaterial || material instanceof PackageMaterial)
+                .filter(material -> material instanceof PluggableSCMMaterial || material instanceof PackageMaterial)
                 .collect(toList());
         secretParamResolver.resolve(materials);
     }

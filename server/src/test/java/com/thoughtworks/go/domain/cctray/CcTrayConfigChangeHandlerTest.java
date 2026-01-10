@@ -241,11 +241,11 @@ public class CcTrayConfigChangeHandlerTest {
         List<ProjectStatus> statuses = statusesCaptor.getValue();
         assertThat(statuses.size()).isEqualTo(4);
 
-        assertThat(statuses.get(0).name()).isEqualTo("pipeline1 :: stage1");
-        assertThat(statuses.get(0).canBeViewedBy("user1")).isTrue();
-        assertThat(statuses.get(0).canBeViewedBy("user2")).isTrue();
-        assertThat(statuses.get(0).canBeViewedBy("user3")).isFalse();
-        assertThat(statuses.get(0).canBeViewedBy("user4")).isFalse();
+        assertThat(statuses.getFirst().name()).isEqualTo("pipeline1 :: stage1");
+        assertThat(statuses.getFirst().canBeViewedBy("user1")).isTrue();
+        assertThat(statuses.getFirst().canBeViewedBy("user2")).isTrue();
+        assertThat(statuses.getFirst().canBeViewedBy("user3")).isFalse();
+        assertThat(statuses.getFirst().canBeViewedBy("user4")).isFalse();
 
         assertThat(statuses.get(1).name()).isEqualTo("pipeline1 :: stage1 :: job1");
         assertThat(statuses.get(1).canBeViewedBy("user1")).isTrue();
@@ -309,14 +309,14 @@ public class CcTrayConfigChangeHandlerTest {
         verify(cache).putAll(argumentCaptor.capture());
 
         List<ProjectStatus> allValues = argumentCaptor.getValue();
-        assertThat(allValues.get(0).name()).isEqualTo(pipeline1Stage);
-        assertThat(allValues.get(0).viewers().contains("user1")).isTrue();
-        assertThat(allValues.get(0).viewers().contains("user2")).isTrue();
-        assertThat(allValues.get(0).viewers().contains("user3")).isFalse();
-        assertThat(allValues.get(1).name()).isEqualTo(pipeline1job);
-        assertThat(allValues.get(1).viewers().contains("user1")).isTrue();
-        assertThat(allValues.get(1).viewers().contains("user2")).isTrue();
-        assertThat(allValues.get(1).viewers().contains("user3")).isFalse();
+        assertThat(allValues.getFirst().name()).isEqualTo(pipeline1Stage);
+        assertThat(allValues.getFirst().viewers().contains("user1")).isTrue();
+        assertThat(allValues.getFirst().viewers().contains("user2")).isTrue();
+        assertThat(allValues.getFirst().viewers().contains("user3")).isFalse();
+        assertThat(allValues.getLast().name()).isEqualTo(pipeline1job);
+        assertThat(allValues.getLast().viewers().contains("user1")).isTrue();
+        assertThat(allValues.getLast().viewers().contains("user2")).isTrue();
+        assertThat(allValues.getLast().viewers().contains("user3")).isFalse();
     }
 
     private Users viewers(String... users) {

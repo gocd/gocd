@@ -135,8 +135,8 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
         }
         List<ServerHealthState> stateList = serverHealthService.logsSortedForScope(HealthStateScope.forStage("blahPipeline", "blahStage"));
         assertThat(stateList.size()).isEqualTo(1);
-        assertThat(stateList.get(0).getMessage()).isEqualTo("Failed to trigger stage [blahStage] pipeline [blahPipeline]");
-        assertThat(stateList.get(0).getDescription()).isEqualTo("Could not find matching agents to run job [job2] of stage [blahStage].");
+        assertThat(stateList.getFirst().getMessage()).isEqualTo("Failed to trigger stage [blahStage] pipeline [blahPipeline]");
+        assertThat(stateList.getFirst().getDescription()).isEqualTo("Could not find matching agents to run job [job2] of stage [blahStage].");
     }
 
     @Test
@@ -145,8 +145,8 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         List<ServerHealthState> stateList = serverHealthService.logsSortedForScope(HealthStateScope.forStage("blahPipeline", "blahStage"));
         assertThat(stateList.size()).isEqualTo(1);
-        assertThat(stateList.get(0).getMessage()).isEqualTo("Failed to trigger stage [blahStage] pipeline [blahPipeline]");
-        assertThat(stateList.get(0).getDescription()).isEqualTo("Could not find matching agents to run job [job2] of stage [blahStage].");
+        assertThat(stateList.getFirst().getMessage()).isEqualTo("Failed to trigger stage [blahStage] pipeline [blahPipeline]");
+        assertThat(stateList.getFirst().getDescription()).isEqualTo("Could not find matching agents to run job [job2] of stage [blahStage].");
     }
 
     private BuildCause saveMaterials(BuildCause buildCause) {

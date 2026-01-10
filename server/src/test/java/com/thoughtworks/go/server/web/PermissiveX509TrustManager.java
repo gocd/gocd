@@ -51,7 +51,7 @@ public class PermissiveX509TrustManager implements X509TrustManager {
 
     @Override
     public void checkServerTrusted(X509Certificate[] certificates, String string) throws CertificateException {
-        if ((certificates != null) && (certificates.length == 1)) {
+        if (certificates != null && certificates.length == 1) {
             X509Certificate certificate = certificates[0];
 
             try {

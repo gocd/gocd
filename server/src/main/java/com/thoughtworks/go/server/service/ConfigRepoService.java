@@ -76,7 +76,7 @@ public class ConfigRepoService {
     }
 
     private Predicate<PartialConfig> definedByRepo(ConfigRepoConfig repo) {
-        return (part) -> part.getOrigin() instanceof RepoConfigOrigin &&
+        return part -> part.getOrigin() instanceof RepoConfigOrigin &&
                 ((RepoConfigOrigin) part.getOrigin()).getConfigRepo().equals(repo);
     }
 

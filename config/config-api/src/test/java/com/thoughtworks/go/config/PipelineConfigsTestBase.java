@@ -189,10 +189,10 @@ public abstract class PipelineConfigsTestBase {
     @Test
     public void shouldReturnIndexOfPipeline() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
-        PipelineConfig pipelineConfig = (PipelineConfig) group.get(0).clone();
+        PipelineConfig pipelineConfig = (PipelineConfig) group.getFirst().clone();
         pipelineConfig.setLabelTemplate("blah");
         group.update(group.getGroup(), pipelineConfig, "pipeline1");
-        assertThat(group.get(0).getLabelTemplate()).isEqualTo("blah");
+        assertThat(group.getFirst().getLabelTemplate()).isEqualTo("blah");
     }
 
     @Test
@@ -206,19 +206,6 @@ public abstract class PipelineConfigsTestBase {
     }
 
     @Test
-    public void shouldRemovePipelineAtIndex() {
-        PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline0"));
-
-        PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1");
-        group.add(1, p1);
-
-        group.remove(0);
-
-        assertThat(group.get(0)).isEqualTo(p1);
-        assertThat(group.size()).isEqualTo(1);
-    }
-
-    @Test
     public void shouldRemovePipeline() {
         PipelineConfig p0 = PipelineConfigMother.pipelineConfig("pipeline0");
         PipelineConfigs group = createWithPipeline(p0);
@@ -228,17 +215,9 @@ public abstract class PipelineConfigsTestBase {
 
         group.remove(p0);
 
-        assertThat(group.get(0)).isEqualTo(p1);
+        assertThat(group.getFirst()).isEqualTo(p1);
         assertThat(group.size()).isEqualTo(1);
     }
-
-    @Test
-    public void shouldReturnIndexOfPipeline_When2Pipelines() {
-        PipelineConfigs group = createWithPipelines(PipelineConfigMother.pipelineConfig("pipeline1"), PipelineConfigMother.pipelineConfig("pipeline2"));
-        PipelineConfig pipelineConfig = group.findBy(new CaseInsensitiveString("pipeline2"));
-        assertThat(group.indexOf(pipelineConfig)).isEqualTo(1);
-    }
-
 
     @Test
     public void shouldUpdateAuthorization() {

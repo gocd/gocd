@@ -221,7 +221,7 @@ public class PipelineSchedulerTest {
         doNothing().when(configService).register(captor.capture());
         scheduler.initialize();
         List<ConfigChangedListener> listeners = captor.getAllValues();
-        listeners.get(0).onConfigChange(cruiseConfig);
+        listeners.getFirst().onConfigChange(cruiseConfig);
         assertThat(listeners.contains(scheduler)).isTrue();
         assertThat(listeners.get(2) instanceof EntityConfigChangedListener).isTrue();
         @SuppressWarnings("unchecked") EntityConfigChangedListener<ConfigRepoConfig> entityConfigChangedListener = (EntityConfigChangedListener<ConfigRepoConfig>) listeners.get(2);

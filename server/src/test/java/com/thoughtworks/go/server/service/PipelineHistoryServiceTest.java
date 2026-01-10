@@ -215,7 +215,7 @@ class PipelineHistoryServiceTest {
         when(pipelineDao.findPipelineHistoryByNameAndCounter("pipeline", 1)).thenReturn(instanceModel);
         stubConfigServiceToReturnPipeline("pipeline", config);
 
-        StageInstanceModel firstStage = instanceModel.getStageHistory().get(0);
+        StageInstanceModel firstStage = instanceModel.getStageHistory().getFirst();
         when(scheduleService.canRun(eq(instanceModel.getPipelineIdentifier()), eq(firstStage.getName()), eq(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername())), eq(instanceModel.hasPreviousStageBeenScheduled(firstStage.getName())), any())).thenReturn(true);
         StageInstanceModel secondStage = instanceModel.getStageHistory().get(1);
         lenient().when(scheduleService.canRun(instanceModel.getPipelineIdentifier(), secondStage.getName(), CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()),
@@ -226,10 +226,10 @@ class PipelineHistoryServiceTest {
 
         PipelineInstanceModel pipelineInstance = pipelineHistoryService.findPipelineInstance("pipeline", 1, Username.ANONYMOUS, new HttpOperationResult());
         StageInstanceModels models = pipelineInstance.getStageHistory();
-        assertThat(models.get(0).getCanRun()).isTrue();
-        assertThat(models.get(1).getCanRun()).isFalse();
-        assertThat(models.get(0).hasOperatePermission()).isTrue();
-        assertThat(models.get(1).hasOperatePermission()).isFalse();
+        assertThat(models.getFirst().getCanRun()).isTrue();
+        assertThat(models.getLast().getCanRun()).isFalse();
+        assertThat(models.getFirst().hasOperatePermission()).isTrue();
+        assertThat(models.getLast().hasOperatePermission()).isFalse();
     }
 
     @Test
@@ -515,7 +515,7 @@ class PipelineHistoryServiceTest {
 
     private void stubConfigServiceToReturnPipeline(String blahPipelineName, PipelineConfig blahPipelineConfig) {
         when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(blahPipelineName))).thenReturn(blahPipelineConfig);
-        lenient().when(goConfigService.findFirstStageOfPipeline(new CaseInsensitiveString(blahPipelineName))).thenReturn(blahPipelineConfig.get(0));
+        lenient().when(goConfigService.findFirstStageOfPipeline(new CaseInsensitiveString(blahPipelineName))).thenReturn(blahPipelineConfig.getFirst());
     }
 
     @SuppressWarnings("SameParameterValue")

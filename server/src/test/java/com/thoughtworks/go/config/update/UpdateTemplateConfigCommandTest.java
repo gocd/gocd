@@ -111,7 +111,7 @@ class UpdateTemplateConfigCommandTest {
         assertThat(command.isValid(cruiseConfig)).isFalse();
         assertThat(updatedTemplateConfig.getAllErrors().size()).isEqualTo(1);
         String message = "No profile defined corresponding to profile_id 'invalidElasticProfileId'";
-        assertThat(updatedTemplateConfig.getAllErrors().get(0).asString()).isEqualTo(message);
+        assertThat(updatedTemplateConfig.getAllErrors().getFirst().asString()).isEqualTo(message);
     }
 
     @Test

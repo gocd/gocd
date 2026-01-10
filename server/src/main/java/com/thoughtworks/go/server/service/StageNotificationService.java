@@ -72,11 +72,10 @@ public class StageNotificationService {
         LOGGER.debug("Processing notification titled [{}]", subject);
         for (User user : users) {
             if (user.matchNotification(stageIdentifier.stageConfigIdentifier(), event, materialRevisions)) {
-                StringBuilder emailWithSignature = new StringBuilder(emailBody)
-                        .append("\n\nSent by Go on behalf of ")
-                        .append(user.getName());
-                SendEmailMessage sendEmailMessage
-                        = new SendEmailMessage(subject, emailWithSignature.toString(), user.getEmail());
+                SendEmailMessage sendEmailMessage = new SendEmailMessage(
+                    subject,
+                    emailBody + "\n\nSent by Go on behalf of " + user.getName(),
+                    user.getEmail());
                 emailNotificationTopic.post(sendEmailMessage);
             }
         }
@@ -88,6 +87,7 @@ public class StageNotificationService {
         private Material material;
         private final SystemEnvironment systemEnvironment;
         private final StageIdentifier stageIdentifier;
+        @SuppressWarnings("TextBlockMigration")
         protected static final String SECTION_SEPERATOR = "\n\n";
 
         public EmailBodyGenerator(MaterialRevisions materialRevisions, Username cancelledBy, SystemEnvironment systemEnvironment, StageIdentifier stageIdentifier) {

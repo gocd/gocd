@@ -30,7 +30,7 @@ class M001 {
     private static final Gson GSON = new Gson();
 
     static Migration convertPipelineSelectionsToFilters() {
-        return (cxn) -> {
+        return cxn -> {
             if (!required(cxn)) {
                 return;
             }

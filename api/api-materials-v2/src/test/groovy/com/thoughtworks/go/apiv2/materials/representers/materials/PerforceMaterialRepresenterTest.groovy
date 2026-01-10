@@ -37,7 +37,7 @@ class PerforceMaterialRepresenterTest implements MaterialRepresenterTrait<P4Mate
     def p4Config = p4('', '', '', false, '', new GoCipher(), new CaseInsensitiveString(''), true, null, false, '/dest/')
     def materialConfigs = new MaterialConfigs(p4Config)
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
-    return materialConfigs.getFirstOrNull() as P4MaterialConfig
+    return materialConfigs.getFirst() as P4MaterialConfig
   }
 
   def materialHash() {

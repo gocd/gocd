@@ -50,14 +50,14 @@ public class EnvironmentsRepresenter {
         for (String envName : sortedEnvNames) {
             EnvironmentConfig envConfig = envConfigs.find(new CaseInsensitiveString(envName));
             if (envConfig != null) {
-                writer.addChild((childWriter) -> {
+                writer.addChild(childWriter -> {
                     childWriter.add("name", envName);
-                    childWriter.addChild("origin", (originWriter) -> origin(originWriter, envConfig, agentInstance.getUuid()));
+                    childWriter.addChild("origin", originWriter -> origin(originWriter, envConfig, agentInstance.getUuid()));
                 });
             } else {
-                writer.addChild((childWriter) -> {
+                writer.addChild(childWriter -> {
                     childWriter.add("name", envName);
-                    childWriter.addChild("origin", (originWriter) -> originWriter.add("type", "unknown"));
+                    childWriter.addChild("origin", originWriter -> originWriter.add("type", "unknown"));
                 });
             }
         }
@@ -76,7 +76,7 @@ public class EnvironmentsRepresenter {
 
     private static void writeConfigRepoOrigin(OutputWriter writer, RepoConfigOrigin repoConfigOrigin) {
         writer.add("type", "config-repo");
-        writer.addLinks((linksWriter) -> {
+        writer.addLinks(linksWriter -> {
             linksWriter.addLink("self", Routes.ConfigRepos.id(repoConfigOrigin.getConfigRepo().getId()));
             linksWriter.addAbsoluteLink("doc", Routes.ConfigRepos.DOC);
             linksWriter.addLink("find", Routes.ConfigRepos.find());
@@ -85,7 +85,7 @@ public class EnvironmentsRepresenter {
 
     private static void writeConfigXmlOrigin(OutputWriter writer) {
         writer.add("type", "gocd");
-        writer.addLinks((linksWriter) -> {
+        writer.addLinks(linksWriter -> {
             linksWriter.addLink("self", Routes.ConfigView.SELF);
             linksWriter.addAbsoluteLink("doc", apiDocsUrl("#get-configuration"));
         });

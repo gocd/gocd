@@ -38,7 +38,7 @@ public class UserToRepresent extends User {
     private UserToRepresent(User user, boolean isAdmin, RolesConfig rolesConfig) {
         super(user);
         this.isAdmin = isAdmin;
-        this.rolesConfig = (rolesConfig == null) ? new RolesConfig() : rolesConfig;
+        this.rolesConfig = rolesConfig == null ? new RolesConfig() : rolesConfig;
     }
 
     public static UserToRepresent from(User user, boolean isAdmin, RolesConfig rolesConfig) {

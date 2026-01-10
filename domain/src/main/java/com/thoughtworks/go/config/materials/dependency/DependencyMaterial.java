@@ -227,7 +227,7 @@ public class DependencyMaterial extends AbstractMaterial {
 
     @Override
     public int hashCode() {
-        int result = (materialType != null ? materialType.hashCode() : 0);
+        int result = materialType != null ? materialType.hashCode() : 0;
         result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
         result = 31 * result + (stageName != null ? stageName.hashCode() : 0);
         return result;

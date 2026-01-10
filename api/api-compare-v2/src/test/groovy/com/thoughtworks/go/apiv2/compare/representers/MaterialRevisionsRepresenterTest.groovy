@@ -39,7 +39,7 @@ class MaterialRevisionsRepresenterTest {
 
     def expectedJson = [
       [
-        "material": toObject({ MaterialRepresenter.toJSON(it, revisions.get(0).getMaterial().config()) }),
+        "material": toObject({ MaterialRepresenter.toJSON(it, revisions.getFirst().getMaterial().config()) }),
         "revision": [
           [
             "commit_message": "#4521 - get gadget working",

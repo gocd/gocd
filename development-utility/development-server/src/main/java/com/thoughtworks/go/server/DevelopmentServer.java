@@ -73,6 +73,7 @@ public class DevelopmentServer {
             System.out.println("* credentials: \"admin\" / \"badger\"");
         } catch (Exception e) {
             System.err.println("Failed to start GoCD server. Exception:");
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }

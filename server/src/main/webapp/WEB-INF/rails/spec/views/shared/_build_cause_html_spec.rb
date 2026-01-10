@@ -29,7 +29,7 @@ describe "shared/_build_cause.html.erb" do
 
     @svn_revisions = ModificationsMother.createMaterialRevisions(MaterialsMother.svnMaterial("url", "Folder", nil, "pass", true, "*.doc"), @modification)
     @svn_revisions.getMaterialRevision(0).markAsChanged()
-    @svn_revisions.materials().get(0).setName(CaseInsensitiveString.new("SvnName"))
+    @svn_revisions.materials().getFirst().setName(CaseInsensitiveString.new("SvnName"))
     @revisions.addAll(@svn_revisions)
 
     @hg_revisions = ModificationsMother.createHgMaterialRevisions()
@@ -45,7 +45,7 @@ describe "shared/_build_cause.html.erb" do
     allow(config_service).to receive(:getCommentRendererFor).with("foo").and_return(TrackingTool.new("http://pavan/${ID}", "#(\\d+)"))
 
     render :partial => "shared/build_cause", :locals => {:scope => {:material_revisions => @revisions, :show_files => false, :pipeline_name => "foo"}}
-    Capybara.string(response.body).find(".build_cause #material_#{@svn_revisions.materials().get(0).getPipelineUniqueFingerprint()}.changed").tap do |material|
+    Capybara.string(response.body).find(".build_cause #material_#{@svn_revisions.materials().getFirst().getPipelineUniqueFingerprint()}.changed").tap do |material|
       expect(material).to have_selector(".material_name", :text => "Subversion - SvnName")
       material.find(".change").tap do |change|
         change.find(".revision").tap do |revision|
@@ -68,7 +68,7 @@ describe "shared/_build_cause.html.erb" do
 
     end
 
-    Capybara.string(response.body).find(".build_cause #material_#{@hg_revisions.materials().get(0).getPipelineUniqueFingerprint()}").tap do |material|
+    Capybara.string(response.body).find(".build_cause #material_#{@hg_revisions.materials().getFirst().getPipelineUniqueFingerprint()}").tap do |material|
       expect(material).to have_selector(".material_name", :text => "Mercurial - hg-url")
       material.all(".change").tap do |changes|
         change1 = changes[0]
@@ -136,7 +136,7 @@ describe "shared/_build_cause.html.erb" do
 
     render :partial => "shared/build_cause", :locals => {:scope => {:material_revisions => @revisions, :show_files => false, :pipeline_name => "foo"}}
 
-    Capybara.string(response.body).find(".build_cause #material_#{@svn_revisions.materials().get(0).getPipelineUniqueFingerprint()}.changed").tap do |material|
+    Capybara.string(response.body).find(".build_cause #material_#{@svn_revisions.materials().getFirst().getPipelineUniqueFingerprint()}.changed").tap do |material|
       expect(material).to have_selector(".material_name", :text => "Subversion - SvnName")
       material.find(".change").tap do |change|
         change.find(".modified_by").tap do |revision|

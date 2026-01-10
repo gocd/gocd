@@ -144,7 +144,7 @@ public class ElasticProfileTest {
         profile.addConfigurations(List.of(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
 
         assertThat(profile.size()).isEqualTo(1);
-        assertFalse(profile.getFirstOrNull().isSecure());
+        assertFalse(profile.getFirst().isSecure());
         assertThat(profile).contains(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
     }
 
@@ -159,7 +159,7 @@ public class ElasticProfileTest {
         profile.encryptSecureProperties(config);
 
         assertThat(profile.size()).isEqualTo(1);
-        assertTrue(profile.getFirstOrNull().isSecure());
+        assertTrue(profile.getFirst().isSecure());
     }
 
     @Test
@@ -169,7 +169,7 @@ public class ElasticProfileTest {
 //        profile.encryptSecureConfigurations();
 
         assertThat(profile.size()).isEqualTo(1);
-        assertFalse(profile.getFirstOrNull().isSecure());
+        assertFalse(profile.getFirst().isSecure());
     }
 
     private PluginDescriptor pluginDescriptor(String pluginId) {

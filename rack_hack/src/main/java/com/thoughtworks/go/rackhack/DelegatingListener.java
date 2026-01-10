@@ -42,8 +42,4 @@ public class DelegatingListener implements ServletContextListener {
         }
         return servlet;
     }
-
-    @Override
-    public void contextDestroyed(ServletContextEvent servletContextEvent) {
-    }
 }

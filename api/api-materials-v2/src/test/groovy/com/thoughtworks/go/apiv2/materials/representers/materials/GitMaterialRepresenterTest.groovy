@@ -42,7 +42,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait<GitMaterial
     materialConfigs.add(dupGitMaterial)
 
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
-    return materialConfigs.get(0) as GitMaterialConfig
+    return materialConfigs.getFirst() as GitMaterialConfig
   }
 
   @Test

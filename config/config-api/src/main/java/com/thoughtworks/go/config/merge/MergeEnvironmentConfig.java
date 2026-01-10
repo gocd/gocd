@@ -220,7 +220,7 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
 
     @Override
     public CaseInsensitiveString name() {
-        return this.getFirstOrNull().name();
+        return this.getFirst().name();
     }
 
     @Override
@@ -442,7 +442,7 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
 
     @Override
     public int hashCode() {
-        int result = (this.name() != null ? this.name().hashCode() : 0);
+        int result = this.name() != null ? this.name().hashCode() : 0;
         result = 31 * result + (this.getAgents() != null ? this.getAgents().hashCode() : 0);
         result = 31 * result + (this.getPipelines() != null ? this.getPipelines().hashCode() : 0);
         EnvironmentVariablesConfig variablesConfig = this.getVariables();

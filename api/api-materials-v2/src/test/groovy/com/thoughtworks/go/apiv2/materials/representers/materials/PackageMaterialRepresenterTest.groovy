@@ -50,7 +50,7 @@ class PackageMaterialRepresenterTest {
     def material_configs = new MaterialConfigs(package_config)
     material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
 
-    def actualJson = toObjectString(MaterialsRepresenter.toJSON(material_configs.getFirstOrNull()))
+    def actualJson = toObjectString(MaterialsRepresenter.toJSON(material_configs.getFirst()))
 
     assertThatJson(actualJson).isEqualTo([
       type       : "package",

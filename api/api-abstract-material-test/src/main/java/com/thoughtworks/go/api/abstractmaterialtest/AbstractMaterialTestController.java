@@ -123,20 +123,19 @@ public abstract class AbstractMaterialTestController extends ApiController {
     }
 
     private void performParamExpansion(ScmMaterialConfig scmMaterialConfig, String pipelineName) {
+        MaterialConfigs materialConfigs = new MaterialConfigs(scmMaterialConfig);
         PipelineConfig pipelineConfig;
         // If the pipeline name is provided, find the pipeline and add the params to the new pipeline config object
         if (isNotBlank(pipelineName)) {
             PipelineConfig existingPipeline = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-            pipelineConfig = new PipelineConfig(existingPipeline.name(), new MaterialConfigs());
+            pipelineConfig = new PipelineConfig(existingPipeline.name(), materialConfigs);
 
             GoConfigCloner goConfigCloner = new GoConfigCloner();
             pipelineConfig.setParams(goConfigCloner.deepClone(existingPipeline.getParams()));
         } else {
-            // If the pipeline name is not provided, this means that the pipeline is still in creation nd hence no params exist
-            pipelineConfig = new PipelineConfig(new CaseInsensitiveString(""), new MaterialConfigs());
+            // If the pipeline name is not provided, this means that the pipeline is still in creation and hence no params exist
+            pipelineConfig = new PipelineConfig(new CaseInsensitiveString(""), materialConfigs);
         }
-        pipelineConfig.addMaterialConfig(scmMaterialConfig);
-
         ConfigParamPreprocessor configParamPreprocessor = new ConfigParamPreprocessor();
         configParamPreprocessor.process(pipelineConfig);
     }

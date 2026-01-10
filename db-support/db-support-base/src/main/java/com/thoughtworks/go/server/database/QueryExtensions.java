@@ -36,9 +36,9 @@ public abstract class QueryExtensions {
                      INNER JOIN pipelineMaterialRevisions pmr ON link.id = pmr.pipelineId \
                      INNER JOIN modifications mods ON pmr.toRevisionId >= mods.id and pmr.actualFromRevisionId <= mods.id AND pmr.materialId = mods.materialId \
                  WHERE mods.pipelineId IS NOT NULL \
-            )\
-            SELECT DISTINCT id FROM link WHERE id IS NOT NULL"""
-            .formatted(pipelineName, fromCounter, toCounter);
+            ) \
+            SELECT DISTINCT id FROM link WHERE id IS NOT NULL
+            """.formatted(pipelineName, fromCounter, toCounter);
     }
 
     public String queryRelevantToLookedUpDependencyMap(List<Long> pipelineIds) {
@@ -54,22 +54,25 @@ public abstract class QueryExtensions {
                      INNER JOIN pipelineMaterialRevisions pmr ON link.id = pmr.pipelineId \
                      INNER JOIN modifications mods ON pmr.toRevisionId >= mods.id and pmr.actualFromRevisionId <= mods.id AND pmr.materialId = mods.materialId \
                      INNER JOIN pipelines p ON mods.pipelineId = p.id \
-                 WHERE mods.pipelineId IS NOT NULL\
-            )\
-            SELECT id, name, lookedUpId FROM link""".formatted(joinWithQuotesForSql(pipelineIds));
+                 WHERE mods.pipelineId IS NOT NULL \
+            ) \
+            SELECT id, name, lookedUpId FROM link
+            """.formatted(joinWithQuotesForSql(pipelineIds));
     }
 
     public String retrievePipelineTimeline() {
         return """
             SELECT p.name, p.id AS p_id, p.counter, m.modifiedtime, \
-             (SELECT materials.fingerprint FROM materials WHERE id = m.materialId), naturalOrder, m.revision, pmr.toRevisionId AS mod_id, pmr.Id as pmrid \
+              (SELECT materials.fingerprint FROM materials WHERE id = m.materialId), \
+              naturalOrder, m.revision, pmr.toRevisionId AS mod_id, pmr.Id as pmrid \
             FROM pipelines p, pipelinematerialrevisions pmr, modifications m \
             WHERE p.id = pmr.pipelineid \
             AND pmr.torevisionid = m.id \
-            AND p.id > :pipelineId""";
+            AND p.id > :pipelineId
+            """;
     }
 
-    protected <T> String joinWithQuotesForSql(List<T> array) {
+    protected String joinWithQuotesForSql(List<? extends Number> array) {
         return array.stream()
             .map(Objects::toString)
             .collect(Collectors.joining("','", "'", "'"));

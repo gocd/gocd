@@ -76,7 +76,7 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
                     numberOfStagesPurged++;
                     artifactService.purgeArtifactsForStage(stage);
                 }
-            } while ((availableSpace() < requiredSpace) && !stages.isEmpty());
+            } while (availableSpace() < requiredSpace && !stages.isEmpty());
             if (availableSpace() < requiredSpace) {
                 LOGGER.warn("Ran out of stages to clear artifacts from but the disk space is still low");
             }

@@ -276,7 +276,7 @@ Above scenario allowed
         pipelineConfig.setMaterialConfigs(materialConfigs);
         materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", config));
 
-        assertThat(pipelineConfig.materialConfigs().get(0).errors().firstErrorOn(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Could not find SCM for given scm-id: [scm-id].");
+        assertThat(pipelineConfig.materialConfigs().getFirst().errors().firstErrorOn(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Could not find SCM for given scm-id: [scm-id].");
     }
 
     @Test
@@ -289,7 +289,7 @@ Above scenario allowed
         pipelineConfig.setMaterialConfigs(materialConfigs);
         materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", config));
 
-        assertThat(pipelineConfig.materialConfigs().get(0).errors().firstErrorOn(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Could not find repository for given package id:[package-id]");
+        assertThat(pipelineConfig.materialConfigs().getFirst().errors().firstErrorOn(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Could not find repository for given package id:[package-id]");
     }
 
 
@@ -305,8 +305,8 @@ Above scenario allowed
 
         pipelineOne.materialConfigs().validate(ConfigSaveValidationContext.forChain(config));
 
-        assertThat(pipelineOne.materialConfigs().get(0).errors().isEmpty()).isEqualTo(true);
-        assertThat(pipelineOne.materialConfigs().get(1).errors().isEmpty()).isEqualTo(true);
+        assertThat(pipelineOne.materialConfigs().getFirst().errors().isEmpty()).isEqualTo(true);
+        assertThat(pipelineOne.materialConfigs().getLast().errors().isEmpty()).isEqualTo(true);
     }
 
     @Test
@@ -341,8 +341,8 @@ Above scenario allowed
 
         pipelineOne.materialConfigs().validate(ConfigSaveValidationContext.forChain(config));
 
-        assertThat(pipelineOne.materialConfigs().get(0).errors().isEmpty()).isEqualTo(true);
-        assertThat(pipelineTwo.materialConfigs().get(0).errors().isEmpty()).isEqualTo(true);
+        assertThat(pipelineOne.materialConfigs().getFirst().errors().isEmpty()).isEqualTo(true);
+        assertThat(pipelineTwo.materialConfigs().getFirst().errors().isEmpty()).isEqualTo(true);
     }
 
     @Test
@@ -394,7 +394,7 @@ Above scenario allowed
 
         pipelineOne.materialConfigs().validate(ConfigSaveValidationContext.forChain(config));
 
-        assertThat(pipelineOne.materialConfigs().get(0).errors().firstErrorOn(ScmMaterialConfig.AUTO_UPDATE))
+        assertThat(pipelineOne.materialConfigs().getFirst().errors().firstErrorOn(ScmMaterialConfig.AUTO_UPDATE))
             .isEqualTo("The material of type Mercurial (http://url1) is used elsewhere with a different value for autoUpdate (poll for changes). Those values should be the same. Pipelines:\n two (auto update enabled),\n one (auto update disabled)");
     }
 
@@ -446,7 +446,7 @@ Above scenario allowed
         attributeMap.put(SvnMaterialConfig.TYPE, svnAttrMap);
         materialConfigs.setConfigAttributes(attributeMap);
 
-        assertThat(materialConfigs.getFirstOrNull()).isEqualTo(svn("foo", "bar", "baz", false));
+        assertThat(materialConfigs.getFirst()).isEqualTo(svn("foo", "bar", "baz", false));
     }
 
     @Test
@@ -468,7 +468,7 @@ Above scenario allowed
 
         TfsMaterialConfig tfsMaterialConfig = tfs(new GoCipher(), new UrlArgument("foo"), "bar", "CORPORATE", "baz", "to_hell");
         tfsMaterialConfig.setName(new CaseInsensitiveString("crapy_material"));
-        assertThat(materialConfigs.getFirstOrNull()).isEqualTo(tfsMaterialConfig);
+        assertThat(materialConfigs.getFirst()).isEqualTo(tfsMaterialConfig);
         assertThat(tfsMaterialConfig.getPassword()).isEqualTo("baz");
     }
 
@@ -487,7 +487,7 @@ Above scenario allowed
         materialConfigs.setConfigAttributes(attributeMap);
 
         assertThat(materialConfigs).hasSize(1);
-        assertThat(materialConfigs.getFirstOrNull()).isEqualTo(hg("foo", null));
+        assertThat(materialConfigs.getFirst()).isEqualTo(hg("foo", null));
     }
 
     @Test
@@ -506,7 +506,7 @@ Above scenario allowed
         assertThat(materialConfigs).hasSize(1);
         GitMaterialConfig expected = git("foo");
         expected.setConfigAttributes(Map.of(GitMaterialConfig.BRANCH, "master"));
-        assertThat(materialConfigs.getFirstOrNull()).isEqualTo(expected);
+        assertThat(materialConfigs.getFirst()).isEqualTo(expected);
     }
 
     @Test
@@ -527,7 +527,7 @@ Above scenario allowed
         assertThat(materialConfigs).hasSize(1);
         P4MaterialConfig expected = p4("localhost:1666", "foo", "username");
         expected.setPassword("password");
-        assertThat(materialConfigs.getFirstOrNull()).isEqualTo(expected);
+        assertThat(materialConfigs.getFirst()).isEqualTo(expected);
     }
 
     @Test
@@ -544,7 +544,7 @@ Above scenario allowed
 
         assertThat(materialConfigs).hasSize(1);
         DependencyMaterialConfig expected = new DependencyMaterialConfig(new CaseInsensitiveString("blah"), new CaseInsensitiveString("foo"));
-        assertThat(materialConfigs.getFirstOrNull()).isEqualTo(expected);
+        assertThat(materialConfigs.getFirst()).isEqualTo(expected);
     }
 
     @Test
@@ -562,7 +562,7 @@ Above scenario allowed
         materialConfigs.setConfigAttributes(attributeMap);
 
         assertThat(materialConfigs).hasSize(1);
-        assertThat(((PackageMaterialConfig) materialConfigs.getFirstOrNull()).getPackageId()).isEqualTo(packageId);
+        assertThat(((PackageMaterialConfig) materialConfigs.getFirst()).getPackageId()).isEqualTo(packageId);
     }
 
     @Test
@@ -590,7 +590,7 @@ Above scenario allowed
         materialConfigs.setConfigAttributes(attributeMap);
 
         assertThat(materialConfigs).hasSize(1);
-        assertThat(((PluggableSCMMaterialConfig) materialConfigs.getFirstOrNull()).getScmId()).isEqualTo(scmId);
+        assertThat(((PluggableSCMMaterialConfig) materialConfigs.getFirst()).getScmId()).isEqualTo(scmId);
     }
 
     @Test

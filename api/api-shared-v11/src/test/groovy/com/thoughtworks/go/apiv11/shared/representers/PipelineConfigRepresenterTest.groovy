@@ -198,8 +198,8 @@ class PipelineConfigRepresenterTest {
       ])
 
       def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer))
-      assertEquals('plain', pipelineConfig.getVariables().get(0).name)
-      assertEquals('secure', pipelineConfig.getVariables().get(1).name)
+      assertEquals('plain', pipelineConfig.getVariables().getFirst().name)
+      assertEquals('secure', pipelineConfig.getVariables().getLast().name)
     }
 
     @Test
@@ -226,8 +226,8 @@ class PipelineConfigRepresenterTest {
       ])
 
       def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer))
-      assertEquals('command', pipelineConfig.getParams().get(0).name)
-      assertEquals('command', pipelineConfig.getParams().get(1).name)
+      assertEquals('command', pipelineConfig.getParams().getFirst().name)
+      assertEquals('command', pipelineConfig.getParams().getLast().name)
     }
 
     @Test
@@ -286,8 +286,8 @@ class PipelineConfigRepresenterTest {
       def map = new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer)
       def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, map)
 
-      assertEquals('GitMaterial', pipelineConfig.materialConfigs().get(0).type)
-      assertEquals('SvnMaterial', pipelineConfig.materialConfigs().get(1).type)
+      assertEquals('GitMaterial', pipelineConfig.materialConfigs().getFirst().type)
+      assertEquals('SvnMaterial', pipelineConfig.materialConfigs().getLast().type)
     }
 
     @Test
@@ -364,10 +364,10 @@ class PipelineConfigRepresenterTest {
       ])
       def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer))
 
-      assertEquals('stage1', pipelineConfig.getStages().get(0).name().toString())
-      assertEquals('some-job', pipelineConfig.getStages().getFirstOrNull().getJobs().get(0).name().toString())
-      assertEquals('plain', pipelineConfig.getStages().getFirstOrNull().getVariables().get(0).name)
-      assertEquals('secure', pipelineConfig.getStages().getFirstOrNull().getVariables().get(1).name)
+      assertEquals('stage1', pipelineConfig.getStages().getFirst().name().toString())
+      assertEquals('some-job', pipelineConfig.getStages().getFirst().getJobs().getFirst().name().toString())
+      assertEquals('plain', pipelineConfig.getStages().getFirst().getVariables().getFirst().name)
+      assertEquals('secure', pipelineConfig.getStages().getFirst().getVariables().getLast().name)
     }
 
     @Test

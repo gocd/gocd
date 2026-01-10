@@ -80,7 +80,7 @@ public class JobPresentationServiceTest {
         when(agentService.findAgentByUUID(deletedAgentUuid)).thenReturn(agentFromDb);
         List<JobInstanceModel> models = new JobPresentationService(jobDurationStrategy, agentService).jobInstanceModelFor(new JobInstances(jobWithDeletedAgent));
         assertThat(models.size()).isEqualTo(1);
-        assertThat(models.get(0)).isEqualTo(new JobInstanceModel(jobWithDeletedAgent, jobDurationStrategy, agentFromDb));
+        assertThat(models.getFirst()).isEqualTo(new JobInstanceModel(jobWithDeletedAgent, jobDurationStrategy, agentFromDb));
         verify(agentService, times(1)).findAgentAndRefreshStatus(deletedAgentUuid);
         verify(agentService, times(1)).findAgentByUUID(deletedAgentUuid);
         verifyNoMoreInteractions(agentService);

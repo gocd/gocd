@@ -48,7 +48,7 @@ public class GoConfigParallelGraphWalkerTest {
             )));
         PipelineConfig pipelineWithTemplate = new PipelineConfig(new CaseInsensitiveString("pipeline-with-template"), MaterialConfigsMother.defaultMaterialConfigs());
         pipelineWithTemplate.setTemplateName(new CaseInsensitiveString("template-1"));
-        cruiseConfig.getGroups().get(0).add(pipelineWithTemplate);
+        cruiseConfig.getGroups().getFirst().add(pipelineWithTemplate);
 
         CruiseConfig rawCruiseConfig = GoConfigMother.deepClone(cruiseConfig);
         MagicalGoConfigXmlLoader.validate(cruiseConfig);
@@ -67,7 +67,7 @@ public class GoConfigParallelGraphWalkerTest {
             )));
         PipelineConfig pipelineWithTemplate = new PipelineConfig(new CaseInsensitiveString("pipeline-with-template"), MaterialConfigsMother.defaultMaterialConfigs());
         pipelineWithTemplate.setTemplateName(new CaseInsensitiveString("invalid template name"));
-        cruiseConfig.getGroups().get(0).add(pipelineWithTemplate);
+        cruiseConfig.getGroups().getFirst().add(pipelineWithTemplate);
 
         CruiseConfig rawCruiseConfig = GoConfigMother.deepClone(cruiseConfig);
         MagicalGoConfigXmlLoader.validate(cruiseConfig);
@@ -75,7 +75,7 @@ public class GoConfigParallelGraphWalkerTest {
 
         ConfigErrors templateErrors = rawCruiseConfig.getTemplateByName(new CaseInsensitiveString("invalid template name")).errors();
         assertThat(templateErrors.getAll().size()).isEqualTo(1);
-        assertThat(templateErrors.getAll().get(0)).isEqualTo("Invalid template name 'invalid template name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(templateErrors.getAll().getFirst()).isEqualTo("Invalid template name 'invalid template name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -107,8 +107,8 @@ public class GoConfigParallelGraphWalkerTest {
         Validatable.copyErrors(badObjectWith2ObjectsInList, goodObjectWith2ObjectsInList);
 
         assertThat(goodObjectWith2ObjectsInList.getSomeOtherObjectList().size()).isEqualTo(1);
-        assertThat(goodObjectWith2ObjectsInList.getSomeOtherObjectList().get(0).errors().getAll().size()).isEqualTo(1);
-        assertThat(goodObjectWith2ObjectsInList.getSomeOtherObjectList().get(0).errors().firstError()).isEqualTo("y");
+        assertThat(goodObjectWith2ObjectsInList.getSomeOtherObjectList().getFirst().errors().getAll().size()).isEqualTo(1);
+        assertThat(goodObjectWith2ObjectsInList.getSomeOtherObjectList().getFirst().errors().firstError()).isEqualTo("y");
     }
 
     @Test
@@ -117,13 +117,13 @@ public class GoConfigParallelGraphWalkerTest {
         pipelineConfig.setVariables(new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("name", "value"))));
 
         PipelineConfig pipelineWithErrors = GoConfigMother.deepClone(pipelineConfig);
-        pipelineWithErrors.getVariables().get(0).addError("name", "error on environment variable");
-        pipelineWithErrors.getFirstOrNull().addError("name", "error on stage");
-        pipelineWithErrors.getFirstOrNull().getJobs().getFirstOrNull().addError("name", "error on job");
+        pipelineWithErrors.getVariables().getFirst().addError("name", "error on environment variable");
+        pipelineWithErrors.getFirst().addError("name", "error on stage");
+        pipelineWithErrors.getFirst().getJobs().getFirst().addError("name", "error on job");
         Validatable.copyErrors(pipelineWithErrors, pipelineConfig);
-        assertThat(pipelineConfig.getVariables().get(0).errors().firstErrorOn("name")).isEqualTo("error on environment variable");
-        assertThat(pipelineConfig.getFirstOrNull().errors().firstErrorOn("name")).isEqualTo("error on stage");
-        assertThat(pipelineConfig.getFirstOrNull().getJobs().getFirstOrNull().errors().firstErrorOn("name")).isEqualTo("error on job");
+        assertThat(pipelineConfig.getVariables().getFirst().errors().firstErrorOn("name")).isEqualTo("error on environment variable");
+        assertThat(pipelineConfig.getFirst().errors().firstErrorOn("name")).isEqualTo("error on stage");
+        assertThat(pipelineConfig.getFirst().getJobs().getFirst().errors().firstErrorOn("name")).isEqualTo("error on job");
     }
 
     private static class AValidatableObjectWithAList implements Validatable {

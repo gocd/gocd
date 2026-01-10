@@ -118,7 +118,7 @@ class PipelineSqlMapDaoCachingTest {
         pipelineDao.findPipelineIds("pipelineName", 1, 0);
         List<Long> actual = pipelineDao.findPipelineIds("pipelineName", 1, 0);
         assertThat(actual.size()).isEqualTo(1);
-        assertThat(actual.get(0)).isEqualTo(expectedIds.get(0));
+        assertThat(actual.getFirst()).isEqualTo(expectedIds.getFirst());
         verify(mockTemplate, times(1)).queryForList(eq("getPipelineRange"), any());
     }
 

@@ -76,7 +76,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         secondPart.setOrigin(new RepoConfigOrigin());
         MergePipelineConfigs merge = new MergePipelineConfigs(filePart, secondPart);
 
-        assertThat(merge.getLocal()).isEqualTo((filePart));
+        assertThat(merge.getLocal()).isEqualTo(filePart);
     }
 
     @Test
@@ -103,24 +103,15 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         assertThat(group.hasPipeline(new CaseInsensitiveString("pipeline3"))).isTrue();
     }
 
-    @Override
-    @Test
-    public void shouldReturnIndexOfPipeline() {
-        PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(
-                PipelineConfigMother.pipelineConfig("pipeline1"), PipelineConfigMother.pipelineConfig("pipeline2")));
-        PipelineConfig pipelineConfig = group.findBy(new CaseInsensitiveString("pipeline2"));
-        assertThat(group.indexOf(pipelineConfig)).isEqualTo(1);
-    }
-
     @Test
     public void shouldApplyChangesToPipelineWhenPartEditable() {
         BasicPipelineConfigs filePart = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         filePart.setOrigin(new FileConfigOrigin());
         PipelineConfigs group = new MergePipelineConfigs(filePart);
-        PipelineConfig pipelineConfig = (PipelineConfig) group.get(0).clone();
+        PipelineConfig pipelineConfig = (PipelineConfig) group.getFirst().clone();
         pipelineConfig.setLabelTemplate("blah");
         group.update(group.getGroup(), pipelineConfig, "pipeline1");
-        assertThat(group.get(0).getLabelTemplate()).isEqualTo("blah");
+        assertThat(group.getFirst().getLabelTemplate()).isEqualTo("blah");
     }
 
     @Test
@@ -269,24 +260,6 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
     }
 
     @Test
-    public void shouldReturnTrueWhenContainsPipeline() {
-        PipelineConfig pipe1 = PipelineConfigMother.pipelineConfig("pipeline1");
-        PipelineConfigs group = new MergePipelineConfigs(
-                new BasicPipelineConfigs(pipe1),
-                new BasicPipelineConfigs());
-        assertThat(group.contains(pipe1)).isTrue();
-    }
-
-    @Test
-    public void shouldReturnFalseWhenDoesNotContainPipeline() {
-        PipelineConfig pipe1 = PipelineConfigMother.pipelineConfig("pipeline1");
-        PipelineConfigs group = new MergePipelineConfigs(
-                new BasicPipelineConfigs(pipe1),
-                new BasicPipelineConfigs());
-        assertThat(group.contains(PipelineConfigMother.pipelineConfig("pipeline2"))).isFalse();
-    }
-
-    @Test
     public void shouldReturnPipelinesInOrder() {
         PipelineConfig pipeline1 = PipelineConfigMother.pipelineConfig("pipeline1");
         PipelineConfig pipeline3 = PipelineConfigMother.pipelineConfig("pipeline3");
@@ -314,7 +287,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         MergePipelineConfigs group = new MergePipelineConfigs(
                 part1, new BasicPipelineConfigs());
 
-        assertThat(group.getFirstEditablePartOrNull()).isEqualTo((part1));
+        assertThat(group.getFirstEditablePartOrNull()).isEqualTo(part1);
 
     }
 
@@ -338,7 +311,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         MergePipelineConfigs group = new MergePipelineConfigs(
                 part1, new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")));
 
-        assertThat(group.getPartWithPipeline(new CaseInsensitiveString("pipeline1"))).isEqualTo((part1));
+        assertThat(group.getPartWithPipeline(new CaseInsensitiveString("pipeline1"))).isEqualTo(part1);
 
     }
 
@@ -360,13 +333,12 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         BasicPipelineConfigs part1 = new BasicPipelineConfigs(pipe1);
         part1.setOrigin(new FileConfigOrigin());
 
-        MergePipelineConfigs group = new MergePipelineConfigs(
-                part1, new BasicPipelineConfigs());
+        MergePipelineConfigs group = new MergePipelineConfigs(part1, new BasicPipelineConfigs());
 
         PipelineConfig pipeline2 = PipelineConfigMother.pipelineConfig("pipeline2");
         group.add(pipeline2);
 
-        assertThat(group.contains(pipeline2)).isTrue();
+        assertThat(group.hasPipeline(pipeline2.name())).isTrue();
     }
 
     @Test

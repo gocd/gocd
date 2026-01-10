@@ -188,7 +188,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
                 Pipeline latestPipeline = pipelineScheduleQueue.createPipeline(buildCause, mingleConfig, new DefaultSchedulingContext(buildCause.getApprover(), new Agents()), "md5",
                         new TimeProvider());
                 pipelineDao.saveWithStages(latestPipeline);
-                dbHelper.passStage(latestPipeline.getStages().getFirstOrNull());
+                dbHelper.passStage(latestPipeline.getStages().getFirst());
             }
         });
     }

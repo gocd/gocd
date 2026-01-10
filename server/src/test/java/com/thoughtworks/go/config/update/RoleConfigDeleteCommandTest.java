@@ -144,8 +144,8 @@ public class RoleConfigDeleteCommandTest {
 
         assertThat(cruiseConfig.server().security().adminsConfig().getRoles()).hasSize(1);
         assertThat(cruiseConfig.server().security().getRoles().findByName(readOnly.getName())).isNull();
-        assertFalse(cruiseConfig.getGroups().get(0).getAuthorization().getViewConfig().getRoles().contains(new AdminRole(readOnly.getName())));
-        assertTrue(cruiseConfig.getGroups().get(0).getAuthorization().getViewConfig().getRoles().contains(new AdminRole(stageAdmin.getName())));
+        assertFalse(cruiseConfig.getGroups().getFirst().getAuthorization().getViewConfig().getRoles().contains(new AdminRole(readOnly.getName())));
+        assertTrue(cruiseConfig.getGroups().getFirst().getAuthorization().getViewConfig().getRoles().contains(new AdminRole(stageAdmin.getName())));
     }
 
     @Test

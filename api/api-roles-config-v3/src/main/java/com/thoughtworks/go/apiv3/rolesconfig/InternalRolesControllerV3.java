@@ -97,7 +97,7 @@ public class InternalRolesControllerV3 extends ApiController implements SparkSpr
         rolesViewModel.getAutoSuggestions().put("cluster_profile", clusterProfileIds);
         rolesViewModel.getAutoSuggestions().put("elastic_agent_profile", elasticAgentProfileIds);
 
-        return writerForTopLevelObject(request, response, (outputWriter) -> RolesViewModelRepresenter.toJSON(outputWriter, rolesViewModel));
+        return writerForTopLevelObject(request, response, outputWriter -> RolesViewModelRepresenter.toJSON(outputWriter, rolesViewModel));
     }
 }
 

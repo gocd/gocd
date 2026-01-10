@@ -33,8 +33,8 @@ public class JobConfigsTest {
         JobConfigs jobs = new JobConfigs();
         jobs.add(new JobConfig("quux"));
         jobs.setConfigAttributes(List.of(Map.of(JobConfig.NAME, "foo"), Map.of(JobConfig.NAME, "bar")));
-        assertThat(jobs.get(0).name()).isEqualTo(new CaseInsensitiveString("foo"));
-        assertThat(jobs.get(1).name()).isEqualTo(new CaseInsensitiveString("bar"));
+        assertThat(jobs.getFirst().name()).isEqualTo(new CaseInsensitiveString("foo"));
+        assertThat(jobs.getLast().name()).isEqualTo(new CaseInsensitiveString("bar"));
         assertThat(jobs.size()).isEqualTo(2);
     }
 
@@ -43,19 +43,19 @@ public class JobConfigsTest {
         CruiseConfig config = new BasicCruiseConfig();
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline");
         config.addPipeline("grp", pipelineConfig);
-        JobConfigs jobs = pipelineConfig.get(0).getJobs();
+        JobConfigs jobs = pipelineConfig.getFirst().getJobs();
         jobs.add(new JobConfig("quux"));
         jobs.setConfigAttributes(List.of(Map.of(JobConfig.NAME, "foo"), Map.of(JobConfig.NAME, "foo")));
         assertThat(jobs.size()).isEqualTo(2);
 
-        JobConfig firstFoo = jobs.get(0);
-        JobConfig secondFoo = jobs.get(1);
+        JobConfig firstFoo = jobs.getFirst();
+        JobConfig secondFoo = jobs.getLast();
         assertThat(firstFoo.name()).isEqualTo(new CaseInsensitiveString("foo"));
         assertThat(secondFoo.name()).isEqualTo(new CaseInsensitiveString("foo"));
 
         assertThat(firstFoo.errors().isEmpty()).isTrue();
         assertThat(secondFoo.errors().isEmpty()).isTrue();
-        jobs.validate(ConfigSaveValidationContext.forChain(config, config.getGroups(), config.getGroups().get(0), pipelineConfig, pipelineConfig.get(0), jobs));
+        jobs.validate(ConfigSaveValidationContext.forChain(config, config.getGroups(), config.getGroups().getFirst(), pipelineConfig, pipelineConfig.getFirst(), jobs));
         assertThat(firstFoo.errors().firstErrorOn(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique.");
         assertThat(secondFoo.errors().firstErrorOn(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique.");
 
@@ -64,19 +64,19 @@ public class JobConfigsTest {
     @Test
     public void shouldValidateTree() {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline");
-        JobConfigs jobs = pipelineConfig.get(0).getJobs();
+        JobConfigs jobs = pipelineConfig.getFirst().getJobs();
         jobs.add(new JobConfig("quux"));
         jobs.setConfigAttributes(List.of(Map.of(JobConfig.NAME, "foo"), Map.of(JobConfig.NAME, "foo")));
         assertThat(jobs.size()).isEqualTo(2);
 
-        JobConfig firstFoo = jobs.get(0);
-        JobConfig secondFoo = jobs.get(1);
+        JobConfig firstFoo = jobs.getFirst();
+        JobConfig secondFoo = jobs.getLast();
         assertThat(firstFoo.name()).isEqualTo(new CaseInsensitiveString("foo"));
         assertThat(secondFoo.name()).isEqualTo(new CaseInsensitiveString("foo"));
 
         assertThat(firstFoo.errors().isEmpty()).isTrue();
         assertThat(secondFoo.errors().isEmpty()).isTrue();
-        jobs.validate(PipelineConfigSaveValidationContext.forChain(true, "group", pipelineConfig, pipelineConfig.get(0), jobs));
+        jobs.validate(PipelineConfigSaveValidationContext.forChain(true, "group", pipelineConfig, pipelineConfig.getFirst(), jobs));
         assertThat(firstFoo.errors().firstErrorOn(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique.");
         assertThat(secondFoo.errors().firstErrorOn(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'foo'. Job names are case-insensitive and must be unique.");
 

@@ -41,11 +41,9 @@ public class CreatePackageConfigCommand extends PackageConfigCommand implements 
     @Override
     public void update(CruiseConfig modifiedConfig) {
         PackageRepositories packageRepositories = modifiedConfig.getPackageRepositories();
-        PackageRepository packageRepository = packageRepositories.find(repositoryId);
-        int index = packageRepositories.indexOf(packageRepository);
+        PackageRepository packageRepository = packageRepositories.findByRepoIdOrBomb(repositoryId);
         packageDefinition.setRepository(packageRepository);
         packageRepository.addPackage(this.packageDefinition);
-        packageRepositories.replace(index, packageRepository);
         modifiedConfig.setPackageRepositories(packageRepositories);
     }
 
@@ -59,7 +57,7 @@ public class CreatePackageConfigCommand extends PackageConfigCommand implements 
         if (!isAuthorized()) {
             return false;
         }
-        if (cruiseConfig.getPackageRepositories().find(repositoryId) == null) {
+        if (cruiseConfig.getPackageRepositories().findByRepoId(repositoryId) == null) {
             result.unprocessableEntity(EntityType.PackageRepository.notFoundMessage(repositoryId));
             return false;
         }

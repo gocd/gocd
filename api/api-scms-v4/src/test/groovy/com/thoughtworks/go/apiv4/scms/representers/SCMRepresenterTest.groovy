@@ -149,6 +149,6 @@ class SCMRepresenterTest {
     def actualScm = SCMRepresenter.fromJSON(jsonReader)
 
     assertThat(actualScm.getId()).isEqualTo("1")
-    assertThat(actualScm.getConfiguration().get(0).isSecure()).isTrue()
+    assertThat(actualScm.getConfiguration().getFirst().isSecure()).isTrue()
   }
 }

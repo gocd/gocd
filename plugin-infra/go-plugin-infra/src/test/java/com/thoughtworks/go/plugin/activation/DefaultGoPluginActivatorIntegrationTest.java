@@ -97,7 +97,7 @@ class DefaultGoPluginActivatorIntegrationTest {
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid()).isTrue();
-        String error = descriptor.getStatus().getMessages().get(0);
+        String error = descriptor.getStatus().getMessages().getFirst();
         assertThat(error.contains("DummyGoPluginWithOneArgConstructorOnly")).isTrue();
         assertThat(error.contains("Make sure it and all of its parent classes have a default constructor.")).isTrue();
     }
@@ -181,7 +181,7 @@ class DefaultGoPluginActivatorIntegrationTest {
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid()).isTrue();
-        String error = descriptor.getStatus().getMessages().get(0);
+        String error = descriptor.getStatus().getMessages().getFirst();
         assertThat(error.contains("DummyGoPluginWhichThrowsAnExceptionDuringConstruction")).isTrue();
         assertThat(error.contains("java.lang.RuntimeException: Ouch! I failed!")).isTrue();
     }

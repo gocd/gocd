@@ -85,7 +85,7 @@ public class MaterialExpansionServiceTest {
         MaterialConfigs materialConfigs = materialExpansionService.expandMaterialConfigsForScheduling(pipelineConfig.materialConfigs());
 
         assertThat(materialConfigs.size()).isEqualTo(1);
-        assertThat(materialConfigs.get(0)).isEqualTo(hg);
+        assertThat(materialConfigs.getFirst()).isEqualTo(hg);
     }
 
     @Test
@@ -96,7 +96,7 @@ public class MaterialExpansionServiceTest {
         materialExpansionService.expandForScheduling(hg, materialConfigs);
 
         assertThat(materialConfigs.size()).isEqualTo(1);
-        assertThat(materialConfigs.get(0)).isEqualTo(hg);
+        assertThat(materialConfigs.getFirst()).isEqualTo(hg);
     }
 
     @Test
@@ -114,8 +114,8 @@ public class MaterialExpansionServiceTest {
         MaterialConfigs materialConfigs = materialExpansionService.expandMaterialConfigsForScheduling(pipelineConfig.materialConfigs());
 
         assertThat(materialConfigs.size()).isEqualTo(2);
-        assertThat(materialConfigs.get(0)).isEqualTo(svn);
-        assertThat(materialConfigs.get(1)).isEqualTo(svnExt);
+        assertThat(materialConfigs.getFirst()).isEqualTo(svn);
+        assertThat(materialConfigs.getLast()).isEqualTo(svnExt);
     }
 
     @Test
@@ -132,9 +132,9 @@ public class MaterialExpansionServiceTest {
         MaterialConfigs materialConfigs = materialExpansionService.expandMaterialConfigsForScheduling(pipelineConfig.materialConfigs());
 
         assertThat(materialConfigs.size()).isEqualTo(2);
-        assertThat(materialConfigs.get(0)).isEqualTo(svn);
-        assertThat(materialConfigs.get(1)).isEqualTo(svnExt);
-        assertThat(materialConfigs.get(1).filter()).isEqualTo(svn.filter());
+        assertThat(materialConfigs.getFirst()).isEqualTo(svn);
+        assertThat(materialConfigs.getLast()).isEqualTo(svnExt);
+        assertThat(materialConfigs.getLast().filter()).isEqualTo(svn.filter());
     }
 
     @Test
@@ -150,7 +150,7 @@ public class MaterialExpansionServiceTest {
         MaterialConfigs materialConfigs = materialExpansionService.expandMaterialConfigsForScheduling(pipelineConfig.materialConfigs());
 
         assertThat(materialConfigs.size()).isEqualTo(1);
-        assertThat(materialConfigs.get(0)).isEqualTo(svn);
+        assertThat(materialConfigs.getFirst()).isEqualTo(svn);
     }
 
     @Test
@@ -165,7 +165,7 @@ public class MaterialExpansionServiceTest {
         materialExpansionService.expandForScheduling(gitMaterial, materials);
 
         assertThat(materials.size()).isEqualTo(1);
-        assertThat(materials.get(0)).isEqualTo(gitMaterial);
+        assertThat(materials.getFirst()).isEqualTo(gitMaterial);
     }
 
     @Test
@@ -180,8 +180,8 @@ public class MaterialExpansionServiceTest {
         materialExpansionService.expandForScheduling(svn, materials);
 
         assertThat(materials.size()).isEqualTo(2);
-        assertThat(materials.get(0)).isEqualTo(svn);
-        assertThat(((SvnMaterial) materials.get(1)).getUrl()).endsWith("end2end/");
+        assertThat(materials.getFirst()).isEqualTo(svn);
+        assertThat(((SvnMaterial) materials.getLast()).getUrl()).endsWith("end2end/");
     }
 
     @Test
@@ -195,7 +195,7 @@ public class MaterialExpansionServiceTest {
         doAnswer(invocation -> {
             SvnMaterial svnMaterial = invocation.getArgument(0);
             SecretParams secretParams = svnMaterial.getSecretParams();
-            secretParams.get(0).setValue("pass1");
+            secretParams.getFirst().setValue("pass1");
             return null;
         }).when(secretParamResolver).resolve(svn);
 

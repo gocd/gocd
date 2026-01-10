@@ -198,8 +198,7 @@ public class SchedulingCheckerServiceUnitTest {
 
             when(pipeline.getName()).thenReturn(pipelineName);
             when(pipeline.hasStageBeenRun(stageName)).thenReturn(false);
-            when(goConfigService.hasPreviousStage(pipelineName, stageName)).thenReturn(true);
-
+            when(goConfigService.isFirstStage(pipelineName, stageName)).thenReturn(false);
             when(goConfigService.previousStage(pipelineName, stageName)).thenReturn(previousStageConfig);
             when(previousStageConfig.name()).thenReturn(previousStageName);
             when(pipeline.hasStageBeenRun(previousStageName.toString())).thenReturn(true);
@@ -248,7 +247,7 @@ public class SchedulingCheckerServiceUnitTest {
 
             @Test
             void shouldAllowScheduleIfTheStageIsTheFirstStage() {
-                when(goConfigService.hasPreviousStage(pipelineName, stageName)).thenReturn(false);
+                when(goConfigService.isFirstStage(pipelineName, stageName)).thenReturn(true);
 
                 ScheduleStageResult scheduleStageResult = schedulingChecker.shouldAllowSchedulingStage(pipeline, stageName);
 
@@ -289,7 +288,7 @@ public class SchedulingCheckerServiceUnitTest {
         List<SchedulingChecker> containerForAllCheckers = new ArrayList<>();
         flatten(checkerList, containerForAllCheckers);
         for (Object o : containerForAllCheckers) {
-            if (o.getClass().equals(typeOfScheduleChecker)) {
+            if (o.getClass() == typeOfScheduleChecker) {
                 return;
             }
         }

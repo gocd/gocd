@@ -126,26 +126,6 @@ public class GoConfigMaterialsTest {
     }
 
     @Test
-    public void getStagesUsedAsMaterials() {
-        HgMaterialConfig hg = MaterialConfigsMother.hgMaterialConfig();
-
-        StageConfig upStage = new StageConfig(new CaseInsensitiveString("stage1"), new JobConfigs());
-        PipelineConfig up1 = new PipelineConfig(new CaseInsensitiveString("up1"), new MaterialConfigs(hg), upStage);
-        PipelineConfig up2 = new PipelineConfig(new CaseInsensitiveString("up2"), new MaterialConfigs(hg), new StageConfig(new CaseInsensitiveString("stage2"), new JobConfigs()));
-
-        DependencyMaterialConfig dependency1 = MaterialConfigsMother.dependencyMaterialConfig("up1", "stage1");
-        DependencyMaterialConfig dependency2 = MaterialConfigsMother.dependencyMaterialConfig("up2", "stage2");
-
-        PipelineConfig down1 = new PipelineConfig(new CaseInsensitiveString("down1"), new MaterialConfigs(dependency1, dependency2, hg));
-        PipelineConfig down2 = new PipelineConfig(new CaseInsensitiveString("down2"), new MaterialConfigs(dependency1, dependency2, hg));
-
-        CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(up1, up2, down1, down2));
-        Set<StageConfig> stages = config.getStagesUsedAsMaterials(up1);
-        assertThat(stages.size()).isEqualTo(1);
-        assertThat(stages.contains(upStage)).isTrue();
-    }
-
-    @Test
     public void shouldOnlyHaveOneCopyOfAMaterialIfOnlyTheFolderIsDifferent() {
         SvnMaterialConfig svn = MaterialConfigsMother.svnMaterialConfig("url", "folder1", true);
         SvnMaterialConfig svnInDifferentFolder = MaterialConfigsMother.svnMaterialConfig("url", "folder2");

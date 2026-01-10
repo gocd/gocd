@@ -110,7 +110,7 @@ public class SvnTestRepo extends TestRepo {
     }
 
     public Modification checkInOneFile(String path) throws Exception {
-        return checkInOneFile(path, "adding file [" + path + "]").get(0);
+        return checkInOneFile(path, "adding file [" + path + "]").getFirst();
     }
 
     @Override

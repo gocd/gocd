@@ -101,7 +101,7 @@ public class SslInfrastructureService {
                 throw e;
             }
 
-            if ((!registered)) {
+            if (!registered) {
                 try {
                     LOGGER.debug("[Agent Registration] Retrieved agent key from the GoCD server is not valid.");
                     Thread.sleep(REGISTER_RETRY_INTERVAL);

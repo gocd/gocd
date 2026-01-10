@@ -472,7 +472,7 @@ public class BuildCauseProducerServiceTest {
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         PipelineConfig config = PipelineConfigMother.pipelineConfig(pipelineName);
 
-        Material svnMaterial = MaterialsMother.defaultMaterials().get(0);
+        Material svnMaterial = MaterialsMother.defaultMaterials().getFirst();
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("up"), new CaseInsensitiveString("s1"));
 
         config.materialConfigs().clear();

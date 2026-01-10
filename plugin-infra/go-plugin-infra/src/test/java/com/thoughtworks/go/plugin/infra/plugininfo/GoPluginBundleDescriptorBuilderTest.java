@@ -59,9 +59,9 @@ class GoPluginBundleDescriptorBuilderTest {
         GoPluginDescriptor expectedDescriptor = buildExpectedDescriptor(pluginJarName, pluginJarFile.getAbsolutePath());
 
         assertThat(descriptors.size()).isEqualTo(1);
-        assertThat(descriptors.get(0)).isEqualTo(expectedDescriptor);
-        assertThat(descriptors.get(0).isInvalid()).isFalse();
-        assertThat(descriptors.get(0).isBundledPlugin()).isTrue();
+        assertThat(descriptors.getFirst()).isEqualTo(expectedDescriptor);
+        assertThat(descriptors.getFirst().isInvalid()).isFalse();
+        assertThat(descriptors.getFirst().isBundledPlugin()).isTrue();
     }
 
     @Test
@@ -76,10 +76,10 @@ class GoPluginBundleDescriptorBuilderTest {
 
         GoPluginDescriptor expectedDescriptor = buildXMLSchemaErrorDescriptor(pluginJarName);
         assertThat(descriptors.size()).isEqualTo(1);
-        assertThat(descriptors.get(0)).isEqualTo(expectedDescriptor);
-        assertThat(descriptors.get(0).isInvalid()).isTrue();
-        assertThat(descriptors.get(0).isBundledPlugin()).isTrue();
-        assertThat(descriptors.get(0).getStatus().getMessages()).isEqualTo(expectedDescriptor.getStatus().getMessages());
+        assertThat(descriptors.getFirst()).isEqualTo(expectedDescriptor);
+        assertThat(descriptors.getFirst().isInvalid()).isTrue();
+        assertThat(descriptors.getFirst().isBundledPlugin()).isTrue();
+        assertThat(descriptors.getFirst().getStatus().getMessages()).isEqualTo(expectedDescriptor.getStatus().getMessages());
     }
 
     @Test
@@ -93,8 +93,8 @@ class GoPluginBundleDescriptorBuilderTest {
 
         final List<GoPluginDescriptor> descriptors = bundleDescriptor.descriptors();
         assertThat(descriptors.size()).isEqualTo(1);
-        assertThat(descriptors.get(0).isInvalid()).isTrue();
-        assertThat(descriptors.get(0).id()).isEqualTo(pluginJarName);
+        assertThat(descriptors.getFirst().isInvalid()).isTrue();
+        assertThat(descriptors.getFirst().id()).isEqualTo(pluginJarName);
     }
 
     @Test
@@ -240,6 +240,6 @@ class GoPluginBundleDescriptorBuilderTest {
                 .pluginJarFileLocation(pluginJarFileLocation)
                 .isBundledPlugin(true)
                 .build();
-        return new GoPluginBundleDescriptor(goPluginDescriptor).markAsInvalid(List.of(message), null).descriptors().get(0);
+        return new GoPluginBundleDescriptor(goPluginDescriptor).markAsInvalid(List.of(message), null).descriptors().getFirst();
     }
 }

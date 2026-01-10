@@ -85,7 +85,7 @@ class PluginSettingsRepresenterTest {
     configuration: [
       [
         key  : "k1",
-        value: pluginSettings().getPluginSettingsProperties().get(0).value
+        value: pluginSettings().getPluginSettingsProperties().getFirst().value
       ],
       [
         key            : "k2",

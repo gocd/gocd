@@ -112,8 +112,8 @@ public class MaterialDatabaseDependencyUpdaterTest {
         List<Modification> modification = materialRepository.findLatestModification(dependencyMaterial).getMaterialRevision(0).getModifications();
 
         assertThat(modification.size()).isEqualTo(1);
-        assertThat(modification.get(0).getRevision()).isEqualTo("pipeline-name/9/stage-name/0");
-        assertThat(modification.get(0).getPipelineLabel()).isEqualTo("LABEL-9");
+        assertThat(modification.getFirst().getRevision()).isEqualTo("pipeline-name/9/stage-name/0");
+        assertThat(modification.getFirst().getPipelineLabel()).isEqualTo("LABEL-9");
     }
 
     @Test
@@ -215,8 +215,8 @@ public class MaterialDatabaseDependencyUpdaterTest {
         List<Modification> newModifications = materialRepository.findModificationsSince(dependencyMaterial, new MaterialRevision(dependencyMaterial, modification));
 
         assertThat(newModifications.size()).isEqualTo(1);
-        assertThat(newModifications.get(0).getRevision()).isEqualTo("pipeline-name/10/stage-name/0");
-        assertThat(newModifications.get(0).getPipelineLabel()).isEqualTo("LABEL-10");
+        assertThat(newModifications.getFirst().getRevision()).isEqualTo("pipeline-name/10/stage-name/0");
+        assertThat(newModifications.getFirst().getPipelineLabel()).isEqualTo("LABEL-10");
     }
 
     @Test

@@ -98,7 +98,7 @@ public class JobStatusJsonPresentationModel {
 
     public String getStatus() {
         JobState currentStatus = instance.currentStatus();
-        return (currentStatus == JobState.Scheduled || currentStatus == JobState.Waiting)
+        return currentStatus == JobState.Scheduled || currentStatus == JobState.Waiting
                 ? getResult().toString() : currentStatus.toString().toLowerCase();
     }
 

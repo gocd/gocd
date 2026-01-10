@@ -110,7 +110,7 @@ class P4OutputParserTest {
         }
         Modification modification = parser.modificationFromDescription(output, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         assertThat(modification.getModifiedFiles().size()).isEqualTo(1304);
-        assertThat(modification.getModifiedFiles().get(0).getFileName()).isEqualTo("Internal Projects/ABC/Customers3/ABC/RIP/SomeProject/data/main/config/lib/java/AdvJDBCColumnHandler.jar");
+        assertThat(modification.getModifiedFiles().getFirst().getFileName()).isEqualTo("Internal Projects/ABC/Customers3/ABC/RIP/SomeProject/data/main/config/lib/java/AdvJDBCColumnHandler.jar");
     }
 
 

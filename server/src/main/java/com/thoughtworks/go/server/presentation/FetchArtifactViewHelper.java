@@ -16,11 +16,14 @@
 package com.thoughtworks.go.server.presentation;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.util.SystemEnvironment;
 
 import java.util.*;
+
+import static java.util.stream.Collectors.toCollection;
 
 
 public class FetchArtifactViewHelper {
@@ -100,25 +103,17 @@ public class FetchArtifactViewHelper {
         if (template && !systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled()) {
             return new FetchSuggestionHierarchy();
         }
-        return fetchArtifactSuggestionsForPipeline(template ? createPipelineConfigForTemplate() : cruiseConfig.pipelineConfigByName(pipelineName), cruiseConfig);
+        return fetchArtifactSuggestionsForPipeline(template ? createPipelineConfigForTemplate(pipelineName) : cruiseConfig.pipelineConfigByName(pipelineName), cruiseConfig);
     }
 
-    private PipelineConfig createPipelineConfigForTemplate() {
-        List<PipelineConfig> pipelineConfigs = cruiseConfig.allPipelines();
-        PipelineConfig dummyPipeline = new PipelineConfig();
-        for (PipelineConfig pipelineConfig : pipelineConfigs) {
-            if (!pipelineConfig.isEmpty()) {
-                dummyPipeline.addMaterialConfig(new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.getLast().name()));
-            }
-        }
-        PipelineTemplateConfig pipelineTemplateConfig = cruiseConfig.getTemplates().templateByName(pipelineName);
-        for (StageConfig stageConfig : pipelineTemplateConfig) {
-            if (stageName.equals(stageConfig.name())) {
-                break;
-            }
-            dummyPipeline.add(stageConfig);
-        }
-        return dummyPipeline;
+    private PipelineConfig createPipelineConfigForTemplate(CaseInsensitiveString templateName) {
+        return new PipelineConfig(new CaseInsensitiveString(NULL_STR),
+            cruiseConfig.allPipelines().stream()
+                .filter(p -> !p.isEmpty()).map(p -> new DependencyMaterialConfig(p.name(), p.getLast().name()))
+                .collect(toCollection(MaterialConfigs::new)),
+            cruiseConfig.getTemplates().templateByName(templateName).stream()
+                .filter(stageConfig -> !stageName.equals(stageConfig.name())).toArray(StageConfig[]::new)
+        );
     }
 
     private FetchSuggestionHierarchy fetchArtifactSuggestionsForPipeline(PipelineConfig pipelineConfig, CruiseConfig cruiseConfig) {

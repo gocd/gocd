@@ -41,7 +41,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -241,10 +240,10 @@ public class PackageRepository implements Serializable, Validatable, SecretParam
 
     public void setConfigAttributes(Map<String, ?> attributes) {
         if (attributes.containsKey(NAME)) {
-            name = ((String) attributes.get(NAME));
+            name = (String) attributes.get(NAME);
         }
         if (attributes.containsKey(REPO_ID)) {
-            id = ((String) attributes.get(REPO_ID));
+            id = (String) attributes.get(REPO_ID);
         }
         if (attributes.containsKey(PLUGIN_CONFIGURATION)) {
             pluginConfiguration.setConfigAttributes(attributes.get(PLUGIN_CONFIGURATION));
@@ -284,16 +283,9 @@ public class PackageRepository implements Serializable, Validatable, SecretParam
     }
 
     public void removePackage(String packageId) {
-        PackageDefinition entryToBeDeleted = null;
-        for (PackageDefinition packageDefinition : packages) {
-            if (packageDefinition.getId().equals(packageId)) {
-                entryToBeDeleted = packageDefinition;
-            }
+        if (!packages.removeFirstIf(packageDefinition -> packageDefinition.getId().equals(packageId))) {
+            throw new RuntimeException("Could not find package with id: " + packageId);
         }
-        if (entryToBeDeleted == null) {
-            throw new RuntimeException(format("Could not find package with id:[%s]", packageId));
-        }
-        packages.remove(entryToBeDeleted);
     }
 
     public PackageDefinition findOrCreatePackageDefinition(Map<String, Object> attributes) {

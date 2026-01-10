@@ -67,7 +67,7 @@ public class RoleConfigurationValidatorTest {
         validator.validate(roleConfig, "pluginId");
 
         assertTrue(roleConfig.hasErrors());
-        assertThat(roleConfig.getProperty("username").errors().get("username").get(0)).isEqualTo("username format is incorrect");
+        assertThat(roleConfig.getProperty("username").errors().get("username").getFirst()).isEqualTo("username format is incorrect");
     }
 
     @Test
@@ -82,7 +82,7 @@ public class RoleConfigurationValidatorTest {
         validator.validate(roleConfig, "pluginId");
 
         assertTrue(roleConfig.hasErrors());
-        assertThat(roleConfig.getProperty("password").errors().get("password").get(0)).isEqualTo("password is required");
+        assertThat(roleConfig.getProperty("password").errors().get("password").getFirst()).isEqualTo("password is required");
         assertNull(roleConfig.getProperty("password").getValue());
     }
 
@@ -96,6 +96,6 @@ public class RoleConfigurationValidatorTest {
         validator.validate(roleConfig, "pluginId");
 
         assertTrue(roleConfig.hasErrors());
-        assertThat(roleConfig.errors().get("pluginRole").get(0)).isEqualTo("Unable to validate `pluginRole` configuration, missing plugin: pluginId");
+        assertThat(roleConfig.errors().get("pluginRole").getFirst()).isEqualTo("Unable to validate `pluginRole` configuration, missing plugin: pluginId");
     }
 }

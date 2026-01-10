@@ -24,7 +24,7 @@ import java.util.Date;
 public class JobHistory extends BaseCollection<JobHistoryItem> {
     public Date getScheduledDate() {
         // All builds in a stage are scheduled at the same time, so this is safe.
-        return this.getFirstOrNull().getScheduledDate();
+        return this.getFirst().getScheduledDate();
     }
 
     public JobHistory addJob(String name, JobState state, JobResult result, Date scheduledDate) {

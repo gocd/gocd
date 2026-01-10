@@ -45,13 +45,13 @@ public class PackageConfigurationsTest {
 
         PackageConfigurations packageConfigurations = new PackageConfigurations(configuration);
         assertThat(packageConfigurations.list().size()).isEqualTo(1);
-        assertThat(packageConfigurations.list().get(0).getKey()).isEqualTo("k1");
-        assertThat(packageConfigurations.list().get(0).getValue()).isEqualTo("v1");
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.REQUIRED)).isEqualTo(true);
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.PART_OF_IDENTITY)).isEqualTo(true);
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.SECURE)).isEqualTo(true);
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.DISPLAY_NAME)).isEmpty();
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.DISPLAY_ORDER)).isEqualTo(0);
+        assertThat(packageConfigurations.list().getFirst().getKey()).isEqualTo("k1");
+        assertThat(packageConfigurations.list().getFirst().getValue()).isEqualTo("v1");
+        assertThat(packageConfigurations.list().getFirst().getOption(PackageConfiguration.REQUIRED)).isEqualTo(true);
+        assertThat(packageConfigurations.list().getFirst().getOption(PackageConfiguration.PART_OF_IDENTITY)).isEqualTo(true);
+        assertThat(packageConfigurations.list().getFirst().getOption(PackageConfiguration.SECURE)).isEqualTo(true);
+        assertThat(packageConfigurations.list().getFirst().getOption(PackageConfiguration.DISPLAY_NAME)).isEmpty();
+        assertThat(packageConfigurations.list().getFirst().getOption(PackageConfiguration.DISPLAY_ORDER)).isEqualTo(0);
     }
 
     @Test
@@ -62,12 +62,12 @@ public class PackageConfigurationsTest {
 
         PackageConfigurations packageConfigurations = new PackageConfigurations(configuration);
         assertThat(packageConfigurations.list().size()).isEqualTo(1);
-        assertThat(packageConfigurations.list().get(0).getKey()).isEqualTo("k1");
-        assertThat(packageConfigurations.list().get(0).getValue()).isEqualTo("v1");
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.REQUIRED)).isEqualTo(true);
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.PART_OF_IDENTITY)).isEqualTo(true);
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.SECURE)).isEqualTo(true);
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.DISPLAY_NAME)).isEmpty();
-        assertThat(packageConfigurations.list().get(0).getOption(PackageConfiguration.DISPLAY_ORDER)).isEqualTo(0);
+        assertThat(packageConfigurations.list().getFirst().getKey()).isEqualTo("k1");
+        assertThat(packageConfigurations.list().getFirst().getValue()).isEqualTo("v1");
+        assertThat(packageConfigurations.list().getFirst().getOption(PackageConfiguration.REQUIRED)).isEqualTo(true);
+        assertThat(packageConfigurations.list().getFirst().getOption(PackageConfiguration.PART_OF_IDENTITY)).isEqualTo(true);
+        assertThat(packageConfigurations.list().getFirst().getOption(PackageConfiguration.SECURE)).isEqualTo(true);
+        assertThat(packageConfigurations.list().getFirst().getOption(PackageConfiguration.DISPLAY_NAME)).isEmpty();
+        assertThat(packageConfigurations.list().getFirst().getOption(PackageConfiguration.DISPLAY_ORDER)).isEqualTo(0);
     }
 }

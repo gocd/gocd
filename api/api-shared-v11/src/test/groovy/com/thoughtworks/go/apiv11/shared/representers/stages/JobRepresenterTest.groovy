@@ -113,7 +113,7 @@ class JobRepresenterTest {
       run_instance_count:    3,
       timeout:               100,
       environment_variables: [
-        [ secure: true, name: 'MULTIPLE_LINES', encrypted_value: JobConfigMother.jobConfig().variables.get(0).encryptedValue ],
+        [ secure: true, name: 'MULTIPLE_LINES', encrypted_value: JobConfigMother.jobConfig().variables.getFirst().encryptedValue ],
         [ secure: false, name: 'COMPLEX', value: 'This has very <complex> data' ]
       ],
       resources:             ["Linux" ,"Java"],
@@ -238,8 +238,8 @@ class JobRepresenterTest {
       ])
 
       def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
-      assertEquals('USERNAME', actualJobConfig.getVariables().get(0).name)
-      assertEquals('API_KEY', actualJobConfig.getVariables().get(1).name)
+      assertEquals('USERNAME', actualJobConfig.getVariables().getFirst().name)
+      assertEquals('API_KEY', actualJobConfig.getVariables().getLast().name)
     }
 
     @Test
@@ -250,8 +250,8 @@ class JobRepresenterTest {
 
       def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
       def listOfResourceNames = actualJobConfig.resourceConfigs().name
-      assertEquals('Java', listOfResourceNames.get(0))
-      assertEquals('Linux', listOfResourceNames.get(1))
+      assertEquals('Java', listOfResourceNames.getFirst())
+      assertEquals('Linux', listOfResourceNames.getLast())
     }
 
     @Test
@@ -272,7 +272,7 @@ class JobRepresenterTest {
 
       def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
       assertEquals(actualJobConfig.tasks().size(), 1)
-      def task = actualJobConfig.tasks().getFirstOrNull()
+      def task = actualJobConfig.tasks().getFirst()
       assertEquals(task.getTaskType(), 'ant')
     }
 
@@ -304,8 +304,8 @@ class JobRepresenterTest {
       ])
       def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
       def listOfTabNames = actualJobConfig.getTabs().name
-      assertEquals(listOfTabNames.get(0), 'coverage')
-      assertEquals(listOfTabNames.get(1), 'something')
+      assertEquals(listOfTabNames.getFirst(), 'coverage')
+      assertEquals(listOfTabNames.getLast(), 'something')
     }
 
     @Test
@@ -328,13 +328,13 @@ class JobRepresenterTest {
 
       def actualJobConfig = JobRepresenter.fromJSON(jsonReader)
       def destinations = actualJobConfig.artifactTypeConfigs().collect { eachItem -> ((BuiltinArtifactConfig) eachItem).getDestination() }
-      assertEquals(destinations.get(0), 'pkg')
-      assertEquals(destinations.get(1), 'testoutput')
+      assertEquals(destinations.getFirst(), 'pkg')
+      assertEquals(destinations.getLast(), 'testoutput')
 
       def artifactTypes = actualJobConfig.artifactTypeConfigs().collect { eachItem -> eachItem.getArtifactType().name() }
 
-      assertEquals(artifactTypes.get(0), 'build')
-      assertEquals(artifactTypes.get(1), 'test')
+      assertEquals(artifactTypes.getFirst(), 'build')
+      assertEquals(artifactTypes.getLast(), 'test')
     }
 
     @Test

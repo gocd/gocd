@@ -130,7 +130,7 @@ public class StageIdentifier implements Serializable, LocatableEntity {
     @Override
     public int hashCode() {
         int result;
-        result = (pipelineName != null ? pipelineName.hashCode() : 0);
+        result = pipelineName != null ? pipelineName.hashCode() : 0;
         result = 31 * result + pipelineCounter;
         result = 31 * result + (pipelineLabel != null ? pipelineLabel.hashCode() : 0);
         result = 31 * result + (stageName != null ? stageName.hashCode() : 0);

@@ -84,7 +84,7 @@ public class AnalyticsController implements SparkController {
         pipelineConfigService.viewableGroupsFor(SessionUtils.currentUsername())
             .forEach(
             (PipelineConfigs config) -> config.getPipelines().forEach(
-                (p) -> pipelines.add(p.name().toString())
+                    p -> pipelines.add(p.name().toString())
             ));
 
         Map<String, String> locals = Map.of(

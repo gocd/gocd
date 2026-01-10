@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.domain.PipelineRunIdInfo
 import com.thoughtworks.go.domain.buildcause.BuildCause
 import com.thoughtworks.go.helper.ModificationsMother
+import com.thoughtworks.go.helper.StageInstanceModelMother
 import com.thoughtworks.go.helper.StageMother
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels
@@ -145,7 +146,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
       private PipelineInstanceModel getPipelineInstanceModel() {
         def stage = StageMother.passedStageInstance(pipelineName, "stageName", 2, "buildName", Instant.now())
-        def stageInstanceModel = StageMother.toStageInstanceModel(stage)
+        def stageInstanceModel = StageInstanceModelMother.fromStage(stage)
         def stageInstanceModels = new StageInstanceModels()
         stageInstanceModels.add(stageInstanceModel)
 
@@ -197,7 +198,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
       void 'should render latest pipeline history'() {
         def date = Instant.now()
         def stage = StageMother.passedStageInstance(pipelineName, "stageName", 2, "buildName", date)
-        def stageInstanceModel = StageMother.toStageInstanceModel(stage)
+        def stageInstanceModel = StageInstanceModelMother.fromStage(stage)
         def stageInstanceModels = new StageInstanceModels()
         stageInstanceModels.add(stageInstanceModel)
 
@@ -229,7 +230,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
       void 'should render pipeline history after the specified cursor'() {
         def date = Instant.now()
         def stage = StageMother.passedStageInstance(pipelineName, "stageName", 2, "buildName", date)
-        def stageInstanceModel = StageMother.toStageInstanceModel(stage)
+        def stageInstanceModel = StageInstanceModelMother.fromStage(stage)
         def stageInstanceModels = new StageInstanceModels()
         stageInstanceModels.add(stageInstanceModel)
 
@@ -264,7 +265,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
       void 'should render pipeline history before the specified cursor'() {
         def date = Instant.now()
         def stage = StageMother.passedStageInstance(pipelineName, "stageName", 2, "buildName", date)
-        def stageInstanceModel = StageMother.toStageInstanceModel(stage)
+        def stageInstanceModel = StageInstanceModelMother.fromStage(stage)
         def stageInstanceModels = new StageInstanceModels()
         stageInstanceModels.add(stageInstanceModel)
 

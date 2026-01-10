@@ -72,7 +72,7 @@ public class FetchTaskBuilderTest {
 
         PipelineConfig downstream = config.pipelineConfigByName(new CaseInsensitiveString("downstream"));
         downstream.setMaterialConfigs(new MaterialConfigs(MaterialConfigsMother.dependencyMaterialConfig("upstream", "up-stage1")));
-        downstream.get(0).getJobs().get(0).addTask(new FetchTask(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar"), new CaseInsensitiveString("baz"), "abcd", "efg"));
+        downstream.getFirst().getJobs().getFirst().addTask(new FetchTask(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar"), new CaseInsensitiveString("baz"), "abcd", "efg"));
 
         config.getArtifactStores().add(new ArtifactStore("s3", "cd.go.s3"));
 
@@ -109,7 +109,7 @@ public class FetchTaskBuilderTest {
 
         FetchArtifactBuilder builder = (FetchArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.getJobIdentifier()).isEqualTo((new JobIdentifier("mingle", 1, "label-1", "dev", "2", "linux-firefox", 0L)));
+        assertThat(builder.getJobIdentifier()).isEqualTo(new JobIdentifier("mingle", 1, "label-1", "dev", "2", "linux-firefox", 0L));
     }
 
     @Test
@@ -300,7 +300,7 @@ public class FetchTaskBuilderTest {
 
         FetchPluggableArtifactBuilder builder = (FetchPluggableArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat(builder.getJobIdentifier()).isEqualTo((new JobIdentifier("uppest_stream", 1, "label-1", "uppest-stage1", "2", "uppest-job1", 0L)));
+        assertThat(builder.getJobIdentifier()).isEqualTo(new JobIdentifier("uppest_stream", 1, "label-1", "uppest-stage1", "2", "uppest-job1", 0L));
     }
 
     @Test

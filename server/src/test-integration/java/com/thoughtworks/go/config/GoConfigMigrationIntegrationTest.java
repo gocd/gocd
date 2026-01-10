@@ -327,7 +327,7 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = migrateXmlString(configString, 67);
         GoConfigHolder holder = loader.loadConfigHolder(migratedContent);
-        PackageRepository packageRepository = holder.config.getPackageRepositories().find("2ef830d7-dd66-42d6-b393-64a84646e557");
+        PackageRepository packageRepository = holder.config.getPackageRepositories().findByRepoId("2ef830d7-dd66-42d6-b393-64a84646e557");
         PackageDefinition aPackage = packageRepository.findPackage("88a3beca-cbe2-4c4d-9744-aa0cda3f371c");
         assertThat(aPackage.isAutoUpdate()).isTrue();
     }
@@ -1027,7 +1027,7 @@ public class GoConfigMigrationIntegrationTest {
                                          </configuration>
                                      </fetchartifact>""";
 
-        String artifactId3 = ("""
+        String artifactId3 = """
                 <fetchartifact artifactOrigin="external" pipeline="foo" stage="stage1" job="job1" artifactId="artifactId3">
                                          <configuration>
                                              <property>
@@ -1035,7 +1035,7 @@ public class GoConfigMigrationIntegrationTest {
                                                  <encryptedValue>%s</encryptedValue>
                                              </property>
                                          </configuration>
-                                     </fetchartifact>""").formatted(new GoCipher().encrypt("abcd"));
+                                     </fetchartifact>""".formatted(new GoCipher().encrypt("abcd"));
 
         assertThat(migratedContent).contains("<fetchartifact artifactOrigin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId1\"");
         assertThat(migratedContent).containsIgnoringNewLines(artifactId2);
@@ -1700,7 +1700,7 @@ public class GoConfigMigrationIntegrationTest {
 
         CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
-        assertThat(plan.artifactTypeConfigs().getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("*");
+        assertThat(plan.artifactTypeConfigs().getBuiltInArtifactConfigs().getFirst().getSource()).isEqualTo("*");
     }
 
     @Test
@@ -1709,7 +1709,7 @@ public class GoConfigMigrationIntegrationTest {
 
         CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
-        assertThat(plan.artifactTypeConfigs().getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("*");
+        assertThat(plan.artifactTypeConfigs().getBuiltInArtifactConfigs().getFirst().getSource()).isEqualTo("*");
     }
 
     @Test

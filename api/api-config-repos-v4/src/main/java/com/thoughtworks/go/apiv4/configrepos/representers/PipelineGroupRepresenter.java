@@ -24,8 +24,8 @@ public class PipelineGroupRepresenter {
 
     public static void toJSON(OutputWriter json, PipelineConfigs group) {
         json.add("name", group.getGroup())
-            .addChildList("pipelines", (w) -> group.getPipelines().forEach(
-                (pip) -> w.addChild((gw) -> PipelineConfigRepresenter.toJSON(gw, pip)))
+            .addChildList("pipelines", w -> group.getPipelines().forEach(
+                pip -> w.addChild(gw -> PipelineConfigRepresenter.toJSON(gw, pip)))
             );
     }
 }

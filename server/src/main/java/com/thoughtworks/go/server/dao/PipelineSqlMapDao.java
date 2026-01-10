@@ -634,7 +634,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
                 result = goCache.get(cacheKey);
                 if (result == null) {
                     result = getSqlMapClientTemplate().queryForObject("getPipelinePauseState", pipelineName);
-                    result = (result == null) ? PipelinePauseInfo.NULL : result;
+                    result = result == null ? PipelinePauseInfo.NULL : result;
                     goCache.put(cacheKey, result);
                 }
             }
@@ -659,7 +659,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
                 result = goCache.get(cacheKey);
                 if (result == null) {
                     result = getSqlMapClientTemplate().queryForObject("latestPassedStageForPipelineId", arguments("id", pipelineId).and("stage", stage).asMap());
-                    result = (result == null) ? StageIdentifier.NULL : result;
+                    result = result == null ? StageIdentifier.NULL : result;
                     goCache.put(cacheKey, result);
                 }
             }

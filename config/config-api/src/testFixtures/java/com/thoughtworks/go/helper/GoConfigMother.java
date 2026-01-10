@@ -312,17 +312,16 @@ public class GoConfigMother {
     }
 
     public static CruiseConfig configWithConfigRepo() {
-        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setConfigRepos(new ConfigReposConfig(ConfigRepoConfig.createConfigRepoConfig(
                 git("https://github.com/tomzo/gocd-indep-config-part.git"), "myplugin", "id2"
         )));
         return cruiseConfig;
     }
 
-    public static CruiseConfig configWithSecretConfig(SecretConfig... SecretConfigs) {
+    public static CruiseConfig configWithSecretConfig(SecretConfig... secretConfigs) {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
-        cruiseConfig.setSecretConfigs(new SecretConfigs());
-        Arrays.stream(SecretConfigs)
+        Arrays.stream(secretConfigs)
                 .forEach(secretConfig -> cruiseConfig.getSecretConfigs().add(secretConfig));
         return cruiseConfig;
     }

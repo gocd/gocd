@@ -21,6 +21,7 @@ import com.thoughtworks.go.apiv2.compare.representers.PipelineInstanceModelsRepr
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.domain.buildcause.BuildCause
 import com.thoughtworks.go.helper.ModificationsMother
+import com.thoughtworks.go.helper.StageInstanceModelMother
 import com.thoughtworks.go.helper.StageMother
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels
@@ -101,7 +102,7 @@ class InternalCompareControllerV2Test implements SecurityServiceTrait, Controlle
       void 'should return pipeline instance models'() {
         def date = Instant.now()
         def stage = StageMother.passedStageInstance(pipelineName, "stageName", 2, "buildName", date)
-        def stageInstanceModel = StageMother.toStageInstanceModel(stage)
+        def stageInstanceModel = StageInstanceModelMother.fromStage(stage)
         def stageInstanceModels = new StageInstanceModels()
         stageInstanceModels.add(stageInstanceModel)
 

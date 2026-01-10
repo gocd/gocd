@@ -143,7 +143,7 @@ public class PluginRoleConfigTest {
 
         assertTrue(role.hasErrors());
         assertThat(role.errors().size()).isEqualTo(1);
-        assertThat(role.errors().get("name").get(0)).isEqualTo("Invalid role name name ''. This must be alphanumeric and can" +
+        assertThat(role.errors().get("name").getFirst()).isEqualTo("Invalid role name name ''. This must be alphanumeric and can" +
                 " contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
@@ -158,7 +158,7 @@ public class PluginRoleConfigTest {
 
         assertTrue(role.hasErrors());
         assertThat(role.errors().size()).isEqualTo(1);
-        assertThat(role.errors().get("name").get(0)).isEqualTo("Invalid role name name 'null'. This must be alphanumeric and can" +
+        assertThat(role.errors().get("name").getFirst()).isEqualTo("Invalid role name name 'null'. This must be alphanumeric and can" +
                 " contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
@@ -171,7 +171,7 @@ public class PluginRoleConfigTest {
 
         assertThat(role.errors().size()).isEqualTo(1);
         assertThat(role.errors().get("authConfigId").size()).isEqualTo(1);
-        assertThat(role.errors().get("authConfigId").get(0)).isEqualTo("Invalid plugin role authConfigId name ''. This must be alphanumeric and can" +
+        assertThat(role.errors().get("authConfigId").getFirst()).isEqualTo("Invalid plugin role authConfigId name ''. This must be alphanumeric and can" +
                 " contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
@@ -183,7 +183,7 @@ public class PluginRoleConfigTest {
 
         assertThat(role.errors().size()).isEqualTo(1);
         assertThat(role.errors().get("authConfigId").size()).isEqualTo(1);
-        assertThat(role.errors().get("authConfigId").get(0)).isEqualTo("No such security auth configuration present for id: `auth_config_id`");
+        assertThat(role.errors().get("authConfigId").getFirst()).isEqualTo("No such security auth configuration present for id: `auth_config_id`");
     }
 
     public void validateUniquenessOfRoleName(Validator v) {
@@ -198,7 +198,7 @@ public class PluginRoleConfigTest {
         v.validate(role, validationContext);
 
         assertThat(role.errors().size()).isEqualTo(1);
-        assertThat(role.errors().get("name").get(0)).isEqualTo("Role names should be unique. Role with the same name exists.");
+        assertThat(role.errors().get("name").getFirst()).isEqualTo("Role names should be unique. Role with the same name exists.");
     }
 
     @Test

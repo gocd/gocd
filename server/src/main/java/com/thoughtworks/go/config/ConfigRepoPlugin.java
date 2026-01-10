@@ -50,7 +50,7 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
     public static List<CRConfigurationProperty> getCrConfigurations(Configuration configuration) {
         return configuration
             .stream()
-            .map((prop) -> new CRConfigurationProperty(
+            .map(prop -> new CRConfigurationProperty(
                 prop.getConfigKeyName(),
                 prop.getValue(),
                 null) // /decrypt any secrets

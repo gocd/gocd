@@ -82,7 +82,7 @@ public class ArtifactFolder implements JsonAware, Comparable<ArtifactFolder> {
     @Override
     public int hashCode() {
         int result;
-        result = (jobIdentifier != null ? jobIdentifier.hashCode() : 0);
+        result = jobIdentifier != null ? jobIdentifier.hashCode() : 0;
         result = 31 * result + (rootFolder != null ? rootFolder.hashCode() : 0);
         result = 31 * result + (relativePath != null ? relativePath.hashCode() : 0);
         return result;

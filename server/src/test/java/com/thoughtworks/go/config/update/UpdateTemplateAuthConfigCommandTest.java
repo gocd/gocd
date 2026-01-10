@@ -86,6 +86,6 @@ public class UpdateTemplateAuthConfigCommandTest {
         UpdateTemplateAuthConfigCommand command = new UpdateTemplateAuthConfigCommand(updatedTemplateConfig, templateAuthorization, new Username(new CaseInsensitiveString("user")), securityService, new HttpLocalizedOperationResult(), "md5", entityHashingService, externalArtifactsService);
         assertFalse(command.isValid(cruiseConfig));
 
-        assertThat(templateAuthorization.getAllErrors().get(0).getAllOn("roles")).isEqualTo(List.of("Role \"\" does not exist."));
+        assertThat(templateAuthorization.getAllErrors().getFirst().getAllOn("roles")).isEqualTo(List.of("Role \"\" does not exist."));
     }
 }

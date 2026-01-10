@@ -87,7 +87,7 @@ public class GoCDSqlSessionDaoSupportTest {
 
         final User[] loadedUser = new User[1];
 
-        assertThat(assertionUtil.doInTxnWithCachePut(() -> loadedUser[0] = userDao.allUsers().get(0))).isEqualTo("boozer");
+        assertThat(assertionUtil.doInTxnWithCachePut(() -> loadedUser[0] = userDao.allUsers().getFirst())).isEqualTo("boozer");
 
         assertThat(loadedUser[0].getName()).isEqualTo("loser");
     }

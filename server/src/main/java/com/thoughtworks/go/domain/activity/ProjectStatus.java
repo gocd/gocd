@@ -88,7 +88,7 @@ public class ProjectStatus {
     @Override
     public int hashCode() {
         int result;
-        result = (name != null ? name.hashCode() : 0);
+        result = name != null ? name.hashCode() : 0;
         result = 31 * result + (activity != null ? activity.hashCode() : 0);
         result = 31 * result + (lastBuildStatus != null ? lastBuildStatus.hashCode() : 0);
         result = 31 * result + (lastBuildLabel != null ? lastBuildLabel.hashCode() : 0);

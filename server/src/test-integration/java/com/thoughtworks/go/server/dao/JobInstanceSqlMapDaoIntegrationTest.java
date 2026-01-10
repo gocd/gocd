@@ -124,7 +124,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         savedStage = savedPipeline.getFirstStage();
         stageId = savedStage.getId();
         counter = savedPipeline.getFirstStage().getCounter();
-        JobInstance job = savedPipeline.getStages().getFirstOrNull().getJobInstances().getFirstOrNull();
+        JobInstance job = savedPipeline.getStages().getFirst().getJobInstances().getFirst();
         job.setIgnored(true);
         goCache.clear();
         configHelper.usingCruiseConfigDao(goConfigDao);
@@ -205,7 +205,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         Pipeline oldPipeline = createNewPipeline(pipelineConfig);
         Pipeline newPipeline = createNewPipeline(pipelineConfig);
 
-        JobInstance expected = oldPipeline.getFirstStage().getJobInstances().getFirstOrNull();
+        JobInstance expected = oldPipeline.getFirstStage().getJobInstances().getFirst();
         JobInstance actual = jobInstanceDao.mostRecentJobWithTransitions(
                 new JobIdentifier(oldPipeline, oldPipeline.getFirstStage(), expected));
         assertThat(actual.getId()).isEqualTo(expected.getId());
@@ -258,8 +258,8 @@ public class JobInstanceSqlMapDaoIntegrationTest {
 
     @Test
     public void findByJobIdShouldLoadOriginalJobWhenCopiedForJobRerun() {
-        Stage firstOldStage = savedPipeline.getStages().get(0);
-        Stage newStage = instanceFactory.createStageForRerunOfJobs(firstOldStage, List.of(JOB_NAME), new DefaultSchedulingContext("loser", new Agents()), pipelineConfig.get(0), new TimeProvider(), "md5");
+        Stage firstOldStage = savedPipeline.getStages().getFirst();
+        Stage newStage = instanceFactory.createStageForRerunOfJobs(firstOldStage, List.of(JOB_NAME), new DefaultSchedulingContext("loser", new Agents()), pipelineConfig.getFirst(), new TimeProvider(), "md5");
 
         stageDao.saveWithJobs(savedPipeline, newStage);
         dbHelper.passStage(newStage);
@@ -467,8 +467,8 @@ public class JobInstanceSqlMapDaoIntegrationTest {
 
         JobInstances myinstances = jobInstanceDao.latestCompletedJobs(PIPELINE_NAME, STAGE_NAME, newName, 25);
         assertThat(myinstances.size()).isEqualTo(10);
-        assertThat(myinstances.get(0).getName()).isNotEqualTo(oldName);
-        assertThat(myinstances.get(0).getName()).isEqualTo(newName);
+        assertThat(myinstances.getFirst().getName()).isNotEqualTo(oldName);
+        assertThat(myinstances.getFirst().getName()).isEqualTo(newName);
     }
 
     private long createSomeJobs(String jobName, int count) {
@@ -575,8 +575,8 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     public void shouldLoadRerunOfCounterValueForScheduledBuilds() {
         List<JobPlan> jobPlans = jobInstanceDao.orderedScheduledBuilds();
         assertThat(jobPlans.size()).isEqualTo(2);
-        assertThat(jobPlans.get(0).getIdentifier().getRerunOfCounter()).isNull();
-        assertThat(jobPlans.get(1).getIdentifier().getRerunOfCounter()).isNull();
+        assertThat(jobPlans.getFirst().getIdentifier().getRerunOfCounter()).isNull();
+        assertThat(jobPlans.getLast().getIdentifier().getRerunOfCounter()).isNull();
 
         dbHelper.passStage(savedStage);
         Stage stage = instanceFactory.createStageForRerunOfJobs(savedStage, List.of(JOB_NAME), schedulingContext, pipelineConfig.getStage(new CaseInsensitiveString(STAGE_NAME)), new TimeProvider(), "md5");
@@ -584,7 +584,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
 
         jobPlans = jobInstanceDao.orderedScheduledBuilds();
         assertThat(jobPlans.size()).isEqualTo(1);
-        assertThat(jobPlans.get(0).getIdentifier().getRerunOfCounter()).isEqualTo(savedStage.getCounter());
+        assertThat(jobPlans.getFirst().getIdentifier().getRerunOfCounter()).isEqualTo(savedStage.getCounter());
     }
 
     @Test
@@ -808,7 +808,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         final List<JobPlan> plans = findPlans(planList, projectOne);
 
         assertThat(plans.size()).isEqualTo(1);
-        assertThat(plans.get(0).getResources()).isEqualTo(resources);
+        assertThat(plans.getFirst().getResources()).isEqualTo(resources);
     }
 
     @Test
@@ -857,8 +857,8 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     private JobPlan findPlan(List<JobPlan> list, String jobName) {
         final List<JobPlan> planList = findPlans(list, jobName);
 
-        if (planList.size() > 0) {
-            return planList.get(0);
+        if (!planList.isEmpty()) {
+            return planList.getFirst();
         }
 
         return null;
@@ -907,7 +907,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
 
         JobInstances list = jobInstanceDao.findHungJobs(List.of("uuid1", "uuid2"));
         assertThat(list.size()).isEqualTo(1);
-        JobInstance reloaded = list.get(0);
+        JobInstance reloaded = list.getFirst();
         assertThat(reloaded.getId()).isEqualTo(buildingJob3.getId());
         assertThat(reloaded.getIdentifier()).isEqualTo(jobIdentifier(buildingJob3));
     }
@@ -944,7 +944,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
 
         List<JobInstance> jobInstances = jobInstanceDao.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.stage, SortOrder.ASC, 0, 10);
         assertThat(jobInstances.size()).isEqualTo(2);
-        JobInstance actual = jobInstances.get(0);
+        JobInstance actual = jobInstances.getFirst();
         assertThat(actual.getName()).isEqualTo(completedJob.getName());
         completedJob.setIdentifier(actual.getIdentifier());
         assertThat(actual).isEqualTo(completedJob);
@@ -1006,8 +1006,8 @@ public class JobInstanceSqlMapDaoIntegrationTest {
 
         PipelineRunIdInfo runIdInfo = jobInstanceDao.getOldestAndLatestJobInstanceId(pipelineName, STAGE_NAME, JOB_NAME);
 
-        assertThat(runIdInfo.getLatestRunId()).isEqualTo(jobInstances.getLastOrNull().getId());
-        assertThat(runIdInfo.getOldestRunId()).isEqualTo(jobInstances.getFirstOrNull().getId());
+        assertThat(runIdInfo.getLatestRunId()).isEqualTo(jobInstances.getLast().getId());
+        assertThat(runIdInfo.getOldestRunId()).isEqualTo(jobInstances.getFirst().getId());
     }
 
     @Test

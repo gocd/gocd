@@ -107,7 +107,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
 
         // Assert
         assertThat(artifactPlanList.size()).isEqualTo(1);
-        assertThat(artifactPlanList.get(0)).isEqualTo(savedArtifactPlan);
+        assertThat(artifactPlanList.getFirst()).isEqualTo(savedArtifactPlan);
     }
 
     @Test
@@ -123,7 +123,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
 
         // Assert
         assertThat(artifactPlanList.size()).isEqualTo(1);
-        assertThat(artifactPlanList.get(0)).isEqualTo(savedArtifactPlan);
+        assertThat(artifactPlanList.getFirst()).isEqualTo(savedArtifactPlan);
     }
 
     @Test
@@ -139,7 +139,7 @@ public class ArtifactPlanRepositoryIntegrationTest {
 
         // Assert
         assertThat(artifactPlanList.size()).isEqualTo(1);
-        ArtifactPlan loadedArtifactPlan = artifactPlanList.get(0);
+        ArtifactPlan loadedArtifactPlan = artifactPlanList.getFirst();
         assertThat(loadedArtifactPlan).isEqualTo(savedArtifactPlan);
     }
 
@@ -158,13 +158,13 @@ public class ArtifactPlanRepositoryIntegrationTest {
         // Assert
         List<ArtifactPlan> firstJobArtifactPlans = artifactPlanRepository.findByBuildId(firstJobInstance.getId());
         assertThat(firstJobArtifactPlans.size()).isEqualTo(1);
-        assertThat(firstJobArtifactPlans.get(0).getId()).isEqualTo(artifactPlanOfFirstJob.getId());
+        assertThat(firstJobArtifactPlans.getFirst().getId()).isEqualTo(artifactPlanOfFirstJob.getId());
         assertThat(firstJobArtifactPlans).contains(artifactPlanOfFirstJob);
         assertThat(artifactPlan.getId()).isNotNull();
 
         List<ArtifactPlan> secondJobArtifactPlans = artifactPlanRepository.findByBuildId(secondJobInstance.getId());
         assertThat(secondJobArtifactPlans.size()).isEqualTo(1);
-        assertThat(secondJobArtifactPlans.get(0).getId()).isEqualTo(artifactPlanOfSecondJob.getId());
+        assertThat(secondJobArtifactPlans.getFirst().getId()).isEqualTo(artifactPlanOfSecondJob.getId());
         assertThat(secondJobArtifactPlans).contains(artifactPlanOfSecondJob);
         assertThat(artifactPlan.getId()).isNotNull();
 

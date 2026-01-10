@@ -108,7 +108,7 @@ class StageSqlMapDaoTest {
         assertThat(stageHistoryPage.getImmediateChronologicallyForwardStageHistoryEntry()).isEqualTo(bottomOfLastPage);
 
         verify(spy, times(1)).findStages(pagination, pipelineName, stageName);
-        verify(spy, times(1)).findImmediateChronologicallyForwardStageHistoryEntry(expectedStageHistoryEntriesList.get(0));
+        verify(spy, times(1)).findImmediateChronologicallyForwardStageHistoryEntry(expectedStageHistoryEntriesList.getFirst());
     }
 
     @Test

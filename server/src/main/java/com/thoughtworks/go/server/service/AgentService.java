@@ -170,7 +170,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         if (isAnyOperationPerformedOnBulkAgents(emptyList(), emptyList(), List.of(envConfig.name().toString()), emptyList(), TRUE)) {
             validator.validate();
 
-            List<String> uuidsToAssociate = (uuids == null) ? emptyList() : uuids;
+            List<String> uuidsToAssociate = uuids == null ? emptyList() : uuids;
             List<Agent> agents = getAgentsToAddEnvToOrRemoveEnvFrom(envConfig, uuidsToAssociate);
 
             if (agents.isEmpty()) {
@@ -217,7 +217,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         AgentInstance agentInstance = findAgentAndRefreshStatus(agentRuntimeInfo.getUUId());
         if (agentInstance.isIpChangeRequired(agentRuntimeInfo.getIpAddress())) {
             LOGGER.warn("Agent with UUID [{}] changed IP Address from [{}] to [{}]", agentRuntimeInfo.getUUId(), agentInstance.getAgent().getIpaddress(), agentRuntimeInfo.getIpAddress());
-            Agent agent = (agentInstance.isRegistered() ? agentInstance.getAgent() : null);
+            Agent agent = agentInstance.isRegistered() ? agentInstance.getAgent() : null;
             bombIfNull(agent, () -> "Unable to set agent ipAddress; Agent [" + agentInstance.getAgent().getUuid() + "] not found.");
             //noinspection DataFlowIssue
             agent.setIpaddress(agentRuntimeInfo.getIpAddress());
@@ -617,7 +617,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     boolean validateAnyOperationPerformedOnAgent(String hostname, String environments, String resources, TriState state) {
-        boolean anyOperationPerformed = (resources != null || environments != null || hostname != null || state.isPresent());
+        boolean anyOperationPerformed = resources != null || environments != null || hostname != null || state.isPresent();
         if (!anyOperationPerformed) {
             throw new BadRequestException("Bad Request. No operation is specified in the request to be performed on agent.");
         }

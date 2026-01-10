@@ -116,9 +116,9 @@ public class RoleConfigCommandTest {
 
         assertFalse(command.isValid(cruiseConfig));
         assertThat(pluginRoleConfig.errors().size()).isEqualTo(2);
-        assertThat(pluginRoleConfig.errors().get("name").get(0)).isEqualTo("Invalid role name name 'null'. This must be " +
+        assertThat(pluginRoleConfig.errors().get("name").getFirst()).isEqualTo("Invalid role name name 'null'. This must be " +
                 "alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
-        assertThat(pluginRoleConfig.errors().get("authConfigId").get(0)).isEqualTo("No such security auth configuration present for id: `ldap`");
+        assertThat(pluginRoleConfig.errors().get("authConfigId").getFirst()).isEqualTo("No such security auth configuration present for id: `ldap`");
     }
 
     @Test
@@ -132,7 +132,7 @@ public class RoleConfigCommandTest {
 
         assertFalse(command.isValid(cruiseConfig));
         assertThat(pluginRoleConfig.errors().size()).isEqualTo(2);
-        assertThat(pluginRoleConfig.errors().get("name").get(0)).isEqualTo("Role names should be unique. Role with the same name exists.");
+        assertThat(pluginRoleConfig.errors().get("name").getFirst()).isEqualTo("Role names should be unique. Role with the same name exists.");
     }
 
     @Test

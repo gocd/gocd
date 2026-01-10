@@ -80,14 +80,14 @@ public class PluggableTaskConsoleTest {
 
     @Test
     public void shouldReadOutputOfAGiveStream() {
-        InputStream in = new ByteArrayInputStream(("""
+        InputStream in = new ByteArrayInputStream("""
                 Lorem ipsum dolor sit amet, consectetur adipisicing elit,\s
                 used do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                  Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi\s
                 ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit\s
                 in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\s
                  Excepteur sint occaecat cupidatat non proident, sunt in culpa qui\s
-                officia deserunt mollit anim id est laborum.""").getBytes());
+                officia deserunt mollit anim id est laborum.""".getBytes());
 
         doNothing().when(safeOutputStreamConsumer).stdOutput(anyString());
         console.readOutputOf(in);
@@ -96,14 +96,14 @@ public class PluggableTaskConsoleTest {
 
     @Test
     public void shouldReadErrorOfAGiveStream() {
-        InputStream in = new ByteArrayInputStream(("""
+        InputStream in = new ByteArrayInputStream("""
                 Lorem ipsum dolor sit amet, consectetur adipisicing elit,\s
                 used do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                  Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi\s
                 ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit\s
                 in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\s
                  Excepteur sint occaecat cupidatat non proident, sunt in culpa qui\s
-                officia deserunt mollit anim id est laborum.""").getBytes());
+                officia deserunt mollit anim id est laborum.""".getBytes());
 
         doNothing().when(safeOutputStreamConsumer).errOutput(anyString());
         console.readErrorOf(in);

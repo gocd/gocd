@@ -24,7 +24,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Map;
 
 public class Pipeline extends PersistentObject implements PipelineInfo {
 
@@ -83,7 +86,7 @@ public class Pipeline extends PersistentObject implements PipelineInfo {
     }
 
     public @NotNull Stage getFirstStage() {
-        return Objects.requireNonNullElseGet(stages.getFirstOrNull(), () -> new NullStage("unknown"));
+        return stages.getFirst();
     }
 
     public Materials getMaterials() {

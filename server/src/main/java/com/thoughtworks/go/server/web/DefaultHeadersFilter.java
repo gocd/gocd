@@ -28,10 +28,6 @@ public class DefaultHeadersFilter implements Filter {
     private SystemEnvironment systemEnvironment = new SystemEnvironment();
 
     @Override
-    public void destroy() {
-    }
-
-    @Override
     public void init(FilterConfig config) {
         // No default config
     }
@@ -46,7 +42,7 @@ public class DefaultHeadersFilter implements Filter {
             addSecureHeader(response, "X-Frame-Options", "SAMEORIGIN");
             addSecureHeader(response, "X-UA-Compatible", "chrome=1");
             HstsHeader.fromSystemEnvironment(systemEnvironment)
-                    .ifPresent((hstsHeader) -> addSecureHeader(response, hstsHeader.headerName(), hstsHeader.headerValue()));
+                    .ifPresent(hstsHeader -> addSecureHeader(response, hstsHeader.headerName(), hstsHeader.headerValue()));
         }
         chain.doFilter(req, resp);
     }

@@ -98,7 +98,7 @@ public class UpdatePipelineConfigsCommandTest {
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
 
-        assertThat(newAuthorization.getAllErrors().get(0).getAllOn("roles")).isEqualTo(List.of("Role \"invalidRole\" does not exist."));
+        assertThat(newAuthorization.getAllErrors().getFirst().getAllOn("roles")).isEqualTo(List.of("Role \"invalidRole\" does not exist."));
     }
 
     @Test

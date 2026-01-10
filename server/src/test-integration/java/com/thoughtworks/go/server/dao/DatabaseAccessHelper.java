@@ -269,7 +269,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     public Pipeline newPipelineWithAllStagesPassed(PipelineConfig config) {
         Pipeline pipeline = newPipelineWithFirstStagePassed(config);
         for (StageConfig stageConfig : config) {
-            if (config.getFirstOrNull().equals(stageConfig)) {
+            if (config.getFirst().equals(stageConfig)) {
                 continue;
             }
             Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext(
@@ -363,7 +363,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
 
     public void buildingBuildInstance(Stage stage) {
         if (!stage.getJobInstances().isEmpty()) {
-            JobInstance jobInstance = stage.getJobInstances().get(0);
+            JobInstance jobInstance = stage.getJobInstances().getFirst();
             jobInstance.setAgentUuid(AGENT_UUID);
             jobInstance.changeState(JobState.Building);
             jobInstanceDao.updateAssignedInfo(jobInstance);

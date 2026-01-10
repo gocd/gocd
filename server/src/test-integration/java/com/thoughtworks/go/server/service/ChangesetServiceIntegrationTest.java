@@ -311,7 +311,7 @@ public class ChangesetServiceIntegrationTest {
                 false);
         assertThat(result.isSuccessful()).isTrue();
         assertThat(revisionsBetween.size()).isEqualTo(1);
-        Modifications actualMods = revisionsBetween.get(0).getModifications();
+        Modifications actualMods = revisionsBetween.getFirst().getModifications();
         assertThat(actualMods.size()).isEqualTo(5);
     }
 
@@ -354,12 +354,12 @@ public class ChangesetServiceIntegrationTest {
 
         List<MaterialRevision> depMaterialRevision = new ArrayList<>();
         dbHelper.addDependencyRevisionModification(depMaterialRevision, dependencyMaterial, upstream2);
-        Modification expectedMod = depMaterialRevision.get(0).getLatestModification();
+        Modification expectedMod = depMaterialRevision.getFirst().getLatestModification();
         MaterialInstance dep = materialRepository.findOrCreateFrom(dependencyMaterial);
         saveRev(expectedMod, dep);
 
         dbHelper.addDependencyRevisionModification(depMaterialRevision, dependencyMaterial, upstream3);
-        saveRev(depMaterialRevision.get(0).getLatestModification(), dep);
+        saveRev(depMaterialRevision.getFirst().getLatestModification(), dep);
 
         List<MaterialRevision> revisionsForDownstream2 = new ArrayList<>();
         dbHelper.addDependencyRevisionModification(revisionsForDownstream2, dependencyMaterial, upstream4);
@@ -367,7 +367,7 @@ public class ChangesetServiceIntegrationTest {
         List<PipelineMaterialRevision> pmrs = materialRepository.findPipelineMaterialRevisions(downstream2.getId());
 
         assertThat(pmrs.size()).isEqualTo(1);
-        assertThat(pmrs.get(0).getActualFromRevisionId()).isEqualTo(expectedMod.getId());
+        assertThat(pmrs.getFirst().getActualFromRevisionId()).isEqualTo(expectedMod.getId());
     }
 
     private void saveRev(final Modification expectedMod, final MaterialInstance dep) {
@@ -382,7 +382,7 @@ public class ChangesetServiceIntegrationTest {
     private void assertPipelineMaterialRevisions(Pipeline upstreamOne) {
         List<PipelineMaterialRevision> pmrs = materialRepository.findPipelineMaterialRevisions(upstreamOne.getId());
         assertThat(pmrs.size()).isEqualTo(1);
-        assertThat(pmrs.get(0).getActualFromRevisionId()).isEqualTo(pmrs.get(0).getFromModification().getId());
+        assertThat(pmrs.getFirst().getActualFromRevisionId()).isEqualTo(pmrs.getFirst().getFromModification().getId());
     }
 
     @Test

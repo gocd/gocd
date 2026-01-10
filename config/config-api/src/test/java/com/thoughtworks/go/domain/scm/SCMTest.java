@@ -296,7 +296,7 @@ class SCMTest {
         scm.clearEmptyConfigurations();
 
         assertThat(scm.getConfiguration().size()).isEqualTo(1);
-        assertThat(scm.getConfiguration().get(0).getConfigurationKey().getName()).isEqualTo("name-four");
+        assertThat(scm.getConfiguration().getFirst().getConfigurationKey().getName()).isEqualTo("name-four");
     }
 
     @Test
@@ -307,7 +307,7 @@ class SCMTest {
         scm.validate(new ConfigSaveValidationContext(null));
 
         assertThat(scm.errors().isEmpty()).isFalse();
-        assertThat(scm.errors().getAllOn(SCM.NAME).get(0)).isEqualTo("Invalid SCM name 'some name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(scm.errors().getAllOn(SCM.NAME).getFirst()).isEqualTo("Invalid SCM name 'some name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -412,8 +412,8 @@ class SCMTest {
             scm.getConfiguration().addAll(List.of(k1, k2));
 
             assertThat(scm.getSecretParams().size()).isEqualTo(2);
-            assertThat(scm.getSecretParams().get(0)).isEqualTo(new SecretParam("secret_config_id", "lookup_username"));
-            assertThat(scm.getSecretParams().get(1)).isEqualTo(new SecretParam("secret_config_id", "lookup_password"));
+            assertThat(scm.getSecretParams().getFirst()).isEqualTo(new SecretParam("secret_config_id", "lookup_username"));
+            assertThat(scm.getSecretParams().getLast()).isEqualTo(new SecretParam("secret_config_id", "lookup_password"));
         }
 
         @Test

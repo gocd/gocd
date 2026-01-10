@@ -35,16 +35,10 @@ public class ResourceConfig implements Serializable, Comparable<ResourceConfig>,
     private ConfigErrors configErrors = new ConfigErrors();
 
 
-    public ResourceConfig() {
-    }
+    public ResourceConfig() {}
 
     public ResourceConfig(String name) {
         setName(name);
-    }
-
-    public ResourceConfig(ResourceConfig resourceConfig) {
-        this(resourceConfig.name);
-        this.configErrors = resourceConfig.configErrors;
     }
 
     public boolean hasErrors() {

@@ -122,7 +122,7 @@ public class ConfigRepositoryTest {
         goConfigRevisions = configRepo.getCommits(3, 3);
 
         assertThat(goConfigRevisions.size()).isEqualTo(1);
-        assertThat(goConfigRevisions.get(0).getMd5()).isEqualTo("md5-v1");
+        assertThat(goConfigRevisions.getFirst().getMd5()).isEqualTo("md5-v1");
     }
 
     @Test
@@ -328,7 +328,7 @@ public class ConfigRepositoryTest {
 
         List<Ref> branches = getAllBranches();
         assertThat(branches.size()).isEqualTo(1);
-        assertThat(branches.get(0).getName().endsWith("master")).isTrue();
+        assertThat(branches.getFirst().getName().endsWith("master")).isTrue();
         assertThat(configRepo.getCurrentRevCommit()).isEqualTo(currentRevCommitOnMaster);
     }
 
@@ -346,7 +346,7 @@ public class ConfigRepositoryTest {
         assertThat(mergedConfig).isEqualTo("1st\nsecond\nthird\n");
         List<Ref> branches = getAllBranches();
         assertThat(branches.size()).isEqualTo(1);
-        assertThat(branches.get(0).getName().endsWith("master")).isTrue();
+        assertThat(branches.getFirst().getName().endsWith("master")).isTrue();
         assertThat(configRepo.getCurrentRevCommit()).isEqualTo(currentRevCommitOnMaster);
     }
 

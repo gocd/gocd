@@ -66,8 +66,8 @@ public class ElasticAgentProfileDeleteCommandTest {
         ElasticProfile elasticProfile = new ElasticProfile("foo", "prod-cluster");
 
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithJobConfigs("build-linux");
-        pipelineConfig.getStages().getFirstOrNull().getJobs().getFirstOrNull().resourceConfigs().clear();
-        pipelineConfig.getStages().getFirstOrNull().getJobs().getFirstOrNull().setElasticProfileId("foo");
+        pipelineConfig.getStages().getFirst().getJobs().getFirst().resourceConfigs().clear();
+        pipelineConfig.getStages().getFirst().getJobs().getFirst().setElasticProfileId("foo");
         cruiseConfig.addPipeline("all", pipelineConfig);
 
         assertThat(cruiseConfig.getElasticConfig().getProfiles()).isEmpty();

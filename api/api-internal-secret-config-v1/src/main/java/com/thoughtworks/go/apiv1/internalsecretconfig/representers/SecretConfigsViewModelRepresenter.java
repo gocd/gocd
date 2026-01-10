@@ -27,7 +27,7 @@ public class SecretConfigsViewModelRepresenter {
                                 configsWriter -> configsViewModel.getSecretConfigs().forEach(
                                         config -> configsWriter.addChild(
                                                 configWriter -> SecretConfigRepresenter.toJSON(configWriter, config)))))
-                .addChildList("auto_completion", (suggestionWriter) -> configsViewModel.getAutoSuggestions()
+                .addChildList("auto_completion", suggestionWriter -> configsViewModel.getAutoSuggestions()
                         .forEach((key, value) -> suggestionWriter.addChild(childWriter -> childWriter
                                 .add("key", key)
                                 .addChildList("value", value))));

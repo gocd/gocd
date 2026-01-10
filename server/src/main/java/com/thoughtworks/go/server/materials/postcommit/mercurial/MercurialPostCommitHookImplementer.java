@@ -33,7 +33,7 @@ public class MercurialPostCommitHookImplementer implements PostCommitHookImpleme
 
     @Override
     public Set<Material> prune(Set<Material> materials, Map<String, String> params) {
-        HashSet<Material> prunedCollection = new HashSet<>();
+        Set<Material> prunedCollection = new HashSet<>();
         if (params.containsKey(REPO_URL_PARAM_KEY)) {
             String paramRepoUrl = params.get(REPO_URL_PARAM_KEY);
             if (isNotBlank(paramRepoUrl)) {
@@ -43,10 +43,8 @@ public class MercurialPostCommitHookImplementer implements PostCommitHookImpleme
                     }
                 }
             }
-            return prunedCollection;
-        } else {
-            return prunedCollection;
         }
+        return prunedCollection;
     }
 
     boolean isUrlEqual(String paramRepoUrl, HgMaterial material) {

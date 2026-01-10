@@ -59,10 +59,6 @@ public class PipelineModel {
         return pipelineName;
     }
 
-    public boolean hasNewRevisions() {
-        return getLatestPipelineInstance().hasNewRevisions();
-    }
-
     /**
      * Note: this check should be part of the scheduling checker.
      * We will refactor it down to that point.
@@ -72,7 +68,7 @@ public class PipelineModel {
     }
 
     public PipelineInstanceModel getLatestPipelineInstance() {
-        return activePipelineInstances.getFirstOrNull();
+        return activePipelineInstances.getFirst();
     }
 
     public PipelineInstanceModels getActivePipelineInstances() {
@@ -95,8 +91,8 @@ public class PipelineModel {
 
     @Override
     public int hashCode() {
-        int result = (canForce ? 1 : 0);
-        result = 31 * result + (activePipelineInstances.hashCode());
+        int result = canForce ? 1 : 0;
+        result = 31 * result + activePipelineInstances.hashCode();
         return result;
     }
 

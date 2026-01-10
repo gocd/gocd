@@ -88,8 +88,8 @@ public class JsonMessageHandler1_0Test {
         String responseBody = "[{\"key\":\"key-one\",\"message\":\"incorrect value\"},{\"message\":\"general error\"}]";
         ValidationResult validationResult = messageHandler.responseMessageForIsSCMConfigurationValid(responseBody);
 
-        assertValidationError(validationResult.getErrors().get(0), "key-one", "incorrect value");
-        assertValidationError(validationResult.getErrors().get(1), "", "general error");
+        assertValidationError(validationResult.getErrors().getFirst(), "key-one", "incorrect value");
+        assertValidationError(validationResult.getErrors().getLast(), "", "general error");
     }
 
     @Test
@@ -153,7 +153,7 @@ public class JsonMessageHandler1_0Test {
         Map<String, String> scmData = new HashMap<>();
         scmData.put("key-one", "value-one");
         assertThat(pollResult.getMaterialData()).isEqualTo(scmData);
-        assertThat(pollResult.getRevisions().get(0).getRevision()).isEqualTo("r1");
+        assertThat(pollResult.getRevisions().getFirst().getRevision()).isEqualTo("r1");
     }
 
     @Test
@@ -182,8 +182,8 @@ public class JsonMessageHandler1_0Test {
         assertThat(pollResult.getMaterialData()).isNull();
         List<SCMRevision> scmRevisions = pollResult.getRevisions();
         assertThat(scmRevisions.size()).isEqualTo(2);
-        assertSCMRevision(scmRevisions.get(0), "r1", "some-user", "2011-07-14T19:43:37.100Z", "comment", List.of(new ModifiedFile("f1", ModifiedAction.added), new ModifiedFile("f2", ModifiedAction.modified), new ModifiedFile("f3", ModifiedAction.deleted)));
-        assertSCMRevision(scmRevisions.get(1), "r2", "new-user", "2011-07-14T19:43:37.101Z", "comment", List.of(new ModifiedFile("f1", ModifiedAction.added)));
+        assertSCMRevision(scmRevisions.getFirst(), "r1", "some-user", "2011-07-14T19:43:37.100Z", "comment", List.of(new ModifiedFile("f1", ModifiedAction.added), new ModifiedFile("f2", ModifiedAction.modified), new ModifiedFile("f3", ModifiedAction.deleted)));
+        assertSCMRevision(scmRevisions.getLast(), "r2", "new-user", "2011-07-14T19:43:37.101Z", "comment", List.of(new ModifiedFile("f1", ModifiedAction.added)));
     }
 
     @Test

@@ -164,7 +164,7 @@ class EnvironmentConfigServiceTest {
         List<JobPlan> filtered = environmentConfigService.filterJobsByAgent(jobs("no-env", "uat", "prod"), "no-env-uuid");
 
         assertThat(filtered.size()).isEqualTo(1);
-        assertThat(filtered.get(0).getPipelineName()).isEqualTo("no-env-pipeline");
+        assertThat(filtered.getFirst().getPipelineName()).isEqualTo("no-env-pipeline");
     }
 
     @Test
@@ -174,7 +174,7 @@ class EnvironmentConfigServiceTest {
         List<JobPlan> filtered = environmentConfigService.filterJobsByAgent(jobs("no-env", "uat", "prod"), "uat-agent");
 
         assertThat(filtered.size()).isEqualTo(1);
-        assertThat(filtered.get(0).getPipelineName()).isEqualTo("uat-pipeline");
+        assertThat(filtered.getFirst().getPipelineName()).isEqualTo("uat-pipeline");
     }
 
     @Test
@@ -184,8 +184,8 @@ class EnvironmentConfigServiceTest {
         List<JobPlan> filtered = environmentConfigService.filterJobsByAgent(jobs("no-env", "uat", "prod"), OMNIPRESENT_AGENT);
 
         assertThat(filtered.size()).isEqualTo(2);
-        assertThat(filtered.get(0).getPipelineName()).isEqualTo("uat-pipeline");
-        assertThat(filtered.get(1).getPipelineName()).isEqualTo("prod-pipeline");
+        assertThat(filtered.getFirst().getPipelineName()).isEqualTo("uat-pipeline");
+        assertThat(filtered.getLast().getPipelineName()).isEqualTo("prod-pipeline");
     }
 
     @Test
@@ -502,7 +502,7 @@ class EnvironmentConfigServiceTest {
             EnvironmentsConfig environmentsConfig = environmentsConfig(environmentName, pipelineName);
             environmentConfigService.syncEnvironments(environmentsConfig);
 
-            assertThat(environmentConfigService.environmentForPipeline("up42")).isEqualTo(environmentsConfig.get(0));
+            assertThat(environmentConfigService.environmentForPipeline("up42")).isEqualTo(environmentsConfig.getFirst());
         }
 
         @Test
@@ -693,7 +693,7 @@ class EnvironmentConfigServiceTest {
             EnvironmentConfig environmentConfig = environmentConfigService.getEnvironmentConfig(environmentName);
             EnvironmentAgentsConfig environmentConfigAgents = environmentConfig.getAgents();
             assertThat(environmentConfigAgents.size()).isEqualTo(1);
-            assertThat(environmentConfigAgents.get(0).getUuid()).isEqualTo(uuid);
+            assertThat(environmentConfigAgents.getFirst().getUuid()).isEqualTo(uuid);
 
             String newEnvironmentName = "new-environment";
             Agent agentAfterUpdate = new Agent(uuid);
@@ -737,7 +737,7 @@ class EnvironmentConfigServiceTest {
             EnvironmentConfig environmentConfig = environmentConfigService.getEnvironmentConfig(environmentName);
             EnvironmentAgentsConfig environmentConfigAgents = environmentConfig.getAgents();
             assertThat(environmentConfigAgents.size()).isEqualTo(1);
-            assertThat(environmentConfigAgents.get(0).getUuid()).isEqualTo(uuid);
+            assertThat(environmentConfigAgents.getFirst().getUuid()).isEqualTo(uuid);
 
             Agent agentAfterUpdate = new Agent(uuid);
             agentAfterUpdate.addEnvironment(environmentName);
@@ -746,7 +746,7 @@ class EnvironmentConfigServiceTest {
 
             EnvironmentConfig afterUpdateEnvConfig = environmentConfigService.getEnvironmentConfig(environmentName);
             assertThat(afterUpdateEnvConfig.getAgents().size()).isEqualTo(1);
-            assertThat(environmentConfigAgents.get(0).getUuid()).isEqualTo(uuid);
+            assertThat(environmentConfigAgents.getFirst().getUuid()).isEqualTo(uuid);
         }
     }
 
@@ -763,7 +763,7 @@ class EnvironmentConfigServiceTest {
         EnvironmentConfig environmentConfig = environmentConfigService.getEnvironmentConfig(environmentName);
         EnvironmentAgentsConfig environmentConfigAgents = environmentConfig.getAgents();
         assertThat(environmentConfigAgents.size()).isEqualTo(1);
-        assertThat(environmentConfigAgents.get(0).getUuid()).isEqualTo(uuid);
+        assertThat(environmentConfigAgents.getFirst().getUuid()).isEqualTo(uuid);
 
         Agent agentDeleted = new Agent(uuid);
         agentDeleted.addEnvironment(environmentName);
@@ -797,7 +797,7 @@ class EnvironmentConfigServiceTest {
         EnvironmentConfig afterUpdateEnvConfig = environmentConfigService.getEnvironmentConfig(environmentName);
         EnvironmentAgentsConfig afterUpdateEnvConfigAgents = afterUpdateEnvConfig.getAgents();
         assertThat(afterUpdateEnvConfigAgents.size()).isEqualTo(1);
-        assertThat(afterUpdateEnvConfigAgents.get(0).getUuid()).isEqualTo(uuid);
+        assertThat(afterUpdateEnvConfigAgents.getFirst().getUuid()).isEqualTo(uuid);
     }
 
     @Test
@@ -814,7 +814,7 @@ class EnvironmentConfigServiceTest {
 
         EnvironmentAgentsConfig envConfigAgents1 = environmentConfigService.getEnvironmentConfig(envName1).getAgents();
         assertThat(envConfigAgents1.size()).isEqualTo(1);
-        assertThat(envConfigAgents1.get(0).getUuid()).isEqualTo(uuid);
+        assertThat(envConfigAgents1.getFirst().getUuid()).isEqualTo(uuid);
 
         Agent agent = new Agent(uuid);
         agent.addEnvironments(List.of(envName, envName1));
@@ -827,7 +827,7 @@ class EnvironmentConfigServiceTest {
 
         EnvironmentAgentsConfig afterUpdateEnvConfigAgents = environmentConfigService.getEnvironmentConfig(envName).getAgents();
         assertThat(afterUpdateEnvConfigAgents.size()).isEqualTo(1);
-        assertThat(afterUpdateEnvConfigAgents.get(0).getUuid()).isEqualTo(uuid);
+        assertThat(afterUpdateEnvConfigAgents.getFirst().getUuid()).isEqualTo(uuid);
 
         EnvironmentAgentsConfig afterUpdateEnvConfigAgents1 = environmentConfigService.getEnvironmentConfig(envName1).getAgents();
         assertThat(afterUpdateEnvConfigAgents1.size()).isEqualTo(1);

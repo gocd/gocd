@@ -183,7 +183,7 @@ class ConfigConverterTest {
         assertThat(result.getPluginConfiguration().getId()).isEqualTo("myplugin");
         assertThat(result.getPluginConfiguration().getVersion()).isEqualTo("1");
         assertThat(result.getConfiguration().getProperty("k").getValue()).isEqualTo("m");
-        assertThat(result.getConditions().getFirstOrNull()).isEqualTo(RunIfConfig.ANY);
+        assertThat(result.getConditions().getFirst()).isEqualTo(RunIfConfig.ANY);
     }
 
     @Test
@@ -195,7 +195,7 @@ class ConfigConverterTest {
     }
 
     private void assertRakeTask(RakeTask result) {
-        assertThat(result.getConditions().getFirstOrNull()).isEqualTo(RunIfConfig.FAILED);
+        assertThat(result.getConditions().getFirst()).isEqualTo(RunIfConfig.FAILED);
         assertThat(result.getBuildFile()).isEqualTo("Rakefile.rb");
         assertThat(result.getTarget()).isEqualTo("build");
         assertThat(result.workingDirectory()).isEqualTo("src");
@@ -207,7 +207,7 @@ class ConfigConverterTest {
         CRBuildTask crBuildTask = new CRBuildTask(CRBuildFramework.ant, CRRunIf.failed, cancel, "ant", "build", "src");
         AntTask result = (AntTask) configConverter.toAbstractTask(crBuildTask);
 
-        assertThat(result.getConditions().getFirstOrNull()).isEqualTo(RunIfConfig.FAILED);
+        assertThat(result.getConditions().getFirst()).isEqualTo(RunIfConfig.FAILED);
         assertThat(result.getBuildFile()).isEqualTo("ant");
         assertThat(result.getTarget()).isEqualTo("build");
         assertThat(result.workingDirectory()).isEqualTo("src");
@@ -221,7 +221,7 @@ class ConfigConverterTest {
         CRBuildTask crBuildTask = new CRNantTask(CRRunIf.passed, null, "nant", "build", "src", "path");
         NantTask result = (NantTask) configConverter.toAbstractTask(crBuildTask);
 
-        assertThat(result.getConditions().getFirstOrNull()).isEqualTo(RunIfConfig.PASSED);
+        assertThat(result.getConditions().getFirst()).isEqualTo(RunIfConfig.PASSED);
         assertThat(result.getBuildFile()).isEqualTo("nant");
         assertThat(result.getTarget()).isEqualTo("build");
         assertThat(result.workingDirectory()).isEqualTo("src");
@@ -235,7 +235,7 @@ class ConfigConverterTest {
         crExecTask.addArgument("2");
         ExecTask result = (ExecTask) configConverter.toAbstractTask(crExecTask);
 
-        assertThat(result.getConditions().getFirstOrNull()).isEqualTo(RunIfConfig.FAILED);
+        assertThat(result.getConditions().getFirst()).isEqualTo(RunIfConfig.FAILED);
         assertThat(result.command()).isEqualTo("bash");
         assertThat(result.getArgList()).contains(new Argument("1"));
         assertThat(result.getArgList()).contains(new Argument("2"));
@@ -251,7 +251,7 @@ class ConfigConverterTest {
         crExecTask.addArgument("2");
         ExecTask result = (ExecTask) configConverter.toAbstractTask(crExecTask);
 
-        assertThat(result.getConditions().getFirstOrNull()).isEqualTo(RunIfConfig.FAILED);
+        assertThat(result.getConditions().getFirst()).isEqualTo(RunIfConfig.FAILED);
         assertThat(result.command()).isEqualTo("bash");
         assertThat(result.getArgList()).contains(new Argument("1"));
         assertThat(result.getArgList()).contains(new Argument("2"));
@@ -270,7 +270,7 @@ class ConfigConverterTest {
 
         FetchTask result = (FetchTask) configConverter.toAbstractTask(crFetchArtifactTask);
 
-        assertThat(result.getConditions().getFirstOrNull()).isEqualTo(RunIfConfig.PASSED);
+        assertThat(result.getConditions().getFirst()).isEqualTo(RunIfConfig.PASSED);
         assertThat(result.getDest()).isEmpty();
         assertThat(result.getJob().toLower()).isEqualTo("job");
         assertThat(result.getPipelineName().toLower()).isEmpty();
@@ -285,7 +285,7 @@ class ConfigConverterTest {
 
         FetchTask result = (FetchTask) configConverter.toAbstractTask(crFetchArtifactTask);
 
-        assertThat(result.getConditions().getFirstOrNull()).isEqualTo(RunIfConfig.PASSED);
+        assertThat(result.getConditions().getFirst()).isEqualTo(RunIfConfig.PASSED);
         assertThat(result.getDest()).isEmpty();
         assertThat(result.getJob().toLower()).isEqualTo("job");
         assertThat(result.getPipelineName().toLower()).isEqualTo("upstream");
@@ -300,7 +300,7 @@ class ConfigConverterTest {
 
         FetchTask result = (FetchTask) configConverter.toAbstractTask(crFetchArtifactTask);
 
-        assertThat(result.getConditions().getFirstOrNull()).isEqualTo(RunIfConfig.FAILED);
+        assertThat(result.getConditions().getFirst()).isEqualTo(RunIfConfig.FAILED);
         assertThat(result.getDest()).isEqualTo("dest");
         assertThat(result.getJob().toLower()).isEqualTo("job");
         assertThat(result.getPipelineName().toLower()).isEqualTo("upstream");
@@ -316,7 +316,7 @@ class ConfigConverterTest {
 
         FetchTask result = (FetchTask) configConverter.toAbstractTask(crFetchArtifactTask);
 
-        assertThat(result.getConditions().getFirstOrNull()).isEqualTo(RunIfConfig.FAILED);
+        assertThat(result.getConditions().getFirst()).isEqualTo(RunIfConfig.FAILED);
         assertThat(result.getDest()).isEqualTo("dest");
         assertThat(result.getJob().toLower()).isEqualTo("job");
         assertThat(result.getPipelineName().toLower()).isEqualTo("upstream");
@@ -335,7 +335,7 @@ class ConfigConverterTest {
 
         FetchPluggableArtifactTask result = (FetchPluggableArtifactTask) configConverter.toAbstractTask(crFetchPluggableArtifactTask);
 
-        assertThat(result.getConditions().getFirstOrNull()).isEqualTo(RunIfConfig.PASSED);
+        assertThat(result.getConditions().getFirst()).isEqualTo(RunIfConfig.PASSED);
         assertThat(result.getJob().toLower()).isEqualTo("job");
         assertThat(result.getPipelineName().toLower()).isEmpty();
         assertThat(result.getArtifactId()).isEqualTo("artifactId");
@@ -351,7 +351,7 @@ class ConfigConverterTest {
 
         FetchPluggableArtifactTask result = (FetchPluggableArtifactTask) configConverter.toAbstractTask(crFetchPluggableArtifactTask);
 
-        assertThat(result.getConditions().getFirstOrNull()).isEqualTo(RunIfConfig.PASSED);
+        assertThat(result.getConditions().getFirst()).isEqualTo(RunIfConfig.PASSED);
         assertThat(result.getJob().toLower()).isEqualTo("job");
         assertThat(result.getPipelineName().toLower()).isEmpty();
         assertThat(result.getArtifactId()).isEqualTo("artifactId");
@@ -1021,8 +1021,8 @@ class ConfigConverterTest {
         assertThat(pluggableArtifactConfig.getStoreId()).isEqualTo("storeId");
         Configuration configuration = pluggableArtifactConfig.getConfiguration();
         assertThat(configuration.size()).isEqualTo(1);
-        assertThat(configuration.get(0).getConfigKeyName()).isEqualTo("filename");
-        assertThat(configuration.get(0).getConfigValue()).isEqualTo("who-cares");
+        assertThat(configuration.getFirst().getConfigKeyName()).isEqualTo("filename");
+        assertThat(configuration.getFirst().getConfigValue()).isEqualTo("who-cares");
     }
 
     @Test
@@ -1034,8 +1034,8 @@ class ConfigConverterTest {
 
         assertThat(jobConfig.name().toLower()).isEqualTo("name");
         assertThat(jobConfig.hasVariable("key")).isTrue();
-        assertThat(jobConfig.getTabs().getFirstOrNull().getName()).isEqualTo("tabname");
-        assertThat(jobConfig.resourceConfigs().get(0)).isEqualTo(new ResourceConfig("resource1"));
+        assertThat(jobConfig.getTabs().getFirst().getName()).isEqualTo("tabname");
+        assertThat(jobConfig.resourceConfigs().getFirst()).isEqualTo(new ResourceConfig("resource1"));
         assertThat(jobConfig.artifactTypeConfigs()).contains(new BuildArtifactConfig("src", "dest"));
         assertThat(jobConfig.isRunOnAllAgents()).isFalse();
         assertThat(jobConfig.getRunInstanceCount()).isEqualTo("5");
@@ -1154,10 +1154,10 @@ class ConfigConverterTest {
 
         PipelineConfig pipelineConfig = configConverter.toPipelineConfig(crPipeline, context, new SCMs());
         assertThat(pipelineConfig.name().toLower()).isEqualTo("pipeline");
-        assertThat(pipelineConfig.materialConfigs().getFirstOrNull() instanceof GitMaterialConfig).isTrue();
-        assertThat(pipelineConfig.getFirstOrNull().name().toLower()).isEqualTo("stagename");
+        assertThat(pipelineConfig.materialConfigs().getFirst() instanceof GitMaterialConfig).isTrue();
+        assertThat(pipelineConfig.getFirst().name().toLower()).isEqualTo("stagename");
         assertThat(pipelineConfig.getVariables().hasVariable("key")).isTrue();
-        assertThat(pipelineConfig.trackingTool().getLink()).isEqualTo("link");
+        assertThat(pipelineConfig.trackingToolOrDefault().getLink()).isEqualTo("link");
         assertThat(pipelineConfig.getTimer().getTimerSpec()).isEqualTo("timer");
         assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("label-template");
         assertThat(pipelineConfig.isLockableOnFailure()).isTrue();
@@ -1189,8 +1189,8 @@ class ConfigConverterTest {
 
         PipelineConfig pipelineConfig = configConverter.toPipelineConfig(crPipeline, context, new SCMs());
         assertThat(pipelineConfig.name().toLower()).isEqualTo("p1");
-        assertThat(pipelineConfig.materialConfigs().getFirstOrNull() instanceof SvnMaterialConfig).isTrue();
-        assertThat(pipelineConfig.getFirstOrNull().name().toLower()).isEqualTo("build");
+        assertThat(pipelineConfig.materialConfigs().getFirst() instanceof SvnMaterialConfig).isTrue();
+        assertThat(pipelineConfig.getFirst().name().toLower()).isEqualTo("build");
         assertThat(pipelineConfig.getLabelTemplate()).isEqualTo(PipelineLabel.COUNT_TEMPLATE);
     }
 
@@ -1347,8 +1347,8 @@ class ConfigConverterTest {
         assertThat(crPipeline.hasEnvironmentVariable("testing")).isTrue();
         assertThat(crPipeline.getTrackingTool().getLink()).isEqualTo("link");
         assertThat(crPipeline.getTimer().getSpec()).isEqualTo("timer");
-        assertThat(crPipeline.getStages().get(0).getName()).isEqualTo("build");
-        assertThat(crPipeline.getStages().get(0).getJobs().size()).isEqualTo(1);
+        assertThat(crPipeline.getStages().getFirst().getName()).isEqualTo("build");
+        assertThat(crPipeline.getStages().getFirst().getJobs().size()).isEqualTo(1);
         assertThat(crPipeline.getDisplayOrderWeight()).isEqualTo(10);
     }
 
@@ -2120,7 +2120,7 @@ class ConfigConverterTest {
 
             PartialConfig partialConfig = configConverter.toPartialConfig(crPartialConfig, context);
             assertThat(partialConfig.getScms().size()).isEqualTo(1);
-            assertThat(partialConfig.getScms().get(0)).isEqualTo(scm);
+            assertThat(partialConfig.getScms().getFirst()).isEqualTo(scm);
         }
 
         @Test

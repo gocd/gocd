@@ -122,13 +122,6 @@ public class StageInstanceModel implements StageConfigurationModel {
         this.cancelledBy = cancelledBy;
     }
 
-    public String getApprovalDescription() {
-        if (approvedBy == null) {
-            return "Awaiting Approval";
-        }
-        return "Approved by " + approvedBy;
-    }
-
     public String getApprovalType() {
         return approvalType;
     }
@@ -167,10 +160,6 @@ public class StageInstanceModel implements StageConfigurationModel {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
-    }
-
-    public boolean getCanReRun() {
-        return canRun;
     }
 
     public boolean getCanCancel() {
@@ -222,37 +211,6 @@ public class StageInstanceModel implements StageConfigurationModel {
 
     public void setSelected(boolean selected) {
         this.selected = selected;
-    }
-
-    public boolean getCanApprove() {
-        return (getCanRun() && !isScheduled());
-    }
-
-    public boolean hasUnsuccessfullyCompleted() {
-        for (JobHistoryItem jobHistoryItem : jobHistory) {
-            if (jobHistoryItem.hasUnsuccessfullyCompleted()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean hasPassed() {
-        for (JobHistoryItem jobHistoryItem : jobHistory) {
-            if (!jobHistoryItem.hasPassed()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public boolean hasFailed() {
-        for (JobHistoryItem jobHistoryItem : jobHistory) {
-            if (jobHistoryItem.hasFailed()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public boolean isRunning() {

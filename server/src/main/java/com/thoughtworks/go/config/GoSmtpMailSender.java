@@ -106,7 +106,12 @@ public class GoSmtpMailSender implements GoMailSender {
     public static String emailBody() {
         String ip = SystemUtil.getFirstLocalNonLoopbackIpAddress();
         String hostName = SystemUtil.getLocalhostName();
-        return String.format("You received this configuration test email from Go Server:\n\n%s (%s)\n\nThank you.", hostName, ip);
+        return String.format("""
+            You received this configuration test email from Go Server:
+            
+            %s (%s)
+            
+            Thank you.""", hostName, ip);
     }
 
     public static GoMailSender createSender(MailHost mailHost) {

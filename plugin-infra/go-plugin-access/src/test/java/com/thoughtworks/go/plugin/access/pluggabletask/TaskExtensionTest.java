@@ -173,8 +173,8 @@ public class TaskExtensionTest {
 
         verify(pluginManager).submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any());
         assertFalse(validationResult.isSuccessful());
-        assertEquals("key", validationResult.getErrors().get(0).getKey());
-        assertEquals("error", validationResult.getErrors().get(0).getMessage());
+        assertEquals("key", validationResult.getErrors().getFirst().getKey());
+        assertEquals("error", validationResult.getErrors().getFirst().getMessage());
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String requestName, String requestBody) {

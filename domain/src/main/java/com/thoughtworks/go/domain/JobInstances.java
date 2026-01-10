@@ -15,10 +15,13 @@
  */
 package com.thoughtworks.go.domain;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -37,25 +40,26 @@ public class JobInstances extends BaseCollection<JobInstance> {
         super(Arrays.asList(jobInstance));
     }
 
-    public JobInstance getByName(String name) {
-        for (JobInstance thisInstance : this) {
-            if (name.equals(thisInstance.getName())) {
-                return thisInstance;
-            }
-        }
-        throw bomb("Does not contain plan with name " + name);
+    public @NotNull JobInstance getByName(String name) {
+        return stream()
+            .filter(jobInstance -> jobInstance.getName().equals(name))
+            .findFirst()
+            .orElseThrow(() -> bomb("Does not contain plan with name " + name));
+    }
+
+    public @NotNull JobInstance removeByName(String name) {
+        AtomicReference<JobInstance> removed = new AtomicReference<>();
+        if (!removeFirstIf(jobInstance -> jobInstance.getName().equals(name) && removed.getAndSet(jobInstance) == null)) {
+            throw bomb("Does not contain plan with name " + name);
+        };
+        return removed.get();
     }
 
     public boolean hasJobNamed(String name) {
-        for (JobInstance thisInstance : this) {
-            if (name.equalsIgnoreCase(thisInstance.getName())) {
-                return true;
-            }
-        }
-        return false;
+        return stream().anyMatch(j -> j.getName().equalsIgnoreCase(name));
     }
 
-    public JobInstances filterByState(JobState state) {
+    public @NotNull JobInstances filterByState(JobState state) {
         JobInstances filtered = new JobInstances();
         for (JobInstance instance : this) {
             if (state == instance.getState()) {
@@ -65,7 +69,7 @@ public class JobInstances extends BaseCollection<JobInstance> {
         return filtered;
     }
 
-    public JobInstances filterByResult(JobResult... results) {
+    public @NotNull JobInstances filterByResult(JobResult... results) {
         JobInstances filtered = new JobInstances();
         for (JobInstance instance : this) {
             if (Arrays.asList(results).contains(instance.getResult())) {
@@ -75,7 +79,7 @@ public class JobInstances extends BaseCollection<JobInstance> {
         return filtered;
     }
 
-    public JobInstance mostRecentPassed() {
+    public @NotNull JobInstance mostRecentPassed() {
         JobInstance mostRecent = NullJobInstance.NAMELESS;
         for (JobInstance instance : this) {
             mostRecent = instance.mostRecentPassed(mostRecent);

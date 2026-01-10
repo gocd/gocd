@@ -47,7 +47,7 @@ class TemplatesConfigRepresenterTest {
       ],
       _embedded: [
         templates: [
-          toObject({TemplateSummaryRepresenter.toJSON(it, templates.get(0))})
+          toObject({TemplateSummaryRepresenter.toJSON(it, templates.getFirst())})
         ]
       ]
     ]

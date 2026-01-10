@@ -91,7 +91,7 @@ class DependencyMaterialConfigSerializationTest {
         CruiseConfig config = loader.loadConfigHolder(new String(inputStream.readAllBytes(), UTF_8)).config;
 
         MaterialConfigs materialConfigs = config.pipelineConfigByName(new CaseInsensitiveString("dependent")).materialConfigs();
-        assertThat(materialConfigs.get(0)).isInstanceOf(DependencyMaterialConfig.class);
-        assertThat(materialConfigs.get(1)).isInstanceOf(P4MaterialConfig.class);
+        assertThat(materialConfigs.getFirst()).isInstanceOf(DependencyMaterialConfig.class);
+        assertThat(materialConfigs.getLast()).isInstanceOf(P4MaterialConfig.class);
     }
 }

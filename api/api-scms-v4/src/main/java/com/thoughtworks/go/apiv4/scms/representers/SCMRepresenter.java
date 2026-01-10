@@ -36,11 +36,11 @@ public class SCMRepresenter {
                 .add("id", scm.getId())
                 .add("name", scm.getName())
                 .add("auto_update", scm.isAutoUpdate())
-                .addChild("origin", (writer) -> EntityConfigOriginRepresenter.toJSON(writer, scm.getOrigin()))
+                .addChild("origin", writer -> EntityConfigOriginRepresenter.toJSON(writer, scm.getOrigin()))
                 .addChild("plugin_metadata", pluginMetadataWriter -> PluginConfigurationRepresenter.toJSON(pluginMetadataWriter, scm.getPluginConfiguration()))
                 .addChildList("configuration", configWriter -> ConfigurationPropertyRepresenter.toJSON(configWriter, scm.getConfiguration()));
 
-        if (scm.errors() != null && (!scm.errors().isEmpty())) {
+        if (scm.errors() != null && !scm.errors().isEmpty()) {
             jsonWriter.addChild("errors", errorWriter -> new ErrorGetter(Map.of("autoUpdate", "auto_update"))
                     .toJSON(errorWriter, scm));
         }

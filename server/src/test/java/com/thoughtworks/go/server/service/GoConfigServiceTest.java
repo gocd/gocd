@@ -58,6 +58,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.helper.EnvironmentVariablesConfigMother.env;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
@@ -107,12 +108,12 @@ public class GoConfigServiceTest {
 
         PipelineConfig otherPipeline = createPipelineConfig("pipeline_other", "stage_other", "plan_other");
         otherPipeline.setVariables(env("OTHER_PIPELINE_LEVEL", "other pipeline"));
-        otherPipeline.getFirstOrNull().setVariables(env("OTHER_STAGE_LEVEL", "other stage"));
-        otherPipeline.getFirstOrNull().jobConfigByConfigName(new CaseInsensitiveString("plan_other")).setVariables(env("OTHER_JOB_LEVEL", "other job"));
+        otherPipeline.getFirst().setVariables(env("OTHER_STAGE_LEVEL", "other stage"));
+        otherPipeline.getFirst().jobConfigByConfigName(new CaseInsensitiveString("plan_other")).setVariables(env("OTHER_JOB_LEVEL", "other job"));
 
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         pipelineConfig.setVariables(env("PIPELINE_LEVEL", "pipeline value"));
-        StageConfig stageConfig = pipelineConfig.getFirstOrNull();
+        StageConfig stageConfig = pipelineConfig.getFirst();
         stageConfig.setVariables(env("STAGE_LEVEL", "stage value"));
         stageConfig.jobConfigByConfigName(new CaseInsensitiveString("plan")).setVariables(env("JOB_LEVEL", "job value"));
 
@@ -213,7 +214,7 @@ public class GoConfigServiceTest {
         expectLoad(new BasicCruiseConfig(group));
         assertThat(goConfigService.isLockable("pipeline")).isFalse();
 
-        pipelineConfig.lockExplicitly();
+        pipelineConfig.setLockBehaviorIfNecessary(LOCK_VALUE_LOCK_ON_FAILURE);
         expectLoad(new BasicCruiseConfig(group));
         assertThat(goConfigService.isLockable("pipeline")).isTrue();
     }
@@ -261,12 +262,12 @@ public class GoConfigServiceTest {
     public void shouldReturnInvalidWhenWholeConfigIsInvalid() {
         CruiseConfig config = configWithPipeline();
         when(goConfigDao.loadForEditing()).thenReturn(config);
-        String configContent = ("""
+        String configContent = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
                 <server><artifacts>
                 <artifactsDir>artifacts</artifactsDir>
-                </artifacts></server><unknown/></cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+                </artifacts></server><unknown/></cruise>""".formatted(GoConstants.CONFIG_SCHEMA_VERSION);
         GoConfigValidity validity = goConfigService.fileSaver(false).saveXml(configContent, "md5");
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).contains("Invalid content was found starting with element 'unknown'");
     }
@@ -314,10 +315,10 @@ public class GoConfigServiceTest {
     public void shouldProvideDetailsWhenXmlConfigDomIsInvalid() {
         expectLoadForEditing(configWith(createPipelineConfig("pipeline", "stage", "build")));
         GoConfigService.XmlPartialSaver<?>saver = goConfigService.fileSaver(false);
-        String configContent = ("""
+        String configContent = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
-                <server artifactsdir='artifactsDir></cruise>""").formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+                <server artifactsdir='artifactsDir></cruise>""".formatted(GoConstants.CONFIG_SCHEMA_VERSION);
         GoConfigValidity validity = saver.saveXml(configContent, "junk_md5");
         assertThat(validity.isValid()).isFalse();
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).isEqualTo("Invalid Configuration - Error on line 3: The value of attribute \"artifactsdir\" associated with an element type \"server\" must not contain the '<' character.");
@@ -369,7 +370,7 @@ public class GoConfigServiceTest {
 
     private CruiseConfig unchangedConfigWithRunOnAllAgents() {
         PipelineConfig pipelineConfig = createPipelineConfig(PIPELINE, STAGE, JOB);
-        pipelineConfig.get(0).jobConfigByConfigName(new CaseInsensitiveString(JOB)).setRunOnAllAgents(true);
+        pipelineConfig.getFirst().jobConfigByConfigName(new CaseInsensitiveString(JOB)).setRunOnAllAgents(true);
         return configWith(pipelineConfig);
     }
 
@@ -616,7 +617,7 @@ public class GoConfigServiceTest {
         GoConfigService.XmlPartialSaver<?>partialSaver = goConfigService.groupSaver(groupName);
         String renamedGroupName = "renamed_group_name";
         GoConfigValidity validity = partialSaver.saveXml(groupXml(renamedGroupName), md5);
-        assertThat(validity.isValid()).isEqualTo((true));
+        assertThat(validity.isValid()).isEqualTo(true);
 
         ArgumentCaptor<FullConfigUpdateCommand> commandArgCaptor = ArgumentCaptor.forClass(FullConfigUpdateCommand.class);
         verify(goConfigDao).updateFullConfig(commandArgCaptor.capture());
@@ -627,8 +628,8 @@ public class GoConfigServiceTest {
         PipelineConfig pipeline = group.findBy(new CaseInsensitiveString("new_name"));
         assertThat(pipeline.name()).isEqualTo(new CaseInsensitiveString("new_name"));
         assertThat(pipeline.getLabelTemplate()).isEqualTo("${COUNT}-#{foo}");
-        assertThat(pipeline.materialConfigs().getFirstOrNull()).isInstanceOf(SvnMaterialConfig.class);
-        assertThat(pipeline.materialConfigs().getFirstOrNull().getUriForDisplay()).isEqualTo("file:///tmp/foo");
+        assertThat(pipeline.materialConfigs().getFirst()).isInstanceOf(SvnMaterialConfig.class);
+        assertThat(pipeline.materialConfigs().getFirst().getUriForDisplay()).isEqualTo("file:///tmp/foo");
     }
 
     @Test
@@ -648,7 +649,7 @@ public class GoConfigServiceTest {
 
         PipelineConfigs group = commandArgumentCaptor.getValue().configForEdit().findGroup("group_name");
         PipelineConfig pipeline = group.findBy(new CaseInsensitiveString("pipeline1"));
-        assertThat(validity.isValid()).isEqualTo((true));
+        assertThat(validity.isValid()).isEqualTo(true);
 
         String entityValue = pipeline.getParams().getParamNamed("foo").getValue();
         assertThat(entityValue).doesNotContain("CONTENTS_OF_FILE");
@@ -672,15 +673,15 @@ public class GoConfigServiceTest {
 
         GoConfigValidity validity = partialSaver.saveXml(groupXml(renamedGroupName), md5);
 
-        assertThat(validity.isValid()).isEqualTo((true));
+        assertThat(validity.isValid()).isEqualTo(true);
         CruiseConfig updatedConfig = commandArgumentCaptor.getValue().configForEdit();
 
         PipelineConfigs group = updatedConfig.findGroup(renamedGroupName);
         PipelineConfig pipeline = group.findBy(new CaseInsensitiveString("new_name"));
         assertThat(pipeline.name()).isEqualTo(new CaseInsensitiveString("new_name"));
         assertThat(pipeline.getLabelTemplate()).isEqualTo("${COUNT}-#{foo}");
-        assertThat(pipeline.materialConfigs().getFirstOrNull()).isInstanceOf(SvnMaterialConfig.class);
-        assertThat(pipeline.materialConfigs().getFirstOrNull().getUriForDisplay()).isEqualTo("file:///tmp/foo");
+        assertThat(pipeline.materialConfigs().getFirst()).isInstanceOf(SvnMaterialConfig.class);
+        assertThat(pipeline.materialConfigs().getFirst().getUriForDisplay()).isEqualTo("file:///tmp/foo");
     }
 
     @Test
@@ -693,7 +694,7 @@ public class GoConfigServiceTest {
 
         String pipelineGroupContent = groupXmlWithInvalidElement(groupName);
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml(pipelineGroupContent, "md5");
-        assertThat(validity.isValid()).isEqualTo((false));
+        assertThat(validity.isValid()).isEqualTo(false);
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).contains("Invalid content was found starting with element 'unknown'");
         verify(goConfigDao, never()).updateConfig(any());
     }
@@ -708,7 +709,7 @@ public class GoConfigServiceTest {
 
         String pipelineGroupContent = groupXmlWithInvalidAttributeValue(groupName);
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml(pipelineGroupContent, "md5");
-        assertThat(validity.isValid()).isEqualTo((false));
+        assertThat(validity.isValid()).isEqualTo(false);
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).contains("Name is invalid. \"pipeline@$^\"");
         verify(goConfigDao, never()).updateConfig(any());
     }
@@ -723,7 +724,7 @@ public class GoConfigServiceTest {
         expectLoadForEditing(cruiseConfig);
 
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml("<foobar>", "md5");
-        assertThat(validity.isValid()).isEqualTo((false));
+        assertThat(validity.isValid()).isEqualTo(false);
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).contains("XML document structures must start and end within the same entity");
         verify(goConfigDao, never()).updateConfig(any());
     }
@@ -938,7 +939,7 @@ public class GoConfigServiceTest {
     }
 
     private String groupXml(final String groupName) {
-        return ("""
+        return """
                 <pipelines group="%s">
                   <pipeline name="new_name" labeltemplate="${COUNT}-#{foo}">
                      <params>
@@ -953,11 +954,11 @@ public class GoConfigServiceTest {
                       </jobs>
                     </stage>
                   </pipeline>
-                </pipelines>""").formatted(groupName);
+                </pipelines>""".formatted(groupName);
     }
 
     private String groupXmlWithEntity(String filePathToReferToInEntity) {
-        return ("""
+        return """
                 <!DOCTYPE foo [ \s
                 <!ELEMENT param ANY >
                 <!ENTITY myentity SYSTEM "file://%s" >]>
@@ -975,11 +976,11 @@ public class GoConfigServiceTest {
                       </jobs>
                     </stage>
                   </pipeline>
-                </pipelines>""").formatted(filePathToReferToInEntity);
+                </pipelines>""".formatted(filePathToReferToInEntity);
     }
 
     private String groupXmlWithInvalidElement(final String groupName) {
-        return ("""
+        return """
                 <pipelines group='%s'>
                   <unknown/>
                 <pipeline name='pipeline'>
@@ -992,11 +993,11 @@ public class GoConfigServiceTest {
                       </jobs>
                   </stage>
                 </pipeline>
-                </pipelines>""").formatted(groupName);
+                </pipelines>""".formatted(groupName);
     }
 
     private String groupXmlWithInvalidAttributeValue(final String groupName) {
-        return ("""
+        return """
                 <pipelines group='%s'>
                 <pipeline name='pipeline@$^'>
                     <materials>
@@ -1008,6 +1009,6 @@ public class GoConfigServiceTest {
                       </jobs>
                   </stage>
                 </pipeline>
-                </pipelines>""").formatted(groupName);
+                </pipelines>""".formatted(groupName);
     }
 }

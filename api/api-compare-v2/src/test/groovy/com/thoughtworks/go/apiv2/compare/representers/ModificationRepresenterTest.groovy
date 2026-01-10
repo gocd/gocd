@@ -81,7 +81,7 @@ class ModificationRepresenterTest {
 
     def expectedJSON = [
       [
-        "modified_time" : jsonDate(revision.modifications.get(0).modifiedTime),
+        "modified_time" : jsonDate(revision.modifications.getFirst().modifiedTime),
         "pipeline_label": "pipeline-name-1.2.3",
         "revision"      : "pipeline-name/1/stage-name/1"
       ]

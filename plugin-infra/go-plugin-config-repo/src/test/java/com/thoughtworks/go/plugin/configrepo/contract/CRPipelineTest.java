@@ -254,6 +254,6 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
 
         String expectedMessage = "Lock behavior has an invalid value (INVALID_LOCK_VALUE). Valid values are:";
         assertThat(errorCollection.getErrorCount()).isEqualTo(1);
-        assertThat(errorCollection.getOrCreateErrorList(validPipelineWithInvalidLockBehaviorOnly.getLocation("TEST")).get(0)).contains(expectedMessage);
+        assertThat(errorCollection.getOrCreateErrorList(validPipelineWithInvalidLockBehaviorOnly.getLocation("TEST")).getFirst()).contains(expectedMessage);
     }
 }

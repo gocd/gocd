@@ -121,7 +121,7 @@ public class PipelineLabel implements Serializable {
 
     @Override
     public int hashCode() {
-        return (label != null ? label.hashCode() : 0);
+        return label != null ? label.hashCode() : 0;
     }
 
     public static PipelineLabel create(String labelTemplate, InsecureEnvironmentVariables envVars) {

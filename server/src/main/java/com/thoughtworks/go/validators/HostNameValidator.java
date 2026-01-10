@@ -26,7 +26,7 @@ public class HostNameValidator implements Validator<String>, com.thoughtworks.go
 
     @Override
     public void validate(String hostname, LocalizedOperationResult result) {
-        if (hostname == null || (!HOSTNAME.matcher(hostname).matches() && !IPV6_ADDRESS.matcher(hostname).matches())) {
+        if (hostname == null || !HOSTNAME.matcher(hostname).matches() && !IPV6_ADDRESS.matcher(hostname).matches()) {
             result.notAcceptable("Invalid hostname. A valid hostname can only contain letters (A-z) digits (0-9) hyphens (-) dots (.) and underscores (_).");
         }
     }

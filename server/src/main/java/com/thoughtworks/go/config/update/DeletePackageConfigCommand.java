@@ -51,7 +51,7 @@ public class DeletePackageConfigCommand implements EntityConfigUpdateCommand<Pac
     @Override
     public void update(CruiseConfig modifiedConfig) {
         PackageRepositories repositories = modifiedConfig.getPackageRepositories();
-        PackageRepository packageRepository = repositories.findPackageRepositoryHaving(this.packageDefinition.getId());
+        PackageRepository packageRepository = repositories.findByPackageId(this.packageDefinition.getId());
         packageRepository.removePackage(this.packageDefinition.getId());
         modifiedConfig.setPackageRepositories(repositories);
     }

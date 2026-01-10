@@ -64,6 +64,7 @@ public class User extends PersistentObject {
         this.emailMe = emailMe;
     }
 
+    @SuppressWarnings("CopyConstructorMissesField")
     public User(User user) {
         this(user.name, user.displayName, user.matcher, user.email, user.emailMe);
         this.enabled = user.enabled;
@@ -249,19 +250,15 @@ public class User extends PersistentObject {
     }
 
     public void updateNotificationFilter(NotificationFilter notificationFilter) {
-        NotificationFilter matchedFilter = notificationFilters.stream()
-            .filter(filter -> filter.getId() == notificationFilter.getId())
-            .findFirst()
-            .orElseThrow(() -> new RecordNotFoundException(EntityType.NotificationFilter, notificationFilter.getId()));
-
-        notificationFilters.remove(matchedFilter);
+        if (!notificationFilters.removeIf(filter -> filter.getId() == notificationFilter.getId())) {
+            throw new RecordNotFoundException(EntityType.NotificationFilter, notificationFilter.getId());
+        }
         checkForDuplicates(notificationFilter);
         notificationFilters.add(notificationFilter);
     }
 
-    public void removeNotificationFilter(final long filterId) {
-        List<NotificationFilter> toBeDeleted = notificationFilters.stream().filter(filter1 -> filter1.getId() == filterId).toList();
-        notificationFilters.removeAll(toBeDeleted);
+    public void removeNotificationFilter(long filterId) {
+        notificationFilters.removeIf(filter1 -> filter1.getId() == filterId);
     }
 
     public boolean hasSubscribedFor(String pipelineName, String stageName) {

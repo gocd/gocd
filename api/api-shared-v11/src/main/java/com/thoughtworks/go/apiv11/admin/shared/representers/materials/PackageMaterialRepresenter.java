@@ -34,7 +34,7 @@ public class PackageMaterialRepresenter implements MaterialRepresenter<PackageMa
         // Pass along options or the cruise config object.
         CruiseConfig cruiseConfig = options.getCruiseConfig();
         String ref = jsonReader.getString("ref");
-        packageMaterialConfig.setPackageDefinition(cruiseConfig.getPackageRepositories().findPackageDefinitionWith(ref));
+        packageMaterialConfig.setPackageDefinition(cruiseConfig.getPackageRepositories().findDefinitionByPackageId(ref));
         packageMaterialConfig.setPackageId(ref);
         return packageMaterialConfig;
     }

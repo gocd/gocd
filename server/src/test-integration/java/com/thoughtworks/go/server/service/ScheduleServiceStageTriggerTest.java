@@ -128,7 +128,7 @@ public class ScheduleServiceStageTriggerTest {
         Stage ftStage = stageDao.mostRecentWithBuilds(pipelineFixture.pipelineName, pipelineFixture.ftStage());
         assertThat(ftStage.getId() > oldFtStage.getId()).describedAs(String.format("Should schedule new ft stage: old id: %s, new id: %s",
             oldFtStage.getId(), ftStage.getId())).isTrue();
-        assertThat(ftStage.getJobInstances().getFirstOrNull().getState()).isEqualTo(JobState.Scheduled);
+        assertThat(ftStage.getJobInstances().getFirst().getState()).isEqualTo(JobState.Scheduled);
     }
 
     @Test

@@ -139,7 +139,7 @@ public class PipelineOperationsControllerV1 extends ApiController implements Spa
         HttpOperationResult result = new HttpOperationResult();
         PipelineStatusModel pipelineStatus = pipelineHistoryService.getPipelineStatus(pipelineName, currentUsernameString(), result);
         if (result.canContinue()) {
-            return writerForTopLevelObject(request, response, (outputWriter) -> PipelineStatusModelRepresenter.toJSON(outputWriter, pipelineStatus));
+            return writerForTopLevelObject(request, response, outputWriter -> PipelineStatusModelRepresenter.toJSON(outputWriter, pipelineStatus));
         }
         return renderHTTPOperationResult(result, request, response);
     }

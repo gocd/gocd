@@ -23,25 +23,25 @@ public class MaterialUrlTest {
 
     @Test
     public void shouldIgnoreTrailingSlash() {
-        assertThat(new MaterialUrl("http://somehost/")).isEqualTo((new MaterialUrl("http://somehost")));
-        assertThat(new MaterialUrl("http://somehost")).isEqualTo((new MaterialUrl("http://somehost/")));
+        assertThat(new MaterialUrl("http://somehost/")).isEqualTo(new MaterialUrl("http://somehost"));
+        assertThat(new MaterialUrl("http://somehost")).isEqualTo(new MaterialUrl("http://somehost/"));
     }
 
     @Test
     public void shouldDecodeSpecialCharacters() {
-        assertThat(new MaterialUrl("http://somehost/program files")).isEqualTo((new MaterialUrl("http://somehost/program%20files")));
-        assertThat(new MaterialUrl("http://somehost/program%20files")).isEqualTo((new MaterialUrl("http://somehost/program files")));
+        assertThat(new MaterialUrl("http://somehost/program files")).isEqualTo(new MaterialUrl("http://somehost/program%20files"));
+        assertThat(new MaterialUrl("http://somehost/program%20files")).isEqualTo(new MaterialUrl("http://somehost/program files"));
         assertThat(new MaterialUrl("http://somehost/sv@n/")).isEqualTo(new MaterialUrl("http://somehost/sv%40n"));
     }
 
     @Test
     public void shouldDecodeAndRemoveTrailingSlash() {
-        assertThat(new MaterialUrl("http://somehost/program files/")).isEqualTo((new MaterialUrl("http://somehost/program%20files")));
+        assertThat(new MaterialUrl("http://somehost/program files/")).isEqualTo(new MaterialUrl("http://somehost/program%20files"));
     }
 
     @Test
     public void shouldIgnoreTheFileProtocol() {
-        assertThat(new MaterialUrl("file:///somefile/Program files/")).isEqualTo((new MaterialUrl("/somefile/Program files/")));
-        assertThat(new MaterialUrl("FilE:///somefile/Program files/")).isEqualTo((new MaterialUrl("/somefile/Program files/")));
+        assertThat(new MaterialUrl("file:///somefile/Program files/")).isEqualTo(new MaterialUrl("/somefile/Program files/"));
+        assertThat(new MaterialUrl("FilE:///somefile/Program files/")).isEqualTo(new MaterialUrl("/somefile/Program files/"));
     }
 }

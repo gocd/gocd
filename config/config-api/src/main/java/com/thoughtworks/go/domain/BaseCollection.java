@@ -15,19 +15,20 @@
  */
 package com.thoughtworks.go.domain;
 
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 
 public class BaseCollection<T> extends ArrayList<T> {
+    public BaseCollection() {}
+
     public BaseCollection(Collection<T> elements) {
         super(elements);
-    }
-
-    public BaseCollection() {
     }
 
     @SafeVarargs
@@ -36,30 +37,49 @@ public class BaseCollection<T> extends ArrayList<T> {
         this(Arrays.asList(items));
     }
 
-    public @Nullable T getFirstOrNull() {
-        return isEmpty() ? null : getFirst();
-    }
-
-    public @Nullable T getLastOrNull() {
-        return isEmpty() ? null : getLast();
-    }
-
-    public void replace(T oldItem, T newItem) {
+    public void replaceIfNotEmpty(T oldItem, T newItem) {
         if (!isEmpty()) {
-            replace(indexOf(oldItem), newItem);
+            setIfNotEmpty(indexOf(oldItem), newItem);
         }
     }
 
-    public void replace(int indexOfOldItem, T newItem) {
+    protected void replaceIfNotEmpty(Predicate<? super T> filter, T newItem) {
+        if (!isEmpty()) {
+            setIfNotEmpty(indexOfMatcher(filter), newItem);
+        }
+    }
+
+    protected int indexOfMatcher(Predicate<? super T> filter) {
+        return IntStream.range(0, size())
+            .filter(i -> filter.test(get(i)))
+            .findFirst()
+            .orElse(-1);
+    }
+
+    public void setIfNotEmpty(int indexOfOldItem, T newItem) {
         if (isEmpty()) {
             return;
         }
 
         if (indexOfOldItem < 0 || indexOfOldItem >= size()) {
-            throw new IndexOutOfBoundsException(String.format("There is no object at index '%s' in this collection of %s", indexOfOldItem, this.getFirstOrNull().getClass().getName()));
+            throw new IndexOutOfBoundsException(String.format("There is no object at index '%s' in this collection of %s", indexOfOldItem, this.getFirst().getClass().getName()));
         }
 
         set(indexOfOldItem, newItem);
+    }
+
+    /**
+     * Similar to {@link #removeIf(Predicate)} but only removes the first matching element. More efficient when
+     * you are removing by ID/only expect one match
+     */
+    public boolean removeFirstIf(@NotNull Predicate<? super T> filter) {
+        for (int i = 0, size = size(); i < size; i++) {
+            if (filter.test(get(i))) {
+                remove(i);
+                return true;
+            }
+        }
+        return false;
     }
 
 }

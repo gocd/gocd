@@ -394,7 +394,11 @@ public class ConfigRepository {
             deleteBranch(BRANCH_AT_HEAD);
         } catch (Exception e) {
             String currentBranch = git.getRepository().getBranch();
-            LOGGER.error("Error while trying to clean up config repository, CurrentBranch: {} \n : \n Message: {} \n StackTrace: {}", currentBranch, e.getMessage(), e.getStackTrace(), e);
+            LOGGER.error("""
+                Error while trying to clean up config repository, CurrentBranch: {}\s
+                 :\s
+                 Message: {}\s
+                 StackTrace: {}""", currentBranch, e.getMessage(), e.getStackTrace(), e);
             throw new RuntimeException(e);
         }
     }

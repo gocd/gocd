@@ -90,7 +90,7 @@ public class JobStatusListenerIntegrationTest {
         PipelineConfig pipelineConfig = withSingleStageWithMaterials(PIPELINE_NAME, STAGE_NAME, withBuildPlans(JOB_NAME));
         configHelper.addPipeline(PIPELINE_NAME, STAGE_NAME);
         savedPipeline = scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), GoConstants.DEFAULT_APPROVED_BY);
-        JobInstance job = savedPipeline.getStages().getFirstOrNull().getJobInstances().getFirstOrNull();
+        JobInstance job = savedPipeline.getStages().getFirst().getJobInstances().getFirst();
         job.setAgentUuid(UUID);
 
         stageStatusTopic = mock(StageStatusTopic.class);
@@ -108,7 +108,7 @@ public class JobStatusListenerIntegrationTest {
     public void shouldSendStageCompletedMessage() {
         final ElasticAgentPluginService spyOfElasticAgentPluginService = spy(this.elasticAgentPluginService);
         dbHelper.pass(savedPipeline);
-        jobIdentifier.setBuildId(savedPipeline.getFirstStage().getJobInstances().get(0).getId());
+        jobIdentifier.setBuildId(savedPipeline.getFirstStage().getJobInstances().getFirst().getId());
         listener = new JobStatusListener(new JobStatusTopic(null), stageService, stageStatusTopic, spyOfElasticAgentPluginService, jobInstanceSqlMapDao, jobInstanceService);
         final StageStatusMessage stagePassed = new StageStatusMessage(jobIdentifier.getStageIdentifier(), StageState.Passed, StageResult.Passed);
 
@@ -121,7 +121,7 @@ public class JobStatusListenerIntegrationTest {
     public void shouldNotSendStageCompletedMessage() {
         final ElasticAgentPluginService spyOfElasticAgentPluginService = spy(this.elasticAgentPluginService);
         dbHelper.pass(savedPipeline);
-        jobIdentifier.setBuildId(savedPipeline.getFirstStage().getJobInstances().get(0).getId());
+        jobIdentifier.setBuildId(savedPipeline.getFirstStage().getJobInstances().getFirst().getId());
 
         listener = new JobStatusListener(new JobStatusTopic(null), stageService, stageStatusTopic, spyOfElasticAgentPluginService, jobInstanceSqlMapDao, jobInstanceService);
 
@@ -133,8 +133,8 @@ public class JobStatusListenerIntegrationTest {
 
     @Test
     public void shouldSendStageCompletedMessageForCancelledStage() {
-        dbHelper.cancelStage(savedPipeline.getStages().get(0));
-        jobIdentifier.setBuildId(savedPipeline.getFirstStage().getJobInstances().get(0).getId());
+        dbHelper.cancelStage(savedPipeline.getStages().getFirst());
+        jobIdentifier.setBuildId(savedPipeline.getFirstStage().getJobInstances().getFirst().getId());
         listener = new JobStatusListener(new JobStatusTopic(null), stageService, stageStatusTopic, mock(ElasticAgentPluginService.class), jobInstanceSqlMapDao, jobInstanceService);
         final StageStatusMessage stageCancelled = new StageStatusMessage(jobIdentifier.getStageIdentifier(), StageState.Cancelled, StageResult.Cancelled);
 

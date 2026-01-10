@@ -59,7 +59,7 @@ public class RunIfConfig implements Serializable, Validatable{
 
     @Override
     public int hashCode() {
-        return (status != null ? status.hashCode() : 0);
+        return status != null ? status.hashCode() : 0;
     }
 
     @Override

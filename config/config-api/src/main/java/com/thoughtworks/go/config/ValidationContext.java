@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,9 +46,7 @@ public interface ValidationContext {
 
     JobConfig getJob();
 
-    boolean isWithinEnvironment();
-
-    PipelineConfigs getPipelineGroup();
+    @NotNull PipelineConfigs getPipelineGroup();
 
     PipelineTemplateConfig getTemplate();
 
@@ -56,8 +55,6 @@ public interface ValidationContext {
     boolean shouldCheckConfigRepo();
 
     SecurityConfig getServerSecurityConfig();
-
-    boolean doesTemplateExist(CaseInsensitiveString template);
 
     SCM findScmById(String scmID);
 

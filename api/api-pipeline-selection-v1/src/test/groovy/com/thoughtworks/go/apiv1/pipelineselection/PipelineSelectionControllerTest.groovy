@@ -187,7 +187,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         ]
 
         def initial = new PipelineSelections(FiltersHelper.excludes(["foo", "bar"]), new Date(), currentUserLoginId())
-        def filters = FiltersHelper.excludes(payload.filters.get(0).pipelines)
+        def filters = FiltersHelper.excludes(payload.filters.getFirst().pipelines)
         def updated = new PipelineSelections(filters, null, null)
 
         when(pipelineSelectionsService.load(null, currentUserLoginId())).thenReturn(initial, updated)
@@ -219,7 +219,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         String cookie = String.valueOf(recordId)
 
         def initial = new PipelineSelections(FiltersHelper.excludes(["foo", "bar"]), new Date(), currentUserLoginId())
-        def filters = FiltersHelper.excludes(payload.filters.get(0).pipelines)
+        def filters = FiltersHelper.excludes(payload.filters.getFirst().pipelines)
         def updated = new PipelineSelections(filters, null, null)
 
         when(pipelineSelectionsService.load(cookie, currentUserLoginId())).thenReturn(initial, updated)
@@ -251,7 +251,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         String cookie = String.valueOf(recordId)
 
         def initial = new PipelineSelections(FiltersHelper.excludes(["foo", "bar"]), new Date(), currentUserLoginId())
-        def filters = FiltersHelper.excludes(payload.filters.get(0).pipelines)
+        def filters = FiltersHelper.excludes(payload.filters.getFirst().pipelines)
         def updated = new PipelineSelections(filters, null, null)
 
         when(pipelineSelectionsService.load(cookie, currentUserLoginId())).thenReturn(initial, updated)

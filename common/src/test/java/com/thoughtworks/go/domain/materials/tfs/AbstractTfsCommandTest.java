@@ -95,7 +95,7 @@ public class AbstractTfsCommandTest {
         modifications.add(new Modification(user, "comment latest", "email", new Date(), "9"));
         modifications.add(new Modification(user, "comment latest", "email", new Date(), "8"));
 
-        when(tfsCommand.history(null, 1)).thenReturn(List.of(modifications.get(0)));
+        when(tfsCommand.history(null, 1)).thenReturn(List.of(modifications.getFirst()));
         when(tfsCommand.history("10", 3)).thenReturn(modifications);
         List<Modification> actual = tfsCommand.modificationsSince(workDir, new StringRevision("7"));
 

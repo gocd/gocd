@@ -93,7 +93,7 @@ public class PipelineIdentifier implements Serializable {
     @Override
     public int hashCode() {
         int result;
-        result = (name != null ? name.hashCode() : 0);
+        result = name != null ? name.hashCode() : 0;
         result = 31 * result + counter;
         result = 31 * result + (label != null ? label.hashCode() : 0);
         return result;

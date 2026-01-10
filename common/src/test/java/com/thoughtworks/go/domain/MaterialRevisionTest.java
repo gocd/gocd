@@ -208,7 +208,7 @@ public class MaterialRevisionTest {
         MaterialRevision unchangedRevision = findNewRevision(revision, hgMaterial, workingFolder, new TestSubprocessExecutionContext());
 
         assertThat(unchangedRevision.getModifications().size()).isEqualTo(1);
-        assertThat(unchangedRevision.getModifications().get(0)).isEqualTo(modificationForRevisionTip);
+        assertThat(unchangedRevision.getModifications().getFirst()).isEqualTo(modificationForRevisionTip);
     }
 
     @Test
@@ -305,12 +305,12 @@ public class MaterialRevisionTest {
 
     @Test
     public void shouldReturnMaterialName() {
-        assertThat(hgRevision().getMaterialName()).isEqualTo((hgMaterial.getDisplayName()));
+        assertThat(hgRevision().getMaterialName()).isEqualTo(hgMaterial.getDisplayName());
     }
 
     @Test
     public void shouldReturnTruncatedMaterialName() {
-        assertThat(hgRevision().getTruncatedMaterialName()).isEqualTo((hgMaterial.getTruncatedDisplayName()));
+        assertThat(hgRevision().getTruncatedMaterialName()).isEqualTo(hgMaterial.getTruncatedDisplayName());
     }
 
     @Test

@@ -42,8 +42,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  */
 public class Modification extends PersistentObject implements Comparable<Modification>, Serializable {
 
-    private static final long serialVersionUID = 6102576575583133520L;
-
     public static final Modification NEVER = new Modification(GoConstants.NEVER);
     public static final String ANONYMOUS = "anonymous";
 

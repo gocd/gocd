@@ -127,7 +127,7 @@ public class MaterialRevision implements Serializable {
     @Override
     public int hashCode() {
         int result;
-        result = (material != null ? material.hashCode() : 0);
+        result = material != null ? material.hashCode() : 0;
         result = 31 * result + (modifications != null ? modifications.hashCode() : 0);
         return result;
     }
@@ -150,7 +150,7 @@ public class MaterialRevision implements Serializable {
     }
 
     private boolean sameMaterial(MaterialRevision original) {
-        return (material.equals(original.material));
+        return material.equals(original.material);
     }
 
     private boolean sameRevision(MaterialRevision original) {

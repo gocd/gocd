@@ -150,23 +150,23 @@ public class SvnMaterialTest {
 
     @Test
     void shouldBeEqualWhenUrlSameForSvnMaterial() {
-        final Material material1 = MaterialsMother.defaultSvnMaterialsWithUrl("url1").get(0);
-        final Material material = MaterialsMother.defaultSvnMaterialsWithUrl("url1").get(0);
+        final Material material1 = MaterialsMother.defaultSvnMaterialsWithUrl("url1").getFirst();
+        final Material material = MaterialsMother.defaultSvnMaterialsWithUrl("url1").getFirst();
         assertComplementaryEquals(material1, material, true);
 
     }
 
     @Test
     void shouldNotBeEqualWhenUrlDifferent() {
-        final Material material1 = MaterialsMother.defaultSvnMaterialsWithUrl("url1").get(0);
-        final Material material2 = MaterialsMother.defaultSvnMaterialsWithUrl("url2").get(0);
+        final Material material1 = MaterialsMother.defaultSvnMaterialsWithUrl("url1").getFirst();
+        final Material material2 = MaterialsMother.defaultSvnMaterialsWithUrl("url2").getFirst();
         assertComplementaryEquals(material1, material2, false);
     }
 
     @Test
     void shouldNotBeEqualWhenTypeDifferent() {
-        final Material hgMaterial = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
-        final Material nonHgMaterial = MaterialsMother.defaultSvnMaterialsWithUrl("url1").get(0);
+        final Material hgMaterial = MaterialsMother.hgMaterials("url1", "hgdir").getFirst();
+        final Material nonHgMaterial = MaterialsMother.defaultSvnMaterialsWithUrl("url1").getFirst();
         assertComplementaryEquals(hgMaterial, nonHgMaterial, false);
     }
 

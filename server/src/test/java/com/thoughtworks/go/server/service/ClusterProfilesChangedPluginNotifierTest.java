@@ -155,11 +155,11 @@ class ClusterProfilesChangedPluginNotifierTest {
         elasticConfig.getClusterProfiles().add(oldClusterProfile);
         when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
         doAnswer(invocation -> {
-            k2.getSecretParams().get(0).setValue("new-resolved-value");
+            k2.getSecretParams().getFirst().setValue("new-resolved-value");
             return null;
         }).when(secretParamResolver).resolve(newClusterProfile);
         doAnswer(invocation -> {
-            k1.getSecretParams().get(0).setValue("old-resolved-value");
+            k1.getSecretParams().getFirst().setValue("old-resolved-value");
             return null;
         }).when(secretParamResolver).resolve(oldClusterProfile);
 

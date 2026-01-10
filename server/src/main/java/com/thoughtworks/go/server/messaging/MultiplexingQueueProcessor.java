@@ -75,7 +75,7 @@ public class MultiplexingQueueProcessor implements Daemonized {
                     action.call();
 
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Finished acting on item in {} queue for {}. Time taken: {} ms", queueName, action.description(), (System.currentTimeMillis() - startTime));
+                        LOGGER.debug("Finished acting on item in {} queue for {}. Time taken: {} ms", queueName, action.description(), System.currentTimeMillis() - startTime);
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();

@@ -344,7 +344,7 @@ public class JobInstanceServiceTest {
         JobInstanceService.PipelineConfigChangedListener pipelineConfigChangedListener = jobService.new PipelineConfigChangedListener();
         pipelineConfigChangedListener.onEntityConfigChange(PipelineConfigMother.pipelineConfig("p1", "s_new", new MaterialConfigs(), "j1"));
         assertThat(serverHealthService.logsSorted().errorCount()).isEqualTo(1);
-        assertThat(serverHealthService.logsSorted().get(0).getType().getScope().getScope()).isEqualTo("p2/s2/j2");
+        assertThat(serverHealthService.logsSorted().getFirst().getType().getScope().getScope()).isEqualTo("p2/s2/j2");
     }
 
     @Test

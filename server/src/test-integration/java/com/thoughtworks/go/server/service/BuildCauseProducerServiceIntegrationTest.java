@@ -190,7 +190,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         mingleConfig = configHelper.addPipeline(MINGLE_PIPELINE_NAME, STAGE_NAME, repository, new Filter(new IgnoredFiles("**/*.doc")), "unit", "functional");
         latestPipeline = PipelineMother.schedule(this.mingleConfig, buildCause);
         latestPipeline = pipelineDao.saveWithStages(latestPipeline);
-        dbHelper.passStage(latestPipeline.getStages().getFirstOrNull());
+        dbHelper.passStage(latestPipeline.getStages().getFirst());
         pipelineScheduleQueue.clear();
         result = new HttpOperationResult();
         scheduleOptions = new ScheduleOptions();
@@ -237,7 +237,7 @@ public class BuildCauseProducerServiceIntegrationTest {
     public void should_NOT_schedulePipeline_whenOneOfTheMaterialsHasNoModificationsPresent() throws Exception {
         Pipeline latestGoInstance = PipelineMother.schedule(goPipelineConfig, BuildCause.createManualForced(svnMaterialRevs, new Username(new CaseInsensitiveString("loser"))));
         latestGoInstance = pipelineDao.saveWithStages(latestGoInstance);
-        dbHelper.passStage(latestGoInstance.getStages().getFirstOrNull());
+        dbHelper.passStage(latestGoInstance.getStages().getFirst());
         configHelper.addMaterialToPipeline(GO_PIPELINE_NAME, new DependencyMaterialConfig(new CaseInsensitiveString(GO_PIPELINE_UPSTREAM), new CaseInsensitiveString(STAGE_NAME)));
         svnRepository.checkInOneFile("a.java");
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(GO_PIPELINE_NAME);
@@ -338,7 +338,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
         runAndPass(revsAfterFoo);
         String revisionForFingerPrint = revsAfterBar.findRevisionForFingerPrint(svn.getFingerprint()).getRevision().getRevision();
-        scheduleHelper.manuallySchedulePipelineWithRealMaterials(MINGLE_PIPELINE_NAME, new Username(new CaseInsensitiveString("loser")), Map.of(mingleConfig.materialConfigs().get(0).getPipelineUniqueFingerprint(), revisionForFingerPrint));
+        scheduleHelper.manuallySchedulePipelineWithRealMaterials(MINGLE_PIPELINE_NAME, new Username(new CaseInsensitiveString("loser")), Map.of(mingleConfig.materialConfigs().getFirst().getPipelineUniqueFingerprint(), revisionForFingerPrint));
 
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
         BuildCause bisectAfterBisectBuildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
@@ -355,7 +355,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         MaterialRevisions revsAfterFoo = checkinFile(svn, "foo.c", svnRepository);
 
         String revisionForFingerPrint = revsAfterFoo.findRevisionForFingerPrint(svn.getFingerprint()).getRevision().getRevision();
-        scheduleHelper.manuallySchedulePipelineWithRealMaterials(MINGLE_PIPELINE_NAME, new Username(new CaseInsensitiveString("loser")), Map.of(new MaterialConfigConverter().toMaterial(mingleConfig.materialConfigs().get(0)).getPipelineUniqueFingerprint(), revisionForFingerPrint));
+        scheduleHelper.manuallySchedulePipelineWithRealMaterials(MINGLE_PIPELINE_NAME, new Username(new CaseInsensitiveString("loser")), Map.of(new MaterialConfigConverter().toMaterial(mingleConfig.materialConfigs().getFirst()).getPipelineUniqueFingerprint(), revisionForFingerPrint));
 
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
         BuildCause bisectAfterBisectBuildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
@@ -474,7 +474,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         repoConfig.getRules().add(new Allow("refer", "*", "*"));
         configHelper.addConfigRepo(repoConfig);
         PartialConfig partialConfig = PartialConfigMother.withPipelineMultipleMaterials("remote_pipeline", new RepoConfigOrigin(repoConfig, "4567"));
-        PipelineConfig remotePipeline = partialConfig.getGroups().getFirstOrNull().getPipelines().get(0);
+        PipelineConfig remotePipeline = partialConfig.getGroups().getFirst().getPipelines().getFirst();
         GitMaterial git = u.wf((GitMaterial) new MaterialConfigConverter().toMaterial(remotePipeline.materialConfigs().getGitMaterial()), "git");
         u.checkinInOrder(git, u.d(1), "g1r1");
         SvnMaterial svn = u.wf((SvnMaterial) new MaterialConfigConverter().toMaterial(remotePipeline.materialConfigs().getSvnMaterial()), "svn");
@@ -549,7 +549,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         BuildCause buildCause = BuildCause.createWithModifications(mingleRev, "boozer");
         latestPipeline = PipelineMother.schedule(mingleConfig, buildCause);
         latestPipeline = pipelineDao.saveWithStages(latestPipeline);
-        dbHelper.passStage(latestPipeline.getStages().getFirstOrNull());
+        dbHelper.passStage(latestPipeline.getStages().getFirst());
     }
 
     private MaterialRevisions checkinFile(SvnMaterial svn, String checkinFile, final SvnTestRepo svnRepository) throws Exception {

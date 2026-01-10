@@ -105,10 +105,10 @@ public class StageNotificationServiceTest {
         svnModification.createModifiedFile("some.xml", "other_dir", ModifiedAction.deleted);
 
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig,
-            new ManualBuild(new Username(new CaseInsensitiveString("loser"))).onModifications(new MaterialRevisions(new MaterialRevision(new MaterialConfigConverter().toMaterials(pipelineConfig.materialConfigs()).get(0), svnModification)),
+            new ManualBuild(new Username(new CaseInsensitiveString("loser"))).onModifications(new MaterialRevisions(new MaterialRevision(new MaterialConfigConverter().toMaterials(pipelineConfig.materialConfigs()).getFirst(), svnModification)),
                 false, null),
             new DefaultSchedulingContext("loser"), "md5-test", new TimeProvider());
-        Stage stage = pipeline.getStages().get(0);
+        Stage stage = pipeline.getStages().getFirst();
         when(stageService.findStageWithIdentifier(stageIdentifier)).thenReturn(stage);
         stage.setPipelineId(100L);
         when(pipelineService.fullPipelineById(100)).thenReturn(pipeline);

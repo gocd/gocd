@@ -32,10 +32,8 @@ public interface EntityConfigUpdateCommand<T> extends CheckedUpdateCommand {
 
     /**
      * Called after {@link #isValid(CruiseConfig)}. Return the entity that was updated.
-     * Useful to invalidate the cache used by {@link com.thoughtworks.go.server.service.EntityHashingService}
      */
     T getPreprocessedEntityConfig();
 
-    default void encrypt(CruiseConfig preProcessedConfig) {
-    }
+    default void encrypt(CruiseConfig preProcessedConfig) {}
 }

@@ -122,7 +122,7 @@ public class DefaultSchedulingContextTest {
 
 		Agents agents = ReflectionUtil.getField(permittedAgentContext, "agents");
 		assertThat(agents.size()).isEqualTo(1);
-		assertThat(agents.get(0).getAgentIdentifier().getUuid()).isEqualTo("uuid1");
+		assertThat(agents.getFirst().getAgentIdentifier().getUuid()).isEqualTo("uuid1");
 		assertThat(permittedAgentContext.isRerun()).isTrue();
 		assertThat(permittedAgentContext.getApprovedBy()).isEqualTo("approver");
 		EnvironmentVariablesConfig environmentVariablesUsed = permittedAgentContext.getEnvironmentVariablesConfig();

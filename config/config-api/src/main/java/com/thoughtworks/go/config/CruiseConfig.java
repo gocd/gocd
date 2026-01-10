@@ -27,6 +27,9 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.util.Node;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.TestOnly;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -47,12 +50,14 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     // TODO these should be removed, they suggest knowledge of config store
     String getMd5();
 
+    @TestOnly
     int schemaVersion();
 
     Set<MaterialConfig> getAllUniquePostCommitSchedulableMaterials();
 
     ConfigReposConfig getConfigRepos();
 
+    @TestOnly
     void setConfigRepos(ConfigReposConfig repos);
 
     @Override
@@ -96,7 +101,7 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     List<PipelineConfig> allPipelines();
 
-    PipelineConfigs pipelines(String groupName);
+    @NotNull PipelineConfigs pipelines(String groupName);
 
     boolean hasBuildPlan(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName, String buildName, boolean ignoreCase);
 
@@ -104,16 +109,17 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     void accept(JobConfigVisitor visitor);
 
-    void accept(TaskConfigVisitor visitor);
-
     void accept(PipelineConfigVisitor visitor);
 
+    @TestOnly
     void setGroup(PipelineGroups pipelineGroups);
 
     PipelineGroups getGroups();
 
+    @TestOnly
     List<String> getGroupsForUser(CaseInsensitiveString username, List<Role> roles);
 
+    @TestOnly
     void addPipeline(String groupName, PipelineConfig pipelineConfig);
 
     void addPipelineWithoutValidation(String groupName, PipelineConfig pipelineConfig);
@@ -122,39 +128,24 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     void deletePipeline(PipelineConfig pipelineConfig);
 
-    boolean exist(int pipelineIndex);
-
-    boolean hasPipeline();
-
-    PipelineConfig find(String groupName, int pipelineIndex);
-
-    int numberOfPipelines();
-
-    int numbersOfPipeline(String groupName);
-
-    void groups(List<String> allGroup);
-
     boolean exist(String groupName, String pipelineName);
 
     List<Task> tasksForJob(String pipelineName, String stageName, String jobName);
 
     boolean isSmtpEnabled();
 
-    boolean isInFirstGroup(CaseInsensitiveString pipelineName);
-
-    boolean hasMultiplePipelineGroups();
-
     void accept(PipelineGroupVisitor visitor);
 
     boolean isSecurityEnabled();
 
+    @TestOnly
     void setServerConfig(ServerConfig serverConfig);
 
     String adminEmail();
 
     boolean hasPipelineGroup(String groupName);
 
-    PipelineConfigs findGroup(String groupName);
+    @NotNull PipelineConfigs findGroup(String groupName);
 
     boolean isMailHostConfigured();
 
@@ -166,8 +157,7 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     boolean isAdministrator(String username);
 
-    void setEnvironments(EnvironmentsConfig environments);
-
+    @TestOnly
     Set<MaterialConfig> getAllUniqueMaterialsBelongingToAutoPipelines();
 
     Set<MaterialConfig> getAllUniqueMaterialsBelongingToAutoPipelinesAndConfigRepos();
@@ -176,13 +166,12 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     Set<MaterialConfig> getAllUniqueMaterialsOfPipelinesAndConfigRepos();
 
-    Set<StageConfig> getStagesUsedAsMaterials(PipelineConfig pipelineConfig);
-
+    @TestOnly
     EnvironmentConfig addEnvironment(String environmentName);
 
-    void addEnvironment(BasicEnvironmentConfig config);
+    void addEnvironment(EnvironmentConfig config);
 
-    Boolean isPipelineLockable(String pipelineName);
+    boolean isPipelineLockable(String pipelineName);
 
     boolean isPipelineUnlockableWhenFinished(String pipelineName);
 
@@ -190,15 +179,13 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     TemplatesConfig getTemplates();
 
-    PipelineTemplateConfig findTemplate(CaseInsensitiveString templateName);
+    @Nullable PipelineTemplateConfig findTemplate(CaseInsensitiveString templateName);
 
     void addTemplate(PipelineTemplateConfig pipelineTemplate);
 
     PipelineTemplateConfig getTemplateByName(CaseInsensitiveString pipeline);
 
     void setTemplates(TemplatesConfig templates);
-
-    Iterable<PipelineConfig> getDownstreamPipelines(String pipelineName);
 
     boolean hasVariableInScope(String pipelineName, String variableName);
 
@@ -207,8 +194,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     boolean isGroupAdministrator(CaseInsensitiveString userName);
 
     List<ConfigErrors> getAllErrors();
-
-    List<ConfigErrors> getAllErrorsExceptFor(Validatable skipValidatable);
 
     List<ConfigErrors> validateAfterPreprocess();
 
@@ -220,19 +205,11 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     List<PipelineConfig> pipelineConfigsAssociatedWithTemplate(CaseInsensitiveString templateName);
 
-    boolean isArtifactCleanupProhibited(String pipelineName, String stageName);
-
-    MaterialConfig materialConfigFor(String fingerprint);
-
     MaterialConfig materialConfigFor(CaseInsensitiveString pipelineName, String fingerprint);
 
     String sanitizedGroupName(String name);
 
-    void removePackageRepository(String id);
-
     PackageRepositories getPackageRepositories();
-
-    void savePackageRepository(PackageRepository packageRepository);
 
     void savePackageDefinition(PackageDefinition packageDefinition);
 
@@ -262,8 +239,10 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     ElasticConfig getElasticConfig();
 
+    @TestOnly
     void setElasticConfig(ElasticConfig elasticConfig);
 
+    @TestOnly
     CruiseConfig cloneForValidation();
 
     boolean canViewAndEditTemplates(CaseInsensitiveString username);
@@ -282,13 +261,12 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     ArtifactStores getArtifactStores();
 
+    @TestOnly
     void setArtifactStores(ArtifactStores artifactStores);
 
     void encryptSecureProperties(CruiseConfig preprocessed);
 
     void deletePipelineGroup(String groupName);
-
-    void setSecretConfigs(SecretConfigs secretConfigs);
 
     SecretConfigs getSecretConfigs();
 }

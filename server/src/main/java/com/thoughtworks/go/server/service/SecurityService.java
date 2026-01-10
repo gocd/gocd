@@ -171,7 +171,7 @@ public class SecurityService {
 
     public List<CaseInsensitiveString> viewablePipelinesFor(Username username) {
         List<CaseInsensitiveString> pipelines = new ArrayList<>();
-        for (String group : goConfigService.allGroups()) {
+        for (String group : goConfigService.allGroupNames()) {
             if (hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), group)) {
                 pipelines.addAll(goConfigService.pipelines(group));
             }
@@ -185,10 +185,10 @@ public class SecurityService {
 
     public List<String> modifiableGroupsForUser(Username userName) {
         if (isUserAdmin(userName)) {
-            return goConfigService.allGroups();
+            return goConfigService.allGroupNames();
         }
         List<String> modifiableGroups = new ArrayList<>();
-        for (String group : goConfigService.allGroups()) {
+        for (String group : goConfigService.allGroupNames()) {
             if (isUserAdminOfGroup(userName.getUsername(), group)) {
                 modifiableGroups.add(group);
             }

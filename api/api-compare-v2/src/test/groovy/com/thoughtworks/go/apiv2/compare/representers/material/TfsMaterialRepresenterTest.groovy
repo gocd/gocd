@@ -35,7 +35,7 @@ class TfsMaterialRepresenterTest implements MaterialRepresenterTrait {
     def tfsConfig = tfs(new GoCipher(), new HgUrlArgument(''), '', '', '', '/some-path/')
     def materialConfigs = new MaterialConfigs(tfsConfig)
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
-    return materialConfigs.getFirstOrNull()
+    return materialConfigs.getFirst()
   }
 
   def materialHash =

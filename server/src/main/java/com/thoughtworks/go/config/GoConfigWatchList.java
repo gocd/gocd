@@ -62,8 +62,8 @@ public class GoConfigWatchList extends EntityConfigChangedListener<ConfigRepoCon
 
     @Override
     public void onEntityConfigChange(ConfigRepoConfig newConfigRepo) {
-        this.reposConfig.remove(this.reposConfig.getConfigRepo(newConfigRepo.getId()));
-        if (goConfigService.currentCruiseConfig().getConfigRepos().getConfigRepo(newConfigRepo.getId()) != null) {
+        this.reposConfig.removeFirstIf(r -> r.getId().equals(newConfigRepo.getId()));
+        if (goConfigService.currentCruiseConfig().getConfigRepos().hasConfigRepo(newConfigRepo.getId())) {
             this.reposConfig.add(newConfigRepo);
         }
 

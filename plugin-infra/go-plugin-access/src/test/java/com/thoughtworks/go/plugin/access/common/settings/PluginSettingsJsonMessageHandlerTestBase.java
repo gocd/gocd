@@ -104,8 +104,8 @@ public abstract class PluginSettingsJsonMessageHandlerTestBase {
         String responseBody = "[{\"key\":\"key-one\",\"message\":\"incorrect value\"},{\"message\":\"general error\"}]";
         ValidationResult validationResult = messageHandler.responseMessageForPluginSettingsValidation(responseBody);
 
-        assertValidationError(validationResult.getErrors().get(0), "key-one", "incorrect value");
-        assertValidationError(validationResult.getErrors().get(1), "", "general error");
+        assertValidationError(validationResult.getErrors().getFirst(), "key-one", "incorrect value");
+        assertValidationError(validationResult.getErrors().getLast(), "", "general error");
     }
 
     private void assertPropertyConfiguration(PluginSettingsProperty property, String key, String value, boolean required, boolean secure, String displayName, int displayOrder) {

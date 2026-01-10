@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.common.models;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.util.json.JsonHelper;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -50,7 +51,7 @@ public class PluginProfileMetadataKeys implements Iterable<PluginProfileMetadata
     }
 
     @Override
-    public Iterator<PluginProfileMetadataKey> iterator() {
+    public @NotNull Iterator<PluginProfileMetadataKey> iterator() {
         return keys.iterator();
     }
 

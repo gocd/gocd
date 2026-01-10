@@ -88,9 +88,9 @@ public class JsonBasedPluggableTaskTest {
 
         ArgumentCaptor<GoPluginApiRequest> argument = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         verify(pluginManager).submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), argument.capture());
-        assertThat(argument.getValue().extension()).isEqualTo((PLUGGABLE_TASK_EXTENSION));
-        assertThat(argument.getValue().extensionVersion()).isEqualTo((JsonBasedTaskExtensionHandler_V1.VERSION));
-        assertThat(argument.getValue().requestName()).isEqualTo((TaskExtension.CONFIGURATION_REQUEST));
+        assertThat(argument.getValue().extension()).isEqualTo(PLUGGABLE_TASK_EXTENSION);
+        assertThat(argument.getValue().extensionVersion()).isEqualTo(JsonBasedTaskExtensionHandler_V1.VERSION);
+        assertThat(argument.getValue().requestName()).isEqualTo(TaskExtension.CONFIGURATION_REQUEST);
     }
 
     @Test
@@ -104,9 +104,9 @@ public class JsonBasedPluggableTaskTest {
 
         ArgumentCaptor<GoPluginApiRequest> argument = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         verify(pluginManager).submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), argument.capture());
-        assertThat(argument.getValue().extension()).isEqualTo((PLUGGABLE_TASK_EXTENSION));
-        assertThat(argument.getValue().extensionVersion()).isEqualTo((JsonBasedTaskExtensionHandler_V1.VERSION));
-        assertThat(argument.getValue().requestName()).isEqualTo((TaskExtension.TASK_VIEW_REQUEST));
+        assertThat(argument.getValue().extension()).isEqualTo(PLUGGABLE_TASK_EXTENSION);
+        assertThat(argument.getValue().extensionVersion()).isEqualTo(JsonBasedTaskExtensionHandler_V1.VERSION);
+        assertThat(argument.getValue().requestName()).isEqualTo(TaskExtension.TASK_VIEW_REQUEST);
     }
 
     @Test
@@ -125,18 +125,18 @@ public class JsonBasedPluggableTaskTest {
         ValidationResult result = task.validate(configuration);
 
         assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.getErrors().get(0).getKey()).isEqualTo("key1");
-        assertThat(result.getErrors().get(0).getMessage()).isEqualTo("err1");
-        assertThat(result.getErrors().get(1).getKey()).isEqualTo("key2");
-        assertThat(result.getErrors().get(1).getMessage()).isEqualTo("err3");
+        assertThat(result.getErrors().getFirst().getKey()).isEqualTo("key1");
+        assertThat(result.getErrors().getFirst().getMessage()).isEqualTo("err1");
+        assertThat(result.getErrors().getLast().getKey()).isEqualTo("key2");
+        assertThat(result.getErrors().getLast().getMessage()).isEqualTo("err3");
 
         ArgumentCaptor<GoPluginApiRequest> argument = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         verify(pluginManager).submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), argument.capture());
         assertThat(argument.getValue().requestBody()).isEqualTo(config);
 
-        assertThat(argument.getValue().extension()).isEqualTo((PLUGGABLE_TASK_EXTENSION));
-        assertThat(argument.getValue().extensionVersion()).isEqualTo((JsonBasedTaskExtensionHandler_V1.VERSION));
-        assertThat(argument.getValue().requestName()).isEqualTo((TaskExtension.VALIDATION_REQUEST));
+        assertThat(argument.getValue().extension()).isEqualTo(PLUGGABLE_TASK_EXTENSION);
+        assertThat(argument.getValue().extensionVersion()).isEqualTo(JsonBasedTaskExtensionHandler_V1.VERSION);
+        assertThat(argument.getValue().requestName()).isEqualTo(TaskExtension.VALIDATION_REQUEST);
     }
 
     @Test

@@ -67,7 +67,7 @@ class GitMaterialShallowCloneTest {
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
         List<Modification> mods = material.latestModification(workingDir, context());
         assertThat(mods.size()).isEqualTo(1);
-        assertThat(mods.get(0).getComment()).isEqualTo("Added 'run-till-file-exists' ant target");
+        assertThat(mods.getFirst().getComment()).isEqualTo("Added 'run-till-file-exists' ant target");
         assertThat(localRepoFor(material).isShallow()).isTrue();
         assertThat(localRepoFor(material).containsRevisionInBranch(REVISION_0)).isFalse();
         assertThat(localRepoFor(material).currentRevision()).isEqualTo(REVISION_4.getRevision());
@@ -146,7 +146,7 @@ class GitMaterialShallowCloneTest {
         material.updateTo(inMemoryConsumer(), workingDir, new RevisionContext(REVISION_4, REVISION_4, 1), context());
         assertThat(localRepoFor(material).isShallow()).isTrue();
         List<Modification> modifications = repo.addFileAndPush("newfile", "add new file");
-        StringRevision newRevision = new StringRevision(modifications.get(0).getRevision());
+        StringRevision newRevision = new StringRevision(modifications.getFirst().getRevision());
         material.updateTo(inMemoryConsumer(), workingDir, new RevisionContext(newRevision, newRevision, 1), context());
         assertThat(new File(workingDir, "newfile")).exists();
         assertThat(localRepoFor(material).isShallow()).isTrue();

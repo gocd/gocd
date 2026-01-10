@@ -42,7 +42,7 @@ public class PackageDefinitionCreator {
     public PackageDefinition createNewPackageDefinition(CruiseConfig cruiseConfig) {
         @SuppressWarnings("unchecked") Map<String, ?> packageDefinitionMap = (Map<String, ?>) params.get(PACKAGE_DEFINITION);
         String repositoryId = (String) packageDefinitionMap.get(REPOSITORY_ID);
-        PackageRepository packageRepository = cruiseConfig.getPackageRepositories().find(repositoryId);
+        PackageRepository packageRepository = cruiseConfig.getPackageRepositories().findByRepoId(repositoryId);
         PackageDefinition packageDefinition = new PackageDefinition();
         packageDefinition.setRepository(packageRepository);
         packageDefinition.setConfigAttributes(packageDefinitionMap);
@@ -57,7 +57,7 @@ public class PackageDefinitionCreator {
     public PackageDefinition getPackageDefinition(CruiseConfig cruiseConfig) {
         @SuppressWarnings("unchecked") Map<String, ?> packageDefinitionMap = (Map<String, ?>) params.get(PACKAGE_DEFINITION);
         String repositoryId = (String) packageDefinitionMap.get(REPOSITORY_ID);
-        PackageRepository packageRepository = cruiseConfig.getPackageRepositories().find(repositoryId);
+        PackageRepository packageRepository = cruiseConfig.getPackageRepositories().findByRepoId(repositoryId);
         PackageDefinition packageDefinition = null;
         if (packageRepository != null) {
             packageDefinition = packageRepository.findPackage((String) params.get(PACKAGE_ID));

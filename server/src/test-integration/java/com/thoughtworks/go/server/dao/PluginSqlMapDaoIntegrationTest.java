@@ -67,7 +67,7 @@ public class PluginSqlMapDaoIntegrationTest {
         Plugin plugin = savePlugin("plugin-id");
 
         assertThat(pluginSqlMapDao.getAllPlugins().size()).isEqualTo(1);
-        Plugin pluginInDB = pluginSqlMapDao.getAllPlugins().get(0);
+        Plugin pluginInDB = pluginSqlMapDao.getAllPlugins().getFirst();
         assertThat(pluginInDB).isEqualTo(plugin);
     }
 
@@ -106,7 +106,7 @@ public class PluginSqlMapDaoIntegrationTest {
 
         List<Plugin> plugins = pluginSqlMapDao.getAllPlugins();
         assertThat(plugins.size()).isEqualTo(1);
-        assertThat(plugins.get(0)).isEqualTo(plugin1);
+        assertThat(plugins.getFirst()).isEqualTo(plugin1);
 
         Plugin plugin2 = savePlugin("plugin-id-2");
 

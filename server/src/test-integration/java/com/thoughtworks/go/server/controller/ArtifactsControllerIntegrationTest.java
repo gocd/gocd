@@ -486,8 +486,8 @@ public class ArtifactsControllerIntegrationTest {
         List<String> list = Files.readAllLines(uploadedChecksumFile, UTF_8);
 
         assertThat(list.size()).isEqualTo(2);
-        assertThat(list.get(0)).isEqualTo("oldbaz/foobar.html:BazMD5");
-        assertThat(list.get(1)).isEqualTo("baz/foobar.html:FooMD5");
+        assertThat(list.getFirst()).isEqualTo("oldbaz/foobar.html:BazMD5");
+        assertThat(list.getLast()).isEqualTo("baz/foobar.html:FooMD5");
     }
 
     @Test

@@ -52,7 +52,7 @@ public class EnvironmentVariableContextTest {
         context.setProperty(PROPERTY_NAME, PROPERTY_VALUE, false);
         List<String> report = context.report(Collections.emptyList());
         assertThat(report.size()).isEqualTo(1);
-        assertThat(report.get(0)).isEqualTo("[go] setting environment variable 'PROPERTY_NAME' to value 'property value'");
+        assertThat(report.getFirst()).isEqualTo("[go] setting environment variable 'PROPERTY_NAME' to value 'property value'");
     }
 
     @Test
@@ -62,8 +62,8 @@ public class EnvironmentVariableContextTest {
         context.setProperty(PROPERTY_NAME, NEW_VALUE, false);
         List<String> report = context.report(Collections.emptyList());
         assertThat(report.size()).isEqualTo(2);
-        assertThat(report.get(0)).isEqualTo("[go] setting environment variable 'PROPERTY_NAME' to value 'property value'");
-        assertThat(report.get(1)).isEqualTo("[go] overriding environment variable 'PROPERTY_NAME' with value 'new value'");
+        assertThat(report.getFirst()).isEqualTo("[go] setting environment variable 'PROPERTY_NAME' to value 'property value'");
+        assertThat(report.getLast()).isEqualTo("[go] overriding environment variable 'PROPERTY_NAME' with value 'new value'");
     }
 
     @Test
@@ -73,8 +73,8 @@ public class EnvironmentVariableContextTest {
         context.setProperty(PROPERTY_NAME, NEW_VALUE, true);
         List<String> report = context.report(Collections.emptyList());
         assertThat(report.size()).isEqualTo(2);
-        assertThat(report.get(0)).isEqualTo(String.format("[go] setting environment variable 'PROPERTY_NAME' to value '%s'", EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE));
-        assertThat(report.get(1)).isEqualTo(String.format("[go] overriding environment variable 'PROPERTY_NAME' with value '%s'", EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE));
+        assertThat(report.getFirst()).isEqualTo(String.format("[go] setting environment variable 'PROPERTY_NAME' to value '%s'", EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE));
+        assertThat(report.getLast()).isEqualTo(String.format("[go] overriding environment variable 'PROPERTY_NAME' with value '%s'", EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE));
     }
 
     @Test
@@ -83,7 +83,7 @@ public class EnvironmentVariableContextTest {
         context.setProperty(PROPERTY_NAME, PROPERTY_VALUE, true);
         List<String> report = context.report(Collections.emptyList());
         assertThat(report.size()).isEqualTo(1);
-        assertThat(report.get(0)).isEqualTo(String.format("[go] setting environment variable 'PROPERTY_NAME' to value '%s'", EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE));
+        assertThat(report.getFirst()).isEqualTo(String.format("[go] setting environment variable 'PROPERTY_NAME' to value '%s'", EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE));
     }
 
     @Test
@@ -92,7 +92,7 @@ public class EnvironmentVariableContextTest {
         context.setProperty("PATH", "/foo", false);
         List<String> report = context.report(Set.of("PATH"));
         assertThat(report.size()).isEqualTo(1);
-        assertThat(report.get(0)).isEqualTo("[go] overriding environment variable 'PATH' with value '/foo'");
+        assertThat(report.getFirst()).isEqualTo("[go] overriding environment variable 'PATH' with value '/foo'");
     }
 
     @Test

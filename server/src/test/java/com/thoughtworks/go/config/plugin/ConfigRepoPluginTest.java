@@ -38,7 +38,7 @@ public class ConfigRepoPluginTest {
 
         List<CRConfigurationProperty> crConfigurations = ConfigRepoPlugin.getCrConfigurations(configuration);
         assertEquals(1, crConfigurations.size());
-        CRConfigurationProperty prop = crConfigurations.get(0);
+        CRConfigurationProperty prop = crConfigurations.getFirst();
         assertEquals("key1", prop.getKey());
         assertEquals("value1", prop.getValue());
     }
@@ -50,7 +50,7 @@ public class ConfigRepoPluginTest {
 
         List<CRConfigurationProperty> crConfigurations = ConfigRepoPlugin.getCrConfigurations(configuration);
         assertEquals(1, crConfigurations.size());
-        CRConfigurationProperty prop = crConfigurations.get(0);
+        CRConfigurationProperty prop = crConfigurations.getFirst();
         assertEquals("key1", prop.getKey());
         assertEquals("secret", prop.getValue());
     }

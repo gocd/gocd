@@ -52,7 +52,7 @@ public class UnrunStagesPopulatorTest {
         ValueStreamMap valueStreamMap = new ValueStreamMap(new CaseInsensitiveString("p"), new PipelineRevision("p", 10, "10"));
         Stages stages = new Stages(StageMother.createPassedStage("p", 10, "s1", 1, "b", Instant.now()));
         stages.add(StageMother.scheduledStage("p", 10, "s3", 1, "b"));
-        PipelineRevision pipelineRevision = (PipelineRevision) valueStreamMap.getCurrentPipeline().revisions().get(0);
+        PipelineRevision pipelineRevision = (PipelineRevision) valueStreamMap.getCurrentPipeline().revisions().getFirst();
         pipelineRevision.addStages(stages);
 
         CruiseConfig cruiseConfig = GoConfigMother.pipelineHavingJob("p", "s1", "b", "filePath", "dirPath");
@@ -63,7 +63,7 @@ public class UnrunStagesPopulatorTest {
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
 
         unrunStagesPopulator.apply(valueStreamMap);
-        assertRevision(valueStreamMap.getCurrentPipeline().revisions().get(0));
+        assertRevision(valueStreamMap.getCurrentPipeline().revisions().getFirst());
     }
 
     @Test
@@ -71,7 +71,7 @@ public class UnrunStagesPopulatorTest {
         ValueStreamMap valueStreamMap = new ValueStreamMap(new CaseInsensitiveString("p"), new PipelineRevision("p", 10, "10"));
         Stages stages = new Stages(StageMother.createPassedStage("p", 10, "s2", 1, "b", Instant.now()));
         stages.add(StageMother.scheduledStage("p", 10, "s1", 1, "b"));
-        PipelineRevision pipelineRevision = (PipelineRevision) valueStreamMap.getCurrentPipeline().revisions().get(0);
+        PipelineRevision pipelineRevision = (PipelineRevision) valueStreamMap.getCurrentPipeline().revisions().getFirst();
         pipelineRevision.addStages(stages);
 
         CruiseConfig cruiseConfig = GoConfigMother.pipelineHavingJob("p", "s1", "b", "filePath", "dirPath");
@@ -81,10 +81,10 @@ public class UnrunStagesPopulatorTest {
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
 
         unrunStagesPopulator.apply(valueStreamMap);
-        PipelineRevision revision = (PipelineRevision) valueStreamMap.getCurrentPipeline().revisions().get(0);
+        PipelineRevision revision = (PipelineRevision) valueStreamMap.getCurrentPipeline().revisions().getFirst();
         assertThat(revision.getStages()).hasSize(2);
-        assertThat(revision.getStages().get(0).getName()).isEqualTo("s2");
-        assertThat(revision.getStages().get(1).getName()).isEqualTo("s1");
+        assertThat(revision.getStages().getFirst().getName()).isEqualTo("s2");
+        assertThat(revision.getStages().getLast().getName()).isEqualTo("s1");
     }
 
     @Test
@@ -118,7 +118,7 @@ public class UnrunStagesPopulatorTest {
 
         unrunStagesPopulator.apply(valueStreamMap);
 
-        assertRevision(valueStreamMap.getCurrentPipeline().revisions().get(0));
+        assertRevision(valueStreamMap.getCurrentPipeline().revisions().getFirst());
         assertStages(p1_node);
         assertStages(p2_node);
         assertStages(p3_node);
@@ -205,7 +205,7 @@ public class UnrunStagesPopulatorTest {
 
 	private void assertUnrunPipeline(Node node, String pipelineName) {
 		assertThat(node.revisions()).hasSize(1);
-		PipelineRevision empty_p2_revision = (PipelineRevision) node.revisions().get(0);
+		PipelineRevision empty_p2_revision = (PipelineRevision) node.revisions().getFirst();
 		assertThat(empty_p2_revision.getPipelineIdentifier()).isEqualTo(new UnrunPipelineRevision(pipelineName).getPipelineIdentifier());
 		assertThat(empty_p2_revision.getStages()).isEqualTo(new Stages(new NullStage("s1"), new NullStage("s2"), new NullStage("s3"), new NullStage("s4")));
 	}

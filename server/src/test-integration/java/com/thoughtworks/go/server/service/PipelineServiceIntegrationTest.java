@@ -98,8 +98,8 @@ public class PipelineServiceIntegrationTest {
 
         UpstreamPipelineResolver resolver = pipelineService;
         BuildCause loadedBC = resolver.buildCauseFor(
-            DependencyMaterialRevision.create(pipeline.getStages().get(0).getIdentifier().getStageLocator(), pipeline.getLabel()).getPipelineName(),
-            DependencyMaterialRevision.create(pipeline.getStages().get(0).getIdentifier().getStageLocator(), pipeline.getLabel()).getPipelineCounter());
+            DependencyMaterialRevision.create(pipeline.getStages().getFirst().getIdentifier().getStageLocator(), pipeline.getLabel()).getPipelineName(),
+            DependencyMaterialRevision.create(pipeline.getStages().getFirst().getIdentifier().getStageLocator(), pipeline.getLabel()).getPipelineCounter());
 
         assertEquals(pipeline.getBuildCause(), loadedBC);
     }
@@ -170,8 +170,8 @@ public class PipelineServiceIntegrationTest {
         MaterialRevisions materialRevisions = pipeline.getBuildCause().getMaterialRevisions();
         Materials materials = materialRevisions.getMaterials();
         assertThat(materials.size()).isEqualTo(2);
-        assertThat(materials.get(0)).isEqualTo(hg1);
-        assertThat(materials.get(1)).isEqualTo(hg2);
+        assertThat(materials.getFirst()).isEqualTo(hg1);
+        assertThat(materials.getLast()).isEqualTo(hg2);
     }
 
     @Test
@@ -198,7 +198,7 @@ public class PipelineServiceIntegrationTest {
     @Test
     public void returnPipelineForBuildDetailViewShouldContainOnlyMods() {
         Pipeline pipeline = createPipelineWithStagesAndMods();
-        JobInstance job = pipeline.getFirstStage().getJobInstances().getFirstOrNull();
+        JobInstance job = pipeline.getFirstStage().getJobInstances().getFirst();
 
         Pipeline slimPipeline = pipelineService.wrapBuildDetails(job);
         assertThat(slimPipeline.getBuildCause().getMaterialRevisions().totalNumberOfModifications()).isEqualTo(1);
@@ -263,7 +263,7 @@ public class PipelineServiceIntegrationTest {
 
     private Pipeline createPipelineWithStagesAndMods() {
         PipelineConfig config = PipelineMother.twoBuildPlansWithResourcesAndMaterials("tester", "dev");
-        configHelper.addPipeline(CaseInsensitiveString.str(config.name()), CaseInsensitiveString.str(config.getFirstOrNull().name()));
+        configHelper.addPipeline(CaseInsensitiveString.str(config.name()), CaseInsensitiveString.str(config.getFirst().name()));
         Pipeline pipeline = instanceFactory.createPipelineInstance(config, modifySomeFiles(config), new DefaultSchedulingContext(GoConstants.DEFAULT_APPROVED_BY), "md5-test", new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline);
         return pipeline;

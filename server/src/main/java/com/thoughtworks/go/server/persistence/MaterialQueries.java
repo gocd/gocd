@@ -17,72 +17,80 @@
 package com.thoughtworks.go.server.persistence;
 
 import com.thoughtworks.go.server.dao.FeedModifier;
+import lombok.experimental.UtilityClass;
 
 import java.util.EnumMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.server.dao.FeedModifier.*;
 
+@UtilityClass
 public class MaterialQueries {
     private static final Map<FeedModifier, String> modificationsQueryMap;
     private static final Map<FeedModifier, String> modificationsForPatternQueryMap;
 
-    private static final String latestModification =
-            "SELECT * " +
-                    "FROM modifications " +
-                    "WHERE materialid = :materialId " +
-                    "ORDER BY id DESC " +
-                    "LIMIT :size ";
+    private static final String latestModification = """
+        SELECT * \
+        FROM modifications \
+        WHERE materialid = :materialId \
+        ORDER BY id DESC \
+        LIMIT :size \
+        """;
 
-    private static final String modificationsAfter =
-            "SELECT * " +
-                    "FROM modifications " +
-                    "WHERE materialid = :materialId " +
-                    "  and id < :cursor " +
-                    "ORDER BY id DESC " +
-                    "LIMIT :size ";
+    private static final String modificationsAfter = """
+        SELECT * \
+        FROM modifications \
+        WHERE materialid = :materialId \
+          AND id < :cursor \
+        ORDER BY id DESC \
+        LIMIT :size \
+        """;
 
-    private static final String modificationsBefore =
-            "SELECT * " +
-                    "FROM (SELECT * " +
-                    "      FROM modifications " +
-                    "      WHERE materialid = :materialId " +
-                    "        and id > :cursor " +
-                    "      ORDER BY id ASC " +
-                    "      LIMIT :size ) as HistoryBeforeSpecifiedId " +
-                    "ORDER BY id DESC";
+    private static final String modificationsBefore = """
+        SELECT * \
+        FROM (SELECT * \
+              FROM modifications \
+              WHERE materialid = :materialId \
+                AND id > :cursor \
+              ORDER BY id ASC \
+              LIMIT :size ) AS HistoryBeforeSpecifiedId \
+        ORDER BY id DESC \
+        """;
 
-    private static final String latestModificationForPattern =
-            "SELECT * " +
-                    "FROM modifications " +
-                    "WHERE materialid = :materialId " +
-                    "  AND (LOWER(modifications.comment) LIKE :pattern " +
-                    "  OR LOWER(userName) LIKE :pattern " +
-                    "  OR LOWER(revision) LIKE :pattern ) " +
-                    "ORDER BY id DESC " +
-                    "LIMIT :size";
+    private static final String latestModificationForPattern = """
+        SELECT * \
+        FROM modifications \
+        WHERE materialid = :materialId \
+          AND (LOWER(modifications.comment) LIKE :pattern \
+          OR LOWER(userName) LIKE :pattern \
+          OR LOWER(revision) LIKE :pattern ) \
+        ORDER BY id DESC \
+        LIMIT :size \
+        """;
 
-    private static final String afterModificationForPattern =
-            "SELECT * " +
-                    "FROM modifications " +
-                    "WHERE materialid = :materialId AND id < :cursor " +
-                    "  AND (LOWER(modifications.comment) LIKE :pattern " +
-                    "  OR LOWER(userName) LIKE :pattern " +
-                    "  OR LOWER(revision) LIKE :pattern ) " +
-                    "ORDER BY id DESC " +
-                    "LIMIT :size";
+    private static final String afterModificationForPattern = """
+        SELECT * \
+        FROM modifications \
+        WHERE materialid = :materialId AND id < :cursor \
+          AND (LOWER(modifications.comment) LIKE :pattern \
+          OR LOWER(userName) LIKE :pattern \
+          OR LOWER(revision) LIKE :pattern ) \
+        ORDER BY id DESC \
+        LIMIT :size \
+        """;
 
-    private static final String beforeModificationForPattern =
-            "SELECT * " +
-                    "FROM ( SELECT * " +
-                    "    FROM modifications " +
-                    "    WHERE materialid = :materialId AND id > :cursor " +
-                    "      AND (LOWER(modifications.comment) LIKE :pattern " +
-                    "      OR LOWER(userName) LIKE :pattern " +
-                    "      OR LOWER(revision) LIKE :pattern ) " +
-                    "    ORDER BY id DESC " +
-                    "    LIMIT :size) as LikeMatchBeforeSpecifiedCursor " +
-                    "ORDER BY id DESC";
+    private static final String beforeModificationForPattern = """
+        SELECT * \
+        FROM ( SELECT * \
+            FROM modifications \
+            WHERE materialid = :materialId AND id > :cursor \
+              AND (LOWER(modifications.comment) LIKE :pattern \
+              OR LOWER(userName) LIKE :pattern \
+              OR LOWER(revision) LIKE :pattern ) \
+            ORDER BY id DESC \
+            LIMIT :size) AS LikeMatchBeforeSpecifiedCursor \
+        ORDER BY id DESC \
+        """;
 
     static {
         modificationsQueryMap = new EnumMap<>(FeedModifier.class);

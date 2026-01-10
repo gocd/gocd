@@ -117,7 +117,7 @@ public class PartialConfigServiceTest {
         }).when(goConfigService).updateConfig(any());
         service.onSuccessPartialConfig(configRepoConfig, withPipeline("p1"));
         assertEquals(1, cruiseConfig.getPartials().size());
-        assertEquals("group", cruiseConfig.getPartials().get(0).getGroups().getFirstOrNull().getGroup());
+        assertEquals("group", cruiseConfig.getPartials().getFirst().getGroups().getFirst().getGroup());
     }
 
     @Test
@@ -129,7 +129,7 @@ public class PartialConfigServiceTest {
         }).when(goConfigService).updateConfig(any());
         service.onSuccessPartialConfig(configRepoConfig, withEnvironment("env1"));
         assertEquals(1, cruiseConfig.getPartials().size());
-        assertEquals(new CaseInsensitiveString("env1"), cruiseConfig.getPartials().get(0).getEnvironments().getFirstOrNull().name());
+        assertEquals(new CaseInsensitiveString("env1"), cruiseConfig.getPartials().getFirst().getEnvironments().getFirst().name());
     }
 
     @Test
@@ -181,7 +181,7 @@ public class PartialConfigServiceTest {
 
         // baseline
         assertEquals(1, cachedGoPartials.lastValidPartials().size());
-        assertEquals(lastValid, cachedGoPartials.lastValidPartials().get(0));
+        assertEquals(lastValid, cachedGoPartials.lastValidPartials().getFirst());
         assertFalse(lastValid.hasErrors());
         assertFalse(incoming.hasErrors());
 
@@ -221,7 +221,7 @@ public class PartialConfigServiceTest {
 
         // baseline
         assertEquals(1, cachedGoPartials.lastValidPartials().size());
-        assertEquals(lastValid, cachedGoPartials.lastValidPartials().get(0));
+        assertEquals(lastValid, cachedGoPartials.lastValidPartials().getFirst());
         assertFalse(lastValid.hasErrors());
         assertFalse(incoming.hasErrors());
 
@@ -235,7 +235,7 @@ public class PartialConfigServiceTest {
         assertFalse(lastValid.hasErrors(), "should not have rule violations");
 
         assertEquals(1, cachedGoPartials.lastValidPartials().size());
-        assertEquals(lastValid, cachedGoPartials.lastValidPartials().get(0));
+        assertEquals(lastValid, cachedGoPartials.lastValidPartials().getFirst());
 
         verify(goConfigService).updateConfig(any());
     }
@@ -286,7 +286,7 @@ public class PartialConfigServiceTest {
             repoConfigDataSource.onCheckoutComplete(material, folder, mock(Modification.class));
 
             assertEquals(1, cachedGoPartials.lastValidPartials().size());
-            assertEquals(part, cachedGoPartials.lastValidPartials().get(0));
+            assertEquals(part, cachedGoPartials.lastValidPartials().getFirst());
         }
 
         @Test
@@ -315,7 +315,7 @@ public class PartialConfigServiceTest {
 
             assertFalse(isLastParseResultSuccessful());
             assertEquals(1, cachedGoPartials.lastValidPartials().size());
-            assertEquals(part, cachedGoPartials.lastValidPartials().get(0));
+            assertEquals(part, cachedGoPartials.lastValidPartials().getFirst());
         }
 
         @Test
@@ -327,7 +327,7 @@ public class PartialConfigServiceTest {
             repoConfigDataSource.onCheckoutComplete(material, folder, mock(Modification.class));
 
             assertEquals(1, cachedGoPartials.lastValidPartials().size());
-            assertEquals(part, cachedGoPartials.lastValidPartials().get(0));
+            assertEquals(part, cachedGoPartials.lastValidPartials().getFirst());
 
             notifyWatchList(mock(ConfigRepoConfig.class));
 

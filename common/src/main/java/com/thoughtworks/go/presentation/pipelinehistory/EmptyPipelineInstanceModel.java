@@ -16,7 +16,6 @@
 package com.thoughtworks.go.presentation.pipelinehistory;
 
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.materials.Revision;
 
 /**
  * Understands empty pipeline instance for scenarios where there is no instance to be shown
@@ -26,12 +25,4 @@ public class EmptyPipelineInstanceModel extends PipelineInstanceModel {
         super(pipelineName, 0, "unknown", withEmptyModifications, stageHistory);
         setId(-1);
     }
-
-    @Override public boolean hasHistoricalData() {
-        return false;
-    }
-
-    @Override public Revision getCurrentRevision(String requestedMaterialName) {
-        return UNKNOWN_REVISION;
-    }    
 }

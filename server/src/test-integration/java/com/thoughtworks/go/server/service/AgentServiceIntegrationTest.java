@@ -1209,7 +1209,7 @@ public class AgentServiceIntegrationTest {
             agentDao.saveOrUpdate(agent2);
             agentDao.saveOrUpdate(agent3);
 
-            for (int i = 0; i < (numOfThreads / 2); i++) {
+            for (int i = 0; i < numOfThreads / 2; i++) {
                 futures.add(execService.submit(() -> bulkUpdateEnvironments(agent1)));
                 futures.add(execService.submit(() -> bulkUpdateResources(agent1, agent2, agent3)));
                 futures.add(execService.submit(() -> updateAgentHostnames(agent1)));

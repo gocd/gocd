@@ -87,7 +87,7 @@ public class GoDashboardActivityListenerTest {
         listener.initialize();
         listener.start();
 
-        StageStatusListener stageStatusListener = captor.getAllValues().get(0);
+        StageStatusListener stageStatusListener = captor.getAllValues().getFirst();
         stageStatusListener.stageStatusChanged(aStage);
         waitForProcessingToHappen();
 

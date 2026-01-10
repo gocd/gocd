@@ -87,15 +87,15 @@ public class StageSummaryModelTest {
 
         StageSummaryModel model = new StageSummaryModel(stage, new Stages(stage), JOB_DURATION_STRATEGY, null);
         assertThat(model.passedJobs().size()).isEqualTo(2);
-        assertThat(model.passedJobs().get(0).getName()).isEqualTo(third.getName());
-        assertThat(model.passedJobs().get(1).getName()).isEqualTo(second.getName());
+        assertThat(model.passedJobs().getFirst().getName()).isEqualTo(third.getName());
+        assertThat(model.passedJobs().getLast().getName()).isEqualTo(second.getName());
 
         assertThat(model.nonPassedJobs().size()).isEqualTo(2);
-        assertThat(model.nonPassedJobs().get(0).getName()).isEqualTo(fifth.getName());
-        assertThat(model.nonPassedJobs().get(1).getName()).isEqualTo(first.getName());
+        assertThat(model.nonPassedJobs().getFirst().getName()).isEqualTo(fifth.getName());
+        assertThat(model.nonPassedJobs().getLast().getName()).isEqualTo(first.getName());
 
         assertThat(model.inProgressJobs().size()).isEqualTo(1);
-        assertThat(model.inProgressJobs().get(0).getName()).isEqualTo(fourth.getName());
+        assertThat(model.inProgressJobs().getFirst().getName()).isEqualTo(fourth.getName());
 
     }
 
@@ -104,7 +104,7 @@ public class StageSummaryModelTest {
         JobInstance first = JobInstanceMother.completed("first", JobResult.Failed);
         Stage stage = StageMother.custom("pipeline", "stage", new JobInstances(first));
         StageSummaryModel model = new StageSummaryModel(stage, new Stages(stage), JOB_DURATION_STRATEGY, null);
-        assertThat(model.nonPassedJobs().get(0).getElapsedTime()).isEqualTo(first.getElapsedTime());
+        assertThat(model.nonPassedJobs().getFirst().getElapsedTime()).isEqualTo(first.getElapsedTime());
     }
 
     @Test
@@ -112,8 +112,8 @@ public class StageSummaryModelTest {
         JobInstance first = JobInstanceMother.completed("first", JobResult.Failed);
         Stage stage = StageMother.custom("pipeline", "stage", new JobInstances(first));
         StageSummaryModel model = new StageSummaryModel(stage, new Stages(stage), new JobDurationStrategy.ConstantJobDuration(Duration.ofSeconds(1000)), null);
-        assertThat(model.nonPassedJobs().get(0).getElapsedTime()).isEqualTo(Duration.ofSeconds(120));
-        assertThat(model.nonPassedJobs().get(0).getPercentComplete()).isEqualTo(12);
+        assertThat(model.nonPassedJobs().getFirst().getElapsedTime()).isEqualTo(Duration.ofSeconds(120));
+        assertThat(model.nonPassedJobs().getFirst().getPercentComplete()).isEqualTo(12);
     }
 
     @Test
@@ -121,7 +121,7 @@ public class StageSummaryModelTest {
         JobInstance first = JobInstanceMother.completed("first", JobResult.Failed);
         Stage stage = StageMother.custom("pipeline", "stage", new JobInstances(first));
         StageSummaryModel model = new StageSummaryModel(stage, new Stages(stage), JOB_DURATION_STRATEGY, null);
-        assertThat(model.nonPassedJobs().get(0).isCompleted()).isTrue();
+        assertThat(model.nonPassedJobs().getFirst().isCompleted()).isTrue();
     }
 
     @Test

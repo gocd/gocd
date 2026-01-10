@@ -25,7 +25,7 @@ public class EmailValidatorTest {
 
     @Test
     public void shouldCheckValidationForEmailAddress() {
-        assertThat(validate("some@here.com")).isEqualTo((ValidationBean.valid()));
+        assertThat(validate("some@here.com")).isEqualTo(ValidationBean.valid());
     }
 
     @Test

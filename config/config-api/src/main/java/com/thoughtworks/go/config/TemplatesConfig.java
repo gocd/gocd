@@ -75,32 +75,11 @@ public class TemplatesConfig extends BaseCollection<PipelineTemplateConfig> impl
     }
 
     public void removeTemplateNamed(CaseInsensitiveString name) {
-        PipelineTemplateConfig toBeRemoved = null;
-        for (PipelineTemplateConfig templateConfig : this) {
-            if (templateConfig.matches(name)) {
-                toBeRemoved = templateConfig;
-            }
-        }
-        this.remove(toBeRemoved);
+        removeFirstIf(t -> t.name().equals(name));
     }
 
-    public boolean hasTemplateNamed(CaseInsensitiveString name) {
-        for (PipelineTemplateConfig templateConfig : this) {
-            if (templateConfig.matches(name)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Nullable
-    public PipelineTemplateConfig templateByName(CaseInsensitiveString foo) {
-        for (PipelineTemplateConfig templateConfig : this) {
-            if (templateConfig.name().equals(foo)) {
-                return templateConfig;
-            }
-        }
-        return null;
+    public @Nullable PipelineTemplateConfig templateByName(CaseInsensitiveString name) {
+        return stream().filter(t -> t.name().equals(name)).findFirst().orElse(null);
     }
 
     public boolean canViewAndEditTemplate(CaseInsensitiveString username, List<Role> roles) {
@@ -126,8 +105,6 @@ public class TemplatesConfig extends BaseCollection<PipelineTemplateConfig> impl
     }
 
     public boolean hasViewAccessToTemplate(PipelineTemplateConfig template, CaseInsensitiveString username, List<Role> roles, boolean isGroupAdministrator) {
-        boolean hasViewAccessToTemplate = template.getAuthorization().isViewUser(username, roles);
-        hasViewAccessToTemplate = hasViewAccessToTemplate || (template.isAllowGroupAdmins() && isGroupAdministrator);
-        return hasViewAccessToTemplate;
+        return template.getAuthorization().isViewUser(username, roles) || (template.isAllowGroupAdmins() && isGroupAdministrator);
     }
 }

@@ -146,10 +146,10 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
             if (!materialConfig.getType().equals(DependencyMaterialConfig.TYPE)) {
                 Material material = materialConfigConverter.toMaterial(materialConfig);
                 List<HealthStateScope> scopes = List.of(forMaterial(material), forMaterialUpdate(material), forMaterialConfig(materialConfig));
-                List<ServerHealthState> logs = allLogs.stream().filter((log) -> scopes.contains(log.getType().getScope())).collect(toList());
+                List<ServerHealthState> logs = allLogs.stream().filter(log -> scopes.contains(log.getType().getScope())).collect(toList());
                 Modification mod = modificationsMap.getOrDefault(materialConfig.getFingerprint(), null);
                 MaintenanceModeService.MaterialPerformingMDU mduInfo = runningMDUs.stream()
-                        .filter((mdu) -> mdu.getMaterial().getFingerprint().equals(materialConfig.getFingerprint()))
+                        .filter(mdu -> mdu.getMaterial().getFingerprint().equals(materialConfig.getFingerprint()))
                         .findFirst()
                         .orElse(null);
                 boolean isMDUInProgress = mduInfo != null;

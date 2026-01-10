@@ -17,6 +17,7 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,9 +49,7 @@ public class ParamsConfig extends BaseCollection<ParamConfig> implements Validat
     public ParamsConfig addOrReplace(ParamsConfig newParams) {
         ParamsConfig myCopy = new ParamsConfig(this);
         for (ParamConfig newParam : newParams) {
-            if (myCopy.hasParamNamed(newParam.getName())) {
-                myCopy.removeParamNamed(newParam.getName());
-            }
+            myCopy.removeParamNamedIfExists(newParam.getName());
             myCopy.add(newParam);
         }
         return myCopy;
@@ -78,35 +77,21 @@ public class ParamsConfig extends BaseCollection<ParamConfig> implements Validat
         return configErrors;
     }
 
-    public int getIndex(String name) {
-        for (int i = 0; i < this.size(); i++) {
-            if (get(i).getName().equals(name)) {
-                return i;
-            }
-        }
-        throw new IllegalArgumentException("param '" + name + "' not found");
-    }
-
     @Override
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
 
-    private void removeParamNamed(String name) {
-        this.remove(getParamNamed(name));
+    private void removeParamNamedIfExists(String name) {
+        removeFirstIf(p -> p.getName().equals(name));
     }
 
     public boolean hasParamNamed(String name) {
-        return getParamNamed(name) != null;
+        return stream().anyMatch(c -> c.getName().equals(name));
     }
 
-    public ParamConfig getParamNamed(String name) {
-        for (ParamConfig paramConfig : this) {
-            if (paramConfig.getName().equals(name)) {
-                return paramConfig;
-            }
-        }
-        return null;
+    public @Nullable ParamConfig getParamNamed(String name) {
+        return stream().filter(c -> c.getName().equals(name)).findFirst().orElse(null);
     }
 
     @SuppressWarnings("unchecked")

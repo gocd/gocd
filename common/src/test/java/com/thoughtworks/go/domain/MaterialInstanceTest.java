@@ -43,7 +43,7 @@ public class MaterialInstanceTest {
         MaterialInstance materialInstance = m.createMaterialInstance();
         materialInstance.setId(10);
         MaterialInstance unserializedMaterial = SerializationTester.objectSerializeAndDeserialize(materialInstance);
-        assertThat(unserializedMaterial).isEqualTo((materialInstance));
+        assertThat(unserializedMaterial).isEqualTo(materialInstance);
         assertThat(unserializedMaterial.getId()).isEqualTo(10L);
         assertThat(unserializedMaterial).isEqualTo(materialInstance);
     }

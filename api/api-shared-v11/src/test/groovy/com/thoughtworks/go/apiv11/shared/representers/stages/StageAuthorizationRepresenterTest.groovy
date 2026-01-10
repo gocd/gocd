@@ -43,8 +43,8 @@ class StageAuthorizationRepresenterTest {
   void 'should render error'() {
     AuthConfig config = getAdminsConfig()
     config.addError("error", "validation failed")
-    config.getRoles().get(0).addError("name", "role does not exists")
-    config.getUsers().get(0).addError("name", "user does not exists")
+    config.getRoles().getFirst().addError("name", "role does not exists")
+    config.getUsers().getFirst().addError("name", "user does not exists")
 
     def actualJson = toObjectString({ StageAuthorizationRepresenter.toJSON(it, config) })
     def expectedJson = [

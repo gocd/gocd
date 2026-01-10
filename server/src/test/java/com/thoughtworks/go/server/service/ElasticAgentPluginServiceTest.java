@@ -556,7 +556,7 @@ class ElasticAgentPluginServiceTest {
 
             when(clusterProfilesService.getPluginProfiles()).thenReturn(allClusterProfiles);
             doAnswer(invocation -> {
-                k1.getSecretParams().get(0).setValue("some-resolved-value");
+                k1.getSecretParams().getFirst().setValue("some-resolved-value");
                 return null;
             }).when(secretParamResolver).resolve(any(ClusterProfile.class));
 
@@ -617,7 +617,7 @@ class ElasticAgentPluginServiceTest {
             ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
             when(environmentConfigService.envForPipeline("pipeline-2")).thenReturn("env-2");
             doAnswer(invocation -> {
-                k1.getSecretParams().get(0).setValue("some-resolve-value");
+                k1.getSecretParams().getFirst().setValue("some-resolve-value");
                 return null;
             }).when(secretParamResolver).resolve(any(ElasticProfile.class));
 
@@ -668,7 +668,7 @@ class ElasticAgentPluginServiceTest {
             ElasticProfile elasticProfile = new ElasticProfile("1", "clusterProfileId", k1);
 
             doAnswer(invocation -> {
-                k1.getSecretParams().get(0).setValue("some-resolve-value");
+                k1.getSecretParams().getFirst().setValue("some-resolve-value");
                 return null;
             }).when(secretParamResolver).resolve(any(ClusterProfile.class));
             when(registry.shouldAssignWork(any(), any(), any(), any(), any(), any())).thenReturn(true);
@@ -715,7 +715,7 @@ class ElasticAgentPluginServiceTest {
             when(clusterProfilesService.getPluginProfiles()).thenReturn(new ClusterProfiles(clusterProfile));
             when(registry.getPluginStatusReport(eq("cd.go.example.plugin"), anyList())).thenReturn("<div>This is a plugin status report snippet.</div>");
             doAnswer(invocation -> {
-                k1.getSecretParams().get(0).setValue("some-resolve-value");
+                k1.getSecretParams().getFirst().setValue("some-resolve-value");
                 return null;
             }).when(secretParamResolver).resolve(any(ClusterProfile.class));
 
@@ -741,7 +741,7 @@ class ElasticAgentPluginServiceTest {
             when(jobIdentifier.getId()).thenReturn(2L);
             when(jobInstanceSqlMapDao.loadPlan(jobIdentifier.getId())).thenReturn(jobPlan);
             doAnswer(invocation -> {
-                k1.getSecretParams().get(0).setValue("some-resolve-value");
+                k1.getSecretParams().getFirst().setValue("some-resolve-value");
                 return null;
             }).when(secretParamResolver).resolve(any(ClusterProfile.class));
             when(registry.getAgentStatusReport(anyString(), any(), anyString(), anyMap())).thenReturn("<div>This is a agent status report snippet.</div>");
@@ -766,7 +766,7 @@ class ElasticAgentPluginServiceTest {
             PluginProfiles<ClusterProfile> clusterProfiles = new ClusterProfiles(clusterProfile);
             when(clusterProfilesService.getPluginProfiles()).thenReturn(clusterProfiles);
             doAnswer(invocation -> {
-                k1.getSecretParams().get(0).setValue("some-resolve-value");
+                k1.getSecretParams().getFirst().setValue("some-resolve-value");
                 return null;
             }).when(secretParamResolver).resolve(any(ClusterProfile.class));
             when(registry.getClusterStatusReport(anyString(), anyMap())).thenReturn("<div>This is a cluster status report snippet.</div>");
@@ -801,11 +801,11 @@ class ElasticAgentPluginServiceTest {
 
             when(agentService.findAgent(agentInstance.getUuid())).thenReturn(agentInstance);
             doAnswer(invocation -> {
-                k1.getSecretParams().get(0).setValue("some-resolve-value");
+                k1.getSecretParams().getFirst().setValue("some-resolve-value");
                 return null;
             }).when(secretParamResolver).resolve(any(ClusterProfile.class));
             doAnswer(invocation -> {
-                k2.getSecretParams().get(0).setValue("some-resolve-value");
+                k2.getSecretParams().getFirst().setValue("some-resolve-value");
                 return null;
             }).when(secretParamResolver).resolve(any(ElasticProfile.class));
 

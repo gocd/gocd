@@ -91,11 +91,11 @@ class PackageMaterialPollerTest {
 
         List<Modification> modifications = poller.latestModification(material, null, null);
 
-        assertThat(modifications.get(0).getRevision()).isEqualTo("revision-123");
-        assertThat(modifications.get(0).getModifiedTime()).isEqualTo(timestamp);
-        assertThat(modifications.get(0).getUserName()).isEqualTo("user");
-        assertThat(modifications.get(0).getComment()).isNotNull();
-        assertThat(modifications.get(0).getAdditionalData()).isEqualTo(JsonHelper.toJsonExposeOnly(expected));
+        assertThat(modifications.getFirst().getRevision()).isEqualTo("revision-123");
+        assertThat(modifications.getFirst().getModifiedTime()).isEqualTo(timestamp);
+        assertThat(modifications.getFirst().getUserName()).isEqualTo("user");
+        assertThat(modifications.getFirst().getComment()).isNotNull();
+        assertThat(modifications.getFirst().getAdditionalData()).isEqualTo(JsonHelper.toJsonExposeOnly(expected));
         assertConfiguration(packageConfiguration.getValue(), material.getPackageDefinition().getConfiguration());
         assertConfiguration(repositoryConfiguration.getValue(), material.getPackageDefinition().getRepository().getConfiguration());
     }
@@ -136,7 +136,7 @@ class PackageMaterialPollerTest {
         expected.put(dataKey, dataValue);
         String expectedDataString = JsonHelper.toJsonExposeOnly(expected);
 
-        Modification firstModification = modifications.get(0);
+        Modification firstModification = modifications.getFirst();
         assertThat(firstModification.getRevision()).isEqualTo("rev-123");
         assertThat(firstModification.getModifiedTime()).isEqualTo(timestamp);
         assertThat(firstModification.getUserName()).isEqualTo("user");
@@ -153,10 +153,10 @@ class PackageMaterialPollerTest {
 
         List<Modification> modifications = poller.latestModification(material, null, null);
 
-        assertThat(modifications.get(0).getRevision()).isEqualTo("revision-123");
-        assertThat(modifications.get(0).getModifiedTime()).isEqualTo(timestamp);
-        assertThat(modifications.get(0).getUserName()).isEqualTo("user");
-        assertThat(modifications.get(0).getComment()).isNotNull();
+        assertThat(modifications.getFirst().getRevision()).isEqualTo("revision-123");
+        assertThat(modifications.getFirst().getModifiedTime()).isEqualTo(timestamp);
+        assertThat(modifications.getFirst().getUserName()).isEqualTo("user");
+        assertThat(modifications.getFirst().getComment()).isNotNull();
         assertConfiguration(packageConfiguration.getValue(), "name", "go-agent");
         assertConfiguration(repositoryConfiguration.getValue(), "url", "http://some-url");
 
@@ -181,10 +181,10 @@ class PackageMaterialPollerTest {
 
         List<Modification> modifications = poller.modificationsSince(material, null, knownRevision, null);
 
-        assertThat(modifications.get(0).getRevision()).isEqualTo("rev-123");
-        assertThat(modifications.get(0).getModifiedTime()).isEqualTo(timestamp);
-        assertThat(modifications.get(0).getUserName()).isEqualTo("user");
-        assertThat(modifications.get(0).getComment()).isNotNull();
+        assertThat(modifications.getFirst().getRevision()).isEqualTo("rev-123");
+        assertThat(modifications.getFirst().getModifiedTime()).isEqualTo(timestamp);
+        assertThat(modifications.getFirst().getUserName()).isEqualTo("user");
+        assertThat(modifications.getFirst().getComment()).isNotNull();
         assertConfiguration(packageConfiguration.getValue(), "name", "go-agent");
         assertConfiguration(repositoryConfiguration.getValue(), "url", "http://some-url");
         assertThat(knownPackageRevision.getValue().getRevision()).isEqualTo("rev-122");
@@ -209,7 +209,7 @@ class PackageMaterialPollerTest {
         when(packageRepositoryExtension.getLatestRevision(eq(packageMaterial.getPluginId()), any(), any())).thenReturn(packageRevision);
 
         List<Modification> modifications = poller.latestModification(packageMaterial, null, null);
-        assertThatJson(modifications.get(0).getComment()).isEqualTo("{\"COMMENT\":\"Built on host1\",\"TRACKBACK_URL\":\"http://google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}");
+        assertThatJson(modifications.getFirst().getComment()).isEqualTo("{\"COMMENT\":\"Built on host1\",\"TRACKBACK_URL\":\"http://google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}");
     }
 
     @Test
@@ -220,7 +220,7 @@ class PackageMaterialPollerTest {
         when(packageRepositoryExtension.latestModificationSince(eq(packageMaterial.getPluginId()), any(), any(), any())).thenReturn(packageRevision);
 
         List<Modification> modifications = poller.modificationsSince(packageMaterial, null, previousRevision, null);
-        assertThatJson(modifications.get(0).getComment()).isEqualTo("{\"COMMENT\":\"some comment\",\"TRACKBACK_URL\":\"http://google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}");
+        assertThatJson(modifications.getFirst().getComment()).isEqualTo("{\"COMMENT\":\"some comment\",\"TRACKBACK_URL\":\"http://google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}");
     }
 
     @Nested
@@ -228,9 +228,9 @@ class PackageMaterialPollerTest {
         @Test
         void forLatestModification() {
             material.getPackageDefinition().getConfiguration().addNewConfigurationWithValue("abc", "{{SECRET:[secret_config_id][lookup_password]}}", false);
-            material.getPackageDefinition().getConfiguration().getProperty("abc").getSecretParams().get(0).setValue("some-password");
+            material.getPackageDefinition().getConfiguration().getProperty("abc").getSecretParams().getFirst().setValue("some-password");
             material.getPackageDefinition().getRepository().getConfiguration().addNewConfigurationWithValue("xyz", "{{SECRET:[secret_config_id][lookup_token]}}", false);
-            material.getPackageDefinition().getRepository().getConfiguration().getProperty("xyz").getSecretParams().get(0).setValue("some-token");
+            material.getPackageDefinition().getRepository().getConfiguration().getProperty("xyz").getSecretParams().getFirst().setValue("some-token");
             Date timestamp = new Date();
 
             PackageRevision packageRevision = new PackageRevision("revision-123", timestamp, "user");
@@ -248,9 +248,9 @@ class PackageMaterialPollerTest {
         @Test
         void forModificationsSince() {
             material.getPackageDefinition().getConfiguration().addNewConfigurationWithValue("abc", "{{SECRET:[secret_config_id][lookup_password]}}", false);
-            material.getPackageDefinition().getConfiguration().getProperty("abc").getSecretParams().get(0).setValue("some-password");
+            material.getPackageDefinition().getConfiguration().getProperty("abc").getSecretParams().getFirst().setValue("some-password");
             material.getPackageDefinition().getRepository().getConfiguration().addNewConfigurationWithValue("xyz", "{{SECRET:[secret_config_id][lookup_token]}}", false);
-            material.getPackageDefinition().getRepository().getConfiguration().getProperty("xyz").getSecretParams().get(0).setValue("some-token");
+            material.getPackageDefinition().getRepository().getConfiguration().getProperty("xyz").getSecretParams().getFirst().setValue("some-token");
 
             String previousRevision = "rev-122";
             Date timestamp = new Date();

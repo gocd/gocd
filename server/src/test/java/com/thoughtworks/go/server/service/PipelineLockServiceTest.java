@@ -97,7 +97,7 @@ public class PipelineLockServiceTest {
     public void shouldAllowStageFromCurrentPipelineToBeScheduled() {
         Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", List.of("dev", "ft"), List.of("test"));
 
-        when(pipelineStateDao.pipelineStateFor("mingle")).thenReturn(new PipelineState(pipeline.getName(), pipeline.getStages().get(0).getIdentifier()));
+        when(pipelineStateDao.pipelineStateFor("mingle")).thenReturn(new PipelineState(pipeline.getName(), pipeline.getStages().getFirst().getIdentifier()));
         when(goConfigService.isLockable(pipeline.getName())).thenReturn(true);
 
         pipelineLockService.lockIfNeeded(pipeline);

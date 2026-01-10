@@ -34,7 +34,7 @@ public class TemplatesConfigTest {
         templates.removeTemplateNamed(new CaseInsensitiveString("template1"));
 
         assertThat(templates.size()).isEqualTo(1);
-        assertThat(templates.get(0)).isEqualTo(template2);
+        assertThat(templates.getFirst()).isEqualTo(template2);
     }
 
     @Test

@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.config.Admin;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -64,11 +63,6 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
         return add(new RoleConfig(roleName));
     }
 
-    public boolean remove(Role role) {
-        bombIf(!this.contains(role), () -> "Role '" + CaseInsensitiveString.str(role.getName()) + "' does not exist.");
-        return super.remove(role);
-    }
-
     public void removeIfExists(Role role) {
         super.remove(role);
     }
@@ -104,7 +98,7 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
     @SuppressWarnings("unchecked")
     public <T extends Role> T findByNameAndType(final CaseInsensitiveString roleName, Class<T> cls) {
         for (Role role : this) {
-            if (role.getName().equals(roleName) && (role.getClass().getCanonicalName().equals(cls.getCanonicalName()))) {
+            if (role.getName().equals(roleName) && role.getClass().getCanonicalName().equals(cls.getCanonicalName())) {
                 return (T) role;
             }
         }

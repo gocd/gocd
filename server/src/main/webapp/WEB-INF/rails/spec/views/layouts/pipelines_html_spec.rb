@@ -29,9 +29,9 @@ describe "layouts/pipelines.html.erb" do
     @stages = PipelineHistoryMother.stagePerJob("stage", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.to_instant),
                                                           PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.plusDays(1).to_instant)])
 
-    @stages.get(0).setId(12)
-    @stages.get(1).setId(13)
-    @stages.get(0).setOperatePermission(true)
+    @stages.getFirst().setId(12)
+    @stages.getFirst().setOperatePermission(true)
+    @stages.getLast().setId(13)
 
     @stage_history_page = assigns[:stage_history_page] = last_stage_history_page(1)
 
@@ -146,7 +146,7 @@ describe "layouts/pipelines.html.erb" do
 
     describe "run action" do
       before do
-        @stage_0 = @stages.get(0)
+        @stage_0 = @stages.getFirst()
         @stage_0.setCanRun(true)
 
         @stage_1 = @stages.get(1)
@@ -179,8 +179,8 @@ describe "layouts/pipelines.html.erb" do
 
     describe "cancel action" do
       before do
-        @stage_0 = @stages.get(0)
-        @stage_0.getBuildHistory().get(0).setState(JobState::Building)
+        @stage_0 = @stages.getFirst()
+        @stage_0.getBuildHistory().getFirst().setState(JobState::Building)
 
         @stage_1 = @stages.get(1)
         @stage_1.setCanRun(false)

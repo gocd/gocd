@@ -223,7 +223,7 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
     public SecretParams getSecretParams() {
         return this.stream()
                 .map(ConfigurationProperty::getSecretParams)
-                .filter((params) -> !params.isEmpty())
+                .filter(params -> !params.isEmpty())
                 .collect(SecretParams.toFlatSecretParams());
     }
 }

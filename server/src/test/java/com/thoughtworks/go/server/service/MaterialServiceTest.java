@@ -337,7 +337,7 @@ public class MaterialServiceTest {
 
 
         List<Modification> modifications = materialService.latestModification(material, null, null);
-        assertThat(modifications.get(0).getRevision()).isEqualTo("blah-123");
+        assertThat(modifications.getFirst().getRevision()).isEqualTo("blah-123");
     }
 
     @Test
@@ -351,7 +351,7 @@ public class MaterialServiceTest {
                 any(),
                 any())).thenReturn(new PackageRevision("new-revision-456", new Date(), "user"));
         List<Modification> modifications = materialService.modificationsSince(material, null, new PackageMaterialRevision("revision-124", new Date()), null);
-        assertThat(modifications.get(0).getRevision()).isEqualTo("new-revision-456");
+        assertThat(modifications.getFirst().getRevision()).isEqualTo("new-revision-456");
     }
 
     @Test
@@ -364,7 +364,7 @@ public class MaterialServiceTest {
 
         List<Modification> modifications = materialService.latestModification(pluggableSCMMaterial, new File("/tmp/flyweight"), null);
 
-        assertThat(modifications.get(0).getRevision()).isEqualTo("blah-123");
+        assertThat(modifications.getFirst().getRevision()).isEqualTo("blah-123");
     }
 
     @Test
@@ -379,7 +379,7 @@ public class MaterialServiceTest {
         PluggableSCMMaterialRevision previouslyKnownRevision = new PluggableSCMMaterialRevision("revision-124", new Date());
         List<Modification> modifications = materialService.modificationsSince(pluggableSCMMaterial, new File("/tmp/flyweight"), previouslyKnownRevision, null);
 
-        assertThat(modifications.get(0).getRevision()).isEqualTo("new-revision-456");
+        assertThat(modifications.getFirst().getRevision()).isEqualTo("new-revision-456");
     }
 
     @Test

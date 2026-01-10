@@ -25,7 +25,7 @@ import java.util.Objects;
  */
 public class MaterialUpdateCompletedMessage implements GoMessage {
     private final Material material;
-    private long trackingId;
+    private final long trackingId;
 
     public MaterialUpdateCompletedMessage(Material material, long trackingId) {
         this.material = material;

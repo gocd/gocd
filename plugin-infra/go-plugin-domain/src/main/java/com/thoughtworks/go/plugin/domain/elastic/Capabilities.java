@@ -64,6 +64,6 @@ public class Capabilities {
 
     @Override
     public int hashCode() {
-        return (supportsPluginStatusReport ? 1 : 0);
+        return supportsPluginStatusReport ? 1 : 0;
     }
 }

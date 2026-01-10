@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.util.Pair;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -92,27 +93,21 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
         this.add(0, configs);
     }
 
+    public @NotNull PipelineConfigs findGroup(String groupName) {
+        return findGroupOptional(groupName).orElseThrow(() -> new RecordNotFoundException(EntityType.PipelineGroup, groupName));
+    }
 
-    public PipelineConfigs findGroup(String groupName) {
+    public @NotNull Optional<PipelineConfigs> findGroupOptional(String groupName) {
         for (PipelineConfigs pipelines : this) {
             if (pipelines.isNamed(groupName)) {
-                return pipelines;
+                return Optional.of(pipelines);
             }
         }
-        throw new RecordNotFoundException(EntityType.PipelineGroup, groupName);
+        return Optional.empty();
     }
 
     public boolean hasGroup(String groupName) {
-        try {
-            findGroup(groupName);
-            return true;
-        } catch (RecordNotFoundException e) {
-            return false;
-        }
-    }
-
-    public PipelineConfig findPipeline(String groupName, int pipelineIndex) {
-        return findGroup(groupName).get(pipelineIndex);
+        return findGroupOptional(groupName).isPresent();
     }
 
     public void accept(PipelineGroupVisitor visitor) {

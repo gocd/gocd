@@ -74,11 +74,11 @@ class PackageMaterialRepresenterTest {
 
   @Test
   void "should render errors"() {
-    def package_config = new PackageMaterialConfig(new CaseInsensitiveString(''), '', null)
-    def material_configs = new MaterialConfigs(package_config)
-    material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
+    def packageConfig = new PackageMaterialConfig(new CaseInsensitiveString(''), '', null)
+    def materialConfigs = new MaterialConfigs(packageConfig)
+    materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
 
-    def actualJson = toObjectString({ MaterialsRepresenter.toJSON(it, material_configs.getFirstOrNull()) })
+    def actualJson = toObjectString({ MaterialsRepresenter.toJSON(it, materialConfigs.getFirst()) })
 
     assertThatJson(actualJson).isEqualTo(expectedMaterialHashWithErrors)
   }

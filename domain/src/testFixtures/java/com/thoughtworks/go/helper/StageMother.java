@@ -17,8 +17,6 @@ package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.presentation.pipelinehistory.JobHistory;
-import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
@@ -206,19 +204,6 @@ public class StageMother {
         Stage stage = custom(stageName, job);
         stage.setCounter(1);
         return stage;
-    }
-
-    public static StageInstanceModel toStageInstanceModel(Stage stage) {
-        StageInstanceModel stageInstanceModel = new StageInstanceModel(stage.getName(), String.valueOf(stage.getCounter()), stage.getResult(), stage.getIdentifier());
-        stageInstanceModel.setApprovalType(stage.getApprovalType());
-        stageInstanceModel.setApprovedBy(stage.getApprovedBy());
-        stageInstanceModel.setRerunOfCounter(stage.getRerunOfCounter());
-        JobHistory jobHistory = new JobHistory();
-        for (JobInstance jobInstance : stage.getJobInstances()) {
-            jobHistory.addJob(jobInstance.getName(), jobInstance.getState(), jobInstance.getResult(), jobInstance.getScheduledDate());
-        }
-        stageInstanceModel.setBuildHistory(jobHistory);
-        return stageInstanceModel;
     }
 
     @SuppressWarnings("unused") // Used from value_stream_map_model_spec.rb

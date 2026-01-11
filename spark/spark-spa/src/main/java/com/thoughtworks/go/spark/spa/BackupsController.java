@@ -20,17 +20,14 @@ import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
+import com.thoughtworks.go.util.Dates;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static spark.Spark.*;
 
@@ -54,7 +51,7 @@ public class BackupsController implements SparkController {
     @Override
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before("", authenticationHelper::checkAdminUserAnd403);
             get("", this::index, engine);
         });
     }
@@ -68,10 +65,9 @@ public class BackupsController implements SparkController {
         return new ModelAndView(object, null);
     }
 
-    private Map<String, String> meta() {
-        Map<String, String> meta = new HashMap<>();
-        Optional<ZonedDateTime> dateTime = backupService.lastBackupTime().map(d -> ZonedDateTime.ofInstant(Instant.ofEpochMilli(d.getTime()), ZoneId.systemDefault()));
-        meta.put("lastBackupTime", dateTime.map(Object::toString).orElse(null));
+    private Map<String, Object> meta() {
+        Map<String, Object> meta = new HashMap<>();
+        meta.put("lastBackupTime", backupService.lastBackupTime().map(Dates::formatIso8601StrictOffsetUtcWithoutMillis).orElse(null));
         meta.put("lastBackupUser", backupService.lastBackupUser().orElse(null));
         meta.put("availableDiskSpace", backupService.availableDiskSpace());
         meta.put("backupLocation", backupService.backupLocation());

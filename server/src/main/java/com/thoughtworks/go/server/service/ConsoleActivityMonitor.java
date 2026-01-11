@@ -107,9 +107,9 @@ public class ConsoleActivityMonitor {
                 consoleService.appendToConsoleLogSafe(jobIdentifier, messages.consoleMessage(jobTerminationThreshold(jobIdentifier)));
                 jobActivityMap.remove(jobIdentifier);
                 removeHungJobWarning(jobIdentifier);
-                LOGGER.info("Cancelled hung job '{}' as it was hung for more than '{}' minutes", jobIdentifier.toFullString(), difference);
+                LOGGER.info("Cancelled hung job '{}' as it was hung for more than '{}' minutes", jobIdentifier.toFullString(), difference.toMinutes());
             } else if (difference.compareTo(warningThreshold) > 0) {
-                LOGGER.info("Job '{}' hung for more than '{}' minutes", jobIdentifier.toFullString(), difference);
+                LOGGER.info("Job '{}' hung for more than '{}' minutes", jobIdentifier.toFullString(), difference.toMinutes());
                 removeHungJobWarning(jobIdentifier);
                 addJobHungWarning(jobIdentifier, difference, messages);
             }

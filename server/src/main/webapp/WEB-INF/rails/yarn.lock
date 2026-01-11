@@ -1982,10 +1982,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:4.17.19":
-  version: 4.17.19
-  resolution: "@types/lodash@npm:4.17.19"
-  checksum: 10/555e53da60dd9904ef4b6f4e663abb965cf45582079f2ea231a18b0b48df4808b60f36c978548fcf5e307bf12ccd563bd4551963039028ea120b1695c7146f7c
+"@types/lodash@npm:4.17.23":
+  version: 4.17.23
+  resolution: "@types/lodash@npm:4.17.23"
+  checksum: 10/05935534a44aadef67c2158b2fb4a042a226970088106a40ddc67e4f063783149fe5cf02279d7dd4a1e72c98d9189b9430face659645dbf77270f8c4c3e387f5
   languageName: node
   linkType: hard
 
@@ -2005,12 +2005,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^24.10.4":
-  version: 24.10.4
-  resolution: "@types/node@npm:24.10.4"
+"@types/node@npm:^24.10.7":
+  version: 24.10.7
+  resolution: "@types/node@npm:24.10.7"
   dependencies:
     undici-types: "npm:~7.16.0"
-  checksum: 10/a0b318b99a97103d151589a10e20d7d3ce93188a0e6466040eb2ce5fae33ca6785306737b4006560fe3152073cbb2b14747b854fa303296275c22afc8a37da2a
+  checksum: 10/4387e03f4e072eb0aa8a71e002cd0aca514b7986d9bd435244a5c8421336bcd28583b95ca2c11bc8bfdeef176d37584c9f3e786df9cb07bbc11ed4d73fd05b28
   languageName: node
   linkType: hard
 
@@ -4838,9 +4838,9 @@ __metadata:
     "@types/jasmine-ajax": "npm:^3.3.5"
     "@types/jquery": "npm:^3.5.33"
     "@types/license-checker": "npm:^25.0.6"
-    "@types/lodash": "npm:4.17.19"
+    "@types/lodash": "npm:4.17.23"
     "@types/mithril": "npm:2.2.7"
-    "@types/node": "npm:^24.10.4"
+    "@types/node": "npm:^24.10.7"
     "@types/prismjs": "npm:^1.26.5"
     "@types/shell-quote": "npm:^1.7.5"
     "@types/underscore.string": "npm:^0.0.42"

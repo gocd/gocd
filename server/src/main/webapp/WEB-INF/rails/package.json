@@ -55,7 +55,7 @@
     "@babel/preset-react": "^7.28.5",
     "@types/awesomplete": "^1.1.16",
     "@types/fs-extra": "^11.0.4",
-    "@types/jasmine": "^5.1.13",
+    "@types/jasmine": "^5.1.14",
     "@types/jasmine-ajax": "^3.3.5",
     "@types/jquery": "^3.5.33",
     "@types/license-checker": "^25.0.6",

@@ -191,7 +191,7 @@ public class ConsoleActivityMonitor {
             JobIdentifier identifier = job.getIdentifier();
             if (job.getState().isBuilding()) {
                 jobLastActivityMap.putIfAbsent(identifier, timeProvider.currentTimeMillis());
-            } else if (job.isCompleted() || job.isRescheduled()) {
+            } else if (job.getState().isInactiveOnAgent()) {
                 jobLastActivityMap.remove(identifier);
                 removeHungJobWarning(identifier);
             }

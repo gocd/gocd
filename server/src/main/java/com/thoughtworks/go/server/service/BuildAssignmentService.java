@@ -127,7 +127,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                         jobsToRemove = getAllJobPlansFromDeletedPipeline(pipelineConfig, jobPlans);
                     }
 
-                    jobsToRemove.forEach(o -> removeJob(o));
+                    jobsToRemove.forEach(o -> tryRemoveJob(o));
                 }
             }
         };
@@ -251,25 +251,28 @@ public class BuildAssignmentService implements ConfigChangedListener {
 
     @Override
     public void onConfigChange(CruiseConfig cruiseConfig) {
-        LOGGER.info("[Configuration Changed] Removing jobs for pipelines that no longer exist in configuration.");
         synchronized (this) {
+            if (jobPlans.isEmpty()) {
+                return;
+            }
+            LOGGER.info("[Configuration Changed] Removing jobs for pipelines that no longer exist in configuration.");
             List<JobPlan> jobsToRemove = new ArrayList<>();
             for (JobPlan jobPlan : jobPlans) {
                 if (!cruiseConfig.hasBuildPlan(new CaseInsensitiveString(jobPlan.getPipelineName()), new CaseInsensitiveString(jobPlan.getStageName()), jobPlan.getName(), true)) {
                     jobsToRemove.add(jobPlan);
                 }
             }
-            jobsToRemove.forEach(this::removeJob);
+            jobsToRemove.forEach(this::tryRemoveJob);
         }
     }
 
     private void removeJobIfNotPresentInCruiseConfig(CruiseConfig cruiseConfig, JobPlan jobPlan) {
         if (!cruiseConfig.hasBuildPlan(new CaseInsensitiveString(jobPlan.getPipelineName()), new CaseInsensitiveString(jobPlan.getStageName()), jobPlan.getName(), true)) {
-            removeJob(jobPlan);
+            tryRemoveJob(jobPlan);
         }
     }
 
-    private void removeJob(JobPlan jobPlan) {
+    private void tryRemoveJob(JobPlan jobPlan) {
         try {
             jobPlans.remove(jobPlan);
             LOGGER.info("Removing job plan {} that no longer exists in the config", jobPlan);
@@ -280,7 +283,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
             scheduleService.cancelJob(instance);
             LOGGER.info("Successfully removed job plan {} that no longer exists in the config", jobPlan);
         } catch (Exception e) {
-            LOGGER.warn("Unable to remove plan {} from queue that no longer exists in the config", jobPlan);
+            LOGGER.warn("Unable to remove plan {} from queue that no longer exists in the config ({})", jobPlan, e.toString());
         }
     }
 

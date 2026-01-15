@@ -16,7 +16,6 @@
 package com.thoughtworks.go.domain.activity;
 
 import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import org.jetbrains.annotations.TestOnly;
@@ -32,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AgentAssignment implements JobStatusListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentAssignment.class);
 
-    private final Map<String, JobInstance> map = new ConcurrentHashMap<>();
+    private final Map<String, JobInstance> jobsByAgentUuid = new ConcurrentHashMap<>();
     private final JobInstanceDao jobInstanceDao;
 
     @Autowired
@@ -42,18 +41,22 @@ public class AgentAssignment implements JobStatusListener {
 
     @Override
     public void jobStatusChanged(JobInstance job) {
-        if (job.getState() == JobState.Rescheduled || job.getState() == JobState.Completed) {
-            map.remove(job.getAgentUuid());
-            LOGGER.debug("Removed agent assignment for job [{}]", job);
-        }
-        if (job.getState().isActiveOnAgent()) {
-            map.put(job.getAgentUuid(), job);
+        if (!job.isAssignedToAgent()) {
+            LOGGER.debug("Ignoring job not yet assigned [{}]", job);
+        } else if (job.getState().isInactiveOnAgent()) {
+            jobsByAgentUuid.remove(job.getAgentUuid());
+            LOGGER.debug("Agent assignment removed for job [{}]", job);
+        } else if (job.getState().isActiveOnAgent()) {
+            jobsByAgentUuid.put(job.getAgentUuid(), job);
             LOGGER.debug("Agent assignment added for job [{}]", job);
         }
     }
 
     public JobInstance latestActiveJobOnAgent(String agentUuid) {
-        return map.computeIfAbsent(agentUuid, uuid -> {
+        if (agentUuid == null) {
+            return null;
+        }
+        return jobsByAgentUuid.computeIfAbsent(agentUuid, uuid -> {
             JobInstance job = jobInstanceDao.getLatestInProgressBuildByAgentUuid(uuid);
             LOGGER.debug("Getting AgentAssignment for agent with UUID [{}], got: {}", uuid, job);
             return job;
@@ -62,6 +65,11 @@ public class AgentAssignment implements JobStatusListener {
 
     @TestOnly
     public void clear() {
-        map.clear();
+        jobsByAgentUuid.clear();
+    }
+
+    @TestOnly
+    public int size() {
+        return jobsByAgentUuid.size();
     }
 }

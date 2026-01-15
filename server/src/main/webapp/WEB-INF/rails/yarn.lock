@@ -2089,10 +2089,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jasmine@npm:^5.1.14":
-  version: 5.1.14
-  resolution: "@types/jasmine@npm:5.1.14"
-  checksum: 10/272575ca1da65ac9994556a3f156c38cc892684a609a1ad490e7bd43cdb8c25fb09e14ffd6476ca98cddc0a17f987c4c88300ca86b5abbea05e8cdf3941d1566
+"@types/jasmine@npm:^5.1.15":
+  version: 5.1.15
+  resolution: "@types/jasmine@npm:5.1.15"
+  checksum: 10/e86a962c153ff91ffe3c65a633578a5e3f6e065e58268c00e839b03dac6792b1e0a2afca216ccfa1e31647e49ef1a935332242350dca91a2940ad883643abd04
   languageName: node
   linkType: hard
 
@@ -4978,7 +4978,7 @@ __metadata:
     "@shopify/draggable": "npm:1.2.1"
     "@types/awesomplete": "npm:^1.1.16"
     "@types/fs-extra": "npm:^11.0.4"
-    "@types/jasmine": "npm:^5.1.14"
+    "@types/jasmine": "npm:^5.1.15"
     "@types/jasmine-ajax": "npm:^3.3.5"
     "@types/jquery": "npm:^3.5.33"
     "@types/license-checker": "npm:^25.0.6"

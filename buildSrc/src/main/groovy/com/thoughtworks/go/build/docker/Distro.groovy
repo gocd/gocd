@@ -153,11 +153,17 @@ enum Distro implements DistroBehavior {
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       [
         "microdnf remove -y shadow-utils",
-        "microdnf install -y git-core openssh-clients bash unzip curl-minimal procps-ng coreutils-single glibc-langpack-en tar${v.lessThan(10) ? "-1.34-7.el9" : "-1.35-7.el10"}",
+        "microdnf install -y git-core openssh-clients bash unzip curl-minimal procps-ng coreutils-single glibc-langpack-en bsdtar",
         "microdnf clean all",
         "rm -rf /var/cache/dnf",
       ]
     }
+
+    @Override
+    List<String> getInstallJavaCommands(AdoptiumVersion version) {
+      super.getInstallJavaCommands(version).collect { it.replaceFirst("^tar", "bsdtar") }
+    }
+
     @Override
     List<DistroVersion> getSupportedVersions() {
       [ // See https://endoflife.date/almalinux

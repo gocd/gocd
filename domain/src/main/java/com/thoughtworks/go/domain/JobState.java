@@ -52,6 +52,10 @@ public enum JobState {
         return this == Assigned || isBuilding();
     }
 
+    public boolean isInactiveOnAgent() {
+        return this == Rescheduled || this == Completed;
+    }
+
     public boolean isCompleted() {
         return this == Completed;
     }

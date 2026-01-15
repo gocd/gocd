@@ -70,14 +70,14 @@ public class AgentAssignmentTest {
         agentAssignment.jobStatusChanged(assigned);
 
         assertThat(agentAssignment.latestActiveJobOnAgent("uuid")).isEqualTo(assigned);
+        assertThat(agentAssignment.size()).isEqualTo(1);
     }
 
     @Test
     public void shouldIgnoreScheduledJob() {
         JobInstance scheduled = JobInstanceMother.scheduled("dev");
         agentAssignment.jobStatusChanged(scheduled);
-
-        assertThat(agentAssignment.latestActiveJobOnAgent("uuid")).isNull();
+        assertThat(agentAssignment.size()).isZero();
     }
 
     @Test
@@ -86,6 +86,14 @@ public class AgentAssignmentTest {
         JobInstance expected = pipeline.getFirstStage().getJobInstances().getFirst();
 
         assertThat(agentAssignment.latestActiveJobOnAgent("uuid").getId()).isEqualTo(expected.getId());
+        assertThat(agentAssignment.size()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldIgnoreJobNotAssignedToAgent() {
+        JobInstance created = new JobInstance();
+        agentAssignment.jobStatusChanged(created);
+        assertThat(agentAssignment.size()).isZero();
     }
 
     @Test
@@ -95,14 +103,19 @@ public class AgentAssignmentTest {
         agentAssignment.jobStatusChanged(completed);
 
         assertThat(agentAssignment.latestActiveJobOnAgent("uuid")).isNull();
+        assertThat(agentAssignment.size()).isZero();
     }
 
     @Test
     public void shouldReturnNullAfterJobIsRescheduled() {
+        JobInstance assigned = JobInstanceMother.assignedWithAgentId("dev", "uuid");
+        agentAssignment.jobStatusChanged(assigned);
+
         JobInstance rescheduled = JobInstanceMother.rescheduled("dev", "uuid");
         agentAssignment.jobStatusChanged(rescheduled);
 
         assertThat(agentAssignment.latestActiveJobOnAgent("uuid")).isNull();
+        assertThat(agentAssignment.size()).isZero();
     }
 }
 

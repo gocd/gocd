@@ -659,12 +659,12 @@ public class ScheduleService {
                 transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                     @Override
                     protected void doInTransactionWithoutResult(TransactionStatus status) {
-                        LOGGER.warn("[Job Reschedule] Rescheduling and marking old job as ignored: {}", toBeRescheduled);
                         //Reloading it because we want to see the latest committed state after acquiring the mutex.
                         JobInstance oldJob = jobInstanceService.buildById(toBeRescheduled.getId());
-                        if (oldJob.isCompleted() || oldJob.isRescheduled()) {
+                        if (oldJob.getState().isInactiveOnAgent()) {
                             return;
                         }
+                        LOGGER.warn("[Job Reschedule] Rescheduling and marking old job as ignored: {}", toBeRescheduled);
                         JobInstance newJob = oldJob.clone();
                         oldJob.changeState(JobState.Rescheduled);
                         jobInstanceService.updateStateAndResult(oldJob);

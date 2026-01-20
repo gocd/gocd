@@ -1,4 +1,5 @@
 source 'https://rubygems.org'
+ruby '~> 3.1.0'
 
 platforms :jruby do
   gem 'rails', '~> 7.2.3'

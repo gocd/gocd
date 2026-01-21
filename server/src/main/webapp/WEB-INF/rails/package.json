@@ -32,7 +32,7 @@
     "foundation-sites": "^6.9.0",
     "hack-font": "^3.3.0",
     "jquery": "^3.7.1",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "lodash-inflection": "^1.5.0",
     "lru-cache": "^11.2.4",
     "mithril": "^2.3.8",

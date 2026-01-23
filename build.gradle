@@ -301,7 +301,6 @@ subprojects {
     exclude '**/rails/node_modules/**'
     exclude '**/rails/node-vendor/**'
     exclude '**/rails/public/assets/**'
-    exclude '**/rails/vendor/**'
     exclude '**/rails/webpack/gen/**'
     exclude '**/rails/yarn-license-report/**'
 

@@ -37,7 +37,7 @@
 // Used by Rails job details page via timer_observer
 //= require "lib/trimpath-template-1.0.38.js"
 
-//= require "lib/lodash-4.17.21.js"
+//= require "lib/lodash-4.17.23.js"
 
 // Used by Rails job details and console log for formatting timestamps, along with Rails value stream map
 //= require "lib/moment-2.30.1.js"
@@ -57,8 +57,8 @@
 //= require "plugin-endpoint-request-handler.js"
 
 // Used within job details console log formatting
-//= require "ansi_up.js"
-//= require "crel.js"
+//= require "lib/ansi_up-3.0.0.js"
+//= require "lib/crel-4.2.1.js"
 
 //= require "json_to_css.js"
 //= require "util.js"

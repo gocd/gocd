@@ -158,7 +158,6 @@ def generateJSRoutes = tasks.register('generateJSRoutes', ExecuteUnderRailsTask)
   classpath(configurations.railsRuntimeClasspath)
 
   inputs.dir("${project.railsRoot}/lib/tasks")
-  inputs.dir("${project.railsRoot}/vendor")
   inputs.files(fileTree(dir: "${project.railsRoot}/config", includes: ['**/*.rb']))
 
   def outputDir = file("${project.railsRoot}/webpack/gen")
@@ -190,7 +189,6 @@ tasks.register('compileAssetsWebpackDev', YarnRunTask) {
   source("${project.railsRoot}/.stylelintrc.yml")
 
   source("${project.railsRoot}/webpack")
-  source("${project.railsRoot}/vendor/assets")
   source("${project.railsRoot}/config")
 
   workingDir = project.railsRoot
@@ -214,7 +212,6 @@ tasks.register('compileAssetsWebpackProd', YarnRunTask) {
   source("${project.railsRoot}/.stylelintrc.yml")
 
   source("${project.railsRoot}/webpack")
-  source("${project.railsRoot}/vendor/assets")
   source("${project.railsRoot}/config")
 
   workingDir = project.railsRoot
@@ -232,7 +229,6 @@ def compileAssetsRailsTest = tasks.register('compileAssetsRailsTest', ExecuteUnd
 
   inputs.dir("${project.railsRoot}/config")
   inputs.dir("${project.railsRoot}/app/assets")
-  inputs.dir("${project.railsRoot}/vendor/assets")
   inputs.files(compileAssetsWebpackDev) // This is solely because webpack-dev generates assets under public/assets/webpack :(
 
   def railsPublicAssets = fileTree(dir: "${project.railsRoot}/public/assets", excludes: ['webpack'])
@@ -260,7 +256,6 @@ tasks.register('compileAssetsRailsProd', ExecuteUnderRailsTask) {
 
   inputs.dir("${project.railsRoot}/config")
   inputs.dir("${project.railsRoot}/app/assets")
-  inputs.dir("${project.railsRoot}/vendor/assets")
 
   def outputAssetsDir = layout.buildDirectory.dir("rails-assets")
   def publicAssetsDir = layout.buildDirectory.dir("public/assets")

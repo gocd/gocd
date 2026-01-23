@@ -56,6 +56,7 @@ class YarnInstallTask extends DefaultTask {
     inputs.dir("${getWorkingDir()}/.yarn/patches")
     inputs.dir("${getWorkingDir()}/.yarn/plugins")
     inputs.dir("${getWorkingDir()}/.yarn/releases")
+    inputs.dir("${getWorkingDir()}/node-vendor")
   }
 
   @TaskAction

@@ -4912,7 +4912,7 @@ __metadata:
     moment: "npm:^2.30.1"
     moment-duration-format: "npm:^2.3.2"
     normalize-scss: "npm:^8.0.0"
-    opensans: "file:vendor/assets/fonts/opensans#vendor/assets/fonts/opensans::hash=87d35c&locator=gocd-server-ui%40workspace%3A."
+    opensans: "file:node-vendor/opensans#node-vendor/opensans::hash=87d35c&locator=gocd-server-ui%40workspace%3A."
     prismjs: "npm:^1.30.0"
     sass-embedded: "npm:^1.97.3"
     sass-loader: "npm:^16.0.6"
@@ -6890,9 +6890,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"opensans@file:vendor/assets/fonts/opensans#vendor/assets/fonts/opensans::hash=87d35c&locator=gocd-server-ui%40workspace%3A.":
+"opensans@file:node-vendor/opensans#node-vendor/opensans::hash=87d35c&locator=gocd-server-ui%40workspace%3A.":
   version: 0.0.2
-  resolution: "opensans@file:vendor/assets/fonts/opensans#vendor/assets/fonts/opensans::hash=87d35c&locator=gocd-server-ui%40workspace%3A."
+  resolution: "opensans@file:node-vendor/opensans#node-vendor/opensans::hash=87d35c&locator=gocd-server-ui%40workspace%3A."
   checksum: 10/5f8562c95ac9b7522032517f28ea8e2c6213053f4910dafd4618c1cfce9bb68db4dd2afc5b571137127075cb065464670bb45591f5b56e8b51367f157b9e5139
   languageName: node
   linkType: hard

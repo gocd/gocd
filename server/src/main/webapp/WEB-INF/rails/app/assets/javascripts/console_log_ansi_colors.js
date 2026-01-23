@@ -18,25 +18,27 @@
 
   function AnsiFormatter() {
 
-    function transform(state, ansiUp) {
-      if (state.text.length === 0)
-        {return state.text;}
+    function transform(fragment, ansiUp) {
+      if (fragment.text.length === 0) {
+        return fragment.text;
+      }
 
-      if (!state.bright && state.fg === null && state.bg === null)
-        {return state.text;}
+      if (!fragment.bold && fragment.fg === null && fragment.bg === null) {
+        return fragment.text;
+      }
 
       var classes = [], styles = [], node_attrs = {};
 
-      var fg = state.fg, bg = state.bg;
+      var fg = fragment.fg, bg = fragment.bg;
 
-      if (fg === null && state.bright)
-        {fg = ansiUp.ansi_colors[1][7];}
+      if (fragment.bold) {
+        styles.push('font-weight:bold');
+      }
 
       if (fg) {
         if (fg.class_name !== "truecolor") {
           classes.push(`${fg.class_name}-fg`);
-        }
-        else {
+        } else {
           styles.push(`color:rgb(${fg.rgb.join(",")})`);
         }
       }
@@ -44,22 +46,26 @@
       if (bg) {
         if (bg.class_name !== "truecolor") {
           classes.push(`${bg.class_name}-bg`);
-        }
-        else {
+        } else {
           styles.push(`background-color:rgb(${bg.rgb.join(",")})`);
         }
       }
 
-      if (classes.length)
-        {node_attrs["class"] = classes.join(" ");}
+      if (classes.length) {
+        node_attrs["class"] = classes.join(" ");
+      }
 
-      if (styles.length)
-        {node_attrs.style = styles.join(";");}
-      return c("span", node_attrs, state.text);
+      if (styles.length) {
+        node_attrs.style = styles.join(";");
+      }
+
+      return c("span", node_attrs, fragment.text);
     }
 
     function compose(segments, ansiUp) {
-      if (segments.length === 1) {return segments[0];}
+      if (segments.length === 1) {
+        return segments[0];
+      }
 
       return segments;
     }

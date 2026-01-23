@@ -17,7 +17,8 @@
   "use strict";
 
   describe("FoldableSectionSpec", function FoldableSectionSpec() {
-    var fs, lw, node, el, t = FoldableSection.Types;
+    let fs, lw, node, el;
+    const t = FoldableSection.Types;
 
     function reset() {
       node = document.createDocumentFragment();
@@ -138,7 +139,7 @@
     });
 
     it("closeAndStartNew collapses old section if no errors detected and creates a new sibling section", function () {
-      var newSection = fs.closeAndStartNew(node);
+      const newSection = fs.closeAndStartNew(node);
 
       expect(!$(el).is(".open")).toBe(true);
       expect($(newSection.element()).is(".open")).toBe(true);
@@ -216,39 +217,43 @@
     });
 
     it("LineWriter insertPlain", function () {
-      var h = $($(lw.insertPlain(fs, "00:00:00.000", "Starting build")));
+      const h = $($(lw.insertPlain(fs, "00:00:00.000", "Starting build")));
       expect(h.is("dd")).toBe(true);
       expect(h.text()).toBe("Starting build");
     });
 
     it("LineWriter insertHeader", function () {
-      var h = $($(lw.insertHeader(fs, t.INFO, "00:00:00.000", "Starting build")));
+      const h = $($(lw.insertHeader(fs, t.INFO, "00:00:00.000", "Starting build")));
       expect(h.is("dt.log-fs-line-INFO")).toBe(true);
     });
 
     it("LineWriter insertPlain handles ANSI color", function () {
-      var l = $(lw.insertPlain(fs, "00:00:00.000", "Starting \u001B[1;33;40mcolor"));
-      expect(l.find(".ansi-bright-yellow-fg.ansi-black-bg").length).toBe(1);
-      expect(l.find(".ansi-bright-yellow-fg.ansi-black-bg").text()).toBe("color");
+      const l = $(lw.insertPlain(fs, "00:00:00.000", "Starting \u001B[1;33;40mcolor"));
+      const node = l.find(".ansi-yellow-fg.ansi-black-bg");
+      expect(node.length).toBe(1);
+      expect(node.text()).toBe("color");
+      expect(node.attr("style")).toContain("bold");
     });
 
     it("LineWriter insertContent/Header handles ANSI color", function () {
       fs.markMultiline(); // insertContent() requires a section body element
-      var l = $(lw.insertContent(fs, t.OUT, "00:00:00.000", "Starting \u001B[1;33;40mcolor"));
-      expect(l.find(".ansi-bright-yellow-fg.ansi-black-bg").length).toBe(1);
-      expect(l.find(".ansi-bright-yellow-fg.ansi-black-bg").text()).toBe("color");
+      const l = $(lw.insertContent(fs, t.OUT, "00:00:00.000", "Starting \u001B[1;33;40mcolor"));
+      const node = l.find(".ansi-yellow-fg.ansi-black-bg");
+      expect(node.length).toBe(1);
+      expect(node.text()).toBe("color");
+      expect(node.attr("style")).toContain("bold");
     });
 
     it("LineWriter formats exit code", function () {
-      var h = $($(lw.insertHeader(fs, t.INFO, "00:00:00.000", "Starting build")));
+      const h = $($(lw.insertHeader(fs, t.INFO, "00:00:00.000", "Starting build")));
       lw.markWithAnnotations(fs, {exitCode: 127});
       expect(h.find(".log-fs-exitcode").text()).toBe("exited: 127");
     });
 
     it("LineWriter parses exit code from status line if available", function () {
-      var h = $($(lw.insertHeader(fs, t.TASK_START, "00:00:00.000", "[go] Task: doing stuff")));
+      const h = $($(lw.insertHeader(fs, t.TASK_START, "00:00:00.000", "[go] Task: doing stuff")));
       fs.markMultiline();
-      var l = $($(lw.insertContent(fs, t.FAIL, "00:00:00.000", "[go] Task status: failed (exit code: 1)")));
+      const l = $($(lw.insertContent(fs, t.FAIL, "00:00:00.000", "[go] Task status: failed (exit code: 1)")));
       fs.closeAndStartNew(c("dl"), lw); // this triggers the duration stamping
 
       expect(h.find(".log-fs-exitcode").text()).toBe("exited: 1");
@@ -256,15 +261,15 @@
     });
 
     it("LineWriter formats durations from milliseconds into a human-friendly stamp", function () {
-      var h = $($(lw.insertHeader(fs, t.INFO, "00:00:00.000", "Starting build")));
+      const h = $($(lw.insertHeader(fs, t.INFO, "00:00:00.000", "Starting build")));
       lw.markWithAnnotations(fs, {duration: 4998315});
       expect(h.find(".log-fs-duration").text()).toBe("took: 1h 23m 18.315s");
     });
 
     it("LineWriter parses durations from status line if available", function () {
-      var h = $($(lw.insertHeader(fs, t.TASK_START, "00:00:00.000", "[go] Task: doing stuff")));
+      const h = $($(lw.insertHeader(fs, t.TASK_START, "00:00:00.000", "[go] Task: doing stuff")));
       fs.markMultiline();
-      var l = $($(lw.insertContent(fs, t.PASS, "00:00:00.000", "[go] Task status: passed (8675309 ms)")));
+      const l = $($(lw.insertContent(fs, t.PASS, "00:00:00.000", "[go] Task status: passed (8675309 ms)")));
       fs.closeAndStartNew(c("dl"), lw); // this triggers the duration stamping
 
       expect(h.find(".log-fs-duration").text()).toBe("took: 2h 24m 35.309s");
@@ -272,9 +277,9 @@
     });
 
     it("LineWriter parses both durations and exit code from status line if available", function () {
-      var h = $($(lw.insertHeader(fs, t.TASK_START, "00:00:00.000", "[go] Task: doing stuff")));
+      const h = $($(lw.insertHeader(fs, t.TASK_START, "00:00:00.000", "[go] Task: doing stuff")));
       fs.markMultiline();
-      var l = $($(lw.insertContent(fs, t.PASS, "00:00:00.000", "[go] Task status: passed (8675309 ms) (exit code: 127)")));
+      const l = $($(lw.insertContent(fs, t.PASS, "00:00:00.000", "[go] Task status: passed (8675309 ms) (exit code: 127)")));
       fs.closeAndStartNew(c("dl"), lw); // this triggers the duration stamping
 
       expect(h.find(".log-fs-duration").text()).toBe("took: 2h 24m 35.309s");
@@ -283,9 +288,9 @@
     });
 
     it("LineWriter just prints if there are no annotations", function () {
-      var h = $($(lw.insertHeader(fs, t.TASK_START, "00:00:00.000", "[go] Task: doing stuff")));
+      const h = $($(lw.insertHeader(fs, t.TASK_START, "00:00:00.000", "[go] Task: doing stuff")));
       fs.markMultiline();
-      var l = $($(lw.insertContent(fs, t.PASS, "00:00:00.000", "[go] Task status: passed")));
+      const l = $($(lw.insertContent(fs, t.PASS, "00:00:00.000", "[go] Task status: passed")));
       fs.closeAndStartNew(c("dl"), lw); // this triggers the duration stamping
 
       expect(h.find(".log-fs-duration").length).toBe(0);
@@ -294,36 +299,36 @@
 
     it("LineWriter insertContent", function () {
       fs.markMultiline(); // insertContent() requires a section body element
-      var l = $(lw.insertContent(fs, t.OUT, "00:00:00.000", "Starting build"));
+      const l = $(lw.insertContent(fs, t.OUT, "00:00:00.000", "Starting build"));
       expect(l.is("dd.log-fs-line-OUT")).toBe(false);
     });
 
     it("LineWriter parses task", function () {
-      var h = $(lw.insertHeader(fs, t.TASK_START, "00:00:00.000", "[go] Task: about to happen"));
+      const h = $(lw.insertHeader(fs, t.TASK_START, "00:00:00.000", "[go] Task: about to happen"));
       expect(h.find("code").length).toBe(1);
       expect(h.find("code").text()).toBe("about to happen");
     });
 
     it("LineWriter parses job status", function () {
-      var h = $(lw.insertHeader(fs, t.JOB_PASS, "00:00:00.000", "[go] Current job status: passed"));
+      const h = $(lw.insertHeader(fs, t.JOB_PASS, "00:00:00.000", "[go] Current job status: passed"));
       expect(h.find("code").length).toBe(1);
       expect(h.find("code").text()).toBe("passed");
     });
 
     it("LineWriter parses task status", function () {
-      var h = $(lw.insertHeader(fs, t.FAIL, "00:00:00.000", "[go] Task status: failed"));
+      const h = $(lw.insertHeader(fs, t.FAIL, "00:00:00.000", "[go] Task status: failed"));
       expect(h.find("code").length).toBe(1);
       expect(h.find("code").text()).toBe("failed");
     });
 
     it("LineWriter parses cancel task", function () {
-      var h = $(lw.insertHeader(fs, t.CANCEL_TASK_START, "00:00:00.000", "[go] On Cancel Task: not so great"));
+      const h = $(lw.insertHeader(fs, t.CANCEL_TASK_START, "00:00:00.000", "[go] On Cancel Task: not so great"));
       expect(h.find("code").length).toBe(1);
       expect(h.find("code").text()).toBe("not so great");
     });
 
     it("LineWriter handles empty lines", function () {
-      var h = $(lw.insertHeader(fs, t.INFO, "00:00:00.000", ""));
+      const h = $(lw.insertHeader(fs, t.INFO, "00:00:00.000", ""));
       expect(h.text()).toBe("\n");
     });
 

@@ -465,7 +465,6 @@ tasks.register('configureWar') {
       exclude("**/rails/.yarn/")
       exclude("**/rails/node_modules/")
       exclude("**/rails/node-vendor/")
-      exclude("**/rails/vendor/")
 
       // Rails/Sprockets-compiled or Webpacked assets
       exclude("**/rails/app/assets/images/")

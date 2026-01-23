@@ -34,7 +34,6 @@ const globalIgnoreConfig = globalIgnores([
   ".yarn",                      // Vendored Yarn JS
   "node-vendor",                // Vendored webpacked JS
   "app/assets/javascripts/lib", // Vendored non-webpacked JS
-  "vendor",                     // Vendored raw JS
 ]);
 
 // Fallback config for build script configurations

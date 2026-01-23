@@ -354,7 +354,6 @@ code {
   }
 
   .ansi-bright-#{"" + $color}-fg {
-    font-weight: bold;
     color: color.adjust($color, $lightness: 33%);
   }
 

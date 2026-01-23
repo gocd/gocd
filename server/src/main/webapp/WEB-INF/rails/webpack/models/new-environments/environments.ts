@@ -21,7 +21,7 @@ import {PipelineJSON, Pipelines, PipelineWithOrigin} from "models/internal_pipel
 import {ErrorMessages} from "models/mixins/error_messages";
 import {ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
-import {Agents, AgentWithOrigin, EnvironmentAgentJSON} from "models/new-environments/environment_agents";
+import {Agents, EnvironmentAgentJSON} from "models/new-environments/environment_agents";
 import {Origin, OriginJSON, OriginType} from "models/origin";
 
 export interface EnvironmentJSON {
@@ -115,22 +115,12 @@ export class EnvironmentWithOrigin extends ValidatableMixin {
     }
   }
 
-  addAgentIfNotPresent(agent: AgentWithOrigin) {
-    if (!this.containsAgent(agent.uuid())) {
-      this.agents().push(agent);
-    }
-  }
-
   delete() {
     return EnvironmentsAPIs.delete(this.name());
   }
 
   removePipelineIfPresent(pipeline: PipelineWithOrigin) {
     this.pipelines().remove(pipeline);
-  }
-
-  removeAgentIfPresent(agent: AgentWithOrigin) {
-    _.remove(this.agents(), (p) => p.uuid() === agent.uuid());
   }
 
   toJSON(): object {

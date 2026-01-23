@@ -117,6 +117,6 @@ export class CustomTabTabContent extends TabContent<Job> {
   }
 
   private removeEntity(entityToRemove: Tab, collection: Tabs) {
-    _.remove(collection, (t) => t.name() === entityToRemove.name() && t.path() === entityToRemove.path());
+    _.remove(collection as Tab[], (t) => t.name() === entityToRemove.name() && t.path() === entityToRemove.path());
   }
 }

@@ -111,7 +111,7 @@ export abstract class Modal extends MithrilViewComponent<any> {
 
     return <footer class={styles.overlayFooter}>
       {
-        _.forEach(_.reverse(this.buttons()), (button) => {
+        _.forEach(_.reverse(this.buttons() as m.Children[]), (button) => {
           return button;
         })
       }

@@ -17,7 +17,6 @@
 import {EnvironmentVariableWithOrigin} from "models/environment_variables/types";
 import {PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
-import {AgentWithOrigin} from "models/new-environments/environment_agents";
 import data from "models/new-environments/spec/test_data";
 import {Origin, OriginType} from "models/origin";
 
@@ -70,16 +69,6 @@ describe("Environments Model - Environments", () => {
     expect(environment.containsPipeline(pipelineToAdd.name)).toBe(true);
   });
 
-  it("should add an agent to an environment", () => {
-    const environment = EnvironmentWithOrigin.fromJSON(envJSON);
-
-    const agentToAdd = data.agent_association_in_xml_json();
-
-    expect(environment.containsAgent(agentToAdd.uuid)).toBe(false);
-    environment.addAgentIfNotPresent(AgentWithOrigin.fromJSON(agentToAdd));
-    expect(environment.containsAgent(agentToAdd.uuid)).toBe(true);
-  });
-
   it("should not add a pipeline to an environment when one already exists", () => {
     const environment = EnvironmentWithOrigin.fromJSON(envJSON);
 
@@ -99,25 +88,6 @@ describe("Environments Model - Environments", () => {
     expect(environment.containsPipeline(pipelineToAdd.name)).toBe(true);
   });
 
-  it("should not add an agent to an environment when one already exists", () => {
-    const environment = EnvironmentWithOrigin.fromJSON(envJSON);
-
-    const agentToAdd = data.agent_association_in_xml_json();
-
-    expect(environment.agents().length).toBe(2);
-    expect(environment.containsAgent(agentToAdd.uuid)).toBe(false);
-
-    environment.addAgentIfNotPresent(AgentWithOrigin.fromJSON(agentToAdd));
-
-    expect(environment.agents().length).toBe(3);
-    expect(environment.containsAgent(agentToAdd.uuid)).toBe(true);
-
-    environment.addAgentIfNotPresent(AgentWithOrigin.fromJSON(agentToAdd));
-
-    expect(environment.agents().length).toBe(3);
-    expect(environment.containsAgent(agentToAdd.uuid)).toBe(true);
-  });
-
   it("should remove a pipeline from an environment", () => {
     const environment  = EnvironmentWithOrigin.fromJSON(envJSON);
     const pipelineJson = data.pipeline_association_in_xml_json();
@@ -133,22 +103,6 @@ describe("Environments Model - Environments", () => {
     expect(environment.containsPipeline(pipelineJson.name)).toBe(false);
   });
 
-  it("should remove an agent from an environment", () => {
-    const environment = EnvironmentWithOrigin.fromJSON(envJSON);
-
-    const agentJson = data.agent_association_in_xml_json();
-    const agent     = AgentWithOrigin.fromJSON(agentJson);
-    environment.addAgentIfNotPresent(agent);
-
-    expect(environment.agents().length).toBe(3);
-    expect(environment.containsAgent(agentJson.uuid)).toBe(true);
-
-    environment.removeAgentIfPresent(agent);
-
-    expect(environment.agents().length).toBe(2);
-    expect(environment.containsAgent(agentJson.uuid)).toBe(false);
-  });
-
   it("should not fail to remove a non-existent pipeline from an environment", () => {
     const environment  = EnvironmentWithOrigin.fromJSON(envJSON);
     const pipelineJson = data.pipeline_association_in_xml_json();
@@ -161,21 +115,6 @@ describe("Environments Model - Environments", () => {
 
     expect(environment.pipelines().length).toBe(2);
     expect(environment.containsPipeline(pipelineJson.name)).toBe(false);
-  });
-
-  it("should not fail to remove a non-existent agent from an environment", () => {
-    const environment = EnvironmentWithOrigin.fromJSON(envJSON);
-
-    const agentJson = data.agent_association_in_xml_json();
-    const agent     = AgentWithOrigin.fromJSON(agentJson);
-
-    expect(environment.agents().length).toBe(2);
-    expect(environment.containsAgent(agentJson.uuid)).toBe(false);
-
-    environment.removeAgentIfPresent(agent);
-
-    expect(environment.agents().length).toBe(2);
-    expect(environment.containsAgent(agentJson.uuid)).toBe(false);
   });
 
   it("should answer the environment to which the specified pipeline is associated", () => {

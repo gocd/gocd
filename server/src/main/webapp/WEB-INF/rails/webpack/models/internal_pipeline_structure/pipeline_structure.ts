@@ -162,7 +162,7 @@ export class Pipelines extends Array<PipelineWithOrigin> {
 
   //todo: when two sources of data are removed, array and map (and kept only map), this method simply changes to `this.pipelinesAsMap.delete`
   remove(pipeline: PipelineWithOrigin) {
-    _.remove(this, (p) => p.name() === pipeline.name());
+    _.remove(this as PipelineWithOrigin[], (p) => p.name() === pipeline.name());
     this.pipelinesAsMap.delete(pipeline.name());
   }
 

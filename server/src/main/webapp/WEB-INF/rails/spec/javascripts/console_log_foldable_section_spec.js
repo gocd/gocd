@@ -244,6 +244,17 @@
       expect(node.attr("style")).toContain("bold");
     });
 
+    it("LineWriter insertContent/Header handles ANSI URLs", function () {
+      fs.markMultiline(); // insertContent() requires a section body element
+      const l = $(lw.insertContent(fs, t.OUT, "00:00:00.000", "\u001B]8;;http://example.com/escape\"me\u001B\\This is a <> link\u001B]8;;\u001B\\"));
+      const node = l.find("a");
+      expect(node.length).toBe(1);
+      expect(node.text()).toBe("This is a <> link");
+      expect(node.attr("href")).toBe("http://example.com/escape\"me");
+    });
+
+
+
     it("LineWriter formats exit code", function () {
       const h = $($(lw.insertHeader(fs, t.INFO, "00:00:00.000", "Starting build")));
       lw.markWithAnnotations(fs, {exitCode: 127});

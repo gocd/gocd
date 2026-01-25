@@ -16,63 +16,79 @@
 (function (c) {
   "use strict";
 
-  function AnsiFormatter() {
+  // Mirrors the definition in ansi_up.js since it is private :(
+  var PacketKind;
+  (function (PacketKind) {
+    PacketKind[PacketKind["EOS"] = 0] = "EOS";
+    PacketKind[PacketKind["Text"] = 1] = "Text";
+    PacketKind[PacketKind["Incomplete"] = 2] = "Incomplete";
+    PacketKind[PacketKind["ESC"] = 3] = "ESC";
+    PacketKind[PacketKind["Unknown"] = 4] = "Unknown";
+    PacketKind[PacketKind["SGR"] = 5] = "SGR";
+    PacketKind[PacketKind["OSCURL"] = 6] = "OSCURL";
+  })(PacketKind || (PacketKind = {}));
 
-    function transform(fragment, ansiUp) {
-      if (fragment.text.length === 0) {
-        return fragment.text;
-      }
+  class CrelAnsiUp extends AnsiUp {
+    static CLASS = /class="([^"]*)"/;
+    static STYLE = /style="([^"]*)"/;
 
-      if (!fragment.bold && fragment.fg === null && fragment.bg === null) {
-        return fragment.text;
-      }
+    constructor() {
+      super();
+      super.use_classes = true;
+      super.escape_html = false; // handled by crel
+    }
 
-      var classes = [], styles = [], node_attrs = {};
-
-      var fg = fragment.fg, bg = fragment.bg;
-
-      if (fragment.bold) {
-        styles.push('font-weight:bold');
-      }
-
-      if (fg) {
-        if (fg.class_name !== "truecolor") {
-          classes.push(`${fg.class_name}-fg`);
-        } else {
-          styles.push(`color:rgb(${fg.rgb.join(",")})`);
+    ansi_to_crel(txt) {
+      this.append_buffer(txt);
+      const blocks = [];
+      while (true) {
+        const packet = this.get_next_packet();
+        if ((packet.kind === PacketKind.EOS) || (packet.kind === PacketKind.Incomplete)) {
+          break;
+        } else if ((packet.kind === PacketKind.ESC) || (packet.kind === PacketKind.Unknown)) {
+          continue;
+        } else if (packet.kind === PacketKind.Text) {
+          blocks.push(this.transform_to_crel(this.with_state(packet)));
+        } else if (packet.kind === PacketKind.SGR) {
+          this.process_ansi(packet);
+        } else if (packet.kind === PacketKind.OSCURL) {
+          blocks.push(this.process_hyperlink_to_crel(packet));
         }
       }
+      return blocks.length === 1 ? blocks[0] : blocks;
+    }
 
-      if (bg) {
-        if (bg.class_name !== "truecolor") {
-          classes.push(`${bg.class_name}-bg`);
-        } else {
-          styles.push(`background-color:rgb(${bg.rgb.join(",")})`);
-        }
+    transform_to_crel(fragment) {
+      const html = super.transform_to_html(fragment);
+
+      if (!html.startsWith("<span")) {
+        return html;
       }
 
+      const node_attrs = {};
+
+      const classes = html.match(CrelAnsiUp.CLASS);
       if (classes.length) {
-        node_attrs["class"] = classes.join(" ");
+        node_attrs["class"] = classes[1];
       }
 
+      const styles = html.match(CrelAnsiUp.STYLE);
       if (styles.length) {
-        node_attrs.style = styles.join(";");
+        node_attrs.style = styles[1];
       }
 
       return c("span", node_attrs, fragment.text);
     }
 
-    function compose(segments, ansiUp) {
-      if (segments.length === 1) {
-        return segments[0];
+    process_hyperlink_to_crel(pkt) {
+      const parts = pkt.url.split(':');
+      if (parts.length < 1 || !this._url_allowlist[parts[0]]) {
+        return "";
       }
 
-      return segments;
+      return c("a", { "href": pkt.url }, pkt.text);
     }
-
-    this.transform = transform;
-    this.compose = compose;
   }
 
-  window.AnsiFormatter = AnsiFormatter;
+  window.CrelAnsiUp = CrelAnsiUp;
 })(crel);

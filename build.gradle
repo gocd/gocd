@@ -257,7 +257,6 @@ subprojects {
     exclude '**/.tool-versions'
     exclude '**/*.enc'
     exclude '**/*.key'
-    exclude '**/*.erb'
     exclude '**/*.ejs'
     exclude '**/*.keep'
     exclude '**/*.md'
@@ -339,6 +338,18 @@ subprojects {
         isMultiline = true
         padLines = false
       }
+
+      intellijStyleERB {
+        firstLine = "<%#"
+        beforeEachLine = '  '
+        endLine = "%>"
+        afterEachLine = ''
+        firstLineDetectionPattern = "(\\s|\\t)*<%#.*\$"
+        lastLineDetectionPattern = ".*%>(\\s|\\t)*\$"
+        allowBlankLines = true
+        isMultiline = true
+        padLines = false
+      }
     }
     mapping {
       java = 'SLASHSTAR_STYLE'
@@ -355,6 +366,7 @@ subprojects {
 
       ftl = 'intellijStyleFTL'
       ftlh = 'intellijStyleFTL'
+      erb = 'intellijStyleERB'
       ts = 'SLASHSTAR_STYLE'
       tsx = 'SLASHSTAR_STYLE'
       msx = 'SLASHSTAR_STYLE'
@@ -688,7 +700,7 @@ tasks.register('sparkTestJunitHtmlReport', TestReport) {
   destinationDirectory = layout.buildDirectory.dir("reports/tests/sparkTest")
 }
 
-private void forAllTask(Closure<Task> closure) {
+private void forAllTestTasks(Closure<Task> closure) {
   subprojects.each { Project subPrj ->
     subPrj.tasks.withType(Test).each { eachTestTask ->
       if (!(eachTestTask.path in [':server:integrationTest'])) {
@@ -702,7 +714,7 @@ tasks.register('allTests') { thisTask ->
   group = LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Run all tests"
 
-  forAllTask { Test eachTestTask ->
+  forAllTestTasks { Task eachTestTask ->
     thisTask.dependsOn eachTestTask
   }
 
@@ -713,7 +725,7 @@ tasks.register('allTestsJunitHtmlReport', TestReport) { TestReport thisTask ->
   group = LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Run all api tests"
 
-  forAllTask { Test eachTestTask ->
+  forAllTestTasks { Test eachTestTask ->
     testResults.from(eachTestTask.binaryResultsDirectory.locationOnly)
     eachTestTask.finalizedBy(thisTask)
   }

@@ -68,12 +68,12 @@
       const node_attrs = {};
 
       const classes = html.match(CrelAnsiUp.CLASS);
-      if (classes.length) {
+      if (classes && classes.length) {
         node_attrs["class"] = classes[1];
       }
 
       const styles = html.match(CrelAnsiUp.STYLE);
-      if (styles.length) {
+      if (styles && styles.length) {
         node_attrs.style = styles[1];
       }
 

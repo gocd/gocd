@@ -227,7 +227,7 @@
       expect(h.is("dt.log-fs-line-INFO")).toBe(true);
     });
 
-    it("LineWriter insertPlain handles ANSI color", function () {
+    it("LineWriter insertPlain handles bold ANSI color", function () {
       const l = $(lw.insertPlain(fs, "00:00:00.000", "Starting \u001B[1;33;40mcolor"));
       const node = l.find(".ansi-yellow-fg.ansi-black-bg");
       expect(node.length).toBe(1);
@@ -235,7 +235,16 @@
       expect(node.attr("style")).toContain("bold");
     });
 
-    it("LineWriter insertContent/Header handles ANSI color", function () {
+    it("LineWriter insertContent/Header handles ANSI color without bold/intensity", function () {
+      fs.markMultiline(); // insertContent() requires a section body element
+      const l = $(lw.insertContent(fs, t.OUT, "00:00:00.000", "Starting \u001B[33;40mcolor"));
+      const node = l.find(".ansi-yellow-fg.ansi-black-bg");
+      expect(node.length).toBe(1);
+      expect(node.text()).toBe("color");
+      expect(node.attr("style")).toBeUndefined();
+    });
+
+    it("LineWriter insertContent/Header handles ANSI color and style", function () {
       fs.markMultiline(); // insertContent() requires a section body element
       const l = $(lw.insertContent(fs, t.OUT, "00:00:00.000", "Starting \u001B[1;33;40mcolor"));
       const node = l.find(".ansi-yellow-fg.ansi-black-bg");
@@ -253,7 +262,13 @@
       expect(node.attr("href")).toBe("http://example.com/escape\"me");
     });
 
-
+    it("LineWriter insertContent/Header handles ANSI style", function () {
+      fs.markMultiline(); // insertContent() requires a section body element
+      const l = $(lw.insertContent(fs, t.OUT, "08:08:32.046", "\u001B[1mbolded\u001B[m"));
+      const node = l.find("span");
+      expect(node.text()).toBe("bolded");
+      expect(node.attr("style")).toContain("bold");
+    });
 
     it("LineWriter formats exit code", function () {
       const h = $($(lw.insertHeader(fs, t.INFO, "00:00:00.000", "Starting build")));

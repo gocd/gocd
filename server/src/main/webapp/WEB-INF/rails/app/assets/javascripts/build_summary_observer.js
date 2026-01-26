@@ -66,8 +66,9 @@
       $('#build_building_date').text(toHumanReadable(json.building_info.build_building_date));
       $('#build_completing_date').text(toHumanReadable(json.building_info.build_completing_date));
       $('#build_completed_date').text(toHumanReadable(json.building_info.build_completed_date));
-      $('#agent_name').attr("href", context_path(`agents/${json.building_info.agent_uuid}`));
-      $('#agent_name').text(`${json.building_info.agent} (${json.building_info.agent_ip})`);
+      const agent_name = $('#agent_name');
+      agent_name.attr("href", context_path(`agents/${json.building_info.agent_uuid}`));
+      agent_name.text(`${json.building_info.agent} (${json.building_info.agent_ip})`);
 
       json_to_css.update_build_detail_header(json);
     }

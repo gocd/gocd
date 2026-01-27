@@ -507,8 +507,8 @@ subprojects {
       standardOutput = System.out
       errorOutput = System.err
     } else {
-      standardOutput = new ByteArrayOutputStream()
-      errorOutput = new ByteArrayOutputStream()
+      standardOutput = OutputStream.nullOutputStream()
+      errorOutput = OutputStream.nullOutputStream()
     }
   }
 

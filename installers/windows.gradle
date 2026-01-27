@@ -163,9 +163,6 @@ def configureNSIS(Task packageTask, InstallerType installerType, File buildRoot,
       injected.execOps.exec { ExecSpec execSpec ->
         commandLine = (["makensis"] + cmdArgs + [nsiPath])
 
-        standardOutput = System.out
-        errorOutput = System.err
-
         println "[${execSpec.workingDir}]\$ ${execSpec.executable} ${execSpec.args.join(' ')}"
       }
     }

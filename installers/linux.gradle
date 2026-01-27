@@ -363,13 +363,8 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
         cmd += packageType.fpmArgs(injected, buildRoot, installerType, goVersions)
 
         commandLine = cmd
-
         environment += ['JRE_BINARY_LOCATOR': packageType.jreBinaryLocator(goVersions)]
-
         workingDir = destDir
-
-        standardOutput = System.out
-        errorOutput = System.err
       }
     }
   }

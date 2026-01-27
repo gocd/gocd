@@ -63,8 +63,6 @@ class YarnInstallTask extends DefaultTask {
   def install() {
     execOperations.exec { execTask ->
       execTask.environment("FORCE_COLOR", "true")
-      execTask.standardOutput = System.out
-      execTask.errorOutput = System.err
       execTask.workingDir = this.getWorkingDir()
       execTask.commandLine = OperatingSystem.current().isWindows() ? ["yarn.cmd", "install", "--no-immutable"] : ["yarn", "install", "--immutable"]
     }  

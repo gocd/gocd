@@ -502,16 +502,6 @@ subprojects {
     reproducibleFileOrder = true
   }
 
-  tasks.withType(Exec).configureEach {
-    if (logger.isInfoEnabled()) {
-      standardOutput = System.out
-      errorOutput = System.err
-    } else {
-      standardOutput = OutputStream.nullOutputStream()
-      errorOutput = OutputStream.nullOutputStream()
-    }
-  }
-
   tasks.withType(GroovyCompile).configureEach {
     options.incremental = true
   }
@@ -788,13 +778,9 @@ dependencyCheckAggregate {
   doFirst {
     injected.execOps.exec {
       commandLine = [ "gem", "install", "bundler-audit", "--no-document" ]
-      standardOutput = System.out
-      errorOutput = System.err
     }
     injected.execOps.exec {
       commandLine = [ "bundle", "audit", "update" ]
-      standardOutput = System.out
-      errorOutput = System.err
     }
   }
 }
@@ -851,8 +837,6 @@ if (System.getenv().containsKey("NEXUS_CACHE_USERNAME")) {
           "--include",
           "--upload-file", uploadDependencyCheckCache.archiveFile.get(), 'https://nexus.gocd.io/repository/cache/dependency-check-data.zip'
         ]
-        standardOutput = System.out
-        errorOutput = System.err
         ignoreExitValue = true
       }
     }

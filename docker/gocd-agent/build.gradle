@@ -113,11 +113,10 @@ subprojects {
 
     // test image
     task.verifyHelper = {
-      def cleanContainer = { OutputStream errorStream = System.err ->
+      def cleanContainer = { OutputStream errorStreamOverride ->
         execOps.exec {
           commandLine = ["docker", "rm", "--force", "--volumes", docker.dockerImageName]
-          standardOutput = System.out
-          errorOutput = errorStream
+          if (errorStreamOverride) errorOutput = errorStreamOverride
         }
       }
 
@@ -127,8 +126,6 @@ subprojects {
       execOps.exec {
         def additionalFlags = distro == Distro.docker ? ["--privileged"] : []
         commandLine = ["docker", "run", "-e", "GO_SERVER_URL=http://localhost:8153/go", "-d", "--name", docker.dockerImageName] + additionalFlags + [docker.imageNameWithTag] as List<String>
-        standardOutput = System.out
-        errorOutput = System.err
       }
 
       def start = System.currentTimeMillis()
@@ -145,8 +142,6 @@ subprojects {
         distro.additionalVerifyCommands.each { command ->
           execOps.exec {
             commandLine = ["docker", "exec", docker.dockerImageName] + command
-            standardOutput = System.out
-            errorOutput = System.err
           }
         }
       } finally {

@@ -30,15 +30,11 @@ tasks.register('updateBuildMap') {
 
     injected.execOps.exec {
       commandLine = ['git', 'clone', '--quiet', "https://github.com/gocd/build_map", checkoutDir]
-      standardOutput = System.out
-      errorOutput = System.err
     }
 
     injected.execOps.exec {
       commandLine = ['./build_go_cd_commit_to_package.rb']
       workingDir = checkoutDir
-      standardOutput = System.out
-      errorOutput = System.err
     }
   }
 }

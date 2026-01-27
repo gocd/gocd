@@ -263,7 +263,7 @@ tasks.register('prepareTestGitRepo') {
       exec {
         workingDir = repoDir
         commandLine = ['git', 'init', '--initial-branch=master']
-        standardOutput = new ByteArrayOutputStream()
+        standardOutput = OutputStream.nullOutputStream()
       }
       exec {
         workingDir = repoDir
@@ -279,7 +279,7 @@ tasks.register('prepareTestGitRepo') {
       exec {
         workingDir = repoDir
         commandLine = ['git', 'commit', '--author=GoCD Test User <devnull@example.com>', '-m', 'Initial commit']
-        standardOutput = new ByteArrayOutputStream()
+        standardOutput = OutputStream.nullOutputStream()
       }
     }
   }

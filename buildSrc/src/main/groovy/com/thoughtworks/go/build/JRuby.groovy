@@ -40,9 +40,6 @@ abstract class JRuby extends JavaExec {
   JRuby() {
     additionalPaths = [project.jrubyScriptsDir]
 
-    standardOutput = new PrintStream(System.out, true)
-    errorOutput = new PrintStream(System.err, true)
-
     jvmArgs += jrubyJvmArgs
     systemProperties += jrubySystemProperties
     maxHeapSize = '128m'
@@ -54,18 +51,13 @@ abstract class JRuby extends JavaExec {
   @Override
   @TaskAction
   void exec() {
-    try {
-        OperatingSystemHelper.normalizeEnvironmentPath(environment)
-        environment['PATH'] = (additionalPaths + [environment['PATH']]).join(File.pathSeparator)
+      OperatingSystemHelper.normalizeEnvironmentPath(environment)
+      environment['PATH'] = (additionalPaths + [environment['PATH']]).join(File.pathSeparator)
 
-        debugEnvironment()
-        dumpTaskCommand()
+      debugEnvironment()
+      dumpTaskCommand()
 
-        super.exec()
-    } finally {
-      standardOutput.flush()
-      errorOutput.flush()
-    }
+      super.exec()
   }
 
   void dumpTaskCommand() {

@@ -31,7 +31,7 @@ public class DaemonThreadStatsCollectorTest {
 
     @Test
     public void shouldCaptureStatsByThreadId() {
-        long threadId = Thread.currentThread().getId();
+        long threadId = Thread.currentThread().threadId();
         collector.captureStats(threadId);
         assertThat(collector.statsFor(threadId))
             .hasEntrySatisfying("CPUTime(ms)", value -> assertThat(value).asInstanceOf(InstanceOfAssertFactories.LONG).isGreaterThanOrEqualTo(0))
@@ -44,7 +44,7 @@ public class DaemonThreadStatsCollectorTest {
 
     @Test
     public void shouldClearStatsByThreadId() {
-        long threadId = Thread.currentThread().getId();
+        long threadId = Thread.currentThread().threadId();
         collector.captureStats(threadId);
         collector.clearStats(threadId);
         assertThat(collector.statsFor(threadId)).isNull();
@@ -54,15 +54,15 @@ public class DaemonThreadStatsCollectorTest {
     public void shouldIgnoreIfCantFindThreadCurrentlyAtStart() throws Exception {
         Thread tempThread = doWithTemporaryThread(thread -> {});
         assertThat(tempThread.isAlive()).isFalse();
-        collector.captureStats(tempThread.getId());
-        assertThat(collector.statsFor(tempThread.getId())).isNull();
+        collector.captureStats(tempThread.threadId());
+        assertThat(collector.statsFor(tempThread.threadId())).isNull();
     }
 
     @Test
     public void shouldIgnoreIfCantFindThreadCurrentlyAtEnd() throws Exception {
-        Thread tempThread = doWithTemporaryThread(thread -> collector.captureStats(thread.getId()));
+        Thread tempThread = doWithTemporaryThread(thread -> collector.captureStats(thread.threadId()));
         assertThat(tempThread.isAlive()).isFalse();
-        assertThat(collector.statsFor(tempThread.getId())).isNull();
+        assertThat(collector.statsFor(tempThread.threadId())).isNull();
     }
 
     private Thread doWithTemporaryThread(Consumer<Thread> consumer) throws InterruptedException {

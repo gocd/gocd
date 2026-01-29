@@ -50,8 +50,7 @@ public class JMSMessageListenerAdapter<T extends GoMessage> implements Runnable 
         this.serverHealthService = serverHealthService;
 
         thread = new Thread(this);
-        String threadNameSuffix = "MessageListener for " + listener.getClass().getSimpleName();
-        thread.setName(thread.getId() + "@" + threadNameSuffix);
+        thread.setName(String.format("MessageListener-%s-%s", listener.getClass().getSimpleName(), thread.getName()));
         thread.setDaemon(true);
         thread.start();
     }
@@ -78,7 +77,7 @@ public class JMSMessageListenerAdapter<T extends GoMessage> implements Runnable 
             }
 
             ObjectMessage om = (ObjectMessage) message;
-            daemonThreadStatsCollector.captureStats(thread.getId());
+            daemonThreadStatsCollector.captureStats(thread.threadId());
             @SuppressWarnings("unchecked") T object = (T) om.getObject();
             listener.onMessage(object);
         } catch (JMSException e) {
@@ -86,7 +85,7 @@ public class JMSMessageListenerAdapter<T extends GoMessage> implements Runnable 
         } catch (Exception e) {
             LOG.error("Exception thrown in message handling by listener {}", listener, e);
         } finally {
-            daemonThreadStatsCollector.clearStats(thread.getId());
+            daemonThreadStatsCollector.clearStats(thread.threadId());
         }
         return false;
     }

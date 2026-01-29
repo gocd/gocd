@@ -29,20 +29,28 @@ public class CurrentProcess implements Serializable {
 
     public void infanticide() {
         kill(processHandle -> {
-            LOG.debug("Attempting to destroy process {}", processHandle.pid());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Attempting to destroy process {}", processHandle.pid());
+            }
             if (processHandle.isAlive()) {
                 processHandle.destroy();
-                LOG.debug("Destroyed process {}", processHandle.pid());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Destroyed process {}", processHandle.pid());
+                }
             }
         });
     }
 
     public void forceKillChildren() {
         kill(processHandle -> {
-            LOG.debug("Attempting to force destroy process {}", processHandle.pid());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Attempting to force destroy process {}", processHandle.pid());
+            }
             if (processHandle.isAlive()) {
                 processHandle.destroyForcibly();
-                LOG.debug("Forcibly destroyed process {}", processHandle.pid());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Forcibly destroyed process {}", processHandle.pid());
+                }
             }
         });
     }

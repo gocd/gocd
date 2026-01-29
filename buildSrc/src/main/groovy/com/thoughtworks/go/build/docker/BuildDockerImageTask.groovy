@@ -115,6 +115,7 @@ abstract class BuildDockerImageTask extends DefaultTask {
         "--pull",
         "--platform", supportedPlatforms.join(","),
         "--output", "type=oci,dest=${imageTarFile}",
+        "--progress=plain",
         ".",
         "--tag", imageNameWithTag
       )
@@ -201,6 +202,7 @@ abstract class BuildDockerImageTask extends DefaultTask {
     execOps.exec {
       workingDir = gitRepoDirectory
       commandLine = args
+      errorOutput = standardOutput // docker buildx and git love putting stuff on stderr by default, which can be misleading with GoCD's console colouring
     }
   }
 

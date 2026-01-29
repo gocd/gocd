@@ -65,14 +65,11 @@ public class HttpService {
         }
         LOGGER.info("Uploading file [{}] to url [{}]", absolutePath, url);
 
-        HttpPost filePost = createHttpPostForUpload(url, size, artifactFile, artifactChecksums);
-        try (CloseableHttpResponse response = execute(filePost)) {
+        try (CloseableHttpResponse response = execute(createHttpPostForUpload(url, size, artifactFile, artifactChecksums))) {
             return response.getStatusLine().getStatusCode();
         } catch (IOException e) {
             LOGGER.error("Error while uploading file [{}]", artifactFile.getAbsolutePath(), e);
             throw e;
-        } finally {
-            filePost.releaseConnection();
         }
     }
 
@@ -85,11 +82,9 @@ public class HttpService {
     }
 
     public int download(String url, FetchHandler handler) throws IOException {
-        HttpGet toGet = null;
         try {
-            toGet = httpClientFactory.createGet(url);
             PerfTimer timer = PerfTimer.start(LOGGER, String.format("Downloading from url [%s]", url));
-            try (CloseableHttpResponse response = execute(toGet)) {
+            try (CloseableHttpResponse response = execute(httpClientFactory.createGet(url))) {
                 timer.stop();
                 int statusCode = response.getStatusLine().getStatusCode();
 
@@ -105,10 +100,6 @@ public class HttpService {
         } catch (IOException e) {
             LOGGER.error("Error while downloading [{}]", url, e);
             throw e;
-        } finally {
-            if (toGet != null) {
-                toGet.releaseConnection();
-            }
         }
     }
 

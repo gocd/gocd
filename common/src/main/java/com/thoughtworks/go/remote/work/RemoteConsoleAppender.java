@@ -41,17 +41,15 @@ public class RemoteConsoleAppender implements ConsoleAppender {
 
     @Override
     public void append(String content) throws IOException {
+        LOGGER.debug("Appending console to URL -> {}", consoleUri);
         HttpPut putMethod = new HttpPut(consoleUri);
-        try {
-            LOGGER.debug("Appending console to URL -> {}", consoleUri);
-            StringEntity entity = new StringEntity(content, charset);
-            putMethod.setEntity(entity);
-            HttpService.setSizeHeader(putMethod, entity.getContentLength());
-            try (CloseableHttpResponse response = httpService.execute(putMethod)) {
+        StringEntity entity = new StringEntity(content, charset);
+        putMethod.setEntity(entity);
+        HttpService.setSizeHeader(putMethod, entity.getContentLength());
+        try (CloseableHttpResponse response = httpService.execute(putMethod)) {
+            if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Got {}", response.getStatusLine().getStatusCode());
             }
-        } finally {
-            putMethod.releaseConnection();
         }
     }
 }

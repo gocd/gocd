@@ -62,8 +62,6 @@ public class TokenRequester {
                     .orElseGet(() -> responseBody(response));
                 throw new RuntimeException(String.format("Agent registration could not acquire token due to %s: %s", response.getStatusLine(), error));
             }
-        } finally {
-            getTokenRequest.releaseConnection();
         }
     }
 

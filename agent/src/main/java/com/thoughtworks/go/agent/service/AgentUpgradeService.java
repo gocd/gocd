@@ -85,8 +85,7 @@ public class AgentUpgradeService {
     }
 
     private void checkForUpgradeAndExtraProperties(String agentMd5, String launcherMd5, String agentPluginsMd5, String tfsImplMd5) throws IOException {
-        HttpGet method = getAgentLatestStatusGetMethod();
-        try (final CloseableHttpResponse response = httpClient.execute(method)) {
+        try (CloseableHttpResponse response = httpClient.execute(getAgentLatestStatusGetMethod())) {
             if (response.getStatusLine().getStatusCode() != HttpURLConnection.HTTP_OK) {
                 LOGGER.error("[Agent Upgrade] Got status {} {} from GoCD", response.getStatusLine().getStatusCode(), response.getStatusLine());
                 return;
@@ -99,8 +98,6 @@ public class AgentUpgradeService {
         } catch (IOException ioe) {
             LOGGER.error("[Agent Upgrade] Can't verify agent is compatible with server as cannot connect to: {}: {}", urlService.getAgentLatestStatusUrl(), ioe.toString());
             throw ioe;
-        } finally {
-            method.releaseConnection();
         }
     }
 

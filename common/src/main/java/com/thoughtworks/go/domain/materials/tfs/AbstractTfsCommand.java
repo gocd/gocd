@@ -26,10 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -221,8 +218,8 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
 
     protected URI getUri() {
         try {
-            return new URL(url.toString()).toURI();
-        } catch (URISyntaxException | MalformedURLException e) {
+            return URI.create(url.toString()).toURL().toURI();
+        } catch (Exception e) {
             throw new RuntimeException(String.format("[TFS] Failed when converting the url string to a uri: %s, Project Path: %s, Username: %s, Domain: %s", url, projectPath, userName, domain), e);
         }
     }

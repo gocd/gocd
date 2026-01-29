@@ -42,9 +42,10 @@ import java.util.List;
 
 public class TfsSDKCommand extends AbstractTfsCommand {
 
+    private final SystemEnvironment systemEnvironment;
+
     private GoTfsVersionControlClient client;
     private TFSTeamProjectCollection collection;
-    private SystemEnvironment systemEnvironment;
 
     public TfsSDKCommand(String materialFingerprint, CommandArgument url, String domain, String userName, String password, String workspace, String projectPath) {
         super(materialFingerprint, url, domain, userName, password, workspace, projectPath);

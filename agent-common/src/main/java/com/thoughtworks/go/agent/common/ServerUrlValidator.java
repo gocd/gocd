@@ -26,7 +26,7 @@ public class ServerUrlValidator implements IParameterValidator {
 
     @Override
     public void validate(String name, String value) throws ParameterException {
-        URL serverUrl = UrlUtil.fromString(value, ignore -> new ParameterException(name + " is not a valid url"));
+        URL serverUrl = UrlUtil.fromString(value, e -> new ParameterException(name + " is not a valid url (" + e.toString() + ")"));
 
         if (!List.of("http", "https").contains(serverUrl.getProtocol())) {
             throw new ParameterException(name + " must use http or https protocol");

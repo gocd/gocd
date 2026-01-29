@@ -71,28 +71,25 @@ public class ServerConfigServiceIntegrationTest {
     @Test
     public void shouldSiteUrlForGivenUrl() throws URISyntaxException {
         configHelper.setBaseUrls(new SiteUrl("http://foo.com"), new SecureSiteUrl("https://bar.com"));
-        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", true)).isEqualTo("https://bar.com/foo/bar");
-        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", false)).isEqualTo("http://foo.com/foo/bar");
+        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar")).isEqualTo("http://foo.com/foo/bar");
     }
 
     @Test
     public void shouldReturnTheSameURLWhenNothingIsConfigured() throws URISyntaxException {
-        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", true)).isEqualTo("http://test.host/foo/bar");
-        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", false)).isEqualTo("http://test.host/foo/bar");
+        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar")).isEqualTo("http://test.host/foo/bar");
     }
 
     @Test
     public void shouldUseTheSiteUrlWhenSecureSiteUrlIsNotPresentAndOnlyIfSiteUrlIsHttps() throws URISyntaxException {
         configHelper.setBaseUrls(new SiteUrl("https://foo.com"), new SecureSiteUrl());
-        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", true)).isEqualTo("https://foo.com/foo/bar");
-        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", false)).isEqualTo("https://foo.com/foo/bar");
+        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar")).isEqualTo("https://foo.com/foo/bar");
     }
 
     @Test
     public void shouldUseTheSecureSiteUrlInspiteOfCallerNotForcingSsl_whenAlreadyUsingHTTPS() throws URISyntaxException {
         configHelper.setBaseUrls(new SiteUrl("http://foo.com:80"), new SecureSiteUrl("https://bar.com:443"));
-        assertThat(serverConfigService.siteUrlFor("https://test.host:1000/foo/bar", false)).isEqualTo("https://bar.com:443/foo/bar");
-        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar", false)).isEqualTo("http://foo.com:80/foo/bar");
+        assertThat(serverConfigService.siteUrlFor("https://test.host:1000/foo/bar")).isEqualTo("https://bar.com:443/foo/bar");
+        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar")).isEqualTo("http://foo.com:80/foo/bar");
     }
 
     @Test

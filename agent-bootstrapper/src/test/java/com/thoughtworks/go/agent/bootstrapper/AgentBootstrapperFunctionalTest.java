@@ -19,6 +19,7 @@ import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.testhelper.FakeGoServer;
 import com.thoughtworks.go.agent.testhelper.FakeGoServerExtension;
 import com.thoughtworks.go.agent.testhelper.GoTestResource;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.UUID;
@@ -83,7 +86,7 @@ public class AgentBootstrapperFunctionalTest {
             System.setErr(new PrintStream(os));
             File agentJar = new File("agent.jar");
             agentJar.delete();
-            new AgentBootstrapper(true).go(new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + server.getPort() + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
+            new AgentBootstrapper(true).go(new AgentBootstrapperArgs().setServerUrl(getServerUrl()).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
             agentJar.delete();
             assertThat(os.toString()).contains("Hello World Fellas!");
         } finally {
@@ -91,12 +94,16 @@ public class AgentBootstrapperFunctionalTest {
         }
     }
 
+    private @NonNull URL getServerUrl() throws MalformedURLException {
+        return URI.create("http://localhost:" + server.getPort() + "/go").toURL();
+    }
+
     @Test
     @DisabledOnOs(OS.WINDOWS)
     public void shouldDownloadJarIfItDoesNotExist() throws Exception {
         File agentJar = new File("agent.jar");
         agentJar.delete();
-        new AgentBootstrapper(true).go(new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + server.getPort() + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
+        new AgentBootstrapper(true).go(new AgentBootstrapperArgs().setServerUrl(getServerUrl()).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
         assertTrue(agentJar.exists(), "No agent downloaded");
         agentJar.delete();
     }
@@ -108,7 +115,7 @@ public class AgentBootstrapperFunctionalTest {
         agentJar.delete();
         createRandomFile(agentJar);
         long original = agentJar.length();
-        new AgentBootstrapper(true).go(new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + server.getPort() + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
+        new AgentBootstrapper(true).go(new AgentBootstrapperArgs().setServerUrl(getServerUrl()).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
         assertThat(agentJar.length()).isNotEqualTo(original);
         agentJar.delete();
     }

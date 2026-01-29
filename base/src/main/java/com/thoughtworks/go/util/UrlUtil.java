@@ -17,6 +17,7 @@ package com.thoughtworks.go.util;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -44,10 +45,10 @@ public class UrlUtil {
         return fromString(url, RuntimeException::new);
     }
 
-    public static URL fromString(String url, Function<MalformedURLException, RuntimeException> exceptionSupplier) {
+    public static URL fromString(String url, Function<Exception, RuntimeException> exceptionSupplier) {
         try {
-            return new URL(url);
-        } catch (MalformedURLException e) {
+            return new URI(url).toURL();
+        } catch (Exception e) {
             throw exceptionSupplier.apply(e);
         }
     }
@@ -57,6 +58,19 @@ public class UrlUtil {
             return file.toURI().toURL();
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * @param url a fully encoded url string
+     * @return Removes all oath/query/fragment/user information from the URL; returning only the root URL with scheme, host and port.
+     */
+    public static String rootUrlFrom(String url) {
+        try {
+            final URI uri = new URI(url);
+            return new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), null, null, null).toString();
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Url [%s] does not appear to be a valid URL", url), e);
         }
     }
 }

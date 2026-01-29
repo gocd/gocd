@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.server.web.BaseUrlProvider;
 import com.thoughtworks.go.validators.HostNameValidator;
 import com.thoughtworks.go.validators.PortValidator;
 import jakarta.mail.internet.AddressException;
@@ -33,12 +32,11 @@ import org.springframework.stereotype.Service;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Objects;
 
 import static com.thoughtworks.go.server.newsecurity.utils.SessionUtils.currentUsername;
 
 @Service
-public class ServerConfigService implements BaseUrlProvider {
+public class ServerConfigService {
     private static final String TEST_EMAIL_SUBJECT = "Go Email Notification";
 
     private final GoConfigService goConfigService;
@@ -104,11 +102,9 @@ public class ServerConfigService implements BaseUrlProvider {
         }
     }
 
-    @Override
-    public String siteUrlFor(String url, boolean forceSsl) throws URISyntaxException {
-        String scheme = new URI(url).getScheme();
-        ServerSiteUrlConfig siteUrl = forceSsl || Objects.equals(scheme, "https") ? getSecureSiteUrl() : serverConfig().getSiteUrl();
-        return siteUrl.siteUrlFor(url, false);
+    public String siteUrlFor(String url) throws URISyntaxException {
+        ServerSiteUrlConfig siteUrl = "https".equals(new URI(url).getScheme()) ? getSecureSiteUrl() : serverConfig().getSiteUrl();
+        return siteUrl.siteUrlFor(url);
     }
 
     private ServerSiteUrlConfig getSecureSiteUrl() {

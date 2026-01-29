@@ -25,6 +25,7 @@ import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,14 +107,16 @@ public class AuthenticationController {
             return new RedirectView("/pipelines", true);
         }
 
-        final StringBuffer requestURL = request.getRequestURL();
-        requestURL.setLength(requestURL.length() - request.getRequestURI().length());
-
-        AuthorizationServerUrlResponse authorizationServerUrlResponse = webBasedPluginAuthenticationProvider.getAuthorizationServerUrl(pluginId, requestURL.toString());
+        AuthorizationServerUrlResponse authorizationServerUrlResponse = webBasedPluginAuthenticationProvider.getAuthorizationServerUrl(pluginId, () -> rootUrlFrom(request));
 
         SessionUtils.setPluginAuthSessionContext(request, pluginId, authorizationServerUrlResponse.getAuthSession());
 
         return new RedirectView(authorizationServerUrlResponse.getAuthorizationServerUrl(), false);
+    }
+
+    private static @NotNull String rootUrlFrom(HttpServletRequest request) {
+        StringBuffer rootUrlWithPath = request.getRequestURL();
+        return rootUrlWithPath.substring(0, rootUrlWithPath.length() - request.getRequestURI().length());
     }
 
     @RequestMapping(value = "/plugin/{pluginId}/authenticate")

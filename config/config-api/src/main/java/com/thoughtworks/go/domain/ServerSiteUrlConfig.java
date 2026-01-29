@@ -62,10 +62,6 @@ public abstract class ServerSiteUrlConfig {
     }
 
     public String siteUrlFor(String givenUrl) throws URISyntaxException {
-        return siteUrlFor(givenUrl, false);
-    }
-
-    public String siteUrlFor(String givenUrl, boolean honorGivenHostName) throws URISyntaxException {
         if (isBlank() || isPath(givenUrl)) {
             return givenUrl; //it is a path
         }
@@ -76,7 +72,7 @@ public abstract class ServerSiteUrlConfig {
         return new URI(
             baseUri.getScheme(),
             getOrDefault(givenUri, baseUri, URI::getUserInfo),
-            honorGivenHostName ? givenUri.getHost() : baseUri.getHost(),
+            baseUri.getHost(),
             baseUri.getPort(),
             getOrDefault(givenUri, baseUri, URI::getPath),
             getOrDefault(givenUri, baseUri, URI::getQuery),

@@ -209,7 +209,7 @@ class AuthenticationControllerTest {
             void shouldRedirectToThirdPartyLoginPage() {
                 authenticateAsAnonymous();
 
-                when(webBasedPluginAuthenticationProvider.getAuthorizationServerUrl(eq(PLUGIN_ID), anyString()))
+                when(webBasedPluginAuthenticationProvider.getAuthorizationServerUrl(eq(PLUGIN_ID), any()))
                     .thenReturn(new AuthorizationServerUrlResponse("https://example.com/oauth", null));
 
                 final RedirectView redirectView = controller.redirectToThirdPartyLoginPage(PLUGIN_ID, request);
@@ -224,7 +224,7 @@ class AuthenticationControllerTest {
                 Map<String, String> expectedAuthSessionContext = Map.of(
                     "foo", "bar"
                 );
-                when(webBasedPluginAuthenticationProvider.getAuthorizationServerUrl(eq(PLUGIN_ID), anyString()))
+                when(webBasedPluginAuthenticationProvider.getAuthorizationServerUrl(eq(PLUGIN_ID), any()))
                     .thenReturn(new AuthorizationServerUrlResponse("https://example.com/oauth", expectedAuthSessionContext));
 
                 controller.redirectToThirdPartyLoginPage(PLUGIN_ID, request);

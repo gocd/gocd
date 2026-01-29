@@ -35,7 +35,6 @@ public class MemoryInformationProvider extends AbstractMemoryInformationProvider
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         json.put("Heap", formatInJson(memoryMXBean.getHeapMemoryUsage()));
         json.put("Non Heap", formatInJson(memoryMXBean.getNonHeapMemoryUsage()));
-        json.put("Pending Finalization", memoryMXBean.getObjectPendingFinalizationCount());
         return json;
     }
 

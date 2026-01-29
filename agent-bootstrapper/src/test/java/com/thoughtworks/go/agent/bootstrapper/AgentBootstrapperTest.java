@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Timeout;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.HashMap;
@@ -43,9 +44,12 @@ import static org.mockito.Mockito.spy;
 
 public class AgentBootstrapperTest {
 
+    private URL serverUrl;
+
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws Exception {
         System.setProperty(AgentBootstrapper.WAIT_TIME_BEFORE_RELAUNCH_IN_MS, "0");
+        serverUrl = URI.create("http://ghost-name:3518/go").toURL();
     }
 
     @AfterEach
@@ -98,7 +102,7 @@ public class AgentBootstrapperTest {
         stopLoopThd.setDaemon(true);
         stopLoopThd.start();
         try {
-            spyBootstrapper.go(new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "ghost-name" + ":" + 3518 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
+            spyBootstrapper.go(new AgentBootstrapperArgs().setServerUrl(serverUrl).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
             stopLoopThd.join();
         } catch (Exception e) {
             stopLoopThd.interrupt();
@@ -132,7 +136,7 @@ public class AgentBootstrapperTest {
         final AgentBootstrapper spyBootstrapper = stubJVMExit(bootstrapper);
 
         try {
-            spyBootstrapper.go(new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "ghost-name" + ":" + 3518 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
+            spyBootstrapper.go(new AgentBootstrapperArgs().setServerUrl(serverUrl).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
         } catch (Exception e) {
             fail("should not have propagated exception thrown while invoking the launcher", e);
         }
@@ -176,7 +180,7 @@ public class AgentBootstrapperTest {
         stopLoopThd.setDaemon(true);
         stopLoopThd.start();
         try {
-            spyBootstrapper.go(new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "ghost-name" + ":" + 3518 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
+            spyBootstrapper.go(new AgentBootstrapperArgs().setServerUrl(serverUrl).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
             stopLoopThd.join();
         } catch (Exception e) {
             stopLoopThd.interrupt();
@@ -224,7 +228,7 @@ public class AgentBootstrapperTest {
             }
         };
         AgentBootstrapper spy = stubJVMExit(agentBootstrapper);
-        spy.go(new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + 80 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
+        spy.go(new AgentBootstrapperArgs().setServerUrl(URI.create("http://localhost:80/go").toURL()).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
     }
 
     private AgentBootstrapper stubJVMExit(AgentBootstrapper bootstrapper) {

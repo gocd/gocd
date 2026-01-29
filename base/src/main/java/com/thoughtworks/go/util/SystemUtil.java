@@ -160,12 +160,8 @@ public class SystemUtil {
 
     public static String getClientIp(String serviceUrl) {
         try {
-            URL url = new URL(serviceUrl);
-            int port = url.getPort();
-            if (port == -1) {
-                port = url.getDefaultPort();
-            }
-            try (Socket socket = new Socket(url.getHost(), port)) {
+            URL url = URI.create(serviceUrl).toURL();
+            try (Socket socket = new Socket(url.getHost(), url.getPort() == -1 ? url.getDefaultPort() : url.getPort())) {
                 return socket.getLocalAddress().getHostAddress();
             }
         } catch (Exception e) {

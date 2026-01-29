@@ -79,7 +79,7 @@ public class BackupsControllerV2 extends ApiController implements SparkSpringCon
     public String create(Request request, Response response) {
         ServerBackup backup = backupService.scheduleBackup(currentUsername());
         RequestContext requestContext = RequestContext.requestContext(request);
-        String backupPath = requestContext.pathWithContext(Routes.Backups.serverBackup(String.valueOf(backup.getId())));
+        String backupPath = requestContext.pathFor(Routes.Backups.serverBackup(String.valueOf(backup.getId())));
         response.status(202);
         response.header("Location", backupPath);
         response.header("Retry-After", RETRY_INTERVAL_IN_SECONDS);

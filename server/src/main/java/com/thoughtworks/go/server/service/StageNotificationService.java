@@ -31,8 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.net.URISyntaxException;
-
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 @Service
@@ -122,8 +120,8 @@ public class StageNotificationService {
 
         private String useConfiguredSiteUrl(String urlString) {
             try {
-                return StageNotificationService.this.serverConfigService.siteUrlFor(urlString, false);
-            } catch (URISyntaxException e) {
+                return StageNotificationService.this.serverConfigService.siteUrlFor(urlString);
+            } catch (Exception e) {
                 throw bomb("Could not construct URL.", e);
             }
         }

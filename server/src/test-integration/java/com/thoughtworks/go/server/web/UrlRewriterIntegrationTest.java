@@ -16,9 +16,8 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
-import com.thoughtworks.go.domain.SecureSiteUrl;
-import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.domain.SiteUrl;
+import com.thoughtworks.go.server.service.ServerConfigService;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.util.SslVerificationMode;
@@ -34,15 +33,13 @@ import org.tuckey.web.filters.urlrewrite.UrlRewriteFilter;
 
 import javax.servlet.DispatcherType;
 import java.io.File;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class UrlRewriterIntegrationTest {
     private static final String IP_1 = "127.0.0.1";
@@ -152,14 +149,13 @@ public class UrlRewriterIntegrationTest {
             ctx.addServlet(HttpTestUtil.EchoServlet.class, "/*");
         });
         httpUtil.httpConnector(HTTP);
-        when(wac.getBean("serverConfigService")).thenReturn(new BaseUrlProvider() {
 
-            @Override
-            public String siteUrlFor(String url, boolean forceSsl) throws URISyntaxException {
-                ServerSiteUrlConfig siteUrl = forceSsl ? new SecureSiteUrl(HTTPS_SITE_URL) : new SiteUrl(HTTP_SITE_URL);
-                return siteUrl.siteUrlFor(url);
-            }
-        });
+        ServerConfigService serverConfigService = mock(ServerConfigService.class);
+        when(wac.getBean("serverConfigService")).thenReturn(serverConfigService);
+        doAnswer(invocation -> {
+            String url = invocation.getArgument(0);
+            return new SiteUrl(HTTP_SITE_URL).siteUrlFor(url);
+        }).when(serverConfigService).siteUrlFor(anyString());
 
         httpUtil.start();
 

@@ -19,7 +19,7 @@ import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.Test;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,7 +32,7 @@ public class DefaultAgentLaunchDescriptorImplTest {
     public void contextShouldContainEnvAndPropertiesAndHostAndPort() throws Exception {
         String hostname = "xx.xx.xx";
         int port = 20;
-        AgentBootstrapperArgs bootstrapperArgs = new AgentBootstrapperArgs().setServerUrl(new URL("https://" + hostname + ":" + port + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE);
+        AgentBootstrapperArgs bootstrapperArgs = new AgentBootstrapperArgs().setServerUrl(URI.create("https://" + hostname + ":" + port + "/go").toURL()).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE);
         DefaultAgentLaunchDescriptorImpl launchDescriptor = new DefaultAgentLaunchDescriptorImpl(bootstrapperArgs, new AgentBootstrapper());
         Map<String, String> context = launchDescriptor.context();
 
@@ -44,7 +44,7 @@ public class DefaultAgentLaunchDescriptorImplTest {
         AgentBootstrapper bootstrapper = mock(AgentBootstrapper.class);
         when(bootstrapper.version()).thenReturn("1.2.3-1234");
 
-        DefaultAgentLaunchDescriptorImpl launchDescriptor = new DefaultAgentLaunchDescriptorImpl(new AgentBootstrapperArgs().setServerUrl(new URL("https://www.example.com")), bootstrapper);
+        DefaultAgentLaunchDescriptorImpl launchDescriptor = new DefaultAgentLaunchDescriptorImpl(new AgentBootstrapperArgs().setServerUrl(URI.create("https://www.example.com").toURL()), bootstrapper);
         Map<String, String> context = launchDescriptor.context();
 
         assertThat(context.get(SystemEnvironment.AGENT_BOOTSTRAPPER_VERSION)).isEqualTo("1.2.3-1234");

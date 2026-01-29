@@ -105,9 +105,8 @@ public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
     }
 
     private void sleepForAMoment() {
-        int oneSec = 100;
         try {
-            Thread.sleep(oneSec);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

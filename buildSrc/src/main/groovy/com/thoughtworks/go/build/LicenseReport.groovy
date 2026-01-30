@@ -27,8 +27,6 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
 
-import java.util.concurrent.atomic.AtomicInteger
-
 import static com.thoughtworks.go.build.NonSpdxLicense.*
 import static com.thoughtworks.go.build.SpdxLicense.*
 
@@ -69,29 +67,25 @@ class LicenseReport {
   private final ObjectFactory objectFactory
 
   private final List<ReportTask> licenseReportTasks
-  private final Map<String, Map<String, Object>> licensesForPackagedJarDependencies
-
-  private final File yarnLicenseReport
   private final Provider<Directory> reportDir
-  private final File rubygemsLicenseReport
-  private final GoVersions goVersions
 
-  private final AtomicInteger counter
+  private final Map<String, Map<String, Object>> licensesForPackagedJarDependencies
+  private final Map<String, File> extraEcosystemLicenseFiles
+  private final File yarnLicenseReport
+  private final GoVersions goVersions
 
   LicenseReport(FileSystemOperations fileOps, ObjectFactory objectFactory,
                 List<ReportTask> licenseReportTasks, Provider<Directory> reportDir,
                 Map<String, Map<String, Object>> licensesForPackagedJarDependencies,
-                File yarnLicenseReport, File rubygemsLicenseReport, GoVersions goVersions) {
+                Map<String, File> extraEcosystemLicenseFiles, File yarnLicenseReport, GoVersions goVersions) {
     this.fileOps = fileOps
     this.objectFactory = objectFactory
     this.licenseReportTasks = licenseReportTasks
     this.licensesForPackagedJarDependencies = licensesForPackagedJarDependencies
     this.reportDir = reportDir
+    this.extraEcosystemLicenseFiles = extraEcosystemLicenseFiles
     this.yarnLicenseReport = yarnLicenseReport
-    this.rubygemsLicenseReport = rubygemsLicenseReport
     this.goVersions = goVersions
-
-    this.counter = new AtomicInteger(0)
   }
 
   String generate() {
@@ -126,7 +120,13 @@ class LicenseReport {
               }
             }
 
-            renderModuleData(markup, counter.incrementAndGet(), moduleName, moduleLicenseData)
+            renderModuleData(markup, "Java", moduleName, moduleLicenseData)
+          }
+
+          this.extraEcosystemLicenseFiles.each {
+            new JsonSlurper().parse(it.value, "utf-8").each { String moduleName, Map<String, Object> moduleLicenseData ->
+              renderModuleData(markup, it.key, moduleName, moduleLicenseData)
+            }
           }
 
           new JsonSlurper().parse(this.yarnLicenseReport, "utf-8").each { String moduleName, Map<String, Object> moduleLicenseData ->
@@ -136,28 +136,21 @@ class LicenseReport {
               into reportDir.get().dir("${moduleName}-${moduleLicenseData.moduleVersion}")
             }
 
-            renderModuleData(markup, counter.incrementAndGet(), moduleName, moduleLicenseData)
-          }
-
-          new JsonSlurper().parse(LicenseReport.class.getResourceAsStream("/license-for-javascript-not-in-yarn.json"), "utf-8").each { String moduleName, Map<String, Object> moduleLicenseData ->
-            renderModuleData(markup, counter.incrementAndGet(), moduleName, moduleLicenseData)
-          }
-
-          new JsonSlurper().parse(this.rubygemsLicenseReport, "utf-8").each { String moduleName, Map<String, Object> moduleLicenseData ->
-            renderModuleData(markup, counter.incrementAndGet(), moduleName, moduleLicenseData)
+            renderModuleData(markup, "Javascript", moduleName, moduleLicenseData)
           }
 
           def jreLicense = goVersions.packagedJavaVersion.toLicenseMetadata()
-          renderModuleData(markup, counter.incrementAndGet(), jreLicense.moduleName, jreLicense)
+          renderModuleData(markup, "Runtime", jreLicense.moduleName, jreLicense)
         }
       }
     }
   }
 
-  private void renderModuleData(MarkupBuilder template, int counter, String moduleName, Map<String, Object> moduleLicenseData) {
+  private void renderModuleData(MarkupBuilder template, String moduleEcosystem, String moduleName, Map<String, Object> moduleLicenseData) {
     template.div(class: 'module-info') {
       p(class: "module-header") {
-        strong("${counter}. ")
+        strong("Ecosystem:")
+        span(moduleEcosystem)
         strong("Name:")
         span(moduleName)
         strong("Version:")

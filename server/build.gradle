@@ -708,17 +708,19 @@ tasks.register('licenseReportAggregate') {
   dependsOn compileAssetsWebpackProd
   dependsOn generateRubygemsLicenseReport
 
-  def yarnLicenseReportDir = (compileAssetsWebpackProd as Task).outputs.files.find { f -> f.name == 'yarn-license-prod' } as File
   def rubygemsReportFile = (generateRubygemsLicenseReport as Task).outputs.files.singleFile
+  def extraJavascriptLicenses = project.file("${project.railsRoot}/app/assets/javascripts/lib/_licenses.json")
+  def yarnLicenseReportDir = (compileAssetsWebpackProd as Task).outputs.files.find { f -> f.name == 'yarn-license-prod' } as File
   def goVersions = project.goVersions as GoVersions
-  inputs.dir(yarnLicenseReportDir)
   inputs.file(rubygemsReportFile)
+  inputs.file(extraJavascriptLicenses)
+  inputs.dir(yarnLicenseReportDir)
   inputs.property('goVersions', goVersions)
 
   def licenseReportAggregateOutputDir = layout.getBuildDirectory().dir('reports/license-report-aggregate') as Provider<Directory>
   outputs.dir(licenseReportAggregateOutputDir)
 
-  LinkedHashSet<Map<String, Object>> missingLicenseData = [
+  def missingJarDependencyLicenses = [
     [
       moduleName    : 'net.sf.ehcache.internal:ehcache-core',
       moduleVersion : project.versions.ehcache,
@@ -826,41 +828,31 @@ tasks.register('licenseReportAggregate') {
     ],
   ]
 
-  def goCDJarsWithoutLicenses = ['agent-launcher.jar',
-                                 'agent.jar',
-                                 'go-plugin-activator.jar',
-                                 'tfs-impl-14.jar',
-                                 'gocd-json-config-plugin.jar',
-                                 'gocd-yaml-config-plugin.jar',
-                                 'gocd-filebased-authentication-plugin.jar',
-                                 'gocd-ldap-authentication-plugin.jar',
-                                 'gocd-file-based-secrets-plugin.jar']
-
-  def getAllJarDependencies = {
+  def getJarDependencyLicenses = {
     // get a list of all dependencies from each gradle module
 
-    def allDependenciesInReport = licenseReportTasks.inject(new LinkedHashSet<Map<String, Object>>(), { result, rt ->
+    def allReportJarDependencies = licenseReportTasks.inject(new LinkedHashSet<Map<String, Object>>(), { result, rt ->
       def file = new File(rt.outputFolder, 'index.json')
       if (!file.exists()) return result
 
       def json = new JsonSlurper().parse(file) as Map<String, Object>
       if (json.dependencies != null) {
-        result.addAll(json.dependencies)
+        result.addAll(json.dependencies as List<Map<String, Object>>)
       }
       return result
     })
 
     // remove items that we know to have missing license data
-    allDependenciesInReport.removeIf { eachDependency ->
-      missingLicenseData.any { dependencyWithMissingLicenseData ->
+    allReportJarDependencies.removeIf { eachDependency ->
+      missingJarDependencyLicenses.any { dependencyWithMissingLicenseData ->
         eachDependency.moduleName == dependencyWithMissingLicenseData.moduleName && eachDependency.moduleVersion == dependencyWithMissingLicenseData.moduleVersion
       }
     }
 
     // then add the missing license data
-    allDependenciesInReport.addAll(missingLicenseData)
+    allReportJarDependencies.addAll(missingJarDependencyLicenses)
 
-    allDependenciesInReport
+    allReportJarDependencies
   }
 
   def getLicenseDataFor = { Set<String> allJars, Set<Map<String, Object>> allDependenciesInReport ->
@@ -880,9 +872,19 @@ tasks.register('licenseReportAggregate') {
     })
   }
 
+  def goCDJarsWithoutLicenses = ['agent-launcher.jar',
+                                 'agent.jar',
+                                 'go-plugin-activator.jar',
+                                 'tfs-impl-14.jar',
+                                 'gocd-json-config-plugin.jar',
+                                 'gocd-yaml-config-plugin.jar',
+                                 'gocd-filebased-authentication-plugin.jar',
+                                 'gocd-ldap-authentication-plugin.jar',
+                                 'gocd-file-based-secrets-plugin.jar']
+
   def injected = project.objects.newInstance(Injected)
   doFirst {
-    LinkedHashSet<Map<String, Object>> allDependenciesInReport = getAllJarDependencies()
+    LinkedHashSet<Map<String, Object>> allJarDependencyLicenses = getJarDependencyLicenses()
 
     List<VerifyJarTask> verifyJarTasks = rootProject.subprojects.collectMany { eachProject ->
       eachProject.tasks.withType(VerifyJarTask)
@@ -898,7 +900,7 @@ tasks.register('licenseReportAggregate') {
     allJars.removeAll(goCDJarsWithoutLicenses)
 
     // get the licenses corresponding to the jars we actually package.
-    def licensesForPackagedJarDependencies = getLicenseDataFor(allJars, allDependenciesInReport) as Map<String, Map<String, Object>>
+    def licensesForPackagedJarDependencies = getLicenseDataFor(allJars, allJarDependencyLicenses) as Map<String, Map<String, Object>>
 
     injected.fileOps.delete { delete(licenseReportAggregateOutputDir) }
     licenseReportAggregateOutputDir.get().asFile.mkdirs()
@@ -906,7 +908,7 @@ tasks.register('licenseReportAggregate') {
     def licenseReport = new LicenseReport(
       injected.fileOps, injected.objectFactory,
       licenseReportTasks, licenseReportAggregateOutputDir, licensesForPackagedJarDependencies,
-      new File(yarnLicenseReportDir, 'license-report.json'), rubygemsReportFile, goVersions)
+      [ Ruby: rubygemsReportFile, Javascript: extraJavascriptLicenses ], new File(yarnLicenseReportDir, 'license-report.json'), goVersions)
     licenseReport.generate()
   }
 }

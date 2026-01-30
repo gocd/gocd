@@ -126,7 +126,7 @@ def libraries = [
   mockitoBom          : 'org.mockito:mockito-bom:5.21.0',
   mybatis             : 'org.mybatis:mybatis:3.5.19',
   mybatisSpring       : 'org.mybatis:mybatis-spring:2.1.2',
-  mysql               : 'com.mysql:mysql-connector-j:9.5.0',
+  mysql               : 'com.mysql:mysql-connector-j:9.6.0',
   objenesis           : 'org.objenesis:objenesis:3.5',
   oscache             : 'opensymphony:oscache:2.4.1',
   oshi                : 'com.github.oshi:oshi-core-java11:6.9.2',

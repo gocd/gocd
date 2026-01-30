@@ -223,7 +223,7 @@
   },
   "glide.js": {
     "moduleName": "glide.js",
-    "moduleVersion": "3.6.1",
+    "moduleVersion": "3.7.1",
     "moduleUrls": [
       "https://github.com/glidejs/glide",
       "https://glidejs.com/"

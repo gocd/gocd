@@ -129,7 +129,7 @@ def libraries = [
   mysql               : 'com.mysql:mysql-connector-j:9.5.0',
   objenesis           : 'org.objenesis:objenesis:3.5',
   oscache             : 'opensymphony:oscache:2.4.1',
-  oshi                : 'com.github.oshi:oshi-core-java11:6.9.2',
+  oshi                : 'com.github.oshi:oshi-core-java11:6.9.3',
   postgresql          : 'org.postgresql:postgresql:42.7.9',
   quartz              : 'org.quartz-scheduler:quartz:2.5.2',
   rack                : 'com.github.gocd-contrib:jruby-rack:1.3.0.9',

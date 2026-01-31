@@ -54,9 +54,9 @@ def goVersions = new GoVersions(
   packagedJavaVersion: new AdoptiumVersion(
     feature: 25,
     interim: 0,    // set to `null` for the first release of a new featureVersion
-    update:  1,    // set to `null` for the first release of a new featureVersion
+    update:  2,    // set to `null` for the first release of a new featureVersion
     patch:   null, // set to `null` for most releases. Patch releases are "exceptional".
-    build:   8
+    build:   10
   ),
 )
 ext.goVersions = goVersions

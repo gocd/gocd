@@ -30,7 +30,7 @@
     "moduleName": "component-emitter",
     "moduleVersion": "1.3.0",
     "moduleUrls": [
-      "https://github.com/component/emitter"
+      "https://github.com/sindresorhus/component-emitter"
     ],
     "moduleLicenses": [
       {

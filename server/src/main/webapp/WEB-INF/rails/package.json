@@ -99,7 +99,7 @@
     "simulate-event": "^1.4.0",
     "sourcemapped-stacktrace": "^1.1.11",
     "style-loader": "^4.0.0",
-    "stylelint": "^17.0.0",
+    "stylelint": "^17.1.0",
     "stylelint-config-standard-scss": "^17.0.0",
     "stylelint-webpack-plugin": "^5.0.1",
     "thread-loader": "^4.0.4",

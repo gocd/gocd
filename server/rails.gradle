@@ -98,7 +98,7 @@ tasks.register('findGemsToNotPack', JRuby) {
     OUTPUT_FILE   : outputFile.get(),
     BUNDLE_GEMFILE: gemfile,
   ]
-  args = ['-S', 'bundle', 'exec', 'rake', '--trace', '--rakefile', 'find-gems-to-package.rake']
+  args = ['-S', 'bundle', 'exec', 'rake', '--rakefile', 'find-gems-to-package.rake']
 }
 
 tasks.register('generateRubygemsLicenseReport', JRuby) {
@@ -117,7 +117,7 @@ tasks.register('generateRubygemsLicenseReport', JRuby) {
     OUTPUT_FILE   : outputFile.get(),
     BUNDLE_GEMFILE: gemfile,
   ]
-  args = ['-S', 'bundle', 'exec', 'rake', '--trace', '--rakefile', 'rubygems-license-report.rake']
+  args = ['-S', 'bundle', 'exec', 'rake', '--rakefile', 'rubygems-license-report.rake']
 }
 
 def yarnInstall = tasks.register('yarnInstall', YarnInstallTask) {
@@ -170,7 +170,7 @@ def generateJSRoutes = tasks.register('generateJSRoutes', ExecuteUnderRailsTask)
     OUTPUT_DIR:   outputDir,
   )
 
-  args = ['-S', 'rake', '--trace', 'generated_js']
+  args = ['-S', 'rake', 'generated_js']
 
   doFirst {
     delete outputDir
@@ -242,7 +242,8 @@ def compileAssetsRailsTest = tasks.register('compileAssetsRailsTest', ExecuteUnd
 
   maxHeapSize = '256m'
   // Don't clobber assets; use Gradle to do this so we can avoid clobbering webpack assets in same dir
-  args = ['-S', 'rake', '--trace', 'assets:precompile']
+  args = ['-S', 'rake', 'assets:precompile']
+  errorOutput = System.out // Rails/sprockets seems to be noisy on STDERR
 
   doFirst {
     delete "${workingDir}/tmp"
@@ -269,7 +270,8 @@ tasks.register('compileAssetsRailsProd', ExecuteUnderRailsTask) {
   )
 
   maxHeapSize = '256m'
-  args = ['-S', 'rake', '--trace', 'assets:clobber', 'assets:precompile']
+  args = ['-S', 'rake', 'assets:clobber', 'assets:precompile']
+  errorOutput = System.out // Rails/sprockets seems to be noisy on STDERR
 
   def injected = project.objects.newInstance(Injected)
   doFirst {

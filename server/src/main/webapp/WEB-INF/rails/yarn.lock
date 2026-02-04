@@ -4988,7 +4988,7 @@ __metadata:
     simulate-event: "npm:^1.4.0"
     sourcemapped-stacktrace: "npm:^1.1.11"
     style-loader: "npm:^4.0.0"
-    stylelint: "npm:^17.1.0"
+    stylelint: "npm:^17.1.1"
     stylelint-config-standard-scss: "npm:^17.0.0"
     stylelint-webpack-plugin: "npm:^5.0.1"
     thread-loader: "npm:^4.0.4"
@@ -8904,9 +8904,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint@npm:^17.1.0":
-  version: 17.1.0
-  resolution: "stylelint@npm:17.1.0"
+"stylelint@npm:^17.1.1":
+  version: 17.1.1
+  resolution: "stylelint@npm:17.1.1"
   dependencies:
     "@csstools/css-parser-algorithms": "npm:^4.0.0"
     "@csstools/css-syntax-patches-for-csstree": "npm:^1.0.25"
@@ -8948,7 +8948,7 @@ __metadata:
     write-file-atomic: "npm:^7.0.0"
   bin:
     stylelint: bin/stylelint.mjs
-  checksum: 10/004f04546ec4a0defd05f977d74ff346b34d1af18f0507ae7015c72926f4f10e3a83a4246b5369e579f2557a1cd6e8708ea647210f02730f36d4b8e982a9d359
+  checksum: 10/f253a5af2c294b30043b7c17903cecdd596227d28d684bfc0b7f54634ffdee246b5743c7e61c9048c17e9ce0ae3bb7368876109f932073a343428fc86b0cba9a
   languageName: node
   linkType: hard
 

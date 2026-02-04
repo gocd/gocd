@@ -66,9 +66,13 @@ tasks.register('initializeBuildx') {
       injected.execOps.exec { commandLine = ['docker', 'buildx', 'version'] }
       injected.execOps.exec {
         commandLine = ['docker', 'buildx', 'rm', '--force', '--keep-state', builderName]
+        errorOutput = standardOutput // If it's not found, it's fine
         ignoreExitValue = true
       }
-      injected.execOps.exec { commandLine = ['docker', 'buildx', 'create', '--use', '--name', builderName, '--config', buildkitConfig.path, '--driver-opt', 'image=moby/buildkit:buildx-stable-1-rootless'] }
+      injected.execOps.exec {
+        commandLine = ['docker', 'buildx', 'create', '--use', '--name', builderName, '--config', buildkitConfig.path, '--driver-opt', 'image=moby/buildkit:buildx-stable-1-rootless']
+        errorOutput = standardOutput // Docker is noisy on STDERR when pulling images
+      }
       injected.execOps.exec { commandLine = ['docker', 'buildx', 'inspect', '--bootstrap', builderName] }
     }
   }

@@ -132,6 +132,7 @@ subprojects {
         distro.additionalVerifyCommands.each { command ->
           execOps.exec {
             commandLine = ["docker", "exec", docker.dockerImageName] + command
+            errorOutput = standardOutput  // Docker is noisy on STDERR when pulling images via these exec commands
           }
         }
       } finally {

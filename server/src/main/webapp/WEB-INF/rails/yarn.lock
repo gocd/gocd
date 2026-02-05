@@ -5000,7 +5000,7 @@ __metadata:
     style-loader: "npm:^4.0.0"
     stylelint: "npm:^17.1.1"
     stylelint-config-standard-scss: "npm:^17.0.0"
-    stylelint-webpack-plugin: "npm:^5.0.1"
+    stylelint-webpack-plugin: "npm:^5.1.0"
     thread-loader: "npm:^4.0.4"
     ts-loader: "npm:^9.5.4"
     ts-node: "npm:^10.9.2"
@@ -8898,9 +8898,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint-webpack-plugin@npm:^5.0.1":
-  version: 5.0.1
-  resolution: "stylelint-webpack-plugin@npm:5.0.1"
+"stylelint-webpack-plugin@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "stylelint-webpack-plugin@npm:5.1.0"
   dependencies:
     globby: "npm:^11.1.0"
     jest-worker: "npm:^29.7.0"
@@ -8908,9 +8908,9 @@ __metadata:
     normalize-path: "npm:^3.0.0"
     schema-utils: "npm:^4.2.0"
   peerDependencies:
-    stylelint: ^13.0.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+    stylelint: ^13.0.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
     webpack: ^5.0.0
-  checksum: 10/3bf93bf5dcc4a6b065e6c6c33916be4d5d830ee2ae6e79170d0ea4d5e022a693c7049abd83720bd9db07399989e872ff6e84146875d6decc7722442e82a53949
+  checksum: 10/2033d943aad58ad8bcd286fa3d9cba7e0d9a83dbf9b2e8048a2a7e28a8b49f458bde065b10ad117d88e9b84c037ff941adadd23ca083782e3f853f4ba362d202
   languageName: node
   linkType: hard
 

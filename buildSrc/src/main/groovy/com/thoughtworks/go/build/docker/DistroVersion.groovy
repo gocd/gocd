@@ -21,6 +21,7 @@ class DistroVersion implements Serializable {
   String releaseName
   Date eolDate
   boolean continueToBuild
+  @SuppressWarnings('unused') // May be used via freemarker templates
   List<String> installPrerequisitesCommands = []
 
   boolean isAboutToEol() {

@@ -25,30 +25,50 @@ import freemarker.template.Template
 import freemarker.template.TemplateExceptionHandler
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.file.Directory
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.FileSystemOperations
-import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.file.*
+import org.gradle.api.plugins.BasePlugin
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.bundling.Zip
 import org.gradle.process.ExecOperations
 
 import javax.inject.Inject
 
 enum ImageType {
-  server,
+  server(Distro.wolfi),
   agent
+
+  private Distro primary
+
+  ImageType(Distro primary = null) {
+    this.primary = primary
+  }
+
+  String capitalize() {
+    name().capitalize()
+  }
+
+  String dockerImageNameFor(Distro distro, DistroVersion distroVersion) {
+    if (distro == primary) {
+      "gocd-${name()}"
+    } else if (distro.continuousRelease) {
+      "gocd-${name()}-${distro.name()}"
+    } else {
+      "gocd-${name()}-${distro.name()}-${distroVersion.version}"
+    }
+  }
 }
 
 abstract class BuildDockerImageTask extends DefaultTask {
+  @Input abstract Property<ImageType> getImageType()
+  @InputFile abstract RegularFileProperty getArtifactZip()
   @Input Distro distro
   @Input DistroVersion distroVersion
   @Input String tiniVersion
-  @InputFile abstract RegularFileProperty getArtifactZip()
-  @Input ImageType imageType
 
   // We don't declare an output here, only an input. We dont want it to be cached.
   // Multiple tasks share dir from parent with unique tarballs per distribution, so they are not "owned" by the task.
@@ -69,8 +89,32 @@ abstract class BuildDockerImageTask extends DefaultTask {
   private final goVersions = project.goVersions as GoVersions
 
   BuildDockerImageTask() {
+    dependsOn ':docker:initializeBuildx'
+    group = BasePlugin.BUILD_GROUP
     outputs.cacheIf { false }
     outputs.upToDateWhen { false }
+  }
+
+  @Override
+  String getDescription() {
+    "Generate the dockerfile for GoCD ${imageType.get()} running on ${distro.name()} v${distroVersion.version}"
+  }
+
+  def configureFor(ImageType imageType) {
+    this.imageType.set(imageType)
+
+    def zipLocationProperty = "dockerbuild${imageType.capitalize()}ZipLocation"
+
+    if (project.hasProperty('dockerBuildLocalZip')) {
+      dependsOn ":installers:${imageType}GenericZip"
+      artifactZip.set(project.rootProject.findProject(':installers').tasks.named("${imageType}GenericZip").flatMap { Zip zt ->  zt.archiveFile } as Provider<RegularFile>)
+    } else if (project.hasProperty(zipLocationProperty)) {
+      artifactZip.set(project.file(project.property(zipLocationProperty)))
+    } else {
+      doFirst {
+        throw new GradleException("You must specify either -PdockerBuildLocalZip or -P${zipLocationProperty}=/path/to/${imageType}.zip")
+      }
+    }
   }
 
   @TaskAction
@@ -104,7 +148,7 @@ abstract class BuildDockerImageTask extends DefaultTask {
       into gitRepoDirectory
     }
 
-    writeTemplateToFile("Dockerfile.${imageType.name()}.ftl", "Dockerfile")
+    writeTemplateToFile("Dockerfile.${imageType.get().name()}.ftl", "Dockerfile")
 
     if (!skipBuild) {
       logger.lifecycle("Building ${distro} image for ${distro.supportedArchitectures}. (Current build architecture is ${Architecture.current()}).")
@@ -142,6 +186,7 @@ abstract class BuildDockerImageTask extends DefaultTask {
       if (!keepImages) {
         execOps.exec {
           commandLine = ["docker", "rmi", imageNameWithTag]
+          standardOutput = OutputStream.nullOutputStream()
         }
       }
     }
@@ -223,7 +268,7 @@ abstract class BuildDockerImageTask extends DefaultTask {
 
   @Internal
   File getImageTarFile() {
-    outputDir.get().file("gocd-${imageType.name()}-${dockerImageName}-v${goVersions.fullVersion}.tar").asFile
+    outputDir.get().file("gocd-${imageType.get().name()}-${dockerImageName}-v${goVersions.fullVersion}.tar").asFile
   }
 
   void writeTemplateToFile(String templateFile, String outputFile) {
@@ -233,7 +278,7 @@ abstract class BuildDockerImageTask extends DefaultTask {
     configuration.setNumberFormat("computer")
     configuration.setOutputFormat(PlainTextOutputFormat.INSTANCE)
     configuration.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER)
-    configuration.setTemplateLoader(new ClassTemplateLoader(BuildDockerImageTask.classLoader, "/gocd-docker-${imageType.name()}"))
+    configuration.setTemplateLoader(new ClassTemplateLoader(BuildDockerImageTask.classLoader, "/gocd-docker-${imageType.get().name()}"))
 
     Template template = configuration.getTemplate(templateFile, "utf-8")
 
@@ -272,11 +317,7 @@ abstract class BuildDockerImageTask extends DefaultTask {
 
   @Internal
   String getDockerImageName() {
-    if (imageType == ImageType.agent) {
-      return distro.isContinuousRelease() ? "gocd-agent-${distro.name()}" : "gocd-agent-${distro.name()}-${distroVersion.version}"
-    } else if (imageType == ImageType.server) {
-      return distro == Distro.wolfi ? "gocd-server" : "gocd-server-${distro.name()}-${distroVersion.version}"
-    }
+    imageType.get().dockerImageNameFor(distro, distroVersion)
   }
 
   @Internal

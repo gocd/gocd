@@ -51,26 +51,10 @@ subprojects {
   DistroVersion distroVersion = distro.getVersion(distroVersionOnProject)
 
   def docker = tasks.register("docker", BuildDockerImageTask.class) { BuildDockerImageTask task ->
-    task.dependsOn ':docker:initializeBuildx'
-
-    if (project.hasProperty('dockerBuildLocalZip')) {
-      task.dependsOn ':installers:agentGenericZip'
-      task.artifactZip.set(rootProject.project(':installers').tasks.named('agentGenericZip').flatMap { Zip zt ->  zt.archiveFile } as Provider<? extends RegularFile>)
-    } else if (project.hasProperty('dockerbuildAgentZipLocation')) {
-      task.artifactZip.set(project.file(project.dockerbuildAgentZipLocation))
-    } else {
-      task.doFirst {
-        throw new GradleException("You must specify either -PdockerBuildLocalZip or -PdockerbuildAgentZipLocation=/path/to/agent.zip")
-      }
-    }
-
-    task.description = "Generate the dockerfile for GoCD agent running on ${distro.name()} v${distroVersion.version}"
-    task.group = BasePlugin.BUILD_GROUP
-
+    task.configureFor(ImageType.agent)
     task.distro = distro
     task.distroVersion = distroVersion
     task.tiniVersion = project.versions.tini
-    task.imageType = ImageType.agent
     task.outputDir.set(parent.layout.buildDirectory.dir("docker") as Provider<Directory>)
 
     def licenseSourceFile = rootProject.file("LICENSE")
@@ -116,6 +100,7 @@ subprojects {
       def cleanContainer = { OutputStream errorStreamOverride ->
         execOps.exec {
           commandLine = ["docker", "rm", "--force", "--volumes", docker.dockerImageName]
+          standardOutput = OutputStream.nullOutputStream()
           if (errorStreamOverride) errorOutput = errorStreamOverride
         }
       }
@@ -131,7 +116,7 @@ subprojects {
       def start = System.currentTimeMillis()
       try {
         Retry.of("wait-for-container-to-start",
-          RetryConfig.custom().maxAttempts(40).waitDuration(Duration.ofMillis(500)).failAfterMaxAttempts(true).build()
+          RetryConfig.custom().maxAttempts(60).waitDuration(Duration.ofMillis(500)).failAfterMaxAttempts(true).build()
         ).executeRunnable {
           task.verifyProcessInContainerStarted(
             "lib/agent-bootstrapper.jar -serverUrl http://localhost:8153/go",
@@ -142,6 +127,7 @@ subprojects {
         distro.additionalVerifyCommands.each { command ->
           execOps.exec {
             commandLine = ["docker", "exec", docker.dockerImageName] + command
+            errorOutput = standardOutput // Docker is noisy on STDERR when pulling images via these exec commands
           }
         }
       } finally {

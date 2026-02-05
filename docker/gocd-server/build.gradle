@@ -51,22 +51,7 @@ subprojects {
   DistroVersion distroVersion = distro.getVersion(distroVersionOnProject)
 
   def docker = tasks.register("docker", BuildDockerImageTask.class) { BuildDockerImageTask task ->
-    task.dependsOn ':docker:initializeBuildx'
-
-    if (project.hasProperty('dockerBuildLocalZip')) {
-      task.dependsOn ':installers:serverGenericZip'
-      task.artifactZip.set(rootProject.project(':installers').tasks.named('serverGenericZip').flatMap { Zip zt ->  zt.archiveFile } as Provider<RegularFile>)
-    } else if (project.hasProperty('dockerbuildServerZipLocation')) {
-      task.artifactZip.set(project.file(project.dockerbuildServerZipLocation))
-    } else {
-      task.doFirst {
-        throw new GradleException("You must specify either -PdockerBuildLocalZip or -PdockerbuildServerZipLocation=/path/to/server.zip")
-      }
-    }
-
-    task.description = "Generate the dockerfile for GoCD server running on ${distro.name()} v${distroVersion.version}"
-    task.group = BasePlugin.BUILD_GROUP
-
+    task.configureFor(ImageType.server)
     task.distro = distro
     task.distroVersion = distroVersion
     task.tiniVersion = project.versions.tini
@@ -107,6 +92,7 @@ subprojects {
       def cleanContainer = { OutputStream errorStreamOverride ->
         execOps.exec {
           commandLine = ["docker", "rm", "--force", "--volumes", docker.dockerImageName]
+          standardOutput = OutputStream.nullOutputStream()
           if (errorStreamOverride) errorOutput = errorStreamOverride
         }
       }
@@ -132,7 +118,7 @@ subprojects {
         distro.additionalVerifyCommands.each { command ->
           execOps.exec {
             commandLine = ["docker", "exec", docker.dockerImageName] + command
-            errorOutput = standardOutput  // Docker is noisy on STDERR when pulling images via these exec commands
+            errorOutput = standardOutput // Docker is noisy on STDERR when pulling images via these exec commands
           }
         }
       } finally {

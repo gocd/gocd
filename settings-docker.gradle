@@ -34,5 +34,8 @@ dynamicProjectForPath(':docker:gocd-server', Distro.wolfi.projectName(Distro.wol
 def dynamicProjectForPath(String parentPath, String subProjectName) {
   def subProjectPath = "$parentPath:$subProjectName"
   include subProjectPath
-  project(subProjectPath).projectDir = project(parentPath).projectDir
+
+  def subProjectDir = new File(findProject(parentPath).projectDir, subProjectName)
+  subProjectDir.mkdir()
+  project(subProjectPath).projectDir = subProjectDir
 }

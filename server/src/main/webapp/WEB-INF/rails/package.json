@@ -31,7 +31,7 @@
     "filesize": "^11.0.13",
     "foundation-sites": "^6.9.0",
     "hack-font": "^3.3.0",
-    "jquery": "^3.7.1",
+    "jquery": "^4.0.0",
     "lodash": "^4.17.23",
     "lodash-inflection": "^1.5.0",
     "lru-cache": "^11.2.5",

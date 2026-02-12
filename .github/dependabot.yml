@@ -26,7 +26,6 @@ updates:
         patterns: ["jasmine*", "@types/jasmine*"]
       webpack:
         patterns: ["webpack*", "*-loader", "*-webpack-plugin", "*mini-css-extract-plugin", "@babel/*"]
-        exclude-patterns: ["karma-*-loader"]
       eslint:
         patterns: [ "eslint*", "@eslint/*", "@types/eslint*" ]
       types:

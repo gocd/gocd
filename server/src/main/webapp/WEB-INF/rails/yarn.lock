@@ -1312,6 +1312,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@csstools/css-calc@npm:^3.0.0":
+  version: 3.0.1
+  resolution: "@csstools/css-calc@npm:3.0.1"
+  peerDependencies:
+    "@csstools/css-parser-algorithms": ^4.0.0
+    "@csstools/css-tokenizer": ^4.0.0
+  checksum: 10/1234fd2387eb455cfac95922849cb0b0f694b4e4d41ace6d7713814e2a3ff510d7f312f84fc4acf9a3adaab944204ebb7eb8f010742eea97b5b45f852a3b8eca
+  languageName: node
+  linkType: hard
+
 "@csstools/css-parser-algorithms@npm:^4.0.0":
   version: 4.0.0
   resolution: "@csstools/css-parser-algorithms@npm:4.0.0"
@@ -1321,10 +1331,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@csstools/css-syntax-patches-for-csstree@npm:^1.0.25":
-  version: 1.0.25
-  resolution: "@csstools/css-syntax-patches-for-csstree@npm:1.0.25"
-  checksum: 10/42dfcd164ed6a66eee8dd3fcdbdaa58d032ab8c3bb5ead2453915429367766879b25332e09379a67357fd33742b856160e7c0182c7d90be00f57571b916c18e7
+"@csstools/css-syntax-patches-for-csstree@npm:^1.0.26":
+  version: 1.0.27
+  resolution: "@csstools/css-syntax-patches-for-csstree@npm:1.0.27"
+  checksum: 10/d3f27a39c667267a1fc46925e0a0aea4cc93f7c152c400cabd03832a75f521aa39b0e15e95b10d348f496e021bb5fcb32af5dda7b69c5aa4570f048ecaf57dbd
   languageName: node
   linkType: hard
 
@@ -4998,7 +5008,7 @@ __metadata:
     simulate-event: "npm:^1.4.0"
     sourcemapped-stacktrace: "npm:^1.1.11"
     style-loader: "npm:^4.0.0"
-    stylelint: "npm:^17.1.1"
+    stylelint: "npm:^17.2.0"
     stylelint-config-standard-scss: "npm:^17.0.0"
     stylelint-webpack-plugin: "npm:^5.1.0"
     thread-loader: "npm:^4.0.4"
@@ -8914,12 +8924,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint@npm:^17.1.1":
-  version: 17.1.1
-  resolution: "stylelint@npm:17.1.1"
+"stylelint@npm:^17.2.0":
+  version: 17.2.0
+  resolution: "stylelint@npm:17.2.0"
   dependencies:
+    "@csstools/css-calc": "npm:^3.0.0"
     "@csstools/css-parser-algorithms": "npm:^4.0.0"
-    "@csstools/css-syntax-patches-for-csstree": "npm:^1.0.25"
+    "@csstools/css-syntax-patches-for-csstree": "npm:^1.0.26"
     "@csstools/css-tokenizer": "npm:^4.0.0"
     "@csstools/media-query-list-parser": "npm:^5.0.0"
     "@csstools/selector-resolve-nested": "npm:^4.0.0"
@@ -8958,7 +8969,7 @@ __metadata:
     write-file-atomic: "npm:^7.0.0"
   bin:
     stylelint: bin/stylelint.mjs
-  checksum: 10/f253a5af2c294b30043b7c17903cecdd596227d28d684bfc0b7f54634ffdee246b5743c7e61c9048c17e9ce0ae3bb7368876109f932073a343428fc86b0cba9a
+  checksum: 10/9a7e5ddc004b74bc14f3def96876057d9edb0f7b53a5d24770e7f42f29df982a61efd34b7750377a26b566c2095658d461f8f080b1441c7b9b24913061fb0430
   languageName: node
   linkType: hard
 

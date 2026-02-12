@@ -276,7 +276,8 @@ Graph_Renderer = function (container) {
   }
 
   function renderScmEntity(node) {
-    var gui = '', node_name = '';
+    var gui = '';
+    var node_name;
     var modification = firstModification(node);
 
     if (modification) {
@@ -502,9 +503,7 @@ Graph_Renderer = function (container) {
   }
 
   function renderPipelineInstance(node_id, instance, node) {
-    var gui = '';
-    var stagesCount = 0;
-    gui += '<li class="instance">';
+    var gui = '<li class="instance">';
     if (instance.label != '') {
       if (isCurrent) {
         gui += `<h4 title="${_.escape(instance.label)}"><span class="pipeline_run_label">Instance: ${_.escape(instance.label)}</span></h4>`;
@@ -517,7 +516,7 @@ Graph_Renderer = function (container) {
       gui += `<span class="duration">Duration: ${duration}</span>`;
 
       gui += '<ul class="stages">';
-      stagesCount = instance.stages.length;
+      var stagesCount = instance.stages.length;
       for (var i = 0; i < stagesCount; i++) {
         var stagesWidth = (node_id == current) ? 238 : 196;
         gui += '<li class="stage_bar ';

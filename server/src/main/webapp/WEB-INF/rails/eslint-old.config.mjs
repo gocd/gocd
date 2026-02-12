@@ -16,17 +16,12 @@
 
 import globals from "globals";
 import js from "@eslint/js";
-import {FlatCompat} from "@eslint/eslintrc";
-
-const compat = new FlatCompat({
-  recommendedConfig: js.configs.recommended,
-});
 
 export const nonWebPackedLegacyConfig = {
   files: ["app/assets/javascripts/**/*.js", "spec/javascripts/**/*.js"],
   ignores: ["spec/javascripts/support/**"],
 
-  extends: compat.extends("eslint:recommended"),
+  extends: [js.configs.recommended],
 
   languageOptions: {
     globals: {

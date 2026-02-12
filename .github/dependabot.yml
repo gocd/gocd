@@ -25,8 +25,10 @@ updates:
       jasmine:
         patterns: ["jasmine*", "@types/jasmine*"]
       webpack:
-        patterns: ["webpack*", "@types/webpack*", "*-loader", "*-webpack-plugin", "*mini-css-extract-plugin", "@babel/*"]
+        patterns: ["webpack*", "*-loader", "*-webpack-plugin", "*mini-css-extract-plugin", "@babel/*"]
         exclude-patterns: ["karma-*-loader"]
+      eslint:
+        patterns: [ "eslint*", "@eslint/*", "@types/eslint*" ]
       types:
         patterns: ["@types/*"]
   - package-ecosystem: bundler

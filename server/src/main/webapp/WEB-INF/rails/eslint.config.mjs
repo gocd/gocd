@@ -17,13 +17,8 @@
 import {defineConfig, globalIgnores} from "eslint/config";
 import globals from "globals";
 import js from "@eslint/js";
-import {FlatCompat} from "@eslint/eslintrc";
 import {nonWebPackedLegacyConfig} from "./eslint-old.config.mjs";
 import {webpackedConfig} from "./eslint-webpacked.config.mjs";
-
-const compat = new FlatCompat({
-  recommendedConfig: js.configs.recommended,
-});
 
 const globalIgnoreConfig = globalIgnores([
   "gems",                       // Gems
@@ -44,7 +39,7 @@ const buildScriptingConfig = {
     "webpack/**/*", // Webpacked JS linted separately
     "spec/**/*",    // Webpacked JS linted separately
   ],
-  extends: compat.extends("eslint:recommended"),
+  extends: [js.configs.recommended],
   languageOptions: {
     globals: {
       ...globals.node,

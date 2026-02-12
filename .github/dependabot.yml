@@ -22,12 +22,10 @@ updates:
       day: friday
     open-pull-requests-limit: 99
     groups:
-      babel:
-        patterns: ["@babel/*"]
       jasmine:
         patterns: ["jasmine*", "@types/jasmine*"]
       webpack:
-        patterns: ["webpack*", "@types/webpack*", "*-loader", "*-webpack-plugin", "*mini-css-extract-plugin"]
+        patterns: ["webpack*", "@types/webpack*", "*-loader", "*-webpack-plugin", "*mini-css-extract-plugin", "@babel/*"]
         exclude-patterns: ["karma-*-loader"]
       types:
         patterns: ["@types/*"]

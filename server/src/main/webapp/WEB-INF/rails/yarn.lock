@@ -2081,19 +2081,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^24.10.12":
-  version: 24.10.12
-  resolution: "@types/node@npm:24.10.12"
+"@types/node@npm:^24.10.13":
+  version: 24.10.13
+  resolution: "@types/node@npm:24.10.13"
   dependencies:
     undici-types: "npm:~7.16.0"
-  checksum: 10/94231e8ff4151a97719d9f996a67e8eee01041f337d710762cafbbab2d15290da91c4a0d27b9577fa95d85ce678524d53e1b193f2270850b0746a6e9a43932d4
+  checksum: 10/c779d14cf17758a9d603e0c0978c8045bd070e259617ec16f4ddac419ec11aac0e0cf2bb013dab008fdbd2f46c39f82397884662bbdfabeb19bef0079679ea48
   languageName: node
   linkType: hard
 
-"@types/prismjs@npm:^1.26.5":
-  version: 1.26.5
-  resolution: "@types/prismjs@npm:1.26.5"
-  checksum: 10/617099479db9550119d0f84272dc79d64b2cf3e0d7a17167fe740d55fdf0f155697d935409464392d164e62080c2c88d649cf4bc4fdd30a87127337536657277
+"@types/prismjs@npm:^1.26.6":
+  version: 1.26.6
+  resolution: "@types/prismjs@npm:1.26.6"
+  checksum: 10/37c056eb7a9130ef6548d7655af78ea575c8eaa9167ea2dd64d8719384b1af4a385ffe928aa4939da607ce276703a6787bdac8ecc79a373e2a73ddf6d75bc161
   languageName: node
   linkType: hard
 
@@ -4938,8 +4938,8 @@ __metadata:
     "@types/license-checker": "npm:^25.0.6"
     "@types/lodash": "npm:^4.17.23"
     "@types/mithril": "npm:2.2.7"
-    "@types/node": "npm:^24.10.12"
-    "@types/prismjs": "npm:^1.26.5"
+    "@types/node": "npm:^24.10.13"
+    "@types/prismjs": "npm:^1.26.6"
     "@types/shell-quote": "npm:^1.7.5"
     "@types/underscore.string": "npm:^0.0.42"
     "@types/url-parse": "npm:^1.4.11"

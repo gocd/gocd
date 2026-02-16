@@ -1245,13 +1245,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@csstools/css-calc@npm:^3.0.0":
-  version: 3.0.1
-  resolution: "@csstools/css-calc@npm:3.0.1"
+"@csstools/css-calc@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "@csstools/css-calc@npm:3.1.1"
   peerDependencies:
     "@csstools/css-parser-algorithms": ^4.0.0
     "@csstools/css-tokenizer": ^4.0.0
-  checksum: 10/1234fd2387eb455cfac95922849cb0b0f694b4e4d41ace6d7713814e2a3ff510d7f312f84fc4acf9a3adaab944204ebb7eb8f010742eea97b5b45f852a3b8eca
+  checksum: 10/faa3aa2736b20757ceafd76e3d2841e8726ec9e7ae78e387684eb462aba73d533ba384039338685c3a52196196300ccdfecb051e59864b1d3b457fe927b7f53b
   languageName: node
   linkType: hard
 
@@ -4940,7 +4940,7 @@ __metadata:
     simulate-event: "npm:^1.4.0"
     sourcemapped-stacktrace: "npm:^1.1.11"
     style-loader: "npm:^4.0.0"
-    stylelint: "npm:^17.2.0"
+    stylelint: "npm:^17.3.0"
     stylelint-config-standard-scss: "npm:^17.0.0"
     stylelint-webpack-plugin: "npm:^5.1.0"
     thread-loader: "npm:^4.0.4"
@@ -8640,7 +8640,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"string-width@npm:^8.1.0":
+"string-width@npm:^8.1.1":
   version: 8.1.1
   resolution: "string-width@npm:8.1.1"
   dependencies:
@@ -8849,11 +8849,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint@npm:^17.2.0":
-  version: 17.2.0
-  resolution: "stylelint@npm:17.2.0"
+"stylelint@npm:^17.3.0":
+  version: 17.3.0
+  resolution: "stylelint@npm:17.3.0"
   dependencies:
-    "@csstools/css-calc": "npm:^3.0.0"
+    "@csstools/css-calc": "npm:^3.1.1"
     "@csstools/css-parser-algorithms": "npm:^4.0.0"
     "@csstools/css-syntax-patches-for-csstree": "npm:^1.0.26"
     "@csstools/css-tokenizer": "npm:^4.0.0"
@@ -8887,14 +8887,14 @@ __metadata:
     postcss-safe-parser: "npm:^7.0.1"
     postcss-selector-parser: "npm:^7.1.1"
     postcss-value-parser: "npm:^4.2.0"
-    string-width: "npm:^8.1.0"
+    string-width: "npm:^8.1.1"
     supports-hyperlinks: "npm:^4.4.0"
     svg-tags: "npm:^1.0.0"
     table: "npm:^6.9.0"
     write-file-atomic: "npm:^7.0.0"
   bin:
     stylelint: bin/stylelint.mjs
-  checksum: 10/9a7e5ddc004b74bc14f3def96876057d9edb0f7b53a5d24770e7f42f29df982a61efd34b7750377a26b566c2095658d461f8f080b1441c7b9b24913061fb0430
+  checksum: 10/4c3ac18bb93c2cfcc29970d94de348342b8cc4773369ffc96c46b81731d6eff6c609d241ddeefdb9a0ed5e88bd0cccab4ea7dc3a2be2b7fba7c931ad93f81f8b
   languageName: node
   linkType: hard
 

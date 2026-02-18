@@ -2,9 +2,9 @@ source 'https://rubygems.org'
 ruby '~> 3.1.0'
 
 platforms :jruby do
-  gem 'rails', '~> 7.2.3'
+  gem 'rails', '~> 7.2.0'
   gem 'sprockets-rails'
-  gem 'rack', '~> 2.2.21' # For jruby-rack compatibility
+  gem 'rack', '~> 2.2.0' # For jruby-rack compatibility
   gem 'psych', '= 5.3.0' # For jruby 9.4.14 comaptibility
 
   # Windows does not include zoneinfo files, so bundle the tzinfo-data gem

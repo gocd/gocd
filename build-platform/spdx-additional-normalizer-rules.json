@@ -1,0 +1,11 @@
+// Augment the transformations at https://github.com/jk1/Gradle-License-Report/blob/master/src/main/resources/spdx-license-normalizer-bundle.json
+{
+  "bundles" : [
+
+  ],
+  "transformationRules" : [
+    { "bundleName" : "Apache-1.1", "licenseNamePattern" : "The OpenSymphony Software License 1.1" }, // Equivalent with Apache 1.1
+    { "bundleName" : "Apache-2.0", "licenseUrlPattern"  : "https\\://raw\\.github\\.com/hunterhacker/jdom/master/LICENSE\\.txt" },
+    { "bundleName" : "EPL-1.0",    "licenseNamePattern" : "MPL.2\\.0 or EPL.1\\.0" } // Pick EPL for this "OR" case
+  ]
+}

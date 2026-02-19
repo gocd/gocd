@@ -16,7 +16,7 @@
 
 
 import com.autonomousapps.tasks.ResolveExternalDependenciesTask
-import com.github.jk1.license.filter.LicenseBundleNormalizer
+import com.github.jk1.license.filter.SpdxLicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
 import com.github.jk1.license.task.ReportTask
 import com.thoughtworks.go.build.*
@@ -384,16 +384,18 @@ subprojects {
   if (project.path.startsWithAny(':server-launcher') || hasJavaSources) {
     apply plugin: 'com.github.jk1.dependency-license-report'
 
+    def additionalNormalizerRules = rootProject.layout.projectDirectory.file("build-platform/spdx-additional-normalizer-rules.json")
     licenseReport {
       renderers = [new JsonReportRenderer("index.json", false)]
       excludeGroups = ["com.thoughtworks.go"]
-      filters = [new LicenseBundleNormalizer()]
+      filters = [new SpdxLicenseBundleNormalizer(bundlePath: additionalNormalizerRules)]
       outputDir = layout.buildDirectory.dir("reports/dependency-license").get().asFile
       configurations = ['runtimeClasspath', 'packagingInLibDir']
     }
 
     tasks.withType(ReportTask).configureEach { ReportTask reportTask ->
       reportTask.outputs.cacheIf { true }
+      reportTask.inputs.file(additionalNormalizerRules)
       configurations.each { config ->
         if (config.name in project.licenseReport.configurations) {
           reportTask.inputs.files(config)

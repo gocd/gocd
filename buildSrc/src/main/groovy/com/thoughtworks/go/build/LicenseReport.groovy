@@ -27,41 +27,35 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
 
-import static com.thoughtworks.go.build.NonSpdxLicense.*
-import static com.thoughtworks.go.build.SpdxLicense.*
-
 class LicenseReport {
   private static final Logger LOGGER = Logging.getLogger(LicenseReport.class)
 
-  private static final Set<String> ALLOWED_LICENSES = Set.<License>of(
-    APACHE_1_1,
-    APACHE_2_0,
-    BSD_0,
-    BSD_2_CLAUSE,
-    BSD_2_CLAUSE_FREEBSD,
-    BSD_3_CLAUSE,
-    CDDL_1_0,
-    CDDL_1_1,
-    EDL_1_0,
-    EPL_1_0,
-    EPL_2_0,
-    FSL_1_1_ALv2,
-    FSL_1_1_MIT,
-    GPL_2_0_CLASSPATH_EXCEPTION,
-    GPL_2_0_UNIVERSAL_FOSS_EXCEPTION,
-    ISC,
-    LGPL_2_1,
-    LGPL_3_0,
-    LGPL_3_0_ONLY,
-    MIT,
-    MPL_1_1,
-    MPL_2_0_EPL_1_0,
-    OFL_1_1,
-    PLEXUS,
-    PUBLIC_DOMAIN,
-    RUBY,
-    UNLICENSE,
-  ).collect { it.id }
+  private static final Set<String> ALLOWED_LICENSES = Set.of(
+    "Apache-1.1",
+    "Apache-2.0",
+    "0BSD",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "CDDL-1.0",
+    "CDDL-1.1",
+    "EPL-1.0",
+    "EPL-2.0",
+    "FSL-1.1-ALv2",
+    "FSL-1.1-MIT",
+    "GPL-2.0-only WITH Classpath-exception-2.0",
+    "GPL-2.0-only WITH Universal-FOSS-exception-1.0",
+    "ISC",
+    "LGPL-2.1-only",
+    "LGPL-3.0-only",
+    "MIT",
+    "MPL-1.1",
+    "MPL-2.0",
+    "OFL-1.1",
+    "Plexus",
+    "Public Domain",
+    "Ruby",
+    "Unlicense",
+  ).sort()
 
   private final FileSystemOperations fileOps
   private final ObjectFactory objectFactory
@@ -175,11 +169,11 @@ class LicenseReport {
             p {
               strong("Manifest license(s):")
               moduleLicenseData.moduleLicenses.each { license ->
-                def licenseIdentifier = normalizeLicense(license.moduleLicense as String)
-                if (license.moduleLicenseUrl != null && !license.moduleLicenseUrl.isBlank()) {
-                  a(href: license.moduleLicenseUrl, licenseIdentifier)
+                if (license.moduleLicense == null || license.moduleLicense.blank) return
+                if (license.moduleLicenseUrl == null || license.moduleLicenseUrl.blank) {
+                  span(license.moduleLicense as String)
                 } else {
-                  span(licenseIdentifier)
+                  a(href: license.moduleLicenseUrl, license.moduleLicense as String)
                 }
               }
             }
@@ -192,8 +186,7 @@ class LicenseReport {
             p {
               strong("Embedded license file(s):")
               def baseDir = reportDir.get().asFile
-              embeddedLicenseFiles.each { File eachLicenseFile ->
-                def relativePath = baseDir.toURI().relativize(eachLicenseFile.toURI())
+              embeddedLicenseFiles.collect {baseDir.toURI().relativize(it.toURI()) }.sort().each { URI relativePath ->
                 a(href: relativePath, relativePath)
               }
             }
@@ -203,24 +196,13 @@ class LicenseReport {
     }
   }
 
-  @SuppressWarnings('UnnecessaryQualifiedReference')
-  private static String normalizeLicense(String license) {
-    return SpdxLicense.normalizedLicense(license) ?: NonSpdxLicense.normalizedLicense(license) ?: license
-  }
-
   private static checkIfLicensesAreAllowed(List<Map<String, String>> moduleLicenses, String moduleName, String moduleVersion) {
-    Set<String> licenseNames = moduleLicenses.collect { it.moduleLicense }
-    Set<String> normalizedLicenseNames = licenseNames
-      .collect { normalizeLicense(it) }
-      .findAll { it != null }
+    def approved = moduleLicenses.findAll {ALLOWED_LICENSES.contains(it.moduleLicense) }
 
-    def intersect = ALLOWED_LICENSES.intersect(normalizedLicenseNames, { o1, o2 -> o1.toLowerCase() <=> o2.toLowerCase() })
-
-    if (intersect.isEmpty()) {
-      throw new GradleException("License '${licenseNames}' (normalized to '${normalizedLicenseNames}') used by '${moduleName}:${moduleVersion}' are not approved! Allowed licenses are:\n${ALLOWED_LICENSES.collect{"  - ${it}"}.join("\n")}")
+    if (approved.empty) {
+      throw new GradleException("'${moduleName}:${moduleVersion}' has license(s) '${moduleLicenses}' none of which are not approved! Allowed licenses are:\n${ALLOWED_LICENSES.collect{"  - ${it}"}.join("\n")}")
     } else {
-      LOGGER.debug("License '${licenseNames}' (normalized to '${normalizedLicenseNames}') used by '${moduleName}:${moduleVersion}' is approved because of ${intersect}")
+      LOGGER.debug("'${moduleName}:${moduleVersion}' has license(s) '${moduleLicenses}' which are approved due 1+ (${approved}) being allowed.")
     }
   }
-
 }

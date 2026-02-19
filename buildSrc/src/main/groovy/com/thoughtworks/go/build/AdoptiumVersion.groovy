@@ -81,7 +81,7 @@ class AdoptiumVersion implements Serializable {
       ],
       "moduleLicenses": [
         [
-          "moduleLicense": "GPLv2 with the Classpath Exception",
+          "moduleLicense": "GPL-2.0-only WITH Classpath-exception-2.0",
           "moduleLicenseUrl": "https://openjdk.org/legal/gplv2+ce.html"
         ]
       ]

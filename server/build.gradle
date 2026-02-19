@@ -826,7 +826,7 @@ tasks.register('licenseReportAggregate') {
       ],
       moduleLicenses: [
         [
-          moduleLicense   : 'Eclipse Distribution License - v1.0',
+          moduleLicense   : 'BSD-3-Clause',
           moduleLicenseUrl: "https://www.eclipse.org/org/documents/edl-v10.php"
         ]
       ]

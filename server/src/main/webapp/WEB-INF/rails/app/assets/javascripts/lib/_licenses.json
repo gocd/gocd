@@ -60,7 +60,7 @@
     ],
     "moduleLicenses": [
       {
-        "moduleLicense": "BSD 3-Clause",
+        "moduleLicense": "BSD-3-Clause",
         "moduleLicenseUrl": "https://spdx.org/licenses/BSD-3-Clause.html"
       }
     ]

@@ -111,7 +111,7 @@ def libraries = [
   jaxen               : 'jaxen:jaxen:2.0.0',
   jcommander          : 'com.beust:jcommander:1.82',
   jdom                : 'org.jdom:jdom2:2.0.6.1',
-  jetBrainsAnnotations: 'org.jetbrains:annotations:26.0.2-1',
+  jetBrainsAnnotations: 'org.jetbrains:annotations:26.1.0',
   jetty               : 'org.eclipse.jetty:jetty-server:10.0.26',
   jgit                : 'org.eclipse.jgit:org.eclipse.jgit:6.10.1.202505221210-r',
   jolt                : 'com.bazaarvoice.jolt:jolt-core:0.1.8',

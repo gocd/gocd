@@ -697,6 +697,25 @@ tasks.register('verifyWar', VerifyJarTask) {
         "zt-exec-${project.versions.ztExec}.jar",
       ])
   ] as Map<String, List<String>>
+
+  doLast {
+    def denylistedContents = [
+      'WEB-INF/rails/gems/jruby/*/extensions/**': 'should not contain ruby extensions'
+    ]
+
+    def denylistedErrors = []
+    denylistedContents.each {denylist ->
+      archiveOps.zipTree(jar).matching {
+        include denylist.key
+      }.visit { element ->
+        if (!element.directory) denylistedErrors << "war ${denylist.value}: ${element.relativePath.pathString}"
+      }
+    }
+
+    if (!denylistedErrors.empty) {
+      throw new IllegalStateException(denylistedErrors.join(System.lineSeparator()))
+    }
+  }
 }
 
 tasks.register('licenseReportAggregate') {

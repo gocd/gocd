@@ -127,7 +127,6 @@ tasks.register('verifyJar', VerifyJarTask) {
       "agent-${project.version}-classes.jar",
       "agent-common-${project.version}.jar",
       "angus-activation-2.0.3.jar",
-      "animal-sniffer-annotations-1.9.jar",
       "ant-${project.versions.apacheAnt}.jar",
       "base-${project.version}.jar",
       "bcpkix-jdk18on-${project.versions.bouncyCastle}.jar",

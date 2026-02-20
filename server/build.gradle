@@ -559,7 +559,6 @@ tasks.register('verifyWar', VerifyJarTask) {
         "activemq-openwire-legacy-${project.versions.activeMQ}.jar",
         "angus-activation-2.0.3.jar",
         "angus-core-${project.versions.angusMailSmtp}.jar",
-        "animal-sniffer-annotations-1.9.jar",
         "ant-${project.versions.apacheAnt}.jar",
         "antlr-2.7.6.jar",
         "aopalliance-1.0.jar",

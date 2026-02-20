@@ -18,7 +18,10 @@ description = 'Bootloader for GoCD Plugins'
 
 dependencies {
   implementation project(':plugin-infra:go-plugin-api')
-  api project.deps.felix
+  api(project.deps.felix) {
+    exclude module: 'animal-sniffer-annotations' // shouldn't be needed at runtime
+  }
+
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher

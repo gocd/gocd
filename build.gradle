@@ -766,7 +766,7 @@ dependencyCheck {
   suppressionFile = rootProject.file('build-platform/dependency-check-suppress.xml').toPath().toString()
   skipTestGroups = true
 
-  nvd.apiKey = System.getenv("NVD_API_KEY") ?: ""
+  nvd.datafeedUrl = 'https://nexus.gocd.io/repository/nvd-data-feeds-proxy/nvdcve-2.0-{0}.json.gz'
   analyzers.ossIndex.username = System.getenv("OSS_INDEX_USERNAME") ?: ""
   analyzers.ossIndex.password = System.getenv("OSS_INDEX_API_KEY") ?: ""
   analyzers.centralEnabled = true // Allow for matching jar dependencies which sit inside jruby gems etc

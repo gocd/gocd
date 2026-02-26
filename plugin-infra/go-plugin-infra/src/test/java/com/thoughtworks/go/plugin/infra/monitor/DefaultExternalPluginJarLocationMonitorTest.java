@@ -251,13 +251,20 @@ class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefaultPluginJ
         BundleOrPluginFileDetails bundledPlugin1 = pluginFileDetails(pluginBundledDir, "descriptor-aware-test-bundled-plugin-1.jar", true);
         BundleOrPluginFileDetails externalPlugin1 = pluginFileDetails(pluginExternalDir, "descriptor-aware-test-external-plugin-1.jar", false);
 
+        ArgumentCaptor<BundleOrPluginFileDetails> pluginFileDetailsArgumentCaptor = ArgumentCaptor.forClass(BundleOrPluginFileDetails.class);
         addPlugin(bundledPlugin1);
         addPlugin(externalPlugin1);
-        ArgumentCaptor<BundleOrPluginFileDetails> pluginFileDetailsArgumentCaptor = ArgumentCaptor.forClass(BundleOrPluginFileDetails.class);
         verify(changeListener, timeout(TEST_TIMEOUT).times(2)).pluginJarAdded(pluginFileDetailsArgumentCaptor.capture());
-        assertThat(pluginFileDetailsArgumentCaptor.getAllValues().getFirst().isBundledPlugin()).isTrue();
-        assertThat(pluginFileDetailsArgumentCaptor.getAllValues().getLast().isBundledPlugin()).isFalse();
-
+        assertThat(pluginFileDetailsArgumentCaptor.getAllValues()).satisfiesExactlyInAnyOrder(
+            details -> {
+                assertThat(details.file()).isEqualTo(bundledPlugin1.file());
+                assertThat(details.isBundledPlugin()).isTrue();
+            },
+            details -> {
+                assertThat(details.file()).isEqualTo(externalPlugin1.file());
+                assertThat(details.isBundledPlugin()).isFalse();
+            }
+        );
         verifyNoMoreInteractions(changeListener);
     }
 }

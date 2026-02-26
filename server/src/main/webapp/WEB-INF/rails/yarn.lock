@@ -2008,12 +2008,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^24.10.13":
-  version: 24.10.13
-  resolution: "@types/node@npm:24.10.13"
+"@types/node@npm:^24.10.14":
+  version: 24.10.14
+  resolution: "@types/node@npm:24.10.14"
   dependencies:
     undici-types: "npm:~7.16.0"
-  checksum: 10/c779d14cf17758a9d603e0c0978c8045bd070e259617ec16f4ddac419ec11aac0e0cf2bb013dab008fdbd2f46c39f82397884662bbdfabeb19bef0079679ea48
+  checksum: 10/0d74bf72bef839c385fdac2cf835d30a7642ed4f8b4ce85c40cb1d7598dbebed6926dc55a42594e62c199ebf8e86544aaeeb2d1cea982c44eef27a4fe06e85ea
   languageName: node
   linkType: hard
 
@@ -4879,7 +4879,7 @@ __metadata:
     "@types/license-checker": "npm:^25.0.6"
     "@types/lodash": "npm:^4.17.23"
     "@types/mithril": "npm:2.2.7"
-    "@types/node": "npm:^24.10.13"
+    "@types/node": "npm:^24.10.14"
     "@types/prismjs": "npm:^1.26.6"
     "@types/shell-quote": "npm:^1.7.5"
     "@types/underscore.string": "npm:^0.0.42"

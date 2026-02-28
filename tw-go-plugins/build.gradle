@@ -31,23 +31,23 @@ def dependencies = [
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-filebased-authentication-plugin',
-    tagName: 'v2.2.0-365',
-    asset: 'gocd-filebased-authentication-plugin-2.2.0-365.jar',
-    checksum: 'f04f18e9af23180687b1a8805aeaf2c5cf3a6e781fca1e5031916a95ad8acc0a'
+    tagName: 'v2.2.0-400',
+    asset: 'gocd-filebased-authentication-plugin-2.2.0-400.jar',
+    checksum: 'f5950bec4c6376dadf863c764f20ab480b37057348e3bf9e09eb7486c512afec'
   ),
   new GithubArtifact(
     user: 'tomzo',
     repo: 'gocd-yaml-config-plugin',
-    tagName: 'v1.0.0-488',
-    asset: 'yaml-config-plugin-1.0.0-488.jar',
-    checksum: 'ce6ba0ced525afeeebb2925910570aaed3f6cb93248d2de5075883bae67bb5b5'
+    tagName: 'v1.0.0-523',
+    asset: 'yaml-config-plugin-1.0.0-523.jar',
+    checksum: '8c8faf68336f9365fdc69a4ea92d1e2047f09c70a78c96571bb9d797868f900b'
   ),
   new GithubArtifact(
     user: 'tomzo',
     repo: 'gocd-json-config-plugin',
-    tagName: 'v1.0.0-336',
-    asset: 'json-config-plugin-1.0.0-336.jar',
-    checksum: '6aef014d03c606947b42e1fec219e47f9cfe523b9130452a0da9dcfb216702c0'
+    tagName: 'v1.0.0-369',
+    asset: 'json-config-plugin-1.0.0-369.jar',
+    checksum: 'cc5c479c1a1705f0b5b206589127485b6012b6a2daa265ed5aef51c045c1b77e'
   ),
   new GithubArtifact(
     user: 'gocd',

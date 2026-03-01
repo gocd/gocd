@@ -77,7 +77,7 @@
     "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^9.1.0",
     "fs-extra": "^11.3.3",
-    "globals": "^17.3.0",
+    "globals": "^17.4.0",
     "html-webpack-plugin": "^5.6.6",
     "jasmine": "^5.13.0",
     "jasmine-ajax": "^4.0.0",

@@ -18,7 +18,7 @@ import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
 import * as CONSTANTS from "helpers/constants";
 import {SparkRoutes} from "helpers/spark_routes";
 import moment from "moment";
-import {JobDurationStrategyHelper} from "./job_duration_stratergy_helper";
+import {JobDurationStrategyHelper} from "./job_duration_strategy_helper";
 import {JobJSON, Result, StageInstanceJSON} from "./types";
 
 export class StageInstance {

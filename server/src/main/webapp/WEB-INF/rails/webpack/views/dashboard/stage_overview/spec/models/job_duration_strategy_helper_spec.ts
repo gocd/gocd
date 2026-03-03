@@ -16,7 +16,7 @@
 
 import {reset, set} from "mockdate";
 import {timeFormatter} from "../../../../../helpers/time_formatter";
-import {JobDurationStrategyHelper} from "../../models/job_duration_stratergy_helper";
+import {JobDurationStrategyHelper} from "../../models/job_duration_strategy_helper";
 import {StageInstance} from "../../models/stage_instance";
 import {Result} from "../../models/types";
 import {TestData} from "../test_data";

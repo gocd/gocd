@@ -19,7 +19,7 @@ import Stream from "mithril/stream";
 import {TestHelper} from "../../../pages/spec/test_helper";
 import styles from "../index.scss";
 import {JobProgressBarWidget} from "../job_progress_bar_widget";
-import {JobDurationStrategyHelper} from "../models/job_duration_stratergy_helper";
+import {JobDurationStrategyHelper} from "../models/job_duration_strategy_helper";
 import {JobJSON} from "../models/types";
 import {TestData} from "./test_data";
 

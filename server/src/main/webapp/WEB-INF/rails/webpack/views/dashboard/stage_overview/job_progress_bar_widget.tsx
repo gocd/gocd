@@ -19,7 +19,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {MithrilComponent} from "../../../jsx/mithril-component";
 import * as styles from "./index.scss";
-import {JobDuration} from "./models/job_duration_stratergy_helper";
+import {JobDuration} from "./models/job_duration_strategy_helper";
 import {StageInstance} from "./models/stage_instance";
 import {JobJSON} from "./models/types";
 

@@ -26,7 +26,7 @@ import {JobAgentWidget} from "./job_agent_widget";
 import {JobProgressBarWidget} from "./job_progress_bar_widget";
 import {JobStateWidget} from "./job_state_widget";
 import {JobsViewModel, SortableColumn} from "./models/jobs_view_model";
-import {JobDuration, JobDurationStrategyHelper} from "./models/job_duration_stratergy_helper";
+import {JobDuration, JobDurationStrategyHelper} from "./models/job_duration_strategy_helper";
 import {StageInstance} from "./models/stage_instance";
 import {JobJSON} from "./models/types";
 

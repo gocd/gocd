@@ -292,6 +292,7 @@ subprojects {
     exclude '**/META-INF/services/*'
     exclude '**/rails/.bundle/**'
     exclude '**/rails/.yarn/**'
+    exclude '**/rails/.yarnrc.yml'
     exclude '**/rails/Gemfile*'
     exclude '**/rails/Rakefile*'
     exclude '**/rails/app/assets/javascripts/lib/**'

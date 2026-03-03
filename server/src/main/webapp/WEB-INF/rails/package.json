@@ -116,7 +116,8 @@
     "webpack-cli": "^6.0.1"
   },
   "resolutions": {
-    "karma-jasmine@npm:5.1.0/jasmine-core": "^5.1.1"
+    "karma-jasmine@npm:5.1.0/jasmine-core": "^5.1.1",
+    "terser-webpack-plugin@npm:5.3.16/serialize-javascript": "^7.0.2"
   },
   "packageManager": "yarn@4.13.0"
 }

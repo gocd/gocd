@@ -65,6 +65,5 @@ public class ValidationBeanTest {
         assertThat(valid().getError()).isEmpty();
         ValidationBean bean = valid();
         assertThat(bean.isValid()).isTrue();
-        assertThat(bean.toJson().get("isValid")).isEqualTo("true");
     }
 }

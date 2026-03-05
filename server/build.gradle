@@ -402,13 +402,16 @@ tasks.withType(Test).configureEach {
     exceptionFormat = 'full'
   }
 
-  onOutput { TestDescriptor descriptor, TestOutputEvent event ->
-    if (event.destination == TestOutputEvent.Destination.StdOut) {
-      logger.quiet(TextUtils.toPlatformLineSeparators(TextUtils.indent(event.getMessage(), "  OUT: ")))
-    } else if (event.destination == TestOutputEvent.Destination.StdErr) {
-      logger.quiet(TextUtils.toPlatformLineSeparators(TextUtils.indent(event.getMessage(), "  ERR: ")))
+  addTestOutputListener(new TestOutputListener() {
+    @Override
+    void onOutput(TestDescriptor testDescriptor, TestOutputEvent event) {
+      if (event.destination == TestOutputEvent.Destination.StdOut) {
+        logger.quiet(TextUtils.toPlatformLineSeparators(TextUtils.indent(event.getMessage(), "  OUT | ")))
+      } else if (event.destination == TestOutputEvent.Destination.StdErr) {
+        logger.quiet(TextUtils.toPlatformLineSeparators(TextUtils.indent(event.getMessage(), "  ERR | ")))
+      }
     }
-  }
+  })
 }
 
 check.dependsOn(integrationTest)

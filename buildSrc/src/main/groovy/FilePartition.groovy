@@ -48,6 +48,6 @@ class FilePartition {
   String logTo(Logger logger) {
     logger.quiet("Partitioned ${allFiles.size()} files into ${totalPartitions} buckets with approx ${testsPerPartition} files per bucket. Using seed ${seed}.")
     logger.quiet("To reproduce the test failure, run with:")
-    logger.quiet("PARTITION_SEED=${seed} GO_JOB_RUN_COUNT=${totalPartitions} GO_JOB_RUN_INDEX=${partitionIndex} ./gradlew YOUR_TARGET")
+    logger.quiet("PARTITION_SEED=${seed} GO_JOB_RUN_COUNT=${totalPartitions} GO_JOB_RUN_INDEX=${partitionIndex} ./gradlew YOUR_TARGET\n")
   }
 }

@@ -541,8 +541,6 @@ subprojects {
       languageVersion = JavaLanguageVersion.of(goVersions.buildJavaVersion)
     }
 
-    def allTestClasses
-
     maxParallelForks = project.hasProperty('maxParallelForks') ? project.maxParallelForks as int : 1
 
     // fixup a tempdir that is predictable and we can clean it up later
@@ -564,6 +562,8 @@ subprojects {
 
     defaultCharacterEncoding = "UTF-8"
     failOnNoDiscoveredTests = FilePartition.partitioningDisabled
+
+    def allTestClasses = []
 
     doFirst {
       logger.info("Setting tmpdir ${tmpDir}")
@@ -594,13 +594,17 @@ subprojects {
       }
     }
 
-    beforeTest { TestDescriptor test ->
-      allTestClasses.remove(test.className)
-    }
+    addTestListener(new TestListener() {
+        @Override
+        void beforeSuite(TestDescriptor suite) {
+          allTestClasses.remove(suite.className)
+        }
 
-    beforeSuite { TestDescriptor test ->
-      allTestClasses.remove(test.className)
-    }
+        @Override
+        void beforeTest(TestDescriptor testDescriptor) {
+          allTestClasses.remove(testDescriptor.className)
+        }
+      })
 
     doLast {
       delete(tmpDir)
@@ -612,26 +616,29 @@ subprojects {
 
     testLogging {
       showStandardStreams = project.path != ':server'
-
       exceptionFormat = 'full'
-
-      beforeSuite { suite ->
-        if (suite.parent) {
-          logger.quiet("Running ${suite.name}")
-        }
-      }
-
-      afterSuite { suite, result ->
-        if (suite.parent) {
-          logger.quiet("Tests run: ${result.testCount}, Failures: ${result.failedTestCount}, Skipped: ${result.skippedTestCount}, Time elapsed: ${(result.endTime - result.startTime) / 1000.00} sec")
-          if (result.resultType == TestResult.ResultType.FAILURE) {
-            logger.quiet("Test ${suite.name} FAILED")
-          }
-        } else {
-          logger.quiet("Total tests run: ${result.testCount}, Failures: ${result.failedTestCount}, Skipped: ${result.skippedTestCount}, Time elapsed: ${(result.endTime - result.startTime) / 1000.00} sec")
-        }
-      }
     }
+
+    addTestListener(new TestListener() {
+      @Override
+      void beforeSuite(TestDescriptor suite) {
+        if (suite.parent?.name?.contains("Gradle Test Executor")) {
+          logger.quiet("Running ${suite.name}...")
+        }
+      }
+
+      @Override
+      void afterSuite(TestDescriptor suite, TestResult result) {
+        if (suite.parent?.name?.contains("Gradle Test Executor")) {
+          logger.quiet("--> Tests run: ${result.testCount}, Failures: ${result.failedTestCount}, Skipped: ${result.skippedTestCount}, Time elapsed: ${(result.endTime - result.startTime) / 1000d} sec")
+          if (result.resultType == TestResult.ResultType.FAILURE) {
+            logger.quiet("--> ${suite.name} tests FAILED")
+          }
+        } else if (!suite.parent) {
+          logger.quiet("Total tests run: ${result.testCount}, Failures: ${result.failedTestCount}, Skipped: ${result.skippedTestCount}, Time elapsed: ${(result.endTime - result.startTime) / 1000d} sec")
+        }
+      }
+    })
   }
 
   tasks.withType(Delete).configureEach { Delete deleteTask ->

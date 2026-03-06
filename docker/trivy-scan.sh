@@ -25,7 +25,8 @@ grep -oE '<(cve|vulnerabilityName)>(CVE|GHSA).*</(cve|vulnerabilityName)>' "${GO
   >> "${TRIVY_IGNORE}"
 
 pushd "${GOCD_ROOT}"
-./gradlew configureDockerRegistryMirror
+unset GO_SERVER_URL
+./gradlew configureDockerRegistryMirror --console=colored
 popd
 
 docker volume create trivycache >/dev/null
@@ -33,7 +34,7 @@ for image in "${SCAN_ROOT}"/*.tar; do
   echo "Scanning $image..."
   rm -rf "$image-unpacked" && mkdir "$image-unpacked"
   tar xf "$image" --directory "$image-unpacked"
-  docker run -it --rm \
+  docker run --rm \
       --mount type=volume,src=trivycache,dst=/root/.cache \
       --mount "type=bind,src=$(pwd)/${TRIVY_IGNORE},dst=/${TRIVY_IGNORE}" \
       --mount "type=bind,src=$(pwd)/$image-unpacked,dst=/$image-unpacked" \

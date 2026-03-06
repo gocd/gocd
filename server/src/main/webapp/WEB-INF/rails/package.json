@@ -68,7 +68,7 @@
     "@types/underscore.string": "^0.0.42",
     "@types/url-parse": "^1.4.11",
     "add-matchers": "^0.6.2",
-    "babel-loader": "^10.0.0",
+    "babel-loader": "^10.1.0",
     "cross-env": "^10.1.0",
     "css-loader": "^7.1.4",
     "eslint": "^9.39.3",

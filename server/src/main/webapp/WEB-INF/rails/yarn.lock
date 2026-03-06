@@ -2662,15 +2662,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-loader@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "babel-loader@npm:10.0.0"
+"babel-loader@npm:^10.1.0":
+  version: 10.1.0
+  resolution: "babel-loader@npm:10.1.0"
   dependencies:
     find-up: "npm:^5.0.0"
   peerDependencies:
-    "@babel/core": ^7.12.0
+    "@babel/core": ^7.12.0 || ^8.0.0-beta.1
+    "@rspack/core": ^1.0.0 || ^2.0.0-0
     webpack: ">=5.61.0"
-  checksum: 10/f22dc803e38a6b29cc61fbc3482f1f42a8787df2a43706dc937d328103ba6b947a223f67706b07af765d415664ad56e9fed00f85b524fe223f3ac3f00b03770b
+  peerDependenciesMeta:
+    "@rspack/core":
+      optional: true
+    webpack:
+      optional: true
+  checksum: 10/72f5dff26585051a60bdf8998b63cfdcb92cb2f6127d6c33661659337bebd340ceca51f07f7a2e243721dc83279472a01b1a1d6e7a5803fac435eecbab4a95a4
   languageName: node
   linkType: hard
 
@@ -4873,7 +4879,7 @@ __metadata:
     add-matchers: "npm:^0.6.2"
     angular: "file:node-vendor/angular#node-vendor/angular::hash=099522&locator=gocd-server-ui%40workspace%3A."
     awesomplete: "npm:^1.1.7"
-    babel-loader: "npm:^10.0.0"
+    babel-loader: "npm:^10.1.0"
     bourbon: "npm:~7.1.0"
     chart.js: "npm:^4.5.1"
     chartjs-plugin-zoom: "npm:^2.2.0"

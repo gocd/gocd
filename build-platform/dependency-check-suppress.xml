@@ -194,7 +194,7 @@
     <notes><![CDATA[
     GoCD is not affected by https://nvd.nist.gov/vuln/detail/CVE-2023-36479 since it does not use CgiServlet or CGI at all.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty-servlets@10.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*/.*@10.*$</packageUrl>
     <cve>CVE-2023-36479</cve>
   </suppress>
 
@@ -206,7 +206,7 @@
     org.eclipse.jetty:jetty-http (go.jar) Fixed: 12.0.31, 12.1.5
     https://avd.aquasec.com/nvd/cve-2025-11143
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty-http@10.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty,*/.*@10.*$</packageUrl>
     <cve>CVE-2025-11143</cve>
   </suppress>
 

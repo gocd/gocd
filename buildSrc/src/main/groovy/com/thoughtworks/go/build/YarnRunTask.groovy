@@ -114,7 +114,7 @@ abstract class YarnRunTask extends DefaultTask {
       }
       execSpec.environment("FORCE_COLOR", "true")
       execSpec.workingDir = this.getWorkingDir()
-      execSpec.commandLine = [OperatingSystem.current().isWindows() ? "yarn.cmd" : "yarn", "run"] + getYarnCommand()
+      execSpec.commandLine = ["yarn", "run"] + getYarnCommand()
       println "[${execSpec.workingDir}]\$ ${execSpec.executable} ${execSpec.args.join(' ')}"
     }
   }

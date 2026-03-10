@@ -1,6 +1,7 @@
 # Configuration for https://mise.jdx.dev/ as an alternative to asdf, jabba, sdkman, rvm, nvm etc
 [tools]
-"java" = "temurin-25"
+"java" = { version = "temurin-25", os = ["linux", "macos"] }
+"java" = { version = "microsoft-25", os = ["windows"] }
 "node" = { version = "24", postinstall = "corepack enable" }
 
 # Unit tests only

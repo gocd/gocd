@@ -142,7 +142,6 @@ enum Distro implements DistroBehavior {
     @Override
     List<String> getBaseImageUpdateCommands(DistroVersion v) {
       [
-        "echo 'fastestmirror=1' >> /etc/dnf/dnf.conf",
         "echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf",
         "microdnf upgrade -y",
         "microdnf install -y shadow-utils",

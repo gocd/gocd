@@ -445,9 +445,9 @@ tasks.register('configureWar') {
 
       // Unnecessary dev-time configuration
       exclude('WEB-INF/web.xml')
-      exclude("**/rails/.tool-versions")
       exclude("**/rails/.stylelint*")
       exclude("**/rails/.yarnrc.yml")
+      exclude("**/rails/mise.toml")
       exclude("**/rails/babel*")
       exclude("**/rails/eslint*")
       exclude("**/rails/package.json")

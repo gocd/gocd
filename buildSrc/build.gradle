@@ -29,8 +29,5 @@ dependencies {
   implementation gradleApi()
   implementation 'de.undercouch:gradle-download-task:5.7.0'
   implementation 'com.github.jk1:gradle-license-report:3.1.1'
-  constraints {
-    implementation 'org.apache.commons:commons-collections4:4.5.0'
-  }
   implementation 'org.freemarker:freemarker:2.3.34'
 }

@@ -661,7 +661,6 @@ tasks.register('resolveExternalDependencies') {
   group = LifecycleBasePlugin.BUILD_GROUP
   dependsOn allprojects.collect { Project prj -> prj.tasks.withType(ResolveExternalDependenciesTask) }
   dependsOn allprojects.collect { Project prj -> prj.tasks.withType(DownloadFile) }
-  dependsOn allprojects.collect { Project prj -> prj.tasks.withType(DownloaderTask) }
   dependsOn allprojects.collect { Project prj -> prj.tasks.withType(YarnInstallTask) }
   dependsOn allprojects.collect { Project prj -> prj.tasks.matching { it.name == 'initializeRailsGems' } }
 }

@@ -89,7 +89,7 @@ class GoVersions implements Serializable {
     }
   }
 
-  private static String getToolVersion(String command) {
+  static String getToolVersion(String command) {
     try {
       def process = command.execute(null, null)
       process.waitFor()

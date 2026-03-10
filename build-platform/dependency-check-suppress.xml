@@ -252,7 +252,9 @@
     the mandatory dependency.
     ]]></notes>
     <packageUrl regex="true">^pkg:javascript/DOMPurify@.*$</packageUrl>
-    <vulnerabilityName>CVE-2025-26791</vulnerabilityName>
+    <cve>CVE-2025-15599</cve>
+    <cve>CVE-2025-26791</cve>
+    <cve>CVE-2026-0540</cve>
   </suppress>
 
   <suppress>

@@ -447,7 +447,7 @@ tasks.register('configureWar') {
       exclude('WEB-INF/web.xml')
       exclude("**/rails/.stylelint*")
       exclude("**/rails/.yarnrc.yml")
-      exclude("**/rails/mise.toml")
+      exclude("**/rails/*mise.toml")
       exclude("**/rails/babel*")
       exclude("**/rails/eslint*")
       exclude("**/rails/package.json")

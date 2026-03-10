@@ -26,7 +26,6 @@ const globalIgnoreConfig = globalIgnores([
   "public",                     // Webpack/sprockets output dir
   "webpack/gen/**/*",           // Generated code
 
-  ".yarn",                      // Vendored Yarn JS
   "node-vendor",                // Vendored webpacked JS
   "app/assets/javascripts/lib", // Vendored non-webpacked JS
 ]);

@@ -53,9 +53,6 @@ class YarnInstallTask extends DefaultTask {
     inputs.file("${getWorkingDir()}/package.json")
     inputs.file("${getWorkingDir()}/yarn.lock")
     inputs.file("${getWorkingDir()}/.yarnrc.yml")
-    inputs.dir("${getWorkingDir()}/.yarn/patches")
-    inputs.dir("${getWorkingDir()}/.yarn/plugins")
-    inputs.dir("${getWorkingDir()}/.yarn/releases")
     inputs.dir("${getWorkingDir()}/node-vendor")
   }
 

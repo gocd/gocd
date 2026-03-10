@@ -1,6 +1,3 @@
-.yarn/releases/** linguist-generated
-.yarn/plugins/**  linguist-vendored
-
 tsconfig.json     linguist-language=JSON-with-Comments
 babel.config.json linguist-language=JSON-with-Comments
 

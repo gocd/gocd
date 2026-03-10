@@ -57,7 +57,7 @@ class GoVersions implements Serializable {
   }
 
   static void printGradleDebuggingOutputFor(Gradle gradle, GoVersions goVersions) {
-    if (System.getenv().containsKey("GO_SERVER_URL")) {
+    if (isCi()) {
       def separator = "=".multiply(72)
 
       println separator
@@ -87,6 +87,10 @@ class GoVersions implements Serializable {
       println("   javaPreference: ${goVersions.preferredJavaVersions()}")
       println("")
     }
+  }
+
+  static boolean isCi() {
+    System.getenv().containsKey("GO_SERVER_URL")
   }
 
   static String getToolVersion(String command) {

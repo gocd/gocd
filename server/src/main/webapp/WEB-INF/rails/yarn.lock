@@ -1384,7 +1384,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/js@npm:9.39.4, @eslint/js@npm:^9.39.3":
+"@eslint/js@npm:9.39.4, @eslint/js@npm:^9.39.4":
   version: 9.39.4
   resolution: "@eslint/js@npm:9.39.4"
   checksum: 10c0/5aa7dea2cbc5decf7f5e3b0c6f86a084ccee0f792d288ca8e839f8bc1b64e03e227068968e49b26096e6f71fd857ab6e42691d1b993826b9a3883f1bdd7a0e46
@@ -2661,7 +2661,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-loader@npm:^10.1.0":
+"babel-loader@npm:^10.1.1":
   version: 10.1.1
   resolution: "babel-loader@npm:10.1.1"
   dependencies:
@@ -4066,7 +4066,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^9.39.3":
+"eslint@npm:^9.39.4":
   version: 9.39.4
   resolution: "eslint@npm:9.39.4"
   dependencies:
@@ -4859,7 +4859,7 @@ __metadata:
     "@babel/eslint-parser": "npm:^7.28.6"
     "@babel/preset-env": "npm:^7.29.0"
     "@babel/preset-react": "npm:^7.28.5"
-    "@eslint/js": "npm:^9.39.3"
+    "@eslint/js": "npm:^9.39.4"
     "@fortawesome/fontawesome-free": "npm:^6.7.2"
     "@shopify/draggable": "npm:1.2.1"
     "@types/awesomplete": "npm:^1.1.16"
@@ -4878,7 +4878,7 @@ __metadata:
     add-matchers: "npm:^0.6.2"
     angular: "file:node-vendor/angular#node-vendor/angular::hash=036648&locator=gocd-server-ui%40workspace%3A."
     awesomplete: "npm:^1.1.7"
-    babel-loader: "npm:^10.1.0"
+    babel-loader: "npm:^10.1.1"
     bourbon: "npm:~7.1.0"
     chart.js: "npm:^4.5.1"
     chartjs-plugin-zoom: "npm:^2.2.0"
@@ -4886,7 +4886,7 @@ __metadata:
     core-js: "npm:^3.48.0"
     cross-env: "npm:^10.1.0"
     css-loader: "npm:^7.1.4"
-    eslint: "npm:^9.39.3"
+    eslint: "npm:^9.39.4"
     eslint-plugin-react: "npm:^7.37.5"
     eslint-webpack-plugin: "npm:^5.0.3"
     file-loader: "npm:^6.2.0"
@@ -4945,7 +4945,7 @@ __metadata:
     url-parse: "npm:^1.5.10"
     uuid: "npm:^13.0.0"
     webpack: "npm:^5.105.4"
-    webpack-assets-manifest: "npm:^6.5.0"
+    webpack-assets-manifest: "npm:^6.5.1"
     webpack-cli: "npm:^6.0.1"
     what-input: "npm:^5.2.12"
   languageName: unknown
@@ -9536,7 +9536,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-assets-manifest@npm:^6.5.0":
+"webpack-assets-manifest@npm:^6.5.1":
   version: 6.5.1
   resolution: "webpack-assets-manifest@npm:6.5.1"
   dependencies:

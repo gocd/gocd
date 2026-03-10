@@ -120,6 +120,6 @@ abstract class YarnRunTask extends DefaultTask {
   }
 
   static def yarnCommand() {
-    System.getenv("YARN_COMMAND") ?: OperatingSystem.current().isWindows() ? "yarn.cmd" : "yarn"
+    System.getenv("GOCD_YARN_COMMAND") ?: OperatingSystem.current().isWindows() ? "yarn.cmd" : "yarn"
   }
 }

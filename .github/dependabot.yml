@@ -31,7 +31,8 @@ updates:
       types:
         patterns: ["@types/*"]
     ignore:
-      - dependency-name: "angular" # ignore vendored path based dependency
+      - dependency-name: "angular"  # ignore vendored path based dependency
+      - dependency-name: "opensans" # ignore vendored path based dependency
   - package-ecosystem: bundler
     directory: /server/src/main/webapp/WEB-INF/rails
     commit-message:

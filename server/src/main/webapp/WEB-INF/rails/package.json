@@ -96,7 +96,7 @@
     "license-checker": "^25.0.1",
     "mini-css-extract-plugin": "^2.10.0",
     "mockdate": "^3.0.5",
-    "sass-embedded": "^1.97.3",
+    "sass-embedded": "^1.98.0",
     "sass-loader": "^16.0.7",
     "simulate-event": "^1.4.0",
     "sourcemapped-stacktrace": "^1.1.11",

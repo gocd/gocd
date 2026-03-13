@@ -121,7 +121,7 @@ abstract class YarnRunTask extends DefaultTask {
 
   static String yarnExecutable(File workingDir) {
     // Allow yarn with or without a mise shim on windows; which changes the entrypoint
-    (OperatingSystem.current().isWindows() ? ["yarn", "yarn.cmd"] : ["yar"])
+    (OperatingSystem.current().isWindows() ? ["yarn", "yarn.cmd"] : ["yarn"])
       .find { cmd -> GoVersions.canRunTool("$cmd --version", workingDir) }
       ?: { throw new RuntimeException("could not find yarn on path - do you need to do `corepack enable && ./gradlew --stop`?") }()
   }

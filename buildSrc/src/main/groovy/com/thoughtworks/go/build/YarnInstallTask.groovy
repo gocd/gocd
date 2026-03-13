@@ -61,7 +61,7 @@ class YarnInstallTask extends DefaultTask {
     execOperations.exec { execTask ->
       execTask.environment("FORCE_COLOR", "true")
       execTask.workingDir = this.getWorkingDir()
-      execTask.commandLine = [YarnRunTask.yarnCommand(), "install", "--immutable"]
+      execTask.commandLine = [YarnRunTask.yarnExecutable(execTask.workingDir), "install", "--immutable"]
     }  
   }
 }

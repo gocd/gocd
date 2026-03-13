@@ -19,6 +19,8 @@ package com.thoughtworks.go.build
 import groovy.transform.Immutable
 import org.gradle.api.invocation.Gradle
 
+import java.time.Duration
+
 import static org.gradle.api.JavaVersion.*
 
 @Immutable
@@ -68,12 +70,13 @@ class GoVersions implements Serializable {
 
       println("Tool Versions")
       println(separator)
-      println("node: ${getToolVersion("node --version")}")
+      println("node: ${getToolVersion("node --version")} (corepack: ${getToolVersion("corepack --version")})")
       println(" git: ${getToolVersion("git --version")}")
       println("  hg: ${getToolVersion("hg --quiet --version")}")
       println(" svn: ${getToolVersion("svn --quiet --version")}")
       println("  p4: ${getToolVersion("p4 -V").readLines().grep(~/Rev.*/).join("")}")
       println(" p4d: ${getToolVersion("p4d -V").readLines().grep(~/Rev.*/).join("")}")
+      println(" ant: ${getToolVersion("ant -version")}")
       println("")
 
       println("GoCD Versions")
@@ -93,13 +96,28 @@ class GoVersions implements Serializable {
     System.getenv().containsKey("GO_SERVER_URL")
   }
 
-  static String getToolVersion(String command) {
+  static String getToolVersion(String command, File workingDir = null) {
     try {
-      def process = command.execute(null, null)
-      process.waitFor()
-      return Optional.ofNullable(process.text).map { it.trim() }.orElse("could not determine version!")
+      return Optional.ofNullable(runTool(command, workingDir)).map { it.trim() }.orElse("could not determine version!")
     } catch (Exception e) {
       return "could not determine version! (${e.message})"
     }
+  }
+
+  static boolean canRunTool(String command, File workingDir = null) {
+    try {
+      runTool(command, workingDir)
+    } catch (Exception ignore) {
+      return false
+    }
+  }
+
+  private static runTool(String command, File workingDir) {
+    def process = command.execute(null, workingDir)
+    process.waitForOrKill(Duration.ofSeconds(10).toMillis())
+    if (process.exitValue() != 0) {
+      throw new RuntimeException("'${command}' failed with exit code ${process.exitValue()} and output [${process.in.text}]; error output: [${process.err.text}]")
+    }
+    return process.text
   }
 }

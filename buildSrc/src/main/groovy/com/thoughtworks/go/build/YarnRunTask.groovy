@@ -114,12 +114,15 @@ abstract class YarnRunTask extends DefaultTask {
       }
       execSpec.environment("FORCE_COLOR", "true")
       execSpec.workingDir = this.getWorkingDir()
-      execSpec.commandLine = [yarnCommand(), "run"] + getYarnCommand()
+      execSpec.commandLine = [yarnExecutable(execSpec.workingDir), "run"] + getYarnCommand()
       println "[${execSpec.workingDir}]\$ ${execSpec.executable} ${execSpec.args.join(' ')}"
     }
   }
 
-  static def yarnCommand() {
-    System.getenv("GOCD_YARN_COMMAND") ?: OperatingSystem.current().isWindows() ? "yarn.cmd" : "yarn"
+  static String yarnExecutable(File workingDir) {
+    // Allow yarn with or without a mise shim on windows; which changes the entrypoint
+    (OperatingSystem.current().isWindows() ? ["yarn", "yarn.cmd"] : ["yar"])
+      .find { cmd -> GoVersions.canRunTool("$cmd --version", workingDir) }
+      ?: { throw new RuntimeException("could not find yarn on path - do you need to do `corepack enable && ./gradlew --stop`?") }()
   }
 }

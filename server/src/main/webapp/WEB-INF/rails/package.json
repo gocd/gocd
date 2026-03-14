@@ -113,7 +113,7 @@
     "url-loader": "^4.1.1",
     "webpack": "^5.105.4",
     "webpack-assets-manifest": "^6.5.1",
-    "webpack-cli": "^6.0.1"
+    "webpack-cli": "^7.0.0"
   },
   "resolutions": {
     "karma-jasmine@npm:5.1.0/jasmine-core": "^5.1.1",

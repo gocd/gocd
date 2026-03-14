@@ -8,5 +8,5 @@
 
 # Unit tests only
 "ant" = "1"
-"chromedriver" = { version = "145", os = ["linux", "macos"] } # plugin not working on Windows with pwsh right now :(
+"chromedriver" = { version = "latest", os = ["linux", "macos"] } # plugin not working on Windows with pwsh right now :(
 "github:mozilla/geckodriver" = { version = "latest", os = ["linux", "macos"] }

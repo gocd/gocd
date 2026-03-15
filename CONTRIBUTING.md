@@ -7,10 +7,9 @@ A lot of useful information like links to user documentation, design documentati
 
 Pull requests are always welcome. Please:
 
-1. Sign the [Contributor License Agreement (CLA)](https://www.gocd.org/contribute/cla.html). This is required before any of your code or pull-requests are accepted.
-2. Ensure that the source compiles before raising the pull request.
-3. Write [informative, well-formatted](https://chris.beams.io/posts/git-commit/) git commit messages.
-4. Provide details of your change and why you are making it in the PR description, referencing issues or other PRs that are relevant to your PR.
+1. Ensure that the source compiles before raising the pull request.
+2. Write [informative, well-formatted](https://chris.beams.io/posts/git-commit/) git commit messages.
+3. Provide details of your change and why you are making it in the PR description, referencing issues or other PRs that are relevant to your PR.
 
 ## Issue triage [![Open Source Helpers](https://www.codetriage.com/gocd/gocd/badges/users.svg)](https://www.codetriage.com/gocd/gocd)
 

@@ -631,7 +631,7 @@ tasks.register('verifyWar', VerifyJarTask) {
         "jakarta.mail-api-${project.versions.jakartaMail}.jar",
         "jakarta.servlet-api-${project.versions.servletApi}.jar",
         "jakarta.transaction-api-${project.versions.jakartaTransaction}.jar",
-        "jakarta.xml.bind-api-4.0.4.jar",
+        "jakarta.xml.bind-api-4.0.5.jar",
         "javassist-${project.versions.javassist}.jar",
         "jaxb-core-${project.versions.jaxbBom}.jar",
         "jaxb-runtime-${project.versions.jaxbBom}.jar",

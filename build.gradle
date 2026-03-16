@@ -254,7 +254,8 @@ subprojects {
     skipExistingHeaders = false
     strictCheck = true
     exclude '**/.gitkeep'
-    exclude '**/*mise.toml'
+    exclude '**/.envrc'
+    exclude '**/*mise*.toml'
     exclude '**/*.enc'
     exclude '**/*.key'
     exclude '**/*.ejs'

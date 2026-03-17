@@ -51,13 +51,13 @@ abstract class JRuby extends JavaExec {
   @Override
   @TaskAction
   void exec() {
-      OperatingSystemHelper.normalizeEnvironmentPath(environment)
-      environment['PATH'] = (additionalPaths + [environment['PATH']]).join(File.pathSeparator)
+    OperatingSystemHelper.normalizeEnvironmentPath(environment)
+    environment['PATH'] = (additionalPaths + [environment['PATH']]).join(File.pathSeparator)
 
-      debugEnvironment()
-      dumpTaskCommand()
+    debugEnvironment()
+    dumpTaskCommand()
 
-      super.exec()
+    super.exec()
   }
 
   void dumpTaskCommand() {

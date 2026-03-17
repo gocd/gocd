@@ -22,5 +22,5 @@
 /log/*.log
 /tmp/
 
-# Yarn stuff
 .yarn/*
+.bundle/plugin/*

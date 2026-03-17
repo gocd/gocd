@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 ruby '~> 3.1.0'
 
-plugin 'bundler-override'
+plugin 'bundler-override', '~> 0.2.0'
 require File.join(Bundler::Plugin.index.load_paths("bundler-override")[0], "bundler-override") rescue nil
 
 platforms :jruby do

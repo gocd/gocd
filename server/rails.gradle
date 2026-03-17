@@ -73,8 +73,13 @@ def initializeRailsGems = tasks.register('initializeRailsGems', JRuby) {
 
   workingDir = root
   args = ['-S', 'bundle', 'install']
-  jvmArgs += OperatingSystemHelper.CURRENT_OS.isLinux() ? ['-Djruby.objectspace.enabled=true'] : [] // Enable ObjectSpace - seems to be required for bundler-overrider (on Linux !?)
-  maxHeapSize = '384m'
+  if (OperatingSystemHelper.CURRENT_OS.isLinux()) {
+    // Enable ObjectSpace - seems to be required for bundler-override (on Linux !?)
+    jvmArgs += ['-Djruby.objectspace.enabled=true']
+    maxHeapSize = '1g'
+  } else {
+    maxHeapSize = '384m'
+  }
   environment += [
     // RUBY env var needs to be forward-slashed on Windows to avoid backslashes getting stripped somewhere
     RUBY: jrubyScriptFile.get().toString().replaceAll('\\\\', '/'),

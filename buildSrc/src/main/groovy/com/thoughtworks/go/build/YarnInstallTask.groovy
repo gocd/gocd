@@ -36,6 +36,7 @@ class YarnInstallTask extends DefaultTask {
   YarnInstallTask(ExecOperations execOperations) {
     this.execOperations = execOperations
     inputs.property('os', OperatingSystem.current().toString())
+    outputs.cacheIf { false }
   }
 
   @Input // not an @InputFile/InputDirectory, because we don't care about the contents of the workingDir itself

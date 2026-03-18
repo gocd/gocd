@@ -2,10 +2,16 @@ source 'https://rubygems.org'
 ruby '~> 3.1.0'
 
 platforms :jruby do
-  gem 'rails', '~> 7.2.0'
+  RAILS_VERSION = '~> 7.2.0'
+  RACK_VERSION = '~> 2.2.0' # For jruby-rack 1.2.x compatibility
+
+  gem 'railties', RAILS_VERSION
   gem 'irb', path: '.bundle/vendor/irb-stub', require: false # Stub 'irb' from railties; since we should not need it.
+  gem 'activesupport', RAILS_VERSION
+  gem 'actionpack', RAILS_VERSION
+  gem 'actionview', RAILS_VERSION
   gem 'sprockets-rails'
-  gem 'rack', '~> 2.2.0' # For jruby-rack 1.2.x compatibility
+  gem 'rack', RACK_VERSION
 
   # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
   gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]

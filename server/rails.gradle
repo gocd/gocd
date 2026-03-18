@@ -71,7 +71,6 @@ def initializeRailsGems = tasks.register('initializeRailsGems', JRuby) {
   inputs.file(jrubyScriptFile)
   inputs.property('railsRoot', root)
 
-  workingDir = root
   args = ['-S', 'bundle', 'install']
   maxHeapSize = '384m'
   environment += [

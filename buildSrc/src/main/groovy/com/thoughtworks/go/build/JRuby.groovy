@@ -38,6 +38,7 @@ abstract class JRuby extends JavaExec {
   private Map<String, ?> originalEnv = new LinkedHashMap<String, ?>(environment)
 
   JRuby() {
+    workingDir = project.railsRoot
     additionalPaths = [project.jrubyScriptsDir]
 
     jvmArgs += jrubyJvmArgs

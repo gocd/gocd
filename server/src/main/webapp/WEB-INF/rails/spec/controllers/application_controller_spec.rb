@@ -133,37 +133,6 @@ describe ApplicationController do
       expect(controller.current_user).to eq("foo")
     end
 
-    describe "requiring full path" do
-      before(:each) do
-        draw_test_controller_route
-      end
-
-      # Fake that part of a Rails model object that is needed by url_for.
-      class TestObject
-        include ActiveModel::Model
-
-        def id
-          self
-        end
-
-        def persisted?
-          true
-        end
-      end
-
-      it "should cache the url if options is an active-record object" do
-        obj = TestObject.new
-
-        def controller.test_object_url(*args)
-          raise 'should not invoke this, because it is stubbed!'
-        end
-
-        expect(controller).to receive(:test_object_url).with(obj).and_return("some-url")
-        expect(controller.url_for(obj)).to eq("some-url")
-      end
-    end
-
-
     describe "url cache" do
       before do
         Services.go_cache.clear

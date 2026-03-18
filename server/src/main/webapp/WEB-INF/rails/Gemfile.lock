@@ -1,3 +1,8 @@
+PATH
+  remote: .bundle/vendor/irb-stub
+  specs:
+    irb (1.99.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -183,6 +188,7 @@ GEM
       actionpack (= 7.2.3)
       activesupport (= 7.2.3)
       cgi
+      irb (~> 1.13)
       rackup (>= 1.0.0)
       rake (>= 12.2)
       thor (~> 1.0, >= 1.2.2)
@@ -251,6 +257,7 @@ PLATFORMS
 DEPENDENCIES
   capybara
   dartsass-sprockets
+  irb!
   js-routes (~> 1.4)
   rack (~> 2.2.0)
   rails (~> 7.2.0)

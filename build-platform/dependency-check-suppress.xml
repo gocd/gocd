@@ -44,6 +44,20 @@
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-webmvc@4\.3.*$</packageUrl>
     <vulnerabilityName>CVE-2021-22060</vulnerabilityName>
   </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not use server sent events as rewuired to be affected by https://spring.io/security/cve-2026-22735
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-webmvc@4\.3.*$</packageUrl>
+    <cve>CVE-2026-22735</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not use scripting enabled template views as required to be affected by https://spring.io/security/cve-2026-22737
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-webmvc@4\.3.*$</packageUrl>
+    <cve>CVE-2026-22737</cve>
+  </suppress>
 
   <suppress>
     <notes><![CDATA[

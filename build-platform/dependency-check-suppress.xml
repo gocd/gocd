@@ -161,6 +161,21 @@
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-core@4.*$</packageUrl>
     <cve>CVE-2024-22257</cve>
   </suppress>
+  <suppress>
+    <notes><![CDATA[
+    After review of https://spring.io/security/cve-2026-22732 it doesn't appear GoCD is affected by this issue. It
+    only seems to happen in cases where Spring Framework writes content length headers early and directly to the response
+    (without buffering in HttpHeaders as in earlier versions), and Spring Security is needed to write headers directly
+    to the response. The change in Spring FW highlighted an old Spring Security bug to do with content length handling,
+    causing some response headers to be lost. While the root issue is within Spring Security and similar code exists
+    in our version, since we are using an old Spring Web + Spark + jruby-rack AND we do not rely on Spring Security to
+    write response headers (we still have a custom DefaultHeadersFilter) it seems unlikely GoCD can be affected. See
+    https://github.com/spring-projects/spring-security/issues/18797 and https://github.com/spring-projects/spring-framework/issues/36381#issuecomment-3953118692
+    for some more detail.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@4.*$</packageUrl>
+    <cve>CVE-2026-22732</cve>
+  </suppress>
 
   <suppress>
     <notes><![CDATA[

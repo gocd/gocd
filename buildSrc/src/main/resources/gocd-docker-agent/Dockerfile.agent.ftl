@@ -17,7 +17,7 @@
 # Please file any issues or PRs at https://github.com/gocd/gocd
 ###############################################################################################
 
-FROM chainguard/bash:latest AS gocd-agent-unzip
+FROM docker.io/chainguard/bash:latest AS gocd-agent-unzip
 ARG TARGETARCH
 ARG UID=1000
 <#if useFromArtifact >

@@ -297,7 +297,8 @@ enum Distro implements DistroBehavior {
     Date.parse("yyyy-MM-dd", date)
   }
 
-  GString projectName(DistroVersion v) {
+  @SuppressWarnings('unused') // used dynamically from settings.gradle
+  String projectName(DistroVersion v) {
     "${name()}-${v.version}"
   }
 }

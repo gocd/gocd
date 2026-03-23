@@ -28,13 +28,8 @@ trait DistroBehavior {
 
   abstract String name()
 
-  String getBaseImageRegistry(DistroVersion distroVersion) {
-    return "docker.io"
-  }
-
-
   String getBaseImageLocation(DistroVersion distroVersion) {
-    "${getBaseImageRegistry(distroVersion)}/${name()}:${distroVersion.releaseName}"
+    "docker.io/${name()}:${distroVersion.releaseName}"
   }
 
   DistroVersion getVersion(String version) {

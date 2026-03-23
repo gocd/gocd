@@ -11,6 +11,8 @@ updates:
     schedule:
       interval: weekly
       day: friday
+    cooldown:
+      default-days: 2
     open-pull-requests-limit: 99
   - package-ecosystem: npm
     directory: /server/src/main/webapp/WEB-INF/rails
@@ -20,6 +22,8 @@ updates:
     schedule:
       interval: weekly
       day: friday
+    cooldown:
+      default-days: 2
     open-pull-requests-limit: 99
     groups:
       jasmine:
@@ -41,6 +45,8 @@ updates:
     schedule:
       interval: weekly
       day: friday
+    cooldown:
+      default-days: 2
     open-pull-requests-limit: 99
     allow:
       - dependency-type: all
@@ -61,3 +67,5 @@ updates:
     schedule:
       interval: weekly
       day: friday
+    cooldown:
+      default-days: 2

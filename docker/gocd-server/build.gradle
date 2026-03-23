@@ -16,7 +16,6 @@
 
 import com.thoughtworks.go.build.docker.BuildDockerImageTask
 import com.thoughtworks.go.build.docker.Distro
-import com.thoughtworks.go.build.docker.DistroVersion
 import com.thoughtworks.go.build.docker.ImageType
 import groovy.json.JsonOutput
 import io.github.resilience4j.retry.Retry
@@ -36,27 +35,15 @@ plugins {
 
 subprojects {
   apply plugin: 'base'
-  layout.buildDirectory = parent.layout.buildDirectory.dir(project.name).get()
-
-  // detect the distro name and version from the project name.
-  // For e.g. `ubuntu-20.04` will map to `Distro.ubuntu` and version `20.04` as returned by `Distro.ubuntu.supportedVersions`
-  def distroName = project.name.split('-').first()
-  Distro distro = Distro.valueOf(distroName)
-
-  if (!project.name.startsWith("${distro.name()}-")) {
-    throw new GradleException("Did you initialize the project ${project.path} with the wrong distro(${distro.name()})?".toString())
-  }
-
-  def distroVersionOnProject = project.name.replaceFirst("${distro.name()}-", "")
-  DistroVersion distroVersion = distro.getVersion(distroVersionOnProject)
+  layout.buildDirectory = parent.layout.buildDirectory.dir("docker")
+  def (distro, distroVersion) = Distro.fromProjectName(project.name)
 
   def docker = tasks.register("docker", BuildDockerImageTask.class) { BuildDockerImageTask task ->
     task.configureFor(ImageType.server)
     task.distro = distro
     task.distroVersion = distroVersion
     task.tiniVersion = project.versions.tini
-    task.imageType = ImageType.server
-    task.outputDir.set(parent.layout.buildDirectory.dir("docker") as Provider<Directory>)
+    task.outputDir = parent.layout.buildDirectory.dir("docker")
 
     def licenseSourceFile = rootProject.file("LICENSE")
 
@@ -133,7 +120,7 @@ subprojects {
 
 tasks.register('generateManifest') {
   def dockerTasks = subprojects.tasks*.named('docker') as Collection<TaskProvider<? extends BuildDockerImageTask>>
-  def manifest = layout.buildDirectory.file("docker/manifest.json")
+  def manifest = layout.buildDirectory.file("manifest.json")
   outputs.file(manifest)
 
   doLast {

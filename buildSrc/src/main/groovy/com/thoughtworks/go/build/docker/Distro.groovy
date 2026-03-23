@@ -301,4 +301,19 @@ enum Distro implements DistroBehavior {
   String projectName(DistroVersion v) {
     "${name()}-${v.version}"
   }
+
+  /**
+   * detect the distro name and version from the project name.
+   * For e.g. `ubuntu-20.04` will map to `Distro.ubuntu` and version `20.04` as returned by `Distro.ubuntu.supportedVersions`
+   */
+  static def fromProjectName(String projectName) {
+    def (distroName, distroVersionName) = projectName.split('-', 2) as List<String>
+    Distro distro = valueOf(distroName)
+    DistroVersion distroVersion = distro.getVersion(distroVersionName)
+
+    if (!projectName.startsWith("${distro.name()}-")) {
+      throw new RuntimeException("Did you initialize the project path with the wrong distro(${distro.name()})?".toString())
+    }
+    [distro, distroVersion]
+  }
 }

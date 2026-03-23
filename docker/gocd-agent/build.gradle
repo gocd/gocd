@@ -33,9 +33,11 @@ plugins {
   id 'base'
 }
 
+def distributionsDir = layout.buildDirectory.dir("distributions")
+
 subprojects {
   apply plugin: 'base'
-  layout.buildDirectory = parent.layout.buildDirectory.dir("docker")
+  layout.buildDirectory = parent.layout.buildDirectory.dir(project.name)
   def (distro, distroVersion) = Distro.fromProjectName(project.name)
 
   def docker = tasks.register("docker", BuildDockerImageTask.class) { BuildDockerImageTask task ->
@@ -43,7 +45,7 @@ subprojects {
     task.distro = distro
     task.distroVersion = distroVersion
     task.tiniVersion = project.versions.tini
-    task.outputDir = parent.layout.buildDirectory.dir("docker")
+    task.distributionDir = distributionsDir
 
     def licenseSourceFile = rootProject.file("LICENSE")
 
@@ -130,14 +132,15 @@ subprojects {
 
 tasks.register('generateManifest') {
   def dockerTasks = subprojects.tasks*.named('docker') as Collection<TaskProvider<? extends BuildDockerImageTask>>
-  def manifest = layout.buildDirectory.file("manifest.json")
+  dependsOn(dockerTasks)
+  def manifest = distributionsDir.map { it.file("manifest.json") }
   outputs.file(manifest)
 
   doLast {
     def meta = []
     dockerTasks.collect { it.get() }.each { dockerTask ->
       meta << [
-        file     : "${dockerTask.imageTarFile.name}",
+        file     : "${dockerTask.imageOciTarFile.name}",
         format   : 'oci',
         imageName: dockerTask.dockerImageName,
         tag      : dockerTask.imageTag,

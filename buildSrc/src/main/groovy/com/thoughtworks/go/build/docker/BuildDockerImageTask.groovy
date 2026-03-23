@@ -29,10 +29,7 @@ import org.gradle.api.file.*
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.process.ExecOperations
 
@@ -70,9 +67,10 @@ abstract class BuildDockerImageTask extends DefaultTask {
   @Input DistroVersion distroVersion
   @Input String tiniVersion
 
-  // We don't declare an output here, only an input. We dont want it to be cached.
-  // Multiple tasks share dir from parent with unique tarballs per distribution, so they are not "owned" by the task.
-  @Internal abstract DirectoryProperty getOutputDir()
+  // We don't declare an output here and multiple tasks share dir from parent with unique tarballs per
+  // distribution, so the dirs are not "owned" by the task.
+  @Internal abstract DirectoryProperty getDistributionDir()
+  @Internal final goVersions = project.goVersions as GoVersions
 
   @Internal Closure templateHelper
   @Internal Closure verifyHelper
@@ -85,8 +83,6 @@ abstract class BuildDockerImageTask extends DefaultTask {
   private final boolean skipNonNativeVerify = project.hasProperty('dockerBuildSkipNonNativeVerify')
   private final boolean keepImages = project.hasProperty('dockerBuildKeepImages')
   private final String gitPush = project.findProperty('dockerGitPush')
-
-  private final goVersions = project.goVersions as GoVersions
 
   BuildDockerImageTask() {
     dependsOn ':docker:initializeBuildx'
@@ -154,11 +150,11 @@ abstract class BuildDockerImageTask extends DefaultTask {
       logger.lifecycle("Building ${distro} image for ${distro.supportedArchitectures}. (Current build architecture is ${Architecture.current()}).")
 
       // build image
-      imageTarFile.parentFile.mkdirs()
+      imageOciTarFile.parentFile.mkdirs()
       executeInGitRepo("docker", "buildx", "build",
         "--pull",
         "--platform", supportedPlatforms.join(","),
-        "--output", "type=oci,dest=${imageTarFile}",
+        "--output", "type=oci,dest=${imageOciTarFile}",
         "--progress=plain",
         ".",
         "--tag", imageNameWithTag
@@ -266,9 +262,14 @@ abstract class BuildDockerImageTask extends DefaultTask {
     "v${goVersions.fullVersion}"
   }
 
+  @OutputFile
+  Provider<RegularFile> getImageOciTarOutput() {
+    distributionDir.map { it.file("gocd-${imageType.get().name()}-${dockerImageName}-v${goVersions.fullVersion}.tar") }
+  }
+
   @Internal
-  File getImageTarFile() {
-    outputDir.get().file("gocd-${imageType.get().name()}-${dockerImageName}-v${goVersions.fullVersion}.tar").asFile
+  File getImageOciTarFile() {
+    imageOciTarOutput.get().asFile
   }
 
   void writeTemplateToFile(String templateFile, String outputFile) {

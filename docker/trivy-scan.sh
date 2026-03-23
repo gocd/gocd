@@ -29,25 +29,19 @@ unset GO_SERVER_URL
 ./gradlew configureDockerRegistryMirror --console=colored
 popd
 
-docker volume create trivycache >/dev/null
 for image in "${SCAN_ROOT}"/*.tar; do
   echo "Scanning $image..."
-  rm -rf "$image-unpacked" && mkdir "$image-unpacked"
-  tar xf "$image" --directory "$image-unpacked"
-  docker run --rm \
-      --mount type=volume,src=trivycache,dst=/root/.cache \
-      --mount "type=bind,src=$(pwd)/${TRIVY_IGNORE},dst=/${TRIVY_IGNORE}" \
-      --mount "type=bind,src=$(pwd)/$image-unpacked,dst=/$image-unpacked" \
-    docker.io/aquasec/trivy:latest \
-    image \
-      --input "/${image}-unpacked" \
-      --no-progress \
-      --skip-version-check \
-      --disable-telemetry \
-      --scanners vuln,misconfig,secret \
-      --ignorefile "/${TRIVY_IGNORE}" \
-      --ignore-status not_affected,under_investigation,will_not_fix \
-      --exit-code ${EXIT_CODE_ON_ERROR}
+  rm -rf "$image-unpacked" && mkdir "${image}-unpacked"
+  tar xf "$image" --directory "${image}-unpacked"
+  docker compose \
+    --file "${GOCD_ROOT}/docker/docker-compose.yml" \
+    --ansi always \
+    run \
+    --env EXIT_CODE_ON_ERROR \
+    --volume "$(pwd)/${TRIVY_IGNORE}:/.trivyignore.yaml:ro" \
+    --volume "$(pwd)/$image-unpacked:/scan-image:ro" \
+    --rm \
+    trivy
   echo "Scanned $image."
   echo "─────────────────────────────────────────────────────────────────"
   echo ""

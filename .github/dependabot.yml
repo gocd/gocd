@@ -55,3 +55,9 @@ updates:
         patterns: [ "sass*" ]
     ignore:
       - dependency-name: "irb" # ignore locally vendored stub dependency
+  - package-ecosystem: docker-compose
+    directories:
+      - "*"
+    schedule:
+      interval: weekly
+      day: friday

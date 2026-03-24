@@ -6,9 +6,9 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    actionpack (7.2.3)
-      actionview (= 7.2.3)
-      activesupport (= 7.2.3)
+    actionpack (7.2.3.1)
+      actionview (= 7.2.3.1)
+      activesupport (= 7.2.3.1)
       cgi
       nokogiri (>= 1.8.5)
       racc
@@ -18,14 +18,14 @@ GEM
       rails-dom-testing (~> 2.2)
       rails-html-sanitizer (~> 1.6)
       useragent (~> 0.16)
-    actionview (7.2.3)
-      activesupport (= 7.2.3)
+    actionview (7.2.3.1)
+      activesupport (= 7.2.3.1)
       builder (~> 3.1)
       cgi
       erubi (~> 1.11)
       rails-dom-testing (~> 2.2)
       rails-html-sanitizer (~> 1.6)
-    activesupport (7.2.3)
+    activesupport (7.2.3.1)
       base64
       benchmark (>= 0.3)
       bigdecimal
@@ -34,7 +34,7 @@ GEM
       drb
       i18n (>= 1.6, < 2)
       logger (>= 1.4.2)
-      minitest (>= 5.1)
+      minitest (>= 5.1, < 6)
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
     addressable (2.8.9)
@@ -116,9 +116,9 @@ GEM
     rails-html-sanitizer (1.7.0)
       loofah (~> 2.25)
       nokogiri (>= 1.15.7, != 1.16.7, != 1.16.6, != 1.16.5, != 1.16.4, != 1.16.3, != 1.16.2, != 1.16.1, != 1.16.0.rc1, != 1.16.0)
-    railties (7.2.3)
-      actionpack (= 7.2.3)
-      activesupport (= 7.2.3)
+    railties (7.2.3.1)
+      actionpack (= 7.2.3.1)
+      activesupport (= 7.2.3.1)
       cgi
       irb (~> 1.13)
       rackup (>= 1.0.0)

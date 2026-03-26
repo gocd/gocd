@@ -1264,7 +1264,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@csstools/css-syntax-patches-for-csstree@npm:^1.0.29":
+"@csstools/css-syntax-patches-for-csstree@npm:^1.1.1":
   version: 1.1.1
   resolution: "@csstools/css-syntax-patches-for-csstree@npm:1.1.1"
   peerDependencies:
@@ -4319,10 +4319,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"filesize@npm:^11.0.13":
-  version: 11.0.13
-  resolution: "filesize@npm:11.0.13"
-  checksum: 10c0/5950272a2981a71cfbfda2ad278a7f59b101d3383e466c57cf8eaf5d359cb2b96f0549aa8d6ad116619337f0a1ccbceca7710e35d03d49cb757fc25b44a6d64a
+"filesize@npm:^11.0.14":
+  version: 11.0.14
+  resolution: "filesize@npm:11.0.14"
+  checksum: 10c0/91903ae68d48286569ce035bac47ad1b04b43e7e101e41f654b7f008402922bdb4a549837a923e7f8cb3edf081590b76ee48da2775ba976b5c358262673eacea
   languageName: node
   linkType: hard
 
@@ -4855,7 +4855,7 @@ __metadata:
     eslint-plugin-react: "npm:^7.37.5"
     eslint-webpack-plugin: "npm:^5.0.3"
     file-loader: "npm:^6.2.0"
-    filesize: "npm:^11.0.13"
+    filesize: "npm:^11.0.14"
     fork-ts-checker-webpack-plugin: "npm:^9.1.0"
     foundation-sites: "npm:^6.9.0"
     fs-extra: "npm:^11.3.4"
@@ -4881,7 +4881,7 @@ __metadata:
     lodash: "npm:^4.17.23"
     lodash-inflection: "npm:^1.5.0"
     lru-cache: "npm:^11.2.7"
-    mini-css-extract-plugin: "npm:^2.10.1"
+    mini-css-extract-plugin: "npm:^2.10.2"
     mithril: "npm:^2.3.8"
     mockdate: "npm:^3.0.5"
     moment: "npm:^2.30.1"
@@ -4896,7 +4896,7 @@ __metadata:
     simulate-event: "npm:^1.4.0"
     sourcemapped-stacktrace: "npm:^1.1.11"
     style-loader: "npm:^4.0.0"
-    stylelint: "npm:^17.5.0"
+    stylelint: "npm:^17.6.0"
     stylelint-config-standard-scss: "npm:^17.0.0"
     stylelint-webpack-plugin: "npm:^5.1.0"
     thread-loader: "npm:^4.0.4"
@@ -6405,15 +6405,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mini-css-extract-plugin@npm:^2.10.1":
-  version: 2.10.1
-  resolution: "mini-css-extract-plugin@npm:2.10.1"
+"mini-css-extract-plugin@npm:^2.10.2":
+  version: 2.10.2
+  resolution: "mini-css-extract-plugin@npm:2.10.2"
   dependencies:
     schema-utils: "npm:^4.0.0"
     tapable: "npm:^2.2.1"
   peerDependencies:
     webpack: ^5.0.0
-  checksum: 10c0/2e90dacdca5bc35862e601e6b3989673e498217c789c4bb270a35bbd22b4d6e85f091795d0324d5cda5a9e2aa2a8f1f3340b6db5a96d66ec208c627659bebb08
+  checksum: 10c0/ba58afb1c090be144b423a3621c4e0d09a9f8f4875410d3bc108915dfcf8e2fd6e550a7f3ba129eb07fd76599157650f86186b09f3ae2c34ccc5b50e82da0aa3
   languageName: node
   linkType: hard
 
@@ -8794,13 +8794,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint@npm:^17.5.0":
-  version: 17.5.0
-  resolution: "stylelint@npm:17.5.0"
+"stylelint@npm:^17.6.0":
+  version: 17.6.0
+  resolution: "stylelint@npm:17.6.0"
   dependencies:
     "@csstools/css-calc": "npm:^3.1.1"
     "@csstools/css-parser-algorithms": "npm:^4.0.0"
-    "@csstools/css-syntax-patches-for-csstree": "npm:^1.0.29"
+    "@csstools/css-syntax-patches-for-csstree": "npm:^1.1.1"
     "@csstools/css-tokenizer": "npm:^4.0.0"
     "@csstools/media-query-list-parser": "npm:^5.0.0"
     "@csstools/selector-resolve-nested": "npm:^4.0.0"
@@ -8819,7 +8819,6 @@ __metadata:
     html-tags: "npm:^5.1.0"
     ignore: "npm:^7.0.5"
     import-meta-resolve: "npm:^4.2.0"
-    imurmurhash: "npm:^0.1.4"
     is-plain-object: "npm:^5.0.0"
     mathml-tag-names: "npm:^4.0.0"
     meow: "npm:^14.1.0"
@@ -8834,10 +8833,10 @@ __metadata:
     supports-hyperlinks: "npm:^4.4.0"
     svg-tags: "npm:^1.0.0"
     table: "npm:^6.9.0"
-    write-file-atomic: "npm:^7.0.0"
+    write-file-atomic: "npm:^7.0.1"
   bin:
     stylelint: bin/stylelint.mjs
-  checksum: 10c0/bc7bb57e04c82d4d6135e1905deb43f85e459951070c16a8858949b682ea9abbb901f50e8d7bd1b0155fba25ceee1b0238b1638f14304f193dfd7ea45adf4e88
+  checksum: 10c0/831aa281a4723f3fab3c653fae7bfc13e97458ea04d7eb3991ebd7fc3b1e4fefba24f920abb518390782ed9810b96f5652767f99a2ab537c4f6b14ea10846bc1
   languageName: node
   linkType: hard
 
@@ -9761,7 +9760,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"write-file-atomic@npm:^7.0.0":
+"write-file-atomic@npm:^7.0.1":
   version: 7.0.1
   resolution: "write-file-atomic@npm:7.0.1"
   dependencies:

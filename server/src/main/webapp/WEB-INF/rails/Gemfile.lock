@@ -67,7 +67,7 @@ GEM
     diff-lcs (1.6.2)
     drb (2.2.3)
     erubi (1.13.1)
-    ffi (1.17.3-java)
+    ffi (1.17.4-java)
     ffi-compiler (1.3.2)
       ffi (>= 1.15.5)
       rake
@@ -178,6 +178,7 @@ GEM
 
 PLATFORMS
   universal-java
+  universal-java-25
   x86_64-linux
 
 DEPENDENCIES
@@ -217,7 +218,7 @@ CHECKSUMS
   diff-lcs (1.6.2) sha256=9ae0d2cba7d4df3075fe8cd8602a8604993efc0dfa934cff568969efb1909962
   drb (2.2.3) sha256=0b00d6fdb50995fe4a45dea13663493c841112e4068656854646f418fda13373
   erubi (1.13.1) sha256=a082103b0885dbc5ecf1172fede897f9ebdb745a4b97a5e8dc63953db1ee4ad9
-  ffi (1.17.3-java) sha256=be1ecc86edbf71b9ab59212a23b33efec431c0446cb3183066d8a960a1946d3a
+  ffi (1.17.4-java) sha256=449281c799727413eb367e396a838328e767a41fd76a14ae2dfbee0c37f0a279
   ffi-compiler (1.3.2) sha256=a94f3d81d12caf5c5d4ecf13980a70d0aeaa72268f3b9cc13358bcc6509184a0
   google-protobuf (4.34.1-java) sha256=b61f7f754842171af103130b94c72760888be271ce8cf79cdb1913e8f5674c5e
   google-protobuf (4.34.1-x86_64-linux-gnu) sha256=87088c9fd8e47b5b40ca498fc1195add6149e941ff7e81c532a5b0b8876d4cc9

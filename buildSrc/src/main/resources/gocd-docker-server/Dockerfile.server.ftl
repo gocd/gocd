@@ -92,6 +92,6 @@ RUN chown -R go:root /docker-entrypoint.d /go-working-dir /godata /docker-entryp
 VOLUME /go-working-dir
 VOLUME /godata
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["tini-static", "-g", "--", "/docker-entrypoint.sh"]
 
 USER go

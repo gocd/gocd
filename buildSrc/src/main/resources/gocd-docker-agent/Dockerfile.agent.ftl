@@ -101,6 +101,6 @@ VOLUME /godata
   COPY --chown=root:root run-docker-daemon.sh /
 </#if>
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["tini-static", "-g", "--", "/docker-entrypoint.sh"]
 
 USER go

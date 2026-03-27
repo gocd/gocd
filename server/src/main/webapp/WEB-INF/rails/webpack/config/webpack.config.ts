@@ -18,7 +18,10 @@ import _ from "lodash";
 import path from "node:path";
 import TerserPlugin from "terser-webpack-plugin";
 import webpack from "webpack";
-import {loaders} from "./loaders";
+import {getBabelLoader} from "./loaders/babel-loader";
+import {getCssLoaders} from "./loaders/css-loader";
+import {getStaticAssetsLoader} from "./loaders/static-assets-loader";
+import {getTypescriptLoader} from "./loaders/ts-loader";
 import {plugins} from "./plugins";
 import {ConfigOptions, getEntries, getModules} from "./variables";
 
@@ -91,7 +94,12 @@ function configuration(env: any, argv: any): webpack.Configuration {
       modules: getModules(configOptions),
     },
     module: {
-      rules: loaders(configOptions)
+      rules: [
+        getTypescriptLoader(configOptions),
+        getBabelLoader(configOptions),
+        getCssLoaders(configOptions),
+        getStaticAssetsLoader(configOptions)
+      ]
     },
     plugins: plugins(configOptions),
   };

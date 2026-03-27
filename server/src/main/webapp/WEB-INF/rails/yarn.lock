@@ -1220,12 +1220,12 @@ __metadata:
   linkType: hard
 
 "@cacheable/utils@npm:^2.4.0":
-  version: 2.4.0
-  resolution: "@cacheable/utils@npm:2.4.0"
+  version: 2.4.1
+  resolution: "@cacheable/utils@npm:2.4.1"
   dependencies:
-    hashery: "npm:^1.5.0"
+    hashery: "npm:^1.5.1"
     keyv: "npm:^5.6.0"
-  checksum: 10c0/07803578b765a73e177f56086bc3b3cbeec6fcf5f2a1458b0469e63dc95c9afe1ba0a208110e6c7c59bfd8ca4c7ac84a5d8146c1799287bb716073ad8e054062
+  checksum: 10c0/ca2af47636ed27ab26dfedf12add639f42b90c289ecd5d816fb7a299074d9df463751745a83abfb81f6236a70c8ea40f0902e984869638a5ca3a7274e203f987
   languageName: node
   linkType: hard
 
@@ -1265,14 +1265,14 @@ __metadata:
   linkType: hard
 
 "@csstools/css-syntax-patches-for-csstree@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@csstools/css-syntax-patches-for-csstree@npm:1.1.1"
+  version: 1.1.2
+  resolution: "@csstools/css-syntax-patches-for-csstree@npm:1.1.2"
   peerDependencies:
     css-tree: ^3.2.1
   peerDependenciesMeta:
     css-tree:
       optional: true
-  checksum: 10c0/947f82e9e8af0512f1d6600f68da1bbe8d15112fa73435169608a68dcf20262ae517c799202c86a6c3bc889d0e9fab724ad5661a3aa98432390f8f9765b86ddc
+  checksum: 10c0/1c320718c2ad3002f9f13e8d6f149416168be346bd4910ff8eb5bf1bd57fa1a54e93dd1b00026269533a3117a18e742b9cf6d99e92527145a0d08d6f4075eb34
   languageName: node
   linkType: hard
 
@@ -2887,7 +2887,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cacheable@npm:^2.3.3":
+"cacheable@npm:^2.3.4":
   version: 2.3.4
   resolution: "cacheable@npm:2.3.4"
   dependencies:
@@ -3663,9 +3663,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.5.263":
-  version: 1.5.325
-  resolution: "electron-to-chromium@npm:1.5.325"
-  checksum: 10c0/6721520cac7a0ae51e6511bd2a79c425e0fc09935a367ac933549e94de136c504a7ee1fc7136812051e93c0c5b95deea40336aea658c2b591ac5761fab8caf30
+  version: 1.5.327
+  resolution: "electron-to-chromium@npm:1.5.327"
+  checksum: 10c0/c9a9b8869f7a990ee17e73515eb8d9676d5b5604a80044272441c3e0aa452e5c67b8b365de5c93bfb8bc75ecf854150aa04759d1f3a7a839031f051c62fd1b70
   languageName: node
   linkType: hard
 
@@ -4410,13 +4410,13 @@ __metadata:
   linkType: hard
 
 "flat-cache@npm:^6.1.20":
-  version: 6.1.21
-  resolution: "flat-cache@npm:6.1.21"
+  version: 6.1.22
+  resolution: "flat-cache@npm:6.1.22"
   dependencies:
-    cacheable: "npm:^2.3.3"
-    flatted: "npm:^3.4.1"
+    cacheable: "npm:^2.3.4"
+    flatted: "npm:^3.4.2"
     hookified: "npm:^1.15.0"
-  checksum: 10c0/c997677dfa4e593b2671b633f82c30883743f18446ddeaf32588f861ccdb109689b59c90e96f635dd47b8ace9bbe6b01e7a7a72d2926112bdec63a0c39d7c49a
+  checksum: 10c0/ec94fba4ecb10b43567bb815f19e178d4351a66a58117b06a06c81bda6b579c2ed75d8cbd9ea90a2ab9408493b564ffef55386f263f20d1d73bb991fa97de67f
   languageName: node
   linkType: hard
 
@@ -4429,7 +4429,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"flatted@npm:^3.2.7, flatted@npm:^3.2.9, flatted@npm:^3.3.3, flatted@npm:^3.4.1":
+"flatted@npm:^3.2.7, flatted@npm:^3.2.9, flatted@npm:^3.3.3, flatted@npm:^3.4.2":
   version: 3.4.2
   resolution: "flatted@npm:3.4.2"
   checksum: 10c0/a65b67aae7172d6cdf63691be7de6c5cd5adbdfdfe2e9da1a09b617c9512ed794037741ee53d93114276bff3f93cd3b0d97d54f9b316e1e4885dde6e9ffdf7ed
@@ -5021,7 +5021,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hashery@npm:^1.4.0, hashery@npm:^1.5.0":
+"hashery@npm:^1.4.0, hashery@npm:^1.5.1":
   version: 1.5.1
   resolution: "hashery@npm:1.5.1"
   dependencies:
@@ -7093,9 +7093,9 @@ __metadata:
   linkType: hard
 
 "path-to-regexp@npm:^8.0.0":
-  version: 8.3.0
-  resolution: "path-to-regexp@npm:8.3.0"
-  checksum: 10c0/ee1544a73a3f294a97a4c663b0ce71bbf1621d732d80c9c9ed201b3e911a86cb628ebad691b9d40f40a3742fe22011e5a059d8eed2cf63ec2cb94f6fb4efe67c
+  version: 8.4.0
+  resolution: "path-to-regexp@npm:8.4.0"
+  checksum: 10c0/171a540aed2a5dff3da6e7584f263ae65d868daea382ea3bd1ddeb828912661133d5a94fce83bd3125f0799df8dfd4924b270e2987a31930901cfd94ae164b45
   languageName: node
   linkType: hard
 

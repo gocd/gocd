@@ -102,4 +102,4 @@ if [ "$1" = "${SERVER_WORK_DIR}/bin/go-server" ]; then
   done
 fi
 
-try exec /usr/local/sbin/tini -g -- "$@"
+try exec tini-static -g -- "$@"

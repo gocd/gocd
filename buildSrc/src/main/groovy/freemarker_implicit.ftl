@@ -1,7 +1,6 @@
 [#ftl]
 [#-- @implicitly included --]
 [#-- @ftlvariable name="imageName" type="java.lang.String" --]
-[#-- @ftlvariable name="additionalFiles" type="java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.String>>" --]
 [#-- @ftlvariable name="distro" type="com.thoughtworks.go.build.docker.Distro" --]
 [#-- @ftlvariable name="distroVersion" type="com.thoughtworks.go.build.docker.DistroVersion" --]
 [#-- @ftlvariable name="goVersions" type="com.thoughtworks.go.build.GoVersions" --]

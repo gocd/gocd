@@ -53,10 +53,6 @@ LABEL gocd.version="${goVersions.goVersion}" \
   gocd.full.version="${goVersions.fullVersion}" \
   gocd.git.sha="${goVersions.gitRevision}"
 
-<#list additionalFiles as filePath, fileDescriptor>
-ADD ${fileDescriptor.url} ${filePath}
-</#list>
-
 # force encoding
 ENV LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8
 <#list distro.getEnvironmentVariables(distroVersion) as key, value>
@@ -69,13 +65,6 @@ ARG GID=1000
 COPY --from=multistageinput ${distro.getMultiStageInputDirectory()} ${distro.getMultiStageInputDirectory()}
 </#if>
 RUN \
-<#if additionalFiles?size != 0>
-# add mode and permissions for files we added above
-  <#list additionalFiles as filePath, fileDescriptor>
-  chmod ${fileDescriptor.mode} ${filePath} && \
-  chown ${fileDescriptor.owner}:${fileDescriptor.group} ${filePath} && \
-  </#list>
-</#if>
 <#list distro.getBaseImageUpdateCommands(distroVersion) as command>
   ${command} && \
 </#list>

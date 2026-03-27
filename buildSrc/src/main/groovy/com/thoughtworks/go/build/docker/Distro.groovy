@@ -52,7 +52,7 @@ enum Distro implements DistroBehavior {
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       [
         // procps is needed for tanuki wrapper shell script
-        'apk add --no-cache git openssh-client bash curl procps'
+        'apk add --no-cache tini-static git openssh-client bash curl procps',
       ]
     }
 
@@ -133,7 +133,7 @@ enum Distro implements DistroBehavior {
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       [
         // procps is needed for tanuki wrapper shell script
-        'apk add --no-cache git openssh-client bash curl procps glibc-locale-en'
+        'apk add --no-cache tini-static git openssh-client bash curl procps glibc-locale-en'
       ]
     }
   },
@@ -152,15 +152,13 @@ enum Distro implements DistroBehavior {
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       [
         "microdnf remove -y shadow-utils",
-        "microdnf install -y git-core openssh-clients bash unzip curl-minimal procps-ng coreutils-single glibc-langpack-en bsdtar",
+        "printf '[epel9]\\nname=Extra Packages for Enterprise Linux 9 - \$basearch\\nbaseurl=https://download.fedoraproject.org/pub/epel/9/Everything/\$basearch/\\nenabled=0\\ngpgcheck=1\\ngpgkey=https://download.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9' > /etc/yum.repos.d/epel.repo",
+        "microdnf --enablerepo=epel9 install -y tini-static",
+        "rm /etc/yum.repos.d/epel.repo",
+        "microdnf install -y git-core openssh-clients bash unzip curl-minimal procps-ng coreutils-single glibc-langpack-en tar",
         "microdnf clean all",
         "rm -rf /var/cache/dnf",
       ]
-    }
-
-    @Override
-    List<String> getInstallJavaCommands(AdoptiumVersion version) {
-      super.getInstallJavaCommands(version).collect { it.replaceFirst("^tar", "bsdtar") }
     }
 
     @Override
@@ -184,7 +182,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       [
-        'DEBIAN_FRONTEND=noninteractive apt-get install -y git-core openssh-client bash unzip curl ca-certificates locales procps coreutils',
+        'DEBIAN_FRONTEND=noninteractive apt-get install -y tini git-core openssh-client bash unzip curl ca-certificates locales procps coreutils',
         'DEBIAN_FRONTEND=noninteractive apt-get clean all',
         'rm -rf /var/lib/apt/lists/*',
         'echo \'en_US.UTF-8 UTF-8\' > /etc/locale.gen && /usr/sbin/locale-gen'

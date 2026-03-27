@@ -44,7 +44,6 @@ subprojects {
     task.configureFor(ImageType.agent)
     task.distro = distro
     task.distroVersion = distroVersion
-    task.tiniVersion = project.versions.tini
     task.distributionDir = distributionsDir
 
     def licenseSourceFile = rootProject.file("LICENSE")

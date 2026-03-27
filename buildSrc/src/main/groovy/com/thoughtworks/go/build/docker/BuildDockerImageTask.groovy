@@ -65,7 +65,6 @@ abstract class BuildDockerImageTask extends DefaultTask {
   @InputFile abstract RegularFileProperty getArtifactZip()
   @Input Distro distro
   @Input DistroVersion distroVersion
-  @Input String tiniVersion
 
   // We don't declare an output here and multiple tasks share dir from parent with unique tarballs per
   // distribution, so the dirs are not "owned" by the task.
@@ -287,7 +286,6 @@ abstract class BuildDockerImageTask extends DefaultTask {
       distro                         : distro,
       distroVersion                  : distroVersion,
       goVersions                     : goVersions,
-      additionalFiles                : additionalFiles,
       imageName                      : dockerImageName,
       useFromArtifact                : gitPush == null,
       dockerAliasToWrapperArchAsShell: Architecture.dockerAliasToWrapperArchAsShell(),
@@ -320,17 +318,4 @@ abstract class BuildDockerImageTask extends DefaultTask {
   String getDockerImageName() {
     imageType.get().dockerImageNameFor(distro, distroVersion)
   }
-
-  @Internal
-  Map<String, Map<String, String>> getAdditionalFiles() {
-    return [
-      '/usr/local/sbin/tini': [
-        url  : "https://github.com/krallin/tini/releases/download/v${tiniVersion}/tini-static-\${TARGETARCH}".toString(),
-        mode : '0755',
-        owner: 'root',
-        group: 'root'
-      ]
-    ]
-  }
-
 }

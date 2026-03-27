@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/aquasecurity/trivy/refs/heads/main/schema/trivy-config.json
+ignorefile: "/.trivyignore.yaml"
+skip-update-check: true
+no-progress: true
+
+scan:
+  disable-telemetry: true
+  scanners:
+    - vuln
+    - misconfig
+    - secret
+
+vulnerability:
+  ignore-status:
+    - not_affected
+    - under_investigation
+    - will_not_fix
+
+misconfiguration:
+  checks-bundle-repository: docker.io/aquasec/trivy-checks:1
+
+db:
+  no-progress: true
+
+  java-repository:
+    - docker.io/aquasec/trivy-java-db:1
+
+  repository:
+    - docker.io/aquasec/trivy-db:2
+
+registry:
+  mirrors:
+    index.docker.io:
+      - docker.gocd.io

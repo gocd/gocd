@@ -1,19 +1,9 @@
 services:
   trivy:
     image: docker.io/aquasec/trivy:0.69.3@sha256:bcc376de8d77cfe086a917230e818dc9f8528e3c852f7b1aff648949b6258d1c
-    entrypoint: trivy
-    command: [
-      image,
-      --input, /scan-image,
-      --no-progress,
-      --skip-version-check,
-      --disable-telemetry,
-      --scanners, "vuln,misconfig,secret",
-      --ignorefile, "/.trivyignore.yaml",
-      --ignore-status, "not_affected,under_investigation,will_not_fix",
-      --exit-code, "${EXIT_CODE_ON_ERROR}"
-    ]
+    command: [ image, --input, /scan-image, --exit-code, "${EXIT_CODE_ON_ERROR}", --config, /trivy.yaml ]
     volumes:
+      - ./trivy.yaml:/trivy.yaml:ro
       - trivycache:/root/.cache
 volumes:
   trivycache:

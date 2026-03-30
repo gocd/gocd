@@ -41,8 +41,8 @@ GEM
       public_suffix (>= 2.0.2, < 8.0)
     base64 (0.3.0)
     benchmark (0.5.0)
-    bigdecimal (4.0.1)
-    bigdecimal (4.0.1-java)
+    bigdecimal (4.1.0)
+    bigdecimal (4.1.0-java)
     builder (3.3.0)
     capybara (3.40.0)
       addressable
@@ -205,8 +205,8 @@ CHECKSUMS
   addressable (2.8.9) sha256=cc154fcbe689711808a43601dee7b980238ce54368d23e127421753e46895485
   base64 (0.3.0) sha256=27337aeabad6ffae05c265c450490628ef3ebd4b67be58257393227588f5a97b
   benchmark (0.5.0) sha256=465df122341aedcb81a2a24b4d3bd19b6c67c1530713fd533f3ff034e419236c
-  bigdecimal (4.0.1) sha256=8b07d3d065a9f921c80ceaea7c9d4ae596697295b584c296fe599dd0ad01c4a7
-  bigdecimal (4.0.1-java) sha256=95c40a0a92dfb83b293f4b9865cd27caa7c045bedab86f3620e5dc27e6553083
+  bigdecimal (4.1.0) sha256=6dc07767aa3dc456ccd48e7ae70a07b474e9afd7c5bc576f80bd6da5c8dd6cae
+  bigdecimal (4.1.0-java) sha256=1623930ea8e5187d4229f2857f129a83247ccd1cade71a4bc7d8bf3b41bbba59
   builder (3.3.0) sha256=497918d2f9dca528fdca4b88d84e4ef4387256d984b8154e9d5d3fe5a9c8835f
   capybara (3.40.0) sha256=42dba720578ea1ca65fd7a41d163dd368502c191804558f6e0f71b391054aeef
   cgi (0.5.1) sha256=e93fcafc69b8a934fe1e6146121fa35430efa8b4a4047c4893764067036f18e9

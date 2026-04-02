@@ -93,7 +93,7 @@
   },
   "lodash": {
     "moduleName": "lodash",
-    "moduleVersion": "4.17.23",
+    "moduleVersion": "4.18.1",
     "moduleUrls": [
       "https://github.com/lodash/lodash"
     ],

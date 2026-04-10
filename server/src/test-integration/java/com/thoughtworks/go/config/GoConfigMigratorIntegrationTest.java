@@ -305,7 +305,8 @@ public class GoConfigMigratorIntegrationTest {
                               </job>
                             </jobs>
                           </stage>
-                        </pipeline>""", "hello"), 32);
+                        </pipeline>
+                        """, "hello"), 32);
         Files.writeString(configFile, configContent, UTF_8);
 
         goConfigMigrator.migrate();
@@ -341,7 +342,8 @@ public class GoConfigMigratorIntegrationTest {
                              </roles>
                         </security>
                     </server>
-                 </cruise>""";
+                 </cruise>
+                """;
 
         Path configFile = Path.of(systemEnvironment.getCruiseConfigFile());
         Files.writeString(configFile, configContent, UTF_8);
@@ -383,7 +385,8 @@ public class GoConfigMigratorIntegrationTest {
                               </job>
                             </jobs>
                           </stage>
-                        </pipeline>""", 34);
+                        </pipeline>
+                        """, 34);
         Files.writeString(configFile, configContent, UTF_8);
 
         goConfigMigrator.migrate();
@@ -413,7 +416,8 @@ public class GoConfigMigratorIntegrationTest {
                       </admins>
                     </security>
                   </server>
-                </cruise>""";
+                </cruise>
+                """;
 
         Files.writeString(configFile, content, UTF_8);
 
@@ -453,7 +457,8 @@ public class GoConfigMigratorIntegrationTest {
                 <cruise schemaVersion='55'>
                 <server artifactsdir="logs" siteUrl="http://go-server-site-url:8153" secureSiteUrl="https://go-server-site-url" jobTimeout="60">
                   </server>
-                </cruise>""", goConfigService.getCurrentConfig().getMd5());
+                </cruise>
+                """, goConfigService.getCurrentConfig().getMd5());
         assertThat(configValidity.isValid()).as("Has no error").isTrue();
 
         CruiseConfig config = goConfigService.getCurrentConfig();
@@ -475,7 +480,8 @@ public class GoConfigMigratorIntegrationTest {
                       <job name='test'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
                     </jobs>
                   </stage>
-                </pipeline>""", 62);
+                </pipeline>
+                """, 62);
         CruiseConfig configAfterMigration = migrateConfigAndLoadTheNewConfig(oldContent);
         String currentContent = Files.readString(Path.of(goConfigService.fileLocation()), UTF_8);
 
@@ -548,7 +554,8 @@ public class GoConfigMigratorIntegrationTest {
                              </packages>
                         </repository>
                         </repositories>
-                        </cruise>""";
+                        </cruise>
+                        """;
 
         CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configString);
         PackageRepositories packageRepositories = cruiseConfig.getPackageRepositories();
@@ -591,7 +598,8 @@ public class GoConfigMigratorIntegrationTest {
                              </configuration>
                         </repository>
                         </repositories>
-                        </cruise>""";
+                        </cruise>
+                        """;
         CruiseConfig cruiseConfig = loadConfigFileWithContent(configString);
         PackageRepositories packageRepositories = cruiseConfig.getPackageRepositories();
         assertThat(packageRepositories.size()).isEqualTo(1);
@@ -636,7 +644,8 @@ public class GoConfigMigratorIntegrationTest {
                             </jobs>
                           </stage>
                         </pipeline></pipelines>
-                        </cruise>""";
+                        </cruise>
+                        """;
         CruiseConfig cruiseConfig = loadConfigFileWithContent(configString);
         PipelineConfig pipelineConfig = cruiseConfig.getAllPipelineConfigs().getFirst();
         JobConfig jobConfig = pipelineConfig.getFirstStageConfig().getJobs().getFirst();
@@ -666,7 +675,8 @@ public class GoConfigMigratorIntegrationTest {
                               </stage>
                             </pipeline>
                           </pipelines>
-                        </cruise>""";
+                        </cruise>
+                        """;
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         Task task = migratedConfig.tasksForJob("Test", "Functional", "Functional").getFirst();
         assertThat(task).isInstanceOf(ExecTask.class);
@@ -698,7 +708,8 @@ public class GoConfigMigratorIntegrationTest {
                               </stage>
                             </pipeline>
                           </templates>
-                        </cruise>""";
+                        </cruise>
+                        """;
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         Task task = migratedConfig.tasksForJob("Test", "Functional", "Functional").getFirst();
         assertThat(task).isInstanceOf(ExecTask.class);
@@ -729,7 +740,8 @@ public class GoConfigMigratorIntegrationTest {
                   </stage>
                      </pipeline>
                   </pipelines>
-                </cruise>""";
+                </cruise>
+                """;
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
         EnvironmentVariablesConfig variables = pipelineConfig.getVariables();
@@ -765,7 +777,8 @@ public class GoConfigMigratorIntegrationTest {
                   </stage>
                    </pipeline>
                   </pipelines>
-                </cruise>""";
+                </cruise>
+                """;
 
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
@@ -824,7 +837,8 @@ public class GoConfigMigratorIntegrationTest {
                   </stage>
                    </pipeline>
                   </pipelines>
-                </cruise>""";
+                </cruise>
+                """;
 
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
@@ -897,7 +911,8 @@ public class GoConfigMigratorIntegrationTest {
                   </stage>
                    </pipeline>
                   </pipelines>
-                </cruise>""";
+                </cruise>
+                """;
 
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
@@ -972,7 +987,8 @@ public class GoConfigMigratorIntegrationTest {
                   </stage>
                    </pipeline>
                   </pipelines>
-                </cruise>""";
+                </cruise>
+                """;
 
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         PipelineConfig up42 = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
@@ -1016,7 +1032,8 @@ public class GoConfigMigratorIntegrationTest {
                           </admins>
                         </security>
                       </server>
-                    </cruise>""";
+                    </cruise>
+                """;
 
             final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml);
             assertThat(isNotBlank(cruiseConfig.server().getTokenGenerationKey())).isTrue();
@@ -1061,7 +1078,8 @@ public class GoConfigMigratorIntegrationTest {
                       </configuration>
                     </scm>
                   </scms>
-                </cruise>""";
+                </cruise>
+                """;
 
         final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml);
         assertThat(cruiseConfig.getElasticConfig()).isNotNull();
@@ -1112,7 +1130,8 @@ public class GoConfigMigratorIntegrationTest {
                       </configuration>
                     </scm>
                   </scms>
-                </cruise>""";
+                </cruise>
+                """;
 
         final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml);
         assertThat(cruiseConfig.server().getAgentAutoRegisterKey()).isEqualTo("041b5c7e-dab2-11e5-a908-13f95f3c6ef6");
@@ -1138,7 +1157,8 @@ public class GoConfigMigratorIntegrationTest {
                       </profiles>
                     </elastic>
                   </server>
-                </cruise>""";
+                </cruise>
+                """;
 
         final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml);
         assertThat(cruiseConfig.getElasticConfig().getProfiles().getFirst()).isEqualTo(new ElasticProfile("dev-build", "no-op-cluster-for-cd.go.contrib.elastic-agent.docker-swarm",
@@ -1266,7 +1286,8 @@ public class GoConfigMigratorIntegrationTest {
                             </jobs>
                           </stage>
                         </pipeline></pipelines>
-                        </cruise>""";
+                        </cruise>
+                        """;
 
         CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(oldConfigWithNameInTask);
         String newConfigWithoutNameInTask = Files.readString(configFile, UTF_8);
@@ -1328,7 +1349,8 @@ public class GoConfigMigratorIntegrationTest {
         String configXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <cruise schemaVersion="118">
-            %s</cruise>""".formatted(configContent);
+            %s</cruise>
+            """.formatted(configContent);
 
         ClusterProfile azureProfile = new ClusterProfile("no-op-cluster-for-com.thoughtworks.gocd.elastic-agent.azure", "com.thoughtworks.gocd.elastic-agent.azure");
         ClusterProfile dockerProfile = new ClusterProfile("no-op-cluster-for-cd.go.contrib.elastic-agent.docker", "cd.go.contrib.elastic-agent.docker");
@@ -1393,7 +1415,8 @@ public class GoConfigMigratorIntegrationTest {
         String configXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <cruise schemaVersion="127">
-            %s</cruise>""".formatted(configContent);
+            %s</cruise>
+            """.formatted(configContent);
 
         int initialAgentCountInDb = agentDao.getAllAgents().size();
         migrateConfigAndLoadTheNewConfig(configXml);
@@ -1472,7 +1495,8 @@ public class GoConfigMigratorIntegrationTest {
         String configXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <cruise schemaVersion="127">
-            %s</cruise>""".formatted(configContent);
+            %s</cruise>
+            """.formatted(configContent);
 
         Agent agent = new Agent("one", "old-host", "old-ip", "cookie");
         agentDao.saveOrUpdate(agent);
@@ -1512,7 +1536,8 @@ public class GoConfigMigratorIntegrationTest {
                   <job name='test'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
                 </jobs>
               </stage>
-            </pipeline>""".formatted(valueForOnChangesInTimer), 63);
+            </pipeline>
+            """.formatted(valueForOnChangesInTimer), 63);
     }
 
     private CruiseConfig migrateConfigAndLoadTheNewConfig(String content) throws Exception {

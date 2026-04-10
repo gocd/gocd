@@ -67,10 +67,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
-        "classpath:/applicationContext-global.xml",
-        "classpath:/applicationContext-dataLocalAccess.xml",
-        "classpath:/testPropertyConfigurer.xml",
-        "classpath:/spring-all-servlet.xml",
+    "classpath:/applicationContext-global.xml",
+    "classpath:/applicationContext-dataLocalAccess.xml",
+    "classpath:/testPropertyConfigurer.xml",
+    "classpath:/spring-all-servlet.xml",
 })
 public class GoFileConfigDataSourceIntegrationTest {
 
@@ -154,8 +154,8 @@ public class GoFileConfigDataSourceIntegrationTest {
         });
 
         assertThatThrownBy(() -> dataSource.forceLoad(Path.of(systemEnvironment.getCruiseConfigFile())))
-                .isInstanceOf(GoConfigInvalidException.class)
-                .hasMessageContaining("Stage with name 'upstream_stage_original' does not exist on pipeline 'upstream', it is being referred to from pipeline 'remote_downstream' (url at revision r1)");
+            .isInstanceOf(GoConfigInvalidException.class)
+            .hasMessageContaining("Stage with name 'upstream_stage_original' does not exist on pipeline 'upstream', it is being referred to from pipeline 'remote_downstream' (url at revision r1)");
     }
 
     @Test
@@ -213,8 +213,8 @@ public class GoFileConfigDataSourceIntegrationTest {
             pipelineConfig.add(new StageConfig(new CaseInsensitiveString("new_stage"), new JobConfigs(new JobConfig("job"))));
             return cruiseConfig;
         }, new GoConfigHolder(configHelper.currentConfig(), configHelper.currentConfig())))
-                .isInstanceOf(GoConfigInvalidException.class)
-                .hasMessageContaining(String.format("Stage with name 's1' does not exist on pipeline '%s', it is being referred to from pipeline '%s' (%s)", upstream.name(), remotePipeline, repoConfigOrigin.displayName()));
+            .isInstanceOf(GoConfigInvalidException.class)
+            .hasMessageContaining(String.format("Stage with name 's1' does not exist on pipeline '%s', it is being referred to from pipeline '%s' (%s)", upstream.name(), remotePipeline, repoConfigOrigin.displayName()));
     }
 
     @Test
@@ -292,28 +292,28 @@ public class GoFileConfigDataSourceIntegrationTest {
         String originalCopy = Files.readString(file, UTF_8);
 
         assertThatThrownBy(() -> dataSource.write("abc", false))
-                .isInstanceOf(JDOMParseException.class)
-                .hasMessageContaining("Content is not allowed in prolog");
+            .isInstanceOf(JDOMParseException.class)
+            .hasMessageContaining("Content is not allowed in prolog");
 
         assertThat(Files.readString(file, UTF_8)).isEqualTo(originalCopy);
     }
 
     @Test
     public void shouldEncryptSvnPasswordWhenConfigIsChangedViaFileSystem() throws Exception {
-        String configContent = ConfigFileFixture.configWithPipeline(String.format(
-                """
-                        <pipeline name='pipeline1'>
-                            <materials>
-                              <svn url='svnurl' username='admin' password='%s'/>
-                            </materials>
-                          <stage name='mingle'>
-                            <jobs>
-                              <job name='do-something'>
-                                 <tasks><ant /></tasks>
-                              </job>
-                            </jobs>
-                          </stage>
-                        </pipeline>""", "hello"), GoConstants.CONFIG_SCHEMA_VERSION);
+        String configContent = ConfigFileFixture.configWithPipeline(String.format("""
+            <pipeline name='pipeline1'>
+                <materials>
+                  <svn url='svnurl' username='admin' password='%s'/>
+                </materials>
+              <stage name='mingle'>
+                <jobs>
+                  <job name='do-something'>
+                     <tasks><ant /></tasks>
+                  </job>
+                </jobs>
+              </stage>
+            </pipeline>
+            """, "hello"), GoConstants.CONFIG_SCHEMA_VERSION);
         Files.writeString(dataSource.location(), configContent, UTF_8);
 
         GoConfigHolder configHolder = dataSource.load();
@@ -325,19 +325,19 @@ public class GoFileConfigDataSourceIntegrationTest {
 
     @Test
     public void shouldEncryptTfsPasswordWhenConfigIsChangedViaFileSystem() throws Exception {
-        String configContent = ConfigFileFixture.configWithPipeline(
-                """
-                        <pipeline name='pipeline1'>
-                            <materials>
-                              <tfs url='http://some.repo.local' username='username@domain' password='password' projectPath='$/project_path' />
-                            </materials>
-                          <stage name='mingle'>
-                            <jobs>
-                              <job name='plan1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
-                              </job>
-                            </jobs>
-                          </stage>
-                        </pipeline>""", GoConstants.CONFIG_SCHEMA_VERSION);
+        String configContent = ConfigFileFixture.configWithPipeline("""
+            <pipeline name='pipeline1'>
+                <materials>
+                  <tfs url='http://some.repo.local' username='username@domain' password='password' projectPath='$/project_path' />
+                </materials>
+              <stage name='mingle'>
+                <jobs>
+                  <job name='plan1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                  </job>
+                </jobs>
+              </stage>
+            </pipeline>
+            """, GoConstants.CONFIG_SCHEMA_VERSION);
         Files.writeString(dataSource.location(), configContent, UTF_8);
 
         GoConfigHolder configHolder = dataSource.load();

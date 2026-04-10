@@ -23,18 +23,14 @@ import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
+import org.jdom2.input.JDOMParseException;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.IOException;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.BASIC_CONFIG;
-import static com.thoughtworks.go.helper.ConfigFileFixture.INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 
@@ -61,13 +57,10 @@ public abstract class GoConfigDaoTestBase {
 
     @Test
     public void shouldThrowExceptionIfFileIsInvalid() {
-        try {
-            useConfigString("invalid config file");
-            goConfigDao.currentConfig();
-            fail("Should have thrown a parse exception");
-        } catch (Exception expected) {
-            assertThat(expected.getMessage()).contains("Content is not allowed in prolog.");
-        }
+        assertThatThrownBy(() -> useConfigString("invalid config file"))
+            .isExactlyInstanceOf(RuntimeException.class)
+            .hasMessageContaining("Content is not allowed in prolog.")
+            .hasCauseInstanceOf(JDOMParseException.class);
     }
 
     @Test
@@ -75,7 +68,7 @@ public abstract class GoConfigDaoTestBase {
         CruiseConfig cruiseConfig = GoConfigFileHelper.load(BASIC_CONFIG);
 
         final ArtifactTypeConfigs cardListArtifacts = cruiseConfig.jobConfigByName("pipeline1", "mingle",
-                "cardlist", true).artifactTypeConfigs();
+            "cardlist", true).artifactTypeConfigs();
         assertThat(cardListArtifacts.size()).isEqualTo(0);
         assertThat(cruiseConfig.jobConfigByName("pipeline1", "mingle", "bluemonkeybutt", true).artifactTypeConfigs().size()).isEqualTo(1);
     }
@@ -103,52 +96,40 @@ public abstract class GoConfigDaoTestBase {
                 PipelineConfigs configs = cruiseConfig.getGroups().getFirst();
                 configs.remove(configs.getFirst());
             }
-
         })).isInstanceOf(RuntimeException.class)
             .hasMessage(ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH);
     }
 
     @Test
     public void shouldNotFailNoOverwriteUpdateWhenEditingUnmodifiedCopy() {
-        try {
-            ConfigSaveState configSaveState = goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
-                @Override
-                public String unmodifiedMd5() {
-                    return configHelper.currentConfig().getMd5();
-                }
+        ConfigSaveState configSaveState = goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
+            @Override
+            public String unmodifiedMd5() {
+                return configHelper.currentConfig().getMd5();
+            }
 
-                @Override
-                public CruiseConfig update(CruiseConfig cruiseConfig) {
-                    cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("foo")));
-                    return cruiseConfig;
-                }
-            });
-            assertThat(configSaveState).isEqualTo(ConfigSaveState.UPDATED);
-        } catch (RuntimeException e) {
-            fail("should not have failed for edit on unmodified config.");
-        }
+            @Override
+            public CruiseConfig update(CruiseConfig cruiseConfig) {
+                cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("foo")));
+                return cruiseConfig;
+            }
+        });
+        assertThat(configSaveState).isEqualTo(ConfigSaveState.UPDATED);
     }
 
     @Test
     public void shouldNotFailUpdateWithOverwritePermittedWhenEditingStaleCopy() {
-        try {
-            goConfigDao.updateConfig(cruiseConfig -> {
-                cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("foo")));
-                return cruiseConfig;
-            });
-        } catch (RuntimeException e) {
-            fail("should not have failed for edit when overwrite allowed.");
-        }
+        goConfigDao.updateConfig(cruiseConfig -> {
+            cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("foo")));
+            return cruiseConfig;
+        });
     }
 
     @Test
     public void shouldNotUpdateIfCannotContinueIfTheCommandIsPreprocessable() {
         CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(goConfigDao.loadForEditing().getMd5(), false);
-        try {
-            goConfigDao.updateConfig(command);
-            fail("should have failed as check returned false");
-        } catch (ConfigUpdateCheckFailedException ignored) {
-        }
+        assertThatThrownBy(() -> goConfigDao.updateConfig(command))
+            .isExactlyInstanceOf(ConfigUpdateCheckFailedException.class);
         assertThat(command.wasUpdated).isFalse();
     }
 
@@ -170,32 +151,18 @@ public abstract class GoConfigDaoTestBase {
     }
 
     @Test
-    public void should_NOT_allowUpdateOf_serverId() throws Exception {
-        useConfigString(ConfigFileFixture.CRUISE);
+    public void shouldNotAllowUpdateOfServerId() throws Exception {
+        useConfigString(ConfigFileFixture.MINIMAL);
         String oldServerId = goConfigDao.currentConfig().server().getServerId();
-        Exception ex = null;
-        try {
+        assertThatThrownBy(() ->
             GoConfigFileHelper.withServerIdImmutability(() -> goConfigDao.updateConfig(cruiseConfig -> {
                 ReflectionUtil.setField(cruiseConfig.server(), "serverId", "new-value");
                 return cruiseConfig;
-            }));
-            fail("should not save with modified serverId");
-        } catch (Exception e) {
-            ex = e;
-        }
-        assertThat(ex.getMessage()).contains("The value of 'serverId' uniquely identifies a Go server instance. This field cannot be modified");
+            })))
+            .isExactlyInstanceOf(RuntimeException.class)
+            .hasMessageContaining("The value of 'serverId' uniquely identifies a Go server instance. This field cannot be modified");
         CruiseConfig config = goConfigDao.currentConfig();
         assertThat(config.server().getServerId()).isEqualTo(oldServerId);
-    }
-
-    @Test
-    public void shouldNotConfigMultipleTrackingTools() {
-        try {
-            Files.writeString(Path.of(goConfigDao.fileLocation()), INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS, UTF_8);
-            goConfigDao.forceReload();
-        } catch (Exception e) {
-            assertThat(e.getMessage()).contains("Invalid content was found starting with element 'trackingtool'. One of '{timer, environmentvariables, dependencies, materials}");
-        }
     }
 
     @Test
@@ -204,7 +171,7 @@ public abstract class GoConfigDaoTestBase {
         final String oldMd5 = configHelper.currentConfig().getMd5();
         configHelper.addMailHost(getMailhost("mailhost.local"));
 
-        ConfigSaveState configSaveState = goConfigDao.updateConfig(configHelper.addPipelineCommand(oldMd5,"p2", "stage1", "build1"));
+        ConfigSaveState configSaveState = goConfigDao.updateConfig(configHelper.addPipelineCommand(oldMd5, "p2", "stage1", "build1"));
 
         CruiseConfig updatedConfig = goConfigDao.currentConfig();
         assertThat(updatedConfig.hasPipelineNamed(new CaseInsensitiveString("p2"))).isTrue();
@@ -220,12 +187,10 @@ public abstract class GoConfigDaoTestBase {
         goConfigDao = new GoConfigDao(cachedConfigService);
         EntityConfigUpdateCommand<?> command = mock(EntityConfigUpdateCommand.class);
         when(command.canContinue(cruiseConfig)).thenReturn(false);
-        try {
-            goConfigDao.updateConfig(command, new Username(new CaseInsensitiveString("user")));
-            fail("Expected to throw exception of type:" + ConfigUpdateCheckFailedException.class.getName());
-        } catch (Exception e) {
-            assertInstanceOf(ConfigUpdateCheckFailedException.class, e);
-        }
+
+        assertThatThrownBy(() -> goConfigDao.updateConfig(command, new Username(new CaseInsensitiveString("user"))))
+            .isExactlyInstanceOf(ConfigUpdateCheckFailedException.class);
+
         verify(cachedConfigService).currentConfig();
         verifyNoMoreInteractions(cachedConfigService);
     }
@@ -246,7 +211,7 @@ public abstract class GoConfigDaoTestBase {
     }
 
 
-    public void useConfigString(String config) throws Exception {
+    public void useConfigString(String config) throws IOException {
         configHelper.writeXmlToConfigFile(ConfigMigrator.migrate(config));
     }
 

@@ -43,7 +43,8 @@ public class AuthorizationMigrationTest {
             """;
 
     private static final String CONFIG_WITH_AUTH = """
-            <?xml version="1.0" encoding="utf-8"?><cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="13">
+            <?xml version="1.0" encoding="utf-8"?>
+            <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="13">
               <server artifactsdir="other-artifacts">
                 <security>
                   <roles>
@@ -72,7 +73,8 @@ public class AuthorizationMigrationTest {
                   </stage>
                 </pipeline>
               </pipelines>
-            </cruise>""".formatted(OLD_AUTH);
+            </cruise>
+            """.formatted(OLD_AUTH);
 
     @Test
     public void shouldMigrateAuthToAuthorization() throws Exception {

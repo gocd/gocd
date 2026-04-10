@@ -20,12 +20,47 @@ import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static com.thoughtworks.go.helper.ConfigFileFixture.*;
+import static com.thoughtworks.go.helper.ConfigFileFixture.ONE_PIPELINE;
+import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TrackingToolSerializationTest {
     private MagicalGoConfigXmlLoader loader;
     private MagicalGoConfigXmlWriter writer;
+
+    private static final String PIPELINE_WITH_TRACKINGTOOL = """
+        <pipeline name="pipeline1">
+          <trackingtool link="http://mingle05/projects/cce/cards/${ID}" regex="(evo-\\d+)" />
+          <materials>
+            <svn url="foobar" checkexternals="true" />
+          </materials>
+          <stage name="stage">
+            <jobs>
+              <job name="functional">
+                <tasks>
+                  <ant />
+                </tasks>
+                <artifacts>
+                  <artifact type="build" src="artifact1.xml" dest="cruise-output" />
+                </artifacts>
+              </job>
+            </jobs>
+          </stage>
+        </pipeline>""";
+
+    private static final String CONFIG_WITH_TRACKINGTOOL = """
+        <?xml version="1.0" encoding="utf-8"?>
+        <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
+          <server>
+             <artifacts>
+                   <artifactsDir>other-artifacts</artifactsDir>
+             </artifacts>
+        </server>
+          <pipelines>
+            %s
+          </pipelines>
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION, PIPELINE_WITH_TRACKINGTOOL);
 
     @BeforeEach
     public void setUp() {

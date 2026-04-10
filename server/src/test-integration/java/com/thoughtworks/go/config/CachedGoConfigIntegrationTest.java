@@ -467,7 +467,8 @@ public class CachedGoConfigIntegrationTest {
                 </stage>
               </pipeline>
             </templates>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
+            </cruise>
+            """.formatted(CONFIG_SCHEMA_VERSION);
 
         configHelper.writeXmlToConfigFile(content);
 
@@ -517,7 +518,8 @@ public class CachedGoConfigIntegrationTest {
                 </stage>
             </pipeline>
             </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
+            </cruise>
+            """.formatted(CONFIG_SCHEMA_VERSION);
 
         configHelper.writeXmlToConfigFile(content);
 
@@ -556,7 +558,8 @@ public class CachedGoConfigIntegrationTest {
                 </stage>
             </pipeline>
             </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
+            </cruise>
+            """.formatted(CONFIG_SCHEMA_VERSION);
 
         configHelper.writeXmlToConfigFile(content);
 
@@ -598,7 +601,8 @@ public class CachedGoConfigIntegrationTest {
                 </stage>
             </pipeline>
             </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
+            </cruise>
+            """.formatted(CONFIG_SCHEMA_VERSION);
 
         configHelper.writeXmlToConfigFile(content);
 

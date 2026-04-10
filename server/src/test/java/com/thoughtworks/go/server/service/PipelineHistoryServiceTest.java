@@ -75,7 +75,8 @@ class PipelineHistoryServiceTest {
                     </stage>
                 </pipeline>
               </pipelines>
-            </cruise>""").config;
+            </cruise>
+            """).config;
 
     @Mock
     private PipelineDao pipelineDao;

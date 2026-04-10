@@ -12,7 +12,7 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-  -->
+ -->
 <#if _page_title??>
 <div id="job_details_header" class="job_details entity_title page_header">
   <div class="row">

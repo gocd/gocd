@@ -100,7 +100,7 @@ tasks.register('generateResources', Copy) {
     expand(props)
   }
 }
-licenseMain.dependsOn generateResources
+checkLicenseMain.dependsOn generateResources
 processResources.dependsOn generateResources
 
 tasks.register('prepare') {

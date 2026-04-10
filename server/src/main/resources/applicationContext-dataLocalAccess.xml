@@ -18,7 +18,7 @@
   - Application context definition for the data access layer.
   - Accessed by business layer objects defined in "applicationContext.xml"
   - (see web.xml's "contextConfigLocation").
-  -->
+-->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"

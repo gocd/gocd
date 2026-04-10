@@ -181,7 +181,8 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
                   </configuration>
                 </scm>
               </scms>
-            </cruise>""".formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+            </cruise>
+            """.formatted(GoConstants.CONFIG_SCHEMA_VERSION);
 
         try {
             xmlLoader.loadConfigHolder(xml);
@@ -206,7 +207,8 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
                    </configuration>
                </scm>
             </scms>
-            </cruise>""".formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+            </cruise>
+            """.formatted(GoConstants.CONFIG_SCHEMA_VERSION);
         String configContent = String.format(configTemplate, false);
         GoConfigHolder holder = xmlLoader.loadConfigHolder(configContent);
         SCM scm = holder.config.getSCMs().find("2ef830d7-dd66-42d6-b393-64a84646e557");
@@ -246,7 +248,8 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
                   </jobs>
                 </stage>
               </pipeline>
-            </pipelines></cruise>""".formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+            </pipelines></cruise>
+            """.formatted(GoConstants.CONFIG_SCHEMA_VERSION);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("new_name"));
@@ -289,7 +292,8 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
                   </jobs>
                 </stage>
               </pipeline>
-            </pipelines></cruise>""".formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+            </pipelines></cruise>
+            """.formatted(GoConstants.CONFIG_SCHEMA_VERSION);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("new_name"));
@@ -336,7 +340,8 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
                   </jobs>
                 </stage>
               </pipeline>
-            </pipelines></cruise>""".formatted(GoConstants.CONFIG_SCHEMA_VERSION, encryptedValue);
+            </pipelines></cruise>
+            """.formatted(GoConstants.CONFIG_SCHEMA_VERSION, encryptedValue);
 
         //meta data of scm
         SCMPropertyConfiguration scmConfiguration = new SCMPropertyConfiguration();

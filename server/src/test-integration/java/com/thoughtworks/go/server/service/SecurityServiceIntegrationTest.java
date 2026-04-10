@@ -452,5 +452,6 @@ public class SecurityServiceIntegrationTest {
               </stage>
             </pipeline>
             </pipelines>
-            </cruise>""";
+            </cruise>
+            """;
 }

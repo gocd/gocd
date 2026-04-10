@@ -57,8 +57,7 @@ tasks.register('generateResources', Copy) {
     rename "(.*)-${project.version}.(jar|zip)", '$1.$2'
   }
 }
-
-licenseMain.dependsOn generateResources
+checkLicenseMain.dependsOn generateResources
 processResources.dependsOn generateResources
 
 tasks.register('prepare') {

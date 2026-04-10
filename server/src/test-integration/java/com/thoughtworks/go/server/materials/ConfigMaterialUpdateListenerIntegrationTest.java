@@ -135,7 +135,8 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
                 """
                         <?xml ve"?>
                         <cru>
-                        </cruise>""");
+                        </cruise>
+                        """);
 
         materialUpdateService.updateMaterial(material);
 
@@ -306,7 +307,9 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
                       <svn url="file:///tmp/foo" />
                     </materials>
                   </pipeline>
-                </pipelines></cruise>""");
+                </pipelines>
+                </cruise>
+                """);
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
         waitForMaterialNotInProgress();

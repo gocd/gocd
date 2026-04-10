@@ -19,6 +19,8 @@ import com.thoughtworks.go.build.GoVersions
 import com.thoughtworks.go.build.LicenseReport
 import com.thoughtworks.go.build.TextUtils
 import com.thoughtworks.go.build.VerifyJarTask
+import dev.yumi.gradle.licenser.task.ApplyLicenseTask
+import dev.yumi.gradle.licenser.task.CheckLicenseTask
 import groovy.json.JsonSlurper
 
 description = 'GoCD Server'
@@ -309,13 +311,25 @@ def prepare = tasks.register('prepare') {
   dependsOn = [prepareNoRails, prepareTestGitRepo, ':server:compileAssetsWebpackDev']
 }
 
-licenseMain {
-  // Add in the webapp for license checks since we do not have a dedicated sourceSet for it
-  source += webAppDir
+def webAppLicenseHeaderFiles = project.files(webAppDir).asFileTree.matching {
+  // Files we don't want headers on
+  exclude('**/*.html', '**/*.svg')
+
+  // generated code | libs | output
+  exclude('**/*.scss.d.ts', '**/rails/webpack/gen/**')
+  exclude('**/rails/node_modules/**', '**/rails/node-vendor/**', '**/rails/gems/**', '**/rails/app/assets/javascripts/lib/**')
+  exclude('**/tmp/**', '**/rails/public/assets/**')
 }
-licenseFormatMain {
-  // Add in the webapp for license checks since we do not have a dedicated sourceSet for it
-  source += webAppDir
+
+// Create license tasks for webapp since we do not have a dedicated sourceSet for it
+tasks.register("checkLicenseWebapp", CheckLicenseTask).configure {
+  sourceFiles = webAppLicenseHeaderFiles
+  reportFile = project.layout.buildDirectory.file("yumi/licenser/check_report_webapp.txt").get().asFile
+}
+
+tasks.register("applyLicenseWebapp", ApplyLicenseTask).configure {
+  sourceFiles = webAppLicenseHeaderFiles
+  reportFile = project.layout.buildDirectory.file("yumi/licenser/apply_report_webapp.txt").get().asFile
 }
 
 static def isIntegrationTest(String text) {

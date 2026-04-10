@@ -1,5 +1,3 @@
-// noinspection ES6UnusedImports
-
 /*
  * Copyright Thoughtworks, Inc.
  *
@@ -18,6 +16,7 @@
 import {TestHelper} from "views/pages/spec/test_helper";
 import {Dropdown} from "views/shared/dropdown";
 import Stream from "mithril/stream";
+// noinspection ES6UnusedImports
 import m from "mithril";
 
 describe('Dropdown widget', () => {

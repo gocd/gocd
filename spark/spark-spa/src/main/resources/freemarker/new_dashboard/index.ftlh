@@ -12,7 +12,7 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-  -->
+ -->
 <div id="dashboard" class="dashboard"
   data-show-empty-pipeline-groups="${showEmptyPipelineGroups?c}"
   data-should-show-analytics-icon="${shouldShowAnalyticsIcon?c}"

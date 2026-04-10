@@ -12,7 +12,7 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-  -->
+ -->
 <#noparse>
 <textarea rows="0" cols="0" id="tab-content-of-materials-template" style="display: none;">
     {for revision in revisions}

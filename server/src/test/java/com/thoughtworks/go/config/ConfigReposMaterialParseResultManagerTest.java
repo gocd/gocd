@@ -248,7 +248,7 @@ class ConfigReposMaterialParseResultManagerTest {
 
     @Nested
     class ConfigRepoReparseListenerTest {
-        @ParameterizedTest
+        @ParameterizedTest(name = "{arguments}")
         @ValueSource(classes = {PipelineConfig.class, EnvironmentConfig.class, PipelineTemplateConfig.class, SCM.class, ConfigRepoConfig.class, ElasticProfile.class})
         void shouldCareAboutSpecifiedConfigClasses(Class<? extends Validatable> configClassToCareAbout) {
             final ConfigReposMaterialParseResultManager manager = mock(ConfigReposMaterialParseResultManager.class);

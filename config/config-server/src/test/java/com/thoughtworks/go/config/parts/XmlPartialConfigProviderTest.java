@@ -198,7 +198,8 @@ public class XmlPartialConfigProviderTest {
         String content = """
             <?xml version="1.0" encoding="utf-8"?>
             <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="38">
-            /cruise>""";// missing '<'
+            /cruise>
+            """;// missing '<'
 
         helper.writeFileWithContent("bad.gocd.xml", content);
 

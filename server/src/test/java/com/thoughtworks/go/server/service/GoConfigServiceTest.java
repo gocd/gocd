@@ -248,12 +248,14 @@ public class GoConfigServiceTest {
         String configContent = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="14">
-                <server>
-                  <artifacts>
-                    <artifactsDir>artifacts</artifactsDir>
-                  </artifacts>
-                </server>
-                <unknown/></cruise>""";
+                  <server>
+                    <artifacts>
+                      <artifactsDir>artifacts</artifactsDir>
+                    </artifacts>
+                  </server>
+                  <unknown/>
+                </cruise>
+                """;
         GoConfigValidity validity = goConfigService.fileSaver(true).saveXml(configContent, "md5");
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).isEqualTo("Cruise config file with version 14 is invalid. Unable to upgrade.");
     }
@@ -265,9 +267,14 @@ public class GoConfigServiceTest {
         String configContent = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
-                <server><artifacts>
-                <artifactsDir>artifacts</artifactsDir>
-                </artifacts></server><unknown/></cruise>""".formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+                  <server>
+                    <artifacts>
+                      <artifactsDir>artifacts</artifactsDir>
+                    </artifacts>
+                  </server>
+                  <unknown/>
+                </cruise>
+                """.formatted(GoConstants.CONFIG_SCHEMA_VERSION);
         GoConfigValidity validity = goConfigService.fileSaver(false).saveXml(configContent, "md5");
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).contains("Invalid content was found starting with element 'unknown'");
     }
@@ -318,10 +325,12 @@ public class GoConfigServiceTest {
         String configContent = """
                 <?xml version="1.0" encoding="utf-8"?>
                 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
-                <server artifactsdir='artifactsDir></cruise>""".formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+                  <server artifactsdir='artifactsDir>
+                </cruise>
+                """.formatted(GoConstants.CONFIG_SCHEMA_VERSION);
         GoConfigValidity validity = saver.saveXml(configContent, "junk_md5");
         assertThat(validity.isValid()).isFalse();
-        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).isEqualTo("Invalid Configuration - Error on line 3: The value of attribute \"artifactsdir\" associated with an element type \"server\" must not contain the '<' character.");
+        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).isEqualTo("Invalid Configuration - Error on line 4: The value of attribute \"artifactsdir\" associated with an element type \"server\" must not contain the '<' character.");
     }
 
     @Test

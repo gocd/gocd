@@ -384,7 +384,8 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
                 """
                         <?xml version="1.0" encoding="utf-8"?>
                         <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="38">
-                        </cruise>""");
+                        </cruise>
+                        """);
 
         final Map<String, String> revisions = new HashMap<>();
         final Map<String, String> environmentVariables = new HashMap<>();

@@ -24,9 +24,8 @@ import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 
 public final class ConfigFileFixture {
 
-    public static final String BASIC_CONFIG =
-        """
-            <cruise schemaVersion="%d">
+    public static final String BASIC_CONFIG = """
+        <cruise schemaVersion="%d">
             <server>
                 <artifacts>
                     <artifactsDir>artifactsDir</artifactsDir>
@@ -50,72 +49,78 @@ public final class ConfigFileFixture {
                   </stage>
                 </pipeline>
             </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION);
 
     public static String configWithEnvironments(String environmentsBlock, int configSchemaVersion) {
         return """
             <cruise schemaVersion="%d">
-            <pipelines group='group1'>
-            <pipeline name='pipeline1'>
-                <materials>
-                  <svn url ="svnurl"/>
-                </materials>
-              <stage name='mingle'>
-                <jobs>
-                  <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
-                </jobs>
-              </stage>
-            </pipeline>
-            </pipelines>
-            %s</cruise>""".formatted(configSchemaVersion, environmentsBlock);
+                <pipelines group='group1'>
+                    <pipeline name='pipeline1'>
+                        <materials>
+                          <svn url ="svnurl"/>
+                        </materials>
+                      <stage name='mingle'>
+                        <jobs>
+                          <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                        </jobs>
+                      </stage>
+                    </pipeline>
+                </pipelines>
+                %s
+            </cruise>
+            """.formatted(configSchemaVersion, environmentsBlock);
     }
 
 
     public static String configWithTemplates(String template) {
         return """
             <cruise schemaVersion='%d'>
-            <server>
-                <artifacts>
-                    <artifactsDir>artifactsDir</artifactsDir>
-                </artifacts>
-            </server>
-            <pipelines>
-                <pipeline name='pipeline1'>
-                    <materials>
-                      <svn url ="svnurl"/>
-                      </materials>
-                  <stage name='mingle'>
-                    <jobs>
-                      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
-                    </jobs>
-                  </stage>
-                </pipeline>
-            </pipelines>
-            %s</cruise>""".formatted(CONFIG_SCHEMA_VERSION, template);
+                <server>
+                    <artifacts>
+                        <artifactsDir>artifactsDir</artifactsDir>
+                    </artifacts>
+                </server>
+                <pipelines>
+                    <pipeline name='pipeline1'>
+                        <materials>
+                          <svn url ="svnurl"/>
+                          </materials>
+                      <stage name='mingle'>
+                        <jobs>
+                          <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                        </jobs>
+                      </stage>
+                    </pipeline>
+                </pipelines>
+                %s
+            </cruise>
+            """.formatted(CONFIG_SCHEMA_VERSION, template);
     }
 
     public static String configWithConfigRepos(String configReposBlock) {
         return """
             <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
-            <server>
-                <artifacts>
-                    <artifactsDir>artifactsDir</artifactsDir>
-                </artifacts>
-            </server>
-            %s
-            <pipelines>
-                <pipeline name='pipeline1'>
-                    <materials>
-                      <svn url ="svnurl"/>
-                      </materials>
-                  <stage name='mingle'>
-                    <jobs>
-                      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
-                    </jobs>
-                  </stage>
-                </pipeline>
-            </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION, configReposBlock);
+                <server>
+                    <artifacts>
+                        <artifactsDir>artifactsDir</artifactsDir>
+                    </artifacts>
+                </server>
+                %s
+                <pipelines>
+                    <pipeline name='pipeline1'>
+                        <materials>
+                          <svn url ="svnurl"/>
+                          </materials>
+                      <stage name='mingle'>
+                        <jobs>
+                          <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                        </jobs>
+                      </stage>
+                    </pipeline>
+                </pipelines>
+            </cruise>
+            """.formatted(CONFIG_SCHEMA_VERSION, configReposBlock);
     }
 
     public static String configWithPipeline(String pipelineBlock) {
@@ -134,7 +139,8 @@ public final class ConfigFileFixture {
         return """
             <cruise schemaVersion='%d'>
               %s
-            </cruise>""".formatted(schemaVersion, pipelinesBlock);
+            </cruise>
+            """.formatted(schemaVersion, pipelinesBlock);
     }
 
     public static String configWithPluggableScm(String scmBlock, int schemaVersion) {
@@ -145,19 +151,20 @@ public final class ConfigFileFixture {
                 <scms>
                   %s
                 </scms>
-            </cruise>""".formatted(schemaVersion, scmBlock);
+            </cruise>
+            """.formatted(schemaVersion, scmBlock);
     }
 
     public static String config(String block, int schemaVersion) {
         return """
             <cruise schemaVersion='%d'>
               %s
-            </cruise>""".formatted(schemaVersion, block);
+            </cruise>
+            """.formatted(schemaVersion, block);
     }
 
-    public static final String CONFIG_WITH_ANT_BUILDER =
-        """
-            <cruise schemaVersion='%d'>
+    public static final String CONFIG_WITH_ANT_BUILDER = """
+        <cruise schemaVersion='%d'>
             <server>
                 <artifacts>
                     <artifactsDir>artifactsDir</artifactsDir>
@@ -182,65 +189,17 @@ public final class ConfigFileFixture {
                   </stage>
                 </pipeline>
             </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION);
 
-    public static final String CONFIG_WITH_NANT_AND_EXEC_BUILDER =
-        """
-            <cruise schemaVersion='%d'>
-                <server>
+    public static final String CONFIG_WITH_NANT_AND_EXEC_BUILDER = """
+        <cruise schemaVersion='%d'>
+            <server>
                 <artifacts>
                     <artifactsDir>artifactsDir</artifactsDir>
                 </artifacts>
-                </server>
-                <pipelines>
-                    <pipeline name='pipeline1'>
-                        <materials>
-                          <svn url ='svnurl' />
-                        </materials>
-                      <stage name='mingle'>
-                        <jobs>
-                          <job name='cardlist' >
-                             <tasks>
-                                 <nant nantpath='lib/apache-nant' buildfile='src/evolve.build' target='all'/>
-                                 <exec command='ls' workingdir='workdir' args='-la' />
-                                 <exec command='ls' />
-                                 <rake buildfile='myrake.rb' target='test' workingdir='somewhere' />
-                            </tasks>
-                          </job>
-                        </jobs>
-                      </stage>
-                    </pipeline>
-                    <pipeline name='pipeline2'>
-                      <dependencies>
-                        <depends pipeline="pipeline1" stage="mingle"/>
-                      </dependencies>
-                      <materials>
-                          <svn url ='svnurl' />
-                      </materials>
-                      <stage name='dist'>
-                        <jobs>
-                          <job name='cardlist' >
-                             <tasks>
-                                <nant nantpath='lib/apache-nant' buildfile='src/evolve.build' target='all'/>
-                                <exec command='ls' workingdir='workdir' args='-la' />
-                                <exec command='ls' />
-                            </tasks>
-                          </job>
-                        </jobs>
-                      </stage>
-                    </pipeline>
-                </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
-
-    public static final String WITH_DUPLICATE_ENVIRONMENTS =
-        """
-            <cruise schemaVersion='%d'>
-                <server>
-                    <artifacts>
-                        <artifactsDir>artifactsDir</artifactsDir>
-                    </artifacts>
-                </server>
-                <pipelines>
+            </server>
+            <pipelines>
                 <pipeline name='pipeline1'>
                     <materials>
                       <svn url ='svnurl' />
@@ -249,147 +208,134 @@ public final class ConfigFileFixture {
                     <jobs>
                       <job name='cardlist' >
                          <tasks>
-                            <exec command='ls' workingdir='workdir' args='-la' />
+                             <nant nantpath='lib/apache-nant' buildfile='src/evolve.build' target='all'/>
+                             <exec command='ls' workingdir='workdir' args='-la' />
+                             <exec command='ls' />
+                             <rake buildfile='myrake.rb' target='test' workingdir='somewhere' />
                         </tasks>
                       </job>
                     </jobs>
                   </stage>
                 </pipeline>
-                </pipelines>
-                <environments>
-                    <environment name='foo' />
-                    <environment name='FOO' />
-                </environments>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
+                <pipeline name='pipeline2'>
+                  <dependencies>
+                    <depends pipeline="pipeline1" stage="mingle"/>
+                  </dependencies>
+                  <materials>
+                      <svn url ='svnurl' />
+                  </materials>
+                  <stage name='dist'>
+                    <jobs>
+                      <job name='cardlist' >
+                         <tasks>
+                            <nant nantpath='lib/apache-nant' buildfile='src/evolve.build' target='all'/>
+                            <exec command='ls' workingdir='workdir' args='-la' />
+                            <exec command='ls' />
+                        </tasks>
+                      </job>
+                    </jobs>
+                  </stage>
+                </pipeline>
+            </pipelines>
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION);
 
-    public static final String TASKS_WITH_CONDITION =
-        """
-            <cruise schemaVersion='%d'>
-                <server>
+    public static final String WITH_DUPLICATE_ENVIRONMENTS = """
+        <cruise schemaVersion='%d'>
+            <server>
                 <artifacts>
                     <artifactsDir>artifactsDir</artifactsDir>
                 </artifacts>
-                </server>
-                <pipelines>
-                    <pipeline name='pipeline1'>
-                        <materials>
-                          <svn url='svnurl' />
-                        </materials>
-                      <stage name='mingle'>
-                        <jobs>
-                          <job name='cardlist' >
-                             <tasks>
-                                <ant buildfile='src/evolve.build' target='all'>
-                                    <runif status='failed' />
-                                </ant>
-                                <nant buildfile='src/evolve.build' target='all'>
-                                    <runif status='failed' />
-                                    <runif status='any' />
-                                    <runif status='passed' />
-                                </nant>
-                            </tasks>
-                          </job>
-                        </jobs>
-                      </stage>
-                    </pipeline>
-                </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
-
-    public static final String CONFIG_WITH_ARTIFACT_SRC =
-        """
-            <cruise schemaVersion='28'>
-            <server artifactsdir='artifactsDir' /><pipelines>
-            <pipeline name='pipeline'>
+            </server>
+            <pipelines>
+            <pipeline name='pipeline1'>
                 <materials>
-                  <svn url='svnurl' />
+                  <svn url ='svnurl' />
                 </materials>
-              <stage name='stage'>
+              <stage name='mingle'>
                 <jobs>
-                  <job name='job' >
-                      <tasks>
-                        <ant buildfile='src/evolve.build' target='all' />
-                      </tasks>
-                      <artifacts>
-                         <artifact src='%s'/>
-                     </artifacts>
+                  <job name='cardlist' >
+                     <tasks>
+                        <exec command='ls' workingdir='workdir' args='-la' />
+                    </tasks>
                   </job>
                 </jobs>
               </stage>
             </pipeline>
             </pipelines>
-            </cruise>""";
+            <environments>
+                <environment name='foo' />
+                <environment name='FOO' />
+            </environments>
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION);
 
-    public static final String TASKS_WITH_ON_CANCEL =
-        """
-            <cruise schemaVersion='%d'>
-                <server>
-                    <artifacts>
-                        <artifactsDir>artifactsDir</artifactsDir>
-                    </artifacts>
-                </server>
-                <pipelines>
-                    <pipeline name='pipeline1'>
-                        <materials>
-                          <svn url='svnurl' />
-                        </materials>
-                      <stage name='mingle'>
-                        <jobs>
-                          <job name='cardlist' >
-                             <tasks>
-                                <ant buildfile='src/evolve.build' target='all'>
-                                    <oncancel>
-                                        <exec command='kill.rb' workingdir='utils' />
-                                    </oncancel>
-                                </ant>
-                                <exec command='ls'>
-                                    <oncancel/>
-                                </exec>
-                              </tasks>
-                           </job>
-                           <job name="downstream-job">
-                              <tasks>
-                                  <exec command="echo" args="hello world!!"><oncancel /></exec>
-                              </tasks>
-                           </job>
-                         </jobs>
-                      </stage>
-                    </pipeline>
-                </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
+    public static final String TASKS_WITH_CONDITION = """
+        <cruise schemaVersion='%d'>
+            <server>
+            <artifacts>
+                <artifactsDir>artifactsDir</artifactsDir>
+            </artifacts>
+            </server>
+            <pipelines>
+                <pipeline name='pipeline1'>
+                    <materials>
+                      <svn url='svnurl' />
+                    </materials>
+                  <stage name='mingle'>
+                    <jobs>
+                      <job name='cardlist' >
+                         <tasks>
+                            <ant buildfile='src/evolve.build' target='all'>
+                                <runif status='failed' />
+                            </ant>
+                            <nant buildfile='src/evolve.build' target='all'>
+                                <runif status='failed' />
+                                <runif status='any' />
+                                <runif status='passed' />
+                            </nant>
+                        </tasks>
+                      </job>
+                    </jobs>
+                  </stage>
+                </pipeline>
+            </pipelines>
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION);
 
-    public static final String MATERIAL_WITH_NAME =
-        """
-            <cruise schemaVersion='%d'>
-                <server>
-                    <artifacts>
-                        <artifactsDir>artifactsDir</artifactsDir>
-                    </artifacts>
-                  </server>
-                <pipelines>
-                    <pipeline name='pipeline'>
-                        <materials>
-                          <svn url='http://blahblah' materialName='svn' dest='svn' />
-                          <hg url='http://blahblah' materialName='hg' dest='hg' />
-                        </materials>
-                      <stage name='dev'>
-                        <jobs>
-                          <job name='cardlist' >
-                           </job>
-                        </jobs>
-                      </stage>
-                    </pipeline>
-                </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
+    public static final String CONFIG_WITH_ARTIFACT_SRC = """
+        <cruise schemaVersion='28'>
+            <server artifactsdir='artifactsDir' />
+            <pipelines>
+                <pipeline name='pipeline'>
+                    <materials>
+                      <svn url='svnurl' />
+                    </materials>
+                  <stage name='stage'>
+                    <jobs>
+                      <job name='job' >
+                          <tasks>
+                            <ant buildfile='src/evolve.build' target='all' />
+                          </tasks>
+                          <artifacts>
+                             <artifact src='%s'/>
+                         </artifacts>
+                      </job>
+                    </jobs>
+                  </stage>
+                </pipeline>
+            </pipelines>
+        </cruise>
+        """;
 
-    public static final String TASKS_WITH_ON_CANCEL_NESTED =
-        """
-            <cruise schemaVersion='%d'>
-                <server>
-                    <artifacts>
-                        <artifactsDir>artifactsDir</artifactsDir>
-                    </artifacts>
-                  </server>
-                <pipelines>
+    public static final String TASKS_WITH_ON_CANCEL = """
+        <cruise schemaVersion='%d'>
+            <server>
+                <artifacts>
+                    <artifactsDir>artifactsDir</artifactsDir>
+                </artifacts>
+            </server>
+            <pipelines>
                 <pipeline name='pipeline1'>
                     <materials>
                       <svn url='svnurl' />
@@ -400,29 +346,92 @@ public final class ConfigFileFixture {
                          <tasks>
                             <ant buildfile='src/evolve.build' target='all'>
                                 <oncancel>
-                                    <exec command='kill.rb' workingdir='utils'>
-                                        <oncancel>
-                                            <exec command='kill.rb' workingdir='utils'/>
-                                        </oncancel>
-                                    </exec>
+                                    <exec command='kill.rb' workingdir='utils' />
                                 </oncancel>
                             </ant>
-                         </tasks>
-                      </job>
+                            <exec command='ls'>
+                                <oncancel/>
+                            </exec>
+                          </tasks>
+                       </job>
+                       <job name="downstream-job">
+                          <tasks>
+                              <exec command="echo" args="hello world!!"><oncancel /></exec>
+                          </tasks>
+                       </job>
+                     </jobs>
+                  </stage>
+                </pipeline>
+            </pipelines>
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION);
+
+    public static final String MATERIAL_WITH_NAME = """
+        <cruise schemaVersion='%d'>
+            <server>
+                <artifacts>
+                    <artifactsDir>artifactsDir</artifactsDir>
+                </artifacts>
+              </server>
+            <pipelines>
+                <pipeline name='pipeline'>
+                    <materials>
+                      <svn url='http://blahblah' materialName='svn' dest='svn' />
+                      <hg url='http://blahblah' materialName='hg' dest='hg' />
+                    </materials>
+                  <stage name='dev'>
+                    <jobs>
+                      <job name='cardlist' >
+                       </job>
                     </jobs>
                   </stage>
                 </pipeline>
-                </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
+            </pipelines>
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION);
+
+    public static final String TASKS_WITH_ON_CANCEL_NESTED = """
+        <cruise schemaVersion='%d'>
+            <server>
+                <artifacts>
+                    <artifactsDir>artifactsDir</artifactsDir>
+                </artifacts>
+              </server>
+            <pipelines>
+            <pipeline name='pipeline1'>
+                <materials>
+                  <svn url='svnurl' />
+                </materials>
+              <stage name='mingle'>
+                <jobs>
+                  <job name='cardlist' >
+                     <tasks>
+                        <ant buildfile='src/evolve.build' target='all'>
+                            <oncancel>
+                                <exec command='kill.rb' workingdir='utils'>
+                                    <oncancel>
+                                        <exec command='kill.rb' workingdir='utils'/>
+                                    </oncancel>
+                                </exec>
+                            </oncancel>
+                        </ant>
+                     </tasks>
+                  </job>
+                </jobs>
+              </stage>
+            </pipeline>
+            </pipelines>
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION);
 
     public static final String CONTAINS_MULTI_SAME_STATUS_RUN_IF = """
         <?xml version="1.0" encoding="utf-8"?>
         <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
-        <server>
+          <server>
             <artifacts>
               <artifactsDir>artifacts</artifactsDir>
             </artifacts>
-        </server>
+          </server>
           <pipelines group="12345">
             <pipeline name="test">
               <materials>
@@ -442,33 +451,33 @@ public final class ConfigFileFixture {
               </stage>
             </pipeline>
           </pipelines>
-          </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION);
 
-    public static final String SAME_STATUS_RUN_IF_PARTIAL =
-        """
-                  <stage name="defaultStage">
-                    <jobs>
-                      <job name="defaultJob">
-                        <tasks>
-                          <exec command="echo">
-                            <runif status="passed" />
-                            <runif status="passed" />
-                          </exec>
-                        </tasks>
-                      </job>
-                    </jobs>
-                  </stage>
-            """;
+    public static final String SAME_STATUS_RUN_IF_PARTIAL = """
+              <stage name="defaultStage">
+                <jobs>
+                  <job name="defaultJob">
+                    <tasks>
+                      <exec command="echo">
+                        <runif status="passed" />
+                        <runif status="passed" />
+                      </exec>
+                    </tasks>
+                  </job>
+                </jobs>
+              </stage>
+        """;
 
 
     public static final String CONTAINS_MULTI_DIFFERENT_STATUS_RUN_IF = """
         <?xml version="1.0" encoding="utf-8"?>
         <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
-            <server>
-                 <artifacts>
-                       <artifactsDir>artifacts</artifactsDir>
-                 </artifacts>
-            </server>
+          <server>
+             <artifacts>
+               <artifactsDir>artifacts</artifactsDir>
+             </artifacts>
+          </server>
           <pipelines group="12345">
             <pipeline name="test">
               <materials>
@@ -488,39 +497,42 @@ public final class ConfigFileFixture {
               </stage>
             </pipeline>
           </pipelines>
-        </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
-
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION);
 
     public static String LABEL_TEMPLATE_WITH_LABEL_TEMPLATE(String template) {
         return """
             <cruise schemaVersion='%d'>
-            <server>
-                <artifacts>
-                  <artifactsDir>artifactsDir</artifactsDir>
-                </artifacts>
-            </server>
-            <pipelines>
-            <pipeline name='cruise' labeltemplate='%s'>
-                <materials>
-                  <git url='giturl' materialName='git' />
-                </materials>
-              <stage name='mingle'>
-                <jobs>
-                  <job name='cardlist' >
-                     <tasks><exec command='echo'><runif status='passed' /></exec></tasks>
-                  </job>
-                </jobs>
-              </stage>
-            </pipeline>
-            </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION, template);
+                <server>
+                    <artifacts>
+                      <artifactsDir>artifactsDir</artifactsDir>
+                    </artifacts>
+                </server>
+                <pipelines>
+                    <pipeline name='cruise' labeltemplate='%s'>
+                        <materials>
+                          <git url='giturl' materialName='git' />
+                        </materials>
+                      <stage name='mingle'>
+                        <jobs>
+                          <job name='cardlist' >
+                             <tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                          </job>
+                        </jobs>
+                      </stage>
+                    </pipeline>
+                </pipelines>
+            </cruise>
+            """.formatted(CONFIG_SCHEMA_VERSION, template);
     }
 
-    public static final String MINIMAL =
-        """
-            <cruise schemaVersion='%d'>
-            <server></server></cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+    public static final String MINIMAL = """
+        <?xml version="1.0" encoding="utf-8"?>
+        <cruise schemaVersion='%d'>
+          <server>
+          </server>
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION);
 
     public static final String OLD = "<cruise><server></server></cruise>";
 
@@ -538,14 +550,14 @@ public final class ConfigFileFixture {
     public static final String SERVER_WITH_ARTIFACTS_DIR_AND_PURGE_SETTINGS = """
         <?xml version="1.0" encoding="utf-8"?>
         <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
-        <server agentAutoRegisterKey="default" webhookSecret="some-webhook-secret" serverId="foo" tokenGenerationKey="bar">
-        <artifacts>
-           <artifactsDir>artifacts</artifactsDir>
-           <purgeSettings>
-               <purgeStartDiskSpace>50.0</purgeStartDiskSpace>
-               <purgeUptoDiskSpace>100.0</purgeUptoDiskSpace>
-           </purgeSettings></artifacts>
-        </server>
+            <server agentAutoRegisterKey="default" webhookSecret="some-webhook-secret" serverId="foo" tokenGenerationKey="bar">
+            <artifacts>
+               <artifactsDir>artifacts</artifactsDir>
+               <purgeSettings>
+                   <purgeStartDiskSpace>50.0</purgeStartDiskSpace>
+                   <purgeUptoDiskSpace>100.0</purgeUptoDiskSpace>
+               </purgeSettings></artifacts>
+            </server>
         </cruise>
         """.formatted(CONFIG_SCHEMA_VERSION);
 
@@ -606,7 +618,6 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        
         """.formatted(CONFIG_SCHEMA_VERSION);
 
 
@@ -642,7 +653,6 @@ public final class ConfigFileFixture {
             </security>
           </server>
         </cruise>
-        
         """.formatted(CONFIG_SCHEMA_VERSION);
 
     public static final String CONFIG_WITH_EMPTY_USER = """
@@ -675,7 +685,6 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        
         """.formatted(CONFIG_SCHEMA_VERSION);
 
     public static final String CONFIG_WITH_DUPLICATE_ROLE = """
@@ -705,7 +714,6 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        
         """.formatted(CONFIG_SCHEMA_VERSION);
 
     public static final String CONFIG_WITH_DUPLICATE_USER = """
@@ -739,7 +747,6 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        
         """.formatted(CONFIG_SCHEMA_VERSION);
 
     public static final String TWO_PIPELINES = """
@@ -834,79 +841,15 @@ public final class ConfigFileFixture {
         </cruise>
         """.formatted(CONFIG_SCHEMA_VERSION);
 
-    public static final String PIPELINE_WITH_TRACKINGTOOL = """
-        <pipeline name="pipeline1">
-          <trackingtool link="http://mingle05/projects/cce/cards/${ID}" regex="(evo-\\d+)" />
-          <materials>
-            <svn url="foobar" checkexternals="true" />
-          </materials>
-          <stage name="stage">
-            <jobs>
-              <job name="functional">
-                <tasks>
-                  <ant />
-                </tasks>
-                <artifacts>
-                  <artifact type="build" src="artifact1.xml" dest="cruise-output" />
-                </artifacts>
-              </job>
-            </jobs>
-          </stage>
-        </pipeline>""";
-
-    public static final String CONFIG_WITH_TRACKINGTOOL = """
-        <?xml version="1.0" encoding="utf-8"?>
-        <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
-          <server>
-             <artifacts>
-                   <artifactsDir>other-artifacts</artifactsDir>
-             </artifacts>
-        </server>
-          <pipelines>
-        %s  </pipelines>
-        </cruise>
-        
-        """.formatted(CONFIG_SCHEMA_VERSION, PIPELINE_WITH_TRACKINGTOOL);
-
-    public static final String CRUISE = """
-        <cruise schemaVersion="%d">
-        <server >
-             <artifacts>
-                   <artifactsDir>artifactsDir</artifactsDir>
-             </artifacts>
-        </server>
-        <pipelines>
-          <pipeline name='cruise'>
-            <materials>
-              <svn url='svnurl' />
-            </materials>
-            <stage name='dev'>
-              <jobs>
-                <job name='linux' >
-                   <tasks>
-                    <ant />
-                  </tasks>
-                </job>
-                <job name='windows' >
-                   <tasks>
-                    <ant />
-                  </tasks>
-                </job>
-              </jobs>
-            </stage>
-          </pipeline>
-        </pipelines>
-        </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
-
     public static String withCommand(String jobWithCommand) {
         return """
             <?xml version="1.0" encoding="utf-8"?>
             <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
-            <server>
-                 <artifacts>
-                       <artifactsDir>logs</artifactsDir>
-                 </artifacts>
-            </server>
+              <server>
+                <artifacts>
+                  <artifactsDir>logs</artifactsDir>
+                </artifacts>
+              </server>
               <pipelines>
                 <pipeline name="pipeline1">
                   <dependencies />
@@ -914,12 +857,14 @@ public final class ConfigFileFixture {
                     <svn url="foobar" checkexternals="true" />
                   </materials>
                   <stage name="mingle">
-                   <jobs>
-            %s        </jobs>
+                    <jobs>
+                      %s
+                    </jobs>
                   </stage>
                 </pipeline>
               </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION, jobWithCommand);
+            </cruise>
+            """.formatted(CONFIG_SCHEMA_VERSION, jobWithCommand);
     }
 
     public static String withServerConfig(String xml) {
@@ -949,135 +894,136 @@ public final class ConfigFileFixture {
                   </stage>
                 </pipeline>
               </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION, xml);
+            </cruise>
+            """.formatted(CONFIG_SCHEMA_VERSION, xml);
     }
 
-    public static final String CONFIG =
-        """
-            <?xml version="1.0" encoding="utf-8"?>
-            <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
-            <server>
-              <artifacts>
-                <artifactsDir>logs</artifactsDir>
-              </artifacts>
-              <security>
-                <roles>
-                  <role name='admin'/>
-                  <role name='qa_lead'/>
-                </roles>
-              </security>
-            </server>
-              <pipelines>
-                <pipeline name='pipeline1' labeltemplate='%s'>
-                  <materials>
-                    <svn url ='svnUrl' checkexternals='true' username='username' password='password'/>
-                  </materials>
-                  <stage name='stage1'>
-                    <approval type='manual'>
-                      <authorization>
-                        <role>admin</role>
+    public static final String CONFIG = """
+        <?xml version="1.0" encoding="utf-8"?>
+        <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
+          <server>
+            <artifacts>
+              <artifactsDir>logs</artifactsDir>
+            </artifacts>
+            <security>
+              <roles>
+                <role name='admin'/>
+                <role name='qa_lead'/>
+              </roles>
+            </security>
+          </server>
+          <pipelines>
+            <pipeline name='pipeline1' labeltemplate='%s'>
+              <materials>
+                <svn url ='svnUrl' checkexternals='true' username='username' password='password'/>
+              </materials>
+              <stage name='stage1'>
+                <approval type='manual'>
+                  <authorization>
+                    <role>admin</role>
+                    <role>qa_lead</role>
+                    <user>jez</user>
+                  </authorization>
+                </approval>
+                <jobs>
+                  <job name='plan1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                    <resources>
+                      <resource>tiger</resource>
+                      <resource>tiger  </resource>
+                      <resource>lion</resource>
+                    </resources>
+                    <tabs>
+                      <tab name="Emma" path="logs/emma/index.html" />
+                      <tab name="EvolveClientLog" path="logs/evolveClient.log" />
+                    </tabs>
+                  </job>
+                </jobs>
+              </stage>
+              <stage name='stage2'>
+                <jobs>
+                  <job name='plan2'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                    <resources>
+                      <resource>tiger</resource>
+                      <resource>tiger  </resource>
+                      <resource>lion</resource>
+                    </resources>
+                  </job>
+                </jobs>
+              </stage>
+            </pipeline>
+            <pipeline name='pipeline2'>
+              <materials>
+                <hg url='https://hgUrl.com' username='username' password='password' />
+              </materials>
+              <stage name='stage1'>
+                <jobs>
+                  <job name='plan1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                    <resources>
+                      <resource>mandrill</resource>
+                    </resources>
+                  </job>
+                </jobs>
+              </stage>
+            </pipeline>
+            <pipeline name='pipeline3'>
+              <materials>
+                <p4 port='localhost:1666' username='cruise' password='password' useTickets='true'>
+                  <view><![CDATA[//depot/dir1/... //lumberjack/...]]></view>
+                </p4>
+              </materials>
+              <stage name='stage1'>
+                <jobs>
+                  <job name='plan1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                </jobs>
+              </stage>
+            </pipeline>
+            <pipeline name='pipeline4'>
+              <materials>
+                <git url='git://username:password@gitUrl' />
+              </materials>
+              <stage name='stage1'>
+                <jobs>
+                  <job name='plan1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
+                    <resources>
+                      <resource>mandrill</resource>
+                    </resources>
+                  </job>
+                </jobs>
+              </stage>
+            </pipeline>
+          </pipelines>
+            <pipelines group="foo">
+                <authorization>
+                    <operate>
                         <role>qa_lead</role>
-                        <user>jez</user>
-                      </authorization>
-                    </approval>
-                    <jobs>
-                      <job name='plan1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
-                        <resources>
-                          <resource>tiger</resource>
-                          <resource>tiger  </resource>
-                          <resource>lion</resource>
-                        </resources>
-                        <tabs>
-                          <tab name="Emma" path="logs/emma/index.html" />
-                          <tab name="EvolveClientLog" path="logs/evolveClient.log" />
-                        </tabs>
-                      </job>
-                    </jobs>
-                  </stage>
-                  <stage name='stage2'>
-                    <jobs>
-                      <job name='plan2'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
-                        <resources>
-                          <resource>tiger</resource>
-                          <resource>tiger  </resource>
-                          <resource>lion</resource>
-                        </resources>
-                      </job>
-                    </jobs>
-                  </stage>
-                </pipeline>
-                <pipeline name='pipeline2'>
-                  <materials>
-                    <hg url='https://hgUrl.com' username='username' password='password' />
-                  </materials>
-                  <stage name='stage1'>
-                    <jobs>
-                      <job name='plan1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
-                        <resources>
-                          <resource>mandrill</resource>
-                        </resources>
-                      </job>
-                    </jobs>
-                  </stage>
-                </pipeline>
-                <pipeline name='pipeline3'>
-                  <materials>
-                    <p4 port='localhost:1666' username='cruise' password='password' useTickets='true'>
-                      <view><![CDATA[//depot/dir1/... //lumberjack/...]]></view>
-                    </p4>
-                  </materials>
-                  <stage name='stage1'>
-                    <jobs>
-                      <job name='plan1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
-                    </jobs>
-                  </stage>
-                </pipeline>
-                <pipeline name='pipeline4'>
-                  <materials>
-                    <git url='git://username:password@gitUrl' />
-                  </materials>
-                  <stage name='stage1'>
-                    <jobs>
-                      <job name='plan1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>
-                        <resources>
-                          <resource>mandrill</resource>
-                        </resources>
-                      </job>
-                    </jobs>
-                  </stage>
-                </pipeline>
-              </pipelines>
-                <pipelines group="foo">
-                    <authorization>
-                        <operate>
-                            <role>qa_lead</role>
-                        </operate>
-                    </authorization>
-                  <pipeline name="non-operatable-pipeline">
-                    <materials>
-                      <git url="/tmp/git-stuff" autoUpdate="false" materialName="junit-failures-material" />
-                    </materials>
-                    <stage name="one">
-                      <approval type="manual" />
-                      <jobs>
-                        <job name="defaultJob">
-                          <tasks>
-                            <exec command="sleep" args="30" />
-                          </tasks>
-                        </job>
-                      </jobs>
-                    </stage>
-                  </pipeline>
-                </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION, PipelineLabel.COUNT_TEMPLATE);
+                    </operate>
+                </authorization>
+              <pipeline name="non-operatable-pipeline">
+                <materials>
+                  <git url="/tmp/git-stuff" autoUpdate="false" materialName="junit-failures-material" />
+                </materials>
+                <stage name="one">
+                  <approval type="manual" />
+                  <jobs>
+                    <job name="defaultJob">
+                      <tasks>
+                        <exec command="sleep" args="30" />
+                      </tasks>
+                    </job>
+                  </jobs>
+                </stage>
+              </pipeline>
+            </pipelines>
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION, PipelineLabel.COUNT_TEMPLATE);
 
     public static final String ONE_CONFIG_REPO = """
         <?xml version="1.0" encoding="utf-8"?>
         <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
         <server>
-             <artifacts>
-                   <artifactsDir>other-artifacts</artifactsDir>
-             </artifacts>
+           <artifacts>
+              <artifactsDir>other-artifacts</artifactsDir>
+           </artifacts>
         </server>
           <config-repos>
             <config-repo id="id1" pluginId="gocd-xml">
@@ -1085,7 +1031,6 @@ public final class ConfigFileFixture {
             </config-repo >
           </config-repos>
         </cruise>
-        
         """.formatted(CONFIG_SCHEMA_VERSION);
 
     public static final String ONE_PIPELINE = """
@@ -1114,7 +1059,6 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        
         """.formatted(CONFIG_SCHEMA_VERSION);
 
 
@@ -1130,10 +1074,10 @@ public final class ConfigFileFixture {
             <pipeline name="pipeline1">
               <materials>
                 <svn url="foobar" checkexternals="true" >
-                     <filter>
-                         <ignore pattern='*.doc'/>
-        <ignore pattern='*.doc'/>
-        </filter>
+                  <filter>
+                    <ignore pattern='*.doc'/>
+                    <ignore pattern='*.doc'/>
+                  </filter>
                 </svn>
               </materials>
               <stage name="stage">
@@ -1149,67 +1093,34 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        
         """.formatted(CONFIG_SCHEMA_VERSION);
 
-    public static final String INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS
-        = """
+    public static final String SERVER_TAG_WITH_DEFAULTS_PLUS_LICENSE_TAG = """
         <?xml version="1.0" encoding="utf-8"?>
-        <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
-        <server>
+        <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
+          <server>
              <artifacts>
-                   <artifactsDir>other-artifacts</artifactsDir>
+                   <artifactsDir>artifacts</artifactsDir>
              </artifacts>
-        </server>
-          <pipelines>
-            <pipeline name="pipeline1">
-              <trackingtool link="http://mingle05/projects/cce/cards/${ID}" regex="regex" />
-              <trackingtool link="http://mingle05/projects/cce/cards/${ID}" regex="regex" />
-              <dependencies />
-              <materials>
-                <svn url="foobar" checkexternals="true" />
-              </materials>
-              <stage name="stage">
-               <jobs>
-                 <job name="functional">
-                   <tasks><ant /></tasks>
-                   <artifacts>
-                     <artifact src="artifact1.xml" dest="cruise-output" type="build"/>
-                   </artifacts>
-                 </job>
-                </jobs>
-              </stage>
-            </pipeline>
-          </pipelines>
+          </server>
         </cruise>
-        
         """.formatted(CONFIG_SCHEMA_VERSION);
-
-    public static final String SERVER_TAG_WITH_DEFAULTS_PLUS_LICENSE_TAG =
-        """
-            <?xml version="1.0" encoding="utf-8"?>
-            <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
-            <server>
-                 <artifacts>
-                       <artifactsDir>artifacts</artifactsDir>
-                 </artifacts>
-            </server>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
 
     public static final String DEFAULT_XML_WITH_2_AGENTS = xml();
 
     public static final String XML_WITH_SINGLE_ENVIRONMENT = """
         <?xml version="1.0" encoding="utf-8"?>
         <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
-        <server>
-             <artifacts>
-                   <artifactsDir>artifactsDir</artifactsDir>
-             </artifacts>
-        </server>
-        <environments>
-        <environment name='dummy'/>
-        </environments>
-        </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
+            <server>
+                 <artifacts>
+                       <artifactsDir>artifactsDir</artifactsDir>
+                 </artifacts>
+            </server>
+            <environments>
+            <environment name='dummy'/>
+            </environments>
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION);
 
     public static final String XML_WITH_ENTERPRISE_LICENSE_FOR_TWO_USERS = xml();
 
@@ -1217,12 +1128,13 @@ public final class ConfigFileFixture {
         return """
             <?xml version="1.0" encoding="utf-8"?>
             <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='20'>
-            <server artifactsdir="artifactsDir">
-            </server></cruise>""";
+                <server artifactsdir="artifactsDir">
+                </server>
+            </cruise>
+            """;
     }
 
-    public static final String PIPELINES_WITH_DUPLICATE_STAGE_NAME
-        = """
+    public static final String PIPELINES_WITH_DUPLICATE_STAGE_NAME = """
         <cruise schemaVersion='%d'>
         <server>
              <artifacts>
@@ -1246,10 +1158,10 @@ public final class ConfigFileFixture {
                 </stage>
             </pipeline>
           </pipelines>
-        </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION);
 
-    public static final String JOBS_WITH_SAME_NAME
-        = """
+    public static final String JOBS_WITH_SAME_NAME = """
         <cruise schemaVersion='%d'>
         <server>
              <artifacts>
@@ -1269,7 +1181,8 @@ public final class ConfigFileFixture {
                 </stage>
             </pipeline>
           </pipelines>
-        </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION);
 
 
     public static final String SIMPLE_PIPELINE = """
@@ -1282,11 +1195,11 @@ public final class ConfigFileFixture {
               <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
             </jobs>
           </stage>
-        </pipeline>""";
+        </pipeline>
+        """;
 
 
-    public static final String STAGE_WITH_NO_JOBS
-        = """
+    public static final String STAGE_WITH_NO_JOBS = """
         <cruise schemaVersion='%d'>
         <server>
              <artifacts>
@@ -1304,11 +1217,12 @@ public final class ConfigFileFixture {
                 </stage>
             </pipeline>
           </pipelines>
-        </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION);
 
     public static final String VERSION_0 = """
         <cruise>
-        <server artifactsdir="target/testfiles/tmpCCRoot/data/logs"></server>
+          <server artifactsdir="target/testfiles/tmpCCRoot/data/logs"></server>
           <pipelines>
             <pipeline name='pipeline'>
                 <materials>
@@ -1327,11 +1241,11 @@ public final class ConfigFileFixture {
                 </stage>
             </pipeline>
           </pipelines>
-        </cruise>""";
+        </cruise>
+        """;
 
 
-    public static final String VERSION_2
-        = """
+    public static final String VERSION_2 = """
         <?xml version="1.0" encoding="utf-8"?>
         <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="2">
           <server>
@@ -1354,13 +1268,14 @@ public final class ConfigFileFixture {
               </stage>
            </pipeline>
           </pipelines>
-        </cruise>""";
+        </cruise>
+        """;
 
-    public static final String VERSION_5 =
-        """
-            <?xml version="1.0" encoding="utf-8"?>
-            <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="5">
-            <server artifactsdir='artifactsDir' /><pipelines>
+    public static final String VERSION_5 = """
+        <?xml version="1.0" encoding="utf-8"?>
+        <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="5">
+          <server artifactsdir='artifactsDir' />
+          <pipelines>
             <pipeline name='framework'>
                 <materials>
                   <svn url ="svnurl"/>
@@ -1376,22 +1291,23 @@ public final class ConfigFileFixture {
                 </jobs>
               </stage>
             </pipeline>
-            </pipelines>
-            </cruise>""";
+          </pipelines>
+        </cruise>
+        """;
 
-    public static final String VERSION_7 =
-        """
-            <?xml version="1.0" encoding="utf-8"?>
-            <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="7">
-            <server artifactsdir='artifactsDir' /><pipelines>
+    public static final String VERSION_7 = """
+        <?xml version="1.0" encoding="utf-8"?>
+        <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="7">
+          <server artifactsdir='artifactsDir' />
+          <pipelines>
             <pipeline name='framework'>
-                <materials>
-                  <hg url ="svnurl" dest="something">
-                    <filter>
-                      <ignore pattern="abc"/>
-                    </filter>
-                  </hg>
-                </materials>
+              <materials>
+                <hg url ="svnurl" dest="something">
+                  <filter>
+                    <ignore pattern="abc"/>
+                  </filter>
+                </hg>
+              </materials>
               <stage name='dist'>
                 <jobs>
                   <job name='cardlist' />
@@ -1403,57 +1319,58 @@ public final class ConfigFileFixture {
                 </jobs>
               </stage>
             </pipeline>
-            </pipelines>
-            </cruise>""";
+          </pipelines>
+        </cruise>
+        """;
 
-    public static final String JOBS_WITH_DIFFERENT_CASE =
-        """
-            <?xml version="1.0" encoding="utf-8"?>
-            <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
+    public static final String JOBS_WITH_DIFFERENT_CASE = """
+        <?xml version="1.0" encoding="utf-8"?>
+        <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
             <server>
                  <artifacts>
                        <artifactsDir>artifactsDir</artifactsDir>
                  </artifacts>
             </server>
-             <pipelines>
-                 <pipeline name='framework'>
+            <pipelines>
+              <pipeline name='framework'>
                 <materials>
                   <hg url ="svnurl" dest="something">
                   </hg>
                 </materials>
-              <stage name='dist'>
-                <jobs>
-                  <job name='test'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
-                  <job name='Test'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
-                </jobs>
-              </stage>
-            </pipeline>
-            </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
+                <stage name='dist'>
+                  <jobs>
+                    <job name='test'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                    <job name='Test'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                  </jobs>
+                </stage>
+              </pipeline>
+           </pipelines>
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION);
 
-    public static final String PIPELINE_WITH_TIMER =
-        """
-            <?xml version="1.0" encoding="utf-8"?>
-            <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
-            <server>
-                 <artifacts>
-                       <artifactsDir>logs</artifactsDir>
-                 </artifacts>
-            </server>
-             <pipelines>
-                 <pipeline name='pipeline'>
-                     <timer>0 15 10 ? * MON-FRI</timer>
-                     <materials>
-                         <hg url ="svnurl" dest="something"/>
-                     </materials>
-                     <stage name='dist'>
-                         <jobs>
-                             <job name='test'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
-                         </jobs>
-                     </stage>
-                 </pipeline>
-             </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
+    public static final String PIPELINE_WITH_TIMER = """
+        <?xml version="1.0" encoding="utf-8"?>
+        <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
+          <server>
+             <artifacts>
+                   <artifactsDir>logs</artifactsDir>
+             </artifacts>
+          </server>
+          <pipelines>
+             <pipeline name='pipeline'>
+                 <timer>0 15 10 ? * MON-FRI</timer>
+                 <materials>
+                     <hg url ="svnurl" dest="something"/>
+                 </materials>
+                 <stage name='dist'>
+                     <jobs>
+                         <job name='test'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                     </jobs>
+                 </stage>
+             </pipeline>
+         </pipelines>
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION);
 
     public static String multipleMaterial(String... materials) {
         StringBuilder sb = new StringBuilder();
@@ -1463,71 +1380,73 @@ public final class ConfigFileFixture {
         return """
             <?xml version="1.0" encoding="utf-8"?>
             <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
-            <server>
+              <server>
                  <artifacts>
                        <artifactsDir>artifactsDir</artifactsDir>
                  </artifacts>
-            </server>
-            <pipelines>
-            <pipeline name='ecl'>
-                <materials>
+              </server>
+              <pipelines>
+                <pipeline name='ecl'>
+                  <materials>
                      <svn url ='svnurl' dest='a'/>
-                </materials>
-              <stage name='firstStage'>
-                <jobs>
-                  <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
-                  <job name='bluemonkeybutt'>
-                    <tasks><ant /></tasks>
-                    <artifacts>
-                      <artifact src='from' dest='to' type="test"/>
-                    </artifacts>
-                  </job>
-                </jobs>
-              </stage>
-              <stage name='secondStage'>
-                <jobs>
-                  <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
-                </jobs>
-              </stage>
-            </pipeline>
-            <pipeline name='ec2'>
-                <materials>
-                     <svn url ='svnurl' dest='a'/>
-                </materials>
-              <stage name='firstStage'>
-                <jobs>
-                  <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
-                  <job name='bluemonkeybutt'>
-                    <tasks><ant /></tasks>
-                    <artifacts>
-                      <artifact src='from' dest='to' type="test"/>
-                    </artifacts>
-                  </job>
-                </jobs>
-              </stage>
-              <stage name='secondStage'>
-                <jobs>
-                  <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
-                </jobs>
-              </stage>
-            </pipeline>
-            <pipeline name='framework'>
-                <materials>
-            %s    </materials>
-              <stage name='dist'>
-                <jobs>
-                  <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
-                  <job name='bluemonkeybutt'>
-                    <tasks><ant /></tasks>
-                    <artifacts>
-                      <artifact src='from' dest='to' type="test"/>
-                    </artifacts>
-                  </job>
-                </jobs>
-              </stage>
-            </pipeline>
-            </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION, sb);
+                  </materials>
+                  <stage name='firstStage'>
+                    <jobs>
+                      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                      <job name='bluemonkeybutt'>
+                        <tasks><ant /></tasks>
+                        <artifacts>
+                          <artifact src='from' dest='to' type="test"/>
+                        </artifacts>
+                      </job>
+                    </jobs>
+                  </stage>
+                  <stage name='secondStage'>
+                    <jobs>
+                      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                    </jobs>
+                  </stage>
+                </pipeline>
+                <pipeline name='ec2'>
+                  <materials>
+                    <svn url ='svnurl' dest='a'/>
+                  </materials>
+                  <stage name='firstStage'>
+                    <jobs>
+                      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                      <job name='bluemonkeybutt'>
+                        <tasks><ant /></tasks>
+                        <artifacts>
+                          <artifact src='from' dest='to' type="test"/>
+                        </artifacts>
+                      </job>
+                    </jobs>
+                  </stage>
+                  <stage name='secondStage'>
+                    <jobs>
+                      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                    </jobs>
+                  </stage>
+                </pipeline>
+                <pipeline name='framework'>
+                  <materials>
+                    %s
+                  </materials>
+                  <stage name='dist'>
+                    <jobs>
+                      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+                      <job name='bluemonkeybutt'>
+                        <tasks><ant /></tasks>
+                        <artifacts>
+                          <artifact src='from' dest='to' type="test"/>
+                        </artifacts>
+                      </job>
+                    </jobs>
+                  </stage>
+                </pipeline>
+              </pipelines>
+            </cruise>
+            """.formatted(CONFIG_SCHEMA_VERSION, sb);
     }
 
     public static String withJob(String jobXml) {
@@ -1559,7 +1478,8 @@ public final class ConfigFileFixture {
                   </stage>
                 </pipeline>
               </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION, jobXml);
+            </cruise>
+            """.formatted(CONFIG_SCHEMA_VERSION, jobXml);
     }
 
     public static String withJob(String jobXml, String pipelineName) {
@@ -1599,94 +1519,94 @@ public final class ConfigFileFixture {
                   </stage>
                 </pipeline>
               </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION, pipelineName, jobXml);
+            </cruise>
+            """.formatted(CONFIG_SCHEMA_VERSION, pipelineName, jobXml);
     }
 
-    public static final String PIPELINE_GROUPS =
-        """
-            <?xml version="1.0" encoding="utf-8"?>
-            <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
-            <server>
-                 <artifacts>
-                       <artifactsDir>artifactsDir</artifactsDir>
-                 </artifacts>
-            </server>
-            <pipelines group="studios">
-            <pipeline name='framework'>
-                <materials>
-                  <hg url ="svnurl" dest="something">
-                      <filter>
-                         <ignore pattern="abc"/>
-                      </filter>
-                  </hg>
-                </materials>
-              <stage name='dist'>
-                <jobs>
-                  <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
-                  <job name='bluemonkeybutt'>
-                    <tasks><ant /></tasks>
-                    <artifacts>
-                      <artifact src='from' dest='to' type="test"/>
-                    </artifacts>
-                  </job>
-                </jobs>
-              </stage>
-            </pipeline>
-            </pipelines>
-            <pipelines group="perfessionalservice">
-            <pipeline name='framework1'>
-                <materials>
-                  <hg url ="svnurl" dest="something">
-                      <filter>
-                         <ignore pattern="abc"/>
-                      </filter>
-                  </hg>
-                </materials>
-              <stage name='dist'>
-                <jobs>
-                  <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
-                  <job name='bluemonkeybutt'>
-                    <tasks>
-                      <ant />
-                    </tasks>
-                    <artifacts>
-                      <artifact src='from' dest='to' type="test"/>
-                    </artifacts>
-                  </job>
-                </jobs>
-              </stage>
-            </pipeline>
-            </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
+    public static final String PIPELINE_GROUPS = """
+        <?xml version="1.0" encoding="utf-8"?>
+        <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
+        <server>
+             <artifacts>
+                   <artifactsDir>artifactsDir</artifactsDir>
+             </artifacts>
+        </server>
+        <pipelines group="studios">
+        <pipeline name='framework'>
+            <materials>
+              <hg url ="svnurl" dest="something">
+                  <filter>
+                     <ignore pattern="abc"/>
+                  </filter>
+              </hg>
+            </materials>
+          <stage name='dist'>
+            <jobs>
+              <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+              <job name='bluemonkeybutt'>
+                <tasks><ant /></tasks>
+                <artifacts>
+                  <artifact src='from' dest='to' type="test"/>
+                </artifacts>
+              </job>
+            </jobs>
+          </stage>
+        </pipeline>
+        </pipelines>
+        <pipelines group="perfessionalservice">
+        <pipeline name='framework1'>
+            <materials>
+              <hg url ="svnurl" dest="something">
+                  <filter>
+                     <ignore pattern="abc"/>
+                  </filter>
+              </hg>
+            </materials>
+          <stage name='dist'>
+            <jobs>
+              <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+              <job name='bluemonkeybutt'>
+                <tasks>
+                  <ant />
+                </tasks>
+                <artifacts>
+                  <artifact src='from' dest='to' type="test"/>
+                </artifacts>
+              </job>
+            </jobs>
+          </stage>
+        </pipeline>
+        </pipelines>
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION);
 
-    public static final String STAGE_AUTH_WITH_ADMIN_AND_AUTH =
-        """
-            <?xml version="1.0" encoding="utf-8"?>
-            <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
-            <server>
-                 <artifacts>
-                       <artifactsDir>artifactsDir</artifactsDir>
-                 </artifacts>
-                 <security>
-                  <authConfigs>
-                    <authConfig id="tw-ldap" pluginId="cd.go.authentication.ldap">
-                     </authConfig>
-                   </authConfigs>
-                 <admins>
-                     <user>admin</user>
-                 </admins>
-                 </security>
-            </server>
-            <pipelines group="studios">
-                 <authorization>
-                     <operate>
-                         <user>operator</user>
-                     </operate>
-                 </authorization>
+    public static final String STAGE_AUTH_WITH_ADMIN_AND_AUTH = """
+        <?xml version="1.0" encoding="utf-8"?>
+        <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"      xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
+          <server>
+             <artifacts>
+                   <artifactsDir>artifactsDir</artifactsDir>
+             </artifacts>
+             <security>
+              <authConfigs>
+                <authConfig id="tw-ldap" pluginId="cd.go.authentication.ldap">
+                 </authConfig>
+               </authConfigs>
+             <admins>
+                 <user>admin</user>
+             </admins>
+             </security>
+          </server>
+          <pipelines group="studios">
+             <authorization>
+                 <operate>
+                     <user>operator</user>
+                 </operate>
+             </authorization>
             <pipeline name='framework'>
-                <materials>
-                  <hg url ="svnurl" dest="something" />
-                </materials>
+              <materials>
+                <hg url ="svnurl" dest="something" />
+              </materials>
               <stage name='dist'>
                  <approval type='manual'>
                      <authorization>
@@ -1698,8 +1618,9 @@ public final class ConfigFileFixture {
                 </jobs>
               </stage>
             </pipeline>
-            </pipelines>
-            </cruise>""".formatted(CONFIG_SCHEMA_VERSION);
+          </pipelines>
+        </cruise>
+        """.formatted(CONFIG_SCHEMA_VERSION);
 
     public static final String VALID_XML_3169 = """
         <?xml version="1.0" encoding="utf-8"?>
@@ -1731,65 +1652,66 @@ public final class ConfigFileFixture {
               </stage>
             </pipeline>
           </pipelines>
-          </cruise>""";
+          </cruise>
+        """;
 
-    public static final String WITH_VMMS_CONFIG =
-        """
-            <cruise schemaVersion='50'>
-            <server artifactsdir='artifactsDir' /><pipelines>
-            <pipeline name='pipeline1'>
-                <materials>
-                  <svn url ="svnurl"/>
-                </materials>
-              <stage name='mingle'>
-                <jobs>
-                  <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
-                  <job name='bluemonkeybutt'>
-                    <artifacts>
-                      <log src='from' dest='to'/>
-                    </artifacts>
-                  </job>
-                </jobs>
-              </stage>
-            </pipeline>
-            </pipelines>
-            <vmms>
-            <ec2 accessKey='test' secretAccessKey='test'>
-            <ami imageId='test' />
-            </ec2>
-            </vmms>
-            </cruise>""";
+    public static final String WITH_VMMS_CONFIG = """
+        <cruise schemaVersion='50'>
+        <server artifactsdir='artifactsDir' /><pipelines>
+        <pipeline name='pipeline1'>
+            <materials>
+              <svn url ="svnurl"/>
+            </materials>
+          <stage name='mingle'>
+            <jobs>
+              <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>
+              <job name='bluemonkeybutt'>
+                <artifacts>
+                  <log src='from' dest='to'/>
+                </artifacts>
+              </job>
+            </jobs>
+          </stage>
+        </pipeline>
+        </pipelines>
+        <vmms>
+        <ec2 accessKey='test' secretAccessKey='test'>
+        <ami imageId='test' />
+        </ec2>
+        </vmms>
+        </cruise>
+        """;
 
-    public static final String WITH_LOG_ARTIFACT_CONFIG =
-        """
-            <cruise schemaVersion='50'>
-            <server artifactsdir='artifactsDir' /><pipelines>
-            <pipeline name='pipeline1'>
-                <materials>
-                  <svn url ="svnurl"/>
-                </materials>
-              <stage name='mingle'>
-                <jobs>
-                  <job name='cardlist'>
-                    <tasks>
-                      <exec command='echo'>
-                        <runif status='passed' />
-                      </exec>
-                    </tasks>
-                  </job>
-                  <job name='bluemonkeybutt'>
-                    <artifacts>
-                      <log src='from1' />
-                      <log src='from2' dest='to2'/>
-                      <artifact src='from3'/>
-                      <artifact src='from4' dest='to4'/>
-                    </artifacts>
-                  </job>
-                </jobs>
-              </stage>
-            </pipeline>
-            </pipelines>
-            </cruise>""";
+    public static final String WITH_LOG_ARTIFACT_CONFIG = """
+        <cruise schemaVersion='50'>
+        <server artifactsdir='artifactsDir' /><pipelines>
+        <pipeline name='pipeline1'>
+            <materials>
+              <svn url ="svnurl"/>
+            </materials>
+          <stage name='mingle'>
+            <jobs>
+              <job name='cardlist'>
+                <tasks>
+                  <exec command='echo'>
+                    <runif status='passed' />
+                  </exec>
+                </tasks>
+              </job>
+              <job name='bluemonkeybutt'>
+                <artifacts>
+                  <log src='from1' />
+                  <log src='from2' dest='to2'/>
+                  <artifact src='from3'/>
+                  <artifact src='from4' dest='to4'/>
+                </artifacts>
+              </job>
+            </jobs>
+          </stage>
+        </pipeline>
+        </pipelines>
+        </cruise>
+        """;
 
     public static CruiseConfig configWith(PipelineConfigs... pipelineConfigses) {
         return new BasicCruiseConfig(pipelineConfigses);
@@ -1809,7 +1731,8 @@ public final class ConfigFileFixture {
             <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion='%d'>
               <server>
             %s%s  </server>
-              </cruise>""".formatted(CONFIG_SCHEMA_VERSION, security, defaultArtifact);
+            </cruise>
+            """.formatted(CONFIG_SCHEMA_VERSION, security, defaultArtifact);
     }
 
     public static String configWithArtifactSourceAs(String artifactSource) {
@@ -1818,7 +1741,8 @@ public final class ConfigFileFixture {
 
     public static String pipelineWithAttributes(String pipelineTagAttributes, int schemaVersion) {
         return """
-            <?xml version="1.0" encoding="UTF-8"?><cruise schemaVersion="%d">
+            <?xml version="1.0" encoding="UTF-8"?>
+            <cruise schemaVersion="%d">
             <pipelines>
               <pipeline %s>
                 <materials>
@@ -1835,6 +1759,7 @@ public final class ConfigFileFixture {
                 </stage>
               </pipeline>
             </pipelines>
-            </cruise>""".formatted(schemaVersion, pipelineTagAttributes);
+            </cruise>
+            """.formatted(schemaVersion, pipelineTagAttributes);
     }
 }

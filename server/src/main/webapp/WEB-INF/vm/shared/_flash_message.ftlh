@@ -12,7 +12,7 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-  -->
+ -->
 <div id="trans_message" style="position:absolute;display:none">
     <b class="rtop" style="display:block;background-color: transparent;">
        <b class="r1"></b>

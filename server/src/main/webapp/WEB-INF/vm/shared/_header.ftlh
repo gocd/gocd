@@ -12,9 +12,9 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-  -->
-<!DOCTYPE HTML>
-<html xmlns="http://www.w3.org/1999/xhtml" lang='en'>
+ -->
+<!DOCTYPE html>
+<html lang='en'>
 
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>

@@ -61,9 +61,8 @@ tasks.register('generateResources', Copy) {
     rename "(.*)-${project.version}(-.*)?.(jar|zip)", '$1.$3'
   }
 }
-
+checkLicenseTestFixtures.dependsOn generateResources
 processTestFixturesResources.dependsOn generateResources
-licenseTestFixtures.dependsOn generateResources
 
 tasks.register('prepare') {
   dependsOn generateResources

@@ -67,3 +67,7 @@ dependencies {
   testFixturesImplementation project.deps.commonsLang3
   testFixturesImplementation project.deps.springTx
 }
+
+license {
+  exclude '**/test-results/*.xml' // Affects testing if these have headers
+}

@@ -12,7 +12,7 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-  -->
+ -->
 <div id="build_history_holder" class="sidebar-container">
     <h4 class="entity_title dropdown-arrow-icon" data-toggle='dropdown'>Job History</h4>
     <div id="buildlist-container" class="round-content">

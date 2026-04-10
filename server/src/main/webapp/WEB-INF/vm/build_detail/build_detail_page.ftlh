@@ -12,7 +12,7 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-  -->
+ -->
 <#assign title = "${presenter.buildName} Job Details - Go">
 <#assign _page_title = "Job Details for ${presenter.buildLocatorForDisplay}">
 <#assign current_tab = "build">

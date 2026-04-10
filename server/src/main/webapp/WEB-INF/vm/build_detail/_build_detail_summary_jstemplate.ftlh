@@ -12,7 +12,7 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-  -->
+ -->
 <textarea id="build-summary-template" style="display:none;">
 <li><span class="header">Scheduled on: </span><span id="build_scheduled_date">${r'${% build.build_scheduled_date %}'}</span></li>
 <li><span class="header">Agent: </span>

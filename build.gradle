@@ -20,8 +20,12 @@ import com.github.jk1.license.filter.SpdxLicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
 import com.github.jk1.license.task.ReportTask
 import com.thoughtworks.go.build.*
+import com.thoughtworks.go.build.license.PrefixedHeaderComment
+import com.thoughtworks.go.build.license.ScriptStyleHeaderComment
+import com.thoughtworks.go.build.license.SkipLinesCStyleHeaderComment
+import com.thoughtworks.go.build.license.TildeXmlStyleHeaderComment
 import de.undercouch.gradle.tasks.download.Download
-import nl.javadude.gradle.plugins.license.License
+import dev.yumi.gradle.licenser.YumiLicenserGradleExtension
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 
 import java.security.SecureRandom
@@ -31,7 +35,6 @@ plugins {
   id 'base'
   id 'org.owasp.dependencycheck' version '12.2.0'
   id 'com.autonomousapps.dependency-analysis' version '3.6.1'
-  id 'com.github.hierynomus.license-base' version '0.16.1' apply false
 }
 
 // Updated via automated scripting
@@ -248,61 +251,21 @@ subprojects {
     return
   }
   apply plugin: 'base'
-  apply plugin: 'com.github.hierynomus.license'
-  license {
-    skipExistingHeaders = false
-    strictCheck = true
-    exclude '**/.gitkeep'
-    exclude '**/.envrc'
-    exclude '**/*mise*.toml'
-    exclude '**/*.enc'
-    exclude '**/*.key'
-    exclude '**/*.ejs'
-    exclude '**/*.keep'
-    exclude '**/*.md'
-    exclude '**/*.jar'
-    exclude '**/*.json'
-    exclude '**/*.html'
-    exclude '**/*.zip'
-    exclude '**/*.ico'
-    exclude '**/*.png'
-    exclude '**/*.jpg'
-    exclude '**/*.jpeg'
-    exclude '**/*.gif'
-    exclude '**/*.woff'
-    exclude '**/*.woff2'
-    exclude '**/*.svg'
-    exclude '**/*.json'
-    exclude '**/*.pk1'
-    exclude '**/*.pk8'
-    exclude '**/*.crt'
-    exclude '**/*.pass'
-    exclude '**/*.p12'
-    exclude '**/*.scss.d.ts'
-    exclude '**/.*.json'
-    exclude '**/*.lock'
-    exclude '**/hg.template'
-    exclude '**/available.toggles'
-    exclude '**/db/**'
-    exclude '**/tmp/**'
-    exclude '**/target/**'
-    exclude '**/logs/**'
-    exclude '**/log/**'
-    exclude '**/robots.txt'
-    exclude '**/META-INF/services/*'
-    exclude '**/rails/.bundle/**'
-    exclude '**/rails/.yarn/**'
-    exclude '**/rails/.yarnrc.yml'
-    exclude '**/rails/Gemfile*'
-    exclude '**/rails/Rakefile*'
-    exclude '**/rails/app/assets/javascripts/lib/**'
-    exclude '**/rails/bin/**'
-    exclude '**/rails/gems/**'
-    exclude '**/rails/node_modules/**'
-    exclude '**/rails/node-vendor/**'
-    exclude '**/rails/public/assets/**'
-    exclude '**/rails/webpack/gen/**'
-    exclude '**/rails/yarn-license-report/**'
+  apply plugin: 'dev.yumi.gradle.licenser'
+  extensions.findByType(YumiLicenserGradleExtension).with {
+    rule(rootProject.file('build-platform/Apache-2.0.txt'))
+
+    // Base file types
+    headerCommentManager.register(new TildeXmlStyleHeaderComment(),               'xml', 'xsd', 'xsl')
+    headerCommentManager.register(new PrefixedHeaderComment('<#--', ' -->', ' '), 'ftl', 'ftlh')
+    headerCommentManager.register(new PrefixedHeaderComment('<%#', '%>', '  '),   'erb')
+    headerCommentManager.register(new ScriptStyleHeaderComment(),                 'sh', 'rb', 'rake', 'gemspec')
+    include('**/*.java', '**/*.groovy')         // Core source code
+    include('**/*.xml', '**/*.xsd', '**/*.xsl') // XML and related
+    include('**/*.ftl', '**/*.ftlh')            // Freemarker templates
+    exclude('**/freemarker_implicit.ftl')       // used by intellij for type hints when editing ftl files, intellij gets confused if it sees a license header in this file
+    include('**/*.sh')                          // Scripts
+    include('**/*.rb', '**/*.erb', '**/*.rake', '**/*.gemspec') // Ruby
 
     // Code borrowed from other projects
     exclude '**/JavaVersion.java'
@@ -311,71 +274,12 @@ subprojects {
     exclude '**/StreamConsumer.java'
     exclude '**/RuntimeTypeAdapterFactory*.java'
 
-    // used by intellij for type hints when editing ftl files, intellij gets confused if it sees a license header in this file
-    exclude '**/freemarker_implicit.ftl'
-    header = rootProject.file('build-platform/Apache-2.0.txt')
-    headerDefinitions {
-      intellijStyleXML {
-        firstLine = "<!--"
-        beforeEachLine = '  ~ '
-        endLine = "  -->"
-        afterEachLine = ''
-        skipLinePattern = "^<\\?xml.*>\$"
-        firstLineDetectionPattern = "(\\s|\\t)*<!--.*\$"
-        lastLineDetectionPattern = ".*-->(\\s|\\t)*\$"
-        allowBlankLines = true
-        isMultiline = true
-        padLines = false
-      }
-
-      intellijStyleFTL {
-        firstLine = "<#--"
-        beforeEachLine = ' '
-        endLine = "  -->"
-        afterEachLine = ''
-        firstLineDetectionPattern = "(\\s|\\t)*<#--.*\$"
-        lastLineDetectionPattern = ".*-->(\\s|\\t)*\$"
-        allowBlankLines = true
-        isMultiline = true
-        padLines = false
-      }
-
-      intellijStyleERB {
-        firstLine = "<%#"
-        beforeEachLine = '  '
-        endLine = "%>"
-        afterEachLine = ''
-        firstLineDetectionPattern = "(\\s|\\t)*<%#.*\$"
-        lastLineDetectionPattern = ".*%>(\\s|\\t)*\$"
-        allowBlankLines = true
-        isMultiline = true
-        padLines = false
-      }
-    }
-    mapping {
-      java = 'SLASHSTAR_STYLE'
-      groovy = 'SLASHSTAR_STYLE'
-      scss = 'SLASHSTAR_STYLE'
-      sass = 'SLASHSTAR_STYLE'
-      css = 'SLASHSTAR_STYLE'
-      rb = 'SCRIPT_STYLE'
-      rake = 'SCRIPT_STYLE'
-
-      xml = 'intellijStyleXML'
-      xsl = 'intellijStyleXML'
-      xsd = 'intellijStyleXML'
-
-      ftl = 'intellijStyleFTL'
-      ftlh = 'intellijStyleFTL'
-      erb = 'intellijStyleERB'
-      ts = 'SLASHSTAR_STYLE'
-      tsx = 'SLASHSTAR_STYLE'
-      msx = 'SLASHSTAR_STYLE'
-      js = 'SLASHSTAR_STYLE'
-      mjs = 'SLASHSTAR_STYLE'
-    }
+    // Web types
+    headerCommentManager.register(new SkipLinesCStyleHeaderComment("(?m)^\\s*@charset .*;"), 'css', 'scss')
+    include('**/*.css', '**/*.scss')                                  // Styles
+    include('**/*.js', '**/*.mjs', '**/*.ts', '**/*.tsx', '**/*.msx') // JS
   }
-  check.dependsOn 'license'
+  check.dependsOn('checkLicenses')
 
   if (project.path.startsWithAny(":build-platform", ":installers", ":docker", ":release")) {
     return
@@ -517,19 +421,6 @@ subprojects {
 
     javaCompiler = javaToolchains.compilerFor {
       languageVersion = JavaLanguageVersion.of(goVersions.buildJavaVersion)
-    }
-  }
-
-  tasks.withType(License).configureEach { License thisTask ->
-    // Needs to be be done after evaluation for the task's source to be populated (either in afterEvaluate or doFirst)
-    doFirst {
-      def sourceSetName = thisTask.name.replaceFirst('licenseFormat', '').replaceFirst('license', '')
-      def mappedSourceSet = sourceSets.find { sourceSet -> sourceSet.name.toLowerCase().equals(sourceSetName.toLowerCase()) } as SourceSet
-
-      // Test resources are often just data files, and don't need license headers
-      if (thisTask.name.toLowerCase().contains('test')) {
-        thisTask.source -= mappedSourceSet.resources
-      }
     }
   }
 

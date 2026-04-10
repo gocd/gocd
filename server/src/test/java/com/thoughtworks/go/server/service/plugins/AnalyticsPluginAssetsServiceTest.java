@@ -236,7 +236,7 @@ public class AnalyticsPluginAssetsServiceTest {
         when(extension.getStaticAssets(PLUGIN_ID)).thenReturn(testDataZipArchive());
 
         assetsService.onPluginMetadataCreate(PLUGIN_ID);
-        String shaHashOfZipAndPluginScript = "cfbb9309faf81a2b61277abc3b5c31486797d62b24ddfd83a2f871fc56d61ea2";
+        String shaHashOfZipAndPluginScript = "ccc8e36970e4322fc1a6b66897f1c9b10bceba73471e51fb18e32b6a9c4d68c1";
         assertEquals(Paths.get("assets", "plugins", PLUGIN_ID, shaHashOfZipAndPluginScript).toString(), assetsService.assetPathFor(PLUGIN_ID));
     }
 

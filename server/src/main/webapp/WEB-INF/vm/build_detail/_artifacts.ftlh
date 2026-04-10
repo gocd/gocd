@@ -12,7 +12,7 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-  -->
+ -->
 <#-- @ftlvariable name="artifacts_extra_attrs" type="java.lang.String" -->
 <div class="widget container-in-body" id="tab-content-of-artifacts" ${artifacts_extra_attrs}>
     <#if presenter.artifactFiles??>

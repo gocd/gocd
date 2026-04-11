@@ -33,7 +33,7 @@ import java.util.stream.Collectors
 
 plugins {
   id 'base'
-  id 'org.owasp.dependencycheck' version '12.2.0'
+  id 'org.owasp.dependencycheck' version '12.2.1'
   id 'com.autonomousapps.dependency-analysis' version '3.6.1'
 }
 

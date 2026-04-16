@@ -226,6 +226,21 @@
 
   <suppress>
     <notes><![CDATA[
+    While a private fix (due to EOL) for this issue was released for Jetty 10 in 10.0.28, GoCD does not seem to be
+    vulnerable, via empirical testing with the vulnerability researcher's own tool from https://github.com/JeppW/smugchunks
+    towards basic static retrievals, API requests and others. Review of the write-up https://w4ke.info/2025/06/18/funky-chunks.html
+    does indicate a theoretical issue, however, so this suppression represents a judgment call on risk. Theory here is
+    that GoCD's use of Spring, SparkJava and Rack/Rails is not in practice subject to the same underlying issue as Jetty
+    when operating in the embedded mode.
+    org.eclipse.jetty:jetty-http (go.jar) Fixed: 12.1.7, 12.0.33, 11.0.28, 10.0.28, 9.4.60
+    https://avd.aquasec.com/nvd/cve-2026-2332
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*/.*@10.*$</packageUrl>
+    <cve>CVE-2026-2332</cve>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
     False positive due to bad NVD data; this was in fact fixed in 6.10.1, but NVD doesn't seem to know this.
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jgit/org\.eclipse\.jgit.*@6.*$</packageUrl>

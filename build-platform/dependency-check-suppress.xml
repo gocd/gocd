@@ -18,13 +18,92 @@
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.4.xsd
                                   https://dependency-check.github.io/DependencyCheck/dependency-suppression.1.4.xsd">
+
   <suppress>
     <notes><![CDATA[
     GoCD does not use Spring's ServiceExporter in a vulnerable way, as described in https://nvd.nist.gov/vuln/detail/CVE-2016-1000027
     https://github.com/spring-projects/spring-framework/issues/24434 and https://blog.gypsyengineer.com/en/security/detecting-dangerous-spring-exporters-with-codeql.html
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
     <cve>CVE-2016-1000027</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    It is not believed that GoCD is directly vulnerable to the "SpringShell" attack since although we use WAR
+    deployment, GoCD uses Jetty rather than Tomcat, and does not have the vulnerable classloader from Tomcat
+    required to exploit the vulnerability.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <cve>CVE-2022-22965</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not allow SpEL expressions to be supplied by users anywhere that can be found, so we do not seem to be
+    vulnerable to these issues.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <cve>CVE-2022-22950</cve>
+    <cve>CVE-2023-20861</cve>
+    <cve>CVE-2023-20863</cve>
+    <cve>CVE-2024-38808</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD is not affected by these related CVEs as we do not use disallowedFieldPatterns on DataBinders as required to trigger the issue
+    as documented in https://spring.io/blog/2022/04/13/spring-framework-data-binding-rules-vulnerability-cve-2022-22968 nor case insensitive
+    authorizations in the related issue at https://spring.io/security/cve-2024-38827 or https://spring.io/security/cve-2025-22233
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <cve>CVE-2022-22968</cve>
+    <cve>CVE-2024-38820</cve>
+    <cve>CVE-2024-38827</cve>
+    <cve>CVE-2025-22233</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD is not vulnerable to the default as described at https://nvd.nist.gov/vuln/detail/CVE-2022-22970 as we do not
+    rely on data binding for dealing with MultipartFile or javax.servlet.Part objects into models.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <cve>CVE-2022-22970</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    According to https://spring.io/security/cve-2024-22243 / https://spring.io/security/cve-2024-22262
+    these only affect applications that use UriComponentsBuilder along with validation checks on the host. GoCD and its dependencies
+    don't use UriComponentsBuilder at all.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <cve>CVE-2024-22243</cve>
+    <cve>CVE-2024-22259</cve>
+    <cve>CVE-2024-22262</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    According to https://spring.io/security/cve-2026-22745 this issue only affects serving of static resources via spring-web/webflux
+    on Windows platforms. GoCD does not server static assets from the filesystem via Spring Web resource handler mechanisms (it uses
+    Jetty for static assets alongside custom handlers for artifact downloading.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <cve>CVE-2026-22745</cve>
+  </suppress>
+  
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not appear to parse/use ETags off Spring Framework endpoints. While it does use
+    ETags and If-Match/If-None-Match on resources it appears to only do so via Rails and Spark
+    framework endpoints, not anything that goes via Spring Web.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-web@4\.3.*$</packageUrl>
+    <cve>CVE-2024-38809</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not appear to be vulnerable to this as it does not bind @RequestBody byte[]
+    attributes as required by https://spring.io/security/cve-2024-38828 to be an issue.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-web@4\.3.*$</packageUrl>
+    <cve>CVE-2024-38828</cve>
   </suppress>
 
   <suppress>
@@ -57,75 +136,6 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-webmvc@4\.3.*$</packageUrl>
     <cve>CVE-2026-22737</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-    It is not believed that GoCD is directly vulnerable to the "SpringShell" attack since although we use WAR
-    deployment, GoCD uses Jetty rather than Tomcat, and does not have the vulnerable classloader from Tomcat
-    required to exploit the vulnerability.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
-    <cve>CVE-2022-22965</cve>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
-    GoCD does not allow SpEL expressions to be supplied by users anywhere that can be found, so we do not seem to be
-    vulnerable to these issues.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
-    <cve>CVE-2022-22950</cve>
-    <cve>CVE-2023-20861</cve>
-    <cve>CVE-2023-20863</cve>
-    <cve>CVE-2024-38808</cve>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
-    GoCD is not affected by these related CVEs as we do not use disallowedFieldPatterns on DataBinders as required to trigger the issue
-    as documented in https://spring.io/blog/2022/04/13/spring-framework-data-binding-rules-vulnerability-cve-2022-22968 nor case insensitive
-    authorizations in the related issue at https://spring.io/security/cve-2024-38827 or https://spring.io/security/cve-2025-22233
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
-    <cve>CVE-2022-22968</cve>
-    <cve>CVE-2024-38820</cve>
-    <cve>CVE-2024-38827</cve>
-    <cve>CVE-2025-22233</cve>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
-    GoCD is not vulnerable to the default as described at https://nvd.nist.gov/vuln/detail/CVE-2022-22970 as we do not
-    rely on data binding for dealing with MultipartFile or javax.servlet.Part objects into models.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
-    <cve>CVE-2022-22970</cve>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
-    According to https://spring.io/security/cve-2024-22243 / https://spring.io/security/cve-2024-22262
-    these only affect applications that use UriComponentsBuilder along with validation checks on the host. GoCD and its dependencies
-    don't use UriComponentsBuilder at all.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
-    <cve>CVE-2024-22243</cve>
-    <cve>CVE-2024-22259</cve>
-    <cve>CVE-2024-22262</cve>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
-    GoCD does not appear to parse/use ETags off Spring Framework endpoints. While it does use
-    ETags and If-Match/If-None-Match on resources it appears to only do so via Rails and Spark
-    framework endpoints, not anything that goes via Spring Web.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-web@4\.3.*$</packageUrl>
-    <cve>CVE-2024-38809</cve>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
-    GoCD does not appear to be vulnerable to this as it does not bind @RequestBody byte[]
-    attributes as required by https://spring.io/security/cve-2024-38828 to be an issue.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-web@4\.3.*$</packageUrl>
-    <cve>CVE-2024-38828</cve>
   </suppress>
 
   <suppress>
@@ -336,11 +346,24 @@
 
   <suppress>
     <notes><![CDATA[
-    Suppress false positive from jline 2.14.16 embedded within jruby-complete/jruby-stdlib. This issue appears to only apply to jline 3.x where 2.x is not vulnerable
+    Suppress false positive from jline 2.14.16 embedded within jruby-stdlib. This issue appears to only apply to jline 3.x where 2.x is not vulnerable
     after reading https://nvd.nist.gov/vuln/detail/CVE-2023-50572 and https://github.com/jline/jline3/issues/909 (different project to jline 2)
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/jline/jline@2\..*$</packageUrl>
     <cve>CVE-2023-50572</cve>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+    Suppress false positives from Bouncy Castle 1.79 as included within jruby-stdlib 9.4.14.0. The affected parts of Bouncy Castle do not appear to be used/relevant to
+    JRuby or GoCD, so these are almost certainly false positives. https://www.bouncycastle.org/download/bouncy-castle-java/?filter=java%3Drelease-1-84
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.bouncycastle/bc(pkix|prov)-jdk18on@.*$</packageUrl>
+    <cve>CVE-2025-14813</cve>
+    <cve>CVE-2026-0636</cve>
+    <cve>CVE-2026-3505</cve>
+    <cve>CVE-2026-5588</cve>
+    <cve>CVE-2026-5598</cve>
   </suppress>
 
   <suppress>

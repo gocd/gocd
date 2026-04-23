@@ -169,6 +169,7 @@ tasks.register('verifyJar', VerifyJarTask) {
       "logback-core-${project.versions.logback}.jar",
       "objenesis-${project.versions.objenesis}.jar",
       "org.apache.felix.framework-${project.versions.felix}.jar",
+      "oshi-common-${project.versions.oshi}.jar",
       "oshi-core-java11-${project.versions.oshi}.jar",
       "plugin-metadata-store-${project.version}.jar",
       "semantic-version-${project.versions.semanticVersion}.jar",

@@ -4917,7 +4917,7 @@ __metadata:
     tslint: "npm:^6.1.3"
     typescript: "npm:^6.0.2"
     underscore.string: "npm:^3.3.6"
-    upath: "npm:^3.0.6"
+    upath: "npm:^3.0.7"
     url-loader: "npm:^4.1.1"
     url-parse: "npm:^1.5.10"
     uuid: "npm:^14.0.0"
@@ -9369,10 +9369,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"upath@npm:^3.0.6":
-  version: 3.0.6
-  resolution: "upath@npm:3.0.6"
-  checksum: 10c0/11603c36043c37356789e12e03bebbbe44a71a02344f192cb7bc475dc9fd8d2e794db286bdfd0ceb66357d78c26b7e6295d4c0a46d663e312e4d486e76da1df0
+"upath@npm:^3.0.7":
+  version: 3.0.7
+  resolution: "upath@npm:3.0.7"
+  checksum: 10c0/3b0464cc761a898fa7d8eb3f034af5eeb31acc31c33a4c2523adbdd7d520db715317bb6f821dfb9db2acaa587f0f632e78bb133ac67c7d98d365844a0122fd61
   languageName: node
   linkType: hard
 

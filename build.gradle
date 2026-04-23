@@ -15,6 +15,9 @@
  */
 
 
+import com.autonomousapps.DependencyAnalysisExtension
+import com.autonomousapps.DependencyAnalysisSubExtension
+import com.autonomousapps.extension.*
 import com.autonomousapps.tasks.ResolveExternalDependenciesTask
 import com.github.jk1.license.filter.SpdxLicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
@@ -222,16 +225,16 @@ allprojects {
   }
 
   if (project.path.startsWith(':api:') && !project.path.endsWith(':api-base')) {
-    dependencyAnalysis {
-      issues {
-        onAny {
+    extensions.getByType(DependencyAnalysisSubExtension).with {
+      issues { ProjectIssueHandler ph ->
+        ph.onAny { Issue i ->
           // Ignore issues with dependencies on api-base, we rely on this to make API projects
           // easier to configure
-          exclude(dependencies.project(path: ':api:api-base'))
+          i.exclude(':api:api-base')
         }
-        onUsedTransitiveDependencies {
+        ph.onUsedTransitiveDependencies { Issue i ->
           // API projects use transitives from api-base rather than declaring everything directly
-          severity('ignore')
+          i.severity('ignore')
         }
       }
     }
@@ -485,17 +488,12 @@ subprojects {
       }
     }
 
+    //noinspection unused
     addTestListener(new TestListener() {
-        @Override
-        void beforeSuite(TestDescriptor suite) {
-          allTestClasses.remove(suite.className)
-        }
-
-        @Override
-        void beforeTest(TestDescriptor testDescriptor) {
-          allTestClasses.remove(testDescriptor.className)
-        }
-      })
+        void beforeSuite(TestDescriptor suite) { allTestClasses.remove(suite.className) }
+        void beforeTest(TestDescriptor testDescriptor) { allTestClasses.remove(testDescriptor.className) }
+      }
+    )
 
     doLast {
       delete(tmpDir)
@@ -510,15 +508,14 @@ subprojects {
       exceptionFormat = 'full'
     }
 
+    //noinspection unused
     addTestListener(new TestListener() {
-      @Override
       void beforeSuite(TestDescriptor suite) {
         if (suite.parent?.name?.contains("Gradle Test Executor")) {
           logger.quiet("Running ${suite.name}...")
         }
       }
 
-      @Override
       void afterSuite(TestDescriptor suite, TestResult result) {
         if (suite.parent?.name?.contains("Gradle Test Executor")) {
           logger.quiet("--> Tests run: ${result.testCount}, Failures: ${result.failedTestCount}, Skipped: ${result.skippedTestCount}, Time elapsed: ${(result.endTime - result.startTime) / 1000d} sec")
@@ -550,7 +547,9 @@ tasks.register('allDependencies') {
 
 tasks.register('resolveExternalDependencies') {
   group = LifecycleBasePlugin.BUILD_GROUP
-  dependsOn allprojects.collect { Project prj -> prj.tasks.withType(ResolveExternalDependenciesTask) }
+  dependsOn allprojects.collect { Project prj -> //noinspection GroovyAssignabilityCheck
+    prj.tasks.withType(ResolveExternalDependenciesTask)
+  }
   dependsOn allprojects.collect { Project prj -> prj.tasks.withType(DownloadFile) }
   dependsOn allprojects.collect { Project prj -> prj.tasks.withType(YarnInstallTask) }
   dependsOn allprojects.collect { Project prj -> prj.tasks.matching { it.name == 'initializeRailsGems' } }
@@ -558,8 +557,8 @@ tasks.register('resolveExternalDependencies') {
 
 private allCompileTasks(Closure<Boolean> include = { t -> true }) {
   allprojects.collect { Project prj ->
-    compileAll.dependsOn(prj.tasks.withType(JavaCompile).findAll(include))
-    compileAll.dependsOn(prj.tasks.withType(GroovyCompile).findAll(include))
+    compileAll.dependsOn(prj.tasks.withType(JavaCompile).matching(include))
+    compileAll.dependsOn(prj.tasks.withType(GroovyCompile).matching(include))
   }
 }
 
@@ -630,31 +629,27 @@ static List<String> getTestClassesForTask(List<String> testsToRun) {
     .collect(Collectors.toList())
 }
 
-dependencyAnalysis {
-  abi {
-    exclusions {
+extensions.getByType(DependencyAnalysisExtension).with {
+   // Temporarily disable dependency analysis until we can configure it to work with our multi-module setup and the fact that we have a lot of "internal" dependencies that are not declared as such in the module metadata of our dependencies, which causes a lot of false positives. See)
+  abi { AbiHandler h ->
+    h.exclusions { ExclusionsHandler e ->
       // Disable ABI analysis, as GoCD does not model module visibility correctly.
-      excludeClasses(/com\.thoughtworks\.go\..*/)
+      e.excludeClasses(/com\.thoughtworks\.go\..*/)
     }
   }
-  issues {
-    all {
-      onAny {
-        exclude(project.deps.slf4jApi as String)
+  issues { IssueHandler h ->
+    h.all { ProjectIssueHandler ph ->
+      ph.onCompileOnly { Issue i ->
+        i.exclude(project.deps.jakartaAnnotation as String) // Spring needs at runtime
       }
-      onCompileOnly {
-        exclude(project.deps.jakartaAnnotation as String) // Spring needs at runtime
+      ph.onIncorrectConfiguration { Issue i ->
       }
-      onIncorrectConfiguration {
-      }
-      onUsedTransitiveDependencies {
+      ph.onUsedTransitiveDependencies { Issue i ->
         // Exclude critical parts of frameworks which are annoying/pointless to declare individually
-        excludeRegex(/.*:.*(core|commons)/)
-        excludeRegex(/org.springframework:spring-(core|beans)/)
+        i.excludeRegex(/.*:.*(core|commons)/)
+        i.excludeRegex(/org.springframework:spring-(core|beans)/)
       }
-
     }
-
   }
 }
 

@@ -87,6 +87,15 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
           </span>
         </div>
         <div class={styles.revision}>Revision: {pipelineRunInfo.revision()}</div>
+        {pipelineRunInfo.materialRevisions().length > 0 && (() => {
+          const firstRev = pipelineRunInfo.materialRevisions()[0];
+          const shortHash = firstRev.revision().substring(0, 8);
+          return <div class={styles.revision} data-test-id={"commit-info"}>
+            <span data-test-id={"commit-author"} title={firstRev.user()}>{firstRev.user()}</span>
+            {" — "}
+            <span data-test-id={"commit-hash"} title={firstRev.revision()}>{shortHash}</span>
+          </div>;
+        })()}
         <div class={styles.scheduleInfo}
              data-test-id={"time"}
              title={PipelineRunWidget.getTimeServer(pipelineRunInfo.scheduledTimestamp())}>

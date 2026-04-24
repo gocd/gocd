@@ -128,7 +128,7 @@ def libraries = [
   liquibase           : 'org.liquibase:liquibase-core:5.0.2',
   liquibaseSlf4j      : 'com.mattbertolini:liquibase-slf4j:5.1.0',
   logback             : 'ch.qos.logback:logback-classic:1.5.32',
-  lombok              : 'org.projectlombok:lombok:1.18.44',
+  lombok              : 'org.projectlombok:lombok:1.18.46',
   mockitoBom          : 'org.mockito:mockito-bom:5.23.0',
   mybatis             : 'org.mybatis:mybatis:3.5.19',
   mybatisSpring       : 'org.mybatis:mybatis-spring:2.1.2',

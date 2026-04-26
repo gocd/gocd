@@ -87,6 +87,20 @@
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
     <cve>CVE-2026-22745</cve>
   </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not use server sent events as required to be affected by https://spring.io/security/cve-2026-22735
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <cve>CVE-2026-22735</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not use scripting enabled template views as required to be affected by https://spring.io/security/cve-2026-22737
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <cve>CVE-2026-22737</cve>
+  </suppress>
   
   <suppress>
     <notes><![CDATA[
@@ -123,20 +137,6 @@
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-webmvc@4\.3.*$</packageUrl>
     <vulnerabilityName>CVE-2021-22060</vulnerabilityName>
   </suppress>
-  <suppress>
-    <notes><![CDATA[
-    GoCD does not use server sent events as rewuired to be affected by https://spring.io/security/cve-2026-22735
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-webmvc@4\.3.*$</packageUrl>
-    <cve>CVE-2026-22735</cve>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
-    GoCD does not use scripting enabled template views as required to be affected by https://spring.io/security/cve-2026-22737
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-webmvc@4\.3.*$</packageUrl>
-    <cve>CVE-2026-22737</cve>
-  </suppress>
 
   <suppress>
     <notes><![CDATA[
@@ -154,6 +154,45 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@.*$</packageUrl>
     <cve>CVE-2022-22978</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    After review of https://spring.io/security/cve-2026-22732 it doesn't appear GoCD is affected by this issue. It
+    only seems to happen in cases where Spring Framework writes content length headers early and directly to the response
+    (without buffering in HttpHeaders as in earlier versions), and Spring Security is needed to write headers directly
+    to the response. The change in Spring FW highlighted an old Spring Security bug to do with content length handling,
+    causing some response headers to be lost. While the root issue is within Spring Security and similar code exists
+    in our version, since we are using an old Spring Web + Spark + jruby-rack AND we do not rely on Spring Security to
+    write response headers (we still have a custom DefaultHeadersFilter) it seems unlikely GoCD can be affected. See
+    https://github.com/spring-projects/spring-security/issues/18797 and https://github.com/spring-projects/spring-framework/issues/36381#issuecomment-3953118692
+    for some more detail.
+    org.springframework.security:spring-security-web (go.jar) Fixed: 6.5.9, 7.0.4
+    https://avd.aquasec.com/nvd/cve-2026-22732
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@.*$</packageUrl>
+    <cve>CVE-2026-22732</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not use DaoAuthenticationProvider so is not vulnerable to https://nvd.nist.gov/vuln/detail/CVE-2026-22746
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@.*$</packageUrl>
+    <cve>CVE-2026-22746</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    False positive as GoCD does authenticate with X.509 certificates via Spring; and seems to be for 7.0+ only in any case,
+    so 4.x is not affected.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@.*$</packageUrl>
+    <vulnerabilityName>CVE-2026-22747</vulnerabilityName>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    False positive as GoCD does not use OAuth2 Token validation via NimbusJwtDecoder
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@.*$</packageUrl>
+    <cve>CVE-2026-22748</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
@@ -221,7 +260,6 @@
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*/.*@10.*$</packageUrl>
     <cve>CVE-2023-36479</cve>
   </suppress>
-
   <suppress>
     <notes><![CDATA[
     The obscure issue here related to differential parsing of URIs is not likely to be relevant to GoCD since it
@@ -233,7 +271,6 @@
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*/.*@10.*$</packageUrl>
     <cve>CVE-2025-11143</cve>
   </suppress>
-
   <suppress>
     <notes><![CDATA[
     While a private fix (due to EOL) for this issue was released for Jetty 10 in 10.0.28, GoCD does not seem to be
@@ -247,6 +284,13 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*/.*@10.*$</packageUrl>
     <cve>CVE-2026-2332</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not use Jetty JASPI so is not vulnerable to https://nvd.nist.gov/vuln/detail/CVE-2026-5795
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*/.*@10.*$</packageUrl>
+    <cve>CVE-2026-5795</cve>
   </suppress>
 
   <suppress>
@@ -276,11 +320,11 @@
     <cve>CVE-2025-0716</cve>
     <cve>CVE-2025-2336</cve>
     <cve>CVE-2025-4690</cve>
-    <vulnerabilityName>Cross-Site Scripting via JSONP</vulnerabilityName>
+    <vulnerabilityName>Cross-Site Scripting via JSONP</vulnerabilityName> <!-- GHSA-28hp-fgcr-2r4h -->
+    <vulnerabilityName>XSS via JQLite DOM manipulation functions in AngularJS</vulnerabilityName> <!-- GHSA-5cp4-xmrw-59wf -->
     <vulnerabilityName>DOS in $sanitize</vulnerabilityName>
     <vulnerabilityName>The attribute usemap can be used as a security exploit</vulnerabilityName>
     <vulnerabilityName>Universal CSP bypass via add-on in Firefox</vulnerabilityName>
-    <vulnerabilityName>XSS via JQLite DOM manipulation functions in AngularJS</vulnerabilityName>
     <vulnerabilityName>End-of-Life: Long term support for AngularJS has been discontinued as of December 31, 2021</vulnerabilityName>
     <vulnerabilityName>XSS in $sanitize in Safari/Firefox</vulnerabilityName>
   </suppress>

@@ -654,6 +654,8 @@ extensions.getByType(DependencyAnalysisExtension).with {
 }
 
 dependencyCheck {
+  data.directory = layout.buildDirectory.dir("dependency-check-data").get().asFile.path
+
   failBuildOnCVSS = 1
   failBuildOnUnusedSuppressionRule = true
   suppressionFile = rootProject.file('build-platform/dependency-check-suppress.xml').toPath().toString()
@@ -679,10 +681,6 @@ dependencyCheckAggregate {
       commandLine = [ "bundle", "audit", "update" ]
     }
   }
-}
-
-dependencyCheck {
-  data.directory = layout.buildDirectory.dir("dependency-check-data").get().asFile.path
 }
 
 def downloadDependencyCheckCache = tasks.register('downloadDependencyCheckCache', Download) {

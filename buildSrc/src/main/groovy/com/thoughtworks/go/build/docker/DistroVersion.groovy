@@ -38,6 +38,6 @@ class DistroVersion implements Serializable {
   }
 
   boolean lessThan(int target) {
-    return Integer.parseInt(version) < target
+    return Integer.parseInt(version.tokenize('.').first) < target
   }
 }

@@ -15,6 +15,9 @@
  */
 
 
+import com.autonomousapps.DependencyAnalysisExtension
+import com.autonomousapps.DependencyAnalysisSubExtension
+import com.autonomousapps.extension.*
 import com.autonomousapps.tasks.ResolveExternalDependenciesTask
 import com.github.jk1.license.filter.SpdxLicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
@@ -34,7 +37,7 @@ import java.util.stream.Collectors
 plugins {
   id 'base'
   id 'org.owasp.dependencycheck' version '12.2.1'
-  id 'com.autonomousapps.dependency-analysis' version '3.6.1'
+  id 'com.autonomousapps.dependency-analysis' version '3.9.0'
 }
 
 // Updated via automated scripting
@@ -72,7 +75,7 @@ def libraries = [
   //
   // DO NOT interpolate version variables here because Dependabot is not smart enough to understand those. Dependabot's
   // version parsing is simply regex matching and never actually evaluates a gradle script.
-  activeMQ            : 'org.apache.activemq:activemq-broker:6.2.4',
+  activeMQ            : 'org.apache.activemq:activemq-broker:6.2.5',
   angusMailSmtp       : 'org.eclipse.angus:smtp:2.0.5',
   apacheAnt           : 'org.apache.ant:ant:1.10.17',
   apacheHttpComponents: 'org.apache.httpcomponents:httpclient:4.5.14',
@@ -80,18 +83,18 @@ def libraries = [
   assertJ             : 'org.assertj:assertj-core:3.27.7',
   assertJ_DB          : 'org.assertj:assertj-db:3.0.2',
   awaitility          : 'org.awaitility:awaitility:4.3.0',
-  bouncyCastle        : 'org.bouncycastle:bcprov-jdk18on:1.83',
-  bucket4j            : 'com.bucket4j:bucket4j_jdk17-core:8.17.0',
+  bouncyCastle        : 'org.bouncycastle:bcprov-jdk18on:1.84',
+  bucket4j            : 'com.bucket4j:bucket4j_jdk17-core:8.18.0',
   bucket4jCaffeine    : 'com.bucket4j:bucket4j-caffeine:8.10.1',
   caffeine            : 'com.github.ben-manes.caffeine:caffeine:3.2.3',
   cloning             : 'io.github.kostaskougios:cloning:1.12.0',
-  commonsCodec        : 'commons-codec:commons-codec:1.21.0',
+  commonsCodec        : 'commons-codec:commons-codec:1.22.0',
   commonsCollections  : 'commons-collections:commons-collections:3.2.2',
   commonsCollections4 : 'org.apache.commons:commons-collections4:4.5.0',
   commonsConfiguration: 'org.apache.commons:commons-configuration2:2.14.0',
   commonsDbcp         : 'org.apache.commons:commons-dbcp2:2.14.0',
   commonsFileUpload   : 'commons-fileupload:commons-fileupload:1.6.0',
-  commonsIO           : 'commons-io:commons-io:2.21.0',
+  commonsIO           : 'commons-io:commons-io:2.22.0',
   commonsLang3        : 'org.apache.commons:commons-lang3:3.20.0',
   commonsPool         : 'org.apache.commons:commons-pool2:2.13.1',
   commonsText         : 'org.apache.commons:commons-text:1.15.0',
@@ -100,7 +103,7 @@ def libraries = [
   ehcache             : 'net.sf.ehcache.internal:ehcache-core:2.11.1.3.11', // See https://repo.terracotta.org/maven2/net/sf/ehcache/internal/ehcache-core/maven-metadata.xml
   felix               : 'org.apache.felix:org.apache.felix.framework:7.0.5',
   freemarker          : 'org.freemarker:freemarker:2.3.34',
-  gson                : 'com.google.code.gson:gson:2.13.2',
+  gson                : 'com.google.code.gson:gson:2.14.0',
   h2                  : 'com.h2database:h2:1.4.200',
   hamcrest            : 'org.hamcrest:hamcrest:3.0',
   hibernate           : 'org.hibernate:hibernate-ehcache:3.6.10.Final',
@@ -109,9 +112,9 @@ def libraries = [
   jakartaInject       : 'jakarta.inject:jakarta.inject-api:1.0.5',
   jakartaMail         : 'jakarta.mail:jakarta.mail-api:2.1.5',
   jakartaTransaction  : 'jakarta.transaction:jakarta.transaction-api:1.3.3',
-  javassist           : 'org.javassist:javassist:3.30.2-GA',
+  javassist           : 'org.javassist:javassist:3.31.0-GA',
   jaxbBom             : 'org.glassfish.jaxb:jaxb-bom:4.0.7',
-  jaxen               : 'jaxen:jaxen:2.0.0',
+  jaxen               : 'jaxen:jaxen:2.0.1',
   jcommander          : 'com.beust:jcommander:1.82',
   jdom                : 'org.jdom:jdom2:2.0.6.1',
   jetBrainsAnnotations: 'org.jetbrains:annotations:26.1.0',
@@ -120,22 +123,22 @@ def libraries = [
   jolt                : 'com.bazaarvoice.jolt:jolt-core:0.1.8',
   jruby               : 'org.jruby:jruby:9.4.14.0',
   jsonUnit            : 'net.javacrumbs.json-unit:json-unit-assertj:5.1.1',
-  jsoup               : 'org.jsoup:jsoup:1.22.1',
+  jsoup               : 'org.jsoup:jsoup:1.22.2',
   junit5Bom           : 'org.junit:junit-bom:6.0.3',
   liquibase           : 'org.liquibase:liquibase-core:5.0.2',
   liquibaseSlf4j      : 'com.mattbertolini:liquibase-slf4j:5.1.0',
   logback             : 'ch.qos.logback:logback-classic:1.5.32',
-  lombok              : 'org.projectlombok:lombok:1.18.44',
+  lombok              : 'org.projectlombok:lombok:1.18.46',
   mockitoBom          : 'org.mockito:mockito-bom:5.23.0',
   mybatis             : 'org.mybatis:mybatis:3.5.19',
   mybatisSpring       : 'org.mybatis:mybatis-spring:2.1.2',
-  mysql               : 'com.mysql:mysql-connector-j:9.6.0',
+  mysql               : 'com.mysql:mysql-connector-j:9.7.0',
   objenesis           : 'org.objenesis:objenesis:3.5',
   oscache             : 'opensymphony:oscache:2.4.1',
-  oshi                : 'com.github.oshi:oshi-core-java11:6.11.1',
+  oshi                : 'com.github.oshi:oshi-core-java11:6.12.0',
   postgresql          : 'org.postgresql:postgresql:42.7.10',
   quartz              : 'org.quartz-scheduler:quartz:2.5.2',
-  rack                : 'com.github.gocd-contrib:jruby-rack:1.3.0.9',
+  rack                : 'com.github.gocd-contrib:jruby-rack:1.3.0.10',
   resilience4jRetry   : 'io.github.resilience4j:resilience4j-retry:2.4.0',
   semanticVersion     : 'de.skuzzle:semantic-version:2.1.1',
   servletApi          : 'jakarta.servlet:jakarta.servlet-api:4.0.4',
@@ -145,7 +148,7 @@ def libraries = [
   springSecurity      : 'org.springframework.security:spring-security-config:4.2.20.RELEASE',
   springTestJunit5    : 'com.github.sbrannen:spring-test-junit5:1.5.0',
   systemStubs         : 'uk.org.webcompere:system-stubs-jupiter:2.1.8',
-  testcontainersBom   : 'org.testcontainers:testcontainers-bom:2.0.4',
+  testcontainersBom   : 'org.testcontainers:testcontainers-bom:2.0.5',
   tinybundles         : 'org.ops4j.pax.tinybundles:tinybundles:4.0.1',
   urlrewrite          : 'org.tuckey:urlrewritefilter:3.2.0',
   xmlUnit             : 'org.xmlunit:xmlunit-assertj:2.11.0',
@@ -222,16 +225,16 @@ allprojects {
   }
 
   if (project.path.startsWith(':api:') && !project.path.endsWith(':api-base')) {
-    dependencyAnalysis {
-      issues {
-        onAny {
+    extensions.getByType(DependencyAnalysisSubExtension).with {
+      issues { ProjectIssueHandler ph ->
+        ph.onAny { Issue i ->
           // Ignore issues with dependencies on api-base, we rely on this to make API projects
           // easier to configure
-          exclude(dependencies.project(path: ':api:api-base'))
+          i.exclude(':api:api-base')
         }
-        onUsedTransitiveDependencies {
+        ph.onUsedTransitiveDependencies { Issue i ->
           // API projects use transitives from api-base rather than declaring everything directly
-          severity('ignore')
+          i.severity('ignore')
         }
       }
     }
@@ -485,17 +488,12 @@ subprojects {
       }
     }
 
+    //noinspection unused
     addTestListener(new TestListener() {
-        @Override
-        void beforeSuite(TestDescriptor suite) {
-          allTestClasses.remove(suite.className)
-        }
-
-        @Override
-        void beforeTest(TestDescriptor testDescriptor) {
-          allTestClasses.remove(testDescriptor.className)
-        }
-      })
+        void beforeSuite(TestDescriptor suite) { allTestClasses.remove(suite.className) }
+        void beforeTest(TestDescriptor testDescriptor) { allTestClasses.remove(testDescriptor.className) }
+      }
+    )
 
     doLast {
       delete(tmpDir)
@@ -510,15 +508,14 @@ subprojects {
       exceptionFormat = 'full'
     }
 
+    //noinspection unused
     addTestListener(new TestListener() {
-      @Override
       void beforeSuite(TestDescriptor suite) {
         if (suite.parent?.name?.contains("Gradle Test Executor")) {
           logger.quiet("Running ${suite.name}...")
         }
       }
 
-      @Override
       void afterSuite(TestDescriptor suite, TestResult result) {
         if (suite.parent?.name?.contains("Gradle Test Executor")) {
           logger.quiet("--> Tests run: ${result.testCount}, Failures: ${result.failedTestCount}, Skipped: ${result.skippedTestCount}, Time elapsed: ${(result.endTime - result.startTime) / 1000d} sec")
@@ -550,7 +547,9 @@ tasks.register('allDependencies') {
 
 tasks.register('resolveExternalDependencies') {
   group = LifecycleBasePlugin.BUILD_GROUP
-  dependsOn allprojects.collect { Project prj -> prj.tasks.withType(ResolveExternalDependenciesTask) }
+  dependsOn allprojects.collect { Project prj -> //noinspection GroovyAssignabilityCheck
+    prj.tasks.withType(ResolveExternalDependenciesTask)
+  }
   dependsOn allprojects.collect { Project prj -> prj.tasks.withType(DownloadFile) }
   dependsOn allprojects.collect { Project prj -> prj.tasks.withType(YarnInstallTask) }
   dependsOn allprojects.collect { Project prj -> prj.tasks.matching { it.name == 'initializeRailsGems' } }
@@ -558,8 +557,8 @@ tasks.register('resolveExternalDependencies') {
 
 private allCompileTasks(Closure<Boolean> include = { t -> true }) {
   allprojects.collect { Project prj ->
-    compileAll.dependsOn(prj.tasks.withType(JavaCompile).findAll(include))
-    compileAll.dependsOn(prj.tasks.withType(GroovyCompile).findAll(include))
+    compileAll.dependsOn(prj.tasks.withType(JavaCompile).matching(include))
+    compileAll.dependsOn(prj.tasks.withType(GroovyCompile).matching(include))
   }
 }
 
@@ -630,35 +629,33 @@ static List<String> getTestClassesForTask(List<String> testsToRun) {
     .collect(Collectors.toList())
 }
 
-dependencyAnalysis {
-  abi {
-    exclusions {
+extensions.getByType(DependencyAnalysisExtension).with {
+   // Temporarily disable dependency analysis until we can configure it to work with our multi-module setup and the fact that we have a lot of "internal" dependencies that are not declared as such in the module metadata of our dependencies, which causes a lot of false positives. See)
+  abi { AbiHandler h ->
+    h.exclusions { ExclusionsHandler e ->
       // Disable ABI analysis, as GoCD does not model module visibility correctly.
-      excludeClasses(/com\.thoughtworks\.go\..*/)
+      e.excludeClasses(/com\.thoughtworks\.go\..*/)
     }
   }
-  issues {
-    all {
-      onAny {
-        exclude(project.deps.slf4jApi as String)
+  issues { IssueHandler h ->
+    h.all { ProjectIssueHandler ph ->
+      ph.onCompileOnly { Issue i ->
+        i.exclude(project.deps.jakartaAnnotation as String) // Spring needs at runtime
       }
-      onCompileOnly {
-        exclude(project.deps.jakartaAnnotation as String) // Spring needs at runtime
+      ph.onIncorrectConfiguration { Issue i ->
       }
-      onIncorrectConfiguration {
-      }
-      onUsedTransitiveDependencies {
+      ph.onUsedTransitiveDependencies { Issue i ->
         // Exclude critical parts of frameworks which are annoying/pointless to declare individually
-        excludeRegex(/.*:.*(core|commons)/)
-        excludeRegex(/org.springframework:spring-(core|beans)/)
+        i.excludeRegex(/.*:.*(core|commons)/)
+        i.excludeRegex(/org.springframework:spring-(core|beans)/)
       }
-
     }
-
   }
 }
 
 dependencyCheck {
+  data.directory = layout.buildDirectory.dir("dependency-check-data").get().asFile.path
+
   failBuildOnCVSS = 1
   failBuildOnUnusedSuppressionRule = true
   suppressionFile = rootProject.file('build-platform/dependency-check-suppress.xml').toPath().toString()
@@ -684,10 +681,6 @@ dependencyCheckAggregate {
       commandLine = [ "bundle", "audit", "update" ]
     }
   }
-}
-
-dependencyCheck {
-  data.directory = layout.buildDirectory.dir("dependency-check-data").get().asFile.path
 }
 
 def downloadDependencyCheckCache = tasks.register('downloadDependencyCheckCache', Download) {

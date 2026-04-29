@@ -212,6 +212,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       debian.getInstallPrerequisitesCommands(v)
+        .collect { cmd -> v.lessThan(26) ? cmd : cmd.replace(' tini ' : ' tini-static ') }
     }
 
     List<String> getCreateUserAndGroupCommands() {
@@ -224,7 +225,8 @@ enum Distro implements DistroBehavior {
     List<DistroVersion> getSupportedVersions() {
       [ // See https://endoflife.date/ubuntu "Maintenance & Security Support"
         new DistroVersion(version: '22.04', releaseName: '22.04', eolDate: parseDate('2027-04-01')),
-        new DistroVersion(version: '24.04', releaseName: '24.04', eolDate: parseDate('2029-04-25')),
+        new DistroVersion(version: '24.04', releaseName: '24.04', eolDate: parseDate('2029-05-31')),
+        new DistroVersion(version: '26.04', releaseName: '26.04', eolDate: parseDate('2031-05-31')),
       ]
     }
   },

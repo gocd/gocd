@@ -10,7 +10,7 @@
     },
     "packageManager": {
       "name": "yarn",
-      "version": "4.13.0+sha256.730e0619753d39754c9e7613c7e57f084ea18b3244f5ba9a5a60bd3da048450b"
+      "version": "4.14.1+sha256.5c7a0c5ea1c5b690df603c8e16b3742f87169b814d56bb5e63881145e8a84033"
     }
   },
   "scripts": {
@@ -39,7 +39,7 @@
     "chartjs-plugin-zoom": "^2.2.0",
     "classnames": "^2.5.1",
     "core-js": "^3.49.0",
-    "filesize": "^11.0.15",
+    "filesize": "^11.0.16",
     "foundation-sites": "^6.9.0",
     "hack-font": "^3.3.0",
     "jquery": "^3.7.1",
@@ -56,7 +56,7 @@
     "shellwords-ts": "^3.0.1",
     "underscore.string": "^3.3.6",
     "url-parse": "^1.5.10",
-    "uuid": "^13.0.0",
+    "uuid": "^14.0.0",
     "what-input": "^5.2.12"
   },
   "devDependencies": {
@@ -88,8 +88,8 @@
     "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^9.1.0",
     "fs-extra": "^11.3.4",
-    "globals": "^17.4.0",
-    "html-webpack-plugin": "^5.6.6",
+    "globals": "^17.5.0",
+    "html-webpack-plugin": "^5.6.7",
     "jasmine": "^5.13.0",
     "jasmine-ajax": "^4.0.0",
     "jasmine-browser-runner": "^3.0.0",
@@ -112,17 +112,17 @@
     "simulate-event": "^1.4.0",
     "sourcemapped-stacktrace": "^1.1.11",
     "style-loader": "^4.0.0",
-    "stylelint": "^17.6.0",
+    "stylelint": "^17.9.0",
     "stylelint-config-standard-scss": "^17.0.0",
     "stylelint-webpack-plugin": "^5.1.0",
     "thread-loader": "^4.0.4",
     "ts-loader": "^9.5.7",
     "ts-node": "^10.9.2",
     "tslint": "^6.1.3",
-    "typescript": "^6.0.2",
-    "upath": "^3.0.6",
+    "typescript": "^6.0.3",
+    "upath": "^3.0.7",
     "url-loader": "^4.1.1",
-    "webpack": "^5.106.1",
+    "webpack": "^5.106.2",
     "webpack-assets-manifest": "^6.5.1",
     "webpack-cli": "^7.0.2"
   },

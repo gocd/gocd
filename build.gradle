@@ -36,7 +36,7 @@ import java.util.stream.Collectors
 
 plugins {
   id 'base'
-  id 'org.owasp.dependencycheck' version '12.2.1'
+  id 'org.owasp.dependencycheck' version '12.2.2'
   id 'com.autonomousapps.dependency-analysis' version '3.10.0'
 }
 
@@ -662,9 +662,8 @@ dependencyCheck {
   skipTestGroups = true
 
   nvd.datafeedUrl = 'https://nexus.gocd.io/repository/nvd-data-feeds-proxy/nvdcve-2.0-{0}.json.gz'
-  analyzers.ossIndex.url = "https://api.guide.sonatype.com" // Remove from ODC 12.2.1+
-  analyzers.ossIndex.username = "go" // Remove from ODC 12.2.1+
   analyzers.ossIndex.password = System.getenv("OSS_INDEX_API_TOKEN") ?: ""
+  analyzers.ossIndex.validForHours = 24 * 7 // save credits by checking only weekly
   analyzers.centralEnabled = true // Allow for matching jar dependencies which sit inside jruby gems etc
 
   analyzers.assemblyEnabled = false // Avoid dotnet false positives

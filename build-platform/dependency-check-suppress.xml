@@ -320,8 +320,8 @@
     <cve>CVE-2025-0716</cve>
     <cve>CVE-2025-2336</cve>
     <cve>CVE-2025-4690</cve>
-    <vulnerabilityName>Cross-Site Scripting via JSONP</vulnerabilityName> <!-- GHSA-28hp-fgcr-2r4h -->
-    <vulnerabilityName>XSS via JQLite DOM manipulation functions in AngularJS</vulnerabilityName> <!-- GHSA-5cp4-xmrw-59wf -->
+    <vulnerabilityName>GHSA-28hp-fgcr-2r4h</vulnerabilityName>
+    <vulnerabilityName>GHSA-5cp4-xmrw-59wf</vulnerabilityName>
     <vulnerabilityName>DOS in $sanitize</vulnerabilityName>
     <vulnerabilityName>The attribute usemap can be used as a security exploit</vulnerabilityName>
     <vulnerabilityName>Universal CSP bypass via add-on in Firefox</vulnerabilityName>

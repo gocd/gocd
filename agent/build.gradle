@@ -170,7 +170,7 @@ tasks.register('verifyJar', VerifyJarTask) {
       "objenesis-${project.versions.objenesis}.jar",
       "org.apache.felix.framework-${project.versions.felix}.jar",
       "oshi-common-${project.versions.oshi}.jar",
-      "oshi-core-java11-${project.versions.oshi}.jar",
+      "oshi-core-${project.versions.oshi}.jar",
       "plugin-metadata-store-${project.version}.jar",
       "semantic-version-${project.versions.semanticVersion}.jar",
       "slf4j-api-${project.versions.slf4jBom}.jar",

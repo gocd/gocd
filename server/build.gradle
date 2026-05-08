@@ -313,12 +313,13 @@ def prepare = tasks.register('prepare') {
 
 def webAppLicenseHeaderFiles = project.files(webAppDir).asFileTree.matching {
   // Files we don't want headers on
-  exclude('**/*.html', '**/*.svg')
+  exclude('**/*.html', '**/images', '**/*.svg', '**/*.json', '**/*.gz', '**/.*', '**/bin', '**/*.yml*', '**/*.key',
+    '**/*.ejs', '**/Rakefile', '**/Gemfile*', '**/*.lock', '**/*.toml')
 
   // generated code | libs | output
-  exclude('**/*.scss.d.ts', '**/rails/webpack/gen/**')
-  exclude('**/rails/node_modules/**', '**/rails/node-vendor/**', '**/rails/gems/**', '**/rails/app/assets/javascripts/lib/**')
-  exclude('**/tmp/**', '**/rails/public/assets/**')
+  exclude('**/*.scss.d.ts', '**/rails/webpack/gen')
+  exclude('**/rails/node_modules', '**/rails/node-vendor', '**/rails/gems', '**/rails/app/assets/javascripts/lib')
+  exclude('**/tmp', '**/rails/public/**')
 }
 
 // Create license tasks for webapp since we do not have a dedicated sourceSet for it

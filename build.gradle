@@ -29,6 +29,7 @@ import com.thoughtworks.go.build.license.SkipLinesCStyleHeaderComment
 import com.thoughtworks.go.build.license.TildeXmlStyleHeaderComment
 import de.undercouch.gradle.tasks.download.Download
 import dev.yumi.gradle.licenser.YumiLicenserGradleExtension
+import dev.yumi.gradle.licenser.api.comment.CStyleHeaderComment
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 
 import java.security.SecureRandom
@@ -263,6 +264,7 @@ subprojects {
     headerCommentManager.register(new PrefixedHeaderComment('<#--', ' -->', ' '), 'ftl', 'ftlh')
     headerCommentManager.register(new PrefixedHeaderComment('<%#', '%>', '  '),   'erb')
     headerCommentManager.register(new ScriptStyleHeaderComment(),                 'sh', 'rb', 'rake', 'gemspec')
+    headerCommentManager.register(CStyleHeaderComment.INSTANCE,                   'cjs', 'mjs', 'msx')
     include('**/*.java', '**/*.groovy')         // Core source code
     include('**/*.xml', '**/*.xsd', '**/*.xsl') // XML and related
     include('**/*.ftl', '**/*.ftlh')            // Freemarker templates

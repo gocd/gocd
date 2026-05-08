@@ -82,12 +82,13 @@ class SkipLinesCStyleHeaderComment implements HeaderComment, Serializable {
 }
 
 class TildeXmlStyleHeaderComment implements HeaderComment, Serializable {
+  @SuppressWarnings('RegExpRepeatedSpace')
   @Override
   Result readHeaderComment(String source) {
     if (!source.contains('\n')) return new Result(0, 0, [source], '\n')
 
     Result interim = XmlStyleHeaderComment.INSTANCE.readHeaderComment(source.replaceAll("(?m)^\\s*<\\?xml.*>\\s*", ""))
-    return new Result(interim.start(), interim.end(), interim.existing().collect { it.replaceAll("^~( )?", "") }, interim.separator())
+    return new Result(interim.start(), interim.end(), interim.existing().collect { it.replaceAll("^  ~( )?", "") }, interim.separator())
   }
 
   @Override

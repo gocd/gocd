@@ -192,15 +192,70 @@ describe("Comment Render Widget", () => {
       expect(commentRenderWidget).toHaveHtml("<p>some &lt;string&gt;</p>");
     });
 
-    it('should escape dynamic link', () => {
+    it('should escape dynamic link without id group', () => {
       const trackingTool = {
-        "link":  "http://jira.example.com/${ID}",
+        "link":  "http://jira.example.com/${ID}?hello&gocd=true",
         "regex": "^ABC-[^ ]+"
       };
       const text         = "ABC-\"><svg/onload=\"alert(1)";
       mountView(text, trackingTool);
-      const commentRenderWidget = helper.q('.comment');
-      expect(commentRenderWidget).toHaveHtml("<p><a target='story_tracker' href='http://jira.example.com/ABC-&quot;&gt;&lt;svg/onload=&quot;alert(1)'>ABC-&quot;&gt;&lt;svg/onload=&quot;alert(1)</a></p>");
+      expect(helper.q('.comment a')).toHaveAttr('href', "http://jira.example.com/ABC-%22%3E%3Csvg%2Fonload%3D%22alert(1)?hello&gocd=true");
+      expect(helper.q('.comment')).toHaveHtml('<p><a target="story_tracker" href="http://jira.example.com/ABC-%22%3E%3Csvg%2Fonload%3D%22alert(1)?hello&amp;gocd=true">ABC-&quot;&gt;&lt;svg/onload=&quot;alert(1)</a></p>');
+    });
+
+    it('should escape dynamic link with id group', () => {
+      const trackingTool = {
+        "link":  "http://jira.example.com/${ID}?hello&gocd=true",
+        "regex": "ABC-([^ ]+)"
+      };
+      const text         = "ABC-\"><svg/onload=\"alert(1)";
+      mountView(text, trackingTool);
+      expect(helper.q('.comment a')).toHaveAttr('href', "http://jira.example.com/%22%3E%3Csvg%2Fonload%3D%22alert(1)?hello&gocd=true");
+      expect(helper.q('.comment')).toHaveHtml('<p><a target="story_tracker" href="http://jira.example.com/%22%3E%3Csvg%2Fonload%3D%22alert(1)?hello&amp;gocd=true">ABC-&quot;&gt;&lt;svg/onload=&quot;alert(1)</a></p>');
+    });
+
+    it('should URI encode identifiers', () => {
+      const trackingTool = {
+        "link":  "http://website.com/${ID}",
+        "regex": "ABC-[^ ]+"
+      };
+      const text         = "ABC-1/2德";
+      mountView(text, trackingTool);
+      expect(helper.q('.comment a')).toHaveAttr('href', "http://website.com/ABC-1%2F2%E5%BE%B7");
+      expect(helper.q('.comment')).toHaveHtml('<p><a target="story_tracker" href="http://website.com/ABC-1%2F2%E5%BE%B7">ABC-1/2德</a></p>');
+    });
+
+    it('should URI encode identifiers with id group', () => {
+      const trackingTool = {
+        "link":  "http://website.com/${ID}",
+        "regex": "ABC-([^ ]+)"
+      };
+      const text         = "ABC-1/2德";
+      mountView(text, trackingTool);
+      expect(helper.q('.comment a')).toHaveAttr('href', "http://website.com/1%2F2%E5%BE%B7");
+      expect(helper.q('.comment')).toHaveHtml('<p><a target="story_tracker" href="http://website.com/1%2F2%E5%BE%B7">ABC-1/2德</a></p>');
+    });
+
+    it('does not double URI encode link', () => {
+      const trackingTool = {
+        "link":  "http://website.com/${ID}?encoded=%2F%22",
+        "regex": "ABC-\\d+"
+      };
+      const text         = "ABC-123";
+      mountView(text, trackingTool);
+      expect(helper.q('.comment a')).toHaveAttr('href', "http://website.com/ABC-123?encoded=%2F%22");
+      expect(helper.q('.comment')).toHaveHtml('<p><a target="story_tracker" href="http://website.com/ABC-123?encoded=%2F%22">ABC-123</a></p>');
+    });
+
+    it('does not double URI encode link with id group', () => {
+      const trackingTool = {
+        "link":  "http://website.com/${ID}?encoded=%2F%22",
+        "regex": "ABC-(\\d+)"
+      };
+      const text         = "ABC-123";
+      mountView(text, trackingTool);
+      expect(helper.q('.comment a')).toHaveAttr('href', "http://website.com/123?encoded=%2F%22");
+      expect(helper.q('.comment')).toHaveHtml('<p><a target="story_tracker" href="http://website.com/123?encoded=%2F%22">ABC-123</a></p>');
     });
 
     it('should render escaped entities correctly if they match the project management regex', () => {

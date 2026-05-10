@@ -27,13 +27,13 @@ export function renderComment(text: string, trackingTool: TrackingTool) {
 
   try {
     const regex              = new RegExp(trackingTool.regex);
+    const linkIdFromGroup    = regexHasGroups();
     const commentStringParts = [];
     let matchResult          = text.match(regex);
     while (matchResult !== null) {
-      commentStringParts.push(_.escape(text.substr(0, matchResult.index)));
-      const linkifiedWord = toLink(matchResult[0]);
-      commentStringParts.push(linkifiedWord);
-      text        = text.substr(matchResult!.index! + matchResult[0].length);
+      commentStringParts.push(_.escape(text.substring(0, matchResult.index)));
+      commentStringParts.push(toLink(matchResult, linkIdFromGroup));
+      text        = text.substring(matchResult.index! + matchResult[0].length);
       matchResult = text.match(regex);
     }
     commentStringParts.push(_.escape(text));
@@ -42,32 +42,27 @@ export function renderComment(text: string, trackingTool: TrackingTool) {
     return _.escape(text);
   }
 
-  function firstMatchingGroup(matchResult: RegExpMatchArray) {
-    if (matchResult === null || matchResult.length === 0) {
-      return null;
+  function regexHasGroups() {
+    return (new RegExp(`${trackingTool.regex}|`)).exec("")!.length - 1 !== 0;
+  }
+
+  function toLink(matchResult: RegExpMatchArray, linkIdFromGroup: boolean) {
+    const matchedWord = matchResult[0];
+    const trackingId = firstMatchingGroup(matchResult);
+    if (trackingId || !linkIdFromGroup) {
+      const href = trackingTool.link.replace("${ID}", encodeURIComponent(trackingId || matchedWord));
+      return `<a target="story_tracker" href="${_.escape(href)}">${_.escape(matchedWord)}</a>`;
+    } else {
+      return _.escape(matchedWord);
     }
+  }
+
+  function firstMatchingGroup(matchResult: RegExpMatchArray) {
     for (let i = 1; i < matchResult.length; i++) {
       if (matchResult[i]) {
         return matchResult[i];
       }
     }
     return null;
-  }
-
-  function hasGroups(regex: string) {
-    return (new RegExp(`${regex}|`)).exec("")!.length - 1;
-  }
-
-  function toLink(matchedWord: string) {
-    const trackingId = firstMatchingGroup(matchedWord.match(trackingTool.regex)!);
-    if (trackingId) {
-      const href = trackingTool.link.replace("${ID}", trackingId);
-      return `<a target="story_tracker" href="${href}">${_.escape(matchedWord)}</a>`;
-    } else if (hasGroups(trackingTool.regex)) {
-      return _.escape(matchedWord);
-    } else {
-      const href = trackingTool.link.replace("${ID}", _.escape(matchedWord));
-      return `<a target="story_tracker" href="${href}">${_.escape(matchedWord)}</a>`;
-    }
   }
 }

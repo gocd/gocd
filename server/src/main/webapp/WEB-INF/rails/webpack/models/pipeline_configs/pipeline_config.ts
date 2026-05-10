@@ -132,14 +132,14 @@ export class TrackingTool extends ValidatableMixin {
   }
 
   static fromJSON(json: TrackingToolJSON) {
-    const tracingTool = new TrackingTool();
+    const trackingTool = new TrackingTool();
 
     if (json) {
-      tracingTool.regex(json.attributes.regex);
-      tracingTool.urlPattern(json.attributes.url_pattern);
+      trackingTool.regex(json.attributes.regex);
+      trackingTool.urlPattern(json.attributes.url_pattern);
     }
 
-    return tracingTool;
+    return trackingTool;
   }
 
   toJSON(): any {

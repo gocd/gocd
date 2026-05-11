@@ -290,7 +290,10 @@ subprojects {
     return
   }
 
-  final boolean hasJavaSources = !project.fileTree("src/main/java").files.isEmpty()
+  var hasJavaSources
+  project.fileTree("src") { include("**/java/**/*.java") }
+    .visit { FileVisitDetails fvd -> if (!fvd.directory) { hasJavaSources = true; fvd.stopVisiting() } }
+
   if (project.path.startsWithAny(':server-launcher') || hasJavaSources) {
     apply plugin: 'com.github.jk1.dependency-license-report'
 

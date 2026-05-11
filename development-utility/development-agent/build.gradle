@@ -23,15 +23,15 @@ configurations {
 }
 
 dependencies {
-  implementation project(':agent')
-  implementation project(':base')
+  testImplementation project(':agent')
+  testImplementation project(':base')
   copyOnly project(':plugin-infra:go-plugin-activator')
 }
 
 def generatedResourcesOutput = file("resources-generated")
 
 sourceSets {
-  main {
+  test {
     resources {
       output.dir generatedResourcesOutput, builtBy: 'generateResources'
       srcDirs += generatedResourcesOutput
@@ -57,7 +57,7 @@ tasks.register('generateResources', Copy) {
     rename "(.*)-${project.version}.(jar|zip)", '$1.$2'
   }
 }
-checkLicenseMain.dependsOn generateResources
+checkLicenseTest.dependsOn generateResources
 processResources.dependsOn generateResources
 
 tasks.register('prepare') {

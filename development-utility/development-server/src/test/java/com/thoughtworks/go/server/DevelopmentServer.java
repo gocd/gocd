@@ -30,12 +30,18 @@ import static org.hibernate.cfg.Environment.GENERATE_STATISTICS;
 /**
  * Understands how to run a local development mode webserver so we can develop live
  * Set the following before running the main method:
- * Working directory: <project-path>/server
+ * Working directory: server
+ * Classpath: Use classpath of 'gocd.development-utility.development-server.test'
  * VM arguments:
- * -Xms512m -Xmx1024m -Djava.awt.headless=true
- * classpath: Use classpath of 'gocd.development-utility.development-server.main'
+ * -Xmx2g
+ * --add-opens=java.base/java.lang=ALL-UNNAMED
+ * --add-opens=java.base/java.util=ALL-UNNAMED
+ * --add-opens=java.base/sun.nio.ch=ALL-UNNAMED
+ * --add-opens=java.base/java.io=ALL-UNNAMED
+ * --enable-native-access=ALL-UNNAMED
+ * --sun-misc-unsafe-memory-access=allow
+ * -XX:+IgnoreUnrecognizedVMOptions
  */
-
 public class DevelopmentServer {
     public static void main(String[] args) throws Exception {
         LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOGBACK_CONFIGURATION_FILE);

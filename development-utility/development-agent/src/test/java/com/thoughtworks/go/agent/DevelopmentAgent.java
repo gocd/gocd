@@ -20,11 +20,13 @@ import com.thoughtworks.go.util.SystemEnvironment;
 /**
  * Understands how to run a local development mode agent so we can develop live
  * Set the following before running the main method:
- * Working directory: <project-path>/agent
- * VM arguments: -Djava.awt.headless=true
- * classpath: Use classpath of 'gocd.development-utility.development-agent.main'.
+ * Working directory: agent
+ * Classpath: Use classpath of 'gocd.development-utility.development-agent.test'.
+ * VM arguments:
+ * --enable-native-access=ALL-UNNAMED
+ * --sun-misc-unsafe-memory-access=allow
+ * -XX:+IgnoreUnrecognizedVMOptions
  */
-
 public class DevelopmentAgent {
     public static void main(String[] args) throws Exception {
         new ProcessRunner().command("curl", "--insecure", "http://localhost:8153/go/admin/agent-plugins.zip", "--fail", "--silent", "--output", "agent-plugins.zip").failOnError(false).run();

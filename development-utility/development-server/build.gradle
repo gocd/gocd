@@ -71,7 +71,7 @@ tasks.register('generateResources', Copy) {
   }
 }
 checkLicenseTest.dependsOn generateResources
-processResources.dependsOn generateResources
+processTestResources.dependsOn generateResources
 
 tasks.register('prepare') {
   dependsOn generateResources

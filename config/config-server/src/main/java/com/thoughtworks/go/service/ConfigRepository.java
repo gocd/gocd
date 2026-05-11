@@ -88,6 +88,7 @@ public class ConfigRepository {
     private void updateWithDefaults(StoredConfig config) {
         config.setInt(ConfigConstants.CONFIG_GC_SECTION, null, ConfigConstants.CONFIG_KEY_AUTO, 0);
         config.setBoolean(ConfigConstants.CONFIG_COMMIT_SECTION, null, ConfigConstants.CONFIG_KEY_GPGSIGN, false);
+        config.setString(ConfigConstants.CONFIG_GPG_SECTION, null, ConfigConstants.CONFIG_KEY_FORMAT, GpgConfig.GpgFormat.OPENPGP.toConfigValue());
     }
 
     public Repository getGitRepo() {

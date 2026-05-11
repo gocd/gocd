@@ -31,7 +31,7 @@ import static org.hibernate.cfg.Environment.GENERATE_STATISTICS;
  * Understands how to run a local development mode webserver so we can develop live
  * Set the following before running the main method:
  * Working directory: server
- * Classpath: Use classpath of 'gocd.development-utility.development-server.test'
+ * Classpath: Use classpath of 'gocd.development-utility.development-server.testFixtures'
  * VM arguments:
  * -Xmx2g
  * --add-opens=java.base/java.lang=ALL-UNNAMED

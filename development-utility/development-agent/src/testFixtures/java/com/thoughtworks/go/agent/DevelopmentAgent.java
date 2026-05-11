@@ -21,7 +21,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
  * Understands how to run a local development mode agent so we can develop live
  * Set the following before running the main method:
  * Working directory: agent
- * Classpath: Use classpath of 'gocd.development-utility.development-agent.test'.
+ * Classpath: Use classpath of 'gocd.development-utility.development-agent.testFixtures'.
  * VM arguments:
  * --enable-native-access=ALL-UNNAMED
  * --sun-misc-unsafe-memory-access=allow

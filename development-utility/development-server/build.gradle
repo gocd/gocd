@@ -23,24 +23,24 @@ configurations {
 }
 
 dependencies {
-  testImplementation project(':server')
-  testImplementation project(':base')
-  testRuntimeOnly findProject(':api').subprojects.collect { project(it.path) }
-  testRuntimeOnly findProject(':spark').subprojects.collect { project(it.path) }
-  testRuntimeOnly project.deps.jetty
-  testRuntimeOnly project.deps.jettyJmx
-  testRuntimeOnly project.deps.jettyServlets
-  testRuntimeOnly project.deps.jettyUtil
-  testRuntimeOnly project.deps.jettyDeploy
-  testRuntimeOnly project.deps.jettyWebsocket
+  testFixturesImplementation project(':server')
+  testFixturesImplementation project(':base')
+  testFixturesRuntimeOnly findProject(':api').subprojects.collect { project(it.path) }
+  testFixturesRuntimeOnly findProject(':spark').subprojects.collect { project(it.path) }
+  testFixturesRuntimeOnly project.deps.jetty
+  testFixturesRuntimeOnly project.deps.jettyJmx
+  testFixturesRuntimeOnly project.deps.jettyServlets
+  testFixturesRuntimeOnly project.deps.jettyUtil
+  testFixturesRuntimeOnly project.deps.jettyDeploy
+  testFixturesRuntimeOnly project.deps.jettyWebsocket
 
-  testRuntimeOnly(project.deps.jgitServer) {
+  testFixturesRuntimeOnly(project.deps.jgitServer) {
     exclude(module: 'jsch')
     exclude(module: 'jzlib')
   }
-  testRuntimeOnly project(':jetty')
-  testImplementation project.deps.servletApi
-  testImplementation project.deps.slf4jApi
+  testFixturesRuntimeOnly project(':jetty')
+  testFixturesImplementation project.deps.servletApi
+  testFixturesImplementation project.deps.slf4jApi
 
   copyOnly project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')
   copyOnly project(':plugin-infra:go-plugin-activator')
@@ -49,7 +49,7 @@ dependencies {
 def generatedResourcesOutput = file("resources-generated")
 
 sourceSets {
-  test {
+  testFixtures {
     resources {
       output.dir generatedResourcesOutput, builtBy: 'generateResources'
       srcDirs += generatedResourcesOutput
@@ -70,8 +70,8 @@ tasks.register('generateResources', Copy) {
     rename "(.*)-${project.version}.(jar|zip)", '$1.$2'
   }
 }
-checkLicenseTest.dependsOn generateResources
-processTestResources.dependsOn generateResources
+checkLicenseTestFixtures.dependsOn generateResources
+processTestFixturesResources.dependsOn generateResources
 
 tasks.register('prepare') {
   dependsOn generateResources

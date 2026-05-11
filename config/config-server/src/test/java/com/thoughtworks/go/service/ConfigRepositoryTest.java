@@ -88,6 +88,17 @@ public class ConfigRepositoryTest {
         }
     }
 
+    @Test @SuppressWarnings("try")
+    public void shouldBeAbleToCheckInWithPossiblyUnsupportedGlobalGpgSettings() throws Exception {
+        try (UndoableUserGitConfig ignored = new UndoableUserGitConfig(c -> c.setString(ConfigConstants.CONFIG_GPG_SECTION, null, ConfigConstants.CONFIG_KEY_FORMAT, "ssh"))) {
+            configRepo = new ConfigRepository(systemEnvironment);
+            configRepo.initialize();
+            configRepo.checkin(new GoConfigRevision("v1", "md5-v1", "user-name", "100.3.9", new TimeProvider()));
+            assertThat(configRepo.getRevision("md5-v1").getContent()).isEqualTo("v1");
+            assertThat(configRepo.getCurrentRevCommit().getRawGpgSignature()).isNull();
+        }
+    }
+
     private static class UndoableUserGitConfig implements AutoCloseable {
         private final String originalConfig;
 

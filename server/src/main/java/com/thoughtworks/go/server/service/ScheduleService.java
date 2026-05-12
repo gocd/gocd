@@ -388,7 +388,7 @@ public class ScheduleService {
         return s.intern(); // interned because we synchronize on it
     }
 
-    private void triggerNextStageInPipeline(Pipeline pipeline, String stageName, String approvedBy) {
+    private void triggerNextStageInPipeline(Pipeline pipeline, String stageName) {
         StageConfig nextStage = stageOrderService.getNextStage(pipeline, stageName);
         if (nextStage == null) {
             return;
@@ -399,7 +399,7 @@ public class ScheduleService {
         if (isStageActive(pipeline, nextStage)) {
             return;
         }
-        scheduleStage(pipeline, CaseInsensitiveString.str(nextStage.name()), approvedBy, new NewStageInstanceCreator(goConfigService), new ExceptioningErrorHandler());
+        scheduleStage(pipeline, CaseInsensitiveString.str(nextStage.name()), DEFAULT_APPROVED_BY, new NewStageInstanceCreator(goConfigService), new ExceptioningErrorHandler());
     }
 
     //this method checks if specified stage is active in all pipelines
@@ -429,7 +429,7 @@ public class ScheduleService {
             }
             // if this stage completed successfully, we should try to trigger the next stage in this pipeline
             if (stage.isCompletedAndPassed()) {
-                triggerNextStageInPipeline(pipeline, stage.getName(), DEFAULT_APPROVED_BY);
+                triggerNextStageInPipeline(pipeline, stage.getName());
             }
         } catch (Exception ex) {
             String message = String.format("Failed to trigger next stage for %s.", stage.getName());
@@ -465,7 +465,7 @@ public class ScheduleService {
         if (mostRecentPassed != null && mostRecentPassed.getPipelineId() > currentStage.getPipelineId()) {
             Pipeline mostRecentEligiblePipeline = pipelineDao.loadPipeline(mostRecentPassed.getPipelineId());
             if (!mostRecentEligiblePipeline.hasStageBeenRun(currentStage.getName())) {
-                triggerNextStageInPipeline(mostRecentEligiblePipeline, mostRecentPassed.getName(), DEFAULT_APPROVED_BY);
+                triggerNextStageInPipeline(mostRecentEligiblePipeline, mostRecentPassed.getName());
             }
         }
     }
@@ -702,8 +702,7 @@ public class ScheduleService {
                 jobInstance.setIdentifier(jobIdentifier);
                 if (!Strings.CS.equals(jobInstance.getAgentUuid(), agentUuid)) {
                     LOGGER.error("Build Instance is using agent [{}] but status updating from agent [{}]", jobInstance.getAgentUuid(), agentUuid);
-                    throw new InvalidAgentException("AgentUUID has changed in the middle of a job. AgentUUID:"
-                            + agentUuid + ", Build: " + jobInstance.toString());
+                    throw new InvalidAgentException("AgentUUID has changed in the middle of a job. AgentUUID:" + agentUuid + ", Build: " + jobInstance);
                 }
                 jobInstance.completing(result);
                 jobInstanceService.updateStateAndResult(jobInstance);

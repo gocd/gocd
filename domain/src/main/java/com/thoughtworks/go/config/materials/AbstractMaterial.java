@@ -20,18 +20,17 @@ import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.ValidationBean;
+import com.thoughtworks.go.util.UriEncodingUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.File;
-import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.escapeEnvironmentVariable;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -238,14 +237,16 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     boolean dataHasSecureValue(EnvironmentVariableContext context, Map.Entry<String, String> dataEntry) {
         boolean isSecure = false;
         for (EnvironmentVariableContext.EnvironmentVariable secureEnvironmentVariable : context.getSecureEnvironmentVariables()) {
-            String urlEncodedValue;
-            urlEncodedValue = URLEncoder.encode(secureEnvironmentVariable.value(), UTF_8);
-            boolean isSecureEnvironmentVariableEncoded = !isBlank(urlEncodedValue) && !secureEnvironmentVariable.value().equals(urlEncodedValue);
-            if (isSecureEnvironmentVariableEncoded && dataEntry.getValue().contains(urlEncodedValue)) {
+            String urlEncodedValue = UriEncodingUtil.encodePartParanoid(secureEnvironmentVariable.value());
+            if (isAlreadyEncoded(secureEnvironmentVariable, urlEncodedValue) && dataEntry.getValue().contains(urlEncodedValue)) {
                 isSecure = true;
                 break;
             }
         }
         return isSecure;
+    }
+
+    private static boolean isAlreadyEncoded(EnvironmentVariableContext.EnvironmentVariable secureEnvironmentVariable, String urlEncodedValue) {
+        return !isBlank(urlEncodedValue) && !secureEnvironmentVariable.value().equals(urlEncodedValue);
     }
 }

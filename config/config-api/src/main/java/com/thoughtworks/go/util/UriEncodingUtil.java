@@ -18,10 +18,18 @@ package com.thoughtworks.go.util;
 
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.message.BasicNameValuePair;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.util.UriUtils;
 
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -37,6 +45,28 @@ public class UriEncodingUtil {
      */
     public static @NotNull String encodePartParanoid(String value) {
         return URLEncoder.encode(value, UTF_8);
+    }
+
+    /**
+     * Encodes a query parameter as necessary.
+     * - It will encode important delimiters like `=`; `+`, '&' etc but will not encode `?`, for example.
+     * @see org.springframework.web.util.HierarchicalUriComponents.Type#QUERY_PARAM
+     */
+    @SuppressWarnings("JavadocReference")
+    @SneakyThrows
+    public static @NotNull String encodeQueryParam(String value) {
+        return UriUtils.encodeQueryParam(value, "UTF-8");
+    }
+
+    /**
+     * Encodes query parameters as necessary to construct a query string; without the `?` delimiter.
+     * @see URLEncodedUtils#format(Iterable, Charset)
+     */
+    public static @NotNull String encodeQueryParams(Map<String, String> params) {
+        List<BasicNameValuePair> queryParams = params.entrySet().stream()
+            .map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue()))
+            .collect(Collectors.toList());
+        return URLEncodedUtils.format(queryParams, UTF_8);
     }
 
     /**
@@ -59,5 +89,21 @@ public class UriEncodingUtil {
     @SneakyThrows
     public static String encodePathPartial(String value) {
         return UriUtils.encodePath(value, "UTF-8");
+    }
+
+
+    public record UriPathParts(List<String> pathSegments) {
+        @SneakyThrows
+        public String encode() {
+            return URLEncodedUtils.formatSegments(pathSegments, UTF_8);
+        }
+
+        public UriPathParts append(String... additionalSegments) {
+            return from(Stream.concat(pathSegments.stream(), Arrays.stream(additionalSegments)).toArray(String[]::new));
+        }
+
+        public static UriPathParts from(String... pathSegments) {
+            return new UriPathParts(List.of(pathSegments));
+        }
     }
 }

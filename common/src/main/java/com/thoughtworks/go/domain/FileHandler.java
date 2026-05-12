@@ -26,8 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -35,15 +33,16 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Objects;
 
+import static com.thoughtworks.go.util.UriEncodingUtil.encodeQueryParam;
 import static java.lang.String.format;
 
 public class FileHandler implements FetchHandler {
 
+    private static final Logger LOG = LoggerFactory.getLogger(FileHandler.class);
     private final File artifact;
     private final String srcFile;
-    private static final Logger LOG = LoggerFactory.getLogger(FileHandler.class);
+    private final ChecksumValidationPublisher checksumValidationPublisher;
     private ArtifactMd5Checksums artifactMd5Checksums;
-    private ChecksumValidationPublisher checksumValidationPublisher;
 
     public FileHandler(File artifact, String srcFile) {
         this.artifact = artifact;
@@ -59,7 +58,7 @@ public class FileHandler implements FetchHandler {
         }
         if (fileExist && artifact.isFile()) {
             String sha1 = sha1Digest(artifact);
-            return format("%s/remoting/files/%s?sha1=%s", remoteHost, workingUrl, URLEncoder.encode(sha1, StandardCharsets.UTF_8));
+            return format("%s/remoting/files/%s?sha1=%s", remoteHost, workingUrl, encodeQueryParam(sha1));
         } else {
             return format("%s/remoting/files/%s", remoteHost, workingUrl);
         }

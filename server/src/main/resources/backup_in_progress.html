@@ -1,109 +1,108 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Backup in Progress</title>
-    <style type="text/css">
-        #header {
-            background: url('/go/static/images/bg_header_default.png') repeat-x 0 0 transparent;
-            color: #FFF;
-            font-size: 11px;
-            border-bottom: 1px solid #333;
-            left: 0;
-            position: fixed;
-            z-index: 1001;
-            right: 0;
-            top: 0;
-        }
+  <title>Backup in Progress</title>
+  <style>
+    #header {
+      background: url('/go/static/images/bg_header_default.png') repeat-x 0 0 transparent;
+      color: #FFF;
+      font-size: 11px;
+      border-bottom: 1px solid #333;
+      left: 0;
+      position: fixed;
+      z-index: 1001;
+      right: 0;
+      top: 0;
+    }
 
-        #header {
-            clear: both;
-        }
+    #header {
+      clear: both;
+    }
 
-        #header .header {
-            background: linear-gradient(to bottom, #333333 0%, #0f0f0f 100%);
-            padding: 5px 15px;
-        }
+    #header .header {
+      background: linear-gradient(to bottom, #333333 0%, #0f0f0f 100%);
+      padding: 5px 15px;
+    }
 
-        .header #application_logo {
-            background-image: url("/go/static/images/logo_go.png");
-            background-position: 0 4px;
-            background-repeat: no-repeat;
-            float: left;
-            height: 35px;
-            width: 114px;
-        }
+    .header #application_logo {
+      background-image: url("/go/static/images/logo_go.png");
+      background-position: 0 4px;
+      background-repeat: no-repeat;
+      float: left;
+      height: 35px;
+      width: 114px;
+    }
 
-        .message {
-            margin: 10px;
-            float: left;
-            font-size: 11px;
-            font-weight: 200;
-            color: #999;
-            font-family: Arial,​ Helvetica,​ sans-serif;
-        }
+    .message {
+      margin: 10px;
+      float: left;
+      font-size: 11px;
+      font-weight: 200;
+      color: #999;
+      font-family: Arial, Helvetica, sans-serif;
+    }
 
-        .clear_float::after {
-            clear: both;
-            content: ".";
-            display: block;
-            height: 0;
-            visibility: hidden;
-        }
+    .clear_float::after {
+      clear: both;
+      content: ".";
+      display: block;
+      height: 0;
+      visibility: hidden;
+    }
 
-    </style>
+  </style>
 </head>
 <body>
 <div id="body_bg">
-    <div id="header">
-        <div class="header clear_float">
-            <a href="#" id="application_logo">&nbsp;</a>
+  <div id="header">
+    <div class="header clear_float">
+      <a href="#" id="application_logo">&nbsp;</a>
 
-            <div class="message">Go backup in progress. Backup initiated by '<span>%backup_started_by%</span>' on '<span>%backup_initiated_by%</span>'
-            </div>
-        </div>
+      <div class="message">Go backup in progress. Backup initiated by '<span>%backup_started_by%</span>' on '<span>%backup_initiated_by%</span>'
+      </div>
     </div>
+  </div>
 </div>
 </body>
 <script type="text/javascript">
-    (function () {
-        // DOM will be loaded by now
+  (function () {
+    // DOM will be loaded by now
 
-        var url = "/go/is_backup_finished.json";
+    var url = "/go/is_backup_finished.json";
 
-        function getRequest(url) {
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4) {
-                    if (xhr.status == 200) {
-                        _onComplete(xhr);
-                    }
-                    else {
-                        _onError(xhr);
-                    }
-                }
-            }
-            xhr.open("GET", url, true);
-            xhr.send();
+    function getRequest(url) {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            _onComplete(xhr);
+          } else {
+            _onError(xhr);
+          }
         }
+      }
+      xhr.open("GET", url, true);
+      xhr.send();
+    }
 
-        function _onComplete(xhr) {
-            var jsonResponse = JSON.parse(xhr.responseText);
-            var isBackingUp = jsonResponse["is_backing_up"];
+    function _onComplete(xhr) {
+      var jsonResponse = JSON.parse(xhr.responseText);
+      var isBackingUp = jsonResponse["is_backing_up"];
 
-            if (!isBackingUp) {
-                location.reload(true);
-            }
-        }
+      if (!isBackingUp) {
+        location.reload(true);
+      }
+    }
 
-        function _onError(xhr) {
-            if (xhr.status === 401) {
-                window.location = `${window.location.protocol}//${window.location.host}/go/auth/login`;
-            }
-        }
+    function _onError(xhr) {
+      if (xhr.status === 401) {
+        window.location = `${window.location.protocol}//${window.location.host}/go/auth/login`;
+      }
+    }
 
-        window.setInterval(function () {
-            getRequest(url);
-        }, 10000);
-    })();
+    window.setInterval(function () {
+      getRequest(url);
+    }, 10000);
+  })();
 </script>
 </html>

@@ -33,7 +33,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Objects;
 
-import static com.thoughtworks.go.util.UriEncodingUtil.encodeQueryParam;
+import static com.thoughtworks.go.util.UriEncodingUtil.encodePartParanoid;
 import static java.lang.String.format;
 
 public class FileHandler implements FetchHandler {

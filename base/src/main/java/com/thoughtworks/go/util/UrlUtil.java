@@ -19,27 +19,10 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.function.Function;
 
 public class UrlUtil {
     private UrlUtil() {}
-
-    // TODO This encoding implementation is likely not URL compliant - is it a problem?
-    public static String encodeInUtf8(String url) {
-        StringBuilder builder = new StringBuilder();
-        Arrays.stream(url.split("/")).forEachOrdered(part -> {
-            builder.append(URLEncoder.encode(part, StandardCharsets.UTF_8));
-            builder.append('/');
-        });
-
-        if (!url.endsWith("/")) {
-            builder.deleteCharAt(builder.length() - 1);
-        }
-        return builder.toString();
-    }
 
     public static URL fromString(String url) {
         return fromString(url, RuntimeException::new);

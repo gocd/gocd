@@ -16,7 +16,7 @@
 package com.thoughtworks.go.domain;
 
 import com.google.gson.annotations.Expose;
-import com.thoughtworks.go.util.UrlUtil;
+import com.thoughtworks.go.util.UriEncodingUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
 import java.io.Serializable;
@@ -167,7 +167,7 @@ public class JobIdentifier implements Serializable, LocatableEntity {
 
     public String buildLocator() {
         //TODO: the encoding logic should be moved to presentation layer
-        return UrlUtil.encodeInUtf8(stageLocator() + "/" + buildName);
+        return UriEncodingUtil.encodePathPartial(stageLocator() + "/" + buildName);
     }
 
     private String stageLocator() {
@@ -179,7 +179,7 @@ public class JobIdentifier implements Serializable, LocatableEntity {
     }
 
     public String propertyLocator(String propertyName) {
-        return UrlUtil.encodeInUtf8(stageLocator() + "/" + buildName + "/" + propertyName);
+        return UriEncodingUtil.encodePathPartial(stageLocator() + "/" + buildName + "/" + propertyName);
     }
 
     public String artifactLocator(String filePath) {
@@ -187,7 +187,7 @@ public class JobIdentifier implements Serializable, LocatableEntity {
         if (filePath.startsWith("/")) {
             filePath = filePath.substring(1);
         }
-        return UrlUtil.encodeInUtf8(stageLocator() + "/" + buildName + "/" + filePath);
+        return UriEncodingUtil.encodePathPartial(stageLocator() + "/" + buildName + "/" + filePath);
     }
 
     public StageIdentifier getStageIdentifier() {

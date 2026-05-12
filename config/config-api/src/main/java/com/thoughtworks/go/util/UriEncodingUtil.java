@@ -25,11 +25,9 @@ import org.springframework.web.util.UriUtils;
 
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -89,21 +87,5 @@ public class UriEncodingUtil {
     @SneakyThrows
     public static String encodePathPartial(String value) {
         return UriUtils.encodePath(value, "UTF-8");
-    }
-
-
-    public record UriPathParts(List<String> pathSegments) {
-        @SneakyThrows
-        public String encode() {
-            return URLEncodedUtils.formatSegments(pathSegments, UTF_8);
-        }
-
-        public UriPathParts append(String... additionalSegments) {
-            return from(Stream.concat(pathSegments.stream(), Arrays.stream(additionalSegments)).toArray(String[]::new));
-        }
-
-        public static UriPathParts from(String... pathSegments) {
-            return new UriPathParts(List.of(pathSegments));
-        }
     }
 }

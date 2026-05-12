@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
-import static com.thoughtworks.go.util.UrlUtil.encodeInUtf8;
+import static com.thoughtworks.go.util.UriEncodingUtil.encodePathPartial;
 import static java.lang.String.valueOf;
 
 public class PipelineHistoryJsonPresentationModel implements JsonAware {
@@ -178,7 +178,7 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
             jsonMap.put("stageStatus", stageHistoryItem.getState().toString());
             StageIdentifier stageIdentifier = new StageIdentifier(pipelineInstanceModel.getPipelineIdentifier(),
                     stageHistoryItem.getName(), stageHistoryItem.getCounter());
-            jsonMap.put("stageLocator", encodeInUtf8(stageIdentifier.stageLocator()));
+            jsonMap.put("stageLocator", encodePathPartial(stageIdentifier.stageLocator()));
             jsonMap.put("getCanRun", Boolean.toString(stageHistoryItem.getCanRun()));
             if (!stageHistoryItem.getCanRun()) {
                 jsonMap.put("errorMessage", stageHistoryItem.getErrorMessage());

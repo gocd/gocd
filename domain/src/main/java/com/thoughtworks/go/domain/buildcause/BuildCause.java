@@ -38,10 +38,10 @@ import java.util.Objects;
  */
 public class BuildCause implements Serializable {
 
-    private MaterialRevisions materialRevisions = MaterialRevisions.EMPTY;
-    private BuildTrigger trigger;
     private static final BuildCause NEVER_RUN = new BuildCause(MaterialRevisions.EMPTY, BuildTrigger.forNeverRun(), "");
 
+    private MaterialRevisions materialRevisions = MaterialRevisions.EMPTY;
+    private BuildTrigger trigger;
     private String approver;
     private EnvironmentVariables variables;
 
@@ -238,8 +238,7 @@ public class BuildCause implements Serializable {
 
     public static BuildCause fromDbString(String text) {
         return switch (text) {
-            case BuildTrigger.FORCED_BUILD_CAUSE ->
-                    BuildCause.createManualForced(MaterialRevisions.EMPTY, Username.ANONYMOUS);
+            case BuildTrigger.FORCED_BUILD_CAUSE -> BuildCause.createManualForced(MaterialRevisions.EMPTY, Username.ANONYMOUS);
             case BuildTrigger.MODIFICATION_BUILD_CAUSE -> createWithEmptyModifications();
             case BuildTrigger.EXTERNAL_BUILD_CAUSE -> createExternal();
             default -> createWithEmptyModifications();

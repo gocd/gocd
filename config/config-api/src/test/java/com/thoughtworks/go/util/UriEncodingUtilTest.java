@@ -19,9 +19,9 @@ package com.thoughtworks.go.util;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.LinkedHashMap;
+
 import static com.thoughtworks.go.util.UriEncodingUtil.*;
-import static java.util.Map.entry;
-import static java.util.Map.ofEntries;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class UriEncodingUtilTest {
@@ -39,7 +39,7 @@ class UriEncodingUtilTest {
 
     @Test
     void shouldEncodeQueryParams() {
-        assertThat(encodeQueryParams(ofEntries(entry(KITCHEN_SINK, KITCHEN_SINK), entry("hello", "world"))))
+        assertThat(encodeQueryParams(new LinkedHashMap<>() {{ put(KITCHEN_SINK, KITCHEN_SINK); put("hello", "world"); }}))
             .isEqualTo("_%25_%3F_%3D_%2F_%28_%29_%5B_%5D_%3A_%26=_%25_%3F_%3D_%2F_%28_%29_%5B_%5D_%3A_%26&hello=world");
     }
     

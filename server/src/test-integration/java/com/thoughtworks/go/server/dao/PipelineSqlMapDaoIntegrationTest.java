@@ -60,6 +60,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.Approval.TYPE_MANUAL;
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
@@ -168,7 +169,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldLoadNaturalOrder() {
-        Pipeline pipeline = new Pipeline("Test", BuildCause.createManualForced(), new Stage("dev", new JobInstances(new JobInstance("unit")), "anonymous", null, "manual", new TimeProvider()));
+        Pipeline pipeline = new Pipeline("Test", BuildCause.createManualForced(), new Stage("dev", new JobInstances(new JobInstance("unit")), "anonymous", null, TYPE_MANUAL, new TimeProvider()));
         savePipeline(pipeline);
         dbHelper.updateNaturalOrder(pipeline.getId(), 2.5);
         PipelineInstanceModel loaded = pipelineDao.loadHistory("Test").getFirst();
@@ -180,7 +181,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldLoadStageResult() {
-        Stage stage = new Stage("dev", new JobInstances(new JobInstance("unit")), "anonymous", null, "manual", new TimeProvider());
+        Stage stage = new Stage("dev", new JobInstances(new JobInstance("unit")), "anonymous", null, TYPE_MANUAL, new TimeProvider());
         stage.building();
         Pipeline pipeline = new Pipeline("Test", BuildCause.createManualForced(), stage);
         savePipeline(pipeline);
@@ -192,7 +193,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldLoadStageIdentifier() {
-        Stage stage = new Stage("dev", new JobInstances(new JobInstance("unit")), "anonymous", null, "manual", new TimeProvider());
+        Stage stage = new Stage("dev", new JobInstances(new JobInstance("unit")), "anonymous", null, TYPE_MANUAL, new TimeProvider());
         stage.building();
         Pipeline pipeline = new Pipeline("Test", BuildCause.createManualForced(), stage);
         savePipeline(pipeline);

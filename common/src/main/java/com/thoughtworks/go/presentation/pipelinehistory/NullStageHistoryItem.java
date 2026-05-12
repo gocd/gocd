@@ -49,9 +49,4 @@ public class NullStageHistoryItem extends StageInstanceModel {
     public boolean isAutoApproved() {
         return this.autoApproved;
     }
-
-    @Override
-    public String getApprovalTypeDescription() {
-        return autoApproved ? "auto" : "manual";
-    }
 }

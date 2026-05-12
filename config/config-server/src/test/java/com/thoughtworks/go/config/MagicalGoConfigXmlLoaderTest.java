@@ -89,6 +89,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.thoughtworks.go.config.Approval.TYPE_MANUAL;
+import static com.thoughtworks.go.config.Approval.TYPE_SUCCESS;
 import static com.thoughtworks.go.config.PipelineConfig.*;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.ConfigFileFixture.*;
@@ -4530,7 +4532,7 @@ public class MagicalGoConfigXmlLoaderTest {
     void shouldLoadAllowOnlySuccessOnManualApprovalType() throws Exception {
         Approval approval = xmlLoader.fromXmlPartial("<approval type=\"manual\" allowOnlyOnSuccess=\"true\" />", Approval.class);
 
-        assertThat(approval.getType()).isEqualTo("manual");
+        assertThat(approval.getType()).isEqualTo(TYPE_MANUAL);
         assertThat(approval.isAllowOnlyOnSuccess()).isEqualTo(true);
     }
 
@@ -4565,7 +4567,7 @@ public class MagicalGoConfigXmlLoaderTest {
             .getStage("mingle")
             .getApproval();
 
-        assertThat(approval.getType()).isEqualTo("success");
+        assertThat(approval.getType()).isEqualTo(TYPE_SUCCESS);
         assertThat(approval.isAllowOnlyOnSuccess()).isEqualTo(true);
     }
 

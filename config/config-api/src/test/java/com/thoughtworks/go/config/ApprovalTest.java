@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -35,14 +34,9 @@ public class ApprovalTest {
 
     public static final String DEFAULT_GROUP = "defaultGroup";
 
-    @BeforeEach
-    public void setUp() {
-    }
-
     @Test
     void shouldSetDefaultValues() {
         Approval approval = new Approval();
-
         assertThat(approval.getType()).isEqualTo(TYPE_MANUAL);
         assertThat(approval.getAuthConfig()).isEmpty();
         assertThat(approval.getDisplayName()).isEqualTo("Manual");
@@ -133,10 +127,8 @@ public class ApprovalTest {
 
     @Test
     void shouldReturnDisplayNameForApprovalType() {
-        Approval approval = Approval.automaticApproval();
-        assertThat(approval.getDisplayName()).isEqualTo("On Success");
-        approval = Approval.manualApproval();
-        assertThat(approval.getDisplayName()).isEqualTo("Manual");
+        assertThat(Approval.automaticApproval().getDisplayName()).isEqualTo("On Success");
+        assertThat(Approval.manualApproval().getDisplayName()).isEqualTo("Manual");
     }
 
     @Test
@@ -348,11 +340,11 @@ public class ApprovalTest {
     void shouldSetAllowOnSuccessOnlyOnManualApproval() {
         Map<String, Object> attributes = new HashMap<>();
         attributes.put("allowOnlyOnSuccess", "true");
-        attributes.put(Approval.TYPE, "manual");
+        attributes.put(Approval.TYPE, TYPE_MANUAL);
         Approval approval = new Approval();
         approval.setConfigAttributes(attributes);
 
-        assertThat(approval.getType()).isEqualTo("manual");
+        assertThat(approval.getType()).isEqualTo(TYPE_MANUAL);
         assertThat(approval.isAllowOnlyOnSuccess()).isTrue();
     }
 
@@ -360,11 +352,11 @@ public class ApprovalTest {
     void shouldSetAllowOnSuccessOnlyOnSuccessApproval() {
         Map<String, Object> attributes = new HashMap<>();
         attributes.put("allowOnlyOnSuccess", "true");
-        attributes.put(Approval.TYPE, "success");
+        attributes.put(Approval.TYPE, TYPE_SUCCESS);
         Approval approval = new Approval();
         approval.setConfigAttributes(attributes);
 
-        assertThat(approval.getType()).isEqualTo("success");
+        assertThat(approval.getType()).isEqualTo(TYPE_SUCCESS);
         assertThat(approval.isAllowOnlyOnSuccess()).isTrue();
     }
 

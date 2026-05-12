@@ -29,6 +29,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
+import static com.thoughtworks.go.config.Approval.TYPE_MANUAL;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -242,22 +243,22 @@ public class StageTest {
 
     @Test
     public void shouldReturnCreatedDateWhenNoTransitions() {
-        stage = new Stage("dev", new JobInstances(), "anonymous", null, "manual", new TimeProvider());
+        stage = new Stage("dev", new JobInstances(), "anonymous", null, TYPE_MANUAL, new TimeProvider());
         assertEquals(new Date(stage.getCreatedTime().getTime()), stage.latestTransitionDate());
     }
 
     @Test
     public void shouldCreateAStageWithAGivenConfigVersion() {
-        Stage stage = new Stage("foo-stage", new JobInstances(), "admin", null,"manual", false, false, "git-sha", new TimeProvider());
+        Stage stage = new Stage("foo-stage", new JobInstances(), "admin", null, TYPE_MANUAL, false, false, "git-sha", new TimeProvider());
         assertThat(stage.getConfigVersion()).isEqualTo("git-sha");
 
-        stage = new Stage("foo-stage", new JobInstances(), "admin", null, "manual", new TimeProvider());
+        stage = new Stage("foo-stage", new JobInstances(), "admin", null, TYPE_MANUAL, new TimeProvider());
         assertThat(stage.getConfigVersion()).isNull();
     }
 
     @Test
     public void shouldSetTheCurrentTimeAsCreationTimeForRerunOfJobs() {
-        Stage stage = new Stage("foo-stage", new JobInstances(), "admin", null,"manual", false, false, "git-sha", new TimeProvider());
+        Stage stage = new Stage("foo-stage", new JobInstances(), "admin", null, TYPE_MANUAL, false, false, "git-sha", new TimeProvider());
         Timestamp createdTimeOfRun1 = stage.getCreatedTime();
         Clock clock = new TestingClock(Instant.now().plus(1, MINUTES));
         stage.prepareForRerunOf(new DefaultSchedulingContext("admin"), "git-sha", clock);

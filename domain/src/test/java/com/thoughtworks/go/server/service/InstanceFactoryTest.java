@@ -34,6 +34,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
+import static com.thoughtworks.go.config.Approval.TYPE_MANUAL;
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.domain.JobResult.Unknown;
 import static com.thoughtworks.go.domain.JobState.Completed;
@@ -158,7 +159,7 @@ class InstanceFactoryTest {
     void shouldSetManualApprovalOnStageInstance() {
         StageConfig stageConfig = StageConfigMother.custom("test", Approval.manualApproval());
         Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), "md5", new TimeProvider());
-        assertThat(instance.getApprovalType()).isEqualTo(Approval.TYPE_MANUAL);
+        assertThat(instance.getApprovalType()).isEqualTo(TYPE_MANUAL);
     }
 
     @Test
@@ -853,7 +854,7 @@ class InstanceFactoryTest {
     }
 
     private Stage stage(long id, JobInstance... jobs) {
-        Stage stage = new Stage("dev", new JobInstances(jobs), "anonymous", null, "manual", new TimeProvider());
+        Stage stage = new Stage("dev", new JobInstances(jobs), "anonymous", null, TYPE_MANUAL, new TimeProvider());
         stage.setId(id);
         return stage;
     }

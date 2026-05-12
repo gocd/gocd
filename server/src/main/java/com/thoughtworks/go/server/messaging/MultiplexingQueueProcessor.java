@@ -23,8 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import static java.text.MessageFormat.format;
-
 /*
  * Multiplexes added actions asynchronously and processes them in a single thread.
  *
@@ -60,7 +58,7 @@ public class MultiplexingQueueProcessor implements Daemonized {
     @Override
     public void start() {
         if (processorThread != null) {
-            throw new RuntimeException(format("Cannot start queue processor for {0} multiple times.", queueName));
+            throw new RuntimeException(String.format("Cannot start queue processor for %s multiple times.", queueName));
         }
 
         processorThread = new Thread(() -> {
@@ -84,7 +82,7 @@ public class MultiplexingQueueProcessor implements Daemonized {
                 }
             }
         });
-        processorThread.setName(format("{0}-Queue-Processor", queueName));
+        processorThread.setName(String.format("Queue-Processor-%s", queueName));
         processorThread.setDaemon(true);
         processorThread.start();
     }

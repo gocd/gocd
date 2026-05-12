@@ -59,7 +59,7 @@ public class DefaultCommentRendererTest {
 
         String result = renderer.render("evo-abc: checkin message");
         assertThat(result).isEqualTo("""
-            <a target="story_tracker" href="http://mingle05/projects/cce/cards/ab">evo-ab</a>c: checkin message""");
+            <a href="http://mingle05/projects/cce/cards/ab" target="story_tracker">evo-ab</a>c: checkin message""");
     }
 
     @Test
@@ -70,7 +70,7 @@ public class DefaultCommentRendererTest {
 
         String result = renderer.render("evo-111: checkin message");
         assertThat(result).isEqualTo("""
-            <a target="story_tracker" href="http://mingle05/projects/cce/cards/evo-111">evo-111</a>: checkin message""");
+            <a href="http://mingle05/projects/cce/cards/evo-111" target="story_tracker">evo-111</a>: checkin message""");
     }
 
     @Test
@@ -80,11 +80,11 @@ public class DefaultCommentRendererTest {
         renderer = new DefaultCommentRenderer(link, regex);
 
         assertThat(renderer.render("Task 111: checkin message")).isEqualTo("""
-            <a target="story_tracker" href="http://mingle05/projects/cce/cards/111">Task 111</a>: checkin message""");
+            <a href="http://mingle05/projects/cce/cards/111" target="story_tracker">Task 111</a>: checkin message""");
         assertThat(renderer.render("Bug 111: checkin message")).isEqualTo("""
-            <a target="story_tracker" href="http://mingle05/projects/cce/cards/111">Bug 111</a>: checkin message""");
+            <a href="http://mingle05/projects/cce/cards/111" target="story_tracker">Bug 111</a>: checkin message""");
         assertThat(renderer.render("#111: checkin message")).isEqualTo("""
-            <a target="story_tracker" href="http://mingle05/projects/cce/cards/111">#111</a>: checkin message""");
+            <a href="http://mingle05/projects/cce/cards/111" target="story_tracker">#111</a>: checkin message""");
     }
 
     @Test
@@ -95,7 +95,7 @@ public class DefaultCommentRendererTest {
 
         String result = renderer.render("evo-111: checkin message");
         assertThat(result).isEqualTo("""
-            <a target="story_tracker" href="http://mingle05/projects/cce/cards/111">evo-111</a>: checkin message""");
+            <a href="http://mingle05/projects/cce/cards/111" target="story_tracker">evo-111</a>: checkin message""");
     }
 
     @Test
@@ -106,7 +106,7 @@ public class DefaultCommentRendererTest {
 
         String result = renderer.render("evo-1020: checkin message");
         assertThat(result).isEqualTo("""
-            evo-<a target="story_tracker" href="http://mingle05/projects/cce/cards/1020">1020</a>: checkin message""");
+            evo-<a href="http://mingle05/projects/cce/cards/1020" target="story_tracker">1020</a>: checkin message""");
     }
 
     @Test
@@ -117,7 +117,7 @@ public class DefaultCommentRendererTest {
 
         String result = renderer.render("1020-evo1: checkin message");
         assertThat(result).isEqualTo("""
-            <a target="story_tracker" href="http://mingle05/projects/cce/cards/1020">1020-evo1</a>: checkin message""");
+            <a href="http://mingle05/projects/cce/cards/1020" target="story_tracker">1020-evo1</a>: checkin message""");
     }
 
     @Test
@@ -150,7 +150,7 @@ public class DefaultCommentRendererTest {
 
         String result = renderer.render("evo-111: checkin message");
         assertThat(result).isEqualTo("""
-            <a target="story_tracker" href="http://mingle05/projects/cce/cards/wall-E">evo-111</a>: checkin message""");
+            <a href="http://mingle05/projects/cce/cards/wall-E" target="story_tracker">evo-111</a>: checkin message""");
     }
 
     @Test
@@ -161,7 +161,7 @@ public class DefaultCommentRendererTest {
 
         String result = renderer.render("111: checkin message");
         assertThat(result).isEqualTo("""
-            <a target="story_tracker" href="aaa111">111</a>: checkin message""");
+            <a href="aaa111" target="story_tracker">111</a>: checkin message""");
     }
 
     @Test
@@ -173,9 +173,9 @@ public class DefaultCommentRendererTest {
 
         String result = renderer.render("#111, #222: checkin message; #333: another message");
         assertThat(result).isEqualTo("""
-            <a target="story_tracker" href="http://mingle05/projects/cce/cards/111">#111</a>, \
-            <a target="story_tracker" href="http://mingle05/projects/cce/cards/222">#222</a>: checkin message; \
-            <a target="story_tracker" href="http://mingle05/projects/cce/cards/333">#333</a>: another message""");
+            <a href="http://mingle05/projects/cce/cards/111" target="story_tracker">#111</a>, \
+            <a href="http://mingle05/projects/cce/cards/222" target="story_tracker">#222</a>: checkin message; \
+            <a href="http://mingle05/projects/cce/cards/333" target="story_tracker">#333</a>: another message""");
     }
 
     @Test
@@ -186,7 +186,7 @@ public class DefaultCommentRendererTest {
 
         String result = renderer.render("Replace evo-1994.  Don't replace 1994");
         assertThat(result).contains("""
-            <a target="story_tracker" href="http://mingle05/projects/cce/cards/1994">evo-1994</a>""");
+            <a href="http://mingle05/projects/cce/cards/1994" target="story_tracker">evo-1994</a>""");
         assertThat(result).contains("Don't replace 1994");
     }
 
@@ -199,9 +199,9 @@ public class DefaultCommentRendererTest {
         String result = renderer.render("The story #111 is fixed by 德里克. #122 is also related to this");
         assertThat(result).isEqualTo("The story %s is fixed by %s. %s is also related to this"
             .formatted("""
-                    <a target="story_tracker" href="http://mingle05/projects/cce/cards/111">#111</a>""",
+                    <a href="http://mingle05/projects/cce/cards/111" target="story_tracker">#111</a>""",
                 StringEscapeUtils.escapeHtml4("德里克"), """
-                    <a target="story_tracker" href="http://mingle05/projects/cce/cards/122">#122</a>"""
+                    <a href="http://mingle05/projects/cce/cards/122" target="story_tracker">#122</a>"""
             ));
     }
 
@@ -221,7 +221,7 @@ public class DefaultCommentRendererTest {
 
         String result = renderer.render("ABC-\"><svg/onload=\"alert(1)");
         assertThat(result).isEqualTo("""
-            <a target="story_tracker" href="http://jira.example.com/ABC-%22%3E%3Csvg%2Fonload%3D%22alert%281%29?hello&amp;gocd=true">\
+            <a href="http://jira.example.com/ABC-%22%3E%3Csvg%2Fonload%3D%22alert%281%29?hello&amp;gocd=true" target="story_tracker">\
             ABC-&quot;&gt;&lt;svg/onload=&quot;alert(1)\
             </a>""");
     }
@@ -234,7 +234,7 @@ public class DefaultCommentRendererTest {
 
         String result = renderer.render("ABC-\"><svg/onload=\"alert(1)");
         assertThat(result).isEqualTo("""
-            <a target="story_tracker" href="http://jira.example.com/%22%3E%3Csvg%2Fonload%3D%22alert%281%29?hello&amp;gocd=true">\
+            <a href="http://jira.example.com/%22%3E%3Csvg%2Fonload%3D%22alert%281%29?hello&amp;gocd=true" target="story_tracker">\
             ABC-&quot;&gt;&lt;svg/onload=&quot;alert(1)\
             </a>""");
     }
@@ -247,7 +247,7 @@ public class DefaultCommentRendererTest {
 
         String result = renderer.render("ABC-1/2德");
         assertThat(result).isEqualTo("""
-            <a target="story_tracker" href="http://website.com/ABC-1%2F2%E5%BE%B7">\
+            <a href="http://website.com/ABC-1%2F2%E5%BE%B7" target="story_tracker">\
             ABC-1/2德\
             </a>""");
     }
@@ -260,7 +260,7 @@ public class DefaultCommentRendererTest {
 
         String result = renderer.render("ABC-1/2德");
         assertThat(result).isEqualTo("""
-            <a target="story_tracker" href="http://website.com/1%2F2%E5%BE%B7">\
+            <a href="http://website.com/1%2F2%E5%BE%B7" target="story_tracker">\
             ABC-1/2德\
             </a>""");
     }
@@ -273,7 +273,7 @@ public class DefaultCommentRendererTest {
 
         String result = renderer.render("ABC-1?=2");
         assertThat(result).isEqualTo("""
-            <a target="story_tracker" href="http://website.com/?id=ABC-1%3F%3D2">\
+            <a href="http://website.com/?id=ABC-1%3F%3D2" target="story_tracker">\
             ABC-1?=2\
             </a>""");
     }
@@ -286,7 +286,7 @@ public class DefaultCommentRendererTest {
 
         String result = renderer.render("ABC-1?=2");
         assertThat(result).isEqualTo("""
-            <a target="story_tracker" href="http://website.com/?id=1%3F%3D2">\
+            <a href="http://website.com/?id=1%3F%3D2" target="story_tracker">\
             ABC-1?=2\
             </a>""");
     }
@@ -299,7 +299,7 @@ public class DefaultCommentRendererTest {
 
         String result = renderer.render("ABC-123");
         assertThat(result).isEqualTo("""
-            <a target="story_tracker" href="http://website.com/ABC-123?encoded=%2F%22">\
+            <a href="http://website.com/ABC-123?encoded=%2F%22" target="story_tracker">\
             ABC-123\
             </a>""");
     }
@@ -312,7 +312,7 @@ public class DefaultCommentRendererTest {
 
         String result = renderer.render("ABC-123");
         assertThat(result).isEqualTo("""
-            <a target="story_tracker" href="http://website.com/123?encoded=%2F%22">\
+            <a href="http://website.com/123?encoded=%2F%22" target="story_tracker">\
             ABC-123\
             </a>""");
     }

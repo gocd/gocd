@@ -51,7 +51,7 @@ export function renderComment(text: string, trackingTool: TrackingTool) {
     const trackingId = firstMatchingGroup(matchResult);
     if (trackingId || !linkIdFromGroup) {
       const href = trackingTool.link.replace("${ID}", encodeURIComponent(trackingId || matchedWord));
-      return `<a target="story_tracker" href="${_.escape(href)}">${_.escape(matchedWord)}</a>`;
+      return `<a href="${_.escape(href)}" target="story_tracker">${_.escape(matchedWord)}</a>`;
     } else {
       return _.escape(matchedWord);
     }

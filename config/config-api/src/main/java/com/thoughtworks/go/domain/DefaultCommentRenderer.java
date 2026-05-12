@@ -81,7 +81,7 @@ public class DefaultCommentRenderer implements CommentRenderer {
 
     private String dynamicLink(Matcher matcher) {
         String href = link.replace("${ID}", encodePartParanoid(id(matcher)));
-        return "<a target=\"story_tracker\" href=\"%s\">%s</a>".formatted(escapeHtml4(href), escapeHtml4(matcher.group()));
+        return "<a href=\"%s\" target=\"story_tracker\">%s</a>".formatted(escapeHtml4(href), escapeHtml4(matcher.group()));
     }
 
     private String firstMatchingGroup(Matcher matcher) {

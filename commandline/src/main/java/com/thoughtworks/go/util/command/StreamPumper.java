@@ -33,13 +33,13 @@ import java.util.concurrent.TimeUnit;
 
 public class StreamPumper implements Runnable {
 
-    private Reader in;
-
-    private boolean completed;
+    private final Reader in;
     private final StreamConsumer streamConsumer;
     private final String prefix;
-    private long lastHeard;
     private final Clock clock;
+
+    private long lastHeard;
+    private boolean completed;
 
     private StreamPumper(InputStream in, StreamConsumer streamConsumer, String prefix, Charset encoding) {
         this(in, streamConsumer, prefix, encoding, new SystemTimeClock());
@@ -76,12 +76,12 @@ public class StreamPumper implements Runnable {
         }
     }
 
-
     public void readToEnd() {
         while (!completed) {
             try {
                 clock.sleepForMillis(100);
             } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
             }
         }
     }

@@ -58,7 +58,7 @@ public class FileHandler implements FetchHandler {
         }
         if (fileExist && artifact.isFile()) {
             String sha1 = sha1Digest(artifact);
-            return format("%s/remoting/files/%s?sha1=%s", remoteHost, workingUrl, encodeQueryParam(sha1));
+            return format("%s/remoting/files/%s?sha1=%s", remoteHost, workingUrl, encodePartParanoid(sha1));
         } else {
             return format("%s/remoting/files/%s", remoteHost, workingUrl);
         }

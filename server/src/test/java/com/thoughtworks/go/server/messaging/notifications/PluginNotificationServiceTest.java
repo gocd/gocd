@@ -46,6 +46,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import static com.thoughtworks.go.config.Approval.TYPE_MANUAL;
 import static com.thoughtworks.go.util.SystemEnvironment.NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -157,7 +158,7 @@ public class PluginNotificationServiceTest {
         Stage stage = StageMother.custom("Stage");
         StageConfig previousStage = new StageConfig(new CaseInsensitiveString("previous_stage"), null);
 
-        stage.setApprovedBy("changes");
+        stage.setApprovedBy(BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED);
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1)));
         when(goConfigService.isFirstStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(false);
         when(goConfigService.previousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(previousStage);
@@ -183,7 +184,7 @@ public class PluginNotificationServiceTest {
         StageConfig previousStage = new StageConfig(new CaseInsensitiveString("previous_stage"), null);
 
         stage.setApprovedBy("admins");
-        stage.setApprovalType("manual");
+        stage.setApprovalType(TYPE_MANUAL);
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1)));
         when(goConfigService.isFirstStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(false);
         when(goConfigService.previousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(previousStage);
@@ -208,7 +209,7 @@ public class PluginNotificationServiceTest {
         Stage stage = StageMother.custom("Stage");
 
         stage.setApprovedBy("admins");
-        stage.setApprovalType("manual");
+        stage.setApprovalType(TYPE_MANUAL);
         stage.setCounter(2);
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1)));
         when(goConfigService.isFirstStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(false);
@@ -229,7 +230,7 @@ public class PluginNotificationServiceTest {
         Stage stage = StageMother.custom("Stage");
 
         stage.setApprovedBy("admins");
-        stage.setApprovalType("manual");
+        stage.setApprovalType(TYPE_MANUAL);
 
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1)));
         when(goConfigService.isFirstStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(true);

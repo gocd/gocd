@@ -57,6 +57,7 @@ import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.*;
 
+import static com.thoughtworks.go.config.Approval.TYPE_MANUAL;
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
@@ -293,7 +294,7 @@ public class StageSqlMapDaoIntegrationTest {
         when(mockClient.queryForObject("getTotalStageCountForChart", toGet)).thenReturn(3).thenReturn(4);
 
         assertThat(stageDao.getTotalStageCountForChart("maar", "khoon")).isEqualTo(3);//Should prime the cache
-        Stage stage = new Stage("khoon", new JobInstances(), "foo", null, "manual", new TimeProvider());
+        Stage stage = new Stage("khoon", new JobInstances(), "foo", null, TYPE_MANUAL, new TimeProvider());
         Pipeline pipeline = new Pipeline("maar", "${COUNT}", BuildCause.createEmpty(), new EnvironmentVariables(), stage);
         pipeline.setId(1);
         stageDao.save(pipeline, stage);//Should Invalidate the cache
@@ -313,7 +314,7 @@ public class StageSqlMapDaoIntegrationTest {
         when(mockClient.queryForObject("getTotalStageCountForChart", toGet)).thenReturn(3).thenReturn(4);
 
         assertThat(stageDao.getTotalStageCountForChart("maar", "khoon")).isEqualTo(3);//Should prime the cache
-        Stage stage = new Stage("khoon", new JobInstances(), "foo", null, "manual", new TimeProvider());
+        Stage stage = new Stage("khoon", new JobInstances(), "foo", null, TYPE_MANUAL, new TimeProvider());
         stage.setIdentifier(new StageIdentifier("maar/2/khoon/1"));
         updateResultInTransaction(stage, StageResult.Cancelled);//Should Invalidate the cache
 

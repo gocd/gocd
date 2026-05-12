@@ -66,6 +66,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.Approval.TYPE_MANUAL;
 import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static com.thoughtworks.go.helper.PipelineMother.completedFailedStageInstance;
 import static com.thoughtworks.go.server.security.GoAuthority.ROLE_ANONYMOUS;
@@ -247,7 +248,7 @@ public class StageServiceTest {
         foundJob.setResult(JobResult.Unknown);
         JobInstances foundJobInstances = new JobInstances(foundJob);
 
-        Stage foundStage = new Stage(STAGE_NAME, foundJobInstances, "jez", null, "manual", new TimeProvider());
+        Stage foundStage = new Stage(STAGE_NAME, foundJobInstances, "jez", null, TYPE_MANUAL, new TimeProvider());
         foundStage.calculateResult();
 
         assertThat(foundStage.getState()).isNotEqualTo(StageState.Cancelled);

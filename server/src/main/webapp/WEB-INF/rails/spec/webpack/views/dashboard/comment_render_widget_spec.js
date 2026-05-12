@@ -236,6 +236,28 @@ describe("Comment Render Widget", () => {
       expect(helper.q('.comment')).toHaveHtml('<p><a target="story_tracker" href="http://website.com/1%2F2%E5%BE%B7">ABC-1/2德</a></p>');
     });
 
+    it('should URI encode identifiers into query', () => {
+      const trackingTool = {
+        "link":  "http://website.com/?id=${ID}",
+        "regex": "ABC-[^ ]+"
+      };
+      const text         = "ABC-1?=2";
+      mountView(text, trackingTool);
+      expect(helper.q('.comment a')).toHaveAttr('href', "http://website.com/?id=ABC-1%3F%3D2");
+      expect(helper.q('.comment')).toHaveHtml('<p><a target="story_tracker" href="http://website.com/?id=ABC-1%3F%3D2">ABC-1?=2</a></p>');
+    });
+
+    it('should URI encode identifiers with id group into query', () => {
+      const trackingTool = {
+        "link":  "http://website.com/?id=${ID}",
+        "regex": "ABC-([^ ]+)"
+      };
+      const text         = "ABC-1?=2";
+      mountView(text, trackingTool);
+      expect(helper.q('.comment a')).toHaveAttr('href', "http://website.com/?id=1%3F%3D2");
+      expect(helper.q('.comment')).toHaveHtml('<p><a target="story_tracker" href="http://website.com/?id=1%3F%3D2">ABC-1?=2</a></p>');
+    });
+
     it('does not double URI encode link', () => {
       const trackingTool = {
         "link":  "http://website.com/${ID}?encoded=%2F%22",

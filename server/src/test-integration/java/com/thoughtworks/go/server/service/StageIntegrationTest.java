@@ -40,9 +40,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
 
+import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.server.dao.DatabaseAccessHelper.AGENT_UUID;
-import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -126,7 +126,7 @@ public class StageIntegrationTest {
     }
 
     private Pipeline schedulePipeline() {
-        return scheduleHelper.schedule(mingle, modifySomeFiles(mingle), DEFAULT_APPROVED_BY);
+        return scheduleHelper.schedule(mingle, modifySomeFiles(mingle), APPROVER_AUTOMATICALLY_TRIGGERED);
     }
 
 }

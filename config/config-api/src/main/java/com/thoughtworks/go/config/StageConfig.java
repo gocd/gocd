@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.service.TaskFactory;
-import com.thoughtworks.go.util.GoConstants;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -147,7 +146,7 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
     }
 
     public String approvalType() {
-        return requiresApproval() ? GoConstants.APPROVAL_MANUAL : GoConstants.APPROVAL_SUCCESS;
+        return requiresApproval() ? Approval.TYPE_MANUAL : Approval.TYPE_SUCCESS;
     }
 
     @Override

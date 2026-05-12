@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.Approval.TYPE_MANUAL;
+import static com.thoughtworks.go.config.Approval.TYPE_SUCCESS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ApprovalTest {
@@ -41,7 +43,7 @@ public class ApprovalTest {
     void shouldSetDefaultValues() {
         Approval approval = new Approval();
 
-        assertThat(approval.getType()).isEqualTo(Approval.MANUAL);
+        assertThat(approval.getType()).isEqualTo(TYPE_MANUAL);
         assertThat(approval.getAuthConfig()).isEmpty();
         assertThat(approval.getDisplayName()).isEqualTo("Manual");
     }
@@ -49,15 +51,15 @@ public class ApprovalTest {
     @Test
     public void shouldNotAssignType() {
         Approval approval = new Approval();
-        approval.setConfigAttributes(Map.of(Approval.TYPE, Approval.SUCCESS));
-        assertThat(approval.getType()).isEqualTo(Approval.SUCCESS);
+        approval.setConfigAttributes(Map.of(Approval.TYPE, TYPE_SUCCESS));
+        assertThat(approval.getType()).isEqualTo(TYPE_SUCCESS);
         approval.setConfigAttributes(new HashMap<>());
-        assertThat(approval.getType()).isEqualTo(Approval.SUCCESS);
+        assertThat(approval.getType()).isEqualTo(TYPE_SUCCESS);
 
-        approval.setConfigAttributes(Map.of(Approval.TYPE, Approval.MANUAL));
-        assertThat(approval.getType()).isEqualTo(Approval.MANUAL);
+        approval.setConfigAttributes(Map.of(Approval.TYPE, TYPE_MANUAL));
+        assertThat(approval.getType()).isEqualTo(TYPE_MANUAL);
         approval.setConfigAttributes(new HashMap<>());
-        assertThat(approval.getType()).isEqualTo(Approval.MANUAL);
+        assertThat(approval.getType()).isEqualTo(TYPE_MANUAL);
     }
 
     @Test

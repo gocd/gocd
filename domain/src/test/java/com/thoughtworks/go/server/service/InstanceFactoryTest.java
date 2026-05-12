@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.Clock;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -90,7 +89,7 @@ class InstanceFactoryTest {
         jobInstances.add(new JobInstance("job1", clock));
         jobInstances.add(new JobInstance("job2", clock));
 
-        Stage expectedStage = new Stage("first", jobInstances, "Unknown", null, Approval.SUCCESS, clock);
+        Stage expectedStage = new Stage("first", jobInstances, "Unknown", null, Approval.TYPE_SUCCESS, clock);
         assertThat(actualStage).isEqualTo(expectedStage);
     }
 
@@ -152,14 +151,14 @@ class InstanceFactoryTest {
     void shouldSetAutoApprovalOnStageInstance() {
         StageConfig stageConfig = StageConfigMother.custom("test", Approval.automaticApproval());
         Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), "md5", new TimeProvider());
-        assertThat(instance.getApprovalType()).isEqualTo(GoConstants.APPROVAL_SUCCESS);
+        assertThat(instance.getApprovalType()).isEqualTo(Approval.TYPE_SUCCESS);
     }
 
     @Test
     void shouldSetManualApprovalOnStageInstance() {
         StageConfig stageConfig = StageConfigMother.custom("test", Approval.manualApproval());
         Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), "md5", new TimeProvider());
-        assertThat(instance.getApprovalType()).isEqualTo(GoConstants.APPROVAL_MANUAL);
+        assertThat(instance.getApprovalType()).isEqualTo(Approval.TYPE_MANUAL);
     }
 
     @Test

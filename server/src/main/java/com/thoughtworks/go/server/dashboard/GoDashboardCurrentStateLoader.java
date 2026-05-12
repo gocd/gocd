@@ -44,7 +44,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
-import static com.thoughtworks.go.domain.buildcause.BuildCause.createWithEmptyModifications;
+import static com.thoughtworks.go.domain.buildcause.BuildCause.createEmpty;
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel.createEmptyPipelineInstanceModel;
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel.createPreparingToSchedule;
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels.createPipelineInstanceModels;
@@ -190,7 +190,7 @@ public class GoDashboardCurrentStateLoader {
             return createPipelineInstanceModels(createPreparingToSchedule(pipelineName, new StageInstanceModels()));
         }
 
-        return createPipelineInstanceModels(createEmptyPipelineInstanceModel(pipelineName, createWithEmptyModifications(), new StageInstanceModels()));
+        return createPipelineInstanceModels(createEmptyPipelineInstanceModel(pipelineName, createEmpty(), new StageInstanceModels()));
     }
 
     private void populateStagesWhichHaventRunFromConfig(PipelineInstanceModel instanceModel, PipelineConfig pipelineConfig) {

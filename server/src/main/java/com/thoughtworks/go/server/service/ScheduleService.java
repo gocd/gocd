@@ -57,7 +57,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
+import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static java.lang.String.join;
 
 @Service
@@ -399,7 +399,7 @@ public class ScheduleService {
         if (isStageActive(pipeline, nextStage)) {
             return;
         }
-        scheduleStage(pipeline, CaseInsensitiveString.str(nextStage.name()), DEFAULT_APPROVED_BY, new NewStageInstanceCreator(goConfigService), new ExceptioningErrorHandler());
+        scheduleStage(pipeline, CaseInsensitiveString.str(nextStage.name()), APPROVER_AUTOMATICALLY_TRIGGERED, new NewStageInstanceCreator(goConfigService), new ExceptioningErrorHandler());
     }
 
     //this method checks if specified stage is active in all pipelines

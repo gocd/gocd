@@ -56,7 +56,7 @@ public class PipelineModelTest {
     private PipelineInstanceModel pipelineNamed(String name) {
         StageInstanceModels stages = new StageInstanceModels();
         stages.add(new StageInstanceModel("dev", "10", JobHistory.withJob("dev", JobState.Completed, JobResult.Failed, new Date())));
-        return PipelineInstanceModel.createPipeline(name, -1, "1.0", BuildCause.createWithEmptyModifications(), stages);
+        return PipelineInstanceModel.createPipeline(name, -1, "1.0", BuildCause.createEmpty(), stages);
     }
 
 }

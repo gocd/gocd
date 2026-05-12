@@ -32,7 +32,6 @@ import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.materials.MaterialChecker;
 import com.thoughtworks.go.server.service.dd.NoCompatibleUpstreamRevisionsException;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,6 +41,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Date;
 
+import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
 import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static com.thoughtworks.go.server.service.dd.NoCompatibleUpstreamRevisionsException.failedToFindCompatibleRevision;
@@ -83,7 +83,7 @@ public class AutoBuildCauseTest {
 
         BuildCause buildCause = new AutoBuild(goConfigService, pipelineService, "foo", new SystemEnvironment(), materialChecker).onModifications(materialRevisions, false,
                 null);
-        assertThat(buildCause.getApprover()).isEqualTo(GoConstants.DEFAULT_APPROVED_BY);
+        assertThat(buildCause.getApprover()).isEqualTo(APPROVER_AUTOMATICALLY_TRIGGERED);
     }
 
     @Test
@@ -340,7 +340,7 @@ public class AutoBuildCauseTest {
         MaterialRevisions materialRevisions = new MaterialRevisions(materialRevision);
 
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, "my-pipeline", systemEnvironment, materialChecker);
-        boolean isValidBuildCause = autoBuild.isValidBuildCause(pipelineToBeScheduled, BuildCause.createWithModifications(materialRevisions, "changes"));
+        boolean isValidBuildCause = autoBuild.isValidBuildCause(pipelineToBeScheduled, BuildCause.createWithModifications(materialRevisions, APPROVER_AUTOMATICALLY_TRIGGERED));
 
         assertThat(isValidBuildCause).isFalse();
     }
@@ -357,7 +357,7 @@ public class AutoBuildCauseTest {
         MaterialRevisions materialRevisions = new MaterialRevisions(materialRevision);
 
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, "my-pipeline", systemEnvironment, materialChecker);
-        boolean isValidBuildCause = autoBuild.isValidBuildCause(pipelineToBeScheduled, BuildCause.createWithModifications(materialRevisions, "changes"));
+        boolean isValidBuildCause = autoBuild.isValidBuildCause(pipelineToBeScheduled, BuildCause.createWithModifications(materialRevisions, APPROVER_AUTOMATICALLY_TRIGGERED));
 
         assertThat(isValidBuildCause).isTrue();
     }

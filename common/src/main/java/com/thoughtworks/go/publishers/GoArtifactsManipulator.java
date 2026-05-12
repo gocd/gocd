@@ -47,17 +47,18 @@ import java.util.Properties;
 import java.util.zip.Deflater;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PUBLISH_ERR;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Component
 public class GoArtifactsManipulator {
+    public static final int PUBLISH_MAX_RETRIES = 3;
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoArtifactsManipulator.class);
+
     private final HttpService httpService;
     private final URLService urlService;
     private final ZipUtil zipUtil;
-    private static final Logger LOGGER = LoggerFactory.getLogger(GoArtifactsManipulator.class);
 
     @Autowired
     public GoArtifactsManipulator(HttpService httpService, URLService urlService, ZipUtil zipUtil) {

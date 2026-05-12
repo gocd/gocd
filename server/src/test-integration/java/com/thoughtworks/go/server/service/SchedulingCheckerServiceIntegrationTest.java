@@ -173,7 +173,7 @@ public class SchedulingCheckerServiceIntegrationTest {
         configHelper.addPipelineWithGroup("group2", pipelineName, "stage", "job");
         configHelper.addAuthorizedUserForStage(pipelineName, "stage", APPROVED_USER);
 
-        pipelineScheduleQueue.schedule(new CaseInsensitiveString(pipelineName), BuildCause.createWithEmptyModifications());
+        pipelineScheduleQueue.schedule(new CaseInsensitiveString(pipelineName), BuildCause.createEmpty());
         assertThat(schedulingChecker.canManuallyTrigger(pipelineName, new Username(APPROVED_USER))).isTrue();
     }
 

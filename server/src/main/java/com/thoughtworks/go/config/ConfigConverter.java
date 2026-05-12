@@ -737,12 +737,7 @@ public class ConfigConverter {
             crApproval.addAuthorizedRole(role.getName().toString());
         }
 
-        if (approval.getType().equals(Approval.SUCCESS)) {
-            crApproval.setApprovalCondition(CRApprovalCondition.success);
-        } else {
-            crApproval.setApprovalCondition(CRApprovalCondition.manual);
-
-        }
+        crApproval.setApprovalCondition(Approval.TYPE_SUCCESS.equals(approval.getType()) ? CRApprovalCondition.success : CRApprovalCondition.manual);
         crApproval.setAllowOnlyOnSuccess(approval.isAllowOnlyOnSuccess());
 
         return crApproval;

@@ -26,7 +26,6 @@ import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.materials.MaterialChecker;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +57,7 @@ public class AutoBuild implements BuildType {
         }
 
         if (!originalMaterialRevisions.hasDependencyMaterials()) {
-            return BuildCause.createWithModifications(originalMaterialRevisions, GoConstants.DEFAULT_APPROVED_BY);
+            return BuildCause.createWithModificationsAutomaticallyTriggered(originalMaterialRevisions);
         }
 
         CruiseConfig cruiseConfig = goConfigService.currentCruiseConfig();
@@ -70,7 +69,7 @@ public class AutoBuild implements BuildType {
             recomputedBasedOnDependencies = fanInOffTriangleDependency(originalMaterialRevisions, cruiseConfig);
         }
         if (recomputedBasedOnDependencies != null && canRunWithRecomputedRevisions(materialConfigurationChanged, previousMaterialRevisions, recomputedBasedOnDependencies)) {
-            return BuildCause.createWithModifications(recomputedBasedOnDependencies, GoConstants.DEFAULT_APPROVED_BY);
+            return BuildCause.createWithModificationsAutomaticallyTriggered(recomputedBasedOnDependencies);
         }
         return null;
     }

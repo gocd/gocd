@@ -59,9 +59,9 @@ import java.util.*;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
+import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.PipelineMother.custom;
 import static com.thoughtworks.go.helper.PipelineMother.twoBuildPlansWithResourcesAndMaterials;
-import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -294,7 +294,7 @@ public class StageSqlMapDaoIntegrationTest {
 
         assertThat(stageDao.getTotalStageCountForChart("maar", "khoon")).isEqualTo(3);//Should prime the cache
         Stage stage = new Stage("khoon", new JobInstances(), "foo", null, "manual", new TimeProvider());
-        Pipeline pipeline = new Pipeline("maar", "${COUNT}", BuildCause.createWithEmptyModifications(), new EnvironmentVariables(), stage);
+        Pipeline pipeline = new Pipeline("maar", "${COUNT}", BuildCause.createEmpty(), new EnvironmentVariables(), stage);
         pipeline.setId(1);
         stageDao.save(pipeline, stage);//Should Invalidate the cache
 
@@ -632,7 +632,7 @@ public class StageSqlMapDaoIntegrationTest {
 
         Stage actual = stageDao.mostRecentPassed(str(mingleConfig.name()), STAGE_DEV);
         assertThat(actual.getId()).isEqualTo(pipelineAndFirstStageOf(expected).stage.getId());
-        assertThat(actual.getApprovedBy()).isEqualTo(DEFAULT_APPROVED_BY);
+        assertThat(actual.getApprovedBy()).isEqualTo(APPROVER_AUTOMATICALLY_TRIGGERED);
     }
 
     private void setupRescheduledBuild(Pipeline expected) {

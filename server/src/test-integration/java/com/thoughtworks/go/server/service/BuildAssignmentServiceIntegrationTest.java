@@ -72,10 +72,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
+import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyNoFiles;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
-import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.TestUtils.sleepQuietly;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -196,7 +196,7 @@ public class BuildAssignmentServiceIntegrationTest {
     public void shouldRescheduleAbandonedBuild() {
         AgentIdentifier instance = agent(AgentMother.localAgent());
         Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, modifyNoFiles(evolveConfig), new DefaultSchedulingContext(
-                DEFAULT_APPROVED_BY), md5, new TimeProvider());
+            APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline);
         buildAssignmentService.onConfigChange(goConfigService.getCurrentConfig());
         buildAssignmentService.onTimer();
@@ -223,7 +223,7 @@ public class BuildAssignmentServiceIntegrationTest {
     @Test
     public void shouldNotAssignWorkWhenPipelineScheduledWithStaleMaterials() {
         AgentIdentifier instance = agent(AgentMother.localAgent());
-        Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, modifyNoFiles(evolveConfig), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
+        Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, modifyNoFiles(evolveConfig), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline);
         evolveConfig.setMaterialConfigs(new MaterialConfigs(hg("foo", null)));
         configHelper.removePipeline(CaseInsensitiveString.str(evolveConfig.name()));
@@ -237,7 +237,7 @@ public class BuildAssignmentServiceIntegrationTest {
     @Test
     public void shouldNotAssignCancelledJob() {
         AgentIdentifier instance = agent(AgentMother.localAgent());
-        Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, modifyNoFiles(evolveConfig), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
+        Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, modifyNoFiles(evolveConfig), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline);
         buildAssignmentService.onConfigChange(goConfigService.getCurrentConfig());
         JobInstance job = buildOf(pipeline);
@@ -470,7 +470,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
     @Test
     public void shouldBeAbleToSerializeAndDeserializeBuildWork() throws Exception {
-        Pipeline pipeline1 = instanceFactory.createPipelineInstance(evolveConfig, modifySomeFiles(evolveConfig), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
+        Pipeline pipeline1 = instanceFactory.createPipelineInstance(evolveConfig, modifySomeFiles(evolveConfig), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline1);
 
         buildAssignmentService.onTimer();
@@ -487,7 +487,7 @@ public class BuildAssignmentServiceIntegrationTest {
     @Test
     public void shouldCreateWorkWithFetchMaterialsFlagFromStageConfig() {
         evolveConfig.getFirstStageConfig().setFetchMaterials(true);
-        Pipeline pipeline1 = instanceFactory.createPipelineInstance(evolveConfig, modifySomeFiles(evolveConfig), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
+        Pipeline pipeline1 = instanceFactory.createPipelineInstance(evolveConfig, modifySomeFiles(evolveConfig), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline1);
 
         buildAssignmentService.onTimer();
@@ -539,7 +539,7 @@ public class BuildAssignmentServiceIntegrationTest {
         configHelper.replaceAllJobsInStage("downest", "downest-stage", new JobConfig(new CaseInsensitiveString("fetcher"), new ResourceConfigs("fetcher"), new ArtifactTypeConfigs(), allFetchTasks));
         PipelineConfig downest = goConfigService.getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString("downest"));
 
-        DefaultSchedulingContext defaultSchedulingCtx = new DefaultSchedulingContext(DEFAULT_APPROVED_BY);
+        DefaultSchedulingContext defaultSchedulingCtx = new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED);
         Pipeline uppestInstanceForUpper = instanceFactory.createPipelineInstance(uppest, modifySomeFiles(uppest), defaultSchedulingCtx, md5, new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(uppestInstanceForUpper);
         dbHelper.passStage(uppestInstanceForUpper.findStage("uppest-stage"));
@@ -607,7 +607,7 @@ public class BuildAssignmentServiceIntegrationTest {
         JobConfig plan = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
         plan.addResourceConfig("some-resource");
 
-        scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), DEFAULT_APPROVED_BY);
+        scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), APPROVER_AUTOMATICALLY_TRIGGERED);
 
         Work work = buildAssignmentService.assignWorkToAgent(agent(AgentMother.localAgent()));
 
@@ -624,7 +624,7 @@ public class BuildAssignmentServiceIntegrationTest {
         JobConfig plan = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
         plan.addResourceConfig("some-resource");
 
-        scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), DEFAULT_APPROVED_BY);
+        scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), APPROVER_AUTOMATICALLY_TRIGGERED);
 
         Agent agent = AgentMother.localAgent();
         agent.setResources("some-other-resource");
@@ -644,7 +644,7 @@ public class BuildAssignmentServiceIntegrationTest {
         JobConfig jobConfig = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
         jobConfig.addResourceConfig("some-resource");
 
-        scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), DEFAULT_APPROVED_BY);
+        scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), APPROVER_AUTOMATICALLY_TRIGGERED);
 
         Agent agent = AgentMother.localAgent();
         agent.setResources("some-resource");
@@ -670,7 +670,7 @@ public class BuildAssignmentServiceIntegrationTest {
         JobConfig jobConfig = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
         jobConfig.addResourceConfig("some-resource");
 
-        scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), DEFAULT_APPROVED_BY);
+        scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), APPROVER_AUTOMATICALLY_TRIGGERED);
 
         Agent agent = AgentMother.localAgent();
         agent.setResources("some-resource");
@@ -694,7 +694,7 @@ public class BuildAssignmentServiceIntegrationTest {
         JobConfig plan = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
         plan.addResourceConfig("some-resource");
 
-        scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), DEFAULT_APPROVED_BY);
+        scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), APPROVER_AUTOMATICALLY_TRIGGERED);
 
         buildAssignmentService.onTimer();
 
@@ -730,10 +730,10 @@ public class BuildAssignmentServiceIntegrationTest {
         CruiseConfig oldConfig = goConfigService.getCurrentConfig();
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", "s1", u.m(new HgMaterial("hg", null)));
         Pipeline p1_1 = instanceFactory.createPipelineInstance(p1.config, modifyNoFiles(p1.config), new DefaultSchedulingContext(
-                DEFAULT_APPROVED_BY), md5, new TimeProvider());
+            APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
         ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", "s1", u.m(new HgMaterial("hg", null)));
         Pipeline p2_1 = instanceFactory.createPipelineInstance(p2.config, modifyNoFiles(p2.config), new DefaultSchedulingContext(
-                DEFAULT_APPROVED_BY), md5, new TimeProvider());
+            APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(p1_1);
         dbHelper.savePipelineWithStagesAndMaterials(p2_1);
         CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();

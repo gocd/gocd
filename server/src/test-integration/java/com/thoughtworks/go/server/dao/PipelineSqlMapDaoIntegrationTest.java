@@ -15,10 +15,7 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
@@ -49,7 +46,6 @@ import com.thoughtworks.go.server.service.ScheduleService;
 import com.thoughtworks.go.server.service.ScheduleTestUtil;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.jupiter.api.AfterEach;
@@ -65,9 +61,9 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import java.util.*;
 
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
+import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
 import static com.thoughtworks.go.helper.ModificationsMother.*;
-import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -132,7 +128,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     private Pipeline schedulePipelineWithStages(PipelineConfig pipelineConfig) {
         BuildCause buildCause = BuildCause.createWithModifications(modifyOneFile(pipelineConfig), "");
-        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(DEFAULT_APPROVED_BY), "md5-test", new TimeProvider());
+        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), "md5-test", new TimeProvider());
         assertNotInserted(pipeline.getId());
         savePipeline(pipeline);
         long pipelineId = pipeline.getId();
@@ -412,7 +408,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         StageInstanceModel history = stageHistories.getFirst();
         assertThat(history.getName()).isEqualTo(dev);
-        assertThat(history.getApprovalType()).isEqualTo(GoConstants.APPROVAL_SUCCESS);
+        assertThat(history.getApprovalType()).isEqualTo(Approval.TYPE_SUCCESS);
         assertThat(history.getBuildHistory().size()).isEqualTo(2);
 
         assertThat(pipelineHistories.get(1).getName()).isEqualTo("mingle");
@@ -501,8 +497,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         materialRevisions.addRevision(svnMaterial, ModificationsMother.multipleModificationList());
 
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions,
-                Username.ANONYMOUS), new DefaultSchedulingContext(
-                DEFAULT_APPROVED_BY), md5, new TimeProvider());
+                Username.ANONYMOUS), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
         assertNotInserted(pipeline.getId());
         savePipeline(pipeline);
         Pipeline pipelineFromDB = pipelineDao.loadPipeline(pipeline.getId());
@@ -525,8 +520,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         materialRevisions.addRevision(gitMaterial, firstModification, secondModification);
 
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions,
-                Username.ANONYMOUS), new DefaultSchedulingContext(
-                DEFAULT_APPROVED_BY), md5, new TimeProvider());
+                Username.ANONYMOUS), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
 
         assertNotInserted(pipeline.getId());
         save(pipeline);
@@ -552,8 +546,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
 
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions,
-                Username.ANONYMOUS), new DefaultSchedulingContext(
-                DEFAULT_APPROVED_BY), md5, new TimeProvider());
+                Username.ANONYMOUS), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
         assertNotInserted(pipeline.getId());
         savePipeline(pipeline);
         Pipeline pipelineFromDB = pipelineDao.loadPipeline(pipeline.getId());
@@ -580,8 +573,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         materialRevisions.addRevision(revision.convert(dependencyMaterial, new Date()));
 
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions,
-                Username.ANONYMOUS), new DefaultSchedulingContext(
-                DEFAULT_APPROVED_BY), md5, new TimeProvider());
+                Username.ANONYMOUS), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
         assertNotInserted(pipeline.getId());
         savePipeline(pipeline);
         Pipeline pipelineFromDB = pipelineDao.loadPipeline(pipeline.getId());
@@ -600,8 +592,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(modifyOneFile(pipelineConfig),
                 Username.ANONYMOUS),
-                new DefaultSchedulingContext(
-                        DEFAULT_APPROVED_BY), md5, new TimeProvider());
+                new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
         assertNotInserted(pipeline.getId());
         savePipeline(pipeline);
 
@@ -624,7 +615,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         revisions.addRevision(svnMaterial2, new Modification("user2", "comment2", null, new Date(), "2"));
 
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(revisions, Username.ANONYMOUS),
-                new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
+                new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
         assertNotInserted(pipeline.getId());
 
         save(pipeline);
@@ -642,8 +633,8 @@ public class PipelineSqlMapDaoIntegrationTest {
         pipelineConfig.setMaterialConfigs(materials.convertToConfigs());
 
         final MaterialRevisions originalMaterialRevision = multipleModificationsInHg(pipelineConfig);
-        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(originalMaterialRevision, Username.ANONYMOUS), new DefaultSchedulingContext(
-                DEFAULT_APPROVED_BY), md5, new TimeProvider());
+        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(originalMaterialRevision, Username.ANONYMOUS),
+            new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
         save(pipeline);
 
         Pipeline pipelineFromDB = pipelineDao.loadPipeline(pipeline.getId());
@@ -662,7 +653,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig,
                 BuildCause.createManualForced(modifyOneFile(pipelineConfig), Username.ANONYMOUS),
-                new DefaultSchedulingContext(DEFAULT_APPROVED_BY),
+                new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED),
                 md5, new TimeProvider());
         assertNotInserted(pipeline.getId());
         savePipeline(pipeline);
@@ -680,8 +671,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(modifyOneFile(pipelineConfig),
                 Username.ANONYMOUS),
-                new DefaultSchedulingContext(
-                        DEFAULT_APPROVED_BY), md5, new TimeProvider());
+                new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
         assertNotInserted(pipeline.getId());
         savePipeline(pipeline);
         Pipeline pipelineFromDB = pipelineDao.loadPipeline(pipeline.getId());
@@ -697,7 +687,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         pipelineConfig.setMaterialConfigs(materials.convertToConfigs());
 
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(modifyOneFile(pipelineConfig),
-                Username.ANONYMOUS), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
+                Username.ANONYMOUS), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
         assertNotInserted(pipeline.getId());
         save(pipeline);
         Pipeline pipelineFromDB = pipelineDao.loadPipeline(pipeline.getId());
@@ -718,8 +708,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(modifyOneFile(pipelineConfig),
                 Username.ANONYMOUS),
-                new DefaultSchedulingContext(
-                        DEFAULT_APPROVED_BY), md5, new TimeProvider());
+                new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
         assertNotInserted(pipeline.getId());
         savePipeline(pipeline);
 
@@ -741,8 +730,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(modifyOneFile(pipelineConfig),
                 Username.ANONYMOUS),
-                new DefaultSchedulingContext(
-                        DEFAULT_APPROVED_BY), md5, new TimeProvider());
+                new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
         assertNotInserted(pipeline.getId());
         savePipeline(pipeline);
         Pipeline pipelineFromDB = pipelineDao.loadPipeline(pipeline.getId());
@@ -753,7 +741,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldFindPipelineByNameAndCounterCaseInsensitively() {
-        Pipeline pipeline = new Pipeline("Test", BuildCause.createWithEmptyModifications());
+        Pipeline pipeline = new Pipeline("Test", BuildCause.createEmpty());
         savePipeline(pipeline);
         Pipeline loadedId = pipelineDao.findPipelineByNameAndCounter("Test", pipeline.getCounter());
         assertThat(loadedId.getId()).isEqualTo(pipeline.getId());
@@ -763,9 +751,9 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldFindTheRightPipelineWithUseOfTilde() {
-        Pipeline correctPipeline = new Pipeline("Test", BuildCause.createWithEmptyModifications());
+        Pipeline correctPipeline = new Pipeline("Test", BuildCause.createEmpty());
         savePipeline(correctPipeline);
-        Pipeline incorrectPipeline = new Pipeline("Tests", BuildCause.createWithEmptyModifications());
+        Pipeline incorrectPipeline = new Pipeline("Tests", BuildCause.createEmpty());
         savePipeline(incorrectPipeline);
         Pipeline loadedId = pipelineDao.findPipelineByNameAndCounter(correctPipeline.getName(), correctPipeline.getCounter());
         assertThat(loadedId.getId()).isEqualTo(correctPipeline.getId());
@@ -775,7 +763,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldInvalidateSessionAndFetchNewPipelineByNameAndCounter_WhenPipelineIsPersisted() {
-        Pipeline pipeline = new Pipeline("Test", BuildCause.createWithEmptyModifications());
+        Pipeline pipeline = new Pipeline("Test", BuildCause.createEmpty());
         assertThat(pipelineDao.findPipelineByNameAndCounter("Test", 1)).isNull();
 
         savePipeline(pipeline);
@@ -1329,7 +1317,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         dbHelper.pass(p1_1);
         PipelineInstanceModel pim1 = pipelineDao.findPipelineHistoryByNameAndCounter(p1.config.name().toUpper(), 1);
 
-        assertThat(pim1.getBuildCause().getApprover()).isEqualTo("changes");
+        assertThat(pim1.getBuildCause().getApprover()).isEqualTo(APPROVER_AUTOMATICALLY_TRIGGERED);
         assertThat(pim1.getBuildCause().getBuildCauseMessage()).isEqualTo("modified by lgao");
     }
 

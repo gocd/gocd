@@ -37,17 +37,18 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @ConfigTag(value = "approval")
 //TODO: ChrisS: Make this a proper enumeration
 public class Approval implements Validatable, ParamsAttributeAware {
-    public static final String ALLOW_ONLY_ON_SUCCESS = "allow_only_on_success";
-    public static final String MANUAL = "manual";
-    public static final String SUCCESS = "success";
     public static final String TYPE = "type";
+    public static final String ALLOW_ONLY_ON_SUCCESS = "allow_only_on_success";
+
+    public static final String TYPE_SUCCESS = "success";
+    public static final String TYPE_MANUAL = "manual";
 
     @ConfigSubtag(optional = true)
     private AuthConfig authConfig = new AuthConfig();
 
     @ConfigAttribute(value = "type", optional = false, alwaysWrite = true)
     @SkipParameterResolution
-    private String type = MANUAL;
+    private String type = TYPE_MANUAL;
 
     @ConfigAttribute(value = "allowOnlyOnSuccess")
     @SkipParameterResolution
@@ -59,20 +60,20 @@ public class Approval implements Validatable, ParamsAttributeAware {
     private ConfigErrors errors = new ConfigErrors();
 
     public static Approval automaticApproval() {
-        return new Approval().setType(SUCCESS);
+        return new Approval().setType(TYPE_SUCCESS);
     }
 
     public static Approval manualApproval() {
-        return new Approval().setType(MANUAL);
+        return new Approval().setType(TYPE_MANUAL);
     }
 
     @TestOnly
     public Approval(AuthConfig authConfig) {
-        setType(MANUAL).setAuthConfig(authConfig);
+        setType(TYPE_MANUAL).setAuthConfig(authConfig);
     }
 
     public boolean isManual() {
-        return type.equals(MANUAL);
+        return TYPE_MANUAL.equals(type);
     }
 
     public boolean isAuthorizationDefined() {
@@ -98,7 +99,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
     @Override
     public void validate(ValidationContext validationContext) {
         if (!isValidTypeValue()) {
-            errors.add(TYPE, String.format("You have defined approval type as '%s'. Approval can only be of the type '%s' or '%s'.", type, MANUAL, SUCCESS));
+            errors.add(TYPE, String.format("You have defined approval type as '%s'. Approval can only be of the type '%s' or '%s'.", type, TYPE_MANUAL, TYPE_SUCCESS));
         }
         validateOperatePermissions(validationContext);
     }
@@ -129,7 +130,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
     }
 
     private boolean isValidTypeValue() {
-        return type.equals(MANUAL) || type.equals(SUCCESS);
+        return type.equals(TYPE_MANUAL) || type.equals(TYPE_SUCCESS);
     }
 
     @SuppressWarnings("unchecked")
@@ -168,7 +169,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
     }
 
     public String getDisplayName() {
-        return type.equals(MANUAL) ? "Manual" : "On Success";
+        return type.equals(TYPE_MANUAL) ? "Manual" : "On Success";
     }
 
     public void setOperatePermissions(List<Map<String, String>> usersMap, List<Map<String, String>> rolesMap) {

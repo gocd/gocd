@@ -15,14 +15,13 @@
  */
 package com.thoughtworks.go.presentation.pipelinehistory;
 
+import com.thoughtworks.go.config.Approval;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.StageState;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.Date;
-
-import static com.thoughtworks.go.util.GoConstants.APPROVAL_SUCCESS;
 
 public class StageInstanceModel implements StageConfigurationModel {
     private String name;
@@ -127,11 +126,7 @@ public class StageInstanceModel implements StageConfigurationModel {
     }
 
     public String getApprovalTypeDescription() {
-        if (isAutoApproved()) {
-            return "auto";
-        } else {
-            return "manual";
-        }
+        return isAutoApproved() ? "auto" : "manual";
     }
 
     public boolean needsApproval() {
@@ -140,7 +135,7 @@ public class StageInstanceModel implements StageConfigurationModel {
 
     @Override
     public boolean isAutoApproved() {
-        return APPROVAL_SUCCESS.equals(approvalType);
+        return Approval.TYPE_SUCCESS.equals(approvalType);
     }
 
     public Date getScheduledDate() {

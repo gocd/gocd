@@ -30,7 +30,6 @@ import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevisio
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.util.Dates;
-import com.thoughtworks.go.util.GoConstants;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -67,7 +66,7 @@ public class ModificationsMother {
     }
 
     public static BuildCause modifySomeFiles(PipelineConfig pipelineConfig) {
-        return modifySomeFilesAndTriggerAs(pipelineConfig, GoConstants.DEFAULT_APPROVED_BY);
+        return modifySomeFilesAndTriggerAs(pipelineConfig, BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED);
     }
 
     public static BuildCause modifySomeFilesAndTriggerAs(PipelineConfig pipelineConfig, String approver) {

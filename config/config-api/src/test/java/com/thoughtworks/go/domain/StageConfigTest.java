@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.Approval.*;
 import static com.thoughtworks.go.config.RunOnAllAgentsJobTypeConfig.MARKER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -138,15 +139,15 @@ public class StageConfigTest {
     @Test
     public void shouldSetApprovalFromConfigAttrs() {
         StageConfig config = new StageConfig();
-        config.setConfigAttributes(Map.of(StageConfig.APPROVAL, Map.of(Approval.TYPE, Approval.MANUAL)));
-        assertThat(config.getApproval().getType()).isEqualTo(Approval.MANUAL);
+        config.setConfigAttributes(Map.of(StageConfig.APPROVAL, Map.of(TYPE, TYPE_MANUAL)));
+        assertThat(config.getApproval().getType()).isEqualTo(TYPE_MANUAL);
         config.setConfigAttributes(new HashMap<>());
-        assertThat(config.getApproval().getType()).isEqualTo(Approval.MANUAL);
+        assertThat(config.getApproval().getType()).isEqualTo(TYPE_MANUAL);
 
-        config.setConfigAttributes(Map.of(StageConfig.APPROVAL, Map.of(Approval.TYPE, Approval.SUCCESS)));
-        assertThat(config.getApproval().getType()).isEqualTo(Approval.SUCCESS);
+        config.setConfigAttributes(Map.of(StageConfig.APPROVAL, Map.of(TYPE, TYPE_SUCCESS)));
+        assertThat(config.getApproval().getType()).isEqualTo(TYPE_SUCCESS);
         config.setConfigAttributes(new HashMap<>());
-        assertThat(config.getApproval().getType()).isEqualTo(Approval.SUCCESS);
+        assertThat(config.getApproval().getType()).isEqualTo(TYPE_SUCCESS);
     }
 
     @Test

@@ -15,9 +15,9 @@
  */
 package com.thoughtworks.go.presentation.pipelinehistory;
 
+import com.thoughtworks.go.config.Approval;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.util.GoConstants;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
@@ -39,14 +39,14 @@ public class StageInstanceModelTest {
     @Test
     public void shouldBeAutoApproved() {
         StageInstanceModel stageHistoryItem = new StageInstanceModel();
-        stageHistoryItem.setApprovalType(GoConstants.APPROVAL_SUCCESS);
+        stageHistoryItem.setApprovalType(Approval.TYPE_SUCCESS);
         assertThat(stageHistoryItem.isAutoApproved()).isTrue();
     }
 
     @Test
     public void shouldBeManualApproved() {
         StageInstanceModel stageHistoryItem = new StageInstanceModel();
-        stageHistoryItem.setApprovalType(GoConstants.APPROVAL_MANUAL);
+        stageHistoryItem.setApprovalType(Approval.TYPE_MANUAL);
         assertThat(stageHistoryItem.isAutoApproved()).isFalse();
     }
 

@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.helper;
 
+import com.thoughtworks.go.config.Approval;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.presentation.pipelinehistory.JobHistory;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
-import com.thoughtworks.go.util.GoConstants;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,11 +28,7 @@ public class StageInstanceModelMother {
     public static StageInstanceModel custom(String stageName, boolean isAutoApproved) {
         StageInstanceModel stageHistoryItem = new StageInstanceModel();
         stageHistoryItem.setName(stageName);
-        if (isAutoApproved) {
-            stageHistoryItem.setApprovalType(GoConstants.APPROVAL_SUCCESS);
-        } else {
-            stageHistoryItem.setApprovalType(GoConstants.APPROVAL_MANUAL);
-        }
+        stageHistoryItem.setApprovalType(isAutoApproved ? Approval.TYPE_SUCCESS : Approval.TYPE_MANUAL);
         assertThat(stageHistoryItem.isAutoApproved()).isEqualTo(isAutoApproved);
         return stageHistoryItem;
     }

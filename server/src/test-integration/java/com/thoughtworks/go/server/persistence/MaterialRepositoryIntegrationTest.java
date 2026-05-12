@@ -86,9 +86,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.ModificationsMother.EMAIL_ADDRESS;
 import static com.thoughtworks.go.helper.ModificationsMother.MOD_USER;
-import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -493,7 +493,7 @@ public class MaterialRepositoryIntegrationTest {
         PipelineConfig pipelineConfig = PipelineMother.createPipelineConfig("mingle", new MaterialConfigs(hgMaterial.config()), "dev");
         MaterialRevisions materialRevisions = new MaterialRevisions(materialRevision);
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS),
-                new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5,
+                new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5,
                 new TimeProvider());
 
         pipelineSqlMapDao.save(pipeline);
@@ -509,7 +509,7 @@ public class MaterialRepositoryIntegrationTest {
         PipelineConfig pipelineConfig = PipelineMother.createPipelineConfig("mingle", new MaterialConfigs(hgMaterial.config()), "dev");
         MaterialRevisions materialRevisions = new MaterialRevisions(materialRevision);
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS),
-                new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5,
+                new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5,
                 new TimeProvider());
 
         pipelineSqlMapDao.save(pipeline);
@@ -528,7 +528,7 @@ public class MaterialRepositoryIntegrationTest {
         MaterialRevision depMaterialRevision = saveOneDependencyModification(depMaterial, "blahPipeline/1/blahStage/1");
         PipelineConfig pipelineConfig = PipelineMother.createPipelineConfig("mingle", new MaterialConfigs(hgMaterial.config(), depMaterial.config()), "dev");
         MaterialRevisions materialRevisions = new MaterialRevisions(hgMaterialRevision, depMaterialRevision);
-        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5,
+        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5,
                 new TimeProvider());
 
         pipelineSqlMapDao.save(pipeline);
@@ -546,7 +546,7 @@ public class MaterialRepositoryIntegrationTest {
         MaterialRevision depMaterialRevision1 = saveOneDependencyModification(depMaterial1, "blahPipeline/1/blahStage/1");
         PipelineConfig pipelineConfig = PipelineMother.createPipelineConfig("mingle", new MaterialConfigs(hgMaterial1.config(), depMaterial1.config()), "dev");
         MaterialRevisions materialRevisions1 = new MaterialRevisions(hgMaterialRevision1, depMaterialRevision1);
-        pipelineSqlMapDao.save(instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions1, Username.ANONYMOUS), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5,
+        pipelineSqlMapDao.save(instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions1, Username.ANONYMOUS), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5,
                 new TimeProvider()));
 
         HgMaterial hgMaterial2 = MaterialsMother.hgMaterial("hgUrl", "dest");
@@ -556,7 +556,7 @@ public class MaterialRepositoryIntegrationTest {
         PipelineConfig pipelineConfig2 = PipelineMother.createPipelineConfig("mingle", new MaterialConfigs(hgMaterial2.config(), depMaterial2.config()), "dev");
         MaterialRevisions materialRevisions2 = new MaterialRevisions(hgMaterialRevision2, depMaterialRevision2);
 
-        savePipeline(instanceFactory.createPipelineInstance(pipelineConfig2, BuildCause.createManualForced(materialRevisions2, Username.ANONYMOUS), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5,
+        savePipeline(instanceFactory.createPipelineInstance(pipelineConfig2, BuildCause.createManualForced(materialRevisions2, Username.ANONYMOUS), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5,
                 new TimeProvider()));
 
         MaterialRevisions revisions = new MaterialRevisions(new MaterialRevision(depMaterial1, depMaterialRevision1.getLatestModification()),
@@ -581,7 +581,7 @@ public class MaterialRepositoryIntegrationTest {
 
         PipelineConfig pipelineConfig = PipelineMother.createPipelineConfig("mingle", new MaterialConfigs(material.config(), depMaterial.config()), "dev");
         MaterialRevisions revisions = new MaterialRevisions(hgMaterialRevision, depMaterialRevision);
-        pipelineSqlMapDao.save(instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(revisions, Username.ANONYMOUS), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5,
+        pipelineSqlMapDao.save(instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(revisions, Username.ANONYMOUS), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5,
                 new TimeProvider()));
 
         MaterialRevision laterRevision = saveOneScmModification(material, "user", "file");
@@ -604,8 +604,8 @@ public class MaterialRepositoryIntegrationTest {
         MaterialRevisions secondRun = new MaterialRevisions(first2, second1);
 
         PipelineConfig config = PipelineMother.createPipelineConfig("mingle", new MaterialConfigs(firstMaterial.config(), secondMaterial.config()), "dev");
-        savePipeline(instanceFactory.createPipelineInstance(config, BuildCause.createWithModifications(firstRun, "Pavan"), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider()));
-        savePipeline(instanceFactory.createPipelineInstance(config, BuildCause.createWithModifications(secondRun, "Shilpa-who-gets-along-well-with-her"), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5,
+        savePipeline(instanceFactory.createPipelineInstance(config, BuildCause.createWithModifications(firstRun, "Pavan"), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider()));
+        savePipeline(instanceFactory.createPipelineInstance(config, BuildCause.createWithModifications(secondRun, "Shilpa-who-gets-along-well-with-her"), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5,
                 new TimeProvider()));
 
         assertThat(repo.hasPipelineEverRunWith("mingle", new MaterialRevisions(first2, second2))).isTrue();
@@ -617,7 +617,7 @@ public class MaterialRepositoryIntegrationTest {
         MaterialRevision materialRevision = saveOneScmModification(hgMaterial, "user", "file");
         PipelineConfig pipelineConfig = PipelineMother.createPipelineConfig("mingle", new MaterialConfigs(hgMaterial.config()), "dev");
         MaterialRevisions materialRevisions = new MaterialRevisions(materialRevision);
-        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5,
+        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5,
                 new TimeProvider());
 
         GoCache spyGoCache = spy(goCache);
@@ -1662,7 +1662,7 @@ public class MaterialRepositoryIntegrationTest {
 
                 PipelineConfig config = PipelineMother.withTwoStagesOneBuildEach("pipeline-name", "stage-1", "stage-2");
                 config.setMaterialConfigs(materialRevisions.getMaterials().convertToConfigs());
-                pipeline[0] = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5,
+                pipeline[0] = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5,
                         new TimeProvider());
 
                 //this should persist the materials

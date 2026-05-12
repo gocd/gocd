@@ -52,9 +52,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.time.Instant;
 import java.util.*;
 
+import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
-import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.util.stream.Collectors.toList;
@@ -114,7 +114,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         dbHelper.onSetUp();
         goCache.clear();
         pipelineConfig = PipelineMother.withSingleStageWithMaterials(PIPELINE_NAME, STAGE_NAME, BuildPlanMother.withBuildPlans(JOB_NAME, OTHER_JOB_NAME));
-        schedulingContext = new DefaultSchedulingContext(DEFAULT_APPROVED_BY);
+        schedulingContext = new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED);
         savedPipeline = instanceFactory.createPipelineInstance(pipelineConfig, modifySomeFiles(pipelineConfig), schedulingContext, "md5-test", new TimeProvider());
 
         dbHelper.savePipelineWithStagesAndMaterials(savedPipeline);
@@ -213,7 +213,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
 
     private Pipeline createNewPipeline(PipelineConfig pipelineConfig) {
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, modifySomeFiles(pipelineConfig), new DefaultSchedulingContext(
-                DEFAULT_APPROVED_BY), "md5-test", new TimeProvider());
+            APPROVER_AUTOMATICALLY_TRIGGERED), "md5-test", new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline);
         return pipeline;
     }

@@ -89,11 +89,11 @@ public class ModificationBuildCauseTest {
 
     @Test
     public void shouldSafelyGetBuildCausedBy() {
-        assertThat(BuildCause.createWithEmptyModifications().getBuildCauseMessage()).isEqualTo("No modifications");
+        assertThat(BuildCause.createEmpty().getBuildCauseMessage()).isEqualTo("No modifications");
     }
 
     @Test
-    public void shouldGetBuildCausedByIfIsDenpendencyMaterial() {
+    public void shouldGetBuildCausedByIfIsDependencyMaterial() {
         MaterialRevisions revisions = new MaterialRevisions();
         Modification modification = new Modification(new Date(), "pipelineName/10/stageName/1", "MOCK_LABEL-12", null);
         revisions.addRevision(new DependencyMaterial(new CaseInsensitiveString("cruise"), new CaseInsensitiveString("dev")), modification);

@@ -56,12 +56,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.AgentMother.localAgentWithResources;
 import static com.thoughtworks.go.helper.BuildPlanMother.withBuildPlans;
 import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
-import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -197,7 +197,7 @@ public class JobInstanceServiceIntegrationTest {
         PipelineConfig pipelineConfig = PipelineMother.withSingleStageWithMaterials("go", "dev", withBuildPlans("unit"));
         pipelineConfig.getFirstStageConfig().setFetchMaterials(false);
         configHelper.addPipeline("go", "dev");
-        scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), DEFAULT_APPROVED_BY);
+        scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), APPROVER_AUTOMATICALLY_TRIGGERED);
         List<JobPlan> jobPlans = jobInstanceService.orderedScheduledBuilds();
         assertThat(jobPlans.size()).isEqualTo(1);
         assertThat(jobPlans.getFirst().shouldFetchMaterials()).isFalse();
@@ -208,7 +208,7 @@ public class JobInstanceServiceIntegrationTest {
         PipelineConfig pipelineConfig = PipelineMother.withSingleStageWithMaterials("go", "dev", withBuildPlans("unit"));
         pipelineConfig.getFirstStageConfig().setCleanWorkingDir(true);
         configHelper.addPipeline("go", "dev");
-        scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), DEFAULT_APPROVED_BY);
+        scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), APPROVER_AUTOMATICALLY_TRIGGERED);
         List<JobPlan> jobPlans = jobInstanceService.orderedScheduledBuilds();
         assertThat(jobPlans.size()).isEqualTo(1);
         assertThat(jobPlans.getFirst().shouldCleanWorkingDir()).isTrue();
@@ -221,7 +221,7 @@ public class JobInstanceServiceIntegrationTest {
         configHelper.addPipeline("go", "dev");
         configHelper.addEnvironments("newEnv");
         configHelper.addPipelineToEnvironment("newEnv", "go");
-        scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), DEFAULT_APPROVED_BY);
+        scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), APPROVER_AUTOMATICALLY_TRIGGERED);
         List<JobPlan> jobPlans = jobInstanceService.orderedScheduledBuilds();
 
         Username viewOnlyUser = new Username(new CaseInsensitiveString("view"));
@@ -242,8 +242,8 @@ public class JobInstanceServiceIntegrationTest {
         PipelineConfig pipelineConfig1 = PipelineMother.withSingleStageWithMaterials("build", "build", withBuildPlans("test"));
         configHelper.addPipeline("go", "dev");
         configHelper.addPipelineToGroup(pipelineConfig1, "first");
-        scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), DEFAULT_APPROVED_BY);
-        scheduleHelper.schedule(pipelineConfig1, BuildCause.createWithModifications(modifyOneFile(pipelineConfig1), ""), DEFAULT_APPROVED_BY);
+        scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), APPROVER_AUTOMATICALLY_TRIGGERED);
+        scheduleHelper.schedule(pipelineConfig1, BuildCause.createWithModifications(modifyOneFile(pipelineConfig1), ""), APPROVER_AUTOMATICALLY_TRIGGERED);
 
         Username viewOnlyUser = new Username(new CaseInsensitiveString("view"));
         configHelper.setViewPermissionForGroup("first", "view");
@@ -262,8 +262,8 @@ public class JobInstanceServiceIntegrationTest {
         PipelineConfig pipelineConfig1 = PipelineMother.withSingleStageWithMaterials("build", "build", withBuildPlans("test"));
         configHelper.addPipeline("go", "dev");
         configHelper.addPipelineToGroup(pipelineConfig1, "first");
-        scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), DEFAULT_APPROVED_BY);
-        scheduleHelper.schedule(pipelineConfig1, BuildCause.createWithModifications(modifyOneFile(pipelineConfig1), ""), DEFAULT_APPROVED_BY);
+        scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), APPROVER_AUTOMATICALLY_TRIGGERED);
+        scheduleHelper.schedule(pipelineConfig1, BuildCause.createWithModifications(modifyOneFile(pipelineConfig1), ""), APPROVER_AUTOMATICALLY_TRIGGERED);
 
         Username viewOnlyUser = new Username(new CaseInsensitiveString("root"));
         configHelper.setViewPermissionForGroup("first", "view");
@@ -455,7 +455,7 @@ public class JobInstanceServiceIntegrationTest {
         jobConfig.artifactTypeConfigs().add(new BuildArtifactConfig("src1", "dest1"));
         configHelper.addPipeline("go", "dev");
 
-        scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), DEFAULT_APPROVED_BY);
+        scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), APPROVER_AUTOMATICALLY_TRIGGERED);
 
         List<JobPlan> jobPlans = jobInstanceService.orderedScheduledBuilds();
 
@@ -488,7 +488,7 @@ public class JobInstanceServiceIntegrationTest {
 
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("anyone", new Agents(localAgentWithResources("blah"), localAgentWithResources("blah")));
 
-        scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), DEFAULT_APPROVED_BY, schedulingContext);
+        scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), APPROVER_AUTOMATICALLY_TRIGGERED, schedulingContext);
 
         List<JobPlan> jobPlans = jobInstanceService.orderedScheduledBuilds();
 

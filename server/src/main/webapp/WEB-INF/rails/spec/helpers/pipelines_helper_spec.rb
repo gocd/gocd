@@ -73,7 +73,7 @@ describe PipelinesHelper do
 
     it "should display appropriate message when when auto triggered " do
       date = Dates.from(ZonedDateTime.of(2010, 8, 20, 18, 3, 44, 0, ZoneOffset.ofHoursMinutes(5, 30)))
-      message = trigger_message_with_formatted_date_time(date, GoConstants::DEFAULT_APPROVED_BY)
+      message = trigger_message_with_formatted_date_time(date, BuildCause::APPROVER_AUTOMATICALLY_TRIGGERED)
       expect(message).to have_selector(".label", :text => "Automatically triggered")
       expect(message).to have_selector(".time[data='#{date.getTime}']")
     end

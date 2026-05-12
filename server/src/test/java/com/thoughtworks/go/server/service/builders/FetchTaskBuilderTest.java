@@ -480,7 +480,7 @@ public class FetchTaskBuilderTest {
                                                         String upstreamPipelineLabel,
                                                         String upstreamStageName,
                                                         int upstreamStageCounter) {
-        BuildCause buildCause = BuildCause.createWithEmptyModifications();
+        BuildCause buildCause = BuildCause.createEmpty();
         MaterialRevisions materialRevisions = new MaterialRevisions();
         DependencyMaterialRevision materialRevision = DependencyMaterialRevision.create(upstreamPipelineName,
                 upstreamPipelineCounter, upstreamPipelineLabel, upstreamStageName, upstreamStageCounter);

@@ -44,10 +44,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.server.dao.DatabaseAccessHelper.assertIsInserted;
 import static com.thoughtworks.go.server.dao.DatabaseAccessHelper.assertNotInserted;
-import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -198,7 +198,8 @@ public class PipelineStateDaoIntegrationTest {
 
     private Pipeline schedulePipelineWithStages(PipelineConfig pipelineConfig) {
         BuildCause buildCause = BuildCause.createWithModifications(modifyOneFile(pipelineConfig), "");
-        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(DEFAULT_APPROVED_BY), "md5-test", new TimeProvider());
+        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause,
+            new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), "md5-test", new TimeProvider());
         assertNotInserted(pipeline.getId());
         savePipeline(pipeline);
         assertIsInserted(pipeline.getId());

@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.helper;
 
+import com.thoughtworks.go.config.Approval;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.service.InstanceFactory;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
 
 import java.sql.Timestamp;
@@ -27,7 +27,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
+import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static java.time.temporal.ChronoUnit.HOURS;
 
 public class StageMother {
@@ -42,7 +42,7 @@ public class StageMother {
         JobInstance instance3 = JobInstanceMother.scheduled("scheduledBuild");
         JobInstances instances = new JobInstances(instance1, instance2, instance3);
 
-        Stage stage = new Stage(stageName, instances, DEFAULT_APPROVED_BY, null, null, new TimeProvider());
+        Stage stage = new Stage(stageName, instances, APPROVER_AUTOMATICALLY_TRIGGERED, null, null, new TimeProvider());
         stage.setId(stageId);
         return stage;
     }
@@ -65,7 +65,7 @@ public class StageMother {
         for (String buildName : buildNames) {
             builds.add(JobInstanceMother.buildEndingWithState(endState, result, buildName));
         }
-        Stage stage = new Stage(stageName, builds, DEFAULT_APPROVED_BY, null, null, new TimeProvider());
+        Stage stage = new Stage(stageName, builds, APPROVER_AUTOMATICALLY_TRIGGERED, null, null, new TimeProvider());
         stage.calculateResult();
         stage.setCompletedByTransitionId(stage.getJobInstances().getLast().getTransitions().latestTransitionId());
         return stage;
@@ -173,7 +173,7 @@ public class StageMother {
     }
 
     private static Stage scheduleInstance(StageConfig stageConfig) {
-        Stage stageInstance = new InstanceFactory().createStageInstance(stageConfig, new DefaultSchedulingContext(DEFAULT_APPROVED_BY), "md5-test", new TimeProvider());
+        Stage stageInstance = new InstanceFactory().createStageInstance(stageConfig, new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), "md5-test", new TimeProvider());
         stageInstance.building();
         return stageInstance;
     }
@@ -191,7 +191,7 @@ public class StageMother {
     }
 
     public static Stage custom(String pipelineName, String stageName, JobInstances instances) {
-        Stage stage = new Stage(stageName, instances, DEFAULT_APPROVED_BY, null, GoConstants.APPROVAL_SUCCESS, new TimeProvider());
+        Stage stage = new Stage(stageName, instances, APPROVER_AUTOMATICALLY_TRIGGERED, null, Approval.TYPE_SUCCESS, new TimeProvider());
         stage.setIdentifier(new StageIdentifier(pipelineName, 1, "1", stageName, "1"));
         stage.building();
         return stage;

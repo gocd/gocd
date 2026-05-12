@@ -39,7 +39,6 @@ import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.Dates;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -216,8 +215,8 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     private Pipeline scheduleWithFileChanges(PipelineConfig pipelineConfig) {
         BuildCause buildCause = BuildCause.createWithModifications(modifyOneFile(pipelineConfig), "");
         saveRevs(buildCause.getMaterialRevisions());
-        return instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(
-            GoConstants.DEFAULT_APPROVED_BY), MD5, new TimeProvider());
+        return instanceFactory.createPipelineInstance(pipelineConfig, buildCause,
+            new DefaultSchedulingContext(BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED), MD5, new TimeProvider());
     }
 
     public Pipeline passPipelineFirstStageOnly(Pipeline pipeline) {
@@ -236,8 +235,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     public Pipeline newPipelineWithFirstStagePassed(PipelineConfig config) {
         Pipeline pipeline = instanceFactory.createPipelineInstance(config,
             BuildCause.createManualForced(modifyOneFile(new MaterialConfigConverter().toMaterials(config.materialConfigs()), ModificationsMother.nextRevision()), Username.ANONYMOUS),
-            new DefaultSchedulingContext(
-                GoConstants.DEFAULT_APPROVED_BY), MD5, new TimeProvider());
+            new DefaultSchedulingContext(BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED), MD5, new TimeProvider());
         saveMaterialsWIthPassedStages(pipeline);
         return pipeline;
     }
@@ -247,21 +245,10 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         passStage(pipeline.getFirstStage());
     }
 
-    public Pipeline newPipelineWithFirstStageFailed(PipelineConfig config) {
-        Pipeline pipeline = instanceFactory.createPipelineInstance(config, BuildCause.createManualForced(modifyOneFile(new MaterialConfigConverter().toMaterials(config.materialConfigs()),
-                ModificationsMother.currentRevision()), Username.ANONYMOUS),
-            new DefaultSchedulingContext(
-                GoConstants.DEFAULT_APPROVED_BY), MD5, new TimeProvider());
-        savePipelineWithStagesAndMaterials(pipeline);
-        failStage(pipeline.getFirstStage());
-        return pipeline;
-    }
-
     public Pipeline newPipelineWithFirstStageScheduled(PipelineConfig config) {
         Pipeline pipeline = instanceFactory.createPipelineInstance(config,
             BuildCause.createManualForced(modifyOneFile(new MaterialConfigConverter().toMaterials(config.materialConfigs()), ModificationsMother.nextRevision()), Username.ANONYMOUS),
-            new DefaultSchedulingContext(
-                GoConstants.DEFAULT_APPROVED_BY), MD5, new TimeProvider());
+            new DefaultSchedulingContext(BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED), MD5, new TimeProvider());
         savePipelineWithStagesAndMaterials(pipeline);
         return pipeline;
     }
@@ -272,8 +259,8 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
             if (config.getFirst().equals(stageConfig)) {
                 continue;
             }
-            Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext(
-                GoConstants.DEFAULT_APPROVED_BY), MD5, new TimeProvider());
+            Stage instance = instanceFactory.createStageInstance(stageConfig,
+                new DefaultSchedulingContext(BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED), MD5, new TimeProvider());
             stageDao.saveWithJobs(pipeline, instance);
             passStage(instance);
         }
@@ -456,7 +443,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     }
 
     public Pipeline schedulePipeline(PipelineConfig pipelineConfig, BuildCause buildCause, Clock clock) {
-        return schedulePipeline(pipelineConfig, buildCause, GoConstants.DEFAULT_APPROVED_BY, clock);
+        return schedulePipeline(pipelineConfig, buildCause, BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED, clock);
     }
 
     public Pipeline schedulePipeline(PipelineConfig pipelineConfig, BuildCause buildCause, String approvedBy, final Clock clock) {
@@ -471,7 +458,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
 
     public Pipeline schedulePipelineWithAllStages(PipelineConfig pipelineConfig, BuildCause buildCause) {
         buildCause.assertMaterialsMatch(pipelineConfig.materialConfigs());
-        DefaultSchedulingContext defaultSchedulingContext = new DefaultSchedulingContext(GoConstants.DEFAULT_APPROVED_BY);
+        DefaultSchedulingContext defaultSchedulingContext = new DefaultSchedulingContext(BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED);
         Stages stages = new Stages();
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, defaultSchedulingContext, MD5, new TimeProvider());
         for (StageConfig stageConfig : pipelineConfig) {

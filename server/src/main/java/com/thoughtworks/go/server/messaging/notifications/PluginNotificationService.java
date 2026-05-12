@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.messaging.notifications;
 
+import com.thoughtworks.go.config.Approval;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.AgentInstance;
@@ -133,11 +134,11 @@ public class PluginNotificationService {
     }
 
     private boolean isStageAutomaticallyTriggered(Stage stage) {
-        return "changes".equalsIgnoreCase(stage.getApprovedBy());
+        return BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED.equalsIgnoreCase(stage.getApprovedBy());
     }
 
     private boolean isManualStage(Stage stage) {
-        return "manual".equalsIgnoreCase(stage.getApprovalType());
+        return Approval.TYPE_MANUAL.equalsIgnoreCase(stage.getApprovalType());
     }
 
     private interface NotificationDataCreator<T, V extends Serializable> {

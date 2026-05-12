@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.Approval.*;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -605,39 +606,39 @@ public class PipelineConfigTest {
 
     @Test
     public void shouldAssignApprovalTypeOnFirstStageAsAuto() {
-        Map<String, Object> approvalAttributes = Map.of(Approval.TYPE, Approval.SUCCESS);
+        Map<String, Object> approvalAttributes = Map.of(TYPE, TYPE_SUCCESS);
         Map<String, Map<String, Object>> map = Map.of(StageConfig.APPROVAL, approvalAttributes);
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("p1", "s1", "j1");
         pipelineConfig.getFirst().updateApproval(Approval.manualApproval());
 
         pipelineConfig.setConfigAttributes(map);
 
-        assertThat(pipelineConfig.getFirst().getApproval().getType()).isEqualTo(Approval.SUCCESS);
+        assertThat(pipelineConfig.getFirst().getApproval().getType()).isEqualTo(TYPE_SUCCESS);
     }
 
     @Test
     public void shouldAssignApprovalTypeOnFirstStageAsManual() {
-        Map<String, Object> approvalAttributes = Map.of(Approval.TYPE, Approval.MANUAL);
+        Map<String, Object> approvalAttributes = Map.of(TYPE, TYPE_MANUAL);
         Map<String, Map<String, Object>> map = Map.of(StageConfig.APPROVAL, approvalAttributes);
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("p1", "s1", "j1");
         pipelineConfig.getFirst().updateApproval(Approval.manualApproval());
 
         pipelineConfig.setConfigAttributes(map);
 
-        assertThat(pipelineConfig.getFirst().getApproval().getType()).isEqualTo(Approval.MANUAL);
+        assertThat(pipelineConfig.getFirst().getApproval().getType()).isEqualTo(TYPE_MANUAL);
     }
 
     @Test
     public void shouldAssignApprovalTypeOnFirstStageAsManualAndRestOfStagesAsUntouched() {
-        Map<String, Object> approvalAttributes = Map.of(Approval.TYPE, Approval.MANUAL);
+        Map<String, Object> approvalAttributes = Map.of(TYPE, TYPE_MANUAL);
         Map<String, Map<String, Object>> map = Map.of(StageConfig.APPROVAL, approvalAttributes);
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("p1", StageConfigMother.custom("s1", Approval.automaticApproval()),
                 StageConfigMother.custom("s2", Approval.automaticApproval()));
 
         pipelineConfig.setConfigAttributes(map);
 
-        assertThat(pipelineConfig.getFirst().getApproval().getType()).isEqualTo(Approval.MANUAL);
-        assertThat(pipelineConfig.getLast().getApproval().getType()).isEqualTo(Approval.SUCCESS);
+        assertThat(pipelineConfig.getFirst().getApproval().getType()).isEqualTo(TYPE_MANUAL);
+        assertThat(pipelineConfig.getLast().getApproval().getType()).isEqualTo(TYPE_SUCCESS);
     }
 
     @Test

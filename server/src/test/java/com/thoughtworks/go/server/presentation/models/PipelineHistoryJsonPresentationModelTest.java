@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.presentation.models;
 
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
+import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineHistoryMother;
 import com.thoughtworks.go.helper.StageConfigMother;
@@ -24,7 +25,6 @@ import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.presentation.PipelineHistoryGroupingUtil;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.Dates;
-import com.thoughtworks.go.util.GoConstants;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -230,7 +230,7 @@ public class PipelineHistoryJsonPresentationModelTest {
         Map<String, Object> json = presenter.toJson();
         assertThatJson(json)
             .node("groups[0].history[0].buildCauseBy")
-            .isEqualTo("Triggered by " + GoConstants.DEFAULT_APPROVED_BY);
+            .isEqualTo("Triggered by " + BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED);
     }
 
     @Test

@@ -28,7 +28,6 @@ public class GoConstants {
         NEVER = calendar.getTime();
     }
 
-    public static final String DEFAULT_APPROVED_BY = "changes";
     public static final String ERROR_FOR_PAGE = "errorMessage";
     public static final String ERROR_FOR_JSON = "error";
 
@@ -38,10 +37,6 @@ public class GoConstants {
     public static final String PRODUCT_NAME = "go";
 
     public static final int CONFIG_SCHEMA_VERSION = 139;
-
-    public static final String APPROVAL_SUCCESS = "success";
-    public static final String APPROVAL_MANUAL = "manual";
-    public static final int PUBLISH_MAX_RETRIES = 3;
 
     public static final long MEGABYTES_IN_GIGABYTE = 1024;
     public static final long MEGA_BYTE = 1024 * 1024;

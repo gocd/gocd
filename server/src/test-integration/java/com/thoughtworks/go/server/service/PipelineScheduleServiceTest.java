@@ -51,10 +51,10 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
+import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.EnvironmentVariablesConfigMother.env;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
-import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -144,7 +144,7 @@ public class PipelineScheduleServiceTest {
         revisions.addRevision(stubMaterial, stubMaterial.modificationsSince());
         BuildCause buildCause = BuildCause.createWithModifications(revisions, "");
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
-        Pipeline pipeline = instanceFactory.createPipelineInstance(mingleConfig, buildCause, new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
+        Pipeline pipeline = instanceFactory.createPipelineInstance(mingleConfig, buildCause, new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
         pipelineService.save(pipeline);
 
         verifyMingleScheduledWithModifications();
@@ -165,7 +165,7 @@ public class PipelineScheduleServiceTest {
         revisions.addRevision(stubMaterial, stubMaterial.modificationsSince());
         BuildCause buildCause = BuildCause.createWithModifications(revisions, "");
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
-        Pipeline pipeline = instanceFactory.createPipelineInstance(mingleConfig, buildCause, new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
+        Pipeline pipeline = instanceFactory.createPipelineInstance(mingleConfig, buildCause, new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
         pipelineService.save(pipeline);
 
         assertThat(pipelineLockService.isLocked("mingle")).isEqualTo(true);
@@ -189,7 +189,7 @@ public class PipelineScheduleServiceTest {
         BuildCause buildCause = BuildCause.createWithModifications(revisions, "");
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
 
-        Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, buildCause, new DefaultSchedulingContext(DEFAULT_APPROVED_BY, environmentConfigService.agentsForPipeline(evolveConfig.name())), md5,
+        Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, buildCause, new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED, environmentConfigService.agentsForPipeline(evolveConfig.name())), md5,
                 new TimeProvider());
         pipelineService.save(pipeline);
 
@@ -219,7 +219,7 @@ public class PipelineScheduleServiceTest {
 		BuildCause buildCause = BuildCause.createWithModifications(revisions, "");
 		dbHelper.saveMaterials(buildCause.getMaterialRevisions());
 
-		Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, buildCause, new DefaultSchedulingContext(DEFAULT_APPROVED_BY, environmentConfigService.agentsForPipeline(evolveConfig.name())), md5, new TimeProvider());
+		Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, buildCause, new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED, environmentConfigService.agentsForPipeline(evolveConfig.name())), md5, new TimeProvider());
 		pipelineService.save(pipeline);
 
 		Stage instance = scheduleService.scheduleStage(pipeline, STAGE_NAME, "anyone", new ScheduleService.NewStageInstanceCreator(goConfigService), new ScheduleService.ExceptioningErrorHandler());
@@ -291,7 +291,7 @@ public class PipelineScheduleServiceTest {
         BuildCause buildCause = BuildCause.createManualForced(revisions, Username.ANONYMOUS);
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
         Pipeline forcedPipeline = instanceFactory.createPipelineInstance(mingleConfig, buildCause, new DefaultSchedulingContext(
-                DEFAULT_APPROVED_BY), md5, new TimeProvider());
+            APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
 
         pipelineService.save(forcedPipeline);
 

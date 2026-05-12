@@ -705,13 +705,13 @@ class BuildWorkTest {
         jobPlan.setFetchMaterials(fetchMaterials);
         jobPlan.setCleanWorkingDir(cleanWorkingDir);
         final Stage stage = StageMother.custom(STAGE_NAME, new JobInstance(JOB_PLAN_NAME));
-        BuildCause buildCause = BuildCause.createWithEmptyModifications();
+        BuildCause buildCause = BuildCause.createEmpty();
         final Pipeline pipeline = new Pipeline(pipelineName, buildCause, stage);
         pipeline.setLabel(PIPELINE_LABEL);
         List<Builder> builder = builderFactory.buildersForTasks(pipeline, jobConfig.getTasks(), resolver);
 
         BuildAssignment buildAssignment = BuildAssignment.create(jobPlan,
-                BuildCause.createWithEmptyModifications(),
+                BuildCause.createEmpty(),
                 builder, pipeline.defaultWorkingFolder(),
                 null, cruiseConfig.getArtifactStores());
 

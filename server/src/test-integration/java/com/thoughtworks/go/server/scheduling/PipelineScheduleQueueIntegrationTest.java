@@ -94,7 +94,7 @@ public class PipelineScheduleQueueIntegrationTest {
         configHelper = new GoConfigFileHelper().usingCruiseConfigDao(goConfigDao);
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         pipelineFixture.usingDbHelper(dbHelper).usingConfigHelper(configHelper).onSetUp();
-        newCause = BuildCause.createWithEmptyModifications();
+        newCause = BuildCause.createEmpty();
     }
 
     @AfterEach
@@ -122,7 +122,7 @@ public class PipelineScheduleQueueIntegrationTest {
         BuildCause beforeSchedule = queue.toBeScheduled().get(new CaseInsensitiveString(pipelineFixture.pipelineName));
         assertThat(beforeSchedule).isNull();
 
-        BuildCause buildCause = BuildCause.createWithEmptyModifications();
+        BuildCause buildCause = BuildCause.createEmpty();
         queue.schedule(new CaseInsensitiveString(pipelineFixture.pipelineName), buildCause);
 
         BuildCause afterSchedule = queue.toBeScheduled().get(new CaseInsensitiveString(pipelineFixture.pipelineName));
@@ -131,7 +131,7 @@ public class PipelineScheduleQueueIntegrationTest {
 
     @Test
     public void shouldChangeToBeScheduledBuildCauseToAlreadyScheduledAfterBeenFinished() {
-        BuildCause buildCause = BuildCause.createWithEmptyModifications();
+        BuildCause buildCause = BuildCause.createEmpty();
         CaseInsensitiveString cruise = new CaseInsensitiveString("cruise");
         queue.schedule(cruise, buildCause);
 
@@ -154,14 +154,14 @@ public class PipelineScheduleQueueIntegrationTest {
     @Test
     public void shouldClearToBeScheduledIfPipelineIsDeleted() {
         CaseInsensitiveString cruise = new CaseInsensitiveString("cruise");
-        queue.schedule(cruise, BuildCause.createWithEmptyModifications());
+        queue.schedule(cruise, BuildCause.createEmpty());
         queue.clearPipeline(cruise);
         assertThat(queue.toBeScheduled().get(cruise)).isNull();
     }
 
     @Test
     public void shouldClearMostRecentScheduledIfPipelineIsDeleted() {
-        BuildCause buildCause = BuildCause.createWithEmptyModifications();
+        BuildCause buildCause = BuildCause.createEmpty();
         CaseInsensitiveString cruise = new CaseInsensitiveString("cruise");
         queue.schedule(cruise, buildCause);
         queue.finishSchedule(cruise, buildCause, newCause);
@@ -172,7 +172,7 @@ public class PipelineScheduleQueueIntegrationTest {
     @Test
     public void shouldReturnFalseIfThereIsBuildCauseWithoutModifications() {
         CaseInsensitiveString cruise = new CaseInsensitiveString("cruise");
-        queue.schedule(cruise, BuildCause.createWithEmptyModifications());
+        queue.schedule(cruise, BuildCause.createEmpty());
         assertThat(queue.hasBuildCause(cruise)).isFalse();
     }
 

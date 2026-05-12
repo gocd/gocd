@@ -240,7 +240,7 @@ public class PipelineHistoryService {
     private PipelineInstanceModel addEmptyPipelineInstance(String pipelineName, Username username, PipelineConfig pipelineConfig, boolean populateCanRun) {
         StageInstanceModels stageHistory = new StageInstanceModels();
         appendFollowingStagesFromConfig(pipelineName, stageHistory);
-        PipelineInstanceModel model = PipelineInstanceModel.createEmptyPipelineInstanceModel(pipelineName, BuildCause.createWithEmptyModifications(), stageHistory);
+        PipelineInstanceModel model = PipelineInstanceModel.createEmptyPipelineInstanceModel(pipelineName, BuildCause.createEmpty(), stageHistory);
         populatePipelineInstanceModel(username, populateCanRun, pipelineConfig, model);
         model.setCanRun(true);
         return model;
@@ -312,7 +312,7 @@ public class PipelineHistoryService {
             return null;
         }
         if (pipelineInstanceModel == null && pipelineCounter == 0) {
-            pipelineInstanceModel = PipelineInstanceModel.createEmptyPipelineInstanceModel(pipelineName, BuildCause.createWithEmptyModifications(), new StageInstanceModels());
+            pipelineInstanceModel = PipelineInstanceModel.createEmptyPipelineInstanceModel(pipelineName, BuildCause.createEmpty(), new StageInstanceModels());
         }
         if (pipelineInstanceModel == null) {
             String pipelineInstanceNotFound = format("Pipeline [%s/%s] not found.", pipelineName, pipelineCounter);

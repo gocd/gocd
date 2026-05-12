@@ -32,7 +32,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static com.thoughtworks.go.domain.buildcause.BuildCause.createWithEmptyModifications;
+import static com.thoughtworks.go.domain.buildcause.BuildCause.createEmpty;
 import static com.thoughtworks.go.helper.PipelineHistoryMother.job;
 import static com.thoughtworks.go.helper.PipelineHistoryMother.stagePerJob;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -146,7 +146,7 @@ class PipelineInstanceModelTest {
         NullStageHistoryItem stageHistoryItem = new NullStageHistoryItem("not_yet_run", false);
         stageInstanceModels.add(stageHistoryItem);
 
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createWithEmptyModifications(), stageInstanceModels);
+        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipeline", -1, "label", createEmpty(), stageInstanceModels);
         StageInstanceModel value = stageInstanceModels.getFirst();
         assertThat(instanceModel.latestStage()).isEqualTo(value);
     }

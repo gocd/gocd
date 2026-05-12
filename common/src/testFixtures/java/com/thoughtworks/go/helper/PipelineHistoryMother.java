@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.helper;
 
+import com.thoughtworks.go.config.Approval;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
@@ -27,7 +28,6 @@ import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
 
 import java.time.Instant;
@@ -39,15 +39,15 @@ import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel.createPipeline;
 
 public class PipelineHistoryMother {
-    public static final String REVISION = "svn.100";
-    public static final String APPROVED_BY = "lgao";
+    public static final String TEST_REVISION = "svn.100";
+    public static final String TEST_APPROVED_BY_USER = "lgao";
 
     public static PipelineInstanceModels pipelineHistory(PipelineConfig pipelineConfig, Instant modificationDate) {
         return pipelineHistory(pipelineConfig, modificationDate, modificationDate);
     }
 
     public static PipelineInstanceModels pipelineHistory(PipelineConfig pipelineConfig, Instant scheduleDate, Instant modificationDate) {
-        return pipelineHistory(pipelineConfig, scheduleDate, modificationDate, REVISION);
+        return pipelineHistory(pipelineConfig, scheduleDate, modificationDate, TEST_REVISION);
     }
 
     public static PipelineInstanceModels pipelineHistory(PipelineConfig pipelineConfig, Instant scheduleDate, Instant modificationDate, String revision) {
@@ -86,7 +86,7 @@ public class PipelineHistoryMother {
 
     public static PipelineInstanceModels pipelineHistoryWithErrorMessage(PipelineConfig pipelineConfig, Instant modificationDate) {
         PipelineInstanceModels history = PipelineInstanceModels.createPipelineInstanceModels();
-        Modification modification = new Modification("user", "Comment", "email", Date.from(modificationDate), REVISION);
+        Modification modification = new Modification("user", "Comment", "email", Date.from(modificationDate), TEST_REVISION);
         modification.createModifiedFile("file", "dir", ModifiedAction.added);
         MaterialRevisions revisions = new MaterialRevisions();
         Material material = new MaterialConfigConverter().toMaterial(pipelineConfig.materialConfigs().getFirst());
@@ -107,15 +107,15 @@ public class PipelineHistoryMother {
         StageInstanceModel devModel = new StageInstanceModel(str(devConfig.name()), "1", buildCancelledHistory(devConfig, modificationDate));
         devModel.setCounter("1");
         devModel.setCanRun(true);
-        devModel.setApprovalType("success");
-        devModel.setApprovedBy(GoConstants.DEFAULT_APPROVED_BY);
+        devModel.setApprovalType(Approval.TYPE_SUCCESS);
+        devModel.setApprovedBy(BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED);
         history.add(devModel);
 
 
         StageConfig ftConfig = pipelineConfig.get(1);
         StageInstanceModel ftModel = new StageInstanceModel(str(ftConfig.name()), "1", buildUnknownHistory(ftConfig, modificationDate));
         ftModel.setCounter("1");
-        ftModel.setApprovalType("manual");
+        ftModel.setApprovalType(Approval.TYPE_MANUAL);
         ftModel.setApprovedBy("");
         ftModel.setErrorMessage("Cannot schedule ft as the previous stage dev has Cancelled!");
         ftModel.setScheduled(false);
@@ -132,9 +132,9 @@ public class PipelineHistoryMother {
             String md5 = "md5-test";
             item.setApprovalType(new InstanceFactory().createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), md5, new TimeProvider()).getApprovalType());
             if (stageConfig.requiresApproval()) {
-                item.setApprovedBy(APPROVED_BY);
+                item.setApprovedBy(TEST_APPROVED_BY_USER);
             } else {
-                item.setApprovedBy(GoConstants.DEFAULT_APPROVED_BY);
+                item.setApprovedBy(BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED);
             }
             history.add(item);
         }
@@ -147,7 +147,7 @@ public class PipelineHistoryMother {
         JobHistory jobHistory = new JobHistory();
         jobHistory.addJob(stageName + "-job", JobState.Completed, JobResult.Passed, Date.from(scheduled));
         StageInstanceModel stageInstanceModel = new StageInstanceModel(stageName, stageCounter, jobHistory, stageIdentifier);
-        stageInstanceModel.setApprovedBy("changes");
+        stageInstanceModel.setApprovedBy(BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED);
         return stageInstanceModel;
     }
 

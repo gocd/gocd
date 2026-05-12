@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.jupiter.api.AfterEach;
@@ -217,7 +216,7 @@ public class PipelineServiceIntegrationTest {
         if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString("Test"))) {
             configHelper.addPipeline("Test", "dev");
         }
-        Pipeline pipeline = new Pipeline("Test", "testing-${COUNT}", BuildCause.createWithEmptyModifications(), new EnvironmentVariables());
+        Pipeline pipeline = new Pipeline("Test", "testing-${COUNT}", BuildCause.createEmpty(), new EnvironmentVariables());
         return pipelineService.save(pipeline);
     }
 
@@ -255,7 +254,7 @@ public class PipelineServiceIntegrationTest {
     }
 
     private Pipeline createPipelineWhoseLabelIsNumberAndNotSameWithCounter() {
-        Pipeline pipeline = new Pipeline("Test", "${COUNT}0", BuildCause.createWithEmptyModifications(), new EnvironmentVariables());
+        Pipeline pipeline = new Pipeline("Test", "${COUNT}0", BuildCause.createEmpty(), new EnvironmentVariables());
         pipeline.updateCounter(9);
         pipelineDao.save(pipeline);
         return pipeline;
@@ -264,7 +263,7 @@ public class PipelineServiceIntegrationTest {
     private Pipeline createPipelineWithStagesAndMods() {
         PipelineConfig config = PipelineMother.twoBuildPlansWithResourcesAndMaterials("tester", "dev");
         configHelper.addPipeline(CaseInsensitiveString.str(config.name()), CaseInsensitiveString.str(config.getFirst().name()));
-        Pipeline pipeline = instanceFactory.createPipelineInstance(config, modifySomeFiles(config), new DefaultSchedulingContext(GoConstants.DEFAULT_APPROVED_BY), "md5-test", new TimeProvider());
+        Pipeline pipeline = instanceFactory.createPipelineInstance(config, modifySomeFiles(config), new DefaultSchedulingContext(BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED), "md5-test", new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline);
         return pipeline;
     }

@@ -35,7 +35,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,9 +50,9 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import java.nio.file.Path;
 import java.util.Date;
 
+import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.server.dao.DatabaseAccessHelper.AGENT_UUID;
-import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -144,11 +143,11 @@ public class BuildRepositoryServiceIntegrationTest {
 
         Stage stage1 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(DEV_STAGE)));
         assertThat(stage1.isApproved()).isTrue();
-        assertThat(stage1.getApprovedBy()).isEqualTo(DEFAULT_APPROVED_BY);
+        assertThat(stage1.getApprovedBy()).isEqualTo(APPROVER_AUTOMATICALLY_TRIGGERED);
 
         Stage stage2 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
         assertThat(stage2.stageState()).isEqualTo(StageState.Building);
-        assertThat(stage2.getApprovedBy()).isEqualTo(DEFAULT_APPROVED_BY);
+        assertThat(stage2.getApprovedBy()).isEqualTo(APPROVER_AUTOMATICALLY_TRIGGERED);
 
         assertThat(stage1.getPipelineId()).isEqualTo(stage2.getPipelineId());
     }
@@ -235,7 +234,7 @@ public class BuildRepositoryServiceIntegrationTest {
 
         Stage stage1 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(DEV_STAGE)));
         assertThat(stage1.isApproved()).isTrue();
-        assertThat(stage1.getApprovedBy()).isEqualTo(GoConstants.DEFAULT_APPROVED_BY);
+        assertThat(stage1.getApprovedBy()).isEqualTo(BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED);
         assertThat(stage1.getJobInstances().getFirst().getResult()).isEqualTo(JobResult.Passed);
 
         Stage stage2 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
@@ -412,7 +411,7 @@ public class BuildRepositoryServiceIntegrationTest {
             }
             materialRepository.save(materialRevisions);
             Pipeline scheduledPipeline = instanceFactory.createPipelineInstance(pipeline, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS),
-                    new DefaultSchedulingContext(DEFAULT_APPROVED_BY), MD5, new TimeProvider());
+                    new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), MD5, new TimeProvider());
             pipelineService.save(scheduledPipeline);
             return scheduledPipeline;
         });
@@ -421,7 +420,7 @@ public class BuildRepositoryServiceIntegrationTest {
     @SuppressWarnings("UnusedReturnValue")
     private Stage createNewPipelineWithFirstStageFailed() {
         return transactionTemplate.execute(status -> {
-            Pipeline forcedPipeline = instanceFactory.createPipelineInstance(mingle, modifySomeFiles(mingle), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), MD5, new TimeProvider());
+            Pipeline forcedPipeline = instanceFactory.createPipelineInstance(mingle, modifySomeFiles(mingle), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), MD5, new TimeProvider());
             materialRepository.save(forcedPipeline.getBuildCause().getMaterialRevisions());
             pipelineService.save(forcedPipeline);
             Stage stage = forcedPipeline.getFirstStage();

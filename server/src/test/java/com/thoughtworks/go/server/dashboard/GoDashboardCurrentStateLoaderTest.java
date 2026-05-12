@@ -157,7 +157,7 @@ public class GoDashboardCurrentStateLoaderTest {
         assertThat(emptyPIM.getName()).isEqualTo("pipeline1");
         assertThat(emptyPIM.isPreparingToSchedule()).isFalse();
         assertThat(emptyPIM.getCounter()).isEqualTo(0);
-        assertThat(emptyPIM.getBuildCause()).isEqualTo(BuildCause.createWithEmptyModifications());
+        assertThat(emptyPIM.getBuildCause()).isEqualTo(BuildCause.createEmpty());
         assertStages(emptyPIM, "stage1");
     }
 

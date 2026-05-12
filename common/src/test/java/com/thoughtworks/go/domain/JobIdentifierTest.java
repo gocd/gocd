@@ -28,18 +28,6 @@ public class JobIdentifierTest {
     }
 
     @Test
-    public void shouldReturnPropertyLocatorUsingLabel() {
-        JobIdentifier id = new JobIdentifier("cruise", -1, "1.0.1234", "dev", "1", "linux-firefox-1", 100L);
-        assertThat(id.propertyLocator("test-duration")).isEqualTo("cruise/1.0.1234/dev/1/linux-firefox-1/test-duration");
-    }
-
-    @Test
-    public void shouldReturnPropertyLocatorUsingPipelineCounter() {
-        JobIdentifier id = new JobIdentifier("cruise", 1234, "1.0.1234", "dev", "1", "linux-firefox-1", 100L);
-        assertThat(id.propertyLocator("test-duration")).isEqualTo("cruise/1234/dev/1/linux-firefox-1/test-duration");
-    }
-
-    @Test
     public void shouldReturnArtifactLocatorUsingLabel() {
         JobIdentifier id = new JobIdentifier("cruise", -2, "1.0.1234", "dev", "1", "linux-firefox-1", 100L);
         assertThat(id.artifactLocator("consoleoutput/log.xml")).isEqualTo("cruise/1.0.1234/dev/1/linux-firefox-1/consoleoutput/log.xml");

@@ -178,10 +178,6 @@ public class JobIdentifier implements Serializable, LocatableEntity {
         return getStageIdentifier().stageLocatorForDisplay() + "/" + buildName;
     }
 
-    public String propertyLocator(String propertyName) {
-        return UriEncodingUtil.encodePathPartial(stageLocator() + "/" + buildName + "/" + propertyName);
-    }
-
     public String artifactLocator(String filePath) {
         //TODO: we should make sure data is valid at the beginning instead of fixing it here
         if (filePath.startsWith("/")) {
@@ -213,12 +209,6 @@ public class JobIdentifier implements Serializable, LocatableEntity {
 
     public void setPipelineCounter(int pipelineCounter) {
         this.pipelineCounter = pipelineCounter;
-    }
-
-    public boolean isSameStageConfig(JobIdentifier other) {
-        return getPipelineName().equalsIgnoreCase(other.getPipelineName())
-                && getStageName().equalsIgnoreCase(other.getStageName());
-
     }
 
     public void populateEnvironmentVariables(EnvironmentVariableContext environmentVariableContext) {

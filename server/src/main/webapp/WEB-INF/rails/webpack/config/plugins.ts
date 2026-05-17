@@ -28,7 +28,7 @@ import {WebpackAssetsManifest} from "webpack-assets-manifest";
 import {ConfigOptions, getEntries} from "./variables";
 import {LicensePlugins} from "./webpack-license-plugin";
 
-const jasmineCore           = require("jasmine-core");
+const jasmineCore = require("jasmine-core");
 
 export function plugins(configOptions: ConfigOptions): WebpackPluginInstance[] {
   const plugins: WebpackPluginInstance[] = [
@@ -36,32 +36,42 @@ export function plugins(configOptions: ConfigOptions): WebpackPluginInstance[] {
       extensions: ["js", "msx"],
       exclude: ["node_modules", "webpack/gen"],
       failOnWarning: !configOptions.watch,
-      failOnError: !configOptions.watch
+      failOnError: !configOptions.watch,
+      cache: true,
+      cacheLocation: path.join(configOptions.cacheDir, "eslint-webpack-plugin"),
     }),
-    new StylelintPlugin({configFile: path.join(configOptions.railsRoot, ".stylelintrc.yml"), files: configOptions.assetsDir, failOnWarning: true}),
+    new StylelintPlugin({
+      configFile: path.join(configOptions.railsRoot, ".stylelintrc.yml"),
+      files: configOptions.assetsDir,
+      failOnWarning: true,
+      cache: true,
+      cacheLocation: path.join(configOptions.cacheDir, "stylelint-webpack-plugin"),
+    }),
     new WebpackAssetsManifest({
       output: "manifest.json",
       entrypoints: true,
       writeToDisk: true,
       publicPath: true,
     }),
-    new ProvidePlugin({
-                                "$": "jquery",
-                                "jQuery": "jquery",
-                                "window.jQuery": "jquery"
-                              }),
+    new ProvidePlugin(
+      {
+        "$": "jquery",
+        "jQuery": "jquery",
+        "window.jQuery": "jquery"
+      }),
     new LicensePlugins(configOptions.licenseReportFile),
     new ForkTsCheckerWebpackPlugin({
-      typescript: { memoryLimit: 800, diagnosticOptions: { semantic: true, syntactic: true } }
+      typescript: {memoryLimit: 800, diagnosticOptions: {semantic: true, syntactic: true}}
     })
   ];
 
   if (configOptions.production) {
-    plugins.push(new MiniCssExtractPlugin({
-                                            filename: "[name]-[contenthash].css",
-                                            chunkFilename: "[id]-[contenthash].css",
-                                            ignoreOrder: true
-                                          }));
+    plugins.push(new MiniCssExtractPlugin(
+      {
+        filename: "[name]-[contenthash].css",
+        chunkFilename: "[id]-[contenthash].css",
+        ignoreOrder: true
+      }));
   } else {
     const jasmineFiles = jasmineCore.files;
 
@@ -83,40 +93,41 @@ export function plugins(configOptions: ConfigOptions): WebpackPluginInstance[] {
 
     class JasmineAssetsPlugin {
       apply(compiler: Compiler) {
-        compiler.hooks.emit.tapAsync("JasmineAssetsPlugin",
-                                     (compilation, callback) => {
-                                       const allJasmineAssets = jasmineFiles.jsFiles.concat(jasmineFiles.bootFiles)
-                                                                            .concat(jasmineFiles.cssFiles);
+        compiler.hooks.emit.tapAsync(
+          "JasmineAssetsPlugin",
+          (compilation, callback) => {
+            const allJasmineAssets = jasmineFiles.jsFiles.concat(jasmineFiles.bootFiles)
+              .concat(jasmineFiles.cssFiles);
 
-                                       _.each(allJasmineAssets, (asset) => {
-                                         const file = path.join(jasmineFiles.path, asset);
+            _.each(allJasmineAssets, (asset) => {
+              const file = path.join(jasmineFiles.path, asset);
 
-                                         const contents = fs.readFileSync(file).toString();
+              const contents = fs.readFileSync(file).toString();
 
-                                         compilation.assets[`__jasmine/${asset}`] = {
-                                           source() {
-                                             return contents;
-                                           },
-                                           size() {
-                                             return contents.length;
-                                           },
-                                           map() {
-                                             return null;
-                                           },
-                                           sourceAndMap() {
-                                             return {source: contents, map: null };
-                                           },
-                                           updateHash() {
-                                             // no-op
-                                           },
-                                           buffer() {
-                                             return Buffer.from(contents, "utf8");
-                                           }
-                                         };
-                                       });
+              compilation.assets[`__jasmine/${asset}`] = {
+                source() {
+                  return contents;
+                },
+                size() {
+                  return contents.length;
+                },
+                map() {
+                  return null;
+                },
+                sourceAndMap() {
+                  return {source: contents, map: null};
+                },
+                updateHash() {
+                  // no-op
+                },
+                buffer() {
+                  return Buffer.from(contents, "utf8");
+                }
+              };
+            });
 
-                                       callback();
-                                     });
+            callback();
+          });
       }
     }
 

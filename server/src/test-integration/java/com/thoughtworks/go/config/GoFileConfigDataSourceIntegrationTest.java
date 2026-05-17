@@ -248,7 +248,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         assertThat(firstRev.getUsername()).isEqualTo("loser");
         assertThat(firstRev.getGoVersion()).isEqualTo(CurrentGoCDVersion.getInstance().formatted());
         assertThat(firstRev.getMd5()).isEqualTo(expectedMd5);
-        assertThat(firstRev.getSchemaVersion()).isEqualTo(GoConstants.CONFIG_SCHEMA_VERSION);
+        assertThat(firstRev.getSchemaVersion()).isEqualTo(GoConfigSchema.VERSION);
         assertThat(ConfigMigrator.load(firstRev.getContent())).isEqualTo(afterFirstSave.configForEdit);
 
         CruiseConfig config = afterSecondSave.config;
@@ -259,7 +259,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         assertThat(secondRev.getGoVersion()).isEqualTo(CurrentGoCDVersion.getInstance().formatted());
         assertThat(secondRev.getMd5()).isEqualTo(expectedMd5);
         assertTrue(secondRev.getTime().after(firstRev.getTime()));
-        assertThat(secondRev.getSchemaVersion()).isEqualTo(GoConstants.CONFIG_SCHEMA_VERSION);
+        assertThat(secondRev.getSchemaVersion()).isEqualTo(GoConfigSchema.VERSION);
         assertThat(ConfigMigrator.load(secondRev.getContent())).isEqualTo(afterSecondSave.configForEdit);
     }
 
@@ -313,7 +313,7 @@ public class GoFileConfigDataSourceIntegrationTest {
                 </jobs>
               </stage>
             </pipeline>
-            """, "hello"), GoConstants.CONFIG_SCHEMA_VERSION);
+            """, "hello"), GoConfigSchema.VERSION);
         Files.writeString(dataSource.location(), configContent, UTF_8);
 
         GoConfigHolder configHolder = dataSource.load();
@@ -337,7 +337,7 @@ public class GoFileConfigDataSourceIntegrationTest {
                 </jobs>
               </stage>
             </pipeline>
-            """, GoConstants.CONFIG_SCHEMA_VERSION);
+            """, GoConfigSchema.VERSION);
         Files.writeString(dataSource.location(), configContent, UTF_8);
 
         GoConfigHolder configHolder = dataSource.load();

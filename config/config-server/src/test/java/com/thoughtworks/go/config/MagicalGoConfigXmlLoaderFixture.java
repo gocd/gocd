@@ -18,7 +18,6 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.GoConstants;
 import org.jdom2.JDOMException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,7 +64,7 @@ public class MagicalGoConfigXmlLoaderFixture {
                         </pipeline>
                         </pipelines>
                         </cruise>
-                        """.formatted(GoConstants.CONFIG_SCHEMA_VERSION, materials);
+                        """.formatted(GoConfigSchema.VERSION, materials);
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(pipelineXmlPartial).config;
         return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline")).materialConfigs();
     }

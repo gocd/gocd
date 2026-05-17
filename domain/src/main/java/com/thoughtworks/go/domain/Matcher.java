@@ -25,10 +25,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.thoughtworks.go.util.SupplierUtils.memoize;
 import static org.apache.commons.lang3.StringUtils.split;
 
 public class Matcher {
@@ -38,8 +40,7 @@ public class Matcher {
 
     @NotNull
     private final String matcherPattern;
-
-    private List<Pattern> patterns;
+    private final Supplier<List<Pattern>> patterns = memoize(this::compilePatterns);
 
     public Matcher(String matcherPattern) {
         this.matcherPattern = normalize(matcherPattern);
@@ -48,7 +49,7 @@ public class Matcher {
     public static String normalize(@Nullable String matcherPattern) {
         return matcherPattern == null || matcherPattern.isBlank()
             ? ""
-            : matchersFrom(matcherPattern).collect(Collectors.joining(SEPARATOR + ""));
+            : matchersFrom(matcherPattern).collect(Collectors.joining(String.valueOf(SEPARATOR)));
     }
 
     private static @NotNull Stream<String> matchersFrom(@NotNull String matcherPattern) {
@@ -93,20 +94,17 @@ public class Matcher {
         }
     }
 
-    public boolean matches(String comment) {
-        compilePatternsIfNecessary();
-        return patterns.stream().anyMatch(pattern -> pattern.matcher(comment).find());
+    public boolean matches(@Nullable String value) {
+        return value != null && patterns.get().stream().anyMatch(pattern -> pattern.matcher(value).find());
     }
 
-    private void compilePatternsIfNecessary() {
-        if (patterns == null) {
-            patterns = escapedMatchers()
-                .map(matcher -> Pattern.compile(String.join(matcher, "\\b", "\\b|\\B", "\\B")))
-                .collect(Collectors.toList());
-        }
+    private List<Pattern> compilePatterns() {
+        return escapedStringMatchers()
+            .map(matcher -> Pattern.compile(String.join(matcher, "\\b", "\\b|\\B", "\\B")))
+            .toList();
     }
 
-    private Stream<String> escapedMatchers() {
+    private Stream<String> escapedStringMatchers() {
         return matchersFrom(matcherPattern).map(matcher -> StringUtils.replaceEach(matcher, SPECIAL_CHARS, SPECIAL_CHAR_REPLACEMENTS));
     }
 }

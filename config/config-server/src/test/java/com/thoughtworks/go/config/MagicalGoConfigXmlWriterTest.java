@@ -59,7 +59,6 @@ import java.util.Map;
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs;
-import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -209,7 +208,7 @@ public class MagicalGoConfigXmlWriterTest {
               </pipeline>
             </templates>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).configForEdit;
         xmlWriter.write(config, output, false);
         assertThat(output.toString().replaceAll("\\s+", " ")).contains("""
@@ -341,7 +340,7 @@ public class MagicalGoConfigXmlWriterTest {
               </pipeline>
             </templates>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).configForEdit;
         xmlWriter.write(config, output, false);
         assertThat(output.toString().replaceAll("\\s+", " ")).contains(
@@ -404,7 +403,7 @@ public class MagicalGoConfigXmlWriterTest {
             <stage name='stage'><jobs><job name='job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job></jobs></stage>
             </pipeline>
             </pipelines>
-            """, CONFIG_SCHEMA_VERSION);
+            """, GoConfigSchema.VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         xmlWriter.write(cruiseConfig, out, false);
@@ -439,7 +438,7 @@ public class MagicalGoConfigXmlWriterTest {
             </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework"));
@@ -478,7 +477,7 @@ public class MagicalGoConfigXmlWriterTest {
             </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         StageConfig stageConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework")).getFirst();
@@ -512,7 +511,7 @@ public class MagicalGoConfigXmlWriterTest {
             </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         xmlWriter.write(cruiseConfig, out, false);
@@ -547,7 +546,7 @@ public class MagicalGoConfigXmlWriterTest {
             </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         StageConfig stageConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework")).getFirst();

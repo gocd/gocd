@@ -83,7 +83,6 @@ import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.*;
 
@@ -468,7 +467,7 @@ public class CachedGoConfigIntegrationTest {
               </pipeline>
             </templates>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         configHelper.writeXmlToConfigFile(content);
 
@@ -519,7 +518,7 @@ public class CachedGoConfigIntegrationTest {
             </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         configHelper.writeXmlToConfigFile(content);
 
@@ -559,7 +558,7 @@ public class CachedGoConfigIntegrationTest {
             </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         configHelper.writeXmlToConfigFile(content);
 
@@ -602,7 +601,7 @@ public class CachedGoConfigIntegrationTest {
             </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         configHelper.writeXmlToConfigFile(content);
 
@@ -754,7 +753,7 @@ public class CachedGoConfigIntegrationTest {
                 </pipeline>
               </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION, pipelineName);
+            """.formatted(GoConfigSchema.VERSION, pipelineName);
     }
 
     @Test

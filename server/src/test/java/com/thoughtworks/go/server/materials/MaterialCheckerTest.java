@@ -75,7 +75,7 @@ public class MaterialCheckerTest {
     public void shouldUseLatestPipelineInstanceForDependentPipelineGivenThePreviousRevision() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
 
-        Stage passedStage = StageMother.passedStageInstance("stage-name", "job-name", "pipeline-name");
+        Stage passedStage = StageMother.passedStageInstance("pipeline-name", "stage-name", "job-name");
         MaterialRevisions materialRevisions = new MaterialRevisions();
         Modification previous = new Modification("Unknown", "Unknown", null, passedStage.completedDate(), "pipeline-name/1/stage-name/0");
         MaterialRevision previousRevision = revisions(dependencyMaterial, previous).getMaterialRevision(0);
@@ -89,7 +89,7 @@ public class MaterialCheckerTest {
     @Test
     public void shouldUseLatestPipelineInstanceForDependentPipeline() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
-        Stage passedStage = StageMother.passedStageInstance("stage-name", "job-name", "pipeline-name");
+        Stage passedStage = StageMother.passedStageInstance("pipeline-name", "stage-name", "job-name");
         Modification modification = new Modification("Unknown", "Unknown", null, passedStage.completedDate(), "pipeline-name/1[LABEL-1]/stage-name/0");
 
         when(materialRepository.findLatestModification(dependencyMaterial)).thenReturn(revisions(dependencyMaterial, modification));
@@ -103,7 +103,7 @@ public class MaterialCheckerTest {
     public void shouldSkipLatestRevisionsForMaterialsThatWereAlreadyChecked() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
         SvnMaterial svnMaterial = new SvnMaterial("svnUrl", null, null, false);
-        Stage passedStage = StageMother.passedStageInstance("stage-name", "job-name", "pipeline-name");
+        Stage passedStage = StageMother.passedStageInstance("pipeline-name", "stage-name", "job-name");
 
         Modification dependencyModification = new Modification("Unknown", "Unknown", null, passedStage.completedDate(), "pipeline-name/1[LABEL-1]/stage-name/0");
         Modification svnModification = new Modification("user", "commend", "em@il", new Date(), "1");
@@ -119,7 +119,7 @@ public class MaterialCheckerTest {
     @Test
     public void shouldFindSpecificRevisionForDependentPipeline() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
-        Stage passedStage = StageMother.passedStageInstance("stage-name", "job-name", "pipeline-name");
+        Stage passedStage = StageMother.passedStageInstance("pipeline-name", "stage-name", "job-name");
         Modification modification = new Modification("Unknown", "Unknown", null, passedStage.completedDate(), "pipeline-name/1/stage-name/0");
 
         when(materialRepository.findModificationWithRevision(dependencyMaterial, "pipeline-name/1/stage-name/0")).thenReturn(modification);
@@ -159,7 +159,7 @@ public class MaterialCheckerTest {
     public void shouldSkipFindingRevisionsSinceForMaterialsThatWereAlreadyChecked() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
         SvnMaterial svnMaterial = new SvnMaterial("svnUrl", null, null, false);
-        Stage passedStage = StageMother.passedStageInstance("stage-name", "job-name", "pipeline-name");
+        Stage passedStage = StageMother.passedStageInstance("pipeline-name", "stage-name", "job-name");
 
         MaterialRevision previousDependantRevision = new MaterialRevision(dependencyMaterial, new Modification("Unknown", "Unknown", null, passedStage.completedDate(), "pipeline-name/1[LABEL-1]/stage-name/0"));
         Modification dependencyModification = new Modification("Unknown", "Unknown", null, passedStage.completedDate(), "pipeline-name/2[LABEL-2]/stage-name/0");
@@ -180,7 +180,7 @@ public class MaterialCheckerTest {
     public void shouldUseLatestMaterialDuringCreationOfNewRevisionsSince_bug7486() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
         PackageMaterial oldPkgMaterial = MaterialsMother.packageMaterial("repo-id", "repo-old-name", "pkg-id", "pkg-old-name", ConfigurationPropertyMother.create("key", false, "value"));
-        Stage passedStage = StageMother.passedStageInstance("stage-name", "job-name", "pipeline-name");
+        Stage passedStage = StageMother.passedStageInstance("pipeline-name", "stage-name", "job-name");
 
         MaterialRevision previousDependantRevision = new MaterialRevision(dependencyMaterial, new Modification("Unknown", "Unknown", null, passedStage.completedDate(), "pipeline-name/1[LABEL-1]/stage-name/0"));
         Modification dependencyModification = new Modification("Unknown", "Unknown", null, passedStage.completedDate(), "pipeline-name/2[LABEL-2]/stage-name/0");

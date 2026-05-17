@@ -274,7 +274,7 @@ public class ServerConfig implements Validatable {
 
     public ServerSiteUrlConfig getHttpsUrl() {
         ServerSiteUrlConfig siteUrlPreferSecured = getSiteUrlPreferablySecured();
-        return siteUrlPreferSecured.isAHttpsUrl() ? siteUrlPreferSecured : new SecureSiteUrl();
+        return siteUrlPreferSecured.isHttps() ? siteUrlPreferSecured : new SecureSiteUrl();
     }
 
     public boolean hasAnyUrlConfigured() {

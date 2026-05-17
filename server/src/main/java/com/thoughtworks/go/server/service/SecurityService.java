@@ -165,10 +165,6 @@ public class SecurityService {
                 hasOperatePermissionForPipeline(username.getUsername(), pipelineName);
     }
 
-    public String casServiceBaseUrl() {
-        return goConfigService.serverConfig().getSiteUrlPreferablySecured().getUrl();
-    }
-
     public List<CaseInsensitiveString> viewablePipelinesFor(Username username) {
         List<CaseInsensitiveString> pipelines = new ArrayList<>();
         for (String group : goConfigService.allGroupNames()) {
@@ -212,10 +208,8 @@ public class SecurityService {
         return goConfigService.cruiseConfig().isAuthorizedToViewTemplates(username.getUsername());
     }
 
-    //todo: needs refactoring use AbstractAuthenticationHelper.doesUserHasPermissions
-    //a specific method to check whether a user has permission to access agent status report has been added
     public boolean doesUserHasPermissions(Username username, SupportedAction action, SupportedEntity entity, String resource, String resourceToOperateWithin) {
-        if (this.isUserAdmin(username)) {
+        if (isUserAdmin(username)) {
             return true;
         }
 

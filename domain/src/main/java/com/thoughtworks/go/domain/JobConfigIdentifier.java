@@ -34,31 +34,6 @@ public class JobConfigIdentifier {
         this(pipelineName.toString(), stageName.toString(), jobName.toString());
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        JobConfigIdentifier that = (JobConfigIdentifier) o;
-
-        return Objects.equals(jobName, that.jobName) &&
-            Objects.equals(pipelineName, that.pipelineName) &&
-            Objects.equals(stageName, that.stageName);
-    }
-
-    @Override
-    public int hashCode() {
-        int result;
-        result = pipelineName != null ? pipelineName.hashCode() : 0;
-        result = 31 * result + (stageName != null ? stageName.hashCode() : 0);
-        result = 31 * result + (jobName != null ? jobName.hashCode() : 0);
-        return result;
-    }
-
     public String getPipelineName() {
         return pipelineName;
     }
@@ -71,7 +46,24 @@ public class JobConfigIdentifier {
         return jobName;
     }
 
-    @Override public String toString() {
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        JobConfigIdentifier that = (JobConfigIdentifier) o;
+        return Objects.equals(pipelineName, that.pipelineName) &&
+            Objects.equals(stageName, that.stageName) &&
+            Objects.equals(jobName, that.jobName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pipelineName, stageName, jobName);
+    }
+
+    @Override
+    public String toString() {
         return "JobConfigIdentifier[" + pipelineName + ":" + stageName + ":" + jobName + "]";
     }
 }

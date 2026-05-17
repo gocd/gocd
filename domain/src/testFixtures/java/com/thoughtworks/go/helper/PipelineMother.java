@@ -50,7 +50,7 @@ public class PipelineMother {
     }
 
     public static Pipeline passedPipelineInstance(String pipelineName, String stageName, String buildName) {
-        return pipeline(pipelineName, StageMother.passedStageInstance(stageName, buildName, pipelineName));
+        return pipeline(pipelineName, StageMother.passedStageInstance(pipelineName, stageName, buildName));
     }
 
     public static Pipeline pipeline(String pipelineName, Stage... stages) {
@@ -68,7 +68,7 @@ public class PipelineMother {
         PluggableSCMMaterial pluggableSCMMaterial = MaterialsMother.pluggableSCMMaterial();
         Materials materials = new Materials(gitMaterial, hgMaterial, svnMaterial, tfsMaterial, p4Material, dependencyMaterial, packageMaterial, pluggableSCMMaterial);
 
-        return new Pipeline(pipelineName, BuildCause.createWithModifications(ModificationsMother.modifyOneFile(materials, fixedMaterialRevisionForAllMaterials), ""), StageMother.passedStageInstance(stageName, jobName, pipelineName));
+        return new Pipeline(pipelineName, BuildCause.createWithModifications(ModificationsMother.modifyOneFile(materials, fixedMaterialRevisionForAllMaterials), ""), StageMother.passedStageInstance(pipelineName, stageName, jobName));
     }
 
     public static Pipeline schedule(PipelineConfig pipelineConfig, BuildCause cause) {

@@ -598,7 +598,7 @@ public class StageSqlMapDaoIntegrationTest {
     public void findStageHistoryPage_shouldCacheStageHistoryPage() {
         SqlMapClientTemplate mockTemplate = mock(SqlMapClientTemplate.class);
 
-        Stage stage = StageMother.passedStageInstance("dev", "java", "pipeline-name");
+        Stage stage = StageMother.passedStageInstance("pipeline-name", "dev", "java");
         stage.setApprovedBy("admin");
 
         stageDao.setSqlMapClientTemplate(mockTemplate);
@@ -1220,8 +1220,8 @@ public class StageSqlMapDaoIntegrationTest {
         SqlMapClientTemplate mockTemplate = mock(SqlMapClientTemplate.class);
         stageDao.setSqlMapClientTemplate(mockTemplate);
 
-        Stage stage1 = StageMother.passedStageInstance("first", "job", "pipeline");
-        Stage stage2 = StageMother.passedStageInstance("second", "job", "pipeline");
+        Stage stage1 = StageMother.passedStageInstance("pipeline", "first", "job");
+        Stage stage2 = StageMother.passedStageInstance("pipeline", "second", "job");
         List<Stage> stages = List.of(stage1, stage2);
         doReturn(stages).when(mockTemplate).queryForList("getStagesByPipelineNameAndCounter", Map.of("pipelineName", "pipeline", "pipelineCounter", 1));
 
@@ -1238,8 +1238,8 @@ public class StageSqlMapDaoIntegrationTest {
         SqlMapClientTemplate mockTemplate = mock(SqlMapClientTemplate.class);
         stageDao.setSqlMapClientTemplate(mockTemplate);
 
-        Stage stage1 = StageMother.passedStageInstance("first", "job", "pipeline");
-        Stage stage2 = StageMother.passedStageInstance("second", "job", "pipeline");
+        Stage stage1 = StageMother.passedStageInstance("pipeline", "first", "job");
+        Stage stage2 = StageMother.passedStageInstance("pipeline", "second", "job");
         List<Stage> stages = List.of(stage1, stage2);
         doReturn(stages).when(mockTemplate).queryForList("getStagesByPipelineNameAndCounter", Map.of("pipelineName", "pipeline", "pipelineCounter", 1));
 
@@ -1259,8 +1259,8 @@ public class StageSqlMapDaoIntegrationTest {
         SqlMapClientTemplate mockTemplate = mock(SqlMapClientTemplate.class);
         stageDao.setSqlMapClientTemplate(mockTemplate);
 
-        Stage stage1 = StageMother.passedStageInstance("first", "job", "pipeline");
-        Stage stage2 = StageMother.passedStageInstance("second", "job", "pipeline");
+        Stage stage1 = StageMother.passedStageInstance("pipeline", "first", "job");
+        Stage stage2 = StageMother.passedStageInstance("pipeline", "second", "job");
         List<Stage> stages = List.of(stage1, stage2);
         doReturn(stages).when(mockTemplate).queryForList("getStagesByPipelineNameAndCounter", Map.of("pipelineName", "pipeline", "pipelineCounter", 1));
 
@@ -1323,7 +1323,7 @@ public class StageSqlMapDaoIntegrationTest {
     public void findStageHistoryPage_shouldReturnStageHistoryEntryWithConfigVersion() {
         SqlMapClientTemplate mockTemplate = mock(SqlMapClientTemplate.class);
 
-        Stage stage = StageMother.passedStageInstance("dev", "java", "pipeline-name");
+        Stage stage = StageMother.passedStageInstance("pipeline-name", "dev", "java");
         stage.setApprovedBy("admin");
         stage.setConfigVersion("md5-test");
 

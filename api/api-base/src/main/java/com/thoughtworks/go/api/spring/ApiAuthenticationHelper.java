@@ -45,7 +45,7 @@ public class ApiAuthenticationHelper extends AbstractAuthenticationHelper {
         return HaltApiResponses.haltBecauseForbidden(message);
     }
 
-    public void ensureSecurityEnabled(Request request, Response response) {
+    public void ensureSecurityEnabled(@SuppressWarnings("unused") Request request, @SuppressWarnings("unused") Response response) {
         if (!securityService.isSecurityEnabled()) {
             throw HaltApiResponses.haltBecauseSecurityIsNotEnabled();
         }

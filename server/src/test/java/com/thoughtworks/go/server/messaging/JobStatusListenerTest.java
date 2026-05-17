@@ -70,7 +70,7 @@ class JobStatusListenerTest {
     @Test
     void shouldDeleteJobPlanAssociatedEntitiesOnJobCompletion() {
         JobInstance jobInstance = JobInstanceMother.completed(jobIdentifier.getBuildName());
-        Stage stage = StageMother.passedStageInstance(jobIdentifier.getStageName(), jobIdentifier.getBuildName(), jobIdentifier.getPipelineName());
+        Stage stage = StageMother.passedStageInstance(jobIdentifier.getPipelineName(), jobIdentifier.getStageName(), jobIdentifier.getBuildName());
         stage.setJobInstances(new JobInstances(jobInstance));
         JobStatusMessage jobStatusMessage = new JobStatusMessage(jobIdentifier, JobState.Completed, "agent1");
         when(stageService.findStageWithIdentifier(jobStatusMessage.getStageIdentifier())).thenReturn(stage);
@@ -85,7 +85,7 @@ class JobStatusListenerTest {
         JobInstance jobInstance = JobInstanceMother.completed(jobIdentifier.getBuildName());
         jobInstance.setState(JobState.Rescheduled);
         when(jobInstanceService.buildByIdWithTransitions(anyLong())).thenReturn(jobInstance);
-        Stage stage = StageMother.passedStageInstance(jobIdentifier.getStageName(), jobIdentifier.getBuildName(), jobIdentifier.getPipelineName());
+        Stage stage = StageMother.passedStageInstance(jobIdentifier.getPipelineName(), jobIdentifier.getStageName(), jobIdentifier.getBuildName());
         stage.setJobInstances(new JobInstances(jobInstance));
         JobStatusMessage jobStatusMessage = new JobStatusMessage(jobIdentifier, JobState.Completed, "agent1");
 
@@ -97,7 +97,7 @@ class JobStatusListenerTest {
     @Test
     void shouldNotDeleteJobPlanAssociatedEntitiesWhenJobIsStillInProgress() {
         JobInstance jobInstance = JobInstanceMother.completed(jobIdentifier.getBuildName());
-        Stage stage = StageMother.passedStageInstance(jobIdentifier.getStageName(), jobIdentifier.getBuildName(), jobIdentifier.getPipelineName());
+        Stage stage = StageMother.passedStageInstance(jobIdentifier.getPipelineName(), jobIdentifier.getStageName(), jobIdentifier.getBuildName());
         stage.setJobInstances(new JobInstances(jobInstance));
         JobStatusMessage jobStatusMessage = new JobStatusMessage(jobIdentifier, JobState.Building, "agent1");
 
@@ -109,7 +109,7 @@ class JobStatusListenerTest {
     @Test
     void shouldPostAStageStatusChangeMessageWhenStageIsCompletedBecauseOfJobCompletion() {
         JobInstance jobInstance = JobInstanceMother.completed(jobIdentifier.getBuildName());
-        Stage stage = StageMother.passedStageInstance(jobIdentifier.getStageName(), jobIdentifier.getBuildName(), jobIdentifier.getPipelineName());
+        Stage stage = StageMother.passedStageInstance(jobIdentifier.getPipelineName(), jobIdentifier.getStageName(), jobIdentifier.getBuildName());
         stage.setJobInstances(new JobInstances(jobInstance));
         JobStatusMessage jobStatusMessage = new JobStatusMessage(jobIdentifier, JobState.Completed, "agent1");
         when(stageService.findStageWithIdentifier(jobStatusMessage.getStageIdentifier())).thenReturn(stage);
@@ -122,7 +122,7 @@ class JobStatusListenerTest {
     @Test
     void shouldNotPostAStageStatusChangeMessageWhenJobIsInProgress() {
         JobInstance jobInstance = JobInstanceMother.completed(jobIdentifier.getBuildName());
-        Stage stage = StageMother.passedStageInstance(jobIdentifier.getStageName(), jobIdentifier.getBuildName(), jobIdentifier.getPipelineName());
+        Stage stage = StageMother.passedStageInstance(jobIdentifier.getPipelineName(), jobIdentifier.getStageName(), jobIdentifier.getBuildName());
         stage.setJobInstances(new JobInstances(jobInstance));
         JobStatusMessage jobStatusMessage = new JobStatusMessage(jobIdentifier, JobState.Building, "agent1");
 
@@ -147,7 +147,7 @@ class JobStatusListenerTest {
     @Test
     void shouldPostAMessageToElasticAgentPluginServiceOnJobCompletion() {
         JobInstance jobInstance = JobInstanceMother.completed(jobIdentifier.getBuildName());
-        Stage stage = StageMother.passedStageInstance(jobIdentifier.getStageName(), jobIdentifier.getBuildName(), jobIdentifier.getPipelineName());
+        Stage stage = StageMother.passedStageInstance(jobIdentifier.getPipelineName(), jobIdentifier.getStageName(), jobIdentifier.getBuildName());
         stage.setJobInstances(new JobInstances(jobInstance));
         JobStatusMessage jobStatusMessage = new JobStatusMessage(jobIdentifier, JobState.Completed, "agent1");
         when(stageService.findStageWithIdentifier(jobStatusMessage.getStageIdentifier())).thenReturn(stage);
@@ -161,7 +161,7 @@ class JobStatusListenerTest {
     void shouldPostAMessageToElasticAgentPluginServiceWithAgentUuidFromJobStatusMessageWhenAgentIsNotAssignedToAJob() {
         JobInstance originalJobInstance = JobInstanceMother.failed(jobIdentifier.getBuildName());
         originalJobInstance.setAgentUuid(null);
-        Stage stage = StageMother.passedStageInstance(jobIdentifier.getStageName(), jobIdentifier.getBuildName(), jobIdentifier.getPipelineName());
+        Stage stage = StageMother.passedStageInstance(jobIdentifier.getPipelineName(), jobIdentifier.getStageName(), jobIdentifier.getBuildName());
         stage.setJobInstances(new JobInstances(originalJobInstance.clone()));
         JobStatusMessage jobStatusMessage = new JobStatusMessage(jobIdentifier, JobState.Completed, "agent1");
 
@@ -179,7 +179,7 @@ class JobStatusListenerTest {
     @Test
     void shouldNotPostAMessageToElasticAgentPluginServiceOnJobIsStillInProgress() {
         JobInstance jobInstance = JobInstanceMother.completed(jobIdentifier.getBuildName());
-        Stage stage = StageMother.passedStageInstance(jobIdentifier.getStageName(), jobIdentifier.getBuildName(), jobIdentifier.getPipelineName());
+        Stage stage = StageMother.passedStageInstance(jobIdentifier.getPipelineName(), jobIdentifier.getStageName(), jobIdentifier.getBuildName());
         stage.setJobInstances(new JobInstances(jobInstance));
         JobStatusMessage jobStatusMessage = new JobStatusMessage(jobIdentifier, JobState.Building, "agent1");
 
@@ -191,7 +191,7 @@ class JobStatusListenerTest {
     @Test
     void shouldPopulateJobInstanceWithJobPlan() {
         JobInstance jobInstance = JobInstanceMother.completed(jobIdentifier.getBuildName());
-        Stage stage = StageMother.passedStageInstance(jobIdentifier.getStageName(), jobIdentifier.getBuildName(), jobIdentifier.getPipelineName());
+        Stage stage = StageMother.passedStageInstance(jobIdentifier.getPipelineName(), jobIdentifier.getStageName(), jobIdentifier.getBuildName());
         stage.setJobInstances(new JobInstances(jobInstance));
         JobStatusMessage jobStatusMessage = new JobStatusMessage(jobIdentifier, JobState.Completed, "agent1");
         when(stageService.findStageWithIdentifier(jobStatusMessage.getStageIdentifier())).thenReturn(stage);

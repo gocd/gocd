@@ -65,7 +65,6 @@ import java.util.List;
 
 import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -108,7 +107,7 @@ public class GoConfigMigratorIntegrationTest {
     public void setUp(@TempDir File temporaryFolder, ResetCipher resetCipher) throws Exception {
         dbHelper.onSetUp();
         configFile = new File(temporaryFolder, "cruise-config.xml").toPath();
-        new SystemEnvironment().setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, configFile.toAbsolutePath().toString());
+        systemEnvironment.setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, configFile.toAbsolutePath().toString());
         GoConfigFileHelper.clearConfigVersions();
         configRepository = new ConfigRepository(systemEnvironment);
         configRepository.initialize();
@@ -138,7 +137,7 @@ public class GoConfigMigratorIntegrationTest {
         goFileConfigDataSource.forceLoad(configFile);
 
         CruiseConfig cruiseConfig = loadConfigFileWithContent(config);
-        assertThat(cruiseConfig.schemaVersion()).isEqualTo(CONFIG_SCHEMA_VERSION);
+        assertThat(cruiseConfig.schemaVersion()).isEqualTo(GoConfigSchema.VERSION);
         assertThat(configRepository.getRevision(ConfigRepository.CURRENT).getUsername()).isNotEqualTo("Upgrade");
     }
 
@@ -151,7 +150,7 @@ public class GoConfigMigratorIntegrationTest {
                  <pipeline name='does_not_exist'/>
                 </pipelines>
                 </environment>
-                </environments>""", CONFIG_SCHEMA_VERSION);
+                </environments>""", GoConfigSchema.VERSION);
         try {
             loadConfigFileWithContent(configString);
             fail("Should not upgrade invalid config file");
@@ -163,7 +162,7 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldUpgradeCruiseConfigFileIfVersionDoesNotMatch() throws Exception {
         CruiseConfig cruiseConfig = loadConfigFileWithContent(ConfigFileFixture.OLD);
-        assertThat(cruiseConfig.schemaVersion()).isEqualTo(CONFIG_SCHEMA_VERSION);
+        assertThat(cruiseConfig.schemaVersion()).isEqualTo(GoConfigSchema.VERSION);
     }
 
     @Test
@@ -238,7 +237,7 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldMigrateRevision5ToTheLatest() throws Exception {
         CruiseConfig cruiseConfig = loadConfigFileWithContent(ConfigFileFixture.VERSION_5);
-        assertThat(cruiseConfig.schemaVersion()).isEqualTo(CONFIG_SCHEMA_VERSION);
+        assertThat(cruiseConfig.schemaVersion()).isEqualTo(GoConfigSchema.VERSION);
     }
 
     @Test
@@ -311,8 +310,9 @@ public class GoConfigMigratorIntegrationTest {
 
         goConfigMigrator.migrate();
 
-        assertThat(Files.readString(configFile, UTF_8)).contains("encryptedPassword=");
-        assertThat(Files.readString(configFile, UTF_8)).doesNotContain("password=");
+        String content = Files.readString(configFile, UTF_8);
+        assertThat(content).contains("encryptedPassword=");
+        assertThat(content).doesNotContain("password=");
     }
 
     @Test
@@ -438,7 +438,7 @@ public class GoConfigMigratorIntegrationTest {
     }
 
     @Test
-    public void shouldSetServerId_toARandomUUID_ifServerTagDoesntExist() {
+    public void shouldSetServerId_toARandomUUID_ifServerTagDoesNotExist() {
         GoConfigService.XmlPartialSaver<CruiseConfig> fileSaver = goConfigService.fileSaver(true);
         GoConfigValidity configValidity = fileSaver.saveXml("<cruise schemaVersion='" + 53 + "'>\n"
                 + "</cruise>", goConfigService.getCurrentConfig().getMd5());
@@ -651,7 +651,7 @@ public class GoConfigMigratorIntegrationTest {
         JobConfig jobConfig = pipelineConfig.getFirstStageConfig().getJobs().getFirst();
         Tasks tasks = jobConfig.getTasks();
         assertThat(tasks.size()).isEqualTo(1);
-        assertThat(tasks.getFirst() instanceof PluggableTask).isTrue();
+        assertThat(tasks.getFirst()).isInstanceOf(PluggableTask.class);
     }
 
     @Test
@@ -717,7 +717,7 @@ public class GoConfigMigratorIntegrationTest {
     }
 
     @Test
-    public void ShouldTrimEnvironmentVariables_asPartOfMigration85() throws Exception {
+    public void shouldTrimEnvironmentVariables_asPartOfMigration85() throws Exception {
         String configXml = """
                 <cruise schemaVersion='84'>
                   <pipelines group='first'>
@@ -1011,35 +1011,31 @@ public class GoConfigMigratorIntegrationTest {
     }
 
     @Test
-    public void shouldAddTokenGenerationKeyAttributeOnServerAsPartOf99To100Migration() {
-        try {
-            String configXml = """
-                    <cruise schemaVersion='99'><server artifactsdir="artifacts" agentAutoRegisterKey="041b5c7e-dab2-11e5-a908-13f95f3c6ef6" webhookSecret="5f8b5eac-1148-4145-aa01-7b2934b6e1ab" commandRepositoryLocation="default" serverId="dev-id">
-                        <security>
-                          <authConfigs>
-                            <authConfig id="9cad79b0-4d9e-4a62-829c-eb4d9488062f" pluginId="cd.go.authentication.passwordfile">
-                              <property>
-                                <key>PasswordFilePath</key>
-                                <value>../manual-testing/ant_hg/password.properties</value>
-                              </property>
-                            </authConfig>
-                          </authConfigs>
-                          <roles>
-                            <role name="xyz" />
-                          </roles>
-                          <admins>
-                            <user>admin</user>
-                          </admins>
-                        </security>
-                      </server>
-                    </cruise>
-                """;
+    public void shouldAddTokenGenerationKeyAttributeOnServerAsPartOf99To100Migration() throws Exception {
+        String configXml = """
+                <cruise schemaVersion='99'><server artifactsdir="artifacts" agentAutoRegisterKey="041b5c7e-dab2-11e5-a908-13f95f3c6ef6" webhookSecret="5f8b5eac-1148-4145-aa01-7b2934b6e1ab" commandRepositoryLocation="default" serverId="dev-id">
+                    <security>
+                      <authConfigs>
+                        <authConfig id="9cad79b0-4d9e-4a62-829c-eb4d9488062f" pluginId="cd.go.authentication.passwordfile">
+                          <property>
+                            <key>PasswordFilePath</key>
+                            <value>../manual-testing/ant_hg/password.properties</value>
+                          </property>
+                        </authConfig>
+                      </authConfigs>
+                      <roles>
+                        <role name="xyz" />
+                      </roles>
+                      <admins>
+                        <user>admin</user>
+                      </admins>
+                    </security>
+                  </server>
+                </cruise>
+            """;
 
-            final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml);
-            assertThat(isNotBlank(cruiseConfig.server().getTokenGenerationKey())).isTrue();
-        } catch (Exception e) {
-            System.err.println("jyoti singh: " + e.getMessage());
-        }
+        final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml);
+        assertThat(isNotBlank(cruiseConfig.server().getTokenGenerationKey())).isTrue();
     }
 
     @Test
@@ -1142,7 +1138,7 @@ public class GoConfigMigratorIntegrationTest {
     }
 
     @Test
-    public void shouldSkipParamResoulutionForElasticConfig_asPartOf100To101Migration() throws Exception {
+    public void shouldSkipParamResolutionForElasticConfig_asPartOf100To101Migration() throws Exception {
         String configXml = """
                 <cruise schemaVersion='100'>
                 <server artifactsdir="artifactsDir" agentAutoRegisterKey="041b5c7e-dab2-11e5-a908-13f95f3c6ef6" webhookSecret="5f8b5eac-1148-4145-aa01-7b2934b6e1ab" commandRepositoryLocation="default" serverId="dev-id">
@@ -1542,9 +1538,7 @@ public class GoConfigMigratorIntegrationTest {
 
     private CruiseConfig migrateConfigAndLoadTheNewConfig(String content) throws Exception {
         Files.writeString(configFile, content, UTF_8);
-        GoConfigHolder configHolder = goConfigMigrator.migrate();
-        assert configHolder != null;
-        return configHolder.config;
+        return goConfigMigrator.migrate().config;
     }
 
     private CruiseConfig loadConfigFileWithContent(String content) throws Exception {

@@ -17,7 +17,6 @@ package com.thoughtworks.go.config.upgrades;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.GoConstants;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -79,7 +78,7 @@ public class AuthorizationMigrationTest {
     @Test
     public void shouldMigrateAuthToAuthorization() throws Exception {
         String newConfig = ConfigMigrator.migrate(CONFIG_WITH_AUTH).replace("\r\n", "\n");
-        assertThat(newConfig).contains(String.valueOf(GoConstants.CONFIG_SCHEMA_VERSION));
+        assertThat(newConfig).contains(String.valueOf(GoConfigSchema.VERSION));
         assertThat(newConfig).contains(NEW_AUTHORIZATION);
     }
 

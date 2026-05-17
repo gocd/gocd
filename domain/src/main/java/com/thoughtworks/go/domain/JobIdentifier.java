@@ -195,8 +195,8 @@ public class JobIdentifier implements Serializable, LocatableEntity {
         return String.format("%s :: %s :: %s", getPipelineName(), getStageName(), getBuildName());
     }
 
-    public String webUrl() {
-        return "tab/build/detail/" + buildLocator();
+    public String webPathAfterContext() {
+        return "/tab/build/detail/" + buildLocator();
     }
 
     public JobConfigIdentifier jobConfigIdentifier() {

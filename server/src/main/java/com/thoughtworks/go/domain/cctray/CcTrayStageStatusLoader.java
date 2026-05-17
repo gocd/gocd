@@ -17,7 +17,6 @@ package com.thoughtworks.go.domain.cctray;
 
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.StageIdentity;
 import org.springframework.beans.factory.annotation.Autowired;

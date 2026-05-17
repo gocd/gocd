@@ -29,6 +29,7 @@ import java.io.Serializable;
 import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import static java.util.stream.StreamSupport.stream;
 
 // Understands multiple materials each with their own revision
 public class MaterialRevisions implements Serializable, Iterable<MaterialRevision> {
@@ -208,14 +209,9 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
     }
 
     public boolean containsMyCheckin(Matcher matcher) {
-        for (MaterialRevision materialRevision : this) {
-            for (Modification modification : materialRevision.getModifications()) {
-                if (matcher.matches(modification.getUserName() + " " + Optional.ofNullable(modification.getComment()).orElse(""))) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return stream(spliterator(), true)
+            .flatMap(r -> r.getModifications().stream())
+            .anyMatch(m -> matcher.matches(m.getUserName()) || matcher.matches(m.getComment()));
     }
 
     public boolean isSameAs(MaterialRevisions other) {

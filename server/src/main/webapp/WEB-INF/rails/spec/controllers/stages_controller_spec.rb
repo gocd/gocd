@@ -59,7 +59,7 @@ describe StagesController do
   describe "stage" do
 
     before do
-      @stage_summary_model = StageSummaryModel.new(stage = StageMother.passedStageInstance("stage", "dev", "pipeline-name"), nil, JobDurationStrategy::ALWAYS_ZERO, nil)
+      @stage_summary_model = StageSummaryModel.new(stage = StageMother.passedStageInstance("pipeline-name", "stage", "dev"), nil, JobDurationStrategy::ALWAYS_ZERO, nil)
       stage.setPipelineId(100)
       allow(@stage_service).to receive(:findStageSummaryByIdentifier).and_return(@stage_summary_model)
       allow(@stage_service).to receive(:findLatestStage).and_return(:latest_stage)
@@ -189,7 +189,7 @@ describe StagesController do
       now = ZonedDateTime.now
       pim = PipelineHistoryMother.singlePipeline("pipeline-name", PipelineHistoryMother.stagePerJob("stage-", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.to_instant),
                                                                                                               PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.plus_minutes(1).to_instant)]))
-      stage_summary_model = StageSummaryModel.new(stage_instance = StageMother.passedStageInstance("stage", "dev", "pipeline-name"), nil, JobDurationStrategy::ALWAYS_ZERO, nil)
+      stage_summary_model = StageSummaryModel.new(stage_instance = StageMother.passedStageInstance("pipeline-name", "stage", "dev"), nil, JobDurationStrategy::ALWAYS_ZERO, nil)
       expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("blah-pipeline-name", 12, "stage-0", "3"), @user, @localized_result).and_return(stage_summary_model)
       stage_instance.setPipelineId(100)
       expect(@pipeline_history_service).to receive(:findPipelineInstance).with("blah-pipeline-name", 12, 100, @user, @status).and_return(pim)

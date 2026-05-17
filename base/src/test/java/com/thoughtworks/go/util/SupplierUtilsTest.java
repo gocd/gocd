@@ -18,15 +18,18 @@ package com.thoughtworks.go.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SupplierUtilsTest {
 
     @Test
-    void shouldMemoizeSupplier() {
+    void memoizeSupplierShouldCacheResults() {
         AtomicInteger counter = new AtomicInteger(0);
         Supplier<Integer> supplier = SupplierUtils.memoize(counter::incrementAndGet);
 
@@ -34,5 +37,31 @@ class SupplierUtilsTest {
         assertEquals(1, supplier.get());
         assertEquals(1, supplier.get());
         assertEquals(2, counter.incrementAndGet());
+    }
+
+    @Test
+    void rethrowSupplierShouldReturnNormally() {
+        Supplier<String> supplier = SupplierUtils.rethrow(() -> "result");
+        assertThat(supplier).returns("result", Supplier::get);
+    }
+
+    @Test
+    void rethrowSupplierShouldCatchExceptions() {
+        Supplier<String> supplier = SupplierUtils.rethrow(() -> {
+            throw new IOException("IO error");
+        });
+        assertThatThrownBy(supplier::get)
+           .isExactlyInstanceOf(RuntimeException.class)
+           .hasRootCauseExactlyInstanceOf(IOException.class);
+    }
+
+    @Test
+    void rethrowSupplierShouldRethrowRuntimeExceptionsAsIs() {
+        Supplier<String> supplier = SupplierUtils.rethrow(() -> {
+            throw new IllegalArgumentException("bad argument");
+        });
+        assertThatThrownBy(supplier::get)
+            .isExactlyInstanceOf(IllegalArgumentException.class)
+            .hasNoCause();
     }
 }

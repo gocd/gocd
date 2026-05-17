@@ -274,7 +274,7 @@ public class GoConfigServiceTest {
                   </server>
                   <unknown/>
                 </cruise>
-                """.formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+                """.formatted(GoConfigSchema.VERSION);
         GoConfigValidity validity = goConfigService.fileSaver(false).saveXml(configContent, "md5");
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).contains("Invalid content was found starting with element 'unknown'");
     }
@@ -327,7 +327,7 @@ public class GoConfigServiceTest {
                 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="%d">
                   <server artifactsdir='artifactsDir>
                 </cruise>
-                """.formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+                """.formatted(GoConfigSchema.VERSION);
         GoConfigValidity validity = saver.saveXml(configContent, "junk_md5");
         assertThat(validity.isValid()).isFalse();
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).isEqualTo("Invalid Configuration - Error on line 4: The value of attribute \"artifactsdir\" associated with an element type \"server\" must not contain the '<' character.");
@@ -337,7 +337,7 @@ public class GoConfigServiceTest {
     public void xmlPartialSaverShouldReturnTheRightXMLThroughAsXml() {
         expectLoadForEditing(GoConfigMother.defaultCruiseConfig());
         GoConfigService.XmlPartialSaver<?>saver = goConfigService.fileSaver(true);
-        assertThat(saver.asXml()).contains(String.format("schemaVersion=\"%s\"", GoConstants.CONFIG_SCHEMA_VERSION));
+        assertThat(saver.asXml()).contains(String.format("schemaVersion=\"%s\"", GoConfigSchema.VERSION));
         assertThat(saver.asXml()).contains("xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\"");
     }
 

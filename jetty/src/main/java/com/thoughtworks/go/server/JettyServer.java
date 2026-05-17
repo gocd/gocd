@@ -46,6 +46,7 @@ import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.util.Objects;
 
+import static com.thoughtworks.go.util.SystemEnvironment.WEBAPP_CONTEXT_PATH;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -232,7 +233,7 @@ public class JettyServer extends AppServer {
             JettyWebSocketConfiguration.class.getCanonicalName()
         });
         context.addServletContainerInitializer(new JettyWebSocketServletContainerInitializer());
-        context.setContextPath(systemEnvironment.getWebappContextPath());
+        context.setContextPath(WEBAPP_CONTEXT_PATH);
 
         // delegate all logging to parent classloader to avoid initialization of loggers in multiple classloaders
         context.addSystemClassMatcher(new ClassMatcher(

@@ -17,7 +17,6 @@ package com.thoughtworks.go.domain.cctray;
 
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.activity.ProjectStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -48,7 +47,7 @@ public class CcTrayJobStatusChangeHandler {
                 lastBuildStatus(existingStatusOfThisJobInCache, job),
                 lastBuildLabel(existingStatusOfThisJobInCache, job),
                 lastBuildTime(existingStatusOfThisJobInCache, job),
-                job.getIdentifier().webUrl(),
+                job.getIdentifier().webPathAfterContext(),
                 breakers);
         newStatus.updateViewers(existingStatusOfThisJobInCache.viewers());
         return newStatus;

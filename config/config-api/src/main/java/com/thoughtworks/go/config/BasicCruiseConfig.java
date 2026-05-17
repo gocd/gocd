@@ -38,7 +38,10 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.ClonerFactory;
+import com.thoughtworks.go.util.DFSCycleDetector;
+import com.thoughtworks.go.util.Node;
+import com.thoughtworks.go.util.PipelineDependencyState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
@@ -729,7 +732,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public int schemaVersion() {
-        return GoConstants.CONFIG_SCHEMA_VERSION;
+        return GoConfigSchema.VERSION;
     }
 
     @Override

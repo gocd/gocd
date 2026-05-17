@@ -19,37 +19,31 @@ public enum StageResult {
 
     Passed {
         @Override
-        public StageEvent describeChangeEvent(StageResult previousResult) {
-            if (previousResult == StageResult.Failed) {
-                return StageEvent.Fixed;
-            }
-            return StageEvent.Passes;
+        public StageEvent toEventFromPrevious(StageResult previous) {
+            return previous == StageResult.Failed ? StageEvent.Fixed : StageEvent.Passes;
         }
     },
 
     Failed {
         @Override
-        public StageEvent describeChangeEvent(StageResult previousResult) {
-            if (previousResult == StageResult.Passed) {
-                return StageEvent.Breaks;
-            }
-            return StageEvent.Fails;
+        public StageEvent toEventFromPrevious(StageResult previousResult) {
+            return previousResult == StageResult.Passed ? StageEvent.Breaks : StageEvent.Fails;
         }
     },
 
     Cancelled {
         @Override
-        public StageEvent describeChangeEvent(StageResult previousResult) {
+        public StageEvent toEventFromPrevious(StageResult previousResult) {
             return StageEvent.Cancelled;
         }
     },
 
     Unknown {
         @Override
-        public StageEvent describeChangeEvent(StageResult previousResult) {
+        public StageEvent toEventFromPrevious(StageResult previousResult) {
             throw new IllegalStateException("Current result can not be Unknown");
         }
     };
 
-    public abstract StageEvent describeChangeEvent(StageResult previousResult);
+    public abstract StageEvent toEventFromPrevious(StageResult previousResult);
 }

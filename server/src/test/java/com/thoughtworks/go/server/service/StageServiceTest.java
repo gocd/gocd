@@ -494,10 +494,10 @@ public class StageServiceTest {
     public void shouldOnlyLoadStagesArtifactOfWhichCanBeDeleted() {
         StageService service = new StageService(stageDao, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
             goCache);
-        Stage stageFoo = StageMother.passedStageInstance("stage-foo", "job", "pipeline-baz");
-        Stage stageBar = StageMother.passedStageInstance("stage-bar", "job", "pipeline-quux");
-        Stage stageBaz = StageMother.passedStageInstance("stage-baz", "job", "pipeline-foo");
-        Stage stageQuux = StageMother.passedStageInstance("stage-quux", "job", "pipeline-bar");
+        Stage stageFoo = StageMother.passedStageInstance("pipeline-baz", "stage-foo", "job");
+        Stage stageBar = StageMother.passedStageInstance("pipeline-quux", "stage-bar", "job");
+        Stage stageBaz = StageMother.passedStageInstance("pipeline-foo", "stage-baz", "job");
+        Stage stageQuux = StageMother.passedStageInstance("pipeline-bar", "stage-quux", "job");
         when(stageDao.oldestStagesHavingArtifacts()).thenReturn(List.of(stageFoo, stageBar, stageBaz, stageQuux));
 
         List<Stage> stages = service.oldestStagesWithDeletableArtifacts();

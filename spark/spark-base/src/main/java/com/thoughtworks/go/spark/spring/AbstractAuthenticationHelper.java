@@ -61,13 +61,13 @@ public abstract class AbstractAuthenticationHelper {
         checkNonAnonymousUser(req, res);
     }
 
-    public void checkNonAnonymousUser(Request req, Response res) {
+    public void checkNonAnonymousUser(@SuppressWarnings("unused") Request req, @SuppressWarnings("unused") Response res) {
         if (currentUsername().isAnonymous()) {
             throw renderForbiddenResponse();
         }
     }
 
-    public void checkAdminUserAnd403(Request req, Response res) {
+    public void checkAdminUserAnd403(@SuppressWarnings("unused") Request req, @SuppressWarnings("unused") Response res) {
         if (!securityService.isUserAdmin(currentUsername())) {
             throw renderForbiddenResponse();
         }
@@ -113,7 +113,7 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
-    public void checkPipelineGroupAdminOfAnyGroup(Request request, Response response) {
+    public void checkPipelineGroupAdminOfAnyGroup(@SuppressWarnings("unused") Request request, @SuppressWarnings("unused") Response response) {
         if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
             return;
         }
@@ -123,7 +123,7 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
-    public void checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403(Request request, Response response) {
+    public void checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403(Request request, @SuppressWarnings("unused") Response response) {
         if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
             return;
         }
@@ -133,7 +133,7 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
-    public void checkPipelineGroupAdminOfPipelineOrGroupInURLUserAnd403(Request request, Response response) {
+    public void checkPipelineGroupAdminOfPipelineOrGroupInURLUserAnd403(Request request, @SuppressWarnings("unused") Response response) {
         if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
             return;
         }
@@ -143,7 +143,7 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
-    public void checkAdminOrTemplateAdminAnd403(Request request, Response response) {
+    public void checkAdminOrTemplateAdminAnd403(Request request, @SuppressWarnings("unused") Response response) {
         if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
             return;
         }
@@ -157,7 +157,7 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
-    public void checkViewAccessToTemplateAnd403(Request request, Response response) {
+    public void checkViewAccessToTemplateAnd403(Request request, @SuppressWarnings("unused") Response response) {
         if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
             return;
         }
@@ -172,7 +172,7 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
-    public void checkPipelineCreationAuthorizationAnd403(Request request, Response response) {
+    public void checkPipelineCreationAuthorizationAnd403(Request request, @SuppressWarnings("unused") Response response) {
         if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
             return;
         }
@@ -190,7 +190,7 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
-    public void checkAdminUserOrGroupAdminUserAnd403(Request request, Response response) {
+    public void checkAdminUserOrGroupAdminUserAnd403(@SuppressWarnings("unused") Request request, @SuppressWarnings("unused") Response response) {
         if (!securityService.isSecurityEnabled()) {
             return;
         }
@@ -201,7 +201,7 @@ public abstract class AbstractAuthenticationHelper {
 
     }
 
-    public void checkIsAllowedToSeeAnyTemplates403(Request request, Response response) {
+    public void checkIsAllowedToSeeAnyTemplates403(@SuppressWarnings("unused") Request request, @SuppressWarnings("unused") Response response) {
         if (!securityService.isSecurityEnabled()) {
             return;
         }
@@ -211,7 +211,7 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
-    public void checkAnyAdminUserAnd403(Request request, Response response) {
+    public void checkAnyAdminUserAnd403(@SuppressWarnings("unused") Request request, @SuppressWarnings("unused") Response response) {
         if (!securityService.isSecurityEnabled()) {
             return;
         }
@@ -221,31 +221,22 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
-    public void checkPipelineViewPermissionsAnd403(Request request, Response response) {
+    public void checkPipelineViewPermissionsAnd403(Request request, @SuppressWarnings("unused") Response response) {
         if (!securityService.isSecurityEnabled()) {
             return;
         }
 
         CaseInsensitiveString pipelineName = getPipelineNameFromRequest(request);
 
-        if (!hasViewPermissionWorkaroundForNonExistantPipelineBug_4477(pipelineName, currentUsername())) {
-            throw renderForbiddenResponse();
-        }
-    }
-
-    // https://github.com/gocd/gocd/issues/4477
-    private boolean hasViewPermissionWorkaroundForNonExistantPipelineBug_4477(CaseInsensitiveString pipelineName,
-                                                                              Username username) {
+        // we check if pipeline exists because hasViewPermission returns true in case the group or pipeline does not exist!
         if (!goConfigService.hasPipelineNamed(pipelineName)) {
             throw new RecordNotFoundException(Pipeline, pipelineName);
         }
 
-        if (securityService.isUserAdmin(username)) {
-            return true;
+        Username username = currentUsername();
+        if (!(securityService.isUserAdmin(username) || securityService.hasViewPermissionForPipeline(username, pipelineName.toString()))) {
+            throw renderForbiddenResponse();
         }
-
-        // we check if pipeline exists because this method returns true in case the group or pipeline does not exist!
-        return securityService.hasViewPermissionForPipeline(username, pipelineName.toString());
     }
 
     private String findPipelineGroupName(Request request) {

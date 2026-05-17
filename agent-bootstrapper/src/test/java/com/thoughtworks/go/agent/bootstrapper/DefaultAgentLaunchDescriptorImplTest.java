@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 import java.util.Map;
 
+import static com.thoughtworks.go.util.SystemEnvironment.WEBAPP_CONTEXT_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -32,7 +33,7 @@ public class DefaultAgentLaunchDescriptorImplTest {
     public void contextShouldContainEnvAndPropertiesAndHostAndPort() throws Exception {
         String hostname = "xx.xx.xx";
         int port = 20;
-        AgentBootstrapperArgs bootstrapperArgs = new AgentBootstrapperArgs().setServerUrl(URI.create("https://" + hostname + ":" + port + "/go").toURL()).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE);
+        AgentBootstrapperArgs bootstrapperArgs = new AgentBootstrapperArgs().setServerUrl(URI.create("https://" + hostname + ":" + port + WEBAPP_CONTEXT_PATH).toURL()).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE);
         DefaultAgentLaunchDescriptorImpl launchDescriptor = new DefaultAgentLaunchDescriptorImpl(bootstrapperArgs, new AgentBootstrapper());
         Map<String, String> context = launchDescriptor.context();
 

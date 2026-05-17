@@ -17,6 +17,7 @@ package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.UrlUtil;
 import org.springframework.stereotype.Component;
 
 import static java.lang.String.format;
@@ -26,11 +27,7 @@ public class URLService implements ServerUrlGenerator {
     private final String baseRemotingURL;
 
     public URLService() {
-        String url = new SystemEnvironment().getServiceUrl();
-        if (url.endsWith("/")) {
-            url = url.substring(0, url.length() - 1);
-        }
-        baseRemotingURL = url;
+        baseRemotingURL = UrlUtil.normalizeUrlString(new SystemEnvironment().getServiceUrl());
     }
 
     public URLService(String baseRemotingURL) {

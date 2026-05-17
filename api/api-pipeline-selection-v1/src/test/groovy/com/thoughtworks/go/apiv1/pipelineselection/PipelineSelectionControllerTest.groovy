@@ -38,6 +38,7 @@ import org.junit.jupiter.api.Test
 
 import javax.servlet.http.Cookie
 
+import static com.thoughtworks.go.util.SystemEnvironment.WEBAPP_CONTEXT_PATH
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 
@@ -232,7 +233,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasCookie("/go", "selected_pipelines", cookie, 31536000, false, true)
+          .hasCookie(WEBAPP_CONTEXT_PATH, "selected_pipelines", cookie, 31536000, false, true)
           .hasJsonBody([contentHash: updated.etag()])
       }
 
@@ -264,7 +265,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasCookie("/go", "selected_pipelines", cookie, 31536000, true, true)
+          .hasCookie(WEBAPP_CONTEXT_PATH, "selected_pipelines", cookie, 31536000, true, true)
           .hasJsonBody([contentHash: updated.etag()])
       }
     }

@@ -176,7 +176,7 @@ public class PipelineServiceTriangleDependencyTest {
         StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(SecurityService.class), mock(PipelineDao.class),
                 mock(ChangesetService.class), mock(GoConfigService.class), actualTransactionTemplate, transactionSynchronizationManager,
                 goCache);
-        Stage savedStage = StageMother.passedStageInstance("stage", "job", "pipeline-name");
+        Stage savedStage = StageMother.passedStageInstance("pipeline-name", "stage", "job");
         when(stageDao.save(any(), any())).thenReturn(savedStage);
 
         stageService.addStageStatusListener(stageStatusListener);

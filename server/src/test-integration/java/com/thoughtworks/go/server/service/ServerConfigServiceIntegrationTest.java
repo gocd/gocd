@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.SiteUrl;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -52,7 +55,7 @@ public class ServerConfigServiceIntegrationTest {
     @Autowired
     GoConfigDao goConfigDao;
 
-    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @BeforeEach
     public void setup() throws Exception {
@@ -69,27 +72,26 @@ public class ServerConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldSiteUrlForGivenUrl() throws URISyntaxException {
+    public void shouldPreferTheSecureSiteUrl() throws Exception {
         configHelper.setBaseUrls(new SiteUrl("http://foo.com"), new SecureSiteUrl("https://bar.com"));
-        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar")).isEqualTo("http://foo.com/foo/bar");
+        assertThat(serverConfigService.siteUrlWithPath("/foo/bar")).isEqualTo(url("https://bar.com/go/foo/bar"));
     }
 
     @Test
-    public void shouldReturnTheSameURLWhenNothingIsConfigured() throws URISyntaxException {
-        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar")).isEqualTo("http://test.host/foo/bar");
+    public void shouldReturnAComputedUrlWhenNothingIsConfigured() throws Exception {
+        assertThat(serverConfigService.siteUrlWithPath("/foo/bar").toString()).matches("http://.*:8153/go/foo/bar");
     }
 
     @Test
-    public void shouldUseTheSiteUrlWhenSecureSiteUrlIsNotPresentAndOnlyIfSiteUrlIsHttps() throws URISyntaxException {
+    public void shouldUseTheSiteUrlWhenSecureSiteUrlIsNotPresent() throws Exception {
         configHelper.setBaseUrls(new SiteUrl("https://foo.com"), new SecureSiteUrl());
-        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar")).isEqualTo("https://foo.com/foo/bar");
+        assertThat(serverConfigService.siteUrlWithPath("/foo/bar")).isEqualTo(url("https://foo.com/go/foo/bar"));
+        configHelper.setBaseUrls(new SiteUrl("http://foo.com"), new SecureSiteUrl());
+        assertThat(serverConfigService.siteUrlWithPath("/foo/bar")).isEqualTo(url("http://foo.com/go/foo/bar"));
     }
 
-    @Test
-    public void shouldUseTheSecureSiteUrlInspiteOfCallerNotForcingSsl_whenAlreadyUsingHTTPS() throws URISyntaxException {
-        configHelper.setBaseUrls(new SiteUrl("http://foo.com:80"), new SecureSiteUrl("https://bar.com:443"));
-        assertThat(serverConfigService.siteUrlFor("https://test.host:1000/foo/bar")).isEqualTo("https://bar.com:443/foo/bar");
-        assertThat(serverConfigService.siteUrlFor("http://test.host/foo/bar")).isEqualTo("http://foo.com:80/foo/bar");
+    private static @NonNull URL url(String url) throws MalformedURLException {
+        return URI.create(url).toURL();
     }
 
     @Test

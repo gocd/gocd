@@ -17,10 +17,12 @@ package com.thoughtworks.go.spark.mocks;
 
 import com.thoughtworks.go.spark.RequestContext;
 
+import static com.thoughtworks.go.util.SystemEnvironment.WEBAPP_CONTEXT_PATH;
+
 public class TestRequestContext extends RequestContext {
 
     public TestRequestContext() {
-        super("http", "test.host", 80, "/go");
+        super("http", "test.host", 80, WEBAPP_CONTEXT_PATH);
     }
 
 }

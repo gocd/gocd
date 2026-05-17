@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.label.PipelineLabel;
 
 import java.util.List;
 
-import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
+import static com.thoughtworks.go.config.GoConfigSchema.VERSION;
 
 public final class ConfigFileFixture {
 
@@ -50,7 +50,7 @@ public final class ConfigFileFixture {
                 </pipeline>
             </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static String configWithEnvironments(String environmentsBlock, int configSchemaVersion) {
         return """
@@ -95,7 +95,7 @@ public final class ConfigFileFixture {
                 </pipelines>
                 %s
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION, template);
+            """.formatted(VERSION, template);
     }
 
     public static String configWithConfigRepos(String configReposBlock) {
@@ -120,11 +120,11 @@ public final class ConfigFileFixture {
                     </pipeline>
                 </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION, configReposBlock);
+            """.formatted(VERSION, configReposBlock);
     }
 
     public static String configWithPipeline(String pipelineBlock) {
-        return configWithPipeline(pipelineBlock, CONFIG_SCHEMA_VERSION);
+        return configWithPipeline(pipelineBlock, VERSION);
     }
 
     public static String configWithPipeline(String pipelineBlock, int schemaVersion) {
@@ -190,7 +190,7 @@ public final class ConfigFileFixture {
                 </pipeline>
             </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String CONFIG_WITH_NANT_AND_EXEC_BUILDER = """
         <cruise schemaVersion='%d'>
@@ -238,7 +238,7 @@ public final class ConfigFileFixture {
                 </pipeline>
             </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String WITH_DUPLICATE_ENVIRONMENTS = """
         <cruise schemaVersion='%d'>
@@ -268,7 +268,7 @@ public final class ConfigFileFixture {
                 <environment name='FOO' />
             </environments>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String TASKS_WITH_CONDITION = """
         <cruise schemaVersion='%d'>
@@ -301,7 +301,7 @@ public final class ConfigFileFixture {
                 </pipeline>
             </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String CONFIG_WITH_ARTIFACT_SRC = """
         <cruise schemaVersion='28'>
@@ -364,7 +364,7 @@ public final class ConfigFileFixture {
                 </pipeline>
             </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String MATERIAL_WITH_NAME = """
         <cruise schemaVersion='%d'>
@@ -388,7 +388,7 @@ public final class ConfigFileFixture {
                 </pipeline>
             </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String TASKS_WITH_ON_CANCEL_NESTED = """
         <cruise schemaVersion='%d'>
@@ -422,7 +422,7 @@ public final class ConfigFileFixture {
             </pipeline>
             </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String CONTAINS_MULTI_SAME_STATUS_RUN_IF = """
         <?xml version="1.0" encoding="utf-8"?>
@@ -452,7 +452,7 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String SAME_STATUS_RUN_IF_PARTIAL = """
               <stage name="defaultStage">
@@ -498,7 +498,7 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static String LABEL_TEMPLATE_WITH_LABEL_TEMPLATE(String template) {
         return """
@@ -523,7 +523,7 @@ public final class ConfigFileFixture {
                     </pipeline>
                 </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION, template);
+            """.formatted(VERSION, template);
     }
 
     public static final String MINIMAL = """
@@ -532,7 +532,7 @@ public final class ConfigFileFixture {
           <server>
           </server>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String OLD = "<cruise><server></server></cruise>";
 
@@ -545,7 +545,7 @@ public final class ConfigFileFixture {
             </artifacts>
           </server>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String SERVER_WITH_ARTIFACTS_DIR_AND_PURGE_SETTINGS = """
         <?xml version="1.0" encoding="utf-8"?>
@@ -559,7 +559,7 @@ public final class ConfigFileFixture {
                </purgeSettings></artifacts>
             </server>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String STAGE_WITH_EMPTY_AUTH = """
         <?xml version="1.0" encoding="utf-8"?>
@@ -591,7 +591,7 @@ public final class ConfigFileFixture {
           </pipelines>
         </cruise>
         
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String CONFIG_WITH_EMPTY_ROLES = """
         <?xml version="1.0" encoding="utf-8"?>
@@ -618,7 +618,7 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
 
     public static final String CONFIG_WITH_ADMIN_AND_SECURITY_AUTH_CONFIG = """
@@ -653,7 +653,7 @@ public final class ConfigFileFixture {
             </security>
           </server>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String CONFIG_WITH_EMPTY_USER = """
         <?xml version="1.0" encoding="utf-8"?>
@@ -685,7 +685,7 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String CONFIG_WITH_DUPLICATE_ROLE = """
         <?xml version="1.0" encoding="utf-8"?>
@@ -714,7 +714,7 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String CONFIG_WITH_DUPLICATE_USER = """
         <?xml version="1.0" encoding="utf-8"?>
@@ -747,7 +747,7 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String TWO_PIPELINES = """
         <?xml version="1.0" encoding="utf-8"?>
@@ -808,7 +808,7 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String EMPTY_DEPENDENCIES = """
         <?xml version="1.0" encoding="utf-8"?>
@@ -839,7 +839,7 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static String withCommand(String jobWithCommand) {
         return """
@@ -864,7 +864,7 @@ public final class ConfigFileFixture {
                 </pipeline>
               </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION, jobWithCommand);
+            """.formatted(VERSION, jobWithCommand);
     }
 
     public static String withServerConfig(String xml) {
@@ -895,7 +895,7 @@ public final class ConfigFileFixture {
                 </pipeline>
               </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION, xml);
+            """.formatted(VERSION, xml);
     }
 
     public static final String CONFIG = """
@@ -1015,7 +1015,7 @@ public final class ConfigFileFixture {
               </pipeline>
             </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION, PipelineLabel.COUNT_TEMPLATE);
+        """.formatted(VERSION, PipelineLabel.COUNT_TEMPLATE);
 
     public static final String ONE_CONFIG_REPO = """
         <?xml version="1.0" encoding="utf-8"?>
@@ -1031,7 +1031,7 @@ public final class ConfigFileFixture {
             </config-repo >
           </config-repos>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String ONE_PIPELINE = """
         <?xml version="1.0" encoding="utf-8"?>
@@ -1059,7 +1059,7 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
 
     public static final String TWO_DUPLICATED_FILTER = """
@@ -1093,7 +1093,7 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String SERVER_TAG_WITH_DEFAULTS_PLUS_LICENSE_TAG = """
         <?xml version="1.0" encoding="utf-8"?>
@@ -1104,7 +1104,7 @@ public final class ConfigFileFixture {
              </artifacts>
           </server>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String DEFAULT_XML_WITH_2_AGENTS = xml();
 
@@ -1120,7 +1120,7 @@ public final class ConfigFileFixture {
             <environment name='dummy'/>
             </environments>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String XML_WITH_ENTERPRISE_LICENSE_FOR_TWO_USERS = xml();
 
@@ -1159,7 +1159,7 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String JOBS_WITH_SAME_NAME = """
         <cruise schemaVersion='%d'>
@@ -1182,7 +1182,7 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
 
     public static final String SIMPLE_PIPELINE = """
@@ -1218,7 +1218,7 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String VERSION_0 = """
         <cruise>
@@ -1346,7 +1346,7 @@ public final class ConfigFileFixture {
               </pipeline>
            </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String PIPELINE_WITH_TIMER = """
         <?xml version="1.0" encoding="utf-8"?>
@@ -1370,7 +1370,7 @@ public final class ConfigFileFixture {
              </pipeline>
          </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static String multipleMaterial(String... materials) {
         StringBuilder sb = new StringBuilder();
@@ -1446,7 +1446,7 @@ public final class ConfigFileFixture {
                 </pipeline>
               </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION, sb);
+            """.formatted(VERSION, sb);
     }
 
     public static String withJob(String jobXml) {
@@ -1479,7 +1479,7 @@ public final class ConfigFileFixture {
                 </pipeline>
               </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION, jobXml);
+            """.formatted(VERSION, jobXml);
     }
 
     public static String withJob(String jobXml, String pipelineName) {
@@ -1520,7 +1520,7 @@ public final class ConfigFileFixture {
                 </pipeline>
               </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION, pipelineName, jobXml);
+            """.formatted(VERSION, pipelineName, jobXml);
     }
 
     public static final String PIPELINE_GROUPS = """
@@ -1578,7 +1578,7 @@ public final class ConfigFileFixture {
         </pipeline>
         </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String STAGE_AUTH_WITH_ADMIN_AND_AUTH = """
         <?xml version="1.0" encoding="utf-8"?>
@@ -1620,7 +1620,7 @@ public final class ConfigFileFixture {
             </pipeline>
           </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION);
+        """.formatted(VERSION);
 
     public static final String VALID_XML_3169 = """
         <?xml version="1.0" encoding="utf-8"?>
@@ -1732,7 +1732,7 @@ public final class ConfigFileFixture {
               <server>
             %s%s  </server>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION, security, defaultArtifact);
+            """.formatted(VERSION, security, defaultArtifact);
     }
 
     public static String configWithArtifactSourceAs(String artifactSource) {

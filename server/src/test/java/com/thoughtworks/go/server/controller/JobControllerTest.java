@@ -137,7 +137,7 @@ public class JobControllerTest {
             when(jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier)).thenReturn(jobInstance);
             when(jobInstanceDao.mostRecentJobWithTransitions(any())).thenReturn(jobInstance);
             when(jobConfigService.pipelineConfigNamed(any())).thenReturn(PipelineConfigMother.pipelineConfig("p1"));
-            when(stageService.getStageByBuild(jobInstance)).thenReturn(StageMother.passedStageInstance("s1", "plan1", "p1"));
+            when(stageService.getStageByBuild(jobInstance)).thenReturn(StageMother.passedStageInstance("p1", "s1", "plan1"));
 
             FeatureToggleService featureToggleService = mock(FeatureToggleService.class);
             when(featureToggleService.isToggleOn(anyString())).thenReturn(true);

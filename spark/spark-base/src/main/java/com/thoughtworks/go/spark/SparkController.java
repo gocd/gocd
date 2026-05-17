@@ -31,7 +31,7 @@ public interface SparkController {
         if (paths == null || paths.length == 0) {
             return controllerBasePath();
         } else {
-            return (controllerBasePath() + "/" + join(paths, '/')).replaceAll("//", "/");
+            return (controllerBasePath() + "/" + join(paths, '/')).replace("//", "/");
         }
     }
 

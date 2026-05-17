@@ -348,9 +348,9 @@ public class UserService {
 
     }
 
-    public Users findValidSubscribers(final StageConfigIdentifier identifier) {
+    public Users findValidNotificationSubscribers(StageEvent event, StageConfigIdentifier identifier) {
         Users users = userDao.findNotificationSubscribingUsers();
-        return users.filter(user -> user.hasSubscribedFor(identifier.getPipelineName(), identifier.getStageName()) &&
+        return users.filter(user -> user.hasSubscribedFor(event, identifier) &&
             securityService.hasViewPermissionForPipeline(user.getUsername(), identifier.getPipelineName()));
     }
 

@@ -27,26 +27,26 @@ public class StageResultTest {
 
     @Test
     public void shouldGenerateEventByResults() {
-        assertThat(StageResult.Cancelled.describeChangeEvent(StageResult.Passed)).isEqualTo(StageEvent.Cancelled);
-        assertThat(StageResult.Cancelled.describeChangeEvent(StageResult.Failed)).isEqualTo(StageEvent.Cancelled);
-        assertThat(StageResult.Cancelled.describeChangeEvent(StageResult.Cancelled)).isEqualTo(StageEvent.Cancelled);
-        assertThat(StageResult.Cancelled.describeChangeEvent(StageResult.Unknown)).isEqualTo(StageEvent.Cancelled);
+        assertThat(StageResult.Cancelled.toEventFromPrevious(StageResult.Passed)).isEqualTo(StageEvent.Cancelled);
+        assertThat(StageResult.Cancelled.toEventFromPrevious(StageResult.Failed)).isEqualTo(StageEvent.Cancelled);
+        assertThat(StageResult.Cancelled.toEventFromPrevious(StageResult.Cancelled)).isEqualTo(StageEvent.Cancelled);
+        assertThat(StageResult.Cancelled.toEventFromPrevious(StageResult.Unknown)).isEqualTo(StageEvent.Cancelled);
 
-        assertThat(StageResult.Passed.describeChangeEvent(StageResult.Failed)).isEqualTo(StageEvent.Fixed);
-        assertThat(StageResult.Passed.describeChangeEvent(StageResult.Cancelled)).isEqualTo(StageEvent.Passes);
-        assertThat(StageResult.Passed.describeChangeEvent(StageResult.Passed)).isEqualTo(StageEvent.Passes);
-        assertThat(StageResult.Passed.describeChangeEvent(StageResult.Unknown)).isEqualTo(StageEvent.Passes);
+        assertThat(StageResult.Passed.toEventFromPrevious(StageResult.Failed)).isEqualTo(StageEvent.Fixed);
+        assertThat(StageResult.Passed.toEventFromPrevious(StageResult.Cancelled)).isEqualTo(StageEvent.Passes);
+        assertThat(StageResult.Passed.toEventFromPrevious(StageResult.Passed)).isEqualTo(StageEvent.Passes);
+        assertThat(StageResult.Passed.toEventFromPrevious(StageResult.Unknown)).isEqualTo(StageEvent.Passes);
 
-        assertThat(StageResult.Failed.describeChangeEvent(StageResult.Passed)).isEqualTo(StageEvent.Breaks);
-        assertThat(StageResult.Failed.describeChangeEvent(StageResult.Failed)).isEqualTo(StageEvent.Fails);
-        assertThat(StageResult.Failed.describeChangeEvent(StageResult.Cancelled)).isEqualTo(StageEvent.Fails);
-        assertThat(StageResult.Failed.describeChangeEvent(StageResult.Unknown)).isEqualTo(StageEvent.Fails);
+        assertThat(StageResult.Failed.toEventFromPrevious(StageResult.Passed)).isEqualTo(StageEvent.Breaks);
+        assertThat(StageResult.Failed.toEventFromPrevious(StageResult.Failed)).isEqualTo(StageEvent.Fails);
+        assertThat(StageResult.Failed.toEventFromPrevious(StageResult.Cancelled)).isEqualTo(StageEvent.Fails);
+        assertThat(StageResult.Failed.toEventFromPrevious(StageResult.Unknown)).isEqualTo(StageEvent.Fails);
     }
 
     @Test
     public void shouldThrowExceptionIfNewStatusIsUnknown() {
         try {
-            StageResult.Unknown.describeChangeEvent(StageResult.Passed);
+            StageResult.Unknown.toEventFromPrevious(StageResult.Passed);
             fail("shouldThrowExceptionIfNewStatusIsUnknown");
         } catch (Exception e) {
             assertThat(e.getMessage()).isEqualTo("Current result can not be Unknown");

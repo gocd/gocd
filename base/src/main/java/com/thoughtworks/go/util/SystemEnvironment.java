@@ -40,12 +40,13 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String CRUISE_LISTEN_HOST = "cruise.listen.host";
     public static final String CRUISE_SERVER_PORT = "cruise.server.port";
 
-    private static final String JETTY_XML = "jetty.xml";
     public static final String CRUISE_SERVER_WAR_PROPERTY = "cruise.server.war";
 
     public static final String CRUISE_CONFIG_REPO_DIR = "cruise.config.repo.dir";
     public static final String DB_BASE_DIR = "db/";
     private static final String CONFIG_REPO_DEFAULT_PATH = DB_BASE_DIR + "config.git";
+
+    public static final String WEBAPP_CONTEXT_PATH = "/go";
 
     public static final String ACTIVEMQ_USE_JMX = "activemq.use.jmx";
     public static final String ACTIVEMQ_QUEUE_PREFETCH = "activemq.queue.prefetch";
@@ -131,10 +132,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final GoSystemProperty<Integer> GO_SERVER_AUTHORIZATION_EXTENSION_CALLS_CACHE_TIMEOUT_IN_SECONDS = new GoIntSystemProperty("go.server.authorization.extension.calls.cache.timeout.in.secs", 60);
 
-    public static final GoSystemProperty<String> JETTY_XML_FILE_NAME = new GoStringSystemProperty("jetty.xml.file.name", JETTY_XML);
+    public static final GoSystemProperty<String> JETTY_XML_FILE_NAME = new GoStringSystemProperty("jetty.xml.file.name", "jetty.xml");
 
-    public static final String JETTY = "com.thoughtworks.go.server.JettyServer";
-    public static final GoSystemProperty<String> APP_SERVER = new CachedProperty<>(new GoStringSystemProperty("app.server", JETTY));
+    public static final GoSystemProperty<String> APP_SERVER = new CachedProperty<>(new GoStringSystemProperty("app.server", "com.thoughtworks.go.server.JettyServer"));
     public static final GoSystemProperty<String> GO_LANDING_PAGE = new GoStringSystemProperty("go.landing.page", "/pipelines");
 
     public static final GoSystemProperty<Boolean> FETCH_ARTIFACT_AUTO_SUGGEST = new GoBooleanSystemProperty("go.fetch-artifact.auto-suggest", true);
@@ -455,7 +455,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
 
     private String defaultRemotingUrl() {
-        return "https://localhost:8153" + getWebappContextPath();
+        return "https://localhost:8153" + WEBAPP_CONTEXT_PATH;
     }
 
     public boolean useCompressedJs() {
@@ -482,14 +482,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         databaseFullSizeLimit = null;
         artifactFullSizeLimit = null;
         consoleLogCharset = null;
-    }
-
-    public String getWebappContextPath() {
-        return getPropertyImpl("cruise.server.context", "/go");
-    }
-
-    public String pathFor(String appPath) {
-        return (getWebappContextPath() + "/" + appPath).replaceAll("//", "/");
     }
 
     public String getCruiseWar() {
@@ -544,10 +536,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return MATERIAL_UPDATE_IDLE_INTERVAL_IN_MILLIS.getValue();
     }
 
-    public String landingPage() {
-        return GO_LANDING_PAGE.getValue();
+    public String getLandingPage() {
+        return UrlUtil.joinPathPartsPreEncoded(WEBAPP_CONTEXT_PATH, GO_LANDING_PAGE.getValue());
     }
-
 
     public boolean isFetchArtifactTemplateAutoSuggestEnabled() {
         return GO_FETCH_ARTIFACT_TEMPLATE_AUTO_SUGGEST.getValue();

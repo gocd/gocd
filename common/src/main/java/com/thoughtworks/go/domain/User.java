@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.validation.Validator;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,28 +123,6 @@ public class User extends PersistentObject {
         this.matcher = Matcher.normalize(matcher);
     }
 
-    boolean matchModification(MaterialRevisions materialRevisions) {
-        if (this.matcher == null || this.matcher.isEmpty()) {
-            return false;
-        }
-        return materialRevisions.containsMyCheckin(new Matcher(matcher));
-    }
-
-    public boolean matchNotification(StageConfigIdentifier stageIdentifier, StageEvent event,
-                                     MaterialRevisions materialRevisions) {
-        if (!shouldSendEmail()) {
-            return false;
-        }
-        for (NotificationFilter filter : notificationFilters) {
-            if (filter.matchStage(stageIdentifier, event)) {
-                if (filter.isAppliedOnAllCheckins() || matchModification(materialRevisions)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -185,10 +164,6 @@ public class User extends PersistentObject {
 
     public void setNotificationFilters(List<NotificationFilter> notificationFilters) {
         this.notificationFilters = notificationFilters;
-    }
-
-    private boolean shouldSendEmail() {
-        return isEmailMe() && email != null && !email.isEmpty();
     }
 
     private void validate(Validator<String> validator, String valueToValidate) throws ValidationException {
@@ -261,7 +236,24 @@ public class User extends PersistentObject {
         notificationFilters.removeIf(filter1 -> filter1.getId() == filterId);
     }
 
-    public boolean hasSubscribedFor(String pipelineName, String stageName) {
-        return notificationFilters.stream().anyMatch(filter -> filter.appliesTo(pipelineName, stageName));
+    public boolean hasSubscribedFor(StageEvent event, StageConfigIdentifier stageIdentifier) {
+        return shouldSendEmail() && notificationFilters.stream().anyMatch(filter -> filter.appliesTo(event, stageIdentifier));
+    }
+
+    public boolean hasSubscribedFor(StageConfigIdentifier stageIdentifier, StageEvent event, MaterialRevisions materialRevisions) {
+        return shouldSendEmail() &&
+            notificationFilters.stream().anyMatch(filter ->
+                filter.appliesTo(event, stageIdentifier) &&
+                    (filter.isAppliedOnAllCheckins() || matchModification(materialRevisions)));
+    }
+
+    private boolean shouldSendEmail() {
+        return isEmailMe() && email != null && !email.isEmpty();
+    }
+
+    @VisibleForTesting
+    boolean matchModification(MaterialRevisions materialRevisions) {
+        return this.matcher != null && !this.matcher.isEmpty() &&
+            materialRevisions.containsMyCheckin(new Matcher(matcher));
     }
 }

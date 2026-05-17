@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.NullStage;
 import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.StageMother;
 import org.junit.jupiter.api.BeforeEach;

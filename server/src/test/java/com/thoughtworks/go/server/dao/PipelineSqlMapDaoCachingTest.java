@@ -260,7 +260,7 @@ class PipelineSqlMapDaoCachingTest {
     @Test
     void shouldRemoveLatestPassedStageForPipelineFromCacheUponStageStatusChangeCaseInsensitively() {
         String stage = "stage";
-        Stage passedStage = StageMother.passedStageInstance(stage.toUpperCase(), "job", "pipeline-name");
+        Stage passedStage = StageMother.passedStageInstance("pipeline-name", stage.toUpperCase(), "job");
         passedStage.setPipelineId(10L);
 
         goCache.put(pipelineDao.cacheKeyForLatestPassedStage(passedStage.getPipelineId(), stage), new StageIdentifier());

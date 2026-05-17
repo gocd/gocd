@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.domain.activity;
+package com.thoughtworks.go.domain.cctray;
 
 import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.util.Dates;
+import com.thoughtworks.go.util.UrlUtil;
 import org.jdom2.Element;
 import org.jdom2.output.XMLOutputter;
 
@@ -29,39 +30,33 @@ import java.util.Set;
 import static java.lang.String.join;
 
 public class ProjectStatus {
-    public static final Date DEFAULT_LAST_BUILD_TIME = new Date();
-    public static final String DEFAULT_LAST_BUILD_STATUS = "Success";
     public static final String SITE_URL_PREFIX = "__SITE_URL_PREFIX__";
-    public static final String DEFAULT_LAST_BUILD_LABEL = "1";
 
-    private String name;
-    private String activity;
-    private String lastBuildStatus;
-    private String lastBuildLabel;
+    private final String name;
+    private final String activity;
+    private final String lastBuildStatus;
+    private final String lastBuildLabel;
     private final Set<String> breakers;
-    private Date lastBuildTime;
-    private String webUrl;
+    private final Date lastBuildTime;
+    private final String webPathAfterContext;
+
     private volatile Users viewers;
-    private String cachedXmlRepresentation;
+    private volatile String cachedXmlRepresentation;
 
     public ProjectStatus(String name, String activity, String lastBuildStatus, String lastBuildLabel,
-                         Date lastBuildTime, String webUrl) {
-        this(name, activity, lastBuildStatus, lastBuildLabel, lastBuildTime, webUrl, new HashSet<>());
-    }
-
-    public ProjectStatus(String name, String activity, String webUrl) {
-        this(name, activity, DEFAULT_LAST_BUILD_STATUS, DEFAULT_LAST_BUILD_LABEL, DEFAULT_LAST_BUILD_TIME, webUrl);
+                         Date lastBuildTime, String webPathAfterContext) {
+        this(name, activity, lastBuildStatus, lastBuildLabel, lastBuildTime, webPathAfterContext, new HashSet<>());
     }
 
     public ProjectStatus(String name, String activity, String lastBuildStatus, String lastBuildLabel,
-                         Date lastBuildTime, String webUrl, Set<String> breakers) {
+                         Date lastBuildTime, String webPathAfterContext, Set<String> breakers) {
         this.name = name;
         this.activity = activity;
         this.lastBuildStatus = lastBuildStatus;
         this.lastBuildLabel = lastBuildLabel;
         this.breakers = breakers;
-        this.lastBuildTime = lastBuildTime == null ? DEFAULT_LAST_BUILD_TIME : lastBuildTime;
-        this.webUrl = webUrl;
+        this.lastBuildTime = lastBuildTime == null ? new Date() : lastBuildTime;
+        this.webPathAfterContext = webPathAfterContext;
         this.viewers = NoOne.INSTANCE;
     }
 
@@ -81,7 +76,7 @@ public class ProjectStatus {
             Objects.equals(lastBuildStatus, that.lastBuildStatus) &&
             Objects.equals(lastBuildTime, that.lastBuildTime) &&
             Objects.equals(name, that.name) &&
-            Objects.equals(webUrl, that.webUrl) &&
+            Objects.equals(webPathAfterContext, that.webPathAfterContext) &&
             Objects.equals(breakers, that.breakers);
     }
 
@@ -93,7 +88,7 @@ public class ProjectStatus {
         result = 31 * result + (lastBuildStatus != null ? lastBuildStatus.hashCode() : 0);
         result = 31 * result + (lastBuildLabel != null ? lastBuildLabel.hashCode() : 0);
         result = 31 * result + (lastBuildTime != null ? lastBuildTime.hashCode() : 0);
-        result = 31 * result + (webUrl != null ? webUrl.hashCode() : 0);
+        result = 31 * result + (webPathAfterContext != null ? webPathAfterContext.hashCode() : 0);
         result = 31 * result + (breakers != null ? breakers.hashCode() : 0);
         return result;
     }
@@ -101,7 +96,7 @@ public class ProjectStatus {
     @Override
     public String toString() {
         return String.format("ProjectStatus[%s, %s, %s, %s, %s, %s, %s]", name, activity, lastBuildStatus, lastBuildLabel,
-                Dates.formatIso8601CompactOffset(lastBuildTime) + "(" + lastBuildTime.getTime() + ")", webUrl, breakers);
+                Dates.formatIso8601CompactOffset(lastBuildTime) + "(" + lastBuildTime.getTime() + ")", webPathAfterContext, breakers);
     }
 
     public String getLastBuildLabel() {
@@ -127,7 +122,7 @@ public class ProjectStatus {
         element.setAttribute("lastBuildStatus", lastBuildStatus);
         element.setAttribute("lastBuildLabel", lastBuildLabel);
         element.setAttribute("lastBuildTime", Dates.formatIso8601ForCCTray(lastBuildTime));
-        element.setAttribute("webUrl", fullContextPath + "/" + webUrl);
+        element.setAttribute("webUrl", UrlUtil.joinPathPartsPreEncoded(fullContextPath, webPathAfterContext));
 
         if (!breakers.isEmpty()) {
             addBreakers(element);
@@ -171,8 +166,10 @@ public class ProjectStatus {
     }
 
     public static class NullProjectStatus extends ProjectStatus {
+        private static final Date DEFAULT_LAST_BUILD_DATE = new Date();
+
         public NullProjectStatus(String name) {
-            super(name, "", DEFAULT_LAST_BUILD_STATUS, DEFAULT_LAST_BUILD_LABEL, DEFAULT_LAST_BUILD_TIME, "");
+            super(name, "", "Success", "1", DEFAULT_LAST_BUILD_DATE, "");
         }
 
         @Override

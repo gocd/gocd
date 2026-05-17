@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain.cctray;
 
-import com.thoughtworks.go.domain.activity.ProjectStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

@@ -36,6 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.thoughtworks.go.agent.common.util.Downloader.*;
 import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.*;
+import static com.thoughtworks.go.util.SystemEnvironment.WEBAPP_CONTEXT_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -77,7 +78,7 @@ public class AgentLauncherImplTest {
     private AgentLaunchDescriptor launchDescriptor() {
         AgentLaunchDescriptor launchDescriptor = mock(AgentLaunchDescriptor.class);
         Map<String, String> contextMap = new ConcurrentHashMap<>();
-        contextMap.put(AgentBootstrapperArgs.SERVER_URL, "http://localhost:" + server.getPort() + "/go");
+        contextMap.put(AgentBootstrapperArgs.SERVER_URL, "http://localhost:" + server.getPort() + WEBAPP_CONTEXT_PATH);
         contextMap.put(AgentBootstrapperArgs.SSL_VERIFICATION_MODE, "NONE");
         when(launchDescriptor.context()).thenReturn(contextMap);
         return launchDescriptor;

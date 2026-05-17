@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.newsecurity.filters;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
 import com.thoughtworks.go.server.service.MaintenanceModeService;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,8 +34,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ModeAwareFilterTest {
     @Mock
-    private SystemEnvironment systemEnvironment;
-    @Mock
     private MaintenanceModeService maintenanceModeService;
     @Mock
     private HttpServletRequest request;
@@ -52,7 +49,7 @@ class ModeAwareFilterTest {
     @BeforeEach
     void setUp() throws Exception {
         lenient().when(response.getWriter()).thenReturn(writer);
-        filter = new ModeAwareFilter(systemEnvironment, maintenanceModeService);
+        filter = new ModeAwareFilter(maintenanceModeService);
     }
 
     @Test
@@ -121,7 +118,6 @@ class ModeAwareFilterTest {
         request = HttpRequestBuilder.POST("/auth/security_check").build();
 
         lenient().when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
-        when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
 
         filter.doFilter(request, response, filterChain);
 

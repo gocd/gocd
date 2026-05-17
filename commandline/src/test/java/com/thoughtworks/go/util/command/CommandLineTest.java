@@ -88,7 +88,7 @@ public class CommandLineTest {
                 + " " + DBL_QUOTE + ARG_SPACES + DBL_QUOTE;
         assertEquals(expectedWithQuotes, cl.toString());
 
-        assertEquals(expectedWithQuotes.replaceAll(DBL_QUOTE, ""), cl.toStringForDisplay());
+        assertEquals(expectedWithQuotes.replace(DBL_QUOTE, ""), cl.toStringForDisplay());
 
         assertEquals(expectedWithQuotes, cl + "", "Did the impl of CommandLine.toString() change?");
     }

@@ -448,7 +448,7 @@ clean {
   delete 'config/truststore'
 }
 
-tasks.register('configureWar') {
+def configureWar = tasks.register('configureWar') {
   dependsOn findGemsToNotPack
   dependsOn ':server:compileAssets'
 
@@ -490,6 +490,7 @@ tasks.register('configureWar') {
       exclude("**/rails/app/assets/javascripts/")
       exclude("**/rails/app/assets/*stylesheets/")
       exclude("**/rails/webpack/")
+      exclude("**/rails/public/assets/") // brought in via compileAssets; never trust whatever was left in the source tree
 
       // Unnecessary Gems and related cruft
       exclude("**/rails/gems/jruby/*/bin/")
@@ -939,7 +940,7 @@ tasks.register('licenseReportAggregate') {
     // get the licenses corresponding to the jars we actually package.
     def licensesForPackagedJarDependencies = getLicenseDataFor(allJars, allJarDependencyLicenses) as Map<String, Map<String, Object>>
 
-    injected.fileOps.delete { delete(licenseReportAggregateOutputDir) }
+    delete(licenseReportAggregateOutputDir)
     licenseReportAggregateOutputDir.get().asFile.mkdirs()
 
     def licenseReport = new LicenseReport(

@@ -25,6 +25,7 @@ abstract class ExecuteUnderRailsTask extends JRuby {
   ExecuteUnderRailsTask() {
     def initTask = project.tasks.named('initializeRailsGems')
     dependsOn(initTask)
+    inputs.files(initTask)
     workingDir = project.railsRoot
     classpath = classpath.filter { false } // Remove convenience jruby-jar and expect tasks to define their own classpath
     bundledGemsPath = initTask.map { new File(it.outputs.files.first(), 'jruby').listFiles().first() }

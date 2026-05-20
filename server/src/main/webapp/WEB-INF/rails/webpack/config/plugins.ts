@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {Buffer} from "buffer";
 import ESLintPlugin from "eslint-webpack-plugin";
 import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
@@ -23,7 +22,7 @@ import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import fs from "node:fs";
 import path from "node:path";
 import StylelintPlugin from "stylelint-webpack-plugin";
-import {Compiler, ProvidePlugin, WebpackPluginInstance} from "webpack";
+import {Compiler, ProvidePlugin, sources, WebpackPluginInstance} from "webpack";
 import {WebpackAssetsManifest} from "webpack-assets-manifest";
 import {ConfigOptions, getEntries} from "./variables";
 import {LicensePlugins} from "./webpack-license-plugin";
@@ -96,34 +95,13 @@ export function plugins(configOptions: ConfigOptions): WebpackPluginInstance[] {
         compiler.hooks.emit.tapAsync(
           "JasmineAssetsPlugin",
           (compilation, callback) => {
-            const allJasmineAssets = jasmineFiles.jsFiles.concat(jasmineFiles.bootFiles)
+            const allJasmineAssets = jasmineFiles.jsFiles
+              .concat(jasmineFiles.bootFiles)
               .concat(jasmineFiles.cssFiles);
 
             _.each(allJasmineAssets, (asset) => {
-              const file = path.join(jasmineFiles.path, asset);
-
-              const contents = fs.readFileSync(file).toString();
-
-              compilation.assets[`__jasmine/${asset}`] = {
-                source() {
-                  return contents;
-                },
-                size() {
-                  return contents.length;
-                },
-                map() {
-                  return null;
-                },
-                sourceAndMap() {
-                  return {source: contents, map: null};
-                },
-                updateHash() {
-                  // no-op
-                },
-                buffer() {
-                  return Buffer.from(contents, "utf8");
-                }
-              };
+              const contents = fs.readFileSync(path.join(jasmineFiles.path, asset));
+              compilation.emitAsset(`__jasmine/${asset}`, new sources.RawSource(contents));
             });
 
             callback();

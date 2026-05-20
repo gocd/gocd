@@ -127,8 +127,9 @@
     "webpack-cli": "^7.0.2"
   },
   "resolutions": {
-    "karma-jasmine@npm:5.1.0/jasmine-core": "^5.1.1",
-    "terser-webpack-plugin@npm:5.3.16/serialize-javascript": "^7.0.2",
+    "karma-jasmine@npm:5.1.0/jasmine-core": "^5",
+    "engine.io/ws": "^8",
+    "socket.io-adapter/ws": "^8",
     "angular": "portal:node-vendor/angular",
     "opensans": "portal:node-vendor/opensans"
   }

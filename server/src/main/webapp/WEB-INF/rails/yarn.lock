@@ -5629,7 +5629,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jasmine-core@npm:^5.1.1, jasmine-core@npm:~5.13.0":
+"jasmine-core@npm:^5, jasmine-core@npm:~5.13.0":
   version: 5.13.0
   resolution: "jasmine-core@npm:5.13.0"
   checksum: 10c0/3bbf1dbbde8017f41872a27f22bafd164fe4fcf834347af23d7d5a63e7e35c72c79e1596e6b384dd2906e885518419e13a6c7535ffabf8256b624110d664599d
@@ -9532,7 +9532,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:^8.20.1":
+"ws@npm:^8, ws@npm:^8.20.1":
   version: 8.20.1
   resolution: "ws@npm:8.20.1"
   peerDependencies:
@@ -9544,21 +9544,6 @@ __metadata:
     utf-8-validate:
       optional: true
   checksum: 10c0/ce162433218399cdedeb76fd33363d4d86a7d910058d4e3c679dce08cea65d6da6b39f11baa4d7808d024cf46ed88f6a05c17611621aaad8fc5e62edacc30c5d
-  languageName: node
-  linkType: hard
-
-"ws@npm:~8.18.3":
-  version: 8.18.3
-  resolution: "ws@npm:8.18.3"
-  peerDependencies:
-    bufferutil: ^4.0.1
-    utf-8-validate: ">=5.0.2"
-  peerDependenciesMeta:
-    bufferutil:
-      optional: true
-    utf-8-validate:
-      optional: true
-  checksum: 10c0/eac918213de265ef7cb3d4ca348b891a51a520d839aa51cdb8ca93d4fa7ff9f6ccb339ccee89e4075324097f0a55157c89fa3f7147bde9d8d7e90335dc087b53
   languageName: node
   linkType: hard
 

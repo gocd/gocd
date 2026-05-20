@@ -128,8 +128,6 @@
   },
   "resolutions": {
     "karma-jasmine@npm:5.1.0/jasmine-core": "^5",
-    "engine.io/ws": "^8",
-    "socket.io-adapter/ws": "^8",
     "angular": "portal:node-vendor/angular",
     "opensans": "portal:node-vendor/opensans"
   }

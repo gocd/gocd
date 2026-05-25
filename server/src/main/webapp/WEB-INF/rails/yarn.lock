@@ -4844,8 +4844,8 @@ __metadata:
     url-loader: "npm:^4.1.1"
     url-parse: "npm:^1.5.10"
     uuid: "npm:^14.0.0"
-    webpack: "npm:^5.107.0"
-    webpack-assets-manifest: "npm:^6.5.1"
+    webpack: "npm:^5.107.1"
+    webpack-assets-manifest: "npm:^6.5.2"
     webpack-cli: "npm:^7.0.2"
     what-input: "npm:^5.2.12"
   languageName: unknown
@@ -9256,17 +9256,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-assets-manifest@npm:^6.5.1":
-  version: 6.5.1
-  resolution: "webpack-assets-manifest@npm:6.5.1"
+"webpack-assets-manifest@npm:^6.5.2":
+  version: 6.5.2
+  resolution: "webpack-assets-manifest@npm:6.5.2"
   dependencies:
     deepmerge: "npm:^4.3.1"
     proper-lockfile: "npm:^4.1.2"
     schema-utils: "npm:^4.3.3"
-    tapable: "npm:^2.3.0"
+    tapable: "npm:^2.3.3"
   peerDependencies:
     webpack: ^5.61.0
-  checksum: 10c0/17153c1e9384d160d986428ed1472e3ef7363bc061c229692b29fa9f7d34769cc3dc09a4b04c1a079da907d4e50e7c5378946342beaff61e599382c6018cbe16
+  checksum: 10c0/f993404c1e78844fdda5c36891d9063b25221a7059398b0e1882f62c41ce2d4edb0cab670a21373bf71610110085f153df7c5d8c4fb316b51ac246a3c0309d3f
   languageName: node
   linkType: hard
 
@@ -9316,9 +9316,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:^5.107.0":
-  version: 5.107.0
-  resolution: "webpack@npm:5.107.0"
+"webpack@npm:^5.107.1":
+  version: 5.107.1
+  resolution: "webpack@npm:5.107.1"
   dependencies:
     "@types/estree": "npm:^1.0.8"
     "@types/json-schema": "npm:^7.0.15"
@@ -9348,7 +9348,7 @@ __metadata:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: 10c0/e452f246a344b51d8f07f64967aa3181281e8c5edaa1eb598d820970d2c321afdf0a1416278c281531e2f9c6577a1528684704fd2745230119ef6a129596fc93
+  checksum: 10c0/18f4788d71c994bfab491774a6d669cad9f77c6eb93fb29db7efa12bc70cf8adeb904ba5da150678883e24ba2c73e9f6efbfb9912cbe7a4e9a7fc2a1859fd90c
   languageName: node
   linkType: hard
 

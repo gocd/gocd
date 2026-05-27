@@ -60,10 +60,10 @@
     "what-input": "^5.2.12"
   },
   "devDependencies": {
-    "@babel/core": "^7.29.0",
-    "@babel/eslint-parser": "^7.28.6",
-    "@babel/preset-env": "^7.29.5",
-    "@babel/preset-react": "^7.28.5",
+    "@babel/core": "^7.29.7",
+    "@babel/eslint-parser": "^7.29.7",
+    "@babel/preset-env": "^7.29.7",
+    "@babel/preset-react": "^7.29.7",
     "@eslint/js": "^9.39.4",
     "@types/awesomplete": "^1.1.16",
     "@types/fs-extra": "^11.0.4",
@@ -122,7 +122,7 @@
     "typescript": "^6.0.3",
     "upath": "^3.0.7",
     "url-loader": "^4.1.1",
-    "webpack": "^5.107.1",
+    "webpack": "^5.107.2",
     "webpack-assets-manifest": "^6.5.2",
     "webpack-cli": "^7.0.2"
   },

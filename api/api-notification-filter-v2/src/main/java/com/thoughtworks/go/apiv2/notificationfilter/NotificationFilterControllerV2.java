@@ -42,6 +42,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
+import spark.route.HttpMethod;
 
 import java.io.IOException;
 import java.util.List;
@@ -80,12 +81,12 @@ public class NotificationFilterControllerV2 extends ApiController implements Spa
             before("", mimeType, this::setContentType);
             before("", mimeType, this::verifyContentType);
             before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
-            before("", mimeType, onlyOn(this::canConfigureNotificationFilters, "POST"));
+            before("", mimeType, onlyOn(this::canConfigureNotificationFilters, HttpMethod.post));
 
             before("/*", mimeType, this::verifyContentType);
             before("/*", mimeType, this::setContentType);
             before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
-            before("/*", mimeType, onlyOn(this::canConfigureNotificationFilters, "PATCH"));
+            before("/*", mimeType, onlyOn(this::canConfigureNotificationFilters, HttpMethod.patch));
 
             get("", mimeType, this::index);
             get(Routes.NotificationFilterAPI.ID, mimeType, this::show);

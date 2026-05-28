@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
+import spark.route.HttpMethod;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -71,8 +72,8 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
             before("/*", mimeType, this::setContentType);
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
-            before("", mimeType, onlyOn(apiAuthenticationHelper::checkAdminUserAnd403, "POST"));
-            before("", mimeType, onlyOn(apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403, "GET", "HEAD"));
+            before("", mimeType, onlyOn(apiAuthenticationHelper::checkAdminUserAnd403, HttpMethod.post));
+            before("", mimeType, onlyOn(apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403, HttpMethod.get, HttpMethod.head));
             before(Routes.PipelineGroupsAdmin.NAME_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminOfPipelineOrGroupInURLUserAnd403);
 
             get("", mimeType, this::index);

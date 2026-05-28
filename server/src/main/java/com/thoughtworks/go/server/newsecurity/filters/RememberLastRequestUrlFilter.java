@@ -30,7 +30,7 @@ public class RememberLastRequestUrlFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
-        if (request.getMethod().equals("GET") || request.getMethod().equals("HEAD")) {
+        if (request.getMethod().equalsIgnoreCase("GET") || request.getMethod().equalsIgnoreCase("HEAD")) {
             SessionUtils.saveRequest(request);
         }
         filterChain.doFilter(request, response);

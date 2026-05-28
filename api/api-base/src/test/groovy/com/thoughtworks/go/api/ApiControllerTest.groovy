@@ -24,14 +24,16 @@ import com.thoughtworks.go.spark.util.SecureRandom
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
-import spark.HaltException
-import spark.Request
-import spark.RequestResponseFactory
+import spark.*
+import spark.route.HttpMethod
 
 import static com.thoughtworks.go.api.util.HaltApiMessages.jsonContentTypeExpected
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode
+import static org.mockito.Mockito.*
 
 class ApiControllerTest {
 
@@ -188,6 +190,27 @@ class ApiControllerTest {
           .as("${method} response should be ok with empty body")
           .isOk()
       }
+    }
+  }
+
+  @Nested
+  class onlyOn {
+    @ParameterizedTest
+    @ValueSource(strings = ['post', 'POST'])
+    void 'should apply filter to specified method type'(String method) {
+      Request request = RequestResponseFactory.create(new HttpRequestBuilder().withMethod(method).build())
+      def filter = mock(Filter)
+      ApiController.onlyOn(filter, HttpMethod.post).handle(request, null)
+      verify(filter).handle(request, null as Response)
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ['GET', 'PATCH', 'other'])
+    void 'should not apply filter to excluded method type'(String method) {
+      Request request = RequestResponseFactory.create(new HttpRequestBuilder().withMethod(method).build())
+      def filter = mock(Filter)
+      ApiController.onlyOn(filter, HttpMethod.post).handle(request, null)
+      verifyNoInteractions(filter)
     }
   }
 

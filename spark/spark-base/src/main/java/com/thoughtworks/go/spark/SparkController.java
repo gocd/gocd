@@ -21,6 +21,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.util.UriEncodingUtil;
 import spark.Request;
+import spark.route.HttpMethod;
 
 import java.util.Map;
 
@@ -54,9 +55,9 @@ public interface SparkController {
     }
 
     default SupportedAction getAction(Request request) {
-        return switch (request.requestMethod()) {
-            case "GET", "HEAD" -> SupportedAction.VIEW;
-            case "POST", "DELETE", "PATCH", "PUT" -> SupportedAction.ADMINISTER;
+        return switch (HttpMethod.get(request.requestMethod().toLowerCase())) {
+            case get, head -> SupportedAction.VIEW;
+            case post, delete, patch, put -> SupportedAction.ADMINISTER;
             default -> SupportedAction.UNKNOWN;
         };
     }

@@ -76,7 +76,7 @@ public class PluginImagesController implements SparkController, ControllerMethod
         response.status(200);
         response.header("Content-Type", image.getContentType());
         this.setEtagHeader(response, image.getHash());
-        if (request.requestMethod().equals("head")) {
+        if ("HEAD".equalsIgnoreCase(request.requestMethod())) {
             return new byte[0];
         } else {
             return image.getDataAsBytes();

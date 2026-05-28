@@ -42,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
+import spark.route.HttpMethod;
 
 import java.io.IOException;
 import java.util.List;
@@ -103,10 +104,10 @@ public class TemplateConfigControllerV7 extends ApiController implements SparkSp
             before("/*", mimeType, this::setContentType);
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
-            before("", mimeType, onlyOn(apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403, "POST"));
-            before("", mimeType, onlyOn(apiAuthenticationHelper::checkIsAllowedToSeeAnyTemplates403, "GET", "HEAD"));
-            before(Routes.PipelineTemplateConfig.NAME, mimeType, onlyOn(apiAuthenticationHelper::checkViewAccessToTemplateAnd403, "GET", "HEAD"));
-            before(Routes.PipelineTemplateConfig.NAME, mimeType, onlyOn(apiAuthenticationHelper::checkAdminOrTemplateAdminAnd403, "PUT", "PATCH", "DELETE"));
+            before("", mimeType, onlyOn(apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403, HttpMethod.post));
+            before("", mimeType, onlyOn(apiAuthenticationHelper::checkIsAllowedToSeeAnyTemplates403, HttpMethod.get, HttpMethod.head));
+            before(Routes.PipelineTemplateConfig.NAME, mimeType, onlyOn(apiAuthenticationHelper::checkViewAccessToTemplateAnd403, HttpMethod.get, HttpMethod.head));
+            before(Routes.PipelineTemplateConfig.NAME, mimeType, onlyOn(apiAuthenticationHelper::checkAdminOrTemplateAdminAnd403, HttpMethod.put, HttpMethod.patch, HttpMethod.delete));
             before(Routes.PipelineTemplateConfig.PARAMETERS, mimeType, apiAuthenticationHelper::checkViewAccessToTemplateAnd403);
 
             get("", mimeType, this::index);

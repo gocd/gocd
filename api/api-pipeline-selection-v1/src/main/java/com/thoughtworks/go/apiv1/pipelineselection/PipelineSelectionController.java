@@ -51,6 +51,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.util.SystemEnvironment.WEBAPP_CONTEXT_PATH;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.joinWith;
 import static spark.Spark.*;
@@ -146,7 +147,7 @@ public class PipelineSelectionController extends ApiController implements SparkS
         Long recordId = pipelineSelectionsService.save(fromCookie, userId, filters);
 
         if (!apiAuthenticationHelper.securityEnabled()) {
-            response.cookie("/go", COOKIE_NAME, String.valueOf(recordId), ONE_YEAR, systemEnvironment.isSessionCookieSecure(), true);
+            response.cookie(WEBAPP_CONTEXT_PATH, COOKIE_NAME, String.valueOf(recordId), ONE_YEAR, systemEnvironment.isSessionCookieSecure(), true);
         }
 
         response.status(HttpURLConnection.HTTP_OK);

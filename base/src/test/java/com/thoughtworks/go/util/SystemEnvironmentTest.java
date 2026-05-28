@@ -106,12 +106,6 @@ class SystemEnvironmentTest {
     }
 
     @Test
-    void shouldPrefixApplicationPathWithContext() {
-        assertThat(systemEnvironment.pathFor("foo/bar")).isEqualTo("/go/foo/bar");
-        assertThat(systemEnvironment.pathFor("/baz/quux")).isEqualTo("/go/baz/quux");
-    }
-
-    @Test
     void shouldUnderstandConfigRepoDir() {
         Properties properties = new Properties();
         SystemEnvironment systemEnvironment = new SystemEnvironment(properties);
@@ -202,19 +196,13 @@ class SystemEnvironmentTest {
 
     @Test
     void shouldGetDefaultLandingPageAsPipelines() {
-        String landingPage = systemEnvironment.landingPage();
-        assertThat(landingPage).isEqualTo("/pipelines");
+        assertThat(systemEnvironment.getLandingPage()).isEqualTo("/go/pipelines");
     }
 
     @Test
     void shouldAbleToOverrideDefaultLandingPageAsPipelines() {
-        try {
-            System.setProperty("go.landing.page", "/admin/pipelines");
-            String landingPage = systemEnvironment.landingPage();
-            assertThat(landingPage).isEqualTo("/admin/pipelines");
-        } finally {
-            System.clearProperty("go.landing.page");
-        }
+        systemProperties.set("go.landing.page", "/admin/pipelines");
+        assertThat(systemEnvironment.getLandingPage()).isEqualTo("/go/admin/pipelines");
     }
 
     @Test

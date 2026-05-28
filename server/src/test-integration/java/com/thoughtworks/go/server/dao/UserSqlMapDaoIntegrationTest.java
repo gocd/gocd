@@ -24,6 +24,7 @@ import com.thoughtworks.go.server.service.AccessTokenFilter;
 import com.thoughtworks.go.server.service.AccessTokenService;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.SecondLevelCacheStatistics;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -269,38 +270,53 @@ public class UserSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldLoadOnlyActiveSubscribersOfNotification() {
-        User user1 = new User("user1");
-        user1.addNotificationFilter(new NotificationFilter("pipeline", "stage", StageEvent.Fails, true));
-        userDao.saveOrUpdate(user1);
 
-        User user2 = new User("user2");
-        user2.addNotificationFilter(new NotificationFilter("pipeline", "stage", StageEvent.Fails, true));
-        user2.addNotificationFilter(new NotificationFilter("pipeline", "stage", StageEvent.Breaks, true));
-        user2.addNotificationFilter(new NotificationFilter("pipeline", "stage", StageEvent.Passes, true));
-        userDao.saveOrUpdate(user2);
+        User singleFilter = new User("user1", "matcher", "user1@email.com", true);
+        singleFilter.addNotificationFilter(anyFilter());
+        userDao.saveOrUpdate(singleFilter);
 
-        User user3 = new User("user3");
-        user3.addNotificationFilter(new NotificationFilter("p1", "s1", StageEvent.Fails, true));
-        userDao.saveOrUpdate(user3);
+        User multipleFilters = new User("user2", "matcher", "user2@email.com", true);
+        multipleFilters.addNotificationFilter(anyFilter());
+        multipleFilters.addNotificationFilter(new NotificationFilter("pipeline", "stage", StageEvent.Passes, true));
+        userDao.saveOrUpdate(multipleFilters);
 
+        User secondSingleFilterUser = new User("user3", "matcher", "user3@email.com", true);
+        secondSingleFilterUser.addNotificationFilter(anyFilter());
+        userDao.saveOrUpdate(secondSingleFilterUser);
 
-        User disabledUser = new User("user4");
-        disabledUser.disable();
-        disabledUser.addNotificationFilter(new NotificationFilter("p1", "s1", StageEvent.Fails, true));
-        userDao.saveOrUpdate(disabledUser);
+        User noFilters = new User("user5", "matcher", "user5@email.com", true);
+        userDao.saveOrUpdate(noFilters);
 
-        User user5 = new User("user5");
-        userDao.saveOrUpdate(user5);
+        User disabled = new User("user4", "matcher", "user4@email.com", true);
+        disabled.disable();
+        disabled.addNotificationFilter(anyFilter());
+        userDao.saveOrUpdate(disabled);
+
+        User nullEmail = new User("user6", "matcher", null, true);
+        nullEmail.addNotificationFilter(anyFilter());
+        userDao.saveOrUpdate(nullEmail);
+
+        User noEmail = new User("user7", "matcher", "", true);
+        noEmail.addNotificationFilter(anyFilter());
+        userDao.saveOrUpdate(noEmail);
+
+        User dontEmail = new User("user8", "matcher", "user8@email.com", false);
+        dontEmail.addNotificationFilter(anyFilter());
+        userDao.saveOrUpdate(dontEmail);
 
         Users subscribedUsers = userDao.findNotificationSubscribingUsers();
         userDao.findNotificationSubscribingUsers();
         subscribedUsers.sort(Comparator.comparing(User::getName));
 
-        assertThat(subscribedUsers).containsExactly(user1, user2, user3);
+        assertThat(subscribedUsers).containsExactly(singleFilter, multipleFilters, secondSingleFilterUser);
 
         assertThat(subscribedUsers.get(0).getNotificationFilters().size()).isEqualTo(1);
-        assertThat(subscribedUsers.get(1).getNotificationFilters().size()).isEqualTo(3);
+        assertThat(subscribedUsers.get(1).getNotificationFilters().size()).isEqualTo(2);
         assertThat(subscribedUsers.get(2).getNotificationFilters().size()).isEqualTo(1);
+    }
+
+    private static @NonNull NotificationFilter anyFilter() {
+        return new NotificationFilter("pipeline", "stage", StageEvent.Fails, true);
     }
 
     @Test

@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.InMemoryEmailNotificationTopic;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +39,6 @@ import static org.mockito.Mockito.*;
 public class StageNotificationServiceTest {
     private PipelineService pipelineService;
     private UserService userService;
-    private SystemEnvironment systemEnvironment;
     private StageService stageService;
     private StageNotificationService stageNotificationService;
     private InMemoryEmailNotificationTopic inMemoryEmailNotificationTopic;
@@ -52,11 +50,10 @@ public class StageNotificationServiceTest {
     public void setUp() {
         pipelineService = mock(PipelineService.class);
         userService = mock(UserService.class);
-        systemEnvironment = mock(SystemEnvironment.class);
         stageService = mock(StageService.class);
         inMemoryEmailNotificationTopic = new InMemoryEmailNotificationTopic();
         serverConfigService = mock(ServerConfigService.class);
-        stageNotificationService = new StageNotificationService(pipelineService, userService, inMemoryEmailNotificationTopic, systemEnvironment, stageService, serverConfigService);
+        stageNotificationService = new StageNotificationService(pipelineService, userService, inMemoryEmailNotificationTopic, stageService, serverConfigService);
         stageIdentifier = new StageIdentifier("go", 1, "go-1", "dev", "2");
         instanceFactory = new InstanceFactory();
     }
@@ -87,7 +84,7 @@ public class StageNotificationServiceTest {
 
     @Test
     public void shouldNotComputeFailedTestSuitesWhenThereAreNoSubscribers() {
-        when(userService.findValidSubscribers(stageIdentifier.stageConfigIdentifier())).thenReturn(new Users(new ArrayList<>()));
+        when(userService.findValidNotificationSubscribers(StageEvent.Fails, stageIdentifier.stageConfigIdentifier())).thenReturn(new Users(new ArrayList<>()));
 
         stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
         verifyNoInteractions(stageService);
@@ -118,7 +115,7 @@ public class StageNotificationServiceTest {
         String jezMail = "jez@cruise.com";
         User jez = new User("jez", "lgao", jezMail, true);
         jez.setNotificationFilters(List.of(new NotificationFilter("go", "dev", StageEvent.All, true)));
-        when(userService.findValidSubscribers(new StageConfigIdentifier("go", "dev"))).thenReturn(new Users(List.of(jez)));
+        when(userService.findValidNotificationSubscribers(StageEvent.Fails, new StageConfigIdentifier("go", "dev"))).thenReturn(new Users(List.of(jez)));
         return jezMail;
     }
 

@@ -62,7 +62,7 @@ class ConfigRepoMigratorTest {
 
         String transformedJSON = migrator.migrate(oldJSON, 2);
 
-        String oldJSONWithVersionUpdatedForComparison = oldJSON.replaceAll("\"target_version\":\"1\"", "\"target_version\":\"2\"");
+        String oldJSONWithVersionUpdatedForComparison = oldJSON.replace("\"target_version\":\"1\"", "\"target_version\":\"2\"");
         assertThatJson(oldJSONWithVersionUpdatedForComparison).isEqualTo(transformedJSON);
     }
 

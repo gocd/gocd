@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.domain.activity;
+package com.thoughtworks.go.domain.cctray;
 
 import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.util.Dates;
 import org.jdom2.Element;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -29,33 +30,24 @@ import static org.mockito.Mockito.mock;
 public class ProjectStatusTest {
     @Test
     public void shouldGetCcTrayStatusXml() {
-        String projectName = "projectName";
-        String activity = "Building";
-        String lastBuildStatus = "Success";
-        String lastBuildLabel = "LastBuildLabel";
-        Date lastBuildTime = new Date();
-        String webUrl = "weburl";
+        ProjectStatus projectStatus = dummyStatus();
         String contextPath = "http://localhost/go";
-
-        ProjectStatus projectStatus = new ProjectStatus(projectName, activity, lastBuildStatus, lastBuildLabel,
-                lastBuildTime, webUrl);
-
         Element element = projectStatus.ccTrayXmlElement(contextPath);
 
         assertThat(element.getName()).isEqualTo("Project");
-        assertThat(element.getAttributeValue("name")).isEqualTo(projectName);
-        assertThat(element.getAttributeValue("activity")).isEqualTo(activity);
-        assertThat(element.getAttributeValue("lastBuildStatus")).isEqualTo(lastBuildStatus);
-        assertThat(element.getAttributeValue("lastBuildLabel")).isEqualTo(lastBuildLabel);
-        assertThat(element.getAttributeValue("lastBuildTime")).isEqualTo(Dates.formatIso8601ForCCTray(lastBuildTime));
-        assertThat(element.getAttributeValue("webUrl")).isEqualTo(contextPath + "/" + webUrl);
+        assertThat(element.getAttributeValue("name")).isEqualTo("name");
+        assertThat(element.getAttributeValue("activity")).isEqualTo("activity");
+        assertThat(element.getAttributeValue("lastBuildStatus")).isEqualTo("Success");
+        assertThat(element.getAttributeValue("lastBuildLabel")).isEqualTo("1");
+        assertThat(element.getAttributeValue("lastBuildTime")).isEqualTo(Dates.formatIso8601ForCCTray(projectStatus.getLastBuildTime()));
+        assertThat(element.getAttributeValue("webUrl")).isEqualTo(contextPath + "/web-url");
     }
 
     @Test
     public void shouldListViewers() {
         Users viewers = mock(Users.class);
 
-        ProjectStatus status = new ProjectStatus("name", "activity", "web-url");
+        ProjectStatus status = dummyStatus();
         status.updateViewers(viewers);
 
         assertThat(status.viewers()).isEqualTo(viewers);
@@ -88,7 +80,7 @@ public class ProjectStatusTest {
 
     @Test
     public void shouldNotBeViewableByAnyoneTillViewersAreUpdated() {
-        ProjectStatus status = new ProjectStatus("name", "activity", "web-url");
+        ProjectStatus status = dummyStatus();
 
         assertThat(status.canBeViewedBy("abc")).isFalse();
         assertThat(status.canBeViewedBy("def")).isFalse();
@@ -98,5 +90,9 @@ public class ProjectStatusTest {
         assertThat(status.canBeViewedBy("abc")).isTrue();
         assertThat(status.canBeViewedBy("def")).isFalse();
         assertThat(status.canBeViewedBy("ghi")).isTrue();
+    }
+
+    private static @NonNull ProjectStatus dummyStatus() {
+        return new ProjectStatus("name", "activity", "Success", "1", new Date(), "/web-url");
     }
 }

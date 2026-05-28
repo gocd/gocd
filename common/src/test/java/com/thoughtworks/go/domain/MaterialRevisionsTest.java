@@ -37,7 +37,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -196,11 +196,9 @@ public class MaterialRevisionsTest {
     @Test
     public void shouldNotBeAbleToAddANullModification() {
         MaterialRevisions materialRevisions = empty();
-        try {
-            materialRevisions.addRevision(MaterialsMother.svnMaterial(), (Modification) null);
-            fail("Should not be able to add a null modification");
-        } catch (Exception ignored) {
-        }
+        assertThatThrownBy(() -> materialRevisions.addRevision(MaterialsMother.svnMaterial(), (Modification) null))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("Modification cannot be null");
     }
 
     @Test

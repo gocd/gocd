@@ -36,13 +36,10 @@ public class GoConstants {
 
     public static final String PRODUCT_NAME = "go";
 
-    public static final int CONFIG_SCHEMA_VERSION = 139;
-
     public static final long MEGABYTES_IN_GIGABYTE = 1024;
     public static final long MEGA_BYTE = 1024 * 1024;
     public static final long GIGA_BYTE = MEGABYTES_IN_GIGABYTE * MEGA_BYTE;
 
-    public static final String GO_URL_CONTEXT = "/go";
     public static final String REGULAR_MULTIPART_FILENAME = "file";
     public static final String CHECKSUM_MULTIPART_FILENAME = "file_checksum";
     public static final String ZIP_MULTIPART_FILENAME = "zipfile";

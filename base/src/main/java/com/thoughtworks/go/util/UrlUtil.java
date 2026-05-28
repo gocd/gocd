@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -54,6 +56,20 @@ public class UrlUtil {
             return new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), null, null, null).toString();
         } catch (Exception e) {
             throw new RuntimeException(String.format("Url [%s] does not appear to be a valid URL", url), e);
+        }
+    }
+
+    public static String normalizeUrlString(@NotNull String encodedUrlString) {
+        return encodedUrlString.endsWith("/") ? encodedUrlString.substring(0, encodedUrlString.length() - 1) : encodedUrlString;
+    }
+
+    public static String joinPathPartsPreEncoded(String left, String right) {
+        if (left.endsWith("/")) {
+            return left + (right.startsWith("/") ? right.substring(1) : right);
+        } else if (!right.startsWith("/")) {
+            return left + "/" + right;
+        } else {
+            return left + right;
         }
     }
 }

@@ -98,7 +98,7 @@ public class GoConfigMigrationIntegrationTest {
     public void shouldMigrateConfigContentAsAString() {
         String newContent = new GoConfigMigration(new TimeProvider())
             .upgradeIfNecessary(ConfigFileFixture.VERSION_0);
-        assertThat(newContent).contains("schemaVersion=\"" + GoConfigSchema.currentSchemaVersion() + "\"");
+        assertThat(newContent).contains("schemaVersion=\"" + GoConfigSchema.VERSION + "\"");
     }
 
     @Test
@@ -2326,7 +2326,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     private String migrateXmlString(String content, int fromVersion) {
-        return ConfigMigrator.migrate(content, fromVersion, GoConfigSchema.currentSchemaVersion());
+        return ConfigMigrator.migrate(content, fromVersion, GoConfigSchema.VERSION);
     }
 
     private String contentFromResource(String resource) throws IOException {

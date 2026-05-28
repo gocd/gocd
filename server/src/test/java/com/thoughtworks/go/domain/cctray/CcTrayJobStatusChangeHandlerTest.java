@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

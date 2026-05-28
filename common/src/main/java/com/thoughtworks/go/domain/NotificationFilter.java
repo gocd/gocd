@@ -86,16 +86,13 @@ public class NotificationFilter extends PersistentObject implements Validatable 
         return !myCheckin;
     }
 
-    public boolean matchStage(StageConfigIdentifier stageIdentifier, StageEvent event) {
-        return this.event.include(event) && appliesTo(stageIdentifier.getPipelineName(), stageIdentifier.getStageName());
+    public boolean appliesTo(StageEvent event, StageConfigIdentifier stageIdentifier) {
+        return this.event.include(event) && appliesTo(stageIdentifier);
     }
 
-    public boolean appliesTo(String pipelineName, String stageName) {
-        boolean pipelineMatches = this.pipelineName.equals(pipelineName) ||
-            this.pipelineName.equals(ANY_PIPELINE);
-        boolean stageMatches = this.stageName.equals(stageName) ||
-            this.stageName.equals(ANY_STAGE);
-
+    public boolean appliesTo(StageConfigIdentifier stageIdentifier) {
+        boolean pipelineMatches = this.pipelineName.equals(ANY_PIPELINE) || this.pipelineName.equals(stageIdentifier.getPipelineName());
+        boolean stageMatches = this.stageName.equals(ANY_STAGE) || this.stageName.equals(stageIdentifier.getStageName());
         return pipelineMatches && stageMatches;
     }
 

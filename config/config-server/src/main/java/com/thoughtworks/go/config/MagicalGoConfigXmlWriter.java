@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.preprocessor.ConcurrentFieldCache;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.jdom2.*;
@@ -55,7 +54,7 @@ public class MagicalGoConfigXmlWriter {
         Namespace xsiNamespace = Namespace.getNamespace("xsi", XML_NS);
         root.addNamespaceDeclaration(xsiNamespace);
         root.setAttribute("noNamespaceSchemaLocation", "cruise-config.xsd", xsiNamespace);
-        root.setAttribute("schemaVersion", Integer.toString(GoConstants.CONFIG_SCHEMA_VERSION));
+        root.setAttribute("schemaVersion", Integer.toString(GoConfigSchema.VERSION));
         return new Document(root);
     }
 

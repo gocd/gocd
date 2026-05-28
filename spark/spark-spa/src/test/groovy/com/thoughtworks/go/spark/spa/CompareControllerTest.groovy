@@ -29,6 +29,7 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
+import static com.thoughtworks.go.util.SystemEnvironment.WEBAPP_CONTEXT_PATH
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
@@ -89,7 +90,7 @@ class CompareControllerTest implements ControllerTrait<CompareController>, Secur
         get(controller.controllerPath("up42/0/with/4"))
 
         assertThatResponse()
-          .redirectsTo("/go" + controller.controllerPath("up42/1/with/4"))
+          .redirectsTo(WEBAPP_CONTEXT_PATH + controller.controllerPath("up42/1/with/4"))
       }
 
       @Test
@@ -97,7 +98,7 @@ class CompareControllerTest implements ControllerTrait<CompareController>, Secur
         get(controller.controllerPath("up42/3/with/0"))
 
         assertThatResponse()
-          .redirectsTo("/go" + controller.controllerPath("up42/3/with/1"))
+          .redirectsTo(WEBAPP_CONTEXT_PATH + controller.controllerPath("up42/3/with/1"))
       }
 
       @Test

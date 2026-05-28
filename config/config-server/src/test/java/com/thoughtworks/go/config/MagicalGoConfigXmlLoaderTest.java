@@ -97,7 +97,6 @@ import static com.thoughtworks.go.helper.ConfigFileFixture.*;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs;
 import static com.thoughtworks.go.plugin.api.config.Property.*;
-import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.*;
 
@@ -299,7 +298,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 <environments>
                   <environment name='uat'>
                   </environment>
-                </environments>""", CONFIG_SCHEMA_VERSION);
+                </environments>""", GoConfigSchema.VERSION);
         EnvironmentsConfig environmentsConfig = xmlLoader.deserializeConfig(content).getEnvironments();
         EnvironmentConfig uat = environmentsConfig.getFirst();
         assertThat(uat.getOrigin()).isEqualTo(new FileConfigOrigin());
@@ -671,7 +670,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 </pipeline>
                 </pipelines>
                 </cruise>
-                """.formatted(CONFIG_SCHEMA_VERSION);
+                """.formatted(GoConfigSchema.VERSION);
         PartialConfig partialConfig = xmlLoader.fromXmlPartial(partialConfigWithPipeline, PartialConfig.class);
         assertThat(partialConfig.getGroups().size()).isEqualTo(1);
         PipelineConfig pipeline = partialConfig.getGroups().getFirst().getPipelines().getFirst();
@@ -691,7 +690,7 @@ public class MagicalGoConfigXmlLoaderTest {
                      </pipelines>
                   </environment>
                   <environment name='prod' />
-                </environments>""", CONFIG_SCHEMA_VERSION);
+                </environments>""", GoConfigSchema.VERSION);
         PartialConfig partialConfig = xmlLoader.fromXmlPartial(partialConfigWithPipeline, PartialConfig.class);
         EnvironmentsConfig environmentsConfig = partialConfig.getEnvironments();
         assertThat(environmentsConfig.size()).isEqualTo(2);
@@ -887,7 +886,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </pipeline>
                   </pipelines>
                 </cruise>
-                """.formatted(CONFIG_SCHEMA_VERSION);
+                """.formatted(GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> xmlLoader.deserializeConfig(configXml))
             .as("Should not allow command with trailing spaces")
@@ -916,7 +915,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </pipeline>
                   </pipelines>
                 </cruise>
-                """.formatted(CONFIG_SCHEMA_VERSION);
+                """.formatted(GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> xmlLoader.deserializeConfig(configXml))
             .as("Should not allow command with trailing spaces")
@@ -1294,7 +1293,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 <environments>
                   <environment name='uat' />
                   <environment name='prod' />
-                </environments>""", CONFIG_SCHEMA_VERSION);
+                </environments>""", GoConfigSchema.VERSION);
         EnvironmentsConfig environmentsConfig = xmlLoader.loadConfigHolder(content).config.getEnvironments();
         EnvironmentPipelineMatchers matchers = environmentsConfig.matchers();
         assertThat(matchers.size()).isEqualTo(2);
@@ -1302,7 +1301,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldLoadConfigWithNoEnvironment() throws Exception {
-        String content = configWithEnvironments("", CONFIG_SCHEMA_VERSION);
+        String content = configWithEnvironments("", GoConfigSchema.VERSION);
         EnvironmentsConfig environmentsConfig = xmlLoader.loadConfigHolder(content).config.getEnvironments();
         EnvironmentPipelineMatchers matchers = environmentsConfig.matchers();
         assertThat(matchers).isNotNull();
@@ -1335,7 +1334,7 @@ public class MagicalGoConfigXmlLoaderTest {
             </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not allow Pipeline with No Stages")
@@ -1355,7 +1354,7 @@ public class MagicalGoConfigXmlLoaderTest {
             </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("should not allow referencing template that does not exist")
@@ -1385,7 +1384,7 @@ public class MagicalGoConfigXmlLoaderTest {
               </pipeline>
             </templates>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
         assertThat(pipelineConfig.size()).isEqualTo(1);
@@ -1419,9 +1418,9 @@ public class MagicalGoConfigXmlLoaderTest {
               </pipeline>
             </templates>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
-        assertThat(cruiseConfig.schemaVersion()).isEqualTo(CONFIG_SCHEMA_VERSION);
+        assertThat(cruiseConfig.schemaVersion()).isEqualTo(GoConfigSchema.VERSION);
         assertThat(cruiseConfig.findGroup("first").isUserAnAdmin(new CaseInsensitiveString("foo"), new ArrayList<>())).isTrue();
     }
 
@@ -1462,9 +1461,9 @@ public class MagicalGoConfigXmlLoaderTest {
               </pipeline>
             </templates>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
-        assertThat(cruiseConfig.schemaVersion()).isEqualTo(CONFIG_SCHEMA_VERSION);
+        assertThat(cruiseConfig.schemaVersion()).isEqualTo(GoConfigSchema.VERSION);
         assertThat(cruiseConfig.findGroup("first").isUserAnAdmin(new CaseInsensitiveString("foo"), List.of(new RoleConfig(new CaseInsensitiveString("bar"))))).isTrue();
     }
 
@@ -1477,7 +1476,7 @@ public class MagicalGoConfigXmlLoaderTest {
             <siteUrl>https://www.someurl.com/go</siteUrl>
             <secureSiteUrl>https://www.someotherurl.com/go</secureSiteUrl> </siteUrls>
             </server></cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.server().getJobTimeout()).isEqualTo("0");
     }
@@ -1492,7 +1491,7 @@ public class MagicalGoConfigXmlLoaderTest {
             <secureSiteUrl>https://www.someotherurl.com/go</secureSiteUrl>
             </siteUrls>
             </server></cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.server().getJobTimeout()).isEqualTo("30");
     }
@@ -1514,7 +1513,7 @@ public class MagicalGoConfigXmlLoaderTest {
             <secureSiteUrl>https://www.someotherurl.com/go</secureSiteUrl>
             </siteUrls>
             </server></cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.server().getSiteUrl()).isEqualTo(new SiteUrl("https://www.someurl.com/go"));
         assertThat(cruiseConfig.server().getSecureSiteUrl()).isEqualTo(new SecureSiteUrl("https://www.someotherurl.com/go"));
@@ -1533,7 +1532,7 @@ public class MagicalGoConfigXmlLoaderTest {
             </artifacts>
             </server>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.server().getPurgeStart()).isEqualTo(1.0);
         assertThat(cruiseConfig.server().getPurgeUpto()).isEqualTo(3.0);
@@ -1551,7 +1550,7 @@ public class MagicalGoConfigXmlLoaderTest {
              </purgeSettings>
             </artifacts>
             </server></cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.server().getPurgeStart()).isEqualTo(1.2);
         assertThat(cruiseConfig.server().getPurgeUpto()).isEqualTo(3.4);
@@ -1563,7 +1562,7 @@ public class MagicalGoConfigXmlLoaderTest {
             <cruise schemaVersion='%d'>
             <server>
             </server></cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.server().getPurgeStart()).isNull();
         assertThat(cruiseConfig.server().getPurgeUpto()).isNull();
@@ -1597,7 +1596,7 @@ public class MagicalGoConfigXmlLoaderTest {
               </pipeline>
             </templates>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("shouldn't have stages and template")
@@ -1768,7 +1767,7 @@ public class MagicalGoConfigXmlLoaderTest {
                       <pipeline name='pipeline1'/>
                     </pipelines>
                   </environment>
-                </environments>""", CONFIG_SCHEMA_VERSION);
+                </environments>""", GoConfigSchema.VERSION);
         EnvironmentsConfig environmentsConfig = ConfigMigrator.loadWithMigration(content).config.getEnvironments();
         EnvironmentPipelineMatcher matcher = environmentsConfig.matchersForPipeline("pipeline1");
         assertThat(matcher).isEqualTo(new EnvironmentPipelineMatcher(new CaseInsensitiveString("uat"), new ArrayList<>(),
@@ -1785,7 +1784,7 @@ public class MagicalGoConfigXmlLoaderTest {
                       <pipeline name='pipeline1'/>
                     </pipelines>
                   </environment>
-                </environments>""", CONFIG_SCHEMA_VERSION);
+                </environments>""", GoConfigSchema.VERSION);
         EnvironmentsConfig environmentsConfig = ConfigMigrator.loadWithMigration(content).config.getEnvironments();
         EnvironmentPipelineMatcher matcher = environmentsConfig.matchersForPipeline("non-existing-pipeline");
         assertThat(matcher).isNull();
@@ -1801,7 +1800,7 @@ public class MagicalGoConfigXmlLoaderTest {
                       <pipeline name='pipeline1'/>
                     </pipelines>
                   </environment>
-                </environments>""", CONFIG_SCHEMA_VERSION);
+                </environments>""", GoConfigSchema.VERSION);
 
         EnvironmentsConfig environmentsConfig = ConfigMigrator.loadWithMigration(content).config.getEnvironments();
         EnvironmentPipelineMatcher matcher = environmentsConfig.matchersForPipeline("pipeline1");
@@ -1819,7 +1818,7 @@ public class MagicalGoConfigXmlLoaderTest {
                       <pipeline name='notpresent'/>
                     </pipelines>
                   </environment>
-                </environments>""", CONFIG_SCHEMA_VERSION);
+                </environments>""", GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not have allowed referencing of an unknown pipeline under an environment.")
@@ -1842,7 +1841,7 @@ public class MagicalGoConfigXmlLoaderTest {
                       <pipeline name='Pipeline1'/>
                     </pipelines>
                   </environment>
-                </environments>""", CONFIG_SCHEMA_VERSION);
+                </environments>""", GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not have allowed duplicate pipeline reference across environments")
@@ -1861,7 +1860,7 @@ public class MagicalGoConfigXmlLoaderTest {
                       <pipeline name='Pipeline1'/>
                     </pipelines>
                   </environment>
-                </environments>""", CONFIG_SCHEMA_VERSION);
+                </environments>""", GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not have allowed duplicate pipeline reference under an environment")
@@ -1876,7 +1875,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 <environments>
                   <environment name='uat' />
                   <environment name='uat' />
-                </environments>""", CONFIG_SCHEMA_VERSION);
+                </environments>""", GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(content))
             .as("Should not support 2 environments with the same same")
@@ -1890,7 +1889,7 @@ public class MagicalGoConfigXmlLoaderTest {
             """
                 <environments>
                   <environment name='exclamation is invalid !' />
-                </environments>""", CONFIG_SCHEMA_VERSION);
+                </environments>""", GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(content))
             .as("XSD should not allow invalid characters")
@@ -1906,7 +1905,7 @@ public class MagicalGoConfigXmlLoaderTest {
                   <environment name='uat'>
                     <pipelines/>
                   </environment>
-                </environments>""", CONFIG_SCHEMA_VERSION);
+                </environments>""", GoConfigSchema.VERSION);
 
         assertThatCode(() -> ConfigMigrator.loadWithMigration(content))
             .as("should not allow empty pipelines block under an environment")
@@ -1925,7 +1924,7 @@ public class MagicalGoConfigXmlLoaderTest {
               </environment>
             </environments>""", 110);
 
-        assertThatThrownBy(() -> ConfigMigrator.migrate(content, 110, CONFIG_SCHEMA_VERSION))
+        assertThatThrownBy(() -> ConfigMigrator.migrate(content, 110, GoConfigSchema.VERSION))
             .as("XSD should not allow duplicate agent uuid in environment")
             .hasCauseExactlyInstanceOf(XsdValidationException.class)
             .hasRootCauseMessage("Duplicate unique value [1] declared for identity constraint \"uniqueEnvironmentAgentsUuid\" of element \"agents\".");
@@ -1935,7 +1934,7 @@ public class MagicalGoConfigXmlLoaderTest {
     void shouldNotAllowConfigWithEmptyEnvironmentsBlock() {
         String content = configWithEnvironments(
             "<environments>\n"
-                + "</environments>", CONFIG_SCHEMA_VERSION);
+                + "</environments>", GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(content))
             .as("XSD should not allow empty environments block")
@@ -1949,7 +1948,7 @@ public class MagicalGoConfigXmlLoaderTest {
             """
                 <environments>
                   <environment name='uat' />
-                </environments>""", CONFIG_SCHEMA_VERSION);
+                </environments>""", GoConfigSchema.VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         assertThat(config.getEnvironments().size()).isEqualTo(1);
     }
@@ -1964,7 +1963,7 @@ public class MagicalGoConfigXmlLoaderTest {
                      <variable name='CRUISE_ENVIRONEMNT_NAME'><value>variable_name_value_2</value></variable>
                  </environmentvariables>
                </environment>
-            </environments>""", CONFIG_SCHEMA_VERSION);
+            </environments>""", GoConfigSchema.VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         EnvironmentConfig element = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
         element.addEnvironmentVariable("VAR_NAME_1", "variable_name_value_1");
@@ -1984,7 +1983,7 @@ public class MagicalGoConfigXmlLoaderTest {
                    <variable name='cdata'><value><![CDATA[%s]]></value></variable>
                  </environmentvariables>
               </environment>
-            </environments>""".formatted(multiLinedata), CONFIG_SCHEMA_VERSION);
+            </environments>""".formatted(multiLinedata), GoConfigSchema.VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         EnvironmentConfig element = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
         element.addEnvironmentVariable("cdata", multiLinedata);
@@ -2007,7 +2006,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                """, CONFIG_SCHEMA_VERSION);
+                """, GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(content))
             .as("XSD should not allow duplicate timer in pipeline")
@@ -2030,7 +2029,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                """, CONFIG_SCHEMA_VERSION);
+                """, GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("XSD should validate timer spec")
@@ -2080,7 +2079,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                """, CONFIG_SCHEMA_VERSION);
+                """, GoConfigSchema.VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
 
         JobConfig jobConfig = new JobConfig("do-something");
@@ -2109,7 +2108,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                """, CONFIG_SCHEMA_VERSION);
+                """, GoConfigSchema.VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
 
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getVariables()).contains(new EnvironmentVariableConfig("PIPELINE_VARIABLE", "pipeline variable"));
@@ -2133,7 +2132,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                """, CONFIG_SCHEMA_VERSION);
+                """, GoConfigSchema.VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
 
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getFirstStageConfig().getVariables()).contains(new EnvironmentVariableConfig("STAGE_VARIABLE", "stage variable"));
@@ -2158,7 +2157,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                """, CONFIG_SCHEMA_VERSION);
+                """, GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not allow duplicate variable names")
@@ -2188,7 +2187,7 @@ public class MagicalGoConfigXmlLoaderTest {
             </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not allow duplicate params")
@@ -2221,7 +2220,7 @@ public class MagicalGoConfigXmlLoaderTest {
             </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(content))
             .as("Should not allow params in stage name")
@@ -2248,7 +2247,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                """, CONFIG_SCHEMA_VERSION);
+                """, GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not allow duplicate variable names")
@@ -2275,7 +2274,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                """, CONFIG_SCHEMA_VERSION);
+                """, GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not allow duplicate variable names")
@@ -2293,7 +2292,7 @@ public class MagicalGoConfigXmlLoaderTest {
                      <variable name='FOO'><value>foo</value></variable>
                  </environmentvariables>
                </environment>
-            </environments>""", CONFIG_SCHEMA_VERSION);
+            </environments>""", GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("Should not allow duplicate variable names")
@@ -2322,7 +2321,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                """, CONFIG_SCHEMA_VERSION);
+                """, GoConfigSchema.VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
 
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getVariables()).contains(new EnvironmentVariableConfig("param_name", "stage variable"));
@@ -2369,7 +2368,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                """, encryptedPassword), CONFIG_SCHEMA_VERSION);
+                """, encryptedPassword), GoConfigSchema.VERSION);
         GoConfigHolder configHolder = ConfigMigrator.loadWithMigration(content);
         CruiseConfig cruiseConfig = configHolder.config;
         SvnMaterialConfig svnMaterialConfig = (SvnMaterialConfig) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).materialConfigs().getFirst();
@@ -2409,7 +2408,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                """.formatted(value), CONFIG_SCHEMA_VERSION);
+                """.formatted(value), GoConfigSchema.VERSION);
         return xmlLoader.loadConfigHolder(content).config;
     }
 
@@ -2428,7 +2427,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                """.formatted(value), CONFIG_SCHEMA_VERSION);
+                """.formatted(value), GoConfigSchema.VERSION);
         return xmlLoader.loadConfigHolder(content).config;
     }
 
@@ -2457,7 +2456,7 @@ public class MagicalGoConfigXmlLoaderTest {
                   </pipeline>
                 </pipelines>
                 </cruise>
-                """.formatted(CONFIG_SCHEMA_VERSION, materials);
+                """.formatted(GoConfigSchema.VERSION, materials);
 
         ConfigMigrator.loadWithMigration(pipelineXmlPartial);
     }
@@ -2522,7 +2521,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                """, CONFIG_SCHEMA_VERSION);
+                """, GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(content))
             .as("Should not allow mingle config and tracking tool together")
@@ -2545,7 +2544,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                """, CONFIG_SCHEMA_VERSION);
+                """, GoConfigSchema.VERSION);
         GoConfigHolder goConfigHolder = ConfigMigrator.loadWithMigration(content);
         MaterialConfigs materialConfigs = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("some_pipeline")).materialConfigs();
         assertThat(materialConfigs.size()).isEqualTo(1);
@@ -2572,7 +2571,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                """.formatted(cipherText), CONFIG_SCHEMA_VERSION);
+                """.formatted(cipherText), GoConfigSchema.VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("some_pipeline"));
         EnvironmentVariablesConfig variables = pipelineConfig.getVariables();
@@ -2630,7 +2629,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                """, encryptedValue), CONFIG_SCHEMA_VERSION);
+                """, encryptedValue), GoConfigSchema.VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("some_pipeline"));
         EnvironmentVariablesConfig variables = pipelineConfig.getVariables();
@@ -2655,7 +2654,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                """, CONFIG_SCHEMA_VERSION);
+                """, GoConfigSchema.VERSION);
 
         assertThatCode(() -> ConfigMigrator.loadWithMigration(content))
             .as("Valid TFS tag for migration 51 and above")
@@ -2737,7 +2736,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                """, CONFIG_SCHEMA_VERSION);
+                """, GoConfigSchema.VERSION);
 
         GoConfigHolder holder = ConfigMigrator.loadWithMigration(content);
         assertThat(holder.config.pipelineConfigByName(new CaseInsensitiveString("downest_pipeline")).getFetchTasks().getFirst()).isEqualTo(new FetchTask(new CaseInsensitiveString("uppest_pipeline/up_pipeline/down_pipeline"), new CaseInsensitiveString("uppest_stage"), new CaseInsensitiveString("uppest_job"), "src", "dest"));
@@ -2784,7 +2783,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                """, CONFIG_SCHEMA_VERSION);
+                """, GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(content))
             .as("should not have permitted fetch from parent pipeline's stage after the one downstream depends on")
@@ -2872,7 +2871,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 </stage>
               </pipeline>
             </pipelines></cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
         PackageDefinition packageDefinition = goConfigHolder.config.getPackageRepositories().getFirst().getPackages().getFirst();
@@ -2942,7 +2941,7 @@ public class MagicalGoConfigXmlLoaderTest {
               </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION, encryptedValue, encryptedValue);
+            """.formatted(GoConfigSchema.VERSION, encryptedValue, encryptedValue);
 
         //meta data of package
         PackageConfigurations packageConfigurations = new PackageConfigurations();
@@ -2993,7 +2992,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 </repository>
               </repositories>
               </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
         PackageRepository packageRepository = goConfigHolder.config.getPackageRepositories().getFirst();
@@ -3071,7 +3070,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 </repository>
               </repositories>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         assertFailureDuringLoad(xml,
             GoConfigInvalidException.class, "Cannot save package or repo, found duplicate packages. [Repo Name: 'name-1', Package Name: 'name-1'], [Repo Name: 'name-2', Package Name: 'name-2']"
@@ -3101,7 +3100,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldThrowXsdValidationWhenPackageRepositoryIdsAreDuplicate() {
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO, "") + withPackages(REPO, "") + " </repositories></cruise>";
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><repositories>\n" + withPackages(REPO, "") + withPackages(REPO, "") + " </repositories></cruise>";
         assertXsdFailureDuringLoad(xml,
             "Duplicate unique value [repo-id] declared for identity constraint of element \"repositories\".",
             "Duplicate unique value [repo-id] declared for identity constraint \"uniqueRepositoryId\" of element \"repositories\"."
@@ -3110,7 +3109,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldThrowXsdValidationWhenPackageRepositoryNamesAreDuplicate() {
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + format(REPO_WITH_NAME, "1", "repo", "") + format(REPO_WITH_NAME, "2", "repo", "") + " </repositories></cruise>";
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><repositories>\n" + format(REPO_WITH_NAME, "1", "repo", "") + format(REPO_WITH_NAME, "2", "repo", "") + " </repositories></cruise>";
         assertXsdFailureDuringLoad(xml,
             "Duplicate unique value [repo] declared for identity constraint of element \"repositories\".",
             "Duplicate unique value [repo] declared for identity constraint \"uniqueRepositoryName\" of element \"repositories\"."
@@ -3119,7 +3118,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldThrowXsdValidationWhenPackageIdsAreDuplicate() {
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO, format("<packages>%s%s</packages>",
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><repositories>\n" + withPackages(REPO, format("<packages>%s%s</packages>",
             PACKAGE, PACKAGE)) + " </repositories></cruise>";
 
         assertXsdFailureDuringLoad(xml,
@@ -3130,37 +3129,37 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldThrowXsdValidationWhenPackageRepositoryIdIsEmpty() {
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_EMPTY_ID, "") + " </repositories></cruise>";
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><repositories>\n" + withPackages(REPO_WITH_EMPTY_ID, "") + " </repositories></cruise>";
         assertXsdFailureDuringLoad(xml, "Repo id is invalid. \"\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
     @Test
     void shouldThrowXsdValidationWhenPackageRepositoryIdIsInvalid() {
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_INVALID_ID, "") + " </repositories></cruise>";
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><repositories>\n" + withPackages(REPO_WITH_INVALID_ID, "") + " </repositories></cruise>";
         assertXsdFailureDuringLoad(xml, "Repo id is invalid. \"id with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
     @Test
     void shouldThrowXsdValidationWhenPackageRepositoryNameIsMissing() {
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_MISSING_NAME, "") + " </repositories></cruise>";
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><repositories>\n" + withPackages(REPO_WITH_MISSING_NAME, "") + " </repositories></cruise>";
         assertXsdFailureDuringLoad(xml, "\"Name\" is required for Repository");
     }
 
     @Test
     void shouldThrowXsdValidationWhenPackageRepositoryNameIsEmpty() {
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_EMPTY_NAME, "") + " </repositories></cruise>";
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><repositories>\n" + withPackages(REPO_WITH_EMPTY_NAME, "") + " </repositories></cruise>";
         assertXsdFailureDuringLoad(xml, "Name is invalid. \"\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
     @Test
     void shouldThrowXsdValidationWhenPackageRepositoryNameIsInvalid() {
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_INVALID_NAME, "") + " </repositories></cruise>";
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><repositories>\n" + withPackages(REPO_WITH_INVALID_NAME, "") + " </repositories></cruise>";
         assertXsdFailureDuringLoad(xml, "Name is invalid. \"name with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
     @Test
     void shouldGenerateRepoAndPkgIdWhenMissing() throws Exception {
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_MISSING_ID,
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><repositories>\n" + withPackages(REPO_WITH_MISSING_ID,
             PACKAGE_WITH_MISSING_ID) + " </repositories></cruise>";
         GoConfigHolder configHolder = xmlLoader.loadConfigHolder(xml);
         assertThat(configHolder.config.getPackageRepositories().getFirst().getId()).isNotNull();
@@ -3169,34 +3168,34 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldThrowXsdValidationWhenPackageIdIsEmpty() {
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_EMPTY_ID, PACKAGE_WITH_EMPTY_ID) + " </repositories></cruise>";
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><repositories>\n" + withPackages(REPO_WITH_EMPTY_ID, PACKAGE_WITH_EMPTY_ID) + " </repositories></cruise>";
         assertXsdFailureDuringLoad(xml, "Repo id is invalid. \"\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
     @Test
     void shouldThrowXsdValidationWhenPackageIdIsInvalid() {
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_INVALID_ID,
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><repositories>\n" + withPackages(REPO_WITH_INVALID_ID,
             PACKAGE_WITH_INVALID_ID) + " </repositories></cruise>";
         assertXsdFailureDuringLoad(xml, "Repo id is invalid. \"id with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
     @Test
     void shouldThrowXsdValidationWhenPackageNameIsMissing() {
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_MISSING_NAME,
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><repositories>\n" + withPackages(REPO_WITH_MISSING_NAME,
             PACKAGE_WITH_MISSING_NAME) + " </repositories></cruise>";
         assertXsdFailureDuringLoad(xml, "\"Name\" is required for Repository");
     }
 
     @Test
     void shouldThrowXsdValidationWhenPackageNameIsEmpty() {
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_EMPTY_NAME,
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><repositories>\n" + withPackages(REPO_WITH_EMPTY_NAME,
             PACKAGE_WITH_EMPTY_NAME) + " </repositories></cruise>";
         assertXsdFailureDuringLoad(xml, "Name is invalid. \"\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
     @Test
     void shouldThrowXsdValidationWhenPackageNameIsInvalid() {
-        String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO_WITH_INVALID_NAME,
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><repositories>\n" + withPackages(REPO_WITH_INVALID_NAME,
             PACKAGE_WITH_INVALID_NAME) + " </repositories></cruise>";
         assertXsdFailureDuringLoad(xml, "Name is invalid. \"name with space\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
@@ -3227,7 +3226,7 @@ public class MagicalGoConfigXmlLoaderTest {
                </repository>
             </repositories>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         String configContent = String.format(configTemplate, false);
         GoConfigHolder holder = xmlLoader.loadConfigHolder(configContent);
         PackageRepository packageRepository = holder.config.getPackageRepositories().findByRepoId("2ef830d7-dd66-42d6-b393-64a84646e557");
@@ -3281,7 +3280,7 @@ public class MagicalGoConfigXmlLoaderTest {
               </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         GoConfigHolder holder = ConfigMigrator.loadWithMigration(xml);
         assertThat(holder.config.getAllPipelineConfigs().getFirst().materialConfigs().getFirst().getName().toString()).isEqualTo("repo_name_pkg_name");
     }
@@ -3305,7 +3304,7 @@ public class MagicalGoConfigXmlLoaderTest {
                        </pipeline>
                    </templates>
                 </cruise>
-                """.formatted(CONFIG_SCHEMA_VERSION);
+                """.formatted(GoConfigSchema.VERSION);
         CruiseConfig configForEdit = ConfigMigrator.loadWithMigration(configString).configForEdit;
         PipelineTemplateConfig template = configForEdit.getTemplateByName(new CaseInsensitiveString("template-name"));
         Authorization authorization = template.getAuthorization();
@@ -3340,7 +3339,7 @@ public class MagicalGoConfigXmlLoaderTest {
                   </stage>
                 </pipeline></pipelines>
                 </cruise>
-                """.formatted(CONFIG_SCHEMA_VERSION);
+                """.formatted(GoConfigSchema.VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configString).configForEdit;
 
         PipelineConfig pipelineConfig = cruiseConfig.getAllPipelineConfigs().getFirst();
@@ -3386,7 +3385,7 @@ public class MagicalGoConfigXmlLoaderTest {
                   </stage>
                 </pipeline></pipelines>
                 </cruise>
-                """.formatted(CONFIG_SCHEMA_VERSION);
+                """.formatted(GoConfigSchema.VERSION);
 
         //meta data of package
         PluggableTaskConfigStore.store().setPreferenceFor("plugin-id-1", new TaskPreference(new com.thoughtworks.go.plugin.api.task.Task() {
@@ -3460,7 +3459,7 @@ public class MagicalGoConfigXmlLoaderTest {
                </pipeline>
               </templates>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).config;
         ViewConfig expectedViewConfig = new ViewConfig(new AdminUser(new CaseInsensitiveString("foo")), new AdminRole(new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser("duck"), new RoleUser("jyoti"))));
@@ -3510,7 +3509,7 @@ public class MagicalGoConfigXmlLoaderTest {
                </pipeline>
               </templates>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).config;
 
@@ -3559,7 +3558,7 @@ public class MagicalGoConfigXmlLoaderTest {
                </pipeline>
               </templates>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).config;
 
@@ -3671,7 +3670,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 </pipeline>
                 </pipelines>
                 </cruise>
-                """.formatted(CONFIG_SCHEMA_VERSION);
+                """.formatted(GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(configWithJobElasticProfile))
             .isInstanceOf(GoConfigInvalidException.class)
@@ -3850,12 +3849,12 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldAllowOnlyThreeValuesForLockBehavior() throws Exception {
-        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"p1\" lockBehavior=\"" + LOCK_VALUE_LOCK_ON_FAILURE + "\"", CONFIG_SCHEMA_VERSION));
-        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"p2\" lockBehavior=\"" + LOCK_VALUE_UNLOCK_WHEN_FINISHED + "\"", CONFIG_SCHEMA_VERSION));
-        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"p3\" lockBehavior=\"" + LOCK_VALUE_NONE + "\"", CONFIG_SCHEMA_VERSION));
-        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"pipelineWithNoLockBehaviorDefined\"", CONFIG_SCHEMA_VERSION));
+        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"p1\" lockBehavior=\"" + LOCK_VALUE_LOCK_ON_FAILURE + "\"", GoConfigSchema.VERSION));
+        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"p2\" lockBehavior=\"" + LOCK_VALUE_UNLOCK_WHEN_FINISHED + "\"", GoConfigSchema.VERSION));
+        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"p3\" lockBehavior=\"" + LOCK_VALUE_NONE + "\"", GoConfigSchema.VERSION));
+        xmlLoader.loadConfigHolder(pipelineWithAttributes("name=\"pipelineWithNoLockBehaviorDefined\"", GoConfigSchema.VERSION));
 
-        assertXsdFailureDuringLoad(pipelineWithAttributes("name=\"pipelineWithWrongLockBehavior\" lockBehavior=\"some-random-value\"", CONFIG_SCHEMA_VERSION),
+        assertXsdFailureDuringLoad(pipelineWithAttributes("name=\"pipelineWithWrongLockBehavior\" lockBehavior=\"some-random-value\"", GoConfigSchema.VERSION),
             "Value 'some-random-value' is not facet-valid with respect to enumeration '[lockOnFailure, unlockWhenFinished, none]'. It must be a value from the enumeration.");
     }
 
@@ -3876,7 +3875,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 <pipelines>
                 </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION, serverIdImmutabilityValidator.getInitialServerId(), key);
+            """.formatted(GoConfigSchema.VERSION, serverIdImmutabilityValidator.getInitialServerId(), key);
     }
 
     @Test
@@ -3898,7 +3897,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 </artifactStore>
             </artifactStores>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         final CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).configForEdit;
         assertThat(cruiseConfig.getArtifactStores()).hasSize(2);
@@ -3918,7 +3917,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 </artifactStore>
             </artifactStores>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(configXml))
             .isInstanceOf(XsdValidationException.class)
@@ -3938,7 +3937,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 </artifactStore>
             </artifactStores>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(configXml))
             .isInstanceOf(XsdValidationException.class)
@@ -3992,7 +3991,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 </pipeline>
               </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         final CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).configForEdit;
         final ArtifactTypeConfigs artifactTypeConfigs = cruiseConfig.pipelineConfigByName(
@@ -4050,7 +4049,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 </pipeline>
               </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(configXml))
@@ -4105,7 +4104,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 </pipeline>
               </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(configXml))
             .isInstanceOf(GoConfigInvalidException.class)
@@ -4145,7 +4144,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 </pipeline>
               </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
 
         assertThatThrownBy(() -> ConfigMigrator.loadWithMigration(configXml))
@@ -4452,7 +4451,7 @@ public class MagicalGoConfigXmlLoaderTest {
               </pipeline>
             </templates>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         assertThatThrownBy(() -> xmlLoader.loadConfigHolder(xml))
             .isInstanceOf(XsdValidationException.class)
@@ -4487,7 +4486,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         </jobs>
                       </stage>
                     </pipeline>
-                </templates>""", CONFIG_SCHEMA_VERSION);
+                </templates>""", GoConfigSchema.VERSION);
 
         CruiseConfig config = xmlLoader.loadConfigHolder(content).config;
 
@@ -4518,7 +4517,7 @@ public class MagicalGoConfigXmlLoaderTest {
                    <deny action="refer" type="*">up43</deny> \s
                   </rules>
                  </secretConfig>
-                </secretConfigs>""", CONFIG_SCHEMA_VERSION);
+                </secretConfigs>""", GoConfigSchema.VERSION);
 
         CruiseConfig config = xmlLoader.loadConfigHolder(content).config;
 
@@ -4558,7 +4557,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                </pipelines>""", CONFIG_SCHEMA_VERSION);
+                </pipelines>""", GoConfigSchema.VERSION);
 
         CruiseConfig config = xmlLoader.loadConfigHolder(goConfigMigration.upgradeIfNecessary(content)).config;
 
@@ -4603,7 +4602,7 @@ public class MagicalGoConfigXmlLoaderTest {
                     </jobs>
                   </stage>
                 </pipeline>
-                </pipelines>""", CONFIG_SCHEMA_VERSION);
+                </pipelines>""", GoConfigSchema.VERSION);
 
         CruiseConfig config = xmlLoader.loadConfigHolder(goConfigMigration.upgradeIfNecessary(content)).config;
 

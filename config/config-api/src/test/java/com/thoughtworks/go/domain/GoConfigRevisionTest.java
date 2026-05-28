@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.config.GoConfigSchema;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,13 +43,13 @@ public class GoConfigRevisionTest {
     @Test
     public void shouldGenerateCommentString() {
         GoConfigRevision configRevision = new GoConfigRevision("config-xml", "my-md5", "loser", "100.3.9.71", timeProvider);
-        assertThat(configRevision.getComment()).isEqualTo(String.format("user:loser|timestamp:%s|schema_version:%s|go_edition:OpenSource|go_version:100.3.9.71|md5:my-md5", date.getTime(), GoConstants.CONFIG_SCHEMA_VERSION));
+        assertThat(configRevision.getComment()).isEqualTo(String.format("user:loser|timestamp:%s|schema_version:%s|go_edition:OpenSource|go_version:100.3.9.71|md5:my-md5", date.getTime(), GoConfigSchema.VERSION));
     }
 
     @Test
     public void shouldGenerateCommentStringWithJoinCharacterEscaped() {
         GoConfigRevision configRevision = new GoConfigRevision("config-xml", "my-|md5||", "los|er|", "100.3.|9.71||", timeProvider);
-        assertThat(configRevision.getComment()).isEqualTo(String.format("user:los||er|||timestamp:%s|schema_version:%s|go_edition:OpenSource|go_version:100.3.||9.71|||||md5:my-||md5||||", date.getTime(), GoConstants.CONFIG_SCHEMA_VERSION));
+        assertThat(configRevision.getComment()).isEqualTo(String.format("user:los||er|||timestamp:%s|schema_version:%s|go_edition:OpenSource|go_version:100.3.||9.71|||||md5:my-||md5||||", date.getTime(), GoConfigSchema.VERSION));
     }
 
     @Test
@@ -92,7 +92,7 @@ public class GoConfigRevisionTest {
 
     @Test
     public void canAnswerIfRevisionContentIsBackedByByteArrayWhenContentIsAByteArray() {
-        GoConfigRevision rev = new GoConfigRevision("blah".getBytes(UTF_8), String.format("user:los||er|||timestamp:%s|schema_version:%s|go_edition:OpenSource|go_version:100.3.||9.71|||||md5:my-||md5||||", date.getTime(), GoConstants.CONFIG_SCHEMA_VERSION));
+        GoConfigRevision rev = new GoConfigRevision("blah".getBytes(UTF_8), String.format("user:los||er|||timestamp:%s|schema_version:%s|go_edition:OpenSource|go_version:100.3.||9.71|||||md5:my-||md5||||", date.getTime(), GoConfigSchema.VERSION));
         assertThat(rev.isByteArrayBacked()).isTrue();
         assertThat(List.of(rev.getConfigXmlBytes())).contains("blah".getBytes(UTF_8));
         assertThat(rev.getContent()).isEqualTo("blah");

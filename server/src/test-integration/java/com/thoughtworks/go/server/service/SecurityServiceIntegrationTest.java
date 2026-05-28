@@ -16,8 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.domain.SecureSiteUrl;
-import com.thoughtworks.go.domain.SiteUrl;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
@@ -333,18 +331,6 @@ public class SecurityServiceIntegrationTest {
     @Test
     public void shouldNotHaveOperatePermissionsOnPipelinesThatDoNotExist() {
         assertThat(securityService.hasOperatePermissionForStage("doesnt-exists", "doesnt-exist", "raghu")).isFalse();
-    }
-
-    @Test
-    public void shouldReturnSiteUrlAsCasServiceBaseUrlIfOnlySiteUrlIsDefined() {
-        configHelper.setBaseUrls(new SiteUrl("http://example.com"), new SecureSiteUrl());
-        assertThat(securityService.casServiceBaseUrl()).isEqualTo("http://example.com");
-    }
-
-    @Test
-    public void shouldReturnSecureSiteUrlAsCasServiceBaseUrlIfBothSiteUrlAndSecureSiteUrlAreDefined() {
-        configHelper.setBaseUrls(new SiteUrl("http://example.com"), new SecureSiteUrl("https://example.com"));
-        assertThat(securityService.casServiceBaseUrl()).isEqualTo("https://example.com");
     }
 
     @Test

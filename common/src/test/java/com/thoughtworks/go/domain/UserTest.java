@@ -53,8 +53,8 @@ class UserTest {
 
     @Test
     void shouldReturnFalseWhenEmailIsEmpty() {
-        assertThat(new User("UserName", "README", null, true).matchNotification(null, StageEvent.All, null)).isFalse();
-        assertThat(new User("UserName", "README", "", true).matchNotification(null, StageEvent.All, null)).isFalse();
+        assertThat(new User("UserName", "README", null, true).hasSubscribedFor(null, StageEvent.All, null)).isFalse();
+        assertThat(new User("UserName", "README", "", true).hasSubscribedFor(null, StageEvent.All, null)).isFalse();
     }
 
     @Test
@@ -63,7 +63,7 @@ class UserTest {
         user = new User("UserName", "README", "user@mail.com", true);
         user.setNotificationFilters(
                 List.of(new NotificationFilter("cruise", "dev", StageEvent.Fixed, true)));
-        assertThat(user.matchNotification(new StageConfigIdentifier("cruise", "dev"), StageEvent.Fixed, materialRevisions)).isTrue();
+        assertThat(user.hasSubscribedFor(new StageConfigIdentifier("cruise", "dev"), StageEvent.Fixed, materialRevisions)).isTrue();
     }
 
     @Test
@@ -72,7 +72,7 @@ class UserTest {
         user = new User("UserName", "README", "user@mail.com", true);
         user.setNotificationFilters(
                 List.of(new NotificationFilter("cruise", "dev", StageEvent.Fixed, false)));
-        assertThat(user.matchNotification(new StageConfigIdentifier("cruise", "dev"), StageEvent.Fixed, materialRevisions)).isTrue();
+        assertThat(user.hasSubscribedFor(new StageConfigIdentifier("cruise", "dev"), StageEvent.Fixed, materialRevisions)).isTrue();
     }
 
     @Test

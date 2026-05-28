@@ -37,6 +37,7 @@ import java.util.EnumSet;
 import java.util.Properties;
 
 import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.*;
+import static com.thoughtworks.go.util.SystemEnvironment.WEBAPP_CONTEXT_PATH;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @SuppressWarnings("try")
@@ -134,7 +135,7 @@ public class FakeGoServer implements AutoCloseable {
         );
         server.addConnector(secureMtlsConnector);
 
-        WebAppContext wac = new WebAppContext(".", "/go");
+        WebAppContext wac = new WebAppContext(".", WEBAPP_CONTEXT_PATH);
         ServletHolder holder = new ServletHolder();
         holder.setServlet(new HttpServlet() {
             @Override

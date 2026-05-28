@@ -16,7 +16,7 @@
 
 if ENV["RAILS_GROUPS"] =~ /assets/
   JsRoutes.setup do |config|
-    config.prefix = com.thoughtworks.go.util.SystemEnvironment.new.getWebappContextPath
+    config.prefix = com.thoughtworks.go.util.SystemEnvironment::WEBAPP_CONTEXT_PATH
     config.camel_case = true
     config.include = [
       /analytics/,

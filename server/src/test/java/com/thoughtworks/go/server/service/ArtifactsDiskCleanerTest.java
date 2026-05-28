@@ -107,9 +107,9 @@ public class ArtifactsDiskCleanerTest {
     @Test
     public void shouldDeleteOldestStagesFirst_untilHasEnoughFreeDisk() {
         serverConfig.setPurgeLimits(5.0, 9.0);
-        Stage stageOne = StageMother.passedStageInstance("stage", "build", "pipeline");
-        Stage stageTwo = StageMother.passedStageInstance("another", "job", "with-pipeline");
-        Stage stageThree = StageMother.passedStageInstance("yet-another", "job1", "foo-pipeline");
+        Stage stageOne = StageMother.passedStageInstance("pipeline", "stage", "build");
+        Stage stageTwo = StageMother.passedStageInstance("with-pipeline", "another", "job");
+        Stage stageThree = StageMother.passedStageInstance("foo-pipeline", "yet-another", "job1");
 
         when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(List.of(stageOne, stageTwo, stageThree));
         when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(4 * GoConstants.GIGA_BYTE);
@@ -135,11 +135,11 @@ public class ArtifactsDiskCleanerTest {
     @Test
     public void shouldDeleteMultiplePagesOfOldestStagesHavingArtifacts() {
         serverConfig.setPurgeLimits(5.0, 9.0);
-        final Stage stageOne = StageMother.passedStageInstance("stage", "build", "pipeline");
-        final Stage stageTwo = StageMother.passedStageInstance("another", "job", "with-pipeline");
-        final Stage stageThree = StageMother.passedStageInstance("yet-another", "job1", "foo-pipeline");
-        final Stage stageFour = StageMother.passedStageInstance("foo-stage", "bar-job", "baz-pipeline");
-        final Stage stageFive = StageMother.passedStageInstance("bar-stage", "baz-job", "quux-pipeline");
+        final Stage stageOne = StageMother.passedStageInstance("pipeline", "stage", "build");
+        final Stage stageTwo = StageMother.passedStageInstance("with-pipeline", "another", "job");
+        final Stage stageThree = StageMother.passedStageInstance("foo-pipeline", "yet-another", "job1");
+        final Stage stageFour = StageMother.passedStageInstance("baz-pipeline", "foo-stage", "bar-job");
+        final Stage stageFive = StageMother.passedStageInstance("quux-pipeline", "bar-stage", "baz-job");
 
         when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(List.of(stageOne, stageTwo));
         when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(4 * GoConstants.GIGA_BYTE);

@@ -18,7 +18,6 @@ package com.thoughtworks.go.domain.cctray;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.helper.StageMother;

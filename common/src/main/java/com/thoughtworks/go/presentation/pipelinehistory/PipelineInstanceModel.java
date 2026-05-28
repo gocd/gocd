@@ -87,10 +87,6 @@ public class PipelineInstanceModel implements PipelineInfo {
         return name;
     }
 
-    public String getUri() {
-        return "/" + name + "/" + label;
-    }
-
     public String getBuildCauseMessage() {
         return buildCause == null ? "Unknown" : buildCause.getBuildCauseMessage();
     }

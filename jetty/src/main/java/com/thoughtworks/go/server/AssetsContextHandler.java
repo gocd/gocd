@@ -34,7 +34,7 @@ public class AssetsContextHandler extends ContextHandler {
     private final SystemEnvironment systemEnvironment;
 
     public AssetsContextHandler(SystemEnvironment systemEnvironment) {
-        super(systemEnvironment.getWebappContextPath() + "/assets");
+        super(SystemEnvironment.WEBAPP_CONTEXT_PATH + "/assets");
         this.systemEnvironment = systemEnvironment;
 
         GzipHandler gzipHandler = JettyServer.gzipHandler();
@@ -43,7 +43,7 @@ public class AssetsContextHandler extends ContextHandler {
     }
 
     public void init(WebAppContext webAppContext) throws IOException {
-        String railsRootDirName = webAppContext.getInitParameter("rails.root").replaceAll("/WEB-INF/", "");
+        String railsRootDirName = webAppContext.getInitParameter("rails.root").replace("/WEB-INF/", "");
         try (Resource assetsPathResource = webAppContext.getWebInf().addPath(railsRootDirName + "/public/assets/")) {
             assetsHandler.setAssetsDir(assetsPathResource.getName());
         }

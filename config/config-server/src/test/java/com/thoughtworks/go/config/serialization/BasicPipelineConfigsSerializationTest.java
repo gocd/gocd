@@ -18,7 +18,6 @@ package com.thoughtworks.go.config.serialization;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.GoConstants;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,7 +58,7 @@ public class BasicPipelineConfigsSerializationTest {
               </pipelines>
             </cruise>
 
-            """.formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
     private static final String VIEW_PERMISSION = """
                 <view>

@@ -34,7 +34,7 @@ class RouteToggle {
         this.version = version;
         this.descend = descend;
         if (toggleName == null || toggleName.isBlank()) {
-            this.toggleName = version.toString() + "_" + prefix.replaceAll("/", "_");
+            this.toggleName = version.toString() + "_" + prefix.replace("/", "_");
         } else {
             this.toggleName = toggleName;
         }

@@ -22,8 +22,9 @@ import com.thoughtworks.go.util.UrlUtil;
 import java.net.URL;
 import java.util.List;
 
-public class ServerUrlValidator implements IParameterValidator {
+import static com.thoughtworks.go.util.SystemEnvironment.WEBAPP_CONTEXT_PATH;
 
+public class ServerUrlValidator implements IParameterValidator {
     @Override
     public void validate(String name, String value) throws ParameterException {
         URL serverUrl = UrlUtil.fromString(value, e -> new ParameterException(name + " is not a valid url (" + e.toString() + ")"));
@@ -32,7 +33,7 @@ public class ServerUrlValidator implements IParameterValidator {
             throw new ParameterException(name + " must use http or https protocol");
         }
 
-        if (!serverUrl.toString().endsWith("/go") && !serverUrl.toString().endsWith("/go/")) {
+        if (!serverUrl.toString().endsWith(WEBAPP_CONTEXT_PATH) && !serverUrl.toString().endsWith(WEBAPP_CONTEXT_PATH + '/')) {
             throw new ParameterException(name + " must end with '/go' (http://localhost:8153/go)");
         }
     }

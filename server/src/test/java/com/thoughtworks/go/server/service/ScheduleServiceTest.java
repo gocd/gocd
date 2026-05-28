@@ -78,7 +78,7 @@ public class ScheduleServiceTest {
     @Test
     public void shouldCancelStage() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Pipeline pipeline = PipelineMother.pipeline("pipeline-name", StageMother.passedStageInstance("mingle", "job-bar", "pipeline-name"));
+        Pipeline pipeline = PipelineMother.pipeline("pipeline-name", StageMother.passedStageInstance("pipeline-name", "mingle", "job-bar"));
         Stage spiedStage = spy(pipeline.getFirstStage());
         long stageId = spiedStage.getId();
         Username admin = new Username(new CaseInsensitiveString("admin"));
@@ -102,7 +102,7 @@ public class ScheduleServiceTest {
     @Test
     public void shouldNotCancelStageIfItsNotActive() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Pipeline pipeline = PipelineMother.pipeline("pipeline-name", StageMother.passedStageInstance("mingle", "job-bar", "pipeline-name"));
+        Pipeline pipeline = PipelineMother.pipeline("pipeline-name", StageMother.passedStageInstance("pipeline-name", "mingle", "job-bar"));
         Stage firstStage = pipeline.getFirstStage();
         long stageId = firstStage.getId();
         Username admin = new Username(new CaseInsensitiveString("admin"));
@@ -120,7 +120,7 @@ public class ScheduleServiceTest {
     @Test
     public void shouldNotCancelStageWhenTheUserDoesNotHaveOperatePermission() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Pipeline pipeline = PipelineMother.pipeline("pipeline-name", StageMother.passedStageInstance("mingle", "job-bar", "pipeline-name"));
+        Pipeline pipeline = PipelineMother.pipeline("pipeline-name", StageMother.passedStageInstance("pipeline-name", "mingle", "job-bar"));
         Stage spiedStage = spy(pipeline.getFirstStage());
 
         long stageId = spiedStage.getId();
@@ -163,7 +163,7 @@ public class ScheduleServiceTest {
         when(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("pipeline-quux"))).thenReturn(new Agents());
         when(goConfigService.scheduleStage("pipeline-quux", "mingle", new DefaultSchedulingContext("loser", new Agents()))).thenThrow(new CannotScheduleException("foo", "stage-baz"));
         try {
-            Pipeline pipeline = PipelineMother.pipeline("pipeline-quux", StageMother.passedStageInstance("mingle", "job-bar", "pipeline-name"));
+            Pipeline pipeline = PipelineMother.pipeline("pipeline-quux", StageMother.passedStageInstance("pipeline-name", "mingle", "job-bar"));
             service.scheduleStage(pipeline, "mingle", "loser",
                     new ScheduleService.NewStageInstanceCreator(goConfigService), new ScheduleService.ExceptioningErrorHandler());
             fail("should have failed as stage could not be scheduled");
@@ -180,7 +180,7 @@ public class ScheduleServiceTest {
         when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipeline-quux"))).thenReturn(pipelineConfig);
         when(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("pipeline-quux"))).thenReturn(new Agents());
         when(goConfigService.scheduleStage("pipeline-quux", "mingle", new DefaultSchedulingContext("loser", new Agents()))).thenReturn(new Stage());
-        Stage stageConfig = StageMother.passedStageInstance("mingle", "job-bar", "pipeline-name");
+        Stage stageConfig = StageMother.passedStageInstance("pipeline-name", "mingle", "job-bar");
         service.scheduleStage(PipelineMother.pipeline("pipeline-quux", stageConfig), "mingle", "loser",
                 new ScheduleService.NewStageInstanceCreator(goConfigService), new ScheduleService.ExceptioningErrorHandler());
         verify(serverHealthService).update(ServerHealthState.success(HealthStateType.general(HealthStateScope.forStage("pipeline-quux", "mingle"))));

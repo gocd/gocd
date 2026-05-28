@@ -27,6 +27,21 @@ public class SupplierUtils {
         return new MemoizingSupplier<>(supplier);
     }
 
+    public static <T> Supplier<T> rethrow(@NotNull ThrowingSupplier<T> supplier) {
+        return () -> {
+            try {
+                return supplier.get();
+            } catch (Exception e) {
+                throw ExceptionUtils.bomb(e);
+            }
+        };
+    }
+
+    @FunctionalInterface
+    public interface ThrowingSupplier<T> {
+        T get() throws Exception;
+    }
+
     public static final class MemoizingSupplier<T> implements Supplier<T> {
         private volatile T value;
         private Supplier<T> delegate;

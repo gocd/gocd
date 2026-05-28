@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.security.permissions.NoOnePermission;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.config.security.users.Users;
-import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.helper.GoConfigMother;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

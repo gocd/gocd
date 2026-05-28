@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain.cctray;
 
-import com.thoughtworks.go.domain.activity.ProjectStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.config.GoConfigSchema;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -83,7 +83,7 @@ public class GoConfigRevision {
         this.goVersion = goVersion;
         this.goEdition = "OpenSource";
         this.time = provider.currentUtilDate();
-        this.schemaVersion = GoConstants.CONFIG_SCHEMA_VERSION;
+        this.schemaVersion = GoConfigSchema.VERSION;
     }
 
     public GoConfigRevision(byte[] configXml, String comment) {

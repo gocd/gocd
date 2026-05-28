@@ -21,7 +21,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.ONE_PIPELINE;
-import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TrackingToolSerializationTest {
@@ -60,7 +59,7 @@ public class TrackingToolSerializationTest {
             %s
           </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION, PIPELINE_WITH_TRACKINGTOOL);
+        """.formatted(GoConfigSchema.VERSION, PIPELINE_WITH_TRACKINGTOOL);
 
     @BeforeEach
     public void setUp() {

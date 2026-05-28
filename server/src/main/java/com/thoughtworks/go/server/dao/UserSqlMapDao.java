@@ -25,7 +25,6 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
@@ -36,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.hibernate.criterion.Restrictions.*;
 
 @Component
 public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
@@ -69,7 +69,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
         return transactionTemplate.execute(transactionStatus -> {
             User user = (User) sessionFactory.getCurrentSession()
                 .createCriteria(User.class)
-                .add(Restrictions.eq("name", userName))
+                .add(eq("name", userName))
                 .setCacheable(true).uniqueResult();
             return user == null ? new NullUser() : user;
         });
@@ -81,8 +81,10 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
         return transactionTemplate.execute(transactionStatus -> {
             Criteria criteria = sessionFactory.getCurrentSession().createCriteria(User.class);
             criteria.setCacheable(true);
-            criteria.add(Restrictions.isNotEmpty("notificationFilters"));
-            criteria.add(Restrictions.eq("enabled", true));
+            criteria.add(eq("enabled", true));
+            criteria.add(eq("emailMe", true));
+            criteria.add(conjunction().add(not(isNull("email"))).add(ne("email", "")));
+            criteria.add(isNotEmpty("notificationFilters"));
             return new Users(criteria.list());
         });
     }

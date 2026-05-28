@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.security.Permissions;
 import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
-import com.thoughtworks.go.domain.activity.ProjectStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

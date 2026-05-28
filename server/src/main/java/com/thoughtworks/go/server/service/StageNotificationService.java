@@ -24,39 +24,36 @@ import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.EmailNotificationTopic;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.SystemUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import java.net.URL;
+import java.util.Optional;
 
 @Service
 public class StageNotificationService {
+    static final String MATERIAL_SECTION_HEADER = "-- CHANGES --";
     private static final Logger LOGGER = LoggerFactory.getLogger(StageNotificationService.class);
     private final PipelineService pipelineService;
     private final UserService userService;
     private final EmailNotificationTopic emailNotificationTopic;
-    private final SystemEnvironment systemEnvironment;
     private final StageService stageService;
     private final ServerConfigService serverConfigService;
-    protected static final String MATERIAL_SECTION_HEADER = "-- CHECK-INS --";
 
     @Autowired
     public StageNotificationService(PipelineService pipelineService, UserService userService, EmailNotificationTopic emailNotificationTopic,
-                                    SystemEnvironment systemEnvironment, StageService stageService, ServerConfigService serverConfigService) {
+                                    StageService stageService, ServerConfigService serverConfigService) {
         this.pipelineService = pipelineService;
         this.userService = userService;
         this.emailNotificationTopic = emailNotificationTopic;
-        this.systemEnvironment = systemEnvironment;
         this.stageService = stageService;
         this.serverConfigService = serverConfigService;
     }
 
     public void sendNotifications(StageIdentifier stageIdentifier, StageEvent event, Username cancelledBy) {
-        Users users = userService.findValidSubscribers(stageIdentifier.stageConfigIdentifier());
+        Users users = userService.findValidNotificationSubscribers(event, stageIdentifier.stageConfigIdentifier());
         if (users.isEmpty()) {
             return;
         }
@@ -64,36 +61,32 @@ public class StageNotificationService {
         Pipeline pipeline = pipelineService.fullPipelineById(stage.getPipelineId());
         MaterialRevisions materialRevisions = pipeline.getMaterialRevisions();
 
-        String emailBody = new EmailBodyGenerator(materialRevisions, cancelledBy, systemEnvironment, stageIdentifier).getContent();
+        String emailBody = new EmailBodyGenerator(materialRevisions, stageIdentifier, event, cancelledBy).getContent();
 
         String subject = "Stage [" + stageIdentifier.stageLocator() + "]" + event.describe();
         LOGGER.debug("Processing notification titled [{}]", subject);
-        for (User user : users) {
-            if (user.matchNotification(stageIdentifier.stageConfigIdentifier(), event, materialRevisions)) {
-                SendEmailMessage sendEmailMessage = new SendEmailMessage(
-                    subject,
-                    emailBody + "\n\nSent by Go on behalf of " + user.getName(),
-                    user.getEmail());
-                emailNotificationTopic.post(sendEmailMessage);
-            }
-        }
+        users.filter(user -> user.hasSubscribedFor(stageIdentifier.stageConfigIdentifier(), event, materialRevisions))
+             .forEach(user -> emailNotificationTopic.post(
+                 new SendEmailMessage(subject,
+                     emailBody + "\n\nSent by Go on behalf of " + user.getName(),
+                     user.getEmail())));
         LOGGER.debug("Finished processing notification titled [{}]", subject);
     }
 
     private class EmailBodyGenerator implements ModificationVisitor {
+        private static final Logger LOGGER = LoggerFactory.getLogger(EmailBodyGenerator.class);
+        @SuppressWarnings("TextBlockMigration")
+        private static final String SECTION_SEPARATOR = "\n\n";
+
         private final StringBuilder emailBody;
         private Material material;
-        private final SystemEnvironment systemEnvironment;
         private final StageIdentifier stageIdentifier;
-        @SuppressWarnings("TextBlockMigration")
-        protected static final String SECTION_SEPERATOR = "\n\n";
 
-        public EmailBodyGenerator(MaterialRevisions materialRevisions, Username cancelledBy, SystemEnvironment systemEnvironment, StageIdentifier stageIdentifier) {
-            this.systemEnvironment = systemEnvironment;
+        public EmailBodyGenerator(MaterialRevisions materialRevisions, StageIdentifier stageIdentifier, StageEvent event, Username cancelledBy) {
             this.stageIdentifier = stageIdentifier;
             emailBody = new StringBuilder();
 
-            if (!Username.BLANK.equals(cancelledBy)) {
+            if (StageEvent.Cancelled.equals(event) && !Username.BLANK.equals(cancelledBy)) {
                 emailBody.append("The stage was cancelled by ").append(CaseInsensitiveString.str(cancelledBy.getUsername())).append(".\n");
             }
 
@@ -102,27 +95,21 @@ public class StageNotificationService {
         }
 
         private void addMaterialRevisions(MaterialRevisions materialRevisions) {
-            sectionSeperator();
+            sectionSeparator();
             emailBody.append(MATERIAL_SECTION_HEADER);
             materialRevisions.accept(this);
         }
 
         private void addStageLink() {
-            emailBody.append(String.format("See details: %s", stageDetailLink()));
+            stageDetailLink().ifPresent(url -> emailBody.append(String.format("See details: %s", url)));
         }
 
-        private String stageDetailLink() {
-            String ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
-            int port = systemEnvironment.getServerPort();
-            String urlString = String.format("http://%s:%s/go/pipelines/%s", ipAddress, port, stageIdentifier.stageLocator());
-            return useConfiguredSiteUrl(urlString);
-        }
-
-        private String useConfiguredSiteUrl(String urlString) {
+        private Optional<URL> stageDetailLink() {
             try {
-                return StageNotificationService.this.serverConfigService.siteUrlFor(urlString);
+                return Optional.of(StageNotificationService.this.serverConfigService.siteUrlWithPath(stageIdentifier.webPathAfterContext()));
             } catch (Exception e) {
-                throw bomb("Could not construct URL.", e);
+                LOGGER.warn("Could not generate email stage detail link for stage {} due to {}", stageIdentifier, e.toString());
+                return Optional.empty();
             }
         }
 
@@ -137,12 +124,12 @@ public class StageNotificationService {
 
         @Override
         public void visit(Modification modification) {
-            sectionSeperator();
+            sectionSeparator();
             material.emailContent(emailBody, modification);
         }
 
-        private void sectionSeperator() {
-            emailBody.append(SECTION_SEPERATOR);
+        private void sectionSeparator() {
+            emailBody.append(SECTION_SEPARATOR);
         }
 
         @Override

@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import java.util.Objects;
 
 public class StageConfigIdentifier {
-private final CaseInsensitiveString pipelineName;
+    private final CaseInsensitiveString pipelineName;
     private final CaseInsensitiveString stageName;
 
     public StageConfigIdentifier(String pipelineName, String stageName) {
@@ -48,17 +48,18 @@ private final CaseInsensitiveString pipelineName;
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         StageConfigIdentifier that = (StageConfigIdentifier) o;
-
         return Objects.equals(pipelineName, that.pipelineName) &&
             Objects.equals(stageName, that.stageName);
     }
 
     @Override
     public int hashCode() {
-        int result = pipelineName != null ? pipelineName.hashCode() : 0;
-        result = 31 * result + (stageName != null ? stageName.hashCode() : 0);
-        return result;
+        return Objects.hash(pipelineName, stageName);
+    }
+
+    @Override
+    public String toString() {
+        return "StageConfigIdentifier[" + pipelineName + ":" + stageName + "]";
     }
 }

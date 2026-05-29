@@ -26,6 +26,7 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv7.admin.templateconfig.representers.ParametersRepresenter;
 import com.thoughtworks.go.apiv7.admin.templateconfig.representers.TemplateConfigRepresenter;
 import com.thoughtworks.go.apiv7.admin.templateconfig.representers.TemplatesConfigRepresenter;
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ParamsConfig;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.config.TemplateToPipelines;
@@ -46,6 +47,7 @@ import spark.route.HttpMethod;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
@@ -194,10 +196,13 @@ public class TemplateConfigControllerV7 extends ApiController implements SparkSp
 
 
     private void haltIfEntityBySameNameInRequestExists(PipelineTemplateConfig templateConfig, HttpLocalizedOperationResult result) {
-        if (templateConfigService.loadForView(templateConfig.name().toString(), result) == null) {
+        CaseInsensitiveString name = Optional.ofNullable(templateConfig.name())
+            .orElseThrow(() -> haltBecauseOfReason("Template name must be specified for creating a template."));
+
+        if (templateConfigService.loadForView(name.toString(), result) == null) {
             return;
         }
-        templateConfig.addError("name", EntityType.Template.alreadyExists(templateConfig.name()));
-        throw haltBecauseEntityAlreadyExists(jsonWriter(templateConfig), "template", templateConfig.name());
+        templateConfig.addError("name", EntityType.Template.alreadyExists(name));
+        throw haltBecauseEntityAlreadyExists(jsonWriter(templateConfig), "template", name);
     }
 }

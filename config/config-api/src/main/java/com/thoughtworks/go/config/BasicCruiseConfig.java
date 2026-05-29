@@ -1090,7 +1090,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public boolean isGroupAdministrator(final CaseInsensitiveString userName) {
         final List<Role> roles = server().security().memberRoleFor(userName);
-        FindPipelineGroupAdminstrator finder = new FindPipelineGroupAdminstrator(userName, roles);
+        FindPipelineGroupAdministrator finder = new FindPipelineGroupAdministrator(userName, roles);
         groups.accept(finder);
         return finder.isGroupAdmin;
     }
@@ -1304,12 +1304,12 @@ public class BasicCruiseConfig implements CruiseConfig {
         this.strategy.setOrigins(origins);
     }
 
-    private static class FindPipelineGroupAdminstrator implements PipelineGroupVisitor {
+    private static class FindPipelineGroupAdministrator implements PipelineGroupVisitor {
         private final CaseInsensitiveString username;
         private final List<Role> roles;
         private boolean isGroupAdmin;
 
-        public FindPipelineGroupAdminstrator(CaseInsensitiveString username, List<Role> roles) {
+        public FindPipelineGroupAdministrator(CaseInsensitiveString username, List<Role> roles) {
             this.username = username;
             this.roles = roles;
         }

@@ -297,6 +297,15 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
         .isUnprocessableEntity()
         .hasJsonMessage("Save failed.")
       }
+
+      @Test
+      void 'should fail if name is blank'() {
+        postWithApiHeader(controller.controllerPath(), [stages: []])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Template name must be specified for creating a template.")
+      }
     }
   }
 

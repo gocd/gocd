@@ -381,6 +381,17 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
       }
 
       @Test
+      void 'should fail if name is blank'() {
+        def pipeline = pipeline()
+        pipeline.remove("name")
+        postWithApiHeader(controller.controllerPath(), [group: "new_grp", pipeline: pipeline])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Pipeline name must be specified for creating a pipeline.")
+      }
+
+      @Test
       void "should fail if group is blank"() {
         postWithApiHeader(controller.controllerPath(), [group: '', pipeline: pipeline()])
 
@@ -713,7 +724,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
         doAnswer({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.arguments.last()
           result.setMessage("The pipeline 'pipeline1' was deleted successfully.")
-        }).when(pipelineConfigService).deletePipelineConfig(any(), eq(this.pipeline), any())
+        }).when(pipelineConfigService).deletePipelineConfig(any(), eq(pipeline), any())
 
 
         deleteWithApiHeader(controller.controllerPath("/pipeline1"))

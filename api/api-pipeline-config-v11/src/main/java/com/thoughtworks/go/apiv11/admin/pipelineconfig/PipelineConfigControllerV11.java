@@ -44,6 +44,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
@@ -236,10 +237,13 @@ public class PipelineConfigControllerV11 extends ApiController implements SparkS
 
 
     private void haltIfEntityBySameNameInRequestExists(PipelineConfig pipelineConfig) {
-        if (pipelineConfigService.getPipelineConfig(pipelineConfig.name().toString()) == null) {
+        CaseInsensitiveString name = Optional.ofNullable(pipelineConfig.name())
+            .orElseThrow(() -> haltBecauseOfReason("Pipeline name must be specified for creating a pipeline."));
+
+        if (pipelineConfigService.getPipelineConfig(name.toString()) == null) {
             return;
         }
-        pipelineConfig.addError("name", EntityType.Pipeline.alreadyExists(pipelineConfig.name()));
-        throw haltBecauseEntityAlreadyExists(jsonWriter(pipelineConfig), "pipeline", pipelineConfig.getName());
+        pipelineConfig.addError("name", EntityType.Pipeline.alreadyExists(name));
+        throw haltBecauseEntityAlreadyExists(jsonWriter(pipelineConfig), "pipeline", name);
     }
 }

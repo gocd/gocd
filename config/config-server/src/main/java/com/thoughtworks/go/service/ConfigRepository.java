@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.service;
 
-import com.thoughtworks.go.GoConfigRevisions;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.exceptions.ConfigMergeException;
 import com.thoughtworks.go.domain.GoConfigRevision;
@@ -171,15 +170,6 @@ public class ConfigRepository {
         throw new IllegalArgumentException(String.format("There is no config version corresponding to md5: '%s'", md5));
     }
 
-    RevCommit getRevCommitForCommitSHA(String commitSHA) throws GitAPIException {
-        for (RevCommit revision : revisions()) {
-            if (revision.getName().equals(commitSHA)) {
-                return revision;
-            }
-        }
-        throw new IllegalArgumentException(String.format("There is no commit corresponding to SHA: '%s'", commitSHA));
-    }
-
     public GoConfigRevision getCurrentRevision() {
         return doLocked(() -> {
             RevCommit revision;
@@ -207,24 +197,6 @@ public class ConfigRepository {
             LOGGER.error("[CONFIG REPOSITORY] Could not fetch latest commit id", e);
             throw e;
         }
-    }
-
-    public GoConfigRevisions getCommits(final int pageSize, final int offset) {
-        return doLocked(() -> {
-            GoConfigRevisions goConfigRevisions = new GoConfigRevisions();
-            try {
-                LogCommand command = git.log().setMaxCount(pageSize).setSkip(offset);
-                Iterable<RevCommit> revisions = command.call();
-                for (RevCommit revision : revisions) {
-                    GoConfigRevision goConfigRevision = new GoConfigRevision((byte[]) null, revision.getFullMessage());
-                    goConfigRevision.setCommitSHA(revision.name());
-                    goConfigRevisions.add(goConfigRevision);
-                }
-            } catch (Exception e) {
-                // ignore
-            }
-            return goConfigRevisions;
-        });
     }
 
     private GoConfigRevision getGoConfigRevision(final RevCommit revision) {
@@ -268,20 +240,6 @@ public class ConfigRepository {
             }
             if (!isBlank(earlierMD5)) {
                 earlierCommit = getRevCommitForMd5(earlierMD5);
-            }
-            return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
-        });
-    }
-
-    public String configChangesForCommits(final String fromRevision, final String toRevision) throws GitAPIException {
-        return doLocked(() -> {
-            RevCommit laterCommit = null;
-            RevCommit earlierCommit = null;
-            if (!isBlank(fromRevision)) {
-                laterCommit = getRevCommitForCommitSHA(fromRevision);
-            }
-            if (!isBlank(toRevision)) {
-                earlierCommit = getRevCommitForCommitSHA(toRevision);
             }
             return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
         });
@@ -408,6 +366,7 @@ public class ConfigRepository {
         return git.branchList().call().stream().anyMatch(ref -> ref.getName().equals(REFS_MASTER));
     }
 
+    @SuppressWarnings("unused") // may be used by Spring schedule
     public void garbageCollect() throws GitAPIException {
         if (!systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC)) {
             return;
@@ -417,13 +376,17 @@ public class ConfigRepository {
             public void run() throws GitAPIException {
                 try {
                     LOGGER.info("Before GC: {}", git.gc().getStatistics());
-                    LOGGER.debug("Before GC: Size - {}", getConfigRepoDisplaySize());
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Before GC: Size - {}", getConfigRepoDisplaySize());
+                    }
                     long expireTimeInMs = systemEnvironment.getConfigGitGcExpireInMillis();
                     git.gc().setAggressive(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_AGGRESSIVE))
                             .setExpire(new Date(System.currentTimeMillis() - expireTimeInMs))
                             .call();
                     LOGGER.info("After GC: {}", git.gc().getStatistics());
-                    LOGGER.debug("After GC: Size: {}", getConfigRepoDisplaySize());
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("After GC: Size: {}", getConfigRepoDisplaySize());
+                    }
                 } catch (GitAPIException e) {
                     LOGGER.error("Could not perform GC", e);
                     throw e;
@@ -445,7 +408,7 @@ public class ConfigRepository {
         return git.gc().getStatistics();
     }
 
-    public Long commitCountOnMaster() throws GitAPIException, IncorrectObjectTypeException, MissingObjectException {
+    public long commitCountOnMaster() throws GitAPIException, IncorrectObjectTypeException, MissingObjectException {
         // not inside a doLocked/synchronized block because we don't want to block the server status service.
         // we do a `git branch` because we switch branches as part of normal git operations,
         // and we don't care about number of commits on those branches.
@@ -456,6 +419,6 @@ public class ConfigRepository {
                 return StreamSupport.stream(commits.spliterator(), false).count();
             }
         }
-        return (long) -1;
+        return -1;
     }
 }

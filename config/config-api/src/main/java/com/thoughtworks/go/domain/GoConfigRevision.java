@@ -65,7 +65,6 @@ public class GoConfigRevision {
 
     private static final Pattern PATTERN = Pattern.compile("^" + Fragment.string(VALUE, DELIMITER) + "$");
 
-
     private String md5;
     private String username;
     private String goVersion;
@@ -74,7 +73,6 @@ public class GoConfigRevision {
     private byte[] configXmlBytes;
     private Date time;
     private int schemaVersion;
-    private String commitSHA;
 
     public GoConfigRevision(String configXml, String md5, String username, String goVersion, TimeProvider provider) {
         this(configXml);
@@ -105,7 +103,6 @@ public class GoConfigRevision {
             throw new IllegalArgumentException(String.format("failed to parse comment [%s]", comment));
         }
     }
-
 
     private GoConfigRevision(String configXml) {
         this.configXmlBytes = null;
@@ -161,14 +158,6 @@ public class GoConfigRevision {
 
     public int getSchemaVersion() {
         return schemaVersion;
-    }
-
-    public String getCommitSHA() {
-        return commitSHA;
-    }
-
-    public void setCommitSHA(String commitSHA) {
-        this.commitSHA = commitSHA;
     }
 
     @Override

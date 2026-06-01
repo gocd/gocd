@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
-import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.FileSizeUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,32 +60,32 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
 
     void deleteOldArtifacts() {
         ServerConfig serverConfig = goConfigService.serverConfig();
-        Double requiredSpaceInGb = serverConfig.getPurgeUpto();
         if (serverConfig.isArtifactPurgingAllowed()) {
-            double requiredSpace = requiredSpaceInGb * GoConstants.GIGA_BYTE;
-            LOGGER.info("Clearing old artifacts as the disk space is low. Current space: '{}'. Need to clear till we hit: '{}'.", availableSpace(), requiredSpace);
+            double requiredSpaceBytes = FileSizeUtils.fromGigaToBytes(serverConfig.getPurgeUptoDiskSpaceInGigabytes().longValue());
+            LOGGER.info("Clearing old artifacts as the disk space is low. Current space: '{}'. Need to clear till we hit: '{}'.", availableSpaceBytes(), requiredSpaceBytes);
             List<Stage> stages;
             int numberOfStagesPurged = 0;
             do {
                 configDbStateRepository.flushConfigState();
                 stages = stageService.oldestStagesWithDeletableArtifacts();
                 for (Stage stage : stages) {
-                    if (availableSpace() > requiredSpace) {
+                    if (availableSpaceBytes() > requiredSpaceBytes) {
                         break;
                     }
                     numberOfStagesPurged++;
                     artifactService.purgeArtifactsForStage(stage);
                 }
-            } while (availableSpace() < requiredSpace && !stages.isEmpty());
-            if (availableSpace() < requiredSpace) {
+            } while (availableSpaceBytes() < requiredSpaceBytes && !stages.isEmpty());
+
+            if (availableSpaceBytes() < requiredSpaceBytes) {
                 LOGGER.warn("Ran out of stages to clear artifacts from but the disk space is still low");
             }
-            LOGGER.info("Finished clearing old artifacts. Deleted artifacts for '{}' stages. Current space: '{}'", numberOfStagesPurged, availableSpace());
+            LOGGER.info("Finished clearing old artifacts. Deleted artifacts for '{}' stages. Current space: '{}'", numberOfStagesPurged, availableSpaceBytes());
         }
     }
 
     @Override
-    protected void createFailure(OperationResult result, long size, long availableSpace) {
+    protected void createFailure(OperationResult result, long limitMegabytes, long availableSpace) {
         synchronized (triggerCleanup) {
             triggerCleanup.notify();
         }
@@ -97,9 +97,9 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
     }
 
     @Override
-    protected long limitInMb() {
+    protected long limitInMegabytes() {
         ServerConfig serverConfig = goConfigService.serverConfig();
-        return serverConfig.isArtifactPurgingAllowed() ? Double.valueOf(serverConfig.getPurgeStart() * GoConstants.MEGABYTES_IN_GIGABYTE).longValue() : Integer.MAX_VALUE;
+        return serverConfig.isArtifactPurgingAllowed() ? FileSizeUtils.fromGigaToMegabytes(serverConfig.getPurgeStartDiskSpaceInGigabytes().longValue()) : Long.MAX_VALUE;
     }
 
     @Override

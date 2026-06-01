@@ -34,17 +34,15 @@ class Admin::ConfigurationController < AdminController
       flash.now[:error] = 'Save failed, see errors below'
       @errors = [config_validity.errorMessage()]
       fetch_config
-      if switch_to_split_pane?(config_validity)
+      if config_edit_conflicted?(config_validity)
         flash.now[:error] = 'Someone has modified the configuration and your changes are in conflict. Please review, amend and retry.'
-        @flash_help_link = "<a class='' href='#{com.thoughtworks.go.CurrentGoCDVersion.docsUrl('configuration/configuration_reference.html')}' target='_blank'>Help Topic: Configuration</a>"
         @conflicted_config = GoConfig.new(params[:go_config])
         fetch_cruise_config_revision @go_config.md5
-        @render_config_via_ajax = true
         render :split_pane and return
       else
-        @go_config = GoConfig.new(params[:go_config].merge(:location => @go_config.location))
+        @go_config = GoConfig.new(params[:go_config])
         fetch_cruise_config_revision @go_config.md5
-        @render_config_via_ajax = false
+        @echo_user_submission = true
         render :edit and return
       end
     end
@@ -54,15 +52,15 @@ class Admin::ConfigurationController < AdminController
 
   private
   def fetch_config
-    config = go_config_service.getConfigAtVersion('current')
-    @go_config = GoConfig.new({location: go_config_service.fileLocation, md5: config.getMd5, content: config.getContent})
+    config = config_repository.getRevision('current')
+    @go_config = GoConfig.new(content: config.getContent, md5: config.getMd5)
   end
 
   def fetch_cruise_config_revision md5
     @go_config_revision = config_repository.getRevision(md5)
   end
 
-  def switch_to_split_pane? config_validity
+  def config_edit_conflicted? config_validity
     !config_validity.isValid() && (config_validity.isMergeConflict() || config_validity.isPostValidationError())
   end
 

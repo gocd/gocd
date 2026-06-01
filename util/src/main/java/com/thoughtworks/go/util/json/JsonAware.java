@@ -16,5 +16,7 @@
 package com.thoughtworks.go.util.json;
 
 public interface JsonAware {
+    String ERROR_KEY = "error";
+
     Object toJson();
 }

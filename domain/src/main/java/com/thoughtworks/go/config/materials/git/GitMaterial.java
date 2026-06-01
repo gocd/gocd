@@ -26,7 +26,6 @@ import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
 import com.thoughtworks.go.domain.materials.git.GitVersion;
 import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.utils.URIBuilder;
@@ -45,6 +44,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombUnless;
 import static com.thoughtworks.go.util.FileUtil.mkdirsParentQuietly;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static com.thoughtworks.go.work.GoPublisher.PRODUCT_NAME;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isAllBlank;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -145,13 +145,13 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
     public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         Revision revision = revisionContext.getLatestRevision();
         try {
-            outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), getUriForDisplay()));
+            outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", PRODUCT_NAME, updatingTarget(), revision.getRevision(), getUriForDisplay()));
             File workingDir = execCtx.isServer() ? baseDir : workingdir(baseDir);
             GitCommand git = git(outputStreamConsumer, workingDir, revisionContext.numberOfModifications() + 1, execCtx);
             git.fetch(outputStreamConsumer);
             unshallowIfNeeded(git, outputStreamConsumer, revisionContext.getOldestRevision());
             git.resetWorkingDir(outputStreamConsumer, revision, shallowClone);
-            outputStreamConsumer.stdOutput(format("[%s] Done.\n", GoConstants.PRODUCT_NAME));
+            outputStreamConsumer.stdOutput(format("[%s] Done.\n", PRODUCT_NAME));
         } catch (Exception e) {
             bomb(e);
         }
@@ -365,7 +365,9 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
 
         GitCommand gitCommand = new GitCommand(getFingerprint(), workingFolder, refSpecOrBranch, false, secrets());
         if (!isGitRepository(workingFolder) || isRepositoryChanged(gitCommand, workingFolder)) {
-            LOG.debug("Invalid git working copy or repository changed. Delete folder: {}", workingFolder);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Invalid git working copy or repository changed. Delete folder: {}", workingFolder);
+            }
             try {
                 FileUtils.deleteDirectory(workingFolder);
             } catch (IOException e) {

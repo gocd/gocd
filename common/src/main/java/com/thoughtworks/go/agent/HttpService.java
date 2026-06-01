@@ -18,7 +18,6 @@ package com.thoughtworks.go.agent;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.domain.FetchHandler;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.PerfTimer;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -116,7 +115,7 @@ public class HttpService {
     }
 
     public static void setSizeHeader(HttpRequestBase method, long size) {
-        method.setHeader(REQUEST_ARTIFACT_PAYLOAD_SIZE, String.valueOf(size));
+        method.setHeader(REQUEST_ARTIFACT_PAYLOAD_SIZE_BYTES, String.valueOf(size));
     }
 
     /**
@@ -143,11 +142,11 @@ public class HttpService {
 
         public HttpEntity createMultipartRequestEntity(File artifact, Properties artifactChecksums) throws IOException {
             MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
-            entityBuilder.addPart(GoConstants.ZIP_MULTIPART_FILENAME, new FileBody(artifact));
+            entityBuilder.addPart(Multipart.ZIP_FILENAME, new FileBody(artifact));
             if (artifactChecksums != null) {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 artifactChecksums.store(outputStream, "");
-                entityBuilder.addPart(GoConstants.CHECKSUM_MULTIPART_FILENAME, new ByteArrayBody(outputStream.toByteArray(), "checksum_file"));
+                entityBuilder.addPart(Multipart.CHECKSUM_FILENAME, new ByteArrayBody(outputStream.toByteArray(), "checksum_file"));
             }
             return entityBuilder.build();
         }

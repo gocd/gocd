@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.fixture;
 
-import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.FileSizeUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -35,7 +35,7 @@ public class ArtifactsDiskIsFull implements BeforeEachCallback, AfterEachCallbac
     }
 
     public static long limitBytes() {
-        return 10000000 * GoConstants.MEGA_BYTE;
+        return FileSizeUtils.fromMegaToBytes(10000000);
     }
 
 }

@@ -16,10 +16,6 @@
 <%== flash_message_pane_start("message_pane", false) %>
 <% key = @flash_message || params[:fm] || :notice
    if flash = load_flash_message(key) -%>
-    <%
-       help_link = @flash_help_link.nil? ? "" : " #{@flash_help_link}"
-       complete_message = "#{h(flash.to_s)}#{help_link}"
-    %>
-    <p class="<%= flash.flashClass() -%>"><%== complete_message -%></p>
+    <p class="<%= flash.flashClass() -%>"><%== "#{h(flash.to_s)}" -%></p>
 <% end -%>
 <%== flash_message_pane_end %>

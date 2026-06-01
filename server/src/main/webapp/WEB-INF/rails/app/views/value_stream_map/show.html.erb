@@ -47,12 +47,11 @@
 
 <script type="text/javascript">
     $(function() {
-
         resizeMapContainer();
         function resizeMapContainer() {
             $("#vsm-container").height($(window).height() - 160);
         }
-        $(window).resize(function() {
+        $(window).on('resize', function() {
             resizeMapContainer();
         });
 
@@ -69,7 +68,7 @@
             vsm_analytics.init();
           }
 
-          vsm = new VSM(data, "#vsm-container", graphRenderer, "#pre-loader-overlay").render();
+          new VSM(data, "#vsm-container", graphRenderer, "#pre-loader-overlay").render();
         })
 
     })

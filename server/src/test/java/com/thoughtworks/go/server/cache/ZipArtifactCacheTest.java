@@ -41,39 +41,41 @@ public class ZipArtifactCacheTest {
     private static final JobIdentifier JOB_IDENTIFIER = new JobIdentifier("pipeline-name", 1, "label-111", "stage-name", "1", "job-name", 666L);
     private static final String JOB_FOLDERS = "pipelines/pipeline-name/label-111/stage-name/1/job-name/666";
 
+    @TempDir File tempDir;
+
     private ZipArtifactCache zipArtifactCache;
-    @TempDir
-    File folder;
-    private ArtifactFolder artifactFolder;
+
+    private File testJobArtifactStorage;
+    private ArtifactFolder testDirArtifactFolder;
 
     @BeforeEach
     public void setUp() throws Exception {
-        File artifact = new File(folder, JOB_FOLDERS);
-        artifact.mkdirs();
-        TestFileUtil.createTestFolder(artifact, "dir");
-        TestFileUtil.createTestFile(artifact, "dir/file1");
+        testJobArtifactStorage = new File(tempDir, JOB_FOLDERS);
+        testJobArtifactStorage.mkdirs();
+        File dir = TestFileUtil.createTestFolder(testJobArtifactStorage, "dir");
+        TestFileUtil.createTestFile(testJobArtifactStorage, "dir/file1");
 
         ArtifactsDirHolder artifactsDirHolder = mock(ArtifactsDirHolder.class);
-        when(artifactsDirHolder.getArtifactsDir()).thenReturn(folder);
+        when(artifactsDirHolder.getArtifactsDir()).thenReturn(tempDir);
         zipArtifactCache = new ZipArtifactCache(artifactsDirHolder, new ZipUtil());
-        artifactFolder = new ArtifactFolder(JOB_IDENTIFIER, new File(artifact, "dir"), "dir");
+        testDirArtifactFolder = new ArtifactFolder(JOB_IDENTIFIER, dir, "dir");
     }
 
     @Test
     public void shouldKnowWhenCacheAlreadyCreated() throws Exception {
-        zipArtifactCache.createCachedFile(artifactFolder);
+        zipArtifactCache.createCachedFile(testDirArtifactFolder);
 
         assertThat(zipArtifactCache)
-            .satisfies(cache -> assertThat(cache.cacheCreated(artifactFolder)).isTrue())
-            .satisfies(cache -> assertThat(cache.cachedFile(artifactFolder).getName()).isEqualTo("dir.zip"));
+            .satisfies(cache -> assertThat(cache.cacheCreated(testDirArtifactFolder)).isTrue())
+            .satisfies(cache -> assertThat(cache.cachedFile(testDirArtifactFolder).getName()).isEqualTo("dir.zip"));
     }
 
     @Test
     public void shouldCreateCacheWhenNotYetCreated() throws Exception {
         waitForCacheCreated();
         assertThat(zipArtifactCache)
-            .satisfies(cache -> assertThat(cache.cacheCreated(artifactFolder)).isTrue())
-            .satisfies(cache -> assertThat(cache.cachedFile(artifactFolder).getAbsolutePath().replaceAll("\\\\", "/")).endsWith("cache/artifacts/" + JOB_FOLDERS + "/dir.zip"));
+            .satisfies(cache -> assertThat(cache.cacheCreated(testDirArtifactFolder)).isTrue())
+            .satisfies(cache -> assertThat(cache.cachedFile(testDirArtifactFolder).getAbsolutePath().replaceAll("\\\\", "/")).endsWith("cache/artifacts/" + JOB_FOLDERS + "/dir.zip"));
     }
 
     @Test
@@ -99,9 +101,20 @@ public class ZipArtifactCacheTest {
         }
     }
 
+    // FIXME
+//    @Test
+//    public void shouldCanonicalizeDirectoryPaths() throws Exception {
+//        testDirArtifactFolder = new ArtifactFolder(JOB_IDENTIFIER, new File(artifact, "dir"), "dir");
+//        waitForCacheCreated();
+//        assertThat(new File(cacheDir, "dir.zip.tmp")).doesNotExist();
+//        assertThat(new File(cacheDir, "dir.zip")).exists();
+//        new ZipUtil().unzip(new File(cacheDir, "dir.zip"), cacheDir);
+//        assertThat(new File(cacheDir, "dir/file1")).exists();
+//    }
+
     @Test
     public void shouldRecoverFromOldZipTmpFile() throws Exception {
-        File cacheDir = new File(folder, "cache/artifacts/" + JOB_FOLDERS);
+        File cacheDir = new File(tempDir, "cache/artifacts/" + JOB_FOLDERS);
         cacheDir.mkdirs();
         TestFileUtil.createTestFile(cacheDir, "dir.zip.tmp");
 
@@ -113,7 +126,7 @@ public class ZipArtifactCacheTest {
 
     private void waitForCacheCreated() throws Exception {
         long waitUntil = System.currentTimeMillis() + SECONDS.toMillis(2);
-        while (System.currentTimeMillis() <= waitUntil && !zipArtifactCache.cacheCreated(artifactFolder)) {
+        while (System.currentTimeMillis() <= waitUntil && !zipArtifactCache.cacheCreated(testDirArtifactFolder)) {
             Thread.sleep(10);
         }
         if (System.currentTimeMillis() > waitUntil) {
@@ -131,10 +144,10 @@ public class ZipArtifactCacheTest {
         @Override
         public void run() {
             try {
-                while (!zipArtifactCache.cacheCreated(artifactFolder)) {
+                while (!zipArtifactCache.cacheCreated(testDirArtifactFolder)) {
                     Thread.sleep(10);
                 }
-                artifact = zipArtifactCache.cachedFile(artifactFolder).getAbsolutePath();
+                artifact = zipArtifactCache.cachedFile(testDirArtifactFolder).getAbsolutePath();
             } catch (InterruptedException | IOException e) {
                 throw new RuntimeException(e);
             }

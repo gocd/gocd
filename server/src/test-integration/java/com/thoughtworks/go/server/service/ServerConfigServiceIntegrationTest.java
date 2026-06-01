@@ -134,14 +134,14 @@ public class ServerConfigServiceIntegrationTest {
         artifactConfig.setPurgeSettings(purgeSettings);
 
         assertThat(goConfigService.serverConfig().artifactsDir()).isEqualTo("artifactsDir");
-        assertNull(goConfigService.serverConfig().getPurgeStart());
-        assertNull(goConfigService.serverConfig().getPurgeUpto());
+        assertNull(goConfigService.serverConfig().getPurgeStartDiskSpaceInGigabytes());
+        assertNull(goConfigService.serverConfig().getPurgeUptoDiskSpaceInGigabytes());
 
         serverConfigService.updateArtifactConfig(artifactConfig);
 
         assertThat(goConfigService.serverConfig().artifactsDir()).isEqualTo("test");
-        assertThat(goConfigService.serverConfig().getPurgeStart()).isEqualTo(10.0);
-        assertThat(goConfigService.serverConfig().getPurgeUpto()).isEqualTo(20.0);
+        assertThat(goConfigService.serverConfig().getPurgeStartDiskSpaceInGigabytes()).isEqualTo(10.0);
+        assertThat(goConfigService.serverConfig().getPurgeUptoDiskSpaceInGigabytes()).isEqualTo(20.0);
     }
 
     @Test

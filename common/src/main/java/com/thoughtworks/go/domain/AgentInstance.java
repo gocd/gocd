@@ -476,7 +476,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public boolean isLowDiskSpace() {
-        long limit = new SystemEnvironment().getAgentSizeLimit();
+        long limit = new SystemEnvironment().getAgentSizeLimitBytes();
         return agentRuntimeInfo.isLowDiskSpace(limit);
     }
 

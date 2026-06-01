@@ -26,4 +26,16 @@ public class FileSizeUtils {
         char unit = "KMGTPEZY".charAt(exp - 1);
         return String.format("%.1f %s%s", value, unit, "B");
     }
+
+    public static long fromMegaToBytes(long megabytes) {
+        return megabytes * 1024 * 1024;
+    }
+
+    public static long fromGigaToMegabytes(long gigabytes) {
+        return gigabytes * 1024;
+    }
+
+    public static long fromGigaToBytes(long gigabytes) {
+        return gigabytes * 1024 * 1024 * 1024;
+    }
 }

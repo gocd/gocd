@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class EmailMessageDrafterTest {
-    private String artifactRoot = "artifactFolder";
+    private final String artifactRoot = "artifactFolder";
 
     @AfterEach
     public void tearDown() {
@@ -62,8 +62,8 @@ public class EmailMessageDrafterTest {
     private String lowArtifactDiskSpaceEmail(String ip, String size, int noDiskSpaceSize) {
         return String.format("The email has been sent out automatically by the Go server at (%s) to Go administrators.\n"
             + "\n"
-            + "This server has less than %sMb of disk space available at %s to store artifacts. "
-            + "When the available space goes below %sMb, Go will stop scheduling. "
+            + "This server has less than %sMB of disk space available at %s to store artifacts. "
+            + "When the available space goes below %sMB, Go will stop scheduling. "
             + "Please ensure enough space is available. You can read more about Go's artifacts repository, "
             + "including our recommendation to create a separate partition for it at "
             + CurrentGoCDVersion.docsUrl("/installation/configuring_server_details.html") +
@@ -73,7 +73,7 @@ public class EmailMessageDrafterTest {
     private String noArtifactDiskSpaceEmail(String ip, String size) {
         return String.format("The email has been sent out automatically by the Go server at (%s) to Go administrators.\n"
             + "\n"
-            + "This server has stopped scheduling because it has less than %sMb of disk space available at %s to store artifacts. "
+            + "This server has stopped scheduling because it has less than %sMB of disk space available at %s to store artifacts. "
             + "Please ensure enough space is available. You can read more about Go's artifacts repository, "
             + "including our recommendation to create a separate partition for it at "
             + CurrentGoCDVersion.docsUrl("/installation/configuring_server_details.html") +

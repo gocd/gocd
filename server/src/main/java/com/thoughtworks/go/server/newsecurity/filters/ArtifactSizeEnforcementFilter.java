@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.newsecurity.filters;
 import com.thoughtworks.go.remote.StandardHeaders;
 import com.thoughtworks.go.server.service.ArtifactsDirHolder;
 import com.thoughtworks.go.server.util.LastOperationTime;
-import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.FileSizeUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +41,8 @@ public class ArtifactSizeEnforcementFilter extends OncePerRequestFilter {
     private final ArtifactsDirHolder artifactsDirHolder;
     private final SystemEnvironment systemEnvironment;
     // TODO: ketanpkr - DiskSpaceChecker already caches stuff, this class should not be needed.
-    private LastOperationTime lastOperationTime;
-    private long totalAvailableSpace;
+    private final LastOperationTime lastOperationTime;
+    private long totalAvailableSpaceBytes;
 
     @Autowired
     public ArtifactSizeEnforcementFilter(ArtifactsDirHolder artifactsDirHolder, SystemEnvironment systemEnvironment) {
@@ -55,8 +55,8 @@ public class ArtifactSizeEnforcementFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
-        String headerValue = request.getHeader(StandardHeaders.REQUEST_ARTIFACT_PAYLOAD_SIZE);
-        if (isBlank(headerValue)) {
+        String incomingArtifactBytesHeader = request.getHeader(StandardHeaders.REQUEST_ARTIFACT_PAYLOAD_SIZE_BYTES);
+        if (isBlank(incomingArtifactBytesHeader)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -64,15 +64,17 @@ public class ArtifactSizeEnforcementFilter extends OncePerRequestFilter {
         if (lastOperationTime.pastWaitingPeriod()) {
             synchronized (this) {
                 if (lastOperationTime.pastWaitingPeriod()) {
-                    totalAvailableSpace = artifactsDirHolder.getArtifactsDir().getUsableSpace() - systemEnvironment.getArtifactRepositoryFullLimit() * GoConstants.MEGA_BYTE;
+                    totalAvailableSpaceBytes = artifactsDirHolder.getArtifactsDir().getUsableSpace() - FileSizeUtils.fromMegaToBytes(systemEnvironment.getArtifactRepositoryFullLimitMegabytes());
                     lastOperationTime.refresh();
                 }
             }
         }
 
-        if (Long.parseLong(headerValue) * 2 > totalAvailableSpace) {
-            long artifactSize = Long.parseLong(headerValue);
-            LOG.error("[Artifact Upload] Artifact upload (Required Size {} * 2 = {}) was denied by the server because it has run out of disk space (Available Space {}).", artifactSize, artifactSize * 2, totalAvailableSpace);
+        long incomingArtifactBytes = Long.parseLong(incomingArtifactBytesHeader);
+        long requiredArtifactSpaceBytes = incomingArtifactBytes * 2;
+        if (requiredArtifactSpaceBytes > totalAvailableSpaceBytes) {
+            LOG.error("[Artifact Upload] Artifact upload (Required Size {} * 2 = {}) was denied by the server because it has run out of disk space (Available Space {}).",
+                incomingArtifactBytes, requiredArtifactSpaceBytes, totalAvailableSpaceBytes);
             response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
         } else {
             filterChain.doFilter(request, response);

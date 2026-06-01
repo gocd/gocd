@@ -1534,8 +1534,8 @@ public class MagicalGoConfigXmlLoaderTest {
             </cruise>
             """.formatted(GoConfigSchema.VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
-        assertThat(cruiseConfig.server().getPurgeStart()).isEqualTo(1.0);
-        assertThat(cruiseConfig.server().getPurgeUpto()).isEqualTo(3.0);
+        assertThat(cruiseConfig.server().getPurgeStartDiskSpaceInGigabytes()).isEqualTo(1.0);
+        assertThat(cruiseConfig.server().getPurgeUptoDiskSpaceInGigabytes()).isEqualTo(3.0);
     }
 
     @Test
@@ -1552,8 +1552,8 @@ public class MagicalGoConfigXmlLoaderTest {
             </server></cruise>
             """.formatted(GoConfigSchema.VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
-        assertThat(cruiseConfig.server().getPurgeStart()).isEqualTo(1.2);
-        assertThat(cruiseConfig.server().getPurgeUpto()).isEqualTo(3.4);
+        assertThat(cruiseConfig.server().getPurgeStartDiskSpaceInGigabytes()).isEqualTo(1.2);
+        assertThat(cruiseConfig.server().getPurgeUptoDiskSpaceInGigabytes()).isEqualTo(3.4);
     }
 
     @Test
@@ -1564,8 +1564,8 @@ public class MagicalGoConfigXmlLoaderTest {
             </server></cruise>
             """.formatted(GoConfigSchema.VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
-        assertThat(cruiseConfig.server().getPurgeStart()).isNull();
-        assertThat(cruiseConfig.server().getPurgeUpto()).isNull();
+        assertThat(cruiseConfig.server().getPurgeStartDiskSpaceInGigabytes()).isNull();
+        assertThat(cruiseConfig.server().getPurgeUptoDiskSpaceInGigabytes()).isNull();
     }
 
 

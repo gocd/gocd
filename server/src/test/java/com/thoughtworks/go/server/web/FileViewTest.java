@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 
-import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
+import static com.thoughtworks.go.server.controller.actions.TextAction.CONTENT_TYPE;
 import static com.thoughtworks.go.util.TempDirUtils.newFile;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -80,9 +80,9 @@ public class FileViewTest {
     public void testShouldOutputTxtFileContentAsTextPlain() throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("targetFile", file);
-        when(mockServletContext.getMimeType(any())).thenReturn(RESPONSE_CHARSET);
+        when(mockServletContext.getMimeType(any())).thenReturn(CONTENT_TYPE);
         view.render(model, mockRequest, mockResponse);
-        assertEquals(RESPONSE_CHARSET, mockResponse.getContentType());
+        assertEquals(CONTENT_TYPE, mockResponse.getContentType());
         assertEquals(5, getContentLength(mockResponse));
     }
 
@@ -106,7 +106,7 @@ public class FileViewTest {
         Map<String, Object> model = new HashMap<>();
         model.put("targetFile", file);
 
-        when(mockServletContext.getMimeType(any())).thenReturn(RESPONSE_CHARSET);
+        when(mockServletContext.getMimeType(any())).thenReturn(CONTENT_TYPE);
 
         view.render(model, mockRequest, mockResponse);
 

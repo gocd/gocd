@@ -84,25 +84,25 @@ class SystemEnvironmentTest {
     @Test
     void shouldCacheDatabaseDiskFullOnFirstAccess() {
         System.setProperty(SystemEnvironment.DATABASE_FULL_SIZE_LIMIT, "100");
-        assertThat(systemEnvironment.getDatabaseDiskSpaceFullLimit()).isEqualTo(100L);
+        assertThat(systemEnvironment.getDatabaseDiskSpaceFullLimitMegabytes()).isEqualTo(100L);
         System.setProperty(SystemEnvironment.DATABASE_FULL_SIZE_LIMIT, "50M");
-        assertThat(systemEnvironment.getDatabaseDiskSpaceFullLimit()).isEqualTo(100L);
+        assertThat(systemEnvironment.getDatabaseDiskSpaceFullLimitMegabytes()).isEqualTo(100L);
     }
 
     @Test
     void shouldCacheArtifactDiskFullOnFirstAccess() {
         System.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "100");
-        assertThat(systemEnvironment.getArtifactRepositoryFullLimit()).isEqualTo(100L);
+        assertThat(systemEnvironment.getArtifactRepositoryFullLimitMegabytes()).isEqualTo(100L);
         System.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "50M");
-        assertThat(systemEnvironment.getArtifactRepositoryFullLimit()).isEqualTo(100L);
+        assertThat(systemEnvironment.getArtifactRepositoryFullLimitMegabytes()).isEqualTo(100L);
     }
 
     @Test
     void shouldClearCachedValuesOnSettingNewProperty() {
         System.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "100");
-        assertThat(systemEnvironment.getArtifactRepositoryFullLimit()).isEqualTo(100L);
+        assertThat(systemEnvironment.getArtifactRepositoryFullLimitMegabytes()).isEqualTo(100L);
         systemEnvironment.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "50");
-        assertThat(systemEnvironment.getArtifactRepositoryFullLimit()).isEqualTo(50L);
+        assertThat(systemEnvironment.getArtifactRepositoryFullLimitMegabytes()).isEqualTo(50L);
     }
 
     @Test

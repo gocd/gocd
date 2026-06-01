@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,12 +50,6 @@ public class JsonView extends AbstractView {
         try (PrintWriter writer = httpServletResponse.getWriter()) {
             JsonRenderer.render(json, requestContext, writer);
         }
-    }
-
-    public static Map<String, Object> getSimpleAjaxResult(String messageKey, String message) {
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put(messageKey, message);
-        return result;
     }
 
     public String renderJson(Map<String, Object> json) {

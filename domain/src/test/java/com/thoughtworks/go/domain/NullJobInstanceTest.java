@@ -13,10 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go;
 
-import com.thoughtworks.go.domain.BaseCollection;
-import com.thoughtworks.go.domain.GoConfigRevision;
+package com.thoughtworks.go.domain;
 
-public class GoConfigRevisions extends BaseCollection<GoConfigRevision> {
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class NullJobInstanceTest {
+    @Test
+    void shouldReturnNeverForStarted() {
+        NullJobInstance nullJobInstance = new NullJobInstance("test");
+        assertThat(nullJobInstance.getStartedDateFor(null)).isEqualTo("1900-01-01T00:00:00.000");
+    }
 }

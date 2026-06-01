@@ -65,7 +65,7 @@ public abstract class GoConfigValidity {
 
         @Override
         public String toString() {
-            return String.format("ValidityType{typeName='%s\'}", typeName);
+            return String.format("ValidityType{typeName='%s'}", typeName);
         }
     }
 
@@ -99,7 +99,7 @@ public abstract class GoConfigValidity {
         }
 
         public boolean isType(ValidityType type) {
-            return type.equals(this.validityType);
+            return type == this.validityType;
         }
 
         public String errorMessage() {
@@ -107,11 +107,11 @@ public abstract class GoConfigValidity {
         }
 
         public boolean isMergeConflict() {
-            return VT_MERGE_OPERATION_ERROR.equals(validityType);
+            return VT_MERGE_OPERATION_ERROR == validityType;
         }
 
         public boolean isPostValidationError() {
-            return VT_MERGE_POST_VALIDATION_ERROR.equals(validityType);
+            return VT_MERGE_POST_VALIDATION_ERROR == validityType;
         }
     }
 }

@@ -58,43 +58,12 @@ describe "layouts/pipelines.html.erb" do
     allow(view).to receive(:admin_config_change_path)
   end
 
-  describe "stage configuration out of sync notification" do
-
-    before :each do
-      stage_summary_model = double('stage_summary_model')
-      @stage = double('stage')
-      allow(stage_summary_model).to receive(:getStage).and_return(@stage)
-      allow(stage_summary_model).to receive(:getName).and_return('stage-0')
-      allow(stage_summary_model).to receive(:getState).and_return(nil)
-      assign(:stage, stage_summary_model)
-      assign(:current_config_version, 'current_config_version')
-      assign(:stage, stage_summary_model)
-    end
-
-    it "should display message indicating that config is out of date and any actions performed on this page will use the latest config" do
-      allow(@stage).to receive(:getConfigVersion).and_return('stage_config_version')
-      allow(view).to receive(:is_config_used_to_run_this_stage_out_of_sync_with_current?).with("current_config_version", "stage_config_version").and_return(true)
-      render :inline => '<div>content</div>', :layout => @layout_name
-      Capybara.string(response.body).find("div.config_changed_info.notification").tap do |div|
-        expect(div).to have_selector("p.information", :text => "Configuration has since been updated and any operations performed will use the current configuration")
-      end
-    end
-
-    it "should not display message indicating that config is out of date and any actions performed on this page will use the latest config when configuration has not changed since" do
-      allow(@stage).to receive(:getConfigVersion).and_return('current_config_version')
-      allow(view).to receive(:is_config_used_to_run_this_stage_out_of_sync_with_current?).with("current_config_version", "current_config_version").and_return(false)
-      render :inline => '<div>content</div>', :layout => @layout_name
-      expect(response.body).to_not have_selector(".notification.config_changed_info p", :text => "Configuration has since been updated and any operations performed will use the current configuration")
-    end
-  end
-
   describe "pipeline bar" do
     before do
       @first_stage = StageSummaryModel.new(StageMother.scheduledStage("pipeline-name", 1, "stage-0", 1, "job"), Stages.new, JobDurationStrategy::ALWAYS_ZERO, nil)
       assign(:stage, @first_stage)
       stage = double('stage')
       allow(stage).to receive(:getConfigVersion).and_return('current_version')
-      allow(view).to receive(:is_config_used_to_run_this_stage_out_of_sync_with_current?).with(anything, anything).and_return(false)
     end
 
     describe "other_stage_runs" do

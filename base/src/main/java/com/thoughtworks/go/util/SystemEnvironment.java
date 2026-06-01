@@ -198,9 +198,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     private volatile static Integer agentConnectionTimeout;
     private volatile static String cruiseConfigDir;
-    private volatile static Long databaseFullSizeLimit;
     private volatile static Charset consoleLogCharset;
-    private volatile static Long artifactFullSizeLimit;
+
+    private volatile static Long databaseFullSizeLimitMegabytes;
+    private volatile static Long artifactFullSizeLimitMegabytes;
     private volatile static Long diskSpaceCacheRefresherInterval;
 
     private Properties properties;
@@ -257,14 +258,14 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return get(MAIL_SENDER_TIMEOUT_IN_MILLIS);
     }
 
-    public long getArtifactRepositoryFullLimit() {
-        return Objects.requireNonNullElseGet(artifactFullSizeLimit,
-            () -> artifactFullSizeLimit = Long.valueOf(trimMegaFromSize(getPropertyImpl(ARTIFACT_FULL_SIZE_LIMIT, "100M"))));
+    public long getArtifactRepositoryFullLimitMegabytes() {
+        return Objects.requireNonNullElseGet(artifactFullSizeLimitMegabytes,
+            () -> artifactFullSizeLimitMegabytes = Long.valueOf(trimMegaFromSize(getPropertyImpl(ARTIFACT_FULL_SIZE_LIMIT, "100M"))));
     }
 
-    public long getDatabaseDiskSpaceFullLimit() {
-        return Objects.requireNonNullElseGet(databaseFullSizeLimit,
-            () -> databaseFullSizeLimit = Long.valueOf(trimMegaFromSize(getPropertyImpl(DATABASE_FULL_SIZE_LIMIT, "100M"))));
+    public long getDatabaseDiskSpaceFullLimitMegabytes() {
+        return Objects.requireNonNullElseGet(databaseFullSizeLimitMegabytes,
+            () -> databaseFullSizeLimitMegabytes = Long.valueOf(trimMegaFromSize(getPropertyImpl(DATABASE_FULL_SIZE_LIMIT, "100M"))));
     }
 
     public long getDiskSpaceCacheRefresherInterval() {
@@ -281,15 +282,15 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         diskSpaceCacheRefresherInterval = interval;
     }
 
-    public long getAgentSizeLimit() {
+    public long getAgentSizeLimitBytes() {
         return Long.parseLong(trimMegaFromSize(getPropertyImpl(AGENT_SIZE_LIMIT, "100M"))) * 1024 * 1024;
     }
 
-    public long getArtifactRepositoryWarningLimit() {
+    public long getArtifactRepositoryWarningLimitMegabytes() {
         return Long.parseLong(trimMegaFromSize(getPropertyImpl(ARTIFACT_WARNING_SIZE_LIMIT, "1024M")));
     }
 
-    public long getDatabaseDiskSpaceWarningLimit() {
+    public long getDatabaseDiskSpaceWarningLimitMegabytes() {
         return Long.parseLong(trimMegaFromSize(getPropertyImpl(DATABASE_WARNING_SIZE_LIMIT, "1024M")));
     }
 
@@ -479,8 +480,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private void clearCachedSystemEnvironment() {
         agentConnectionTimeout = null;
         cruiseConfigDir = null;
-        databaseFullSizeLimit = null;
-        artifactFullSizeLimit = null;
+        databaseFullSizeLimitMegabytes = null;
+        artifactFullSizeLimitMegabytes = null;
         consoleLogCharset = null;
     }
 

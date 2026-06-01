@@ -17,7 +17,7 @@
 package com.thoughtworks.go.remote;
 
 public interface StandardHeaders {
-    String REQUEST_ARTIFACT_PAYLOAD_SIZE = "X-Go-Artifact-Size";
+    String REQUEST_ARTIFACT_PAYLOAD_SIZE_BYTES = "X-Go-Artifact-Size";
     String REQUEST_CONFIRM_MODIFICATION_DEPRECATED = "Confirm";
     String REQUEST_CONFIRM_MODIFICATION = "X-GoCD-Confirm";
 
@@ -31,4 +31,10 @@ public interface StandardHeaders {
     String RESPONSE_AGENT_PLUGINS_ZIP_MD5 = "Agent-Plugins-Content-MD5";
     String RESPONSE_AGENT_TFS_SDK_MD5 = "TFS-SDK-Content-MD5";
     String RESPONSE_AGENT_EXTRA_PROPERTIES = "GoCD-Agent-Extra-Properties";
+
+    interface Multipart {
+        String REGULAR_FILENAME = "file";
+        String CHECKSUM_FILENAME = "file_checksum";
+        String ZIP_FILENAME = "zipfile";
+    }
 }

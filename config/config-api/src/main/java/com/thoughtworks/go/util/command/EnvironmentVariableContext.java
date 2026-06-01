@@ -17,11 +17,11 @@ package com.thoughtworks.go.util.command;
 
 import com.thoughtworks.go.config.SecretParamAware;
 import com.thoughtworks.go.config.SecretParams;
-import com.thoughtworks.go.util.GoConstants;
 
 import java.io.Serializable;
 import java.util.*;
 
+import static com.thoughtworks.go.work.GoPublisher.PRODUCT_NAME;
 import static java.lang.String.format;
 
 /**
@@ -259,9 +259,9 @@ public class EnvironmentVariableContext implements Serializable, SecretParamAwar
             String value = property.value;
             if (value != null) {
                 if (existing.contains(name)) {
-                    lines.add(format("[%s] overriding environment variable '%s' with value '%s'", GoConstants.PRODUCT_NAME, name, property.valueForDisplay()));
+                    lines.add(format("[%s] overriding environment variable '%s' with value '%s'", PRODUCT_NAME, name, property.valueForDisplay()));
                 } else {
-                    lines.add(format("[%s] setting environment variable '%s' to value '%s'", GoConstants.PRODUCT_NAME, name, property.valueForDisplay()));
+                    lines.add(format("[%s] setting environment variable '%s' to value '%s'", PRODUCT_NAME, name, property.valueForDisplay()));
                 }
                 existing.add(name);
             }

@@ -77,7 +77,7 @@ public class HttpServiceTest {
 
         service.upload(uploadUrl, 100L, uploadingFile, checksums);
 
-        verify(mockPostMethod).setHeader(REQUEST_ARTIFACT_PAYLOAD_SIZE, "100");
+        verify(mockPostMethod).setHeader(REQUEST_ARTIFACT_PAYLOAD_SIZE_BYTES, "100");
         verify(mockPostMethod).setHeader(REQUEST_CONFIRM_MODIFICATION, "true");
         verify(mockPostMethod).setHeader(REQUEST_UUID, "some-guid");
         verify(mockPostMethod).setHeader(REQUEST_AUTH, "some-token");

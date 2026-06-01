@@ -20,7 +20,6 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.ModificationVisitor;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.jetbrains.annotations.TestOnly;
 
@@ -41,8 +40,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  * </modification>
  */
 public class Modification extends PersistentObject implements Comparable<Modification>, Serializable {
-
-    public static final Modification NEVER = new Modification(GoConstants.NEVER);
     public static final String ANONYMOUS = "anonymous";
 
     private String userName;

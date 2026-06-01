@@ -74,20 +74,6 @@ describe ApplicationController do
     end
   end
 
-  describe "do for every request" do
-    controller do
-      def index
-        render plain: "Hello"
-      end
-    end
-
-    it "should populate the config file validity for every request" do
-      get :index
-
-      expect(assigns[:config_valid]).to eq(true)
-    end
-  end
-
   context "with license agent validity stubbed" do
     controller do
       def test_action

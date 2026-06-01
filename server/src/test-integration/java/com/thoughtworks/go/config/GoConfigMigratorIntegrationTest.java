@@ -102,6 +102,8 @@ public class GoConfigMigratorIntegrationTest {
     @Autowired
     private DatabaseAccessHelper dbHelper;
     private List<Exception> exceptions;
+    @Autowired
+    private GoConfigDao goConfigDao;
 
     @BeforeEach
     public void setUp(@TempDir File temporaryFolder, ResetCipher resetCipher) throws Exception {
@@ -483,7 +485,7 @@ public class GoConfigMigratorIntegrationTest {
                 </pipeline>
                 """, 62);
         CruiseConfig configAfterMigration = migrateConfigAndLoadTheNewConfig(oldContent);
-        String currentContent = Files.readString(Path.of(goConfigService.fileLocation()), UTF_8);
+        String currentContent = Files.readString(Path.of(goConfigDao.fileLocation()), UTF_8);
 
         PipelineConfig pipelineConfig = configAfterMigration.pipelineConfigByName(new CaseInsensitiveString("old-timer"));
         TimerConfig timer = pipelineConfig.getTimer();

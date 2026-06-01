@@ -47,6 +47,8 @@ import static com.thoughtworks.go.helper.AgentInstanceMother.building;
 import static com.thoughtworks.go.helper.AgentInstanceMother.cancelled;
 import static com.thoughtworks.go.remote.AgentInstruction.*;
 import static com.thoughtworks.go.util.CommaSeparatedString.commaSeparatedStrToList;
+import static com.thoughtworks.go.util.FileSizeUtils.fromGigaToBytes;
+import static com.thoughtworks.go.util.FileSizeUtils.fromMegaToBytes;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -90,7 +92,7 @@ public class AgentInstanceTest {
 
     @Test
     void shouldReturnHumanReadableUsableSpace() {
-        assertThat(AgentInstanceMother.updateUsableSpace(AgentInstanceMother.pending(), 2 * 1024 * 1024 * 1024L).freeDiskSpace().toString()).isEqualTo("2.0 GB");
+        assertThat(AgentInstanceMother.updateUsableSpace(AgentInstanceMother.pending(), fromGigaToBytes(2)).freeDiskSpace().toString()).isEqualTo("2.0 GB");
         assertThat(AgentInstanceMother.updateUsableSpace(AgentInstanceMother.pending(), null).freeDiskSpace().toString()).isEqualTo(DiskSpace.UNKNOWN_DISK_SPACE);
     }
 
@@ -502,13 +504,12 @@ public class AgentInstanceTest {
     void shouldReturnFalseWhenAgentHasEnoughSpace() {
         AgentInstance original = AgentInstance.createFromAgent(agent, new SystemEnvironment() {
             @Override
-            public long getAgentSizeLimit() {
-                return 100 * 1024 * 1024;
+            public long getAgentSizeLimitBytes() {
+                return fromMegaToBytes(100);
             }
         }, mock(AgentStatusChangeListener.class));
         AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
-        long is110M = 110 * 1024 * 1024;
-        newRuntimeInfo.setUsableSpace(is110M);
+        newRuntimeInfo.setUsableSpace(fromMegaToBytes(110));
         original.update(newRuntimeInfo);
 
         assertThat(original.isLowDiskSpace()).isFalse();
@@ -518,13 +519,12 @@ public class AgentInstanceTest {
     void shouldReturnTrueWhenFreeDiskOnAgentIsLow() {
         AgentInstance original = AgentInstance.createFromAgent(agent, new SystemEnvironment() {
             @Override
-            public long getAgentSizeLimit() {
-                return 100 * 1024 * 1024;
+            public long getAgentSizeLimitBytes() {
+                return fromMegaToBytes(100);
             }
         }, mock(AgentStatusChangeListener.class));
         AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
-        long is90M = 90 * 1024 * 1024;
-        newRuntimeInfo.setUsableSpace(is90M);
+        newRuntimeInfo.setUsableSpace(fromMegaToBytes(90));
         original.update(newRuntimeInfo);
 
         assertThat(original.isLowDiskSpace()).isTrue();

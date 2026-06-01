@@ -55,7 +55,7 @@ public class ZipArtifactFolderViewFactoryTest {
         folderViewFactory = new ZipArtifactFolderViewFactory(cacheAlreadyCreated());
 
         ModelAndView modelAndView = folderViewFactory.createView(JOB_IDENTIFIER, new ArtifactFolder(JOB_IDENTIFIER, folder.toFile(), "dir"));
-        assertThat(modelAndView.getViewName()).isEqualTo("fileView");
+        assertThat(modelAndView.getViewName()).isEqualTo(FileModelAndView.VIEW_NAME);
         File targetFile = (File) modelAndView.getModel().get("targetFile");
         assertThat(targetFile).isEqualTo(cacheZipFile);
     }

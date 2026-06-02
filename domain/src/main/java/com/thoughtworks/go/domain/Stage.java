@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.ClonerFactory;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,7 +191,7 @@ public class Stage extends PersistentObject {
         }
     }
 
-    public Timestamp getLastTransitionedTime() {
+    public @Nullable Timestamp getLastTransitionedTime() {
         return lastTransitionedTime;
     }
 

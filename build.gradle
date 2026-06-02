@@ -38,7 +38,7 @@ import java.util.stream.Collectors
 plugins {
   id 'base'
   id 'org.owasp.dependencycheck' version '12.2.2'
-  id 'com.autonomousapps.dependency-analysis' version '3.13.0'
+  id 'com.autonomousapps.dependency-analysis' version '3.14.0'
 }
 
 // Updated via automated scripting
@@ -108,13 +108,13 @@ def libraries = [
   h2                  : 'com.h2database:h2:1.4.200',
   hamcrest            : 'org.hamcrest:hamcrest:3.0',
   hibernate           : 'org.hibernate:hibernate-ehcache:3.6.10.Final',
-  jacksonBom          : 'com.fasterxml.jackson:jackson-bom:2.21.3',
+  jacksonBom          : 'com.fasterxml.jackson:jackson-bom:2.21.4',
   jakartaAnnotation   : 'jakarta.annotation:jakarta.annotation-api:1.3.5',
   jakartaInject       : 'jakarta.inject:jakarta.inject-api:1.0.5',
   jakartaMail         : 'jakarta.mail:jakarta.mail-api:2.1.5',
   jakartaTransaction  : 'jakarta.transaction:jakarta.transaction-api:1.3.3',
   javassist           : 'org.javassist:javassist:3.31.0-GA',
-  jaxbBom             : 'org.glassfish.jaxb:jaxb-bom:4.0.8',
+  jaxbBom             : 'org.glassfish.jaxb:jaxb-bom:4.0.9',
   jaxen               : 'jaxen:jaxen:2.0.4',
   jcommander          : 'com.beust:jcommander:1.82',
   jdom                : 'org.jdom:jdom2:2.0.6.1',
@@ -123,12 +123,12 @@ def libraries = [
   jgit                : 'org.eclipse.jgit:org.eclipse.jgit:6.10.1.202505221210-r',
   jolt                : 'com.bazaarvoice.jolt:jolt-core:0.1.8',
   jruby               : 'org.jruby:jruby:9.4.14.0',
-  jsonUnit            : 'net.javacrumbs.json-unit:json-unit-assertj:5.1.1',
+  jsonUnit            : 'net.javacrumbs.json-unit:json-unit-assertj:5.1.2',
   jsoup               : 'org.jsoup:jsoup:1.22.2',
   junit5Bom           : 'org.junit:junit-bom:6.1.0',
   liquibase           : 'org.liquibase:liquibase-core:5.0.3',
   liquibaseSlf4j      : 'com.mattbertolini:liquibase-slf4j:5.1.0',
-  logback             : 'ch.qos.logback:logback-classic:1.5.32',
+  logback             : 'ch.qos.logback:logback-classic:1.5.33',
   lombok              : 'org.projectlombok:lombok:1.18.46',
   mockitoBom          : 'org.mockito:mockito-bom:5.23.0',
   mybatis             : 'org.mybatis:mybatis:3.5.19',

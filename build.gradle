@@ -139,7 +139,7 @@ def libraries = [
   oshi                : 'com.github.oshi:oshi-core:7.2.1',
   postgresql          : 'org.postgresql:postgresql:42.7.11',
   quartz              : 'org.quartz-scheduler:quartz:2.5.2',
-  rack                : 'com.github.gocd-contrib:jruby-rack:1.3.0.10',
+  rack                : 'com.github.gocd-contrib:jruby-rack:1.3.0.11',
   resilience4jRetry   : 'io.github.resilience4j:resilience4j-retry:2.4.0',
   semanticVersion     : 'de.skuzzle:semantic-version:2.1.1',
   servletApi          : 'jakarta.servlet:jakarta.servlet-api:4.0.4',

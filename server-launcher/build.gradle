@@ -111,6 +111,7 @@ tasks.register('mainJar', Jar) {
     include "**/LogHelper.class"
     include "**/LogConfigurator*.class"
     include "**/SystemEnvironment*.class"
+    include "**/UrlUtil.class"
     include "**/ConfigDirProvider.class"
     include "**/validators/*.class"
     include "**/SystemUtil.class"

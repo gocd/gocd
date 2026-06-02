@@ -27,29 +27,30 @@ public class StageRepresenter {
         jsonWriter.add("approval_type", stage.getApprovalType());
         jsonWriter.add("approved_by", stage.getApprovedBy());
         jsonWriter.add("scheduled_at", stage.getCreatedTime().getTime());
-        jsonWriter.add("last_transitioned_time", stage.getLastTransitionedTime().getTime());
+        if (stage.getLastTransitionedTime() != null) {
+            jsonWriter.add("last_transitioned_time", stage.getLastTransitionedTime().getTime());
+        }
         if (stage.getResult() != null) {
             jsonWriter.add("result", stage.getResult().toString());
             if (stage.getResult() == StageResult.Cancelled) {
-                jsonWriter.add("cancelled_by", stage.getCancelledBy() == null? "GoCD" : stage.getCancelledBy());
+                jsonWriter.add("cancelled_by", stage.getCancelledBy() == null ? "GoCD" : stage.getCancelledBy());
             }
         }
         if (stage.getRerunOfCounter() == null) {
             jsonWriter.add("rerun_of_counter", (String) null);
-        }
-        else {
+        } else {
             jsonWriter.add("rerun_of_counter", stage.getRerunOfCounter());
         }
         jsonWriter.add("fetch_materials", stage.shouldFetchMaterials());
         jsonWriter.add("clean_working_directory", stage.shouldCleanWorkingDir());
         jsonWriter.add("artifacts_deleted", stage.isArtifactsDeleted());
         if (stage.getIdentifier() != null) {
-         jsonWriter.add("pipeline_name", stage.getIdentifier().getPipelineName());
-         jsonWriter.add("pipeline_counter", stage.getIdentifier().getPipelineCounter());
+            jsonWriter.add("pipeline_name", stage.getIdentifier().getPipelineName());
+            jsonWriter.add("pipeline_counter", stage.getIdentifier().getPipelineCounter());
         }
         jsonWriter.addChildList("jobs", jobsWriter -> stage.getJobInstances().forEach(
-                jobInstance -> jobsWriter.addChild(
-                        jobInstanceWriter -> JobInstanceRepresenter.toJSON(jobInstanceWriter, jobInstance))));
+            jobInstance -> jobsWriter.addChild(
+                jobInstanceWriter -> JobInstanceRepresenter.toJSON(jobInstanceWriter, jobInstance))));
 
     }
 }

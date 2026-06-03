@@ -59,7 +59,7 @@
         return moment(time).format('DD MMM YYYY [at] HH:mm:ss [Local Time]');
       }
 
-      $(".job_details_content").attr("data-result", status).removeData("data-result");
+      $(".job_details_content").removeData("data-result");
       $('#build_scheduled_date').text(toHumanReadable(json.building_info.build_scheduled_date));
       $('#build_assigned_date').text(toHumanReadable(json.building_info.build_assigned_date));
       $('#build_preparing_date').text(toHumanReadable(json.building_info.build_preparing_date));

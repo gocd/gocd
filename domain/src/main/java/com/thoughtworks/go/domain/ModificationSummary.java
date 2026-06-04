@@ -22,7 +22,6 @@ import java.util.Objects;
 
 public class ModificationSummary {
     Modification modification;
-    public static final ModificationSummary NEVER = new ModificationSummary(Modification.NEVER);
 
     public ModificationSummary(Modification modification) {
         this.modification = modification;

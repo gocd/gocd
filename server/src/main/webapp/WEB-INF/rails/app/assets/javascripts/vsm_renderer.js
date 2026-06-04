@@ -986,13 +986,13 @@ Graph_Renderer = function (container) {
       }
     });
 
-    $('.vsm-entity').hover(function () {
+    $('.vsm-entity').on('mouseenter', function () {
       var _id = $(this).attr('id');
       d3.select('svg#svg').selectAll(`path.${_id}`).classed('hovered', true);
       $(this).addClass('hovered');
       sortDependencyArrows(_id, 'dependency');
       sortDependencyArrows('dependency', _id);
-    }, function () {
+    }).on('mouseleave', function () {
       var _id = $(this).attr('id');
       d3.select('svg#svg').selectAll(`path.${_id}`).classed('hovered', false);
       $(this).removeClass('hovered');

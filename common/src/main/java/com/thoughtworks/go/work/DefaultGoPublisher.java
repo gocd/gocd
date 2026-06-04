@@ -25,7 +25,6 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.ConsoleOutputTransmitter;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,7 +116,7 @@ public class DefaultGoPublisher implements GoPublisher {
     }
 
     private void reportAction(String tag, String action) {
-        String message = String.format("[%s] %s %s on %s [%s]", GoConstants.PRODUCT_NAME, action, jobIdentifier.buildLocatorForDisplay(),
+        String message = String.format("[%s] %s %s on %s [%s]", PRODUCT_NAME, action, jobIdentifier.buildLocatorForDisplay(),
                 agentIdentifier.getHostName(), currentWorkingDirectory);
         LOG.debug(message);
         taggedConsumeLine(tag, message);
@@ -130,7 +129,7 @@ public class DefaultGoPublisher implements GoPublisher {
 
     @Override
     public void taggedConsumeLineWithPrefix(String tag, String message) {
-        taggedConsumeLine(tag, String.format("[%s] %s", GoConstants.PRODUCT_NAME, message));
+        taggedConsumeLine(tag, String.format("[%s] %s", PRODUCT_NAME, message));
     }
 
     @Override

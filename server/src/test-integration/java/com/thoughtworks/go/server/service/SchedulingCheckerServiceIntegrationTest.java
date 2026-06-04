@@ -357,7 +357,7 @@ public class SchedulingCheckerServiceIntegrationTest {
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
 
         assertThat(schedulingChecker.canManuallyTrigger(pipelineFixture.pipelineConfig(), APPROVED_USER, result)).isFalse();
-        assertThat(result.getServerHealthState().getDescription()).contains(String.format("GoCD has less than %sb of disk space", limit));
+        assertThat(result.getServerHealthState().getDescription()).contains(String.format("GoCD has less than %sB of disk space", limit));
     }
 
     @Test
@@ -371,7 +371,7 @@ public class SchedulingCheckerServiceIntegrationTest {
 
         configHelper.addAuthorizedUserForStage(pipelineName, stageName, APPROVED_USER);
         assertThat(schedulingChecker.canScheduleStage(new PipelineIdentifier(pipelineName, 1, label), stageName, APPROVED_USER, result)).isFalse();
-        assertThat(result.getServerHealthState().getDescription()).contains(String.format("GoCD has less than %sb of disk space", limit));
+        assertThat(result.getServerHealthState().getDescription()).contains(String.format("GoCD has less than %sB of disk space", limit));
     }
 
     @Test
@@ -380,7 +380,7 @@ public class SchedulingCheckerServiceIntegrationTest {
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         assertThat(schedulingChecker.canSchedule(result)).isFalse();
-        assertThat(result.getServerHealthState().getDescription()).contains(String.format("GoCD has less than %sb of disk space", limit));
+        assertThat(result.getServerHealthState().getDescription()).contains(String.format("GoCD has less than %sB of disk space", limit));
     }
 
     @Test

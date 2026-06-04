@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.thoughtworks.go.util.GoConstants.PRODUCT_NAME;
+import static com.thoughtworks.go.work.GoPublisher.PRODUCT_NAME;
 import static java.lang.String.format;
 
 public class PluggableArtifactMetadata {

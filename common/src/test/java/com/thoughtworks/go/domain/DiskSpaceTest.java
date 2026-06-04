@@ -17,6 +17,8 @@ package com.thoughtworks.go.domain;
 
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.util.FileSizeUtils.fromGigaToBytes;
+import static com.thoughtworks.go.util.FileSizeUtils.fromMegaToBytes;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DiskSpaceTest {
@@ -31,8 +33,8 @@ public class DiskSpaceTest {
 
     @Test
     public void shouldProduceHumanReadableStringRepresentation() {
-        assertThat(new DiskSpace(3 * 512 * 1024 * 1024L).toString()).isEqualTo("1.5 GB");
-        assertThat(new DiskSpace(10 * 1024 * 1024 * 1024L).toString()).isEqualTo("10.0 GB");
+        assertThat(new DiskSpace(fromMegaToBytes(3 * 512)).toString()).isEqualTo("1.5 GB");
+        assertThat(new DiskSpace(fromGigaToBytes(10)).toString()).isEqualTo("10.0 GB");
         assertThat(DiskSpace.unknownDiskSpace().toString()).isEqualTo("Unknown");
     }
 }

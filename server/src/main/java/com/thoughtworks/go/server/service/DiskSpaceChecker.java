@@ -18,11 +18,12 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 
 import java.io.File;
 import java.io.IOException;
+
+import static com.thoughtworks.go.util.FileSizeUtils.fromMegaToBytes;
 
 /**
  * Understands when disk space is too low to be safe on server
@@ -38,7 +39,7 @@ public abstract class DiskSpaceChecker implements SchedulingChecker {
 
     private String targetFolderCanonicalPath;
     private boolean targetExists;
-    private long availableSpace;
+    private long availableSpaceBytes;
     private volatile long lastCheckedTime;
 
     // TODO: will separate SchedulingChecker responsibility out
@@ -65,21 +66,18 @@ public abstract class DiskSpaceChecker implements SchedulingChecker {
             synchronized (this) {
                 if (timeSinceLastChecked() > systemEnvironment.getDiskSpaceCacheRefresherInterval()) {
                     targetExists = targetFolder.exists();
-                    availableSpace = availableSpace();
+                    availableSpaceBytes = availableSpaceBytes();
                     lastCheckedTime = System.currentTimeMillis();
                 }
             }
         }
-        long size = limitInMb();
+        long limitInMegabytes = limitInMegabytes();
         if (!targetExists) {
             result.success(healthStateType);
             return;
         }
 
-        long limit = size * GoConstants.MEGA_BYTE;
-
-        boolean notEnoughSpace = availableSpace < limit;
-        if (notEnoughSpace) {
+        if (availableSpaceBytes < fromMegaToBytes(limitInMegabytes)) {
             if (!isInErrorState()) {
                 inErrorState();
 
@@ -87,7 +85,7 @@ public abstract class DiskSpaceChecker implements SchedulingChecker {
                     sender.sendEmail(createEmail());
                 }
             }
-            createFailure(result, size, availableSpace);
+            createFailure(result, limitInMegabytes, availableSpaceBytes);
         }
         else {
             clearErrorState();
@@ -95,8 +93,8 @@ public abstract class DiskSpaceChecker implements SchedulingChecker {
         }
     }
 
-    protected long availableSpace() {
-        return diskSpaceChecker.getUsableSpace(targetFolder);
+    protected long availableSpaceBytes() {
+        return diskSpaceChecker.getUsableSpaceBytes(targetFolder);
     }
 
     private long timeSinceLastChecked() {
@@ -111,9 +109,9 @@ public abstract class DiskSpaceChecker implements SchedulingChecker {
         }
     }
 
-    protected abstract long limitInMb();
+    protected abstract long limitInMegabytes();
 
-    protected abstract void createFailure(OperationResult result, long size, long availableSpace);
+    protected abstract void createFailure(OperationResult result, long limitMegabytes, long availableSpace);
 
     protected abstract SendEmailMessage createEmail();
 

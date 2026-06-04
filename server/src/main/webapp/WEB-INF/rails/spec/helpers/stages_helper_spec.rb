@@ -64,12 +64,4 @@ describe StagesHelper do
     expect(link).to_not have_selector("li.current")
     expect(link).to have_selector("li a[href='/pipelines/foo_bar/1/stage-name/1/materials']", :text => "Materials")
   end
-
-  it "should return true when config version mismatches" do
-    expect(is_config_used_to_run_this_stage_out_of_sync_with_current?('foo', 'bar')).to eq(true)
-  end
-
-  it "should return false when config version matches" do
-    expect(is_config_used_to_run_this_stage_out_of_sync_with_current?('foo', 'foo')).to eq(false)
-  end
 end

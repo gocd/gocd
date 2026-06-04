@@ -36,7 +36,7 @@ public class ZipArtifactFolderViewFactory implements ArtifactFolderViewFactory {
         if (zipArtifactCache.cacheCreated(artifactFolder)) {
             Map<String, Object> data = new HashMap<>();
             data.put("targetFile", zipArtifactCache.cachedFile(artifactFolder));
-            return new ModelAndView("fileView", data);
+            return new ModelAndView(FileModelAndView.VIEW_NAME, data);
         } else {
             return new ModelAndView(new PreparingArtifactFile());
         }

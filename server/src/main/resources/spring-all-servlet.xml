@@ -38,7 +38,7 @@
   <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
     <property name="interceptors">
       <list>
-        <ref bean="authorizationInterceptor"/>
+        <ref bean="springRoutePipelineAuthorizationInterceptor"/>
       </list>
     </property>
     <property name="alwaysUseFullPath" value="true"/>
@@ -48,7 +48,7 @@
         class="com.thoughtworks.go.server.web.InterceptorInjector">
     <property name="interceptors">
       <list>
-        <ref bean="authorizationInterceptor"/>
+        <ref bean="springRoutePipelineAuthorizationInterceptor"/>
         <ref bean="flashMessageInterceptor"/>
       </list>
     </property>

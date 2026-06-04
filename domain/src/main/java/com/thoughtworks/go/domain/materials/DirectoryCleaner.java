@@ -16,7 +16,6 @@
 package com.thoughtworks.go.domain.materials;
 
 import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
@@ -27,12 +26,13 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static com.thoughtworks.go.work.GoPublisher.PRODUCT_NAME;
 
 public class DirectoryCleaner {
-    private File baseFolder;
+    private final File baseFolder;
     private final ConsoleOutputStreamConsumer consumer;
-    private Set<File> allowed = new HashSet<>();
-    private Set<File> check = new HashSet<>();
+    private final Set<File> allowed = new HashSet<>();
+    private final Set<File> check = new HashSet<>();
 
     public DirectoryCleaner(File baseFolder, ConsoleOutputStreamConsumer consumer) {
         this.baseFolder = baseFolder;
@@ -118,10 +118,10 @@ public class DirectoryCleaner {
         }
         for (File file : files) {
             if (!allowed.contains(file)) {
-                consumer.stdOutput(String.format("[%s] Deleting folder %s", GoConstants.PRODUCT_NAME, file));
+                consumer.stdOutput(String.format("[%s] Deleting folder %s", PRODUCT_NAME, file));
                 FileUtils.deleteQuietly(file);
             } else {
-                consumer.stdOutput(String.format("[%s] Keeping folder %s", GoConstants.PRODUCT_NAME, file));
+                consumer.stdOutput(String.format("[%s] Keeping folder %s", PRODUCT_NAME, file));
             }
         }
     }

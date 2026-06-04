@@ -45,9 +45,9 @@
     };
 
     var init = function init() {
-      $(container).find(".analytics-close").click(self.hide);
-      $(container).find(resetAnalyticsButton).click(resetAnalytics);
-      $(container).find(viewAnalyticsButton).click(viewAnalytics);
+      $(container).find(".analytics-close").on('click', self.hide);
+      $(container).find(resetAnalyticsButton).on('click', resetAnalytics);
+      $(container).find(viewAnalyticsButton).on('click', viewAnalytics);
     };
 
     this.show = function () {

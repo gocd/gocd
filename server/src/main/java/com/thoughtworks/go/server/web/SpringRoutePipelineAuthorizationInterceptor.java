@@ -31,11 +31,11 @@ import java.io.IOException;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 
 @Controller
-public class AuthorizationInterceptor implements HandlerInterceptor {
+public class SpringRoutePipelineAuthorizationInterceptor implements HandlerInterceptor {
     private final SecurityService securityService;
 
     @Autowired
-    public AuthorizationInterceptor(SecurityService securityService) {
+    public SpringRoutePipelineAuthorizationInterceptor(SecurityService securityService) {
         this.securityService = securityService;
     }
 
@@ -55,10 +55,6 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
                     return false;
                 }
             } else if (request.getMethod().equalsIgnoreCase("post") || request.getMethod().equalsIgnoreCase("put")) {
-                if (isEditingConfigurationRequest(request)) {
-                    return true;
-                }
-
                 String stageName = request.getParameter("stageName");
                 if (stageName != null) {
                     if (!securityService.hasOperatePermissionForStage(pipelineName, stageName, name)) {
@@ -74,10 +70,6 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
             }
         }
         return true;
-    }
-
-    private boolean isEditingConfigurationRequest(HttpServletRequest request) {
-        return request.getRequestURI().contains("/admin/restful/configuration");
     }
 
     @Override

@@ -27,9 +27,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
 public class GoConfigRevision {
     @SuppressWarnings("RegExpEmptyAlternationBranch")
     private static final String DELIMITER_CHAR = "|";
@@ -65,17 +62,16 @@ public class GoConfigRevision {
 
     private static final Pattern PATTERN = Pattern.compile("^" + Fragment.string(VALUE, DELIMITER) + "$");
 
-    private String md5;
-    private String username;
-    private String goVersion;
-    private String goEdition;
-    private String xml;
-    private byte[] configXmlBytes;
-    private Date time;
-    private int schemaVersion;
+    private final String md5;
+    private final String username;
+    private final String goVersion;
+    private final String goEdition;
+    private final String xml;
+    private final Date time;
+    private final int schemaVersion;
 
     public GoConfigRevision(String configXml, String md5, String username, String goVersion, TimeProvider provider) {
-        this(configXml);
+        this.xml = configXml;
         this.md5 = md5;
         this.username = username;
         this.goVersion = goVersion;
@@ -84,13 +80,8 @@ public class GoConfigRevision {
         this.schemaVersion = GoConfigSchema.VERSION;
     }
 
-    public GoConfigRevision(byte[] configXml, String comment) {
-        this((String) null, comment);
-        this.configXmlBytes = configXml;
-    }
-
     public GoConfigRevision(String configXml, String comment) {
-        this(configXml);
+        this.xml = configXml;
         Matcher matcher = PATTERN.matcher(comment);
         if (matcher.matches()) {
             username = Fragment.user.getMatch(matcher);
@@ -104,32 +95,12 @@ public class GoConfigRevision {
         }
     }
 
-    private GoConfigRevision(String configXml) {
-        this.configXmlBytes = null;
-        this.xml = configXml;
-    }
-
     public String getMd5() {
         return md5;
     }
 
     public String getContent() {
-        if (isBlank(xml)) {
-            if (ArrayUtils.isEmpty(configXmlBytes)) {
-                xml = null;
-            } else {
-                xml = new String(configXmlBytes, UTF_8);
-            }
-        }
         return xml;
-    }
-
-    public boolean isByteArrayBacked() {
-        return configXmlBytes != null;
-    }
-
-    public byte[] getConfigXmlBytes() {
-        return configXmlBytes;
     }
 
     public String getComment() {
@@ -176,7 +147,7 @@ public class GoConfigRevision {
 
     @Override
     public int hashCode() {
-        return md5 != null ? md5.hashCode() : 0;
+        return Objects.hashCode(md5);
     }
 
     @Override
@@ -187,7 +158,7 @@ public class GoConfigRevision {
             .append("username", username)
             .append("goVersion", goVersion)
             .append("goEdition", goEdition)
-            .append("xml", xml)
+            .append("xml(length)", xml == null ? 0 : xml.length())
             .append("schemaVersion", schemaVersion)
             .toString();
     }

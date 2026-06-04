@@ -219,10 +219,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         }
     }
 
-    public String fileLocation() {
-        return goConfigDao.fileLocation();
-    }
-
     public File artifactsDir() {
         ServerConfig serverConfig = serverConfig();
         String s = serverConfig.artifactsDir();
@@ -597,16 +593,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     public boolean isUserAdmin(Username username) {
         return isAdministrator(CaseInsensitiveString.str(username.getUsername()));
-    }
-
-    public GoConfigRevision getConfigAtVersion(String version) {
-        GoConfigRevision goConfigRevision = null;
-        try {
-            goConfigRevision = configRepository.getRevision(version);
-        } catch (Exception e) {
-            LOGGER.info("[Go Config Service] Could not fetch cruise config xml at version={}", version, e);
-        }
-        return goConfigRevision;
     }
 
     public CruiseConfig clonedConfigForEdit() {

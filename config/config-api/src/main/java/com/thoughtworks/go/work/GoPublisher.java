@@ -20,6 +20,8 @@ import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import java.io.File;
 
 public interface GoPublisher extends TaggedStreamConsumer {
+    String PRODUCT_NAME = "go";
+
     void upload(File fileToUpload, String destPath);
 
     void consumeLineWithPrefix(String message);

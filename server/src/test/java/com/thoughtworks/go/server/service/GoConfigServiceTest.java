@@ -30,7 +30,6 @@ import com.thoughtworks.go.config.rules.Rules;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.domain.JobConfigIdentifier;
 import com.thoughtworks.go.domain.RunOnAllAgents;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -538,24 +537,6 @@ public class GoConfigServiceTest {
         when(goConfigDao.currentConfig()).thenReturn(cruiseConfig);
         goConfigService.initialize();
         verify(goConfigDao).registerListener(any());
-    }
-
-    @Test
-    public void getConfigAtVersion_shouldFetchRequiredVersion() throws Exception {
-        GoConfigRevision revision = new GoConfigRevision("v1", "md5-1", "loser", "100.3.9.1", new TimeProvider());
-        when(configRepo.getRevision("md5-1")).thenReturn(revision);
-        assertThat(goConfigService.getConfigAtVersion("md5-1")).isEqualTo(revision);
-    }
-
-    @Test
-    public void getNotThrowUpWhenRevisionIsNotFound() throws Exception {
-        when(configRepo.getRevision("md5-1")).thenThrow(new IllegalArgumentException("did not find the revision"));
-        try {
-            assertThat(goConfigService.getConfigAtVersion("md5-1")).isNull();
-        } catch (Exception e) {
-            fail("should not have thrown up");
-        }
-
     }
 
     @Test

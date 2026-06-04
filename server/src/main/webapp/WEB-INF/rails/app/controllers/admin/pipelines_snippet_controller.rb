@@ -38,9 +38,9 @@ class Admin::PipelinesSnippetController < AdminController
 
   def update
     result = HttpLocalizedOperationResult.new
-    cruise_config_repsonse = pipeline_configs_service.updateXml(params[:group_name], params[:group_xml], params[:config_md5], current_user, result)
-    pipeline_configs = cruise_config_repsonse.getConfigElement()
-    validity = cruise_config_repsonse.getValidity()
+    update_response = pipeline_configs_service.updateXml(params[:group_name], params[:group_xml], params[:config_md5], current_user, result)
+    pipeline_configs = update_response.getConfigElement()
+    validity = update_response.getValidity()
     @errors = [validity.errorMessage()] if (!validity.isValid() && (validity.isMergeConflict() || validity.isPostValidationError()))
 
     redirect_to pipelines_snippet_show_path(pipeline_configs.get_group, :fm => set_flash_message(result.message(), 'success')) and return if result.isSuccessful()

@@ -13,15 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.util.command;
 
-public interface ConsoleOutputStreamConsumer {
+package com.thoughtworks.go.server.controller;
 
-    void stdOutput(String line);
-
-    void errOutput(String line);
-
-    void taggedStdOutput(String tag, String line);
-
-    void taggedErrOutput(String tag, String line);
+public interface ExceptionsPage {
+    String VIEW_NAME = "exceptions_page";
+    String ERROR_MESSAGE_KEY = "errorMessage";
 }

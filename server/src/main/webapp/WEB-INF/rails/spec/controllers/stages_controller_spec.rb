@@ -44,7 +44,6 @@ describe StagesController do
     allow(controller).to receive(:job_presentation_service).and_return(@job_presentation_service)
     allow(controller).to receive(:go_config_service).and_return(@go_config_service)
     allow(controller).to receive(:system_environment).and_return(@system_environment)
-    allow(controller).to receive(:populate_config_validity)
 
     allow(@go_config_service).to receive(:findGroupNameByPipeline).and_return(nil)
     allow(@go_config_service).to receive(:isPipelineEditable)
@@ -529,35 +528,6 @@ describe StagesController do
       allow(@status).to receive(:canContinue).and_return(true)
       allow(controller).to receive(:load_stage_history).with(no_args)
       expect(@stage_service).to receive(:findStageHistoryForChart).with(stage_iden.getPipelineName(), stage_iden.getStageName(), 2, StagesController::STAGE_DURATION_RANGE).and_return(models)
-    end
-  end
-
-  describe "config_tab" do
-    before do
-      scheduledTime = ZonedDateTime.of(2008, 2, 22, 10, 21, 23, 0, ZoneOffset.ofHoursMinutes(5, 30))
-      stage = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime.to_instant, scheduledTime.plus_minutes(10).to_instant)
-      stage.setPipelineId(100)
-      stage.setConfigVersion("some-config-md5")
-      @stage_summary_model = StageSummaryModel.new(stage, nil, JobDurationStrategy::ALWAYS_ZERO, nil)
-      setup_stubs(@stage_summary_model)
-      stub_current_config
-    end
-
-    it "should get config for the particular stage instance" do
-      get :stage_config, params:{:pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1"}
-
-      expect(assigns(:stage)).to eq @stage_summary_model
-      expect(assigns(:ran_with_config_revision)).to eq :some_cruise_config_revision
-    end
-
-    def setup_stubs(stage_summary_model)
-      expect(@pipeline_lock_service).to receive(:lockedPipeline).with("pipeline-name").and_return("")
-      expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(stage_summary_model.getStage().getIdentifier(), @user, @localized_result).and_return(stage_summary_model)
-      allow(@pipeline_history_service).to receive(:validate).with("pipeline-name", @user, @status)
-      expect(@pipeline_history_service).to receive(:findPipelineInstance).with("pipeline-name", 1, 100, @user, @status).and_return(:pim)
-      allow(@status).to receive(:canContinue).and_return(true)
-      expect(controller).to receive(:load_stage_history).with(no_args)
-      expect(@go_config_service).to receive(:getConfigAtVersion).with("some-config-md5").and_return(:some_cruise_config_revision)
     end
   end
 

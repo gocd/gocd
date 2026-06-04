@@ -203,7 +203,7 @@ public class ConfigRepository {
         return new GoConfigRevision(contentFromTree(revision.getTree()), revision.getFullMessage());
     }
 
-    private byte[] contentFromTree(RevTree tree) {
+    private String contentFromTree(RevTree tree) {
         try (final ObjectReader reader = gitRepo.newObjectReader()) {
             CanonicalTreeParser parser = new CanonicalTreeParser();
             parser.reset(reader, tree);
@@ -221,7 +221,7 @@ public class ConfigRepository {
                 if (path.equals(CRUISE_CONFIG_XML)) {
                     final ObjectId id = parser.getEntryObjectId();
                     final ObjectLoader loader = reader.open(id);
-                    return loader.getBytes();
+                    return new String(loader.getCachedBytes(), UTF_8);
                 }
             }
             return null;

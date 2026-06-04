@@ -52,50 +52,112 @@ public class UrlRewriterIntegrationTest {
     private static HttpTestUtil httpUtil;
     private static WebApplicationContext wac;
 
-    private static final ResponseAssertion NO_REWRITE = of(HTTP_URL + "/go/quux?hello=world", HTTP_URL + "/go/quux?hello=world");
-    private static final ResponseAssertion PIPELINE_GROUP_CREATE = of(HTTP_URL + "/go/api/admin/pipeline_groups", HTTP_URL + "/go/spark/api/admin/pipeline_groups", METHOD.POST);
+    private static final ResponseAssertion NO_REWRITE = of(
+        "/go/quux?hello=world",
+        "/go/quux?hello=world");
+    private static final ResponseAssertion PIPELINE_GROUP_CREATE = of(
+        "/go/api/admin/pipeline_groups",
+        "/go/spark/api/admin/pipeline_groups", METHOD.POST);
 
+    private static final ResponseAssertion SERVER_BACKUP = of(
+        "/go/admin/backup",
+        "/go/spark/admin/backup");
 
-    private static final ResponseAssertion SERVER_BACKUP = of(HTTP_URL + "/go/admin/backup", HTTP_URL + "/go/spark/admin/backup");
+    private static final ResponseAssertion STATIC_PAGES = of(
+        "/go/static/foo.html?bar=baz",
+        "/go/static/foo.html?bar=baz");
+    private static final ResponseAssertion ASSETS = of(
+        "/go/assets/some-image.png",
+        "/go/rails/assets/some-image.png");
 
-    private static final ResponseAssertion STATIC_PAGES = of(HTTP_URL + "/go/static/foo.html?bar=baz", HTTP_URL + "/go/static/foo.html?bar=baz");
-    private static final ResponseAssertion ASSETS = of(HTTP_URL + "/go/assets/some-image.png", HTTP_URL + "/go/rails/assets/some-image.png");
+    private static final ResponseAssertion CONFIG_PIPELINES_SNIPPET = of(
+        "/go/admin/pipelines/snippet",
+        "/go/rails/admin/pipelines/snippet");
+    private static final ResponseAssertion CONFIG_API_CURRENT = of(
+        "/go/api/admin/config.xml",
+        "/go/spring-internal/admin/configuration/file/GET/xml");
+    private static final ResponseAssertion CONFIG_API_CURRENT_EDIT = of(
+        "/go/api/admin/config.xml",
+        "/go/spring-internal/admin/configuration/file/POST/xml", METHOD.POST);
 
-    private static final ResponseAssertion CONFIG_FILE_XML = of(HTTP_URL + "/go/admin/configuration/file.xml", HTTP_URL + "/go/admin/restful/configuration/file/GET/xml");
-    private static final ResponseAssertion CONFIG_PIPELINES_SNIPPET = of(HTTP_URL + "/go/admin/pipelines/snippet", HTTP_URL + "/go/rails/admin/pipelines/snippet");
-    private static final ResponseAssertion CONFIG_API_FOR_CURRENT = of(HTTP_URL + "/go/api/admin/config.xml", HTTP_URL + "/go/admin/restful/configuration/file/GET/xml?version=current");
-    private static final ResponseAssertion CONFIG_API_FOR_HISTORICAL = of(HTTP_URL + "/go/api/admin/config/some-md5.xml", HTTP_URL + "/go/admin/restful/configuration/file/GET/historical-xml?version=some-md5");
+    private static final ResponseAssertion IMAGES_WHILE_BACKUP_IS_IN_PROGRESS = of(
+        "/go/images/foo.png",
+        "/go/images/foo.png");
+    private static final ResponseAssertion JAVASCRIPT_WHILE_BACKUP_IS_IN_PROGRESS = of(
+        "/go/javascripts/foo.js",
+        "/go/javascripts/foo.js");
+    private static final ResponseAssertion COMPRESSED_JAVASCRIPT_WHILE_BACKUP_IS_IN_PROGRESS = of(
+        "/go/compressed/all.js",
+        "/go/compressed/all.js");
+    private static final ResponseAssertion STYLESHEETS_WHILE_BACKUP_IS_IN_PROGRESS = of(
+        "/go/stylesheets/foo.css",
+        "/go/stylesheets/foo.css");
 
-    private static final ResponseAssertion IMAGES_WHILE_BACKUP_IS_IN_PROGRESS = of(HTTP_URL + "/go/images/foo.png", HTTP_URL + "/go/images/foo.png");
-    private static final ResponseAssertion JAVASCRIPT_WHILE_BACKUP_IS_IN_PROGRESS = of(HTTP_URL + "/go/javascripts/foo.js", HTTP_URL + "/go/javascripts/foo.js");
-    private static final ResponseAssertion COMPRESSED_JAVASCRIPT_WHILE_BACKUP_IS_IN_PROGRESS = of(HTTP_URL + "/go/compressed/all.js", HTTP_URL + "/go/compressed/all.js");
-    private static final ResponseAssertion STYLESHEETS_WHILE_BACKUP_IS_IN_PROGRESS = of(HTTP_URL + "/go/stylesheets/foo.css", HTTP_URL + "/go/stylesheets/foo.css");
+    private static final ResponseAssertion PLUGINS_LISTING = of(
+        "/go/admin/plugins",
+        "/go/spark/admin/plugins");
+    private static final ResponseAssertion PACKAGE_REPOSITORIES_LISTING = of(
+        "/go/admin/package_repositories",
+        "/go/spark/admin/package_repositories");
+    private static final ResponseAssertion CONFIG_CHANGE = of(
+        "/go/admin/config_change/md5_value",
+        "/go/rails/admin/config_change/md5_value");
+    private static final ResponseAssertion CONFIG_XML_VIEW = of(
+        "/go/admin/config_xml",
+        "/go/rails/admin/config_xml");
+    private static final ResponseAssertion CONFIG_XML_EDIT = of(
+        "/go/admin/config_xml/edit",
+        "/go/rails/admin/config_xml/edit");
 
-    private static final ResponseAssertion PLUGINS_LISTING = of(HTTP_URL + "/go/admin/plugins", HTTP_URL + "/go/spark/admin/plugins");
-    private static final ResponseAssertion PACKAGE_REPOSITORIES_LISTING = of(HTTP_URL + "/go/admin/package_repositories", HTTP_URL + "/go/spark/admin/package_repositories");
-    private static final ResponseAssertion CONFIG_CHANGE = of(HTTP_URL + "/go/admin/config_change/md5_value", HTTP_URL + "/go/rails/admin/config_change/md5_value");
-    private static final ResponseAssertion CONFIG_XML_VIEW = of(HTTP_URL + "/go/admin/config_xml", HTTP_URL + "/go/rails/admin/config_xml");
-    private static final ResponseAssertion CONFIG_XML_EDIT = of(HTTP_URL + "/go/admin/config_xml/edit", HTTP_URL + "/go/rails/admin/config_xml/edit");
+    private static final ResponseAssertion PIPELINE_CONFIG_EDIT = of(
+        "/go/admin/pipelines/pipeline/edit#!pipeline/materials",
+        "/go/spark/admin/pipelines/pipeline/edit");
 
-    private static final ResponseAssertion PIPELINE_CONFIG_EDIT = of(HTTP_URL + "/go/admin/pipelines/pipeline/edit#!pipeline/materials", HTTP_URL + "/go/spark/admin/pipelines/pipeline/edit");
+    private static final ResponseAssertion ARTIFACT_API_JSON_LISTING = of(
+        "/go/files/pipeline/1/stage/2/job.json",
+        "/go/spring-internal/artifact/GET/json?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=");
+    private static final ResponseAssertion ARTIFACT_API_GET_FILE = of(
+        "/go/files/pipeline/1/stage/2/job/tmp/file",
+        "/go/spring-internal/artifact/GET/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=tmp%2Ffile");
+    private static final ResponseAssertion ARTIFACT_API_PUSH_FILE = of(
+        "/go/files/pipeline/1/stage/2/job/tmp/file",
+        "/go/spring-internal/artifact/POST/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=tmp%2Ffile", METHOD.POST);
+    private static final ResponseAssertion ARTIFACT_API_PUSH_FILE_AGENT_REMOTING = of(
+        "/go/remoting/files/pipeline/1/stage/2/job/file%25?attempt=100&buildId=1000",
+        "/go/spring-internal/artifact/POST/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=file%25&attempt=100&buildId=1000", METHOD.POST);
+    private static final ResponseAssertion ARTIFACT_API_PUSH_FILE_AGENT_REMOTING_NO_PATH = of(
+        "/go/remoting/files/pipeline/1/stage/2/job/?attempt=100&buildId=1000",
+        "/go/spring-internal/artifact/POST/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=&attempt=100&buildId=1000", METHOD.POST);
+    private static final ResponseAssertion ARTIFACT_API_CHANGE_FILE = of(
+        "/go/files/pipeline/1/stage/2/job/file",
+        "/go/spring-internal/artifact/PUT/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=file", METHOD.PUT);
+    private static final ResponseAssertion ARTIFACT_API_CONSOLE_LOG = of(
+        "/go/files/pipeline/1/stage/2/job/cruise-output/console.log?startLineNumber=1000",
+        "/go/spring-internal/consoleout.json?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=cruise-output%2Fconsole.log&startLineNumber=1000");
 
-    private static final ResponseAssertion ARTIFACT_API_JSON_LISTING = of(HTTP_URL + "/go/files/pipeline/1/stage/2/job.json", HTTP_URL + "/go/repository/restful/artifact/GET/json?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=");
-    private static final ResponseAssertion ARTIFACT_API_GET_FILE = of(HTTP_URL + "/go/files/pipeline/1/stage/2/job/tmp/file", HTTP_URL + "/go/repository/restful/artifact/GET/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=tmp%2Ffile");
-    private static final ResponseAssertion ARTIFACT_API_PUSH_FILE = of(HTTP_URL + "/go/files/pipeline/1/stage/2/job/tmp/file", HTTP_URL + "/go/repository/restful/artifact/POST/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=tmp%2Ffile", METHOD.POST);
-    private static final ResponseAssertion ARTIFACT_API_PUSH_FILE_AGENT_REMOTING = of(HTTP_URL + "/go/remoting/files/pipeline/1/stage/2/job/file%25?attempt=100&buildId=1000", HTTP_URL + "/go/repository/restful/artifact/POST/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=file%25&attempt=100&buildId=1000", METHOD.POST);
-    private static final ResponseAssertion ARTIFACT_API_PUSH_FILE_AGENT_REMOTING_NO_PATH = of(HTTP_URL + "/go/remoting/files/pipeline/1/stage/2/job/?attempt=100&buildId=1000", HTTP_URL + "/go/repository/restful/artifact/POST/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=&attempt=100&buildId=1000", METHOD.POST);
-    private static final ResponseAssertion ARTIFACT_API_CHANGE_FILE = of(HTTP_URL + "/go/files/pipeline/1/stage/2/job/file", HTTP_URL + "/go/repository/restful/artifact/PUT/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=file", METHOD.PUT);
-    private static final ResponseAssertion ARTIFACT_API_CONSOLE_LOG = of(HTTP_URL + "/go/files/pipeline/1/stage/2/job/cruise-output/console.log?startLineNumber=1000", HTTP_URL + "/go/consoleout.json?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=cruise-output%2Fconsole.log&startLineNumber=1000");
+    private static final ResponseAssertion PIPELINES_STAGE_DETAILS = of(
+        "/go/pipelines/pipeline/1/stage/2",
+        "/go/rails/pipelines/pipeline/1/stage/2");
+    private static final ResponseAssertion PIPELINES_STAGE_HISTORY_PAGINATION = of(
+        "/go/history/stage/pipeline/1/stage/2?page=3&tab=jobs",
+        "/go/rails/history/stage/pipeline/1/stage/2?page=3&tab=jobs");
+    private static final ResponseAssertion BUILD_JOB_DETAILS = of(
+        "/go/tab/build/detail/pipeline/1/stage/2/job",
+        "/go/tab/build/recent?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&jobName=job");
+    private static final ResponseAssertion MATERIALS_VALUE_STREAM_MAP = of(
+        "/go/materials/value_stream_map/fingerprint/revision",
+        "/go/rails/materials/value_stream_map/fingerprint/revision");
 
-    private static final ResponseAssertion PIPELINES_STAGE_DETAILS = of(HTTP_URL + "/go/pipelines/pipeline/1/stage/2", HTTP_URL + "/go/rails/pipelines/pipeline/1/stage/2");
-    private static final ResponseAssertion PIPELINES_STAGE_HISTORY_PAGINATION = of(HTTP_URL + "/go/history/stage/pipeline/1/stage/2?page=3&tab=jobs", HTTP_URL + "/go/rails/history/stage/pipeline/1/stage/2?page=3&tab=jobs");
-    private static final ResponseAssertion BUILD_JOB_DETAILS = of(HTTP_URL + "/go/tab/build/detail/pipeline/1/stage/2/job", HTTP_URL + "/go/tab/build/recent?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&jobName=job");
-    private static final ResponseAssertion MATERIALS_VALUE_STREAM_MAP = of(HTTP_URL + "/go/materials/value_stream_map/fingerprint/revision", HTTP_URL + "/go/rails/materials/value_stream_map/fingerprint/revision");
+    private static final ResponseAssertion LANDING_PAGE_SLASH = of(
+        "/go/",
+        "/go/spark/dashboard");
 
-    private static final ResponseAssertion LANDING_PAGE_SLASH = of(HTTP_URL + "/go/", HTTP_URL + "/go/spark/dashboard");
-
-    private static final ResponseAssertion LANDING_PAGE_HOME = of(HTTP_URL + "/go/home", HTTP_URL + "/go/spark/dashboard");
-    private static final ResponseAssertion LANDING_PAGE_PIPELINES = of(HTTP_URL + "/go/pipelines", HTTP_URL + "/go/spark/dashboard");
+    private static final ResponseAssertion LANDING_PAGE_HOME = of(
+        "/go/home",
+        "/go/spark/dashboard");
+    private static final ResponseAssertion LANDING_PAGE_PIPELINES = of(
+        "/go/pipelines",
+        "/go/spark/dashboard");
 
     @SuppressWarnings("unused")
     private static Stream<ResponseAssertion> testResponseAssertions() {
@@ -105,10 +167,9 @@ public class UrlRewriterIntegrationTest {
             SERVER_BACKUP,
             STATIC_PAGES,
             ASSETS,
-            CONFIG_FILE_XML,
             CONFIG_PIPELINES_SNIPPET,
-            CONFIG_API_FOR_CURRENT,
-            CONFIG_API_FOR_HISTORICAL,
+            CONFIG_API_CURRENT,
+            CONFIG_API_CURRENT_EDIT,
             IMAGES_WHILE_BACKUP_IS_IN_PROGRESS,
             JAVASCRIPT_WHILE_BACKUP_IS_IN_PROGRESS,
             COMPRESSED_JAVASCRIPT_WHILE_BACKUP_IS_IN_PROGRESS,
@@ -165,11 +226,11 @@ public class UrlRewriterIntegrationTest {
 
     public record ResponseAssertion(String requestedUrl, String servedUrl, METHOD method) {
         static ResponseAssertion of(String requestedUrl, String servedUrl) {
-            return new ResponseAssertion(requestedUrl, servedUrl, METHOD.GET);
+            return of(requestedUrl, servedUrl, METHOD.GET);
         }
 
         static ResponseAssertion of(String requestedUrl, String servedUrl, METHOD method) {
-            return new ResponseAssertion(requestedUrl, servedUrl, method);
+            return new ResponseAssertion(HTTP_URL + requestedUrl, HTTP_URL + servedUrl, method);
         }
     }
 

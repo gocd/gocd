@@ -30,9 +30,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class AuthorizationInterceptorTest {
+public class SpringRoutePipelineAuthorizationInterceptorTest {
 
-    private AuthorizationInterceptor permissionInterceptor;
+    private SpringRoutePipelineAuthorizationInterceptor permissionInterceptor;
     private SecurityService securityService;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
@@ -40,7 +40,7 @@ public class AuthorizationInterceptorTest {
     @BeforeEach
     public void setup() {
         securityService = mock(SecurityService.class);
-        permissionInterceptor = new AuthorizationInterceptor(securityService);
+        permissionInterceptor = new SpringRoutePipelineAuthorizationInterceptor(securityService);
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         loginAsAnonymous(request);
@@ -86,14 +86,6 @@ public class AuthorizationInterceptorTest {
         request.setParameter("pipelineName", "cruise");
         request.setMethod("put");
         assumeUserHasOperatePermissionForPipeline();
-        assertThat(permissionInterceptor.preHandle(request, response, null)).isTrue();
-    }
-
-    @Test
-    public void shouldNotCheckOperatePermissionForEditingConfigurationRequest() throws Exception {
-        request.setParameter("pipelineName", "cruise");
-        request.setRequestURI("/admin/restful/configuration");
-        request.setMethod("post");
         assertThat(permissionInterceptor.preHandle(request, response, null)).isTrue();
     }
 

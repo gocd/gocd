@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.matchers;
 
-import com.thoughtworks.go.util.GoConstants;
 import org.assertj.core.api.AbstractAssert;
 
 import java.util.regex.Pattern;
@@ -101,14 +100,14 @@ public class ConsoleOutMatcherJunit5 extends AbstractAssert<ConsoleOutMatcherJun
     }
 
     private String buildJobStatusString(String status) {
-        return format("[%s] Current job status: %s", GoConstants.PRODUCT_NAME, status);
+        return format("[go] Current job status: %s", status);
     }
 
     private String buildTaskInfoString(String command, String args) {
         if (args == null || args.isEmpty()) {
-            return format("[%s] Task: %s", GoConstants.PRODUCT_NAME, command);
+            return format("[go] Task: %s", command);
         }
-        return format("[%s] Task: %s %s", GoConstants.PRODUCT_NAME, command, args);
+        return format("[go] Task: %s %s", command, args);
     }
 
 }

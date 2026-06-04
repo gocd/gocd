@@ -15,7 +15,10 @@
 #
 
 class GoConfig
-  include ModelWithConstructorAcceptingArgs
-  attr_accessor :content, :md5, :location
+  attr_accessor :content, :md5
 
+  def initialize(args)
+    @content = args[:content]
+    @md5 = args[:md5]
+  end
 end

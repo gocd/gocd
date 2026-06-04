@@ -21,11 +21,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
-import java.util.List;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -66,12 +64,8 @@ public class GoConfigRevisionTest {
 
     @Test
     public void shouldThrowExceptionWhenCommentIsInvalid() {
-        try {
-            new GoConfigRevision("config-xml", "foo");
-            fail("should have failed for invalid comment");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("failed to parse comment [foo]");
-        }
+        assertThatThrownBy(() -> new GoConfigRevision("config-xml", "foo"))
+            .hasMessage("failed to parse comment [foo]");
     }
 
     @Test
@@ -80,21 +74,5 @@ public class GoConfigRevisionTest {
         GoConfigRevision rev2 = new GoConfigRevision("blah blah", "md5", "loser 2", "2.2.3", new TimeProvider());
 
         assertThat(rev1).isEqualTo(rev2);
-    }
-
-    @Test
-    public void canAnswerIfRevisionContentIsBackedByByteArrayWhenContentIsString() {
-        GoConfigRevision rev = new GoConfigRevision("blah", "md5", "loser", "2.2.2", new TimeProvider());
-        assertThat(rev.isByteArrayBacked()).isFalse();
-        assertThat(rev.getConfigXmlBytes()).isNull();
-        assertThat(rev.getContent()).isEqualTo("blah");
-    }
-
-    @Test
-    public void canAnswerIfRevisionContentIsBackedByByteArrayWhenContentIsAByteArray() {
-        GoConfigRevision rev = new GoConfigRevision("blah".getBytes(UTF_8), String.format("user:los||er|||timestamp:%s|schema_version:%s|go_edition:OpenSource|go_version:100.3.||9.71|||||md5:my-||md5||||", date.getTime(), GoConfigSchema.VERSION));
-        assertThat(rev.isByteArrayBacked()).isTrue();
-        assertThat(List.of(rev.getConfigXmlBytes())).contains("blah".getBytes(UTF_8));
-        assertThat(rev.getContent()).isEqualTo("blah");
     }
 }

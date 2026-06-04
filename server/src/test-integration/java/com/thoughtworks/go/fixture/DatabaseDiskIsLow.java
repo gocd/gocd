@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.fixture;
 
-import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.FileSizeUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -35,6 +35,6 @@ public class DatabaseDiskIsLow implements BeforeEachCallback, AfterEachCallback 
     }
 
     public static long limitBytes() {
-        return 1 * GoConstants.MEGA_BYTE;
+        return FileSizeUtils.fromMegaToBytes(1);
     }
 }

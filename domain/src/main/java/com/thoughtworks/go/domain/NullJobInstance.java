@@ -18,12 +18,19 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.util.TimeProvider;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Calendar;
 import java.util.Date;
-
-import static com.thoughtworks.go.util.GoConstants.NEVER;
 
 public class NullJobInstance extends JobInstance {
     public static final JobInstance NAMELESS = new NullJobInstance("");
+    private static final Date NEVER = never();
+
+    private static @NotNull Date never() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(1900, Calendar.JANUARY, 1, 0, 0, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
+    }
 
     public NullJobInstance(String name) {
         super(name, new TimeProvider());

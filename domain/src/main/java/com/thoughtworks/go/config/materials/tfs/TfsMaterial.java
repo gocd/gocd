@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.tfs.TfsCommand;
 import com.thoughtworks.go.domain.materials.tfs.TfsCommandFactory;
 import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.UrlArgument;
@@ -35,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.*;
 
+import static com.thoughtworks.go.work.GoPublisher.PRODUCT_NAME;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -141,11 +141,13 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         Revision revision = revisionContext.getLatestRevision();
         File workingDir = execCtx.isServer() ? baseDir : workingdir(baseDir);
-        LOGGER.debug("[TFS] Updating to revision: {} in workingdirectory {}", revision, workingDir);
-        outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), url));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[TFS] Updating to revision: {} in workingdirectory {}", revision, workingDir);
+        }
+        outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", PRODUCT_NAME, updatingTarget(), revision.getRevision(), url));
         tfs(execCtx).checkout(workingDir, revision);
         LOGGER.debug("[TFS] done with update");
-        outputStreamConsumer.stdOutput(format("[%s] Done.\n", GoConstants.PRODUCT_NAME));
+        outputStreamConsumer.stdOutput(format("[%s] Done.\n", PRODUCT_NAME));
     }
 
     TfsCommand tfs(final SubprocessExecutionContext execCtx) {

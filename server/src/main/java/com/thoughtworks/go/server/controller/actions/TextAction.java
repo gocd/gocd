@@ -20,26 +20,32 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
-public class BasicRestfulAction implements RestfulAction {
+public class TextAction implements RestfulAction {
+    public static final String CONTENT_TYPE = "text/plain; charset=utf-8";
+
     private final int status;
     private final String contentType;
     private final String message;
 
-    protected BasicRestfulAction(int status, String message) {
-        this(status, RESPONSE_CHARSET, message);
+    protected TextAction(int status, String message) {
+        this(status, CONTENT_TYPE, message);
     }
 
-    protected BasicRestfulAction(int status, String contentType, String message) {
+    protected TextAction(int status, String contentType, String message) {
         this.status = status;
         this.contentType = contentType;
         this.message = String.valueOf(message);
     }
 
     public static RestfulAction notFound(String errorMessage) {
-        return new BasicRestfulAction(HTTP_NOT_FOUND, errorMessage);
+        return new TextAction(HTTP_NOT_FOUND, errorMessage);
+    }
+
+    public static RestfulAction forbidden(String errorMessage) {
+        return new TextAction(HTTP_FORBIDDEN, errorMessage);
     }
 
     @Override

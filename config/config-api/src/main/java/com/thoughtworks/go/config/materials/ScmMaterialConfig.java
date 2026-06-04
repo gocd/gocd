@@ -90,10 +90,6 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         return name.matches(regex);
     }
 
-    public final GoCipher getGoCipher() {
-        return goCipher;
-    }
-
     public final void setUserName(String userName) {
         this.userName = userName;
     }

@@ -1184,13 +1184,7 @@
   </rule>
 
   <rule>
-    <name>Pipeline history page redirect to new SPA</name>
-    <from>/tab/pipeline/history/([^/]+)</from>
-    <to type="redirect" last="true">/go/pipeline/activity/$1</to>
-  </rule>
-
-  <rule>
-    <name>Stage detail beta</name>
+    <name>Stage Detail</name>
     <from>/pipelines/([^/]+)/([^/]+)/([^/]+)/([^/]+)</from>
     <to type="forward">/pipelines/history?pipelineName=$1&amp;label=$2&amp;stageName=$3&amp;counter=$4</to>
   </rule>

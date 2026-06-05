@@ -133,7 +133,7 @@ public class P4TestRepo extends TestRepo {
 
         Awaitility.await("waiting for p4d to start via " + command.toStringForDisplay())
             .pollDelay(10, TimeUnit.MILLISECONDS)
-            .timeout(60, TimeUnit.SECONDS)
+            .timeout(10, TimeUnit.SECONDS)
             .ignoreExceptions()
             .until(
                 () -> command.runOrBomb(null),

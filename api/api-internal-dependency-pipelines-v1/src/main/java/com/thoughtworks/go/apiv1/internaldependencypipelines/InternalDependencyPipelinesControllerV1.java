@@ -28,7 +28,6 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -42,16 +41,13 @@ public class InternalDependencyPipelinesControllerV1 extends ApiController imple
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private final SystemEnvironment systemEnvironment;
     private final GoConfigService goConfigService;
 
     @Autowired
     public InternalDependencyPipelinesControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,
-                                                   SystemEnvironment systemEnvironment,
                                                    GoConfigService goConfigService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
-        this.systemEnvironment = systemEnvironment;
         this.goConfigService = goConfigService;
     }
 
@@ -69,21 +65,34 @@ public class InternalDependencyPipelinesControllerV1 extends ApiController imple
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
 
-            before("", mimeType, apiAuthenticationHelper::checkUserAnd403);
+            before("", mimeType, this::checkPipelineOrTemplateViewPermissionsAnd403);
 
             get("", mimeType, this::index);
         });
     }
 
-    public String index(Request request, Response response) {
-        String pipelineName = request.params("pipeline_name");
-        String stageName = request.params("stage_name");
+    void checkPipelineOrTemplateViewPermissionsAnd403(Request request, Response response) {
+        if (isTemplateRequest(request)) {
+            apiAuthenticationHelper.checkViewAccessToTemplateAnd403(request, response, r -> r.params("pipeline_name"));
+        } else {
+            apiAuthenticationHelper.checkPipelineViewPermissionsAnd403(request, response);
+        }
+    }
 
+    public String index(Request request, Response response) {
         CruiseConfig config = goConfigService.getMergedConfigForEditing();
-        FetchArtifactViewHelper helper = new FetchArtifactViewHelper(systemEnvironment, config, new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName), isNotBlank(request.queryParams("template")));
+        FetchArtifactViewHelper helper = new FetchArtifactViewHelper(config,
+            new CaseInsensitiveString(request.params("pipeline_name")),
+            new CaseInsensitiveString(request.params("stage_name")),
+            isTemplateRequest(request),
+            name -> apiAuthenticationHelper.hasViewPermissionForPipeline(name.toString()));
 
         response.type("application/json");
         return GSON.toJson(helper.autosuggestMap());
+    }
+
+    private static boolean isTemplateRequest(Request request) {
+        return isNotBlank(request.queryParams("template"));
     }
 
 }

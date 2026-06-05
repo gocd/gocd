@@ -137,9 +137,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final GoSystemProperty<String> APP_SERVER = new CachedProperty<>(new GoStringSystemProperty("app.server", "com.thoughtworks.go.server.JettyServer"));
     public static final GoSystemProperty<String> GO_LANDING_PAGE = new GoStringSystemProperty("go.landing.page", "/pipelines");
 
-    public static final GoSystemProperty<Boolean> FETCH_ARTIFACT_AUTO_SUGGEST = new GoBooleanSystemProperty("go.fetch-artifact.auto-suggest", true);
-    public static final GoSystemProperty<Boolean> GO_FETCH_ARTIFACT_TEMPLATE_AUTO_SUGGEST = new GoBooleanSystemProperty("go.fetch-artifact.template.auto-suggest", true);
-
     public static final GoSystemProperty<Boolean> GO_CONFIG_REPO_GC_AGGRESSIVE = new GoBooleanSystemProperty("go.config.repo.gc.aggressive", true);
     public static final GoSystemProperty<Long> GO_CONFIG_REPO_GC_EXPIRE_IN_HOURS = new GoLongSystemProperty("go.config.repo.gc.expire", 24L);
     public static final GoSystemProperty<Long> GO_CONFIG_REPO_GC_LOOSE_OBJECT_WARNING_THRESHOLD = new GoLongSystemProperty("go.config.repo.gc.warning.looseobject.threshold", 10000L);
@@ -541,10 +538,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return UrlUtil.joinPathPartsPreEncoded(WEBAPP_CONTEXT_PATH, GO_LANDING_PAGE.getValue());
     }
 
-    public boolean isFetchArtifactTemplateAutoSuggestEnabled() {
-        return GO_FETCH_ARTIFACT_TEMPLATE_AUTO_SUGGEST.getValue();
-    }
-
     public boolean isAutoRegisterLocalAgentEnabled() {
         return AUTO_REGISTER_LOCAL_AGENT_ENABLED.getValue();
     }
@@ -563,10 +556,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public boolean isSessionCookieSecure() {
         return GO_SERVER_SESSION_COOKIE_SECURE.getValue();
-    }
-
-    public boolean isProductionMode() {
-        return GO_SERVER_MODE.getValue().equalsIgnoreCase("production");
     }
 
     public boolean isReAuthenticationEnabled() {

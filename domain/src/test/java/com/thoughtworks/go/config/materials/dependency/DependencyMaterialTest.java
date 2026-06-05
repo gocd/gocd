@@ -26,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision.create;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -164,9 +165,10 @@ class DependencyMaterialTest {
     void shouldDetectDependencyMaterialUsedInFetchArtifact() {
         DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"));
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        List<FetchTask> fetchTasks = new ArrayList<>();
-        fetchTasks.add(new FetchTask(new CaseInsensitiveString("something"), new CaseInsensitiveString("new"), "src", "dest"));
-        fetchTasks.add(new FetchTask(new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"), new CaseInsensitiveString("job"), "src", "dest"));
+        Stream<FetchTask> fetchTasks = Stream.of(
+            new FetchTask(new CaseInsensitiveString("something"), new CaseInsensitiveString("new"), "src", "dest"),
+            new FetchTask(new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"), new CaseInsensitiveString("job"), "src", "dest")
+        );
         when(pipelineConfig.getFetchTasks()).thenReturn(fetchTasks);
 
         assertThat(material.isUsedInFetchArtifact(pipelineConfig)).isTrue();
@@ -176,8 +178,9 @@ class DependencyMaterialTest {
     void shouldDetectDependencyMaterialUsedInFetchArtifactFromAncestor() {
         DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("parent-pipeline"), new CaseInsensitiveString("stage-bar"));
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        List<FetchTask> fetchTasks = new ArrayList<>();
-        fetchTasks.add(new FetchTask(new CaseInsensitiveString("grandparent-pipeline/parent-pipeline"), new CaseInsensitiveString("grandparent-stage"), new CaseInsensitiveString("grandparent-job"), "src", "dest"));
+        Stream<FetchTask> fetchTasks = Stream.of(
+            new FetchTask(new CaseInsensitiveString("grandparent-pipeline/parent-pipeline"), new CaseInsensitiveString("grandparent-stage"), new CaseInsensitiveString("grandparent-job"), "src", "dest")
+        );
         when(pipelineConfig.getFetchTasks()).thenReturn(fetchTasks);
 
         assertThat(material.isUsedInFetchArtifact(pipelineConfig)).isTrue();
@@ -187,9 +190,10 @@ class DependencyMaterialTest {
     void shouldDetectDependencyMaterialNotUsedInFetchArtifact() {
         DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"));
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        List<FetchTask> fetchTasks = new ArrayList<>();
-        fetchTasks.add(new FetchTask(new CaseInsensitiveString("something"), new CaseInsensitiveString("new"), "src", "dest"));
-        fetchTasks.add(new FetchTask(new CaseInsensitiveString("another"), new CaseInsensitiveString("boo"), new CaseInsensitiveString("foo"), "src", "dest"));
+        Stream<FetchTask> fetchTasks = Stream.of(
+            new FetchTask(new CaseInsensitiveString("something"), new CaseInsensitiveString("new"), "src", "dest"),
+            new FetchTask(new CaseInsensitiveString("another"), new CaseInsensitiveString("boo"), new CaseInsensitiveString("foo"), "src", "dest")
+        );
         when(pipelineConfig.getFetchTasks()).thenReturn(fetchTasks);
 
         assertThat(material.isUsedInFetchArtifact(pipelineConfig)).isFalse();
@@ -205,7 +209,6 @@ class DependencyMaterialTest {
         Map<String, Object> attributesWithoutSecureFields = material.getAttributes(false);
         assertAttributes(attributesWithoutSecureFields);
     }
-
 
     @Test
     void shouldHandleNullOriginDuringValidationWhenUpstreamPipelineDoesNotExist() {

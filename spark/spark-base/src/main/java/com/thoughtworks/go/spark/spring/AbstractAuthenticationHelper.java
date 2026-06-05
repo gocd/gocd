@@ -34,6 +34,7 @@ import spark.Request;
 import spark.Response;
 
 import java.util.List;
+import java.util.function.Function;
 
 import static com.thoughtworks.go.config.exceptions.EntityType.Pipeline;
 import static spark.utils.StringUtils.isBlank;
@@ -157,12 +158,20 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
-    public void checkViewAccessToTemplateAnd403(Request request, @SuppressWarnings("unused") Response response) {
+    public boolean hasViewPermissionForPipeline(String pipelineName) {
+        return securityService.hasViewPermissionForPipeline(currentUsername(), pipelineName);
+    }
+
+    public void checkViewAccessToTemplateAnd403(Request request, Response response) {
+        checkViewAccessToTemplateAnd403(request, response, r -> r.params("template_name"));
+    }
+
+    public void checkViewAccessToTemplateAnd403(Request request, @SuppressWarnings("unused") Response response, Function<Request, String> templateNameExtractor) {
         if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
             return;
         }
 
-        String templateName = request.params("template_name");
+        String templateName = templateNameExtractor.apply(request);
         if (isNotBlank(templateName) && !securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString(templateName), currentUsername())) {
             throw renderForbiddenResponse();
         }

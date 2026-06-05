@@ -164,15 +164,8 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
             }
         }
 
-        boolean foundStageAtOrBeforeDependency = Objects.equals(dependencyStage, stage);
-        if (!foundStageAtOrBeforeDependency) {
-            for (StageConfig stageConfig : pipeline.allStagesBefore(dependencyStage)) {
-                foundStageAtOrBeforeDependency = stage.equals(stageConfig.name());
-                if (foundStageAtOrBeforeDependency) {
-                    break;
-                }
-            }
-        }
+        boolean foundStageAtOrBeforeDependency = Objects.equals(dependencyStage, stage)
+            || pipeline.allStagesBefore(dependencyStage).anyMatch(stageConfig -> stage.equals(stageConfig.name()));
 
         if (!foundStageAtOrBeforeDependency) {
             addStageMayNotCompleteBeforeDownstreamError(currentPipeline, validationContext);

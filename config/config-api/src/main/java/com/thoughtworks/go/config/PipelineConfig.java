@@ -42,9 +42,11 @@ import org.jetbrains.annotations.TestOnly;
 
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.domain.label.PipelineLabel.COUNT;
 import static com.thoughtworks.go.domain.label.PipelineLabel.ENV_VAR_PREFIX;
@@ -766,29 +768,31 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return CONFIGURATION_TYPE_STAGES;
     }
 
-    public @NotNull List<StageConfig> allStagesBefore(CaseInsensitiveString stage) {
-        List<StageConfig> stages = new ArrayList<>();
-        for (StageConfig stageConfig : this) {
-            if (stage.equals(stageConfig.name())) {
-                break;
-            }
-            stages.add(stageConfig);
-        }
-        return stages;
+    public @NotNull Stream<StageConfig> allStagesBefore(CaseInsensitiveString stageName) {
+        return this.stream().takeWhile(stageConfig -> !stageName.equals(stageConfig.name()));
     }
 
-    public @Nullable List<StageConfig> validStagesForFetchArtifact(PipelineConfig downstreamPipeline, CaseInsensitiveString currentDownstreamStage) {
+    public @NotNull Stream<StageConfig> allStagesUpTo(CaseInsensitiveString stageName) {
+        var done = new AtomicBoolean(false);
+        return this.stream().takeWhile(stageConfig -> {
+            boolean keep = !done.get();
+            if (stageName.equals(stageConfig.name())) {
+                done.set(true);
+            }
+            return keep;
+        });
+    }
+
+    public @NotNull List<StageConfig> validStagesForFetchArtifact(PipelineConfig downstreamPipeline, CaseInsensitiveString currentDownstreamStage) {
         for (DependencyMaterialConfig dependencyMaterial : downstreamPipeline.dependencyMaterialConfigs()) {
             if (dependencyMaterial.getPipelineName().equals(name)) {
-                List<StageConfig> stageConfigs = allStagesBefore(dependencyMaterial.getStageName());
-                stageConfigs.add(getStage(dependencyMaterial.getStageName())); // add this stage itself
-                return stageConfigs;
+                return allStagesUpTo(dependencyMaterial.getStageName()).toList();
             }
         }
         if (this.equals(downstreamPipeline)) {
-            return allStagesBefore(currentDownstreamStage);
+            return allStagesBefore(currentDownstreamStage).toList();
         }
-        return null;
+        return Collections.emptyList();
     }
 
     public CommentRenderer getCommentRenderer() {
@@ -809,19 +813,12 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         errors.add(NAME, format("You have defined multiple pipelines called '%s'. Pipeline names are case-insensitive and must be unique.", name));
     }
 
-    public List<FetchTask> getFetchTasks() {
-        List<FetchTask> fetchTasks = new ArrayList<>();
-        for (StageConfig stage : this) {
-            for (JobConfig job : stage.getJobs()) {
-                for (Task task : job.tasks()) {
-                    if (task instanceof FetchTask) {
-                        fetchTasks.add((FetchTask) task);
-                    }
-                }
-            }
-        }
-        return fetchTasks;
-
+    public Stream<FetchTask> getFetchTasks() {
+        return this.stream()
+            .flatMap(stage -> stage.getJobs().stream())
+            .flatMap(job -> job.tasks().stream())
+            .filter(task -> task instanceof FetchTask)
+            .map(task -> (FetchTask) task);
     }
 
     @TestOnly

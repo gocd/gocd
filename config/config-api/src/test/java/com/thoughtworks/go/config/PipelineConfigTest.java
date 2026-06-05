@@ -584,7 +584,7 @@ public class PipelineConfigTest {
         secondJob.addTask(secondFetch);
         pipelineConfig.add(new StageConfig(new CaseInsensitiveString("stage-2"), new JobConfigs(secondJob)));
 
-        List<FetchTask> fetchTasks = pipelineConfig.getFetchTasks();
+        List<FetchTask> fetchTasks = pipelineConfig.getFetchTasks().toList();
         assertThat(fetchTasks.size()).isEqualTo(2);
         assertThat(fetchTasks.contains(firstFetch)).isTrue();
         assertThat(fetchTasks.contains(secondFetch)).isTrue();

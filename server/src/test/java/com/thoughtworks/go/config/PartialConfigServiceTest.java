@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.PartialConfigMother.*;
 import static java.util.Optional.ofNullable;
@@ -129,7 +130,7 @@ public class PartialConfigServiceTest {
         }).when(goConfigService).updateConfig(any());
         service.onSuccessPartialConfig(configRepoConfig, withEnvironment("env1"));
         assertEquals(1, cruiseConfig.getPartials().size());
-        assertEquals(new CaseInsensitiveString("env1"), cruiseConfig.getPartials().getFirst().getEnvironments().getFirst().name());
+        assertEquals(cis("env1"), cruiseConfig.getPartials().getFirst().getEnvironments().getFirst().name());
     }
 
     @Test

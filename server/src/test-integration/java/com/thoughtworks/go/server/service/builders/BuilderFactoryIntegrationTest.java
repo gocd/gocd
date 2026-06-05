@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -68,9 +69,9 @@ public class BuilderFactoryIntegrationTest {
 
     @Test
     public void shouldCreateBuilderForFetchTask() {
-        final FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("up42"),
-                new CaseInsensitiveString("up42_stage"),
-                new CaseInsensitiveString("up42_job"), "installers.zip", "dist");
+        final FetchTask fetchTask = new FetchTask(cis("up42"),
+                cis("up42_stage"),
+                cis("up42_job"), "installers.zip", "dist");
 
         final Pipeline pipeline = new Pipeline("up42", BuildCause.createExternal());
 
@@ -81,15 +82,15 @@ public class BuilderFactoryIntegrationTest {
 
     @Test
     public void shouldCreateBuilderForFetchPluggableArtifactTask() {
-        final PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString("up42"));
+        final PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(cis("up42"));
         goConfigService.artifactStores().add(new ArtifactStore("storeId", "PluginId"));
         pipelineConfig.getStage("up42_stage").jobConfigByConfigName("up42_job").artifactTypeConfigs()
                 .add(new PluggableArtifactConfig("artifactId", "storeId"));
 
         final FetchPluggableArtifactTask pluggableArtifactTask = new FetchPluggableArtifactTask(
-                new CaseInsensitiveString("up42"),
-                new CaseInsensitiveString("up42_stage"),
-                new CaseInsensitiveString("up42_job"), "artifactId");
+                cis("up42"),
+                cis("up42_stage"),
+                cis("up42_job"), "artifactId");
 
         final Pipeline pipeline = new Pipeline("up42", BuildCause.createExternal());
 

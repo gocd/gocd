@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.serverhealth;
 
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
@@ -35,6 +34,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Set;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.*;
 import static com.thoughtworks.go.serverhealth.ServerHealthMatcher.containsState;
 import static com.thoughtworks.go.serverhealth.ServerHealthMatcher.doesNotContainState;
@@ -96,7 +96,7 @@ public class ServerHealthServiceTest {
         SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig();
         serverHealthService.update(ServerHealthState.error("svn-message", "description", HealthStateType.general(forMaterialConfig(svnMaterialConfig))));
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
-        cruiseConfig.addPipeline("defaultGroup", new PipelineConfig(new CaseInsensitiveString("dev"), new MaterialConfigs(svnMaterialConfig), new StageConfig(new CaseInsensitiveString("first"), new JobConfigs())));
+        cruiseConfig.addPipeline("defaultGroup", new PipelineConfig(cis("dev"), new MaterialConfigs(svnMaterialConfig), new StageConfig(cis("first"), new JobConfigs())));
         serverHealthService.purgeStaleHealthMessages(cruiseConfig);
         assertThat(serverHealthService.logsSorted().size()).isEqualTo(1);
     }

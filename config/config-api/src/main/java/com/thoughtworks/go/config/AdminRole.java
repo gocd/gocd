@@ -20,6 +20,8 @@ import com.thoughtworks.go.domain.config.Admin;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 @ConfigTag("role")
 public class AdminRole implements Admin {
     @ConfigValue
@@ -39,7 +41,7 @@ public class AdminRole implements Admin {
     }
 
     public AdminRole(final String name) {
-        this.name = new CaseInsensitiveString(name);
+        this.name = cis(name);
     }
 
     @Override

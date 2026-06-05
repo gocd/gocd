@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.plugin.access.analytics;
 
-
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsProperty;
 import com.thoughtworks.go.plugin.api.config.Property;

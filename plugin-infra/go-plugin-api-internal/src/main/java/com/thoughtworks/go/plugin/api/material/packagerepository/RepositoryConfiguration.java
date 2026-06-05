@@ -23,7 +23,6 @@ import java.util.List;
 /**
  * Represents {@link Configuration} specific to repository
  */
-
 public class RepositoryConfiguration extends Configuration {
 
     @Override

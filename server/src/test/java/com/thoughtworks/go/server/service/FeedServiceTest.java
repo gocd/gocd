@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -33,6 +32,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ModificationsMother.createSvnMaterialRevisions;
 import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
 import static com.thoughtworks.go.helper.PipelineHistoryMother.pipelineInstanceModel;
@@ -89,7 +89,7 @@ public class FeedServiceTest {
     class StagesXml {
         @Test
         void shouldThrowRecordNotFoundExceptionWhenPipelineDoesNotExist() {
-            when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("up42"))).thenReturn(false);
+            when(goConfigService.hasPipelineNamed(cis("up42"))).thenReturn(false);
 
             assertThatCode(() -> feedService.stagesXml(username, "up42", null, BASE_URL))
                     .isInstanceOf(RecordNotFoundException.class)
@@ -99,7 +99,7 @@ public class FeedServiceTest {
         @Test
         void shouldThrowNotAuthorizedExceptionWhenUserDoesNotHavePermission() {
             String pipelineName = "up42";
-            when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(goConfigService.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(false);
 
             assertThatCode(() -> feedService.stagesXml(username, pipelineName, null, BASE_URL))
@@ -111,7 +111,7 @@ public class FeedServiceTest {
         void shouldReturnsStagesXmlDocument() {
             String pipelineName = "up42";
 
-            when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(goConfigService.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
             Document document = feedService.stagesXml(username, pipelineName, null, BASE_URL);
@@ -128,7 +128,7 @@ public class FeedServiceTest {
         void shouldReturnsStagesXmlDocumentBeforeId() {
             String pipelineName = "up42";
             int pipelineCounter = 100;
-            when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(goConfigService.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
             Document document = feedService.stagesXml(username, pipelineName, pipelineCounter, BASE_URL);

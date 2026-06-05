@@ -26,6 +26,7 @@ import org.jetbrains.annotations.TestOnly;
 import java.util.*;
 import java.util.function.BiPredicate;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -384,7 +385,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
         if (!isSameGroup(groupName)) {
             return;
         }
-        CaseInsensitiveString name = new CaseInsensitiveString(pipelineName);
+        CaseInsensitiveString name = cis(pipelineName);
         if (!this.tryReplace((part, p) -> p.name().equals(name) && checkEditable(part, name), pipeline)) {
             throw new IndexOutOfBoundsException("Unable to find pipeline " + pipelineName + " to update");
         }

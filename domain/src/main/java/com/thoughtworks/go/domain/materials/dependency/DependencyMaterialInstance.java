@@ -15,10 +15,11 @@
  */
 package com.thoughtworks.go.domain.materials.dependency;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.Material;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 public class DependencyMaterialInstance extends MaterialInstance {
 
@@ -30,7 +31,7 @@ public class DependencyMaterialInstance extends MaterialInstance {
     }
 
     @Override public Material toOldMaterial(String name, String folder, String password) {
-        DependencyMaterial dep = new DependencyMaterial(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
+        DependencyMaterial dep = new DependencyMaterial(cis(pipelineName), cis(stageName));
         setName(name, dep);
         dep.setId(id);
         return dep;

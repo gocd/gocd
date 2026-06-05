@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.domain.materials.mercurial;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class HgMaterialInstanceTest {
@@ -30,7 +30,7 @@ class HgMaterialInstanceTest {
 
         final HgMaterial material = (HgMaterial) materialInstance.toOldMaterial("example", "destination", "pass");
 
-        assertThat(material.getName()).isEqualTo(new CaseInsensitiveString("example"));
+        assertThat(material.getName()).isEqualTo(cis("example"));
         assertThat(material.getUrl()).isEqualTo("https://example.com");
         assertThat(material.getUserName()).isEqualTo("bob");
         assertThat(material.getPassword()).isEqualTo("pass");

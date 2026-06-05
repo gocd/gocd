@@ -62,6 +62,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.AgentInstanceMother.*;
 import static com.thoughtworks.go.server.service.AgentRuntimeInfo.fromServer;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
@@ -993,7 +994,7 @@ public class AgentServiceIntegrationTest {
             createEnabledAgent(UUID);
             createEnabledAgent(UUID2);
 
-            BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
+            BasicEnvironmentConfig uat = new BasicEnvironmentConfig(cis("uat"));
             assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(uat, List.of(UUID, UUID2)));
 
             assertThat(environmentConfigService.getAgentEnvironmentNames(UUID)).contains("uat");
@@ -1009,7 +1010,7 @@ public class AgentServiceIntegrationTest {
 
             assertDoesNotThrow(() -> agentService.bulkUpdateAgentAttributes(List.of(UUID, UUID2), emptyStrList, emptyStrList, List.of("uat"), emptyStrList, TRUE, environmentConfigService));
 
-            BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
+            BasicEnvironmentConfig uat = new BasicEnvironmentConfig(cis("uat"));
             uat.addAgent(UUID);
             uat.addAgent(UUID2);
             List<String> noAgents = emptyList();
@@ -1030,7 +1031,7 @@ public class AgentServiceIntegrationTest {
 
             assertDoesNotThrow(() -> agentService.bulkUpdateAgentAttributes(List.of(UUID, UUID2), emptyStrList, emptyStrList, List.of("uat"), emptyStrList, TRUE, environmentConfigService));
 
-            BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
+            BasicEnvironmentConfig uat = new BasicEnvironmentConfig(cis("uat"));
             uat.addAgent(UUID);
             uat.addAgent(UUID2);
             agentService.updateAgentsAssociationOfEnvironment(uat, List.of(UUID, UUID3));
@@ -1047,7 +1048,7 @@ public class AgentServiceIntegrationTest {
             createEnabledAgent(UUID);
             createEnabledAgent(UUID2);
 
-            BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
+            BasicEnvironmentConfig uat = new BasicEnvironmentConfig(cis("uat"));
             assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(uat, List.of(UUID, UUID2), Collections.emptyList()));
 
             assertThat(environmentConfigService.getAgentEnvironmentNames(UUID)).contains("uat");
@@ -1063,7 +1064,7 @@ public class AgentServiceIntegrationTest {
 
             assertDoesNotThrow(() -> agentService.bulkUpdateAgentAttributes(List.of(UUID, UUID2), emptyStrList, emptyStrList, List.of("uat"), emptyStrList, TRUE, environmentConfigService));
 
-            BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
+            BasicEnvironmentConfig uat = new BasicEnvironmentConfig(cis("uat"));
             uat.addAgent(UUID);
             uat.addAgent(UUID2);
             List<String> noAgents = emptyList();
@@ -1084,7 +1085,7 @@ public class AgentServiceIntegrationTest {
 
             assertDoesNotThrow(() -> agentService.bulkUpdateAgentAttributes(List.of(UUID, UUID2), emptyStrList, emptyStrList, List.of("uat"), emptyStrList, TRUE, environmentConfigService));
 
-            BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
+            BasicEnvironmentConfig uat = new BasicEnvironmentConfig(cis("uat"));
             uat.addAgent(UUID);
             uat.addAgent(UUID2);
             agentService.updateAgentsAssociationOfEnvironment(uat, List.of(UUID, UUID3), List.of(UUID2));
@@ -1251,7 +1252,7 @@ public class AgentServiceIntegrationTest {
         RepoConfigOrigin repoConfigOrigin = PartialConfigMother.createRepoOrigin();
         ConfigRepoConfig configRepo = repoConfigOrigin.getConfigRepo();
         PartialConfig partialConfig = new PartialConfig();
-        BasicEnvironmentConfig envConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(envName));
+        BasicEnvironmentConfig envConfig = new BasicEnvironmentConfig(cis(envName));
         envConfig.addAgent(AgentServiceIntegrationTest.UUID);
         partialConfig.getEnvironments().add(envConfig);
         partialConfig.setOrigins(repoConfigOrigin);

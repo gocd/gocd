@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.when
 
@@ -113,7 +114,7 @@ class InternalDependencyPipelinesControllerV1Test implements SecurityServiceTrai
     void 'should filter out upstream pipelines the user cannot view'() {
       def upstream = PipelineConfigMother.pipelineConfig("upstream")
       def downstream = PipelineConfigMother.pipelineConfig("downstream")
-      downstream.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("mingle")))
+      downstream.addMaterialConfig(new DependencyMaterialConfig(cis("upstream"), cis("mingle")))
 
       def config = new BasicCruiseConfig()
       config.addPipeline("first", upstream)
@@ -145,7 +146,7 @@ class InternalDependencyPipelinesControllerV1Test implements SecurityServiceTrai
     @Test
     void 'should return template auto suggestions'() {
       def config = new BasicCruiseConfig()
-      config.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("template1"), new StageConfig(new CaseInsensitiveString("stage1"), new JobConfigs())))
+      config.addTemplate(new PipelineTemplateConfig(cis("template1"), new StageConfig(cis("stage1"), new JobConfigs())))
       config.addPipeline("first", PipelineConfigMother.pipelineConfig("pipeline1"))
       when(goConfigService.getMergedConfigForEditing()).thenReturn(config)
 
@@ -161,7 +162,7 @@ class InternalDependencyPipelinesControllerV1Test implements SecurityServiceTrai
     @Test
     void 'should filter out non-viewable pipelines from template auto suggestions'() {
       def config = new BasicCruiseConfig()
-      config.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("template1"), new StageConfig(new CaseInsensitiveString("stage1"), new JobConfigs())))
+      config.addTemplate(new PipelineTemplateConfig(cis("template1"), new StageConfig(cis("stage1"), new JobConfigs())))
       config.addPipeline("visible", PipelineConfigMother.pipelineConfig("visible"))
       config.addPipeline("hidden", PipelineConfigMother.pipelineConfig("hidden"))
       when(goConfigService.getMergedConfigForEditing()).thenReturn(config)

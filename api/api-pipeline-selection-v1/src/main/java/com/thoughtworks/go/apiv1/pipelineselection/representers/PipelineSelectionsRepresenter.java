@@ -18,17 +18,17 @@ package com.thoughtworks.go.apiv1.pipelineselection.representers;
 import com.google.gson.*;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.domain.user.DashboardFilter;
+import com.thoughtworks.go.server.domain.user.Marshaling;
 
 import java.lang.reflect.Type;
 
-import static com.thoughtworks.go.server.domain.user.Marshaling.CaseInsensitiveStringSerializer;
 import static com.thoughtworks.go.server.domain.user.Marshaling.DashboardFilterSerializer;
 
 public class PipelineSelectionsRepresenter {
     private static final Gson GSON = new GsonBuilder()
         .registerTypeAdapter(PipelineSelectionResponse.class, new PersonalizationResponseSerializer())
         .registerTypeAdapter(DashboardFilter.class, new DashboardFilterSerializer())
-        .registerTypeAdapter(CaseInsensitiveString.class, new CaseInsensitiveStringSerializer())
+        .registerTypeAdapter(CaseInsensitiveString.class, new Marshaling.CaseInsensitiveStringSerializer())
         .create();
 
     public static String toJSON(PipelineSelectionResponse pipelineSelectionResponse) {

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.newsecurity.handlers.renderer;
 
-
 import com.thoughtworks.go.server.newsecurity.models.ContentTypeAwareResponse;
 import org.springframework.http.MediaType;
 

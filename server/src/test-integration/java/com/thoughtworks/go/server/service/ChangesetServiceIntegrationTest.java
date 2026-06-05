@@ -48,6 +48,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import java.time.ZonedDateTime;
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -59,7 +60,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-
 public class ChangesetServiceIntegrationTest {
     @Autowired
     MaterialRepository materialRepository;
@@ -103,7 +103,7 @@ public class ChangesetServiceIntegrationTest {
 
     @Test
     public void shouldUnderstandModificationsBetweenTwoPipelineInstances() {
-        Username loser = new Username(new CaseInsensitiveString("loser"));
+        Username loser = new Username(cis("loser"));
         ManualBuild build = new ManualBuild(loser);
         Date checkinTime = new Date();
 
@@ -134,7 +134,7 @@ public class ChangesetServiceIntegrationTest {
 
     @Test
     public void shouldNotDuplicateModificationsWhileComputingRevisionsBetweenTwoPipelineInstances() {
-        Username loser = new Username(new CaseInsensitiveString("loser"));
+        Username loser = new Username(cis("loser"));
         ManualBuild build = new ManualBuild(loser);
         Date checkinTime = new Date();
 
@@ -158,7 +158,7 @@ public class ChangesetServiceIntegrationTest {
 
     @Test
     public void shouldGetModificationsFrom0To1() {
-        Username loser = new Username(new CaseInsensitiveString("loser"));
+        Username loser = new Username(cis("loser"));
         ManualBuild build = new ManualBuild(loser);
         Date checkinTime = new Date();
 
@@ -177,7 +177,7 @@ public class ChangesetServiceIntegrationTest {
 
     @Test
     public void shouldGetModificationsFrom1To1() {
-        Username loser = new Username(new CaseInsensitiveString("loser"));
+        Username loser = new Username(cis("loser"));
         ManualBuild build = new ManualBuild(loser);
         Date checkinTime = new Date();
 
@@ -199,10 +199,10 @@ public class ChangesetServiceIntegrationTest {
         configHelper.enableSecurity();
         configHelper.addAdmins("admin");
         CruiseConfig config = this.configHelper.getGoConfigDao().loadForEditing();
-        config.pipelines(BasicPipelineConfigs.DEFAULT_GROUP).setAuthorization(new Authorization(new ViewConfig(new AdminUser(new CaseInsensitiveString("admin")))));
+        config.pipelines(BasicPipelineConfigs.DEFAULT_GROUP).setAuthorization(new Authorization(new ViewConfig(new AdminUser(cis("admin")))));
         configHelper.writeConfigFile(config);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        changesetService.revisionsBetween("foo", 1, 3, new Username(new CaseInsensitiveString("some_loser")), result, false);
+        changesetService.revisionsBetween("foo", 1, 3, new Username(cis("some_loser")), result, false);
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.message()).isEqualTo(EntityType.Pipeline.forbiddenToView("foo", "some_loser"));
         assertThat(result.httpCode()).isEqualTo(403);
@@ -211,7 +211,7 @@ public class ChangesetServiceIntegrationTest {
     @Test
     public void shouldReturn404WhenPipelineIsNotFound() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        changesetService.revisionsBetween("Pipeline_Not_Found", 1, 3, new Username(new CaseInsensitiveString("some_loser")), result, false);
+        changesetService.revisionsBetween("Pipeline_Not_Found", 1, 3, new Username(cis("some_loser")), result, false);
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.message()).isEqualTo(EntityType.Pipeline.notFoundMessage("Pipeline_Not_Found"));
         assertThat(result.httpCode()).isEqualTo(404);
@@ -228,7 +228,7 @@ public class ChangesetServiceIntegrationTest {
 
     @Test
     public void shouldReturnResults_WhenPipelineCountersIsBisect_ButUserWantsToSeeDiff() {
-        Username loser = new Username(new CaseInsensitiveString("loser"));
+        Username loser = new Username(cis("loser"));
         ManualBuild build = new ManualBuild(loser);
 
         ZonedDateTime now = ZonedDateTime.now();
@@ -247,17 +247,17 @@ public class ChangesetServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         //when to counter is a bisect
         List<MaterialRevision> revisionList = changesetService
-            .revisionsBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true);
+            .revisionsBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(), new Username(cis("loser")), result, true);
         assertThat(stringRevisions(revisionList)).isEqualTo(List.of("5", "2", "3", "4"));
 
         //When from counter is a bisect
-        revisionList = changesetService.revisionsBetween("foo-bar", bisectPipeline.getCounter(), nextPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true);
+        revisionList = changesetService.revisionsBetween("foo-bar", bisectPipeline.getCounter(), nextPipeline.getCounter(), new Username(cis("loser")), result, true);
         assertThat(stringRevisions(revisionList)).isEqualTo(List.of("6", "5", "2"));
     }
 
     @Test
     public void shouldReturnAnEmptyListWhenEitherOfThePipelineCounterIsABisect() {
-        Username loser = new Username(new CaseInsensitiveString("loser"));
+        Username loser = new Username(cis("loser"));
         ManualBuild build = new ManualBuild(loser);
 
         ZonedDateTime now = ZonedDateTime.now();
@@ -275,18 +275,18 @@ public class ChangesetServiceIntegrationTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         //when to counter is a bisect
-        List<MaterialRevision> revisionList = changesetService.revisionsBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result,
+        List<MaterialRevision> revisionList = changesetService.revisionsBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(), new Username(cis("loser")), result,
                 false);
         assertThat(revisionList.isEmpty()).isTrue();
 
         //When from counter is a bisect
-        revisionList = changesetService.revisionsBetween("foo-bar", bisectPipeline.getCounter(), nextPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, false);
+        revisionList = changesetService.revisionsBetween("foo-bar", bisectPipeline.getCounter(), nextPipeline.getCounter(), new Username(cis("loser")), result, false);
         assertThat(revisionList.isEmpty()).isTrue();
     }
 
     @Test
     public void shouldSkipBisectPipelineCountersWhenThereIsABisectBetweenToAndFromCounters() {
-        Username loser = new Username(new CaseInsensitiveString("loser"));
+        Username loser = new Username(cis("loser"));
         ManualBuild build = new ManualBuild(loser);
 
         ZonedDateTime now = ZonedDateTime.now();
@@ -307,7 +307,7 @@ public class ChangesetServiceIntegrationTest {
                 checkinWithComment("6", "#6760 - Rev 6", Dates.from(now.plusDays(6)))));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<MaterialRevision> revisionsBetween = changesetService.revisionsBetween("foo-bar", firstPipeline.getCounter(), lastPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result,
+        List<MaterialRevision> revisionsBetween = changesetService.revisionsBetween("foo-bar", firstPipeline.getCounter(), lastPipeline.getCounter(), new Username(cis("loser")), result,
                 false);
         assertThat(result.isSuccessful()).isTrue();
         assertThat(revisionsBetween.size()).isEqualTo(1);
@@ -322,7 +322,7 @@ public class ChangesetServiceIntegrationTest {
         DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial("upstream", "stage");
         PipelineConfig downstreamConfig = configHelper.addPipeline("downstream", "stage", dependencyMaterial.config(), "build");
 
-        Username username = new Username(new CaseInsensitiveString("user1"));
+        Username username = new Username(cis("user1"));
 
         //By default the pmr's actualFromRevisionId should be the fromRevisionId
         List<MaterialRevision> revisionsForUpstream1 = new ArrayList<>();
@@ -390,7 +390,7 @@ public class ChangesetServiceIntegrationTest {
         List<MaterialRevision> revisions = new ArrayList<>();
         addRevisionWith2Mods(revisions, hg);
 
-        Username username = new Username(new CaseInsensitiveString("user1"));
+        Username username = new Username(cis("user1"));
         Pipeline pipelineOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfig, revisions);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -407,7 +407,7 @@ public class ChangesetServiceIntegrationTest {
         addRevisionWith2Mods(revisions, hg);
         addRevisionWith2Mods(revisions, git);
 
-        Username username = new Username(new CaseInsensitiveString("user1"));
+        Username username = new Username(cis("user1"));
         Pipeline pipelineOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisions);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -424,7 +424,7 @@ public class ChangesetServiceIntegrationTest {
         addRevisionWith2Mods(revisionsForPipeline1, hg);
         addRevisionWith2Mods(revisionsForPipeline1, git);
 
-        Username username = new Username(new CaseInsensitiveString("user1"));
+        Username username = new Username(cis("user1"));
         Pipeline pipelineOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisionsForPipeline1);
 
         List<MaterialRevision> revisionsForPipeline2 = new ArrayList<>();
@@ -450,7 +450,7 @@ public class ChangesetServiceIntegrationTest {
         pipelineConfigWithTwoMaterials.addMaterialConfig(dependencyMaterial.config());
         pipelineConfigWithTwoMaterials.removeMaterialConfig(git.config());
 
-        Username username = new Username(new CaseInsensitiveString("user1"));
+        Username username = new Username(cis("user1"));
 
         //Schedule upstream
         List<MaterialRevision> revisionsForUpstream1 = new ArrayList<>();
@@ -485,7 +485,7 @@ public class ChangesetServiceIntegrationTest {
         pipelineConfigWithTwoMaterials.addMaterialConfig(dependencyMaterial.config());
         pipelineConfigWithTwoMaterials.removeMaterialConfig(git.config());
 
-        Username username = new Username(new CaseInsensitiveString("user1"));
+        Username username = new Username(cis("user1"));
 
         //Schedule grandfather
         List<MaterialRevision> revisionsForGrandfather1 = new ArrayList<>();
@@ -518,8 +518,8 @@ public class ChangesetServiceIntegrationTest {
         configHelper.enableSecurity();
         configHelper.addAdmins("Yogi");
 
-        Username otherUser = new Username(new CaseInsensitiveString("otherUser"));
-        Username user = new Username(new CaseInsensitiveString("user"));
+        Username otherUser = new Username(cis("otherUser"));
+        Username user = new Username(cis("user"));
 
         SvnMaterial svn = MaterialsMother.svnMaterial("http://svn");
         PipelineConfig grandFatherPipeline = configHelper.addPipelineWithGroup("unauthorizedGroup", "granpa", new MaterialConfigs(svn.config()), "stage", "job");
@@ -559,7 +559,7 @@ public class ChangesetServiceIntegrationTest {
 
     @Test
     public void shouldNotFilterOutMaterialRevisionsAtThePointInTheDependencyEvenIfTrackingToolDoesNotMatchWithParent() {
-        Username user = new Username(new CaseInsensitiveString("user"));
+        Username user = new Username(cis("user"));
 
         SvnMaterial svn = MaterialsMother.svnMaterial("http://svn");
         PipelineConfig grandFatherPipeline = configHelper.addPipelineWithGroup("unauthorizedGroup", "granpa", new MaterialConfigs(svn.config()), new TrackingTool("http://jira/${ID}", "some-regex"), "stage", "job");
@@ -603,7 +603,7 @@ public class ChangesetServiceIntegrationTest {
         pipelineConfigWithTwoMaterials.addMaterialConfig(dependencyMaterial.config());
         pipelineConfigWithTwoMaterials.removeMaterialConfig(git.config());
 
-        Username username = new Username(new CaseInsensitiveString("user1"));
+        Username username = new Username(cis("user1"));
 
         //Schedule first of upstream
         List<MaterialRevision> revisionsForUpstream1 = new ArrayList<>();
@@ -663,7 +663,7 @@ public class ChangesetServiceIntegrationTest {
         pipelineConfigWithTwoMaterials.addMaterialConfig(dependencyMaterial.config());
         pipelineConfigWithTwoMaterials.removeMaterialConfig(git.config());
 
-        Username username = new Username(new CaseInsensitiveString("user1"));
+        Username username = new Username(cis("user1"));
 
         //Schedule first of upstream
         List<MaterialRevision> revisionsForUpstream1 = new ArrayList<>();
@@ -701,7 +701,7 @@ public class ChangesetServiceIntegrationTest {
         pipelineConfigWithTwoMaterials.addMaterialConfig(dependencyMaterial.config());
         pipelineConfigWithTwoMaterials.removeMaterialConfig(git.config());
 
-        Username username = new Username(new CaseInsensitiveString("user1"));
+        Username username = new Username(cis("user1"));
 
         //Schedule first of upstream
         List<MaterialRevision> revisionsForUpstream1 = new ArrayList<>();
@@ -757,7 +757,7 @@ public class ChangesetServiceIntegrationTest {
         pipelineConfigWithTwoMaterials.addMaterialConfig(dependencyMaterial.config());
         pipelineConfigWithTwoMaterials.removeMaterialConfig(git.config());
 
-        Username username = new Username(new CaseInsensitiveString("user1"));
+        Username username = new Username(cis("user1"));
 
         //Schedule first of upstream
         List<MaterialRevision> revisionsForUpstream1 = new ArrayList<>();
@@ -864,7 +864,7 @@ public class ChangesetServiceIntegrationTest {
     private void validateFailsForNonNaturalCounter(int fromCounter, int toCounter) {
         HttpLocalizedOperationResult result;
         result = new HttpLocalizedOperationResult();
-        changesetService.revisionsBetween("foo", fromCounter, toCounter, new Username(new CaseInsensitiveString("loser")), result, false);
+        changesetService.revisionsBetween("foo", fromCounter, toCounter, new Username(cis("loser")), result, false);
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.message()).isEqualTo("Pipeline counters should be positive.");
         assertThat(result.httpCode()).isEqualTo(400);

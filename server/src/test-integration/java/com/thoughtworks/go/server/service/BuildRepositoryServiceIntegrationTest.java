@@ -50,6 +50,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import java.nio.file.Path;
 import java.util.Date;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.server.dao.DatabaseAccessHelper.AGENT_UUID;
@@ -141,11 +142,11 @@ public class BuildRepositoryServiceIntegrationTest {
     public void shouldScheduleNextStageAndPipelineWhenStagePassed() throws Exception {
         createPipelineWithFirstStageCompletedAndNextStageBuilding(StageState.Passed);
 
-        Stage stage1 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(DEV_STAGE)));
+        Stage stage1 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(cis(DEV_STAGE)));
         assertThat(stage1.isApproved()).isTrue();
         assertThat(stage1.getApprovedBy()).isEqualTo(APPROVER_AUTOMATICALLY_TRIGGERED);
 
-        Stage stage2 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
+        Stage stage2 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(cis(FT_STAGE)));
         assertThat(stage2.stageState()).isEqualTo(StageState.Building);
         assertThat(stage2.getApprovedBy()).isEqualTo(APPROVER_AUTOMATICALLY_TRIGGERED);
 
@@ -232,12 +233,12 @@ public class BuildRepositoryServiceIntegrationTest {
         Pipeline newPipeline = createPipelineWithFirstStageBuilding(mingle);
         completeStageAndTrigger(newPipeline.getFirstStage());
 
-        Stage stage1 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(DEV_STAGE)));
+        Stage stage1 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(cis(DEV_STAGE)));
         assertThat(stage1.isApproved()).isTrue();
         assertThat(stage1.getApprovedBy()).isEqualTo(BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED);
         assertThat(stage1.getJobInstances().getFirst().getResult()).isEqualTo(JobResult.Passed);
 
-        Stage stage2 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
+        Stage stage2 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(cis(FT_STAGE)));
         assertThat(stage2.getPipelineId()).isEqualTo(pipeline.getId());
         assertThat(stage2.stageState()).isEqualTo(StageState.Passed);
 
@@ -256,7 +257,7 @@ public class BuildRepositoryServiceIntegrationTest {
             // ok
         }
 
-        Stage stage1 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(DEV_STAGE)));
+        Stage stage1 = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(cis(DEV_STAGE)));
         assertThat(stage1.stageState()).isEqualTo(StageState.Passed);
 
         Stage stage2 = stageService.findStageWithIdentifier(new StageIdentifier(newPipeline.getIdentifier(), FT_STAGE, "1"));
@@ -273,7 +274,7 @@ public class BuildRepositoryServiceIntegrationTest {
         dbHelper.passStage(oldFtStage);
         reportJobPassed(oldFtStage.getJobInstances().getFirst());
 
-        Stage mingleFt = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
+        Stage mingleFt = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(cis(FT_STAGE)));
         assertThat(mingleFt.getPipelineId()).isEqualTo(mostRecentPassedStage.getPipelineId());
     }
 
@@ -303,16 +304,16 @@ public class BuildRepositoryServiceIntegrationTest {
 
         reportJobPassed(mostRecent.getJobInstances().getFirst());
 
-        Stage mingleFt = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
+        Stage mingleFt = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(cis(FT_STAGE)));
         assertThat(mingleFt.getPipelineId()).isEqualTo(mostRecent.getPipelineId());
     }
 
     @Test
     public void shouldNotScheduleNextStageWhenStageAlreadyActive() throws Exception {
         createPipelineWithFirstStageCompletedAndNextStageBuilding(StageState.Passed);
-        Stage originalFt = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
+        Stage originalFt = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(cis(FT_STAGE)));
         createPipelineWithFirstStageCompletedAndNextStageBuilding(StageState.Passed);
-        Stage mingleFt = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
+        Stage mingleFt = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(cis(FT_STAGE)));
         assertThat(mingleFt.getId()).isEqualTo(originalFt.getId());
     }
 
@@ -321,7 +322,7 @@ public class BuildRepositoryServiceIntegrationTest {
         Stage oldFtStage = createPipelineWithFirstStageCompletedAndNextStageBuilding(StageState.Passed);
         createPipelineWithFirstStageCompleted(mingle);
         completeStageAndTrigger(oldFtStage);
-        Stage mostRecent = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
+        Stage mostRecent = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(cis(FT_STAGE)));
         assertThat(mostRecent.getPipelineId()).isEqualTo(oldFtStage.getPipelineId() + 1);
     }
 
@@ -330,7 +331,7 @@ public class BuildRepositoryServiceIntegrationTest {
         config.configureStageAsManualApproval(PIPELINE_NAME, FT_STAGE);
         Stage oldFtStage = createPipelineWithFirstStageCompletedAndNextStageBuilding(StageState.Passed);
         createPipelineWithFirstStageCompleted(mingle);
-        Stage mostRecent = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
+        Stage mostRecent = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(cis(FT_STAGE)));
         assertThat(mostRecent.getId()).isEqualTo(oldFtStage.getId());
     }
 
@@ -375,7 +376,7 @@ public class BuildRepositoryServiceIntegrationTest {
             dbHelper.passStage(mostRecent);
         }
         reportJobPassed(mostRecent.getJobInstances().getFirst());
-        Stage nextStage = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
+        Stage nextStage = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(cis(FT_STAGE)));
         dbHelper.buildingBuildInstance(nextStage);
         return nextStage;
     }

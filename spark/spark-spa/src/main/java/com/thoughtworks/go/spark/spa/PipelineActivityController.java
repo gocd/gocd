@@ -31,6 +31,7 @@ import spark.TemplateEngine;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static spark.Spark.*;
 
 public class PipelineActivityController implements SparkController {
@@ -71,7 +72,7 @@ public class PipelineActivityController implements SparkController {
     }
 
     private Map<String, Object> meta(String pipelineName) {
-        CaseInsensitiveString name = new CaseInsensitiveString(pipelineName);
+        CaseInsensitiveString name = cis(pipelineName);
 
         final Map<String, Object> meta = new HashMap<>();
 

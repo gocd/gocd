@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.api.spring;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.RoleConfig;
 import com.thoughtworks.go.config.Users;
 import com.thoughtworks.go.config.policy.*;
@@ -34,6 +33,7 @@ import spark.HaltException;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -98,7 +98,7 @@ class ApiAuthenticationHelperTest {
         void shouldAllowNormalUserWithAllowedEnvironmentPolicyToViewEnvironments() {
             Policy directives = new Policy();
             directives.add(new Allow("view", "environment", "*"));
-            RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives);
+            RoleConfig roleConfig = new RoleConfig(cis("read-only-environments"), new Users(), directives);
 
             when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(List.of(roleConfig));
 
@@ -120,7 +120,7 @@ class ApiAuthenticationHelperTest {
         void shouldAllowNormalUserWithAllowedEnvironmentPolicyToViewSpecificEnvironment() {
             Policy directives = new Policy();
             directives.add(new Allow("view", "environment", "env_1"));
-            RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives);
+            RoleConfig roleConfig = new RoleConfig(cis("read-only-environments"), new Users(), directives);
 
             when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(List.of(roleConfig));
 
@@ -146,7 +146,7 @@ class ApiAuthenticationHelperTest {
             Policy directives = new Policy();
             directives.add(new Deny("view", "environment", "*"));
             directives.add(new Allow("view", "environment", "env_1"));
-            RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives);
+            RoleConfig roleConfig = new RoleConfig(cis("read-only-environments"), new Users(), directives);
 
             when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(List.of(roleConfig));
 
@@ -170,7 +170,7 @@ class ApiAuthenticationHelperTest {
             Policy directives = new Policy();
             directives.add(new Allow("view", "environment", "env_1"));
             directives.add(new Deny("view", "environment", "*"));
-            RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives);
+            RoleConfig roleConfig = new RoleConfig(cis("read-only-environments"), new Users(), directives);
 
             when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(List.of(roleConfig));
 
@@ -192,7 +192,7 @@ class ApiAuthenticationHelperTest {
         void shouldAllowNormalUserWithAllowedEnvironmentPolicyToAdministerEnvironments() {
             Policy directives = new Policy();
             directives.add(new Allow("administer", "environment", "*"));
-            RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives);
+            RoleConfig roleConfig = new RoleConfig(cis("read-only-environments"), new Users(), directives);
 
             when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(List.of(roleConfig));
 
@@ -219,7 +219,7 @@ class ApiAuthenticationHelperTest {
             Policy directives = new Policy();
             directives.add(new Deny("administer", "environment", "*"));
             directives.add(new Allow("administer", "environment", "env_1"));
-            RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives);
+            RoleConfig roleConfig = new RoleConfig(cis("read-only-environments"), new Users(), directives);
 
             when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(List.of(roleConfig));
 
@@ -252,11 +252,11 @@ class ApiAuthenticationHelperTest {
         void shouldNotAllowNormalUserAccessToEnvironmentWhenOnOfTheRoleHasAnExplicitDeny_WithFirstRoleAsDeny() {
             Policy directives = new Policy();
             directives.add(new Deny("administer", "environment", "*"));
-            RoleConfig denyRoleConfig = new RoleConfig(new CaseInsensitiveString("deny-permissions"), new Users(), directives);
+            RoleConfig denyRoleConfig = new RoleConfig(cis("deny-permissions"), new Users(), directives);
 
             Policy directives2 = new Policy();
             directives2.add(new Allow("administer", "environment", "*"));
-            RoleConfig allowRoleConfig = new RoleConfig(new CaseInsensitiveString("allow-permissions"), new Users(), directives2);
+            RoleConfig allowRoleConfig = new RoleConfig(cis("allow-permissions"), new Users(), directives2);
 
             when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(List.of(denyRoleConfig, allowRoleConfig));
 
@@ -289,11 +289,11 @@ class ApiAuthenticationHelperTest {
         void shouldNotAllowNormalUserAccessToEnvironmentWhenOnOfTheRoleHasAnExplicitDeny_WithFirstRoleAsAllow() {
             Policy directives = new Policy();
             directives.add(new Deny("administer", "environment", "*"));
-            RoleConfig denyRoleConfig = new RoleConfig(new CaseInsensitiveString("deny-permissions"), new Users(), directives);
+            RoleConfig denyRoleConfig = new RoleConfig(cis("deny-permissions"), new Users(), directives);
 
             Policy directives2 = new Policy();
             directives2.add(new Allow("administer", "environment", "*"));
-            RoleConfig allowRoleConfig = new RoleConfig(new CaseInsensitiveString("allow-permissions"), new Users(), directives2);
+            RoleConfig allowRoleConfig = new RoleConfig(cis("allow-permissions"), new Users(), directives2);
 
             when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(List.of(allowRoleConfig, denyRoleConfig));
 

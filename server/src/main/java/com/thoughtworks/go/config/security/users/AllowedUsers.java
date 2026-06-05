@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.security.users;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.RoleUser;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -23,6 +22,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 /* Understands: The set of users it has. */
 public class AllowedUsers implements Users {
@@ -44,7 +45,7 @@ public class AllowedUsers implements Users {
     private boolean containsInRole(String username) {
         for (PluginRoleConfig role : allowedRoles) {
             for (RoleUser r : role.getUsers()) {
-                if (r.getName().equals(new CaseInsensitiveString(username))) {
+                if (r.getName().equals(cis(username))) {
                     return true;
                 }
             }

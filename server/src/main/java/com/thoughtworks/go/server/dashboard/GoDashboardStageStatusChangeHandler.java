@@ -15,11 +15,12 @@
  */
 package com.thoughtworks.go.server.dashboard;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.server.service.GoDashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 /* Understands what needs to be done to keep the dashboard cache updated, when a stage status changes. */
 @Component
@@ -32,6 +33,6 @@ public class GoDashboardStageStatusChangeHandler {
     }
 
     public void call(Stage stage) {
-        cacheUpdateService.updateCacheForPipeline(new CaseInsensitiveString(stage.getIdentifier().getPipelineName()));
+        cacheUpdateService.updateCacheForPipeline(cis(stage.getIdentifier().getPipelineName()));
     }
 }

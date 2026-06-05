@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -30,6 +29,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -62,7 +62,7 @@ public class AutoBuildTriangleDependencyTest {
         when(originalRevisions.hasDependencyMaterials()).thenReturn(true);
         when(goConfigService.upstreamDependencyGraphOf(pipelineName, cruiseConfig)).thenReturn(dependencyGraph);
         when(pipelineService.getRevisionsBasedOnDependencies(dependencyGraph, originalRevisions)).thenReturn(recomputedRevisions);
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("pipeline"), cis("stage"));
         when(dependencyGraph.unsharedMaterialConfigs()).thenReturn(new MaterialConfigs(dependencyMaterial.config()));
         when(originalRevisions.findRevisionFor(dependencyMaterial)).thenReturn(new MaterialRevision(dependencyMaterial, new Modification()));
 

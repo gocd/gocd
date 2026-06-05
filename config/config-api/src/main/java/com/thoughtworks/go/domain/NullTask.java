@@ -21,7 +21,6 @@ import com.thoughtworks.go.service.TaskFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class NullTask implements Task {
     private final ConfigErrors configErrors = new ConfigErrors();
 

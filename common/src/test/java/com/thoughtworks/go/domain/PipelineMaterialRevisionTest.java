@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.materials.Material;
@@ -25,12 +24,13 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PipelineMaterialRevisionTest {
     @Test
     public void shouldSetFROMRevisionSameAsTORevisionWhenDependencyMaterial() {
-        DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
+        DependencyMaterial material = new DependencyMaterial(cis("pipeline_name"), cis("stage_name"));
 
         Modification latestModification = modification(new Date(), "pipeline_name/4/stage_name/1", "4", null);
         MaterialRevision revision = new MaterialRevision(material, latestModification, new Modification(new Date(), "pipeline_name/2/stage_name/1", "2", null));
@@ -55,7 +55,7 @@ public class PipelineMaterialRevisionTest {
 
     @Test
     public void shouldUpdateFROMRevisionSameAsTORevisionWhenDependencyMaterial() {
-        DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
+        DependencyMaterial material = new DependencyMaterial(cis("pipeline_name"), cis("stage_name"));
 
         Modification latestModification = modification(new Date(), "pipeline_name/4/stage_name/1", "4", null);
         MaterialRevision revision = new MaterialRevision(material, latestModification, modification(new Date(), "pipeline_name/2/stage_name/1", "2", null));

@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -56,7 +57,7 @@ class GitMaterialConfigTest {
         assertEquals("url", gitMaterialConfig.getUrl());
         assertEquals("folder", gitMaterialConfig.getFolder());
         assertEquals("some-branch", gitMaterialConfig.getBranch());
-        assertEquals(new CaseInsensitiveString("material-name"), gitMaterialConfig.getName());
+        assertEquals(cis("material-name"), gitMaterialConfig.getName());
         assertFalse(gitMaterialConfig.isAutoUpdate());
         assertTrue(gitMaterialConfig.isShallowClone());
         assertEquals(new Filter(new IgnoredFiles("/root"), new IgnoredFiles("/**/*.help")), gitMaterialConfig.filter());

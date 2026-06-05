@@ -26,7 +26,6 @@ import com.thoughtworks.go.domain.scm.SCM;
 
 import java.util.Map;
 
-
 public class SCMRepresenter {
     public static void toJSON(OutputWriter jsonWriter, SCM scm) {
         jsonWriter

@@ -24,7 +24,6 @@ import java.io.ByteArrayOutputStream;
 
 import static com.thoughtworks.go.helper.SecurityConfigMother.*;
 
-
 public class SecurityConfigSerializationTest {
 
     @Test

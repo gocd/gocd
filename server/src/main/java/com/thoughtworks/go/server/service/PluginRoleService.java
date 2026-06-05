@@ -26,6 +26,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 @Service
 public class PluginRoleService implements ConfigChangedListener, PluginChangeListener {
     private final GoConfigService goConfigService;
@@ -86,7 +88,7 @@ public class PluginRoleService implements ConfigChangedListener, PluginChangeLis
     }
 
     private PluginRoleConfig pluginRole(String roleName) {
-        return goConfigService.security().getRoles().findPluginRoleByName(new CaseInsensitiveString(roleName));
+        return goConfigService.security().getRoles().findPluginRoleByName(cis(roleName));
     }
 
     private Map<CaseInsensitiveString, PluginRoleConfig> getPluginRoles(String pluginId) {

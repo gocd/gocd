@@ -17,7 +17,6 @@ package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.agent.testhelpers.FakeBuildRepositoryRemote;
 import com.thoughtworks.go.config.ArtifactStores;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
@@ -62,6 +61,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -102,9 +102,9 @@ public class BuildWorkEnvironmentVariablesTest {
 
         pipelineConfig = PipelineConfigMother.createPipelineConfig(PIPELINE_NAME, STAGE_NAME, JOB_NAME);
         svnMaterial = new SvnMaterial(command);
-        dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream1"), new CaseInsensitiveString(STAGE_NAME));
-        dependencyMaterialWithName = new DependencyMaterial(new CaseInsensitiveString("upstream2"), new CaseInsensitiveString(STAGE_NAME));
-        dependencyMaterialWithName.setName(new CaseInsensitiveString("dependency_material_name"));
+        dependencyMaterial = new DependencyMaterial(cis("upstream1"), cis(STAGE_NAME));
+        dependencyMaterialWithName = new DependencyMaterial(cis("upstream2"), cis(STAGE_NAME));
+        dependencyMaterialWithName.setName(cis("dependency_material_name"));
         setupHgRepo(tempDir);
 
     }
@@ -216,7 +216,7 @@ public class BuildWorkEnvironmentVariablesTest {
 
     @Test
     public void shouldUseSvnMaterialNameIfPresent() throws IOException {
-        svnMaterial.setName(new CaseInsensitiveString("Cruise"));
+        svnMaterial.setName(cis("Cruise"));
         pipelineConfig.setMaterialConfigs(new MaterialConfigs(svnMaterial.config()));
 
         BuildAssignment buildAssigment = createAssignment(null);

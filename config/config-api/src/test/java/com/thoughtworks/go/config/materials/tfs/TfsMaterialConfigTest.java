@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.materials.AbstractMaterialConfig.MATERIAL_NAME;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.URL;
@@ -66,7 +67,7 @@ class TfsMaterialConfigTest {
 
         tfsMaterialConfig.setConfigAttributes(map);
         TfsMaterialConfig newTfsMaterialConfig = tfs(new GoCipher(), new UrlArgument("http://foo:8080/tfs/HelloWorld"), "boozer", "CORPORATE", "secret", "/useless/project");
-        newTfsMaterialConfig.setName(new CaseInsensitiveString("my-tfs-material-name"));
+        newTfsMaterialConfig.setName(cis("my-tfs-material-name"));
         newTfsMaterialConfig.setFolder("folder");
 
         assertThat(tfsMaterialConfig).isEqualTo(newTfsMaterialConfig);
@@ -74,7 +75,7 @@ class TfsMaterialConfigTest {
         assertThat(tfsMaterialConfig.isAutoUpdate()).isFalse();
         assertThat(tfsMaterialConfig.getDomain()).isEqualTo("CORPORATE");
 
-        assertThat(tfsMaterialConfig.getName()).isEqualTo(new CaseInsensitiveString("my-tfs-material-name"));
+        assertThat(tfsMaterialConfig.getName()).isEqualTo(cis("my-tfs-material-name"));
         assertThat(tfsMaterialConfig.filter()).isEqualTo(new Filter(new IgnoredFiles("/root"), new IgnoredFiles("/**/*.help")));
     }
 
@@ -136,7 +137,7 @@ class TfsMaterialConfigTest {
             tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
             assertThat(tfsMaterialConfig.errors().firstErrorOn(MATERIAL_NAME)).isNull();
-            tfsMaterialConfig.setName(new CaseInsensitiveString(".bad-name-with-dot"));
+            tfsMaterialConfig.setName(cis(".bad-name-with-dot"));
             tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
             assertThat(tfsMaterialConfig.errors().firstErrorOn(MATERIAL_NAME)).isEqualTo("Invalid material name '.bad-name-with-dot'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
         }

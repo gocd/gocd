@@ -74,6 +74,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.helper.BuildPlanMother.withBuildPlans;
 import static com.thoughtworks.go.helper.JobInstanceMother.building;
@@ -524,7 +525,7 @@ public class StageServiceIntegrationTest {
         assertThat(stages.size()).isEqualTo(1);
 
         CruiseConfig cruiseConfig = configHelper.currentConfig();
-        pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline-1"));
+        pipelineConfig = cruiseConfig.pipelineConfigByName(cis("pipeline-1"));
         ReflectionUtil.setField(pipelineConfig.getFirst(), "artifactCleanupProhibited", true);
         configHelper.writeConfigFile(cruiseConfig);
 
@@ -537,7 +538,7 @@ public class StageServiceIntegrationTest {
     @Test
     public void shouldLoadPageOfOldestStagesHavingArtifacts() {
         CruiseConfig cruiseConfig = configHelper.currentConfig();
-        PipelineConfig mingleConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME));
+        PipelineConfig mingleConfig = cruiseConfig.pipelineConfigByName(cis(PIPELINE_NAME));
         ReflectionUtil.setField(mingleConfig.getFirst(), "artifactCleanupProhibited", true);
         configHelper.writeConfigFile(cruiseConfig);
 
@@ -642,7 +643,7 @@ public class StageServiceIntegrationTest {
         configHelper.addAuthorizedUserForPipelineGroup("loser", "downstream");
         configHelper.addAuthorizedUserForPipelineGroup("boozer", "upstream-with-mingle");
 
-        FeedEntries feed = stageService.feed(downstream.name().toString(), new Username(new CaseInsensitiveString("loser")));
+        FeedEntries feed = stageService.feed(downstream.name().toString(), new Username(cis("loser")));
 
         assertAuthorsOnEntry((StageFeedEntry) feed.getFirst(),
             List.of(new Author("svn 3 guy", "svn.3@gmail.com"),
@@ -658,7 +659,7 @@ public class StageServiceIntegrationTest {
     public void shouldLoadStageAuthors_forFirstPageOfFeed() {
         PipelineConfig downstream = setup2DependentInstances();
 
-        FeedEntries feed = stageService.feed(downstream.name().toString(), new Username(new CaseInsensitiveString("loser")));
+        FeedEntries feed = stageService.feed(downstream.name().toString(), new Username(cis("loser")));
 
         assertStageEntryAuthor(feed);
     }
@@ -667,7 +668,7 @@ public class StageServiceIntegrationTest {
     public void shouldLoadStageAuthors_forSubsequentPages() {
         PipelineConfig downstream = setup2DependentInstances();
 
-        FeedEntries feed = stageService.feedBefore(Integer.MAX_VALUE, downstream.name().toString(), new Username(new CaseInsensitiveString("loser")));
+        FeedEntries feed = stageService.feedBefore(Integer.MAX_VALUE, downstream.name().toString(), new Username(cis("loser")));
 
         assertStageEntryAuthor(feed);
     }
@@ -684,7 +685,7 @@ public class StageServiceIntegrationTest {
     public void shouldReturnTheLatestAndOldestStageInstanceId() {
         StageHistoryEntry[] stages = createFiveStages();
 
-        PipelineRunIdInfo oldestAndLatestPipelineId = stageService.getOldestAndLatestStageInstanceId(new Username(new CaseInsensitiveString("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName());
+        PipelineRunIdInfo oldestAndLatestPipelineId = stageService.getOldestAndLatestStageInstanceId(new Username(cis("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName());
 
         assertThat(oldestAndLatestPipelineId.getLatestRunId()).isEqualTo(stages[4].getId());
         assertThat(oldestAndLatestPipelineId.getOldestRunId()).isEqualTo(stages[0].getId());
@@ -694,7 +695,7 @@ public class StageServiceIntegrationTest {
     public void shouldReturnLatestPipelineHistory() {
         StageHistoryEntry[] stages = createFiveStages();
 
-        StageInstanceModels history = stageService.findStageHistoryViaCursor(new Username(new CaseInsensitiveString("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName(), 0, 0, 10);
+        StageInstanceModels history = stageService.findStageHistoryViaCursor(new Username(cis("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName(), 0, 0, 10);
 
         assertThat(history.size()).isEqualTo(5);
         assertThat(history.get(0).getId()).isEqualTo(stages[4].getId());
@@ -705,7 +706,7 @@ public class StageServiceIntegrationTest {
     public void shouldReturnThePipelineHistoryAfterTheSpecifiedCursor() {
         StageHistoryEntry[] stages = createFiveStages();
 
-        StageInstanceModels history = stageService.findStageHistoryViaCursor(new Username(new CaseInsensitiveString("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName(), stages[2].getId(), 0, 10);
+        StageInstanceModels history = stageService.findStageHistoryViaCursor(new Username(cis("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName(), stages[2].getId(), 0, 10);
 
         assertThat(history.size()).isEqualTo(2);
         assertThat(history.get(0).getId()).isEqualTo(stages[1].getId());
@@ -716,7 +717,7 @@ public class StageServiceIntegrationTest {
     public void shouldReturnThePipelineHistoryBeforeTheSpecifiedCursor() {
         StageHistoryEntry[] stages = createFiveStages();
 
-        StageInstanceModels history = stageService.findStageHistoryViaCursor(new Username(new CaseInsensitiveString("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName(), 0, stages[2].getId(), 10);
+        StageInstanceModels history = stageService.findStageHistoryViaCursor(new Username(cis("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName(), 0, stages[2].getId(), 10);
 
         assertThat(history.size()).isEqualTo(2);
         assertThat(history.get(0).getId()).isEqualTo(stages[4].getId());
@@ -750,7 +751,7 @@ public class StageServiceIntegrationTest {
     }
 
     private PipelineConfig setup2DependentInstances() {
-        Username loser = new Username(new CaseInsensitiveString("loser"));
+        Username loser = new Username(cis("loser"));
         ManualBuild build = new ManualBuild(loser);
         Date checkinTime = new Date();
 

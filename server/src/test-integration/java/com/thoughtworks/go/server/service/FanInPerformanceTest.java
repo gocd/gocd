@@ -43,6 +43,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -107,7 +108,7 @@ public class FanInPerformanceTest {
         revisions.add(u.mr(svn, true, "svn_1"));
         for (int i = 1; i <= numberOfNodesPerLevel; i++) {
             String pipelineName = String.format("pipeline_%s_%d_%d", "up", numberOfLevels, i);
-            revisions.add(u.mr(new DependencyMaterial(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString("stage")), true, pipelineName + "/1/stage/1"));
+            revisions.add(u.mr(new DependencyMaterial(cis(pipelineName), cis("stage")), true, pipelineName + "/1/stage/1"));
         }
         MaterialRevisions given = new MaterialRevisions(revisions);
 

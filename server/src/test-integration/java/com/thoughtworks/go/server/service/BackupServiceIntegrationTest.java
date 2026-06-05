@@ -62,6 +62,7 @@ import java.util.concurrent.Semaphore;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.TestUtils.doInterruptiblyQuietlyRethrowInterrupt;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.codec.binary.Hex.encodeHexString;
@@ -107,7 +108,7 @@ public class BackupServiceIntegrationTest {
     public void setUp() throws Exception {
         configHelper.onSetUp();
         dbHelper.onSetUp();
-        admin = new Username(new CaseInsensitiveString("admin"));
+        admin = new Username(cis("admin"));
         configHelper.enableSecurity();
         configHelper.addAdmins(CaseInsensitiveString.str(admin.getUsername()));
         goConfigDao.forceReload();

@@ -15,18 +15,19 @@
  */
 package com.thoughtworks.go.apiv11.shared.representers.stages.tasks
 
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.FetchPluggableArtifactTask
 import com.thoughtworks.go.domain.config.Configuration
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 
 class FetchExternalTaskRepresenterTest implements TaskRepresenterTrait {
 
   def existingTask() {
     def task = new FetchPluggableArtifactTask()
-    task.setPipelineName(new CaseInsensitiveString('pipeline'))
-    task.setStage(new CaseInsensitiveString('stage'))
-    task.setJob(new CaseInsensitiveString('job'))
+    task.setPipelineName(cis('pipeline'))
+    task.setStage(cis('stage'))
+    task.setJob(cis('job'))
     task.setArtifactId("yay")
     task.setConfiguration(new Configuration(ConfigurationPropertyMother.create("foo", false, "bar")))
     return task

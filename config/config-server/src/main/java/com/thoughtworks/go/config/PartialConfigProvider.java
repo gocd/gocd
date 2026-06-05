@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config;
 
-
 import com.thoughtworks.go.config.remote.PartialConfig;
 
 import java.io.File;

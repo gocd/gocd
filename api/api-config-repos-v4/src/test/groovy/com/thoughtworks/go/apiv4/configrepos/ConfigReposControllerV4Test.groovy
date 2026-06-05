@@ -48,6 +48,7 @@ import org.mockito.quality.Strictness
 
 import java.util.stream.Collectors
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
@@ -86,7 +87,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
     void setUp() {
       Policy directives = new Policy()
       directives.add(new Allow("administer", "config_repo", "*"))
-      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+      RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
 
       when(goConfigService.rolesForUser(any())).then({ InvocationOnMock invocation ->
         CaseInsensitiveString username = invocation.getArguments()[0]
@@ -215,7 +216,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
     void 'should list existing config repos for which user has permissions'() {
       Policy directives = new Policy()
       directives.add(new Allow("administer", "config_repo", "repo-01"))
-      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+      RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
 
       when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
 
@@ -246,7 +247,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
     void 'should return no config repos when user does not have access to any config repo'() {
       Policy directives = new Policy()
       directives.add(new Allow("administer", "config_repo", "blah-*"))
-      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+      RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
 
       when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
 
@@ -283,7 +284,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
     void 'fetches a repo if the user has permission'() {
       Policy directives = new Policy()
       directives.add(new Allow("administer", "config_repo", "repo-*"))
-      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+      RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
 
       when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
 
@@ -303,7 +304,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
     void 'returns 403 if the user does not have permission to view it'() {
       Policy directives = new Policy()
       directives.add(new Deny("view", "config_repo", "repo-*"))
-      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+      RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
 
       when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
 
@@ -321,7 +322,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
     void 'returns 404 if the repo does not exist'() {
       Policy directives = new Policy()
       directives.add(new Allow("administer", "config_repo", "repo-*"))
-      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+      RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
 
       when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
 
@@ -345,7 +346,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
 
       Policy directives = new Policy()
       directives.add(new Allow("administer", "config_repo", id))
-      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+      RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
 
       when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
 
@@ -377,7 +378,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
 
       Policy directives = new Policy()
       directives.add(new Allow("administer", "config_repo", id))
-      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+      RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
 
       when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
 
@@ -419,7 +420,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
 
       Policy directives = new Policy()
       directives.add(new Allow("view", "config_repo", id))
-      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+      RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
 
       when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
 
@@ -451,7 +452,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
       loginAsUser()
       Policy directives = new Policy()
       directives.add(new Allow("administer", "config_repo", "*repo*"))
-      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+      RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
 
       when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
     }
@@ -566,7 +567,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
       loginAsUser()
       Policy directives = new Policy()
       directives.add(new Allow("administer", "config_repo", ID_1))
-      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+      RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
 
       when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
     }
@@ -617,7 +618,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
     void 'serializes partial config'() {
       Policy directives = new Policy()
       directives.add(new Allow("administer", "config_repo", ID_1))
-      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+      RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
 
       when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
 
@@ -663,7 +664,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
     private PipelineConfigs groupWithPipelines(String groupName, String... pipelineNames) {
       PipelineConfig[] pipelines = Arrays.stream(pipelineNames).map({ String s ->
         PipelineConfig pipelineConfig = mock(PipelineConfig.class)
-        when(pipelineConfig.name()).thenReturn(new CaseInsensitiveString(s))
+        when(pipelineConfig.name()).thenReturn(cis(s))
         pipelineConfig
       }).collect(Collectors.toList()).toArray([] as PipelineConfig[])
 
@@ -682,7 +683,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
     void 'should confirm if update is in progress'() {
       Policy directives = new Policy()
       directives.add(new Allow("administer", "config_repo", "repo-*"))
-      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+      RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
       MaterialConfig config = mock(MaterialConfig.class)
       Material material = mock(Material.class)
 
@@ -704,7 +705,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
     void 'should return false if update is not in progress'() {
       Policy directives = new Policy()
       directives.add(new Allow("administer", "config_repo", "repo-*"))
-      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+      RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
       MaterialConfig config = mock(MaterialConfig.class)
       Material material = mock(Material.class)
 
@@ -743,7 +744,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
     void 'should trigger material update for repo'() {
       Policy directives = new Policy()
       directives.add(new Allow("administer", "config_repo", "repo-*"))
-      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+      RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
       MaterialConfig config = mock(MaterialConfig.class)
       Material material = mock(Material.class)
 
@@ -765,7 +766,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
     void 'should not trigger update if update is already in progress'() {
       Policy directives = new Policy()
       directives.add(new Allow("administer", "config_repo", "repo-*"))
-      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+      RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
       MaterialConfig config = mock(MaterialConfig.class)
       Material material = mock(Material.class)
 

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
@@ -43,6 +42,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -188,7 +188,7 @@ public class StageNotificationServiceIntegrationTest {
         String jezMail = prepareMatchedUserJezInterestedInOwnCheckinsForAllEvents();
         Pipeline pipeline = pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
         Stage ftStage = mockStageServiceWithStage(pipeline);
-        stageNotificationListener.onMessage(new StageStatusMessage(ftStage.getIdentifier(), StageState.Cancelled, StageResult.Cancelled, new Username(new CaseInsensitiveString("chris"))));
+        stageNotificationListener.onMessage(new StageStatusMessage(ftStage.getIdentifier(), StageState.Cancelled, StageResult.Cancelled, new Username(cis("chris"))));
 
         assertThat(inMemoryEmailNotificationTopic.getBody(jezMail)).contains("The stage was cancelled by chris.");
     }

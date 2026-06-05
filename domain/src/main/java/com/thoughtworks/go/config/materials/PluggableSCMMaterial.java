@@ -36,6 +36,7 @@ import com.thoughtworks.go.util.json.JsonHelper;
 import java.io.File;
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.escapeEnvironmentVariable;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -194,7 +195,7 @@ public class PluggableSCMMaterial extends AbstractMaterial implements SecretPara
     @Override
     public CaseInsensitiveString getName() {
         if (nameIsEmpty() && !scmNameIsEmpty()) {
-            return new CaseInsensitiveString(scmConfig.getName());
+            return cis(scmConfig.getName());
         } else {
             return name;
         }

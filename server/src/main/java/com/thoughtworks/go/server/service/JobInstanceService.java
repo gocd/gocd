@@ -50,6 +50,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.server.service.HistoryUtil.validateCursor;
 import static java.util.stream.Collectors.toList;
 
@@ -94,7 +95,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
     }
 
     public JobInstance findJobInstanceWithTransitions(String pipelineName, String stageName, String jobName, int pipelineCounter, int stageCounter, Username username) {
-        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(cis(pipelineName))) {
             throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
         }
         if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
@@ -242,7 +243,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
         List<JobInstance> jobInstances = jobInstanceDao.completedJobsOnAgent(uuid, columnName, order, pagination.getOffset(), pagination.getPageSize());
         CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();
         for (JobInstance jobInstance : jobInstances) {
-            jobInstance.setPipelineStillConfigured(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(jobInstance.getPipelineName())));
+            jobInstance.setPipelineStillConfigured(cruiseConfig.hasPipelineNamed(cis(jobInstance.getPipelineName())));
         }
 
         return new JobInstancesModel(new JobInstances(jobInstances), pagination);
@@ -261,7 +262,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
 
         private static boolean isForThisPipelineConfig(HealthStateScope currentScope, CaseInsensitiveString pipelineConfigName) {
             String[] split = currentScope.getScope().split("/");
-            return split.length > 0 && new CaseInsensitiveString(split[0]).equals(pipelineConfigName);
+            return split.length > 0 && cis(split[0]).equals(pipelineConfigName);
         }
     }
 
@@ -299,7 +300,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
     }
 
     private void checkForExistenceAndAccess(Username username, String pipelineName) {
-        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(cis(pipelineName))) {
             throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
         }
         if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {

@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -50,7 +51,6 @@ import static org.assertj.core.api.Assertions.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-
 public class PipelineConfigsServiceIntegrationTest {
     @Autowired
     private PipelineConfigsService pipelineConfigsService;
@@ -89,7 +89,7 @@ public class PipelineConfigsServiceIntegrationTest {
                 new Username("user"), new HttpLocalizedOperationResult());
 
 
-        PipelineConfig ancestor = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(new CaseInsensitiveString("ancestor"));
+        PipelineConfig ancestor = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(cis("ancestor"));
         Configuration ancestorPluggablePublishArtifactConfigAfterEncryption = ancestor
                 .getExternalArtifactConfigs().getFirst().getConfiguration();
         assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getValue()).isEqualTo("SECRET");
@@ -104,7 +104,7 @@ public class PipelineConfigsServiceIntegrationTest {
                 new Username("user"), new HttpLocalizedOperationResult());
 
 
-        PipelineConfig child = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(new CaseInsensitiveString("child"));
+        PipelineConfig child = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(cis("child"));
         Configuration childFetchConfigAfterEncryption = ((FetchPluggableArtifactTask) child
                 .getFirst().getJobs().getFirst().tasks().getFirst()).getConfiguration();
 
@@ -132,9 +132,9 @@ public class PipelineConfigsServiceIntegrationTest {
         List<PipelineConfigs> groupsForUser = pipelineConfigsService.getGroupsForUser(user.getUsername().toString());
         PipelineConfigs groupFromServer = groupsForUser.get(1);
 
-        ViewConfig viewConfig = new ViewConfig(new AdminRole(new CaseInsensitiveString(roleName)));
-        OperationConfig operationConfig = new OperationConfig(new AdminRole(new CaseInsensitiveString(roleName)));
-        AdminsConfig adminsConfig = new AdminsConfig(new AdminRole(new CaseInsensitiveString(roleName)));
+        ViewConfig viewConfig = new ViewConfig(new AdminRole(cis(roleName)));
+        OperationConfig operationConfig = new OperationConfig(new AdminRole(cis(roleName)));
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminRole(cis(roleName)));
         Authorization authorization = new Authorization(viewConfig, operationConfig, adminsConfig);
         BasicPipelineConfigs toUpdate = new BasicPipelineConfigs(groupName, authorization);
 
@@ -162,9 +162,9 @@ public class PipelineConfigsServiceIntegrationTest {
         List<PipelineConfigs> groupsForUser = pipelineConfigsService.getGroupsForUser(user.getUsername().toString());
         PipelineConfigs groupFromServer = groupsForUser.get(1);
 
-        ViewConfig viewConfig = new ViewConfig(new AdminRole(new CaseInsensitiveString(roleName)));
-        OperationConfig operationConfig = new OperationConfig(new AdminRole(new CaseInsensitiveString(roleName)));
-        AdminsConfig adminsConfig = new AdminsConfig(new AdminRole(new CaseInsensitiveString(roleName)));
+        ViewConfig viewConfig = new ViewConfig(new AdminRole(cis(roleName)));
+        OperationConfig operationConfig = new OperationConfig(new AdminRole(cis(roleName)));
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminRole(cis(roleName)));
         Authorization authorization = new Authorization(viewConfig, operationConfig, adminsConfig);
         BasicPipelineConfigs toUpdate = new BasicPipelineConfigs(groupName, authorization);
 

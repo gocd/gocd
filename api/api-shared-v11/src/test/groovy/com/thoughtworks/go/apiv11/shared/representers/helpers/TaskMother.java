@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.apiv11.shared.representers.helpers;
 
-
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.Task;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;

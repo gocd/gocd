@@ -54,8 +54,8 @@ public class ArtifactPlan extends PersistentObject {
 
     public ArtifactPlan(ArtifactTypeConfig artifactTypeConfig) {
         this.artifactPlanType = ArtifactPlanType.fromArtifactType(artifactTypeConfig.getArtifactType());
-        if (artifactTypeConfig instanceof PluggableArtifactConfig) {
-            this.pluggableArtifactConfigJson = ((PluggableArtifactConfig) artifactTypeConfig).toJSON();
+        if (artifactTypeConfig instanceof PluggableArtifactConfig pluggableArtifactConfig) {
+            this.pluggableArtifactConfigJson = pluggableArtifactConfig.toJSON();
         } else {
             BuiltinArtifactConfig buildArtifactConfig = (BuiltinArtifactConfig) artifactTypeConfig;
             setSrc(buildArtifactConfig.getSource());

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.helper;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.JobConfigs;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
@@ -40,13 +39,14 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 
 public class PipelineMother {
 
     public static PipelineConfig withSingleStageWithMaterials(String pipelineName, String stageName, JobConfigs jobConfigs) {
         MaterialConfigs materialConfigs = MaterialConfigsMother.defaultMaterialConfigs();
-        return new PipelineConfig(new CaseInsensitiveString(pipelineName), materialConfigs, new StageConfig(new CaseInsensitiveString(stageName), jobConfigs));
+        return new PipelineConfig(cis(pipelineName), materialConfigs, new StageConfig(cis(stageName), jobConfigs));
     }
 
     public static Pipeline passedPipelineInstance(String pipelineName, String stageName, String buildName) {
@@ -149,7 +149,7 @@ public class PipelineMother {
         for (String stageName : stageNames) {
             stages.add(StageConfigMother.twoBuildPlansWithResourcesAndMaterials(stageName));
         }
-        return new PipelineConfig(new CaseInsensitiveString(pipelineName), materialConfigs, stages.toArray(new StageConfig[0]));
+        return new PipelineConfig(cis(pipelineName), materialConfigs, stages.toArray(new StageConfig[0]));
     }
 
     public static PipelineConfig twoBuildPlansWithResourcesAndSvnMaterialsAtUrl(String pipeline, String stageName, String svnUrl) {
@@ -159,17 +159,17 @@ public class PipelineMother {
 
     public static PipelineConfig withMaterials(String pipelineName, String stageName, JobConfigs jobConfigs) {
         MaterialConfigs materialConfigs = MaterialConfigsMother.defaultMaterialConfigs();
-        return new PipelineConfig(new CaseInsensitiveString(pipelineName), materialConfigs, StageConfigMother.stageConfig(stageName, jobConfigs));
+        return new PipelineConfig(cis(pipelineName), materialConfigs, StageConfigMother.stageConfig(stageName, jobConfigs));
     }
 
     public static PipelineConfig custom(String pipelineName, String stageName, JobConfigs jobConfigs, MaterialConfigs materials) {
-        return new PipelineConfig(new CaseInsensitiveString(pipelineName), materials, StageConfigMother.custom(stageName, jobConfigs));
+        return new PipelineConfig(cis(pipelineName), materials, StageConfigMother.custom(stageName, jobConfigs));
     }
 
     public static PipelineConfig withTwoStagesOneBuildEach(String pipelineName, String stageName, String stageName2) {
         StageConfig stageConfig1 = StageConfigMother.oneBuildPlanWithResourcesAndMaterials(stageName);
         StageConfig stageConfig2 = StageConfigMother.oneBuildPlanWithResourcesAndMaterials(stageName2);
         MaterialConfigs materialConfigs = MaterialConfigsMother.defaultMaterialConfigs();
-        return new PipelineConfig(new CaseInsensitiveString(pipelineName), materialConfigs, stageConfig1, stageConfig2);
+        return new PipelineConfig(cis(pipelineName), materialConfigs, stageConfig1, stageConfig2);
     }
 }

@@ -48,6 +48,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
@@ -175,7 +176,7 @@ public class PipelineConfigControllerV11 extends ApiController implements SparkS
     public String show(Request req, Response res) throws IOException {
         String pipelineName = req.params("pipeline_name");
         PipelineConfig pipelineConfig = fetchEntityFromConfig(pipelineName);
-        String groupName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
+        String groupName = goConfigService.findGroupNameByPipeline(cis(pipelineName));
 
         if (isGetOrHeadRequestFresh(req, pipelineConfig)) {
             return notModified(res);

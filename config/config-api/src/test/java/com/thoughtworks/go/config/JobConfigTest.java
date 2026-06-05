@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
@@ -55,7 +56,7 @@ class JobConfigTest {
 
         config.setConfigAttributes(Map.of(JobConfig.NAME, "foo-job", JobConfig.TASKS, Map.of(Tasks.TASK_OPTIONS, "exec", "exec",
                 Map.of(Task.TASK_TYPE, "exec", ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "/tmp"))), taskFactory);
-        assertThat(config.name()).isEqualTo(new CaseInsensitiveString("foo-job"));
+        assertThat(config.name()).isEqualTo(cis("foo-job"));
         assertThat(config.getTasks().getFirst()).isEqualTo(new ExecTask("ls", "-la", "/tmp"));
         assertThat(config.getTasks().size()).isEqualTo(1);
     }
@@ -95,7 +96,7 @@ class JobConfigTest {
     void shouldNotSetJobNameIfNotGiven() {
         JobConfig config = new JobConfig("some-job-name");
         config.setConfigAttributes(Map.of());
-        assertThat(config.name()).isEqualTo(new CaseInsensitiveString("some-job-name"));
+        assertThat(config.name()).isEqualTo(cis("some-job-name"));
         Map<String, Object> attributes = new HashMap<>();
         attributes.put(JobConfig.NAME, null);
         config.setConfigAttributes(attributes);
@@ -159,7 +160,7 @@ class JobConfigTest {
 
     @Test
     void shouldValidateAgainstSettingRunInstanceCountToIncorrectValue() {
-        JobConfig jobConfig1 = new JobConfig(new CaseInsensitiveString("test"));
+        JobConfig jobConfig1 = new JobConfig(cis("test"));
         jobConfig1.setRunInstanceCount(-1);
 
         jobConfig1.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
@@ -168,7 +169,7 @@ class JobConfigTest {
         assertThat(configErrors1.isEmpty()).isFalse();
         assertThat(configErrors1.firstErrorOn(JobConfig.RUN_TYPE)).isEqualTo("'Run Instance Count' cannot be a negative number as it represents number of instances GoCD needs to spawn during runtime.");
 
-        JobConfig jobConfig2 = new JobConfig(new CaseInsensitiveString("test"));
+        JobConfig jobConfig2 = new JobConfig(cis("test"));
         ReflectionUtil.setField(jobConfig2, "runInstanceCount", "abcd");
 
         jobConfig2.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
@@ -177,7 +178,7 @@ class JobConfigTest {
         assertThat(configErrors2.isEmpty()).isFalse();
         assertThat(configErrors2.firstErrorOn(JobConfig.RUN_TYPE)).isEqualTo("'Run Instance Count' should be a valid positive integer as it represents number of instances GoCD needs to spawn during runtime.");
 
-        JobConfig jobConfig3 = new JobConfig(new CaseInsensitiveString("test"));
+        JobConfig jobConfig3 = new JobConfig(cis("test"));
         ReflectionUtil.setField(jobConfig3, "runInstanceCount", "0");
 
         jobConfig3.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
@@ -189,7 +190,7 @@ class JobConfigTest {
 
     @Test
     void shouldValidateAgainstSettingRunOnAllAgentsAndRunInstanceCountSetTogether() {
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"));
+        JobConfig jobConfig = new JobConfig(cis("test"));
         jobConfig.setRunOnAllAgents(true);
         jobConfig.setRunInstanceCount(10);
 
@@ -305,7 +306,7 @@ class JobConfigTest {
         map.put(JobConfig.RESOURCES, value);
         ResourceConfigs resourceConfigs = new ResourceConfigs();
         resourceConfigs.add(new ResourceConfig("z"));
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job-name"), resourceConfigs, null);
+        JobConfig jobConfig = new JobConfig(cis("job-name"), resourceConfigs, null);
 
         jobConfig.setConfigAttributes(map);
 
@@ -415,7 +416,7 @@ class JobConfigTest {
         valueHashMap.put("src1", "dest1");
         map.put(JobConfig.ARTIFACT_CONFIGS, valueHashMap);
         ArtifactTypeConfigs mockArtifactTypeConfigs = mock(ArtifactTypeConfigs.class);
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job-name"), new ResourceConfigs(), mockArtifactTypeConfigs);
+        JobConfig jobConfig = new JobConfig(cis("job-name"), new ResourceConfigs(), mockArtifactTypeConfigs);
 
         jobConfig.setConfigAttributes(map);
 
@@ -503,7 +504,7 @@ class JobConfigTest {
         when(tabs.validateTree(any())).thenReturn(true);
         when(variables.validateTree(any())).thenReturn(true);
 
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"), resourceConfigs, artifactTypeConfigs, tasks);
+        JobConfig jobConfig = new JobConfig(cis("job"), resourceConfigs, artifactTypeConfigs, tasks);
         jobConfig.setTabs(tabs);
         jobConfig.setVariables(variables);
 
@@ -534,7 +535,7 @@ class JobConfigTest {
         when(tabs.validateTree(any())).thenReturn(false);
         when(variables.validateTree(any())).thenReturn(false);
 
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"), resourceConfigs, artifactTypeConfigs, tasks);
+        JobConfig jobConfig = new JobConfig(cis("job"), resourceConfigs, artifactTypeConfigs, tasks);
         jobConfig.setTabs(tabs);
         jobConfig.setVariables(variables);
 
@@ -553,7 +554,7 @@ class JobConfigTest {
 
     @Test
     void shouldValidateAgainstSettingRunOnAllAgentsForAJobAssignedToElasticAgent() {
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"));
+        JobConfig jobConfig = new JobConfig(cis("test"));
         jobConfig.setRunOnAllAgents(true);
         jobConfig.setElasticProfileId("ubuntu-dev");
 
@@ -566,7 +567,7 @@ class JobConfigTest {
 
     @Test
     void shouldEncryptSecurePropertiesForOnlyFetchExternalArtifactTask() {
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"));
+        JobConfig jobConfig = new JobConfig(cis("job"));
         FetchPluggableArtifactTask mockFetchExternalArtifactTask = mock(FetchPluggableArtifactTask.class);
         jobConfig.addTask(mockFetchExternalArtifactTask);
 

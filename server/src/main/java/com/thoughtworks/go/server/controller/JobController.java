@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.Tabs;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
@@ -47,6 +46,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.server.controller.ExceptionsPage.ERROR_MESSAGE_KEY;
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -162,7 +162,7 @@ public class JobController {
         Tabs customizedTabs = goConfigService.getCustomizedTabs(pipelineWithOneBuild.getName(),
                 pipelineWithOneBuild.getFirstStage().getName(), current.getName());
         TrackingTool trackingTool = goConfigService.pipelineConfigNamed(
-                new CaseInsensitiveString(pipelineWithOneBuild.getName())).trackingToolOrDefault();
+                cis(pipelineWithOneBuild.getName())).trackingToolOrDefault();
         Stage stage = stageService.getStageByBuild(current);
         return new JobDetailPresentationModel(current, recent25, pipelineWithOneBuild, customizedTabs, trackingTool, artifactService, stage);
     }

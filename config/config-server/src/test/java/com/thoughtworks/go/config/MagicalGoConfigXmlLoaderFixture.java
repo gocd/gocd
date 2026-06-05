@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.jdom2.JDOMException;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -66,7 +67,7 @@ public class MagicalGoConfigXmlLoaderFixture {
                         </cruise>
                         """.formatted(GoConfigSchema.VERSION, materials);
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(pipelineXmlPartial).config;
-        return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline")).materialConfigs();
+        return cruiseConfig.pipelineConfigByName(cis("pipeline")).materialConfigs();
     }
 
 }

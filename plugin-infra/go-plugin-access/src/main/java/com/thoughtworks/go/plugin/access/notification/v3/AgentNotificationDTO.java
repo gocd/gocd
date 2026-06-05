@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.plugin.access.notification.v3;
 
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 

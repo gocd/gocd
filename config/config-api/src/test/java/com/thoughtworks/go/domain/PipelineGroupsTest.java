@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -182,8 +183,8 @@ public class PipelineGroupsTest {
     public void shouldGetPackageUsageInPipelines() {
         PackageMaterialConfig packageOne = new PackageMaterialConfig("package-id-one");
         PackageMaterialConfig packageTwo = new PackageMaterialConfig("package-id-two");
-        final PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1", new MaterialConfigs(packageOne, packageTwo), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
-        final PipelineConfig p2 = PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(packageTwo), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
+        final PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1", new MaterialConfigs(packageOne, packageTwo), new JobConfigs(new JobConfig(cis("jobName"))));
+        final PipelineConfig p2 = PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(packageTwo), new JobConfigs(new JobConfig(cis("jobName"))));
 
         PipelineGroups groups = new PipelineGroups();
         PipelineConfigs groupOne = new BasicPipelineConfigs(p1);
@@ -202,8 +203,8 @@ public class PipelineGroupsTest {
     public void shouldComputePackageUsageInPipelinesOnlyOnce() {
         PackageMaterialConfig packageOne = new PackageMaterialConfig("package-id-one");
         PackageMaterialConfig packageTwo = new PackageMaterialConfig("package-id-two");
-        final PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1", new MaterialConfigs(packageOne, packageTwo), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
-        final PipelineConfig p2 = PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(packageTwo), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
+        final PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1", new MaterialConfigs(packageOne, packageTwo), new JobConfigs(new JobConfig(cis("jobName"))));
+        final PipelineConfig p2 = PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(packageTwo), new JobConfigs(new JobConfig(cis("jobName"))));
 
         PipelineGroups groups = new PipelineGroups();
         groups.addAll(List.of(new BasicPipelineConfigs(p1), new BasicPipelineConfigs(p2)));
@@ -217,8 +218,8 @@ public class PipelineGroupsTest {
     public void shouldGetPluggableSCMMaterialUsageInPipelines() {
         PluggableSCMMaterialConfig pluggableSCMMaterialOne = new PluggableSCMMaterialConfig("scm-id-one");
         PluggableSCMMaterialConfig pluggableSCMMaterialTwo = new PluggableSCMMaterialConfig("scm-id-two");
-        final PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1", new MaterialConfigs(pluggableSCMMaterialOne, pluggableSCMMaterialTwo), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
-        final PipelineConfig p2 = PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(pluggableSCMMaterialTwo), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
+        final PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1", new MaterialConfigs(pluggableSCMMaterialOne, pluggableSCMMaterialTwo), new JobConfigs(new JobConfig(cis("jobName"))));
+        final PipelineConfig p2 = PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(pluggableSCMMaterialTwo), new JobConfigs(new JobConfig(cis("jobName"))));
 
         PipelineGroups groups = new PipelineGroups();
         PipelineConfigs groupOne = new BasicPipelineConfigs(p1);
@@ -289,9 +290,9 @@ public class PipelineGroupsTest {
 
         PipelineGroups groups = new PipelineGroups(group1, group2);
 
-        assertThat(groups.findGroupByPipeline(new CaseInsensitiveString("pipeline1"))).isEqualTo(group1);
-        assertThat(groups.findGroupByPipeline(new CaseInsensitiveString("pipeline2"))).isEqualTo(group1);
-        assertThat(groups.findGroupByPipeline(new CaseInsensitiveString("pipeline3"))).isEqualTo(group2);
+        assertThat(groups.findGroupByPipeline(cis("pipeline1"))).isEqualTo(group1);
+        assertThat(groups.findGroupByPipeline(cis("pipeline2"))).isEqualTo(group1);
+        assertThat(groups.findGroupByPipeline(cis("pipeline3"))).isEqualTo(group2);
     }
 
     @Test
@@ -307,7 +308,7 @@ public class PipelineGroupsTest {
     @Test
     public void shouldDeleteGroupWithSameNameWhenEmpty() {
         PipelineConfigs group = createGroup("group", new PipelineConfig[]{});
-        group.setAuthorization(new Authorization(new ViewConfig(new AdminUser(new CaseInsensitiveString("user")))));
+        group.setAuthorization(new Authorization(new ViewConfig(new AdminUser(cis("user")))));
 
         PipelineGroups groups = new PipelineGroups(group);
         groups.deleteGroup("group");

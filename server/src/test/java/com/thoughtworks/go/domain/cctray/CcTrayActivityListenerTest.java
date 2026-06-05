@@ -36,6 +36,7 @@ import org.mockito.ArgumentCaptor;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.*;
@@ -112,7 +113,7 @@ public class CcTrayActivityListenerTest {
     @Test
     public void postInitializationAndStartOfDaemon_WhenPipelineConfigChanges_ShouldInvokeConfigChangeHandler() throws InterruptedException {
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        CaseInsensitiveString p1 = new CaseInsensitiveString("p1");
+        CaseInsensitiveString p1 = cis("p1");
 
         when(pipelineConfig.name()).thenReturn(p1);
         CcTrayConfigChangeHandler ccTrayConfigChangeHandler = mock(CcTrayConfigChangeHandler.class);

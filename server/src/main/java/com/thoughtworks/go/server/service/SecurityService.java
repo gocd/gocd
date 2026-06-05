@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
 
 @Service
@@ -40,7 +41,7 @@ public class SecurityService {
     }
 
     public boolean hasViewPermissionForPipeline(Username username, String pipelineName) {
-        String groupName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
+        String groupName = goConfigService.findGroupNameByPipeline(cis(pipelineName));
         if (groupName == null) {
             return true;
         }
@@ -54,7 +55,7 @@ public class SecurityService {
             return true;
         }
 
-        CaseInsensitiveString username = new CaseInsensitiveString(userName);
+        CaseInsensitiveString username = cis(userName);
         if (isUserAdmin(new Username(username))) {
             return true;
         }
@@ -77,7 +78,7 @@ public class SecurityService {
     }
 
     public boolean hasOperatePermissionForPipeline(final CaseInsensitiveString username, String pipelineName) {
-        String groupName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
+        String groupName = goConfigService.findGroupNameByPipeline(cis(pipelineName));
         if (groupName == null) {
             return true;
         }
@@ -117,11 +118,11 @@ public class SecurityService {
             return false;
         }
         StageConfig stage = goConfigService.stageConfigNamed(pipelineName, stageName);
-        CaseInsensitiveString userName = new CaseInsensitiveString(username);
+        CaseInsensitiveString userName = cis(username);
 
         //TODO - #2517 - stage not exist
         if (stage.hasOperatePermissionDefined()) {
-            String groupName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
+            String groupName = goConfigService.findGroupNameByPipeline(cis(pipelineName));
             PipelineConfigs group = goConfigService.getCurrentConfig().findGroup(groupName);
             if (isUserAdmin(new Username(userName)) || isUserAdminOfGroup(userName, group)) {
                 return true;
@@ -129,7 +130,7 @@ public class SecurityService {
             return goConfigService.readAclBy(pipelineName, stageName).isGranted(userName);
         }
 
-        return hasOperatePermissionForPipeline(new CaseInsensitiveString(username), pipelineName);
+        return hasOperatePermissionForPipeline(cis(username), pipelineName);
     }
 
     public boolean isUserAdmin(Username username) {
@@ -144,7 +145,7 @@ public class SecurityService {
     }
 
     public boolean hasOperatePermissionForFirstStage(String pipelineName, String userName) {
-        StageConfig stage = goConfigService.findFirstStageOfPipeline(new CaseInsensitiveString(pipelineName));
+        StageConfig stage = goConfigService.findFirstStageOfPipeline(cis(pipelineName));
         return hasOperatePermissionForStage(pipelineName, CaseInsensitiveString.str(stage.name()), userName);
     }
 

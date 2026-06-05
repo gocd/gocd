@@ -18,12 +18,13 @@ package com.thoughtworks.go.helper;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.config.Admin;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 
 public class SecurityConfigMother {
 
-    public static final Role ROLE1 = new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(new CaseInsensitiveString("chris")), new RoleUser(new CaseInsensitiveString("jez")));
-    public static final Role ROLE2 = new RoleConfig(new CaseInsensitiveString("role2"), new RoleUser(new CaseInsensitiveString("chris")));
+    public static final Role ROLE1 = new RoleConfig(cis("role1"), new RoleUser(cis("chris")), new RoleUser(cis("jez")));
+    public static final Role ROLE2 = new RoleConfig(cis("role2"), new RoleUser(cis("chris")));
     public static final Role[] DEFAULT_ROLES = new Role[]{ROLE1, ROLE2};
 
     public static SecurityConfig securityConfigWith(String passwordFilePath) {
@@ -39,9 +40,9 @@ public class SecurityConfigMother {
     }
 
     public static SecurityConfig securityConfigWithRole(SecurityConfig securityConfig, String roleName, String... users) {
-        RoleConfig role = new RoleConfig(new CaseInsensitiveString(roleName));
+        RoleConfig role = new RoleConfig(cis(roleName));
         for (String user : users) {
-            role.addUser(new RoleUser(new CaseInsensitiveString(user)));
+            role.addUser(new RoleUser(cis(user)));
         }
         securityConfig.addRole(role);
         return securityConfig;
@@ -52,11 +53,11 @@ public class SecurityConfigMother {
     }
 
     public static AdminUser user(String name) {
-        return new AdminUser(new CaseInsensitiveString(name));
+        return new AdminUser(cis(name));
     }
 
     public static AdminRole role(String name) {
-        return new AdminRole(new CaseInsensitiveString(name));
+        return new AdminRole(cis(name));
     }
 
     public static SecurityAuthConfig passwordFileAuthConfig() {

@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CrossingMinimizationTest {
@@ -44,11 +45,11 @@ public class CrossingMinimizationTest {
          */
 
 
-        CaseInsensitiveString p3 = new CaseInsensitiveString("P3");
-        CaseInsensitiveString p1 = new CaseInsensitiveString("P1");
-        CaseInsensitiveString p2 = new CaseInsensitiveString("P2");
-        CaseInsensitiveString g1 = new CaseInsensitiveString("g1");
-        CaseInsensitiveString g2 = new CaseInsensitiveString("g2");
+        CaseInsensitiveString p3 = cis("P3");
+        CaseInsensitiveString p1 = cis("P1");
+        CaseInsensitiveString p2 = cis("P2");
+        CaseInsensitiveString g1 = cis("g1");
+        CaseInsensitiveString g2 = cis("g2");
         ValueStreamMap graph = new ValueStreamMap(p3, null);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(p1, p1.toString()), null, p3);
         graph.addUpstreamMaterialNode(new SCMDependencyNode(g1.toString(), g1.toString(), "git"), null, p1, new MaterialRevision(null));
@@ -85,13 +86,13 @@ public class CrossingMinimizationTest {
             g3 --> P3-----+
          */
 
-        CaseInsensitiveString p = new CaseInsensitiveString("P");
-        CaseInsensitiveString p1 = new CaseInsensitiveString("P1");
-        CaseInsensitiveString p2 = new CaseInsensitiveString("P2");
-        CaseInsensitiveString p3 = new CaseInsensitiveString("P3");
-        CaseInsensitiveString g1 = new CaseInsensitiveString("g1");
-        CaseInsensitiveString g2 = new CaseInsensitiveString("g2");
-        CaseInsensitiveString g3 = new CaseInsensitiveString("g3");
+        CaseInsensitiveString p = cis("P");
+        CaseInsensitiveString p1 = cis("P1");
+        CaseInsensitiveString p2 = cis("P2");
+        CaseInsensitiveString p3 = cis("P3");
+        CaseInsensitiveString g1 = cis("g1");
+        CaseInsensitiveString g2 = cis("g2");
+        CaseInsensitiveString g3 = cis("g3");
         ValueStreamMap graph = new ValueStreamMap(p, null);
 
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(p1, p1.toString()), null, p);
@@ -126,11 +127,11 @@ public class CrossingMinimizationTest {
                       +-> P2
          */
 
-        CaseInsensitiveString p = new CaseInsensitiveString("P");
-        CaseInsensitiveString g1Name = new CaseInsensitiveString("g1");
-        CaseInsensitiveString p1Name = new CaseInsensitiveString("p1");
-        CaseInsensitiveString p2Name = new CaseInsensitiveString("P2");
-        CaseInsensitiveString p3Name = new CaseInsensitiveString("P3");
+        CaseInsensitiveString p = cis("P");
+        CaseInsensitiveString g1Name = cis("g1");
+        CaseInsensitiveString p1Name = cis("p1");
+        CaseInsensitiveString p2Name = cis("P2");
+        CaseInsensitiveString p3Name = cis("P3");
         ValueStreamMap graph = new ValueStreamMap(p, null);
         Node g1 = graph.addUpstreamMaterialNode(new SCMDependencyNode(g1Name.toString(), g1Name.toString(), "git"), null, p, new MaterialRevision(null));
         Node p1 = graph.addDownstreamNode(new PipelineDependencyNode(p1Name, p1Name.toString()), p);
@@ -163,12 +164,12 @@ public class CrossingMinimizationTest {
 
         */
 
-        CaseInsensitiveString p = new CaseInsensitiveString("P");
-        CaseInsensitiveString g4Name = new CaseInsensitiveString("g4");
-        CaseInsensitiveString p1name = new CaseInsensitiveString("P1");
-        CaseInsensitiveString g1name = new CaseInsensitiveString("g1");
-        CaseInsensitiveString p2name = new CaseInsensitiveString("P2");
-        CaseInsensitiveString g3name = new CaseInsensitiveString("g3");
+        CaseInsensitiveString p = cis("P");
+        CaseInsensitiveString g4Name = cis("g4");
+        CaseInsensitiveString p1name = cis("P1");
+        CaseInsensitiveString g1name = cis("g1");
+        CaseInsensitiveString p2name = cis("P2");
+        CaseInsensitiveString g3name = cis("g3");
         ValueStreamMap graph = new ValueStreamMap(p, null);
         Node g4 = graph.addUpstreamMaterialNode(new SCMDependencyNode(g4Name.toString(), g4Name.toString(), "git"), null, p, new MaterialRevision(null));
         Node p1 = graph.addUpstreamPipelineNode(new PipelineDependencyNode(p1name, p1name.toString()), null, p);
@@ -206,12 +207,12 @@ public class CrossingMinimizationTest {
          */
 
         String g1 = "g1";
-        CaseInsensitiveString p = new CaseInsensitiveString("P");
-        CaseInsensitiveString p1 = new CaseInsensitiveString("P1");
-        CaseInsensitiveString p2 = new CaseInsensitiveString("P2");
-        CaseInsensitiveString p3 = new CaseInsensitiveString("P3");
-        CaseInsensitiveString p4 = new CaseInsensitiveString("P4");
-        CaseInsensitiveString p5 = new CaseInsensitiveString("P5");
+        CaseInsensitiveString p = cis("P");
+        CaseInsensitiveString p1 = cis("P1");
+        CaseInsensitiveString p2 = cis("P2");
+        CaseInsensitiveString p3 = cis("P3");
+        CaseInsensitiveString p4 = cis("P4");
+        CaseInsensitiveString p5 = cis("P5");
         ValueStreamMap graph = new ValueStreamMap(p, null);
         graph.addUpstreamMaterialNode(new SCMDependencyNode(g1, g1, "git"), null, p, new MaterialRevision(null));
         graph.addDownstreamNode(new PipelineDependencyNode(p1, p1.toString()), p);
@@ -225,11 +226,11 @@ public class CrossingMinimizationTest {
         crossingMinimization.apply(levelToNodesMap);
 
         assertThat(levelToNodesMap.get(0)).isEqualTo(List.of(graph.findNode(p)));
-        assertThat(levelToNodesMap.get(-1)).isEqualTo(List.of(graph.findNode(new CaseInsensitiveString(g1))));
+        assertThat(levelToNodesMap.get(-1)).isEqualTo(List.of(graph.findNode(cis(g1))));
         assertThat(levelToNodesMap.get(1)).isEqualTo(List.of(graph.findNode(p1), graph.findNode(p3), graph.findNode(p2)));
         assertThat(levelToNodesMap.get(2)).isEqualTo(List.of(graph.findNode(p4), graph.findNode(p5)));
 
-        assertThat(graph.findNode(new CaseInsensitiveString(g1)).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(cis(g1)).getDepth()).isEqualTo(1);
         assertThat(graph.findNode(p).getDepth()).isEqualTo(1);
         assertThat(graph.findNode(p1).getDepth()).isEqualTo(1);
         assertThat(graph.findNode(p2).getDepth()).isEqualTo(3);
@@ -251,8 +252,8 @@ public class CrossingMinimizationTest {
         String g1 = "g1";
         String g2 = "g2";
         String g3 = "g3";
-        CaseInsensitiveString p1 = new CaseInsensitiveString("P1");
-        CaseInsensitiveString p = new CaseInsensitiveString("P");
+        CaseInsensitiveString p1 = cis("P1");
+        CaseInsensitiveString p = cis("P");
 
         ValueStreamMap graph = new ValueStreamMap(p, null);
         graph.addUpstreamMaterialNode(new SCMDependencyNode(g3, g3, "git"), null, p, new MaterialRevision(null));
@@ -264,12 +265,12 @@ public class CrossingMinimizationTest {
         crossingMinimization.apply(levelToNodesMap);
 
         assertThat(levelToNodesMap.get(0)).isEqualTo(List.of(graph.findNode(p)));
-        assertThat(levelToNodesMap.get(-1)).isEqualTo(List.of(graph.findNode(new CaseInsensitiveString(g3)), graph.findNode(p1)));
-        assertThat(levelToNodesMap.get(-2)).isEqualTo(List.of(graph.findNode(new CaseInsensitiveString(g1)), graph.findNode(new CaseInsensitiveString(g2))));
+        assertThat(levelToNodesMap.get(-1)).isEqualTo(List.of(graph.findNode(cis(g3)), graph.findNode(p1)));
+        assertThat(levelToNodesMap.get(-2)).isEqualTo(List.of(graph.findNode(cis(g1)), graph.findNode(cis(g2))));
 
-        assertThat(graph.findNode(new CaseInsensitiveString(g1)).getDepth()).isEqualTo(1);
-        assertThat(graph.findNode(new CaseInsensitiveString(g2)).getDepth()).isEqualTo(2);
-        assertThat(graph.findNode(new CaseInsensitiveString(g3)).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(cis(g1)).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(cis(g2)).getDepth()).isEqualTo(2);
+        assertThat(graph.findNode(cis(g3)).getDepth()).isEqualTo(1);
         assertThat(graph.findNode(p1).getDepth()).isEqualTo(2);
         assertThat(graph.findNode(p).getDepth()).isEqualTo(1);
     }
@@ -286,13 +287,13 @@ public class CrossingMinimizationTest {
          */
         String g1 = "g1";
         String g2 = "g2";
-        CaseInsensitiveString p1 = new CaseInsensitiveString("p1");
-        CaseInsensitiveString p2 = new CaseInsensitiveString("p2");
-        CaseInsensitiveString p = new CaseInsensitiveString("p");
-        CaseInsensitiveString p3 = new CaseInsensitiveString("p3");
-        CaseInsensitiveString p4 = new CaseInsensitiveString("p4");
-        CaseInsensitiveString p5 = new CaseInsensitiveString("p5");
-        CaseInsensitiveString p6 = new CaseInsensitiveString("p6");
+        CaseInsensitiveString p1 = cis("p1");
+        CaseInsensitiveString p2 = cis("p2");
+        CaseInsensitiveString p = cis("p");
+        CaseInsensitiveString p3 = cis("p3");
+        CaseInsensitiveString p4 = cis("p4");
+        CaseInsensitiveString p5 = cis("p5");
+        CaseInsensitiveString p6 = cis("p6");
 
         ValueStreamMap graph = new ValueStreamMap(p, null);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(p1, p1.toString()), null, p);
@@ -307,8 +308,8 @@ public class CrossingMinimizationTest {
 
         crossingMinimization.initializeNodeDepths(nodeLevelMap(graph));
 
-        assertThat(graph.findNode(new CaseInsensitiveString(g1)).getDepth()).isEqualTo(1);
-        assertThat(graph.findNode(new CaseInsensitiveString(g2)).getDepth()).isEqualTo(2);
+        assertThat(graph.findNode(cis(g1)).getDepth()).isEqualTo(1);
+        assertThat(graph.findNode(cis(g2)).getDepth()).isEqualTo(2);
         assertThat(graph.findNode(p1).getDepth()).isEqualTo(1);
         assertThat(graph.findNode(p2).getDepth()).isEqualTo(2);
 

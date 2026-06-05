@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -176,7 +177,7 @@ public class AbstractTaskTest {
     @Test
     public void shouldValidateTree() {
         String pipelineName = "p1";
-        PipelineConfig pipelineConfig = GoConfigMother.configWithPipelines(pipelineName).pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        PipelineConfig pipelineConfig = GoConfigMother.configWithPipelines(pipelineName).pipelineConfigByName(cis(pipelineName));
         StageConfig stageConfig = pipelineConfig.getStages().getFirst();
         JobConfig jobConfig = stageConfig.getJobs().getFirst();
 

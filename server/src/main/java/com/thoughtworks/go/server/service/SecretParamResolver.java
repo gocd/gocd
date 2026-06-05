@@ -63,12 +63,12 @@ public class SecretParamResolver {
     }
 
     public void resolve(Material material) {
-        if (material instanceof ScmMaterial) {
-            this.resolve((ScmMaterial) material);
-        } else if (material instanceof PluggableSCMMaterial) {
-            this.resolve((PluggableSCMMaterial) material);
-        } else if (material instanceof PackageMaterial) {
-            this.resolve((PackageMaterial) material);
+        if (material instanceof ScmMaterial scmMaterial) {
+            this.resolve(scmMaterial);
+        } else if (material instanceof PluggableSCMMaterial pluggableSCMMaterial) {
+            this.resolve(pluggableSCMMaterial);
+        } else if (material instanceof PackageMaterial packageMaterial) {
+            this.resolve(packageMaterial);
         }
     }
 

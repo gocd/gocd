@@ -26,8 +26,8 @@ public class EntityConfigOriginRepresenter {
     public static void toJSON(OutputWriter outputWriter, ConfigOrigin origin) {
         if (origin instanceof FileConfigOrigin || origin == null) {
             jsoninzeConfigXmlOrigin(outputWriter);
-        } else if (origin instanceof RepoConfigOrigin) {
-            jsonizeConfigRepoOrigin((RepoConfigOrigin) origin, outputWriter);
+        } else if (origin instanceof RepoConfigOrigin repoConfigOrigin) {
+            jsonizeConfigRepoOrigin(repoConfigOrigin, outputWriter);
         }
     }
 

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
@@ -37,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -104,7 +104,7 @@ public class AutoBuildIntegrationTest {
         down_pipe.config.removeMaterialConfig(svn.config());
 
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
-        currentConfig.pipelineConfigByName(new CaseInsensitiveString("down_pipe")).removeMaterialConfig(svn.config());
+        currentConfig.pipelineConfigByName(cis("down_pipe")).removeMaterialConfig(svn.config());
         configHelper.writeConfigFile(currentConfig);
         goConfigDao.currentConfig();
 

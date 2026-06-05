@@ -15,9 +15,10 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 public class SecurityFilter implements PipelineGroupVisitor {
     private final GoConfigService goConfigService;
@@ -40,7 +41,7 @@ public class SecurityFilter implements PipelineGroupVisitor {
     }
 
     private boolean isUserAGroupAdmin(PipelineConfigs group) {
-        return group.getAuthorization().isUserAnAdmin(new CaseInsensitiveString(userName), goConfigService.rolesForUser(new CaseInsensitiveString(userName)));
+        return group.getAuthorization().isUserAnAdmin(cis(userName), goConfigService.rolesForUser(cis(userName)));
     }
 
     private boolean hasViewPermission(String groupName) {

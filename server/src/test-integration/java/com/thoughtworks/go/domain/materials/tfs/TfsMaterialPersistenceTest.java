@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain.materials.tfs;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.Material;
@@ -32,7 +31,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
+
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
@@ -64,7 +65,7 @@ public class TfsMaterialPersistenceTest {
     public void shouldBeAbleToConvertAMaterialInstanceObjectToTfsMaterialObject() {
         TfsMaterial tfsCfg = new TfsMaterial(new UrlArgument("url"), "loser", "CORPORATE", "password", "/dev/null");
         tfsCfg.setFolder("folder");
-        tfsCfg.setName(new CaseInsensitiveString("materialName"));
+        tfsCfg.setName(cis("materialName"));
         MaterialInstance tfsInstance = materialRepository.findOrCreateFrom(tfsCfg);
 
         Material material = tfsInstance.toOldMaterial("materialName", "folder", "password");

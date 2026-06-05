@@ -24,7 +24,6 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
-
 public class CreateTemplateConfigCommand extends TemplateConfigCommand {
 
     private final SecurityService securityService;

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain.materials;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
 import com.thoughtworks.go.util.SerializationTester;

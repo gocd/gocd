@@ -58,6 +58,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static com.thoughtworks.go.config.Approval.TYPE_MANUAL;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
@@ -992,7 +993,7 @@ public class StageSqlMapDaoIntegrationTest {
 
     private Stage rerunFirstStage(Pipeline pipeline) {
         Stage firstStage = pipeline.getFirstStage();
-        Stage newInstance = instanceFactory.createStageInstance(mingleConfig.findBy(new CaseInsensitiveString(firstStage.getName())), new DefaultSchedulingContext("anyone"), md5, new TimeProvider());
+        Stage newInstance = instanceFactory.createStageInstance(mingleConfig.findBy(cis(firstStage.getName())), new DefaultSchedulingContext("anyone"), md5, new TimeProvider());
         return stageDao.saveWithJobs(pipeline, newInstance);
     }
 

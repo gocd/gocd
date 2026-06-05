@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv1.buildcause
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.buildcause.representers.BuildCauseRepresenter
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.helpers.PipelineModelMother
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.PipelineHistoryService
@@ -37,6 +36,7 @@ import org.mockito.invocation.InvocationOnMock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.doAnswer
@@ -61,7 +61,7 @@ class BuildCauseControllerTest implements ControllerTrait<BuildCauseController>,
 
       @BeforeEach
       void setUp() {
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(getPipelineName()))).thenReturn(true)
+        when(goConfigService.hasPipelineNamed(cis(getPipelineName()))).thenReturn(true)
       }
 
       @Override

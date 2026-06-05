@@ -39,6 +39,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Date;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.materials.Modification.modifications;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,7 +74,7 @@ public class MaterialCheckerTest {
 
     @Test
     public void shouldUseLatestPipelineInstanceForDependentPipelineGivenThePreviousRevision() {
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("pipeline-name"), cis("stage-name"));
 
         Stage passedStage = StageMother.passedStageInstance("pipeline-name", "stage-name", "job-name");
         MaterialRevisions materialRevisions = new MaterialRevisions();
@@ -88,7 +89,7 @@ public class MaterialCheckerTest {
 
     @Test
     public void shouldUseLatestPipelineInstanceForDependentPipeline() {
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("pipeline-name"), cis("stage-name"));
         Stage passedStage = StageMother.passedStageInstance("pipeline-name", "stage-name", "job-name");
         Modification modification = new Modification("Unknown", "Unknown", null, passedStage.completedDate(), "pipeline-name/1[LABEL-1]/stage-name/0");
 
@@ -101,7 +102,7 @@ public class MaterialCheckerTest {
 
     @Test
     public void shouldSkipLatestRevisionsForMaterialsThatWereAlreadyChecked() {
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("pipeline-name"), cis("stage-name"));
         SvnMaterial svnMaterial = new SvnMaterial("svnUrl", null, null, false);
         Stage passedStage = StageMother.passedStageInstance("pipeline-name", "stage-name", "job-name");
 
@@ -118,7 +119,7 @@ public class MaterialCheckerTest {
 
     @Test
     public void shouldFindSpecificRevisionForDependentPipeline() {
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("pipeline-name"), cis("stage-name"));
         Stage passedStage = StageMother.passedStageInstance("pipeline-name", "stage-name", "job-name");
         Modification modification = new Modification("Unknown", "Unknown", null, passedStage.completedDate(), "pipeline-name/1/stage-name/0");
 
@@ -132,7 +133,7 @@ public class MaterialCheckerTest {
 
     @Test
     public void shouldThrowExceptionIfSpecifiedRevisionDoesNotExist() {
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("pipeline-name"), cis("stage-name"));
         when(materialRepository.findModificationWithRevision(dependencyMaterial, "pipeline-name/500/stage-name/0")).thenReturn(null);
 
         try {
@@ -145,7 +146,7 @@ public class MaterialCheckerTest {
 
     @Test
     public void shouldThrowExceptionIfRevisionIsNotSpecified() {
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("pipeline-name"), cis("stage-name"));
 
         try {
             materialChecker.findSpecificRevision(dependencyMaterial, "");
@@ -157,7 +158,7 @@ public class MaterialCheckerTest {
 
     @Test
     public void shouldSkipFindingRevisionsSinceForMaterialsThatWereAlreadyChecked() {
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("pipeline-name"), cis("stage-name"));
         SvnMaterial svnMaterial = new SvnMaterial("svnUrl", null, null, false);
         Stage passedStage = StageMother.passedStageInstance("pipeline-name", "stage-name", "job-name");
 
@@ -178,7 +179,7 @@ public class MaterialCheckerTest {
 
     @Test
     public void shouldUseLatestMaterialDuringCreationOfNewRevisionsSince_bug7486() {
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("pipeline-name"), cis("stage-name"));
         PackageMaterial oldPkgMaterial = MaterialsMother.packageMaterial("repo-id", "repo-old-name", "pkg-id", "pkg-old-name", ConfigurationPropertyMother.create("key", false, "value"));
         Stage passedStage = StageMother.passedStageInstance("pipeline-name", "stage-name", "job-name");
 
@@ -225,7 +226,7 @@ public class MaterialCheckerTest {
 
     @Test
     public void updateChangedRevisionsShouldFilterRevisionsThatHaveBuiltBefore() {
-        CaseInsensitiveString pipelineName = new CaseInsensitiveString("pipelineName");
+        CaseInsensitiveString pipelineName = cis("pipelineName");
         GitMaterial gitMaterial = new GitMaterial("git://foo");
         BuildCause buildCause = BuildCause.createWithModifications(new MaterialRevisions(new MaterialRevision(gitMaterial, mod(10L), mod(9L), mod(8L))), "user");
         when(materialRepository.latestModificationRunByPipeline(pipelineName, gitMaterial)).thenReturn(9L);
@@ -238,7 +239,7 @@ public class MaterialCheckerTest {
 
     @Test
     public void updateChangedRevisionsShouldRetainLatestRevisionIfAllHaveBuiltBefore() {
-        CaseInsensitiveString pipelineName = new CaseInsensitiveString("pipelineName");
+        CaseInsensitiveString pipelineName = cis("pipelineName");
         GitMaterial gitMaterial = new GitMaterial("git://foo");
         BuildCause buildCause = BuildCause.createWithModifications(new MaterialRevisions(new MaterialRevision(gitMaterial, mod(10L), mod(9L), mod(8L))), "user");
         when(materialRepository.latestModificationRunByPipeline(pipelineName, gitMaterial)).thenReturn(10L);

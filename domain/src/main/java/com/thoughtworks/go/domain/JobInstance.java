@@ -27,7 +27,6 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
-
 public class JobInstance extends PersistentObject implements Serializable, Comparable<JobInstance>, BuildStateAware, Cloneable {
 
     private Clock timeProvider = new TimeProvider();

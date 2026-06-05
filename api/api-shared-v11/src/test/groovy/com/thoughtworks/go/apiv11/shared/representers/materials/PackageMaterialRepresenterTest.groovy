@@ -19,7 +19,6 @@ import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv11.admin.shared.representers.materials.MaterialsRepresenter
 import com.thoughtworks.go.apiv11.admin.shared.representers.stages.ConfigHelperOptions
 import com.thoughtworks.go.config.BasicCruiseConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
@@ -30,6 +29,7 @@ import com.thoughtworks.go.helper.MaterialConfigsMother
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertNull
@@ -74,7 +74,7 @@ class PackageMaterialRepresenterTest {
 
   @Test
   void "should render errors"() {
-    def packageConfig = new PackageMaterialConfig(new CaseInsensitiveString(''), '', null)
+    def packageConfig = new PackageMaterialConfig(cis(''), '', null)
     def materialConfigs = new MaterialConfigs(packageConfig)
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
 

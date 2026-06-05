@@ -43,6 +43,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.domain.buildcause.BuildCause.createEmpty;
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel.createEmptyPipelineInstanceModel;
@@ -218,6 +219,6 @@ public class GoDashboardCurrentStateLoader {
 
     public void clearEntryFor(CaseInsensitiveString pipeline) {
         lastKnownPipelineNames.remove(pipeline);
-        historyForDashboard.removeIf(pipelineInstanceModel -> pipeline.equals(new CaseInsensitiveString(pipelineInstanceModel.getName())));
+        historyForDashboard.removeIf(pipelineInstanceModel -> pipeline.equals(cis(pipelineInstanceModel.getName())));
     }
 }

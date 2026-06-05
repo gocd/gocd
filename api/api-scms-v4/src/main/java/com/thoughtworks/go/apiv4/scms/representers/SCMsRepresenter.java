@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.apiv4.scms.representers;
 
-
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.spark.Routes;

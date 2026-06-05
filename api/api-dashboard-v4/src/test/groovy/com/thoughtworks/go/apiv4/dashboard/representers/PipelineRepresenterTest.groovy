@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.apiv4.dashboard.representers
 
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.TrackingTool
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.FileConfigOrigin
@@ -35,6 +34,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helpers.PipelineModelMother.pipeline_model
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.mockito.Mockito.mock
@@ -53,7 +53,7 @@ class PipelineRepresenterTest {
     pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'),
             permissions, "grp", counter, pipelineConfig)
-    def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+    def username = new Username(cis(SecureRandom.hex()))
 
     def json = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
 
@@ -102,7 +102,7 @@ class PipelineRepresenterTest {
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'p1l1'), permissions, "grp", counter, PipelineConfigMother.pipelineConfig("p1"))
 
     def json = toObject({
-      PipelineRepresenter.toJSON(it, pipeline, new Username(new CaseInsensitiveString(SecureRandom.hex())))
+      PipelineRepresenter.toJSON(it, pipeline, new Username(cis(SecureRandom.hex())))
     })
 
     assertThatJson(json).node("from_config_repo").isEqualTo(false)
@@ -116,7 +116,7 @@ class PipelineRepresenterTest {
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'p1l1', false, true, "under construction"), permissions, "grp", counter, PipelineConfigMother.pipelineConfig("p1"))
 
     def json = toObject({
-      PipelineRepresenter.toJSON(it, pipeline, new Username(new CaseInsensitiveString(SecureRandom.hex())))
+      PipelineRepresenter.toJSON(it, pipeline, new Username(cis(SecureRandom.hex())))
     })
 
     assertThatJson(json).node("pause_info").isEqualTo([
@@ -136,7 +136,7 @@ class PipelineRepresenterTest {
     def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
     pipelineConfig.setOrigin(origin)
     def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'p1l1', false, true, null), permissions, "grp", counter, pipelineConfig)
-    def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+    def username = new Username(cis(SecureRandom.hex()))
 
     def json = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
 
@@ -157,7 +157,7 @@ class PipelineRepresenterTest {
       def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
       pipelineConfig.setOrigin(origin)
       def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter, pipelineConfig)
-      def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+      def username = new Username(cis(SecureRandom.hex()))
 
       def actualJson = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
 
@@ -177,7 +177,7 @@ class PipelineRepresenterTest {
       def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
       pipelineConfig.setOrigin(origin)
       def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter, pipelineConfig)
-      def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+      def username = new Username(cis(SecureRandom.hex()))
 
       def actualJson = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
 
@@ -197,7 +197,7 @@ class PipelineRepresenterTest {
       def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
       pipelineConfig.setOrigin(origin)
       def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter, pipelineConfig)
-      def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+      def username = new Username(cis(SecureRandom.hex()))
 
       def actualJson = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
 

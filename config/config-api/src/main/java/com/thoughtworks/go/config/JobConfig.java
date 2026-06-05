@@ -30,6 +30,7 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -104,7 +105,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     }
 
     public JobConfig(String planName) {
-        this(new CaseInsensitiveString(planName), new ResourceConfigs(), new ArtifactTypeConfigs());
+        this(cis(planName), new ResourceConfigs(), new ArtifactTypeConfigs());
     }
 
     @Override
@@ -113,7 +114,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     }
 
     public void setName(String name) {
-        setName(new CaseInsensitiveString(name));
+        setName(cis(name));
     }
 
     public void setName(CaseInsensitiveString name) {
@@ -206,11 +207,11 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
 
     public Tasks getTasksForView() {
         return tasks.stream().map(task -> {
-            if (task instanceof FetchTask) {
-                return new FetchTaskAdapter((FetchTask) task);
+            if (task instanceof FetchTask fetchTask) {
+                return new FetchTaskAdapter(fetchTask);
             }
-            if (task instanceof FetchPluggableArtifactTask) {
-                return new FetchTaskAdapter((FetchPluggableArtifactTask) task);
+            if (task instanceof FetchPluggableArtifactTask fetchPluggableArtifactTask) {
+                return new FetchTaskAdapter(fetchPluggableArtifactTask);
             }
             return task;
         }).collect(Collectors.toCollection(Tasks::new));
@@ -330,8 +331,8 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         artifactConfigs.forEach(artifactConfig -> artifactConfig.encryptSecureProperties(preprocessedConfig, preprocessedArtifactConfigs.get(artifactConfigs.indexOf(artifactConfig))));
 
         tasks.forEach(task -> {
-            if (task instanceof FetchPluggableArtifactTask) {
-                ((FetchPluggableArtifactTask) task).encryptSecureProperties(preprocessedConfig, preprocessedPipelineConfig, (FetchPluggableArtifactTask) preprocessedJobConfig.getTasks().get(tasks.indexOf(task)));
+            if (task instanceof FetchPluggableArtifactTask fetchPluggableArtifactTask) {
+                fetchPluggableArtifactTask.encryptSecureProperties(preprocessedConfig, preprocessedPipelineConfig, (FetchPluggableArtifactTask) preprocessedJobConfig.getTasks().get(tasks.indexOf(task)));
             }
         });
     }
@@ -432,7 +433,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         @SuppressWarnings("unchecked") Map<String, ?> attributesMap = (Map<String, ?>) attributes;
         if (attributesMap.containsKey(NAME)) {
             String nameString = (String) attributesMap.get(NAME);
-            jobName = nameString == null ? null : new CaseInsensitiveString(nameString);
+            jobName = nameString == null ? null : cis(nameString);
         }
         if (attributesMap.containsKey("elasticProfileId")) {
             String elasticProfileId = (String) attributesMap.get("elasticProfileId");

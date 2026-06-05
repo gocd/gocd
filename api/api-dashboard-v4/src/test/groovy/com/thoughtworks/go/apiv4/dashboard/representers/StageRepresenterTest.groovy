@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.apiv4.dashboard.representers
 
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.TrackingTool
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.config.security.Permissions
@@ -33,6 +32,7 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helpers.PipelineModelMother.pipeline_model
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.mockito.Mockito.mock
@@ -60,7 +60,7 @@ class StageRepresenterTest {
     pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'pipeline_label'),
             permissions, "grp", counter, pipelineConfig)
-    def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+    def username = new Username(cis(SecureRandom.hex()))
 
     def json = toObject({ StageRepresenter.toJSON(it, pipeline, stageInstance, username, "pipeline-name", "2") })
 
@@ -106,7 +106,7 @@ class StageRepresenterTest {
     pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'pipeline_label'),
             permissions, "grp", counter, pipelineConfig)
-    def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+    def username = new Username(cis(SecureRandom.hex()))
 
     def json = toObject({ StageRepresenter.toJSON(it, pipeline, stageInstance, username, "pipeline-name", "23") })
 
@@ -141,7 +141,7 @@ class StageRepresenterTest {
     pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('pipeline-name', 'pipeline_label'),
             permissions, "grp", counter, pipelineConfig)
-    def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+    def username = new Username(cis(SecureRandom.hex()))
 
     def json = toObject({ StageRepresenter.toJSON(it, pipeline, stageInstance, username, "pipeline-name", "23") })
     def expectedJson = [
@@ -175,7 +175,7 @@ class StageRepresenterTest {
     pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'pipeline_label'),
             permissions, "grp", counter, pipelineConfig)
-    def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+    def username = new Username(cis(SecureRandom.hex()))
 
     def json = toObject({ StageRepresenter.toJSON(it, pipeline, stageInstance, username, "pipeline-name", "23") })
     def expectedJson = [

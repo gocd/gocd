@@ -73,10 +73,10 @@ public class InternalPipelineStructuresRepresenter {
     private static void writeOrigin(OutputWriter jsonWriter, ConfigOrigin origin) {
         if (origin instanceof FileConfigOrigin) {
             jsonWriter.addChild("origin", originWriter -> originWriter.add("type", "gocd"));
-        } else if (origin instanceof RepoConfigOrigin) {
+        } else if (origin instanceof RepoConfigOrigin repoConfigOrigin) {
             jsonWriter.addChild("origin", originWriter -> {
                 originWriter.add("type", "config_repo");
-                originWriter.add("id", ((RepoConfigOrigin) origin).getConfigRepo().getId());
+                originWriter.add("id", repoConfigOrigin.getConfigRepo().getId());
             });
         }
     }

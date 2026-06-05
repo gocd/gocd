@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -625,6 +626,6 @@ public class UserServiceTest {
     }
 
     private void configureAdmin(String username, boolean isAdmin) {
-        when(securityService.isUserAdmin(new Username(new CaseInsensitiveString(username)))).thenReturn(isAdmin);
+        when(securityService.isUserAdmin(new Username(cis(username)))).thenReturn(isAdmin);
     }
 }

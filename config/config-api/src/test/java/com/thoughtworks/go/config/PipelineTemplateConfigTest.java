@@ -27,30 +27,31 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PipelineTemplateConfigTest {
     @Test
     public void shouldFindByName() {
-        PipelineTemplateConfig pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("pipeline"), StageConfigMother.manualStage("manual"),
+        PipelineTemplateConfig pipelineTemplateConfig = new PipelineTemplateConfig(cis("pipeline"), StageConfigMother.manualStage("manual"),
                 StageConfigMother.manualStage("manual2"));
-        assertThat(pipelineTemplateConfig.findBy(new CaseInsensitiveString("manuaL2")).name()).isEqualTo(new CaseInsensitiveString("manual2"));
+        assertThat(pipelineTemplateConfig.findBy(cis("manuaL2")).name()).isEqualTo(cis("manual2"));
     }
 
     @Test
     public void shouldGetStageByName() {
-        PipelineTemplateConfig pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("pipeline"), StageConfigMother.manualStage("manual"),
+        PipelineTemplateConfig pipelineTemplateConfig = new PipelineTemplateConfig(cis("pipeline"), StageConfigMother.manualStage("manual"),
                 StageConfigMother.manualStage("manual2"));
-        assertThat(pipelineTemplateConfig.findBy(new CaseInsensitiveString("manual")).name()).isEqualTo(new CaseInsensitiveString("manual"));
-        assertThat(pipelineTemplateConfig.findBy(new CaseInsensitiveString("Does-not-exist"))).isNull();
+        assertThat(pipelineTemplateConfig.findBy(cis("manual")).name()).isEqualTo(cis("manual"));
+        assertThat(pipelineTemplateConfig.findBy(cis("Does-not-exist"))).isNull();
     }
 
 
     @Test
     public void shouldIgnoreCaseWhileMatchingATemplateWithName() {
-        assertThat(new PipelineTemplateConfig(new CaseInsensitiveString("FOO")).matches(new CaseInsensitiveString("foo"))).isTrue();
-        assertThat(new PipelineTemplateConfig(new CaseInsensitiveString("FOO")).matches(new CaseInsensitiveString("FOO"))).isTrue();
-        assertThat(new PipelineTemplateConfig(new CaseInsensitiveString("FOO")).matches(new CaseInsensitiveString("bar"))).isFalse();
+        assertThat(new PipelineTemplateConfig(cis("FOO")).matches(cis("foo"))).isTrue();
+        assertThat(new PipelineTemplateConfig(cis("FOO")).matches(cis("FOO"))).isTrue();
+        assertThat(new PipelineTemplateConfig(cis("FOO")).matches(cis("bar"))).isFalse();
     }
 
     @Test
@@ -60,7 +61,7 @@ public class PipelineTemplateConfigTest {
 
         pipelineTemplateConfig.setConfigAttributes(map);
 
-        assertThat(pipelineTemplateConfig.name()).isEqualTo(new CaseInsensitiveString("templateName"));
+        assertThat(pipelineTemplateConfig.name()).isEqualTo(cis("templateName"));
     }
 
     @Test
@@ -73,9 +74,9 @@ public class PipelineTemplateConfigTest {
         Authorization authorization = templateConfig.getAuthorization();
 
         assertThat(authorization.getAdminsConfig().size()).isEqualTo(3);
-        assertThat(authorization.getAdminsConfig()).contains(new AdminUser(new CaseInsensitiveString("loser")));
-        assertThat(authorization.getAdminsConfig()).contains(new AdminUser(new CaseInsensitiveString("boozer")));
-        assertThat(authorization.getAdminsConfig()).contains(new AdminUser(new CaseInsensitiveString("geezer")));
+        assertThat(authorization.getAdminsConfig()).contains(new AdminUser(cis("loser")));
+        assertThat(authorization.getAdminsConfig()).contains(new AdminUser(cis("boozer")));
+        assertThat(authorization.getAdminsConfig()).contains(new AdminUser(cis("geezer")));
 
         assertThat(authorization.getOperationConfig().size()).isEqualTo(0);
         assertThat(authorization.getViewConfig().size()).isEqualTo(0);
@@ -108,13 +109,13 @@ public class PipelineTemplateConfigTest {
         Authorization authorization = templateConfig.getAuthorization();
 
         assertThat(authorization.getAdminsConfig().size()).isEqualTo(1);
-        assertThat(authorization.getAdminsConfig()).contains(new AdminUser(new CaseInsensitiveString("geezer")));
+        assertThat(authorization.getAdminsConfig()).contains(new AdminUser(cis("geezer")));
     }
 
     @Test
     public void validate_shouldEnsureThatTemplateFollowsTheNameType() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        PipelineTemplateConfig config = new PipelineTemplateConfig(new CaseInsensitiveString(".Abc"));
+        PipelineTemplateConfig config = new PipelineTemplateConfig(cis(".Abc"));
         config.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
         assertThat(config.errors().isEmpty()).isFalse();
         assertThat(config.errors().firstErrorOn(PipelineTemplateConfig.NAME)).isEqualTo("Invalid template name '.Abc'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
@@ -123,7 +124,7 @@ public class PipelineTemplateConfigTest {
     @Test
     public void shouldErrorOutWhenTryingToAddTwoStagesWithSameName() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        PipelineTemplateConfig pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.manualStage("stage1"),
+        PipelineTemplateConfig pipelineTemplateConfig = new PipelineTemplateConfig(cis("template"), StageConfigMother.manualStage("stage1"),
                 StageConfigMother.manualStage("stage1"));
         pipelineTemplateConfig.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
         assertThat(pipelineTemplateConfig.getFirst().errors().isEmpty()).isFalse();
@@ -135,11 +136,11 @@ public class PipelineTemplateConfigTest {
     @Test
     public void shouldValidateRoleNamesInTemplateAdminAuthorization() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(new AdminsConfig(new AdminUser(cis("admin")))), null);
         cruiseConfig.setServerConfig(serverConfig);
         GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
-        RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("non-existent-role"), new RoleUser("non-existent-user"));
-        PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template"), new Authorization(new AdminsConfig(new AdminRole(roleConfig))), StageConfigMother.manualStage("stage2"),
+        RoleConfig roleConfig = new RoleConfig(cis("non-existent-role"), new RoleUser("non-existent-user"));
+        PipelineTemplateConfig template = new PipelineTemplateConfig(cis("template"), new Authorization(new AdminsConfig(new AdminRole(roleConfig))), StageConfigMother.manualStage("stage2"),
                 StageConfigMother.manualStage("stage"));
 
         template.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
@@ -150,11 +151,11 @@ public class PipelineTemplateConfigTest {
     @Test
     public void shouldValidateRoleNamesInTemplateViewAuthorization() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(new AdminsConfig(new AdminUser(cis("admin")))), null);
         cruiseConfig.setServerConfig(serverConfig);
         GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
-        RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("non-existent-role"), new RoleUser("non-existent-user"));
-        PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template"), new Authorization(new ViewConfig(new AdminRole(roleConfig))), StageConfigMother.manualStage("stage2"),
+        RoleConfig roleConfig = new RoleConfig(cis("non-existent-role"), new RoleUser("non-existent-user"));
+        PipelineTemplateConfig template = new PipelineTemplateConfig(cis("template"), new Authorization(new ViewConfig(new AdminRole(roleConfig))), StageConfigMother.manualStage("stage2"),
                 StageConfigMother.manualStage("stage"));
 
         template.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
@@ -189,8 +190,8 @@ public class PipelineTemplateConfigTest {
 
     @Test
     public void shouldValidateFetchTasksOfATemplateInTheContextOfPipelinesUsingTheTemplate() {
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("defaultJob"));
-        jobConfig.addTask(new FetchTask(new CaseInsensitiveString("non-existent-pipeline"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "src", "dest"));
+        JobConfig jobConfig = new JobConfig(cis("defaultJob"));
+        jobConfig.addTask(new FetchTask(cis("non-existent-pipeline"), cis("stage"), cis("job"), "src", "dest"));
         JobConfigs jobConfigs = new JobConfigs(jobConfig);
         StageConfig stageConfig = StageConfigMother.custom("stage", jobConfigs);
         PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("template", stageConfig);
@@ -208,8 +209,8 @@ public class PipelineTemplateConfigTest {
 
     @Test
     public void shouldValidateFetchPluggableTasksOfATemplateInTheContextOfPipelinesUsingTheTemplate() {
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("defaultJob"));
-        jobConfig.addTask(new FetchPluggableArtifactTask(new CaseInsensitiveString("non-existent-pipeline"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "artifactId"));
+        JobConfig jobConfig = new JobConfig(cis("defaultJob"));
+        jobConfig.addTask(new FetchPluggableArtifactTask(cis("non-existent-pipeline"), cis("stage"), cis("job"), "artifactId"));
         JobConfigs jobConfigs = new JobConfigs(jobConfig);
         StageConfig stageConfig = StageConfigMother.custom("stage", jobConfigs);
         PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("template", stageConfig);
@@ -226,7 +227,7 @@ public class PipelineTemplateConfigTest {
 
     @Test
     public void shouldValidatePublishExternalArtifactOfATemplateInTheContextOfPipelinesUsingTheTemplate() {
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("defaultJob"));
+        JobConfig jobConfig = new JobConfig(cis("defaultJob"));
         jobConfig.artifactTypeConfigs().add(new PluggableArtifactConfig("some-id", "non-existent-store-id"));
         JobConfigs jobConfigs = new JobConfigs(jobConfig);
         StageConfig stageConfig = StageConfigMother.custom("stage", jobConfigs);
@@ -244,10 +245,10 @@ public class PipelineTemplateConfigTest {
 
     @Test
     public void shouldValidateStageApprovalAuthorizationOfATemplateInTheContextOfPipelinesUsingTheTemplate() {
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("defaultJob"));
+        JobConfig jobConfig = new JobConfig(cis("defaultJob"));
         JobConfigs jobConfigs = new JobConfigs(jobConfig);
         StageConfig stageConfig = StageConfigMother.custom("stage", jobConfigs);
-        stageConfig.setApproval(new Approval(new AuthConfig(new AdminRole(new CaseInsensitiveString("non-existent-role")))));
+        stageConfig.setApproval(new Approval(new AuthConfig(new AdminRole(cis("non-existent-role")))));
         PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("template", stageConfig);
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfigWithTemplate("pipeline", "template");
         pipelineConfig.usingTemplate(template);
@@ -262,8 +263,8 @@ public class PipelineTemplateConfigTest {
 
     @Test
     public void shouldValidateStagePermissionsOfATemplateStageInTheContextOfPipelineUsingTheTemplate() {
-        StageConfig stageConfig = StageConfigMother.custom("stage", new JobConfigs(new JobConfig(new CaseInsensitiveString("defaultJob"))));
-        stageConfig.setApproval(new Approval(new AuthConfig(new AdminUser(new CaseInsensitiveString("non-admin-non-operate")))));
+        StageConfig stageConfig = StageConfigMother.custom("stage", new JobConfigs(new JobConfig(cis("defaultJob"))));
+        stageConfig.setApproval(new Approval(new AuthConfig(new AdminUser(cis("non-admin-non-operate")))));
         PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("template", stageConfig);
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfigWithTemplate("pipeline", "template");
         pipelineConfig.usingTemplate(template);
@@ -271,9 +272,9 @@ public class PipelineTemplateConfigTest {
         cruiseConfig.addTemplate(template);
         cruiseConfig.addPipelineWithoutValidation("group", pipelineConfig);
         PipelineConfigs group = cruiseConfig.findGroup("group");
-        group.setAuthorization(new Authorization(new ViewConfig(), new OperationConfig(new AdminUser(new CaseInsensitiveString("foo"))), new AdminsConfig()));
+        group.setAuthorization(new Authorization(new ViewConfig(), new OperationConfig(new AdminUser(cis("foo"))), new AdminsConfig()));
         cruiseConfig.server().security().securityAuthConfigs().add(new SecurityAuthConfig());
-        cruiseConfig.server().security().adminsConfig().add(new AdminUser(new CaseInsensitiveString("super-admin")));
+        cruiseConfig.server().security().adminsConfig().add(new AdminUser(cis("super-admin")));
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
@@ -282,7 +283,7 @@ public class PipelineTemplateConfigTest {
 
     @Test
     public void shouldValidateTemplateStageUsedInDownstreamPipelines() {
-        JobConfig jobConfigWithExecTask = new JobConfig(new CaseInsensitiveString("defaultJob"));
+        JobConfig jobConfigWithExecTask = new JobConfig(cis("defaultJob"));
         jobConfigWithExecTask.addTask(new ExecTask("ls", "l", "server/config"));
         JobConfigs jobConfigs = new JobConfigs(jobConfigWithExecTask);
 
@@ -293,7 +294,7 @@ public class PipelineTemplateConfigTest {
         upstreamPipelineUsingTemplate.usingTemplate(template);
 
         //Pipeline and stage of upstreamPipelineUsingTemplate
-        MaterialConfig dependency = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("non-existent-stage"));
+        MaterialConfig dependency = new DependencyMaterialConfig(cis("pipeline"), cis("non-existent-stage"));
         PipelineConfig downStreamPipeline = PipelineConfigMother.pipelineConfig("downstreamPipeline", new MaterialConfigs(dependency));
 
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
@@ -308,12 +309,12 @@ public class PipelineTemplateConfigTest {
 
     @Test
     public void shouldValidateTemplateJobsUsedInDownstreamPipelines() {
-        JobConfig jobConfigWithExecTask = new JobConfig(new CaseInsensitiveString("defaultJob"));
+        JobConfig jobConfigWithExecTask = new JobConfig(cis("defaultJob"));
         jobConfigWithExecTask.addTask(new ExecTask("ls", "l", "server/config"));
         JobConfigs jobConfigs = new JobConfigs(jobConfigWithExecTask);
 
-        JobConfig jobConfigWithFetchTask = new JobConfig(new CaseInsensitiveString("fetchJob"));
-        jobConfigWithFetchTask.addTask(new FetchTask(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("non-existent-job"), "src", "dest"));
+        JobConfig jobConfigWithFetchTask = new JobConfig(cis("fetchJob"));
+        jobConfigWithFetchTask.addTask(new FetchTask(cis("pipeline"), cis("stage"), cis("non-existent-job"), "src", "dest"));
         JobConfigs jobConfigsForDownstream = new JobConfigs(jobConfigWithFetchTask);
 
         StageConfig stageConfig = StageConfigMother.custom("stage", jobConfigs);
@@ -323,7 +324,7 @@ public class PipelineTemplateConfigTest {
         upstreamPipelineUsingTemplate.usingTemplate(template);
 
         //Pipeline and stage of upstreamPipelineUsingTemplate
-        MaterialConfig dependency = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"));
+        MaterialConfig dependency = new DependencyMaterialConfig(cis("pipeline"), cis("stage"));
         PipelineConfig downStreamPipeline = PipelineConfigMother.pipelineConfig("downstreamPipeline", new MaterialConfigs(dependency), jobConfigsForDownstream);
 
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
@@ -338,10 +339,10 @@ public class PipelineTemplateConfigTest {
 
     @Test
     public void shouldAllowEditingOfStageNameWhenItIsNotUsedAsDependencyMaterial() {
-        PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));
+        PipelineTemplateConfig template = new PipelineTemplateConfig(cis("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.addTemplate(template);
-        template.getStages().getFirst().setName(new CaseInsensitiveString("updatedStageName"));
+        template.getStages().getFirst().setName(cis("updatedStageName"));
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
@@ -350,10 +351,10 @@ public class PipelineTemplateConfigTest {
 
     @Test
     public void shouldAllowEditingOfJobNameWhenItIsNotUsedAsFetchArtifact() {
-        PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job2"));
+        PipelineTemplateConfig template = new PipelineTemplateConfig(cis("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job2"));
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.addTemplate(template);
-        template.getStages().getFirst().getJobs().getFirst().setName(new CaseInsensitiveString("updatedJobName"));
+        template.getStages().getFirst().getJobs().getFirst().setName(cis("updatedJobName"));
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 

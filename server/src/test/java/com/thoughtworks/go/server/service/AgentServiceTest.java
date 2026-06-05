@@ -51,6 +51,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.AgentConfigStatus.Pending;
 import static com.thoughtworks.go.domain.AgentInstance.FilterBy.Elastic;
 import static com.thoughtworks.go.domain.AgentInstance.FilterBy.Null;
@@ -202,7 +203,7 @@ class AgentServiceTest {
             void shouldBulkUpdateAgentsAttributes() {
                 AgentInstance agentInstance1 = mock(AgentInstance.class);
                 AgentInstance agentInstance2 = mock(AgentInstance.class);
-                Username username = new Username(new CaseInsensitiveString("test"));
+                Username username = new Username(cis("test"));
 
                 when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
                 when(goConfigService.getEnvironments()).thenReturn(new EnvironmentsConfig());
@@ -218,7 +219,7 @@ class AgentServiceTest {
 
             @Test
             void shouldBulkEnableAgents() {
-                Username username = new Username(new CaseInsensitiveString("test"));
+                Username username = new Username(cis("test"));
                 AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(agentIdentifier, AgentRuntimeStatus.Unknown, "cookie", "20.3.0-1234", "20.5.0-2345", () -> "My OS");
                 AgentInstance pending = createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), null);
 
@@ -304,7 +305,7 @@ class AgentServiceTest {
                 when(agentInstance.getStatus()).thenReturn(fromConfig(Pending));
 
                 String configEnvName = "config-repo-env";
-                BasicEnvironmentConfig remoteEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(configEnvName));
+                BasicEnvironmentConfig remoteEnvConfig = new BasicEnvironmentConfig(cis(configEnvName));
                 remoteEnvConfig.setOrigins(new RepoConfigOrigin());
                 remoteEnvConfig.addAgent(uuid);
 
@@ -384,7 +385,7 @@ class AgentServiceTest {
 
                 @Test
                 void shouldUpdateAgentAttributes() {
-                    Username username = new Username(new CaseInsensitiveString("test"));
+                    Username username = new Username(cis("test"));
 
                     when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
                     when(agentDao.fetchAgentFromDBByUUID(uuid)).thenReturn(agent);
@@ -398,7 +399,7 @@ class AgentServiceTest {
 
                 @Test
                 void shouldOnlyUpdateAttributesThatAreSpecified() {
-                    Username username = new Username(new CaseInsensitiveString("test"));
+                    Username username = new Username(cis("test"));
 
                     when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
                     when(agentDao.fetchAgentFromDBByUUID(uuid)).thenReturn(agent);
@@ -409,7 +410,7 @@ class AgentServiceTest {
 
                 @Test
                 void shouldResetEnvironmentsWhenEmptyEnvironmentsConfigIsSpecified() {
-                    Username username = new Username(new CaseInsensitiveString("test"));
+                    Username username = new Username(cis("test"));
 
                     when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
                     when(agentDao.fetchAgentFromDBByUUID(uuid)).thenReturn(agent);
@@ -423,7 +424,7 @@ class AgentServiceTest {
 
                 @Test
                 void shouldResetResourcesWhenEmptyCommaSeparatedStringOfResourcesIsSpecified() {
-                    Username username = new Username(new CaseInsensitiveString("test"));
+                    Username username = new Username(cis("test"));
 
                     when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
                     when(agentDao.fetchAgentFromDBByUUID(uuid)).thenReturn(agent);
@@ -437,7 +438,7 @@ class AgentServiceTest {
 
                 @Test
                 void shouldUpdatePendingAgentAttributesProvidedItIsEnableOrDisabled() {
-                    Username username = new Username(new CaseInsensitiveString("test"));
+                    Username username = new Username(cis("test"));
 
                     when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
                     when(agentInstance.isPending()).thenReturn(true);
@@ -452,7 +453,7 @@ class AgentServiceTest {
 
                 @Test
                 void shouldNotUpdateTheCacheForPendingAgentIfTheDBSaveFails() {
-                    Username username = new Username(new CaseInsensitiveString("test"));
+                    Username username = new Username(cis("test"));
 
                     AgentInstance pending = pending();
                     String uuid = pending.getUuid();
@@ -486,7 +487,7 @@ class AgentServiceTest {
                 @Test
                 void shouldThrow404IfAgentDoesNotExist() {
                     String uuid = "non-existent-uuid";
-                    Username username = new Username(new CaseInsensitiveString("test"));
+                    Username username = new Username(cis("test"));
                     AgentInstance mockAgentInstance = mock(AgentInstance.class);
 
                     when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
@@ -503,7 +504,7 @@ class AgentServiceTest {
 
                 @Test
                 void shouldThrow400IfOperationsPerformedOnPendingAgentWithoutUpdatingTheState() {
-                    Username username = new Username(new CaseInsensitiveString("test"));
+                    Username username = new Username(cis("test"));
 
                     when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
                     when(agentInstance.isPending()).thenReturn(true);
@@ -517,7 +518,7 @@ class AgentServiceTest {
 
                 @Test
                 void shouldThrow422IfSpecifiedResourceNamesAreInvalid() {
-                    Username username = new Username(new CaseInsensitiveString("test"));
+                    Username username = new Username(cis("test"));
 
                     when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
                     when(agentDao.fetchAgentFromDBByUUID(uuid)).thenReturn(agent);
@@ -639,7 +640,7 @@ class AgentServiceTest {
             @Test
             void shouldThrow404WhenDeleteAgentsIsCalledWithSingleAgentThatDoesNotExist() {
                 String uuid = "1234";
-                Username username = new Username(new CaseInsensitiveString("test"));
+                Username username = new Username(cis("test"));
 
                 AgentInstance mockAgentInstance = mock(AgentInstance.class);
                 Agent mockAgent = mock(Agent.class);
@@ -664,7 +665,7 @@ class AgentServiceTest {
             @Test
             void shouldThrow406WhenDeleteAgentsIsCalledWithSingleNotDisabledAgent() {
                 String uuid = "1234";
-                Username username = new Username(new CaseInsensitiveString("test"));
+                Username username = new Username(cis("test"));
 
                 AgentInstance mockAgentInstance = mock(AgentInstance.class);
                 Agent mockAgent = mock(Agent.class);
@@ -686,7 +687,7 @@ class AgentServiceTest {
             void shouldThrow406WhenDeleteAgentsIsCalledWithMultipleAgentsWithOneBeingNonDisabledAgent() {
                 String uuid1 = "1234";
                 String uuid2 = "4321";
-                Username username = new Username(new CaseInsensitiveString("test"));
+                Username username = new Username(cis("test"));
 
                 AgentInstance mockAgentInstance1 = mock(AgentInstance.class);
                 AgentInstance mockAgentInstance2 = mock(AgentInstance.class);
@@ -727,7 +728,7 @@ class AgentServiceTest {
             @Test
             void shouldReturn200WhenDeleteAgentsIsCalledWithSingleDisabledAgent() {
                 String uuid = "1234";
-                Username username = new Username(new CaseInsensitiveString("test"));
+                Username username = new Username(cis("test"));
 
                 AgentInstance mockAgentInstance = mock(AgentInstance.class);
                 Agent mockAgent = mock(Agent.class);
@@ -751,7 +752,7 @@ class AgentServiceTest {
             void shouldReturn200WhenDeleteAgentsIsCalledWithMultipleDisabledAgents() {
                 String uuid1 = "1234";
                 String uuid2 = "4321";
-                Username username = new Username(new CaseInsensitiveString("test"));
+                Username username = new Username(cis("test"));
 
                 AgentInstance mockAgentInstance1 = mock(AgentInstance.class);
                 AgentInstance mockAgentInstance2 = mock(AgentInstance.class);
@@ -909,7 +910,7 @@ class AgentServiceTest {
         @Test
         void shouldAddAgentsAssociationToTheSpecifiedEnv() {
             AgentInstance agentInstance = mock(AgentInstance.class);
-            Username username = new Username(new CaseInsensitiveString("test"));
+            Username username = new Username(cis("test"));
             String uuid = "uuid";
             Agent agentConfigForUUID1 = mock(Agent.class);
 
@@ -918,7 +919,7 @@ class AgentServiceTest {
             when(agentDao.getAgentByUUIDFromCacheOrDB("uuid1")).thenReturn(agentConfigForUUID1);
 
             EnvironmentsConfig envConfigs = new EnvironmentsConfig();
-            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
+            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(cis("test"));
             envConfigs.add(testEnv);
 
             when(goConfigService.getEnvironments()).thenReturn(envConfigs);
@@ -940,7 +941,7 @@ class AgentServiceTest {
         @Test
         void shouldUpdateAgentsAssociationOfEnvironment() {
             AgentInstance agentInstance = mock(AgentInstance.class);
-            Username username = new Username(new CaseInsensitiveString("test"));
+            Username username = new Username(cis("test"));
             String uuid = "uuid";
             Agent agentConfigForUUID1 = mock(Agent.class);
 
@@ -951,7 +952,7 @@ class AgentServiceTest {
 
             agent.setEnvironments("test");
             EnvironmentsConfig envConfigs = new EnvironmentsConfig();
-            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
+            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(cis("test"));
             testEnv.addAgent("uuid1");
             testEnv.addAgent("uuid2");
             envConfigs.add(testEnv);
@@ -967,7 +968,7 @@ class AgentServiceTest {
         @Test
         void shouldRemoveAgentsAssociationFromTheSpecifiedEnv() {
             AgentInstance agentInstance = mock(AgentInstance.class);
-            Username username = new Username(new CaseInsensitiveString("test"));
+            Username username = new Username(cis("test"));
             String uuid = "uuid";
             Agent agentConfigForUUID1 = mock(Agent.class);
 
@@ -979,7 +980,7 @@ class AgentServiceTest {
             when(agentDao.getAgentByUUIDFromCacheOrDB("uuid1")).thenReturn(agentConfigForUUID1);
 
             EnvironmentsConfig envConfigs = new EnvironmentsConfig();
-            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
+            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(cis("test"));
             envConfigs.add(testEnv);
             testEnv.addAgent(uuid);
             testEnv.addAgent("uuid1");
@@ -1002,11 +1003,11 @@ class AgentServiceTest {
 
         @Test
         void shouldNotDoAnythingIfEmptyAgentsUuidListAndNoAgentAssociationConfiguredWithEnvConfig() {
-            Username username = new Username(new CaseInsensitiveString("test"));
+            Username username = new Username(cis("test"));
             agent.setEnvironments("test");
 
             EnvironmentsConfig envConfigs = new EnvironmentsConfig();
-            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
+            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(cis("test"));
             envConfigs.add(testEnv);
 
             when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
@@ -1072,7 +1073,7 @@ class AgentServiceTest {
         @Test
         void shouldAddAgentsAssociationToTheSpecifiedEnv() {
             AgentInstance agentInstance = mock(AgentInstance.class);
-            Username username = new Username(new CaseInsensitiveString("test"));
+            Username username = new Username(cis("test"));
             String uuid = "uuid";
             Agent agentConfigForUUID1 = mock(Agent.class);
 
@@ -1081,7 +1082,7 @@ class AgentServiceTest {
             when(agentDao.getAgentByUUIDFromCacheOrDB("uuid1")).thenReturn(agentConfigForUUID1);
 
             EnvironmentsConfig envConfigs = new EnvironmentsConfig();
-            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
+            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(cis("test"));
             envConfigs.add(testEnv);
 
             when(goConfigService.getEnvironments()).thenReturn(envConfigs);
@@ -1103,7 +1104,7 @@ class AgentServiceTest {
         @Test
         void shouldUpdateAgentsAssociationOfEnvironment() {
             AgentInstance agentInstance = mock(AgentInstance.class);
-            Username username = new Username(new CaseInsensitiveString("test"));
+            Username username = new Username(cis("test"));
             String uuid = "uuid";
             Agent agentConfigForUUID1 = mock(Agent.class);
 
@@ -1114,7 +1115,7 @@ class AgentServiceTest {
 
             agent.setEnvironments("test");
             EnvironmentsConfig envConfigs = new EnvironmentsConfig();
-            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
+            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(cis("test"));
             testEnv.addAgent("uuid1");
             testEnv.addAgent("uuid2");
             envConfigs.add(testEnv);
@@ -1130,7 +1131,7 @@ class AgentServiceTest {
         @Test
         void shouldRemoveAgentsAssociationFromTheSpecifiedEnv() {
             AgentInstance agentInstance = mock(AgentInstance.class);
-            Username username = new Username(new CaseInsensitiveString("test"));
+            Username username = new Username(cis("test"));
             String uuid = "uuid";
             Agent agentConfigForUUID1 = mock(Agent.class);
 
@@ -1142,7 +1143,7 @@ class AgentServiceTest {
             when(agentDao.getAgentByUUIDFromCacheOrDB("uuid1")).thenReturn(agentConfigForUUID1);
 
             EnvironmentsConfig envConfigs = new EnvironmentsConfig();
-            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
+            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(cis("test"));
             envConfigs.add(testEnv);
             testEnv.addAgent(uuid);
             testEnv.addAgent("uuid1");
@@ -1165,11 +1166,11 @@ class AgentServiceTest {
 
         @Test
         void shouldNotDoAnythingIfEmptyAgentsUuidListAndNoAgentAssociationConfiguredWithEnvConfig() {
-            Username username = new Username(new CaseInsensitiveString("test"));
+            Username username = new Username(cis("test"));
             agent.setEnvironments("test");
 
             EnvironmentsConfig envConfigs = new EnvironmentsConfig();
-            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
+            BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(cis("test"));
             envConfigs.add(testEnv);
 
             when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service.plugins.processor.pluginsettings.v1;
 
-
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;

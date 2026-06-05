@@ -19,7 +19,6 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
-
 public class UserRepresenter {
 
     public static void toJSON(OutputWriter writer, User user) {

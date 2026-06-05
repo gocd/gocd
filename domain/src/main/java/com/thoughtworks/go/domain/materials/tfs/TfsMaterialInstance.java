@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.thoughtworks.go.domain.materials.tfs;
+
 import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.Material;

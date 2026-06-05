@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Service
@@ -160,7 +161,7 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
         }
 
         LOGGER.info("[Pipeline Schedule] [Accepted] Manual trigger of pipeline '{}' accepted for user {}", pipelineName, CaseInsensitiveString.str(username.getUsername()));
-        buildCauseProducerService.manualSchedulePipeline(username, new CaseInsensitiveString(pipelineName), scheduleOptions, result);
+        buildCauseProducerService.manualSchedulePipeline(username, cis(pipelineName), scheduleOptions, result);
         LOGGER.info("[Pipeline Schedule] [Processed] Manual trigger of pipeline '{}' processed with result '{}'", pipelineName, result.getServerHealthState());
     }
 
@@ -188,7 +189,7 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
 
     private boolean materialNotFound(String pipelineName, Map<String, String> revisions, OperationResult result) {
         for (String pipelineFingerprint : revisions.keySet()) {
-            if (goConfigService.findMaterial(new CaseInsensitiveString(pipelineName), pipelineFingerprint) == null) {
+            if (goConfigService.findMaterial(cis(pipelineName), pipelineFingerprint) == null) {
                 String message = String.format("material with fingerprint [%s] not found in pipeline [%s]", pipelineFingerprint, pipelineName);
                 result.notFound(message, message, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
                 return true;
@@ -198,7 +199,7 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
     }
 
     private boolean pipelineNotFound(String pipelineName, OperationResult result) {
-        if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+        if (!goConfigService.hasPipelineNamed(cis(pipelineName))) {
             result.notFound(String.format("Pipeline '%s' not found", pipelineName),
                     String.format("Pipeline '%s' not found", pipelineName),
                     HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
@@ -214,7 +215,7 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
 
             List<String> deletedPipeline = new ArrayList<>();
             for (String pipelineName : pipelines.keySet()) {
-                if (!newCruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+                if (!newCruiseConfig.hasPipelineNamed(cis(pipelineName))) {
                     deletedPipeline.add(pipelineName);
                 }
             }

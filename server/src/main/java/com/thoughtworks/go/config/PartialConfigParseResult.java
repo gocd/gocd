@@ -36,7 +36,6 @@ import java.util.Objects;
     Any expect occurred while parsing config repository.
 */
 
-
 public class PartialConfigParseResult {
     private Modification latestParsedModification;
     private Modification goodModification;

@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -65,7 +66,7 @@ public class CachedGoConfigTest {
         EntityConfigUpdateCommand<?> saveCommand = mock(EntityConfigUpdateCommand.class);
         GoConfigHolder savedConfig = new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig());
         GoConfigHolder holderBeforeUpdate = cachedGoConfig.loadConfigHolder();
-        Username user = new Username(new CaseInsensitiveString("user"));
+        Username user = new Username(cis("user"));
         EntityConfigSaveResult<?> entityConfigSaveResult = mock(EntityConfigSaveResult.class);
         when(entityConfigSaveResult.getConfigHolder()).thenReturn(savedConfig);
         doReturn(new PipelineConfig()).when(entityConfigSaveResult).getEntityConfig();
@@ -134,7 +135,7 @@ public class CachedGoConfigTest {
         EntityConfigSaveResult<?> entityConfigSaveResult = mock(EntityConfigSaveResult.class);
         when(entityConfigSaveResult.getConfigHolder()).thenReturn(configHolder);
         doReturn(new PipelineConfig()).when(entityConfigSaveResult).getEntityConfig();
-        Username user = new Username(new CaseInsensitiveString("user"));
+        Username user = new Username(cis("user"));
         doReturn(entityConfigSaveResult).when(dataSource).writeEntityWithLock(configCommand, configHolder, user);
 
         cachedGoConfig.loadConfigIfNull();

@@ -32,8 +32,8 @@ public class DirectiveRepresenter {
             jsonWriter.addChild("errors", errorWriter -> new ErrorGetter(new HashMap<>()).toJSON(jsonWriter, directive));
         }
 
-        if (directive instanceof Unknown) {
-            jsonWriter.add("permission", ((Unknown) directive).getDirective());
+        if (directive instanceof Unknown unknown) {
+            jsonWriter.add("permission", unknown.getDirective());
         } else {
             jsonWriter.add("permission", directive.getDirectiveType().type());
         }

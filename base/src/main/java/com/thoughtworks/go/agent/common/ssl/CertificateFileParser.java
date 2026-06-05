@@ -38,8 +38,8 @@ public class CertificateFileParser {
                 Collection<? extends Certificate> certificates = cf.generateCertificates(fis);
 
                 for (Certificate cert : certificates) {
-                    if (cert instanceof X509Certificate) {
-                        certs.add((X509Certificate) cert);
+                    if (cert instanceof X509Certificate x509Certificate) {
+                        certs.add(x509Certificate);
                     }
                 }
             }

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.helper.MaterialsMother;
@@ -36,6 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.verify;
@@ -66,7 +66,7 @@ public class MaterialDatabaseUpdaterTest {
         Material material = new GitMaterial("url", "branch");
         Exception exception = new RuntimeException("failed");
         String message = "Modification check failed for material: " + material.getLongDescription() + "\nAffected pipelines are blah.";
-        when(goConfigService.pipelinesWithMaterial(material.config().getFingerprint())).thenReturn(List.of(new CaseInsensitiveString("blah")));
+        when(goConfigService.pipelinesWithMaterial(material.config().getFingerprint())).thenReturn(List.of(cis("blah")));
         ServerHealthState error = ServerHealthState.errorWithHtml(message, exception.getMessage(), HealthStateType.general(HealthStateScope.forMaterial(material)));
         when(materialRepository.findMaterialInstance(material)).thenThrow(exception);
         try {

@@ -79,23 +79,23 @@ public class Materials extends BaseCollection<Material> {
         MaterialRevisions revisions = new MaterialRevisions();
         for (Material material : this) {
             List<Modification> modifications = new ArrayList<>();
-            if (material instanceof SvnMaterial) {
-                modifications = ((SvnMaterial) material).latestModification(baseDir, execCtx);
+            if (material instanceof SvnMaterial svnMaterial) {
+                modifications = svnMaterial.latestModification(baseDir, execCtx);
             }
-            if (material instanceof HgMaterial) {
-                modifications = ((HgMaterial) material).latestModification(baseDir, execCtx);
+            if (material instanceof HgMaterial hgMaterial) {
+                modifications = hgMaterial.latestModification(baseDir, execCtx);
             }
-            if (material instanceof GitMaterial) {
-                modifications = ((GitMaterial) material).latestModification(baseDir, execCtx);
+            if (material instanceof GitMaterial gitMaterial) {
+                modifications = gitMaterial.latestModification(baseDir, execCtx);
             }
-            if (material instanceof P4Material) {
-                modifications = ((P4Material) material).latestModification(baseDir, execCtx);
+            if (material instanceof P4Material p4Material) {
+                modifications = p4Material.latestModification(baseDir, execCtx);
             }
-            if (material instanceof TfsMaterial) {
-                modifications = ((TfsMaterial) material).latestModification(baseDir, execCtx);
+            if (material instanceof TfsMaterial tfsMaterial) {
+                modifications = tfsMaterial.latestModification(baseDir, execCtx);
             }
-            if (material instanceof DependencyMaterial) {
-                modifications = ((DependencyMaterial) material).latestModification(baseDir, execCtx);
+            if (material instanceof DependencyMaterial dependencyMaterial) {
+                modifications = dependencyMaterial.latestModification(baseDir, execCtx);
             }
             revisions.addRevision(material, modifications);
         }
@@ -183,8 +183,8 @@ public class Materials extends BaseCollection<Material> {
     private List<ScmMaterial> filterScmMaterials() {
         List<ScmMaterial> scmMaterials = new ArrayList<>();
         for (Material material : this) {
-            if (material instanceof ScmMaterial) {
-                scmMaterials.add((ScmMaterial) material);
+            if (material instanceof ScmMaterial scmMaterial) {
+                scmMaterials.add(scmMaterial);
             }
         }
         return scmMaterials;

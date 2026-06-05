@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.InsecureEnvironmentVariables.EMPTY_ENV_VARS;
 import static com.thoughtworks.go.domain.label.PipelineLabel.defaultLabel;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,7 +84,7 @@ public class PipelineLabelTest {
         PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${hg}", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         HgMaterial material = MaterialsMother.hgMaterial();
-        material.setName(new CaseInsensitiveString("hg"));
+        material.setName(cis("hg"));
         Modification modification = new Modification();
         modification.setRevision("ae09876hj");
 
@@ -97,7 +98,7 @@ public class PipelineLabelTest {
         PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git}", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         ScmMaterial material = MaterialsMother.gitMaterial("");
-        material.setName(new CaseInsensitiveString("git"));
+        material.setName(cis("git"));
         Modification modification = new Modification();
         modification.setRevision("8c8a273e12a45e57fed5ce978d830eb482f6f666");
 
@@ -111,7 +112,7 @@ public class PipelineLabelTest {
         PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[:6]}", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         ScmMaterial material = MaterialsMother.gitMaterial("");
-        material.setName(new CaseInsensitiveString("git"));
+        material.setName(cis("git"));
         Modification modification = new Modification();
         modification.setRevision("8c8a273e12a45e57fed5ce978d830eb482f6f666");
 
@@ -124,7 +125,7 @@ public class PipelineLabelTest {
     public void shouldTrimLongLabelTo255() {
         PipelineLabel label = PipelineLabel.create("Pipeline-${upstream}", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         Map<CaseInsensitiveString, String> namedRevisions = new HashMap<>();
-        namedRevisions.put(new CaseInsensitiveString("upstream"), longLabel(300));
+        namedRevisions.put(cis("upstream"), longLabel(300));
 
         label.updateLabel(namedRevisions, 1);
         assertThat(label.toString().length()).isEqualTo(255);
@@ -134,7 +135,7 @@ public class PipelineLabelTest {
     public void shouldKeepLabelIfLessThan255() {
         PipelineLabel label = PipelineLabel.create("${upstream}", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         Map<CaseInsensitiveString, String> namedRevisions = new HashMap<>();
-        namedRevisions.put(new CaseInsensitiveString("upstream"), longLabel(154));
+        namedRevisions.put(cis("upstream"), longLabel(154));
 
         label.updateLabel(namedRevisions, 1);
         assertThat(label.toString().length()).isEqualTo(154);
@@ -314,9 +315,9 @@ public class PipelineLabelTest {
 
     @BeforeAll
     public static void setup() {
-        MATERIAL_REVISIONS.put(new CaseInsensitiveString("svnRepo.verynice"), SVN_REVISION);
-        MATERIAL_REVISIONS.put(new CaseInsensitiveString("svn"), SVN_REVISION);
-        MATERIAL_REVISIONS.put(new CaseInsensitiveString("git"), GIT_REVISION);
+        MATERIAL_REVISIONS.put(cis("svnRepo.verynice"), SVN_REVISION);
+        MATERIAL_REVISIONS.put(cis("svn"), SVN_REVISION);
+        MATERIAL_REVISIONS.put(cis("git"), GIT_REVISION);
     }
 
     private static final Map<CaseInsensitiveString, String> MATERIAL_REVISIONS = new HashMap<>();
@@ -366,7 +367,7 @@ public class PipelineLabelTest {
     private PipelineLabel getReplacedLabelFor(String name, String labelFormat) {
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         PipelineLabel label = PipelineLabel.create(labelFormat, InsecureEnvironmentVariables.EMPTY_ENV_VARS);
-        ((SvnMaterial) materialRevisions.getRevisions().getFirst().getMaterial()).setName(new CaseInsensitiveString(name));
+        ((SvnMaterial) materialRevisions.getRevisions().getFirst().getMaterial()).setName(cis(name));
         label.updateLabel(materialRevisions.getNamedRevisions(), 1);
         return label;
     }

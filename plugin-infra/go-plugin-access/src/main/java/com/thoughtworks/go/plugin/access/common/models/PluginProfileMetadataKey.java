@@ -21,7 +21,6 @@ import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 
 import java.util.Objects;
 
-
 public class PluginProfileMetadataKey {
     @Expose
     @SerializedName("key")

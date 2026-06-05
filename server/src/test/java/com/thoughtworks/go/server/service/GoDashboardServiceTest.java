@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.server.dashboard.GoDashboardPipelineMother.pipeline;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -79,10 +80,10 @@ public class GoDashboardServiceTest {
         PipelineConfigs groupConfig = config.findGroup("group1");
         GoDashboardPipeline pipeline = pipeline("pipeline1");
 
-        when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline1"))).thenReturn(groupConfig);
+        when(goConfigService.findGroupByPipeline(cis("pipeline1"))).thenReturn(groupConfig);
         when(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, groupConfig)).thenReturn(pipeline);
 
-        service.updateCacheForPipeline(new CaseInsensitiveString("pipeline1"));
+        service.updateCacheForPipeline(cis("pipeline1"));
 
         verify(cache).put(pipeline);
     }
@@ -93,7 +94,7 @@ public class GoDashboardServiceTest {
         PipelineConfigs groupConfig = config.findGroup("group1");
         GoDashboardPipeline pipeline = pipeline("pipeline1");
 
-        when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline1"))).thenReturn(groupConfig);
+        when(goConfigService.findGroupByPipeline(cis("pipeline1"))).thenReturn(groupConfig);
         when(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, groupConfig)).thenReturn(pipeline);
 
         service.updateCacheForPipeline(pipelineConfig);

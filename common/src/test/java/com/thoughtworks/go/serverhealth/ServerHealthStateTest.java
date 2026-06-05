@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 
+import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
+import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 

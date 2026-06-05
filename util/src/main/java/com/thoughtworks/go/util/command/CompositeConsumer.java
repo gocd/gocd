@@ -38,8 +38,8 @@ public class CompositeConsumer implements TaggedStreamConsumer {
     @Override
     public void taggedConsumeLine(String tag, String line) {
         for (StreamConsumer consumer : consumers) {
-            if (null != tag && consumer instanceof TaggedStreamConsumer) {
-                ((TaggedStreamConsumer) consumer).taggedConsumeLine(tag, line);
+            if (null != tag && consumer instanceof TaggedStreamConsumer taggedStreamConsumer) {
+                taggedStreamConsumer.taggedConsumeLine(tag, line);
             } else {
                 consumer.consumeLine(line);
             }

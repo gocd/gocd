@@ -54,6 +54,7 @@ import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
@@ -788,7 +789,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
         loginAsAdmin()
         pipeline.setOrigin(new FileConfigOrigin())
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
-        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString("pipeline1"))).thenReturn("some-group")
+        when(goConfigService.findGroupNameByPipeline(cis("pipeline1"))).thenReturn("some-group")
       }
 
       @Test

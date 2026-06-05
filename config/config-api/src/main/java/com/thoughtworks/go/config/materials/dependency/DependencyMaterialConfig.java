@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 
 @ConfigTag(value = "pipeline", label = "Pipeline")
@@ -40,10 +41,10 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
     public static final String ORIGIN = "origin";
 
     @ConfigAttribute(value = "pipelineName")
-    private CaseInsensitiveString pipelineName = new CaseInsensitiveString("Unknown");
+    private CaseInsensitiveString pipelineName = cis("Unknown");
 
     @ConfigAttribute(value = "stageName")
-    private CaseInsensitiveString stageName = new CaseInsensitiveString("Unknown");
+    private CaseInsensitiveString stageName = cis("Unknown");
 
     @ConfigAttribute(value = "ignoreForScheduling")
     private boolean ignoreForScheduling = false;
@@ -234,7 +235,7 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
         }
         @SuppressWarnings("unchecked") Map<String, ?> attributesMap = (Map<String, ?>) attributes;
         if (attributesMap.containsKey(MATERIAL_NAME)) {
-            name = new CaseInsensitiveString((String) attributesMap.get(MATERIAL_NAME));
+            name = cis((String) attributesMap.get(MATERIAL_NAME));
             if (CaseInsensitiveString.isEmpty(name)) {
                 name = null;
             }
@@ -243,9 +244,9 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
             pipelineStageName = (String) attributesMap.get(PIPELINE_STAGE_NAME);
             Matcher matcher = PIPELINE_STAGE_COMBINATION_PATTERN.matcher(pipelineStageName);
             if (matcher.matches()) {
-                pipelineName = new CaseInsensitiveString(matcher.group(1));
+                pipelineName = cis(matcher.group(1));
                 String stageNameWithBrackets = matcher.group(2);
-                stageName = new CaseInsensitiveString(stageNameWithBrackets.replace("[", "").replace("]", ""));
+                stageName = cis(stageNameWithBrackets.replace("[", "").replace("]", ""));
             } else {
                 errors.add(PIPELINE_STAGE_NAME, String.format("'%s' should conform to the pattern 'pipeline [stage]'", pipelineStageName));
             }

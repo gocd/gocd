@@ -45,6 +45,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.server.security.GoAuthority.ROLE_USER;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
@@ -211,7 +212,7 @@ class WebBasedPluginAuthenticationProviderTest {
 
             authenticationProvider.authenticate(CREDENTIALS, PLUGIN_ID);
 
-            inOrder.verify(pluginRoleService).updatePluginRoles(PLUGIN_ID, user.getUsername(), List.of(new CaseInsensitiveString("admin")));
+            inOrder.verify(pluginRoleService).updatePluginRoles(PLUGIN_ID, user.getUsername(), List.of(cis("admin")));
             inOrder.verify(authorityGranter).authorities(user.getUsername());
         }
 
@@ -227,7 +228,7 @@ class WebBasedPluginAuthenticationProviderTest {
 
             inOrder.verify(authorizationExtension).authenticateUser(eq(PLUGIN_ID), eq(CREDENTIALS.getCredentials()), anyList(), anyList());
             inOrder.verify(userService).addOrUpdateUser(any(), eq(githubSecurityAuthconfig));
-            inOrder.verify(pluginRoleService).updatePluginRoles(PLUGIN_ID, user.getUsername(), List.of(new CaseInsensitiveString("admin")));
+            inOrder.verify(pluginRoleService).updatePluginRoles(PLUGIN_ID, user.getUsername(), List.of(cis("admin")));
             inOrder.verify(authorityGranter).authorities(user.getUsername());
         }
 

@@ -34,6 +34,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound;
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonNotAcceptable;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -70,7 +71,7 @@ public class PipelineHistoryController {
                              @RequestParam(value = "start", required = false) Integer startParam,
                              @RequestParam(value = "labelFilter", required = false) String labelFilter,
                              HttpServletResponse response) {
-        PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
+        PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(cis(pipelineName));
         String username = CaseInsensitiveString.str(SessionUtils.currentUsername().getUsername());
 
         Pagination pagination;
@@ -99,7 +100,7 @@ public class PipelineHistoryController {
     }
 
     private boolean canPause(PipelineConfig pipelineConfig, String username) {
-        return securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString(username), CaseInsensitiveString.str(pipelineConfig.name()));
+        return securityService.hasOperatePermissionForPipeline(cis(username), CaseInsensitiveString.str(pipelineConfig.name()));
     }
 
     private boolean canForce(PipelineConfig pipelineConfig, String username) {

@@ -21,7 +21,6 @@ import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelineSelectio
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelinesDataRepresenter
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelinesDataResponse
 import com.thoughtworks.go.config.BasicPipelineConfigs
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.server.domain.user.PipelineSelections
@@ -38,6 +37,7 @@ import org.junit.jupiter.api.Test
 
 import javax.servlet.http.Cookie
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.util.SystemEnvironment.WEBAPP_CONTEXT_PATH
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
@@ -61,8 +61,8 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
 
         def group1 = new BasicPipelineConfigs(group: "grp1")
         def group2 = new BasicPipelineConfigs(group: "grp2")
-        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline1")))
-        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline2")))
+        group2.add(new PipelineConfig(name: cis("pipeline1")))
+        group2.add(new PipelineConfig(name: cis("pipeline2")))
 
         PipelineGroups pipelineConfigs = [group1, group2]
 
@@ -89,8 +89,8 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
 
         def group1 = new BasicPipelineConfigs(group: "grp1")
         def group2 = new BasicPipelineConfigs(group: "grp2")
-        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline1")))
-        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline2")))
+        group2.add(new PipelineConfig(name: cis("pipeline1")))
+        group2.add(new PipelineConfig(name: cis("pipeline2")))
 
         PipelineGroups pipelineConfigs = [group1, group2]
 
@@ -122,8 +122,8 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
 
         def group1 = new BasicPipelineConfigs(group: "grp1")
         def group2 = new BasicPipelineConfigs(group: "grp2")
-        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline1")))
-        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline2")))
+        group2.add(new PipelineConfig(name: cis("pipeline1")))
+        group2.add(new PipelineConfig(name: cis("pipeline2")))
 
         PipelineGroups pipelineConfigs = [group1, group2]
 
@@ -149,8 +149,8 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
 
         def group1 = new BasicPipelineConfigs(group: "grp1")
         def group2 = new BasicPipelineConfigs(group: "grp2")
-        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline1")))
-        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline2")))
+        group2.add(new PipelineConfig(name: cis("pipeline1")))
+        group2.add(new PipelineConfig(name: cis("pipeline2")))
 
         PipelineGroups pipelineConfigs = [group1, group2]
 

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
@@ -52,6 +51,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.FilterMother.filterFor;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.*;
@@ -161,15 +161,15 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     }
 
     private void assertPasswordIsCorrect(Material material) {
-        if (material instanceof PasswordAwareMaterial) {
-            assertThat(((PasswordAwareMaterial) material).getPassword()).isEqualTo("pass");
+        if (material instanceof PasswordAwareMaterial passwordAwareMaterial) {
+            assertThat(passwordAwareMaterial.getPassword()).isEqualTo("pass");
             assertThat(ReflectionUtil.<String>getField(material, "password")).isEqualTo("pass");
         }
     }
 
     private void assertPasswordIsCorrect(MaterialConfig materialConfig) {
-        if (materialConfig instanceof PasswordAwareMaterial) {
-            assertThat(((PasswordAwareMaterial) materialConfig).getPassword()).isEqualTo("pass");
+        if (materialConfig instanceof PasswordAwareMaterial passwordAwareMaterial) {
+            assertThat(passwordAwareMaterial.getPassword()).isEqualTo("pass");
             assertThat(ReflectionUtil.<String>getField(materialConfig, "password")).isNull();
             assertThat(ReflectionUtil.<String>getField(materialConfig, "encryptedPassword")).isNotNull();
         }
@@ -179,12 +179,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
         return prefix + "\nExpected: " + reflectionToString(expected) + "\n  Actual: " + reflectionToString(actual);
     }
 
-    private static CaseInsensitiveString cis(String value) {
-        return new CaseInsensitiveString(value);
-    }
-
     private static UrlArgument url(String url) {
         return new UrlArgument(url);
     }
-
 }

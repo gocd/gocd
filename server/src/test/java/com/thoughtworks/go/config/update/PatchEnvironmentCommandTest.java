@@ -33,6 +33,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -67,10 +68,10 @@ public class PatchEnvironmentCommandTest {
 
         result = new HttpLocalizedOperationResult();
 
-        currentUser = new Username(new CaseInsensitiveString("user"));
+        currentUser = new Username(cis("user"));
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
 
-        environmentName = new CaseInsensitiveString("Dev");
+        environmentName = cis("Dev");
         environmentConfig = new BasicEnvironmentConfig(environmentName);
         cruiseConfig.addEnvironment(environmentConfig);
 
@@ -148,7 +149,7 @@ public class PatchEnvironmentCommandTest {
 
         pipelinesToRemove.add(pipelineName);
         PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
-        assertFalse(cruiseConfig.getEnvironments().find(environmentName).containsPipeline(new CaseInsensitiveString(pipelineName)));
+        assertFalse(cruiseConfig.getEnvironments().find(environmentName).containsPipeline(cis(pipelineName)));
         command.update(cruiseConfig);
 
         boolean isValid = command.isValid(cruiseConfig);
@@ -180,7 +181,7 @@ public class PatchEnvironmentCommandTest {
 
     @Test
     public void shouldNotAllowRemovingRemotePipeline() {
-        CaseInsensitiveString pipelineName = new CaseInsensitiveString("remote-pipeline-to-remove");
+        CaseInsensitiveString pipelineName = cis("remote-pipeline-to-remove");
 
         BasicEnvironmentConfig local = new BasicEnvironmentConfig(environmentName);
         local.setOrigins(new FileConfigOrigin());
@@ -193,7 +194,7 @@ public class PatchEnvironmentCommandTest {
 
         pipelinesToRemove.add(pipelineName.toString());
         PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
-        assertFalse(cruiseConfig.getEnvironments().find(environmentName).containsPipeline(new CaseInsensitiveString(pipelineName.toString())));
+        assertFalse(cruiseConfig.getEnvironments().find(environmentName).containsPipeline(cis(pipelineName.toString())));
         command.update(cruiseConfig);
 
         cruiseConfig.getEnvironments().replaceIfNotEmpty(cruiseConfig.getEnvironments().find(environmentName), mergedConfig); //preprocess

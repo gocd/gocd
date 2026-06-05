@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -86,7 +87,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
 
         MergePipelineConfigs merge = new MergePipelineConfigs(filePart, new BasicPipelineConfigs());
 
-        Authorization auth = new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("buddy"))));
+        Authorization auth = new Authorization(new AdminsConfig(new AdminUser(cis("buddy"))));
         merge.setAuthorization(auth);
         assertThat(filePart.getAuthorization()).isEqualTo(auth);
     }
@@ -99,8 +100,8 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfigs group = new MergePipelineConfigs(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")), filePart);
         group.addToTop(PipelineConfigMother.pipelineConfig("pipeline3"));
 
-        assertThat(filePart.hasPipeline(new CaseInsensitiveString("pipeline3"))).isTrue();
-        assertThat(group.hasPipeline(new CaseInsensitiveString("pipeline3"))).isTrue();
+        assertThat(filePart.hasPipeline(cis("pipeline3"))).isTrue();
+        assertThat(group.hasPipeline(cis("pipeline3"))).isTrue();
     }
 
     @Test
@@ -135,8 +136,8 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfigs part1 = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         PipelineConfigs part2 = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2"));
         MergePipelineConfigs merge = new MergePipelineConfigs(part1, part2);
-        assertThat(merge.hasPipeline(new CaseInsensitiveString("pipeline1"))).isTrue();
-        assertThat(merge.hasPipeline(new CaseInsensitiveString("pipeline2"))).isTrue();
+        assertThat(merge.hasPipeline(cis("pipeline1"))).isTrue();
+        assertThat(merge.hasPipeline(cis("pipeline2"))).isTrue();
     }
 
 
@@ -145,7 +146,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfigs part1 = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"));
         PipelineConfigs part2 = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2"));
         MergePipelineConfigs merge = new MergePipelineConfigs(part2);
-        assertThat(merge.hasPipeline(new CaseInsensitiveString("not-exist"))).isFalse();
+        assertThat(merge.hasPipeline(cis("not-exist"))).isFalse();
     }
 
     @Test
@@ -154,8 +155,8 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         filePart.setOrigin(new FileConfigOrigin());
 
         MergePipelineConfigs merge = new MergePipelineConfigs(new BasicPipelineConfigs(), filePart);
-        assertThat(merge.hasViewPermission(new CaseInsensitiveString("anyone"), null, true)).isTrue();
-        assertThat(merge.hasViewPermission(new CaseInsensitiveString("anyone"), null, false)).isFalse();
+        assertThat(merge.hasViewPermission(cis("anyone"), null, true)).isTrue();
+        assertThat(merge.hasViewPermission(cis("anyone"), null, false)).isFalse();
     }
 
     @Test
@@ -180,8 +181,8 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfigs group = new MergePipelineConfigs(
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")),
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")), filePart);
-        group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null, true)).isFalse();
+        group.getAuthorization().getOperationConfig().add(new AdminUser(cis("jez")));
+        assertThat(group.hasViewPermission(cis("jez"), null, true)).isFalse();
     }
 
     @Test
@@ -190,10 +191,10 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         filePart.setOrigin(new FileConfigOrigin());
 
         assertThat(new MergePipelineConfigs(filePart, new BasicPipelineConfigs())
-                .hasOperatePermission(new CaseInsensitiveString("anyone"), null, true)).isTrue();
+                .hasOperatePermission(cis("anyone"), null, true)).isTrue();
 
         assertThat(new MergePipelineConfigs(filePart, new BasicPipelineConfigs())
-                .hasOperatePermission(new CaseInsensitiveString("anyone"), null, false)).isFalse();
+                .hasOperatePermission(cis("anyone"), null, false)).isFalse();
     }
 
     @Test
@@ -311,7 +312,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         MergePipelineConfigs group = new MergePipelineConfigs(
                 part1, new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")));
 
-        assertThat(group.getPartWithPipeline(new CaseInsensitiveString("pipeline1"))).isEqualTo(part1);
+        assertThat(group.getPartWithPipeline(cis("pipeline1"))).isEqualTo(part1);
 
     }
 
@@ -322,7 +323,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         MergePipelineConfigs group = new MergePipelineConfigs(
                 part1, new BasicPipelineConfigs());
 
-        assertNull(group.getPartWithPipeline(new CaseInsensitiveString("pipelineX")));
+        assertNull(group.getPartWithPipeline(cis("pipelineX")));
 
     }
 

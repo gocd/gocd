@@ -21,7 +21,6 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class CRParameterTest extends AbstractCRTest<CRParameter> {
     private final CRParameter validParam1;
     private final CRParameter validParam2;

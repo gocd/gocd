@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.p4;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,7 +45,7 @@ class PipelineConfigValidationTest {
     @BeforeEach
     void setup() {
         config = GoConfigMother.configWithPipelines("pipeline1", "pipeline2", "pipeline3", "go");
-        pipeline = config.pipelineConfigByName(new CaseInsensitiveString("go"));
+        pipeline = config.pipelineConfigByName(cis("go"));
         goConfigMother = new GoConfigMother();
     }
 
@@ -55,7 +56,7 @@ class PipelineConfigValidationTest {
         PipelineConfig pipelineConfig = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
         JobConfig jobConfig = new JobConfig("my-build");
         jobConfig.addTask(new ExecTask("ls", "-la", "tmp"));
-        StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig));
+        StageConfig stageConfig = new StageConfig(cis("stage"), new JobConfigs(jobConfig));
         pipelineConfig.addStageWithoutValidityAssertion(stageConfig);
         pipelineConfig.validate(null);
 
@@ -130,7 +131,7 @@ class PipelineConfigValidationTest {
     @Test
     void isValid_shouldMatchMaterialNamesInACaseInsensitiveManner() {
         ScmMaterialConfig gitMaterialConfig = MaterialConfigsMother.gitMaterialConfig("git://url");
-        gitMaterialConfig.setName(new CaseInsensitiveString("mygit"));
+        gitMaterialConfig.setName(cis("mygit"));
         pipeline.addMaterialConfig(gitMaterialConfig);
 
         assertLabelTemplate("pipeline-${count}-${myGit}", errors -> {
@@ -142,7 +143,7 @@ class PipelineConfigValidationTest {
     @Test
     void isValid_shouldEnsureReturnsTrueWhenLabelTemplateRefersToValidMaterials() {
         GitMaterialConfig gitConfig = MaterialConfigsMother.gitMaterialConfig("git://url");
-        gitConfig.setName(new CaseInsensitiveString("myGit"));
+        gitConfig.setName(cis("myGit"));
         pipeline.addMaterialConfig(gitConfig);
 
         assertLabelTemplate("pipeline-${COUNT}-${myGit}", errors -> {
@@ -153,14 +154,14 @@ class PipelineConfigValidationTest {
 
     @Test
     void isValid_shouldAllowColonForLabelTemplate() {
-        pipeline.addMaterialConfig(new PackageMaterialConfig(new CaseInsensitiveString("repo:name"), "package-id", PackageDefinitionMother.create("package-id")));
+        pipeline.addMaterialConfig(new PackageMaterialConfig(cis("repo:name"), "package-id", PackageDefinitionMother.create("package-id")));
         assertLabelTemplate("pipeline-${COUNT}-${repo:name}", emptyCheck);
     }
 
     @Test
     void validate_shouldEnsureThatTemplateFollowsTheNameType() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("name"), new MaterialConfigs());
-        pipelineConfig.setTemplateName(new CaseInsensitiveString(".Name"));
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("name"), new MaterialConfigs());
+        pipelineConfig.setTemplateName(cis(".Name"));
         config.addPipeline("group", pipelineConfig);
         pipelineConfig.validateTemplate(new PipelineTemplateConfig());
         assertThat(pipelineConfig.errors().isEmpty()).isFalse();
@@ -169,7 +170,7 @@ class PipelineConfigValidationTest {
 
     @Test
     void validate_shouldEnsureThatPipelineFollowsTheNameType() {
-        PipelineConfig config = new PipelineConfig(new CaseInsensitiveString(".name"), new MaterialConfigs());
+        PipelineConfig config = new PipelineConfig(cis(".name"), new MaterialConfigs());
         config.validate(null);
         assertThat(config.errors().isEmpty()).isFalse();
         assertThat(config.errors().firstErrorOn(PipelineConfig.NAME)).isEqualTo("Invalid pipeline name '.name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
@@ -177,25 +178,25 @@ class PipelineConfigValidationTest {
 
     @Test
     void shouldBeValidIfTheReferencedPipelineExists() {
-        pipeline.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("pipeline2"), new CaseInsensitiveString("stage")));
+        pipeline.addMaterialConfig(new DependencyMaterialConfig(cis("pipeline2"), cis("stage")));
         pipeline.validate(null);
         assertThat(pipeline.errors().isEmpty()).isTrue();
     }
 
     @Test
     void shouldAllowMultipleDependenciesForDifferentPipelines() {
-        pipeline.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("pipeline2"), new CaseInsensitiveString("stage")));
-        pipeline.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("pipeline3"), new CaseInsensitiveString("stage")));
+        pipeline.addMaterialConfig(new DependencyMaterialConfig(cis("pipeline2"), cis("stage")));
+        pipeline.addMaterialConfig(new DependencyMaterialConfig(cis("pipeline3"), cis("stage")));
         pipeline.validate(null);
         assertThat(pipeline.errors().isEmpty()).isTrue();
     }
 
     @Test
     void shouldAllowDependenciesFromMultiplePipelinesToTheSamePipeline() {
-        pipeline.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("pipeline2"), new CaseInsensitiveString("stage")));
+        pipeline.addMaterialConfig(new DependencyMaterialConfig(cis("pipeline2"), cis("stage")));
 
-        PipelineConfig pipeline3 = config.pipelineConfigByName(new CaseInsensitiveString("pipeline3"));
-        pipeline3.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("pipeline2"), new CaseInsensitiveString("stage")));
+        PipelineConfig pipeline3 = config.pipelineConfigByName(cis("pipeline3"));
+        pipeline3.addMaterialConfig(new DependencyMaterialConfig(cis("pipeline2"), cis("stage")));
 
         pipeline.validate(null);
         assertThat(pipeline.errors().isEmpty()).isTrue();
@@ -209,7 +210,7 @@ class PipelineConfigValidationTest {
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1");
         P4MaterialConfig materialConfig = p4("localhost:1666", "");
 
-        PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
+        PipelineConfig pipelineConfig = config.pipelineConfigByName(cis("pipeline1"));
         pipelineConfig.addMaterialConfig(materialConfig);
         materialConfig.validate(null);
         assertThat(materialConfig.errors().firstErrorOn("view")).isEqualTo("P4 view cannot be empty.");
@@ -236,8 +237,8 @@ class PipelineConfigValidationTest {
     @Test
     void shouldHandleNullStageNamesWhileValidating() {
         StageConfig s1 = new StageConfig();
-        StageConfig s2 = new StageConfig(new CaseInsensitiveString("s2"), new JobConfigs());
-        PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString("p1"), new MaterialConfigs(), s1, s2);
+        StageConfig s2 = new StageConfig(cis("s2"), new JobConfigs());
+        PipelineConfig pipeline = new PipelineConfig(cis("p1"), new MaterialConfigs(), s1, s2);
         pipeline.validate(null);
         assertThat(s1.errors().firstErrorOn(StageConfig.NAME).contains("Invalid stage name 'null'")).isTrue();
     }
@@ -268,7 +269,7 @@ class PipelineConfigValidationTest {
     void shouldFailValidateWhenUpstreamPipelineForDependencyMaterialDoesNotExist() {
         String upstreamPipeline = "non-existant";
         PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(
-                new DependencyMaterialConfig(new CaseInsensitiveString(upstreamPipeline), new CaseInsensitiveString("non-existant")));
+                new DependencyMaterialConfig(cis(upstreamPipeline), cis("non-existant")));
 
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig));
         boolean isValid = pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, cruiseConfig.getGroups().getFirst().getGroup(), cruiseConfig, pipelineConfig));
@@ -285,7 +286,7 @@ class PipelineConfigValidationTest {
         String upstreamStage = "non-existant";
         PipelineConfig upstream = GoConfigMother.createPipelineConfigWithMaterialConfig(upstreamPipeline, git("url"));
         PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig("downstream",
-                new DependencyMaterialConfig(new CaseInsensitiveString(upstreamPipeline), new CaseInsensitiveString(upstreamStage)));
+                new DependencyMaterialConfig(cis(upstreamPipeline), cis(upstreamStage)));
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig, upstream));
         boolean isValid = pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, cruiseConfig.getGroups().getFirst().getGroup(), cruiseConfig, pipelineConfig));
         assertThat(isValid).isFalse();
@@ -308,7 +309,7 @@ class PipelineConfigValidationTest {
         when(variables.validateTree(any())).thenReturn(true);
         when(trackingTool.validateTree(any())).thenReturn(true);
         when(timerConfig.validateTree(any())).thenReturn(true);
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p1"), materialConfigs, stageConfig);
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("p1"), materialConfigs, stageConfig);
         pipelineConfig.setParams(paramsConfig);
         pipelineConfig.setVariables(variables);
         pipelineConfig.setTrackingTool(trackingTool);
@@ -339,7 +340,7 @@ class PipelineConfigValidationTest {
         when(variables.validateTree(any())).thenReturn(false);
         when(trackingTool.validateTree(any())).thenReturn(false);
         when(timerConfig.validateTree(any())).thenReturn(false);
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p1"), materialConfigs, stageConfig);
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("p1"), materialConfigs, stageConfig);
         pipelineConfig.setParams(paramsConfig);
         pipelineConfig.setVariables(variables);
         pipelineConfig.setTrackingTool(trackingTool);
@@ -357,7 +358,7 @@ class PipelineConfigValidationTest {
 
     @Test
     void shouldValidateAPipelineHasAtleastOneStage() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("p"), new MaterialConfigs());
         pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(new BasicPipelineConfigs("group", new Authorization())), pipelineConfig));
         assertThat(pipelineConfig.errors().firstErrorOn("pipeline")).isEqualTo("Pipeline 'p' does not have any stages configured. A pipeline must have at least one stage.");
     }
@@ -366,14 +367,14 @@ class PipelineConfigValidationTest {
     void shouldDetectCyclicDependencies() {
         String pipelineName = "p1";
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines(pipelineName, "p2", "p3");
-        PipelineConfig p2 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p2"));
-        p2.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString("stage")));
-        PipelineConfig p3 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p3"));
-        p3.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p2"), new CaseInsensitiveString("stage")));
+        PipelineConfig p2 = cruiseConfig.getPipelineConfigByName(cis("p2"));
+        p2.addMaterialConfig(new DependencyMaterialConfig(cis(pipelineName), cis("stage")));
+        PipelineConfig p3 = cruiseConfig.getPipelineConfigByName(cis("p3"));
+        p3.addMaterialConfig(new DependencyMaterialConfig(cis("p2"), cis("stage")));
 
-        PipelineConfig p1 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        PipelineConfig p1 = cruiseConfig.getPipelineConfigByName(cis(pipelineName));
         p1 = GoConfigMother.deepClone(p1); // Do not remove cloning else it changes the underlying cache object defeating the purpose of the test.
-        p1.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p3"), new CaseInsensitiveString("stage")));
+        p1.addMaterialConfig(new DependencyMaterialConfig(cis("p3"), cis("stage")));
         p1.validateTree(PipelineConfigSaveValidationContext.forChain(true, cruiseConfig.getGroups().getFirst().getGroup(), cruiseConfig, p1));
         assertThat(p1.materialConfigs().errors().isEmpty()).isFalse();
         assertThat(p1.materialConfigs().errors().firstErrorOn("base")).isEqualTo("Circular dependency: p1 <- p2 <- p3 <- p1");
@@ -381,10 +382,10 @@ class PipelineConfigValidationTest {
 
     @Test
     void shouldValidateThatPipelineAssociatedToATemplateDoesNotHaveStagesDefinedLocally() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("wunderbar"), new MaterialConfigs());
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("wunderbar"), new MaterialConfigs());
         config.addPipeline("g", pipelineConfig);
-        pipelineConfig.setTemplateName(new CaseInsensitiveString("template-name"));
-        pipelineConfig.addStageWithoutValidityAssertion(new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs()));
+        pipelineConfig.setTemplateName(cis("template-name"));
+        pipelineConfig.addStageWithoutValidityAssertion(new StageConfig(cis("stage"), new JobConfigs()));
         pipelineConfig.validateTemplate(null);
         assertThat(pipelineConfig.errors().firstErrorOn("stages")).isEqualTo("Cannot add stages to pipeline 'wunderbar' which already references template 'template-name'");
         assertThat(pipelineConfig.errors().firstErrorOn("template")).isEqualTo("Cannot set template 'template-name' on pipeline 'wunderbar' because it already has stages defined");
@@ -392,19 +393,19 @@ class PipelineConfigValidationTest {
 
     @Test
     void shouldAddValidationErrorWhenAssociatedTemplateDoesNotExist() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("wunderbar"), new MaterialConfigs());
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("wunderbar"), new MaterialConfigs());
         config.addPipeline("group", pipelineConfig);
-        pipelineConfig.setTemplateName(new CaseInsensitiveString("does-not-exist"));
+        pipelineConfig.setTemplateName(cis("does-not-exist"));
         pipelineConfig.validateTemplate(null);
         assertThat(pipelineConfig.errors().firstErrorOn("pipeline")).isEqualTo("Pipeline 'wunderbar' refers to non-existent template 'does-not-exist'.");
     }
 
     @Test
     void shouldNotAddValidationErrorWhenAssociatedTemplateExists() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("wunderbar"), new MaterialConfigs());
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("wunderbar"), new MaterialConfigs());
         config.addPipeline("group", pipelineConfig);
-        config.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("t1")));
-        pipelineConfig.setTemplateName(new CaseInsensitiveString("t1"));
+        config.addTemplate(new PipelineTemplateConfig(cis("t1")));
+        pipelineConfig.setTemplateName(cis("t1"));
         pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", config, pipelineConfig));
         assertThat(pipelineConfig.errors().getAllOn("template")).isEmpty();
     }
@@ -412,12 +413,12 @@ class PipelineConfigValidationTest {
     @Test
     void shouldFailValidationIfAStageIsDeletedWhileItsStillReferredToByADownstreamPipeline() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2");
-        PipelineConfig p1 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p1"));
-        PipelineConfig p2 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p2"));
+        PipelineConfig p1 = cruiseConfig.getPipelineConfigByName(cis("p1"));
+        PipelineConfig p2 = cruiseConfig.getPipelineConfigByName(cis("p2"));
         p2.addMaterialConfig(new DependencyMaterialConfig(p1.name(), p1.getFirst().name()));
 
         String group = cruiseConfig.getGroups().getFirst().getGroup();
-        StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("s1"), new JobConfigs(new JobConfig(new CaseInsensitiveString("j1"))));
+        StageConfig stageConfig = new StageConfig(cis("s1"), new JobConfigs(new JobConfig(cis("j1"))));
         PipelineConfig pipelineConfig = new PipelineConfig(p1.name(), new MaterialConfigs(), stageConfig);
         cruiseConfig.update(group, pipelineConfig.name().toString(), pipelineConfig);
         PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(false, group, cruiseConfig, pipelineConfig);
@@ -429,17 +430,17 @@ class PipelineConfigValidationTest {
     @Test
     void shouldFailValidationIfAJobIsDeletedWhileItsStillReferredToByADescendentPipelineThroughFetchArtifact() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2", "p3");
-        PipelineConfig p1 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p1"));
-        PipelineConfig p2 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p2"));
-        PipelineConfig p3 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p3"));
+        PipelineConfig p1 = cruiseConfig.getPipelineConfigByName(cis("p1"));
+        PipelineConfig p2 = cruiseConfig.getPipelineConfigByName(cis("p2"));
+        PipelineConfig p3 = cruiseConfig.getPipelineConfigByName(cis("p3"));
         p2.addMaterialConfig(new DependencyMaterialConfig(p1.name(), p1.getFirst().name()));
-        JobConfig p2S2J2 = new JobConfig(new CaseInsensitiveString("j2"));
+        JobConfig p2S2J2 = new JobConfig(cis("j2"));
         p2S2J2.addTask(fetchTaskFromSamePipeline(p2));
-        p2.add(new StageConfig(new CaseInsensitiveString("stage2"), new JobConfigs(p2S2J2)));
+        p2.add(new StageConfig(cis("stage2"), new JobConfigs(p2S2J2)));
         p3.addMaterialConfig(new DependencyMaterialConfig(p2.name(), p2.getFirst().name()));
-        p3.getFirst().getJobs().getFirst().addTask(new FetchTask(new CaseInsensitiveString("p1/p2"), p1.getFirst().name(), p1.getFirst().getJobs().getFirst().name(), "src", "dest"));
+        p3.getFirst().getJobs().getFirst().addTask(new FetchTask(cis("p1/p2"), p1.getFirst().name(), p1.getFirst().getJobs().getFirst().name(), "src", "dest"));
 
-        StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("new-job"))));
+        StageConfig stageConfig = new StageConfig(cis("stage"), new JobConfigs(new JobConfig(cis("new-job"))));
         PipelineConfig pipelineConfig = new PipelineConfig(p1.name(), new MaterialConfigs(), stageConfig);
         String group = cruiseConfig.getGroups().getFirst().getGroup();
         cruiseConfig.update(group, pipelineConfig.name().toString(), pipelineConfig);
@@ -459,14 +460,14 @@ class PipelineConfigValidationTest {
     @Test
     void shouldAddValidationErrorsFromStagesOntoPipelineIfPipelineIsAssociatedToATemplate() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2", "p3");
-        PipelineConfig p1 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p1"));
-        PipelineConfig p2 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p2"));
-        PipelineConfig p3 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p3"));
+        PipelineConfig p1 = cruiseConfig.getPipelineConfigByName(cis("p1"));
+        PipelineConfig p2 = cruiseConfig.getPipelineConfigByName(cis("p2"));
+        PipelineConfig p3 = cruiseConfig.getPipelineConfigByName(cis("p3"));
         p2.addMaterialConfig(new DependencyMaterialConfig(p1.name(), p1.getFirst().name()));
         p3.addMaterialConfig(new DependencyMaterialConfig(p2.name(), p2.getFirst().name()));
-        p3.getFirst().getJobs().getFirst().addTask(new FetchTask(new CaseInsensitiveString("p1/p2"), p1.getFirst().name(), p1.getFirst().getJobs().getFirst().name(), "src", "dest"));
+        p3.getFirst().getJobs().getFirst().addTask(new FetchTask(cis("p1/p2"), p1.getFirst().name(), p1.getFirst().getJobs().getFirst().name(), "src", "dest"));
 
-        StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("new-job"))));
+        StageConfig stageConfig = new StageConfig(cis("stage"), new JobConfigs(new JobConfig(cis("new-job"))));
         PipelineConfig pipelineConfig = new PipelineConfig(p1.name(), new MaterialConfigs(), stageConfig);
         String group = cruiseConfig.getGroups().getFirst().getGroup();
         cruiseConfig.update(group, pipelineConfig.name().toString(), pipelineConfig);
@@ -492,7 +493,7 @@ class PipelineConfigValidationTest {
     void shouldValidateGroupNameWhenPipelineIsBeingCreatedUnderANonExistantGroup() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1");
 
-        PipelineConfig p1 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p1"));
+        PipelineConfig p1 = cruiseConfig.getPipelineConfigByName(cis("p1"));
         String groupName = "%$-with-invalid-characters";
         cruiseConfig.addPipeline(groupName, p1);
         p1.validateTree(PipelineConfigSaveValidationContext.forChain(true, groupName, cruiseConfig, p1));
@@ -503,14 +504,14 @@ class PipelineConfigValidationTest {
 
 
     private StageConfig getStageConfig(String stageName, String jobName) {
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString(jobName));
+        JobConfig jobConfig = new JobConfig(cis(jobName));
         jobConfig.addTask(new AntTask());
         jobConfig.addTask(new ExecTask("command", "", "workingDir"));
         jobConfig.artifactTypeConfigs().add(new BuildArtifactConfig("src", "dest"));
         jobConfig.addVariable("env1", "val1");
         jobConfig.addResourceConfig("powerful");
         JobConfigs jobConfigs = new JobConfigs(jobConfig);
-        return new StageConfig(new CaseInsensitiveString(stageName), jobConfigs);
+        return new StageConfig(cis(stageName), jobConfigs);
     }
 
     private void assertLabelTemplate(String labelTemplate, LabelErrorsFn assertions) {

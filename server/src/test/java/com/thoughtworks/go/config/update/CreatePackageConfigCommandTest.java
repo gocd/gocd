@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -35,6 +34,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -64,7 +64,7 @@ public class CreatePackageConfigCommandTest {
 
     @BeforeEach
     public void setup() {
-        currentUser = new Username(new CaseInsensitiveString("user"));
+        currentUser = new Username(cis("user"));
         result = new HttpLocalizedOperationResult();
 
         cruiseConfig = GoConfigMother.defaultCruiseConfig();

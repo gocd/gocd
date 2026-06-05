@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.materials.git;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.Materials;
@@ -56,6 +55,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.GIT_FOO_BRANCH_BUNDLE;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
@@ -610,7 +610,7 @@ public class GitMaterialTest {
         void shouldBuildFromConfigObject() {
             final GitMaterialConfig materialConfig = git(new UrlArgument("http://example.com"), "bob", "pass", "master", "sub_module_folder",
                 true, Filter.create("igrnored"), false, "destination",
-                new CaseInsensitiveString("example"), false);
+                cis("example"), false);
 
             final GitMaterial gitMaterial = new GitMaterial(materialConfig);
 
@@ -636,7 +636,7 @@ public class GitMaterialTest {
             gitMaterial.setUserName("bob");
             gitMaterial.setPassword("pass");
             gitMaterial.setAutoUpdate(true);
-            gitMaterial.setName(new CaseInsensitiveString("example"));
+            gitMaterial.setName(cis("example"));
             gitMaterial.setInvertFilter(true);
             gitMaterial.setFolder("destination");
             gitMaterial.setFilter(Filter.create("allow"));

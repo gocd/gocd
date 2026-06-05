@@ -59,6 +59,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -130,7 +131,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
 
         final Map<String, String> revisions = new HashMap<>();
         final Map<String, String> environmentVariables = new HashMap<>();
-        buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, new Username(new CaseInsensitiveString("pavan")), new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
+        buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, new Username(cis("pavan")), new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
 
         verifyBuildCauseHasModificationsWith(pipelineScheduleQueue.toBeScheduled(), false);
     }
@@ -143,7 +144,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
         svnRepository.checkInOneFile("abc");
         final Map<String, String> revisions = new HashMap<>();
         final Map<String, String> environmentVariables = new HashMap<>();
-        buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, new Username(new CaseInsensitiveString("pavan")), new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
+        buildCauseProducer.manualProduceBuildCauseAndSave(PIPELINE_NAME, new Username(cis("pavan")), new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
         verifyBuildCauseHasModificationsWith(pipelineScheduleQueue.toBeScheduled(), true);
     }
 
@@ -194,7 +195,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
     }
 
     private BuildCause buildCauseForPipeline() {
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(PIPELINE_NAME));
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(cis(PIPELINE_NAME));
         assertThat(buildCause).isNotNull();
         return buildCause;
     }

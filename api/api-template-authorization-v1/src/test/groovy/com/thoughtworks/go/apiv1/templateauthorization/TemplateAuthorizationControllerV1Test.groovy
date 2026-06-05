@@ -37,6 +37,7 @@ import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectWithoutLinks
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
@@ -87,8 +88,8 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
       void 'should render template authorization as JSON'() {
         def templateName = "template-name"
         def templateConfig = createTemplate(templateName)
-        def viewConfig = new ViewConfig(new AdminRole(new CaseInsensitiveString("role_view")), new AdminUser("view"))
-        def adminsConfig = new AdminsConfig(new AdminRole(new CaseInsensitiveString("role_admin")), new AdminUser("admin"))
+        def viewConfig = new ViewConfig(new AdminRole(cis("role_view")), new AdminUser("view"))
+        def adminsConfig = new AdminsConfig(new AdminRole(cis("role_admin")), new AdminUser("admin"))
         def authorization = new Authorization(viewConfig, null, adminsConfig)
 
         templateConfig.setAuthorization(authorization)
@@ -137,8 +138,8 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
 
       @BeforeEach
       void setUp() {
-        def viewConfig = new ViewConfig(new AdminRole(new CaseInsensitiveString("role_view")), new AdminUser("view"))
-        def adminsConfig = new AdminsConfig(new AdminRole(new CaseInsensitiveString("role_admin")), new AdminUser("admin"))
+        def viewConfig = new ViewConfig(new AdminRole(cis("role_view")), new AdminUser("view"))
+        def adminsConfig = new AdminsConfig(new AdminRole(cis("role_admin")), new AdminUser("admin"))
         authorization = new Authorization(viewConfig, null, adminsConfig)
       }
 
@@ -174,8 +175,8 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
         def templateConfig = createTemplate(templateName)
         def templateConfigAfterUpdate = createTemplate(templateName)
 
-        def viewConfig = new ViewConfig(new AdminRole(new CaseInsensitiveString("role_view")), new AdminUser("view"))
-        def adminsConfig = new AdminsConfig(new AdminRole(new CaseInsensitiveString("role_admin")), new AdminUser("admin"))
+        def viewConfig = new ViewConfig(new AdminRole(cis("role_view")), new AdminUser("view"))
+        def adminsConfig = new AdminsConfig(new AdminRole(cis("role_admin")), new AdminUser("admin"))
         def authorizationRequest = new Authorization(viewConfig, new OperationConfig(), adminsConfig)
         templateConfigAfterUpdate.setAuthorization(authorizationRequest)
 
@@ -246,8 +247,8 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
         def templateName = "template-name"
         def templateConfig = createTemplate(templateName)
 
-        def viewConfig = new ViewConfig(new AdminRole(new CaseInsensitiveString("role_view")), new AdminUser("view"))
-        def adminsConfig = new AdminsConfig(new AdminRole(new CaseInsensitiveString("role_admin")), new AdminUser("admin"))
+        def viewConfig = new ViewConfig(new AdminRole(cis("role_view")), new AdminUser("view"))
+        def adminsConfig = new AdminsConfig(new AdminRole(cis("role_admin")), new AdminUser("admin"))
         def authorizationRequest = new Authorization(viewConfig, null, adminsConfig)
 
         when(entityHashingService.hashForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('digest').thenReturn('digest')

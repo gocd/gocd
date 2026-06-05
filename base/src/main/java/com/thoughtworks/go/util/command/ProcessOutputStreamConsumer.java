@@ -57,8 +57,8 @@ public class ProcessOutputStreamConsumer<T extends StreamConsumer, T2 extends St
     }
 
     private void taggedOutput(StreamConsumer consumer, String tag, String line) {
-        if (consumer instanceof TaggedStreamConsumer) {
-            ((TaggedStreamConsumer) consumer).taggedConsumeLine(tag, line);
+        if (consumer instanceof TaggedStreamConsumer taggedStreamConsumer) {
+            taggedStreamConsumer.taggedConsumeLine(tag, line);
         } else {
             consumer.consumeLine(line);
         }

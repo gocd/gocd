@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -36,6 +35,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 @Service
 public class FeedService {
@@ -70,7 +71,7 @@ public class FeedService {
     }
 
     public Document stagesXml(Username username, String pipelineName, @Nullable Integer pipelineCounter, String baseUrl) {
-        if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+        if (!goConfigService.hasPipelineNamed(cis(pipelineName))) {
             throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
         }
 

@@ -32,6 +32,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
@@ -54,13 +55,13 @@ public class GoConfigMother {
     }
 
     public Role createRole(String roleName, String... users) {
-        return new RoleConfig(new CaseInsensitiveString(roleName), toRoleUsers(users));
+        return new RoleConfig(cis(roleName), toRoleUsers(users));
     }
 
     private RoleUser[] toRoleUsers(String[] users) {
         RoleUser[] roleUsers = new RoleUser[users.length];
         for (int i = 0; i < users.length; i++) {
-            roleUsers[i] = new RoleUser(new CaseInsensitiveString(users[i]));
+            roleUsers[i] = new RoleUser(cis(users[i]));
         }
         return roleUsers;
     }
@@ -71,17 +72,17 @@ public class GoConfigMother {
 
     public void addAdminUserForPipelineGroup(CruiseConfig cruiseConfig, String user, String groupName) {
         PipelineConfigs group = cruiseConfig.getGroups().findGroup(groupName);
-        group.getAuthorization().getAdminsConfig().add(new AdminUser(new CaseInsensitiveString(user)));
+        group.getAuthorization().getAdminsConfig().add(new AdminUser(cis(user)));
     }
 
     public void addAdminRoleForPipelineGroup(CruiseConfig config, String roleName, String groupName) {
         PipelineConfigs group = config.getGroups().findGroup(groupName);
-        group.getAuthorization().getAdminsConfig().add(new AdminRole(new CaseInsensitiveString(roleName)));
+        group.getAuthorization().getAdminsConfig().add(new AdminRole(cis(roleName)));
     }
 
     public void addRoleAsSuperAdmin(CruiseConfig cruiseConfig, String rolename) {
         AdminsConfig adminsConfig = cruiseConfig.server().security().adminsConfig();
-        adminsConfig.addRole(new AdminRole(new CaseInsensitiveString(rolename)));
+        adminsConfig.addRole(new AdminRole(cis(rolename)));
     }
 
     public static void enableSecurityWithPasswordFilePlugin(CruiseConfig cruiseConfig) {
@@ -89,28 +90,28 @@ public class GoConfigMother {
     }
 
     public static CruiseConfig addUserAsSuperAdmin(CruiseConfig config, String adminName) {
-        config.server().security().adminsConfig().add(new AdminUser(new CaseInsensitiveString(adminName)));
+        config.server().security().adminsConfig().add(new AdminUser(cis(adminName)));
         return config;
     }
 
     public void addUserAsViewerOfPipelineGroup(CruiseConfig cruiseConfig, String userName, String groupName) {
         PipelineConfigs group = cruiseConfig.getGroups().findGroup(groupName);
-        group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString(userName)));
+        group.getAuthorization().getViewConfig().add(new AdminUser(cis(userName)));
     }
 
     public void addRoleAsViewerOfPipelineGroup(CruiseConfig cruiseConfig, String roleName, String groupName) {
         PipelineConfigs group = cruiseConfig.getGroups().findGroup(groupName);
-        group.getAuthorization().getViewConfig().add(new AdminRole(new CaseInsensitiveString(roleName)));
+        group.getAuthorization().getViewConfig().add(new AdminRole(cis(roleName)));
     }
 
     public void addUserAsOperatorOfPipelineGroup(CruiseConfig cruiseConfig, String userName, String groupName) {
         PipelineConfigs group = cruiseConfig.getGroups().findGroup(groupName);
-        group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString(userName)));
+        group.getAuthorization().getOperationConfig().add(new AdminUser(cis(userName)));
     }
 
     public void addRoleAsOperatorOfPipelineGroup(CruiseConfig cruiseConfig, String roleName, String groupName) {
         PipelineConfigs group = cruiseConfig.getGroups().findGroup(groupName);
-        group.getAuthorization().getOperationConfig().add(new AdminRole(new CaseInsensitiveString(roleName)));
+        group.getAuthorization().getOperationConfig().add(new AdminRole(cis(roleName)));
     }
 
     public PipelineConfig addPipeline(CruiseConfig cruiseConfig,
@@ -147,9 +148,9 @@ public class GoConfigMother {
      */
     public PipelineConfig addPipelineWithTemplate(CruiseConfig cruiseConfig, String pipelineName, String templateName,
                                                   String stageName, String... buildNames) {
-        PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(new CaseInsensitiveString(templateName), StageConfigMother.custom(stageName, defaultBuildPlans(buildNames)));
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(pipelineName), MaterialConfigsMother.mockMaterialConfigs("file:///tmp/foo"));
-        pipelineConfig.setTemplateName(new CaseInsensitiveString(templateName));
+        PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(cis(templateName), StageConfigMother.custom(stageName, defaultBuildPlans(buildNames)));
+        PipelineConfig pipelineConfig = new PipelineConfig(cis(pipelineName), MaterialConfigsMother.mockMaterialConfigs("file:///tmp/foo"));
+        pipelineConfig.setTemplateName(cis(templateName));
         cruiseConfig.addTemplate(templateConfig);
         cruiseConfig.addPipeline(DEFAULT_GROUP, pipelineConfig);
         return pipelineConfig;
@@ -161,7 +162,7 @@ public class GoConfigMother {
         boolean shouldTriggerOnlyOnMaterialChanges = timer != null && timer.shouldTriggerOnlyOnChanges();
 
         StageConfig stageConfig = StageConfigMother.custom(stageName, defaultBuildPlans(buildNames));
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(pipelineName), PipelineLabel.COUNT_TEMPLATE, cronSpec, shouldTriggerOnlyOnMaterialChanges, materialConfigs,
+        PipelineConfig pipelineConfig = new PipelineConfig(cis(pipelineName), PipelineLabel.COUNT_TEMPLATE, cronSpec, shouldTriggerOnlyOnMaterialChanges, materialConfigs,
                 List.of(stageConfig));
         pipelineConfig.setOrigin(new FileConfigOrigin());
         cruiseConfig.addPipeline(groupName, pipelineConfig);
@@ -170,7 +171,7 @@ public class GoConfigMother {
 
     public PipelineConfig addPipeline(CruiseConfig cruiseConfig, String pipelineName, String stageName, MaterialConfigs materialConfigs, String... buildNames) {
         StageConfig stageConfig = StageConfigMother.custom(stageName, defaultBuildPlans(buildNames));
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(pipelineName), materialConfigs, stageConfig);
+        PipelineConfig pipelineConfig = new PipelineConfig(cis(pipelineName), materialConfigs, stageConfig);
         pipelineConfig.setOrigin(new FileConfigOrigin());
         cruiseConfig.addPipeline(DEFAULT_GROUP, pipelineConfig);
         return pipelineConfig;
@@ -178,7 +179,7 @@ public class GoConfigMother {
 
     public PipelineConfig addStageToPipeline(CruiseConfig cruiseConfig, String pipelineName, String stageName, String... buildNames) {
         StageConfig stageConfig = StageConfigMother.custom(stageName, defaultBuildPlans(buildNames));
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis(pipelineName));
         pipelineConfig.add(stageConfig);
         return pipelineConfig;
     }
@@ -186,7 +187,7 @@ public class GoConfigMother {
     public PipelineConfig addStageToPipeline(CruiseConfig cruiseConfig, String pipelineName, String stageName,
                                              int stageindex, String... buildNames) {
         StageConfig stageConfig = StageConfigMother.custom(stageName, defaultBuildPlans(buildNames));
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis(pipelineName));
         pipelineConfig.add(stageindex, stageConfig);
         return pipelineConfig;
     }
@@ -194,7 +195,7 @@ public class GoConfigMother {
     public void setDependencyOn(CruiseConfig cruiseConfig, PipelineConfig pipelineConfig, String dependsOnPipeline,
                                 String dependsOnStage) {
         PipelineConfig config = cruiseConfig.pipelineConfigByName(pipelineConfig.name());
-        config.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString(dependsOnPipeline), new CaseInsensitiveString(dependsOnStage)));
+        config.addMaterialConfig(new DependencyMaterialConfig(cis(dependsOnPipeline), cis(dependsOnStage)));
     }
 
     public BasicCruiseConfig cruiseConfigWithTwoPipelineGroups() {
@@ -234,7 +235,7 @@ public class GoConfigMother {
     }
 
     private static JobConfig defaultBuildPlan(String name) {
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString(name), new ResourceConfigs(), new ArtifactTypeConfigs());
+        JobConfig jobConfig = new JobConfig(cis(name), new ResourceConfigs(), new ArtifactTypeConfigs());
         jobConfig.addTask(new AntTask());
         return jobConfig;
     }
@@ -292,8 +293,8 @@ public class GoConfigMother {
         artifactFile.setSource(directoryPath);
         job.artifactTypeConfigs().add(artifactDir);
 
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(pipelineName), new MaterialConfigs(svn("file:///foo", null, null, false)), new StageConfig(
-                new CaseInsensitiveString(stageName), new JobConfigs(job)));
+        PipelineConfig pipelineConfig = new PipelineConfig(cis(pipelineName), new MaterialConfigs(svn("file:///foo", null, null, false)), new StageConfig(
+                cis(stageName), new JobConfigs(job)));
         config.addPipeline(BasicPipelineConfigs.DEFAULT_GROUP, pipelineConfig);
         return config;
     }

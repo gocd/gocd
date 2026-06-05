@@ -24,7 +24,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class ConfigUtilTest {
     @Test
     public void shouldGetAllTasks() {

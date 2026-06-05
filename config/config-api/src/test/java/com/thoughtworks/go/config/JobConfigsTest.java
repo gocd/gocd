@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -33,8 +34,8 @@ public class JobConfigsTest {
         JobConfigs jobs = new JobConfigs();
         jobs.add(new JobConfig("quux"));
         jobs.setConfigAttributes(List.of(Map.of(JobConfig.NAME, "foo"), Map.of(JobConfig.NAME, "bar")));
-        assertThat(jobs.getFirst().name()).isEqualTo(new CaseInsensitiveString("foo"));
-        assertThat(jobs.getLast().name()).isEqualTo(new CaseInsensitiveString("bar"));
+        assertThat(jobs.getFirst().name()).isEqualTo(cis("foo"));
+        assertThat(jobs.getLast().name()).isEqualTo(cis("bar"));
         assertThat(jobs.size()).isEqualTo(2);
     }
 
@@ -50,8 +51,8 @@ public class JobConfigsTest {
 
         JobConfig firstFoo = jobs.getFirst();
         JobConfig secondFoo = jobs.getLast();
-        assertThat(firstFoo.name()).isEqualTo(new CaseInsensitiveString("foo"));
-        assertThat(secondFoo.name()).isEqualTo(new CaseInsensitiveString("foo"));
+        assertThat(firstFoo.name()).isEqualTo(cis("foo"));
+        assertThat(secondFoo.name()).isEqualTo(cis("foo"));
 
         assertThat(firstFoo.errors().isEmpty()).isTrue();
         assertThat(secondFoo.errors().isEmpty()).isTrue();
@@ -71,8 +72,8 @@ public class JobConfigsTest {
 
         JobConfig firstFoo = jobs.getFirst();
         JobConfig secondFoo = jobs.getLast();
-        assertThat(firstFoo.name()).isEqualTo(new CaseInsensitiveString("foo"));
-        assertThat(secondFoo.name()).isEqualTo(new CaseInsensitiveString("foo"));
+        assertThat(firstFoo.name()).isEqualTo(cis("foo"));
+        assertThat(secondFoo.name()).isEqualTo(cis("foo"));
 
         assertThat(firstFoo.errors().isEmpty()).isTrue();
         assertThat(secondFoo.errors().isEmpty()).isTrue();
@@ -121,9 +122,9 @@ public class JobConfigsTest {
         configs.add(expected);
         configs.add(new JobConfig("job-2"));
 
-        JobConfig actual = configs.getJob(new CaseInsensitiveString("job-1"));
+        JobConfig actual = configs.getJob(cis("job-1"));
 
         assertThat(actual).isEqualTo(expected);
-        assertThat(configs.getJob(new CaseInsensitiveString("some-junk"))).isNull();
+        assertThat(configs.getJob(cis("some-junk"))).isNull();
     }
 }

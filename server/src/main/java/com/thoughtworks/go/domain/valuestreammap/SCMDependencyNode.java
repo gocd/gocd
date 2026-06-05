@@ -15,16 +15,15 @@
  */
 package com.thoughtworks.go.domain.valuestreammap;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modifications;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
-
 
 public class SCMDependencyNode extends Node {
     private final String materialType;
@@ -33,7 +32,7 @@ public class SCMDependencyNode extends Node {
     private final List<MaterialRevision> materialRevisions = new ArrayList<>();
 
     public SCMDependencyNode(String nodeId, String nodeName, String materialType) {
-        super(DependencyNodeType.MATERIAL, new CaseInsensitiveString(nodeId), nodeName);
+        super(DependencyNodeType.MATERIAL, cis(nodeId), nodeName);
         this.materialType = materialType;
     }
 

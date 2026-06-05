@@ -34,6 +34,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -226,7 +227,7 @@ public class CcTrayConfigChangeHandlerTest {
 
         Permissions pipeline1Permissions = new Permissions(viewers("user1", "user2"), NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE);
         Permissions pipeline2Permissions = new Permissions(new AllowedUsers(Set.of("user3"), Set.of(admin)), NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE);
-        when(pipelinePermissionsAuthority.pipelinesAndTheirPermissions()).thenReturn(Map.of(new CaseInsensitiveString("pipeline1"), pipeline1Permissions, new CaseInsensitiveString("pipeline2"), pipeline2Permissions));
+        when(pipelinePermissionsAuthority.pipelinesAndTheirPermissions()).thenReturn(Map.of(cis("pipeline1"), pipeline1Permissions, cis("pipeline2"), pipeline2Permissions));
 
         CruiseConfig config = GoConfigMother.defaultCruiseConfig();
         goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2", "job2");
@@ -275,7 +276,7 @@ public class CcTrayConfigChangeHandlerTest {
         when(cache.get(pipeline1Stage)).thenReturn(statusOfPipeline1StageInCache);
         when(cache.get(pipeline1job)).thenReturn(statusOfPipeline1JobInCache);
 
-        PipelineConfig pipeline1Config = GoConfigMother.pipelineHavingJob("pipeline1", "stage1", "job1", "arts", "dir").pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
+        PipelineConfig pipeline1Config = GoConfigMother.pipelineHavingJob("pipeline1", "stage1", "job1", "arts", "dir").pipelineConfigByName(cis("pipeline1"));
 
         handler.call(pipeline1Config);
         @SuppressWarnings("unchecked") ArgumentCaptor<ArrayList<ProjectStatus>> argumentCaptor = ArgumentCaptor.forClass(ArrayList.class);
@@ -300,7 +301,7 @@ public class CcTrayConfigChangeHandlerTest {
         when(cache.get(pipeline1Stage)).thenReturn(statusOfPipeline1StageInCache);
         when(cache.get(pipeline1job)).thenReturn(statusOfPipeline1JobInCache);
 
-        PipelineConfig pipeline1Config = GoConfigMother.pipelineHavingJob("pipeline1", "stage1", "job1", "arts", "dir").pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
+        PipelineConfig pipeline1Config = GoConfigMother.pipelineHavingJob("pipeline1", "stage1", "job1", "arts", "dir").pipelineConfigByName(cis("pipeline1"));
         when(pipelinePermissionsAuthority.permissionsForPipeline(pipeline1Config.name())).thenReturn(new Permissions(viewers("user1", "user2"), null, null, null));
 
         handler.call(pipeline1Config);
@@ -323,10 +324,10 @@ public class CcTrayConfigChangeHandlerTest {
     }
 
     private PipelineConfig pipelineConfigFor(CruiseConfig config, String pipelineName) {
-        return config.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        return config.pipelineConfigByName(cis(pipelineName));
     }
 
     private StageConfig stageConfigFor(CruiseConfig config, String pipelineName, String stageName) {
-        return pipelineConfigFor(config, pipelineName).getStage(new CaseInsensitiveString(stageName));
+        return pipelineConfigFor(config, pipelineName).getStage(cis(stageName));
     }
 }

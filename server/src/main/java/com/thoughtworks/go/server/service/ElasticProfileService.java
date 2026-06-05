@@ -184,8 +184,8 @@ public class ElasticProfileService {
                 LOGGER.error(e.getMessage(), e);
                 return;
             }
-            if (e instanceof GoConfigInvalidException) {
-                result.unprocessableEntity(entityConfigValidationFailed(getTagName(elasticProfile.getClass()), elasticProfile.getId(), ((GoConfigInvalidException) e).getAllErrorMessages()));
+            if (e instanceof GoConfigInvalidException goConfigInvalidException) {
+                result.unprocessableEntity(entityConfigValidationFailed(getTagName(elasticProfile.getClass()), elasticProfile.getId(), goConfigInvalidException.getAllErrorMessages()));
             } else if (e instanceof RulesViolationException || e instanceof SecretResolutionFailureException) {
                 result.unprocessableEntity(entityConfigValidationFailed(elasticProfile.getClass().getAnnotation(ConfigTag.class).value(), elasticProfile.getId(), e.getMessage()));
             } else {

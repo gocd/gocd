@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class NodeTest {
@@ -32,13 +33,13 @@ public class NodeTest {
            |        ^
            +-> p2 --+
          */
-        CaseInsensitiveString gitFingerprint = new CaseInsensitiveString("git-fingerprint");
+        CaseInsensitiveString gitFingerprint = cis("git-fingerprint");
         Node git = new PipelineDependencyNode(gitFingerprint, "git");
         git.setLevel(0);
-        CaseInsensitiveString p1Name = new CaseInsensitiveString("p1");
-        CaseInsensitiveString p2Name = new CaseInsensitiveString("p2");
-        CaseInsensitiveString dummyName = new CaseInsensitiveString("dummy");
-        CaseInsensitiveString p3Name = new CaseInsensitiveString("p3");
+        CaseInsensitiveString p1Name = cis("p1");
+        CaseInsensitiveString p2Name = cis("p2");
+        CaseInsensitiveString dummyName = cis("dummy");
+        CaseInsensitiveString p3Name = cis("p3");
         Node p1 = new PipelineDependencyNode(p1Name, p1Name.toString());
         p1.setLevel(1);
         Node p2 = new PipelineDependencyNode(p2Name, p2Name.toString());
@@ -71,13 +72,13 @@ public class NodeTest {
            |
            +-> p2
          */
-        Node git = new PipelineDependencyNode(new CaseInsensitiveString("git-fingerprint"), "git");
+        Node git = new PipelineDependencyNode(cis("git-fingerprint"), "git");
         git.setLevel(0);
-        Node p1 = new PipelineDependencyNode(new CaseInsensitiveString("p1"), "p1");
+        Node p1 = new PipelineDependencyNode(cis("p1"), "p1");
         p1.setLevel(1);
-        Node p2 = new PipelineDependencyNode(new CaseInsensitiveString("p2"), "p2");
+        Node p2 = new PipelineDependencyNode(cis("p2"), "p2");
         p2.setLevel(1);
-        Node dummy = new PipelineDependencyNode(new CaseInsensitiveString("dummy"), "dummy");
+        Node dummy = new PipelineDependencyNode(cis("dummy"), "dummy");
         dummy.setLevel(0);
         git.addChildIfAbsent(p1);
         git.addChildIfAbsent(p2);
@@ -95,7 +96,7 @@ public class NodeTest {
     @Test
     public void shouldGetTypeForNode() {
         Node g1 = new SCMDependencyNode("g1", "g1", "git");
-        Node p2 = new PipelineDependencyNode(new CaseInsensitiveString("p2"), "p2");
+        Node p2 = new PipelineDependencyNode(cis("p2"), "p2");
         Node dummy = new DummyNode("dummy", "dummy");
 
         assertThat(g1.getType()).isEqualTo(DependencyNodeType.MATERIAL);
@@ -105,13 +106,13 @@ public class NodeTest {
 
     @Test
     public void shouldCompareTwoNodesBasedOnBarycenterValue() {
-        PipelineDependencyNode p1 = new PipelineDependencyNode(new CaseInsensitiveString("p1"), "p1");
+        PipelineDependencyNode p1 = new PipelineDependencyNode(cis("p1"), "p1");
         p1.setLevel(1);
         p1.setDepth(5);
-        PipelineDependencyNode p2 = new PipelineDependencyNode(new CaseInsensitiveString("p2"), "p2");
+        PipelineDependencyNode p2 = new PipelineDependencyNode(cis("p2"), "p2");
         p2.setLevel(1);
         p2.setDepth(1);
-        PipelineDependencyNode p3 = new PipelineDependencyNode(new CaseInsensitiveString("p3"), "p3");
+        PipelineDependencyNode p3 = new PipelineDependencyNode(cis("p3"), "p3");
         p3.setLevel(1);
         p3.setDepth(4);
 
@@ -124,7 +125,7 @@ public class NodeTest {
         Revision p11 = new PipelineRevision("p1", 1, "label1");
         Revision p12 = new PipelineRevision("p1", 2, "label2");
 
-        PipelineDependencyNode node = new PipelineDependencyNode(new CaseInsensitiveString("p1"), "p1");
+        PipelineDependencyNode node = new PipelineDependencyNode(cis("p1"), "p1");
         node.setLevel(1);
         node.addRevision(p11);
         node.addRevision(null);
@@ -138,7 +139,7 @@ public class NodeTest {
 
     @Test
     public void shouldGetRevisionsSortedInOrderOfPipelineCounters() {
-        Node node = new PipelineDependencyNode(new CaseInsensitiveString("p"), "p");
+        Node node = new PipelineDependencyNode(cis("p"), "p");
         Revision revision_2 = new PipelineRevision("p", 2, "2");
         Revision revision_1 = new PipelineRevision("p", 1, "1");
         Revision revision_3 = new PipelineRevision("p", 3, "3");

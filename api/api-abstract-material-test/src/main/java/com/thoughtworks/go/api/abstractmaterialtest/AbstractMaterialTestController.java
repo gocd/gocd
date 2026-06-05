@@ -24,7 +24,6 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv11.admin.shared.representers.materials.MaterialsRepresenter;
 import com.thoughtworks.go.apiv11.admin.shared.representers.stages.ConfigHelperOptions;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigCloner;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
@@ -48,6 +47,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.lang.String.join;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -97,8 +97,8 @@ public abstract class AbstractMaterialTestController extends ApiController {
     }
 
     private void resolveSecrets(String pipelineGroupName, Material material) {
-        if (material instanceof ScmMaterial) {
-            secretParamResolver.resolve((ScmMaterial) material, pipelineGroupName);
+        if (material instanceof ScmMaterial scmMaterial) {
+            secretParamResolver.resolve(scmMaterial, pipelineGroupName);
         }
     }
 
@@ -127,14 +127,14 @@ public abstract class AbstractMaterialTestController extends ApiController {
         PipelineConfig pipelineConfig;
         // If the pipeline name is provided, find the pipeline and add the params to the new pipeline config object
         if (isNotBlank(pipelineName)) {
-            PipelineConfig existingPipeline = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
+            PipelineConfig existingPipeline = goConfigService.pipelineConfigNamed(cis(pipelineName));
             pipelineConfig = new PipelineConfig(existingPipeline.name(), materialConfigs);
 
             GoConfigCloner goConfigCloner = new GoConfigCloner();
             pipelineConfig.setParams(goConfigCloner.deepClone(existingPipeline.getParams()));
         } else {
             // If the pipeline name is not provided, this means that the pipeline is still in creation and hence no params exist
-            pipelineConfig = new PipelineConfig(new CaseInsensitiveString(""), materialConfigs);
+            pipelineConfig = new PipelineConfig(cis(""), materialConfigs);
         }
         ConfigParamPreprocessor configParamPreprocessor = new ConfigParamPreprocessor();
         configParamPreprocessor.process(pipelineConfig);
@@ -156,7 +156,7 @@ public abstract class AbstractMaterialTestController extends ApiController {
 
     private void validateMaterialConfig(ScmMaterialConfig scmMaterialConfig, String pipelineName, String pipelineGrpName) {
         if (isBlank(pipelineGrpName)) {
-            pipelineGrpName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
+            pipelineGrpName = goConfigService.findGroupNameByPipeline(cis(pipelineName));
         }
         scmMaterialConfig.validateConcreteScmMaterial(PipelineConfigSaveValidationContext.forChain(false, pipelineGrpName, goConfigService.getCurrentConfig(), scmMaterialConfig));
     }

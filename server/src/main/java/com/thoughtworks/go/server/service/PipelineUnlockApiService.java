@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.OperationResult;
@@ -25,6 +24,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.lang.String.format;
 
 /**
@@ -60,7 +60,7 @@ public class PipelineUnlockApiService {
     }
 
     public boolean canUnlock(String pipelineName, Username username, OperationResult result) {
-        if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+        if (!goConfigService.hasPipelineNamed(cis(pipelineName))) {
             String msg = format("pipeline name %s is incorrect", pipelineName);
             result.notFound(msg, msg, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
             return false;

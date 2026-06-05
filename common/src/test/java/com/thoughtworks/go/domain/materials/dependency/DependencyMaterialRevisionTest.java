@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain.materials.dependency;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import org.junit.jupiter.api.Test;
@@ -24,6 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DependencyMaterialRevisionTest {
@@ -45,7 +45,7 @@ public class DependencyMaterialRevisionTest {
     public void shouldConvertToTheCounterBasedRevision() {
         DependencyMaterialRevision materialRevision = DependencyMaterialRevision.create("pipeline", 10, "1.2.3", "stage", 4);
 
-        MaterialRevision withRevision = materialRevision.convert(new DependencyMaterial(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage")), new Date());
+        MaterialRevision withRevision = materialRevision.convert(new DependencyMaterial(cis("pipeline"), cis("stage")), new Date());
         DependencyMaterialRevision revision = (DependencyMaterialRevision) withRevision.getRevision();
         assertThat(revision.getRevision()).isEqualTo("pipeline/10/stage/4");
         assertThat(revision.getPipelineLabel()).isEqualTo("1.2.3");

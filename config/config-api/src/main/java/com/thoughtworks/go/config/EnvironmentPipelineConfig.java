@@ -19,6 +19,8 @@ import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 /**
  * Understands a reference to an existing pipeline that is associated to an Environment
  */
@@ -38,7 +40,7 @@ public class EnvironmentPipelineConfig implements Validatable {
     }
 
     public EnvironmentPipelineConfig(String pipelineName) {
-        this.name = new CaseInsensitiveString(pipelineName);
+        this.name = cis(pipelineName);
     }
 
     public CaseInsensitiveString getName() {
@@ -46,7 +48,7 @@ public class EnvironmentPipelineConfig implements Validatable {
     }
 
     public void setName(String pipelineName) {
-        setName(new CaseInsensitiveString(pipelineName));
+        setName(cis(pipelineName));
     }
 
     public void setName(CaseInsensitiveString pipelineName) {

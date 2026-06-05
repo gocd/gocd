@@ -16,7 +16,6 @@
 package com.thoughtworks.go.apiv4.dashboard.representers
 
 import com.thoughtworks.go.apiv4.dashboard.GoDashboardPipelineMother
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.security.Permissions
 import com.thoughtworks.go.config.security.permissions.EveryonePermission
 import com.thoughtworks.go.config.security.users.Everyone
@@ -27,6 +26,7 @@ import com.thoughtworks.go.spark.util.SecureRandom
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 
@@ -35,7 +35,7 @@ class DashboardRepresenterTest {
   @Test
   void 'renders pipeline dashboard with hal representation'() {
     def personalizationEtag = "sha256hash"
-    def user = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+    def user = new Username(cis(SecureRandom.hex()))
     def permissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE)
 
     def group1 = new GoDashboardPipelineGroup('group1', permissions, true)

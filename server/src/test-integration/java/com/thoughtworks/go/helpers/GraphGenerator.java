@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.helpers;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -26,6 +25,8 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 public class GraphGenerator {
     private GoConfigFileHelper configHelper;
@@ -76,7 +77,7 @@ public class GraphGenerator {
 
     private void addDependencyMaterials(PipelineConfig pipelineConfig, List<PipelineConfig> pipelineDependencies) {
         for (PipelineConfig pipelineDependency : pipelineDependencies) {
-            pipelineConfig.addMaterialConfig(new DependencyMaterialConfig(pipelineDependency.name(), new CaseInsensitiveString("stage")));
+            pipelineConfig.addMaterialConfig(new DependencyMaterialConfig(pipelineDependency.name(), cis("stage")));
         }
     }
 
@@ -88,7 +89,7 @@ public class GraphGenerator {
             for (int x = 0; x < previousNodes.size(); x++) {
                 previousRevisions.add(String.format("%s/%d/stage/1", previousNodes.get(x).name().toString(), instanceCount));
             }
-            scheduleUtil.runAndPass(new ScheduleTestUtil.AddedPipeline(pipelineConfig, new DependencyMaterial(pipelineConfig.name(), new CaseInsensitiveString("stage"))),
+            scheduleUtil.runAndPass(new ScheduleTestUtil.AddedPipeline(pipelineConfig, new DependencyMaterial(pipelineConfig.name(), cis("stage"))),
                     previousRevisions.toArray(new String[0]));
         }
     }

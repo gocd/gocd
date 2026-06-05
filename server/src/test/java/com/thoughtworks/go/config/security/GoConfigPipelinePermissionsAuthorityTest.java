@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -127,7 +128,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         assertFalse(config.server().security().adminsConfig().isEmpty());
 
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
-        Permissions pipelinePermissions = permissions.get(new CaseInsensitiveString("pipeline1"));
+        Permissions pipelinePermissions = permissions.get(cis("pipeline1"));
 
         assertPipelinesInMap(permissions, "pipeline1");
         assertEveryoneIsAPartOf(pipelinePermissions.viewers());
@@ -144,7 +145,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         configMother.addRoleAsSuperAdmin(config, "superadminrole1");
 
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
-        Permissions pipelinePermissions = permissions.get(new CaseInsensitiveString("pipeline1"));
+        Permissions pipelinePermissions = permissions.get(cis("pipeline1"));
 
         assertPipelinesInMap(permissions, "pipeline1");
         assertEveryoneIsAPartOf(pipelinePermissions.viewers());
@@ -163,7 +164,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         configMother.addRoleAsSuperAdmin(config, "go_admins");
 
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
-        Permissions pipelinePermissions = permissions.get(new CaseInsensitiveString("pipeline1"));
+        Permissions pipelinePermissions = permissions.get(cis("pipeline1"));
 
         assertPipelinesInMap(permissions, "pipeline1");
         assertEveryoneIsAPartOf(pipelinePermissions.viewers());
@@ -246,10 +247,10 @@ public class GoConfigPipelinePermissionsAuthorityTest {
 
         pluginRoleUsersStore.revokeAllRolesFor("admin_user");
 
-        assertFalse(permissions.get(new CaseInsensitiveString("pipeline1")).admins().contains("admin_user"));
-        assertFalse(permissions.get(new CaseInsensitiveString("pipeline1")).operators().contains("admin_user"));
-        assertFalse(permissions.get(new CaseInsensitiveString("pipeline1")).viewers().contains("admin_user"));
-        assertFalse(permissions.get(new CaseInsensitiveString("pipeline1")).pipelineOperators().contains("admin_user"));
+        assertFalse(permissions.get(cis("pipeline1")).admins().contains("admin_user"));
+        assertFalse(permissions.get(cis("pipeline1")).operators().contains("admin_user"));
+        assertFalse(permissions.get(cis("pipeline1")).viewers().contains("admin_user"));
+        assertFalse(permissions.get(cis("pipeline1")).pipelineOperators().contains("admin_user"));
     }
 
     @Test
@@ -272,10 +273,10 @@ public class GoConfigPipelinePermissionsAuthorityTest {
 
         pluginRoleUsersStore.revokeAllRolesFor("admin_user");
 
-        assertFalse(permissions.get(new CaseInsensitiveString("pipeline1")).admins().contains("admin_user"));
-        assertFalse(permissions.get(new CaseInsensitiveString("pipeline1")).operators().contains("admin_user"));
-        assertFalse(permissions.get(new CaseInsensitiveString("pipeline1")).viewers().contains("admin_user"));
-        assertFalse(permissions.get(new CaseInsensitiveString("pipeline1")).pipelineOperators().contains("admin_user"));
+        assertFalse(permissions.get(cis("pipeline1")).admins().contains("admin_user"));
+        assertFalse(permissions.get(cis("pipeline1")).operators().contains("admin_user"));
+        assertFalse(permissions.get(cis("pipeline1")).viewers().contains("admin_user"));
+        assertFalse(permissions.get(cis("pipeline1")).pipelineOperators().contains("admin_user"));
     }
 
     @Test
@@ -651,7 +652,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
 
         assertPipelinesInMap(permissions, "pipeline1");
 
-        Permissions pipelinePermissions = permissions.get(new CaseInsensitiveString("pipeline1"));
+        Permissions pipelinePermissions = permissions.get(cis("pipeline1"));
         assertEveryoneIsAPartOf(pipelinePermissions.viewers());
         assertEveryoneIsAPartOf(pipelinePermissions.operators());
         assertEveryoneIsAPartOf(pipelinePermissions.pipelineOperators());
@@ -673,13 +674,13 @@ public class GoConfigPipelinePermissionsAuthorityTest {
 
         assertPipelinesInMap(permissions, "pipeline1", "pipeline2");
 
-        Permissions pipeline1Permissions = permissions.get(new CaseInsensitiveString("pipeline1"));
+        Permissions pipeline1Permissions = permissions.get(cis("pipeline1"));
         assertEveryoneIsAPartOf(pipeline1Permissions.viewers());
         assertEveryoneIsAPartOf(pipeline1Permissions.operators());
         assertEveryoneIsAPartOf(pipeline1Permissions.pipelineOperators());
         assertEveryoneIsAPartOf(pipeline1Permissions.admins());
 
-        Permissions pipeline2Permissions = permissions.get(new CaseInsensitiveString("pipeline2"));
+        Permissions pipeline2Permissions = permissions.get(cis("pipeline2"));
         assertEveryoneIsAPartOf(pipeline2Permissions.viewers());
         assertEveryoneIsAPartOf(pipeline2Permissions.operators());
         assertEveryoneIsAPartOf(pipeline2Permissions.pipelineOperators());
@@ -892,7 +893,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     private void assertViewers(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedViewers) {
-        Permissions permissions = permissionsForAllPipelines.get(new CaseInsensitiveString(pipelineToCheckFor));
+        Permissions permissions = permissionsForAllPipelines.get(cis(pipelineToCheckFor));
         assertThat(permissions.viewers()).isEqualTo(new AllowedUsers(Set.of(expectedViewers), pluginRoleConfigs));
     }
 
@@ -902,24 +903,24 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     private void assertPipelineOperators(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedOperators) {
-        Permissions permissions = permissionsForAllPipelines.get(new CaseInsensitiveString(pipelineToCheckFor));
+        Permissions permissions = permissionsForAllPipelines.get(cis(pipelineToCheckFor));
         assertThat(permissions.pipelineOperators()).isEqualTo(new AllowedUsers(Set.of(expectedOperators), pluginRoleConfigs));
     }
 
     private void assertGroupOperators(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedOperators) {
-        Permissions permissions = permissionsForAllPipelines.get(new CaseInsensitiveString(pipelineToCheckFor));
+        Permissions permissions = permissionsForAllPipelines.get(cis(pipelineToCheckFor));
         assertThat(permissions.operators()).isEqualTo(new AllowedUsers(Set.of(expectedOperators), pluginRoleConfigs));
     }
 
     private void assertAdmins(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedAdmins) {
-        Permissions permissions = permissionsForAllPipelines.get(new CaseInsensitiveString(pipelineToCheckFor));
+        Permissions permissions = permissionsForAllPipelines.get(cis(pipelineToCheckFor));
         assertThat(permissions.admins()).isEqualTo(new AllowedUsers(Set.of(expectedAdmins), pluginRoleConfigs));
     }
 
     private void assertPipelinesInMap(Map<CaseInsensitiveString, Permissions> pipelinesToPermissions, String... expectedPipelines) {
         Set<CaseInsensitiveString> expectedCaseInsensitivePipelineNames = new HashSet<>();
         for (String expectedPipeline : expectedPipelines) {
-            expectedCaseInsensitivePipelineNames.add(new CaseInsensitiveString(expectedPipeline));
+            expectedCaseInsensitivePipelineNames.add(cis(expectedPipeline));
         }
         assertThat(pipelinesToPermissions.keySet()).isEqualTo(expectedCaseInsensitivePipelineNames);
     }

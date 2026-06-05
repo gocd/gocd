@@ -17,12 +17,12 @@ package com.thoughtworks.go.apiv3.environments.representers
 
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.BasicEnvironmentConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.EnvironmentConfig
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 
@@ -114,10 +114,10 @@ class EnvironmentRepresenterTest {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(environmentConfig)
     def object = EnvironmentRepresenter.fromJSON(jsonReader)
 
-    EnvironmentConfig expectedObject = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+    EnvironmentConfig expectedObject = new BasicEnvironmentConfig(cis("env1"))
     expectedObject.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-    expectedObject.addPipeline(new CaseInsensitiveString("Pipeline1"))
-    expectedObject.addPipeline(new CaseInsensitiveString("Pipeline2"))
+    expectedObject.addPipeline(cis("Pipeline1"))
+    expectedObject.addPipeline(cis("Pipeline2"))
 
 
     assertThat(object).isEqualTo(expectedObject)
@@ -125,12 +125,12 @@ class EnvironmentRepresenterTest {
 
   @Test
   void 'should serialize to JSON'() {
-    EnvironmentConfig env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+    EnvironmentConfig env1 = new BasicEnvironmentConfig(cis("env1"))
     env1.addAgent("agent1")
     env1.addAgent("agent2")
     env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-    env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
-    env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+    env1.addPipeline(cis("Pipeline1"))
+    env1.addPipeline(cis("Pipeline2"))
 
     def json = toObjectString({ EnvironmentRepresenter.toJSON(it, env1) })
 

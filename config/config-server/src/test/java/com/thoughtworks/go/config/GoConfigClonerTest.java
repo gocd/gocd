@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -81,8 +82,8 @@ public class GoConfigClonerTest {
     public void shouldNotClonePipelineNameToConfigMap() {
         BasicCruiseConfig config = GoConfigMother.configWithPipelines("p1", "p2");
         //to prime cache
-        assertThat(config.pipelineConfigByName(new CaseInsensitiveString("p1"))).isNotNull();
-        config.pipelineConfigByName(new CaseInsensitiveString("p1"));
+        assertThat(config.pipelineConfigByName(cis("p1"))).isNotNull();
+        config.pipelineConfigByName(cis("p1"));
         //change state
         config.findGroup("defaultGroup").add(PipelineConfigMother.pipelineConfig("p3"));
 

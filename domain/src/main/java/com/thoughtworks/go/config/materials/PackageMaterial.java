@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.escapeEnvironmentVariable;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -150,7 +151,7 @@ public class PackageMaterial extends AbstractMaterial implements SecretParamAwar
     @Override
     public CaseInsensitiveString getName() {
         if ((name == null || isEmpty(name.toString())) && packageDefinition != null) {
-            return new CaseInsensitiveString(getPackageDefinition().getRepository().getName() + "_" + packageDefinition.getName());
+            return cis(getPackageDefinition().getRepository().getName() + "_" + packageDefinition.getName());
         } else {
             return name;
         }

@@ -31,7 +31,6 @@ import java.util.Map;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-
 public class JSONResultMessageHandler {
 
     public Map<String, Object> configurationToMap(Configuration configuration) {

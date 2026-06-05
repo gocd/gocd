@@ -15,7 +15,10 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.AdminRole;
+import com.thoughtworks.go.config.AdminUser;
+import com.thoughtworks.go.config.AdminsConfig;
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.AdminsConfigUpdateCommand;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -31,6 +34,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -129,7 +133,7 @@ public class AdminsConfigServiceTest {
         assertThat(result.httpCode()).isEqualTo(422);
         assertThat(result.message()).isEqualTo("Update failed because some users or roles do not exist under super admins.");
         assertThat(result.getNonExistentRoles()).hasSize(1);
-        assertThat(result.getNonExistentRoles()).contains(new CaseInsensitiveString("someOtherRole"));
+        assertThat(result.getNonExistentRoles()).contains(cis("someOtherRole"));
         assertThat(result.getNonExistentUsers()).hasSize(0);
 
         verify(goConfigService, times(0)).updateConfig(any(), any());
@@ -151,7 +155,7 @@ public class AdminsConfigServiceTest {
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.httpCode()).isEqualTo(422);
         assertThat(result.getNonExistentUsers()).hasSize(1);
-        assertThat(result.getNonExistentUsers()).contains(new CaseInsensitiveString("someOtherUser"));
+        assertThat(result.getNonExistentUsers()).contains(cis("someOtherUser"));
         assertThat(result.getNonExistentRoles()).hasSize(0);
 
         verify(goConfigService, times(0)).updateConfig(any(), any());

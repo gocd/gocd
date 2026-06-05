@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.helper;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
@@ -32,6 +31,8 @@ import com.thoughtworks.go.util.command.UrlArgument;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 public class MaterialsMother {
 
@@ -89,15 +90,11 @@ public class MaterialsMother {
     }
 
     public static DependencyMaterial dependencyMaterial(String pipelineName, String stageName) {
-        return new DependencyMaterial(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
+        return new DependencyMaterial(cis(pipelineName), cis(stageName));
     }
 
     public static DependencyMaterial dependencyMaterial() {
-        return new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
-    }
-
-    public static Materials hgMaterials(String url) {
-        return hgMaterials(url, null);
+        return new DependencyMaterial(cis("pipeline-name"), cis("stage-name"));
     }
 
     public static Materials hgMaterials(String url, String folder) {

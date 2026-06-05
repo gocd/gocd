@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ExtendWith(SpringExtension.class)
@@ -63,14 +64,14 @@ public class RoleConfigServiceIntegrationTest {
 
     @Test
     public void delete_shouldBeAbleToDeleteAnExistingGoCDRole() {
-        RoleConfig role = new RoleConfig(new CaseInsensitiveString("committer"));
+        RoleConfig role = new RoleConfig(cis("committer"));
 
         roleConfigService.delete(new Username("loser"), role, new HttpLocalizedOperationResult());
 
         CruiseConfig cruiseConfig = goConfigService.cruiseConfig();
 
         RolesConfig roles = cruiseConfig.server().security().getRoles();
-        assertFalse(roles.isRoleExist(new CaseInsensitiveString("committer")));
+        assertFalse(roles.isRoleExist(cis("committer")));
     }
 
     @Test
@@ -82,6 +83,6 @@ public class RoleConfigServiceIntegrationTest {
         CruiseConfig cruiseConfig = goConfigService.cruiseConfig();
 
         RolesConfig roles = cruiseConfig.server().security().getRoles();
-        assertFalse(roles.isRoleExist(new CaseInsensitiveString("go_admins")));
+        assertFalse(roles.isRoleExist(cis("go_admins")));
     }
 }

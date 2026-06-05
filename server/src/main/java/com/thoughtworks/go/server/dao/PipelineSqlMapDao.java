@@ -60,6 +60,7 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -401,7 +402,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         }
         Set<Long> ids = new HashSet<>();
         for (PipelineInstanceModel model : models) {
-            if (pipelinesInConfig.contains(new CaseInsensitiveString(model.getName()))) {
+            if (pipelinesInConfig.contains(cis(model.getName()))) {
                 ids.add(model.getId());
             }
 

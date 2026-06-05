@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.JobConfigs;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -29,7 +29,7 @@ public class BuildPlansTest {
     public void shouldFindBuildPlanByName() {
         JobConfigs jobConfigs = new JobConfigs();
         jobConfigs.add(jobConfig("Test"));
-        assertThat(jobConfigs.containsName(new CaseInsensitiveString("Poo"))).isFalse();
+        assertThat(jobConfigs.containsName(cis("Poo"))).isFalse();
     }
 
     @Test
@@ -62,6 +62,6 @@ public class BuildPlansTest {
     }
 
     private JobConfig jobConfig(String jobConfigName) {
-        return new JobConfig(new CaseInsensitiveString(jobConfigName), null, null);
+        return new JobConfig(cis(jobConfigName), null, null);
     }
 }

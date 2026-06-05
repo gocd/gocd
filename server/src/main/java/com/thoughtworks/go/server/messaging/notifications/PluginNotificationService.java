@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.messaging.notifications;
 
 import com.thoughtworks.go.config.Approval;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.Stage;
@@ -39,6 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.SystemEnvironment.NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS;
 
 @Component
@@ -104,7 +104,7 @@ public class PluginNotificationService {
         @Override
         public StageNotificationData notificationDataFor(Stage stage) {
             String pipelineName = stage.getIdentifier().getPipelineName();
-            String pipelineGroup = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
+            String pipelineGroup = goConfigService.findGroupNameByPipeline(cis(pipelineName));
             BuildCause buildCause = pipelineSqlMapDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, stage.getIdentifier().getPipelineCounter());
 
             if (!goConfigService.isFirstStage(pipelineName, stage.getName())) {

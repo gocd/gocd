@@ -43,6 +43,7 @@ import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.doThrow
 import static org.mockito.Mockito.when
@@ -154,7 +155,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
         loginAsUser()
         Policy directives = new Policy()
         directives.add(new Allow("administer", "environment", "env*"))
-        RoleConfig role = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives)
+        RoleConfig role = new RoleConfig(cis("read-only-environments"), new Users(), directives)
 
         when(goConfigService.rolesForUser(any(CaseInsensitiveString.class))).thenReturn([role])
 
@@ -179,7 +180,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
         loginAsUser()
         Policy directives = new Policy()
         directives.add(new Allow("administer", "environment", "blah*"))
-        RoleConfig role = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives)
+        RoleConfig role = new RoleConfig(cis("read-only-environments"), new Users(), directives)
 
         when(goConfigService.rolesForUser(any(CaseInsensitiveString.class))).thenReturn([role])
 
@@ -236,7 +237,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
     void setUp() {
       Policy directives = new Policy()
       directives.add(new Allow("administer", "environment", "*"))
-      RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+      RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
 
       when(goConfigService.rolesForUser(any(CaseInsensitiveString.class))).then({ InvocationOnMock invocation ->
         CaseInsensitiveString username = invocation.getArguments()[0]

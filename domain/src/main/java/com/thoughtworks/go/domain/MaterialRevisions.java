@@ -260,8 +260,8 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
     }
 
     private String getRevisionValueOf(Revision revision) {
-        if (revision instanceof DependencyMaterialRevision) {
-            return ((DependencyMaterialRevision) revision).getPipelineLabel();
+        if (revision instanceof DependencyMaterialRevision dependencyMaterialRevision) {
+            return dependencyMaterialRevision.getPipelineLabel();
         }
         return revision.getRevision();
     }
@@ -270,8 +270,8 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
         List<DependencyMaterial> mats = new ArrayList<>();
         for (MaterialRevision materialRevision : this) {
             Material material = materialRevision.getMaterial();
-            if (material instanceof DependencyMaterial) {
-                mats.add((DependencyMaterial) material);
+            if (material instanceof DependencyMaterial dependencyMaterial) {
+                mats.add(dependencyMaterial);
             }
         }
         return mats;

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.web;
 
-
 import com.thoughtworks.go.util.SystemEnvironment;
 
 import java.util.Optional;

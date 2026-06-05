@@ -24,6 +24,7 @@ import com.thoughtworks.go.helper.StageConfigMother;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class TemplateExpansionPreprocessorTest {
@@ -42,17 +43,17 @@ class TemplateExpansionPreprocessorTest {
 
     @Test
     public void shouldNotExpandWhenTemplateAssociatedWithPipelineDoesNotExist() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
-        pipelineConfig.templatize(new CaseInsensitiveString("does_not_exist"));
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("p"), new MaterialConfigs());
+        pipelineConfig.templatize(cis("does_not_exist"));
         preprocessor.process(new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig)));
         assertThat(pipelineConfig.hasTemplateApplied()).isFalse();
     }
 
     @Test
     public void shouldValidatePipelineToCheckItDoesNotAllowBothTemplateAndStages() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
-        pipelineConfig.templatize(new CaseInsensitiveString("template"));
-        pipelineConfig.addStageWithoutValidityAssertion(new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs()));
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("p"), new MaterialConfigs());
+        pipelineConfig.templatize(cis("template"));
+        pipelineConfig.addStageWithoutValidityAssertion(new StageConfig(cis("stage"), new JobConfigs()));
         preprocessor.process(new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig)));
         assertThat(pipelineConfig.hasTemplateApplied()).isFalse();
         assertThat(pipelineConfig.errors().firstErrorOn("stages")).isEqualTo("Cannot add stages to pipeline 'p' which already references template 'template'");
@@ -61,11 +62,11 @@ class TemplateExpansionPreprocessorTest {
 
     @Test
     public void shouldCloneStagesSoThatMutationDoesNotAffectTemplate() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipelineName"), new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig("http://google.com")));
-        pipelineConfig.setTemplateName(new CaseInsensitiveString("templateName"));
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("pipelineName"), new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig("http://google.com")));
+        pipelineConfig.setTemplateName(cis("templateName"));
         PipelineTemplateConfig template = new PipelineTemplateConfig();
         JobConfig jobConfigFromTemplate = new JobConfig("job-1");
-        StageConfig stageConfigFromTemplate = new StageConfig(new CaseInsensitiveString("stage-1"), new JobConfigs(jobConfigFromTemplate));
+        StageConfig stageConfigFromTemplate = new StageConfig(cis("stage-1"), new JobConfigs(jobConfigFromTemplate));
         template.add(stageConfigFromTemplate);
         pipelineConfig.usingTemplate(template);
 
@@ -73,7 +74,7 @@ class TemplateExpansionPreprocessorTest {
         EnvironmentVariablesConfig variablesConfig = new EnvironmentVariablesConfig();
         variablesConfig.add("FOO", "BAR");
         stageConfigFromPipeline.setVariables(variablesConfig);
-        JobConfig jobConfigFromPipeline = stageConfigFromPipeline.jobConfigByConfigName(new CaseInsensitiveString("job-1"));
+        JobConfig jobConfigFromPipeline = stageConfigFromPipeline.jobConfigByConfigName(cis("job-1"));
         EnvironmentVariablesConfig jobVariablesConfigFromPipeline = new EnvironmentVariablesConfig();
         jobVariablesConfigFromPipeline.add("BAZ", "QUUX");
         jobConfigFromPipeline.setVariables(jobVariablesConfigFromPipeline);

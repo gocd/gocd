@@ -20,6 +20,8 @@ import com.thoughtworks.go.domain.config.Admin;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 @ConfigTag("user")
 public class AdminUser implements Admin {
     @ConfigValue
@@ -37,7 +39,7 @@ public class AdminUser implements Admin {
     }
 
     public AdminUser(String name) {
-        this.name = new CaseInsensitiveString(name);
+        this.name = cis(name);
     }
 
     @Override
@@ -80,7 +82,7 @@ public class AdminUser implements Admin {
 
     @Override
     public boolean isSameAs(Admin admin, List<Role> memberRoles) {
-        return admin instanceof AdminUser && name.equals(((AdminUser) admin).name);
+        return admin instanceof AdminUser adminUser && name.equals(adminUser.name);
     }
 
     @Override

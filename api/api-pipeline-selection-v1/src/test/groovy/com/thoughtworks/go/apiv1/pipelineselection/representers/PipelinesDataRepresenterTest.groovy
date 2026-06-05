@@ -16,13 +16,13 @@
 package com.thoughtworks.go.apiv1.pipelineselection.representers
 
 import com.thoughtworks.go.config.BasicPipelineConfigs
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigs
 import com.thoughtworks.go.config.materials.MaterialConfigs
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class PipelinesDataRepresenterTest {
@@ -33,11 +33,11 @@ class PipelinesDataRepresenterTest {
       def group1 = new BasicPipelineConfigs(group: "grp1")
       def group2 = new BasicPipelineConfigs(group: "grp2")
 
-      group1.add(new PipelineConfig(new CaseInsensitiveString("pipeline3"), new MaterialConfigs()))
-      group1.add(new PipelineConfig(new CaseInsensitiveString("build-linux"), new MaterialConfigs()))
-      group1.add(new PipelineConfig(new CaseInsensitiveString("build-windows"), new MaterialConfigs()))
-      group2.add(new PipelineConfig(new CaseInsensitiveString("pipeline1"), new MaterialConfigs()))
-      group2.add(new PipelineConfig(new CaseInsensitiveString("pipeline2"), new MaterialConfigs()))
+      group1.add(new PipelineConfig(cis("pipeline3"), new MaterialConfigs()))
+      group1.add(new PipelineConfig(cis("build-linux"), new MaterialConfigs()))
+      group1.add(new PipelineConfig(cis("build-windows"), new MaterialConfigs()))
+      group2.add(new PipelineConfig(cis("pipeline1"), new MaterialConfigs()))
+      group2.add(new PipelineConfig(cis("pipeline2"), new MaterialConfigs()))
 
       List<PipelineConfigs> pipelineConfigs = [group1, group2]
 

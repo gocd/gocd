@@ -48,6 +48,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.label.PipelineLabel.COUNT;
 import static com.thoughtworks.go.domain.label.PipelineLabel.ENV_VAR_PREFIX;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -183,8 +184,8 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
             for (JobConfig jobConfig : stageConfig.getJobs()) {
                 externalArtifactConfigs.addAll(jobConfig.artifactTypeConfigs().getPluggableArtifactConfigs());
                 for (Task task : jobConfig.getTasks()) {
-                    if (task instanceof FetchPluggableArtifactTask) {
-                        fetchExternalArtifactTasks.add((FetchPluggableArtifactTask) task);
+                    if (task instanceof FetchPluggableArtifactTask fetchPluggableArtifactTask) {
+                        fetchExternalArtifactTasks.add(fetchPluggableArtifactTask);
                     }
                 }
             }
@@ -296,7 +297,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
                 return false;
             }
 
-            if (!materialConfigs.materialNames().contains(new CaseInsensitiveString(materialName))) {
+            if (!materialConfigs.materialNames().contains(cis(materialName))) {
                 addError("labelTemplate", format("You have defined a label template in pipeline '%s' that refers to a material called '%s', but no material with this name is defined.", name(), materialName));
                 return false;
             }
@@ -342,7 +343,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public StageConfig getStage(String stageName) {
-        return getStage(new CaseInsensitiveString(stageName));
+        return getStage(cis(stageName));
     }
 
     public @Nullable StageConfig findBy(final CaseInsensitiveString stageName) {
@@ -640,8 +641,8 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public List<DependencyMaterialConfig> dependencyMaterialConfigs() {
         List<DependencyMaterialConfig> materialConfigs = new ArrayList<>();
         for (MaterialConfig material : this.materialConfigs) {
-            if (material instanceof DependencyMaterialConfig) {
-                materialConfigs.add((DependencyMaterialConfig) material);
+            if (material instanceof DependencyMaterialConfig dependencyMaterialConfig) {
+                materialConfigs.add(dependencyMaterialConfig);
             }
         }
         return materialConfigs;
@@ -742,7 +743,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public void setName(String name) {
-        this.name = new CaseInsensitiveString(name);
+        this.name = cis(name);
     }
 
     private void setConfigurationType(Map<String, Object> attributeMap) {
@@ -753,7 +754,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         if (configurationType.equals(CONFIGURATION_TYPE_TEMPLATE)) {
             String templateName = (String) attributeMap.get(TEMPLATE_NAME);
             this.clear();
-            this.setTemplateName(new CaseInsensitiveString(templateName));
+            this.setTemplateName(cis(templateName));
         }
     }
 

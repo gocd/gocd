@@ -26,7 +26,6 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class PipelineTimelineEntryMother {
     private static long revId = 1;
 

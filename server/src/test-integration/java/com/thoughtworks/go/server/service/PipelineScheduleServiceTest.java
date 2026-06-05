@@ -51,6 +51,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.EnvironmentVariablesConfigMother.env;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
@@ -108,13 +109,13 @@ public class PipelineScheduleServiceTest {
 
         goConfig = configHelper.addPipeline("go", STAGE_NAME, repository, "unit");
         StageConfig ftStageConfig = StageConfigMother.custom("ft", "twist");
-        ftStageConfig.jobConfigByConfigName(new CaseInsensitiveString("twist")).addVariable("JOB_LVL", "job value");
+        ftStageConfig.jobConfigByConfigName(cis("twist")).addVariable("JOB_LVL", "job value");
         ftStageConfig.setVariables(env("STAGE_LVL", "stage value"));
         configHelper.addStageToPipeline("go", ftStageConfig);
         configHelper.addEnvironmentVariableToPipeline("go", env("PIPELINE_LVL", "pipeline value"));
         configHelper.addEnvironments("uat");
-        EnvironmentConfig uatEnv = configHelper.currentConfig().getEnvironments().named(new CaseInsensitiveString("uat"));
-        uatEnv.addPipeline(new CaseInsensitiveString("go"));
+        EnvironmentConfig uatEnv = configHelper.currentConfig().getEnvironments().named(cis("uat"));
+        uatEnv.addPipeline(cis("go"));
         uatEnv.addEnvironmentVariable("ENV_LVL", "env value");
 
         evolveConfig = configHelper.addPipeline("evolve", STAGE_NAME, repository, "unit");
@@ -322,12 +323,12 @@ public class PipelineScheduleServiceTest {
     public void shouldNotScheduleBuildIfNoModification() throws Exception {
         autoSchedulePipelines("mingle", "evolve");
         // Get the scheduled evolve stage and complete it.
-        Stage evolveInstance = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(evolveConfig.name()), evolveConfig.findBy(new CaseInsensitiveString("dev")));
+        Stage evolveInstance = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(evolveConfig.name()), evolveConfig.findBy(cis("dev")));
         dbHelper.passStage(evolveInstance);
         stageDao.stageStatusChanged(evolveInstance);
 
         autoSchedulePipelines();
-        Stage mostRecent = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(evolveConfig.name()), evolveConfig.findBy(new CaseInsensitiveString("dev")));
+        Stage mostRecent = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(evolveConfig.name()), evolveConfig.findBy(cis("dev")));
 
         assertThat(mostRecent.getId()).isEqualTo(evolveInstance.getId());
         assertThat(mostRecent.getJobInstances().getFirst().getState()).isEqualTo(JobState.Completed);
@@ -341,7 +342,7 @@ public class PipelineScheduleServiceTest {
 
         autoSchedulePipelines("mingle", "evolve", "cruise");
 
-        Stage cruise = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(cruisePlan.name()), cruisePlan.findBy(new CaseInsensitiveString("dev")));
+        Stage cruise = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(cruisePlan.name()), cruisePlan.findBy(cis("dev")));
         JobInstance instance = cruise.getJobInstances().getFirst();
         assertThat(instance.getState()).isEqualTo(JobState.Scheduled);
     }
@@ -369,7 +370,7 @@ public class PipelineScheduleServiceTest {
     public void shouldRemoveBuildCauseIfAnyExceptionIsThrown() throws Exception {
         configHelper.addPipeline("cruise", "dev", repository);
         goConfigService.forceNotifyListeners();
-        goConfigService.getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString("cruise")).getFirst().jobConfigByConfigName(new CaseInsensitiveString("unit")).setRunOnAllAgents(true);
+        goConfigService.getCurrentConfig().pipelineConfigByName(cis("cruise")).getFirst().jobConfigByConfigName(cis("unit")).setRunOnAllAgents(true);
         scheduleHelper.autoSchedulePipelinesWithRealMaterials("cruise");
 
         goConfigService.forceNotifyListeners();
@@ -395,8 +396,8 @@ public class PipelineScheduleServiceTest {
 
     @Test
     public void shouldConsumeAllBuildCausesInServerHealth() {
-        pipelineScheduleQueue.schedule(new CaseInsensitiveString("mingle"), BuildCause.createManualForced(modifyOneFile(mingleConfig), Username.ANONYMOUS));
-        pipelineScheduleQueue.schedule(new CaseInsensitiveString("evolve"), BuildCause.createManualForced(modifyOneFile(evolveConfig), Username.ANONYMOUS));
+        pipelineScheduleQueue.schedule(cis("mingle"), BuildCause.createManualForced(modifyOneFile(mingleConfig), Username.ANONYMOUS));
+        pipelineScheduleQueue.schedule(cis("evolve"), BuildCause.createManualForced(modifyOneFile(evolveConfig), Username.ANONYMOUS));
 
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         assertThat(pipelineScheduleQueue.toBeScheduled().size()).isEqualTo(0);
@@ -408,7 +409,7 @@ public class PipelineScheduleServiceTest {
     }
 
     private Pipeline manualSchedule(String pipelineName) throws Exception {
-        scheduleHelper.manuallySchedulePipelineWithRealMaterials(pipelineName, new Username(new CaseInsensitiveString("some user name")));
+        scheduleHelper.manuallySchedulePipelineWithRealMaterials(pipelineName, new Username(cis("some user name")));
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         return pipelineService.mostRecentFullPipelineByName(pipelineName);
     }
@@ -426,7 +427,7 @@ public class PipelineScheduleServiceTest {
     }
 
     private void assertPipelineScheduled(PipelineConfig config) {
-        Stage evolveStage = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(config.name()), config.findBy(new CaseInsensitiveString("dev")));
+        Stage evolveStage = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(config.name()), config.findBy(cis("dev")));
         assertThat(evolveStage.getName()).isEqualTo("dev");
         assertThat(evolveStage.getJobInstances().size()).isEqualTo(1);
         assertThat(evolveStage.getJobInstances().getFirst().getState()).isEqualTo(JobState.Scheduled);
@@ -448,7 +449,7 @@ public class PipelineScheduleServiceTest {
     }
 
     private Pipeline passFirstStage(PipelineConfig pipelineConfig) {
-        Stage completedMingleStage = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(pipelineConfig.name()), pipelineConfig.findBy(new CaseInsensitiveString("dev")));
+        Stage completedMingleStage = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(pipelineConfig.name()), pipelineConfig.findBy(cis("dev")));
         dbHelper.passStage(completedMingleStage);
         dbHelper.passStage(completedMingleStage);
         assertThat(completedMingleStage.getJobInstances().getFirst().getState()).isEqualTo(JobState.Completed);

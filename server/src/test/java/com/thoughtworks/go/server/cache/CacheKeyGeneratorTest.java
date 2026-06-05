@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.server.cache;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.StageState;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -66,7 +66,7 @@ class CacheKeyGeneratorTest {
 
     @Test
     void shouldAlwaysReturnInternedString() {
-        assertThat(cacheKeyGenerator.generate("foo", "bar", new CaseInsensitiveString("1"), 1L))
+        assertThat(cacheKeyGenerator.generate("foo", "bar", cis("1"), 1L))
             .describedAs("Using '==' to check returned key is interned String")
             .isSameAs("com.thoughtworks.go.domain.Pipeline.$foo.$bar.$1.$1");
 
@@ -104,7 +104,7 @@ class CacheKeyGeneratorTest {
 
     @Test
     void shouldConvertCaseInsensitiveStringToLowerCase() {
-        String generatedCacheKey = cacheKeyGenerator.generate("Foo", "bAR", new CaseInsensitiveString("FAST"), 1L);
+        String generatedCacheKey = cacheKeyGenerator.generate("Foo", "bAR", cis("FAST"), 1L);
         assertThat(generatedCacheKey).isEqualTo("com.thoughtworks.go.domain.Pipeline.$Foo.$bAR.$fast.$1");
     }
 }

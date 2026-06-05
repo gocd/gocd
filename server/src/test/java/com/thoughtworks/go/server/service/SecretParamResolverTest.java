@@ -55,6 +55,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialsMother.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -246,7 +247,7 @@ class SecretParamResolverTest {
     class ResolveEnvironmentConfig {
         @Test
         void shouldResolveSecretParams_IfJobPlanCanReferSecretConfig() {
-            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("dev"));
+            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(cis("dev"));
             environmentConfig.addEnvironmentVariable("key", "{{SECRET:[secret_config_id][password]}}");
 
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
@@ -263,7 +264,7 @@ class SecretParamResolverTest {
 
         @Test
         void shouldErrorOut_IfJobPlanDoNotHavePermissionToReferToASecretConfig() {
-            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("dev"));
+            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(cis("dev"));
             environmentConfig.addEnvironmentVariable("key", "{{SECRET:[secret_config_id][password]}}");
 
             doThrow(new RuntimeException()).when(rulesService).validateSecretConfigReferences(environmentConfig);

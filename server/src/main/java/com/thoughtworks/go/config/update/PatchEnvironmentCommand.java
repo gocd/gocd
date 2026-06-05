@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
@@ -26,6 +25,8 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
 import java.util.List;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 public class PatchEnvironmentCommand extends EnvironmentCommand {
     private final List<String> pipelinesToAdd;
@@ -46,11 +47,11 @@ public class PatchEnvironmentCommand extends EnvironmentCommand {
         EnvironmentConfig environmentConfig = configForEdit.getEnvironments().named(this.environmentConfig.name());
 
         for (String pipelineName : pipelinesToAdd) {
-            environmentConfig.addPipeline(new CaseInsensitiveString(pipelineName));
+            environmentConfig.addPipeline(cis(pipelineName));
         }
 
         for (String pipelineName : pipelinesToRemove) {
-            environmentConfig.removePipeline(new CaseInsensitiveString(pipelineName));
+            environmentConfig.removePipeline(cis(pipelineName));
         }
 
         for (EnvironmentVariableConfig variableConfig : envVarsToAdd) {
@@ -77,8 +78,8 @@ public class PatchEnvironmentCommand extends EnvironmentCommand {
 
     private boolean validateRemovalOfRemotePipelines(EnvironmentConfig preprocessedEnvironmentConfig) {
         for (String pipelineToRemove : pipelinesToRemove) {
-            if (preprocessedEnvironmentConfig.containsPipelineRemotely(new CaseInsensitiveString(pipelineToRemove))) {
-                String origin = ((MergeEnvironmentConfig) preprocessedEnvironmentConfig).getOriginForPipeline(new CaseInsensitiveString(pipelineToRemove)).displayName();
+            if (preprocessedEnvironmentConfig.containsPipelineRemotely(cis(pipelineToRemove))) {
+                String origin = ((MergeEnvironmentConfig) preprocessedEnvironmentConfig).getOriginForPipeline(cis(pipelineToRemove)).displayName();
                 String message = String.format("Pipeline '%s' cannot be removed from environment '%s' as the association has been defined remotely in [%s]",
                         pipelineToRemove, environmentConfig.name(), origin);
                 result.unprocessableEntity(LocalizedMessage.composite(actionFailed, message));
@@ -111,7 +112,7 @@ public class PatchEnvironmentCommand extends EnvironmentCommand {
     private boolean validateRemovalOfInvalidPipelines() {
         EnvironmentConfig environmentConfig = this.environmentConfig;
         for (String pipelineToRemove : pipelinesToRemove) {
-            if (!environmentConfig.containsPipeline(new CaseInsensitiveString(pipelineToRemove))) {
+            if (!environmentConfig.containsPipeline(cis(pipelineToRemove))) {
                 String message = String.format("Pipeline '%s' does not exist in environment '%s'", pipelineToRemove, environmentConfig.name());
                 result.unprocessableEntity(LocalizedMessage.composite(actionFailed, message));
                 return false;

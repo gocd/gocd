@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.apache.commons.lang3.StringUtils.*;
 
 public class PipelineLabel implements Serializable {
@@ -92,7 +93,7 @@ public class PipelineLabel implements Serializable {
     }
 
     private String resolveMaterialRevision(Map<CaseInsensitiveString, String> knownRevisions, String name, String truncation) {
-        final String revision = knownRevisions.get(new CaseInsensitiveString(name));
+        final String revision = knownRevisions.get(cis(name));
 
         if (isNotBlank(truncation)) {
             int truncationLength = Integer.parseInt(truncation);

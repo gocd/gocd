@@ -26,6 +26,8 @@ import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 /* Represents a pipeline on the dashboard. Cacheable, since the permissions are not specific to a user. */
 public class GoDashboardPipeline {
     private final PipelineModel pipelineModel;
@@ -69,7 +71,7 @@ public class GoDashboardPipeline {
     }
 
     public CaseInsensitiveString name() {
-        return new CaseInsensitiveString(pipelineModel.getName());
+        return cis(pipelineModel.getName());
     }
 
     public boolean canBeViewedBy(String userName) {

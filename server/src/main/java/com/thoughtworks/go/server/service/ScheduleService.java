@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static java.lang.String.join;
 
@@ -215,8 +216,8 @@ public class ScheduleService {
     public Stage scheduleStage(final Pipeline pipeline, final String stageName, final String username, final StageInstanceCreator creator, final ErrorConditionHandler errorHandler) {
         return transactionTemplate.execute(status -> {
             String pipelineName = pipeline.getName();
-            PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-            StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(stageName));
+            PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(cis(pipelineName));
+            StageConfig stageConfig = pipelineConfig.findBy(cis(stageName));
             if (stageConfig == null) {
                 throw new StageNotFoundException(pipelineName, stageName);
             }
@@ -454,7 +455,7 @@ public class ScheduleService {
 
     private boolean shouldTriggerThisStageInNewerPipeline(Pipeline pipeline, Stage stage) {
         return !goConfigService.isFirstStage(pipeline.getName(), stage.getName())
-                && !goConfigService.requiresApproval(new CaseInsensitiveString(pipeline.getName()), new CaseInsensitiveString(stage.getName()));
+                && !goConfigService.requiresApproval(cis(pipeline.getName()), cis(stage.getName()));
     }
 
     private void triggerCurrentStageInNewerPipeline(String pipelineName, Stage currentStage) {

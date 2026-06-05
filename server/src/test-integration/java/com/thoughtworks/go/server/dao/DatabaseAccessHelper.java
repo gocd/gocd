@@ -62,6 +62,7 @@ import java.sql.Statement;
 import java.time.ZonedDateTime;
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
@@ -209,7 +210,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         StageConfig stageConfig = StageConfigMother.stageConfig(stageName,
             BuildPlanMother.withBuildPlans(jobConfigNames));
         MaterialConfigs materialConfigs = MaterialConfigsMother.multipleMaterialConfigs();
-        return new PipelineConfig(new CaseInsensitiveString(pipelineName), materialConfigs, stageConfig);
+        return new PipelineConfig(cis(pipelineName), materialConfigs, stageConfig);
     }
 
     private Pipeline scheduleWithFileChanges(PipelineConfig pipelineConfig) {

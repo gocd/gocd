@@ -30,6 +30,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @ConfigTag("materials")
@@ -73,8 +74,8 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     public List<CaseInsensitiveString> getDependentPipelineNames() {
         Set<CaseInsensitiveString> names = new TreeSet<>();
         for (MaterialConfig material : this) {
-            if (material instanceof DependencyMaterialConfig) {
-                names.add(((DependencyMaterialConfig) material).getPipelineName());
+            if (material instanceof DependencyMaterialConfig dependencyMaterialConfig) {
+                names.add(dependencyMaterialConfig.getPipelineName());
             }
         }
         return new ArrayList<>(names);
@@ -213,8 +214,8 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     private List<DependencyMaterialConfig> filterDependencyMaterials() {
         List<DependencyMaterialConfig> dependencyMaterials = new ArrayList<>();
         for (MaterialConfig material : this) {
-            if (material instanceof DependencyMaterialConfig) {
-                dependencyMaterials.add((DependencyMaterialConfig) material);
+            if (material instanceof DependencyMaterialConfig dependencyMaterialConfig) {
+                dependencyMaterials.add(dependencyMaterialConfig);
             }
         }
         return dependencyMaterials;
@@ -307,7 +308,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     }
 
     public DependencyMaterialConfig getDependencyMaterial() {
-        return getExistingOrDefaultMaterial(new DependencyMaterialConfig(new CaseInsensitiveString(""), new CaseInsensitiveString("")));
+        return getExistingOrDefaultMaterial(new DependencyMaterialConfig(cis(""), cis("")));
     }
 
     public PackageMaterialConfig getPackageMaterial() {

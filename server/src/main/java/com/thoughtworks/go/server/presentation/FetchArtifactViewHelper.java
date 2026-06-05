@@ -22,8 +22,8 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.util.stream.Collectors.toCollection;
-
 
 public class FetchArtifactViewHelper {
     private final CruiseConfig cruiseConfig;
@@ -81,7 +81,7 @@ public class FetchArtifactViewHelper {
                 JobHierarchyQueueEntry entry = bfsQueue.remove();
                 PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(entry.pipelineName);
                 if (permissions.canView(entry.pipelineName)) {
-                    addStagesToHierarchy(new CaseInsensitiveString(entry.pathFromAncestor()), pipelineConfig.allStagesUpTo(entry.stageName).toList());
+                    addStagesToHierarchy(cis(entry.pathFromAncestor()), pipelineConfig.allStagesUpTo(entry.stageName).toList());
                 }
                 addMaterialsToQueue(bfsQueue, pipelineConfig, entry.pathFromAncestor());
             }
@@ -89,7 +89,7 @@ public class FetchArtifactViewHelper {
     }
 
     private PipelineConfig createPipelineConfigForTemplate(CaseInsensitiveString templateName) {
-        return new PipelineConfig(new CaseInsensitiveString(NULL_STR),
+        return new PipelineConfig(cis(NULL_STR),
             cruiseConfig.allPipelines().stream()
                 .filter(p -> !p.isEmpty())
                 .map(p -> new DependencyMaterialConfig(p.name(), p.getLast().name()))
@@ -114,7 +114,7 @@ public class FetchArtifactViewHelper {
             if (!template) {
                 hierarchy.addStagesToHierarchy(pipelineName, currentPipelineStages);
             }
-            hierarchy.addStagesToHierarchy(new CaseInsensitiveString(NULL_STR), currentPipelineStages);
+            hierarchy.addStagesToHierarchy(cis(NULL_STR), currentPipelineStages);
         }
     }
 

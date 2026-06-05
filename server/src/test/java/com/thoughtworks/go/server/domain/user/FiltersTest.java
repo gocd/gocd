@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 import static com.thoughtworks.go.server.domain.user.FilterValidator.*;
 import static com.thoughtworks.go.server.domain.user.Filters.WILDCARD_FILTER;
@@ -176,7 +177,7 @@ class FiltersTest {
         assertEquals(DEFAULT_NAME, first.name());
         assertInstanceOf(IncludesFilter.class, first);
         assertEquals(1, ((IncludesFilter) first).pipelines().size());
-        assertTrue(((IncludesFilter) first).pipelines().contains(new CaseInsensitiveString("p1")));
+        assertTrue(((IncludesFilter) first).pipelines().contains(cis("p1")));
     }
 
     @Test

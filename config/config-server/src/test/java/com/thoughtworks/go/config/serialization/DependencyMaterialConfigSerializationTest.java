@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.p4;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,14 +48,14 @@ class DependencyMaterialConfigSerializationTest {
     void shouldBeAbleToLoadADependencyMaterialFromConfig() throws Exception {
         String xml = "<pipeline pipelineName=\"pipeline-name\" stageName=\"stage-name\" />";
         DependencyMaterialConfig material = loader.fromXmlPartial(xml, DependencyMaterialConfig.class);
-        assertThat(material.getPipelineName()).isEqualTo(new CaseInsensitiveString("pipeline-name"));
-        assertThat(material.getStageName()).isEqualTo(new CaseInsensitiveString("stage-name"));
+        assertThat(material.getPipelineName()).isEqualTo(cis("pipeline-name"));
+        assertThat(material.getStageName()).isEqualTo(cis("stage-name"));
         assertThat(writer.toXmlPartial(material)).isEqualTo(xml);
     }
 
     @Test
     void shouldBeAbleToSaveADependencyMaterialToConfig() throws Exception {
-        DependencyMaterialConfig originalMaterial = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
+        DependencyMaterialConfig originalMaterial = new DependencyMaterialConfig(cis("pipeline-name"), cis("stage-name"));
 
         GoConfigMother goConfigMother = new GoConfigMother();
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
@@ -67,10 +68,10 @@ class DependencyMaterialConfigSerializationTest {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(buffer.toByteArray());
         CruiseConfig config = loader.loadConfigHolder(new String(inputStream.readAllBytes(), UTF_8)).config;
 
-        DependencyMaterialConfig material = (DependencyMaterialConfig) config.pipelineConfigByName(new CaseInsensitiveString("dependent")).materialConfigs().get(1);
+        DependencyMaterialConfig material = (DependencyMaterialConfig) config.pipelineConfigByName(cis("dependent")).materialConfigs().get(1);
         assertThat(material).isEqualTo(originalMaterial);
-        assertThat(material.getPipelineName()).isEqualTo(new CaseInsensitiveString("pipeline-name"));
-        assertThat(material.getStageName()).isEqualTo(new CaseInsensitiveString("stage-name"));
+        assertThat(material.getPipelineName()).isEqualTo(cis("pipeline-name"));
+        assertThat(material.getStageName()).isEqualTo(cis("stage-name"));
     }
 
     @Test
@@ -78,7 +79,7 @@ class DependencyMaterialConfigSerializationTest {
         GoConfigMother goConfigMother = new GoConfigMother();
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         goConfigMother.addPipeline(cruiseConfig, "pipeline-name", "stage-name", "job-name");
-        MaterialConfig materialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
+        MaterialConfig materialConfig = new DependencyMaterialConfig(cis("pipeline-name"), cis("stage-name"));
         PipelineConfig pipelineConfig = goConfigMother.addPipeline(cruiseConfig, "dependent", "stage-name", new MaterialConfigs(materialConfig), "job-name");
         pipelineConfig.addMaterialConfig(p4("localhost:1666", "foo"));
 
@@ -90,7 +91,7 @@ class DependencyMaterialConfigSerializationTest {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(buffer.toByteArray());
         CruiseConfig config = loader.loadConfigHolder(new String(inputStream.readAllBytes(), UTF_8)).config;
 
-        MaterialConfigs materialConfigs = config.pipelineConfigByName(new CaseInsensitiveString("dependent")).materialConfigs();
+        MaterialConfigs materialConfigs = config.pipelineConfigByName(cis("dependent")).materialConfigs();
         assertThat(materialConfigs.getFirst()).isInstanceOf(DependencyMaterialConfig.class);
         assertThat(materialConfigs.getLast()).isInstanceOf(P4MaterialConfig.class);
     }

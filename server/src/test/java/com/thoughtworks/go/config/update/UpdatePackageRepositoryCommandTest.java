@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.exceptions.EntityType;
@@ -38,6 +37,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.packageMaterialConfig;
@@ -70,7 +70,7 @@ public class UpdatePackageRepositoryCommandTest {
 
     @BeforeEach
     public void setup() {
-        currentUser = new Username(new CaseInsensitiveString("user"));
+        currentUser = new Username(cis("user"));
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
         repoId = "npmOrg";
         newPackageRepo = new PackageRepository(repoId, repoId, new PluginConfiguration("npm", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("REPO_URL"), new ConfigurationValue("http://bar"))));
@@ -135,12 +135,12 @@ public class UpdatePackageRepositoryCommandTest {
         command.update(cruiseConfig);
 
         PackageMaterialConfig materialConfig1 = cruiseConfig
-                .getPipelineConfigByName(new CaseInsensitiveString("p1")).packageMaterialConfigs().getFirst();
+                .getPipelineConfigByName(cis("p1")).packageMaterialConfigs().getFirst();
 
         assertThat(materialConfig1.getPackageDefinition().getRepository()).isEqualTo(updatePackageRepo);
 
         PackageMaterialConfig materialConfig2 = cruiseConfig
-                .getPipelineConfigByName(new CaseInsensitiveString("p3")).packageMaterialConfigs().getFirst();
+                .getPipelineConfigByName(cis("p3")).packageMaterialConfigs().getFirst();
 
         assertThat(materialConfig2.getPackageDefinition().getRepository()).isEqualTo(updatePackageRepo);
     }

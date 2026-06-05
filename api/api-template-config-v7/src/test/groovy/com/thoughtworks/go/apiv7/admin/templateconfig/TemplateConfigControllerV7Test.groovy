@@ -35,6 +35,7 @@ import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplateWithParams
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
@@ -47,7 +48,7 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
 
   @BeforeEach
   void setUp() {
-    template = new PipelineTemplateConfig(new CaseInsensitiveString('some-template'), new StageConfig(new CaseInsensitiveString('stage'), new JobConfigs(new JobConfig(new CaseInsensitiveString('job')))))
+    template = new PipelineTemplateConfig(cis('some-template'), new StageConfig(cis('stage'), new JobConfigs(new JobConfig(cis('job')))))
   }
 
   @Mock
@@ -87,9 +88,9 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
         enableSecurity()
         loginAsAdmin()
 
-        def templates = new TemplateToPipelines(new CaseInsensitiveString("template"), true, true)
-        templates.add(new PipelineEditabilityInfo(new CaseInsensitiveString("pipeline1"), true, true))
-        templates.add(new PipelineEditabilityInfo(new CaseInsensitiveString("pipeline2"), false, true))
+        def templates = new TemplateToPipelines(cis("template"), true, true)
+        templates.add(new PipelineEditabilityInfo(cis("pipeline1"), true, true))
+        templates.add(new PipelineEditabilityInfo(cis("pipeline2"), false, true))
 
         when(templateConfigService.getTemplatesList(any(Username.class) as Username)).thenReturn([templates])
 

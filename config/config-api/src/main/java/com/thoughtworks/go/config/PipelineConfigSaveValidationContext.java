@@ -54,23 +54,23 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
         this.groupName = parentContext.groupName;
         this.immediateParent = immediateParent;
         this.parentContext = parentContext;
-        if (immediateParent instanceof BasicCruiseConfig) {
-            this.cruiseConfig = (BasicCruiseConfig) immediateParent;
+        if (immediateParent instanceof BasicCruiseConfig basicCruiseConfig) {
+            this.cruiseConfig = basicCruiseConfig;
         } else if (parentContext.cruiseConfig != null) {
             this.cruiseConfig = parentContext.cruiseConfig;
         }
-        if (immediateParent instanceof PipelineConfig) {
-            this.pipeline = (PipelineConfig) immediateParent;
+        if (immediateParent instanceof PipelineConfig stageConfigs) {
+            this.pipeline = stageConfigs;
         } else if (parentContext.pipeline != null) {
             this.pipeline = parentContext.pipeline;
         }
-        if (immediateParent instanceof JobConfig) {
-            this.job = (JobConfig) immediateParent;
+        if (immediateParent instanceof JobConfig jobConfig) {
+            this.job = jobConfig;
         } else if (parentContext.getJob() != null) {
             this.job = parentContext.job;
         }
-        if (immediateParent instanceof StageConfig) {
-            this.stage = (StageConfig) immediateParent;
+        if (immediateParent instanceof StageConfig stageConfig) {
+            this.stage = stageConfig;
         } else if (parentContext.stage != null) {
             this.stage = parentContext.stage;
         }

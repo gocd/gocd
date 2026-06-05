@@ -15,13 +15,11 @@
  */
 package com.thoughtworks.go.apiv3.rolesconfig.representers;
 
-
 import com.google.gson.JsonParseException;
 import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RoleConfig;
@@ -31,6 +29,7 @@ import com.thoughtworks.go.spark.Routes;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 public class RoleRepresenter {
     public static void toJSON(OutputWriter jsonWriter, Role role) {
@@ -68,7 +67,7 @@ public class RoleRepresenter {
             throw new JsonParseException("Invalid role type '%s'. It has to be one of 'gocd' or 'plugin'");
         }
 
-        model.setName(new CaseInsensitiveString(jsonReader.optString("name").orElse(null)));
+        model.setName(cis(jsonReader.optString("name").orElse(null)));
 
         Policy directives = new Policy();
         jsonReader.readArrayIfPresent("policy", policy -> policy.forEach(directive -> directives.add(DirectiveRepresenter.fromJSON(new JsonReader(directive.getAsJsonObject())))));

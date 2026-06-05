@@ -22,6 +22,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -121,7 +122,7 @@ public class Marshaling {
     public static class CaseInsensitiveStringDeserializer implements JsonDeserializer<CaseInsensitiveString> {
         @Override
         public CaseInsensitiveString deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            return new CaseInsensitiveString(json.getAsString());
+            return cis(json.getAsString());
         }
     }
 

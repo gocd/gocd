@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.serverhealth;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
@@ -24,6 +23,8 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 public class HealthStateScope implements Comparable<HealthStateScope> {
     public static final HealthStateScope GLOBAL = new HealthStateScope(ScopeType.GLOBAL, "GLOBAL");
@@ -249,27 +250,27 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
         PIPELINE {
             @Override
             public boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String pipeline) {
-                return !cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipeline));
+                return !cruiseConfig.hasPipelineNamed(cis(pipeline));
             }
         },
         FANIN {
             @Override
             public boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String pipeline) {
-                return !cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipeline));
+                return !cruiseConfig.hasPipelineNamed(cis(pipeline));
             }
         },
         STAGE {
             @Override
             public boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String pipelineStage) {
                 String[] parts = pipelineStage.split("/");
-                return !cruiseConfig.hasStageConfigNamed(new CaseInsensitiveString(parts[0]), new CaseInsensitiveString(parts[1]), true);
+                return !cruiseConfig.hasStageConfigNamed(cis(parts[0]), cis(parts[1]), true);
             }
         },
         JOB {
             @Override
             public boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String pipelineStageJob) {
                 String[] parts = pipelineStageJob.split("/");
-                return !cruiseConfig.hasBuildPlan(new CaseInsensitiveString(parts[0]), new CaseInsensitiveString(parts[1]), parts[2], true);
+                return !cruiseConfig.hasBuildPlan(cis(parts[0]), cis(parts[1]), parts[2], true);
             }
         },
         PLUGIN,

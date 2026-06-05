@@ -226,8 +226,8 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     }
 
     public String hashForEntity(EnvironmentConfig config) {
-        if (config instanceof MergeEnvironmentConfig) {
-            return hashForEntity((MergeEnvironmentConfig) config);
+        if (config instanceof MergeEnvironmentConfig environmentConfigs) {
+            return hashForEntity(environmentConfigs);
         }
 
         String cacheKey = cacheKey(config, config.name());

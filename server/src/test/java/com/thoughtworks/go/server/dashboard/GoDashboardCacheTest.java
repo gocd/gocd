@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.server.dashboard;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.server.dashboard.GoDashboardPipelineMother.pipeline;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -82,9 +82,5 @@ public class GoDashboardCacheTest {
         assertThat(cache.allEntries().find(cis("pipeline3"))).isSameAs(pipeline3);
         assertThat(cache.allEntries().find(cis("pipeline4"))).isSameAs(newPipeline4);
         assertThat(cache.allEntries().find(cis("pipeline5"))).isSameAs(pipeline5);
-    }
-
-    private CaseInsensitiveString cis(String value) {
-        return new CaseInsensitiveString(value);
     }
 }

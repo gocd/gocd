@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.spark.spa
 
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.server.service.AuthorizationExtensionCacheService
 import com.thoughtworks.go.server.service.SecurityAuthConfigService
 import com.thoughtworks.go.spark.ControllerTrait
@@ -32,6 +31,7 @@ import spark.ModelAndView
 import spark.Request
 import spark.Response
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
@@ -83,7 +83,7 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
     def groupName = "first"
     def request = mock(Request)
     when(request.params("pipeline_name")).thenReturn(pipelineName)
-    when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName))).thenReturn(groupName)
+    when(goConfigService.findGroupNameByPipeline(cis(pipelineName))).thenReturn(groupName)
 
     ModelAndView modelAndView = controller.index(request, response)
     Map<Object, Object> model = modelAndView.getModel() as Map<Object, Object>

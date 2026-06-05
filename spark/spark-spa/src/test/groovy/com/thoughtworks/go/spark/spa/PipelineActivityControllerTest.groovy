@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.spark.spa
 
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.PipelineAccessSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -26,6 +25,7 @@ import org.junit.jupiter.api.Test
 import spark.ModelAndView
 import spark.Request
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
@@ -85,7 +85,7 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
 
       @BeforeEach
       void setUp() {
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(getPipelineName()))).thenReturn(true)
+        when(goConfigService.hasPipelineNamed(cis(getPipelineName()))).thenReturn(true)
       }
 
       @Override

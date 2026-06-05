@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.Pipeline;
@@ -34,6 +33,8 @@ import org.springframework.transaction.support.TransactionSynchronization;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 /**
  * Understands how/whether to lock/unlock a pipeline instance
@@ -61,7 +62,7 @@ public class PipelineLockService implements ConfigChangedListener {
             @Override
             public void onEntityConfigChange(PipelineConfig pipelineConfig) {
                 for (String lockedPipeline : pipelineStateDao.lockedPipelines()) {
-                    if (pipelineConfig.name().equals(new CaseInsensitiveString(lockedPipeline)) && !pipelineConfig.isLockable()) {
+                    if (pipelineConfig.name().equals(cis(lockedPipeline)) && !pipelineConfig.isLockable()) {
                         unlock(lockedPipeline);
                         break;
                     }
@@ -113,7 +114,7 @@ public class PipelineLockService implements ConfigChangedListener {
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         for (String lockedPipeline : pipelineStateDao.lockedPipelines()) {
-            if (!newCruiseConfig.hasPipelineNamed(new CaseInsensitiveString(lockedPipeline)) || !newCruiseConfig.isPipelineLockable(lockedPipeline)) {
+            if (!newCruiseConfig.hasPipelineNamed(cis(lockedPipeline)) || !newCruiseConfig.isPipelineLockable(lockedPipeline)) {
                 unlock(lockedPipeline);
             }
         }

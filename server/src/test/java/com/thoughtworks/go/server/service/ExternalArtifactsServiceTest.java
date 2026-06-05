@@ -31,11 +31,11 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-
 
 public class ExternalArtifactsServiceTest {
     private PluggableArtifactConfig pluggableArtifactConfig;
@@ -59,7 +59,7 @@ public class ExternalArtifactsServiceTest {
         pluggableArtifactConfig = new PluggableArtifactConfig("foo", "bar");
         pipelineConfig = PipelineConfigMother.createPipelineConfig("p1", "s1", "j1");
         pipelineConfig.getStage("s1").jobConfigByConfigName("j1").artifactTypeConfigs().add(pluggableArtifactConfig);
-        fetchPluggableArtifactTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("p1"), new CaseInsensitiveString("s1"), new CaseInsensitiveString("j1"), "foo");
+        fetchPluggableArtifactTask = new FetchPluggableArtifactTask(cis("p1"), cis("s1"), cis("j1"), "foo");
 
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.addPipelineWithoutValidation("group", pipelineConfig);

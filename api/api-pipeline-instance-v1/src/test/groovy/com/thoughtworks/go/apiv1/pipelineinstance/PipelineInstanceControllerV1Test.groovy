@@ -19,7 +19,6 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceModelRepresenter
 import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceModelsRepresenter
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.domain.PipelineRunIdInfo
 import com.thoughtworks.go.domain.buildcause.BuildCause
 import com.thoughtworks.go.helper.ModificationsMother
@@ -49,6 +48,7 @@ import java.time.Instant
 import java.util.stream.Stream
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 
@@ -69,7 +69,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
     @BeforeEach
     void setUp() {
-      when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true)
+      when(goConfigService.hasPipelineNamed(cis(pipelineName))).thenReturn(true)
     }
 
     @Nested
@@ -116,7 +116,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
       @Test
       void 'should throw 404 if the pipeline does not exist'() {
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(false)
+        when(goConfigService.hasPipelineNamed(cis(pipelineName))).thenReturn(false)
 
         getWithApiHeader(controller.controllerPath(pipelineName, "4", "instance"))
 
@@ -164,7 +164,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
     @BeforeEach
     void setUp() {
-      when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true)
+      when(goConfigService.hasPipelineNamed(cis(pipelineName))).thenReturn(true)
     }
 
     @Nested

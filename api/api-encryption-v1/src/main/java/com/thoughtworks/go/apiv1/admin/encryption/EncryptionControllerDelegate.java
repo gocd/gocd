@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.apiv1.admin.encryption;
 
-
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;

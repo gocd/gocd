@@ -19,12 +19,14 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 
 import java.util.Objects;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 public class StageConfigIdentifier {
     private final CaseInsensitiveString pipelineName;
     private final CaseInsensitiveString stageName;
 
     public StageConfigIdentifier(String pipelineName, String stageName) {
-        this(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
+        this(cis(pipelineName), cis(stageName));
     }
 
     private StageConfigIdentifier(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName) {

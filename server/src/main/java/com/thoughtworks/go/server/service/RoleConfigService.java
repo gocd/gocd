@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 
@@ -63,15 +64,15 @@ public class RoleConfigService {
     }
 
     public Role findRole(String name) {
-        return getRoles().findByName(new CaseInsensitiveString(name));
+        return getRoles().findByName(cis(name));
     }
 
     protected void update(Username currentUser, Role role, LocalizedOperationResult result, EntityConfigUpdateCommand<Role> command) {
         try {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
-            if (e instanceof GoConfigInvalidException) {
-                result.unprocessableEntity(entityConfigValidationFailed(getTagName(role.getClass()), role.getName(), ((GoConfigInvalidException) e).getAllErrorMessages()));
+            if (e instanceof GoConfigInvalidException goConfigInvalidException) {
+                result.unprocessableEntity(entityConfigValidationFailed(getTagName(role.getClass()), role.getName(), goConfigInvalidException.getAllErrorMessages()));
             } else {
                 if (!result.hasMessage()) {
                     LOGGER.error(e.getMessage(), e);
@@ -115,8 +116,8 @@ public class RoleConfigService {
         try {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
-            if (e instanceof GoConfigInvalidException) {
-                result.unprocessableEntity(entityConfigValidationFailed(getTagName(RolesConfig.class), bulkUpdateRequest.getRolesToUpdateAsString(), ((GoConfigInvalidException) e).getAllErrorMessages()));
+            if (e instanceof GoConfigInvalidException goConfigInvalidException) {
+                result.unprocessableEntity(entityConfigValidationFailed(getTagName(RolesConfig.class), bulkUpdateRequest.getRolesToUpdateAsString(), goConfigInvalidException.getAllErrorMessages()));
             } else {
                 if (!result.hasMessage()) {
                     LOGGER.error(e.getMessage(), e);

@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BuildTaskTest {
@@ -198,7 +199,7 @@ public class BuildTaskTest {
         };
         task.setWorkingDirectory("/blah");
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline");
-        PipelineConfig pipeline = config.pipelineConfigByName(new CaseInsensitiveString("pipeline"));
+        PipelineConfig pipeline = config.pipelineConfigByName(cis("pipeline"));
         StageConfig stage = pipeline.getFirst();
         JobConfig job = stage.getJobs().getFirst();
         job.addTask(task);
@@ -217,7 +218,7 @@ public class BuildTaskTest {
         task.setWorkingDirectory("/blah");
         StageConfig stageConfig = StageConfigMother.manualStage("manualStage");
         stageConfig.getJobs().getFirst().addTask(task);
-        PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("some-template"), stageConfig);
+        PipelineTemplateConfig template = new PipelineTemplateConfig(cis("some-template"), stageConfig);
         config.addTemplate(template);
 
         List<ConfigErrors> errors = config.validateAfterPreprocess();

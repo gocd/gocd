@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.RoleConfig;
 import com.thoughtworks.go.config.RoleUser;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -30,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -69,8 +69,8 @@ public class RolesConfigBulkUpdateCommandTest {
 
         RoleConfig expectedRole1 = new RoleConfig("foo", new RoleUser("user1"), new RoleUser("user2"));
         RoleConfig expectedRole2 = new RoleConfig("bar");
-        assertThat(cruiseConfig.server().security().getRoles().findByName(new CaseInsensitiveString("foo"))).isEqualTo(expectedRole1);
-        assertThat(cruiseConfig.server().security().getRoles().findByName(new CaseInsensitiveString("bar"))).isEqualTo(expectedRole2);
+        assertThat(cruiseConfig.server().security().getRoles().findByName(cis("foo"))).isEqualTo(expectedRole1);
+        assertThat(cruiseConfig.server().security().getRoles().findByName(cis("bar"))).isEqualTo(expectedRole2);
     }
 
     @Test

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
@@ -67,6 +66,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.config.Approval.TYPE_MANUAL;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static com.thoughtworks.go.helper.PipelineMother.completedFailedStageInstance;
 import static com.thoughtworks.go.server.security.GoAuthority.ROLE_ANONYMOUS;
@@ -91,7 +91,7 @@ public class StageServiceTest {
     private TestTransactionSynchronizationManager transactionSynchronizationManager;
     private PipelineDao pipelineDao;
 
-    private static final Username ALWAYS_ALLOW_USER = new Username(new CaseInsensitiveString("always allowed"));
+    private static final Username ALWAYS_ALLOW_USER = new Username(cis("always allowed"));
     private GoCache goCache;
 
     @BeforeEach
@@ -510,7 +510,7 @@ public class StageServiceTest {
     
     @Test
     public void shouldPopulateErrorWhenPipelineNotFound_findStageWithIdentifier() {
-        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
+        when(cruiseConfig.hasPipelineNamed(cis("pipeline"))).thenReturn(false);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
 
@@ -526,7 +526,7 @@ public class StageServiceTest {
 
     @Test
     public void shouldPopulateErrorWhenUnauthorized_findStageWithIdentifier() {
-        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
+        when(cruiseConfig.hasPipelineNamed(cis("pipeline"))).thenReturn(true);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(false);
 
@@ -542,7 +542,7 @@ public class StageServiceTest {
 
     @Test
     public void shouldPopulateErrorWhenPipelineWithCounterNotFound_findStageWithIdentifier() {
-        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
+        when(cruiseConfig.hasPipelineNamed(cis("pipeline"))).thenReturn(true);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
         when(pipelineDao.findPipelineByNameAndCounter("pipeline", 1)).thenReturn(null);
@@ -572,7 +572,7 @@ public class StageServiceTest {
         @Test
         void shouldFetchLatestRecords() {
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
             stageService.findStageHistoryViaCursor(username, pipelineName, STAGE_NAME, 0, 0, 10);
@@ -583,7 +583,7 @@ public class StageServiceTest {
         @Test
         void shouldFetchRecordsAfterTheSpecifiedCursor() {
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
             stageService.findStageHistoryViaCursor(username, pipelineName, STAGE_NAME, 2, 0, 10);
@@ -594,7 +594,7 @@ public class StageServiceTest {
         @Test
         void shouldFetchRecordsBeforeTheSpecifiedCursor() {
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
             stageService.findStageHistoryViaCursor(username, pipelineName, STAGE_NAME, 0, 3, 10);
@@ -614,7 +614,7 @@ public class StageServiceTest {
         @Test
         void shouldThrowErrorIfUserDoesNotHaveAccessRights() {
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
 
             assertThatCode(() -> stageService.findStageHistoryViaCursor(username, pipelineName, STAGE_NAME, 0, 0, 10))
                 .isInstanceOf(NotAuthorizedException.class)
@@ -624,7 +624,7 @@ public class StageServiceTest {
         @Test
         void shouldThrowErrorIfCursorIsANegativeInteger() {
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
             assertThatCode(() -> stageService.findStageHistoryViaCursor(username, pipelineName, STAGE_NAME, -10, 0, 10))
@@ -651,7 +651,7 @@ public class StageServiceTest {
         @Test
         void shouldReturnTheLatestAndOldestRunID() {
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
             stageService.getOldestAndLatestStageInstanceId(username, pipelineName, STAGE_NAME);
@@ -672,7 +672,7 @@ public class StageServiceTest {
         @Test
         void shouldThrowErrorIfUserDoesNotHaveAccessRights() {
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
 
             assertThatCode(() -> stageService.getOldestAndLatestStageInstanceId(username, pipelineName, STAGE_NAME))
                 .isInstanceOf(NotAuthorizedException.class)
@@ -693,7 +693,7 @@ public class StageServiceTest {
 
         @Test
         void shouldThrowRecordNotFoundWhenPipelineWithNameDoesNotExist() {
-            when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("up42"))).thenReturn(false);
+            when(goConfigService.hasPipelineNamed(cis("up42"))).thenReturn(false);
 
             assertThatCode(() -> stageService.findStageWithIdentifier("up42", 1, "unit-tests", "1", username))
                 .isInstanceOf(RecordNotFoundException.class)
@@ -702,7 +702,7 @@ public class StageServiceTest {
 
         @Test
         void shouldThrowNotAuthorizedWhenUserDoesNotViewPermissionHave() {
-            when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("up42"))).thenReturn(true);
+            when(goConfigService.hasPipelineNamed(cis("up42"))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, "up42")).thenReturn(false);
 
             assertThatCode(() -> stageService.findStageWithIdentifier("up42", 1, "unit-tests", "1", username))
@@ -715,7 +715,7 @@ public class StageServiceTest {
             String pipelineName = "up42";
             int pipelineCounter = 1;
             String stageName = "unit-tests";
-            when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(goConfigService.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
             when(pipelineDao.findPipelineByNameAndCounter(pipelineName, pipelineCounter)).thenReturn(null);
 
@@ -730,7 +730,7 @@ public class StageServiceTest {
             String stageName = "unit-tests";
             String stageCounter = "1";
             Pipeline pipeline = completedFailedStageInstance(pipelineName, stageName, "junit", Instant.now());
-            when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(goConfigService.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
             when(pipelineDao.findPipelineByNameAndCounter(pipelineName, pipelineCounter)).thenReturn(pipeline);
 

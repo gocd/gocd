@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.apiv1.admin.pipelinegroups.representers
 
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import org.junit.jupiter.api.Test
@@ -23,6 +22,7 @@ import org.junit.jupiter.api.Test
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toArrayString
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class PipelineConfigSummaryRepresenterTest {
@@ -47,7 +47,7 @@ class PipelineConfigSummaryRepresenterTest {
 
   static def getPipelineConfig(String name) {
       def materialConfigs = MaterialConfigsMother.defaultMaterialConfigs()
-      new PipelineConfig(new CaseInsensitiveString(name), materialConfigs)
+      new PipelineConfig(cis(name), materialConfigs)
   }
 
   static def pipelineHash(String name) {

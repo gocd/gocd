@@ -49,11 +49,11 @@ public class JsonMessageHandler4_0 implements JsonMessageHandler {
             if (map.containsKey("notifications") && map.get("notifications") != null) {
                 Object notificationsObj = map.get("notifications");
 
-                if (!(notificationsObj instanceof List)) {
+                if (!(notificationsObj instanceof List list)) {
                     throw new RuntimeException("'notifications' should be of type list of string");
                 }
 
-                notificationNames = (List) notificationsObj;
+                notificationNames = list;
 
                 for (Object message : notificationNames) {
                     if (!(message instanceof String)) {
@@ -74,11 +74,11 @@ public class JsonMessageHandler4_0 implements JsonMessageHandler {
     }
 
     private <T> DataConverter getConverter(T data) {
-        if (data instanceof StageNotificationData) {
-            return new StageConverter((StageNotificationData) data);
+        if (data instanceof StageNotificationData stageNotificationData) {
+            return new StageConverter(stageNotificationData);
         }
-        if (data instanceof AgentNotificationData) {
-            return new AgentConverter((AgentNotificationData) data);
+        if (data instanceof AgentNotificationData agentNotificationData) {
+            return new AgentConverter(agentNotificationData);
         }
         throw new UnsupportedOperationException(String.format("Converter for %s not supported", data.getClass().getCanonicalName()));
     }
@@ -119,11 +119,11 @@ public class JsonMessageHandler4_0 implements JsonMessageHandler {
             if (map.containsKey("messages") && map.get("messages") != null) {
                 Object messagesObj = map.get("messages");
 
-                if (!(messagesObj instanceof List)) {
+                if (!(messagesObj instanceof List list)) {
                     throw new RuntimeException("Notify result 'messages' should be of type list of string");
                 }
 
-                messages = (List) messagesObj;
+                messages = list;
 
                 for (Object message : messages) {
                     if (!(message instanceof String)) {

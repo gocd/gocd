@@ -18,10 +18,14 @@ package com.thoughtworks.go.apiv3.environments.representers;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.EnvironmentVariableRepresenter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.BasicEnvironmentConfig;
+import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.EnvironmentPipelinesConfig;
+import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.spark.Routes;
 
 import static com.thoughtworks.go.api.representers.EnvironmentVariableRepresenter.fromJSONArray;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 public class EnvironmentRepresenter {
     public static void toJSON(OutputWriter outputWriter, EnvironmentConfig envConfig) {
@@ -46,11 +50,11 @@ public class EnvironmentRepresenter {
 
     public static EnvironmentConfig fromJSON(JsonReader jsonReader) {
         String envName = jsonReader.getString("name");
-        BasicEnvironmentConfig envConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(envName));
+        BasicEnvironmentConfig envConfig = new BasicEnvironmentConfig(cis(envName));
 
         jsonReader.readArrayIfPresent("pipelines", pipelines -> pipelines.forEach(pipeline -> {
             String pipelineName = pipeline.getAsJsonObject().get("name").getAsString();
-            envConfig.addPipeline(new CaseInsensitiveString(pipelineName));
+            envConfig.addPipeline(cis(pipelineName));
         }));
 
         fromJSONArray(jsonReader).stream().forEach(envConfig::addEnvironmentVariable);

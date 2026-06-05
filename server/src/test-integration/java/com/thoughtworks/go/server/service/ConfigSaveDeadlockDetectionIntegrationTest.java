@@ -52,6 +52,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.util.TestUtils.sleepQuietly;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -233,7 +234,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
         return createThread(() -> {
             PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), git("FOO"));
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            pipelineConfigService.createPipelineConfig(new Username(new CaseInsensitiveString("root")), pipelineConfig, result, "default");
+            pipelineConfigService.createPipelineConfig(new Username(cis("root")), pipelineConfig, result, "default");
             assertThat(result.isSuccessful()).describedAs(result.message()).isTrue();
         }, "pipeline-config-save-thread" + counter);
     }

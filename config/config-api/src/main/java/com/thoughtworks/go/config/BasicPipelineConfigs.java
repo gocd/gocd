@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiPredicate;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -166,7 +167,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         if (!isSameGroup(groupName)) {
             return;
         }
-        CaseInsensitiveString caseName = new CaseInsensitiveString(pipelineName);
+        CaseInsensitiveString caseName = cis(pipelineName);
         this.replaceIfNotEmpty(c -> c.name().equals(caseName), pipeline);
     }
 

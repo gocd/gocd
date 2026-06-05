@@ -35,6 +35,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -60,7 +61,7 @@ public class MaterialRevisionsTest {
         yesterdayMod.createModifiedFile("foo.java", ".", ModifiedAction.modified);
 
         material = MaterialsMother.svnMaterial("foo");
-        material.setName(new CaseInsensitiveString("Foo"));
+        material.setName(cis("Foo"));
     }
 
     @Test
@@ -442,7 +443,7 @@ public class MaterialRevisionsTest {
             svnMaterialRevision(yesterdayMod, oneHourAgoMod)
         );
         assertThat(materialRevisions.getNamedRevisions().size()).isEqualTo(1);
-        assertThat(materialRevisions.getNamedRevisions().get(new CaseInsensitiveString("Foo"))).isEqualTo("9");
+        assertThat(materialRevisions.getNamedRevisions().get(cis("Foo"))).isEqualTo("9");
     }
 
     @Test
@@ -480,7 +481,7 @@ public class MaterialRevisionsTest {
 
     @Test
     public void shouldUseUpstreamPipelineLabelForDependencyMaterial() {
-        CaseInsensitiveString pipelineName = new CaseInsensitiveString("upstream");
+        CaseInsensitiveString pipelineName = cis("upstream");
         String pipelineLabel = "1.3.0-1234";
         MaterialRevision materialRevision = ModificationsMother.dependencyMaterialRevision(pipelineName.toString(), 2, pipelineLabel, "dev", 1, new Date());
         MaterialRevisions materialRevisions = new MaterialRevisions(materialRevision);

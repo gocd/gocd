@@ -803,7 +803,7 @@ public class MaterialRepository extends HibernateDaoSupport {
                 return MaterialRepository.this.findModificationWithRevision(session, materialId, revision);
             } catch (Exception e) {
                 LOGGER.error("Error while retrieving modification with material [{}] containing revision [{}]", material, revision, e);
-                throw e instanceof HibernateException ? (HibernateException) e : new RuntimeException(e);
+                throw e instanceof HibernateException hibernateException ? hibernateException : new RuntimeException(e);
             }
         });
     }

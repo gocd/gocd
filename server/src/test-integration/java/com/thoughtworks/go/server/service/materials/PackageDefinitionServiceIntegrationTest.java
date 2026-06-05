@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service.materials;
 
 import com.thoughtworks.go.config.CachedGoPartials;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.config.*;
@@ -36,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -70,7 +70,7 @@ public class PackageDefinitionServiceIntegrationTest {
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         goConfigService.forceNotifyListeners();
-        user = new Username(new CaseInsensitiveString("current"));
+        user = new Username(cis("current"));
         final PackageRepository npmRepo = new PackageRepository();
         PluginConfiguration pluginConfiguration = new PluginConfiguration();
         pluginConfiguration.setId("npm");

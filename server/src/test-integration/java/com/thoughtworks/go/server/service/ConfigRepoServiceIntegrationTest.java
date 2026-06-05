@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
@@ -35,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -82,7 +82,7 @@ public class ConfigRepoServiceIntegrationTest {
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
-        user = new Username(new CaseInsensitiveString("current"));
+        user = new Username(cis("current"));
         configHelper.addAdmins(user.getUsername().toString());
 
         goConfigService.forceNotifyListeners();

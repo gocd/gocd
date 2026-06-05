@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigWatchList;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
@@ -61,6 +60,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialUpdateMessageMatcher.matchMaterialUpdateMessage;
 import static com.thoughtworks.go.helper.MaterialsMother.gitMaterial;
 import static com.thoughtworks.go.server.materials.BackOffResult.DENY;
@@ -128,7 +128,7 @@ public class MaterialUpdateServiceTest {
         Set<Material> materials = new HashSet<>(Set.of(svnMaterial));
         lenient().when(goConfigService.getSchedulableMaterials()).thenReturn(materialConfigs);
         lenient().when(materialConfigConverter.toMaterials(materialConfigs)).thenReturn(materials);
-        username = new Username(new CaseInsensitiveString("loser"));
+        username = new Username(cis("loser"));
         result = new HttpLocalizedOperationResult();
         validMaterialType = mock(PostCommitHookMaterialType.class);
         lenient().when(validMaterialType.isKnown()).thenReturn(true);

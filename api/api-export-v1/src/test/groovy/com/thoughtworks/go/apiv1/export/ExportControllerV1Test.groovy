@@ -17,7 +17,6 @@ package com.thoughtworks.go.apiv1.export
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.ConfigRepoPlugin
 import com.thoughtworks.go.config.GoConfigPluginService
 import com.thoughtworks.go.config.PipelineConfig
@@ -35,6 +34,7 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.plugin.access.configrepo.ExportedConfig.from
 import static com.thoughtworks.go.spark.Routes.Export
 import static org.mockito.Mockito.when
@@ -96,7 +96,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig('pipeline1')
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString("pipeline1"))).thenReturn(groupName)
+        when(goConfigService.findGroupNameByPipeline(cis("pipeline1"))).thenReturn(groupName)
         when(goConfigService.editablePipelineConfigNamed('pipeline1')).thenReturn(pipeline)
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
@@ -172,7 +172,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString("pipeline1"))).thenReturn(groupName)
+        when(goConfigService.findGroupNameByPipeline(cis("pipeline1"))).thenReturn(groupName)
         when(goConfigService.editablePipelineConfigNamed("pipeline1")).thenReturn(pipeline)
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)

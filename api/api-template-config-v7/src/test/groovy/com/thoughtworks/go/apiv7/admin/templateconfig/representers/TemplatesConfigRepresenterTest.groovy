@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.apiv7.admin.templateconfig.representers
 
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineEditabilityInfo
 import com.thoughtworks.go.config.TemplateToPipelines
 import org.junit.jupiter.api.Test
@@ -23,14 +22,15 @@ import org.junit.jupiter.api.Test
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class TemplatesConfigRepresenterTest {
   @Test
   void 'should render links'() {
-    def template = new TemplateToPipelines(new CaseInsensitiveString("template-name"), true, true)
-    template.add(new PipelineEditabilityInfo(new CaseInsensitiveString("pipeline1"), true, true))
-    template.add(new PipelineEditabilityInfo(new CaseInsensitiveString("pipeline2"), false, true))
+    def template = new TemplateToPipelines(cis("template-name"), true, true)
+    template.add(new PipelineEditabilityInfo(cis("pipeline1"), true, true))
+    template.add(new PipelineEditabilityInfo(cis("pipeline2"), false, true))
 
     def templates = new ArrayList<TemplateToPipelines>()
     templates.add(template)

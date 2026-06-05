@@ -41,6 +41,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Optional;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.server.service.BackupService.ABORTED_BACKUPS_MESSAGE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -141,7 +142,7 @@ public class BackupServiceTest {
     @Test
     public void shouldScheduleBackupAsynchronously() {
         Username username = mock(Username.class);
-        CaseInsensitiveString user = new CaseInsensitiveString("admin");
+        CaseInsensitiveString user = cis("admin");
         LocalDateTime backupTime = LocalDateTime.of(2019, 2, 19, 0, 0, 0, 0);
         ArgumentCaptor<StartServerBackupMessage> captor = ArgumentCaptor.forClass(StartServerBackupMessage.class);
         String expectedBackupPath = new File("backup_path/backup_20190219-000000").getAbsolutePath();

@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -69,7 +70,7 @@ class EnvironmentVariablesConfigTest {
         environmentVariablesConfig.add(two);
         environmentVariablesConfig.add(three);
 
-        environmentVariablesConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig(new CaseInsensitiveString("p1"), null)));
+        environmentVariablesConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig(cis("p1"), null)));
 
         assertThat(one.errors().isEmpty()).isFalse();
         assertThat(one.errors().firstError()).contains("Environment Variable name 'FOO' is not unique for pipeline 'p1'");

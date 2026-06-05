@@ -16,7 +16,6 @@
 package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.config.ArtifactStores;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.materials.PackageMaterial;
@@ -51,6 +50,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialsMother.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -72,9 +72,9 @@ public class BuildAssignmentTest {
         svnRepoFixture = new SvnTestRepo(tempDir);
 
         svnMaterial = new SvnMaterial(new SvnCommand(null, svnRepoFixture.end2endRepositoryUrl()));
-        dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream1"), new CaseInsensitiveString(STAGE_NAME));
-        dependencyMaterialWithName = new DependencyMaterial(new CaseInsensitiveString("upstream2"), new CaseInsensitiveString(STAGE_NAME));
-        dependencyMaterialWithName.setName(new CaseInsensitiveString("dependency_material_name"));
+        dependencyMaterial = new DependencyMaterial(cis("upstream1"), cis(STAGE_NAME));
+        dependencyMaterialWithName = new DependencyMaterial(cis("upstream2"), cis(STAGE_NAME));
+        dependencyMaterialWithName.setName(cis("dependency_material_name"));
         setupHgRepo(tempDir);
     }
 

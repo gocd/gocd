@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.materials;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.domain.MaterialRevision;
@@ -31,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -57,7 +57,7 @@ class ScmMaterialTest {
 
     @Test
     void displayNameShouldReturnNameWhenSet() {
-        material.setName(new CaseInsensitiveString("blah-name"));
+        material.setName(cis("blah-name"));
         assertThat(material.getDisplayName()).isEqualTo("blah-name");
     }
 
@@ -113,7 +113,7 @@ class ScmMaterialTest {
         assertThat(context.getProperty("GO_PROPERTY")).isEqualTo("value");
 
         context = new EnvironmentVariableContext();
-        material.setName(new CaseInsensitiveString("dummy"));
+        material.setName(cis("dummy"));
         material.setVariableWithName(context, "value", "GO_PROPERTY");
         assertThat(context.getProperty("GO_PROPERTY_DUMMY")).isEqualTo("value");
         assertThat(context.getProperty("GO_PROPERTY")).isNull();
@@ -135,7 +135,7 @@ class ScmMaterialTest {
     @Test
     void shouldEscapeHyphenFromMaterialNameWhenUsedInEnvVariable() {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
-        material.setName(new CaseInsensitiveString("material-name"));
+        material.setName(cis("material-name"));
         material.setVariableWithName(context, "value", "GO_PROPERTY");
         assertThat(context.getProperty("GO_PROPERTY_MATERIAL_NAME")).isEqualTo("value");
         assertThat(context.getProperty("GO_PROPERTY")).isNull();
@@ -160,7 +160,7 @@ class ScmMaterialTest {
         assertThat(material.getMaterialNameForEnvironmentVariable()).isEmpty();
         material.setFolder("dest-folder");
         assertThat(material.getMaterialNameForEnvironmentVariable()).isEqualTo("DEST_FOLDER");
-        material.setName(new CaseInsensitiveString("some-material"));
+        material.setName(cis("some-material"));
         assertThat(material.getMaterialNameForEnvironmentVariable()).isEqualTo("SOME_MATERIAL");
     }
 

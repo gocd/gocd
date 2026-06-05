@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
@@ -65,6 +64,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.server.service.HistoryUtil.validateCursor;
 
 @Service
@@ -135,7 +135,7 @@ public class StageService implements StageFinder {
                                          String stageCounter,
                                          String username,
                                          OperationResult result) {
-        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(cis(pipelineName))) {
             String message = String.format("Pipeline '%s' not found", pipelineName);
             result.notFound("Not Found", message, HealthStateType.general(HealthStateScope.GLOBAL));
             return null;
@@ -161,7 +161,7 @@ public class StageService implements StageFinder {
                                          String stageName,
                                          String stageCounter,
                                          Username username) {
-        if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+        if (!goConfigService.hasPipelineNamed(cis(pipelineName))) {
             throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
         }
 
@@ -413,7 +413,7 @@ public class StageService implements StageFinder {
                 }
 
                 String pipelineForRev = rev.getPipelineId().getPipelineName();
-                if (!config.hasPipelineNamed(new CaseInsensitiveString(pipelineForRev))) {
+                if (!config.hasPipelineNamed(cis(pipelineForRev))) {
                     LOGGER.debug("pipeline not found: {}", pipelineForRev);
                 }
             }
@@ -475,7 +475,7 @@ public class StageService implements StageFinder {
     }
 
     private void checkForExistenceAndAccess(Username username, String pipelineName) {
-        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(cis(pipelineName))) {
             throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
         }
         if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {

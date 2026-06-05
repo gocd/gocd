@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.util.stream.Collectors.toSet;
 
 @ConfigTag("role")
@@ -44,7 +45,7 @@ public class RoleConfig implements Role {
     }
 
     public RoleConfig(String name, RoleUser... users) {
-        this(new CaseInsensitiveString(name), users);
+        this(cis(name), users);
     }
 
     public RoleConfig(CaseInsensitiveString name, RoleUser... users) {

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.presentation.pipelinehistory;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.BaseCollection;
@@ -28,6 +27,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Optional;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 
 public class StageInstanceModels extends BaseCollection<StageInstanceModel> implements StageContainer {
@@ -102,7 +102,7 @@ public class StageInstanceModels extends BaseCollection<StageInstanceModel> impl
         if (lastStage.isEmpty()) {
             nextStage = pipelineConfig.getFirstStageConfig();
         } else {
-            nextStage = pipelineConfig.nextStageAfter(new CaseInsensitiveString(lastStage.get().getName()));
+            nextStage = pipelineConfig.nextStageAfter(cis(lastStage.get().getName()));
         }
 
         while (nextStage != null && !this.hasStage(str(nextStage.name()))) {

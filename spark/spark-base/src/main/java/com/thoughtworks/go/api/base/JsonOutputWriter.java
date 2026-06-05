@@ -72,7 +72,7 @@ public class JsonOutputWriter {
     }
 
     private void bufferWriterAndFlushWhenDone(Writer writer, Consumer<BufferedWriter> consumer) {
-        BufferedWriter bufferedWriter = writer instanceof BufferedWriter ? (BufferedWriter) writer : new BufferedWriter(writer, 32 * 1024);
+        BufferedWriter bufferedWriter = writer instanceof BufferedWriter bufferedWriter1 ? bufferedWriter1 : new BufferedWriter(writer, 32 * 1024);
         try {
             try {
                 consumer.accept(bufferedWriter);

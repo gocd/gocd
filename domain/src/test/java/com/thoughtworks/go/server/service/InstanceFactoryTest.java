@@ -35,6 +35,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static com.thoughtworks.go.config.Approval.TYPE_MANUAL;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.domain.JobResult.Unknown;
 import static com.thoughtworks.go.domain.JobState.Completed;
@@ -63,16 +64,16 @@ class InstanceFactoryTest {
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser");
         String md5 = "foo-md5";
 
-        Stage actualStage = instanceFactory.createStageInstance(pipelineConfig, new CaseInsensitiveString("foo-stage"), schedulingContext, md5, clock);
+        Stage actualStage = instanceFactory.createStageInstance(pipelineConfig, cis("foo-stage"), schedulingContext, md5, clock);
 
         assertThat(actualStage.getConfigVersion()).isEqualTo(md5);
     }
 
     @Test
     void shouldThrowStageNotFoundExceptionWhenStageDoesNotExist() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs(), new StageConfig(new CaseInsensitiveString("first"), new JobConfigs()));
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("cruise"), new MaterialConfigs(), new StageConfig(cis("first"), new JobConfigs()));
         try {
-            instanceFactory.createStageInstance(pipelineConfig, new CaseInsensitiveString("doesNotExist"), new DefaultSchedulingContext(), "md5", clock);
+            instanceFactory.createStageInstance(pipelineConfig, cis("doesNotExist"), new DefaultSchedulingContext(), "md5", clock);
             fail("Found the stage doesNotExist but, well, it doesn't");
         } catch (StageNotFoundException expected) {
             assertThat(expected.getMessage()).isEqualTo("Stage 'doesNotExist' not found in pipeline 'cruise'");
@@ -81,10 +82,10 @@ class InstanceFactoryTest {
 
     @Test
     void shouldCreateAStageInstanceThroughInstanceFactory() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs(),
-            new StageConfig(new CaseInsensitiveString("first"), new JobConfigs(new JobConfig("job1"), new JobConfig("job2"))));
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("cruise"), new MaterialConfigs(),
+            new StageConfig(cis("first"), new JobConfigs(new JobConfig("job1"), new JobConfig("job2"))));
 
-        Stage actualStage = instanceFactory.createStageInstance(pipelineConfig, new CaseInsensitiveString("first"), new DefaultSchedulingContext(), "md5", clock);
+        Stage actualStage = instanceFactory.createStageInstance(pipelineConfig, cis("first"), new DefaultSchedulingContext(), "md5", clock);
 
         JobInstances jobInstances = new JobInstances();
         jobInstances.add(new JobInstance("job1", clock));
@@ -97,12 +98,12 @@ class InstanceFactoryTest {
     @Test
     void shouldCreatePipelineInstanceWithEnvironmentVariablesOverriddenAccordingToScope() {
         StageConfig stageConfig = StageConfigMother.custom("stage", "foo", "bar");
-        JobConfig fooConfig = stageConfig.jobConfigByConfigName(new CaseInsensitiveString("foo"));
+        JobConfig fooConfig = stageConfig.jobConfigByConfigName(cis("foo"));
         fooConfig.addVariable("foo", "foo");
-        JobConfig barConfig = stageConfig.jobConfigByConfigName(new CaseInsensitiveString("bar"));
+        JobConfig barConfig = stageConfig.jobConfigByConfigName(cis("bar"));
         barConfig.addVariable("foo", "bar");
         MaterialConfigs materialConfigs = MaterialConfigsMother.defaultMaterialConfigs();
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), materialConfigs, stageConfig);
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("pipeline"), materialConfigs, stageConfig);
         DefaultSchedulingContext context = new DefaultSchedulingContext("anonymous");
 
         Pipeline instance = instanceFactory.createPipelineInstance(pipelineConfig, ModificationsMother.forceBuild(pipelineConfig), context, "some-md5", new TimeProvider());
@@ -117,7 +118,7 @@ class InstanceFactoryTest {
         MaterialConfigs materialConfigs = MaterialConfigsMother.defaultMaterialConfigs();
         DefaultSchedulingContext context = new DefaultSchedulingContext("anonymous");
 
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), materialConfigs, stageConfig);
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("pipeline"), materialConfigs, stageConfig);
         pipelineConfig.addEnvironmentVariable("VAR", "value");
         pipelineConfig.setLabelTemplate("${ENV:VAR}");
 
@@ -137,7 +138,7 @@ class InstanceFactoryTest {
         StageConfig stageTwoConfig = StageConfigMother.stageConfig("qa", BuildPlanMother.withBuildPlans("suiteOne", "suiteTwo"));
 
         MaterialConfigs materialConfigs = MaterialConfigsMother.defaultMaterialConfigs();
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("mingle"), materialConfigs, stageOneConfig, stageTwoConfig);
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("mingle"), materialConfigs, stageOneConfig, stageTwoConfig);
 
         BuildCause buildCause = BuildCause.createManualForced(modifyOneFile(pipelineConfig), Username.ANONYMOUS);
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext("test"), "some-md5", new TimeProvider());
@@ -301,7 +302,7 @@ class InstanceFactoryTest {
     void shouldCreateJobPlan() {
         ResourceConfigs resourceConfigs = new ResourceConfigs();
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), resourceConfigs, artifactTypeConfigs);
+        JobConfig jobConfig = new JobConfig(cis("test"), resourceConfigs, artifactTypeConfigs);
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, new DefaultSchedulingContext());
         assertThat(plan).isEqualTo(new DefaultJobPlan(new Resources(resourceConfigs), ArtifactPlan.toArtifactPlans(artifactTypeConfigs), -1, new JobIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null));
     }
@@ -313,7 +314,7 @@ class InstanceFactoryTest {
         DefaultSchedulingContext context = new DefaultSchedulingContext("foo", new Agents(), Map.of("id", elasticProfile));
 
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), null, artifactTypeConfigs);
+        JobConfig jobConfig = new JobConfig(cis("test"), null, artifactTypeConfigs);
         jobConfig.setElasticProfileId("id");
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, context);
 
@@ -328,7 +329,7 @@ class InstanceFactoryTest {
         DefaultSchedulingContext context = new DefaultSchedulingContext("foo", new Agents(), Map.of("id", elasticProfile), Map.of("clusterId", clusterProfile));
 
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), null, artifactTypeConfigs);
+        JobConfig jobConfig = new JobConfig(cis("test"), null, artifactTypeConfigs);
         jobConfig.setElasticProfileId("id");
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, context);
 
@@ -339,13 +340,13 @@ class InstanceFactoryTest {
     @Test
     void shouldReturnBuildInstance() {
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), null, artifactTypeConfigs);
+        JobConfig jobConfig = new JobConfig(cis("test"), null, artifactTypeConfigs);
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
-        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("stage_foo"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
+        JobInstances jobs = instanceFactory.createJobInstance(cis("stage_foo"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
 
         JobInstance jobInstance = jobs.getFirst();
-        assertThat(jobConfig.name()).isEqualTo(new CaseInsensitiveString(jobInstance.getName()));
+        assertThat(jobConfig.name()).isEqualTo(cis(jobInstance.getName()));
         assertThat(jobInstance.getState()).isEqualTo(JobState.Scheduled);
         assertThat(jobInstance.getScheduledDate()).isNotNull();
     }
@@ -354,11 +355,11 @@ class InstanceFactoryTest {
     void shouldUseRightNameGenerator() {
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java", "html");
 
-        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        JobConfig railsConfig = stageConfig.getJobs().getJob(cis("rails"));
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
-        JobConfig javaConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("java"));
+        JobConfig javaConfig = stageConfig.getJobs().getJob(cis("java"));
         javaConfig.setRunInstanceCount(2);
 
         Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", List.of("foobar"));
@@ -390,7 +391,7 @@ class InstanceFactoryTest {
         when(context.overrideEnvironmentVariables(any())).thenReturn(context);
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
-        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("someStage"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
+        JobInstances jobs = instanceFactory.createJobInstance(cis("someStage"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
 
         assertThat(jobs).satisfiesExactlyInAnyOrder(j -> {
             assertThat(j.getName()).isEqualTo("foo");
@@ -436,11 +437,11 @@ class InstanceFactoryTest {
         Date old = Date.from(Instant.now().minus(2, ChronoUnit.DAYS));
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
-        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        JobConfig railsConfig = stageConfig.getJobs().getJob(cis("rails"));
 
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents());
 
-        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), null);
+        JobInstances jobs = instanceFactory.createJobInstance(cis("dev"), railsConfig, schedulingContext, new TimeProvider(), null);
 
         Stage stage = createStageInstance(old, jobs);
         Stage newStage = null;
@@ -479,7 +480,7 @@ class InstanceFactoryTest {
         when(context.overrideEnvironmentVariables(any())).thenReturn(context);
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
-        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("stageName"), jobConfig, context, new TimeProvider(), jobNameGenerator);
+        JobInstances jobs = instanceFactory.createJobInstance(cis("stageName"), jobConfig, context, new TimeProvider(), jobNameGenerator);
 
         assertThat(jobs).satisfiesExactlyInAnyOrder(j -> {
                 assertThat(j.getName()).isEqualTo("foo-runOnAll-1");
@@ -507,7 +508,7 @@ class InstanceFactoryTest {
 
         try {
             RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
-            instanceFactory.createJobInstance(new CaseInsensitiveString("myStage"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
+            instanceFactory.createJobInstance(cis("myStage"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
 
             fail("should have failed as no agents matched");
         } catch (Exception e) {
@@ -518,12 +519,12 @@ class InstanceFactoryTest {
     @Test
     void shouldFailWhenNoAgentsmatchAJob() {
         DefaultSchedulingContext context = new DefaultSchedulingContext("raghu/vinay", new Agents());
-        JobConfig fooJob = new JobConfig(new CaseInsensitiveString("foo"), new ResourceConfigs(), new ArtifactTypeConfigs());
+        JobConfig fooJob = new JobConfig(cis("foo"), new ResourceConfigs(), new ArtifactTypeConfigs());
         fooJob.setRunOnAllAgents(true);
         StageConfig stageConfig = new StageConfig(
-            new CaseInsensitiveString("blah-stage"), new JobConfigs(
+            cis("blah-stage"), new JobConfigs(
             fooJob,
-            new JobConfig(new CaseInsensitiveString("bar"), new ResourceConfigs(), new ArtifactTypeConfigs())
+            new JobConfig(cis("bar"), new ResourceConfigs(), new ArtifactTypeConfigs())
         )
         );
         try {
@@ -539,7 +540,7 @@ class InstanceFactoryTest {
         Date old = Date.from(Instant.now().minus(2, ChronoUnit.DAYS));
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
-        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        JobConfig railsConfig = stageConfig.getJobs().getJob(cis("rails"));
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
@@ -549,7 +550,7 @@ class InstanceFactoryTest {
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
-        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
+        JobInstances jobs = instanceFactory.createJobInstance(cis("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
 
         Stage stage = createStageInstance(old, jobs);
 
@@ -568,7 +569,7 @@ class InstanceFactoryTest {
         Date old = Date.from(Instant.now().minus(2, ChronoUnit.DAYS));
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
-        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        JobConfig railsConfig = stageConfig.getJobs().getJob(cis("rails"));
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
@@ -578,7 +579,7 @@ class InstanceFactoryTest {
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
-        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
+        JobInstances jobs = instanceFactory.createJobInstance(cis("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
         Stage stage = createStageInstance(old, jobs);
 
         railsConfig.setRunOnAllAgents(false);
@@ -607,7 +608,7 @@ class InstanceFactoryTest {
         JobInstance java = jobInstance(old, "java", 12, 22);
         Stage stage = stage(9, rails, java);
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
-        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        JobConfig railsConfig = stageConfig.getJobs().getJob(cis("rails"));
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
@@ -637,7 +638,7 @@ class InstanceFactoryTest {
         Date old = Date.from(Instant.now().minus(2, ChronoUnit.DAYS));
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
-        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        JobConfig railsConfig = stageConfig.getJobs().getJob(cis("rails"));
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
@@ -647,7 +648,7 @@ class InstanceFactoryTest {
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
-        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
+        JobInstances jobs = instanceFactory.createJobInstance(cis("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
 
         Stage stage = createStageInstance(old, jobs);
         Stage newStage = null;
@@ -669,7 +670,7 @@ class InstanceFactoryTest {
         Date old = Date.from(Instant.now().minus(2, ChronoUnit.DAYS));
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
-        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        JobConfig railsConfig = stageConfig.getJobs().getJob(cis("rails"));
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
@@ -679,7 +680,7 @@ class InstanceFactoryTest {
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
-        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
+        JobInstances jobs = instanceFactory.createJobInstance(cis("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
 
         Stage stage = createStageInstance(old, jobs);
         Stage newStage = null;
@@ -708,13 +709,13 @@ class InstanceFactoryTest {
         Date old = Date.from(Instant.now().minus(2, ChronoUnit.DAYS));
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
-        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        JobConfig railsConfig = stageConfig.getJobs().getJob(cis("rails"));
         railsConfig.setRunInstanceCount(3);
 
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents());
 
         RunMultipleInstance.CounterBasedJobNameGenerator jobNameGenerator = new RunMultipleInstance.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
-        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
+        JobInstances jobs = instanceFactory.createJobInstance(cis("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
 
         assertThat(jobs.get(0).getName()).isEqualTo("rails-runInstance-1");
         assertEnvironmentVariable(jobs.get(0), 0, "GO_JOB_RUN_INDEX", "1");
@@ -741,13 +742,13 @@ class InstanceFactoryTest {
         Date old = Date.from(Instant.now().minus(2, ChronoUnit.DAYS));
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
-        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        JobConfig railsConfig = stageConfig.getJobs().getJob(cis("rails"));
         railsConfig.setRunInstanceCount(3);
 
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents());
 
         RunMultipleInstance.CounterBasedJobNameGenerator jobNameGenerator = new RunMultipleInstance.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
-        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
+        JobInstances jobs = instanceFactory.createJobInstance(cis("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
 
         assertThat(jobs.get(0).getName()).isEqualTo("rails-runInstance-1");
         assertEnvironmentVariable(jobs.get(0), 0, "GO_JOB_RUN_INDEX", "1");
@@ -786,13 +787,13 @@ class InstanceFactoryTest {
         Date old = Date.from(Instant.now().minus(2, ChronoUnit.DAYS));
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
-        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        JobConfig railsConfig = stageConfig.getJobs().getJob(cis("rails"));
         railsConfig.setRunInstanceCount(3);
 
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents());
 
         RunMultipleInstance.CounterBasedJobNameGenerator jobNameGenerator = new RunMultipleInstance.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
-        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
+        JobInstances jobs = instanceFactory.createJobInstance(cis("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
 
         Stage stage = createStageInstance(old, jobs);
         Stage newStage = null;
@@ -815,13 +816,13 @@ class InstanceFactoryTest {
         Date old = Date.from(Instant.now().minus(2, ChronoUnit.DAYS));
         StageConfig stageConfig = StageConfigMother.custom("dev", "rails", "java");
 
-        JobConfig railsConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("rails"));
+        JobConfig railsConfig = stageConfig.getJobs().getJob(cis("rails"));
         railsConfig.setRunInstanceCount(3);
 
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents());
 
         RunMultipleInstance.CounterBasedJobNameGenerator jobNameGenerator = new RunMultipleInstance.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
-        JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
+        JobInstances jobs = instanceFactory.createJobInstance(cis("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
 
         Stage stage = createStageInstance(old, jobs);
         Stage newStage = null;

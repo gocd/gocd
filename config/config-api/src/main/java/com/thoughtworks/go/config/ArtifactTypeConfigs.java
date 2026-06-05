@@ -151,8 +151,8 @@ public class ArtifactTypeConfigs extends BaseCollection<ArtifactTypeConfig> impl
     public List<BuiltinArtifactConfig> getBuiltInArtifactConfigs() {
         final List<BuiltinArtifactConfig> artifactConfigs = new ArrayList<>();
         for (ArtifactTypeConfig artifactTypeConfig : this) {
-            if (artifactTypeConfig instanceof BuiltinArtifactConfig) {
-                artifactConfigs.add((BuiltinArtifactConfig) artifactTypeConfig);
+            if (artifactTypeConfig instanceof BuiltinArtifactConfig builtinArtifactConfig) {
+                artifactConfigs.add(builtinArtifactConfig);
             }
         }
         return artifactConfigs;
@@ -161,8 +161,8 @@ public class ArtifactTypeConfigs extends BaseCollection<ArtifactTypeConfig> impl
     public List<PluggableArtifactConfig> getPluggableArtifactConfigs() {
         final List<PluggableArtifactConfig> artifactConfigs = new ArrayList<>();
         for (ArtifactTypeConfig artifactTypeConfig : this) {
-            if (artifactTypeConfig instanceof PluggableArtifactConfig) {
-                artifactConfigs.add((PluggableArtifactConfig) artifactTypeConfig);
+            if (artifactTypeConfig instanceof PluggableArtifactConfig pluggableArtifactConfig) {
+                artifactConfigs.add(pluggableArtifactConfig);
             }
         }
         return artifactConfigs;

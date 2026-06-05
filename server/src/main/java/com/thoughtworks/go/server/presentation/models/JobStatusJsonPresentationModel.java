@@ -30,7 +30,6 @@ import java.util.Map;
 import static com.thoughtworks.go.domain.JobState.*;
 import static java.lang.String.valueOf;
 
-
 public class JobStatusJsonPresentationModel {
     private final Agent agent;
     private final JobInstance instance;

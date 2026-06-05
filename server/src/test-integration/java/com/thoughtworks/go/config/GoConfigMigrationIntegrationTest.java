@@ -46,6 +46,7 @@ import java.io.InputStream;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_NONE;
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWithArtifactSourceAs;
@@ -363,11 +364,11 @@ public class GoConfigMigrationIntegrationTest {
         String migratedContent = migrateXmlString(configString, 69);
         assertThat(migratedContent).contains("<authorization>");
         CruiseConfig configForEdit = loader.loadConfigHolder(migratedContent).configForEdit;
-        PipelineTemplateConfig template = configForEdit.getTemplateByName(new CaseInsensitiveString("template-name"));
+        PipelineTemplateConfig template = configForEdit.getTemplateByName(cis("template-name"));
         Authorization authorization = template.getAuthorization();
         assertThat(authorization).isNotNull();
         assertThat(authorization.hasAdminsDefined()).isTrue();
-        assertThat(authorization.getAdminsConfig().getUsers()).contains(new AdminUser(new CaseInsensitiveString("admin1")), new AdminUser(new CaseInsensitiveString("admin2")));
+        assertThat(authorization.getAdminsConfig().getUsers()).contains(new AdminUser(cis("admin1")), new AdminUser(cis("admin2")));
     }
 
     @Test

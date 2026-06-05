@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.crud;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigHolder;
 import com.thoughtworks.go.config.GoConfigSchema;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -30,6 +29,7 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.XsdValidationException;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.plugin.api.config.Property.*;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -252,7 +252,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
             """.formatted(GoConfigSchema.VERSION);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
-        PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("new_name"));
+        PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(cis("new_name"));
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = (PluggableSCMMaterialConfig) pipelineConfig.materialConfigs().getFirst();
         assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(goConfigHolder.config.getSCMs().getFirst());
         assertThat(pluggableSCMMaterialConfig.getFolder()).isNull();
@@ -296,7 +296,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
             """.formatted(GoConfigSchema.VERSION);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
-        PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("new_name"));
+        PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(cis("new_name"));
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = (PluggableSCMMaterialConfig) pipelineConfig.materialConfigs().getFirst();
         assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(goConfigHolder.config.getSCMs().getFirst());
         assertThat(pluggableSCMMaterialConfig.getFolder()).isEqualTo("dest");
@@ -352,7 +352,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
         SCM scmConfig = goConfigHolder.config.getSCMs().getFirst();
-        PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("new_name"));
+        PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(cis("new_name"));
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = (PluggableSCMMaterialConfig) pipelineConfig.materialConfigs().getFirst();
         assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(scmConfig);
         Configuration configuration = pluggableSCMMaterialConfig.getSCMConfig().getConfiguration();

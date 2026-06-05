@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.Timeout.TEN_SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -115,7 +116,7 @@ public class ScheduleHelper {
     public void waitForNotScheduled(int seconds, String pipelineName) {
         await()
             .atMost(seconds, TimeUnit.SECONDS)
-            .failFast(() -> pipelineScheduleQueue.toBeScheduled().containsKey(new CaseInsensitiveString(pipelineName)));
+            .failFast(() -> pipelineScheduleQueue.toBeScheduled().containsKey(cis(pipelineName)));
     }
 
     public void autoSchedulePipelinesWithRealMaterials(String... pipelines) throws Exception {
@@ -137,7 +138,7 @@ public class ScheduleHelper {
 
     private void updateMaterials(String... pipelines) throws Exception {
         for (String pipeline : pipelines) {
-            Materials materials = new MaterialConfigConverter().toMaterials(goConfigService.getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString(pipeline)).materialConfigs());
+            Materials materials = new MaterialConfigConverter().toMaterials(goConfigService.getCurrentConfig().pipelineConfigByName(cis(pipeline)).materialConfigs());
             for (Material material : materials) {
                 materialDatabaseUpdater.updateMaterial(material);
             }

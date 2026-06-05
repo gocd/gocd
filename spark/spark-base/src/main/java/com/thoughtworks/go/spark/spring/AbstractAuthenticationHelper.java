@@ -36,6 +36,7 @@ import spark.Response;
 import java.util.List;
 import java.util.function.Function;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.exceptions.EntityType.Pipeline;
 import static spark.utils.StringUtils.isBlank;
 import static spark.utils.StringUtils.isNotBlank;
@@ -149,7 +150,7 @@ public abstract class AbstractAuthenticationHelper {
             return;
         }
         String templateName = request.params("template_name");
-        if (isNotBlank(templateName) && !securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString(templateName), currentUsername())) {
+        if (isNotBlank(templateName) && !securityService.isAuthorizedToEditTemplate(cis(templateName), currentUsername())) {
             throw renderForbiddenResponse();
         }
 
@@ -172,7 +173,7 @@ public abstract class AbstractAuthenticationHelper {
         }
 
         String templateName = templateNameExtractor.apply(request);
-        if (isNotBlank(templateName) && !securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString(templateName), currentUsername())) {
+        if (isNotBlank(templateName) && !securityService.isAuthorizedToViewTemplate(cis(templateName), currentUsername())) {
             throw renderForbiddenResponse();
         }
 
@@ -261,7 +262,7 @@ public abstract class AbstractAuthenticationHelper {
         if (isBlank(pipelineName)) {
             pipelineName = request.queryParams("pipeline_name");
         }
-        return new CaseInsensitiveString(pipelineName);
+        return cis(pipelineName);
     }
 
     private Username currentUsername() {

@@ -17,11 +17,11 @@
 package com.thoughtworks.go.apiv4.configrepos.representers
 
 import com.thoughtworks.go.config.BasicEnvironmentConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.remote.PartialConfig
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class PartialConfigRepresenterTest {
@@ -36,12 +36,12 @@ class PartialConfigRepresenterTest {
     def partialConfig = new PartialConfig()
 
     def rawEnvironments = [
-      new BasicEnvironmentConfig(new CaseInsensitiveString("env1")),
-      new BasicEnvironmentConfig(new CaseInsensitiveString("env2")),
-      new BasicEnvironmentConfig(new CaseInsensitiveString("env1")),
-      new BasicEnvironmentConfig(new CaseInsensitiveString("env3")),
-      new BasicEnvironmentConfig(new CaseInsensitiveString("env3")),
-      new BasicEnvironmentConfig(new CaseInsensitiveString("env4")),
+      new BasicEnvironmentConfig(cis("env1")),
+      new BasicEnvironmentConfig(cis("env2")),
+      new BasicEnvironmentConfig(cis("env1")),
+      new BasicEnvironmentConfig(cis("env3")),
+      new BasicEnvironmentConfig(cis("env3")),
+      new BasicEnvironmentConfig(cis("env4")),
     ]
     partialConfig.getEnvironments().addAll(rawEnvironments)
 

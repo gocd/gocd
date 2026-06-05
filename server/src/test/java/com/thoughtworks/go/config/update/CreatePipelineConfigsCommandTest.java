@@ -31,6 +31,7 @@ import java.net.HttpURLConnection;
 import java.util.Collections;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -49,12 +50,12 @@ public class CreatePipelineConfigsCommandTest {
     public void setup() {
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.server().security().addRole(new RoleConfig("validRole"));
-        user = new Username(new CaseInsensitiveString("user"));
+        user = new Username(cis("user"));
     }
 
     @Test
     public void shouldCreatePipelineConfigs() {
-        Authorization authorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("foo"))));
+        Authorization authorization = new Authorization(new AdminsConfig(new AdminRole(cis("foo"))));
         PipelineConfigs newPipelineConfigs = new BasicPipelineConfigs("group", authorization);
 
         CreatePipelineConfigsCommand command = new CreatePipelineConfigsCommand(newPipelineConfigs, user, new HttpLocalizedOperationResult(), securityService);
@@ -66,7 +67,7 @@ public class CreatePipelineConfigsCommandTest {
 
     @Test
     public void commandShouldBeValid_whenRoleIsValid() {
-        Authorization authorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));
+        Authorization authorization = new Authorization(new AdminsConfig(new AdminRole(cis("validRole"))));
         PipelineConfigs newPipelineConfigs = new BasicPipelineConfigs("group", authorization);
 
         CreatePipelineConfigsCommand command = new CreatePipelineConfigsCommand(newPipelineConfigs, user, new HttpLocalizedOperationResult(), securityService);
@@ -86,7 +87,7 @@ public class CreatePipelineConfigsCommandTest {
 
     @Test
     public void commandShouldNotBeValid_whenRoleIsInvalid() {
-        Authorization authorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("invalidRole"))));
+        Authorization authorization = new Authorization(new AdminsConfig(new AdminRole(cis("invalidRole"))));
         PipelineConfigs newPipelineConfigs = new BasicPipelineConfigs("group", authorization);
 
         CreatePipelineConfigsCommand command = new CreatePipelineConfigsCommand(newPipelineConfigs, user, new HttpLocalizedOperationResult(), securityService);
@@ -107,7 +108,7 @@ public class CreatePipelineConfigsCommandTest {
 
     @Test
     public void commandShouldThrowExceptionAndReturnUnprocessableEntityResult_whenValidatingWithNullGroupName() {
-        Authorization authorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));
+        Authorization authorization = new Authorization(new AdminsConfig(new AdminRole(cis("validRole"))));
         PipelineConfigs newPipelineConfigs = new BasicPipelineConfigs(null, authorization);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -123,7 +124,7 @@ public class CreatePipelineConfigsCommandTest {
 
     @Test
     public void commandShouldThrowIllegalArgumentException_whenValidatingWithBlankGroupName() {
-        Authorization authorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));
+        Authorization authorization = new Authorization(new AdminsConfig(new AdminRole(cis("validRole"))));
         PipelineConfigs newPipelineConfigs = new BasicPipelineConfigs("  ", authorization);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -138,7 +139,7 @@ public class CreatePipelineConfigsCommandTest {
     public void commandShouldContinue_whenUserIsAuthorized() {
         when(securityService.isUserAdmin(user)).thenReturn(true);
 
-        Authorization authorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));
+        Authorization authorization = new Authorization(new AdminsConfig(new AdminRole(cis("validRole"))));
         PipelineConfigs newPipelineConfigs = new BasicPipelineConfigs("group", authorization);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -151,7 +152,7 @@ public class CreatePipelineConfigsCommandTest {
     public void commandShouldNotContinue_whenUserUnauthorized() {
         when(securityService.isUserAdmin(user)).thenReturn(false);
 
-        Authorization authorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));
+        Authorization authorization = new Authorization(new AdminsConfig(new AdminRole(cis("validRole"))));
         PipelineConfigs newPipelineConfigs = new BasicPipelineConfigs("group", authorization);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();

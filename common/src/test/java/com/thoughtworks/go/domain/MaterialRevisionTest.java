@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -43,6 +42,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -236,7 +236,7 @@ public class MaterialRevisionTest {
 
     @Test
     public void shouldDisplayRevisionAsBuildCausedByForDependencyMaterial() {
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("stage"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("upstream"), cis("stage"));
         MaterialRevision materialRevision = new MaterialRevision(dependencyMaterial, new Modification(new Date(), "upstream/2/stage/1", "1.3-2", null));
         assertThat(materialRevision.buildCausedBy()).isEqualTo("upstream/2/stage/1");
     }
@@ -275,7 +275,7 @@ public class MaterialRevisionTest {
 
     @Test
     public void shouldDetectOldestAndLatestDependencyRevision() {
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("stage"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("upstream"), cis("stage"));
         MaterialRevision materialRevision = new MaterialRevision(dependencyMaterial, new Modification(new Date(), "upstream/3/stage/1", "1.3-3", null),
                 new Modification(new Date(), "upstream/2/stage/1", "1.3-2", null));
         assertThat(materialRevision.getOldestRevision()).isEqualTo(DependencyMaterialRevision.create("upstream/2/stage/1", "1.3-2"));

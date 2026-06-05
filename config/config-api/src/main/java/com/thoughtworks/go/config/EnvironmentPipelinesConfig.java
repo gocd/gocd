@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 /**
  * Understands references to existing pipelines that are associated to an Environment
  */
@@ -93,7 +95,7 @@ public class EnvironmentPipelinesConfig extends BaseCollection<EnvironmentPipeli
             @SuppressWarnings("unchecked") List<Map<String, Object>> pipelineAttributes = (List<Map<String, Object>>) attributes;
             this.clear();
             for (Map<String, Object> attributeMap : pipelineAttributes) {
-                this.add(new EnvironmentPipelineConfig(new CaseInsensitiveString((String) attributeMap.get("name"))));
+                this.add(new EnvironmentPipelineConfig(cis((String) attributeMap.get("name"))));
             }
         }
     }

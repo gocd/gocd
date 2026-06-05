@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -31,6 +30,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
@@ -51,9 +51,9 @@ public class DeleteTemplateConfigCommandTest {
 
     @BeforeEach
     public void setup() {
-        currentUser = new Username(new CaseInsensitiveString("user"));
+        currentUser = new Username(cis("user"));
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
+        pipelineTemplateConfig = new PipelineTemplateConfig(cis("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
         result = new HttpLocalizedOperationResult();
     }
 
@@ -78,7 +78,7 @@ public class DeleteTemplateConfigCommandTest {
     @Test
     public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
-        when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("template"), currentUser)).thenReturn(false);
+        when(securityService.isAuthorizedToEditTemplate(cis("template"), currentUser)).thenReturn(false);
 
         DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser, externalArtifactsService);
 
@@ -89,7 +89,7 @@ public class DeleteTemplateConfigCommandTest {
     @Test
     public void shouldContinueWithConfigSaveIfUserIsAuthorized() {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
-        when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("template"), currentUser)).thenReturn(true);
+        when(securityService.isAuthorizedToEditTemplate(cis("template"), currentUser)).thenReturn(true);
 
         DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser, externalArtifactsService);
 

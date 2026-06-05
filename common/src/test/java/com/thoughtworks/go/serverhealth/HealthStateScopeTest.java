@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.serverhealth;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
@@ -25,6 +24,7 @@ import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HealthStateScopeTest {
@@ -70,7 +70,7 @@ public class HealthStateScopeTest {
     public void shouldRemoveScopeWhenMaterialIsRemovedFromConfig() {
         HgMaterialConfig hgMaterialConfig = MaterialConfigsMother.hgMaterialConfig();
         CruiseConfig config = GoConfigMother.pipelineHavingJob("blahPipeline", "blahStage", "blahJob", "fii", "baz");
-        config.pipelineConfigByName(new CaseInsensitiveString("blahPipeline")).addMaterialConfig(hgMaterialConfig);
+        config.pipelineConfigByName(cis("blahPipeline")).addMaterialConfig(hgMaterialConfig);
         assertThat(HealthStateScope.forMaterialConfig(hgMaterialConfig).isRemovedFromConfig(config)).isFalse();
         assertThat(HealthStateScope.forMaterial(MaterialsMother.svnMaterial("file:///bar")).isRemovedFromConfig(config)).isTrue();
     }

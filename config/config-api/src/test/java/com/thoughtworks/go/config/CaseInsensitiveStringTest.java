@@ -18,28 +18,29 @@ package com.thoughtworks.go.config;
 
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class CaseInsensitiveStringTest {
     @Test
     public void shouldIgnoreCaseInEquals() {
-        CaseInsensitiveString name = new CaseInsensitiveString("someName");
-        assertThat(name).isEqualTo(new CaseInsensitiveString("someName"));
-        assertThat(name).isEqualTo(new CaseInsensitiveString("SOMENAME"));
-        assertThat(name).isNotEqualTo(new CaseInsensitiveString("SOMECRAP"));
+        CaseInsensitiveString name = cis("someName");
+        assertThat(name).isEqualTo(cis("someName"));
+        assertThat(name).isEqualTo(cis("SOMENAME"));
+        assertThat(name).isNotEqualTo(cis("SOMECRAP"));
     }
 
     @Test
     public void shouldUnderstandBlankString() {
-        assertThat(new CaseInsensitiveString("someName").isEmpty()).isFalse();
-        assertThat(new CaseInsensitiveString(null).isEmpty()).isTrue();
-        assertThat(new CaseInsensitiveString("").isEmpty()).isTrue();
-        assertThat(new CaseInsensitiveString(" ").isEmpty()).isFalse();
+        assertThat(cis("someName").isEmpty()).isFalse();
+        assertThat(cis(null).isEmpty()).isTrue();
+        assertThat(cis("").isEmpty()).isTrue();
+        assertThat(cis(" ").isEmpty()).isFalse();
     }
 
     @Test
     public void shouldClone() {
-        CaseInsensitiveString foo = new CaseInsensitiveString("foo");
+        CaseInsensitiveString foo = cis("foo");
         Object fooClone = foo.clone();
         assertThat(foo).isEqualTo(fooClone);
         assertThat(foo).isNotSameAs(fooClone);
@@ -47,9 +48,9 @@ class CaseInsensitiveStringTest {
 
     @Test
     public void shouldCompare() {
-        CaseInsensitiveString foo = new CaseInsensitiveString("foo");
-        CaseInsensitiveString fOO = new CaseInsensitiveString("fOO");
-        CaseInsensitiveString bar = new CaseInsensitiveString("bar");
+        CaseInsensitiveString foo = cis("foo");
+        CaseInsensitiveString fOO = cis("fOO");
+        CaseInsensitiveString bar = cis("bar");
         assertThat(foo.compareTo(fOO)).isEqualTo(0);
         assertThat(fOO.compareTo(foo)).isEqualTo(0);
         assertThat(bar.compareTo(foo)).isLessThan(0);
@@ -60,15 +61,15 @@ class CaseInsensitiveStringTest {
 
     @Test
     public void shouldUnderstandCase() {
-        assertThat(new CaseInsensitiveString("foo").toUpper()).isEqualTo("FOO");
-        assertThat(new CaseInsensitiveString("FOO").toLower()).isEqualTo("foo");
+        assertThat(cis("foo").toUpper()).isEqualTo("FOO");
+        assertThat(cis("FOO").toLower()).isEqualTo("foo");
     }
 
     @Test
     public void shouldReturnNullSafeStringRepresentation() {
-        assertThat(CaseInsensitiveString.str(new CaseInsensitiveString("foo"))).isEqualTo("foo");
-        assertThat(CaseInsensitiveString.str(new CaseInsensitiveString(""))).isEmpty();
-        assertThat(CaseInsensitiveString.str(new CaseInsensitiveString(null))).isNull();
+        assertThat(CaseInsensitiveString.str(cis("foo"))).isEqualTo("foo");
+        assertThat(CaseInsensitiveString.str(cis(""))).isEmpty();
+        assertThat(CaseInsensitiveString.str(cis(null))).isNull();
         assertThat(CaseInsensitiveString.str(null)).isNull();
     }
 }

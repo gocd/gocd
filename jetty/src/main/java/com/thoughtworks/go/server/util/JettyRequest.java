@@ -25,8 +25,8 @@ public class JettyRequest implements ServletRequest {
     private final Request request;
 
     public JettyRequest(javax.servlet.ServletRequest request) {
-        while (request instanceof ServletRequestWrapper) {
-            request = ((ServletRequestWrapper) request).getRequest();
+        while (request instanceof ServletRequestWrapper servletRequestWrapper) {
+            request = servletRequestWrapper.getRequest();
         }
 
         this.request = (Request) request;

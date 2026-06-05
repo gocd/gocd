@@ -27,6 +27,7 @@ import com.thoughtworks.go.spark.util.SecureRandom
 import com.thoughtworks.go.util.SystemEnvironment
 import org.junit.jupiter.api.AfterEach
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
@@ -93,7 +94,7 @@ trait SecurityServiceTrait {
     when(securityService.isUserAdminOfGroup(eq(username) as Username, any(String.class))).thenReturn(true)
 
     when(securityService.hasOperatePermissionForGroup(username.username, groupName)).thenReturn(true)
-    when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName))).thenReturn(groupName)
+    when(goConfigService.findGroupNameByPipeline(cis(pipelineName))).thenReturn(groupName)
   }
 
   void loginAsGroupOperateUser(String pipelineName) {
@@ -108,7 +109,7 @@ trait SecurityServiceTrait {
     when(goConfigService.groups()).thenReturn(groups)
     when(groups.hasGroup(groupName)).thenReturn(true)
     when(securityService.hasOperatePermissionForGroup(eq(username.username), eq(groupName))).thenReturn(true)
-    when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName))).thenReturn(groupName)
+    when(goConfigService.findGroupNameByPipeline(cis(pipelineName))).thenReturn(groupName)
   }
 
   void disableSecurity() {
@@ -159,7 +160,7 @@ trait SecurityServiceTrait {
     when(securityService.isAuthorizedToViewTemplates(eq(username))).thenReturn(false)
     when(goConfigService.groups()).thenReturn(new PipelineGroups())
     when(securityService.hasViewPermissionForPipeline(eq(username), eq(pipelineName))).thenReturn(true)
-    when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName))).thenReturn(groupName)
+    when(goConfigService.findGroupNameByPipeline(cis(pipelineName))).thenReturn(groupName)
   }
 
   private Username loginAsRandomUser() {

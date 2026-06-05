@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.spark.spa;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
@@ -30,6 +29,7 @@ import spark.TemplateEngine;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static spark.Spark.*;
 
 public class ClickyPipelineConfigController implements SparkController {
@@ -68,7 +68,7 @@ public class ClickyPipelineConfigController implements SparkController {
     private Map<String, Object> meta(String pipelineName) {
         final Map<String, Object> meta = new HashMap<>();
         meta.put("pipelineName", pipelineName);
-        meta.put("pipelineGroupName", this.goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)));
+        meta.put("pipelineGroupName", this.goConfigService.findGroupNameByPipeline(cis(pipelineName)));
         return meta;
     }
 }

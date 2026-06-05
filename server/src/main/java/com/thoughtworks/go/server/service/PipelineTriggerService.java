@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 @Service
 public class PipelineTriggerService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineTriggerService.class);
@@ -44,7 +46,7 @@ public class PipelineTriggerService {
         ScheduleOptions scheduleOptions = new ScheduleOptionsBuilder(goConfigService).build(result, pipelineName, pipelineScheduleOptions);
         if (result.canContinue()) {
             LOGGER.info("[Pipeline Schedule] [Accepted] Manual trigger of pipeline '{}' accepted for user {}", pipelineName, CaseInsensitiveString.str(username.getUsername()));
-            buildCauseProducerService.manualSchedulePipeline(username, new CaseInsensitiveString(pipelineName), scheduleOptions, result);
+            buildCauseProducerService.manualSchedulePipeline(username, cis(pipelineName), scheduleOptions, result);
             LOGGER.info("[Pipeline Schedule] [Processed] Manual trigger of pipeline '{}' processed with result '{}'", pipelineName, result.getServerHealthState());
         }
     }

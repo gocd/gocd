@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Getter
@@ -188,7 +189,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
         for (Map<String, String> usernameMap : map) {
             String value = usernameMap.get("name").trim();
             if (!isBlank(value)) {
-                result.add(new AdminUser(new CaseInsensitiveString(value)));
+                result.add(new AdminUser(cis(value)));
             }
         }
         return result.toArray(new Admin[0]);
@@ -199,7 +200,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
         for (Map<String, String> usernameMap : map) {
             String value = usernameMap.get("name").trim();
             if (!isBlank(value)) {
-                result.add(new AdminRole(new CaseInsensitiveString(value)));
+                result.add(new AdminRole(cis(value)));
             }
         }
         return result.toArray(new Admin[0]);

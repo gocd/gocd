@@ -21,7 +21,6 @@ import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.server.presentation.FetchArtifactViewHelper;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -33,6 +32,7 @@ import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static spark.Spark.*;
 
@@ -82,8 +82,8 @@ public class InternalDependencyPipelinesControllerV1 extends ApiController imple
     public String index(Request request, Response response) {
         CruiseConfig config = goConfigService.getMergedConfigForEditing();
         FetchArtifactViewHelper helper = new FetchArtifactViewHelper(config,
-            new CaseInsensitiveString(request.params("pipeline_name")),
-            new CaseInsensitiveString(request.params("stage_name")),
+            cis(request.params("pipeline_name")),
+            cis(request.params("stage_name")),
             isTemplateRequest(request),
             name -> apiAuthenticationHelper.hasViewPermissionForPipeline(name.toString()));
 

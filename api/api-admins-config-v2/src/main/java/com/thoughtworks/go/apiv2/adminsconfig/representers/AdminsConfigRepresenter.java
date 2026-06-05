@@ -21,12 +21,13 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.AdminRole;
 import com.thoughtworks.go.config.AdminUser;
 import com.thoughtworks.go.config.AdminsConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.spark.Routes;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 public class AdminsConfigRepresenter {
     public static void toJSON(OutputWriter jsonWriter, AdminsConfig admin) {
@@ -48,9 +49,9 @@ public class AdminsConfigRepresenter {
     public static AdminsConfig fromJSON(JsonReader jsonReader) {
         AdminsConfig adminsConfig = new AdminsConfig();
 
-        jsonReader.readArrayIfPresent("users", users -> users.forEach(user -> adminsConfig.add(new AdminUser(new CaseInsensitiveString(user.getAsString())))));
+        jsonReader.readArrayIfPresent("users", users -> users.forEach(user -> adminsConfig.add(new AdminUser(cis(user.getAsString())))));
 
-        jsonReader.readArrayIfPresent("roles", roles -> roles.forEach(role -> adminsConfig.add(new AdminRole(new CaseInsensitiveString(role.getAsString())))));
+        jsonReader.readArrayIfPresent("roles", roles -> roles.forEach(role -> adminsConfig.add(new AdminRole(cis(role.getAsString())))));
 
         return adminsConfig;
     }

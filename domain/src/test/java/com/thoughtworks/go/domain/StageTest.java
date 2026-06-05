@@ -34,7 +34,6 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-
 public class StageTest {
     private final Instant time1 = ZonedDateTime.of(2008, 2, 22, 12, 22, 23, 0, ZoneId.systemDefault()).toInstant();
     private final Instant time2 = ZonedDateTime.of(2008, 2, 22, 12, 22, 24, 0, ZoneId.systemDefault()).toInstant();

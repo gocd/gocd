@@ -58,6 +58,7 @@ import static com.thoughtworks.go.domain.AgentConfigStatus.Pending;
 import static com.thoughtworks.go.domain.AgentInstance.createFromAgent;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
+import static com.thoughtworks.go.serverhealth.ServerHealthState.warningWithHtml;
 import static com.thoughtworks.go.util.CommaSeparatedString.append;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static com.thoughtworks.go.util.TriState.TRUE;

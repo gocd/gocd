@@ -31,6 +31,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -56,10 +57,10 @@ public class UpdateEnvironmentCommandTest {
 
     @BeforeEach
     public void setup() {
-        currentUser = new Username(new CaseInsensitiveString("user"));
+        currentUser = new Username(cis("user"));
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        oldEnvironmentName = new CaseInsensitiveString("Dev");
-        newEnvironmentName = new CaseInsensitiveString("Test");
+        oldEnvironmentName = cis("Dev");
+        newEnvironmentName = cis("Test");
         oldEnvironmentConfig = new BasicEnvironmentConfig(oldEnvironmentName);
         newEnvironmentConfig = new BasicEnvironmentConfig(newEnvironmentName);
         result = new HttpLocalizedOperationResult();
@@ -79,7 +80,7 @@ public class UpdateEnvironmentCommandTest {
 
     @Test
     public void shouldValidateInvalidPipelines() {
-        newEnvironmentConfig.addPipeline(new CaseInsensitiveString("Invalid-pipeline-name"));
+        newEnvironmentConfig.addPipeline(cis("Invalid-pipeline-name"));
         UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, digest, entityHashingService, result);
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();

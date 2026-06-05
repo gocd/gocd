@@ -72,6 +72,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyNoFiles;
@@ -155,7 +156,7 @@ public class BuildAssignmentServiceIntegrationTest {
     public static TestRepo testRepo;
     private PipelineWithTwoStages pipelineFixture;
     private final String md5 = "md5-test";
-    private final Username loserUser = new Username(new CaseInsensitiveString("loser"));
+    private final Username loserUser = new Username(cis("loser"));
     private ConfigElementImplementationRegistry registry;
 
     @BeforeAll
@@ -284,10 +285,10 @@ public class BuildAssignmentServiceIntegrationTest {
         pipelineFixture.createPipelineWithFirstStageScheduled();
         buildAssignmentService.onTimer();
 
-        PipelineConfig originalPipelineConfig = goConfigDao.currentConfig().getPipelineConfigByName(new CaseInsensitiveString(pipelineFixture.pipelineName));
+        PipelineConfig originalPipelineConfig = goConfigDao.currentConfig().getPipelineConfigByName(cis(pipelineFixture.pipelineName));
         PipelineConfig pipelineConfig = configHelper.deepClone(originalPipelineConfig);
         String md5 = entityHashingService.hashForEntity(originalPipelineConfig, pipelineFixture.groupName);
-        StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(pipelineFixture.devStage));
+        StageConfig devStage = pipelineConfig.findBy(cis(pipelineFixture.devStage));
         pipelineConfig.remove(devStage);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, pipelineFixture.groupName, md5, result);
@@ -311,12 +312,12 @@ public class BuildAssignmentServiceIntegrationTest {
 
         buildAssignmentService.onTimer();
 
-        PipelineConfig originalPipelineConfig = configHelper.getGoConfigDao().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(pipelineFixture.pipelineName));
+        PipelineConfig originalPipelineConfig = configHelper.getGoConfigDao().currentConfig().getPipelineConfigByName(cis(pipelineFixture.pipelineName));
         PipelineConfig pipelineConfig = configHelper.deepClone(originalPipelineConfig);
         String xml = new MagicalGoConfigXmlWriter(registry).toXmlPartial(pipelineConfig);
         String md5 = entityHashingService.hashForEntity(originalPipelineConfig, pipelineFixture.groupName);
-        StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(pipelineFixture.devStage));
-        devStage.getJobs().remove(devStage.jobConfigByConfigName(new CaseInsensitiveString(PipelineWithTwoStages.JOB_FOR_DEV_STAGE)));
+        StageConfig devStage = pipelineConfig.findBy(cis(pipelineFixture.devStage));
+        devStage.getJobs().remove(devStage.jobConfigByConfigName(cis(PipelineWithTwoStages.JOB_FOR_DEV_STAGE)));
         pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, pipelineFixture.groupName, md5, new HttpLocalizedOperationResult());
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(pipelineFixture.pipelineName);
@@ -342,7 +343,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         buildAssignmentService.onTimer();
 
-        PipelineConfig pipelineConfig = configHelper.deepClone(configHelper.getGoConfigDao().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(pipelineFixture.pipelineName)));
+        PipelineConfig pipelineConfig = configHelper.deepClone(configHelper.getGoConfigDao().currentConfig().getPipelineConfigByName(cis(pipelineFixture.pipelineName)));
 
         pipelineConfigService.deletePipelineConfig(loserUser, pipelineConfig, new HttpLocalizedOperationResult());
 
@@ -517,33 +518,33 @@ public class BuildAssignmentServiceIntegrationTest {
         PipelineConfig uppest = configHelper.addStageToPipeline("uppest", "uppest-stage-3");
 
         configHelper.addPipeline("upper", "upper-stage");
-        DependencyMaterial upper_sMaterial = new DependencyMaterial(new CaseInsensitiveString("uppest"), new CaseInsensitiveString("uppest-stage-2"));
+        DependencyMaterial upper_sMaterial = new DependencyMaterial(cis("uppest"), cis("uppest-stage-2"));
         PipelineConfig upper = configHelper.setMaterialConfigForPipeline("upper", upper_sMaterial.config());
 
         configHelper.addPipeline("upper-peer", "upper-peer-stage");
-        DependencyMaterial upperPeer_sMaterial = new DependencyMaterial(new CaseInsensitiveString("uppest"), new CaseInsensitiveString("uppest-stage"));
+        DependencyMaterial upperPeer_sMaterial = new DependencyMaterial(cis("uppest"), cis("uppest-stage"));
         PipelineConfig upperPeer = configHelper.setMaterialConfigForPipeline("upper-peer", upperPeer_sMaterial.config());
 
         configHelper.addPipeline("downer", "downer-stage");
-        DependencyMaterial downer_sUpperMaterial = new DependencyMaterial(new CaseInsensitiveString("upper"), new CaseInsensitiveString("upper-stage"));
+        DependencyMaterial downer_sUpperMaterial = new DependencyMaterial(cis("upper"), cis("upper-stage"));
         configHelper.setMaterialConfigForPipeline("downer", downer_sUpperMaterial.config());
-        DependencyMaterial downer_sUpperPeerMaterial = new DependencyMaterial(new CaseInsensitiveString("upper-peer"), new CaseInsensitiveString("upper-peer-stage"));
+        DependencyMaterial downer_sUpperPeerMaterial = new DependencyMaterial(cis("upper-peer"), cis("upper-peer-stage"));
         PipelineConfig downer = configHelper.addMaterialToPipeline("downer", downer_sUpperPeerMaterial.config());
 
         configHelper.addPipeline("downest", "downest-stage");
-        DependencyMaterial downest_sMaterial = new DependencyMaterial(new CaseInsensitiveString("downer"), new CaseInsensitiveString("downer-stage"));
+        DependencyMaterial downest_sMaterial = new DependencyMaterial(cis("downer"), cis("downer-stage"));
         configHelper.setMaterialConfigForPipeline("downest", downest_sMaterial.config());
         Tasks allFetchTasks = new Tasks();
-        allFetchTasks.add(new FetchTask(new CaseInsensitiveString("uppest/upper/downer"), new CaseInsensitiveString("uppest-stage"), new CaseInsensitiveString("unit"), "foo.zip", "bar"));
-        allFetchTasks.add(new FetchTask(new CaseInsensitiveString("uppest/upper-peer/downer"), new CaseInsensitiveString("uppest-stage"), new CaseInsensitiveString("unit"), "bar.zip", "baz"));
-        configHelper.replaceAllJobsInStage("downest", "downest-stage", new JobConfig(new CaseInsensitiveString("fetcher"), new ResourceConfigs("fetcher"), new ArtifactTypeConfigs(), allFetchTasks));
-        PipelineConfig downest = goConfigService.getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString("downest"));
+        allFetchTasks.add(new FetchTask(cis("uppest/upper/downer"), cis("uppest-stage"), cis("unit"), "foo.zip", "bar"));
+        allFetchTasks.add(new FetchTask(cis("uppest/upper-peer/downer"), cis("uppest-stage"), cis("unit"), "bar.zip", "baz"));
+        configHelper.replaceAllJobsInStage("downest", "downest-stage", new JobConfig(cis("fetcher"), new ResourceConfigs("fetcher"), new ArtifactTypeConfigs(), allFetchTasks));
+        PipelineConfig downest = goConfigService.getCurrentConfig().pipelineConfigByName(cis("downest"));
 
         DefaultSchedulingContext defaultSchedulingCtx = new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED);
         Pipeline uppestInstanceForUpper = instanceFactory.createPipelineInstance(uppest, modifySomeFiles(uppest), defaultSchedulingCtx, md5, new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(uppestInstanceForUpper);
         dbHelper.passStage(uppestInstanceForUpper.findStage("uppest-stage"));
-        Stage upper_sMaterialStage = dbHelper.scheduleStage(uppestInstanceForUpper, uppest.getStage(new CaseInsensitiveString("uppest-stage-2")));
+        Stage upper_sMaterialStage = dbHelper.scheduleStage(uppestInstanceForUpper, uppest.getStage(cis("uppest-stage-2")));
         dbHelper.passStage(upper_sMaterialStage);
 
         Pipeline uppestInstanceForUpperPeer = instanceFactory.createPipelineInstance(uppest, modifySomeFiles(uppest), new DefaultSchedulingContext("super-hero"), md5, new TimeProvider());
@@ -604,7 +605,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
     @Test
     public void shouldNotScheduleIfAgentDoesNotHaveResources() {
-        JobConfig plan = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
+        JobConfig plan = evolveConfig.findBy(cis(STAGE_NAME)).jobConfigByInstanceName("unit", true);
         plan.addResourceConfig("some-resource");
 
         scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), APPROVER_AUTOMATICALLY_TRIGGERED);
@@ -621,7 +622,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
     @Test
     public void shouldNotScheduleIfAgentDoesNotHaveMatchingResources() {
-        JobConfig plan = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
+        JobConfig plan = evolveConfig.findBy(cis(STAGE_NAME)).jobConfigByInstanceName("unit", true);
         plan.addResourceConfig("some-resource");
 
         scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), APPROVER_AUTOMATICALLY_TRIGGERED);
@@ -641,7 +642,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
     @Test
     public void shouldScheduleIfAgentMatchingResources() {
-        JobConfig jobConfig = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
+        JobConfig jobConfig = evolveConfig.findBy(cis(STAGE_NAME)).jobConfigByInstanceName("unit", true);
         jobConfig.addResourceConfig("some-resource");
 
         scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), APPROVER_AUTOMATICALLY_TRIGGERED);
@@ -667,7 +668,7 @@ public class BuildAssignmentServiceIntegrationTest {
     public void shouldNotScheduleJobsDuringServerMaintenanceMode() {
         maintenanceModeService.update(new ServerMaintenanceMode(true, "admin", new Date()));
 
-        JobConfig jobConfig = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
+        JobConfig jobConfig = evolveConfig.findBy(cis(STAGE_NAME)).jobConfigByInstanceName("unit", true);
         jobConfig.addResourceConfig("some-resource");
 
         scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), APPROVER_AUTOMATICALLY_TRIGGERED);
@@ -691,7 +692,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
     @Test
     public void shouldReScheduleToCorrectAgent() {
-        JobConfig plan = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
+        JobConfig plan = evolveConfig.findBy(cis(STAGE_NAME)).jobConfigByInstanceName("unit", true);
         plan.addResourceConfig("some-resource");
 
         scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), APPROVER_AUTOMATICALLY_TRIGGERED);

@@ -591,7 +591,7 @@ public class GoFileConfigDataSource {
     }
 
     private ConfigModifyingUser getConfigUpdatingUser(UpdateConfigCommand updatingCommand) {
-        return updatingCommand instanceof UserAware ? ((UserAware) updatingCommand).user() : new ConfigModifyingUser();
+        return updatingCommand instanceof UserAware userAware ? userAware.user() : new ConfigModifyingUser();
     }
 
     private String getUnmergedConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder, List<PartialConfig> partials) throws IOException, JDOMException {

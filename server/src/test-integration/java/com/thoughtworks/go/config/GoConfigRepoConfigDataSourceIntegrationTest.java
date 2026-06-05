@@ -38,6 +38,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.File;
 import java.io.IOException;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -105,8 +106,8 @@ public class GoConfigRepoConfigDataSourceIntegrationTest {
         ParamsConfig paramConfigs = new ParamsConfig(new ParamConfig("foo", "foo"));
         CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();
 
-        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe-with-params"))).isTrue();
-        assertThat(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipe-with-params")).getParams()).isEqualTo(paramConfigs);
+        assertThat(cruiseConfig.hasPipelineNamed(cis("pipe-with-params"))).isTrue();
+        assertThat(cruiseConfig.getPipelineConfigByName(cis("pipe-with-params")).getParams()).isEqualTo(paramConfigs);
     }
 
     @Test
@@ -114,8 +115,8 @@ public class GoConfigRepoConfigDataSourceIntegrationTest {
         ParamsConfig paramConfigs = new ParamsConfig(new ParamConfig("param1", "foo"));
         CruiseConfig cruiseConfig = goConfigService.currentCruiseConfig();
 
-        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipe-with-template"))).isTrue();
-        assertThat(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipe-with-template")).getParams()).isEqualTo(paramConfigs);
+        assertThat(cruiseConfig.hasPipelineNamed(cis("pipe-with-template"))).isTrue();
+        assertThat(cruiseConfig.getPipelineConfigByName(cis("pipe-with-template")).getParams()).isEqualTo(paramConfigs);
     }
 
     private String setupExternalConfigRepo(File configRepo, String configRepoTestResource) throws IOException {

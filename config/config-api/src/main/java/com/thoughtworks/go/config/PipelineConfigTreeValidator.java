@@ -101,8 +101,8 @@ public class PipelineConfigTreeValidator {
         for (Node.DependencyNode dependencyNode : dependenciesOfSelectedPipeline.getDependencies()) {
             if (dependencyNode.getPipelineName().equals(pipelineConfig.name())) {
                 for (MaterialConfig materialConfig : downstreamPipeline.materialConfigs()) {
-                    if (materialConfig instanceof DependencyMaterialConfig) {
-                        DependencyMaterialConfig dependencyMaterialConfig = ClonerFactory.instance().deepClone((DependencyMaterialConfig) materialConfig);
+                    if (materialConfig instanceof DependencyMaterialConfig config) {
+                        DependencyMaterialConfig dependencyMaterialConfig = ClonerFactory.instance().deepClone(config);
                         dependencyMaterialConfig.validate(validationContext.withParent(downstreamPipeline));
                         List<String> allErrors = dependencyMaterialConfig.errors().getAll();
                         for (String error : allErrors) {

@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -40,7 +41,7 @@ public abstract class EnvironmentConfigTestBase {
 
     @Test
     void shouldReturnFalseThatNotEmptyWhenHasPipeline() {
-        environmentConfig.addPipeline(new CaseInsensitiveString("pipe"));
+        environmentConfig.addPipeline(cis("pipe"));
         assertThat(environmentConfig.isEnvironmentEmpty()).isFalse();
     }
 
@@ -64,7 +65,7 @@ public abstract class EnvironmentConfigTestBase {
 
     @Test
     void shouldCreateMatcherWhenPipelinesGiven() {
-        environmentConfig.addPipeline(new CaseInsensitiveString("pipeline"));
+        environmentConfig.addPipeline(cis("pipeline"));
         environmentConfig.addAgent(AGENT_UUID);
         EnvironmentPipelineMatcher pipelineMatcher = environmentConfig.createMatcher();
         assertThat(pipelineMatcher.match("pipeline", AGENT_UUID)).isTrue();
@@ -95,19 +96,19 @@ public abstract class EnvironmentConfigTestBase {
 
     @Test
     void twoEnvironmentConfigsShouldBeEqualIfNameIsEqual() {
-        EnvironmentConfig another = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        EnvironmentConfig another = new BasicEnvironmentConfig(cis("UAT"));
         assertThat(another).isEqualTo(environmentConfig);
     }
 
     @Test
     void twoEnvironmentConfigsShouldNotBeEqualIfnameNotEqual() {
-        EnvironmentConfig another = new BasicEnvironmentConfig(new CaseInsensitiveString("other"));
+        EnvironmentConfig another = new BasicEnvironmentConfig(cis("other"));
         assertThat(another).isNotEqualTo(environmentConfig);
     }
 
     @Test
     void shouldAddEnvironmentVariablesToEnvironmentVariableContext() {
-        EnvironmentConfig another = new BasicEnvironmentConfig(new CaseInsensitiveString("other"));
+        EnvironmentConfig another = new BasicEnvironmentConfig(cis("other"));
         another.addEnvironmentVariable("variable-name", "variable-value");
         EnvironmentVariableContext context = another.createEnvironmentContext();
         assertThat(context.getProperty("variable-name")).isEqualTo("variable-value");
@@ -115,26 +116,26 @@ public abstract class EnvironmentConfigTestBase {
 
     @Test
     void shouldAddEnvironmentNameToEnvironmentVariableContext() {
-        EnvironmentConfig another = new BasicEnvironmentConfig(new CaseInsensitiveString("other"));
+        EnvironmentConfig another = new BasicEnvironmentConfig(cis("other"));
         EnvironmentVariableContext context = another.createEnvironmentContext();
         assertThat(context.getProperty(EnvironmentVariableContext.GO_ENVIRONMENT_NAME)).isEqualTo("other");
     }
 
     @Test
     void shouldReturnPipelineNamesContainedInIt() {
-        environmentConfig.addPipeline(new CaseInsensitiveString("deployment"));
-        environmentConfig.addPipeline(new CaseInsensitiveString("testing"));
+        environmentConfig.addPipeline(cis("deployment"));
+        environmentConfig.addPipeline(cis("testing"));
         List<CaseInsensitiveString> pipelineNames = environmentConfig.getPipelineNames();
         assertThat(pipelineNames.size()).isEqualTo(2);
-        assertThat(pipelineNames).contains(new CaseInsensitiveString("deployment"));
-        assertThat(pipelineNames).contains(new CaseInsensitiveString("testing"));
+        assertThat(pipelineNames).contains(cis("deployment"));
+        assertThat(pipelineNames).contains(cis("testing"));
     }
 
     @Test
     void shouldUpdatePipelines() {
-        environmentConfig.addPipeline(new CaseInsensitiveString("baz"));
+        environmentConfig.addPipeline(cis("baz"));
         environmentConfig.setConfigAttributes(Map.of(BasicEnvironmentConfig.PIPELINES_FIELD, List.of(Map.of("name", "foo"), Map.of("name", "bar"))));
-        assertThat(environmentConfig.getPipelineNames()).isEqualTo(List.of(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar")));
+        assertThat(environmentConfig.getPipelineNames()).isEqualTo(List.of(cis("foo"), cis("bar")));
     }
 
     @Test

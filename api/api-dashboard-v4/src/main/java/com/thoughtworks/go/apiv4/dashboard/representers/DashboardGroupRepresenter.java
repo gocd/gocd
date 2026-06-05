@@ -25,7 +25,6 @@ import com.thoughtworks.go.spark.Routes;
 
 import java.util.function.Consumer;
 
-
 public class DashboardGroupRepresenter {
 
     public static void toJSON(OutputWriter jsonOutputWriter, DashboardGroup model, Username username) {

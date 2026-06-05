@@ -56,6 +56,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.function.Supplier;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static java.lang.String.format;
 
@@ -381,7 +382,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
     @VisibleForTesting
     String cacheKeyForAllStageOfPipeline(String pipelineName, int pipelineCounter, String stageName) {
-        return cacheKeyGenerator.generate("allStageOfPipeline", new CaseInsensitiveString(pipelineName), pipelineCounter, new CaseInsensitiveString(stageName));
+        return cacheKeyGenerator.generate("allStageOfPipeline", cis(pipelineName), pipelineCounter, cis(stageName));
     }
 
     @Override
@@ -521,7 +522,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
     @VisibleForTesting
     String cacheKeyForStageHistories(String pipelineName, String stageName) {
-        return cacheKeyGenerator.generate("stageHistories", new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
+        return cacheKeyGenerator.generate("stageHistories", cis(pipelineName), cis(stageName));
     }
 
     @VisibleForTesting

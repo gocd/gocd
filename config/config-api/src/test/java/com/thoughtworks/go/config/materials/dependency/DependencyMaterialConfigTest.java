@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DependencyMaterialConfigTest {
@@ -43,7 +44,7 @@ class DependencyMaterialConfigTest {
 
     @Test
     void shouldAddErrorForInvalidMaterialName() {
-        DependencyMaterialConfig materialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("wrong name"), new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"));
+        DependencyMaterialConfig materialConfig = new DependencyMaterialConfig(cis("wrong name"), cis("pipeline-foo"), cis("stage-bar"));
         materialConfig.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), pipelineConfig));
         assertThat(materialConfig.errors().firstErrorOn(AbstractMaterialConfig.MATERIAL_NAME)).isEqualTo("Invalid material name 'wrong name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
@@ -63,14 +64,14 @@ class DependencyMaterialConfigTest {
 
     @Test
     void shouldNotBombValidationWhenMaterialNameIsNotSet() {
-        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"));
+        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(cis("pipeline-foo"), cis("stage-bar"));
         dependencyMaterialConfig.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), pipelineConfig));
         assertThat(dependencyMaterialConfig.errors().firstErrorOn(AbstractMaterialConfig.MATERIAL_NAME)).isNull();
     }
 
     @Test
     void shouldNOTBeValidIfThePipelineExistsButTheStageDoesNot() {
-        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline2"), new CaseInsensitiveString("stage-not-existing does not exist!"));
+        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(cis("pipeline2"), cis("stage-not-existing does not exist!"));
         dependencyMaterialConfig.validate(ConfigSaveValidationContext.forChain(config, pipelineConfig));
         ConfigErrors configErrors = dependencyMaterialConfig.errors();
         assertThat(configErrors.isEmpty()).isFalse();
@@ -81,7 +82,7 @@ class DependencyMaterialConfigTest {
     void shouldNOTBeValidIfTheReferencedPipelineDoesNotExist() {
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1", "pipeline2", "pipeline3", "go");
 
-        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline-not-exist"), new CaseInsensitiveString("stage"));
+        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(cis("pipeline-not-exist"), cis("stage"));
         dependencyMaterialConfig.validate(ConfigSaveValidationContext.forChain(config, pipelineConfig));
         ConfigErrors configErrors = dependencyMaterialConfig.errors();
         assertThat(configErrors.isEmpty()).isFalse();
@@ -90,7 +91,7 @@ class DependencyMaterialConfigTest {
 
     @Test
     void setConfigAttributes_shouldPopulateFromConfigAttributes() {
-        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(""), new CaseInsensitiveString(""));
+        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(cis(""), cis(""));
         assertThat(dependencyMaterialConfig.getPipelineStageName()).isNull();
         assertThat(dependencyMaterialConfig.ignoreForScheduling()).isFalse();
         Map<String, String> configMap = new HashMap<>();
@@ -100,16 +101,16 @@ class DependencyMaterialConfigTest {
 
         dependencyMaterialConfig.setConfigAttributes(configMap);
 
-        assertThat(dependencyMaterialConfig.getMaterialName()).isEqualTo(new CaseInsensitiveString("name1"));
-        assertThat(dependencyMaterialConfig.getPipelineName()).isEqualTo(new CaseInsensitiveString("pipeline-1"));
-        assertThat(dependencyMaterialConfig.getStageName()).isEqualTo(new CaseInsensitiveString("stage-1"));
+        assertThat(dependencyMaterialConfig.getMaterialName()).isEqualTo(cis("name1"));
+        assertThat(dependencyMaterialConfig.getPipelineName()).isEqualTo(cis("pipeline-1"));
+        assertThat(dependencyMaterialConfig.getStageName()).isEqualTo(cis("stage-1"));
         assertThat(dependencyMaterialConfig.getPipelineStageName()).isEqualTo("pipeline-1 [stage-1]");
         assertThat(dependencyMaterialConfig.ignoreForScheduling()).isTrue();
     }
 
     @Test
     void setConfigAttributes_shouldNotPopulateNameFromConfigAttributesIfNameIsEmptyOrNull() {
-        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("name2"), new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"));
+        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(cis("name2"), cis("pipeline"), cis("stage"));
         Map<String, String> configMap = new HashMap<>();
         configMap.put(AbstractMaterialConfig.MATERIAL_NAME, "");
 
@@ -120,8 +121,8 @@ class DependencyMaterialConfigTest {
 
     @Test
     void shouldValidateTree() {
-        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("upstream_stage"), new CaseInsensitiveString("upstream_pipeline"), new CaseInsensitiveString("stage"));
-        PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
+        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(cis("upstream_stage"), cis("upstream_pipeline"), cis("stage"));
+        PipelineConfig pipeline = new PipelineConfig(cis("p"), new MaterialConfigs());
         pipeline.setOrigin(new FileConfigOrigin());
         dependencyMaterialConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", config, pipeline));
         assertThat(dependencyMaterialConfig.errors().firstErrorOn(DependencyMaterialConfig.PIPELINE_STAGE_NAME)).isEqualTo("Pipeline with name 'upstream_pipeline' does not exist, it is defined as a dependency for pipeline 'p' (cruise-config.xml)");
@@ -129,7 +130,7 @@ class DependencyMaterialConfigTest {
 
     @Test
     void shouldSetLongDescriptionAsCombinationOfPipelineAndStageName() {
-        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("upstream_stage"), new CaseInsensitiveString("upstream_pipeline"), new CaseInsensitiveString("stage"));
+        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(cis("upstream_stage"), cis("upstream_pipeline"), cis("stage"));
 
         assertThat(dependencyMaterialConfig.getLongDescription()).isEqualTo("upstream_pipeline [ stage ]");
     }
@@ -137,13 +138,13 @@ class DependencyMaterialConfigTest {
     @Test
     void shouldNotDefaultToPipelineNameSinceItsUsedToSerializeConfigToJSON() {
         DependencyMaterialConfig config = new DependencyMaterialConfig(
-            new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
+            cis("pipeline_name"), cis("stage_name"));
 
         assertThat(config.getNameWithoutDefaults()).isNull();
 
-        config = new DependencyMaterialConfig(new CaseInsensitiveString("material_name"),
-            new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
+        config = new DependencyMaterialConfig(cis("material_name"),
+            cis("pipeline_name"), cis("stage_name"));
 
-        assertThat(config.getNameWithoutDefaults()).isEqualTo(new CaseInsensitiveString("material_name"));
+        assertThat(config.getNameWithoutDefaults()).isEqualTo(cis("material_name"));
     }
 }

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.apiv4.dashboard.representers
 
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.security.Permissions
 import com.thoughtworks.go.config.security.permissions.EveryonePermission
 import com.thoughtworks.go.config.security.users.Everyone
@@ -33,6 +32,7 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helpers.PipelineModelMother.pipeline_model
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.mockito.Mockito.mock
@@ -85,7 +85,7 @@ class DashboardGroupRepresenterTest {
       pipelineGroup.addPipeline(pipeline1)
       pipelineGroup.addPipeline(pipeline2)
 
-      def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+      def username = new Username(cis(SecureRandom.hex()))
 
       def actualJson = toObjectString({ DashboardGroupRepresenter.toJSON(it, pipelineGroup, username) })
 
@@ -135,7 +135,7 @@ class DashboardGroupRepresenterTest {
       env.addPipeline(dashboardPipeline('pipeline1'))
       env.addPipeline(dashboardPipeline('pipeline2'))
 
-      def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+      def username = new Username(cis(SecureRandom.hex()))
 
       def actualJson = toObjectString({ DashboardGroupRepresenter.toJSON(it, env, username) })
 

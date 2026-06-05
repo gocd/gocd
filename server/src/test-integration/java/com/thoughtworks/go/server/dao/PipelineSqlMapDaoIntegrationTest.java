@@ -61,6 +61,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import java.util.*;
 
 import static com.thoughtworks.go.config.Approval.TYPE_MANUAL;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
@@ -387,7 +388,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     private Stage rescheduleStage(String stageName, PipelineConfig mingleConfig, Pipeline pipeline) {
-        Stage newInstance = instanceFactory.createStageInstance(mingleConfig.findBy(new CaseInsensitiveString(stageName)), new DefaultSchedulingContext("anyone"), md5, new TimeProvider());
+        Stage newInstance = instanceFactory.createStageInstance(mingleConfig.findBy(cis(stageName)), new DefaultSchedulingContext("anyone"), md5, new TimeProvider());
         return stageDao.saveWithJobs(pipeline, newInstance);
     }
 
@@ -537,7 +538,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldStoreAndRetrieveDependencyMaterials() {
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("pipeline-name"), cis("stage-name"));
 
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
         pipelineConfig.setMaterialConfigs(new MaterialConfigs(dependencyMaterial.config()));
@@ -565,7 +566,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         }
         final String s = new String(name);
         final String s1 = new String(name);
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString(s), new CaseInsensitiveString(s1));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis(s), cis(s1));
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
         pipelineConfig.setMaterialConfigs(new MaterialConfigs(dependencyMaterial.config()));
 
@@ -917,7 +918,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     public void shouldUpdateCounter_WhenPipelineRowIsPresentWhichWasInsertedByPauseAction() {
         String pipelineName = "some-pipeline";
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(pipelineName);
-        Username userNameAdmin = new Username(new CaseInsensitiveString("admin"));
+        Username userNameAdmin = new Username(cis("admin"));
         pipelinePauseService.pause(pipelineName, "some-cause", userNameAdmin); // Pause and unpause so that an entry exists for that pipeline
         pipelinePauseService.unpause(pipelineName);
 
@@ -1001,7 +1002,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         String pipelineName = "P1";
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages(pipelineName, "S1");
         String username = "username";
-        BuildCause manualForced = BuildCause.createManualForced(modifyOneFile(pipelineConfig), new Username(new CaseInsensitiveString(username)));
+        BuildCause manualForced = BuildCause.createManualForced(modifyOneFile(pipelineConfig), new Username(cis(username)));
         Pipeline pipeline = dbHelper.schedulePipeline(pipelineConfig, manualForced, username, new TimeProvider());
         dbHelper.pass(pipeline);
         long jobId = pipeline.getStages().getFirst().getJobInstances().getFirst().getId();
@@ -1023,7 +1024,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         String pipelineName = "P1";
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages(pipelineName, "S1");
         String username = "username";
-        BuildCause manualForced = BuildCause.createManualForced(modifyOneFile(pipelineConfig), new Username(new CaseInsensitiveString(username)));
+        BuildCause manualForced = BuildCause.createManualForced(modifyOneFile(pipelineConfig), new Username(cis(username)));
         Pipeline pipeline = dbHelper.schedulePipeline(pipelineConfig, manualForced, username, new TimeProvider());
         dbHelper.pass(pipeline);
         BuildCause buildCause = pipelineDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, 1);
@@ -1252,7 +1253,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         Pipeline pipeline4 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
         Pipeline pipeline5 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
         List<CaseInsensitiveString> allPipelineNames = goConfigDao.currentConfig().getAllPipelineNames();
-        if (!allPipelineNames.contains(new CaseInsensitiveString("twist"))) {
+        if (!allPipelineNames.contains(cis("twist"))) {
             configHelper.addPipeline("pipelinesqlmapdaotest", pipelineConfig);
         }
 
@@ -1275,7 +1276,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         Pipeline pipeline4 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
         Pipeline pipeline5 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
         List<CaseInsensitiveString> allPipelineNames = goConfigDao.currentConfig().getAllPipelineNames();
-        if (!allPipelineNames.contains(new CaseInsensitiveString("twist"))) {
+        if (!allPipelineNames.contains(cis("twist"))) {
             configHelper.addPipeline("pipelinesqlmapdaotest", pipelineConfig);
         }
 
@@ -1297,7 +1298,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         Pipeline pipeline4 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
         Pipeline pipeline5 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
         List<CaseInsensitiveString> allPipelineNames = goConfigDao.currentConfig().getAllPipelineNames();
-        if (!allPipelineNames.contains(new CaseInsensitiveString("twist"))) {
+        if (!allPipelineNames.contains(cis("twist"))) {
             configHelper.addPipeline("pipelinesqlmapdaotest", pipelineConfig);
         }
 
@@ -1327,7 +1328,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         List<Modification> modifications = new ArrayList<>();
         modifications.add(ModificationsMother.oneModifiedFile(ModificationsMother.currentRevision()));
         SvnMaterial svnMaterial = MaterialsMother.svnMaterial("http://mingle.com");
-        svnMaterial.setName(new CaseInsensitiveString("mingle"));
+        svnMaterial.setName(cis("mingle"));
         MaterialRevision materialRevision = new MaterialRevision(svnMaterial, changed, modifications.toArray(new Modification[0]));
         revisions.addRevision(materialRevision);
         return revisions;

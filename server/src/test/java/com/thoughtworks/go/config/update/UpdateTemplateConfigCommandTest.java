@@ -32,6 +32,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -56,17 +57,17 @@ class UpdateTemplateConfigCommandTest {
 
     @BeforeEach
     void setup() {
-        currentUser = new Username(new CaseInsensitiveString("user"));
+        currentUser = new Username(cis("user"));
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
         result = new HttpLocalizedOperationResult();
-        pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
-        authorization = new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("user"))));
+        pipelineTemplateConfig = new PipelineTemplateConfig(cis("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
+        authorization = new Authorization(new AdminsConfig(new AdminUser(cis("user"))));
         pipelineTemplateConfig.setAuthorization(authorization);
     }
 
     @Test
     void shouldUpdateExistingTemplate() {
-        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));
+        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(cis("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));
         cruiseConfig.addTemplate(pipelineTemplateConfig);
 
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, securityService, result, "digest", entityHashingService, externalArtifactsService);
@@ -78,8 +79,8 @@ class UpdateTemplateConfigCommandTest {
 
     @Test
     void shouldAllowSubmittingInvalidElasticProfileId() {
-        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.stageConfig("stage", new JobConfigs(new JobConfig("job"))));
-        JobConfig jobConfig = updatedTemplateConfig.findBy(new CaseInsensitiveString("stage")).jobConfigByConfigName(new CaseInsensitiveString("job"));
+        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(cis("template"), StageConfigMother.stageConfig("stage", new JobConfigs(new JobConfig("job"))));
+        JobConfig jobConfig = updatedTemplateConfig.findBy(cis("stage")).jobConfigByConfigName(cis("job"));
         jobConfig.addTask(new AntTask());
         jobConfig.setElasticProfileId("invalidElasticProfileId");
 
@@ -99,8 +100,8 @@ class UpdateTemplateConfigCommandTest {
         PipelineConfig up42 = PipelineConfigMother.pipelineConfigWithTemplate("up42", pipelineTemplateConfig.name().toString());
         cruiseConfig.addPipeline("first", up42);
 
-        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.stageConfig("stage", new JobConfigs(new JobConfig("job"))));
-        JobConfig jobConfig = updatedTemplateConfig.findBy(new CaseInsensitiveString("stage")).jobConfigByConfigName(new CaseInsensitiveString("job"));
+        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(cis("template"), StageConfigMother.stageConfig("stage", new JobConfigs(new JobConfig("job"))));
+        JobConfig jobConfig = updatedTemplateConfig.findBy(cis("stage")).jobConfigByConfigName(cis("job"));
         jobConfig.addTask(new AntTask());
         jobConfig.setElasticProfileId("invalidElasticProfileId");
 
@@ -125,7 +126,7 @@ class UpdateTemplateConfigCommandTest {
 
     @Test
     void shouldCopyOverAuthorizationAsIsWhileUpdatingTemplateStageConfig() {
-        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));
+        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(cis("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));
         cruiseConfig.addTemplate(pipelineTemplateConfig);
 
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, securityService, result, "digest", entityHashingService, externalArtifactsService);
@@ -137,7 +138,7 @@ class UpdateTemplateConfigCommandTest {
 
     @Test
     void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() {
-        CaseInsensitiveString templateName = new CaseInsensitiveString("template");
+        CaseInsensitiveString templateName = cis("template");
         PipelineTemplateConfig oldTemplate = new PipelineTemplateConfig(templateName, StageConfigMother.manualStage("foo"));
         cruiseConfig.addTemplate(oldTemplate);
         when(entityHashingService.hashForEntity(oldTemplate)).thenReturn("digest");
@@ -152,7 +153,7 @@ class UpdateTemplateConfigCommandTest {
     @Test
     void shouldContinueWithConfigSaveifUserIsAuthorized() {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
-        when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("template"), currentUser)).thenReturn(true);
+        when(securityService.isAuthorizedToEditTemplate(cis("template"), currentUser)).thenReturn(true);
         when(entityHashingService.hashForEntity(pipelineTemplateConfig)).thenReturn("digest");
 
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "digest", entityHashingService, externalArtifactsService);
@@ -185,9 +186,9 @@ class UpdateTemplateConfigCommandTest {
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, null,
                 securityService, result, "stale_digest", entityHashingService, externalArtifactsService);
 
-        when(pipelineTemplateConfig.name()).thenReturn(new CaseInsensitiveString("p1"));
+        when(pipelineTemplateConfig.name()).thenReturn(cis("p1"));
         CruiseConfig preprocessedConfig = mock(CruiseConfig.class);
-        when(preprocessedConfig.findTemplate(new CaseInsensitiveString("p1"))).thenReturn(pipelineTemplateConfig);
+        when(preprocessedConfig.findTemplate(cis("p1"))).thenReturn(pipelineTemplateConfig);
 
         command.encrypt(preprocessedConfig);
 
@@ -207,8 +208,8 @@ class UpdateTemplateConfigCommandTest {
             job1.artifactTypeConfigs().add(s3);
             job2.artifactTypeConfigs().add(docker);
 
-            PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
-                    new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
+            PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("P1", new StageConfig(cis("S1"), new JobConfigs(job1)),
+                    new StageConfig(cis("S2"), new JobConfigs(job2)));
 
             UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(template, null,
                     securityService, result, "stale_digest", entityHashingService, externalArtifactsService);
@@ -232,14 +233,14 @@ class UpdateTemplateConfigCommandTest {
             JobConfig job1 = JobConfigMother.jobWithNoResourceRequirement();
             JobConfig job2 = JobConfigMother.jobWithNoResourceRequirement();
 
-            FetchPluggableArtifactTask fetchS3Task = new FetchPluggableArtifactTask(new CaseInsensitiveString("p0"), new CaseInsensitiveString("s0"), new CaseInsensitiveString("j0"), "s3");
-            FetchPluggableArtifactTask fetchDockerTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("p0"), new CaseInsensitiveString("s0"), new CaseInsensitiveString("j0"), "docker");
+            FetchPluggableArtifactTask fetchS3Task = new FetchPluggableArtifactTask(cis("p0"), cis("s0"), cis("j0"), "s3");
+            FetchPluggableArtifactTask fetchDockerTask = new FetchPluggableArtifactTask(cis("p0"), cis("s0"), cis("j0"), "docker");
 
             job1.addTask(fetchS3Task);
             job2.addTask(fetchDockerTask);
 
-            PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
-                    new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
+            PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("P1", new StageConfig(cis("S1"), new JobConfigs(job1)),
+                    new StageConfig(cis("S2"), new JobConfigs(job2)));
 
             UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(template, null,
                     securityService, result, "stale_digest", entityHashingService, externalArtifactsService);
@@ -263,7 +264,7 @@ class UpdateTemplateConfigCommandTest {
         void shouldNotBeValidIfPreProcessedConfigHasErrors() {
             BasicCruiseConfig preprocessedConfig = GoConfigMother.defaultCruiseConfig();
             PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("temp1",
-                    new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs()));
+                    new StageConfig(cis("S2"), new JobConfigs()));
 
             preprocessedConfig.addTemplate(template);
             preprocessedConfig.addError("name", "Error when processing params for 'a#' used in field 'name'," +

@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
 
@@ -39,8 +40,8 @@ public class DependencyMaterial extends AbstractMaterial {
     private static final Logger LOGGER = LoggerFactory.getLogger(DependencyMaterial.class);
     public static final String TYPE = "DependencyMaterial";
 
-    private CaseInsensitiveString pipelineName = new CaseInsensitiveString("Unknown");
-    private CaseInsensitiveString stageName = new CaseInsensitiveString("Unknown");
+    private CaseInsensitiveString pipelineName = cis("Unknown");
+    private CaseInsensitiveString stageName = cis("Unknown");
     private boolean ignoreForScheduling = false;
 
     public DependencyMaterial() {

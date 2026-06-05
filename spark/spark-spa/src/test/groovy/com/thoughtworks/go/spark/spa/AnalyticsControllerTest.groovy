@@ -15,9 +15,7 @@
  */
 package com.thoughtworks.go.spark.spa
 
-
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigs
 import com.thoughtworks.go.domain.PipelineGroups
@@ -38,6 +36,7 @@ import spark.ModelAndView
 import spark.Request
 import spark.Response
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static java.lang.String.format
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.*
@@ -129,7 +128,7 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
 
       @BeforeEach
       void setUp() {
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(getPipelineName()))).thenReturn(true)
+        when(goConfigService.hasPipelineNamed(cis(getPipelineName()))).thenReturn(true)
         when(pipelineConfigService.pipelineConfigNamed(getPipelineName())).thenReturn(mock(PipelineConfig.class))
         enableSecurity()
         loginAsAdmin()
@@ -272,7 +271,7 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       @BeforeEach
       void setUp() {
         stubControllerAction()
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(getPipelineName()))).thenReturn(true)
+        when(goConfigService.hasPipelineNamed(cis(getPipelineName()))).thenReturn(true)
         when(pipelineConfigService.pipelineConfigNamed(getPipelineName())).thenReturn(mock(PipelineConfig.class))
       }
     }

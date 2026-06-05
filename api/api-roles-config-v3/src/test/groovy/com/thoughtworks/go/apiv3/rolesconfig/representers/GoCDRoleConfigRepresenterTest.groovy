@@ -16,7 +16,6 @@
 package com.thoughtworks.go.apiv3.rolesconfig.representers
 
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.RoleConfig
 import com.thoughtworks.go.config.RoleUser
 import com.thoughtworks.go.config.policy.Allow
@@ -26,6 +25,7 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 
@@ -53,7 +53,7 @@ class GoCDRoleConfigRepresenterTest {
         users: ['bob', 'alice']
       ]
     ]
-    roleConfig = new RoleConfig(new CaseInsensitiveString("admins"), new RoleUser("bob"), new RoleUser("alice"))
+    roleConfig = new RoleConfig(cis("admins"), new RoleUser("bob"), new RoleUser("alice"))
     def directives = new Policy()
     directives.add(new Allow("view", "environment", "foo*"))
     roleConfig.setPolicy(directives)

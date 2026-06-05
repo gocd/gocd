@@ -57,8 +57,8 @@ public class CacheKeyGenerator {
     }
 
     private static String toStringSafe(Object arg) {
-        if (arg instanceof CaseInsensitiveString) {
-            return ((CaseInsensitiveString) arg).toLower();
+        if (arg instanceof CaseInsensitiveString caseInsensitiveString) {
+            return caseInsensitiveString.toLower();
         } else {
             return arg == null ? "" : arg.toString();
         }

@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.util;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -37,15 +37,15 @@ public class DFSCycleDetectorTest {
 
     @Test
     public void shouldThrowExceptionWhenCycleDependencyFound() {
-        when(state.getDependencyMaterials(new CaseInsensitiveString("a"))).thenReturn(new Node(new Node.DependencyNode(new CaseInsensitiveString("b"), new CaseInsensitiveString("stage"))));
-        when(state.getDependencyMaterials(new CaseInsensitiveString("b"))).thenReturn(new Node(new Node.DependencyNode(new CaseInsensitiveString("c"), new CaseInsensitiveString("stage"))));
-        when(state.getDependencyMaterials(new CaseInsensitiveString("c"))).thenReturn(new Node(new Node.DependencyNode(new CaseInsensitiveString("a"), new CaseInsensitiveString("stage"))));
-        when(state.hasPipeline(new CaseInsensitiveString("a"))).thenReturn(true);
-        when(state.hasPipeline(new CaseInsensitiveString("b"))).thenReturn(true);
-        when(state.hasPipeline(new CaseInsensitiveString("c"))).thenReturn(true);
+        when(state.getDependencyMaterials(cis("a"))).thenReturn(new Node(new Node.DependencyNode(cis("b"), cis("stage"))));
+        when(state.getDependencyMaterials(cis("b"))).thenReturn(new Node(new Node.DependencyNode(cis("c"), cis("stage"))));
+        when(state.getDependencyMaterials(cis("c"))).thenReturn(new Node(new Node.DependencyNode(cis("a"), cis("stage"))));
+        when(state.hasPipeline(cis("a"))).thenReturn(true);
+        when(state.hasPipeline(cis("b"))).thenReturn(true);
+        when(state.hasPipeline(cis("c"))).thenReturn(true);
 
         try {
-            project.topoSort(new CaseInsensitiveString("a"), state);
+            project.topoSort(cis("a"), state);
         } catch (Exception e) {
             assertThat(e.getMessage()).isEqualTo("Circular dependency: a <- c <- b <- a");
         }
@@ -53,26 +53,26 @@ public class DFSCycleDetectorTest {
 
     @Test
     public void shouldNotThrowExceptionWhenCycleDependencyNotFound() {
-        when(state.getDependencyMaterials(new CaseInsensitiveString("a"))).thenReturn(new Node(new Node.DependencyNode(new CaseInsensitiveString("b"), new CaseInsensitiveString("stage"))));
-        when(state.getDependencyMaterials(new CaseInsensitiveString("b"))).thenReturn(new Node(new Node.DependencyNode(new CaseInsensitiveString("c"), new CaseInsensitiveString("stage"))));
-        when(state.getDependencyMaterials(new CaseInsensitiveString("c"))).thenReturn(new Node(new ArrayList<>()));
+        when(state.getDependencyMaterials(cis("a"))).thenReturn(new Node(new Node.DependencyNode(cis("b"), cis("stage"))));
+        when(state.getDependencyMaterials(cis("b"))).thenReturn(new Node(new Node.DependencyNode(cis("c"), cis("stage"))));
+        when(state.getDependencyMaterials(cis("c"))).thenReturn(new Node(new ArrayList<>()));
 
-        when(state.hasPipeline(new CaseInsensitiveString("a"))).thenReturn(true);
-        when(state.hasPipeline(new CaseInsensitiveString("b"))).thenReturn(true);
-        when(state.hasPipeline(new CaseInsensitiveString("c"))).thenReturn(true);
-        project.topoSort(new CaseInsensitiveString("a"), state);
+        when(state.hasPipeline(cis("a"))).thenReturn(true);
+        when(state.hasPipeline(cis("b"))).thenReturn(true);
+        when(state.hasPipeline(cis("c"))).thenReturn(true);
+        project.topoSort(cis("a"), state);
     }
 
     @Test
     public void shouldThrowExceptionWhenDependencyExistsWithUnknownPipeline() {
-        when(state.getDependencyMaterials(new CaseInsensitiveString("a"))).thenReturn(new Node(new Node.DependencyNode(new CaseInsensitiveString("b"), new CaseInsensitiveString("stage"))));
-        when(state.getDependencyMaterials(new CaseInsensitiveString("b"))).thenReturn(new Node(new Node.DependencyNode(new CaseInsensitiveString("z"), new CaseInsensitiveString("stage"))));
-        when(state.hasPipeline(new CaseInsensitiveString("a"))).thenReturn(true);
-        when(state.hasPipeline(new CaseInsensitiveString("b"))).thenReturn(true);
-        when(state.hasPipeline(new CaseInsensitiveString("z"))).thenReturn(false);
+        when(state.getDependencyMaterials(cis("a"))).thenReturn(new Node(new Node.DependencyNode(cis("b"), cis("stage"))));
+        when(state.getDependencyMaterials(cis("b"))).thenReturn(new Node(new Node.DependencyNode(cis("z"), cis("stage"))));
+        when(state.hasPipeline(cis("a"))).thenReturn(true);
+        when(state.hasPipeline(cis("b"))).thenReturn(true);
+        when(state.hasPipeline(cis("z"))).thenReturn(false);
 
         try {
-            project.topoSort(new CaseInsensitiveString("a"), state);
+            project.topoSort(cis("a"), state);
         } catch (Exception e) {
             assertThat(e.getMessage()).isEqualTo("Pipeline 'z' does not exist. It is used from pipeline 'b'.");
         }

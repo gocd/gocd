@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain.materials.dependency;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.MaterialAgent;
@@ -27,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.util.Date;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.materials.MaterialAgent.NO_OP;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,7 +35,7 @@ public class DependencyMaterialAgentTest {
     @SuppressWarnings("SameParameterValue")
     private MaterialRevision materialRevision(String pipelineName, int pipelineCounter, String pipelineLabel,
                                               String stageName, int stageCounter) {
-        DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
+        DependencyMaterial material = new DependencyMaterial(cis(pipelineName), cis(stageName));
         DependencyMaterialRevision revision = DependencyMaterialRevision.create(pipelineName, pipelineCounter,
                 pipelineLabel, stageName, stageCounter);
         return revision.convert(material, new Date());

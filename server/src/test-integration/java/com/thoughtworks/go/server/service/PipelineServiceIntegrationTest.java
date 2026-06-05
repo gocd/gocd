@@ -48,6 +48,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -213,7 +214,7 @@ public class PipelineServiceIntegrationTest {
     }
 
     private Pipeline createNewPipeline() {
-        if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString("Test"))) {
+        if (!goConfigService.hasPipelineNamed(cis("Test"))) {
             configHelper.addPipeline("Test", "dev");
         }
         Pipeline pipeline = new Pipeline("Test", "testing-${COUNT}", BuildCause.createEmpty(), new EnvironmentVariables());

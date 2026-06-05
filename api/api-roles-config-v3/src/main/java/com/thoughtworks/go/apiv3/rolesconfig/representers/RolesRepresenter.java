@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.apiv3.rolesconfig.representers;
 
-
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.spark.Routes;

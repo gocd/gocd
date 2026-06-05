@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -49,14 +50,14 @@ public class UnrunStagesPopulatorTest {
 
     @Test
     public void shouldPopulateRemainingStagesFromConfigurationForCurrentPipeline() {
-        ValueStreamMap valueStreamMap = new ValueStreamMap(new CaseInsensitiveString("p"), new PipelineRevision("p", 10, "10"));
+        ValueStreamMap valueStreamMap = new ValueStreamMap(cis("p"), new PipelineRevision("p", 10, "10"));
         Stages stages = new Stages(StageMother.createPassedStage("p", 10, "s1", 1, "b", Instant.now()));
         stages.add(StageMother.scheduledStage("p", 10, "s3", 1, "b"));
         PipelineRevision pipelineRevision = (PipelineRevision) valueStreamMap.getCurrentPipeline().revisions().getFirst();
         pipelineRevision.addStages(stages);
 
         CruiseConfig cruiseConfig = GoConfigMother.pipelineHavingJob("p", "s1", "b", "filePath", "dirPath");
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("p"));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis("p"));
         pipelineConfig.add(StageConfigMother.stageConfig("s2"));
         pipelineConfig.add(StageConfigMother.stageConfig("s3"));
         pipelineConfig.add(StageConfigMother.stageConfig("s4"));
@@ -68,14 +69,14 @@ public class UnrunStagesPopulatorTest {
 
     @Test
     public void shouldNotAddRemainingStagesWhenTheyAreReordered() {
-        ValueStreamMap valueStreamMap = new ValueStreamMap(new CaseInsensitiveString("p"), new PipelineRevision("p", 10, "10"));
+        ValueStreamMap valueStreamMap = new ValueStreamMap(cis("p"), new PipelineRevision("p", 10, "10"));
         Stages stages = new Stages(StageMother.createPassedStage("p", 10, "s2", 1, "b", Instant.now()));
         stages.add(StageMother.scheduledStage("p", 10, "s1", 1, "b"));
         PipelineRevision pipelineRevision = (PipelineRevision) valueStreamMap.getCurrentPipeline().revisions().getFirst();
         pipelineRevision.addStages(stages);
 
         CruiseConfig cruiseConfig = GoConfigMother.pipelineHavingJob("p", "s1", "b", "filePath", "dirPath");
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("p"));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis("p"));
         pipelineConfig.add(StageConfigMother.stageConfig("s2"));
         pipelineConfig.add(StageConfigMother.stageConfig("s3"));
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
@@ -95,10 +96,10 @@ public class UnrunStagesPopulatorTest {
              \
               +-> p3
          */
-        CaseInsensitiveString p = new CaseInsensitiveString("p");
-        CaseInsensitiveString p1 = new CaseInsensitiveString("p1");
-        CaseInsensitiveString p2 = new CaseInsensitiveString("p2");
-        CaseInsensitiveString p3 = new CaseInsensitiveString("p3");
+        CaseInsensitiveString p = cis("p");
+        CaseInsensitiveString p1 = cis("p1");
+        CaseInsensitiveString p2 = cis("p2");
+        CaseInsensitiveString p3 = cis("p3");
         ValueStreamMap valueStreamMap = new ValueStreamMap(p, revision(p.toString(), 1));
         Node p1_node = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(p1, p1.toString()), p);
         Node p2_node = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(p2, p2.toString()), p1);
@@ -132,10 +133,10 @@ public class UnrunStagesPopulatorTest {
               +-> p3
          */
 
-        ValueStreamMap graph = new ValueStreamMap(new CaseInsensitiveString("p"), revision("p", 1));
-        Node p1_node = graph.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p1"), "p1"), new CaseInsensitiveString("p"));
-        Node p2_node = graph.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p2"), "p2"), new CaseInsensitiveString("p1"));
-        Node p3_node = graph.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p3"), "p3"), new CaseInsensitiveString("p"));
+        ValueStreamMap graph = new ValueStreamMap(cis("p"), revision("p", 1));
+        Node p1_node = graph.addDownstreamNode(new PipelineDependencyNode(cis("p1"), "p1"), cis("p"));
+        Node p2_node = graph.addDownstreamNode(new PipelineDependencyNode(cis("p2"), "p2"), cis("p1"));
+        Node p3_node = graph.addDownstreamNode(new PipelineDependencyNode(cis("p3"), "p3"), cis("p"));
 
         addRevisions(p1_node);
 
@@ -164,9 +165,9 @@ public class UnrunStagesPopulatorTest {
 		GitMaterial gitMaterial = new GitMaterial("url");
 		ValueStreamMap graph = new ValueStreamMap(gitMaterial, null, ModificationsMother.aCheckIn("r1"));
 		Node git_node = graph.getCurrentMaterial();
-		Node p1_node = graph.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p1"), "p1"), git_node.getId());
-		Node p2_node = graph.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p2"), "p2"), new CaseInsensitiveString("p1"));
-		Node p3_node = graph.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p3"), "p3"), git_node.getId());
+		Node p1_node = graph.addDownstreamNode(new PipelineDependencyNode(cis("p1"), "p1"), git_node.getId());
+		Node p2_node = graph.addDownstreamNode(new PipelineDependencyNode(cis("p2"), "p2"), cis("p1"));
+		Node p3_node = graph.addDownstreamNode(new PipelineDependencyNode(cis("p3"), "p3"), git_node.getId());
 
 		addRevisions(p1_node);
 		addRevisions(p3_node);

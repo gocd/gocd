@@ -15,9 +15,9 @@
  */
 package com.thoughtworks.go.server.domain;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -26,21 +26,21 @@ public class UsernameTest {
 
     @Test
     public void shouldReturnDisplayName() {
-        Username username2 = new Username(new CaseInsensitiveString("dyang"), "Derek Yang");
-        assertThat(username2.getUsername()).isEqualTo(new CaseInsensitiveString("dyang"));
+        Username username2 = new Username(cis("dyang"), "Derek Yang");
+        assertThat(username2.getUsername()).isEqualTo(cis("dyang"));
         assertThat(username2.getDisplayName()).isEqualTo("Derek Yang");
     }
 
     @Test
     public void shouldReturnUsernameAsDisplayNameIfDisplayNameIsNotSet() {
-        Username username1 = new Username(new CaseInsensitiveString("dyang"));
-        assertThat(username1.getUsername()).isEqualTo(new CaseInsensitiveString("dyang"));
+        Username username1 = new Username(cis("dyang"));
+        assertThat(username1.getUsername()).isEqualTo(cis("dyang"));
         assertThat(username1.getDisplayName()).isEqualTo("dyang");
     }
 
     @Test
     public void shouldAllowBuildingUsernameFromString() {
-        Username one = new Username(new CaseInsensitiveString("myusername"));
+        Username one = new Username(cis("myusername"));
         Username two = Username.valueOf("myusername");
         assertThat(one).isEqualTo(two);
     }

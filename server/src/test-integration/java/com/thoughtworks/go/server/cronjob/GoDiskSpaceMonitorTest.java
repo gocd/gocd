@@ -47,7 +47,6 @@ import static org.mockito.Mockito.when;
     "classpath:/testPropertyConfigurer.xml",
     "classpath:/spring-all-servlet.xml",
 })
-
 public class GoDiskSpaceMonitorTest {
     private static final long LOADS_OF_DISK_SPACE = fromMegaToBytes(10000000000L);
 

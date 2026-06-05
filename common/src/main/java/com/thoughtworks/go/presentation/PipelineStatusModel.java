@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.thoughtworks.go.presentation;
+
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 
 public class PipelineStatusModel {

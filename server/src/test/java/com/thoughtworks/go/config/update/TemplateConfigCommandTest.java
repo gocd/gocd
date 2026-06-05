@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
@@ -32,6 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -52,13 +52,13 @@ public class TemplateConfigCommandTest {
 
     @BeforeEach
     public void setup() {
-        currentUser = new Username(new CaseInsensitiveString("user"));
+        currentUser = new Username(cis("user"));
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }
 
     @Test
     public void shouldValidateTemplateName() {
-        PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("@#$#"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
+        PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(cis("@#$#"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
         cruiseConfig.addTemplate(templateConfig);
         TemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig, currentUser, securityService, result, externalArtifactsService);
         assertThat(command.isValid(cruiseConfig)).isFalse();
@@ -76,15 +76,15 @@ public class TemplateConfigCommandTest {
 
     @Test
     public void shouldThrowAnExceptionIfTemplateConfigCannotBeFound() {
-        PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("non-existent-template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
+        PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(cis("non-existent-template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
         TemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig, currentUser, securityService, result, externalArtifactsService);
         assertThatThrownBy(() -> command.isValid(cruiseConfig));
     }
 
     @Test
     public void shouldValidateUniquenessOfTemplateName() {
-        PipelineTemplateConfig templateConfig1 = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
-        PipelineTemplateConfig templateConfig2 = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
+        PipelineTemplateConfig templateConfig1 = new PipelineTemplateConfig(cis("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
+        PipelineTemplateConfig templateConfig2 = new PipelineTemplateConfig(cis("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
         cruiseConfig.addTemplate(templateConfig1);
         cruiseConfig.addTemplate(templateConfig2);
         TemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig2, currentUser, securityService, result, externalArtifactsService);
@@ -94,11 +94,11 @@ public class TemplateConfigCommandTest {
 
     @Test
     public void shouldValidateStageNameUniquenessWithinATemplate() {
-        PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
+        PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(cis("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
         cruiseConfig.addTemplate(templateConfig);
         TemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig, currentUser, securityService, result, externalArtifactsService);
         assertThat(command.isValid(cruiseConfig)).isFalse();
-        assertThat(templateConfig.getStage(new CaseInsensitiveString("stage")).errors().getAllOn("name")).isEqualTo(List.of("You have defined multiple stages called 'stage'. Stage names are case-insensitive and must be unique."));
+        assertThat(templateConfig.getStage(cis("stage")).errors().getAllOn("name")).isEqualTo(List.of("You have defined multiple stages called 'stage'. Stage names are case-insensitive and must be unique."));
     }
 
 

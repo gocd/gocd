@@ -24,6 +24,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
 import static java.util.stream.Collectors.toCollection;
@@ -162,7 +163,7 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public boolean contains(String pipelineName) {
-        return pipelines.containsPipelineNamed(new CaseInsensitiveString(pipelineName));
+        return pipelines.containsPipelineNamed(cis(pipelineName));
     }
 
     @Override
@@ -271,7 +272,7 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
 
         Map<String, String> attributeMap = (Map<String, String>) attributes;
         if (attributeMap.containsKey(NAME_FIELD)) {
-            name = new CaseInsensitiveString(attributeMap.get(NAME_FIELD));
+            name = cis(attributeMap.get(NAME_FIELD));
         }
         if (attributeMap.containsKey(PIPELINES_FIELD)) {
             pipelines.setConfigAttributes(attributeMap.get(PIPELINES_FIELD));

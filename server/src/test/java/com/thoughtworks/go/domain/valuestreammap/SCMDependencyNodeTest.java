@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain.valuestreammap;
 
-
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Modification;

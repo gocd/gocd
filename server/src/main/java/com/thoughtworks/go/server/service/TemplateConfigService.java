@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
@@ -128,7 +129,7 @@ public class TemplateConfigService {
     }
 
     public PipelineTemplateConfig loadForView(String templateName, HttpLocalizedOperationResult result) {
-        PipelineTemplateConfig template = goConfigService.findTemplateByName(new CaseInsensitiveString(templateName));
+        PipelineTemplateConfig template = goConfigService.findTemplateByName(cis(templateName));
         if (template == null) {
             result.notFound(EntityType.Template.notFoundMessage(templateName), general(GLOBAL));
         }

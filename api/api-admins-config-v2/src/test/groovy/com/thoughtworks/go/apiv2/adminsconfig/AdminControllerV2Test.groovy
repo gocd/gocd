@@ -22,7 +22,6 @@ import com.thoughtworks.go.apiv2.adminsconfig.representers.BulkUpdateFailureResu
 import com.thoughtworks.go.config.AdminRole
 import com.thoughtworks.go.config.AdminUser
 import com.thoughtworks.go.config.AdminsConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.server.service.AdminsConfigService
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.result.BulkUpdateAdminsResult
@@ -40,6 +39,7 @@ import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.verify
@@ -63,7 +63,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
     class Security implements SecurityTestTrait, AdminUserSecurity {
       @BeforeEach
       void setUp() {
-        AdminsConfig config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
+        AdminsConfig config = new AdminsConfig(new AdminUser(cis("admin")))
         when(adminsConfigService.systemAdmins()).thenReturn(config)
       }
 
@@ -91,7 +91,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
 
       @Test
       void 'should render the security admins config'() {
-        AdminsConfig config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
+        AdminsConfig config = new AdminsConfig(new AdminUser(cis("admin")))
         when(entityHashingService.hashForEntity(config)).thenReturn('digest')
         when(adminsConfigService.systemAdmins()).thenReturn(config)
 
@@ -106,7 +106,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
 
       @Test
       void 'should render 304 if etag matches'() {
-        def config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
+        def config = new AdminsConfig(new AdminUser(cis("admin")))
         when(entityHashingService.hashForEntity(config)).thenReturn('digest')
         when(adminsConfigService.systemAdmins()).thenReturn(config)
         getWithApiHeader(controller.controllerPath(), ['if-none-match': '"digest"'])
@@ -118,7 +118,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
 
       @Test
       void 'should render 200 if etag does not match'() {
-        def config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin-new")))
+        def config = new AdminsConfig(new AdminUser(cis("admin-new")))
         when(entityHashingService.hashForEntity(config)).thenReturn('digest')
         when(adminsConfigService.systemAdmins()).thenReturn(config)
         getWithApiHeader(controller.controllerPath(), ['if-none-match': '"junk"'])
@@ -140,7 +140,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
 
       @BeforeEach
       void setUp() {
-        config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
+        config = new AdminsConfig(new AdminUser(cis("admin")))
         when(adminsConfigService.systemAdmins()).thenReturn(config)
         when(entityHashingService.hashForEntity(config)).thenReturn('cached-digest')
       }
@@ -170,9 +170,9 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
 
       @Test
       void 'should update the system admins'() {
-        AdminsConfig configInServer = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
-        AdminsConfig configFromRequest = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")),
-          new AdminUser(new CaseInsensitiveString("new_admin")))
+        AdminsConfig configInServer = new AdminsConfig(new AdminUser(cis("admin")))
+        AdminsConfig configFromRequest = new AdminsConfig(new AdminUser(cis("admin")),
+          new AdminUser(cis("new_admin")))
 
         when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
         when(entityHashingService.hashForEntity(configInServer)).thenReturn("cached-digest")
@@ -190,9 +190,9 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
 
       @Test
       void 'should return a response with errors if update fails'() {
-        AdminsConfig configInServer = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
-        AdminsConfig configFromRequest = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")),
-          new AdminUser(new CaseInsensitiveString("new_admin")))
+        AdminsConfig configInServer = new AdminsConfig(new AdminUser(cis("admin")))
+        AdminsConfig configFromRequest = new AdminsConfig(new AdminUser(cis("admin")),
+          new AdminUser(cis("new_admin")))
 
 
         when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
@@ -214,8 +214,8 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
 
       @Test
       void 'should not update a stale system admins request'() {
-        AdminsConfig systemAdminsRequest = new AdminsConfig(new AdminRole(new CaseInsensitiveString("admin")))
-        AdminsConfig systemAdminsInServer = new AdminsConfig(new AdminRole(new CaseInsensitiveString("role1")))
+        AdminsConfig systemAdminsRequest = new AdminsConfig(new AdminRole(cis("admin")))
+        AdminsConfig systemAdminsInServer = new AdminsConfig(new AdminRole(cis("role1")))
 
         when(adminsConfigService.systemAdmins()).thenReturn(systemAdminsInServer)
         when(entityHashingService.hashForEntity(systemAdminsInServer)).thenReturn('cached-digest')
@@ -240,7 +240,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
 
       @BeforeEach
       void setUp() {
-        config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
+        config = new AdminsConfig(new AdminUser(cis("admin")))
         when(adminsConfigService.systemAdmins()).thenReturn(config)
         when(entityHashingService.hashForEntity(config)).thenReturn('cached-digest')
       }
@@ -296,10 +296,10 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
 
       @Test
       void 'should return a response with errors if patch fails'() {
-        AdminsConfig configInServer = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
+        AdminsConfig configInServer = new AdminsConfig(new AdminUser(cis("admin")))
 
         def result = new BulkUpdateAdminsResult()
-        result.nonExistentRoles = [new CaseInsensitiveString("jez"), new CaseInsensitiveString("tez")]
+        result.nonExistentRoles = [cis("jez"), cis("tez")]
         result.unprocessableEntity("validation failed")
         when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
         when(entityHashingService.hashForEntity(configInServer)).thenReturn("cached-digest")

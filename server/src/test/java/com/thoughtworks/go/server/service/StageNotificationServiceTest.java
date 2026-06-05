@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -31,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.server.service.StageNotificationService.MATERIAL_SECTION_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -63,7 +63,7 @@ public class StageNotificationServiceTest {
         String jezMail = prepareOneMatchedUser();
         final Date date = new Date();
         stubPipelineAndStage(date);
-        stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
+        stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(cis("loser")));
 
         String body = inMemoryEmailNotificationTopic.getBody(jezMail);
         assertThat(body).contains(MATERIAL_SECTION_HEADER);
@@ -86,7 +86,7 @@ public class StageNotificationServiceTest {
     public void shouldNotComputeFailedTestSuitesWhenThereAreNoSubscribers() {
         when(userService.findValidNotificationSubscribers(StageEvent.Fails, stageIdentifier.stageConfigIdentifier())).thenReturn(new Users(new ArrayList<>()));
 
-        stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
+        stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(cis("loser")));
         verifyNoInteractions(stageService);
         verifyNoInteractions(pipelineService);
     }
@@ -102,7 +102,7 @@ public class StageNotificationServiceTest {
         svnModification.createModifiedFile("some.xml", "other_dir", ModifiedAction.deleted);
 
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig,
-            new ManualBuild(new Username(new CaseInsensitiveString("loser"))).onModifications(new MaterialRevisions(new MaterialRevision(new MaterialConfigConverter().toMaterials(pipelineConfig.materialConfigs()).getFirst(), svnModification)),
+            new ManualBuild(new Username(cis("loser"))).onModifications(new MaterialRevisions(new MaterialRevision(new MaterialConfigConverter().toMaterials(pipelineConfig.materialConfigs()).getFirst(), svnModification)),
                 false, null),
             new DefaultSchedulingContext("loser"), "md5-test", new TimeProvider());
         Stage stage = pipeline.getStages().getFirst();

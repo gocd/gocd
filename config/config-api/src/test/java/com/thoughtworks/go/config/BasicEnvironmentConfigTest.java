@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.ConfigSaveValidationContext.forChain;
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment;
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.remote;
@@ -44,19 +45,19 @@ import static org.junit.jupiter.api.Assertions.*;
 class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
     @BeforeEach
     void setUp() {
-        environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        environmentConfig = new BasicEnvironmentConfig(cis("UAT"));
     }
 
     @Test
     void shouldReturnEmptyForRemotePipelinesWhenIsLocal() {
-        environmentConfig.addPipeline(new CaseInsensitiveString("pipe"));
+        environmentConfig.addPipeline(cis("pipe"));
         assertThat(environmentConfig.getRemotePipelines().isEmpty()).isTrue();
     }
 
     @Test
     void shouldReturnAllPipelinesForRemotePipelinesWhenIsRemote() {
         environmentConfig.setOrigins(new RepoConfigOrigin());
-        environmentConfig.addPipeline(new CaseInsensitiveString("pipe"));
+        environmentConfig.addPipeline(cis("pipe"));
         assertThat(environmentConfig.getRemotePipelines().isEmpty()).isFalse();
     }
 
@@ -125,7 +126,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
     @Test
     void shouldUpdateName() {
         environmentConfig.setConfigAttributes(Map.of(BasicEnvironmentConfig.NAME_FIELD, "PROD"));
-        assertThat(environmentConfig.name()).isEqualTo(new CaseInsensitiveString("PROD"));
+        assertThat(environmentConfig.name()).isEqualTo(cis("PROD"));
     }
 
     @Nested
@@ -166,10 +167,10 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
             ConfigOrigin envOrigin = new FileConfigOrigin();
 
             BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("pipe1");
-            cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipe1")).setOrigin(pipelineOrigin);
+            cruiseConfig.getPipelineConfigByName(cis("pipe1")).setOrigin(pipelineOrigin);
             BasicEnvironmentConfig environmentConfig = (BasicEnvironmentConfig) BasicEnvironmentConfigTest.this.environmentConfig;
             environmentConfig.setOrigins(envOrigin);
-            environmentConfig.addPipeline(new CaseInsensitiveString("pipe1"));
+            environmentConfig.addPipeline(cis("pipe1"));
             cruiseConfig.addEnvironment(environmentConfig);
 
             environmentConfig.validate(forChain(cruiseConfig, environmentConfig));
@@ -206,8 +207,8 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
     @Test
     void shouldReturnPipelineNames() {
-        CaseInsensitiveString pipeline1 = new CaseInsensitiveString("Pipeline1");
-        CaseInsensitiveString pipeline2 = new CaseInsensitiveString("Pipeline2");
+        CaseInsensitiveString pipeline1 = cis("Pipeline1");
+        CaseInsensitiveString pipeline2 = cis("Pipeline2");
 
         environmentConfig.addPipeline(pipeline1);
         environmentConfig.addPipeline(pipeline2);
@@ -226,10 +227,10 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
         ConfigOrigin envOrigin = new FileConfigOrigin();
 
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("pipe1");
-        cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipe1")).setOrigin(pipelineOrigin);
+        cruiseConfig.getPipelineConfigByName(cis("pipe1")).setOrigin(pipelineOrigin);
         BasicEnvironmentConfig environmentConfig = (BasicEnvironmentConfig) this.environmentConfig;
         environmentConfig.setOrigins(envOrigin);
-        environmentConfig.addPipeline(new CaseInsensitiveString("unknown"));
+        environmentConfig.addPipeline(cis("unknown"));
         cruiseConfig.addEnvironment(environmentConfig);
 
         environmentConfig.validate(forChain(cruiseConfig, environmentConfig));
@@ -246,10 +247,10 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
             ConfigOrigin envOrigin = new FileConfigOrigin();
 
             BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("pipe1");
-            cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipe1")).setOrigin(pipelineOrigin);
+            cruiseConfig.getPipelineConfigByName(cis("pipe1")).setOrigin(pipelineOrigin);
             BasicEnvironmentConfig environmentConfig = (BasicEnvironmentConfig) BasicEnvironmentConfigTest.this.environmentConfig;
             environmentConfig.setOrigins(envOrigin);
-            environmentConfig.addPipeline(new CaseInsensitiveString("pipe1"));
+            environmentConfig.addPipeline(cis("pipe1"));
             cruiseConfig.addEnvironment(environmentConfig);
 
             environmentConfig.validateTree(forChain(cruiseConfig, environmentConfig), cruiseConfig);
@@ -288,10 +289,10 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
             ConfigOrigin repoConfigOrigin = new RepoConfigOrigin();
 
             BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("pipe1");
-            cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipe1")).setOrigin(repoConfigOrigin);
+            cruiseConfig.getPipelineConfigByName(cis("pipe1")).setOrigin(repoConfigOrigin);
             BasicEnvironmentConfig environmentConfig = (BasicEnvironmentConfig) BasicEnvironmentConfigTest.this.environmentConfig;
             environmentConfig.setOrigins(repoConfigOrigin);
-            environmentConfig.addPipeline(new CaseInsensitiveString("pipe1"));
+            environmentConfig.addPipeline(cis("pipe1"));
             environmentConfig.addEnvironmentVariable("  ", "bar");
             cruiseConfig.addEnvironment(environmentConfig);
 
@@ -308,10 +309,10 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
             ConfigOrigin envOrigin = new FileConfigOrigin();
 
             BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("pipe1");
-            cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipe1")).setOrigin(pipelineOrigin);
+            cruiseConfig.getPipelineConfigByName(cis("pipe1")).setOrigin(pipelineOrigin);
             BasicEnvironmentConfig environmentConfig = (BasicEnvironmentConfig) BasicEnvironmentConfigTest.this.environmentConfig;
             environmentConfig.setOrigins(envOrigin);
-            environmentConfig.addPipeline(new CaseInsensitiveString("unknown"));
+            environmentConfig.addPipeline(cis("unknown"));
             cruiseConfig.addEnvironment(environmentConfig);
 
             environmentConfig.validate(forChain(cruiseConfig, environmentConfig));
@@ -351,7 +352,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
     @Test
     void shouldReturnMatchersWithTheProperties() {
-        environmentConfig.addPipeline(new CaseInsensitiveString("pipeline-1"));
+        environmentConfig.addPipeline(cis("pipeline-1"));
         environmentConfig.addAgent("agent-1");
 
         EnvironmentPipelineMatcher matcher = environmentConfig.createMatcher();
@@ -366,8 +367,8 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
     @Test
     void shouldNotThrowExceptionIfAllThePipelinesArePresent() {
-        CaseInsensitiveString p1 = new CaseInsensitiveString("pipeline-1");
-        CaseInsensitiveString p2 = new CaseInsensitiveString("pipeline-2");
+        CaseInsensitiveString p1 = cis("pipeline-1");
+        CaseInsensitiveString p2 = cis("pipeline-2");
 
         environmentConfig.addPipeline(p1);
         environmentConfig.addPipeline(p2);
@@ -378,9 +379,9 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
     @Test
     void shouldThrowExceptionIfOneOfThePipelinesAreNotPassed() {
-        CaseInsensitiveString p1 = new CaseInsensitiveString("pipeline-1");
-        CaseInsensitiveString p2 = new CaseInsensitiveString("pipeline-2");
-        CaseInsensitiveString p3 = new CaseInsensitiveString("pipeline-3");
+        CaseInsensitiveString p1 = cis("pipeline-1");
+        CaseInsensitiveString p2 = cis("pipeline-2");
+        CaseInsensitiveString p3 = cis("pipeline-3");
 
         environmentConfig.addPipeline(p1);
         environmentConfig.addPipeline(p2);
@@ -397,7 +398,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
     @Test
     void shouldReturnFalseIfNotEmpty() {
-        environmentConfig.addPipeline(new CaseInsensitiveString("pipeline1"));
+        environmentConfig.addPipeline(cis("pipeline1"));
         assertFalse(environmentConfig.isEnvironmentEmpty());
     }
 
@@ -432,7 +433,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
         @Test
         void shouldReturnFalseIfTheOriginIsNull() {
-            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"));
+            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(cis("env1"));
             String uuid = "uuid";
             environmentConfig.addAgent(uuid);
 
@@ -447,7 +448,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
         @Test
         void shouldReturnTrueIfTheEnvPipelineAssociationIsFromConfigRepo() {
             BasicEnvironmentConfig environmentConfig = remote("env1");
-            CaseInsensitiveString pipeline = new CaseInsensitiveString("Pipeline");
+            CaseInsensitiveString pipeline = cis("Pipeline");
             environmentConfig.addPipeline(pipeline);
             assertThat(environmentConfig.containsPipelineRemotely(pipeline)).isTrue();
         }
@@ -455,7 +456,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
         @Test
         void shouldReturnFalseIfThePipelineIsNotPresentInTheEnvFromConfigRepo() {
             BasicEnvironmentConfig environmentConfig = remote("env1");
-            CaseInsensitiveString pipeline = new CaseInsensitiveString("Pipeline");
+            CaseInsensitiveString pipeline = cis("Pipeline");
             assertThat(environmentConfig.containsPipelineRemotely(pipeline)).isFalse();
         }
 
@@ -469,8 +470,8 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
         @Test
         void shouldReturnFalseIfTheOriginIsNull() {
-            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"));
-            CaseInsensitiveString pipeline = new CaseInsensitiveString("Pipeline");
+            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(cis("env1"));
+            CaseInsensitiveString pipeline = cis("Pipeline");
             environmentConfig.addPipeline(pipeline);
             assertThat(environmentConfig.getOrigin()).isNull();
             assertThat(environmentConfig.containsPipelineRemotely(pipeline)).isFalse();
@@ -501,7 +502,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
         @Test
         void shouldReturnFalseIfTheOriginIsNull() {
-            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"));
+            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(cis("env1"));
             environmentConfig.addEnvironmentVariable("var1", "value1");
             assertThat(environmentConfig.getOrigin()).isNull();
             assertThat(environmentConfig.containsEnvironmentVariableRemotely("var1")).isFalse();
@@ -539,10 +540,10 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
     private void passReferenceValidationHelper(ConfigOrigin pipelineOrigin, ConfigOrigin envOrigin) {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("pipe1");
-        cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipe1")).setOrigin(pipelineOrigin);
+        cruiseConfig.getPipelineConfigByName(cis("pipe1")).setOrigin(pipelineOrigin);
         BasicEnvironmentConfig environmentConfig = (BasicEnvironmentConfig) this.environmentConfig;
         environmentConfig.setOrigins(envOrigin);
-        environmentConfig.addPipeline(new CaseInsensitiveString("pipe1"));
+        environmentConfig.addPipeline(cis("pipe1"));
         cruiseConfig.addEnvironment(environmentConfig);
 
         environmentConfig.validate(forChain(cruiseConfig, environmentConfig));
@@ -553,10 +554,10 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
     private void passReferenceValidationHelperForValidateTree(ConfigOrigin pipelineOrigin, ConfigOrigin envOrigin) {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("pipe1");
-        cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipe1")).setOrigin(pipelineOrigin);
+        cruiseConfig.getPipelineConfigByName(cis("pipe1")).setOrigin(pipelineOrigin);
         BasicEnvironmentConfig environmentConfig = (BasicEnvironmentConfig) this.environmentConfig;
         environmentConfig.setOrigins(envOrigin);
-        environmentConfig.addPipeline(new CaseInsensitiveString("pipe1"));
+        environmentConfig.addPipeline(cis("pipe1"));
         cruiseConfig.addEnvironment(environmentConfig);
 
         environmentConfig.validateTree(forChain(cruiseConfig, environmentConfig), cruiseConfig);

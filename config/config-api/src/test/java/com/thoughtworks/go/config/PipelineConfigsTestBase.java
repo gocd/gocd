@@ -27,6 +27,7 @@ import java.util.Map;
 import static com.thoughtworks.go.config.Authorization.PrivilegeState.*;
 import static com.thoughtworks.go.config.Authorization.UserType.ROLE;
 import static com.thoughtworks.go.config.Authorization.UserType.USER;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class PipelineConfigsTestBase {
@@ -41,50 +42,50 @@ public abstract class PipelineConfigsTestBase {
     public void shouldReturnTrueIfPipelineExist() {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1");
         PipelineConfigs configs = createWithPipeline(pipelineConfig);
-        assertThat(configs.hasPipeline(new CaseInsensitiveString("pipeline1"))).isTrue();
+        assertThat(configs.hasPipeline(cis("pipeline1"))).isTrue();
     }
 
     @Test
     public void shouldReturnFalseIfPipelineNotExist() {
         PipelineConfigs configs = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
-        assertThat(configs.hasPipeline(new CaseInsensitiveString("not-exist"))).isFalse();
+        assertThat(configs.hasPipeline(cis("not-exist"))).isFalse();
     }
 
     @Test
     public void shouldUseDefaultViewPermissionsForViewersOfAGroupIfAuthorizationIsNotDefined() {
-        assertThat(createEmpty().hasViewPermission(new CaseInsensitiveString("anyone"), null, true)).isTrue();
-        assertThat(createEmpty().hasViewPermission(new CaseInsensitiveString("anyone"), null, false)).isFalse();
+        assertThat(createEmpty().hasViewPermission(cis("anyone"), null, true)).isTrue();
+        assertThat(createEmpty().hasViewPermission(cis("anyone"), null, false)).isFalse();
     }
 
     @Test
     public void shouldReturnFalseIfViewPermissionIsNotDefined() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
-        group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null, true)).isFalse();
+        group.getAuthorization().getOperationConfig().add(new AdminUser(cis("jez")));
+        assertThat(group.hasViewPermission(cis("jez"), null, true)).isFalse();
     }
 
     @Test
     public void shouldReturnFalseIfUserDoesNotHaveViewPermission() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
-        group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat(group.hasViewPermission(new CaseInsensitiveString("anyone"), null, true)).isFalse();
+        group.getAuthorization().getViewConfig().add(new AdminUser(cis("jez")));
+        assertThat(group.hasViewPermission(cis("anyone"), null, true)).isFalse();
     }
 
     @Test
     public void shouldReturnTrueIfUserHasViewPermission() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
-        group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null, true)).isTrue();
+        group.getAuthorization().getViewConfig().add(new AdminUser(cis("jez")));
+        assertThat(group.hasViewPermission(cis("jez"), null, true)).isTrue();
     }
 
     @Test
     public void shouldReturnTrueForOperatePermissionIfAuthorizationIsNotDefined_AndDefaultPermissionForGroupsWithNoAuthIsToAllowAll() {
-        assertThat(createEmpty().hasOperatePermission(new CaseInsensitiveString("anyone"), null, true)).isTrue();
+        assertThat(createEmpty().hasOperatePermission(cis("anyone"), null, true)).isTrue();
     }
 
     @Test
     public void shouldReturnTrueForOperatePermissionIfAuthorizationIsNotDefined_AndDefaultPermissionForGroupsWithNoAuthIsToDeny() {
-        assertThat(createEmpty().hasOperatePermission(new CaseInsensitiveString("anyone"), null, false)).isFalse();
+        assertThat(createEmpty().hasOperatePermission(cis("anyone"), null, false)).isFalse();
     }
 
     @Test
@@ -155,28 +156,28 @@ public abstract class PipelineConfigsTestBase {
     @Test
     public void shouldReturnFalseIfOperatePermissionIsNotDefined() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
-        group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat(group.hasOperatePermission(new CaseInsensitiveString("jez"), null, true)).isFalse();
+        group.getAuthorization().getViewConfig().add(new AdminUser(cis("jez")));
+        assertThat(group.hasOperatePermission(cis("jez"), null, true)).isFalse();
     }
 
     @Test
     public void shouldReturnFalseIfUserDoesNotHaveOperatePermission() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
-        group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat(group.hasOperatePermission(new CaseInsensitiveString("anyone"), null, true)).isFalse();
+        group.getAuthorization().getOperationConfig().add(new AdminUser(cis("jez")));
+        assertThat(group.hasOperatePermission(cis("anyone"), null, true)).isFalse();
     }
 
     @Test
     public void shouldReturnTrueIfUserHasOperatePermission() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
-        group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat(group.hasOperatePermission(new CaseInsensitiveString("jez"), null, true)).isTrue();
+        group.getAuthorization().getOperationConfig().add(new AdminUser(cis("jez")));
+        assertThat(group.hasOperatePermission(cis("jez"), null, true)).isTrue();
     }
 
     @Test
     public void hasViewPermissionDefinedShouldReturnTrueIfAuthorizationIsDefined() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
-        group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
+        group.getAuthorization().getViewConfig().add(new AdminUser(cis("jez")));
         assertThat(group.hasViewPermissionDefined()).isEqualTo(true);
     }
 
@@ -231,14 +232,14 @@ public abstract class PipelineConfigsTestBase {
         Authorization authorization = group.getAuthorization();
 
         assertThat(authorization.getAdminsConfig().size()).isEqualTo(2);
-        assertThat(authorization.getAdminsConfig()).contains(new AdminUser(new CaseInsensitiveString("loser")), new AdminRole(new CaseInsensitiveString("blinds")));
+        assertThat(authorization.getAdminsConfig()).contains(new AdminUser(cis("loser")), new AdminRole(cis("blinds")));
 
         assertThat(authorization.getOperationConfig().size()).isEqualTo(2);
-        assertThat(authorization.getOperationConfig()).contains(new AdminUser(new CaseInsensitiveString("boozer")), new AdminRole(new CaseInsensitiveString("blinds")));
+        assertThat(authorization.getOperationConfig()).contains(new AdminUser(cis("boozer")), new AdminRole(cis("blinds")));
 
         assertThat(authorization.getViewConfig().size()).isEqualTo(3);
-        assertThat(authorization.getViewConfig()).contains(new AdminUser(new CaseInsensitiveString("boozer")), new AdminUser(new CaseInsensitiveString("geezer")), new AdminRole(
-            new CaseInsensitiveString("gang_of_losers")));
+        assertThat(authorization.getViewConfig()).contains(new AdminUser(cis("boozer")), new AdminUser(cis("geezer")), new AdminRole(
+            cis("gang_of_losers")));
     }
 
     @Test
@@ -278,13 +279,13 @@ public abstract class PipelineConfigsTestBase {
         Authorization authorization = group.getAuthorization();
 
         assertThat(authorization.getAdminsConfig().size()).isEqualTo(1);
-        assertThat(authorization.getAdminsConfig()).contains(new AdminRole(new CaseInsensitiveString("blinds")));
+        assertThat(authorization.getAdminsConfig()).contains(new AdminRole(cis("blinds")));
 
         assertThat(authorization.getOperationConfig().size()).isEqualTo(1);
-        assertThat(authorization.getOperationConfig()).contains(new AdminRole(new CaseInsensitiveString("blinds")));
+        assertThat(authorization.getOperationConfig()).contains(new AdminRole(cis("blinds")));
 
         assertThat(authorization.getViewConfig().size()).isEqualTo(1);
-        assertThat(authorization.getViewConfig()).contains(new AdminUser(new CaseInsensitiveString("geezer")));
+        assertThat(authorization.getViewConfig()).contains(new AdminUser(cis("geezer")));
     }
 
     @Test
@@ -296,7 +297,7 @@ public abstract class PipelineConfigsTestBase {
         Authorization authorization = group.getAuthorization();
 
         assertThat(authorization.getViewConfig().size()).isEqualTo(2);
-        assertThat(authorization.getViewConfig()).contains(new AdminRole(new CaseInsensitiveString("role1")), new AdminUser(new CaseInsensitiveString("user1")));
+        assertThat(authorization.getViewConfig()).contains(new AdminRole(cis("role1")), new AdminUser(cis("user1")));
 
         assertThat(authorization.getOperationConfig().size()).isEqualTo(0);
         assertThat(authorization.getAdminsConfig().size()).isEqualTo(0);

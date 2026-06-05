@@ -56,6 +56,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.AgentMother.localAgentWithResources;
 import static com.thoughtworks.go.helper.BuildPlanMother.withBuildPlans;
@@ -159,7 +160,7 @@ public class JobInstanceServiceIntegrationTest {
 
         JobConfig jobConfig = pipelineFixture.devStage().allBuildPlans().getFirst();
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
-        JobInstances instances = instanceFactory.createJobInstance(new CaseInsensitiveString("someStage"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
+        JobInstances instances = instanceFactory.createJobInstance(cis("someStage"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
         final JobInstance newJob = instances.getFirst();
 
         final StageIdentifier stageIdentifier = new StageIdentifier(pipeline.getName(), pipeline.getCounter(), pipeline.getLabel(),
@@ -224,7 +225,7 @@ public class JobInstanceServiceIntegrationTest {
         scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), APPROVER_AUTOMATICALLY_TRIGGERED);
         List<JobPlan> jobPlans = jobInstanceService.orderedScheduledBuilds();
 
-        Username viewOnlyUser = new Username(new CaseInsensitiveString("view"));
+        Username viewOnlyUser = new Username(cis("view"));
         configHelper.setViewPermissionForGroup(BasicPipelineConfigs.DEFAULT_GROUP, "view");
 
         List<WaitingJobPlan> waitingJobPlans = jobInstanceService.waitingJobPlans(viewOnlyUser);
@@ -245,7 +246,7 @@ public class JobInstanceServiceIntegrationTest {
         scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), APPROVER_AUTOMATICALLY_TRIGGERED);
         scheduleHelper.schedule(pipelineConfig1, BuildCause.createWithModifications(modifyOneFile(pipelineConfig1), ""), APPROVER_AUTOMATICALLY_TRIGGERED);
 
-        Username viewOnlyUser = new Username(new CaseInsensitiveString("view"));
+        Username viewOnlyUser = new Username(cis("view"));
         configHelper.setViewPermissionForGroup("first", "view");
 
         List<WaitingJobPlan> waitingJobPlans = jobInstanceService.waitingJobPlans(viewOnlyUser);
@@ -265,7 +266,7 @@ public class JobInstanceServiceIntegrationTest {
         scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), APPROVER_AUTOMATICALLY_TRIGGERED);
         scheduleHelper.schedule(pipelineConfig1, BuildCause.createWithModifications(modifyOneFile(pipelineConfig1), ""), APPROVER_AUTOMATICALLY_TRIGGERED);
 
-        Username viewOnlyUser = new Username(new CaseInsensitiveString("root"));
+        Username viewOnlyUser = new Username(cis("root"));
         configHelper.setViewPermissionForGroup("first", "view");
 
         List<WaitingJobPlan> waitingJobPlans = jobInstanceService.waitingJobPlans(viewOnlyUser);

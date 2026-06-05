@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.mockito.Mockito.*;
 
 public class SecurityFilterTest {
@@ -59,10 +60,10 @@ public class SecurityFilterTest {
 
     @Test
     public void shouldCallBackOnTheVisitorIfTheUserIsAPipelineGroupAdmin() {
-        final PipelineConfigs group = new BasicPipelineConfigs("group1", new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("anyone")))), PipelineConfigMother.pipelineConfig("pipeline1"));
+        final PipelineConfigs group = new BasicPipelineConfigs("group1", new Authorization(new AdminsConfig(new AdminUser(cis("anyone")))), PipelineConfigMother.pipelineConfig("pipeline1"));
 
         when(securityService.hasViewPermissionForGroup("anyone", "group1")).thenReturn(true);
-        when(goConfigService.rolesForUser(new CaseInsensitiveString("anyone"))).thenReturn(new ArrayList<>());
+        when(goConfigService.rolesForUser(cis("anyone"))).thenReturn(new ArrayList<>());
         securityFilter.visit(group);
         verify(pipelineGroupVisitor).visit(group);
     }

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -46,6 +45,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.TestUtils.doInterruptiblyQuietly;
 import static com.thoughtworks.go.util.TestUtils.sleepQuietly;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -128,7 +128,7 @@ public class ValueStreamMapPerformanceTest {
 
         long start = System.currentTimeMillis();
         DefaultLocalizedOperationResult result = new DefaultLocalizedOperationResult();
-        ValueStreamMapPresentationModel presentationModel = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("current"), 1, Username.ANONYMOUS, result);
+        ValueStreamMapPresentationModel presentationModel = valueStreamMapService.getValueStreamMap(cis("current"), 1, Username.ANONYMOUS, result);
         long timeTaken = (System.currentTimeMillis() - start) / 1000;
         assertThat(timeTaken).isLessThan(30L);
 

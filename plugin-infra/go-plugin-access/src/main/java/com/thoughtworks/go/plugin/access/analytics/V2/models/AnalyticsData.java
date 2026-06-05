@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.plugin.access.analytics.V2.models;
 
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.util.json.JsonHelper;

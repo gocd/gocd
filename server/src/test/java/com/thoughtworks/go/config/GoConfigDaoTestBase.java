@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ConfigFileFixture.BASIC_CONFIG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -43,14 +44,14 @@ public abstract class GoConfigDaoTestBase {
         CruiseConfig cruiseConfig = GoConfigFileHelper.load(BASIC_CONFIG);
 
         assertThat(cruiseConfig).isNotNull();
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis("pipeline1"));
         assertThat(pipelineConfig.size()).isEqualTo(1);
         StageConfig stageConfig = pipelineConfig.getFirst();
-        assertThat(stageConfig.name()).isEqualTo(new CaseInsensitiveString("mingle"));
+        assertThat(stageConfig.name()).isEqualTo(cis("mingle"));
         assertThat(pipelineConfig.materialConfigs()).isNotNull();
         final JobConfig cardList = stageConfig.jobConfigByInstanceName("cardlist", true);
-        assertThat(cardList.name()).isEqualTo(new CaseInsensitiveString("cardlist"));
-        assertThat(stageConfig.jobConfigByInstanceName("bluemonkeybutt", true).name()).isEqualTo(new CaseInsensitiveString("bluemonkeybutt"));
+        assertThat(cardList.name()).isEqualTo(cis("cardlist"));
+        assertThat(stageConfig.jobConfigByInstanceName("bluemonkeybutt", true).name()).isEqualTo(cis("bluemonkeybutt"));
         assertThat(cardList.tasks()).hasSize(1);
         assertThat(cardList.tasks().getFirst()).isInstanceOf(AntTask.class);
     }
@@ -110,7 +111,7 @@ public abstract class GoConfigDaoTestBase {
 
             @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) {
-                cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("foo")));
+                cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(cis("foo")));
                 return cruiseConfig;
             }
         });
@@ -120,7 +121,7 @@ public abstract class GoConfigDaoTestBase {
     @Test
     public void shouldNotFailUpdateWithOverwritePermittedWhenEditingStaleCopy() {
         goConfigDao.updateConfig(cruiseConfig -> {
-            cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("foo")));
+            cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(cis("foo")));
             return cruiseConfig;
         });
     }
@@ -174,7 +175,7 @@ public abstract class GoConfigDaoTestBase {
         ConfigSaveState configSaveState = goConfigDao.updateConfig(configHelper.addPipelineCommand(oldMd5, "p2", "stage1", "build1"));
 
         CruiseConfig updatedConfig = goConfigDao.currentConfig();
-        assertThat(updatedConfig.hasPipelineNamed(new CaseInsensitiveString("p2"))).isTrue();
+        assertThat(updatedConfig.hasPipelineNamed(cis("p2"))).isTrue();
         assertThat(updatedConfig.mailHost().getHostName()).isEqualTo("mailhost.local");
         assertThat(configSaveState).isEqualTo(ConfigSaveState.MERGED);
     }
@@ -188,7 +189,7 @@ public abstract class GoConfigDaoTestBase {
         EntityConfigUpdateCommand<?> command = mock(EntityConfigUpdateCommand.class);
         when(command.canContinue(cruiseConfig)).thenReturn(false);
 
-        assertThatThrownBy(() -> goConfigDao.updateConfig(command, new Username(new CaseInsensitiveString("user"))))
+        assertThatThrownBy(() -> goConfigDao.updateConfig(command, new Username(cis("user"))))
             .isExactlyInstanceOf(ConfigUpdateCheckFailedException.class);
 
         verify(cachedConfigService).currentConfig();
@@ -204,7 +205,7 @@ public abstract class GoConfigDaoTestBase {
         when(saveCommand.isValid(cruiseConfig)).thenReturn(true);
         when(saveCommand.canContinue(cruiseConfig)).thenReturn(true);
         goConfigDao = new GoConfigDao(cachedConfigService);
-        Username currentUser = new Username(new CaseInsensitiveString("user"));
+        Username currentUser = new Username(cis("user"));
         goConfigDao.updateConfig(saveCommand, currentUser);
 
         verify(cachedConfigService).writeEntityWithLock(saveCommand, currentUser);

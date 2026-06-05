@@ -46,6 +46,7 @@ import org.mockito.invocation.InvocationOnMock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import static com.thoughtworks.go.server.util.DigestMixin.digestMany
 import static org.mockito.ArgumentMatchers.any
@@ -97,7 +98,7 @@ class ConfigReposInternalControllerV4Test implements SecurityServiceTrait, Contr
     void setUp() {
         Policy directives = new Policy()
         directives.add(new Allow("administer", "config_repo", "repo-*"))
-        RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+        RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
 
         when(goConfigService.rolesForUser(any())).then({ InvocationOnMock invocation ->
             CaseInsensitiveString username = invocation.getArguments()[0] as CaseInsensitiveString

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.messaging.notifications;
 
 import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
@@ -47,6 +46,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import static com.thoughtworks.go.config.Approval.TYPE_MANUAL;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.SystemEnvironment.NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -133,7 +133,7 @@ public class PluginNotificationServiceTest {
         Stage stage = StageMother.custom("Stage");
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1)));
         when(goConfigService.isFirstStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(true);
-        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(stage.getIdentifier().getPipelineName()))).thenReturn("group1");
+        when(goConfigService.findGroupNameByPipeline(cis(stage.getIdentifier().getPipelineName()))).thenReturn("group1");
         when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS)).thenReturn(1000L);
         BuildCause buildCause = BuildCause.createManualForced();
         when(pipelineDao.findBuildCauseOfPipelineByNameAndCounter(stage.getIdentifier().getPipelineName(), stage.getIdentifier().getPipelineCounter())).thenReturn(buildCause);
@@ -156,7 +156,7 @@ public class PluginNotificationServiceTest {
     public void populatePreviousStage_ifStageIsTriggeredByChangesAndHasAPreviousStage() {
         @SuppressWarnings("unchecked") ArgumentCaptor<PluginNotificationMessage<?>> captor = ArgumentCaptor.forClass(PluginNotificationMessage.class);
         Stage stage = StageMother.custom("Stage");
-        StageConfig previousStage = new StageConfig(new CaseInsensitiveString("previous_stage"), null);
+        StageConfig previousStage = new StageConfig(cis("previous_stage"), null);
 
         stage.setApprovedBy(BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED);
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1)));
@@ -181,7 +181,7 @@ public class PluginNotificationServiceTest {
     public void populatePreviousStage_forStageWithManualApprovalTypeAndHasAPreviousStage() {
         @SuppressWarnings("unchecked") ArgumentCaptor<PluginNotificationMessage<?>> captor = ArgumentCaptor.forClass(PluginNotificationMessage.class);
         Stage stage = StageMother.custom("Stage");
-        StageConfig previousStage = new StageConfig(new CaseInsensitiveString("previous_stage"), null);
+        StageConfig previousStage = new StageConfig(cis("previous_stage"), null);
 
         stage.setApprovedBy("admins");
         stage.setApprovalType(TYPE_MANUAL);

@@ -19,7 +19,6 @@ import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv11.admin.shared.representers.materials.MaterialsRepresenter
 import com.thoughtworks.go.apiv11.admin.shared.representers.stages.ConfigHelperOptions
 import com.thoughtworks.go.config.BasicCruiseConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
@@ -32,6 +31,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
@@ -51,8 +51,8 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
   }
 
   def existingMaterialWithErrors() {
-    def gitConfig = git(new UrlArgument(''), null, null, '', '', true, null, false, '', new CaseInsensitiveString('!nV@l!d'), false)
-    def dupGitMaterial = git(new UrlArgument(''), null, null, '', '', true, null, false, '', new CaseInsensitiveString('!nV@l!d'), false)
+    def gitConfig = git(new UrlArgument(''), null, null, '', '', true, null, false, '', cis('!nV@l!d'), false)
+    def dupGitMaterial = git(new UrlArgument(''), null, null, '', '', true, null, false, '', cis('!nV@l!d'), false)
     def materialConfigs = new MaterialConfigs(gitConfig)
     materialConfigs.add(dupGitMaterial)
 

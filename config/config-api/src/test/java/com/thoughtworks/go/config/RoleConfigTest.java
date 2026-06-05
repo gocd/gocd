@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.policy.Policy;
 import com.thoughtworks.go.config.policy.SupportedAction;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.policy.SupportedEntity.ENVIRONMENT;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -60,7 +61,7 @@ public class RoleConfigTest {
     public void shouldAnswerWhetherItHasPermissionsForGivenEntityOfTypeAndName() {
         final Policy directives = new Policy();
         directives.add(new Allow("view", ENVIRONMENT.getType(), "env_1"));
-        RoleConfig role = new RoleConfig(new CaseInsensitiveString(""), new Users(), directives);
+        RoleConfig role = new RoleConfig(cis(""), new Users(), directives);
 
         assertThat(role.hasPermissionsFor(SupportedAction.VIEW, EnvironmentConfig.class, "env_1")).isTrue();
         assertThat(role.hasPermissionsFor(SupportedAction.VIEW, EnvironmentConfig.class, "env_2")).isFalse();
@@ -73,7 +74,7 @@ public class RoleConfigTest {
     }
 
     private void validatePresenceOfRoleName(Validator v) {
-        RoleConfig role = new RoleConfig(new CaseInsensitiveString(""));
+        RoleConfig role = new RoleConfig(cis(""));
 
         v.validate(role, ValidationContextMother.validationContext(new SecurityConfig()));
 
@@ -93,11 +94,11 @@ public class RoleConfigTest {
     }
 
     public void validateUniquenessOfRoleName(Validator v) {
-        RoleConfig role = new RoleConfig(new CaseInsensitiveString("admin"));
+        RoleConfig role = new RoleConfig(cis("admin"));
         SecurityConfig securityConfig = new SecurityConfig();
         ValidationContext validationContext = ValidationContextMother.validationContext(securityConfig);
 
-        securityConfig.getRoles().add(new RoleConfig(new CaseInsensitiveString("admin")));
+        securityConfig.getRoles().add(new RoleConfig(cis("admin")));
         securityConfig.getRoles().add(role);
 
         v.validate(role, validationContext);
@@ -112,7 +113,7 @@ public class RoleConfigTest {
 
         Policy policy = new Policy();
         policy.add(new Allow("*", ENVIRONMENT.getType(), "env_1"));
-        RoleConfig role = new RoleConfig(new CaseInsensitiveString("role"), new Users(), policy);
+        RoleConfig role = new RoleConfig(cis("role"), new Users(), policy);
         securityConfig.getRoles().add(role);
 
         validator.validate(role, validationContext);

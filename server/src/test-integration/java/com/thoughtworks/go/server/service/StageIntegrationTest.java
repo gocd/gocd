@@ -40,6 +40,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.server.dao.DatabaseAccessHelper.AGENT_UUID;
@@ -109,7 +110,7 @@ public class StageIntegrationTest {
         }
         buildRepositoryService.updateStatusFromAgent(getBuildIdentifier(job.getId()), JobState.Completed,
                 AGENT_UUID);
-        Stage nextStage = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
+        Stage nextStage = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(cis(FT_STAGE)));
         dbHelper.buildingBuildInstance(nextStage);
         return nextStage;
     }

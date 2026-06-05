@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.mockito.Mockito.when
 
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -73,7 +74,7 @@ class DependencyMaterialAutocompleteControllerV1Test implements SecurityServiceT
     }
 
     private CaseInsensitiveString ident(String name) {
-      return new CaseInsensitiveString(name)
+      return cis(name)
     }
 
     private PipelineConfig pipeline(String name, StageConfig... stages) {

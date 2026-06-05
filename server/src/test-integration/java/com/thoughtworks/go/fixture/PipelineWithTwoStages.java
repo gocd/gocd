@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.fixture;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.StageConfig;
@@ -46,6 +45,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.CommandUtils.exec;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -115,7 +115,7 @@ public class PipelineWithTwoStages {
 
         MaterialConfigs materialConfigs = MaterialConfigsMother.mockMaterialConfigs(svnTestRepo.projectRepositoryUrl());
         SvnMaterialConfig svnMaterialConfig = (SvnMaterialConfig) materialConfigs.getFirst();
-        svnMaterialConfig.setName(new CaseInsensitiveString(DEFAULT_MATERIAL));
+        svnMaterialConfig.setName(cis(DEFAULT_MATERIAL));
         svnMaterialConfig.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "default-folder"));
         configHelper.addPipelineWithGroup(groupName, pipelineName, materialConfigs, devStage, jobsOfDevStage);
         configHelper.addStageToPipeline(pipelineName, ftStage, JOB_FOR_FT_STAGE);
@@ -144,15 +144,15 @@ public class PipelineWithTwoStages {
     }
 
     public PipelineConfig pipelineConfig() {
-        return configHelper.currentConfig().pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        return configHelper.currentConfig().pipelineConfigByName(cis(pipelineName));
     }
 
     public StageConfig devStage() {
-        return pipelineConfig().findBy(new CaseInsensitiveString(devStage));
+        return pipelineConfig().findBy(cis(devStage));
     }
 
     public StageConfig ftStage() {
-        return pipelineConfig().findBy(new CaseInsensitiveString(ftStage));
+        return pipelineConfig().findBy(cis(ftStage));
     }
 
     public Pipeline createPipelineWithFirstStageScheduled() {
@@ -187,7 +187,7 @@ public class PipelineWithTwoStages {
     public Pipeline createPipelineWithFirstStagePassedAndSecondStageRunning() {
         Pipeline pipeline = createPipelineWithFirstStageScheduled();
         dbHelper.passStage(pipeline.getFirstStage());
-        dbHelper.scheduleStage(pipeline, pipelineConfig().findBy(new CaseInsensitiveString(ftStage)));
+        dbHelper.scheduleStage(pipeline, pipelineConfig().findBy(cis(ftStage)));
         return dbHelper.getPipelineDao().mostRecentPipeline(pipeline.getName());
     }
 

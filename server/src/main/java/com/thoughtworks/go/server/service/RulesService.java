@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.server.exceptions.RulesViolationException.throwCannotRefer;
 import static com.thoughtworks.go.server.exceptions.RulesViolationException.throwSecretConfigNotFound;
 import static java.lang.String.format;
@@ -108,7 +109,7 @@ public class RulesService {
     public void validateSecretConfigReferences(BuildAssignment buildAssignment) {
         SecretParams secretParams = buildAssignment.getSecretParams();
         JobIdentifier jobIdentifier = buildAssignment.getJobIdentifier();
-        PipelineConfigs group = goConfigService.findGroupByPipeline(new CaseInsensitiveString(jobIdentifier.getPipelineName()));
+        PipelineConfigs group = goConfigService.findGroupByPipeline(cis(jobIdentifier.getPipelineName()));
         String errorMessagePrefix = format("Job: '%s' in Pipeline: '%s' and Pipeline Group:", jobIdentifier.getBuildName(), jobIdentifier.getPipelineName());
         validateSecretConfigReferences(secretParams, group.getClass(), group.getGroup(), errorMessagePrefix);
     }
@@ -184,9 +185,9 @@ public class RulesService {
                 .forEach((secretConfigId, secretParam) -> {
                     SecretConfig secretConfig = goConfigService.getSecretConfigById(secretConfigId);
                     if (secretConfig == null) {
-                        addError(pipelinesWithErrors, new CaseInsensitiveString(entityName), format("%s '%s' is referring to non-existent secret config '%s'.", entityNameOrErrorMessagePrefix, entityName, secretConfigId));
+                        addError(pipelinesWithErrors, cis(entityName), format("%s '%s' is referring to non-existent secret config '%s'.", entityNameOrErrorMessagePrefix, entityName, secretConfigId));
                     } else if (!secretConfig.canRefer(entityClass, entityName)) {
-                        addError(pipelinesWithErrors, new CaseInsensitiveString(entityName), format("%s '%s' does not have permission to refer to secrets using secret config '%s'.", entityNameOrErrorMessagePrefix, entityName, secretConfigId));
+                        addError(pipelinesWithErrors, cis(entityName), format("%s '%s' does not have permission to refer to secrets using secret config '%s'.", entityNameOrErrorMessagePrefix, entityName, secretConfigId));
                     }
                 });
         return pipelinesWithErrors;

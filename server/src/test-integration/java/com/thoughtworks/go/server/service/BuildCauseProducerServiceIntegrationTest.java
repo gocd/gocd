@@ -81,6 +81,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -223,25 +224,25 @@ public class BuildCauseProducerServiceIntegrationTest {
         String ignoredFile = "a.doc";
         svnRepository.checkInOneFile(ignoredFile);
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(MINGLE_PIPELINE_NAME);
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(cis(MINGLE_PIPELINE_NAME));
     }
 
     @Test
     public void shouldSchedulePipeline() throws Exception {
         checkinFile(new SvnMaterial(repository), "a.java", svnRepository);
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(MINGLE_PIPELINE_NAME);
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(MINGLE_PIPELINE_NAME));
     }
 
     @Test
     public void should_NOT_schedulePipeline_whenOneOfTheMaterialsHasNoModificationsPresent() throws Exception {
-        Pipeline latestGoInstance = PipelineMother.schedule(goPipelineConfig, BuildCause.createManualForced(svnMaterialRevs, new Username(new CaseInsensitiveString("loser"))));
+        Pipeline latestGoInstance = PipelineMother.schedule(goPipelineConfig, BuildCause.createManualForced(svnMaterialRevs, new Username(cis("loser"))));
         latestGoInstance = pipelineDao.saveWithStages(latestGoInstance);
         dbHelper.passStage(latestGoInstance.getStages().getFirst());
-        configHelper.addMaterialToPipeline(GO_PIPELINE_NAME, new DependencyMaterialConfig(new CaseInsensitiveString(GO_PIPELINE_UPSTREAM), new CaseInsensitiveString(STAGE_NAME)));
+        configHelper.addMaterialToPipeline(GO_PIPELINE_NAME, new DependencyMaterialConfig(cis(GO_PIPELINE_UPSTREAM), cis(STAGE_NAME)));
         svnRepository.checkInOneFile("a.java");
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(GO_PIPELINE_NAME);
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(new CaseInsensitiveString(GO_PIPELINE_NAME));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(cis(GO_PIPELINE_NAME));
     }
 
 
@@ -250,7 +251,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         configHelper.configureStageAsManualApproval(MINGLE_PIPELINE_NAME, STAGE_NAME);
         svnRepository.checkInOneFile("a.java");
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(MINGLE_PIPELINE_NAME);
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(cis(MINGLE_PIPELINE_NAME));
     }
 
     @Test
@@ -265,8 +266,8 @@ public class BuildCauseProducerServiceIntegrationTest {
         buildCauseProducer.manualProduceBuildCauseAndSave(MINGLE_PIPELINE_NAME, Username.ANONYMOUS, new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
 
         Map<CaseInsensitiveString, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
-        assertThat(afterLoad.keySet()).contains(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
-        BuildCause cause = afterLoad.get(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
+        assertThat(afterLoad.keySet()).contains(cis(MINGLE_PIPELINE_NAME));
+        BuildCause cause = afterLoad.get(cis(MINGLE_PIPELINE_NAME));
         assertThat(cause.getBuildCauseMessage()).contains("Forced by anonymous");
     }
 
@@ -276,7 +277,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         final Map<String, String> environmentVariables = new HashMap<>();
         buildCauseProducer.manualProduceBuildCauseAndSave(MINGLE_PIPELINE_NAME, Username.ANONYMOUS, new ScheduleOptions(revisions, environmentVariables, new HashMap<>()),
                 new ServerHealthStateOperationResult());
-        assertThat(scheduleHelper.waitForAnyScheduled(5).keySet()).contains(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
+        assertThat(scheduleHelper.waitForAnyScheduled(5).keySet()).contains(cis(MINGLE_PIPELINE_NAME));
     }
 
     @Test
@@ -286,7 +287,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         scheduleHelper.autoSchedulePipelinesWithRealMaterials();
 
         assertThat(serverHealthService).satisfies(ServerHealthMatcher.containsState(HealthStateType.artifactsDiskFull(), HealthStateLevel.ERROR, "GoCD Server has run out of artifacts disk space. Scheduling has been stopped"));
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(cis(MINGLE_PIPELINE_NAME));
     }
 
     @Test
@@ -299,12 +300,12 @@ public class BuildCauseProducerServiceIntegrationTest {
                 new ServerHealthStateOperationResult());
 
         assertThat(serverHealthService).satisfies(ServerHealthMatcher.containsState(HealthStateType.artifactsDiskFull(), HealthStateLevel.ERROR, "GoCD Server has run out of artifacts disk space. Scheduling has been stopped"));
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(cis(MINGLE_PIPELINE_NAME));
     }
 
     @Test
     public void shouldUnderstandChangedMaterial_forCompatibleRevisionsBeingSelectedForChangedMaterials_whenTriggeringTheFirstTime() throws Exception {
-        DependencyMaterialConfig mingleMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(MINGLE_PIPELINE_NAME), new CaseInsensitiveString(STAGE_NAME));
+        DependencyMaterialConfig mingleMaterialConfig = new DependencyMaterialConfig(cis(MINGLE_PIPELINE_NAME), cis(STAGE_NAME));
         String mingleDownstreamPipelineName = "down_of_mingle";
         SvnMaterial svn = new SvnMaterial(repository);
 
@@ -318,8 +319,8 @@ public class BuildCauseProducerServiceIntegrationTest {
         pipelineTimeline.update();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(mingleDownstreamPipelineName);
 
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(new CaseInsensitiveString(mingleDownstreamPipelineName));
-        BuildCause downstreamBuildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(mingleDownstreamPipelineName));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(mingleDownstreamPipelineName));
+        BuildCause downstreamBuildCause = pipelineScheduleQueue.toBeScheduled().get(cis(mingleDownstreamPipelineName));
         for (MaterialRevision materialRevision : downstreamBuildCause.getMaterialRevisions()) {
             assertThat(materialRevision.isChanged()).isTrue();
         }
@@ -338,10 +339,10 @@ public class BuildCauseProducerServiceIntegrationTest {
 
         runAndPass(revsAfterFoo);
         String revisionForFingerPrint = revsAfterBar.findRevisionForFingerPrint(svn.getFingerprint()).getRevision().getRevision();
-        scheduleHelper.manuallySchedulePipelineWithRealMaterials(MINGLE_PIPELINE_NAME, new Username(new CaseInsensitiveString("loser")), Map.of(mingleConfig.materialConfigs().getFirst().getPipelineUniqueFingerprint(), revisionForFingerPrint));
+        scheduleHelper.manuallySchedulePipelineWithRealMaterials(MINGLE_PIPELINE_NAME, new Username(cis("loser")), Map.of(mingleConfig.materialConfigs().getFirst().getPipelineUniqueFingerprint(), revisionForFingerPrint));
 
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
-        BuildCause bisectAfterBisectBuildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(MINGLE_PIPELINE_NAME));
+        BuildCause bisectAfterBisectBuildCause = pipelineScheduleQueue.toBeScheduled().get(cis(MINGLE_PIPELINE_NAME));
         for (MaterialRevision materialRevision : bisectAfterBisectBuildCause.getMaterialRevisions()) {
             assertThat(materialRevision.isChanged()).isFalse();
         }
@@ -355,10 +356,10 @@ public class BuildCauseProducerServiceIntegrationTest {
         MaterialRevisions revsAfterFoo = checkinFile(svn, "foo.c", svnRepository);
 
         String revisionForFingerPrint = revsAfterFoo.findRevisionForFingerPrint(svn.getFingerprint()).getRevision().getRevision();
-        scheduleHelper.manuallySchedulePipelineWithRealMaterials(MINGLE_PIPELINE_NAME, new Username(new CaseInsensitiveString("loser")), Map.of(new MaterialConfigConverter().toMaterial(mingleConfig.materialConfigs().getFirst()).getPipelineUniqueFingerprint(), revisionForFingerPrint));
+        scheduleHelper.manuallySchedulePipelineWithRealMaterials(MINGLE_PIPELINE_NAME, new Username(cis("loser")), Map.of(new MaterialConfigConverter().toMaterial(mingleConfig.materialConfigs().getFirst()).getPipelineUniqueFingerprint(), revisionForFingerPrint));
 
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
-        BuildCause bisectAfterBisectBuildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(MINGLE_PIPELINE_NAME));
+        BuildCause bisectAfterBisectBuildCause = pipelineScheduleQueue.toBeScheduled().get(cis(MINGLE_PIPELINE_NAME));
         for (MaterialRevision materialRevision : bisectAfterBisectBuildCause.getMaterialRevisions()) {
             assertThat(materialRevision.isChanged()).isTrue();
         }
@@ -383,8 +384,8 @@ public class BuildCauseProducerServiceIntegrationTest {
 
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(MINGLE_PIPELINE_NAME);
 
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
-        BuildCause mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(MINGLE_PIPELINE_NAME));
+        BuildCause mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(cis(MINGLE_PIPELINE_NAME));
         verifyChanged(svn2, mingleBuildCause, true);
         verifyChanged(svn1, mingleBuildCause, false);//this should not have changed, as foo.c was already built in the previous instance
 
@@ -393,8 +394,8 @@ public class BuildCauseProducerServiceIntegrationTest {
         mingleConfig = configHelper.replaceMaterialForPipeline(MINGLE_PIPELINE_NAME, svn1.config());
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(MINGLE_PIPELINE_NAME);
 
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
-        mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(MINGLE_PIPELINE_NAME));
+        mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(cis(MINGLE_PIPELINE_NAME));
         verifyChanged(svn1, mingleBuildCause, false);//this should not have changed, as foo.c was already built in the previous instance
         runAndPassWith(svn1, "baz.c", svnRepository);
 
@@ -404,8 +405,8 @@ public class BuildCauseProducerServiceIntegrationTest {
 
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(MINGLE_PIPELINE_NAME);
 
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
-        mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(MINGLE_PIPELINE_NAME));
+        mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(cis(MINGLE_PIPELINE_NAME));
         verifyChanged(svn2, mingleBuildCause, false);
         verifyChanged(svn1, mingleBuildCause, true);
     }
@@ -418,7 +419,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(MINGLE_PIPELINE_NAME);
 
-        BuildCause mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
+        BuildCause mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(cis(MINGLE_PIPELINE_NAME));
         assertThat(mingleBuildCause).isNull();
 
         svn1.setFolder("another_repo");
@@ -426,8 +427,8 @@ public class BuildCauseProducerServiceIntegrationTest {
 
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(MINGLE_PIPELINE_NAME);
 
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
-        mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(MINGLE_PIPELINE_NAME));
+        mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(cis(MINGLE_PIPELINE_NAME));
         verifyChanged(svn1, mingleBuildCause, false);//because material configuration changed, and not actual revisions
     }
 
@@ -493,7 +494,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         assertMDUNotPendingForMaterial(remotePipeline, svn);
         assertMDUNotPendingForMaterial(remotePipeline, git);
         assertThat(triggerMonitor.isAlreadyTriggered(remotePipeline.name())).isTrue();
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(remotePipeline.name().toString()));
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(cis(remotePipeline.name().toString()));
         assertNull(buildCause);
     }
 
@@ -507,7 +508,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         assertThat(result.isSuccess()).isTrue();
         assertThat(result.message()).isEqualTo(String.format("Request to schedule pipeline %s accepted", manualTriggerPipeline.name()));
         assertThat(triggerMonitor.isAlreadyTriggered(manualTriggerPipeline.name())).isTrue();
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(manualTriggerPipeline.name().toString()));
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(cis(manualTriggerPipeline.name().toString()));
         assertNull(buildCause);
     }
 

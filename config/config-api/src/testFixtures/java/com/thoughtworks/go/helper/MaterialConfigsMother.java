@@ -36,6 +36,7 @@ import com.thoughtworks.go.util.command.UrlArgument;
 
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 public class MaterialConfigsMother {
     public static GitMaterialConfig git() {
@@ -302,21 +303,21 @@ public class MaterialConfigsMother {
     }
 
     public static DependencyMaterialConfig dependencyMaterialConfig(String pipelineName, String stageName) {
-        return new DependencyMaterialConfig(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
+        return new DependencyMaterialConfig(cis(pipelineName), cis(stageName));
     }
 
     public static DependencyMaterialConfig dependencyMaterialConfig() {
-        return new DependencyMaterialConfig(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"), true);
+        return new DependencyMaterialConfig(cis("pipeline-name"), cis("stage-name"), true);
     }
 
     public static HgMaterialConfig hgMaterialConfigFull() {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
-        return hg(new HgUrlArgument("http://user:pass@domain/path##branch"), null, null, null, true, filter, false, "dest-folder", new CaseInsensitiveString("hg-material"));
+        return hg(new HgUrlArgument("http://user:pass@domain/path##branch"), null, null, null, true, filter, false, "dest-folder", cis("hg-material"));
     }
 
     public static HgMaterialConfig hgMaterialConfigFull(String url) {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
-        return hg(new HgUrlArgument(url), null, null, null, true, filter, false, "dest-folder", new CaseInsensitiveString("hg-material"));
+        return hg(new HgUrlArgument(url), null, null, null, true, filter, false, "dest-folder", cis("hg-material"));
     }
 
     public static HgMaterialConfig hgMaterialConfig() {
@@ -340,7 +341,7 @@ public class MaterialConfigsMother {
 
     public static GitMaterialConfig gitMaterialConfig() {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
-        return git(new UrlArgument("http://user:password@funk.com/blank"), null, null, "branch", "sub_module_folder", false, filter, false, "destination", new CaseInsensitiveString("AwesomeGitMaterial"), true);
+        return git(new UrlArgument("http://user:password@funk.com/blank"), null, null, "branch", "sub_module_folder", false, filter, false, "destination", cis("AwesomeGitMaterial"), true);
     }
 
     public static GitMaterialConfig gitMaterialConfig(String url) {
@@ -356,7 +357,7 @@ public class MaterialConfigsMother {
         P4MaterialConfig config = p4MaterialConfig("host:9876", "user", "password", "view", true);
         config.setFolder("dest-folder");
         config.setFilter(filter);
-        config.setName(new CaseInsensitiveString("p4-material"));
+        config.setName(cis("p4-material"));
         return config;
     }
 
@@ -384,7 +385,7 @@ public class MaterialConfigsMother {
 
     public static SvnMaterialConfig svnMaterialConfig(String svnUrl, String folder, boolean autoUpdate) {
         SvnMaterialConfig materialConfig = svn(new UrlArgument(svnUrl), "user", "pass", true, new GoCipher(), autoUpdate, new Filter(new IgnoredFiles("*.doc")), false,
-                folder, new CaseInsensitiveString("svn-material"));
+                folder, cis("svn-material"));
         materialConfig.setPassword("pass");
         return materialConfig;
     }
@@ -395,7 +396,7 @@ public class MaterialConfigsMother {
             svnMaterial.setFilter(new Filter(new IgnoredFiles(filterPattern)));
         String name = svnUrl.replaceAll("/", "_");
         name = name.replaceAll(":", "_");
-        svnMaterial.setName(new CaseInsensitiveString(name));
+        svnMaterial.setName(cis(name));
         return svnMaterial;
     }
 
@@ -413,7 +414,7 @@ public class MaterialConfigsMother {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
         TfsMaterialConfig tfsMaterialConfig = tfs(new GoCipher(), new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "some_domain", "passwd", "walk_this_path");
         tfsMaterialConfig.setFilter(filter);
-        tfsMaterialConfig.setName(new CaseInsensitiveString("tfs-material"));
+        tfsMaterialConfig.setName(cis("tfs-material"));
         tfsMaterialConfig.setFolder("dest-folder");
         return tfsMaterialConfig;
 

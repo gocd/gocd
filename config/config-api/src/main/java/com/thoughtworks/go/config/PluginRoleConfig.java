@@ -27,6 +27,7 @@ import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import java.util.List;
 import java.util.Objects;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @ConfigTag("pluginRole")
@@ -49,7 +50,7 @@ public class PluginRoleConfig extends Configuration implements Role {
 
     public PluginRoleConfig(String name, String authConfigId, ConfigurationProperty... properties) {
         super(properties);
-        this.name = new CaseInsensitiveString(name);
+        this.name = cis(name);
         this.authConfigId = authConfigId;
     }
 

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
@@ -42,6 +41,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -82,7 +82,7 @@ public class ChangeMaterialsTest {
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
-        username = new Username(new CaseInsensitiveString("gli"));
+        username = new Username(cis("gli"));
 
         dbHelper.onSetUp();
         cruiseConfig = new GoConfigFileHelper().usingCruiseConfigDao(goConfigDao);
@@ -142,7 +142,7 @@ public class ChangeMaterialsTest {
         @Test
         public void p4MaterialFromConfigShouldBeEqualWithP4MaterialFromDb() throws Exception {
             cruiseConfig.replaceMaterialConfigForPipeline(PIPELINE_NAME, p4Fixture.materialConfig("//depot/... //localhost/..."));
-            mingle = goConfigDao.currentConfig().pipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME));
+            mingle = goConfigDao.currentConfig().pipelineConfigByName(cis(PIPELINE_NAME));
 
             assertThat(mingle.materialConfigs().getFirst()).isInstanceOf(P4MaterialConfig.class);
 

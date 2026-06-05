@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.spark.spa
 
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.domain.Pipeline
 import com.thoughtworks.go.server.service.PipelineService
 import com.thoughtworks.go.spark.ControllerTrait
@@ -29,6 +28,7 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.util.SystemEnvironment.WEBAPP_CONTEXT_PATH
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.mock
@@ -52,7 +52,7 @@ class CompareControllerTest implements ControllerTrait<CompareController>, Secur
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
       @BeforeEach
       void setUp() {
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(getPipelineName()))).thenReturn(true)
+        when(goConfigService.hasPipelineNamed(cis(getPipelineName()))).thenReturn(true)
       }
 
       @Override

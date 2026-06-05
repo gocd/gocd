@@ -15,9 +15,7 @@
  */
 package com.thoughtworks.go.apiv2.compare.representers.material
 
-
 import com.thoughtworks.go.config.BasicCruiseConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
@@ -25,15 +23,17 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.helper.MaterialConfigsMother
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
+
 class DependencyMaterialRepresenterTest implements MaterialRepresenterTrait {
   def existingMaterial() {
     MaterialConfigsMother.dependencyMaterialConfig()
   }
 
   def existingMaterialWithErrors() {
-    def dependencyConfig = new DependencyMaterialConfig(new CaseInsensitiveString(''), new CaseInsensitiveString(''))
+    def dependencyConfig = new DependencyMaterialConfig(cis(''), cis(''))
     def materialConfigs = new MaterialConfigs(dependencyConfig)
-    def pipeline = new PipelineConfig(new CaseInsensitiveString("p"), materialConfigs)
+    def pipeline = new PipelineConfig(cis("p"), materialConfigs)
     pipeline.setOrigins(new FileConfigOrigin())
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), pipeline))
     return materialConfigs.getFirst()

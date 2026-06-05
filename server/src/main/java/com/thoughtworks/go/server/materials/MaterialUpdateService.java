@@ -318,9 +318,9 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
 
         @Override
         public boolean test(Material material) {
-            return material instanceof GitMaterial &&
-                    ((GitMaterial) material).getBranch().equals(branchName) &&
-                    possibleUrls.contains(((GitMaterial) material).getUrlArgument().withoutCredentials());
+            return material instanceof GitMaterial gitMaterial &&
+                    gitMaterial.getBranch().equals(branchName) &&
+                    possibleUrls.contains(gitMaterial.getUrlArgument().withoutCredentials());
         }
     }
 
@@ -333,8 +333,8 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
 
         @Override
         public boolean test(Material material) {
-            return material instanceof PluggableSCMMaterial &&
-                    scmNames.contains(((PluggableSCMMaterial) material).getScmConfig().getName());
+            return material instanceof PluggableSCMMaterial pluggableSCMMaterial &&
+                    scmNames.contains(pluggableSCMMaterial.getScmConfig().getName());
         }
     }
 }

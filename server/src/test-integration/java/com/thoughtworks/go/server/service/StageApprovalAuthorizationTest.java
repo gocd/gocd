@@ -26,8 +26,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static org.assertj.core.api.Assertions.assertThat;
+
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
@@ -39,8 +41,8 @@ public class StageApprovalAuthorizationTest {
     private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private static final String PIPELINE_NAME = "cruise";
 
-    private final AuthConfig authConfigWithUserJez = new AuthConfig(new AdminUser(new CaseInsensitiveString("jez")));
-    private final AuthConfig authConfigWithAdminRole = new AuthConfig(new AdminRole(new CaseInsensitiveString("adminRole")));
+    private final AuthConfig authConfigWithUserJez = new AuthConfig(new AdminUser(cis("jez")));
+    private final AuthConfig authConfigWithAdminRole = new AuthConfig(new AdminRole(cis("adminRole")));
 
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private SecurityService securityService;
@@ -70,7 +72,7 @@ public class StageApprovalAuthorizationTest {
     @Test
     public void shouldAuthorizeIfRoleIsInApprovalList() {
         configHelper.addSecurityWithAdminConfig();
-        configHelper.addRole(new RoleConfig(new CaseInsensitiveString("adminRole"), new RoleUser(new CaseInsensitiveString("tester"))));
+        configHelper.addRole(new RoleConfig(cis("adminRole"), new RoleUser(cis("tester"))));
 
         StageConfig stage = StageConfigMother.custom("test", authConfigWithAdminRole);
         PipelineConfig pipeline = configHelper.addStageToPipeline(PIPELINE_NAME, stage);
@@ -128,7 +130,7 @@ public class StageApprovalAuthorizationTest {
     public void shouldAuthorizeUserCruiseIfUserIsAuthorisedToOperateAutoStage() {
         configHelper.addSecurityWithAdminConfig();
         configHelper.setOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "cruise");
-        StageConfig stage = StageConfigMother.custom("ft", new Approval(new AuthConfig(new AdminUser(new CaseInsensitiveString("cruise")))));
+        StageConfig stage = StageConfigMother.custom("ft", new Approval(new AuthConfig(new AdminUser(cis("cruise")))));
         PipelineConfig pipeline = configHelper.addStageToPipeline(PIPELINE_NAME, stage);
         assertThat(securityService.hasOperatePermissionForStage(CaseInsensitiveString.str(pipeline.name()), CaseInsensitiveString.str(stage.name()), "cruise")).isTrue();
         assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "anyone")).isFalse();

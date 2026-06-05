@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RunMultipleInstanceJobTypeConfigTest {
@@ -25,7 +26,7 @@ public class RunMultipleInstanceJobTypeConfigTest {
 
 	@BeforeEach
 	public void setup() {
-		jobConfig = new JobConfig(new CaseInsensitiveString("job"));
+		jobConfig = new JobConfig(cis("job"));
 		jobConfig.setRunInstanceCount(10);
 	}
 

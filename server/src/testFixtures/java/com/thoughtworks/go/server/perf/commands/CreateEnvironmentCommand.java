@@ -16,11 +16,12 @@
 package com.thoughtworks.go.server.perf.commands;
 
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
 import java.util.Optional;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 public class CreateEnvironmentCommand extends AgentPerformanceCommand {
     private final GoConfigService goConfigService;
@@ -34,7 +35,7 @@ public class CreateEnvironmentCommand extends AgentPerformanceCommand {
     @Override
     Optional<String> execute() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        BasicEnvironmentConfig envConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(envName));
+        BasicEnvironmentConfig envConfig = new BasicEnvironmentConfig(cis(envName));
         goConfigService.updateConfig(cruiseConfig -> {
             cruiseConfig.getEnvironments().add(envConfig);
             return cruiseConfig;

@@ -207,8 +207,8 @@ public class CRPipeline extends CRBase {
     private List<SourceCodeMaterial> filterScmMaterials() {
         List<SourceCodeMaterial> scmMaterials = new ArrayList<>();
         for (CRMaterial material : this.materials) {
-            if (material instanceof SourceCodeMaterial) {
-                scmMaterials.add((SourceCodeMaterial) material);
+            if (material instanceof SourceCodeMaterial sourceCodeMaterial) {
+                scmMaterials.add(sourceCodeMaterial);
             }
         }
         return scmMaterials;

@@ -70,11 +70,11 @@ public class PipelineConfigErrorCopier {
                     copy(fromTask, toTask);
                     copy(fromTask.cancelTask(), toTask.cancelTask());
                     copyCollectionErrors(fromTask.getConditions(), toTask.getConditions());
-                    if (toTask instanceof ExecTask) {
-                        copyCollectionErrors(((ExecTask) fromTask).getArgList(), ((ExecTask) toTask).getArgList());
+                    if (toTask instanceof ExecTask execTask) {
+                        copyCollectionErrors(((ExecTask) fromTask).getArgList(), execTask.getArgList());
                     }
-                    if (toTask instanceof FetchPluggableArtifactTask) {
-                        copyCollectionErrors(((FetchPluggableArtifactTask) fromTask).getConfiguration(), ((FetchPluggableArtifactTask) toTask).getConfiguration());
+                    if (toTask instanceof FetchPluggableArtifactTask fetchPluggableArtifactTask) {
+                        copyCollectionErrors(((FetchPluggableArtifactTask) fromTask).getConfiguration(), fetchPluggableArtifactTask.getConfiguration());
                     }
                 }
                 List<PluggableArtifactConfig> toPluggableArtifactConfigs = toJob.artifactTypeConfigs().getPluggableArtifactConfigs();

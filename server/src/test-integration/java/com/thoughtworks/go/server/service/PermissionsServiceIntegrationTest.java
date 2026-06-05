@@ -38,6 +38,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -86,9 +87,9 @@ public class PermissionsServiceIntegrationTest {
             defineSecurity(cruiseConfig);
             definePolicy(cruiseConfig, "environment", "prod", "dev*");
 
-            cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("prod")));
-            cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("dev1")));
-            cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("dev2")));
+            cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(cis("prod")));
+            cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(cis("dev1")));
+            cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(cis("dev2")));
 
             return cruiseConfig;
         });

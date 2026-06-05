@@ -19,7 +19,6 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv3.stageinstance.representers.StageInstancesRepresenter
 import com.thoughtworks.go.apiv3.stageinstance.representers.StageRepresenter
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.domain.*
 import com.thoughtworks.go.presentation.pipelinehistory.JobHistory
 import com.thoughtworks.go.presentation.pipelinehistory.JobHistoryItem
@@ -51,6 +50,7 @@ import java.time.LocalDateTime
 import java.util.stream.Stream
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 
@@ -374,7 +374,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
 
     @BeforeEach
     void setUp() {
-      when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true)
+      when(goConfigService.hasPipelineNamed(cis(pipelineName))).thenReturn(true)
     }
 
     @Nested
@@ -471,7 +471,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
 
     @BeforeEach
     void setUp() {
-      when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true)
+      when(goConfigService.hasPipelineNamed(cis(pipelineName))).thenReturn(true)
     }
 
     @Nested

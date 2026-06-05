@@ -35,8 +35,8 @@ public class RulesRepresenter {
                 directiveWriter.addChild("errors", errorWriter -> new ErrorGetter(new HashMap<>()).toJSON(directiveWriter, directive));
             }
 
-            if (directive instanceof Unknown) {
-                directiveWriter.add("directive", ((Unknown) directive).getDirective());
+            if (directive instanceof Unknown unknown) {
+                directiveWriter.add("directive", unknown.getDirective());
             } else {
                 directiveWriter.add("directive", directive.getDirectiveType().type());
             }

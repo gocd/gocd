@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.service.result;
 
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
-
 public class DefaultLocalizedOperationResult implements LocalizedOperationResult {
 
     @Override

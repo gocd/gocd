@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 public class GoCDRolesBulkUpdateRequest {
 
     private final List<Operation> operations;
@@ -35,7 +37,7 @@ public class GoCDRolesBulkUpdateRequest {
 
     public List<CaseInsensitiveString> getRolesToUpdate() {
         return operations.stream()
-                .map(operation -> new CaseInsensitiveString(operation.roleName))
+                .map(operation -> cis(operation.roleName))
                 .collect(Collectors.toList());
     }
 

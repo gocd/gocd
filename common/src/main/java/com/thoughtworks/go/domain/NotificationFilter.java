@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
@@ -23,6 +22,7 @@ import org.apache.commons.lang3.Strings;
 
 import java.util.Objects;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.lang.String.format;
 
 public class NotificationFilter extends PersistentObject implements Validatable {
@@ -145,8 +145,7 @@ public class NotificationFilter extends PersistentObject implements Validatable 
             return;
         }
 
-        PipelineConfig pipelineConfig = validationContext.getCruiseConfig()
-            .getPipelineConfigByName(new CaseInsensitiveString(this.pipelineName));
+        PipelineConfig pipelineConfig = validationContext.getCruiseConfig().getPipelineConfigByName(cis(this.pipelineName));
         if (pipelineConfig == null) {
             addError("pipelineName", format("Pipeline with name '%s' was not found!", this.pipelineName));
             return;

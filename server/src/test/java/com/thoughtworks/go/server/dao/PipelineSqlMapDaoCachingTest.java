@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
@@ -56,6 +55,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -344,7 +344,7 @@ class PipelineSqlMapDaoCachingTest {
 
 
         MaterialRevisions materialRevisions = new MaterialRevisions(
-                new MaterialRevision(new DependencyMaterial(new CaseInsensitiveString("p"), new CaseInsensitiveString("s")), new Modification("u", "comment", "email", new Date(), "p/1/s/1")));
+                new MaterialRevision(new DependencyMaterial(cis("p"), cis("s")), new Modification("u", "comment", "email", new Date(), "p/1/s/1")));
         Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
 
         doAnswer((Answer<Object>) invocation -> {
@@ -373,7 +373,7 @@ class PipelineSqlMapDaoCachingTest {
 
 
         MaterialRevisions materialRevisions = new MaterialRevisions(
-                new MaterialRevision(new DependencyMaterial(new CaseInsensitiveString("p"), new CaseInsensitiveString("s")), new Modification("u", "comment", "email", new Date(), "p/2/s/1")));
+                new MaterialRevision(new DependencyMaterial(cis("p"), cis("s")), new Modification("u", "comment", "email", new Date(), "p/2/s/1")));
         Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
 
         pipelineDao.save(pipeline);

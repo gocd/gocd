@@ -21,12 +21,14 @@ import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -130,7 +132,7 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
 
     @Override
     public void setName(String name) {
-        this.name = new CaseInsensitiveString(name);
+        this.name = cis(name);
     }
 
     @Override
@@ -231,14 +233,14 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
         Map<String, String> map = (Map<String, String>) attributes;
         if (map.containsKey(MATERIAL_NAME)) {
             String name = map.get(MATERIAL_NAME);
-            this.name = isBlank(name) ? null : new CaseInsensitiveString(name);
+            this.name = isBlank(name) ? null : cis(name);
         }
     }
 
     @Override
     public boolean isUsedInLabelTemplate(PipelineConfig pipelineConfig) {
         CaseInsensitiveString materialName = getName();
-        return materialName != null && pipelineConfig.getLabelTemplate().toLowerCase().contains(String.format("${%s}", materialName.toLower()));
+        return materialName != null && Strings.CI.contains(pipelineConfig.getLabelTemplate(), String.format("${%s}", materialName));
     }
 
     protected void resetCachedIdentityAttributes() {

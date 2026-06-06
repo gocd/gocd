@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv1.servermaintenancemode
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.servermaintenancemode.representers.MaintenanceModeInfoRepresenter
+import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.domain.JobIdentifier
 import com.thoughtworks.go.domain.JobInstance
 import com.thoughtworks.go.domain.JobResult
@@ -48,6 +49,7 @@ import org.mockito.quality.Strictness
 import java.sql.Timestamp
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.domain.PipelinePauseInfo.notPaused
 import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.Mockito.*
@@ -265,8 +267,8 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
         def buildingAgent2 = AgentInstanceMother.building(job3Identifier.buildLocator())
         buildingAgent2.getAgent().setUuid("agent-2")
 
-        def dashboardPipelinesMap = new HashMap<>()
-        dashboardPipelinesMap.put("up42", getRunningPipeline("up42"))
+        def dashboardPipelinesMap = new HashMap<CaseInsensitiveString, GoDashboardPipeline>()
+        dashboardPipelinesMap.put(cis("up42"), getRunningPipeline("up42"))
 
         def job1 = new JobInstance("job1")
         job1.setState(JobState.Building)

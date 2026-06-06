@@ -39,6 +39,7 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,7 +108,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
 
     @Override
-    public JobInstance buildByIdWithTransitions(long buildInstanceId) {
+    public @NotNull JobInstance buildByIdWithTransitions(long buildInstanceId) {
         String cacheKey = cacheKeyForJobInstanceWithTransitions(buildInstanceId);
         synchronized (cacheKey) {
             JobInstance instance = goCache.get(cacheKey);
@@ -125,11 +126,11 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     @Override
-    public JobInstance buildById(long buildId) {
+    public @NotNull JobInstance buildById(long buildId) {
         return job(buildId, "buildById");
     }
 
-    private JobInstance job(long buildId, String queryName) {
+    private @NotNull JobInstance job(long buildId, String queryName) {
         JobInstance instance = getSqlMapClientTemplate().queryForObject(queryName, buildId);
         if (instance == null) {
             throw new DataRetrievalFailureException("Could not load build with id " + buildId);

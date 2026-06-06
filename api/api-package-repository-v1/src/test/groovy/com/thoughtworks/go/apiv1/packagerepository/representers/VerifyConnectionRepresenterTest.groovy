@@ -34,7 +34,7 @@ class VerifyConnectionRepresenterTest {
 
   @Test
   void 'should serialize verify connection response'() {
-    def result = new HttpLocalizedOperationResult()
+    HttpLocalizedOperationResult result = new HttpLocalizedOperationResult()
     result.badRequest("Boom!, can not verify connection")
     def actualJson = toObjectString({ VerifyConnectionRepresenter.toJSON(it, result, packageRepository) })
 

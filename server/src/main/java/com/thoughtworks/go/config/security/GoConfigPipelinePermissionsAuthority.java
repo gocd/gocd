@@ -38,8 +38,8 @@ import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_
 /* Understands which users can view, operate and administer which pipelines and pipeline groups. */
 @Service
 public class GoConfigPipelinePermissionsAuthority {
-    private GoConfigService goConfigService;
-    private SystemEnvironment systemEnvironment;
+    private final GoConfigService goConfigService;
+    private final SystemEnvironment systemEnvironment;
 
     @Autowired
     public GoConfigPipelinePermissionsAuthority(GoConfigService goConfigService, SystemEnvironment systemEnvironment) {

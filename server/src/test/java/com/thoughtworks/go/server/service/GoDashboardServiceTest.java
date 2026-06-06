@@ -39,6 +39,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
@@ -80,7 +81,7 @@ public class GoDashboardServiceTest {
         PipelineConfigs groupConfig = config.findGroup("group1");
         GoDashboardPipeline pipeline = pipeline("pipeline1");
 
-        when(goConfigService.findGroupByPipeline(cis("pipeline1"))).thenReturn(groupConfig);
+        when(goConfigService.findGroupByPipelineOptional(cis("pipeline1"))).thenReturn(Optional.of(groupConfig));
         when(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, groupConfig)).thenReturn(pipeline);
 
         service.updateCacheForPipeline(cis("pipeline1"));
@@ -94,7 +95,7 @@ public class GoDashboardServiceTest {
         PipelineConfigs groupConfig = config.findGroup("group1");
         GoDashboardPipeline pipeline = pipeline("pipeline1");
 
-        when(goConfigService.findGroupByPipeline(cis("pipeline1"))).thenReturn(groupConfig);
+        when(goConfigService.findGroupByPipelineOptional(cis("pipeline1"))).thenReturn(Optional.of(groupConfig));
         when(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, groupConfig)).thenReturn(pipeline);
 
         service.updateCacheForPipeline(pipelineConfig);
@@ -299,9 +300,9 @@ public class GoDashboardServiceTest {
     public void shouldRemoveExistingPipelineEntryInCacheWhenPipelineConfigIsRemoved() {
         BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
         PipelineConfig pipelineConfig = new GoConfigMother().addPipeline(config, "pipeline1", "stage1", "job1");
-        config.findGroupOfPipeline(pipelineConfig).remove(pipelineConfig);
+        config.findGroupByPipeline(pipelineConfig).remove(pipelineConfig);
 
-        when(goConfigService.findGroupByPipeline(any())).thenReturn(null);
+        when(goConfigService.findGroupByPipelineOptional(any())).thenReturn(Optional.empty());
         // simulate the event
         service.updateCacheForPipeline(pipelineConfig);
         verify(cache).remove(pipelineConfig.getName());
@@ -313,9 +314,9 @@ public class GoDashboardServiceTest {
     public void shouldRemoveExistingPipelineEntryInCacheWhenPipelineIsRemoved() {
         BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
         PipelineConfig pipelineConfig = new GoConfigMother().addPipeline(config, "pipeline1", "stage1", "job1");
-        config.findGroupOfPipeline(pipelineConfig).remove(pipelineConfig);
+        config.findGroupByPipeline(pipelineConfig).remove(pipelineConfig);
 
-        when(goConfigService.findGroupByPipeline(any())).thenReturn(null);
+        when(goConfigService.findGroupByPipelineOptional(any())).thenReturn(Optional.empty());
         // simulate the event
         service.updateCacheForPipeline(pipelineConfig.name());
         verify(cache).remove(pipelineConfig.getName());

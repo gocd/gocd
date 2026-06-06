@@ -37,6 +37,7 @@ import com.thoughtworks.go.server.ui.SortOrder;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +107,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
         return jobInstanceDao.mostRecentJobWithTransitions(new JobIdentifier(stageIdentifier, jobName));
     }
 
-    public JobInstance buildByIdWithTransitions(long buildId) {
+    public @NotNull JobInstance buildByIdWithTransitions(long buildId) {
         return jobInstanceDao.buildByIdWithTransitions(buildId);
     }
 

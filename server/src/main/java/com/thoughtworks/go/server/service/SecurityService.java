@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.policy.SupportedAction;
 import com.thoughtworks.go.config.policy.SupportedEntity;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,21 +30,17 @@ import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_
 
 @Service
 public class SecurityService {
-    private final SystemEnvironment systemEnvironment;
     private final GoConfigService goConfigService;
 
     @Autowired
-    public SecurityService(GoConfigService goConfigService, SystemEnvironment systemEnvironment) {
+    public SecurityService(GoConfigService goConfigService) {
         this.goConfigService = goConfigService;
-        this.systemEnvironment = systemEnvironment;
     }
 
     public boolean hasViewPermissionForPipeline(Username username, String pipelineName) {
-        String groupName = goConfigService.findGroupNameByPipeline(cis(pipelineName));
-        if (groupName == null) {
-            return true;
-        }
-        return hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), groupName);
+        return goConfigService.findGroupNameByPipelineOptional(cis(pipelineName))
+            .map(groupName -> hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), groupName))
+            .orElse(true); // TODO change this insecure default?
     }
 
     public boolean hasViewPermissionForGroup(String userName, String pipelineGroupName) {
@@ -78,20 +73,15 @@ public class SecurityService {
     }
 
     public boolean hasOperatePermissionForPipeline(final CaseInsensitiveString username, String pipelineName) {
-        String groupName = goConfigService.findGroupNameByPipeline(cis(pipelineName));
-        if (groupName == null) {
-            return true;
-        }
-        return hasOperatePermissionForGroup(username, groupName);
+        return goConfigService.findGroupNameByPipelineOptional(cis(pipelineName))
+            .map(groupName -> hasOperatePermissionForGroup(username, groupName))
+            .orElse(true); // TODO change this insecure default?
     }
 
     public boolean hasAdminPermissionsForPipeline(Username username, CaseInsensitiveString pipelineName) {
-        String groupName = goConfigService.findGroupNameByPipeline(pipelineName);
-        if (groupName == null) {
-            return true;
-        }
-
-        return isUserAdminOfGroup(username.getUsername(), groupName);
+        return goConfigService.findGroupNameByPipelineOptional(pipelineName)
+            .map(groupName -> isUserAdminOfGroup(username, groupName))
+            .orElse(true); // TODO change this insecure default?
     }
 
     public boolean hasOperatePermissionForGroup(final CaseInsensitiveString username, String groupName) {
@@ -120,10 +110,8 @@ public class SecurityService {
         StageConfig stage = goConfigService.stageConfigNamed(pipelineName, stageName);
         CaseInsensitiveString userName = cis(username);
 
-        //TODO - #2517 - stage not exist
         if (stage.hasOperatePermissionDefined()) {
-            String groupName = goConfigService.findGroupNameByPipeline(cis(pipelineName));
-            PipelineConfigs group = goConfigService.getCurrentConfig().findGroup(groupName);
+            PipelineConfigs group = goConfigService.findGroupByPipeline(cis(pipelineName));
             if (isUserAdmin(new Username(userName)) || isUserAdminOfGroup(userName, group)) {
                 return true;
             }

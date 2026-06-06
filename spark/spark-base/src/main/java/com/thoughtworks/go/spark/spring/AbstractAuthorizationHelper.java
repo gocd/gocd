@@ -255,7 +255,7 @@ public abstract class AbstractAuthorizationHelper {
 
         // Find group implied by pipeline; and if found ensure it is the same as any groupName specified
         return pipeline.map(pn -> {
-                String groupFromPipeline = Optional.ofNullable(goConfigService.findGroupNameByPipeline(pn))
+                String groupFromPipeline = goConfigService.findGroupNameByPipelineOptional(pn)
                     .orElseThrow(() -> new RecordNotFoundException(Pipeline, pn)); // Pipeline name non-blank, but no matching group found
 
                 if (group.isPresent() && !groupFromPipeline.equals(group.get())) {

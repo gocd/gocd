@@ -44,6 +44,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 
 import static com.thoughtworks.go.config.Approval.TYPE_MANUAL;
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
@@ -133,7 +134,7 @@ public class PluginNotificationServiceTest {
         Stage stage = StageMother.custom("Stage");
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1)));
         when(goConfigService.isFirstStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(true);
-        when(goConfigService.findGroupNameByPipeline(cis(stage.getIdentifier().getPipelineName()))).thenReturn("group1");
+        when(goConfigService.findGroupNameByPipelineOptional(cis(stage.getIdentifier().getPipelineName()))).thenReturn(Optional.of("group1"));
         when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS)).thenReturn(1000L);
         BuildCause buildCause = BuildCause.createManualForced();
         when(pipelineDao.findBuildCauseOfPipelineByNameAndCounter(stage.getIdentifier().getPipelineName(), stage.getIdentifier().getPipelineCounter())).thenReturn(buildCause);
@@ -147,9 +148,9 @@ public class PluginNotificationServiceTest {
         assertThat(message.getRequestName()).isEqualTo(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION);
         assertThat(message.getData() instanceof StageNotificationData).isTrue();
         StageNotificationData data = (StageNotificationData) message.getData();
-        assertThat(data.getStage()).isEqualTo(stage);
-        assertThat(data.getBuildCause()).isEqualTo(buildCause);
-        assertThat(data.getPipelineGroup()).isEqualTo("group1");
+        assertThat(data.stage()).isEqualTo(stage);
+        assertThat(data.buildCause()).isEqualTo(buildCause);
+        assertThat(data.pipelineGroup()).isEqualTo("group1");
     }
 
     @Test
@@ -171,10 +172,10 @@ public class PluginNotificationServiceTest {
         PluginNotificationMessage<?> message = captor.getValue();
         StageNotificationData data = (StageNotificationData) message.getData();
 
-        assertThat(data.getStage().getPreviousStage().getPipelineName()).isEqualTo(stage.getIdentifier().getPipelineName());
-        assertThat(data.getStage().getPreviousStage().getPipelineCounter()).isEqualTo(stage.getIdentifier().getPipelineCounter());
-        assertThat(data.getStage().getPreviousStage().getStageName()).isEqualTo("previous_stage");
-        assertThat(data.getStage().getPreviousStage().getStageCounter()).isEqualTo("1");
+        assertThat(data.stage().getPreviousStage().getPipelineName()).isEqualTo(stage.getIdentifier().getPipelineName());
+        assertThat(data.stage().getPreviousStage().getPipelineCounter()).isEqualTo(stage.getIdentifier().getPipelineCounter());
+        assertThat(data.stage().getPreviousStage().getStageName()).isEqualTo("previous_stage");
+        assertThat(data.stage().getPreviousStage().getStageCounter()).isEqualTo("1");
     }
 
     @Test
@@ -197,10 +198,10 @@ public class PluginNotificationServiceTest {
         PluginNotificationMessage<?> message = captor.getValue();
         StageNotificationData data = (StageNotificationData) message.getData();
 
-        assertThat(data.getStage().getPreviousStage().getPipelineName()).isEqualTo(stage.getIdentifier().getPipelineName());
-        assertThat(data.getStage().getPreviousStage().getPipelineCounter()).isEqualTo(stage.getIdentifier().getPipelineCounter());
-        assertThat(data.getStage().getPreviousStage().getStageName()).isEqualTo("previous_stage");
-        assertThat(data.getStage().getPreviousStage().getStageCounter()).isEqualTo("1");
+        assertThat(data.stage().getPreviousStage().getPipelineName()).isEqualTo(stage.getIdentifier().getPipelineName());
+        assertThat(data.stage().getPreviousStage().getPipelineCounter()).isEqualTo(stage.getIdentifier().getPipelineCounter());
+        assertThat(data.stage().getPreviousStage().getStageName()).isEqualTo("previous_stage");
+        assertThat(data.stage().getPreviousStage().getStageCounter()).isEqualTo("1");
     }
 
     @Test
@@ -221,7 +222,7 @@ public class PluginNotificationServiceTest {
         PluginNotificationMessage<?> message = captor.getValue();
         StageNotificationData data = (StageNotificationData) message.getData();
 
-        assertNull(data.getStage().getPreviousStage());
+        assertNull(data.stage().getPreviousStage());
     }
 
     @Test
@@ -242,7 +243,7 @@ public class PluginNotificationServiceTest {
         PluginNotificationMessage<?> message = captor.getValue();
         StageNotificationData data = (StageNotificationData) message.getData();
 
-        assertNull(data.getStage().getPreviousStage());
+        assertNull(data.stage().getPreviousStage());
     }
 
     @Test

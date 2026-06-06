@@ -464,6 +464,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
             return new SingleJobInstance();
         }
     }
+
     public String getTitle() {
         return getIdentifier().buildLocatorForDisplay();
     }

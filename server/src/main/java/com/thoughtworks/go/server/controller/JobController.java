@@ -32,7 +32,6 @@ import com.thoughtworks.go.server.presentation.models.JobStatusJsonPresentationM
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ErrorHandler;
-import com.thoughtworks.go.util.json.JsonAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,9 +46,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 import static com.thoughtworks.go.server.controller.ExceptionsPage.ERROR_MESSAGE_KEY;
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound;
+import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonNotFound;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static com.thoughtworks.go.util.json.JsonAware.ERROR_KEY;
 import static org.apache.commons.lang3.StringUtils.isNumeric;
 
 /*
@@ -141,6 +143,12 @@ public class JobController {
         Object json;
         try {
             JobInstance requestedInstance = jobInstanceService.buildByIdWithTransitions(jobId);
+
+            if (!requestedInstance.getPipelineName().equalsIgnoreCase(pipelineName) ||
+                !requestedInstance.getStageName().equalsIgnoreCase(stageName)) {
+                return jsonNotFound(Map.of(ERROR_KEY, resourceNotFound("jobId", String.valueOf(jobId)))).respond(response);
+            }
+
             JobInstance mostRecentJobInstance = jobInstanceDao.mostRecentJobWithTransitions(requestedInstance.getIdentifier());
 
             JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(mostRecentJobInstance,
@@ -149,7 +157,7 @@ public class JobController {
             json = createBuildInfo(presenter);
         } catch (Exception e) {
             LOGGER.warn("Unexpected error rendering job status as JSON", e);
-            json = Map.of(JsonAware.ERROR_KEY, e.getMessage());
+            json = Map.of(ERROR_KEY, e.getMessage());
         }
         return jsonFound(json).respond(response);
     }

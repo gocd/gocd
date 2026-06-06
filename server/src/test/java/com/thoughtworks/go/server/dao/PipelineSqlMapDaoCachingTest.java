@@ -139,12 +139,12 @@ class PipelineSqlMapDaoCachingTest {
     void savePipeline_shouldClearLatestPipelineIdCacheCaseInsensitively() {
         when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn(List.of(99L));
         doAnswer((Answer<Object>) invocation -> {
-            ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
+            ((TransactionSynchronizationAdapter) invocation.getArgument(0)).afterCommit();
             return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any());
 
         when(transactionTemplate.execute(any())).then(invocation -> {
-            ((TransactionCallback<?>) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
+            ((TransactionCallback<?>) invocation.getArgument(0)).doInTransaction(new SimpleTransactionStatus());
             return null;
         });
 
@@ -348,12 +348,12 @@ class PipelineSqlMapDaoCachingTest {
         Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
 
         doAnswer((Answer<Object>) invocation -> {
-            ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
+            ((TransactionSynchronizationAdapter) invocation.getArgument(0)).afterCommit();
             return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any());
 
         when(transactionTemplate.execute(any())).then(invocation -> {
-            ((TransactionCallback<?>) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
+            ((TransactionCallback<?>) invocation.getArgument(0)).doInTransaction(new SimpleTransactionStatus());
             return null;
         });
 
@@ -424,12 +424,12 @@ class PipelineSqlMapDaoCachingTest {
         MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(new GitMaterial("url", "branch"), new Modification("user", "comment", "email", new Date(), "r1")));
         Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
         doAnswer((Answer<Object>) invocation -> {
-            ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
+            ((TransactionSynchronizationAdapter) invocation.getArgument(0)).afterCommit();
             return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any());
 
         when(transactionTemplate.execute(any())).then(invocation -> {
-            ((TransactionCallback<?>) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
+            ((TransactionCallback<?>) invocation.getArgument(0)).doInTransaction(new SimpleTransactionStatus());
             return null;
         });
 

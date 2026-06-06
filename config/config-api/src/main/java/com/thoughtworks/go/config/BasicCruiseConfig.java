@@ -909,6 +909,11 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
+    public @NotNull PipelineConfigs findGroupByPipeline(@NotNull PipelineConfig pipelineConfig) {
+        return groups.findGroupByPipeline(pipelineConfig.name());
+    }
+
+    @Override
     public boolean isMailHostConfigured() {
         return !(new MailHost(new GoCipher()).equals(mailHost()) || mailHost() == null);
     }
@@ -917,7 +922,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     public List<PipelineConfig> getAllPipelineConfigs() {
         if (allPipelineConfigs == null) {
             AllPipelineConfigs configs = new AllPipelineConfigs();
-            PipelineGroups groups = getGroups();
             for (PipelineConfigs group : groups) {
                 for (PipelineConfig pipelineConfig : group) {
                     configs.add(pipelineConfig);
@@ -1115,12 +1119,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public PipelineConfigs findGroupOfPipeline(PipelineConfig pipelineConfig) {
-        String groupName = getGroups().findGroupNameByPipeline(pipelineConfig.name());
-        return findGroup(groupName);
-    }
-
-    @Override
     public Map<CaseInsensitiveString, List<PipelineConfig>> generatePipelineVsDownstreamMap() {
         List<PipelineConfig> pipelineConfigs = getAllPipelineConfigs();
         Map<CaseInsensitiveString, List<PipelineConfig>> result = new HashMap<>();
@@ -1147,7 +1145,7 @@ public class BasicCruiseConfig implements CruiseConfig {
                 allTemplatesWithAssociatedPipelines.computeIfAbsent(templateConfig.name(), k -> new HashMap<>());
             }
 
-            for (PipelineConfigs pipelineConfigs : getGroups()) {
+            for (PipelineConfigs pipelineConfigs : groups) {
                 List<PipelineConfig> pipelines = pipelineConfigs.getPipelines();
                 for (PipelineConfig pipeline : pipelines) {
                     if (pipeline.hasTemplate()) {

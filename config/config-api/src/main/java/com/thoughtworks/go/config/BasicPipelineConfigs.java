@@ -187,12 +187,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     @Override
     public boolean hasPipeline(CaseInsensitiveString pipelineName) {
-        for (PipelineConfig pipelineConfig : this) {
-            if (pipelineConfig.name().equals(pipelineName)) {
-                return true;
-            }
-        }
-        return false;
+        return this.stream().anyMatch(pipelineConfig -> pipelineConfig.name().equals(pipelineName));
     }
 
     @Override

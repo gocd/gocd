@@ -318,7 +318,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         when(environmentConfigService.getEnvironmentConfig(anyString())).thenReturn(env1)
         when(environmentConfigService.deleteEnvironment(eq(env1), eq(currentUsername()), any(HttpLocalizedOperationResult))).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArguments().last()
+            def result = (HttpLocalizedOperationResult) invocation.getArguments().last()
             result.setMessage("Environment 'my_environment' was deleted successfully.")
         })
 
@@ -333,7 +333,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
       void 'should error out if the environment does not exist'() {
         when(environmentConfigService.getMergedEnvironmentforDisplay(anyString(), any(HttpLocalizedOperationResult.class)))
           .then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArguments().last()
+          def result = (HttpLocalizedOperationResult) invocation.getArguments().last()
           result.badRequest("No such environment")
         })
 
@@ -486,7 +486,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
         when(environmentConfigService.updateEnvironment(eq("env1"), eq(env1), eq(currentUsername()), anyString(), any(HttpLocalizedOperationResult))).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            def result = (HttpLocalizedOperationResult) invocation.arguments.last()
             result.setMessage("Updated environment '\" + oldEnvironmentConfigName + \"'.")
         })
 
@@ -625,7 +625,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
           eq(oldConfig), anyList(), anyList(), anyList(), anyList(), eq(currentUsername()), any(HttpLocalizedOperationResult))
         ).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            def result = (HttpLocalizedOperationResult) invocation.arguments.last()
             result.setMessage("Updated environment '\" + oldEnvironmentConfigName + \"'.")
         })
 
@@ -683,7 +683,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
           eq(oldConfig), anyList(), anyList(), anyList(), anyList(), eq(currentUsername()), any(HttpLocalizedOperationResult))
         ).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            def result = (HttpLocalizedOperationResult) invocation.arguments.last()
             result.setMessage("Updated environment '\" + oldEnvironmentConfigName + \"'.")
         })
 
@@ -775,7 +775,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         when(entityHashingService.hashForEntity(env1)).thenReturn("digest-hash")
         when(environmentConfigService.createEnvironment(eq(env1), eq(currentUsername()), any(HttpLocalizedOperationResult))).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            def result = (HttpLocalizedOperationResult) invocation.arguments.last()
             result.setMessage("Environment was created successfully")
         })
 

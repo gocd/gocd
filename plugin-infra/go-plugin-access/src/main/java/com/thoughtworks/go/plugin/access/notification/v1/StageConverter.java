@@ -34,9 +34,9 @@ public class StageConverter extends DataConverter<StageNotificationDTO> {
     private final BuildCause buildCause;
 
     public StageConverter(StageNotificationData stageNotificationData) {
-        this.stage = stageNotificationData.getStage();
-        this.pipelineGroup = stageNotificationData.getPipelineGroup();
-        this.buildCause = stageNotificationData.getBuildCause();
+        this.stage = stageNotificationData.stage();
+        this.pipelineGroup = stageNotificationData.pipelineGroup();
+        this.buildCause = stageNotificationData.buildCause();
     }
 
     @Override

@@ -198,7 +198,7 @@ public class BackupServiceIntegrationTest {
             createWrapperConfigFile("foo", "foo_foo");
             createWrapperConfigFile("bar", "bar_bar");
 
-            when(systemEnvSpy.wrapperConfigDirPath()).thenReturn(Optional.ofNullable(null));
+            when(systemEnvSpy.wrapperConfigDirPath()).thenReturn(Optional.empty());
 
             ServerBackup backup = backupService.startBackup(admin);
 

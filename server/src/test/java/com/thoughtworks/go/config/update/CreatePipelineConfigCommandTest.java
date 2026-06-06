@@ -55,7 +55,6 @@ public class CreatePipelineConfigCommandTest {
                 pipelineConfig, username, localizedOperationResult, "group1", externalArtifactsService);
 
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
-        when(goConfigService.findGroupNameByPipeline(pipelineConfig.name())).thenReturn("group1");
 
         command.update(cruiseConfig);
         verify(cruiseConfig).addPipelineWithoutValidation("group1", pipelineConfig);
@@ -94,7 +93,6 @@ public class CreatePipelineConfigCommandTest {
         PluggableArtifactConfig s3 = mock(PluggableArtifactConfig.class);
         PluggableArtifactConfig docker = mock(PluggableArtifactConfig.class);
         when(goConfigService.artifactStores()).thenReturn(mock(ArtifactStores.class));
-        when(goConfigService.findGroupNameByPipeline(cis("P1"))).thenReturn("group");
         ConfigErrors configErrors = new ConfigErrors();
         when(s3.errors()).thenReturn(configErrors);
         when(docker.errors()).thenReturn(configErrors);
@@ -121,8 +119,6 @@ public class CreatePipelineConfigCommandTest {
     public void createPipelineConfigShouldValidateAllFetchExternalArtifactTasks() {
         JobConfig job1 = JobConfigMother.jobWithNoResourceRequirement();
         JobConfig job2 = JobConfigMother.jobWithNoResourceRequirement();
-
-        when(goConfigService.findGroupNameByPipeline(cis("P1"))).thenReturn("group");
 
         FetchPluggableArtifactTask fetchS3Task = new FetchPluggableArtifactTask(cis("p0"), cis("s0"), cis("j0"), "s3");
         FetchPluggableArtifactTask fetchDockerTask = new FetchPluggableArtifactTask(cis("p0"), cis("s0"), cis("j0"), "docker");

@@ -145,13 +145,13 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result) {
-        return canEditPipeline(pipelineName, username, result, findGroupNameByPipeline(cis(pipelineName)));
+        return canEditPipeline(pipelineName, username, result, findGroupNameByPipelineOptional(cis(pipelineName)).orElse(null));
     }
 
     public boolean canEditPipeline(String pipelineName,
                                    Username username,
                                    LocalizedOperationResult result,
-                                   String groupName) {
+                                   @Nullable String groupName) {
         if (!doesPipelineExist(pipelineName, result)) {
             return false;
         }
@@ -322,12 +322,20 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return currentCruiseConfig().isSmtpEnabled();
     }
 
-    public String findGroupNameByPipeline(final CaseInsensitiveString pipelineName) {
-        return getCurrentConfig().getGroups().findGroupNameByPipeline(pipelineName);
+    public @NotNull String findGroupNameByPipeline(@NotNull CaseInsensitiveString pipelineName) {
+        return getCurrentConfig().getGroups().findGroupByPipeline(pipelineName).getGroup();
     }
 
-    public PipelineConfigs findGroupByPipeline(CaseInsensitiveString pipelineName) {
+    public @NotNull Optional<String> findGroupNameByPipelineOptional(@NotNull CaseInsensitiveString pipelineName) {
+        return getCurrentConfig().getGroups().findGroupByPipelineOptional(pipelineName).map(PipelineConfigs::getGroup);
+    }
+
+    public @NotNull PipelineConfigs findGroupByPipeline(CaseInsensitiveString pipelineName) {
         return getCurrentConfig().getGroups().findGroupByPipeline(pipelineName);
+    }
+
+    public @NotNull Optional<PipelineConfigs> findGroupByPipelineOptional(CaseInsensitiveString pipelineName) {
+        return getCurrentConfig().getGroups().findGroupByPipelineOptional(pipelineName);
     }
 
     public MailHost getMailHost() {
@@ -577,18 +585,18 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return getCurrentConfig().getEnvironments().hasEnvironmentNamed(environmentName);
     }
 
-    public boolean isUserAdminOfGroup(final CaseInsensitiveString userName, String groupName) {
+    public boolean isUserAdminOfGroup(final CaseInsensitiveString userName, @Nullable String groupName) {
         if (!isSecurityEnabled()) {
             return true;
         }
-        PipelineConfigs group = null;
-        if (groupName != null) {
-            group = getCurrentConfig().findGroup(groupName);
-        }
+
+        // Ensure group exists
+        PipelineConfigs group = groupName == null ? null : getCurrentConfig().findGroup(groupName);
+
         return isUserAdmin(new Username(userName)) || isUserAdminOfGroup(userName, group);
     }
 
-    public boolean isUserAdminOfGroup(final CaseInsensitiveString userName, PipelineConfigs group) {
+    public boolean isUserAdminOfGroup(final CaseInsensitiveString userName, @Nullable PipelineConfigs group) {
         return group != null && group.isUserAnAdmin(userName, rolesForUser(userName));
     }
 

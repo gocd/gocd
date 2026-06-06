@@ -27,6 +27,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.HaltException;
@@ -249,12 +250,9 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
-    private String findPipelineGroupName(Request request) {
+    private @Nullable String findPipelineGroupName(Request request) {
         String groupName = request.params("group_name");
-        if (isBlank(groupName)) {
-            groupName = goConfigService.findGroupNameByPipeline(getPipelineNameFromRequest(request));
-        }
-        return groupName;
+        return isNotBlank(groupName) ? groupName : goConfigService.findGroupNameByPipelineOptional(getPipelineNameFromRequest(request)).orElse(null);
     }
 
     private CaseInsensitiveString getPipelineNameFromRequest(Request request) {

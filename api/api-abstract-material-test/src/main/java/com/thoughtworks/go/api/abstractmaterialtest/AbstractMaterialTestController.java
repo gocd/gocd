@@ -156,7 +156,7 @@ public abstract class AbstractMaterialTestController extends ApiController {
 
     private void validateMaterialConfig(ScmMaterialConfig scmMaterialConfig, String pipelineName, String pipelineGrpName) {
         if (isBlank(pipelineGrpName)) {
-            pipelineGrpName = goConfigService.findGroupNameByPipeline(cis(pipelineName));
+            pipelineGrpName = goConfigService.findGroupNameByPipelineOptional(cis(pipelineName)).orElse(null);
         }
         scmMaterialConfig.validateConcreteScmMaterial(PipelineConfigSaveValidationContext.forChain(false, pipelineGrpName, goConfigService.getCurrentConfig(), scmMaterialConfig));
     }

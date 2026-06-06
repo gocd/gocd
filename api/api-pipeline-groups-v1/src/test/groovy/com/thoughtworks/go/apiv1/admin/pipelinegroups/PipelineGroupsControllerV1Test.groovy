@@ -167,9 +167,9 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         def pipelineGroup = new BasicPipelineConfigs()
         pipelineGroup.setGroup("group")
 
-        when(pipelineConfigsService.createGroup(any(), any(), any())).then({ InvocationOnMock invocation ->
+        when(pipelineConfigsService.createGroup(any(), any(), any(HttpLocalizedOperationResult))).then({ InvocationOnMock invocation ->
           pipelineGroup.addError("group", "Invalid name")
-          result = invocation.getArguments()[2]
+          result = invocation.getArgument(2)
           result.unprocessableEntity("message from server")
         })
 
@@ -403,7 +403,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         group.addError("authorization", "Invalid authorization")
 
         when(pipelineConfigsService.updateGroup(any(), any(), any(), any())).then({ InvocationOnMock invocation ->
-          result = invocation.getArguments()[3]
+          result = invocation.getArgument(3)
           result.unprocessableEntity("message from server")
         })
 
@@ -469,7 +469,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups([group]))
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+          def result = invocation.arguments.last()
           result.setMessage("The group 'group1' was deleted successfully.")
         }).when(pipelineConfigsService).deleteGroup(any(), eq(group), any())
 
@@ -498,7 +498,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups([group]))
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+          def result = invocation.arguments.last()
           result.unprocessableEntity("Cannot delete group when not empty")
         }).when(pipelineConfigsService).deleteGroup(any(), eq(group), any())
 

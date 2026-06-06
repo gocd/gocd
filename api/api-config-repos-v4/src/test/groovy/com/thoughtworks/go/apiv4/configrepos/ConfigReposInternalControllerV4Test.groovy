@@ -101,7 +101,7 @@ class ConfigReposInternalControllerV4Test implements SecurityServiceTrait, Contr
         RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
 
         when(goConfigService.rolesForUser(any())).then({ InvocationOnMock invocation ->
-            CaseInsensitiveString username = invocation.getArguments()[0] as CaseInsensitiveString
+            CaseInsensitiveString username = invocation.getArgument(0) as CaseInsensitiveString
             if (username == Username.ANONYMOUS.username) {
                 return []
             }

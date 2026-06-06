@@ -30,7 +30,7 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class VerifyConnectionRepresenterTest {
-  static packageDefinition
+  static PackageDefinition packageDefinition
 
   static {
     def configurationProperties = new Configuration(new ConfigurationProperty(new ConfigurationKey('PACKAGE_NAME'), new ConfigurationValue('foo')))

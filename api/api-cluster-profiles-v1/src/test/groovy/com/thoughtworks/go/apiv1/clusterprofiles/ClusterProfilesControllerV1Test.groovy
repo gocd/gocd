@@ -250,8 +250,8 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
           properties: []
         ]
 
-        when(clusterProfilesService.create(any() as ClusterProfile, any() as Username, any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArgument(2)
+        when(clusterProfilesService.create(any() as ClusterProfile, any() as Username, any(HttpLocalizedOperationResult))).then({ InvocationOnMock invocation ->
+          def result = invocation.getArgument(2)
           result.unprocessableEntity("Boom!")
         })
 
@@ -440,10 +440,10 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
         when(entityHashingService.hashForEntity(existingCluster)).thenReturn('some-digest')
         when(clusterProfilesService.findProfile("docker")).thenReturn(existingCluster)
 
-        when(clusterProfilesService.update(Mockito.any() as ClusterProfile, Mockito.any() as Username, Mockito.any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
-          ClusterProfile clusterProfile = invocation.getArguments()[0]
+        when(clusterProfilesService.update(Mockito.any() as ClusterProfile, Mockito.any() as Username, Mockito.any(HttpLocalizedOperationResult))).then({ InvocationOnMock invocation ->
+          ClusterProfile clusterProfile = invocation.getArgument(0)
           clusterProfile.addError("plugin_id", "Plugin not installed.")
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          def result = invocation.getArguments().last()
           result.unprocessableEntity("validation failed")
         })
 

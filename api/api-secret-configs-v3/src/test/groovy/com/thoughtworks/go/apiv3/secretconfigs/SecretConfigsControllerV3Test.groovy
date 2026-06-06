@@ -355,9 +355,9 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
 
         when(secretConfigService.create(Mockito.any() as Username, Mockito.any() as SecretConfig, Mockito.any() as LocalizedOperationResult))
           .then({ InvocationOnMock invocation ->
-          SecretConfig secretConfig = invocation.getArguments()[1]
+          SecretConfig secretConfig = invocation.getArgument(1)
           secretConfig.addError("plugin_id", "Plugin not installed.")
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          def result = invocation.getArguments().last()
           result.unprocessableEntity("validation failed")
         })
 
@@ -459,7 +459,7 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
         when(entityHashingService.hashForEntity(newSecretConfig)).thenReturn('new-digest')
         when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs(secretConfig)).thenReturn(new SecretConfigs(newSecretConfig))
         when(secretConfigService.update(eq(currentUsername()), eq('some-digest'), eq(newSecretConfig), any(LocalizedOperationResult))).thenAnswer({
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) it.getArguments().last()
+          def result = (HttpLocalizedOperationResult) it.getArguments().last()
           result.setMessage("SecretConfig 'secrets_id' was updated successfully.")
         })
 
@@ -586,8 +586,8 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
         def secretConfig = new SecretConfig("ForDeploy", "file-plugin")
 
         when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs(secretConfig))
-        when(secretConfigService.delete(Mockito.any() as Username, Mockito.any() as SecretConfig, Mockito.any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+        when(secretConfigService.delete(Mockito.any() as Username, Mockito.any() as SecretConfig, Mockito.any(HttpLocalizedOperationResult))).then({ InvocationOnMock invocation ->
+          def result = invocation.arguments.last()
           result.setMessage(LocalizedMessage.resourceDeleteSuccessful('secret config', secretConfig.getId()))
         })
 

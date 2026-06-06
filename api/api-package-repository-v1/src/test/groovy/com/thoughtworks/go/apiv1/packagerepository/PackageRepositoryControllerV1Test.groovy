@@ -203,7 +203,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
         when(entityHashingService.hashForEntity(packageRepository)).thenReturn('etag')
         when(packageRepositoryService.createPackageRepository(eq(packageRepository), eq(currentUsername()), any(HttpLocalizedOperationResult.class))).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            def result = (HttpLocalizedOperationResult) invocation.arguments.last()
             result.setMessage("Package repository was created successfully")
         })
 
@@ -255,7 +255,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
 
         when(packageRepositoryService.createPackageRepository(any(), any(), any())).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            def result = (HttpLocalizedOperationResult) invocation.arguments.last()
             result.unprocessableEntity("Validation error.")
         })
 
@@ -308,7 +308,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
         when(entityHashingService.hashForEntity(updatedPackageRepository)).thenReturn('updated-etag')
         when(packageRepositoryService.updatePackageRepository(eq(updatedPackageRepository), eq(currentUsername()), anyString(), any(), anyString())).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments[3]
+            def result = (HttpLocalizedOperationResult) invocation.arguments[3]
             result.setMessage("Package repository was created successfully")
         })
 
@@ -375,7 +375,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
         when(entityHashingService.hashForEntity(updatedPackageRepository)).thenReturn('updated-etag')
         when(packageRepositoryService.updatePackageRepository(any(), any(), any(), any(), any())).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments[3]
+            def result = (HttpLocalizedOperationResult) invocation.arguments[3]
             result.unprocessableEntity("Validation error.")
         })
 
@@ -438,7 +438,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
 
         when(packageRepositoryService.deleteRepository(eq(currentUsername()), eq(packageRepository), any(HttpLocalizedOperationResult.class))).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            def result = (HttpLocalizedOperationResult) invocation.arguments.last()
             result.setMessage("Package repository was deleted successfully")
         })
 

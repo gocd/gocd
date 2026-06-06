@@ -41,11 +41,10 @@ public class SecurityService {
     }
 
     public boolean hasViewPermissionForPipeline(Username username, String pipelineName) {
-        String groupName = goConfigService.findGroupNameByPipeline(cis(pipelineName));
-        if (groupName == null) {
-            return true;
-        }
-        return hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), groupName);
+        // FIXME security service enabled check?
+        return goConfigService.findGroupNameByPipelineOptional(cis(pipelineName))
+            .map(groupName -> hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), groupName))
+            .orElse(true); // FIXME change this insecure default?
     }
 
     public boolean hasViewPermissionForGroup(String userName, String pipelineGroupName) {
@@ -78,20 +77,17 @@ public class SecurityService {
     }
 
     public boolean hasOperatePermissionForPipeline(final CaseInsensitiveString username, String pipelineName) {
-        String groupName = goConfigService.findGroupNameByPipeline(cis(pipelineName));
-        if (groupName == null) {
-            return true;
-        }
-        return hasOperatePermissionForGroup(username, groupName);
+        // FIXME security service enabled check?
+        return goConfigService.findGroupNameByPipelineOptional(cis(pipelineName))
+            .map(groupName -> hasOperatePermissionForGroup(username, groupName))
+            .orElse(true); // FIXME change this insecure default?
     }
 
     public boolean hasAdminPermissionsForPipeline(Username username, CaseInsensitiveString pipelineName) {
-        String groupName = goConfigService.findGroupNameByPipeline(pipelineName);
-        if (groupName == null) {
-            return true;
-        }
-
-        return isUserAdminOfGroup(username.getUsername(), groupName);
+        // FIXME security service enabled check?
+        return goConfigService.findGroupNameByPipelineOptional(pipelineName)
+            .map(groupName -> isUserAdminOfGroup(username, groupName))
+            .orElse(true); // FIXME change this insecure default?
     }
 
     public boolean hasOperatePermissionForGroup(final CaseInsensitiveString username, String groupName) {
@@ -120,10 +116,8 @@ public class SecurityService {
         StageConfig stage = goConfigService.stageConfigNamed(pipelineName, stageName);
         CaseInsensitiveString userName = cis(username);
 
-        //TODO - #2517 - stage not exist
         if (stage.hasOperatePermissionDefined()) {
-            String groupName = goConfigService.findGroupNameByPipeline(cis(pipelineName));
-            PipelineConfigs group = goConfigService.getCurrentConfig().findGroup(groupName);
+            PipelineConfigs group = goConfigService.findGroupByPipeline(cis(pipelineName));
             if (isUserAdmin(new Username(userName)) || isUserAdminOfGroup(userName, group)) {
                 return true;
             }

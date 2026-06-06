@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.server.dashboard.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.DashboardFilter;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -83,18 +84,15 @@ public class GoDashboardService {
     }
 
     public void updateCacheForPipeline(CaseInsensitiveString pipelineName) {
-        PipelineConfigs group = goConfigService.findGroupByPipeline(pipelineName);
-        if (group == null) {
-            removePipelineFromCache(pipelineName);
-            return;
-        }
-
-        PipelineConfig pipelineConfig = group.findBy(pipelineName);
-        updateCache(group, pipelineConfig);
+        goConfigService.findGroupByPipelineOptional(pipelineName)
+            .ifPresentOrElse(
+                group -> addPipelineToCache(group.findBy(pipelineName), group),
+                () -> removePipelineFromCache(pipelineName)
+            );
     }
 
     public void updateCacheForPipeline(PipelineConfig pipelineConfig) {
-        updateCache(goConfigService.findGroupByPipeline(pipelineConfig.name()), pipelineConfig);
+        updateCache(goConfigService.findGroupByPipelineOptional(pipelineConfig.name()), pipelineConfig);
     }
 
     public void updateCacheForAllPipelinesIn(CruiseConfig config) {
@@ -174,13 +172,15 @@ public class GoDashboardService {
         return allowEmpty && !dashboardGroup.hasDefinedPipelines() && dashboardGroup.canBeViewedBy(user);
     }
 
-    private void updateCache(PipelineConfigs group, PipelineConfig pipelineConfig) {
-        if (group == null) {
-            removePipelineFromCache(pipelineConfig.name());
-            return;
-        }
+    private void updateCache(@NotNull Optional<PipelineConfigs> group, PipelineConfig pipelineConfig) {
+        group.ifPresentOrElse(
+            g -> addPipelineToCache(pipelineConfig, g),
+            () -> removePipelineFromCache(pipelineConfig.name())
+        );
+    }
 
-        cache.put(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, group));
+    private void addPipelineToCache(@NotNull PipelineConfig pipelineConfig, @NotNull PipelineConfigs g) {
+        cache.put(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, g));
     }
 
     private void removePipelineFromCache(CaseInsensitiveString pipelineName) {

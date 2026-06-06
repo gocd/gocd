@@ -79,8 +79,8 @@ class UserSearchControllerV1Test implements SecurityServiceTrait, ControllerTrai
       void 'should return blank array if no users found for query string'() {
         def searchTerm = 'blah blah'
 
-        when(userSearchService.search(eq(searchTerm), any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArgument(1)
+        when(userSearchService.search(eq(searchTerm), any(HttpLocalizedOperationResult))).then({ InvocationOnMock invocation ->
+          def result = invocation.getArgument(1)
           result.setMessage("No results found.")
           return []
         })
@@ -100,7 +100,7 @@ class UserSearchControllerV1Test implements SecurityServiceTrait, ControllerTrai
         def expectedUsers = [
           user
         ]
-        when(userSearchService.search(eq(searchTerm), any() as HttpLocalizedOperationResult)).thenReturn(expectedUsers)
+        when(userSearchService.search(eq(searchTerm), any(HttpLocalizedOperationResult))).thenReturn(expectedUsers)
 
         getWithApiHeader(controller.controllerPath([q: searchTerm]))
 
@@ -114,8 +114,8 @@ class UserSearchControllerV1Test implements SecurityServiceTrait, ControllerTrai
       void "should render error if search operation fails"(){
         def searchTerm = 'blah blah'
 
-        when(userSearchService.search(eq(searchTerm), any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArgument(1)
+        when(userSearchService.search(eq(searchTerm), any(HttpLocalizedOperationResult))).then({ InvocationOnMock invocation ->
+          def result = invocation.getArgument(1)
           result.badRequest("boom!")
           return []
         })

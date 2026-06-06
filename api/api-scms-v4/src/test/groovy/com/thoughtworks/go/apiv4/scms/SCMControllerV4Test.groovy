@@ -33,7 +33,6 @@ import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.materials.PluggableScmService
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
@@ -417,9 +416,9 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
         when(scmService.listAllScms()).thenReturn(new SCMs())
         when(scmService.createPluggableScmMaterial(Mockito.any() as Username, Mockito.any() as SCM, Mockito.any() as LocalizedOperationResult))
           .then({ InvocationOnMock invocation ->
-          SCM scm = invocation.getArguments()[1]
+          SCM scm = invocation.getArgument(1)
           scm.addError("id", "Invalid id specified")
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          def result = invocation.getArguments().last()
           result.unprocessableEntity("validation failed")
         })
 
@@ -650,9 +649,9 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
         ).then(
           {
             InvocationOnMock invocation ->
-              SCM scm = invocation.getArguments()[1]
+              SCM scm = invocation.getArgument(1)
               scm.addError("id", "Invalid id specified.")
-              HttpLocalizedOperationResult result = invocation.getArguments()[2]
+              def result = invocation.getArgument(2)
               result.unprocessableEntity("validation failed")
           })
 
@@ -797,7 +796,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
         ).then(
           {
             InvocationOnMock invocation ->
-              HttpLocalizedOperationResult result = invocation.getArguments()[2]
+              def result = invocation.getArgument(2)
               result.unprocessableEntity("validation failed")
           })
 

@@ -256,7 +256,7 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
         doAnswer({ InvocationOnMock invocation ->
           authorizationRequest.addError("name", "Role \"role_admin\" does not exist.")
 
-          HttpLocalizedOperationResult result = invocation.arguments[3]
+          def result = invocation.arguments[3]
           result.unprocessableEntity("Validation Errors.")
         }).when(templateConfigService).updateTemplateAuthConfig(any(Username.class) as Username, eq(templateConfig),
           any(), eq(result), eq("digest"))

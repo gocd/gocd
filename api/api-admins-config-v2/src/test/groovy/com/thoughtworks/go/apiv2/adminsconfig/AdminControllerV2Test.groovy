@@ -198,7 +198,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
         when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
         when(entityHashingService.hashForEntity(configInServer)).thenReturn("cached-digest")
         when(adminsConfigService.update(any(), eq(configFromRequest), eq("cached-digest"), any(HttpLocalizedOperationResult.class))).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          def result = invocation.getArguments().last()
           result.unprocessableEntity("validation failed")
         })
 

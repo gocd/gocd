@@ -57,7 +57,7 @@ class StageSqlMapDaoTest {
         stageSqlMapDao.setSqlMapClientTemplate(sqlMapClientTemplate);
         Cloner cloner = mock(Cloner.class);
         ReflectionUtil.setField(stageSqlMapDao, "cloner", cloner);
-        doAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]).when(cloner).deepClone(any());
+        doAnswer(invocationOnMock -> invocationOnMock.getArgument(0)).when(cloner).deepClone(any());
     }
 
     @Test

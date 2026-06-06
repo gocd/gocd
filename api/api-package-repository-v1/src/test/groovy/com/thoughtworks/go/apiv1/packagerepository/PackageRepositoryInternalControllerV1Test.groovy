@@ -86,7 +86,7 @@ class PackageRepositoryInternalControllerV1Test implements SecurityServiceTrait,
 
       when(packageRepositoryService.checkConnection(any(PackageRepository.class), any(HttpLocalizedOperationResult.class))).then({
         InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+          def result = (HttpLocalizedOperationResult) invocation.arguments.last()
           result.setMessage("Successful Check Connection!")
       })
 
@@ -106,7 +106,7 @@ class PackageRepositoryInternalControllerV1Test implements SecurityServiceTrait,
 
       when(packageRepositoryService.checkConnection(any(PackageRepository.class), any(HttpLocalizedOperationResult.class))).then({
         InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+          def result = (HttpLocalizedOperationResult) invocation.arguments.last()
           result.badRequest("Failed Check Connection!")
       })
 

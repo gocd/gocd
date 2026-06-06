@@ -40,6 +40,7 @@ import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -280,7 +281,26 @@ public class PipelineGroupsTest {
     }
 
     @Test
-    public void shouldFindGroupByPipelineName() {
+    public void shouldFindGroupByPipelineOptional() {
+        PipelineConfig p1Config = createPipelineConfig("pipeline1", "stage1");
+        PipelineConfig p2Config = createPipelineConfig("pipeline2", "stage1");
+        PipelineConfig p3Config = createPipelineConfig("pipeline3", "stage1");
+
+        PipelineConfigs group1 = createGroup("group1", p1Config, p2Config);
+        PipelineConfigs group2 = createGroup("group2", p3Config);
+
+        PipelineGroups groups = new PipelineGroups(group1, group2);
+
+        assertThat(groups.findGroupByPipelineOptional(cis("pipeline1"))).contains(group1);
+        assertThat(groups.findGroupByPipelineOptional(cis("pipeline2"))).contains(group1);
+        assertThat(groups.findGroupByPipelineOptional(cis("pipeline3"))).contains(group2);
+
+        assertThat(groups.findGroupByPipelineOptional(cis(null))).isEmpty();
+        assertThat(groups.findGroupByPipelineOptional(cis("something-else"))).isEmpty();
+    }
+
+    @Test
+    public void shouldFindGroupByPipeline() {
         PipelineConfig p1Config = createPipelineConfig("pipeline1", "stage1");
         PipelineConfig p2Config = createPipelineConfig("pipeline2", "stage1");
         PipelineConfig p3Config = createPipelineConfig("pipeline3", "stage1");
@@ -293,6 +313,10 @@ public class PipelineGroupsTest {
         assertThat(groups.findGroupByPipeline(cis("pipeline1"))).isEqualTo(group1);
         assertThat(groups.findGroupByPipeline(cis("pipeline2"))).isEqualTo(group1);
         assertThat(groups.findGroupByPipeline(cis("pipeline3"))).isEqualTo(group2);
+
+        assertThatThrownBy(() -> groups.findGroupByPipeline(cis(null)))
+            .isExactlyInstanceOf(RecordNotFoundException.class)
+            .hasMessage("Pipeline group (lookup by Pipeline with name 'null') was not found!");
     }
 
     @Test

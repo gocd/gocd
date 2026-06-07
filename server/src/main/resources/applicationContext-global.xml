@@ -170,9 +170,13 @@
         class="com.thoughtworks.go.config.validation.ConfigRepositoryValidatorService" autowire="constructor"
         lazy-init="false"/>
 
-  <bean id="schedulerFactory" class="org.quartz.impl.StdSchedulerFactory" />
-  <bean id="scheduler" factory-bean="schedulerFactory" factory-method="getScheduler" class="org.quartz.Scheduler"
-        init-method="start" destroy-method="shutdown"/>
+  <bean id="setQuartzInstanceName" class="org.springframework.beans.factory.config.MethodInvokingBean">
+    <property name="targetClass" value="java.lang.System"/>
+    <property name="targetMethod" value="setProperty"/>
+    <property name="arguments"><list><value>org.quartz.scheduler.instanceName</value><value>Scheduler</value></list></property>
+  </bean>
+  <bean id="schedulerFactory" class="org.quartz.impl.StdSchedulerFactory" depends-on="setQuartzInstanceName"/>
+  <bean id="scheduler" factory-bean="schedulerFactory" factory-method="getScheduler" init-method="start" destroy-method="shutdown"/>
 
   <bean class="com.thoughtworks.go.server.domain.PipelineTimeline" name="pipelineTimeline" lazy-init="true"
         autowire="constructor"/>

@@ -89,7 +89,7 @@ public class JettyServerTest {
     public void setUp() {
         when(server.getThreadPool()).thenReturn(new QueuedThreadPool(1));
         Answer<Void> setHandlerMock = invocation -> {
-            serverLevelHandler = (Handler) invocation.getArguments()[0];
+            serverLevelHandler = invocation.getArgument(0);
             serverLevelHandler.setServer((Server) invocation.getMock());
             return null;
         };

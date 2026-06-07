@@ -30,6 +30,7 @@ import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.*;
 import org.eclipse.jetty.websocket.server.config.JettyWebSocketConfiguration;
 import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer;
@@ -60,7 +61,13 @@ public class JettyServer extends AppServer {
     private WebAppContext webAppContext;
 
     public JettyServer(SystemEnvironment systemEnvironment) {
-        this(systemEnvironment, new Server(), new DeploymentManager());
+        this(systemEnvironment, new Server(threadPool()), new DeploymentManager());
+    }
+
+    private static QueuedThreadPool threadPool() {
+        QueuedThreadPool pool = new QueuedThreadPool();
+        pool.setName("Jetty");
+        return pool;
     }
 
     JettyServer(SystemEnvironment systemEnvironment, Server server, DeploymentManager deploymentManager) {

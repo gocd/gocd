@@ -82,7 +82,9 @@ public class DatabaseMigrator {
     }
 
     private static void logBoth(Level level, String message) {
-        System.out.printf("%s: %s%n", level, message);
+        if (isProduction()) {
+            System.out.printf("%s: %s%n", level, message);
+        }
         log.info(message);
     }
 
@@ -103,5 +105,9 @@ public class DatabaseMigrator {
 
     private void migrateData(Connection connection) throws SQLException {
         DataMigrationRunner.run(connection);
+    }
+
+    private static boolean isProduction() {
+        return !System.getProperty("java.io.tmpdir", "").contains("gocd-tests");
     }
 }

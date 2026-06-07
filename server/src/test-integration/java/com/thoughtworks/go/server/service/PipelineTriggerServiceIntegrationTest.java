@@ -406,7 +406,6 @@ public class PipelineTriggerServiceIntegrationTest {
         pipelineScheduleOptions.getAllEnvironmentVariables().add(config);
 
         pipelineTriggerService.schedule(pipelineName, pipelineScheduleOptions, new Username("foo"), result);
-        System.out.println(result.fullMessage());
 
         assertThat(result.isSuccess()).isFalse();
         assertThat(result.httpCode()).isEqualTo(422);

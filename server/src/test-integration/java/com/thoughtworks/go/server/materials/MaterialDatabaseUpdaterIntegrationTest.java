@@ -140,10 +140,7 @@ public class MaterialDatabaseUpdaterIntegrationTest {
 
         @Override
         public List<Modification> latestModification(Material material, File baseDir, SubprocessExecutionContext execCtx) {
-            System.err.println(Thread.currentThread() + "Slowing down latest modification check");
             sleepQuietlyRethrowInterrupt(Duration.ofSeconds(5));
-            System.err.println(Thread.currentThread() + "Done slowing down latest modification check");
-
             return super.latestModification(material, baseDir, execCtx);
         }
     }

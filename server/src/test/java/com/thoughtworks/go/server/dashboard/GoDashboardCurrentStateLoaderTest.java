@@ -84,6 +84,8 @@ public class GoDashboardCurrentStateLoaderTest {
 
         goConfigMother = new GoConfigMother();
         config = GoConfigMother.defaultCruiseConfig();
+
+        lenient().when(permissionsAuthority.permissionsForPipeline(any())).thenReturn(Permissions.NOONE);
     }
 
     @Test

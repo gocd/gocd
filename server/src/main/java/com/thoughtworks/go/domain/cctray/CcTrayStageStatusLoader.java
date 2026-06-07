@@ -22,15 +22,16 @@ import com.thoughtworks.go.server.domain.StageIdentity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /* Understands how to load a stage from DB and convert it and its jobs to CcTray statuses. */
 @Component
 public class CcTrayStageStatusLoader {
+    private final StageDao stageDao;
+    private final CcTrayStageStatusChangeHandler stageChangeHandler;
+
     private List<StageIdentity> stageIdentifiers;
-    private StageDao stageDao;
-    private CcTrayStageStatusChangeHandler stageChangeHandler;
 
     @Autowired
     public CcTrayStageStatusLoader(StageDao stageDao, CcTrayStageStatusChangeHandler stageChangeHandler) {
@@ -46,7 +47,7 @@ public class CcTrayStageStatusLoader {
 
         Long stageId = findStageIdOf(pipelineConfig, stageConfig);
         if (stageId == null) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
 
         return stageChangeHandler.statusesOfStageAndItsJobsFor(stageDao.stageById(stageId));

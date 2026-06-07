@@ -20,6 +20,9 @@ import com.thoughtworks.go.config.security.users.Users;
 import org.jetbrains.annotations.NotNull;
 
 public record Permissions(Users viewers, Users operators, Users admins, PipelinePermission pipelinePermission) {
+    public static final Permissions NOONE = new Permissions(Users.NOONE, Users.NOONE, Users.NOONE, PipelinePermission.NOONE);
+    public static final Permissions EVERYONE = new Permissions(Users.EVERYONE, Users.EVERYONE, Users.EVERYONE, PipelinePermission.EVERYONE);
+
     public @NotNull Users pipelineOperators() {
         return pipelinePermission.pipelineOperators();
     }

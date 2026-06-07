@@ -27,7 +27,7 @@ import java.util.Set;
 /* Understands what needs to be done to keep the CCTray cache updated, when a job status changes. */
 @Component
 public class CcTrayJobStatusChangeHandler {
-    private CcTrayCache cache;
+    private final CcTrayCache cache;
 
     @Autowired
     public CcTrayJobStatusChangeHandler(CcTrayCache cache) {

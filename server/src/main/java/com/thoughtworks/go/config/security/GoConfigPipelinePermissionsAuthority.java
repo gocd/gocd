@@ -20,9 +20,9 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.security.permissions.PipelinePermission;
 import com.thoughtworks.go.config.security.permissions.StageDerivedPipelinePermission;
-import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.server.service.GoConfigService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,10 +44,10 @@ public class GoConfigPipelinePermissionsAuthority {
         return pipelinesInGroupsAndTheirPermissions(goConfigService.groups());
     }
 
-    public Permissions permissionsForPipeline(CaseInsensitiveString pipelineName) {
+    public @NotNull Permissions permissionsForPipeline(CaseInsensitiveString pipelineName) {
         return goConfigService.findGroupByPipelineOptional(pipelineName)
             .map(group -> pipelinesInGroupsAndTheirPermissions(new PipelineGroups(group)).get(pipelineName))
-            .orElseGet(() -> new Permissions(Users.NOONE, Users.NOONE, Users.NOONE, PipelinePermission.NOONE));
+            .orElse(Permissions.NOONE);
     }
 
     public Permissions permissionsForEmptyGroup(PipelineConfigs group) {
@@ -71,7 +71,7 @@ public class GoConfigPipelinePermissionsAuthority {
 
     private Permissions groupPermissionsOnPipeline(PipelineGroupsSecurityHelper security, PipelineConfigs group, Optional<PipelineConfig> pipeline) {
         if (security.hasNoSuperAdmins()) {
-            return new Permissions(Users.EVERYONE, Users.EVERYONE, Users.EVERYONE, PipelinePermission.EVERYONE);
+            return Permissions.EVERYONE;
         }
 
         GroupSecurity policy = security.forGroup(group);

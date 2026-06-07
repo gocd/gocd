@@ -21,8 +21,6 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
 import com.thoughtworks.go.config.security.Permissions;
-import com.thoughtworks.go.config.security.permissions.PipelinePermission;
-import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
@@ -107,8 +105,7 @@ public class GoDashboardCurrentStateLoader {
         LOGGER.debug("Populating dashboard pipelines");
         config.accept((PipelineGroupVisitor) group -> group.accept(pipelineConfig -> {
             long start = System.currentTimeMillis();
-            Permissions permissions = permissionsFor(pipelineConfig, pipelinesAndTheirPermissions);
-
+            Permissions permissions = pipelinesAndTheirPermissions.getOrDefault(pipelineConfig.getName(), Permissions.NOONE);
             pipelines.add(createGoDashboardPipeline(pipelineConfig, permissions, historyForDashboard, group));
 
             if (LOGGER.isDebugEnabled()) {
@@ -125,8 +122,8 @@ public class GoDashboardCurrentStateLoader {
     }
 
     private PipelineInstanceModels loadHistoryForPipelines(List<String> pipelineNames) {
-        LOGGER.debug("Loading history for dashboard with {} pipelines", pipelineNames.size());
         try {
+            LOGGER.debug("Loading history for dashboard with {} pipelines", pipelineNames.size());
             return pipelineDao.loadHistoryForDashboard(pipelineNames);
         } finally {
             LOGGER.debug("Done loading history for dashboard");
@@ -203,13 +200,6 @@ public class GoDashboardCurrentStateLoader {
         instanceModel.setIsLockable(isLockable);
         instanceModel.setCurrentlyLocked(isCurrentlyLocked);
         instanceModel.setCanUnlock(canBeUnlocked);
-    }
-
-    private Permissions permissionsFor(PipelineConfig pipelineConfig, Map<CaseInsensitiveString, Permissions> pipelinesAndTheirPermissions) {
-        if (pipelinesAndTheirPermissions.containsKey(pipelineConfig.name())) {
-            return pipelinesAndTheirPermissions.get(pipelineConfig.name());
-        }
-        return new Permissions(Users.NOONE, Users.NOONE, Users.NOONE, PipelinePermission.NOONE);
     }
 
     public void reset() {

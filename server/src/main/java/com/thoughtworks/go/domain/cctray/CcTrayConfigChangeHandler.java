@@ -23,9 +23,9 @@ import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /* Understands what needs to be done to keep the CCTray cache updated, when the config changes. */
 @Component
@@ -47,9 +47,8 @@ public class CcTrayConfigChangeHandler {
 
     public void call(PipelineConfig pipelineConfig) {
         List<ProjectStatus> projectStatuses = new ArrayList<>();
-        final Permissions permissions = pipelinePermissionsAuthority.permissionsForPipeline(pipelineConfig.name());
-        Users usersWithViewPermissionsOfThisPipeline = viewersOrNoOne(permissions);
-        updateProjectStatusForPipeline(usersWithViewPermissionsOfThisPipeline, pipelineConfig, projectStatuses);
+        Users usersWithViewPermissionsOfThisPipeline = pipelinePermissionsAuthority.permissionsForPipeline(pipelineConfig.name()).viewers();
+        appendProjectStatusForPipeline(usersWithViewPermissionsOfThisPipeline, pipelineConfig, projectStatuses);
         cache.putAll(projectStatuses);
     }
 
@@ -59,95 +58,55 @@ public class CcTrayConfigChangeHandler {
 
         config.accept((PipelineGroupVisitor) group -> {
             for (PipelineConfig pipelineConfig : group) {
-                Users usersWithViewPermissionsForPipeline = usersWithViewPermissionsFor(pipelineConfig, pipelinesAndTheirPermissions);
-                updateProjectStatusForPipeline(usersWithViewPermissionsForPipeline, pipelineConfig, projectStatuses);
+                Users usersWithViewPermissionsForPipeline = pipelinesAndTheirPermissions.getOrDefault(pipelineConfig.name(), Permissions.NOONE).viewers();
+                appendProjectStatusForPipeline(usersWithViewPermissionsForPipeline, pipelineConfig, projectStatuses);
             }
         });
 
         return projectStatuses;
     }
 
-    private void updateProjectStatusForPipeline(Users usersWithViewPermissionsOfThisGroup, PipelineConfig pipelineConfig, List<ProjectStatus> projectStatuses) {
+    private void appendProjectStatusForPipeline(Users usersWithViewPermissionsOfThisGroup, PipelineConfig pipelineConfig, List<ProjectStatus> projectStatuses) {
         for (StageConfig stageConfig : pipelineConfig) {
-            List<ProjectStatus> statusesInCacheOrDB = findExistingStatuses(pipelineConfig, stageConfig);
-            List<ProjectStatus> statuses = getStatusesForCurrentProjectsWithDefaultsForMissingOnes(pipelineConfig, stageConfig, statusesInCacheOrDB);
-            updateStatusesWithUsersHavingViewPermission(statuses, usersWithViewPermissionsOfThisGroup);
+            List<ProjectStatus> statuses = allStatusesFor(pipelineConfig, stageConfig);
+
+            statuses.forEach(status -> status.updateViewers(usersWithViewPermissionsOfThisGroup));
 
             projectStatuses.addAll(statuses);
         }
     }
 
-    private List<ProjectStatus> findExistingStatuses(PipelineConfig pipelineConfig, StageConfig stageConfig) {
-        if (cache.get(stageProjectName(pipelineConfig, stageConfig)) != null) {
-            return findStageAndStatusesFromCache(pipelineConfig, stageConfig);
-        } else {
-            return findStageAndStatusesFromDB(pipelineConfig, stageConfig);
-        }
+    private Map<String, ProjectStatus> existingStatusesByName(PipelineConfig pipelineConfig, StageConfig stageConfig) {
+        return Optional.ofNullable(cache.get(stageProjectName(pipelineConfig, stageConfig)))
+            .map(stageStatus -> Stream.concat(Stream.of(stageStatus), jobStatusesFromCache(pipelineConfig, stageConfig)))
+            .orElseGet(() -> stageStatusLoader.getStatusesForStageAndJobsOf(pipelineConfig, stageConfig).stream())
+            .collect(Collectors.toMap(ProjectStatus::name, s -> s));
     }
 
-    private List<ProjectStatus> findStageAndStatusesFromCache(PipelineConfig pipelineConfig, StageConfig stageConfig) {
-        List<ProjectStatus> projectStatuses = new ArrayList<>();
-
-        String stageProjectName = stageProjectName(pipelineConfig, stageConfig);
-        projectStatuses.add(cache.get(stageProjectName));
-
-        for (JobConfig jobConfig : stageConfig.getJobs()) {
-            ProjectStatus jobStatus = cache.get(jobProjectName(stageProjectName, jobConfig));
-            if (jobStatus != null) {
-                projectStatuses.add(jobStatus);
-            }
-        }
-        return projectStatuses;
+    private Stream<ProjectStatus> jobStatusesFromCache(PipelineConfig pipelineConfig, StageConfig stageConfig) {
+        return stageConfig.getJobs().stream()
+                    .map(jobConfig -> jobProjectName(pipelineConfig, stageConfig, jobConfig))
+                    .map(cache::get)
+                    .filter(Objects::nonNull);
     }
 
-    private List<ProjectStatus> findStageAndStatusesFromDB(PipelineConfig pipelineConfig, StageConfig stageConfig) {
-        return stageStatusLoader.getStatusesForStageAndJobsOf(pipelineConfig, stageConfig);
+    private List<ProjectStatus> allStatusesFor(PipelineConfig pipelineConfig, StageConfig stageConfig) {
+        Map<String, ProjectStatus> statusesByName = existingStatusesByName(pipelineConfig, stageConfig);
+
+        String stageProjectname = stageProjectName(pipelineConfig, stageConfig);
+        return Stream.concat(
+                Stream.of(statusesByName.getOrDefault(stageProjectname, new ProjectStatus.NullProjectStatus(stageProjectname))),
+                stageConfig.getJobs().stream()
+                    .map(jobConfig -> jobProjectName(pipelineConfig, stageConfig, jobConfig))
+                    .map(jobProjectname -> statusesByName.getOrDefault(jobProjectname, new ProjectStatus.NullProjectStatus(jobProjectname))))
+            .toList();
     }
 
-    private List<ProjectStatus> getStatusesForCurrentProjectsWithDefaultsForMissingOnes(PipelineConfig pipelineConfig, StageConfig stageConfig,
-                                                                                        List<ProjectStatus> statusesAvailableForThisStage) {
-        List<ProjectStatus> allStatuses = new ArrayList<>();
-
-        String stageProjectName = stageProjectName(pipelineConfig, stageConfig);
-        allStatuses.add(findOrDefault(stageProjectName, statusesAvailableForThisStage));
-
-        for (JobConfig jobConfig : stageConfig.getJobs()) {
-            String jobProjectName = jobProjectName(stageProjectName, jobConfig);
-            allStatuses.add(findOrDefault(jobProjectName, statusesAvailableForThisStage));
-        }
-
-        return allStatuses;
+    private String stageProjectName(PipelineConfig pipelineConfig, StageConfig stageConfig) {
+        return String.format("%s :: %s", pipelineConfig.name(), stageConfig.name());
     }
 
-    private ProjectStatus findOrDefault(String projectName, List<ProjectStatus> statusesToSearchIn) {
-        for (ProjectStatus status : statusesToSearchIn) {
-            if (status.name().equals(projectName)) {
-                return status;
-            }
-        }
-        return new ProjectStatus.NullProjectStatus(projectName);
-    }
-
-    private void updateStatusesWithUsersHavingViewPermission(List<ProjectStatus> statuses, Users viewersOfThisGroup) {
-        for (ProjectStatus status : statuses) {
-            status.updateViewers(viewersOfThisGroup);
-        }
-    }
-
-    private String stageProjectName(final PipelineConfig pipelineConfig, final StageConfig stageConfig) {
-        return String.format("%s :: %s", pipelineConfig.name().toString(), stageConfig.name().toString());
-    }
-
-    private String jobProjectName(String stageProjectName, JobConfig jobConfig) {
-        return String.format("%s :: %s", stageProjectName, jobConfig.name().toString());
-    }
-
-    private Users usersWithViewPermissionsFor(PipelineConfig pipelineConfig, Map<CaseInsensitiveString, Permissions> allPipelinesAndTheirPermissions) {
-        Permissions permissions = allPipelinesAndTheirPermissions.get(pipelineConfig.name());
-        return viewersOrNoOne(permissions);
-    }
-
-    private Users viewersOrNoOne(Permissions permissions) {
-        return permissions == null ? Users.NOONE : permissions.viewers();
+    private String jobProjectName(PipelineConfig pipelineConfig, StageConfig stageConfig, JobConfig jobConfig) {
+        return String.format("%s :: %s :: %s", pipelineConfig.name(), stageConfig.name(), jobConfig.name());
     }
 }

@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.domain.cctray;
 
+import com.thoughtworks.go.config.security.users.Users;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static java.util.stream.Collectors.toMap;
 
 /* Understands how to cache CcTray statuses, for every stage and job (project). */
 @Component
@@ -31,31 +31,26 @@ public class CcTrayCache {
      * called only from that thread. So, not surrounding it with a synchronizedMap. Also, uses {@link LinkedHashMap}
      * to preserve insertion order.
      */
-    private Map<String, ProjectStatus> cache;
-    private volatile List<ProjectStatus> orderedEntries;
-
-    public CcTrayCache() {
-        this.cache = new LinkedHashMap<>();
-        this.orderedEntries = new ArrayList<>();
-    }
+    private final SequencedMap<String, ProjectStatus> byProjectName = new LinkedHashMap<>();
+    private volatile List<ProjectStatus> orderedEntries = Collections.emptyList();
 
     ProjectStatus get(String projectName) {
-        return cache.get(projectName);
+        return byProjectName.get(projectName);
     }
 
     public void put(ProjectStatus status) {
-        this.cache.put(status.name(), status);
+        this.byProjectName.put(status.name(), status);
         cacheHasChanged();
     }
 
     public void putAll(List<ProjectStatus> statuses) {
-        cache.putAll(createReplacementItems(statuses));
+        byProjectName.putAll(createReplacementItems(statuses));
         cacheHasChanged();
     }
 
     void replaceAllEntriesInCacheWith(List<ProjectStatus> projectStatuses) {
-        this.cache.clear();
-        this.cache.putAll(createReplacementItems(projectStatuses));
+        this.byProjectName.clear();
+        this.byProjectName.putAll(createReplacementItems(projectStatuses));
         cacheHasChanged();
     }
 
@@ -64,14 +59,12 @@ public class CcTrayCache {
     }
 
     private void cacheHasChanged() {
-        this.orderedEntries = new ArrayList<>(cache.values());
+        this.orderedEntries = List.copyOf(byProjectName.values());
     }
 
     private Map<String, ProjectStatus> createReplacementItems(List<ProjectStatus> statuses) {
-        Map<String, ProjectStatus> replacementItems = new LinkedHashMap<>();
-        for (ProjectStatus status : statuses) {
-            replacementItems.put(status.name(), status);
-        }
-        return replacementItems;
+        return statuses.stream()
+            .filter(s -> !Users.NOONE.equals(s.viewers())) // TODO this isn't correct to do - what if security disabled?
+            .collect(toMap(ProjectStatus::name, s -> s, (a, b) -> b, LinkedHashMap::new));
     }
 }

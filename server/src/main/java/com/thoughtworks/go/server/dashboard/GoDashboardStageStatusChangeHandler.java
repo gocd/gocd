@@ -25,7 +25,7 @@ import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 /* Understands what needs to be done to keep the dashboard cache updated, when a stage status changes. */
 @Component
 public class GoDashboardStageStatusChangeHandler {
-    private GoDashboardService cacheUpdateService;
+    private final GoDashboardService cacheUpdateService;
 
     @Autowired
     public GoDashboardStageStatusChangeHandler(GoDashboardService cacheUpdateService) {

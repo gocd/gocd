@@ -150,13 +150,12 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
     }
 
     @Test
-    public void shouldUseDefaultPermissionsForViewPermissionIfAuthorizationIsNotDefined_When2ConfigParts() {
+    public void shouldReturnFalseForViewPermissionIfAuthorizationIsNotDefined_When2ConfigParts() {
         BasicPipelineConfigs filePart = new BasicPipelineConfigs();
         filePart.setOrigin(new FileConfigOrigin());
 
         MergePipelineConfigs merge = new MergePipelineConfigs(new BasicPipelineConfigs(), filePart);
-        assertThat(merge.hasViewPermission(cis("anyone"), null, true)).isTrue();
-        assertThat(merge.hasViewPermission(cis("anyone"), null, false)).isFalse();
+        assertThat(merge.hasViewPermission(cis("anyone"), null)).isFalse();
     }
 
     @Test
@@ -182,19 +181,15 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")),
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")), filePart);
         group.getAuthorization().getOperationConfig().add(new AdminUser(cis("jez")));
-        assertThat(group.hasViewPermission(cis("jez"), null, true)).isFalse();
+        assertThat(group.hasViewPermission(cis("jez"), null)).isFalse();
     }
 
     @Test
-    public void shouldUseDefaultPermissionsForOperatePermissionIfAuthorizationIsNotDefined_When2ConfigParts() {
+    public void shouldReturnFalseForOperatePermissionIfAuthorizationIsNotDefined_When2ConfigParts() {
         BasicPipelineConfigs filePart = new BasicPipelineConfigs();
         filePart.setOrigin(new FileConfigOrigin());
-
         assertThat(new MergePipelineConfigs(filePart, new BasicPipelineConfigs())
-                .hasOperatePermission(cis("anyone"), null, true)).isTrue();
-
-        assertThat(new MergePipelineConfigs(filePart, new BasicPipelineConfigs())
-                .hasOperatePermission(cis("anyone"), null, false)).isFalse();
+            .hasOperatePermission(cis("anyone"), null)).isFalse();
     }
 
     @Test

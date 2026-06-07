@@ -30,10 +30,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
-import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -83,13 +81,8 @@ public class SecurityServiceIntegrationTest {
     }
 
     @Test
-    public void userShouldNotHaveViewPermissionToGroupWithNoAuth_WhenDefaultPermissionIsToDeny() {
-        withDefaultGroupPermission(false, o -> assertThat(securityService.hasViewPermissionForGroup(VIEWER, GROUP_NAME)).isEqualTo(false));
-    }
-
-    @Test
-    public void userShouldHaveViewPermissionToGroupWithNoAuth_WhenDefaultPermissionIsToAllow() {
-        withDefaultGroupPermission(true, o -> assertThat(securityService.hasViewPermissionForGroup(VIEWER, GROUP_NAME)).isEqualTo(true));
+    public void userShouldNotHaveViewPermissionToGroupWithNoAuth() {
+        assertThat(securityService.hasViewPermissionForGroup(VIEWER, GROUP_NAME)).isEqualTo(false);
     }
 
     @Test
@@ -130,46 +123,22 @@ public class SecurityServiceIntegrationTest {
     }
 
     @Test
-    public void userShouldNotHaveOperatePermissionToGroupWithNoAuth_WhenDefaultPermissionIsToDeny() {
-        withDefaultGroupPermission(false, o -> assertThat(securityService.hasOperatePermissionForGroup(cis(OPERATOR), GROUP_NAME)).isEqualTo(false));
+    public void userShouldNotHaveOperatePermissionToGroupWithNoAuth() {
+        assertThat(securityService.hasOperatePermissionForGroup(cis(OPERATOR), GROUP_NAME)).isEqualTo(false);
     }
 
     @Test
-    public void userShouldHaveOperatePermissionToGroupWithNoAuth_WhenDefaultPermissionIsToAllow() {
-        withDefaultGroupPermission(true, o -> assertThat(securityService.hasOperatePermissionForGroup(cis(OPERATOR), GROUP_NAME)).isEqualTo(true));
-    }
-
-    @Test
-    public void userShouldNotHaveOperatePermissionToStageInGroupWithNoAuth_WhenDefaultPermissionIsToDeny_WhenStageOperatePermissionsAreNotDefined() {
-        withDefaultGroupPermission(false, o -> {
-            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, VIEWER)).isFalse();
-            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR)).isFalse();
-        });
-    }
-
-    @Test
-    public void userShouldHaveOperatePermissionToStageInGroupWithNoAuth_WhenDefaultPermissionIsToAllow_WhenStageOperatePermissionsAreNotDefined() {
-        withDefaultGroupPermission(true, o -> {
-            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, VIEWER)).isTrue();
-            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR)).isTrue();
-        });
+    public void userShouldNotHaveOperatePermissionToStageInGroupWithNoAuth_WhenStageOperatePermissionsAreNotDefined() {
+        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, VIEWER)).isFalse();
+        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR)).isFalse();
     }
 
     @Test
     public void operatePermissionOfStageIsNotInfluencedByDefaultPermissions_ForGroupsWithNoAuthDefined_ButWithStageOperatePermissionsDefined() {
-        withDefaultGroupPermission(true, o -> {
-            configHelper.setOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR);
+        configHelper.setOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR);
 
-            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, VIEWER)).isFalse();
-            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR)).isTrue();
-        });
-
-        withDefaultGroupPermission(false, o -> {
-            configHelper.setOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR);
-
-            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, VIEWER)).isFalse();
-            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR)).isTrue();
-        });
+        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, VIEWER)).isFalse();
+        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR)).isTrue();
     }
 
     @Test
@@ -368,16 +337,6 @@ public class SecurityServiceIntegrationTest {
         boolean isAuthorized = securityService.isAuthorizedToEditTemplate(templateName, new Username(cis(templateAdminNotForThisTemplate)));
 
         assertThat(isAuthorized).isFalse();
-    }
-
-    private void withDefaultGroupPermission(boolean defaultAllow, Consumer<Object> body) {
-        boolean previousValue = systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP);
-        try {
-            systemEnvironment.set(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP, defaultAllow);
-            body.accept(null);
-        } finally {
-            systemEnvironment.set(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP, previousValue);
-        }
     }
 
     private static final String CONFIG_WITH_2_GROUPS = """

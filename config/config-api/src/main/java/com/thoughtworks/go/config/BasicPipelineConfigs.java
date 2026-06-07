@@ -208,8 +208,8 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     @Override
-    public boolean hasViewPermission(final CaseInsensitiveString username, UserRoleMatcher userRoleMatcher, boolean everyoneIsAllowedToViewIfNoAuthIsDefined) {
-        return (!hasAuthorizationDefined() && everyoneIsAllowedToViewIfNoAuthIsDefined) || authorization.hasViewPermission(username, userRoleMatcher);
+    public boolean hasViewPermission(final CaseInsensitiveString username, UserRoleMatcher userRoleMatcher) {
+        return authorization.hasViewPermission(username, userRoleMatcher);
     }
 
     @Override
@@ -223,8 +223,8 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     @Override
-    public boolean hasOperatePermission(final CaseInsensitiveString username, UserRoleMatcher userRoleMatcher, boolean everyoneIsAllowedToOperateIfNoAuthIsDefined) {
-        return (!hasAuthorizationDefined() && everyoneIsAllowedToOperateIfNoAuthIsDefined) || authorization.hasOperatePermission(username, userRoleMatcher);
+    public boolean hasOperatePermission(final CaseInsensitiveString username, UserRoleMatcher userRoleMatcher) {
+        return authorization.hasOperatePermission(username, userRoleMatcher);
     }
 
     @Override

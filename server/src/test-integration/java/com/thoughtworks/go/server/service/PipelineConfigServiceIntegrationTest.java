@@ -1044,7 +1044,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(result.isSuccessful()).isTrue();
 
         assertThat(goConfigService.groups().hasGroup("updated_group")).isTrue();
-        assertThat(goConfigService.findGroupNameByPipelineOptional(pipelineConfig.name())).isEqualTo("updated_group");
+        assertThat(goConfigService.findGroupNameByPipelineOptional(pipelineConfig.name())).contains("updated_group");
     }
 
     @Test

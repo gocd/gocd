@@ -18,7 +18,6 @@ package com.thoughtworks.go.domain.cctray;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
 import com.thoughtworks.go.config.security.Permissions;
-import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +30,9 @@ import java.util.Map;
 /* Understands what needs to be done to keep the CCTray cache updated, when the config changes. */
 @Component
 public class CcTrayConfigChangeHandler {
-    private CcTrayCache cache;
-    private CcTrayStageStatusLoader stageStatusLoader;
-    private GoConfigPipelinePermissionsAuthority pipelinePermissionsAuthority;
+    private final CcTrayCache cache;
+    private final CcTrayStageStatusLoader stageStatusLoader;
+    private final GoConfigPipelinePermissionsAuthority pipelinePermissionsAuthority;
 
     @Autowired
     public CcTrayConfigChangeHandler(CcTrayCache cache, CcTrayStageStatusLoader stageStatusLoader, GoConfigPipelinePermissionsAuthority pipelinePermissionsAuthority) {
@@ -149,6 +148,6 @@ public class CcTrayConfigChangeHandler {
     }
 
     private Users viewersOrNoOne(Permissions permissions) {
-        return permissions == null ? NoOne.INSTANCE : permissions.viewers();
+        return permissions == null ? Users.NOONE : permissions.viewers();
     }
 }

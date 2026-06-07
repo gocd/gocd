@@ -339,7 +339,7 @@ public class PipelineHistoryServiceIntegrationTest {
     @Test
     public void findPipelineInstanceShouldNotFindPipelineInstancesNotViewableByUser() {
         Pipeline pipeline = pipelineOne.createdPipelineWithAllStagesPassed();
-        String groupName = configHelper.currentConfig().getGroups().findGroupByPipeline(cis(pipeline.getName()));
+        String groupName = configHelper.currentConfig().getGroups().findGroupByPipeline(cis(pipeline.getName())).getGroup();
         configHelper.setViewPermissionForGroup(groupName, "admin");
 
         HttpOperationResult result = new HttpOperationResult();

@@ -18,8 +18,7 @@ package com.thoughtworks.go.apiv4.dashboard.representers
 import com.thoughtworks.go.config.TrackingTool
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.config.security.Permissions
-import com.thoughtworks.go.config.security.permissions.NoOnePermission
-import com.thoughtworks.go.config.security.users.NoOne
+import com.thoughtworks.go.config.security.permissions.PipelinePermission
 import com.thoughtworks.go.domain.*
 import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.presentation.pipelinehistory.JobHistory
@@ -33,6 +32,7 @@ import org.junit.jupiter.api.Test
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis
+import static com.thoughtworks.go.config.security.users.Users.NOONE
 import static com.thoughtworks.go.helpers.PipelineModelMother.pipeline_model
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.mockito.Mockito.mock
@@ -53,7 +53,7 @@ class StageRepresenterTest {
 
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
-    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
+    def permissions = new Permissions(NOONE, NOONE, NOONE, PipelinePermission.NOONE)
     def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
     pipelineConfig.setOrigin(new FileConfigOrigin())
     pipelineConfig.setTrackingTool(new TrackingTool("http://example.com/\${ID}", "##\\d+"))
@@ -99,7 +99,7 @@ class StageRepresenterTest {
 
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
-    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
+    def permissions = new Permissions(NOONE, NOONE, NOONE, PipelinePermission.NOONE)
     def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
     pipelineConfig.setOrigin(new FileConfigOrigin())
     pipelineConfig.setTrackingTool(new TrackingTool("http://example.com/\${ID}", "##\\d+"))
@@ -134,7 +134,7 @@ class StageRepresenterTest {
 
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
-    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
+    def permissions = new Permissions(NOONE, NOONE, NOONE, PipelinePermission.NOONE)
     def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
     pipelineConfig.setOrigin(new FileConfigOrigin())
     pipelineConfig.setTrackingTool(new TrackingTool("http://example.com/\${ID}", "##\\d+"))
@@ -168,7 +168,7 @@ class StageRepresenterTest {
     def stageInstance = new StageInstanceModel('stage2', '2', new JobHistory().addJob("j1", JobState.Completed, JobResult.Cancelled, new Date(12345)))
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
-    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
+    def permissions = new Permissions(NOONE, NOONE, NOONE, PipelinePermission.NOONE)
     def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
     pipelineConfig.setOrigin(new FileConfigOrigin())
     pipelineConfig.setTrackingTool(new TrackingTool("http://example.com/\${ID}", "##\\d+"))

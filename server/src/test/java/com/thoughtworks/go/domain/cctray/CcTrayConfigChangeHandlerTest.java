@@ -18,9 +18,8 @@ package com.thoughtworks.go.domain.cctray;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
 import com.thoughtworks.go.config.security.Permissions;
-import com.thoughtworks.go.config.security.permissions.NoOnePermission;
+import com.thoughtworks.go.config.security.permissions.PipelinePermission;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
-import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.helper.GoConfigMother;
 import org.junit.jupiter.api.AfterEach;
@@ -225,8 +224,8 @@ public class CcTrayConfigChangeHandlerTest {
         PluginRoleConfig admin = new PluginRoleConfig("admin", "ldap");
         pluginRoleUsersStore.assignRole("user4", admin);
 
-        Permissions pipeline1Permissions = new Permissions(viewers("user1", "user2"), NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE);
-        Permissions pipeline2Permissions = new Permissions(new AllowedUsers(Set.of("user3"), Set.of(admin)), NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE);
+        Permissions pipeline1Permissions = new Permissions(viewers("user1", "user2"), Users.NOONE, Users.NOONE, PipelinePermission.NOONE);
+        Permissions pipeline2Permissions = new Permissions(new AllowedUsers(Set.of("user3"), Set.of(admin)), Users.NOONE, Users.NOONE, PipelinePermission.NOONE);
         when(pipelinePermissionsAuthority.pipelinesAndTheirPermissions()).thenReturn(Map.of(cis("pipeline1"), pipeline1Permissions, cis("pipeline2"), pipeline2Permissions));
 
         CruiseConfig config = GoConfigMother.defaultCruiseConfig();

@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
-import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
 
 @Service
 public class SecurityService {
@@ -60,8 +59,7 @@ public class SecurityService {
         }
 
         PipelineConfigs group = cruiseConfig.getGroups().findGroup(pipelineGroupName);
-        boolean everyoneIsAllowedToViewIfNoAuthIsDefined = systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP);
-        return isUserAdminOfGroup(username, group) || group.hasViewPermission(username, new UserRoleMatcherImpl(cruiseConfig.server().security()), everyoneIsAllowedToViewIfNoAuthIsDefined);
+        return isUserAdminOfGroup(username, group) || group.hasViewPermission(username, new UserRoleMatcherImpl(cruiseConfig.server().security()));
     }
 
     private boolean isUserAdminOfGroup(final CaseInsensitiveString userName, PipelineConfigs group) {
@@ -102,8 +100,7 @@ public class SecurityService {
         }
 
         PipelineConfigs group = cruiseConfig.getGroups().findGroup(groupName);
-        boolean everyoneIsAllowedToOperateIfNoAuthIsDefined = systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP);
-        return isUserAdminOfGroup(username, group) || group.hasOperatePermission(username, new UserRoleMatcherImpl(cruiseConfig.server().security()), everyoneIsAllowedToOperateIfNoAuthIsDefined);
+        return isUserAdminOfGroup(username, group) || group.hasOperatePermission(username, new UserRoleMatcherImpl(cruiseConfig.server().security()));
     }
 
     public boolean hasOperatePermissionForStage(String pipelineName, String stageName, String username) {

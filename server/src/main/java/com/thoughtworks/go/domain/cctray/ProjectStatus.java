@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain.cctray;
 
-import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.UrlUtil;
@@ -57,7 +56,7 @@ public class ProjectStatus {
         this.breakers = breakers;
         this.lastBuildTime = lastBuildTime == null ? new Date() : lastBuildTime;
         this.webPathAfterContext = webPathAfterContext;
-        this.viewers = NoOne.INSTANCE;
+        this.viewers = Users.NOONE;
     }
 
     @Override

@@ -175,7 +175,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     private static final GoSystemProperty<Boolean> ENABLE_ANALYTICS_ONLY_FOR_ADMINS = new GoBooleanSystemProperty("go.enable.analytics.only.for.admins", false);
     public static final GoSystemProperty<Long> NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS = new GoLongSystemProperty("plugins.notification.message.ttl.millis", MINUTES.toMillis(2));
-    public static final GoSystemProperty<Boolean> ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP = new GoBooleanSystemProperty("allow.everyone.to.view.operate.groups.with.no.authorization.setup", false);
 
     public static final GoSystemProperty<Boolean> ENABLE_HSTS_HEADER = new GoBooleanSystemProperty("gocd.enable.hsts.header", false);
     public static final GoSystemProperty<Long> HSTS_HEADER_MAX_AGE_IN_SECONDS = new GoLongSystemProperty("gocd.hsts.header.max.age", DAYS.toSeconds(365));

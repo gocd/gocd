@@ -21,8 +21,8 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
 import com.thoughtworks.go.config.security.Permissions;
-import com.thoughtworks.go.config.security.permissions.NoOnePermission;
-import com.thoughtworks.go.config.security.users.NoOne;
+import com.thoughtworks.go.config.security.permissions.PipelinePermission;
+import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
@@ -209,7 +209,7 @@ public class GoDashboardCurrentStateLoader {
         if (pipelinesAndTheirPermissions.containsKey(pipelineConfig.name())) {
             return pipelinesAndTheirPermissions.get(pipelineConfig.name());
         }
-        return new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE);
+        return new Permissions(Users.NOONE, Users.NOONE, Users.NOONE, PipelinePermission.NOONE);
     }
 
     public void reset() {

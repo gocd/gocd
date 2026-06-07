@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
 import com.thoughtworks.go.config.security.Permissions;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
-import com.thoughtworks.go.config.security.users.Everyone;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.server.dashboard.*;
 import com.thoughtworks.go.server.domain.Username;
@@ -29,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.config.security.util.SecurityConfigUtils.*;
 
@@ -50,19 +50,13 @@ public class GoDashboardService {
 
     public List<GoDashboardEnvironment> allEnvironmentsForDashboard(DashboardFilter filter, Username user) {
         GoDashboardPipelines allPipelines = cache.allEntries();
-        List<GoDashboardEnvironment> environments = new ArrayList<>();
 
         final Users admins = superAdmins();
 
-        goConfigService.getEnvironments().forEach(environment -> {
-            GoDashboardEnvironment env = dashboardEnvironmentFor(environment, filter, user, admins, allPipelines);
-
-            if (env.hasPipelines()) {
-                environments.add(env);
-            }
-        });
-
-        return environments;
+        return goConfigService.getEnvironments().stream()
+            .map(environment -> dashboardEnvironmentFor(environment, filter, user, admins, allPipelines))
+            .filter(AbstractDashboardGroup::hasPipelines)
+            .collect(Collectors.toList());
     }
 
     public List<GoDashboardPipelineGroup> allPipelineGroupsForDashboard(DashboardFilter filter, Username user) {
@@ -141,7 +135,7 @@ public class GoDashboardService {
         final Set<PluginRoleConfig> superAdminPluginRoles = pluginRolesFor(security, security.adminsConfig().getRoles());
 
         if (!goConfigService.isSecurityEnabled() || noSuperAdminsDefined(security)) {
-            return Everyone.INSTANCE;
+            return Users.EVERYONE;
         }
 
         return new AllowedUsers(superAdminUsers, superAdminPluginRoles);

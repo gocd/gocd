@@ -57,6 +57,7 @@ class RememberLastRequestUrlFilterChainTest {
         "/plugin/foo/authenticate",
         "/assets/images/logo.png",
         "/files/build-windows/8531/build-non-server/1/FastTests-runInstance-1/cruise-output/console.log?startLineNumber=0",
+        "/console-websocket/build-linux/8839/build-non-server/1/jasmine-rspec?startLine=0",
         "/pipelines/build-windows/8531/build-non-server/1/stats_iframe",
         "/admin/config_change/between/4f0288d15e3855288102dda9ebd45e52/and/233cd2b905cd5fec7435d9fdb72f79b7",
         "/history/stage/Security-Checks/8812/Security-Checks/1?page=5&tab=overview",

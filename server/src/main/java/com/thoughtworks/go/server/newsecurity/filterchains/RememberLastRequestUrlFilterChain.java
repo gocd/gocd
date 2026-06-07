@@ -33,6 +33,7 @@ public class RememberLastRequestUrlFilterChain extends FilterChainProxy {
                 .addFilterChain("/assets/**")
                 .addFilterChain("/**/*.json")
                 .addFilterChain("/files/**")
+                .addFilterChain("/console-websocket/**")
                 .addFilterChain("/history/**")
                 .addFilterChain("/admin/config_change/**")
                 .addFilterChain("/**/*iframe")

@@ -359,7 +359,7 @@ public class BackupServiceIntegrationTest {
 
     @Test
     public void shouldReturnBackupRunningSinceValue_inISO8601_format() throws InterruptedException {
-        assertThat(backupService.backupRunningSinceISO8601()).isEqualTo(Optional.empty());
+        assertThat(backupService.backupRunningSinceISO8601()).isEmpty();
 
         final Semaphore waitForBackupToStart = new Semaphore(1);
         final Semaphore waitForAssertionToCompleteWhileBackupIsOn = new Semaphore(1);
@@ -403,7 +403,7 @@ public class BackupServiceIntegrationTest {
 
     @Test
     public void shouldReturnBackupStartedBy() throws InterruptedException {
-        assertThat(backupService.backupStartedBy()).isEqualTo(Optional.empty());
+        assertThat(backupService.backupStartedBy()).isEmpty();
 
         final Semaphore waitForBackupToStart = new Semaphore(1);
         final Semaphore waitForAssertionToCompleteWhileBackupIsOn = new Semaphore(1);

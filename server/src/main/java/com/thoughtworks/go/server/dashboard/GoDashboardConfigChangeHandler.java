@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 /* Understands what needs to be done to keep the dashboard cache updated, when the config changes. */
 @Component
 public class GoDashboardConfigChangeHandler {
-    private GoDashboardService cacheUpdateService;
+    private final GoDashboardService cacheUpdateService;
 
     @Autowired
     public GoDashboardConfigChangeHandler(GoDashboardService cacheUpdateService) {

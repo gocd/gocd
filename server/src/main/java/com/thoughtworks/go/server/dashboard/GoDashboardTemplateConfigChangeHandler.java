@@ -27,8 +27,8 @@ import java.util.List;
 /* Understands what needs to be done to keep the dashboard cache updated, when a template changes. */
 @Component
 public class GoDashboardTemplateConfigChangeHandler {
-    private GoDashboardService cacheUpdateService;
-    private GoConfigService goConfigService;
+    private final GoDashboardService cacheUpdateService;
+    private final GoConfigService goConfigService;
 
     @Autowired
     public GoDashboardTemplateConfigChangeHandler(GoDashboardService cacheUpdateService, GoConfigService goConfigService) {

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
@@ -35,7 +34,7 @@ public class AddEnvironmentCommand extends EnvironmentCommand {
 
     @Override
     public void update(CruiseConfig preprocessedConfig) {
-        preprocessedConfig.addEnvironment((BasicEnvironmentConfig) environmentConfig);
+        preprocessedConfig.addEnvironment(environmentConfig);
     }
 
     @Override

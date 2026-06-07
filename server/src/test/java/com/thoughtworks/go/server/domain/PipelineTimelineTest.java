@@ -229,7 +229,7 @@ public class PipelineTimelineTest {
                 for (PipelineTimelineEntry entry : repositoryEntries) {
                     timeline.add(entry);
                 }
-                ((List<PipelineTimelineEntry>) invocationOnMock.getArguments()[1]).addAll(List.of(repositoryEntries));
+                ((List<PipelineTimelineEntry>) invocationOnMock.getArgument(1)).addAll(List.of(repositoryEntries));
                 return List.of(repositoryEntries);
             }).when(pipelineRepository).updatePipelineTimeline(eq(timeline), anyList());
         }
@@ -237,7 +237,7 @@ public class PipelineTimelineTest {
 
     private void stubTransactionSynchronization() {
         doAnswer(invocationOnMock -> {
-            transactionSynchronization = (TransactionSynchronization) invocationOnMock.getArguments()[0];
+            transactionSynchronization = invocationOnMock.getArgument(0);
             return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any());
     }
@@ -246,7 +246,7 @@ public class PipelineTimelineTest {
         this.txnStatus = status;
         if (restub) {
             when(transactionTemplate.execute(any())).thenAnswer(invocationOnMock -> {
-                TransactionCallback<?> callback = (TransactionCallback<?>) invocationOnMock.getArguments()[0];
+                TransactionCallback<?> callback = invocationOnMock.getArgument(0);
                 callback.doInTransaction(null);
                 if (txnStatus == TransactionSynchronization.STATUS_COMMITTED) {
                     transactionSynchronization.afterCommit();

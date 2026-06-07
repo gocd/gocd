@@ -107,7 +107,7 @@ public class JsonBasedTaskExecutorTest {
 
 
         doAnswer(invocationOnMock -> {
-            GoPluginApiRequest request = (GoPluginApiRequest) invocationOnMock.getArguments()[2];
+            GoPluginApiRequest request = invocationOnMock.getArgument(2);
             executionRequest[0] = request;
             return response;
         }).when(pluginManager).submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any());

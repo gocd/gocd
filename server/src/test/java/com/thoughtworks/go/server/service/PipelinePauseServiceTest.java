@@ -53,7 +53,7 @@ public class PipelinePauseServiceTest {
     public void setUp() {
         pipelineDao = mock(PipelineSqlMapDao.class);
         goConfigDao = mock(GoConfigDao.class);
-        GoConfigService goConfigService = new GoConfigService(goConfigDao, (GoConfigMigration) null, null, null, null, null, null);
+        GoConfigService goConfigService = new GoConfigService(goConfigDao, null, null, null, null, null, null);
         securityService = mock(SecurityService.class);
         pipelinePauseService = new PipelinePauseService(pipelineDao, goConfigService, securityService);
         when(pipelineDao.pauseState(VALID_PIPELINE)).thenReturn(new PipelinePauseInfo(false, "", VALID_USER.getUsername().toString()));

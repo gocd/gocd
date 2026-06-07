@@ -105,7 +105,7 @@ public class PluginRequestHelperTest {
 
         final GoPluginApiRequest[] generatedRequest = {null};
         doAnswer(invocationOnMock -> {
-            generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[2];
+            generatedRequest[0] = invocationOnMock.getArgument(2);
             return response;
         }).when(pluginManager).submitTo(eq(pluginId), eq(extensionName), any());
 
@@ -129,7 +129,7 @@ public class PluginRequestHelperTest {
 
         final GoPluginApiRequest[] generatedRequest = {null};
         doAnswer(invocationOnMock -> {
-            generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[2];
+            generatedRequest[0] = invocationOnMock.getArgument(2);
             return response;
         }).when(pluginManager).submitTo(eq(pluginId), eq(extensionName), any());
 
@@ -175,7 +175,7 @@ public class PluginRequestHelperTest {
 
         final GoPluginApiRequest[] generatedRequest = {null};
         doAnswer(invocationOnMock -> {
-            generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[2];
+            generatedRequest[0] = invocationOnMock.getArgument(2);
             return response;
         }).when(pluginManager).submitTo(eq(pluginId), eq(extensionName), any());
 

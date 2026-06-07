@@ -499,7 +499,7 @@ public class SvnCommandTest {
         svnMaterials.add(svnMaterial);
         final SvnCommand spy = spy(subversion);
         doAnswer(invocation -> {
-            final CommandLine commandLine = (CommandLine) invocation.getArguments()[0];
+            final CommandLine commandLine = invocation.getArgument(0);
             assertThat(commandLine.toString()).contains("svn info --xml --username user --password ****** http://localhost/svn/project1");
             return consoleResult;
         }).when(spy).executeCommand(any());
@@ -521,7 +521,7 @@ public class SvnCommandTest {
         doAnswer(invocation -> {
             final ConsoleResult consoleResult = mock(ConsoleResult.class);
             when(consoleResult.outputAsString()).thenReturn(svnInfoOutput);
-            final CommandLine commandLine = (CommandLine) invocation.getArguments()[0];
+            final CommandLine commandLine = invocation.getArgument(0);
             if (commandLine.toString().contains("http://localhost/svn/project1")) {
                 return consoleResult;
             } else {
@@ -559,7 +559,7 @@ public class SvnCommandTest {
             public Object answer(InvocationOnMock invocation) {
                 final ConsoleResult consoleResult = mock(ConsoleResult.class);
                 when(consoleResult.outputAsString()).thenReturn(svnInfoOutput);
-                verifyCommandLine((CommandLine) invocation.getArguments()[0]);
+                verifyCommandLine(invocation.getArgument(0));
                 return consoleResult;
             }
 

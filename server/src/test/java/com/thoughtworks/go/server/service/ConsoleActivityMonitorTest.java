@@ -69,11 +69,11 @@ class ConsoleActivityMonitorTest {
         when(goConfigService.canCancelJobIfHung(any())).thenReturn(true);
 
         doAnswer((Answer<Object>) invocation -> {
-            activeJobListener = (ConsoleActivityMonitor.ActiveJobListener) invocation.getArguments()[0];
+            activeJobListener = invocation.getArgument(0);
             return null;
         }).when(jobInstanceService).registerJobStateChangeListener(any(ConsoleActivityMonitor.ActiveJobListener.class));
         doAnswer((Answer<Object>) invocation -> {
-            scheduledJobListener = (ConsoleActivityMonitor.ScheduledJobListener) invocation.getArguments()[0];
+            scheduledJobListener = invocation.getArgument(0);
             return null;
         }).when(jobInstanceService).registerJobStateChangeListener(any(ConsoleActivityMonitor.ScheduledJobListener.class));
         consoleActivityMonitor = new ConsoleActivityMonitor(timeProvider, systemEnvironment, jobInstanceService, serverHealthService, goConfigService, consoleService);

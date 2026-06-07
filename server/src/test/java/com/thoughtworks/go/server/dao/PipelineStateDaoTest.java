@@ -64,7 +64,7 @@ class PipelineStateDaoTest {
         goCache.put(pipelineStateDao.pipelineLockStateCacheKey(pipelineName), pipelineState);
 
         when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
-            org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
+            org.springframework.transaction.support.TransactionCallbackWithoutResult callback = invocation.getArgument(0);
             callback.doInTransaction(new SimpleTransactionStatus());
             return null;
         });
@@ -90,7 +90,7 @@ class PipelineStateDaoTest {
         goCache.put(pipelineStateDao.pipelineLockStateCacheKey(pipelineName), pipelineState);
 
         when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
-            org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
+            org.springframework.transaction.support.TransactionCallbackWithoutResult callback = invocation.getArgument(0);
             callback.doInTransaction(new SimpleTransactionStatus());
             return null;
         });

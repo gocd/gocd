@@ -220,7 +220,7 @@ public class PipelineLockServiceTest {
     public void shouldNotifyListenersAfterPipelineIsLocked() {
         when(goConfigService.isLockable("pipeline1")).thenReturn(true);
         doAnswer(invocation -> {
-            AfterCompletionCallback callback = (AfterCompletionCallback) invocation.getArguments()[1];
+            AfterCompletionCallback callback = invocation.getArgument(1);
             callback.execute(TransactionSynchronization.STATUS_COMMITTED);
             return null;
         }).when(pipelineStateDao).lockPipeline(any(), any());
@@ -238,7 +238,7 @@ public class PipelineLockServiceTest {
     public void shouldNotNotifyListenersIfLockFails() {
         when(goConfigService.isLockable("pipeline1")).thenReturn(true);
         doAnswer(invocation -> {
-            AfterCompletionCallback callback = (AfterCompletionCallback) invocation.getArguments()[1];
+            AfterCompletionCallback callback = invocation.getArgument(1);
             callback.execute(TransactionSynchronization.STATUS_ROLLED_BACK);
             return null;
         }).when(pipelineStateDao).lockPipeline(any(), any());
@@ -256,7 +256,7 @@ public class PipelineLockServiceTest {
     public void shouldNotifyListenersAfterPipelineIsUnlocked() {
         PipelineLockStatusChangeListener lockStatusChangeListener = mock(PipelineLockStatusChangeListener.class);
         doAnswer(invocation -> {
-            AfterCompletionCallback callback = (AfterCompletionCallback) invocation.getArguments()[1];
+            AfterCompletionCallback callback = invocation.getArgument(1);
             callback.execute(TransactionSynchronization.STATUS_COMMITTED);
             return null;
         }).when(pipelineStateDao).unlockPipeline(eq("pipeline1"), any());
@@ -271,7 +271,7 @@ public class PipelineLockServiceTest {
     public void shouldNotNotifyListenersIfUnlockFails() {
         PipelineLockStatusChangeListener lockStatusChangeListener = mock(PipelineLockStatusChangeListener.class);
         doAnswer(invocation -> {
-            AfterCompletionCallback callback = (AfterCompletionCallback) invocation.getArguments()[1];
+            AfterCompletionCallback callback = invocation.getArgument(1);
             callback.execute(TransactionSynchronization.STATUS_ROLLED_BACK);
             return null;
         }).when(pipelineStateDao).unlockPipeline(eq("pipeline1"), any());
@@ -291,7 +291,7 @@ public class PipelineLockServiceTest {
         when(cruiseConfig.hasPipelineNamed(cis("pipeline1"))).thenReturn(false);
         when(cruiseConfig.isPipelineLockable("pipeline1")).thenThrow(new RecordNotFoundException(EntityType.Pipeline, "pipeline1"));
         doAnswer(invocation -> {
-            AfterCompletionCallback callback = (AfterCompletionCallback) invocation.getArguments()[1];
+            AfterCompletionCallback callback = invocation.getArgument(1);
             callback.execute(TransactionSynchronization.STATUS_COMMITTED);
             return null;
         }).when(pipelineStateDao).unlockPipeline(eq("pipeline1"), any());
@@ -309,7 +309,7 @@ public class PipelineLockServiceTest {
         doThrow(new RuntimeException("Ouch.")).when(listener2).lockStatusChanged(org.mockito.ArgumentMatchers.any());
         PipelineLockStatusChangeListener listener3 = mock(PipelineLockStatusChangeListener.class);
         doAnswer(invocation -> {
-            AfterCompletionCallback callback = (AfterCompletionCallback) invocation.getArguments()[1];
+            AfterCompletionCallback callback = invocation.getArgument(1);
             callback.execute(TransactionSynchronization.STATUS_COMMITTED);
             return null;
         }).when(pipelineStateDao).unlockPipeline(eq("pipeline1"), any());

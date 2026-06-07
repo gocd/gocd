@@ -112,7 +112,7 @@ public class PartialConfigServiceTest {
     @Test
     void mergesRemoteGroupToMain() {
         doAnswer(invocationOnMock -> {
-            UpdateConfigCommand command = (UpdateConfigCommand) invocationOnMock.getArguments()[0];
+            UpdateConfigCommand command = invocationOnMock.getArgument(0);
             command.update(cruiseConfig);
             return cruiseConfig;
         }).when(goConfigService).updateConfig(any());
@@ -124,7 +124,7 @@ public class PartialConfigServiceTest {
     @Test
     void mergesRemoteEnvironmentToMain() {
         doAnswer(invocationOnMock -> {
-            UpdateConfigCommand command = (UpdateConfigCommand) invocationOnMock.getArguments()[0];
+            UpdateConfigCommand command = invocationOnMock.getArgument(0);
             command.update(cruiseConfig);
             return cruiseConfig;
         }).when(goConfigService).updateConfig(any());

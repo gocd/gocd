@@ -68,7 +68,7 @@ public class JobConfigMother {
     public static JobConfig jobWithNoResourceRequirement() {
         JobConfig jobConfig = jobConfig();
         jobConfig.setName(UUID.randomUUID().toString());
-        jobConfig.setRunInstanceCount((String)null);
+        jobConfig.setRunInstanceCount(null);
         jobConfig.resourceConfigs().clear();
         return jobConfig;
     }

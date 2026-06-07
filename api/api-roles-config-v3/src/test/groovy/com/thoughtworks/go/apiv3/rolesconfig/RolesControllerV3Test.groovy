@@ -274,7 +274,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
         PluginRoleConfig role = new PluginRoleConfig('blackbird', 'blackbird')
 
         when(roleConfigService.create(any(), any(), any())).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          def result = invocation.getArguments().last()
           result.unprocessableEntity("validation failed")
         })
 
@@ -519,7 +519,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
         when(roleConfigService.findRole('blackbird')).thenReturn(role)
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+          def result = invocation.arguments.last()
           result.setMessage("something bad happened")
         }).when(roleConfigService).delete(any(), eq(role), any())
 
@@ -538,7 +538,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
         when(roleConfigService.findRole('blackbird')).thenReturn(role)
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+          def result = invocation.arguments.last()
           result.unprocessableEntity("some error happened!")
         }).when(roleConfigService).delete(any(), eq(role), any())
 

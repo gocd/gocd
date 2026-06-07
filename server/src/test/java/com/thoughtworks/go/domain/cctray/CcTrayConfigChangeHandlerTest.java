@@ -18,9 +18,8 @@ package com.thoughtworks.go.domain.cctray;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
 import com.thoughtworks.go.config.security.Permissions;
-import com.thoughtworks.go.config.security.permissions.NoOnePermission;
+import com.thoughtworks.go.config.security.permissions.PipelinePermission;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
-import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.helper.GoConfigMother;
 import org.junit.jupiter.api.AfterEach;
@@ -57,6 +56,7 @@ public class CcTrayConfigChangeHandlerTest {
     public void setUp() {
         goConfigMother = new GoConfigMother();
         handler = new CcTrayConfigChangeHandler(cache, stageStatusLoader, pipelinePermissionsAuthority);
+        lenient().when(pipelinePermissionsAuthority.permissionsForPipeline(any())).thenReturn(Permissions.NOONE);
         pluginRoleUsersStore = PluginRoleUsersStore.instance();
     }
 
@@ -94,9 +94,7 @@ public class CcTrayConfigChangeHandlerTest {
         ProjectStatus existingJobStatus = new ProjectStatus(jobProjectName, "OldActivity-Job", "OldStatus-Job", "OldLabel-Job", new Date(), "job-url");
         when(cache.get(jobProjectName)).thenReturn(existingJobStatus);
 
-
         handler.call(GoConfigMother.configWithPipelines("pipeline1"));
-
 
         verify(cache).replaceAllEntriesInCacheWith(eq(List.of(existingStageStatus, existingJobStatus)));
         verifyNoInteractions(stageStatusLoader);
@@ -116,7 +114,6 @@ public class CcTrayConfigChangeHandlerTest {
             .thenReturn(List.of(statusOfStageInDB, statusOfJobInDB));
 
         handler.call(config);
-
 
         verify(cache).replaceAllEntriesInCacheWith(eq(List.of(statusOfStageInDB, statusOfJobInDB)));
     }
@@ -141,9 +138,7 @@ public class CcTrayConfigChangeHandlerTest {
         when(stageStatusLoader.getStatusesForStageAndJobsOf(pipelineConfigFor(config, "pipeline1"), stageConfigFor(config, "pipeline1", "stage2")))
             .thenReturn(Collections.emptyList());
 
-
         handler.call(config);
-
 
         ProjectStatus expectedNullStatusForStage2 = new ProjectStatus.NullProjectStatus(stage2ProjectName);
         ProjectStatus expectedNullStatusForJob2 = new ProjectStatus.NullProjectStatus(job2ProjectName);
@@ -166,9 +161,7 @@ public class CcTrayConfigChangeHandlerTest {
         when(stageStatusLoader.getStatusesForStageAndJobsOf(pipelineConfigFor(config, "pipeline1"), stageConfigFor(config, "pipeline1", "stage1")))
             .thenReturn(List.of(statusOfStage1InDB, statusOfJob1InDB));
 
-
         handler.call(config);
-
 
         ProjectStatus expectedNullStatusForNewJob = new ProjectStatus.NullProjectStatus(projectNameOfNewJob);
         verify(cache).replaceAllEntriesInCacheWith(eq(List.of(statusOfStage1InDB, statusOfJob1InDB, expectedNullStatusForNewJob)));
@@ -190,9 +183,7 @@ public class CcTrayConfigChangeHandlerTest {
         CruiseConfig config = new BasicCruiseConfig();
         goConfigMother.addPipeline(config, "pipeline1", "stage1", "job1", "NEW_JOB_IN_CONFIG");
 
-
         handler.call(config);
-
 
         ProjectStatus expectedNullStatusForNewJob = new ProjectStatus.NullProjectStatus(projectNameOfNewJob);
         verify(cache).replaceAllEntriesInCacheWith(eq(List.of(statusOfStage1InCache, statusOfJob1InCache, expectedNullStatusForNewJob)));
@@ -212,9 +203,7 @@ public class CcTrayConfigChangeHandlerTest {
         CruiseConfig config = new BasicCruiseConfig();
         goConfigMother.addPipeline(config, "pipeline1", "stage1", "job1");
 
-
         handler.call(config);
-
 
         verify(cache).replaceAllEntriesInCacheWith(eq(List.of(statusOfStage1InCache, statusOfJob1InCache)));
         verifyNoInteractions(stageStatusLoader);
@@ -225,17 +214,15 @@ public class CcTrayConfigChangeHandlerTest {
         PluginRoleConfig admin = new PluginRoleConfig("admin", "ldap");
         pluginRoleUsersStore.assignRole("user4", admin);
 
-        Permissions pipeline1Permissions = new Permissions(viewers("user1", "user2"), NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE);
-        Permissions pipeline2Permissions = new Permissions(new AllowedUsers(Set.of("user3"), Set.of(admin)), NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE);
+        Permissions pipeline1Permissions = new Permissions(viewers("user1", "user2"), Users.NOONE, Users.NOONE, PipelinePermission.NOONE);
+        Permissions pipeline2Permissions = new Permissions(new AllowedUsers(Set.of("user3"), Set.of(admin)), Users.NOONE, Users.NOONE, PipelinePermission.NOONE);
         when(pipelinePermissionsAuthority.pipelinesAndTheirPermissions()).thenReturn(Map.of(cis("pipeline1"), pipeline1Permissions, cis("pipeline2"), pipeline2Permissions));
 
         CruiseConfig config = GoConfigMother.defaultCruiseConfig();
         goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2", "job2");
         goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
 
-
         handler.call(config);
-
 
         verify(cache).replaceAllEntriesInCacheWith(statusesCaptor.capture());
         List<ProjectStatus> statuses = statusesCaptor.getValue();
@@ -292,6 +279,35 @@ public class CcTrayConfigChangeHandlerTest {
     }
 
     @Test
+    public void shouldUpdateCacheWhenPipelineisDeleted() {
+        String pipeline1Stage = "pipeline1 :: stage1";
+        String pipeline1job = "pipeline1 :: stage1 :: job1";
+
+        ProjectStatus statusOfPipeline1StageInCache = new ProjectStatus(pipeline1Stage, "OldActivity", "OldStatus", "OldLabel", new Date(), "p1-stage-url");
+        ProjectStatus statusOfPipeline1JobInCache = new ProjectStatus(pipeline1job, "OldActivity-Job", "OldStatus-Job", "OldLabel-Job", new Date(), "p1-job-url");
+        when(cache.get(pipeline1Stage)).thenReturn(statusOfPipeline1StageInCache);
+        when(cache.get(pipeline1job)).thenReturn(statusOfPipeline1JobInCache);
+
+
+        PipelineConfig pipeline1Config = GoConfigMother.pipelineHavingJob("pipeline1", "stage1", "job1", "arts", "dir").pipelineConfigByName(cis("pipeline1"));
+
+        // Pipeline exists and everyone can see it
+        when(pipelinePermissionsAuthority.permissionsForPipeline(cis("pipeline1"))).thenReturn(Permissions.EVERYONE);
+        handler.call(pipeline1Config);
+        verify(cache).putAll(statusesCaptor.capture());
+        clearInvocations(cache);
+        assertThat(statusesCaptor.getValue())
+            .allSatisfy(s -> assertThat(s.canBeViewedBy("someone")).describedAs("status can be viewed by anyone").isTrue());
+
+        when(pipelinePermissionsAuthority.permissionsForPipeline(cis("pipeline1"))).thenReturn(Permissions.NOONE);
+        // Pipeline is deleted; meaning no-one can see it
+        handler.call(pipeline1Config);
+        verify(cache).putAll(statusesCaptor.capture());
+        assertThat(statusesCaptor.getValue())
+            .allSatisfy(s -> assertThat(s.canBeViewedBy("someone")).describedAs("status can be viewed by no-one").isFalse());
+    }
+
+    @Test
     public void shouldUpdateCacheWithAppropriateViewersForProjectStatusWhenPipelineConfigChanges() {
         String pipeline1Stage = "pipeline1 :: stage1";
         String pipeline1job = "pipeline1 :: stage1 :: job1";
@@ -305,10 +321,9 @@ public class CcTrayConfigChangeHandlerTest {
         when(pipelinePermissionsAuthority.permissionsForPipeline(pipeline1Config.name())).thenReturn(new Permissions(viewers("user1", "user2"), null, null, null));
 
         handler.call(pipeline1Config);
-        @SuppressWarnings("unchecked") ArgumentCaptor<ArrayList<ProjectStatus>> argumentCaptor = ArgumentCaptor.forClass(ArrayList.class);
-        verify(cache).putAll(argumentCaptor.capture());
+        verify(cache).putAll(statusesCaptor.capture());
 
-        List<ProjectStatus> allValues = argumentCaptor.getValue();
+        List<ProjectStatus> allValues = statusesCaptor.getValue();
         assertThat(allValues.getFirst().name()).isEqualTo(pipeline1Stage);
         assertThat(allValues.getFirst().viewers().contains("user1")).isTrue();
         assertThat(allValues.getFirst().viewers().contains("user2")).isTrue();

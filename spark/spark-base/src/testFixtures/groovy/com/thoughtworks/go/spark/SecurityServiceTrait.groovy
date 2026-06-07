@@ -94,7 +94,7 @@ trait SecurityServiceTrait {
     when(securityService.isUserAdminOfGroup(eq(username) as Username, any(String.class))).thenReturn(true)
 
     when(securityService.hasOperatePermissionForGroup(username.username, groupName)).thenReturn(true)
-    when(goConfigService.findGroupNameByPipeline(cis(pipelineName))).thenReturn(groupName)
+    when(goConfigService.findGroupNameByPipelineOptional(cis(pipelineName))).thenReturn(Optional.of(groupName))
   }
 
   void loginAsGroupOperateUser(String pipelineName) {
@@ -109,7 +109,7 @@ trait SecurityServiceTrait {
     when(goConfigService.groups()).thenReturn(groups)
     when(groups.hasGroup(groupName)).thenReturn(true)
     when(securityService.hasOperatePermissionForGroup(eq(username.username), eq(groupName))).thenReturn(true)
-    when(goConfigService.findGroupNameByPipeline(cis(pipelineName))).thenReturn(groupName)
+    when(goConfigService.findGroupNameByPipelineOptional(cis(pipelineName))).thenReturn(Optional.of(groupName))
   }
 
   void disableSecurity() {
@@ -160,7 +160,7 @@ trait SecurityServiceTrait {
     when(securityService.isAuthorizedToViewTemplates(eq(username))).thenReturn(false)
     when(goConfigService.groups()).thenReturn(new PipelineGroups())
     when(securityService.hasViewPermissionForPipeline(eq(username), eq(pipelineName))).thenReturn(true)
-    when(goConfigService.findGroupNameByPipeline(cis(pipelineName))).thenReturn(groupName)
+    when(goConfigService.findGroupNameByPipelineOptional(cis(pipelineName))).thenReturn(Optional.of(groupName))
   }
 
   private Username loginAsRandomUser() {

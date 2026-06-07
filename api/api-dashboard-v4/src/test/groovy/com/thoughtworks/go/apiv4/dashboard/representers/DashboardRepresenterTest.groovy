@@ -17,8 +17,8 @@ package com.thoughtworks.go.apiv4.dashboard.representers
 
 import com.thoughtworks.go.apiv4.dashboard.GoDashboardPipelineMother
 import com.thoughtworks.go.config.security.Permissions
-import com.thoughtworks.go.config.security.permissions.EveryonePermission
-import com.thoughtworks.go.config.security.users.Everyone
+import com.thoughtworks.go.config.security.permissions.PipelinePermission
+import com.thoughtworks.go.config.security.users.Users
 import com.thoughtworks.go.server.dashboard.GoDashboardEnvironment
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup
 import com.thoughtworks.go.server.domain.Username
@@ -36,7 +36,7 @@ class DashboardRepresenterTest {
   void 'renders pipeline dashboard with hal representation'() {
     def personalizationEtag = "sha256hash"
     def user = new Username(cis(SecureRandom.hex()))
-    def permissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE)
+    def permissions = new Permissions(Users.EVERYONE, Users.EVERYONE, Users.EVERYONE, PipelinePermission.EVERYONE)
 
     def group1 = new GoDashboardPipelineGroup('group1', permissions, true)
     def group2 = new GoDashboardPipelineGroup('group2', permissions, true)
@@ -49,7 +49,7 @@ class DashboardRepresenterTest {
     group1.addPipeline(pipeline2)
     group2.addPipeline(pipeline3)
 
-    def env1 = new GoDashboardEnvironment('env1', Everyone.INSTANCE, true)
+    def env1 = new GoDashboardEnvironment('env1', Users.EVERYONE, true)
     env1.addPipeline(pipeline1)
     env1.addPipeline(pipeline3)
 

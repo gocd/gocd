@@ -69,8 +69,8 @@ class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserA
 
   @Nested
   class APIAccessUsingAccessToken {
-    private preFilter
-    private authenticationToken
+    private SparkFilter preFilter
+    private AuthenticationToken authenticationToken
 
     @BeforeEach
     void setUp() {

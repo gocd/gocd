@@ -114,7 +114,7 @@ class CompareControllerV2Test implements SecurityServiceTrait, ControllerTrait<C
       @Test
       void 'should return 404 if pipeline was not found'() {
         when(changesetService.revisionsBetween(anyString(), anyInt(), anyInt(), any(), any(), anyBoolean())).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArguments()[4]
+          def result = invocation.getArgument(4)
           result.notFound("not found message", HealthStateType.general(HealthStateScope.forPipeline("undefined")))
         })
 
@@ -141,7 +141,7 @@ class CompareControllerV2Test implements SecurityServiceTrait, ControllerTrait<C
       @Test
       void 'should return forbidden if the user does not have access to view the pipeline'() {
         when(changesetService.revisionsBetween(anyString(), anyInt(), anyInt(), any(Username.class), any(HttpLocalizedOperationResult.class), anyBoolean())).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArguments()[4]
+          def result = invocation.getArgument(4)
           result.forbidden("forbidden message", HealthStateType.general(HealthStateScope.forPipeline("undefined")))
         })
 

@@ -68,7 +68,7 @@ class GroupSecurity {
     }
 
     AllowedUsers effectiveAdmins() {
-        if (null == this.admins) {
+        if (this.admins == null) {
             this.admins = new AllowedUsers(configuredAdmins(), definedAdminRoles);
         }
         return this.admins;

@@ -15,6 +15,31 @@
  */
 package com.thoughtworks.go.config.security.users;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+@FunctionalInterface
 public interface Users {
+    Users NOONE = new NoOne();
+    Users EVERYONE = new Everyone();
+
     boolean contains(String username);
+
+    @EqualsAndHashCode
+    @ToString
+    class NoOne implements Users {
+        @Override
+        public boolean contains(String username) {
+            return false;
+        }
+    }
+
+    @EqualsAndHashCode
+    @ToString
+    class Everyone implements Users {
+        @Override
+        public boolean contains(String username) {
+            return true;
+        }
+    }
 }

@@ -355,7 +355,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
         when(pipelineConfigService.createPipelineConfig(any(), any(), any(), eq("group"))).then({ InvocationOnMock invocation ->
           pipelineConfig.addError("labelTemplate", String.format(PipelineConfig.LABEL_TEMPLATE_ERROR_MESSAGE, "foo bar"))
-          result = invocation.getArguments()[2]
+          result = invocation.getArgument(2) as HttpLocalizedOperationResult
           result.unprocessableEntity("message from server")
         })
 
@@ -409,7 +409,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
         PipelineConfig pipelineBeingSaved = null
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig)
         when(pipelineConfigService.createPipelineConfig(any(), any(), any(), eq("group"))).then({ InvocationOnMock invocation ->
-          pipelineBeingSaved = invocation.getArguments()[1]
+          pipelineBeingSaved = invocation.getArgument(1) as PipelineConfig
         })
 
         postWithApiHeader(controller.controllerPath(), [group: "group", pipeline: pipelineWithPluggableMaterial("pipeline1", "package", "package-name")])
@@ -428,7 +428,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
         PipelineConfig pipelineBeingSaved = null
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig)
         when(pipelineConfigService.createPipelineConfig(any(), any(), any(), eq("group"))).then({ InvocationOnMock invocation ->
-          pipelineBeingSaved = invocation.getArguments()[1]
+          pipelineBeingSaved = invocation.getArgument(1) as PipelineConfig
         })
 
         postWithApiHeader(controller.controllerPath(), [group: "group", pipeline: pipelineWithPluggableMaterial("pipeline1", "plugin", "scm-id")])
@@ -441,6 +441,8 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
   @Nested
   class Update {
+
+    def groupName = "default"
 
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
@@ -463,9 +465,6 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
     @Nested
     class AsAdmin {
-
-      def groupName = "default"
-
       @BeforeEach
       void setup() {
         enableSecurity()
@@ -592,7 +591,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
         pipelineConfig.addError("labelTemplate", String.format(PipelineConfig.LABEL_TEMPLATE_ERROR_MESSAGE, 'foo bar'))
 
         when(pipelineConfigService.updatePipelineConfig(any(), any(), anyString(), eq("digest"), any())).then({ InvocationOnMock invocation ->
-          result = invocation.getArguments()[4]
+          result = invocation.getArgument(4) as HttpLocalizedOperationResult
           result.unprocessableEntity("message from server")
         })
 
@@ -645,7 +644,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
         when(entityHashingService.hashForEntity(pipelineConfig, groupName)).thenReturn('digest')
         when(pipelineConfigService.updatePipelineConfig(any(), any(), anyString(), any(), any())).then({ InvocationOnMock invocation ->
-          pipelineBeingSaved = invocation.getArguments()[1]
+          pipelineBeingSaved = invocation.getArgument(1) as PipelineConfig
         })
 
         def headers = [
@@ -676,7 +675,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
         when(entityHashingService.hashForEntity(pipelineConfig, groupName)).thenReturn('digest')
 
         when(pipelineConfigService.updatePipelineConfig(any(), any(), anyString(), any(), any())).then({ InvocationOnMock invocation ->
-          pipelineBeingSaved = invocation.getArguments()[1]
+          pipelineBeingSaved = invocation.getArgument(1) as PipelineConfig
         })
 
         def headers = [
@@ -723,7 +722,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
       @Test
       void "should delete pipeline config for an admin"() {
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+          def result = invocation.arguments.last() as HttpLocalizedOperationResult
           result.setMessage("The pipeline 'pipeline1' was deleted successfully.")
         }).when(pipelineConfigService).deletePipelineConfig(any(), eq(pipeline), any())
 

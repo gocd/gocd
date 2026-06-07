@@ -25,7 +25,7 @@ import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 /* Understands what needs to be done to keep the dashboard cache updated, when a pipeline is paused or unpaused. */
 @Component
 public class GoDashboardPipelinePauseStatusChangeHandler {
-    private GoDashboardService cacheUpdateService;
+    private final GoDashboardService cacheUpdateService;
 
     @Autowired
     public GoDashboardPipelinePauseStatusChangeHandler(GoDashboardService cacheUpdateService) {

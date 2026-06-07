@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.domain.cctray;
 
+import com.thoughtworks.go.config.security.users.Users;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,6 +28,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class CcTrayCacheTest {
     private CcTrayCache cache;
+
+    private int statusCounter = 1;
 
     @BeforeEach
     public void setUp() {
@@ -39,7 +43,7 @@ public class CcTrayCacheTest {
 
     @Test
     public void shouldBeAbleToPutAnItemIntoCache() {
-        ProjectStatus status = new ProjectStatus("item1", "Sleeping", "last-build-status", "last-build-label", new Date(), "web-url");
+        ProjectStatus status = viewableStatusFor("item1");
 
         cache.put(status);
 
@@ -48,9 +52,9 @@ public class CcTrayCacheTest {
 
     @Test
     public void shouldBeAbleToPutMultipleItemsIntoCache() {
-        ProjectStatus status1 = new ProjectStatus("item1", "Sleeping", "last-build-status", "last-build-label", new Date(), "web-url");
-        ProjectStatus status2 = new ProjectStatus("item2", "Sleeping", "last-build-status", "last-build-label", new Date(), "web-url");
-        ProjectStatus status3 = new ProjectStatus("item3", "Sleeping", "last-build-status", "last-build-label", new Date(), "web-url");
+        ProjectStatus status1 = viewableStatusFor("item1");
+        ProjectStatus status2 = viewableStatusFor("item2");
+        ProjectStatus status3 = viewableStatusFor("item3");
 
         cache.putAll(List.of(status1, status2, status3));
 
@@ -61,8 +65,8 @@ public class CcTrayCacheTest {
 
     @Test
     public void shouldBeAbleToReplaceAnItemInCache() {
-        ProjectStatus firstStatus = new ProjectStatus("item1", "Sleeping 1", "last-build-status 1", "last-build-label 1", new Date(), "web-url 1");
-        ProjectStatus nextStatus = new ProjectStatus("item1", "Sleeping 2", "last-build-status 2", "last-build-label 2", new Date(), "web-url 2");
+        ProjectStatus firstStatus = viewableStatusFor("item1");
+        ProjectStatus nextStatus = viewableStatusFor("item1");
 
         cache.put(firstStatus);
         cache.put(nextStatus);
@@ -72,13 +76,13 @@ public class CcTrayCacheTest {
 
     @Test
     public void shouldBeAbleToReplaceMultipleItemsInCache() {
-        ProjectStatus firstStatusOfItem1 = new ProjectStatus("item1", "Sleeping 1", "last-build-status 1", "last-build-label 1", new Date(), "web-url 1");
-        ProjectStatus nextStatusOfItem1 = new ProjectStatus("item1", "Sleeping 2", "last-build-status 2", "last-build-label 2", new Date(), "web-url 2");
+        ProjectStatus firstStatusOfItem1 = viewableStatusFor("item1");
+        ProjectStatus nextStatusOfItem1 = viewableStatusFor("item1");
 
-        ProjectStatus status2 = new ProjectStatus("item2", "Sleeping", "last-build-status", "last-build-label", new Date(), "web-url");
+        ProjectStatus status2 = viewableStatusFor("item2");
 
-        ProjectStatus firstStatusOfItem3 = new ProjectStatus("item3", "Sleeping A", "last-build-status A", "last-build-label A", new Date(), "web-url A");
-        ProjectStatus nextStatusOfItem3 = new ProjectStatus("item3", "Sleeping B", "last-build-status B", "last-build-label B", new Date(), "web-url B");
+        ProjectStatus firstStatusOfItem3 = viewableStatusFor("item3");
+        ProjectStatus nextStatusOfItem3 = viewableStatusFor("item3");
 
         cache.put(firstStatusOfItem1);
         cache.put(status2);
@@ -93,11 +97,11 @@ public class CcTrayCacheTest {
 
     @Test
     public void shouldBeAbleToClearExistingCacheAndReplaceAllItemsInIt() {
-        ProjectStatus status1 = new ProjectStatus("item1", "Sleeping 1", "last-build-status 1", "last-build-label 1", new Date(), "web-url 1");
-        ProjectStatus status2 = new ProjectStatus("item2", "Sleeping 2", "last-build-status 2", "last-build-label 2", new Date(), "web-url 2");
-        ProjectStatus status3 = new ProjectStatus("item3", "Sleeping 3", "last-build-status 3", "last-build-label 3", new Date(), "web-url 3");
-        ProjectStatus status4 = new ProjectStatus("item4", "Sleeping 4", "last-build-status 4", "last-build-label 4", new Date(), "web-url 4");
-        ProjectStatus status5 = new ProjectStatus("item5", "Sleeping 5", "last-build-status 5", "last-build-label 5", new Date(), "web-url 5");
+        ProjectStatus status1 = viewableStatusFor("item1");
+        ProjectStatus status2 = viewableStatusFor("item2");
+        ProjectStatus status3 = viewableStatusFor("item3");
+        ProjectStatus status4 = viewableStatusFor("item4");
+        ProjectStatus status5 = viewableStatusFor("item5");
 
         cache.put(status1);
         cache.put(status2);
@@ -114,9 +118,9 @@ public class CcTrayCacheTest {
 
     @Test
     public void shouldProvideAnOrderedListOfAllItemsInCache() {
-        ProjectStatus status1 = new ProjectStatus("item1", "Sleeping 1", "last-build-status 1", "last-build-label 1", new Date(), "web-url 1");
-        ProjectStatus status2 = new ProjectStatus("item2", "Sleeping 2", "last-build-status 2", "last-build-label 2", new Date(), "web-url 2");
-        ProjectStatus status3 = new ProjectStatus("item3", "Sleeping 3", "last-build-status 3", "last-build-label 3", new Date(), "web-url 3");
+        ProjectStatus status1 = viewableStatusFor("item1");
+        ProjectStatus status2 = viewableStatusFor("item2");
+        ProjectStatus status3 = viewableStatusFor("item3");
 
         cache.replaceAllEntriesInCacheWith(List.of(status1, status2, status3));
         List<ProjectStatus> allProjects = cache.allEntriesInOrder();
@@ -128,19 +132,17 @@ public class CcTrayCacheTest {
 
     @Test
     public void shouldContainChangedEntryInOrderedListAfterAPut() {
-        ProjectStatus status1 = new ProjectStatus("item1", "Sleeping 1", "last-build-status 1", "last-build-label 1", new Date(), "web-url 1");
-        ProjectStatus status2 = new ProjectStatus("item2", "Sleeping 2", "last-build-status 2", "last-build-label 2", new Date(), "web-url 2");
-        ProjectStatus status3 = new ProjectStatus("item3", "Sleeping 3", "last-build-status 3", "last-build-label 3", new Date(), "web-url 3");
-        ProjectStatus status2_changed = new ProjectStatus("item2", "CHANGED Sleeping 2C", "last-build-status 2C", "last-build-label 2C", new Date(), "web-url 2C");
+        ProjectStatus status1 = viewableStatusFor("item1");
+        ProjectStatus status2 = viewableStatusFor("item2");
+        ProjectStatus status3 = viewableStatusFor("item3");
+        ProjectStatus status2_changed = viewableStatusFor("item2");
 
         cache.replaceAllEntriesInCacheWith(List.of(status1, status2, status3));
         List<ProjectStatus> allProjects = cache.allEntriesInOrder();
         assertThat(allProjects.get(1)).isEqualTo(status2);
 
-
         cache.put(status2_changed);
         allProjects = cache.allEntriesInOrder();
-
 
         assertThat(allProjects.get(0)).isEqualTo(status1);
         assertThat(allProjects.get(1)).isEqualTo(status2_changed);
@@ -149,11 +151,11 @@ public class CcTrayCacheTest {
 
     @Test
     public void shouldContainChangedEntriesInOrderedListAfterAPutAll() {
-        ProjectStatus status1 = new ProjectStatus("item1", "Sleeping 1", "last-build-status 1", "last-build-label 1", new Date(), "web-url 1");
-        ProjectStatus status2 = new ProjectStatus("item2", "Sleeping 2", "last-build-status 2", "last-build-label 2", new Date(), "web-url 2");
-        ProjectStatus status3 = new ProjectStatus("item3", "Sleeping 3", "last-build-status 3", "last-build-label 3", new Date(), "web-url 3");
-        ProjectStatus status1_changed = new ProjectStatus("item1", "CHANGED Sleeping 1C", "last-build-status 1C", "last-build-label 1C", new Date(), "web-url 1C");
-        ProjectStatus status2_changed = new ProjectStatus("item2", "CHANGED Sleeping 2C", "last-build-status 2C", "last-build-label 2C", new Date(), "web-url 2C");
+        ProjectStatus status1 = viewableStatusFor("item1");
+        ProjectStatus status2 = viewableStatusFor("item2");
+        ProjectStatus status3 = viewableStatusFor("item3");
+        ProjectStatus status1_changed = viewableStatusFor("item1");
+        ProjectStatus status2_changed = viewableStatusFor("item2");
 
         cache.replaceAllEntriesInCacheWith(List.of(status1, status2, status3));
         cache.allEntriesInOrder();
@@ -162,9 +164,14 @@ public class CcTrayCacheTest {
         cache.putAll(List.of(status2_changed, status1_changed));
         List<ProjectStatus> allProjects = cache.allEntriesInOrder();
 
-
         assertThat(allProjects.get(0)).isEqualTo(status1_changed);
         assertThat(allProjects.get(1)).isEqualTo(status2_changed);
         assertThat(allProjects.get(2)).isEqualTo(status3);
+    }
+
+    private @NonNull ProjectStatus viewableStatusFor(String name) {
+        ProjectStatus status = new ProjectStatus(name, "Sleeping", "Sleeping", "last-build-label-" + (statusCounter++), new Date(), "web-url");
+        status.updateViewers(Users.EVERYONE);
+        return status;
     }
 }

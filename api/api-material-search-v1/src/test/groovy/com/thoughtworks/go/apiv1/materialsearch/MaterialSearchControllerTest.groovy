@@ -21,7 +21,6 @@ import com.thoughtworks.go.apiv1.materialsearch.representers.MatchedRevisionRepr
 import com.thoughtworks.go.domain.materials.MatchedRevision
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.MaterialService
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
@@ -94,7 +93,7 @@ class MaterialSearchControllerTest implements ControllerTrait<MaterialSearchCont
   @Test
   void 'should render 404 when pipeline or fingerprint is not found'() {
     when(materialService.searchRevisions(any(), any(), any(), any(), any())).then({ InvocationOnMock invocation ->
-      HttpLocalizedOperationResult result = invocation.getArguments().last()
+      def result = invocation.getArguments().last()
       result.notFound("some message",
         HealthStateType.general(HealthStateScope.forPipeline("some-pipeline")))
     })

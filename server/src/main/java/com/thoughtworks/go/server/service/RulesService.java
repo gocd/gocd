@@ -38,6 +38,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.server.exceptions.RulesViolationException.throwCannotRefer;
@@ -63,7 +64,7 @@ public class RulesService {
                     .findPipelineByName(pipelineName)
                     .materialConfigs()
                     .getByMaterialFingerPrint(scmMaterial.getFingerprint());
-            PipelineConfigs group = goConfigService.findGroupByPipeline(pipelineName);
+            Optional<PipelineConfigs> group = goConfigService.findGroupByPipelineOptional(pipelineName);
             ScmMaterialConfig scmMaterialConfig = (ScmMaterialConfig) materialConfig;
             SecretParams secretParams = SecretParams.parse(scmMaterialConfig.getPassword());
             secretParams.forEach(secretParam -> {
@@ -71,7 +72,7 @@ public class RulesService {
                 SecretConfig secretConfig = goConfigService.getSecretConfigById(secretConfigId);
                 if (secretConfig == null) {
                     addError(pipelinesWithErrors, pipelineName, format("Pipeline '%s' is referring to non-existent secret config '%s'.", pipelineName, secretConfigId));
-                } else if (!secretConfig.canRefer(group.getClass(), group.getGroup())) {
+                } else if (!group.map(g -> secretConfig.canRefer(g.getClass(), g.getGroup())).orElseThrow()) {
                     addError(pipelinesWithErrors, pipelineName, format("Pipeline '%s' does not have permission to refer to secrets using secret config '%s'", pipelineName, secretConfigId));
                 }
             });

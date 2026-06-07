@@ -298,7 +298,7 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
         loginAsAdmin()
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+          def result = (HttpLocalizedOperationResult) invocation.arguments.last()
           result.setMessage("The user '" + username + "' was deleted successfully.")
         }).when(userService).deleteUser(eq(username), eq(currentUsernameString()), any(HttpLocalizedOperationResult.class))
 
@@ -315,7 +315,7 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
         loginAsAdmin()
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+          def result = (HttpLocalizedOperationResult) invocation.arguments.last()
           result.badRequest("User '" + username + "' is not disabled.")
         }).when(userService).deleteUser(eq(username), eq(currentUsernameString()), any(HttpLocalizedOperationResult.class))
 

@@ -284,9 +284,9 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
         when(clusterProfileService.findProfile("prod-cluster")).thenReturn(new ClusterProfile("prod-cluster", "cd.go.docker"))
         when(elasticProfileService.create(Mockito.any() as Username, Mockito.any() as ElasticProfile, Mockito.any() as LocalizedOperationResult))
           .then({ InvocationOnMock invocation ->
-          ElasticProfile elasticProfile = invocation.getArguments()[1]
+          ElasticProfile elasticProfile = invocation.getArgument(1)
           elasticProfile.addError("plugin_id", "Plugin not installed.")
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          def result = invocation.getArguments().last()
           result.unprocessableEntity("validation failed")
         })
 
@@ -504,9 +504,9 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
         when(elasticProfileService.update(Mockito.any() as Username, Mockito.any() as String, Mockito.any() as ElasticProfile, Mockito.any() as LocalizedOperationResult))
           .then({ InvocationOnMock invocation ->
-          ElasticProfile elasticProfile = invocation.getArguments()[2]
+          ElasticProfile elasticProfile = invocation.getArgument(2)
           elasticProfile.addError("plugin_id", "Plugin not installed.")
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          def result = invocation.getArguments().last()
           result.unprocessableEntity("validation failed")
         })
 
@@ -564,8 +564,8 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
         def elasticProfile = new ElasticProfile("docker", "prod-cluster", create("DockerURI", false, "http://foo"))
 
         when(elasticProfileService.findProfile("docker")).thenReturn(elasticProfile)
-        when(elasticProfileService.delete(Mockito.any() as Username, Mockito.any() as ElasticProfile, Mockito.any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+        when(elasticProfileService.delete(Mockito.any() as Username, Mockito.any() as ElasticProfile, Mockito.any(HttpLocalizedOperationResult))).then({ InvocationOnMock invocation ->
+          def result = invocation.arguments.last()
           result.setMessage(LocalizedMessage.resourceDeleteSuccessful('elastic profile', elasticProfile.getId()))
         })
 

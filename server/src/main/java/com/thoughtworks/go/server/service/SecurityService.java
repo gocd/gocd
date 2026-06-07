@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
-import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
 
 @Service
 public class SecurityService {
@@ -41,11 +40,10 @@ public class SecurityService {
     }
 
     public boolean hasViewPermissionForPipeline(Username username, String pipelineName) {
-        String groupName = goConfigService.findGroupNameByPipeline(cis(pipelineName));
-        if (groupName == null) {
-            return true;
-        }
-        return hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), groupName);
+        // FIXME security service enabled check?
+        return goConfigService.findGroupNameByPipelineOptional(cis(pipelineName))
+            .map(groupName -> hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), groupName))
+            .orElse(true); // FIXME change this insecure default?
     }
 
     public boolean hasViewPermissionForGroup(String userName, String pipelineGroupName) {
@@ -61,8 +59,7 @@ public class SecurityService {
         }
 
         PipelineConfigs group = cruiseConfig.getGroups().findGroup(pipelineGroupName);
-        boolean everyoneIsAllowedToViewIfNoAuthIsDefined = systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP);
-        return isUserAdminOfGroup(username, group) || group.hasViewPermission(username, new UserRoleMatcherImpl(cruiseConfig.server().security()), everyoneIsAllowedToViewIfNoAuthIsDefined);
+        return isUserAdminOfGroup(username, group) || group.hasViewPermission(username, new UserRoleMatcherImpl(cruiseConfig.server().security()));
     }
 
     private boolean isUserAdminOfGroup(final CaseInsensitiveString userName, PipelineConfigs group) {
@@ -78,20 +75,17 @@ public class SecurityService {
     }
 
     public boolean hasOperatePermissionForPipeline(final CaseInsensitiveString username, String pipelineName) {
-        String groupName = goConfigService.findGroupNameByPipeline(cis(pipelineName));
-        if (groupName == null) {
-            return true;
-        }
-        return hasOperatePermissionForGroup(username, groupName);
+        // FIXME security service enabled check?
+        return goConfigService.findGroupNameByPipelineOptional(cis(pipelineName))
+            .map(groupName -> hasOperatePermissionForGroup(username, groupName))
+            .orElse(true); // FIXME change this insecure default?
     }
 
     public boolean hasAdminPermissionsForPipeline(Username username, CaseInsensitiveString pipelineName) {
-        String groupName = goConfigService.findGroupNameByPipeline(pipelineName);
-        if (groupName == null) {
-            return true;
-        }
-
-        return isUserAdminOfGroup(username.getUsername(), groupName);
+        // FIXME security service enabled check?
+        return goConfigService.findGroupNameByPipelineOptional(pipelineName)
+            .map(groupName -> isUserAdminOfGroup(username, groupName))
+            .orElse(true); // FIXME change this insecure default?
     }
 
     public boolean hasOperatePermissionForGroup(final CaseInsensitiveString username, String groupName) {
@@ -106,8 +100,7 @@ public class SecurityService {
         }
 
         PipelineConfigs group = cruiseConfig.getGroups().findGroup(groupName);
-        boolean everyoneIsAllowedToOperateIfNoAuthIsDefined = systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP);
-        return isUserAdminOfGroup(username, group) || group.hasOperatePermission(username, new UserRoleMatcherImpl(cruiseConfig.server().security()), everyoneIsAllowedToOperateIfNoAuthIsDefined);
+        return isUserAdminOfGroup(username, group) || group.hasOperatePermission(username, new UserRoleMatcherImpl(cruiseConfig.server().security()));
     }
 
     public boolean hasOperatePermissionForStage(String pipelineName, String stageName, String username) {
@@ -120,10 +113,8 @@ public class SecurityService {
         StageConfig stage = goConfigService.stageConfigNamed(pipelineName, stageName);
         CaseInsensitiveString userName = cis(username);
 
-        //TODO - #2517 - stage not exist
         if (stage.hasOperatePermissionDefined()) {
-            String groupName = goConfigService.findGroupNameByPipeline(cis(pipelineName));
-            PipelineConfigs group = goConfigService.getCurrentConfig().findGroup(groupName);
+            PipelineConfigs group = goConfigService.findGroupByPipeline(cis(pipelineName));
             if (isUserAdmin(new Username(userName)) || isUserAdminOfGroup(userName, group)) {
                 return true;
             }

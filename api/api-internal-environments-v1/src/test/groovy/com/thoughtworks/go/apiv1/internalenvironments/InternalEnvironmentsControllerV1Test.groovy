@@ -240,7 +240,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
       RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
 
       when(goConfigService.rolesForUser(any(CaseInsensitiveString.class))).then({ InvocationOnMock invocation ->
-        CaseInsensitiveString username = invocation.getArguments()[0]
+        CaseInsensitiveString username = invocation.getArgument(0)
         if (username == Username.ANONYMOUS.username) {
           return []
         }

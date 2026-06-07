@@ -252,9 +252,9 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
 
         when(securityAuthConfigService.create(Mockito.any() as Username, Mockito.any() as SecurityAuthConfig, Mockito.any() as LocalizedOperationResult))
           .then({ InvocationOnMock invocation ->
-          SecurityAuthConfig authConfig = invocation.getArguments()[1]
+          SecurityAuthConfig authConfig = invocation.getArgument(1)
           authConfig.addError("plugin_id", "Plugin not installed.")
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          def result = invocation.getArguments().last()
           result.unprocessableEntity("validation failed")
         })
 
@@ -460,9 +460,9 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
 
         when(securityAuthConfigService.update(Mockito.any() as Username, Mockito.any() as String, Mockito.any() as SecurityAuthConfig, Mockito.any() as LocalizedOperationResult))
           .then({ InvocationOnMock invocation ->
-          SecurityAuthConfig authConfig = invocation.getArguments()[2]
+          SecurityAuthConfig authConfig = invocation.getArgument(2)
           authConfig.addError("plugin_id", "Plugin not installed.")
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          def result = invocation.getArguments().last()
           result.unprocessableEntity("validation failed")
         })
 
@@ -516,8 +516,8 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
         def authConfig = new SecurityAuthConfig("file", "cd.go.authorization.file")
 
         when(securityAuthConfigService.findProfile("file")).thenReturn(authConfig)
-        when(securityAuthConfigService.delete(Mockito.any() as Username, Mockito.any() as SecurityAuthConfig, Mockito.any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+        when(securityAuthConfigService.delete(Mockito.any() as Username, Mockito.any() as SecurityAuthConfig, Mockito.any(HttpLocalizedOperationResult))).then({ InvocationOnMock invocation ->
+          def result = invocation.arguments.last()
           result.setMessage(resourceDeleteSuccessful(EntityType.SecurityAuthConfig.getEntityNameLowerCase(), authConfig.getId()))
         })
 

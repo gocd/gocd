@@ -123,7 +123,7 @@ class SecurityAuthConfigInternalControllerV2Test implements SecurityServiceTrait
         ]
 
         when(securityAuthConfigService.verifyConnection(authConfig)).then({ InvocationOnMock invocation ->
-          SecurityAuthConfig config = invocation.getArguments()[0]
+          SecurityAuthConfig config = invocation.getArgument(0)
           config.addError("Path", "Must not be blank.")
           return new VerifyConnectionResponse("failure", "Verify connection failed", new ValidationResult())
         })

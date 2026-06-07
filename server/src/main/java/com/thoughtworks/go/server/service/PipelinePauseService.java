@@ -136,7 +136,7 @@ public class PipelinePauseService {
     private boolean notAuthorized(String pipelineName, String pauseBy, LocalizedOperationResult result) {
         CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis(pipelineName));
-        if (securityService.hasOperatePermissionForGroup(cis(pauseBy), cruiseConfig.findGroupOfPipeline(pipelineConfig).getGroup())) {
+        if (securityService.hasOperatePermissionForGroup(cis(pauseBy), cruiseConfig.findGroupByPipeline(pipelineConfig).getGroup())) {
             return false;
         }
         result.forbidden(LocalizedMessage.forbiddenToEditPipeline(pipelineName), forbiddenForPipeline(pipelineName));

@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class NoOneTest {
     @Test
     public void shouldSayItContainsNoUsersAlways() {
-        Users noUsers = NoOne.INSTANCE;
+        Users noUsers = Users.NOONE;
 
         assertThat(noUsers.contains("abc")).isFalse();
         assertThat(noUsers.contains("def")).isFalse();

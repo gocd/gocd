@@ -467,8 +467,7 @@ public class GoConfigFileHelper {
     }
 
     public PipelineConfigs removePipeline(String pipelineName, CruiseConfig cruiseConfig) {
-        String groupName = cruiseConfig.getGroups().findGroupNameByPipeline(cis(pipelineName));
-        PipelineConfigs groups = cruiseConfig.getGroups().findGroup(groupName);
+        PipelineConfigs groups = cruiseConfig.getGroups().findGroupByPipeline(cis(pipelineName));
         groups.remove(cruiseConfig.pipelineConfigByName(cis(pipelineName)));
         return groups;
     }

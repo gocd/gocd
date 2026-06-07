@@ -99,7 +99,7 @@ class PackagesInternalControllerV2Test implements SecurityServiceTrait, Controll
 
       when(packageDefinitionService.checkConnection(any(PackageDefinition.class), any(HttpLocalizedOperationResult.class))).then({
         InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+          def result = invocation.arguments.last() as HttpLocalizedOperationResult
           result.setMessage("Successful Check Connection!")
       })
 
@@ -120,7 +120,7 @@ class PackagesInternalControllerV2Test implements SecurityServiceTrait, Controll
 
       when(packageDefinitionService.checkConnection(any(PackageDefinition.class), any(HttpLocalizedOperationResult.class))).then({
         InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+          def result = (HttpLocalizedOperationResult) invocation.arguments.last()
           result.badRequest("Failed Check Connection!")
       })
 

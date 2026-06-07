@@ -32,7 +32,6 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -104,7 +103,7 @@ public class PluginNotificationService {
         @Override
         public StageNotificationData notificationDataFor(Stage stage) {
             String pipelineName = stage.getIdentifier().getPipelineName();
-            String pipelineGroup = goConfigService.findGroupNameByPipeline(cis(pipelineName));
+            String pipelineGroup = goConfigService.findGroupNameByPipelineOptional(cis(pipelineName)).orElse(null);
             BuildCause buildCause = pipelineSqlMapDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, stage.getIdentifier().getPipelineCounter());
 
             if (!goConfigService.isFirstStage(pipelineName, stage.getName())) {
@@ -141,7 +140,7 @@ public class PluginNotificationService {
         return Approval.TYPE_MANUAL.equalsIgnoreCase(stage.getApprovalType());
     }
 
-    private interface NotificationDataCreator<T, V extends Serializable> {
+    private interface NotificationDataCreator<T, V> {
         V notificationDataFor(T t);
     }
 }

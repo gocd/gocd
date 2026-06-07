@@ -241,7 +241,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
         def artifactStore = new ArtifactStore("test", "cd.go.artifact.docker", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
         when(artifactStoreService.create(Mockito.any() as Username, Mockito.any() as ArtifactStore, Mockito.any() as LocalizedOperationResult))
           .then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          def result = invocation.getArguments().last() as HttpLocalizedOperationResult
           result.unprocessableEntity("validation failed")
         })
 
@@ -415,7 +415,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
         when(artifactStoreService.findArtifactStore('test')).thenReturn(artifactStore)
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+          def result = invocation.arguments.last() as HttpLocalizedOperationResult
           result.setMessage(LocalizedMessage.resourceDeleteSuccessful('artifactStore', artifactStore.getId()))
         }).when(artifactStoreService).delete(any() as Username, eq(artifactStore), any() as LocalizedOperationResult)
 
@@ -434,7 +434,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
         when(artifactStoreService.findArtifactStore('test')).thenReturn(artifactStore)
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+          def result = invocation.arguments.last() as HttpLocalizedOperationResult
           result.unprocessableEntity("save failed")
         }).when(artifactStoreService).delete(any() as Username, eq(artifactStore), any() as LocalizedOperationResult)
 

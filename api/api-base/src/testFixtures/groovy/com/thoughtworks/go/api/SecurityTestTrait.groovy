@@ -35,7 +35,7 @@ trait SecurityTestTrait {
   void stubControllerAction() {
     this.reachedControllerMessage = "REACHED_CONTROLLER_${UUID.randomUUID()}".toString()
     doAnswer({ InvocationOnMock invocation ->
-      Response res = invocation.arguments.last()
+      Response res = invocation.arguments.last() as Response
       res.status(99999)
       return JsonHelper.toJson([message: reachedControllerMessage])
     }).when(controller)."${controllerMethodUnderTest}"(any() as Request, any() as Response)

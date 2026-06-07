@@ -55,6 +55,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.rules.SupportedEntity.ENVIRONMENT;
@@ -92,7 +93,7 @@ class RulesServiceTest {
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
             when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(List.of(cis("up42")));
-            when(goConfigService.findGroupByPipeline(any())).thenReturn(defaultGroup);
+            when(goConfigService.findGroupByPipelineOptional(any())).thenReturn(Optional.of(defaultGroup));
             when(goConfigService.findPipelineByName(cis("up42"))).thenReturn(up42);
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(gitMaterial))
@@ -116,8 +117,8 @@ class RulesServiceTest {
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup, someGroup));
 
             when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(List.of(cis("up42"), cis("up43")));
-            when(goConfigService.findGroupByPipeline(cis("up42"))).thenReturn(defaultGroup);
-            when(goConfigService.findGroupByPipeline(cis("up43"))).thenReturn(someGroup);
+            when(goConfigService.findGroupByPipelineOptional(cis("up42"))).thenReturn(Optional.of(defaultGroup));
+            when(goConfigService.findGroupByPipelineOptional(cis("up43"))).thenReturn(Optional.of(someGroup));
             when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
             when(goConfigService.findPipelineByName(cis("up42"))).thenReturn(up42);
             when(goConfigService.findPipelineByName(cis("up43"))).thenReturn(up43);
@@ -141,8 +142,8 @@ class RulesServiceTest {
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup, someGroup));
 
             when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(List.of(cis("up42"), cis("up43")));
-            when(goConfigService.findGroupByPipeline(cis("up42"))).thenReturn(defaultGroup);
-            when(goConfigService.findGroupByPipeline(cis("up43"))).thenReturn(someGroup);
+            when(goConfigService.findGroupByPipelineOptional(cis("up42"))).thenReturn(Optional.of(defaultGroup));
+            when(goConfigService.findGroupByPipelineOptional(cis("up43"))).thenReturn(Optional.of(someGroup));
             when(goConfigService.findPipelineByName(cis("up42"))).thenReturn(up42);
             when(goConfigService.findPipelineByName(cis("up43"))).thenReturn(up43);
 
@@ -166,7 +167,7 @@ class RulesServiceTest {
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
             when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(List.of(cis("up42")));
-            when(goConfigService.findGroupByPipeline(any())).thenReturn(defaultGroup);
+            when(goConfigService.findGroupByPipelineOptional(any())).thenReturn(Optional.of(defaultGroup));
             when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
             when(goConfigService.findPipelineByName(cis("up42"))).thenReturn(up42);
 
@@ -185,7 +186,7 @@ class RulesServiceTest {
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
             when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(List.of(cis("up42")));
-            when(goConfigService.findGroupByPipeline(cis("up42"))).thenReturn(defaultGroup);
+            when(goConfigService.findGroupByPipelineOptional(cis("up42"))).thenReturn(Optional.of(defaultGroup));
             when(goConfigService.findPipelineByName(cis("up42"))).thenReturn(up42);
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(gitMaterial))
@@ -204,7 +205,7 @@ class RulesServiceTest {
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
             when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(List.of(cis("up42")));
-            when(goConfigService.findGroupByPipeline(any())).thenReturn(defaultGroup);
+            when(goConfigService.findGroupByPipelineOptional(any())).thenReturn(Optional.of(defaultGroup));
             when(goConfigService.findPipelineByName(cis("up42"))).thenReturn(up42);
 
             assertThat(rulesService.validateSecretConfigReferences(gitMaterial)).isEqualTo(true);

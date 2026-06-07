@@ -147,6 +147,8 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     @NotNull PipelineConfigs findGroup(String groupName);
 
+    @NotNull PipelineConfigs findGroupByPipeline(@NotNull PipelineConfig pipelineConfig);
+
     boolean isMailHostConfigured();
 
     List<PipelineConfig> getAllPipelineConfigs();
@@ -196,8 +198,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     List<ConfigErrors> getAllErrors();
 
     List<ConfigErrors> validateAfterPreprocess();
-
-    PipelineConfigs findGroupOfPipeline(PipelineConfig pipelineConfig);
 
     Map<CaseInsensitiveString, List<PipelineConfig>> generatePipelineVsDownstreamMap();
 

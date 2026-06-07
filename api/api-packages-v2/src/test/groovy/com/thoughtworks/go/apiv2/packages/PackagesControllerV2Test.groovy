@@ -225,7 +225,7 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
         when(entityHashingService.hashForEntity(packageDefinition)).thenReturn('etag')
         when(packageDefinitionService.createPackage(eq(packageDefinition), eq('repo-id'), eq(currentUsername()), any(HttpLocalizedOperationResult.class))).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            def result = (HttpLocalizedOperationResult) invocation.arguments.last()
             result.setMessage("Package definition was created successfully")
         })
 
@@ -275,7 +275,7 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
 
         when(packageDefinitionService.createPackage(any(), any(), any(), any())).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            def result = (HttpLocalizedOperationResult) invocation.arguments.last()
             result.unprocessableEntity("Validation error.")
         })
 
@@ -328,7 +328,7 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
         when(packageDefinitionService.find('id')).thenReturn(packageDefinition)
         when(packageDefinitionService.updatePackage(eq('id'), eq(updatedPackageDefinition), eq('etag'), eq(currentUsername()), any(HttpLocalizedOperationResult.class))).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            def result = (HttpLocalizedOperationResult) invocation.arguments.last()
             result.setMessage("Package definition was updated successfully")
         })
 
@@ -396,7 +396,7 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
         when(entityHashingService.hashForEntity(updatedPackageDefinition)).thenReturn('updated-etag')
         when(packageDefinitionService.updatePackage(anyString(), any(), any(), any(), any())).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            def result = (HttpLocalizedOperationResult) invocation.arguments.last()
             result.unprocessableEntity("Validation error.")
         })
 
@@ -457,7 +457,7 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
 
         when(packageDefinitionService.deletePackage(eq(packageDefinition), eq(currentUsername()), any(HttpLocalizedOperationResult.class))).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            def result = (HttpLocalizedOperationResult) invocation.arguments.last()
             result.setMessage("Package definition was deleted successfully")
         })
 

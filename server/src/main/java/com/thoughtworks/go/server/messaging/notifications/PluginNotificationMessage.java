@@ -17,11 +17,10 @@ package com.thoughtworks.go.server.messaging.notifications;
 
 import com.thoughtworks.go.server.messaging.PluginAwareMessage;
 
-import java.io.Serializable;
 import java.util.Objects;
 
-public class PluginNotificationMessage<T extends Serializable> implements PluginAwareMessage {
-    private String pluginId;
+public class PluginNotificationMessage<T> implements PluginAwareMessage {
+    private final String pluginId;
     private final String requestName;
     private final T data;
 

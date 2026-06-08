@@ -108,7 +108,7 @@ public class AuthorizeFilterChain extends FilterChainProxy {
             // blanket role that requires supervisor access by default (often due to use by older admin APIs)
             .addAuthorityFilterChain("/api/admin/**", apiAccessDeniedHandler, ROLE_SUPERVISOR)
             .addAuthorityFilterChain("/api/config-repository.git/**", apiAccessDeniedHandler, ROLE_SUPERVISOR)
-            .addAuthorityFilterChain("/api/support", apiAccessDeniedHandler, ROLE_SUPERVISOR)
+            .addAuthorityFilterChain("/api/support/**", apiAccessDeniedHandler, ROLE_SUPERVISOR)
 
             // any other APIs require `ROLE_USER`
             .addAuthorityFilterChain("/cctray.xml", apiAccessDeniedHandler, ROLE_USER)

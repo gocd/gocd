@@ -656,16 +656,16 @@ tasks.register('verifyWar', VerifyJarTask) {
         "jcl-over-slf4j-${project.versions.slf4jBom}.jar",
         "jcodings-1.0.63.jar",
         "jdom2-${project.versions.jdom}.jar",
-        "jffi-1.3.13.jar",
-        "jffi-1.3.13-native.jar",
+        "jffi-${project.versions.jrubyJffi}.jar",
+        "jffi-${project.versions.jrubyJffi}-native.jar",
         "jitescript-0.4.1.jar",
         "jnr-a64asm-1.0.0.jar",
         "jnr-constants-0.10.4.jar",
-        "jnr-enxio-0.32.18.jar",
-        "jnr-ffi-2.2.17.jar",
+        "jnr-enxio-0.32.20.jar",
+        "jnr-ffi-2.2.19.jar",
         "jnr-netdb-1.2.0.jar",
-        "jnr-posix-3.1.20.jar",
-        "jnr-unixsocket-0.38.23.jar",
+        "jnr-posix-3.1.22.jar",
+        "jnr-unixsocket-0.38.25.jar",
         "jnr-x86asm-1.0.2.jar",
         "joda-time-2.12.7.jar",
         "jolt-core-${project.versions.jolt}.jar",
@@ -813,9 +813,9 @@ tasks.register('licenseReportAggregate') {
     ],
     [
       moduleName    : 'com.github.jnr:jffi',
-      moduleVersion : '1.3.13-native',
+      moduleVersion : "${project.versions.jrubyJffi}-native",
       moduleUrls    : [
-        "http://github.com/jnr/jffi "
+        "http://github.com/jnr/jffi"
       ],
       moduleLicenses: [
         [

@@ -408,19 +408,6 @@
 
   <suppress>
     <notes><![CDATA[
-    Suppress false positives from Bouncy Castle 1.79 as included within jruby-stdlib 9.4.14.0. The affected parts of Bouncy Castle do not appear to be used/relevant to
-    JRuby or GoCD, so these are almost certainly false positives. https://www.bouncycastle.org/download/bouncy-castle-java/?filter=java%3Drelease-1-84
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.bouncycastle/bc(pkix|prov)-jdk18on@.*$</packageUrl>
-    <cve>CVE-2025-14813</cve>
-    <cve>CVE-2026-0636</cve>
-    <cve>CVE-2026-3505</cve>
-    <cve>CVE-2026-5588</cve>
-    <cve>CVE-2026-5598</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
     Suppress false positive from the JSON Config repo plugin at plugins-{version}.zip/gocd-json-config-plugin.jar. This plugin is being mis-identified as the json-c project which is completely different.
     Not sure if/how this can be fixed upstream in OWASP Dependency Check as in our case it's being reported against a SHA for the plugin jar itself which
     does not have a Maven identifier.

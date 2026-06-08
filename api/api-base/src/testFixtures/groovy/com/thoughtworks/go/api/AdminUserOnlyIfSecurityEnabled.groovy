@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.spark
+package com.thoughtworks.go.api
 
+import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.SecurityServiceTrait
+import groovy.transform.SelfType
 import org.junit.jupiter.api.Test
 
+@SelfType([SecurityServiceTrait, ControllerTrait, SecurityTestTrait])
 trait AdminUserOnlyIfSecurityEnabled {
 
   @Test

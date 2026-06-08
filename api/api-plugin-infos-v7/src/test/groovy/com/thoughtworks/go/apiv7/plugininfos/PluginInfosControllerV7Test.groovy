@@ -73,6 +73,9 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
   class Show {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = PluginInfosControllerV7Test.this
+      @Delegate ControllerTrait<PluginInfosControllerV7> c = PluginInfosControllerV7Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'show'
@@ -194,6 +197,9 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
   class Index {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = PluginInfosControllerV7Test.this
+      @Delegate ControllerTrait<PluginInfosControllerV7> c = PluginInfosControllerV7Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'index'

@@ -59,6 +59,8 @@ class PackageRepositoryInternalControllerV1Test implements SecurityServiceTrait,
 
   @Nested
   class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    @Delegate SecurityServiceTrait s = PackageRepositoryInternalControllerV1Test.this
+    @Delegate ControllerTrait<PackageRepositoryInternalControllerV1> c = PackageRepositoryInternalControllerV1Test.this
 
     @Override
     String getControllerMethodUnderTest() {
@@ -84,9 +86,9 @@ class PackageRepositoryInternalControllerV1Test implements SecurityServiceTrait,
       def configuration = new Configuration(ConfigurationPropertyMother.create('key', 'value'))
       def packageRepository = PackageRepositoryMother.create('repo-id', 'repo-name', 'plugin-id', '1.0.0', configuration)
 
-      when(packageRepositoryService.checkConnection(any(PackageRepository.class), any(HttpLocalizedOperationResult.class))).then({
+      when(packageRepositoryService.checkConnection(any(PackageRepository.class), any())).then({
         InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(1)
           result.setMessage("Successful Check Connection!")
       })
 
@@ -104,9 +106,9 @@ class PackageRepositoryInternalControllerV1Test implements SecurityServiceTrait,
       def configuration = new Configuration(ConfigurationPropertyMother.create('key', 'value'))
       def packageRepository = PackageRepositoryMother.create('repo-id', 'repo-name', 'plugin-id', '1.0.0', configuration)
 
-      when(packageRepositoryService.checkConnection(any(PackageRepository.class), any(HttpLocalizedOperationResult.class))).then({
+      when(packageRepositoryService.checkConnection(any(PackageRepository.class), any())).then({
         InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(1)
           result.badRequest("Failed Check Connection!")
       })
 

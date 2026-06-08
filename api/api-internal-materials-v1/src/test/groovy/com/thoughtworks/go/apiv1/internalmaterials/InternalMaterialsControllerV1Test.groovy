@@ -80,6 +80,8 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = InternalMaterialsControllerV1Test.this
+      @Delegate ControllerTrait<InternalMaterialsControllerV1> c = InternalMaterialsControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -118,6 +120,8 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = InternalMaterialsControllerV1Test.this
+      @Delegate ControllerTrait<InternalMaterialsControllerV1> c = InternalMaterialsControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -239,6 +243,8 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = InternalMaterialsControllerV1Test.this
+      @Delegate ControllerTrait<InternalMaterialsControllerV1> c = InternalMaterialsControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {

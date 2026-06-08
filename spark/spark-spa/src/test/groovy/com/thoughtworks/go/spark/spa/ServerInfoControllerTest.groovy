@@ -48,6 +48,8 @@ class ServerInfoControllerTest implements ControllerTrait<ServerInfoController>,
   class Index {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate ControllerTrait<ServerInfoController> c = ServerInfoControllerTest.this
+      @Delegate SecurityServiceTrait s = ServerInfoControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

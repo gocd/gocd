@@ -56,6 +56,8 @@ class FeatureTogglesControllerV1Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = FeatureTogglesControllerV1Test.this
+      @Delegate ControllerTrait<FeatureTogglesControllerV1> c = FeatureTogglesControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -90,6 +92,8 @@ class FeatureTogglesControllerV1Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = FeatureTogglesControllerV1Test.this
+      @Delegate ControllerTrait<FeatureTogglesControllerV1> c = FeatureTogglesControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {

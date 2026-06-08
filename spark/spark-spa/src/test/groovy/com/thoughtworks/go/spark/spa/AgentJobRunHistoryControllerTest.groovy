@@ -33,6 +33,8 @@ class AgentJobRunHistoryControllerTest implements ControllerTrait<AgentJobRunHis
   class Index {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<AgentJobRunHistoryController> c = AgentJobRunHistoryControllerTest.this
+      @Delegate SecurityServiceTrait s = AgentJobRunHistoryControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

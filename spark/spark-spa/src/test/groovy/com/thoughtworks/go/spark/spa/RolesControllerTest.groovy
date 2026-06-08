@@ -30,6 +30,8 @@ class RolesControllerTest implements ControllerTrait<RolesController>, SecurityS
   class Index {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<RolesController> c = RolesControllerTest.this
+      @Delegate SecurityServiceTrait s = RolesControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

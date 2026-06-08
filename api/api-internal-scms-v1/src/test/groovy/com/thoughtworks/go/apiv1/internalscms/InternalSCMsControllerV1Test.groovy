@@ -61,6 +61,8 @@ class InternalSCMsControllerV1Test implements SecurityServiceTrait, ControllerTr
 
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = InternalSCMsControllerV1Test.this
+      @Delegate ControllerTrait<InternalSCMsControllerV1> c = InternalSCMsControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {

@@ -35,6 +35,8 @@ class ElasticAgentConfigurationsControllerTest implements ControllerTrait<Elasti
   class Index {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate ControllerTrait<ElasticAgentConfigurationsController> c = ElasticAgentConfigurationsControllerTest.this
+      @Delegate SecurityServiceTrait s = ElasticAgentConfigurationsControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

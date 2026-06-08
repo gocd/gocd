@@ -56,6 +56,8 @@ class ElasticProfileOperationControllerV1Test implements SecurityServiceTrait, C
   class Usages {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = ElasticProfileOperationControllerV1Test.this
+      @Delegate ControllerTrait<ElasticProfileOperationControllerV1> c = ElasticProfileOperationControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {

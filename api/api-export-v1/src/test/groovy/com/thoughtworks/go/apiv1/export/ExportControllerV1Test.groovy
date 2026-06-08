@@ -65,6 +65,8 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
 
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = ExportControllerV1Test.this
+      @Delegate ControllerTrait<ExportControllerV1> c = ExportControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {

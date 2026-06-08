@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.materials.MatchedRevision
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.MaterialService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
@@ -54,6 +53,8 @@ class MaterialSearchControllerTest implements ControllerTrait<MaterialSearchCont
 
   @Nested
   class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+    @Delegate ControllerTrait<MaterialSearchController> c = MaterialSearchControllerTest.this
+    @Delegate SecurityServiceTrait s = MaterialSearchControllerTest.this
 
     @Override
     String getControllerMethodUnderTest() {
@@ -79,7 +80,7 @@ class MaterialSearchControllerTest implements ControllerTrait<MaterialSearchCont
       def matchedRevisions = [new MatchedRevision("abc", "9ea1cf", "9ea1cf0ae04be6088242a5b6275ed36eadfcf205", "username", commitDate, "commit message"),
                               new MatchedRevision("abc", "pipeline/1/stage/1", pipelineDate, "label")]
       when(materialService.searchRevisions(eq("some-pipeline") as String, eq("foo") as String, eq("abc") as String,
-        ArgumentMatchers.any() as Username, ArgumentMatchers.any() as LocalizedOperationResult))
+        ArgumentMatchers.any() as Username, ArgumentMatchers.any()))
         .thenReturn(matchedRevisions)
 
       getWithApiHeader(controller.controllerPath([fingerprint: 'foo', pipeline_name: 'some-pipeline', search_text: 'abc']))
@@ -94,7 +95,7 @@ class MaterialSearchControllerTest implements ControllerTrait<MaterialSearchCont
   @Test
   void 'should render 404 when pipeline or fingerprint is not found'() {
     when(materialService.searchRevisions(any(), any(), any(), any(), any())).then({ InvocationOnMock invocation ->
-      HttpLocalizedOperationResult result = invocation.getArguments().last()
+      HttpLocalizedOperationResult result = invocation.getArgument(4)
       result.notFound("some message",
         HealthStateType.general(HealthStateScope.forPipeline("some-pipeline")))
     })
@@ -110,7 +111,7 @@ class MaterialSearchControllerTest implements ControllerTrait<MaterialSearchCont
   @Test
   void 'should render empty list when no search results are found'() {
     when(materialService.searchRevisions(eq("some-pipeline") as String, eq("foo") as String, eq("abc") as String,
-      ArgumentMatchers.any() as Username, ArgumentMatchers.any() as LocalizedOperationResult))
+      ArgumentMatchers.any() as Username, ArgumentMatchers.any()))
       .thenReturn([])
 
     getWithApiHeader(controller.controllerPath([fingerprint: 'foo', pipeline_name: 'some-pipeline', search_text: 'abc']))

@@ -69,6 +69,9 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
   class Index {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = AgentsControllerV7Test.this
+      @Delegate ControllerTrait<AgentsControllerV7> c = AgentsControllerV7Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'index'
@@ -204,6 +207,9 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
   class Show {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = AgentsControllerV7Test.this
+      @Delegate ControllerTrait<AgentsControllerV7> c = AgentsControllerV7Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'show'
@@ -308,6 +314,9 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
   class Update {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = AgentsControllerV7Test.this
+      @Delegate ControllerTrait<AgentsControllerV7> c = AgentsControllerV7Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'update'
@@ -967,6 +976,9 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
   class BulkUpdate {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = AgentsControllerV7Test.this
+      @Delegate ControllerTrait<AgentsControllerV7> c = AgentsControllerV7Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'bulkUpdate'
@@ -1050,6 +1062,9 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
   class Delete {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = AgentsControllerV7Test.this
+      @Delegate ControllerTrait<AgentsControllerV7> c = AgentsControllerV7Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'deleteAgent'
@@ -1117,6 +1132,9 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
   class BulkDelete {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = AgentsControllerV7Test.this
+      @Delegate ControllerTrait<AgentsControllerV7> c = AgentsControllerV7Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'bulkDeleteAgents'
@@ -1293,6 +1311,8 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
   class killRunningTasks {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = AgentsControllerV7Test.this
+      @Delegate ControllerTrait<AgentsControllerV7> c = AgentsControllerV7Test.this
 
       @Override
       String getControllerMethodUnderTest() {

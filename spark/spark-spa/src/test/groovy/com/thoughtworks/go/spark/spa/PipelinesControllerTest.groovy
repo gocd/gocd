@@ -32,6 +32,8 @@ class PipelinesControllerTest implements ControllerTrait<PipelinesController>, S
   class Create {
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate ControllerTrait<PipelinesController> c = PipelinesControllerTest.this
+      @Delegate SecurityServiceTrait s = PipelinesControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

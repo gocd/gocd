@@ -54,6 +54,8 @@ class UserSearchControllerV1Test implements SecurityServiceTrait, ControllerTrai
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = UserSearchControllerV1Test.this
+      @Delegate ControllerTrait<UserSearchControllerV1> c = UserSearchControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -79,7 +81,7 @@ class UserSearchControllerV1Test implements SecurityServiceTrait, ControllerTrai
       void 'should return blank array if no users found for query string'() {
         def searchTerm = 'blah blah'
 
-        when(userSearchService.search(eq(searchTerm), any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
+        when(userSearchService.search(eq(searchTerm), any())).then({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArgument(1)
           result.setMessage("No results found.")
           return []
@@ -100,7 +102,7 @@ class UserSearchControllerV1Test implements SecurityServiceTrait, ControllerTrai
         def expectedUsers = [
           user
         ]
-        when(userSearchService.search(eq(searchTerm), any() as HttpLocalizedOperationResult)).thenReturn(expectedUsers)
+        when(userSearchService.search(eq(searchTerm), any())).thenReturn(expectedUsers)
 
         getWithApiHeader(controller.controllerPath([q: searchTerm]))
 
@@ -114,7 +116,7 @@ class UserSearchControllerV1Test implements SecurityServiceTrait, ControllerTrai
       void "should render error if search operation fails"(){
         def searchTerm = 'blah blah'
 
-        when(userSearchService.search(eq(searchTerm), any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
+        when(userSearchService.search(eq(searchTerm), any())).then({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArgument(1)
           result.badRequest("boom!")
           return []

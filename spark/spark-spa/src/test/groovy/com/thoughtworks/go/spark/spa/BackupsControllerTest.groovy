@@ -47,6 +47,8 @@ class BackupsControllerTest implements ControllerTrait<BackupsController>, Secur
   class Index {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<BackupsController> c = BackupsControllerTest.this
+      @Delegate SecurityServiceTrait s = BackupsControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

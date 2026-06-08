@@ -49,6 +49,8 @@ class BackupConfigControllerV1Test implements SecurityServiceTrait, ControllerTr
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = BackupConfigControllerV1Test.this
+      @Delegate ControllerTrait<BackupConfigControllerV1> c = BackupConfigControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -105,6 +107,8 @@ class BackupConfigControllerV1Test implements SecurityServiceTrait, ControllerTr
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = BackupConfigControllerV1Test.this
+      @Delegate ControllerTrait<BackupConfigControllerV1> c = BackupConfigControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {

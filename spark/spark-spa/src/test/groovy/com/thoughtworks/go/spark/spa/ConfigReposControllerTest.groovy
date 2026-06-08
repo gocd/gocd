@@ -32,6 +32,8 @@ class ConfigReposControllerTest implements ControllerTrait<ConfigReposController
   class Index {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate ControllerTrait<ConfigReposController> c = ConfigReposControllerTest.this
+      @Delegate SecurityServiceTrait s = ConfigReposControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

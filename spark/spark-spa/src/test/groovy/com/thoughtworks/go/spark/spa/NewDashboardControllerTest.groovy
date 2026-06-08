@@ -47,6 +47,8 @@ class NewDashboardControllerTest implements ControllerTrait<NewDashboardControll
   class Index {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate ControllerTrait<NewDashboardController> c = NewDashboardControllerTest.this
+      @Delegate SecurityServiceTrait s = NewDashboardControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

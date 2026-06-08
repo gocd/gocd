@@ -67,6 +67,9 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = InternalEnvironmentsControllerV1Test.this
+      @Delegate ControllerTrait<InternalEnvironmentsControllerV1> c = InternalEnvironmentsControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'index'
@@ -116,6 +119,9 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = InternalEnvironmentsControllerV1Test.this
+      @Delegate ControllerTrait<InternalEnvironmentsControllerV1> c = InternalEnvironmentsControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'indexMergedEnvironments'
@@ -240,7 +246,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
       RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
 
       when(goConfigService.rolesForUser(any(CaseInsensitiveString.class))).then({ InvocationOnMock invocation ->
-        CaseInsensitiveString username = invocation.getArguments()[0]
+        CaseInsensitiveString username = invocation.getArgument(0)
         if (username == Username.ANONYMOUS.username) {
           return []
         }
@@ -250,6 +256,9 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = InternalEnvironmentsControllerV1Test.this
+      @Delegate ControllerTrait<InternalEnvironmentsControllerV1> c = InternalEnvironmentsControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'updateAgentAssociation'

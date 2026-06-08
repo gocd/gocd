@@ -165,6 +165,7 @@ trait ControllerTrait<T extends SparkController> {
     return prefilter
   }
 
+  @Override
   T getController() {
     if (_controller == null) {
       _controller = spy(createControllerInstance())
@@ -172,6 +173,7 @@ trait ControllerTrait<T extends SparkController> {
     return _controller
   }
 
+  @Override
   MockHttpServletResponseAssert assertThatResponse() {
     MockHttpServletResponseAssert.assertThat(response)
   }

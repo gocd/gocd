@@ -44,6 +44,8 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
   class Index {
     @Nested
     class Security implements SecurityTestTrait, AnyAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = EncryptionControllerDelegateTest.this
+      @Delegate ControllerTrait<EncryptionControllerDelegate> c = EncryptionControllerDelegateTest.this
 
       @Override
       String getControllerMethodUnderTest() {

@@ -78,6 +78,8 @@ class InternalSecretConfigControllerV1Test implements SecurityServiceTrait, Cont
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = InternalSecretConfigControllerV1Test.this
+      @Delegate ControllerTrait<InternalSecretConfigControllerV1> c = InternalSecretConfigControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {

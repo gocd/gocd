@@ -88,7 +88,8 @@ public class CctrayController implements SparkSpringController, SparkController 
         response.type(getMimeType());
     }
 
-    protected String getMimeType() {
+    @Override
+    public String getMimeType() {
         return "application/xml";
     }
 

@@ -50,6 +50,9 @@ class CompareControllerTest implements ControllerTrait<CompareController>, Secur
 
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate ControllerTrait<CompareController> c = CompareControllerTest.this
+      @Delegate SecurityServiceTrait s = CompareControllerTest.this
+
       @BeforeEach
       void setUp() {
         when(goConfigService.hasPipelineNamed(cis(getPipelineName()))).thenReturn(true)

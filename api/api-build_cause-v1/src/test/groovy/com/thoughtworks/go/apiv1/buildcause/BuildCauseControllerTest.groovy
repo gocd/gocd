@@ -22,7 +22,6 @@ import com.thoughtworks.go.helpers.PipelineModelMother
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.PipelineHistoryService
 import com.thoughtworks.go.server.service.result.HttpOperationResult
-import com.thoughtworks.go.server.service.result.OperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
@@ -58,6 +57,8 @@ class BuildCauseControllerTest implements ControllerTrait<BuildCauseController>,
 
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate ControllerTrait<BuildCauseController> c = BuildCauseControllerTest.this
+      @Delegate SecurityServiceTrait s = BuildCauseControllerTest.this
 
       @BeforeEach
       void setUp() {
@@ -85,7 +86,7 @@ class BuildCauseControllerTest implements ControllerTrait<BuildCauseController>,
       def pipelineInstanceModel = PipelineModelMother.pipeline_instance_model([name  : "p1", label: "g1", counter: 5,
                                                                                stages: [[name: "cruise", counter: "10", approved_by: "Anonymous"]]])
       when(pipelineHistoryService.findPipelineInstance(eq("foo") as String, eq(2) as Integer, eq(currentUsername()) as Username,
-        any(OperationResult.class) as OperationResult)).thenReturn(pipelineInstanceModel)
+        any())).thenReturn(pipelineInstanceModel)
 
       getWithApiHeader(controller.controllerPath('/foo/2'))
 
@@ -97,10 +98,10 @@ class BuildCauseControllerTest implements ControllerTrait<BuildCauseController>,
     @Test
     void 'should render http 404 if pipeline instance is not found'() {
       doAnswer({ InvocationOnMock invocation ->
-        HttpOperationResult result = invocation.arguments.last()
+        HttpOperationResult result = invocation.getArgument(3)
         result.notFound("Pipeline foo/2 not found", "description", HealthStateType.general(HealthStateScope.GLOBAL))
       }).when(pipelineHistoryService).findPipelineInstance(eq("foo") as String, eq(2) as Integer, eq(currentUsername()) as Username,
-        any(OperationResult.class) as OperationResult)
+        any())
 
       getWithApiHeader(controller.controllerPath("/foo/2"))
 

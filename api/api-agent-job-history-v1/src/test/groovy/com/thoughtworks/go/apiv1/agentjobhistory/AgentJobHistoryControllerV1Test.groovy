@@ -279,6 +279,8 @@ class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, Controlle
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = AgentJobHistoryControllerV1Test.this
+      @Delegate ControllerTrait<AgentJobHistoryControllerV1> c = AgentJobHistoryControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {

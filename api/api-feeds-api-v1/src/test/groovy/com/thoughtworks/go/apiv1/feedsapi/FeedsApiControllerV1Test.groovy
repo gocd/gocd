@@ -81,6 +81,8 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = FeedsApiControllerV1Test.this
+      @Delegate ControllerTrait<FeedsApiControllerV1> c = FeedsApiControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -111,6 +113,8 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = FeedsApiControllerV1Test.this
+      @Delegate ControllerTrait<FeedsApiControllerV1> c = FeedsApiControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -141,6 +145,9 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = FeedsApiControllerV1Test.this
+      @Delegate ControllerTrait<FeedsApiControllerV1> c = FeedsApiControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "stagesXML"
@@ -178,6 +185,8 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = FeedsApiControllerV1Test.this
+      @Delegate ControllerTrait<FeedsApiControllerV1> c = FeedsApiControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -208,6 +217,8 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = FeedsApiControllerV1Test.this
+      @Delegate ControllerTrait<FeedsApiControllerV1> c = FeedsApiControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -238,6 +249,8 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = FeedsApiControllerV1Test.this
+      @Delegate ControllerTrait<FeedsApiControllerV1> c = FeedsApiControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -268,6 +281,8 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = FeedsApiControllerV1Test.this
+      @Delegate ControllerTrait<FeedsApiControllerV1> c = FeedsApiControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {

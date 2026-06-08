@@ -63,6 +63,9 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
   class Index {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = EnvironmentsControllerV3Test.this
+      @Delegate ControllerTrait<EnvironmentsControllerV3> c = EnvironmentsControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'index'
@@ -199,6 +202,9 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
   class Show {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = EnvironmentsControllerV3Test.this
+      @Delegate ControllerTrait<EnvironmentsControllerV3> c = EnvironmentsControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'show'
@@ -289,6 +295,9 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
   class Remove {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = EnvironmentsControllerV3Test.this
+      @Delegate ControllerTrait<EnvironmentsControllerV3> c = EnvironmentsControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'remove'
@@ -318,7 +327,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         when(environmentConfigService.getEnvironmentConfig(anyString())).thenReturn(env1)
         when(environmentConfigService.deleteEnvironment(eq(env1), eq(currentUsername()), any(HttpLocalizedOperationResult))).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArguments().last()
+            HttpLocalizedOperationResult result = invocation.getArgument(2)
             result.setMessage("Environment 'my_environment' was deleted successfully.")
         })
 
@@ -331,9 +340,9 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
       @Test
       void 'should error out if the environment does not exist'() {
-        when(environmentConfigService.getMergedEnvironmentforDisplay(anyString(), any(HttpLocalizedOperationResult.class)))
+        when(environmentConfigService.getMergedEnvironmentforDisplay(anyString(), any()))
           .then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArguments().last()
+          HttpLocalizedOperationResult result = invocation.getArgument(1)
           result.badRequest("No such environment")
         })
 
@@ -388,6 +397,9 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
   class Update {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = EnvironmentsControllerV3Test.this
+      @Delegate ControllerTrait<EnvironmentsControllerV3> c = EnvironmentsControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'update'
@@ -486,7 +498,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
         when(environmentConfigService.updateEnvironment(eq("env1"), eq(env1), eq(currentUsername()), anyString(), any(HttpLocalizedOperationResult))).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(4)
             result.setMessage("Updated environment '\" + oldEnvironmentConfigName + \"'.")
         })
 
@@ -566,7 +578,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         when(environmentConfigService.getMergedEnvironmentforDisplay(eq("env1"), any(HttpLocalizedOperationResult)))
           .then({
           InvocationOnMock invocation ->
-            def result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            def result = (HttpLocalizedOperationResult) invocation.getArgument(1)
             result.badRequest("The environment does not exist")
         })
         putWithApiHeader(controller.controllerPath("env1"), [name: "env1"])
@@ -582,6 +594,9 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
   class PartialUpdate {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = EnvironmentsControllerV3Test.this
+      @Delegate ControllerTrait<EnvironmentsControllerV3> c = EnvironmentsControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'partialUpdate'
@@ -625,7 +640,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
           eq(oldConfig), anyList(), anyList(), anyList(), anyList(), eq(currentUsername()), any(HttpLocalizedOperationResult))
         ).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(6)
             result.setMessage("Updated environment '\" + oldEnvironmentConfigName + \"'.")
         })
 
@@ -664,7 +679,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         when(environmentConfigService.getMergedEnvironmentforDisplay(eq("env1"), any(HttpLocalizedOperationResult)))
           .then({
           InvocationOnMock invocation ->
-            def result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            def result = (HttpLocalizedOperationResult) invocation.getArgument(1)
             result.badRequest("The environment does not exist")
         })
         patchWithApiHeader(controller.controllerPath("env1"), [name: "env1"])
@@ -683,7 +698,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
           eq(oldConfig), anyList(), anyList(), anyList(), anyList(), eq(currentUsername()), any(HttpLocalizedOperationResult))
         ).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(6)
             result.setMessage("Updated environment '\" + oldEnvironmentConfigName + \"'.")
         })
 
@@ -743,6 +758,9 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
   class Create {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = EnvironmentsControllerV3Test.this
+      @Delegate ControllerTrait<EnvironmentsControllerV3> c = EnvironmentsControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'create'
@@ -775,7 +793,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         when(entityHashingService.hashForEntity(env1)).thenReturn("digest-hash")
         when(environmentConfigService.createEnvironment(eq(env1), eq(currentUsername()), any(HttpLocalizedOperationResult))).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(2)
             result.setMessage("Environment was created successfully")
         })
 
@@ -847,7 +865,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
       @Test
       void 'should error out if the environment already exists'() {
-        when(environmentConfigService.getMergedEnvironmentforDisplay(anyString(), any(HttpLocalizedOperationResult.class)))
+        when(environmentConfigService.getMergedEnvironmentforDisplay(anyString(), any()))
           .thenReturn(new ConfigElementForEdit<EnvironmentConfig>(new BasicEnvironmentConfig(), "digeststring"))
 
         postWithApiHeader(controller.controllerPath(), [name: "env1"])

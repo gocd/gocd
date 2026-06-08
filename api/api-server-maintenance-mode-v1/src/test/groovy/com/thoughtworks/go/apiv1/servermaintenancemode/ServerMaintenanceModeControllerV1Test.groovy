@@ -78,6 +78,8 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
   class EnableMaintenanceModeState {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = ServerMaintenanceModeControllerV1Test.this
+      @Delegate ControllerTrait<ServerMaintenanceModeControllerV1> c = ServerMaintenanceModeControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -145,6 +147,8 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
   class DisableMaintenanceModeState {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = ServerMaintenanceModeControllerV1Test.this
+      @Delegate ControllerTrait<ServerMaintenanceModeControllerV1> c = ServerMaintenanceModeControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -212,6 +216,8 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
   class Info {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = ServerMaintenanceModeControllerV1Test.this
+      @Delegate ControllerTrait<ServerMaintenanceModeControllerV1> c = ServerMaintenanceModeControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {

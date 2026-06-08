@@ -15,19 +15,22 @@
  */
 package com.thoughtworks.go.api
 
-
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
 import com.thoughtworks.go.api.util.HaltApiMessages
+import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.SecurityServiceTrait
+import com.thoughtworks.go.spark.SecurityTestTraitBasics
 import com.thoughtworks.go.util.json.JsonHelper
+import groovy.transform.SelfType
 import org.junit.jupiter.api.BeforeEach
 import org.mockito.invocation.InvocationOnMock
-import spark.Request
 import spark.Response
 
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.*
 
-trait SecurityTestTrait {
+@SelfType([SecurityServiceTrait, ControllerTrait])
+trait SecurityTestTrait implements SecurityTestTraitBasics {
 
   def reachedControllerMessage
 
@@ -35,16 +38,18 @@ trait SecurityTestTrait {
   void stubControllerAction() {
     this.reachedControllerMessage = "REACHED_CONTROLLER_${UUID.randomUUID()}".toString()
     doAnswer({ InvocationOnMock invocation ->
-      Response res = invocation.arguments.last()
+      Response res = invocation.getArgument(1)
       res.status(99999)
       return JsonHelper.toJson([message: reachedControllerMessage])
-    }).when(controller)."${controllerMethodUnderTest}"(any() as Request, any() as Response)
+    }).when(controller)."${controllerMethodUnderTest}"(any(), any())
   }
 
   abstract String getControllerMethodUnderTest()
 
+  @Override
   abstract void makeHttpCall()
 
+  @Override
   def assertRequestAllowed() {
     verify(controller)."${controllerMethodUnderTest}"(any(), any())
 
@@ -54,6 +59,7 @@ trait SecurityTestTrait {
       .hasJsonBody([message: reachedControllerMessage])
   }
 
+  @Override
   def assertRequestForbidden() {
     verify(controller, never())."${controllerMethodUnderTest}"(any(), any())
 

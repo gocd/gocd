@@ -80,7 +80,17 @@ trait SecurityServiceTrait {
     when(securityService.isSecurityEnabled()).thenReturn(true)
   }
 
-  void loginAsGroupAdmin(String pipelineName = 'foo') {
+  void disableSecurity() {
+    SessionUtils.setCurrentUser(new GoUserPrincipal("anonymous", "anonymous", GoAuthority.ALL_AUTHORITIES))
+    when(securityService.isSecurityEnabled()).thenReturn(false)
+    when(securityService.isUserAdmin(any() as Username)).thenReturn(true)
+  }
+
+  void loginAsGroupAdmin() {
+    loginAsGroupAdmin('foo')
+  }
+
+  void loginAsGroupAdmin(String pipelineName) {
     Username username = loginAsRandomUser()
     String groupName = generateGroupName()
 
@@ -110,12 +120,6 @@ trait SecurityServiceTrait {
     when(groups.hasGroup(groupName)).thenReturn(true)
     when(securityService.hasOperatePermissionForGroup(eq(username.username), eq(groupName))).thenReturn(true)
     when(goConfigService.findGroupNameByPipeline(cis(pipelineName))).thenReturn(groupName)
-  }
-
-  void disableSecurity() {
-    SessionUtils.setCurrentUser(new GoUserPrincipal("anonymous", "anonymous", GoAuthority.ALL_AUTHORITIES))
-    when(securityService.isSecurityEnabled()).thenReturn(false)
-    when(securityService.isUserAdmin(any() as Username)).thenReturn(true)
   }
 
   void loginAsTemplateAdmin() {

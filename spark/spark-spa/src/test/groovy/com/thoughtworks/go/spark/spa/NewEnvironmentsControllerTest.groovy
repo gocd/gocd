@@ -35,6 +35,8 @@ class NewEnvironmentsControllerTest implements ControllerTrait<NewEnvironmentsCo
   class Index {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate ControllerTrait<NewEnvironmentsController> c = NewEnvironmentsControllerTest.this
+      @Delegate SecurityServiceTrait s = NewEnvironmentsControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

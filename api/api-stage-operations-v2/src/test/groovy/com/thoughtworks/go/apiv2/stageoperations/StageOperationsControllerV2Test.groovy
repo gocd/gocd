@@ -42,17 +42,10 @@ import static org.mockito.Mockito.*
 
 @MockitoSettings(strictness = Strictness.LENIENT)
 class StageOperationsControllerV2Test implements SecurityServiceTrait, ControllerTrait<StageOperationsControllerV2> {
-  @Mock
-  ScheduleService scheduleService
-
-  @Mock
-  StageService stageService
-
-  @Mock
-  SchedulingCheckerService schedulingChecker
-
-  @Mock
-  PipelineService pipelineService
+  @Mock ScheduleService scheduleService
+  @Mock StageService stageService
+  @Mock SchedulingCheckerService schedulingChecker
+  @Mock PipelineService pipelineService
 
 
   @Override
@@ -68,6 +61,8 @@ class StageOperationsControllerV2Test implements SecurityServiceTrait, Controlle
 
     @Nested
     class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+      @Delegate SecurityServiceTrait s = StageOperationsControllerV2Test.this
+      @Delegate ControllerTrait<StageOperationsControllerV2> c = StageOperationsControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -76,7 +71,7 @@ class StageOperationsControllerV2Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run'), [:])
+        postWithApiHeader(controller.controllerPath(getPipelineName(), Run.this.pipelineCounter, Run.this.stageName, 'run'), [:])
       }
 
       @Override

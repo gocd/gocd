@@ -32,6 +32,8 @@ class PipelinesAsCodeControllerTest implements ControllerTrait<PipelinesAsCodeCo
   class AsCode {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<PipelinesAsCodeController> c = PipelinesAsCodeControllerTest.this
+      @Delegate SecurityServiceTrait s = PipelinesAsCodeControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

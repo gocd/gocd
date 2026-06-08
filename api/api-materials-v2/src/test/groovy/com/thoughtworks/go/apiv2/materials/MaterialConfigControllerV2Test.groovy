@@ -59,6 +59,8 @@ class MaterialConfigControllerV2Test implements SecurityServiceTrait, Controller
   class Index {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = MaterialConfigControllerV2Test.this
+      @Delegate ControllerTrait<MaterialConfigControllerV2> c = MaterialConfigControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {

@@ -34,7 +34,6 @@ import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.materials.PluggableScmService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -44,7 +43,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
@@ -56,6 +54,7 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static java.util.Collections.emptyList
 import static java.util.Collections.emptyMap
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
+import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 
@@ -77,6 +76,8 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
   class Index {
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = SCMControllerV4Test.this
+      @Delegate ControllerTrait<SCMControllerV4> c = SCMControllerV4Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -144,6 +145,9 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
 
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = SCMControllerV4Test.this
+      @Delegate ControllerTrait<SCMControllerV4> c = SCMControllerV4Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'show'
@@ -235,6 +239,8 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
 
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = SCMControllerV4Test.this
+      @Delegate ControllerTrait<SCMControllerV4> c = SCMControllerV4Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -282,7 +288,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
         ))
 
         when(scmService.listAllScms()).thenReturn(new SCMs())
-        when(entityHashingService.hashForEntity(Mockito.any() as SCM)).thenReturn('some-digest')
+        when(entityHashingService.hashForEntity(any() as SCM)).thenReturn('some-digest')
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
 
@@ -315,7 +321,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
         ]
 
         when(scmService.listAllScms()).thenReturn(new SCMs())
-        when(entityHashingService.hashForEntity(Mockito.any() as SCM)).thenReturn('some-digest')
+        when(entityHashingService.hashForEntity(any() as SCM)).thenReturn('some-digest')
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
 
@@ -353,7 +359,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
           ConfigurationPropertyMother.create("key2", true, "secret"),
         ))
 
-        when(entityHashingService.hashForEntity(Mockito.any() as SCM)).thenReturn('some-digest')
+        when(entityHashingService.hashForEntity(any() as SCM)).thenReturn('some-digest')
         when(scmService.findPluggableScmMaterial("foobar")).thenReturn(existingSCM)
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
@@ -415,11 +421,11 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
         ]
 
         when(scmService.listAllScms()).thenReturn(new SCMs())
-        when(scmService.createPluggableScmMaterial(Mockito.any() as Username, Mockito.any() as SCM, Mockito.any() as LocalizedOperationResult))
+        when(scmService.createPluggableScmMaterial(any(Username), any(), any()))
           .then({ InvocationOnMock invocation ->
-          SCM scm = invocation.getArguments()[1]
+          SCM scm = invocation.getArgument(1)
           scm.addError("id", "Invalid id specified")
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.unprocessableEntity("validation failed")
         })
 
@@ -464,6 +470,8 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
 
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = SCMControllerV4Test.this
+      @Delegate ControllerTrait<SCMControllerV4> c = SCMControllerV4Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -643,16 +651,16 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
         when(scmService.findPluggableScmMaterial("foobar")).thenReturn(existingSCM)
 
         when(scmService.updatePluggableScmMaterial(
-          Mockito.any() as Username,
-          Mockito.any() as SCM,
-          Mockito.any() as LocalizedOperationResult,
-          Mockito.any() as String)
+          any(),
+          any() as SCM,
+          any(),
+          any() as String)
         ).then(
           {
             InvocationOnMock invocation ->
-              SCM scm = invocation.getArguments()[1]
+              SCM scm = invocation.getArgument(1)
               scm.addError("id", "Invalid id specified.")
-              HttpLocalizedOperationResult result = invocation.getArguments()[2]
+              HttpLocalizedOperationResult result = invocation.getArgument(2)
               result.unprocessableEntity("validation failed")
           })
 
@@ -733,6 +741,8 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
   class Destroy {
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = SCMControllerV4Test.this
+      @Delegate ControllerTrait<SCMControllerV4> c = SCMControllerV4Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -790,14 +800,14 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
         when(scmService.findPluggableScmMaterial("foobar")).thenReturn(existingSCM)
 
         when(scmService.deletePluggableSCM(
-          Mockito.any() as Username,
-          Mockito.any() as SCM,
-          Mockito.any() as LocalizedOperationResult,
+          any(),
+          any() as SCM,
+          any(),
         )
         ).then(
           {
             InvocationOnMock invocation ->
-              HttpLocalizedOperationResult result = invocation.getArguments()[2]
+              HttpLocalizedOperationResult result = invocation.getArgument(2)
               result.unprocessableEntity("validation failed")
           })
 
@@ -855,6 +865,8 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
 
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = SCMControllerV4Test.this
+      @Delegate ControllerTrait<SCMControllerV4> c = SCMControllerV4Test.this
 
       @Override
       String getControllerMethodUnderTest() {

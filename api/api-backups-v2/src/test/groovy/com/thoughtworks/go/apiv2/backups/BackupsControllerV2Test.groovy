@@ -42,6 +42,8 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = BackupsControllerV2Test.this
+      @Delegate ControllerTrait<BackupsControllerV2> c = BackupsControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -95,6 +97,8 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
   class Show {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = BackupsControllerV2Test.this
+      @Delegate ControllerTrait<BackupsControllerV2> c = BackupsControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -103,7 +107,7 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(BACKUP_ID))
+        getWithApiHeader(controller.controllerPath(BackupsControllerV2Test.this.BACKUP_ID))
       }
     }
 

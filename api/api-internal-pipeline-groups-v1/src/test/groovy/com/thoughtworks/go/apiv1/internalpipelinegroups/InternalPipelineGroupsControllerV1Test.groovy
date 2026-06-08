@@ -56,6 +56,8 @@ class InternalPipelineGroupsControllerV1Test implements SecurityServiceTrait, Co
 
   @Nested
   class Security implements SecurityTestTrait, NormalUserSecurity {
+    @Delegate SecurityServiceTrait s = InternalPipelineGroupsControllerV1Test.this
+    @Delegate ControllerTrait<InternalPipelineGroupsControllerV1> c = InternalPipelineGroupsControllerV1Test.this
 
     @Override
     String getControllerMethodUnderTest() {

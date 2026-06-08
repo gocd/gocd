@@ -48,6 +48,8 @@ class InternalDependencyPipelinesControllerV1Test implements SecurityServiceTrai
   class Index {
     @Nested
     class PipelineSecurity implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate SecurityServiceTrait s = InternalDependencyPipelinesControllerV1Test.this
+      @Delegate ControllerTrait<InternalDependencyPipelinesControllerV1> c = InternalDependencyPipelinesControllerV1Test.this
 
       @BeforeEach
       void setUp() {
@@ -72,6 +74,8 @@ class InternalDependencyPipelinesControllerV1Test implements SecurityServiceTrai
 
     @Nested
     class TemplateSecurity implements SecurityTestTrait, TemplateViewUserSecurity {
+      @Delegate SecurityServiceTrait s = InternalDependencyPipelinesControllerV1Test.this
+      @Delegate ControllerTrait<InternalDependencyPipelinesControllerV1> c = InternalDependencyPipelinesControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {

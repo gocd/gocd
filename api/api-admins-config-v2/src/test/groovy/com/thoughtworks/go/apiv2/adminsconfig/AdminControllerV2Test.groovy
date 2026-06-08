@@ -47,10 +47,8 @@ import static org.mockito.Mockito.when
 
 @MockitoSettings(strictness = Strictness.LENIENT)
 class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, SecurityServiceTrait {
-  @Mock
-  private AdminsConfigService adminsConfigService
-  @Mock
-  private EntityHashingService entityHashingService
+  @Mock AdminsConfigService adminsConfigService
+  @Mock EntityHashingService entityHashingService
 
   @Override
   AdminControllerV2 createControllerInstance() {
@@ -61,10 +59,13 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
   class Show {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<AdminControllerV2> c = AdminControllerV2Test.this
+      @Delegate SecurityServiceTrait s = AdminControllerV2Test.this
+
       @BeforeEach
       void setUp() {
         AdminsConfig config = new AdminsConfig(new AdminUser(cis("admin")))
-        when(adminsConfigService.systemAdmins()).thenReturn(config)
+        when(AdminControllerV2Test.this.adminsConfigService.systemAdmins()).thenReturn(config)
       }
 
       @Override
@@ -136,13 +137,16 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
   class Update {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<AdminControllerV2> c = AdminControllerV2Test.this
+      @Delegate SecurityServiceTrait s = AdminControllerV2Test.this
+
       AdminsConfig config
 
       @BeforeEach
       void setUp() {
         config = new AdminsConfig(new AdminUser(cis("admin")))
-        when(adminsConfigService.systemAdmins()).thenReturn(config)
-        when(entityHashingService.hashForEntity(config)).thenReturn('cached-digest')
+        when(AdminControllerV2Test.this.adminsConfigService.systemAdmins()).thenReturn(config)
+        when(AdminControllerV2Test.this.entityHashingService.hashForEntity(config)).thenReturn('cached-digest')
       }
 
       @Override
@@ -181,7 +185,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
           AdminsConfigRepresenter.toJSON(it, configFromRequest)
         }))
 
-        verify(adminsConfigService).update(any(), eq(configFromRequest), eq("cached-digest"), any(HttpLocalizedOperationResult.class))
+        verify(adminsConfigService).update(any(), eq(configFromRequest), eq("cached-digest"), any())
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
@@ -197,8 +201,8 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
 
         when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
         when(entityHashingService.hashForEntity(configInServer)).thenReturn("cached-digest")
-        when(adminsConfigService.update(any(), eq(configFromRequest), eq("cached-digest"), any(HttpLocalizedOperationResult.class))).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+        when(adminsConfigService.update(any(), eq(configFromRequest), eq("cached-digest"), any())).then({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArgument(3)
           result.unprocessableEntity("validation failed")
         })
 
@@ -236,13 +240,16 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
   class Patch {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<AdminControllerV2> c = AdminControllerV2Test.this
+      @Delegate SecurityServiceTrait s = AdminControllerV2Test.this
+
       AdminsConfig config
 
       @BeforeEach
       void setUp() {
         config = new AdminsConfig(new AdminUser(cis("admin")))
-        when(adminsConfigService.systemAdmins()).thenReturn(config)
-        when(entityHashingService.hashForEntity(config)).thenReturn('cached-digest')
+        when(AdminControllerV2Test.this.adminsConfigService.systemAdmins()).thenReturn(config)
+        when(AdminControllerV2Test.this.entityHashingService.hashForEntity(config)).thenReturn('cached-digest')
       }
 
       @Override

@@ -49,6 +49,8 @@ class CctrayControllerTest implements SecurityServiceTrait, ControllerTrait<Cctr
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = CctrayControllerTest.this
+      @Delegate ControllerTrait<CctrayController> c = CctrayControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

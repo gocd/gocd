@@ -21,7 +21,6 @@ import com.thoughtworks.go.apiv7.admin.templateconfig.representers.ParametersRep
 import com.thoughtworks.go.apiv7.admin.templateconfig.representers.TemplateConfigRepresenter
 import com.thoughtworks.go.apiv7.admin.templateconfig.representers.TemplatesConfigRepresenter
 import com.thoughtworks.go.config.*
-import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.TemplateConfigService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
@@ -68,6 +67,8 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, AnyAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = TemplateConfigControllerV7Test.this
+      @Delegate ControllerTrait<TemplateConfigControllerV7> c = TemplateConfigControllerV7Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -92,7 +93,7 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
         templates.add(new PipelineEditabilityInfo(cis("pipeline1"), true, true))
         templates.add(new PipelineEditabilityInfo(cis("pipeline2"), false, true))
 
-        when(templateConfigService.getTemplatesList(any(Username.class) as Username)).thenReturn([templates])
+        when(templateConfigService.getTemplatesList(any())).thenReturn([templates])
 
         getWithApiHeader(controller.controllerPath())
 
@@ -108,6 +109,8 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, TemplateViewUserSecurity {
+      @Delegate SecurityServiceTrait s = TemplateConfigControllerV7Test.this
+      @Delegate ControllerTrait<TemplateConfigControllerV7> c = TemplateConfigControllerV7Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -179,6 +182,8 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, TemplateAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = TemplateConfigControllerV7Test.this
+      @Delegate ControllerTrait<TemplateConfigControllerV7> c = TemplateConfigControllerV7Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -216,9 +221,9 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
       void 'should render the success message on deleting a template'() {
         when(templateConfigService.loadForView("some-template", result)).thenReturn(template)
         doAnswer({ InvocationOnMock invocation ->
-          result = invocation.arguments.last()
+          result = invocation.getArgument(2)
           result.setMessage("The template 'some-template' was deleted successfully.")
-        }).when(templateConfigService).deleteTemplateConfig(any(Username.class) as Username, eq(template), eq(result))
+        }).when(templateConfigService).deleteTemplateConfig(any(), eq(template), eq(result))
 
         deleteWithApiHeader(controller.controllerPath("/some-template"))
 
@@ -232,9 +237,9 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
         when(templateConfigService.loadForView("some-template", result)).thenReturn(template)
 
         doAnswer({ InvocationOnMock invocation ->
-          result = invocation.arguments.last()
+          result = invocation.getArgument(2)
           result.unprocessableEntity("Save failed. Validation failed.")
-        }).when(templateConfigService).deleteTemplateConfig(any(Username.class) as Username, eq(template), eq(result))
+        }).when(templateConfigService).deleteTemplateConfig(any(), eq(template), eq(result))
 
         deleteWithApiHeader(controller.controllerPath("/some-template"))
 
@@ -250,6 +255,8 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = TemplateConfigControllerV7Test.this
+      @Delegate ControllerTrait<TemplateConfigControllerV7> c = TemplateConfigControllerV7Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -276,7 +283,7 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
 
       @Test
       void 'should deserialize template from given parameters'() {
-        doNothing().when(templateConfigService).createTemplateConfig(any(Username.class) as Username, any(PipelineTemplateConfig.class) as PipelineTemplateConfig, eq(result) )
+        doNothing().when(templateConfigService).createTemplateConfig(any(), any(PipelineTemplateConfig.class) as PipelineTemplateConfig, eq(result) )
 
         postWithApiHeader(controller.controllerPath(), templateHash)
 
@@ -288,9 +295,9 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
       @Test
       void 'should fail to save if there are validation errors'() {
         doAnswer({ InvocationOnMock invocation ->
-          result = invocation.arguments.last()
+          result = invocation.getArgument(2)
           result.unprocessableEntity("Save failed.")
-        }).when(templateConfigService).createTemplateConfig(any(Username.class) as Username, eq(template), eq(result))
+        }).when(templateConfigService).createTemplateConfig(any(), eq(template), eq(result))
 
         postWithApiHeader(controller.controllerPath(), templateHash)
 
@@ -315,6 +322,8 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, TemplateAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = TemplateConfigControllerV7Test.this
+      @Delegate ControllerTrait<TemplateConfigControllerV7> c = TemplateConfigControllerV7Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -327,7 +336,7 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
           'accept'      : controller.mimeType,
           'If-Match'    : 'cached-digest',
           'content-type': 'application/json'
-        ], toObjectString({ TemplateConfigRepresenter.toJSON(it, template) }))
+        ], toObjectString({ TemplateConfigRepresenter.toJSON(it, TemplateConfigControllerV7Test.this.template) }))
       }
     }
 
@@ -348,7 +357,7 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
         when(templateConfigService.loadForView("some-template", result)).thenReturn(template)
         when(entityHashingService.hashForEntity(template)).thenReturn("digest")
 
-        doNothing().when(templateConfigService).updateTemplateConfig(any(Username.class) as Username, any(PipelineTemplateConfig.class) as PipelineTemplateConfig, eq(result), eq("digest"))
+        doNothing().when(templateConfigService).updateTemplateConfig(any(), any(PipelineTemplateConfig.class) as PipelineTemplateConfig, eq(result), eq("digest"))
 
         def headers = [
           'accept'      : controller.mimeType,
@@ -420,9 +429,9 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
         when(entityHashingService.hashForEntity(any(PipelineTemplateConfig.class) as PipelineTemplateConfig)).thenReturn("digest")
 
         doAnswer({ InvocationOnMock invocation ->
-          result = invocation.arguments[2]
+          result = invocation.getArgument(2)
           result.unprocessableEntity("some error")
-        }).when(templateConfigService).updateTemplateConfig(any(Username.class) as Username, eq(template), eq(result), eq("digest"))
+        }).when(templateConfigService).updateTemplateConfig(any(), eq(template), eq(result), eq("digest"))
 
         def headers = [
           'accept'      : controller.mimeType,
@@ -458,6 +467,8 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
   class Parameters {
     @Nested
     class Security implements SecurityTestTrait, TemplateViewUserSecurity {
+      @Delegate SecurityServiceTrait s = TemplateConfigControllerV7Test.this
+      @Delegate ControllerTrait<TemplateConfigControllerV7> c = TemplateConfigControllerV7Test.this
 
       @Override
       String getControllerMethodUnderTest() {

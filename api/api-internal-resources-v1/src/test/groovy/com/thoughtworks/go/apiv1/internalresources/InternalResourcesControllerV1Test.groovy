@@ -51,6 +51,9 @@ class InternalResourcesControllerV1Test implements SecurityServiceTrait, Control
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = InternalResourcesControllerV1Test.this
+      @Delegate ControllerTrait<InternalResourcesControllerV1> c = InternalResourcesControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'index'

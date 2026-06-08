@@ -70,6 +70,8 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
 
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = InternalMaterialTestControllerV1Test.this
+      @Delegate ControllerTrait<InternalMaterialTestControllerV1> c = InternalMaterialTestControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {

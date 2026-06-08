@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.materials.Modifications
 import com.thoughtworks.go.server.materials.MaterialUpdateService
 import com.thoughtworks.go.server.service.MaterialConfigService
 import com.thoughtworks.go.server.service.MaterialService
-import com.thoughtworks.go.server.service.result.HttpOperationResult
 import com.thoughtworks.go.server.util.Pagination
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
@@ -65,6 +64,8 @@ class MaterialModificationsControllerV2Test implements SecurityServiceTrait, Con
   class MaterialModifications {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = MaterialModificationsControllerV2Test.this
+      @Delegate ControllerTrait<MaterialModificationsControllerV2> c = MaterialModificationsControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -97,7 +98,7 @@ class MaterialModificationsControllerV2Test implements SecurityServiceTrait, Con
         materialConfig.url = "http://example.git/"
 
         when(materialService.getTotalModificationsFor(materialConfig)).thenReturn(2l)
-        when(materialConfigService.getMaterialConfig(eq(currentUsernameString()), eq("fingerprint"), any(HttpOperationResult.class)))
+        when(materialConfigService.getMaterialConfig(eq(currentUsernameString()), eq("fingerprint"), any()))
           .thenReturn(materialConfig)
         when(materialService.getModificationsFor(materialConfig, pagination)).thenReturn(modifications)
 

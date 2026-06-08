@@ -112,6 +112,9 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
   class ConfigFiles {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PipelinesAsCodeInternalControllerV1Test.this
+      @Delegate ControllerTrait<PipelinesAsCodeInternalControllerV1> c = PipelinesAsCodeInternalControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "configFiles"
@@ -281,6 +284,8 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PipelinesAsCodeInternalControllerV1Test.this
+      @Delegate ControllerTrait<PipelinesAsCodeInternalControllerV1> c = PipelinesAsCodeInternalControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {

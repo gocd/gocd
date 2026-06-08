@@ -67,6 +67,8 @@ class CompareControllerV2Test implements SecurityServiceTrait, ControllerTrait<C
 
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate SecurityServiceTrait s = CompareControllerV2Test.this
+      @Delegate ControllerTrait<CompareControllerV2> c = CompareControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -100,7 +102,7 @@ class CompareControllerV2Test implements SecurityServiceTrait, ControllerTrait<C
         List<MaterialRevision> materialRevisions = getRevisions(new Date())
 
         when(pipelineService.isPipelineBisect(pipelineName, fromCounter, toCounter)).thenReturn(false)
-        when(changesetService.revisionsBetween(eq(pipelineName), eq(fromCounter), eq(toCounter), eq(currentUsername()), any(HttpLocalizedOperationResult.class), eq(true))).thenReturn(materialRevisions)
+        when(changesetService.revisionsBetween(eq(pipelineName), eq(fromCounter), eq(toCounter), eq(currentUsername()), any(), eq(true))).thenReturn(materialRevisions)
 
         getWithApiHeader(getApi('up42', fromCounter, toCounter))
 
@@ -114,7 +116,7 @@ class CompareControllerV2Test implements SecurityServiceTrait, ControllerTrait<C
       @Test
       void 'should return 404 if pipeline was not found'() {
         when(changesetService.revisionsBetween(anyString(), anyInt(), anyInt(), any(), any(), anyBoolean())).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArguments()[4]
+          HttpLocalizedOperationResult result = invocation.getArgument(4)
           result.notFound("not found message", HealthStateType.general(HealthStateScope.forPipeline("undefined")))
         })
 
@@ -140,8 +142,8 @@ class CompareControllerV2Test implements SecurityServiceTrait, ControllerTrait<C
 
       @Test
       void 'should return forbidden if the user does not have access to view the pipeline'() {
-        when(changesetService.revisionsBetween(anyString(), anyInt(), anyInt(), any(Username.class), any(HttpLocalizedOperationResult.class), anyBoolean())).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArguments()[4]
+        when(changesetService.revisionsBetween(anyString(), anyInt(), anyInt(), any(Username.class), any(), anyBoolean())).then({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArgument(4)
           result.forbidden("forbidden message", HealthStateType.general(HealthStateScope.forPipeline("undefined")))
         })
 

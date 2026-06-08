@@ -71,6 +71,8 @@ class PackagesInternalControllerV2Test implements SecurityServiceTrait, Controll
 
   @Nested
   class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    @Delegate SecurityServiceTrait s = PackagesInternalControllerV2Test.this
+    @Delegate ControllerTrait<PackagesInternalControllerV2> c = PackagesInternalControllerV2Test.this
 
     @Override
     String getControllerMethodUnderTest() {
@@ -97,9 +99,9 @@ class PackagesInternalControllerV2Test implements SecurityServiceTrait, Controll
       def packageDefinition = new PackageDefinition('package-id-1', 'package-1', configurationProperties)
       packageDefinition.setRepository(repo)
 
-      when(packageDefinitionService.checkConnection(any(PackageDefinition.class), any(HttpLocalizedOperationResult.class))).then({
+      when(packageDefinitionService.checkConnection(any(PackageDefinition.class), any())).then({
         InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(1)
           result.setMessage("Successful Check Connection!")
       })
 
@@ -118,9 +120,9 @@ class PackagesInternalControllerV2Test implements SecurityServiceTrait, Controll
       def packageDefinition = new PackageDefinition('package-id-1', 'package-1', configurationProperties)
       packageDefinition.setRepository(new PackageRepository('package-repo-id-1', 'package-repo-name-1', null, null))
 
-      when(packageDefinitionService.checkConnection(any(PackageDefinition.class), any(HttpLocalizedOperationResult.class))).then({
+      when(packageDefinitionService.checkConnection(any(PackageDefinition.class), any())).then({
         InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(1)
           result.badRequest("Failed Check Connection!")
       })
 

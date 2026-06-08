@@ -28,7 +28,6 @@ import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.PipelineHistoryService
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.PipelineAccessSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -62,10 +61,6 @@ class InternalCompareControllerV2Test implements SecurityServiceTrait, Controlle
 
   @Nested
   class List {
-    private pipelineName = "up42"
-    private methodName = "list"
-    private api = getApi(pipelineName, methodName)
-
     @BeforeEach
     void setUp() {
       when(goConfigService.hasPipelineNamed(any(CaseInsensitiveString.class))).thenReturn(true)
@@ -73,25 +68,29 @@ class InternalCompareControllerV2Test implements SecurityServiceTrait, Controlle
 
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate SecurityServiceTrait s = InternalCompareControllerV2Test.this
+      @Delegate ControllerTrait<InternalCompareControllerV2> c = InternalCompareControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
-        return methodName
+        return 'list'
       }
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(api)
+        getWithApiHeader(controller.controllerPath(getPipelineName(), getControllerMethodUnderTest()))
       }
 
       @Override
       String getPipelineName() {
-        return "up42"
+        return 'up42'
       }
     }
 
     @Nested
     class AsAuthorizedUser {
+      private pipelineName = "up42"
+
       @BeforeEach
       void setUp() {
         enableSecurity()
@@ -113,13 +112,13 @@ class InternalCompareControllerV2Test implements SecurityServiceTrait, Controlle
         def pipelineInstanceModel2 = PipelineInstanceModel.createPipeline(pipelineName, 3, "label", buildCause, stageInstanceModels)
         def pipelineInstanceModels = PipelineInstanceModels.createPipelineInstanceModels(pipelineInstanceModel1, pipelineInstanceModel2)
 
-        when(pipelineHistoryService.findMatchingPipelineInstances(anyString(), anyString(), anyInt(), any(Username.class), any(HttpLocalizedOperationResult.class))).thenReturn(pipelineInstanceModels)
+        when(pipelineHistoryService.findMatchingPipelineInstances(anyString(), anyString(), anyInt(), any(Username.class), any())).thenReturn(pipelineInstanceModels)
 
         def expected = toObjectString({ PipelineInstanceModelsRepresenter.toJSON(it, pipelineInstanceModels) })
 
-        getWithApiHeader(api)
+        getWithApiHeader(controller.controllerPath(pipelineName, 'list'))
 
-        verify(pipelineHistoryService).findMatchingPipelineInstances(eq(pipelineName), eq(""), eq(10), any(Username.class), any(HttpLocalizedOperationResult.class))
+        verify(pipelineHistoryService).findMatchingPipelineInstances(eq(pipelineName), eq(""), eq(10), any(Username.class), any())
 
         assertThatResponse()
           .isOk()
@@ -129,7 +128,7 @@ class InternalCompareControllerV2Test implements SecurityServiceTrait, Controlle
       @ParameterizedTest
       @MethodSource("pageSizes")
       void 'should throw error if page_size is not between 10 and 100'(String input) {
-        getWithApiHeader(api + "?page_size=" + input)
+        getWithApiHeader(controller.controllerPath(pipelineName, 'list') + "?page_size=" + input)
 
         assertThatResponse()
           .isBadRequest()
@@ -145,9 +144,5 @@ class InternalCompareControllerV2Test implements SecurityServiceTrait, Controlle
         )
       }
     }
-  }
-
-  static String getApi(String pipelineName, String methodName) {
-    return "/api/internal/compare/$pipelineName/$methodName".toString()
   }
 }

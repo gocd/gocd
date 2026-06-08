@@ -21,7 +21,6 @@ import com.thoughtworks.go.apiv1.user.representers.UserRepresenter
 import com.thoughtworks.go.domain.User
 import com.thoughtworks.go.server.service.UserService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NonAnonymousUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -50,6 +49,8 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
   class Show {
     @Nested
     class Security implements SecurityTestTrait, NonAnonymousUserSecurity {
+      @Delegate ControllerTrait<CurrentUserController> c = CurrentUserControllerTest.this
+      @Delegate SecurityServiceTrait s = CurrentUserControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -105,6 +106,8 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
   class Update {
     @Nested
     class Security implements SecurityTestTrait, NonAnonymousUserSecurity {
+      @Delegate ControllerTrait<CurrentUserController> c = CurrentUserControllerTest.this
+      @Delegate SecurityServiceTrait s = CurrentUserControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -143,7 +146,7 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
 
         doAnswer({ InvocationOnMock invocation ->
           return newUser
-        }).when(userService).save(eq(user), eq(TriState.from(null)), eq(TriState.from(data.email_me.toString())), eq(data.email), eq(data.checkin_aliases), any() as LocalizedOperationResult)
+        }).when(userService).save(eq(user), eq(TriState.from(null)), eq(TriState.from(data.email_me.toString())), eq(data.email), eq(data.checkin_aliases), any())
         patchWithApiHeader(controller.controllerBasePath(), data)
 
         def etag = '"' + controller.etagFor(toObjectString({ writer -> UserRepresenter.toJSON(writer, newUser) })) + '"'
@@ -182,10 +185,10 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
         result.badRequest("Some error message")
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result1 = invocation.arguments.last()
+          HttpLocalizedOperationResult result1 = invocation.getArgument(5)
           result1.badRequest("Some error message")
           return newUser
-        }).when(userService).save(eq(user), eq(TriState.from(null)), eq(TriState.from(data.email_me.toString())), eq(data.email), eq(data.checkin_aliases), any() as LocalizedOperationResult)
+        }).when(userService).save(eq(user), eq(TriState.from(null)), eq(TriState.from(data.email_me.toString())), eq(data.email), eq(data.checkin_aliases), any())
         patchWithApiHeader(controller.controllerBasePath(), data)
 
         def etag = '"' + controller.etagFor(toObjectString({ writer -> UserRepresenter.toJSON(writer, newUser, result) })) + '"'

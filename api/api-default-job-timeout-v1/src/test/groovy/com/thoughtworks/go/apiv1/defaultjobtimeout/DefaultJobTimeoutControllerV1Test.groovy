@@ -54,6 +54,8 @@ class DefaultJobTimeoutControllerV1Test implements SecurityServiceTrait, Control
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = DefaultJobTimeoutControllerV1Test.this
+      @Delegate ControllerTrait<DefaultJobTimeoutControllerV1> c = DefaultJobTimeoutControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -92,6 +94,8 @@ class DefaultJobTimeoutControllerV1Test implements SecurityServiceTrait, Control
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = DefaultJobTimeoutControllerV1Test.this
+      @Delegate ControllerTrait<DefaultJobTimeoutControllerV1> c = DefaultJobTimeoutControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -150,6 +154,8 @@ class DefaultJobTimeoutControllerV1Test implements SecurityServiceTrait, Control
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = DefaultJobTimeoutControllerV1Test.this
+      @Delegate ControllerTrait<DefaultJobTimeoutControllerV1> c = DefaultJobTimeoutControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {

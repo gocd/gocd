@@ -67,6 +67,8 @@ class InternalRolesControllerV3Test implements SecurityServiceTrait, ControllerT
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = InternalRolesControllerV3Test.this
+      @Delegate ControllerTrait<InternalRolesControllerV3> c = InternalRolesControllerV3Test.this
 
       @Override
       String getControllerMethodUnderTest() {

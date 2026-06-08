@@ -74,6 +74,8 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate SecurityServiceTrait s = JobInstanceControllerV1Test.this
+      @Delegate ControllerTrait<JobInstanceControllerV1> c = JobInstanceControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -82,7 +84,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history'), [:])
+        getWithApiHeader(controller.controllerPath(getPipelineName(), History.this.stageName, History.this.jobName, 'history'), [:])
       }
 
       @Override
@@ -230,6 +232,8 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate SecurityServiceTrait s = JobInstanceControllerV1Test.this
+      @Delegate ControllerTrait<JobInstanceControllerV1> c = JobInstanceControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -238,7 +242,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(pipelineName, 2, stageName, 2, jobName), [:])
+        getWithApiHeader(controller.controllerPath(getPipelineName(), 2, Instance.this.stageName, 2, Instance.this.jobName), [:])
       }
 
       @Override

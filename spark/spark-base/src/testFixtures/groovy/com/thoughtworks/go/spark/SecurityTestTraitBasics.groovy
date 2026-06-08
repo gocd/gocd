@@ -13,37 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thoughtworks.go.spark
 
-import org.junit.jupiter.api.Test
+interface SecurityTestTraitBasics {
 
-trait NormalUserOnlyIfSecurityEnabled {
+  void makeHttpCall()
 
-  @Test
-  void 'should allow nobody with security disabled'() {
-    disableSecurity()
-
-    makeHttpCall()
-    assertDeniedBecauseSecurityDisabled()
-  }
-
-  @Test
-  void "should disallow anonymous users, with security enabled"() {
-    enableSecurity()
-    loginAsAnonymous()
-
-    makeHttpCall()
-
-    assertRequestForbidden()
-  }
-
-  @Test
-  void 'should allow normal users, with security enabled'() {
-    enableSecurity()
-    loginAsUser()
-
-    makeHttpCall()
-    assertRequestAllowed()
-  }
-
+  def assertRequestAllowed()
+  def assertRequestForbidden()
 }

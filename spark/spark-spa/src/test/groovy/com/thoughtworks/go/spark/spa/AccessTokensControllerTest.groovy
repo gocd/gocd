@@ -58,6 +58,8 @@ class AccessTokensControllerTest implements ControllerTrait<AccessTokensControll
 
   @Nested
   class Security implements SecurityTestTrait, NormalUserSecurity {
+    @Delegate ControllerTrait<AccessTokensController> c = AccessTokensControllerTest.this
+    @Delegate SecurityServiceTrait s = AccessTokensControllerTest.this
 
     @Override
     String getControllerMethodUnderTest() {

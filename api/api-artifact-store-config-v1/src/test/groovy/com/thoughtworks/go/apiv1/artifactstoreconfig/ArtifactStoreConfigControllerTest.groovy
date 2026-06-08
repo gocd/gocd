@@ -27,7 +27,6 @@ import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.ArtifactStoreService
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -35,7 +34,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
@@ -67,6 +65,8 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<ArtifactStoreConfigController> c = ArtifactStoreConfigControllerTest.this
+      @Delegate SecurityServiceTrait s = ArtifactStoreConfigControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -107,9 +107,12 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
   class Show {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<ArtifactStoreConfigController> c = ArtifactStoreConfigControllerTest.this
+      @Delegate SecurityServiceTrait s = ArtifactStoreConfigControllerTest.this
+
       @BeforeEach
       void setUp() {
-        when(artifactStoreService.findArtifactStore("test"))
+        when(ArtifactStoreConfigControllerTest.this.artifactStoreService.findArtifactStore("test"))
           .thenReturn(new ArtifactStore("docker", "cd.go.artifact.docker",
           ConfigurationPropertyMother.create("RegistryURL", false, "http://foo")))
       }
@@ -199,6 +202,8 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
   class Create {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<ArtifactStoreConfigController> c = ArtifactStoreConfigControllerTest.this
+      @Delegate SecurityServiceTrait s = ArtifactStoreConfigControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -239,9 +244,9 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
       @Test
       void 'should fail to create if there are validation errors'() {
         def artifactStore = new ArtifactStore("test", "cd.go.artifact.docker", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
-        when(artifactStoreService.create(Mockito.any() as Username, Mockito.any() as ArtifactStore, Mockito.any() as LocalizedOperationResult))
+        when(artifactStoreService.create(any(), any() as ArtifactStore, any()))
           .then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.unprocessableEntity("validation failed")
         })
 
@@ -266,7 +271,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
           ArtifactStoreRepresenter.toJSON(it, artifactStore)
         }))
 
-        verify(artifactStoreService, never()).create(Mockito.any() as Username, Mockito.any() as ArtifactStore, Mockito.any() as LocalizedOperationResult)
+        verify(artifactStoreService, never()).create(any(), any() as ArtifactStore, any())
 
         assertThatResponse()
           .isUnprocessableEntity()
@@ -282,6 +287,8 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
   class Update {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<ArtifactStoreConfigController> c = ArtifactStoreConfigControllerTest.this
+      @Delegate SecurityServiceTrait s = ArtifactStoreConfigControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -380,6 +387,9 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
   class Destroy {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<ArtifactStoreConfigController> c = ArtifactStoreConfigControllerTest.this
+      @Delegate SecurityServiceTrait s = ArtifactStoreConfigControllerTest.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "destroy"
@@ -415,9 +425,9 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
         when(artifactStoreService.findArtifactStore('test')).thenReturn(artifactStore)
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.setMessage(LocalizedMessage.resourceDeleteSuccessful('artifactStore', artifactStore.getId()))
-        }).when(artifactStoreService).delete(any() as Username, eq(artifactStore), any() as LocalizedOperationResult)
+        }).when(artifactStoreService).delete(any() as Username, eq(artifactStore), any())
 
         deleteWithApiHeader(controller.controllerPath('/test'))
 
@@ -434,9 +444,9 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
         when(artifactStoreService.findArtifactStore('test')).thenReturn(artifactStore)
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.unprocessableEntity("save failed")
-        }).when(artifactStoreService).delete(any() as Username, eq(artifactStore), any() as LocalizedOperationResult)
+        }).when(artifactStoreService).delete(any() as Username, eq(artifactStore), any())
 
         deleteWithApiHeader(controller.controllerPath('/test'))
 

@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.spark
+package com.thoughtworks.go.api
 
+import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.SecurityServiceTrait
 import groovy.transform.SelfType
 import org.junit.jupiter.api.Test
 
-@SelfType([SecurityServiceTrait, ControllerTrait, SecurityTestTraitBasics])
-trait TemplateViewUserSecurity {
+@SelfType([SecurityServiceTrait, ControllerTrait, SecurityTestTrait])
+trait NormalUserOnlyIfSecurityEnabled {
 
   @Test
-  void 'should allow all with security disabled'() {
+  void 'should allow nobody with security disabled'() {
     disableSecurity()
 
     makeHttpCall()
-    assertRequestAllowed()
+    assertDeniedBecauseSecurityDisabled()
   }
 
   @Test
@@ -40,38 +42,12 @@ trait TemplateViewUserSecurity {
   }
 
   @Test
-  void 'should disallow normal users, with security enabled'() {
+  void 'should allow normal users, with security enabled'() {
     enableSecurity()
     loginAsUser()
 
     makeHttpCall()
-    assertRequestForbidden()
-  }
-
-  @Test
-  void 'should allow admin, with security enabled'() {
-    enableSecurity()
-    loginAsAdmin()
-
-    makeHttpCall()
     assertRequestAllowed()
   }
 
-  @Test
-  void 'should allow template admin users, with security enabled'() {
-    enableSecurity()
-    loginAsTemplateAdmin()
-
-    makeHttpCall()
-    assertRequestAllowed()
-  }
-
-  @Test
-  void 'should allow template view users, with security enabled'() {
-    enableSecurity()
-    loginAsTemplateViewUser()
-
-    makeHttpCall()
-    assertRequestAllowed()
-  }
 }

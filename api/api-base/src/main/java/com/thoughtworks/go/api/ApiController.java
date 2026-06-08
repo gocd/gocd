@@ -107,6 +107,7 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
         }
     }
 
+    @Override
     public String getMimeType() {
         return mimeType;
     }

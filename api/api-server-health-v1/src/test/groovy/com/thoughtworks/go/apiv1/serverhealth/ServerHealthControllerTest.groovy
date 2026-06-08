@@ -36,6 +36,8 @@ class ServerHealthControllerTest implements ControllerTrait<ServerHealthControll
   class Show {
     @Nested
     class Security implements SecurityTestTrait, AllowAllUsersSecurity {
+      @Delegate ControllerTrait<ServerHealthController> c = ServerHealthControllerTest.this
+      @Delegate SecurityServiceTrait s = ServerHealthControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

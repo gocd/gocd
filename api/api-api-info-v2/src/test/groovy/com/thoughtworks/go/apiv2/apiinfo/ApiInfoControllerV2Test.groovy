@@ -68,6 +68,8 @@ class ApiInfoControllerV2Test implements SecurityServiceTrait, ControllerTrait<A
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = ApiInfoControllerV2Test.this
+      @Delegate ControllerTrait<ApiInfoControllerV2> c = ApiInfoControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {

@@ -53,6 +53,8 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
   class PluginStatusReport {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<StatusReportsController> c = StatusReportsControllerTest.this
+      @Delegate SecurityServiceTrait s = StatusReportsControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -134,6 +136,8 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
   class AgentStatusReport {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<StatusReportsController> c = StatusReportsControllerTest.this
+      @Delegate SecurityServiceTrait s = StatusReportsControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -270,6 +274,8 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
   class ClusterStatusReport {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<StatusReportsController> c = StatusReportsControllerTest.this
+      @Delegate SecurityServiceTrait s = StatusReportsControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

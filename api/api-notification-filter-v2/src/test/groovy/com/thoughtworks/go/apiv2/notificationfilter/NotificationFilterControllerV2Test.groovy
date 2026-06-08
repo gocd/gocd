@@ -63,6 +63,9 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
   class Index {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = NotificationFilterControllerV2Test.this
+      @Delegate ControllerTrait<NotificationFilterControllerV2> c = NotificationFilterControllerV2Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "index"
@@ -116,6 +119,9 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
   class Show {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = NotificationFilterControllerV2Test.this
+      @Delegate ControllerTrait<NotificationFilterControllerV2> c = NotificationFilterControllerV2Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "show"
@@ -192,6 +198,9 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
   class Create {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = NotificationFilterControllerV2Test.this
+      @Delegate ControllerTrait<NotificationFilterControllerV2> c = NotificationFilterControllerV2Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "createNotificationFilter"
@@ -290,6 +299,9 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
   class Update {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = NotificationFilterControllerV2Test.this
+      @Delegate ControllerTrait<NotificationFilterControllerV2> c = NotificationFilterControllerV2Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "updateFilter"
@@ -414,6 +426,9 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
   class Delete {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = NotificationFilterControllerV2Test.this
+      @Delegate ControllerTrait<NotificationFilterControllerV2> c = NotificationFilterControllerV2Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "deleteFilter"

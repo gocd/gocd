@@ -77,6 +77,8 @@ class DashboardControllerV4Test implements SecurityServiceTrait, ControllerTrait
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = DashboardControllerV4Test.this
+      @Delegate ControllerTrait<DashboardControllerV4> c = DashboardControllerV4Test.this
 
       @Override
       String getControllerMethodUnderTest() {

@@ -57,6 +57,9 @@ class SecurityAuthConfigInternalControllerV2Test implements SecurityServiceTrait
   class VerifyConnection {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = SecurityAuthConfigInternalControllerV2Test.this
+      @Delegate ControllerTrait<SecurityAuthConfigInternalControllerV2> c = SecurityAuthConfigInternalControllerV2Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'verifyConnection'
@@ -123,7 +126,7 @@ class SecurityAuthConfigInternalControllerV2Test implements SecurityServiceTrait
         ]
 
         when(securityAuthConfigService.verifyConnection(authConfig)).then({ InvocationOnMock invocation ->
-          SecurityAuthConfig config = invocation.getArguments()[0]
+          SecurityAuthConfig config = invocation.getArgument(0)
           config.addError("Path", "Must not be blank.")
           return new VerifyConnectionResponse("failure", "Verify connection failed", new ValidationResult())
         })

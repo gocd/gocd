@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.apiv1.accessToken
 
+import com.thoughtworks.go.api.NormalUserOnlyIfSecurityEnabled
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
@@ -31,7 +32,6 @@ import com.thoughtworks.go.server.newsecurity.utils.SessionUtils
 import com.thoughtworks.go.server.service.AccessTokenFilter
 import com.thoughtworks.go.server.service.AccessTokenService
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.NormalUserOnlyIfSecurityEnabled
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.mocks.TestApplication
 import com.thoughtworks.go.spark.mocks.TestSparkPreFilter
@@ -115,9 +115,12 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserOnlyIfSecurityEnabled {
+      @Delegate ControllerTrait<CurrentUserAccessTokenControllerV1> c = CurrentUserAccessTokenControllerV1Test.this
+      @Delegate SecurityServiceTrait s = CurrentUserAccessTokenControllerV1Test.this
+
       @BeforeEach
       void setUp() {
-        when(accessTokenService.find(token.id, currentUsernameString())).thenReturn(token)
+        when(CurrentUserAccessTokenControllerV1Test.this.accessTokenService.find(Show.this.token.id, currentUsernameString())).thenReturn(Show.this.token)
       }
 
       @Override
@@ -127,7 +130,7 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(token.id))
+        getWithApiHeader(controller.controllerPath(Show.this.token.id))
       }
     }
 
@@ -171,6 +174,9 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserOnlyIfSecurityEnabled {
+      @Delegate ControllerTrait<CurrentUserAccessTokenControllerV1> c = CurrentUserAccessTokenControllerV1Test.this
+      @Delegate SecurityServiceTrait s = CurrentUserAccessTokenControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "createAccessToken"
@@ -248,9 +254,12 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserOnlyIfSecurityEnabled {
+      @Delegate ControllerTrait<CurrentUserAccessTokenControllerV1> c = CurrentUserAccessTokenControllerV1Test.this
+      @Delegate SecurityServiceTrait s = CurrentUserAccessTokenControllerV1Test.this
+
       @BeforeEach
       void setUp() {
-        when(accessTokenService.findAllTokensForUser(currentUsernameString(), AccessTokenFilter.all)).thenReturn([token])
+        when(CurrentUserAccessTokenControllerV1Test.this.accessTokenService.findAllTokensForUser(currentUsernameString(), AccessTokenFilter.all)).thenReturn([Index.this.token])
       }
 
       @Override
@@ -296,7 +305,6 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
           .hasBody(toObjectString({ AccessTokensRepresenter.toJSON(it, controller.urlContext(), [token]) }))
       }
 
-
       @Test
       void 'should render active the access tokens when filter is `active`'() {
         when(accessTokenService.findAllTokensForUser(currentUsernameString(), AccessTokenFilter.active)).thenReturn([token])
@@ -337,6 +345,9 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
 
     @Nested
     class NormalSecurity implements SecurityTestTrait, NormalUserOnlyIfSecurityEnabled {
+      @Delegate ControllerTrait<CurrentUserAccessTokenControllerV1> c = CurrentUserAccessTokenControllerV1Test.this
+      @Delegate SecurityServiceTrait s = CurrentUserAccessTokenControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "revokeAccessToken"
@@ -344,7 +355,7 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(token.id, 'revoke'), [:])
+        postWithApiHeader(controller.controllerPath(Revoke.this.token.id, 'revoke'), [:])
       }
     }
 

@@ -33,6 +33,8 @@ class ArtifactStoresControllerTest implements ControllerTrait<ArtifactStoresCont
   class Index {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<ArtifactStoresController> c = ArtifactStoresControllerTest.this
+      @Delegate SecurityServiceTrait s = ArtifactStoresControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

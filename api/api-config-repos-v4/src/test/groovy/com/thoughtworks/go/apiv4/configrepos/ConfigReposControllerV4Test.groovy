@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.materials.MaterialUpdateService
 import com.thoughtworks.go.server.service.ConfigRepoService
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.MaterialConfigConverter
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.Routes
@@ -90,7 +89,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
       RoleConfig roleConfig = new RoleConfig(cis("role"), new Users(), directives)
 
       when(goConfigService.rolesForUser(any())).then({ InvocationOnMock invocation ->
-        CaseInsensitiveString username = invocation.getArguments()[0]
+        CaseInsensitiveString username = invocation.getArgument(0)
         if (username == Username.ANONYMOUS.username) {
           return []
         }
@@ -100,6 +99,9 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
 
     @Nested
     class Index implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = ConfigReposControllerV4Test.this
+      @Delegate ControllerTrait<ConfigReposControllerV4> c = ConfigReposControllerV4Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "index"
@@ -113,6 +115,9 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
 
     @Nested
     class Show implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = ConfigReposControllerV4Test.this
+      @Delegate ControllerTrait<ConfigReposControllerV4> c = ConfigReposControllerV4Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "showRepo"
@@ -126,6 +131,9 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
 
     @Nested
     class Create implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = ConfigReposControllerV4Test.this
+      @Delegate ControllerTrait<ConfigReposControllerV4> c = ConfigReposControllerV4Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "createRepo"
@@ -139,6 +147,9 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
 
     @Nested
     class Update implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = ConfigReposControllerV4Test.this
+      @Delegate ControllerTrait<ConfigReposControllerV4> c = ConfigReposControllerV4Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "updateRepo"
@@ -152,6 +163,9 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
 
     @Nested
     class Delete implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = ConfigReposControllerV4Test.this
+      @Delegate ControllerTrait<ConfigReposControllerV4> c = ConfigReposControllerV4Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "deleteRepo"
@@ -165,6 +179,9 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
 
     @Nested
     class Definitions implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = ConfigReposControllerV4Test.this
+      @Delegate ControllerTrait<ConfigReposControllerV4> c = ConfigReposControllerV4Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "definedConfigs"
@@ -178,6 +195,9 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
 
     @Nested
     class Trigger implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = ConfigReposControllerV4Test.this
+      @Delegate ControllerTrait<ConfigReposControllerV4> c = ConfigReposControllerV4Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "triggerUpdate"
@@ -191,6 +211,9 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
 
     @Nested
     class Status implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = ConfigReposControllerV4Test.this
+      @Delegate ControllerTrait<ConfigReposControllerV4> c = ConfigReposControllerV4Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "inProgress"
@@ -365,7 +388,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
       ])
 
       verify(service, times(1)).
-        createConfigRepo(any() as ConfigRepoConfig, any() as Username, any() as HttpLocalizedOperationResult)
+        createConfigRepo(any() as ConfigRepoConfig, any() as Username, any())
 
       assertThatResponse().
         isOk().
@@ -404,7 +427,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
       postWithApiHeader(controller.controllerBasePath(), payload)
 
       verify(service, never()).
-        createConfigRepo(any() as ConfigRepoConfig, any() as Username, any() as HttpLocalizedOperationResult)
+        createConfigRepo(any() as ConfigRepoConfig, any() as Username, any())
 
       assertThatResponse().
         isUnprocessableEntity().
@@ -482,7 +505,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
       ])
 
       verify(service, times(1)).
-        updateConfigRepo(eq(id), eq(repoFromRequest), eq('digest'), any() as Username, any() as HttpLocalizedOperationResult)
+        updateConfigRepo(eq(id), eq(repoFromRequest), eq('digest'), any() as Username, any())
 
       assertThatResponse().
         isOk().
@@ -496,7 +519,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
 
       putWithApiHeader(controller.controllerPath(ID_1), [:])
 
-      verify(service, never()).updateConfigRepo(any() as String, any() as ConfigRepoConfig, any() as String, any() as Username, any() as HttpLocalizedOperationResult)
+      verify(service, never()).updateConfigRepo(any() as String, any() as ConfigRepoConfig, any() as String, any() as Username, any())
 
       assertThatResponse().
         isNotFound()
@@ -527,7 +550,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
       putWithApiHeader(controller.controllerPath(id), ['If-Match': 'not-matching'], payload)
 
       verify(service, never()).
-        updateConfigRepo(any() as String, any() as ConfigRepoConfig, any() as String, any() as Username, any() as HttpLocalizedOperationResult)
+        updateConfigRepo(any() as String, any() as ConfigRepoConfig, any() as String, any() as Username, any())
 
 
       assertThatResponse().
@@ -578,7 +601,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
 
       deleteWithApiHeader(controller.controllerPath(ID_1))
 
-      verify(service, times(1)).deleteConfigRepo(eq(ID_1), any() as Username, any() as HttpLocalizedOperationResult)
+      verify(service, times(1)).deleteConfigRepo(eq(ID_1), any() as Username, any())
 
       assertThatResponse().
         isOk()
@@ -591,7 +614,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
 
       deleteWithApiHeader(controller.controllerPath(ID_1))
 
-      verify(service, never()).deleteConfigRepo(eq(ID_1), any() as Username, any() as HttpLocalizedOperationResult)
+      verify(service, never()).deleteConfigRepo(eq(ID_1), any() as Username, any())
 
       assertThatResponse().
         isNotFound()

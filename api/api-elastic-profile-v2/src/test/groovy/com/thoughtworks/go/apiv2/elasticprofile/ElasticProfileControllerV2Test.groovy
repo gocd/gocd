@@ -28,7 +28,6 @@ import com.thoughtworks.go.server.service.ClusterProfilesService
 import com.thoughtworks.go.server.service.ElasticProfileService
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
@@ -38,7 +37,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
@@ -72,6 +70,9 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = ElasticProfileControllerV2Test.this
+      @Delegate ControllerTrait<ElasticProfileControllerV2> c = ElasticProfileControllerV2Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'index'
@@ -120,6 +121,9 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = ElasticProfileControllerV2Test.this
+      @Delegate ControllerTrait<ElasticProfileControllerV2> c = ElasticProfileControllerV2Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'show'
@@ -204,6 +208,8 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = ElasticProfileControllerV2Test.this
+      @Delegate ControllerTrait<ElasticProfileControllerV2> c = ElasticProfileControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -237,7 +243,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           ]]
 
         when(clusterProfileService.findProfile("prod-cluster")).thenReturn(new ClusterProfile("prod-cluster", "cd.go.docker"))
-        when(entityHashingService.hashForEntity(Mockito.any() as ElasticProfile)).thenReturn('some-digest')
+        when(entityHashingService.hashForEntity(any() as ElasticProfile)).thenReturn('some-digest')
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
 
@@ -260,7 +266,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
             ]
           ]]
 
-        when(entityHashingService.hashForEntity(Mockito.any() as ElasticProfile)).thenReturn('some-digest')
+        when(entityHashingService.hashForEntity(any() as ElasticProfile)).thenReturn('some-digest')
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
 
@@ -282,11 +288,11 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           ]]
 
         when(clusterProfileService.findProfile("prod-cluster")).thenReturn(new ClusterProfile("prod-cluster", "cd.go.docker"))
-        when(elasticProfileService.create(Mockito.any() as Username, Mockito.any() as ElasticProfile, Mockito.any() as LocalizedOperationResult))
+        when(elasticProfileService.create(any(), any() as ElasticProfile, any()))
           .then({ InvocationOnMock invocation ->
-          ElasticProfile elasticProfile = invocation.getArguments()[1]
+          ElasticProfile elasticProfile = invocation.getArgument(1)
           elasticProfile.addError("plugin_id", "Plugin not installed.")
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.unprocessableEntity("validation failed")
         })
 
@@ -321,7 +327,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
             ]
           ]]
 
-        when(entityHashingService.hashForEntity(Mockito.any() as ElasticProfile)).thenReturn('some-digest')
+        when(entityHashingService.hashForEntity(any() as ElasticProfile)).thenReturn('some-digest')
         when(elasticProfileService.findProfile("docker")).thenReturn(existingElasticProfile)
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
@@ -353,6 +359,8 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = ElasticProfileControllerV2Test.this
+      @Delegate ControllerTrait<ElasticProfileControllerV2> c = ElasticProfileControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -502,11 +510,11 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
         when(entityHashingService.hashForEntity(existingProfile)).thenReturn('some-digest')
         when(elasticProfileService.findProfile("docker")).thenReturn(existingProfile)
 
-        when(elasticProfileService.update(Mockito.any() as Username, Mockito.any() as String, Mockito.any() as ElasticProfile, Mockito.any() as LocalizedOperationResult))
+        when(elasticProfileService.update(any(), any() as String, any() as ElasticProfile, any()))
           .then({ InvocationOnMock invocation ->
-          ElasticProfile elasticProfile = invocation.getArguments()[2]
+          ElasticProfile elasticProfile = invocation.getArgument(2)
           elasticProfile.addError("plugin_id", "Plugin not installed.")
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          HttpLocalizedOperationResult result = invocation.getArgument(3)
           result.unprocessableEntity("validation failed")
         })
 
@@ -539,6 +547,8 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = ElasticProfileControllerV2Test.this
+      @Delegate ControllerTrait<ElasticProfileControllerV2> c = ElasticProfileControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -564,8 +574,8 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
         def elasticProfile = new ElasticProfile("docker", "prod-cluster", create("DockerURI", false, "http://foo"))
 
         when(elasticProfileService.findProfile("docker")).thenReturn(elasticProfile)
-        when(elasticProfileService.delete(Mockito.any() as Username, Mockito.any() as ElasticProfile, Mockito.any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+        when(elasticProfileService.delete(any(), any() as ElasticProfile, any())).then({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.setMessage(LocalizedMessage.resourceDeleteSuccessful('elastic profile', elasticProfile.getId()))
         })
 
@@ -595,8 +605,8 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
         when(elasticProfileService.findProfile('docker')).thenReturn(elasticProfile)
         doAnswer({ InvocationOnMock invocation ->
-          ((HttpLocalizedOperationResult) invocation.arguments.last()).unprocessableEntity("save failed")
-        }).when(elasticProfileService).delete(any() as Username, eq(elasticProfile), any() as LocalizedOperationResult)
+          ((HttpLocalizedOperationResult) invocation.getArgument(2)).unprocessableEntity("save failed")
+        }).when(elasticProfileService).delete(any() as Username, eq(elasticProfile), any())
 
         deleteWithApiHeader(controller.controllerPath('/docker'))
 

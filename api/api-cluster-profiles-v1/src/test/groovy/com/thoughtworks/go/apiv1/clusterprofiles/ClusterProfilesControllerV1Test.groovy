@@ -34,7 +34,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
@@ -62,6 +61,8 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
   class Index {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = ClusterProfilesControllerV1Test.this
+      @Delegate ControllerTrait<ClusterProfilesControllerV1> c = ClusterProfilesControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -104,6 +105,8 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
   class GetClusterProfile {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = ClusterProfilesControllerV1Test.this
+      @Delegate ControllerTrait<ClusterProfilesControllerV1> c = ClusterProfilesControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -166,6 +169,8 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
   class Create {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = ClusterProfilesControllerV1Test.this
+      @Delegate ControllerTrait<ClusterProfilesControllerV1> c = ClusterProfilesControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -221,7 +226,7 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
             ]
           ]]
 
-        when(entityHashingService.hashForEntity(Mockito.any() as ClusterProfile)).thenReturn('some-digest')
+        when(entityHashingService.hashForEntity(any() as ClusterProfile)).thenReturn('some-digest')
         when(clusterProfilesService.findProfile("docker")).thenReturn(existingClusterProfile)
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
@@ -250,7 +255,7 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
           properties: []
         ]
 
-        when(clusterProfilesService.create(any() as ClusterProfile, any() as Username, any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
+        when(clusterProfilesService.create(any() as ClusterProfile, any() as Username, any())).then({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.unprocessableEntity("Boom!")
         })
@@ -268,6 +273,8 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
   class DeleteClusterProfile {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = ClusterProfilesControllerV1Test.this
+      @Delegate ControllerTrait<ClusterProfilesControllerV1> c = ClusterProfilesControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -316,6 +323,8 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = ClusterProfilesControllerV1Test.this
+      @Delegate ControllerTrait<ClusterProfilesControllerV1> c = ClusterProfilesControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -440,10 +449,10 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
         when(entityHashingService.hashForEntity(existingCluster)).thenReturn('some-digest')
         when(clusterProfilesService.findProfile("docker")).thenReturn(existingCluster)
 
-        when(clusterProfilesService.update(Mockito.any() as ClusterProfile, Mockito.any() as Username, Mockito.any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
-          ClusterProfile clusterProfile = invocation.getArguments()[0]
+        when(clusterProfilesService.update(any() as ClusterProfile, any(), any())).then({ InvocationOnMock invocation ->
+          ClusterProfile clusterProfile = invocation.getArgument(0)
           clusterProfile.addError("plugin_id", "Plugin not installed.")
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.unprocessableEntity("validation failed")
         })
 

@@ -35,6 +35,8 @@ class PluginsControllerTest implements ControllerTrait<PluginsController>, Secur
   class Index {
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate ControllerTrait<PluginsController> c = PluginsControllerTest.this
+      @Delegate SecurityServiceTrait s = PluginsControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

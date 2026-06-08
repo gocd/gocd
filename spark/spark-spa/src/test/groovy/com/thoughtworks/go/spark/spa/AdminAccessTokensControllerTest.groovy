@@ -34,6 +34,8 @@ class AdminAccessTokensControllerTest implements ControllerTrait<AdminAccessToke
   class Index {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<AdminAccessTokensController> c = AdminAccessTokensControllerTest.this
+      @Delegate SecurityServiceTrait s = AdminAccessTokensControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

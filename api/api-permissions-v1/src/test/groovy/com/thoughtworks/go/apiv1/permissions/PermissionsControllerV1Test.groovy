@@ -54,6 +54,9 @@ class PermissionsControllerV1Test implements SecurityServiceTrait, ControllerTra
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = PermissionsControllerV1Test.this
+      @Delegate ControllerTrait<PermissionsControllerV1> c = PermissionsControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "index"

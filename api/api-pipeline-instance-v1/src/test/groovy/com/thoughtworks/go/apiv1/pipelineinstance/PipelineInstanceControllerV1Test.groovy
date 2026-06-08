@@ -29,7 +29,6 @@ import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.PipelineHistoryService
-import com.thoughtworks.go.server.service.result.HttpOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.PipelineAccessSecurity
 import com.thoughtworks.go.spark.PipelineGroupOperateUserSecurity
@@ -74,6 +73,8 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate SecurityServiceTrait s = PipelineInstanceControllerV1Test.this
+      @Delegate ControllerTrait<PipelineInstanceControllerV1> c = PipelineInstanceControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -103,7 +104,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
       void 'should return the pipeline instance corresponding to the counter'() {
         PipelineInstanceModel pipelineInstanceModel = getPipelineInstanceModel()
 
-        when(pipelineHistoryService.findPipelineInstance(eq(pipelineName), eq(4), any(Username.class), any(HttpOperationResult.class))).thenReturn(pipelineInstanceModel)
+        when(pipelineHistoryService.findPipelineInstance(eq(pipelineName), eq(4), any(Username.class), any())).thenReturn(pipelineInstanceModel)
 
         getWithApiHeader(controller.controllerPath(pipelineName, "4", "instance"))
 
@@ -169,6 +170,8 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate SecurityServiceTrait s = PipelineInstanceControllerV1Test.this
+      @Delegate ControllerTrait<PipelineInstanceControllerV1> c = PipelineInstanceControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -343,6 +346,8 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
   class Comment {
     @Nested
     class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+      @Delegate SecurityServiceTrait s = PipelineInstanceControllerV1Test.this
+      @Delegate ControllerTrait<PipelineInstanceControllerV1> c = PipelineInstanceControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {

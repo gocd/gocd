@@ -43,6 +43,8 @@ class ServerHealthMessagesControllerTest implements SecurityServiceTrait, Contro
   class Show {
     @Nested
     class Security implements NormalUserSecurity, SecurityTestTrait {
+      @Delegate SecurityServiceTrait s = ServerHealthMessagesControllerTest.this
+      @Delegate ControllerTrait<ServerHealthMessagesController> c = ServerHealthMessagesControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

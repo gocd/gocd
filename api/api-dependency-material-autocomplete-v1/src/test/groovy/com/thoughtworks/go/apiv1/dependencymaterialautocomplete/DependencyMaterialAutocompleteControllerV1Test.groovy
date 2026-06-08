@@ -42,6 +42,8 @@ class DependencyMaterialAutocompleteControllerV1Test implements SecurityServiceT
 
   @Nested
   class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    @Delegate SecurityServiceTrait s = DependencyMaterialAutocompleteControllerV1Test.this
+    @Delegate ControllerTrait<DependencyMaterialAutocompleteControllerV1> c = DependencyMaterialAutocompleteControllerV1Test.this
 
     @Override
     String getControllerMethodUnderTest() {

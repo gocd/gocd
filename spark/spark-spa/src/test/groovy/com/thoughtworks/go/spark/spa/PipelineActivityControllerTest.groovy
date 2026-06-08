@@ -82,6 +82,8 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
   class Index {
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate ControllerTrait<PipelineActivityController> c = PipelineActivityControllerTest.this
+      @Delegate SecurityServiceTrait s = PipelineActivityControllerTest.this
 
       @BeforeEach
       void setUp() {

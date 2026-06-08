@@ -85,6 +85,9 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<AnalyticsController> c = AnalyticsControllerTest.this
+      @Delegate SecurityServiceTrait s = AnalyticsControllerTest.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "index"
@@ -137,6 +140,9 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
 
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate ControllerTrait<AnalyticsController> c = AnalyticsControllerTest.this
+      @Delegate SecurityServiceTrait s = AnalyticsControllerTest.this
+
       @Test
       void "should allow agent analytics for normal users"() {
         enableSecurity()
@@ -214,7 +220,7 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
 
       @Test
       void "should return 404 when pipeline does not exist"() {
-        when(pipelineConfigService.pipelineConfigNamed(getPipelineName())).thenReturn(null)
+        when(AnalyticsControllerTest.this.pipelineConfigService.pipelineConfigNamed(getPipelineName())).thenReturn(null)
         enableSecurity()
         loginAsPipelineViewUser(pipelineName)
 
@@ -245,7 +251,7 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       void stubControllerAction() {
         this.reachedControllerMessage = UUID.randomUUID().toString()
         doAnswer({ InvocationOnMock invocation ->
-          Response res = invocation.arguments.last()
+          Response res = invocation.getArgument(1)
           res.status(99999)
           res.type("application/json")
           return "{\"data\": \"rendered ${this.reachedControllerMessage}\"}".toString()
@@ -272,7 +278,7 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       void setUp() {
         stubControllerAction()
         when(goConfigService.hasPipelineNamed(cis(getPipelineName()))).thenReturn(true)
-        when(pipelineConfigService.pipelineConfigNamed(getPipelineName())).thenReturn(mock(PipelineConfig.class))
+        when(AnalyticsControllerTest.this.pipelineConfigService.pipelineConfigNamed(getPipelineName())).thenReturn(mock(PipelineConfig.class))
       }
     }
   }

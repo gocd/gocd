@@ -30,6 +30,8 @@ class AuthConfigsControllerTest implements ControllerTrait<AuthConfigsController
   class Index {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<AuthConfigsController> c = AuthConfigsControllerTest.this
+      @Delegate SecurityServiceTrait s = AuthConfigsControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

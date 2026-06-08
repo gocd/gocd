@@ -28,6 +28,10 @@ import java.util.Map;
 import static org.apache.commons.lang3.StringUtils.join;
 
 public interface SparkController {
+    default String getMimeType() {
+        throw new UnsupportedOperationException("Mime type must be implemented by this controller to use with this function");
+    }
+
     default String controllerPath(Object... paths) {
         if (paths == null || paths.length == 0) {
             return controllerBasePath();

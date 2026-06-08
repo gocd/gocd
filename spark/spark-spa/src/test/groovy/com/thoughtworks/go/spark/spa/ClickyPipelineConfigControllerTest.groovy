@@ -53,6 +53,9 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
 
   @Nested
   class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    @Delegate ControllerTrait<ClickyPipelineConfigController> c = ClickyPipelineConfigControllerTest.this
+    @Delegate SecurityServiceTrait s = ClickyPipelineConfigControllerTest.this
+
     @Override
     String getControllerMethodUnderTest() {
       return "index"

@@ -812,19 +812,6 @@ tasks.register('licenseReportAggregate') {
       ]
     ],
     [
-      moduleName    : 'com.github.jnr:jffi',
-      moduleVersion : "${project.versions.jrubyJffi}-native",
-      moduleUrls    : [
-        "http://github.com/jnr/jffi"
-      ],
-      moduleLicenses: [
-        [
-          moduleLicense   : 'Apache-2.0',
-          moduleLicenseUrl: "https://spdx.org/licenses/Apache-2.0.html"
-        ]
-      ]
-    ],
-    [
       moduleName    : ':com.microsoft.tfs.sdk',
       moduleVersion : project.versions.tfsSdk,
       moduleUrls    : [
@@ -898,7 +885,7 @@ tasks.register('licenseReportAggregate') {
       Map<String, Object> module = allDependenciesInReport.find { Map<String, Object> eachDependencyInReport ->
         def (_, artifactId) = (eachDependencyInReport.moduleName as String).split(':')
         def version = eachDependencyInReport.moduleVersion
-        eachPackagedJar == "${artifactId}-${version}.jar"
+        eachPackagedJar =~ /^${artifactId}-${version}(-.+)?\.jar/
       }
 
       if (module == null) {

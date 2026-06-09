@@ -110,7 +110,15 @@
     <cve>CVE-2026-22741</cve>
     <cve>CVE-2026-22745</cve>
   </suppress>
-  
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not use parse/use ETags/JSPs, so is not vulnerable to the issue with `JavaScriptUtils.javaScriptEscape`
+    as described in https://spring.io/security/cve-2026-41845
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <cve>CVE-2026-41845</cve>
+  </suppress>
+
   <suppress>
     <notes><![CDATA[
     GoCD does not appear to parse/use ETags off Spring Framework endpoints. While it does use

@@ -112,11 +112,28 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-    GoCD does not use parse/use ETags/JSPs, so is not vulnerable to the issue with `JavaScriptUtils.javaScriptEscape`
-    as described in https://spring.io/security/cve-2026-41845
+    GoCD does not appear to configure any `/**` mappings within its configuration, so does not appear to be vulnerable to
+    as required to exploit https://spring.io/security/cve-2026-41844
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <cve>CVE-2026-41844</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not use parse/use JSPs, so is not vulnerable to the issues with `JavaScriptUtils.javaScriptEscape`
+    or JSP Form tags as described in https://spring.io/security/cve-2026-41845 and https://spring.io/security/cve-2026-41846
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
     <cve>CVE-2026-41845</cve>
+    <cve>CVE-2026-41846</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    It is not believed that there any way within GoCD for a user to supply patterns that will end up in AntPathMatchers
+    as required to exploit https://spring.io/security/cve-2026-41848
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <cve>CVE-2026-41848</cve>
   </suppress>
 
   <suppress>

@@ -55,7 +55,6 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
     <cve>CVE-2022-22968</cve>
-    <cve>CVE-2024-38820</cve>
     <cve>CVE-2024-38827</cve>
     <cve>CVE-2025-22233</cve>
   </suppress>
@@ -368,7 +367,6 @@
     <cve>CVE-2023-26118</cve>
     <cve>CVE-2024-8373</cve>
     <cve>CVE-2025-0716</cve>
-    <cve>CVE-2025-2336</cve>
     <cve>CVE-2025-4690</cve>
     <vulnerabilityName>GHSA-28hp-fgcr-2r4h</vulnerabilityName>
     <vulnerabilityName>GHSA-5cp4-xmrw-59wf</vulnerabilityName>

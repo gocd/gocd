@@ -55,6 +55,7 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
     <cve>CVE-2022-22968</cve>
+    <cve>CVE-2024-38820</cve> <!-- trivy only -->
     <cve>CVE-2024-38827</cve>
     <cve>CVE-2025-22233</cve>
   </suppress>
@@ -101,7 +102,7 @@
   <suppress>
     <notes><![CDATA[
     According to https://spring.io/security/cve-2026-22741 and https://spring.io/security/cve-2026-22745 these issues
-    only affects serving of static resources via spring-web/webflux. GoCD does not server static assets from the
+    only affects serving of static resources via spring-web/webflux. GoCD does not server static< assets from the
     filesystem via Spring Web resource handler mechanisms (it uses Jetty for static assets alongside custom handlers for
     artifact downloading.
     ]]></notes>

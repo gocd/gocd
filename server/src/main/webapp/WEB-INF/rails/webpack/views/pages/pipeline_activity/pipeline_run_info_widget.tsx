@@ -74,9 +74,12 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
 
   view(vnode: m.Vnode<PipelineRunAttrs>): m.Children | void | null {
     const pipelineRunInfo = vnode.attrs.pipelineRunInfo;
+    const revisions = pipelineRunInfo.materialRevisions();
+    const firstRev = revisions.length > 0 ? revisions[0] : undefined;
+    const shortHash = firstRev ? firstRev.revision().substring(0, 8) : undefined;
 
     return <tr class={styles.groupContent}
-               data-test-id={this.dataTestId("pipeline-instance", pipelineRunInfo.label())}>
+           data-test-id={this.dataTestId("pipeline-instance", pipelineRunInfo.label())}>
       <td class={styles.left} data-test-id={"meta"}>
         <div class={classnames(styles.run, styles.header)}>
           <span class={styles.label} data-test-id={"counter"}>
@@ -87,6 +90,13 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
           </span>
         </div>
         <div class={styles.revision}>Revision: {pipelineRunInfo.revision()}</div>
+        {firstRev && (
+          <div class={styles.revision} data-test-id={"commit-info"}>
+            <span data-test-id={"commit-author"} title={firstRev.user()}>{firstRev.user()}</span>
+            {" — "}
+            <span data-test-id={"commit-hash"} title={firstRev.revision()}>{shortHash}</span>
+          </div>
+        )}
         <div class={styles.scheduleInfo}
              data-test-id={"time"}
              title={PipelineRunWidget.getTimeServer(pipelineRunInfo.scheduledTimestamp())}>

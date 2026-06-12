@@ -71,6 +71,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(MaterialRepository.class.getName());
     private static final int BATCH_SIZE_NUM_PIPELINES_TO_GET_PIPELINE_MATERIAL_REVISIONS = 500;
     private static final int BATCH_SIZE_NUM_PIPELINE_MATERIAL_REVISION_To_GET_MODIFICATIONS = 100;
+    private static final int BATCH_SIZE_NUM_REVISIONS_TO_CHECK_FOR_DUPLICATES = 1000;
 
     private final GoCache goCache;
     private final TransactionSynchronizationManager transactionSynchronizationManager;
@@ -771,15 +772,11 @@ public class MaterialRepository extends HibernateDaoSupport {
         if (!new SystemEnvironment().get(SystemEnvironment.CHECK_AND_REMOVE_DUPLICATE_MODIFICATIONS)) {
             return;
         }
-        DetachedCriteria criteria = DetachedCriteria.forClass(Modification.class);
-        criteria.setProjection(Projections.projectionList().add(Projections.property("revision")));
-        criteria.add(Restrictions.eq("materialInstance.id", materialInstance.getId()));
         List<String> revisions = new ArrayList<>();
         for (Modification modification : newChanges) {
             revisions.add(modification.getRevision());
         }
-        criteria.add(Restrictions.in("revision", revisions));
-        @SuppressWarnings("unchecked") List<String> matchingRevisionsFromDb = (List<String>) getHibernateTemplate().findByCriteria(criteria);
+        List<String> matchingRevisionsFromDb = findExistingRevisionsInBatches(materialInstance, revisions);
         if (!matchingRevisionsFromDb.isEmpty()) {
             for (final String revision : matchingRevisionsFromDb) {
                 Modification modification = list.stream().filter(item -> item.getRevision().equals(revision)).findFirst().orElse(null);
@@ -794,6 +791,23 @@ public class MaterialRepository extends HibernateDaoSupport {
                 materialInstance.toOldMaterial(null, null, null).getLongDescription(), matchingRevisionsFromDb);
         }
 
+    }
+
+    // Batched so the IN clause never exceeds DB driver parameter limits, e.g. PostgreSQL's 16-bit
+    // signed parameter count cap of 32767, which otherwise fails material updates for large
+    // commit histories.
+    private List<String> findExistingRevisionsInBatches(MaterialInstance materialInstance, List<String> revisions) {
+        List<String> matchingRevisionsFromDb = new ArrayList<>();
+        for (List<String> batch : ListUtils.partition(revisions, BATCH_SIZE_NUM_REVISIONS_TO_CHECK_FOR_DUPLICATES)) {
+            DetachedCriteria criteria = DetachedCriteria.forClass(Modification.class);
+            criteria.setProjection(Projections.projectionList().add(Projections.property("revision")));
+            criteria.add(Restrictions.eq("materialInstance.id", materialInstance.getId()));
+            criteria.add(Restrictions.in("revision", batch));
+            @SuppressWarnings("unchecked")
+            List<String> matchingInBatch = (List<String>) getHibernateTemplate().findByCriteria(criteria);
+            matchingRevisionsFromDb.addAll(matchingInBatch);
+        }
+        return matchingRevisionsFromDb;
     }
 
     public Modification findModificationWithRevision(@NotNull Material material, final String revision) {

@@ -217,14 +217,6 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-    False positive as GoCD does authenticate with X.509 certificates via Spring; and seems to be for 7.0+ only in any case,
-    so 4.x is not affected.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@.*$</packageUrl>
-    <vulnerabilityName>CVE-2026-22747</vulnerabilityName>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
     False positive as GoCD does not use OAuth2 Token validation via NimbusJwtDecoder
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@.*$</packageUrl>

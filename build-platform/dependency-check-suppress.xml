@@ -193,6 +193,22 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
+    According to https://spring.io/security/cve-2023-20862 this affects 5.7 but not "earlier unsupported versions" so there is no
+    reason to believe it affects Spring Security 4.x and thus seems an OSSIndex false positive.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(web|config)@4.*$</packageUrl>
+    <cve>CVE-2023-20862</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    According to https://spring.io/security/cve-2024-22257 this only affects applications that use AuthenticatedVoter which
+    GoCD does not use.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-core@4.*$</packageUrl>
+    <cve>CVE-2024-22257</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
     After review of https://spring.io/security/cve-2026-22732 it doesn't appear GoCD is affected by this issue. It
     only seems to happen in cases where Spring Framework writes content length headers early and directly to the response
     (without buffering in HttpHeaders as in earlier versions), and Spring Security is needed to write headers directly
@@ -232,19 +248,11 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-    According to https://spring.io/security/cve-2023-20862 this affects 5.7 but not "earlier unsupported versions" so there is no
-    reason to believe it affects Spring Security 4.x and thus seems an OSSIndex false positive.
+    False positive as GoCD does authenticate with X.509 certificates via Spring, as seemingly required by
+    https://spring.io/security/cve-2026-47838
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(web|config)@4.*$</packageUrl>
-    <vulnerabilityName>CVE-2023-20862</vulnerabilityName>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
-    According to https://spring.io/security/cve-2024-22257 this only affects applications that use AuthenticatedVoter which
-    GoCD does not use.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-core@4.*$</packageUrl>
-    <cve>CVE-2024-22257</cve>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@.*$</packageUrl>
+    <cve>CVE-2026-47838</cve>
   </suppress>
 
   <suppress>

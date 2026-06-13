@@ -238,14 +238,6 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-    False positive as Spring Security 4.x does not have CookieRequestCache (and thus GoCD does not use it), as required
-    for the issue described at https://spring.io/security/cve-2026-41706
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@4.*$</packageUrl>
-    <cve>CVE-2026-41706</cve>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
     According to https://spring.io/security/cve-2023-20862 this affects 5.7 but not "earlier unsupported versions" so there is no
     reason to believe it affects Spring Security 4.x and thus seems an OSSIndex false positive.
     ]]></notes>

@@ -34,8 +34,8 @@ import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.materials.PluggableScmService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.spark.AnyGroupAdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.util.Pair
 import groovy.json.JsonBuilder
@@ -75,7 +75,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
   @Nested
   class Index {
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
       @Delegate SecurityServiceTrait s = SCMControllerV4Test.this
       @Delegate ControllerTrait<SCMControllerV4> c = SCMControllerV4Test.this
 
@@ -144,7 +144,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
   class Show {
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
       @Delegate SecurityServiceTrait s = SCMControllerV4Test.this
       @Delegate ControllerTrait<SCMControllerV4> c = SCMControllerV4Test.this
 
@@ -238,7 +238,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
   class Create {
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
       @Delegate SecurityServiceTrait s = SCMControllerV4Test.this
       @Delegate ControllerTrait<SCMControllerV4> c = SCMControllerV4Test.this
 
@@ -469,7 +469,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
   class Update {
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
       @Delegate SecurityServiceTrait s = SCMControllerV4Test.this
       @Delegate ControllerTrait<SCMControllerV4> c = SCMControllerV4Test.this
 
@@ -740,7 +740,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
   @Nested
   class Destroy {
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
       @Delegate SecurityServiceTrait s = SCMControllerV4Test.this
       @Delegate ControllerTrait<SCMControllerV4> c = SCMControllerV4Test.this
 
@@ -864,7 +864,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
     }
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
       @Delegate SecurityServiceTrait s = SCMControllerV4Test.this
       @Delegate ControllerTrait<SCMControllerV4> c = SCMControllerV4Test.this
 

@@ -15,11 +15,12 @@
  */
 package com.thoughtworks.go.spark
 
+
 import groovy.transform.SelfType
 import org.junit.jupiter.api.Test
 
 @SelfType([SecurityServiceTrait, ControllerTrait, SecurityTestTraitBasics])
-trait PipelineGroupOperateUserSecurity {
+trait GroupOperateUserSecurity {
 
   @Test
   void 'should allow all with security disabled'() {
@@ -60,31 +61,46 @@ trait PipelineGroupOperateUserSecurity {
   @Test
   void 'should allow pipeline group admin users, with security enabled'() {
     enableSecurity()
-    loginAsGroupAdmin(pipelineName)
+    loginAsGroupAdmin(pipelineSpecifier)
 
     makeHttpCall()
     assertRequestAllowed()
+  }
+
+  @Test
+  void 'should allow specific pipeline group operate user, with security enabled'() {
+    enableSecurity()
+    loginAsGroupOperateUser(pipelineSpecifier)
+
+    makeHttpCall()
+    assertRequestAllowed()
+  }
+
+  @Test
+  void 'should disallow other pipeline group operate user, with security enabled'() {
+    enableSecurity()
+    loginAsGroupOperateUser()
+
+    makeHttpCall()
+    assertRequestForbidden()
   }
 
   @Test
   void "should disallow pipeline view users, with security enabled"() {
     enableSecurity()
-    loginAsPipelineViewUser(pipelineName)
+    loginAsPipelineViewUser(pipelineSpecifier)
 
     makeHttpCall()
-
     assertRequestForbidden()
   }
 
-  @Test
-  void 'should allow pipeline group operate users, with security enabled'() {
-    enableSecurity()
-    loginAsGroupOperateUser(pipelineName)
+  abstract SecurityServiceTrait.PipelineSpecifier getPipelineSpecifier();
 
-    makeHttpCall()
-    assertRequestAllowed()
+  String getGroupName() {
+    return pipelineSpecifier.groupName()
   }
 
-  abstract String getPipelineName()
-
+  String getPipelineName() {
+    return pipelineSpecifier.pipelineName()
+  }
 }

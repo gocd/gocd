@@ -26,9 +26,6 @@ import org.apache.commons.lang3.Strings;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.Collections.unmodifiableList;
 
 public enum SupportedEntity {
     PIPELINE("pipeline", PipelineConfig.class),
@@ -60,9 +57,9 @@ public enum SupportedEntity {
                 .findFirst().orElse(UNKNOWN);
     }
 
-    public static List<String> unmodifiableListOf(SupportedEntity... supportedEntities) {
-        return unmodifiableList(Arrays.stream(supportedEntities)
-                .map(SupportedEntity::getType)
-                .collect(Collectors.toList()));
+    public static List<String> immutableListOf(SupportedEntity... supportedEntities) {
+        return Arrays.stream(supportedEntities)
+            .map(SupportedEntity::getType)
+            .toList();
     }
 }

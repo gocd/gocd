@@ -609,7 +609,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public PipelineConfig pipelineConfigByName(final CaseInsensitiveString name) {
+    public @NotNull PipelineConfig pipelineConfigByName(final CaseInsensitiveString name) {
         if (pipelineNameToConfigMap == null) {
             pipelineNameToConfigMap = new PipelineNameToConfigMap();
         }

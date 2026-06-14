@@ -67,8 +67,8 @@ class InternalDependencyPipelinesControllerV1Test implements SecurityServiceTrai
       }
 
       @Override
-      String getPipelineName() {
-        return "pipeline1"
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: 'pipeline1')
       }
     }
 

@@ -76,8 +76,8 @@ class BuildCauseControllerTest implements ControllerTrait<BuildCauseController>,
       }
 
       @Override
-      String getPipelineName() {
-        return "foo"
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: 'foo')
       }
     }
 

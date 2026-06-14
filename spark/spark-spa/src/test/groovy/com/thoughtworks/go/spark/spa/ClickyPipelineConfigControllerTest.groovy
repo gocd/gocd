@@ -56,6 +56,8 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
     @Delegate ControllerTrait<ClickyPipelineConfigController> c = ClickyPipelineConfigControllerTest.this
     @Delegate SecurityServiceTrait s = ClickyPipelineConfigControllerTest.this
 
+    String pipelineName = "foo"
+
     @Override
     String getControllerMethodUnderTest() {
       return "index"
@@ -63,7 +65,12 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
 
     @Override
     void makeHttpCall() {
-      get(controller.controllerPath("foo", "edit"))
+      get(controller.controllerPath(pipelineName, "edit"))
+    }
+
+    @Override
+    PipelineSpecifier getPipelineSpecifier() {
+      new PipelineSpecifier(pipelineName: pipelineName)
     }
   }
 

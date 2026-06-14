@@ -67,14 +67,14 @@ public interface SparkController {
     }
 
     default String currentUsernameString() {
-        return currentUserLoginName().toString();
+        return currentUsernameCis().toString();
+    }
+
+    default CaseInsensitiveString currentUsernameCis() {
+        return currentUsername().getUsername();
     }
 
     default Long currentUserId(Request request) {
         return SessionUtils.getUserId(request.raw());
-    }
-
-    default CaseInsensitiveString currentUserLoginName() {
-        return currentUsername().getUsername();
     }
 }

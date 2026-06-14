@@ -31,8 +31,8 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.GroupOperateUserSecurity
 import com.thoughtworks.go.spark.PipelineAccessSecurity
-import com.thoughtworks.go.spark.PipelineGroupOperateUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -72,7 +72,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
   @Nested
   class RerunBadJobs {
     @Nested
-    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+    class Security implements SecurityTestTrait, GroupOperateUserSecurity {
       @Delegate SecurityServiceTrait s = StageInstanceControllerV3Test.this
       @Delegate ControllerTrait<StageInstanceControllerV3> c = StageInstanceControllerV3Test.this
 
@@ -87,8 +87,8 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
       }
 
       @Override
-      String getPipelineName() {
-        return "up42"
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: 'up42')
       }
     }
 
@@ -97,7 +97,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
       @BeforeEach
       void setUp() {
         enableSecurity()
-        loginAsGroupOperateUser("up42")
+        loginAsGroupOperateUser(pipelineName: "up42")
       }
 
       @Test
@@ -155,7 +155,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
   @Nested
   class RerunSelectedJobs {
     @Nested
-    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+    class Security implements SecurityTestTrait, GroupOperateUserSecurity {
       @Delegate SecurityServiceTrait s = StageInstanceControllerV3Test.this
       @Delegate ControllerTrait<StageInstanceControllerV3> c = StageInstanceControllerV3Test.this
 
@@ -170,8 +170,8 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
       }
 
       @Override
-      String getPipelineName() {
-        return "up42"
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: "up42")
       }
     }
 
@@ -182,7 +182,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
       @BeforeEach
       void setUp() {
         enableSecurity()
-        loginAsGroupOperateUser("up42")
+        loginAsGroupOperateUser(pipelineName: "up42")
 
         stage = mock(Stage)
         when(stage.getIdentifier()).thenReturn(new StageIdentifier("up42/1/stage1/1"))
@@ -289,7 +289,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
   @Nested
   class CancelStageByIdentifier {
     @Nested
-    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+    class Security implements SecurityTestTrait, GroupOperateUserSecurity {
       @Delegate SecurityServiceTrait s = StageInstanceControllerV3Test.this
       @Delegate ControllerTrait<StageInstanceControllerV3> c = StageInstanceControllerV3Test.this
 
@@ -304,8 +304,8 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
       }
 
       @Override
-      String getPipelineName() {
-        return "up42"
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: "up42")
       }
     }
 
@@ -314,7 +314,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
       @BeforeEach
       void setUp() {
         enableSecurity()
-        loginAsGroupOperateUser("up42")
+        loginAsGroupOperateUser(pipelineName: "up42")
       }
 
       @Test
@@ -395,12 +395,12 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(getPipelineName(), InstanceByCounter.this.pipelineCounter, InstanceByCounter.this.stageName, InstanceByCounter.this.stageCounter), [:])
+        getWithApiHeader(controller.controllerPath(InstanceByCounter.this.pipelineName, InstanceByCounter.this.pipelineCounter, InstanceByCounter.this.stageName, InstanceByCounter.this.stageCounter), [:])
       }
 
       @Override
-      String getPipelineName() {
-        return InstanceByCounter.this.pipelineName
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: InstanceByCounter.this.pipelineName)
       }
     }
 
@@ -498,8 +498,8 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
       }
 
       @Override
-      String getPipelineName() {
-        return History.this.pipelineName
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: History.this.pipelineName)
       }
     }
 

@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import spark.ModelAndView
 import spark.Request
+import spark.Response
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.assertj.core.api.Assertions.assertThat
@@ -42,7 +43,7 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
     def pipelineName = "up42"
     def request = mock(Request)
     when(request.params("pipeline_name")).thenReturn(pipelineName)
-    ModelAndView modelAndView = controller.index(request, response)
+    ModelAndView modelAndView = controller.index(request, mock(Response))
 
     Map<Object, Object> model = modelAndView.getModel() as Map<Object, Object>
 
@@ -56,7 +57,7 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
     def request = mock(Request)
     when(request.params("pipeline_name")).thenReturn(pipelineName)
     when(goConfigService.isPipelineEditable(pipelineName)).thenReturn(true)
-    ModelAndView modelAndView = controller.index(request, response)
+    ModelAndView modelAndView = controller.index(request, mock(Response))
 
     Map<Object, Object> model = modelAndView.getModel() as Map<Object, Object>
 
@@ -70,7 +71,7 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
     def request = mock(Request)
     when(request.params("pipeline_name")).thenReturn(pipelineName)
     when(securityService.hasOperatePermissionForPipeline(currentUserLoginName(), pipelineName)).thenReturn(true)
-    ModelAndView modelAndView = controller.index(request, response)
+    ModelAndView modelAndView = controller.index(request, mock(Response))
 
     Map<Object, Object> model = modelAndView.getModel() as Map<Object, Object>
 
@@ -101,8 +102,8 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
       }
 
       @Override
-      String getPipelineName() {
-        return "up42"
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: "up42")
       }
     }
   }

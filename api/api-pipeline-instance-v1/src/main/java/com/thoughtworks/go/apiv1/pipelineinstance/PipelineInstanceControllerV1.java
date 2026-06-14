@@ -65,7 +65,7 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
 
             before(Routes.PipelineInstance.INSTANCE_PATH, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
             before(Routes.PipelineInstance.HISTORY_PATH, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
-            before(Routes.PipelineInstance.COMMENT_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
+            before(Routes.PipelineInstance.COMMENT_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateViaGroupOrPipelineAnd403);
 
             get(Routes.PipelineInstance.HISTORY_PATH, mimeType, this::getHistoryInfo);
             get(Routes.PipelineInstance.INSTANCE_PATH, mimeType, this::getInstanceInfo);

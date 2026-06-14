@@ -60,8 +60,8 @@ public class MaterialSearchController extends ApiController implements SparkSpri
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
-            before("/*", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
+            before("", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateViaGroupOrPipelineAnd403);
+            before("/*", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateViaGroupOrPipelineAnd403);
 
             get("", mimeType, this::search);
             head("", mimeType, this::search);

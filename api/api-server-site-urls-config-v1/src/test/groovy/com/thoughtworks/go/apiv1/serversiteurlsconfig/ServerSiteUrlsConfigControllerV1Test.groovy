@@ -24,8 +24,8 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidException
 import com.thoughtworks.go.domain.SecureSiteUrl
 import com.thoughtworks.go.domain.SiteUrl
 import com.thoughtworks.go.server.service.ServerConfigService
+import com.thoughtworks.go.spark.AnyGroupAdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -52,7 +52,7 @@ class ServerSiteUrlsConfigControllerV1Test implements SecurityServiceTrait, Cont
   @Nested
   class Index {
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
       @Delegate SecurityServiceTrait s = ServerSiteUrlsConfigControllerV1Test.this
       @Delegate ControllerTrait<ServerSiteUrlsConfigControllerV1> c = ServerSiteUrlsConfigControllerV1Test.this
 
@@ -94,7 +94,7 @@ class ServerSiteUrlsConfigControllerV1Test implements SecurityServiceTrait, Cont
   @Nested
   class Create {
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
       @Delegate SecurityServiceTrait s = ServerSiteUrlsConfigControllerV1Test.this
       @Delegate ControllerTrait<ServerSiteUrlsConfigControllerV1> c = ServerSiteUrlsConfigControllerV1Test.this
 
@@ -167,7 +167,7 @@ class ServerSiteUrlsConfigControllerV1Test implements SecurityServiceTrait, Cont
   @Nested
   class Update {
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
       @Delegate SecurityServiceTrait s = ServerSiteUrlsConfigControllerV1Test.this
       @Delegate ControllerTrait<ServerSiteUrlsConfigControllerV1> c = ServerSiteUrlsConfigControllerV1Test.this
 

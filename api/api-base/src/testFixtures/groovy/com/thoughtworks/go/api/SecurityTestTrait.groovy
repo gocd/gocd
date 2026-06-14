@@ -51,29 +51,29 @@ trait SecurityTestTrait implements SecurityTestTraitBasics {
 
   @Override
   def assertRequestAllowed() {
-    verify(controller)."${controllerMethodUnderTest}"(any(), any())
-
     ((MockHttpServletResponseAssert) assertThatResponse())
       .hasStatus(99999)
       .hasContentType(controller.mimeType)
       .hasJsonBody([message: reachedControllerMessage])
+
+    verify(controller)."${controllerMethodUnderTest}"(any(), any())
   }
 
   @Override
   def assertRequestForbidden() {
-    verify(controller, never())."${controllerMethodUnderTest}"(any(), any())
-
     ((MockHttpServletResponseAssert) assertThatResponse())
       .hasContentType(controller.mimeType)
       .hasStatus(403)
+
+    verify(controller, never())."${controllerMethodUnderTest}"(any(), any())
   }
 
   def assertDeniedBecauseSecurityDisabled() {
-    verify(controller, never())."${controllerMethodUnderTest}"(any(), any())
-
     ((MockHttpServletResponseAssert) assertThatResponse())
       .hasContentType(controller.mimeType)
       .hasStatus(422)
       .hasJsonMessage(HaltApiMessages.haltBecauseSecurityIsNotEnabled())
+
+    verify(controller, never())."${controllerMethodUnderTest}"(any(), any())
   }
 }

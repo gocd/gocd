@@ -179,7 +179,7 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
         when(systemEnvironment.enableAnalyticsOnlyForAdmins()).thenReturn(true)
 
         enableSecurity()
-        loginAsPipelineViewUser(pipelineName)
+        loginAsPipelineViewUser(pipelineName: pipelineName)
 
         makeHttpCall()
         assertRequestForbidden()
@@ -222,7 +222,7 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       void "should return 404 when pipeline does not exist"() {
         when(AnalyticsControllerTest.this.pipelineConfigService.pipelineConfigNamed(getPipelineName())).thenReturn(null)
         enableSecurity()
-        loginAsPipelineViewUser(pipelineName)
+        loginAsPipelineViewUser(pipelineName: pipelineName)
 
         makeHttpCall()
         assertRequestMissing()
@@ -230,12 +230,12 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
 
       @Override
       def assertRequestAllowed() {
-        verify(controller)."${controllerMethodUnderTest}"(any(), any())
-
         ((MockHttpServletResponseAssert) assertThatResponse())
           .hasStatus(99999)
           .hasContentType("application/json")
           .hasBody("{\"data\": \"rendered ${this.reachedControllerMessage}\"}".toString())
+
+        verify(controller)."${controllerMethodUnderTest}"(any(), any())
       }
 
       void assertRequestMissing() {
@@ -270,8 +270,8 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       }
 
       @Override
-      String getPipelineName() {
-        return "testPipeline"
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: "testPipeline")
       }
 
       @BeforeEach

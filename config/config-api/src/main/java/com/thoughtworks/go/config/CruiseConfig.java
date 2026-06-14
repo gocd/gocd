@@ -75,7 +75,7 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     JobConfig findJob(String pipelineName, String stageName, String jobName);
 
-    PipelineConfig pipelineConfigByName(CaseInsensitiveString name);
+    @NotNull PipelineConfig pipelineConfigByName(CaseInsensitiveString name);
 
     boolean hasStageConfigNamed(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName, boolean ignoreCase);
 

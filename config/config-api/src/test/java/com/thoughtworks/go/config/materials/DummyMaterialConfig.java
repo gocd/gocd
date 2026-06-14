@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.config.materials;
 
-import com.thoughtworks.go.config.ValidationContext;
-
 import java.util.Map;
 
 public class DummyMaterialConfig extends ScmMaterialConfig {
@@ -45,7 +43,7 @@ public class DummyMaterialConfig extends ScmMaterialConfig {
     }
 
     @Override
-    public void validateConcreteScmMaterial(ValidationContext validationContext) {
+    public void validateConcreteScmMaterial() {
     }
 
     @Override

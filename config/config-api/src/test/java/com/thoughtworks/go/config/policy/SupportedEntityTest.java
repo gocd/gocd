@@ -58,7 +58,7 @@ class SupportedEntityTest {
     }
 
     @Test
-    void shouldReturnUnmodifiableListOfTheSupportedEntities() {
+    void shouldReturnImmutableListOfTheSupportedEntities() {
         List<String> entities = unmodifiableListOf(ENVIRONMENT);
 
         assertThat(entities).hasSize(1).contains(ENVIRONMENT.getType());

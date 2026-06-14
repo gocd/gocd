@@ -27,6 +27,8 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.HaltException;
@@ -34,6 +36,7 @@ import spark.Request;
 import spark.Response;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
@@ -115,32 +118,22 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
-    public void checkPipelineGroupAdminOfAnyGroup(@SuppressWarnings("unused") Request request, @SuppressWarnings("unused") Response response) {
+    public void checkPipelineGroupAdminViaGroupOrPipelineAnd403(Request request, @SuppressWarnings("unused") Response response) {
         if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
             return;
         }
-
-        if (!securityService.isUserGroupAdmin(currentUsername())) {
-            throw renderForbiddenResponse();
-        }
-    }
-
-    public void checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403(Request request, @SuppressWarnings("unused") Response response) {
-        if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
-            return;
-        }
-        String groupName = findPipelineGroupName(request);
-        if (!securityService.hasOperatePermissionForGroup(currentUserLoginName(), groupName)) {
-            throw renderForbiddenResponse();
-        }
-    }
-
-    public void checkPipelineGroupAdminOfPipelineOrGroupInURLUserAnd403(Request request, @SuppressWarnings("unused") Response response) {
-        if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
-            return;
-        }
-        String groupName = findPipelineGroupName(request);
+        String groupName = getPipelineGroupFrom(request);
         if (!securityService.isUserAdminOfGroup(currentUsername(), groupName)) {
+            throw renderForbiddenResponse();
+        }
+    }
+
+    public void checkPipelineGroupOperateViaGroupOrPipelineAnd403(Request request, @SuppressWarnings("unused") Response response) {
+        if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
+            return;
+        }
+        String groupName = getPipelineGroupFrom(request);
+        if (!securityService.hasOperatePermissionForGroup(currentUserLoginName(), groupName)) {
             throw renderForbiddenResponse();
         }
     }
@@ -236,7 +229,7 @@ public abstract class AbstractAuthenticationHelper {
             return;
         }
 
-        CaseInsensitiveString pipelineName = getPipelineNameFromRequest(request);
+        CaseInsensitiveString pipelineName = getPipelineNameFrom(request).orElseThrow(this::renderForbiddenResponse);
 
         // we check if pipeline exists because hasViewPermission returns true in case the group or pipeline does not exist!
         if (!goConfigService.hasPipelineNamed(pipelineName)) {
@@ -249,20 +242,24 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
-    private String findPipelineGroupName(Request request) {
-        String groupName = request.params("group_name");
-        if (isBlank(groupName)) {
-            groupName = goConfigService.findGroupNameByPipeline(getPipelineNameFromRequest(request));
-        }
-        return groupName;
+    @VisibleForTesting
+    @NotNull String getPipelineGroupFrom(Request request) {
+        Optional<String> groupName = Optional.ofNullable(request.params("group_name")).filter(s -> !s.isBlank())
+            .or(() -> Optional.ofNullable(request.queryParams("group_name")).filter(s -> !s.isBlank()));
+
+        Optional<CaseInsensitiveString> pipelineName = getPipelineNameFrom(request);
+
+        // Find group implied by pipeline; and if found ensure it is the same as any groupName specified
+        return pipelineName.map(pn -> Optional.ofNullable(goConfigService.findGroupNameByPipeline(pn))
+            .filter(groupFromPipeline -> groupName.map(groupFromPipeline::equals).orElse(true))
+            .orElseThrow(this::renderForbiddenResponse)) // Pipeline name non-blank, but no matching group found
+            .orElseGet(() -> groupName.orElseThrow(this::renderForbiddenResponse)); // Use group name, else throw
     }
 
-    private CaseInsensitiveString getPipelineNameFromRequest(Request request) {
-        String pipelineName = request.params("pipeline_name");
-        if (isBlank(pipelineName)) {
-            pipelineName = request.queryParams("pipeline_name");
-        }
-        return cis(pipelineName);
+    private static @NotNull Optional<CaseInsensitiveString> getPipelineNameFrom(Request request) {
+        return Optional.ofNullable(request.params("pipeline_name")).filter(s -> !s.isBlank())
+            .or(() -> Optional.ofNullable(request.queryParams("pipeline_name")).filter(s -> !s.isBlank()))
+            .map(CaseInsensitiveString::new);
     }
 
     private Username currentUsername() {

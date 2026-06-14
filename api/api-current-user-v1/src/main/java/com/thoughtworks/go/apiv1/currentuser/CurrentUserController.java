@@ -75,7 +75,7 @@ public class CurrentUserController extends ApiController implements SparkSpringC
     }
 
     public String show(Request req, Response res) {
-        User user = userService.findUserByName(currentUserLoginName().toString());
+        User user = userService.findUserByName(currentUsernameCis().toString());
         String json = jsonizeAsTopLevelObject(req, writer -> UserRepresenter.toJSON(writer, user));
         String etag = etagFor(json);
 
@@ -88,7 +88,7 @@ public class CurrentUserController extends ApiController implements SparkSpringC
     }
 
     public String update(Request req, Response res) {
-        User user = userService.findUserByName(currentUserLoginName().toString());
+        User user = userService.findUserByName(currentUsernameCis().toString());
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 

@@ -84,12 +84,12 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(getPipelineName(), History.this.stageName, History.this.jobName, 'history'), [:])
+        getWithApiHeader(controller.controllerPath(History.this.pipelineName, History.this.stageName, History.this.jobName, 'history'), [:])
       }
 
       @Override
-      String getPipelineName() {
-        return History.this.pipelineName
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: History.this.pipelineName)
       }
     }
 
@@ -242,12 +242,12 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(getPipelineName(), 2, Instance.this.stageName, 2, Instance.this.jobName), [:])
+        getWithApiHeader(controller.controllerPath(Instance.this.pipelineName, 2, Instance.this.stageName, 2, Instance.this.jobName), [:])
       }
 
       @Override
-      String getPipelineName() {
-        return Instance.this.pipelineName
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: Instance.this.pipelineName)
       }
     }
 

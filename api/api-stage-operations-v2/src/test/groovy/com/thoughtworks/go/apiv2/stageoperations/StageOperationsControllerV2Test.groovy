@@ -26,7 +26,7 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.PipelineGroupOperateUserSecurity
+import com.thoughtworks.go.spark.GroupOperateUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -60,7 +60,7 @@ class StageOperationsControllerV2Test implements SecurityServiceTrait, Controlle
     String stageName = "run-tests"
 
     @Nested
-    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+    class Security implements SecurityTestTrait, GroupOperateUserSecurity {
       @Delegate SecurityServiceTrait s = StageOperationsControllerV2Test.this
       @Delegate ControllerTrait<StageOperationsControllerV2> c = StageOperationsControllerV2Test.this
 
@@ -75,8 +75,8 @@ class StageOperationsControllerV2Test implements SecurityServiceTrait, Controlle
       }
 
       @Override
-      String getPipelineName() {
-        return Run.this.pipelineName
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: Run.this.pipelineName)
       }
     }
 
@@ -85,8 +85,7 @@ class StageOperationsControllerV2Test implements SecurityServiceTrait, Controlle
       @BeforeEach
       void setUp() {
         enableSecurity()
-        loginAsGroupOperateUser(pipelineName)
-
+        loginAsGroupOperateUser(pipelineName: pipelineName)
       }
 
       @Test

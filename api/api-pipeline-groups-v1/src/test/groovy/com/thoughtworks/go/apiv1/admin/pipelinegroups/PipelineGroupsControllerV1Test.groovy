@@ -27,10 +27,7 @@ import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.PipelineConfigService
 import com.thoughtworks.go.server.service.PipelineConfigsService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
-import com.thoughtworks.go.spark.AdminUserSecurity
-import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
-import com.thoughtworks.go.spark.SecurityServiceTrait
+import com.thoughtworks.go.spark.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -65,7 +62,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
   @Nested
   class Index {
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
       @Delegate SecurityServiceTrait s = PipelineGroupsControllerV1Test.this
       @Delegate ControllerTrait<PipelineGroupsControllerV1> c = PipelineGroupsControllerV1Test.this
 
@@ -229,7 +226,12 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath('/group'))
+        getWithApiHeader(controller.controllerPath(getGroupName()))
+      }
+
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        return new PipelineSpecifier(groupName: "group")
       }
     }
 
@@ -326,13 +328,18 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
       @Override
       void makeHttpCall() {
         def group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig('pipeline1'))
-        group.setGroup("group")
+        group.setGroup(getGroupName())
         def headers = [
           'If-Match': 'cached-digest',
         ]
-        putWithApiHeader(controller.controllerPath('/group'), headers, toObjectString({
+        putWithApiHeader(controller.controllerPath(getGroupName()), headers, toObjectString({
           PipelineGroupRepresenter.toJSON(it, group)
         }))
+      }
+
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        return new PipelineSpecifier(groupName: "group")
       }
     }
 
@@ -461,7 +468,12 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
       @Override
       void makeHttpCall() {
-        deleteWithApiHeader(controller.controllerPath('/foo'))
+        deleteWithApiHeader(controller.controllerPath(getGroupName()))
+      }
+
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        return new PipelineSpecifier(groupName: "goo")
       }
     }
 

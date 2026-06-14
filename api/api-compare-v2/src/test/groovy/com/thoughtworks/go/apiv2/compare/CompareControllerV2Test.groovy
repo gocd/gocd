@@ -77,12 +77,12 @@ class CompareControllerV2Test implements SecurityServiceTrait, ControllerTrait<C
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(getApi('up42', 1, 1))
+        getWithApiHeader(getApi(pipelineSpecifier.pipelineName(), 1, 1))
       }
 
       @Override
-      String getPipelineName() {
-        return 'up42'
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: 'up42')
       }
     }
 

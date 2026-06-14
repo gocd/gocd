@@ -48,20 +48,20 @@ trait SecurityTestTrait implements SecurityTestTraitBasics {
 
   @Override
   def assertRequestAllowed() {
-    verify(controller)."${controllerMethodUnderTest}"(any(), any())
-
     ((MockHttpServletResponseAssert) assertThatResponse())
       .hasStatus(99999)
       .hasContentType("text/html")
       .hasBody("rendered template with locals {\"message\":\"${reachedControllerMessage}\"}")
+
+    verify(controller)."${controllerMethodUnderTest}"(any(), any())
   }
 
   @Override
   def assertRequestForbidden() {
-    verify(controller, never())."${controllerMethodUnderTest}"(any(), any())
-
     ((MockHttpServletResponseAssert) assertThatResponse())
       .hasContentType("text/html")
       .hasStatus(403)
+
+    verify(controller, never())."${controllerMethodUnderTest}"(any(), any())
   }
 }

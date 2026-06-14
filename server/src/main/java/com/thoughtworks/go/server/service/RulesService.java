@@ -154,7 +154,7 @@ public class RulesService {
         }
     }
 
-    protected void validateSecretConfigReferences(SecretParams secretParams, Class<? extends Validatable> entityClass, String entityName, String entityNameOrErrorMessagePrefix) {
+    void validateSecretConfigReferences(SecretParams secretParams, Class<? extends Validatable> entityClass, String entityName, String entityNameOrErrorMessagePrefix) {
         secretParams.forEach(secretParam -> {
             SecretConfig secretConfig = goConfigService.cruiseConfig().getSecretConfigs().find(secretParam.getSecretConfigId());
 
@@ -178,7 +178,7 @@ public class RulesService {
         return String.join("\n", errors.values()).trim();
     }
 
-    protected Map<CaseInsensitiveString, StringBuilder> validate(SecretParams secretParams, Class<? extends Validatable> entityClass, String entityName, String entityNameOrErrorMessagePrefix) {
+    private Map<CaseInsensitiveString, StringBuilder> validate(SecretParams secretParams, Class<? extends Validatable> entityClass, String entityName, String entityNameOrErrorMessagePrefix) {
         Map<CaseInsensitiveString, StringBuilder> pipelinesWithErrors = new HashMap<>();
         secretParams
                 .groupBySecretConfigId()

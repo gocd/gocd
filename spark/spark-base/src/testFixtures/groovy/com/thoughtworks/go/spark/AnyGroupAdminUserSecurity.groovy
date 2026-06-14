@@ -19,7 +19,7 @@ import groovy.transform.SelfType
 import org.junit.jupiter.api.Test
 
 @SelfType([SecurityServiceTrait, ControllerTrait, SecurityTestTraitBasics])
-trait GroupAdminUserSecurity {
+trait AnyGroupAdminUserSecurity {
 
   @Test
   void 'should allow all with security disabled'() {
@@ -58,18 +58,18 @@ trait GroupAdminUserSecurity {
   }
 
   @Test
-  void 'should allow specific pipeline group admin user, with security enabled'() {
+  void 'should allow pipeline group admin users, with security enabled'() {
     enableSecurity()
-    loginAsGroupAdmin(pipelineSpecifier)
+    loginAsGroupAdmin()
 
     makeHttpCall()
     assertRequestAllowed()
   }
 
   @Test
-  void 'should disallow other pipeline group admin user, with security enabled'() {
+  void 'should disallow pipeline group operate users, with security enabled'() {
     enableSecurity()
-    loginAsGroupAdmin()
+    loginAsGroupOperateUser()
 
     makeHttpCall()
     assertRequestForbidden()
@@ -82,15 +82,5 @@ trait GroupAdminUserSecurity {
 
     makeHttpCall()
     assertRequestForbidden()
-  }
-
-  abstract SecurityServiceTrait.PipelineSpecifier getPipelineSpecifier()
-
-  String getGroupName() {
-    return pipelineSpecifier.groupName()
-  }
-
-  String getPipelineName() {
-    return pipelineSpecifier.pipelineName()
   }
 }

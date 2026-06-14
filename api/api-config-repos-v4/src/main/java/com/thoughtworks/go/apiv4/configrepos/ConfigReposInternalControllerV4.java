@@ -23,7 +23,9 @@ import com.thoughtworks.go.config.GoConfigRepoConfigDataSource;
 import com.thoughtworks.go.config.PartialConfigParseResult;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
+import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
@@ -37,10 +39,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.config.policy.SupportedEntity.CONFIG_REPO;
 import static com.thoughtworks.go.server.util.DigestMixin.digestMany;
@@ -109,7 +108,7 @@ public class ConfigReposInternalControllerV4 extends AbstractMaterialTestControl
         List<String> pipelineGroupNames = new ArrayList<>();
 
         List<String> envNames = environmentConfigService.getEnvironmentNames();
-        List<PipelineConfigs> groupsForUser = pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString());
+        List<PipelineConfigs> groupsForUser = pipelineConfigsService.getGroupsForUser(currentUsernameCis().toString());
         groupsForUser.forEach(grp -> {
             pipelineGroupNames.add(grp.getGroup());
             pipelineNames.addAll(grp.getPipelines().stream().map(pipelineConfig -> pipelineConfig.name().toString()).toList());
@@ -146,5 +145,12 @@ public class ConfigReposInternalControllerV4 extends AbstractMaterialTestControl
 
     private void authorize(Request request, Response response) {
         authHelper.checkUserHasPermissions(currentUsername(), getAction(request), CONFIG_REPO, request.params(":id"));
+    }
+
+    @Override
+    protected Material resolveTestMaterial(Request request, ScmMaterialConfig materialConfig) {
+        // We can resolve secrets; but will current only work if there is not a deny-all rule on the secret, or
+        // there is an allow all rule.
+        return resolveMaterialSecretsFor(materialConfig, Optional.empty());
     }
 }

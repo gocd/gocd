@@ -26,8 +26,8 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.materials.PackageRepositoryService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.spark.AnyGroupAdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
@@ -58,7 +58,7 @@ class PackageRepositoryInternalControllerV1Test implements SecurityServiceTrait,
   }
 
   @Nested
-  class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+  class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
     @Delegate SecurityServiceTrait s = PackageRepositoryInternalControllerV1Test.this
     @Delegate ControllerTrait<PackageRepositoryInternalControllerV1> c = PackageRepositoryInternalControllerV1Test.this
 

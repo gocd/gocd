@@ -85,8 +85,8 @@ public class SCMControllerV4 extends ApiController implements SparkSpringControl
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
 
-            before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
-            before("/*", this.mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before("", this.mimeType, this.apiAuthenticationHelper::checkAnyPipelineGroupAdminUserAnd403);
+            before("/*", this.mimeType, this.apiAuthenticationHelper::checkAnyPipelineGroupAdminUserAnd403);
 
             get("", mimeType, this::index);
             post("", mimeType, this::create);

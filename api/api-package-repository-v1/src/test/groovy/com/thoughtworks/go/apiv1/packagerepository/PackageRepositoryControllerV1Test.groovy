@@ -26,8 +26,8 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.materials.PackageRepositoryService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.spark.AnyGroupAdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -84,7 +84,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
     }
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
       @Delegate SecurityServiceTrait s = PackageRepositoryControllerV1Test.this
       @Delegate ControllerTrait<PackageRepositoryControllerV1> c = PackageRepositoryControllerV1Test.this
 
@@ -170,7 +170,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
     }
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
       @Delegate SecurityServiceTrait s = PackageRepositoryControllerV1Test.this
       @Delegate ControllerTrait<PackageRepositoryControllerV1> c = PackageRepositoryControllerV1Test.this
 
@@ -272,7 +272,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
     }
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
       @Delegate SecurityServiceTrait s = PackageRepositoryControllerV1Test.this
       @Delegate ControllerTrait<PackageRepositoryControllerV1> c = PackageRepositoryControllerV1Test.this
 
@@ -396,7 +396,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
     }
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
       @Delegate SecurityServiceTrait s = PackageRepositoryControllerV1Test.this
       @Delegate ControllerTrait<PackageRepositoryControllerV1> c = PackageRepositoryControllerV1Test.this
 
@@ -416,7 +416,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
   class Remove {
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
       @Delegate SecurityServiceTrait s = PackageRepositoryControllerV1Test.this
       @Delegate ControllerTrait<PackageRepositoryControllerV1> c = PackageRepositoryControllerV1Test.this
 

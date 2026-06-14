@@ -212,7 +212,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
 
     protected void validateMaterial(MaterialConfig materialConfig) {
         PipelineConfigSaveValidationContext vctx = PipelineConfigSaveValidationContext.forChain(false, null, goConfigService.getCurrentConfig(), materialConfig);
-        ((ScmMaterialConfig) materialConfig).validateConcreteScmMaterial(vctx);
+        ((ScmMaterialConfig) materialConfig).validateConcreteScmMaterial();
     }
 
     protected void checkoutFromMaterialConfig(MaterialConfig materialConfig, File folder) throws ExecutionException, InterruptedException, TimeoutException {

@@ -57,7 +57,7 @@ public class DependencyMaterialAutocompleteControllerV1 extends ApiController im
             before("/*", mimeType, this::setContentType);
 
             // change the line below to enable appropriate security
-            before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before("", this.mimeType, this.apiAuthenticationHelper::checkAnyPipelineGroupAdminUserAnd403);
             get("", mimeType, this::suggest);
             head("", mimeType, this::suggest);
         });

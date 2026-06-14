@@ -79,8 +79,8 @@ public class PackagesControllerV2 extends ApiController implements SparkSpringCo
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
-            before("/*", mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before("", mimeType, this.apiAuthenticationHelper::checkAnyPipelineGroupAdminUserAnd403);
+            before("/*", mimeType, this.apiAuthenticationHelper::checkAnyPipelineGroupAdminUserAnd403);
 
             get("", mimeType, this::index);
             get(Routes.Packages.PACKAGE_ID, mimeType, this::show);

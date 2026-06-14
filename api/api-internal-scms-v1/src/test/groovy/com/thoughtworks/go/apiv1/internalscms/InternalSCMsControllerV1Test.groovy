@@ -26,8 +26,8 @@ import com.thoughtworks.go.domain.scm.SCM
 import com.thoughtworks.go.domain.scm.SCMMother
 import com.thoughtworks.go.server.service.materials.PluggableScmService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.spark.AnyGroupAdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -60,7 +60,7 @@ class InternalSCMsControllerV1Test implements SecurityServiceTrait, ControllerTr
     }
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
       @Delegate SecurityServiceTrait s = InternalSCMsControllerV1Test.this
       @Delegate ControllerTrait<InternalSCMsControllerV1> c = InternalSCMsControllerV1Test.this
 

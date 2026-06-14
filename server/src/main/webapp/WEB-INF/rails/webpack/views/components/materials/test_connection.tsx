@@ -17,23 +17,21 @@
 import {ApiResult, ErrorResponse} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Material} from "models/materials/types";
+import {Material, MaterialTestContext} from "models/materials/types";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {ConfigRepo} from "../../../models/config_repos/types";
 import styles from "./test_connection.scss";
 
-interface Attrs {
-  configRepo?: ConfigRepo;
+interface CommonAttrs {
   material: Material;
-  group?: string;
-  pipeline?: string;
 
   // extra handlers will be fired in addition to defaults
   success?: (...args: any[]) => any;
   failure?: (err: ErrorResponse) => any;
   complete?: (...args: any[]) => any;
 }
+
+type Attrs = CommonAttrs & MaterialTestContext;
 
 export class TestConnection extends MithrilViewComponent<Attrs> {
   private testConnectionMessage: m.Child | undefined;
@@ -52,7 +50,7 @@ export class TestConnection extends MithrilViewComponent<Attrs> {
 
     return <div class={styles.testConnectionButtonWrapper}>
       <Buttons.Secondary data-test-id="test-connection-button"
-                         onclick={() => this.testConnection(vnode.attrs.material, vnode.attrs.pipeline, vnode.attrs.group, vnode.attrs.configRepo)} disabled={this.busy}>
+                         onclick={() => this.testConnection(vnode.attrs.material, vnode.attrs)} disabled={this.busy}>
         <span class={this.testConnectionButtonIcon} data-test-id="test-connection-icon"/>
         {this.testConnectionButtonText}
       </Buttons.Secondary>
@@ -60,16 +58,16 @@ export class TestConnection extends MithrilViewComponent<Attrs> {
     </div>;
   }
 
-  private testConnection(material: Material, pipelineName?: string, pipelineGroup?: string, configRepo?: ConfigRepo) {
+  private testConnection(material: Material, context: MaterialTestContext) {
     if (this.busy) { return; }
 
-    if (configRepo && !configRepo.isValid()) {
+    if (context.configRepo && !context.configRepo.isValid()) {
       return Promise.resolve();
     }
 
     this.testConnectionInProgress();
 
-    material.checkConnection(pipelineName, pipelineGroup, configRepo?.id()).then((result: ApiResult<any>) => {
+    material.checkConnection(context).then((result: ApiResult<any>) => {
       result.do(() => {
         this.testConnectionSuccessful();
         if (!!this.success) {

@@ -78,12 +78,12 @@ class InternalCompareControllerV2Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(getPipelineName(), getControllerMethodUnderTest()))
+        getWithApiHeader(controller.controllerPath(pipelineSpecifier.pipelineName(), getControllerMethodUnderTest()))
       }
 
       @Override
-      String getPipelineName() {
-        return 'up42'
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: 'up42')
       }
     }
 

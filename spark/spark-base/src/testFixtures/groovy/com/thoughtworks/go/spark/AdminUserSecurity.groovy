@@ -65,4 +65,13 @@ trait AdminUserSecurity {
     makeHttpCall()
     assertRequestForbidden()
   }
+
+  @Test
+  void 'should disallow template admin users, with security enabled'() {
+    enableSecurity()
+    loginAsTemplateAdmin()
+
+    makeHttpCall()
+    assertRequestForbidden()
+  }
 }

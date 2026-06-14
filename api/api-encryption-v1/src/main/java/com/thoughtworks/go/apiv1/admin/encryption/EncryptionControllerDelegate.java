@@ -77,8 +77,8 @@ public class EncryptionControllerDelegate extends ApiController {
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
 
-            before("", mimeType, apiAuthenticationHelper::checkAnyAdminUserAnd403);
-            before("/*", mimeType, apiAuthenticationHelper::checkAnyAdminUserAnd403);
+            before("", mimeType, apiAuthenticationHelper::checkAnyPipelineGroupAdminOrTemplateAdminUserAnd403);
+            before("/*", mimeType, apiAuthenticationHelper::checkAnyPipelineGroupAdminOrTemplateAdminUserAnd403);
 
             before("", mimeType, this::checkRateLimitAvailable);
 

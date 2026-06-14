@@ -21,8 +21,8 @@ import com.thoughtworks.go.apiv1.dependencymaterialautocomplete.representers.Sug
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.StageConfig
+import com.thoughtworks.go.spark.AnyGroupAdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -41,7 +41,7 @@ class DependencyMaterialAutocompleteControllerV1Test implements SecurityServiceT
   }
 
   @Nested
-  class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+  class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
     @Delegate SecurityServiceTrait s = DependencyMaterialAutocompleteControllerV1Test.this
     @Delegate ControllerTrait<DependencyMaterialAutocompleteControllerV1> c = DependencyMaterialAutocompleteControllerV1Test.this
 

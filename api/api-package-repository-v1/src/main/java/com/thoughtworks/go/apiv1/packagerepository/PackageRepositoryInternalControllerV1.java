@@ -66,7 +66,7 @@ public class PackageRepositoryInternalControllerV1 extends ApiController impleme
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before(Routes.PackageRepository.VERIFY_CONNECTION, mimeType, this::setContentType);
-            before(Routes.PackageRepository.VERIFY_CONNECTION, mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before(Routes.PackageRepository.VERIFY_CONNECTION, mimeType, this.apiAuthenticationHelper::checkAnyPipelineGroupAdminUserAnd403);
 
             post(Routes.PackageRepository.VERIFY_CONNECTION, mimeType, this::verifyConnection);
         });

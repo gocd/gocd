@@ -46,7 +46,7 @@ public class PipelinesController implements SparkController {
     @Override
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
-            before(SPA_CREATE, authenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before(SPA_CREATE, authenticationHelper::checkAnyPipelineGroupAdminUserAnd403);
             get(SPA_CREATE, this::create, engine);
         });
     }

@@ -61,7 +61,7 @@ public class InternalSCMsControllerV1 extends ApiController implements SparkSpri
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before(Routes.SCM.VERIFY_CONNECTION, mimeType, this::setContentType);
-            before(Routes.SCM.VERIFY_CONNECTION, mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before(Routes.SCM.VERIFY_CONNECTION, mimeType, this.apiAuthenticationHelper::checkAnyPipelineGroupAdminUserAnd403);
 
             post(Routes.SCM.VERIFY_CONNECTION, mimeType, this::verifyConnection);
         });

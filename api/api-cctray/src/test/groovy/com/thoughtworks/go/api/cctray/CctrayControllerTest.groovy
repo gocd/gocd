@@ -64,14 +64,14 @@ class CctrayControllerTest implements SecurityServiceTrait, ControllerTrait<Cctr
 
       @Override
       def assertRequestForbidden() {
-        verify(controller, never())."${controllerMethodUnderTest}"(any(), any())
-
         ((MockHttpServletResponseAssert) assertThatResponse())
           .hasContentType(controller.mimeType)
           .hasStatus(403)
           .hasBody("<access-denied>\n" +
           "  <message>You are not authenticated!</message>\n" +
           "</access-denied>")
+
+        verify(controller, never())."${controllerMethodUnderTest}"(any(), any())
       }
 
     }

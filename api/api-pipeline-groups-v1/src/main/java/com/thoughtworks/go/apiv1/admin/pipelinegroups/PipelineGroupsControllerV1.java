@@ -73,8 +73,8 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
             before("", mimeType, onlyOn(apiAuthenticationHelper::checkAdminUserAnd403, HttpMethod.post));
-            before("", mimeType, onlyOn(apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403, HttpMethod.get, HttpMethod.head));
-            before(Routes.PipelineGroupsAdmin.NAME_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminOfPipelineOrGroupInURLUserAnd403);
+            before("", mimeType, onlyOn(apiAuthenticationHelper::checkAnyPipelineGroupAdminUserAnd403, HttpMethod.get, HttpMethod.head));
+            before(Routes.PipelineGroupsAdmin.NAME_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminViaNameParamsAnd403);
 
             get("", mimeType, this::index);
             post("", mimeType, this::create);
@@ -182,6 +182,6 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
     }
 
     private Stream<PipelineConfigs> streamAllPipelineGroups() {
-        return pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString()).stream();
+        return pipelineConfigsService.getGroupsForUser(currentUsernameCis().toString()).stream();
     }
 }

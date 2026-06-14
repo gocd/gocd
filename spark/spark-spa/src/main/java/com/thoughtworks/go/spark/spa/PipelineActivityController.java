@@ -78,7 +78,7 @@ public class PipelineActivityController implements SparkController {
 
         meta.put("isEditableFromUI", goConfigService.isPipelineEditable(pipelineName));
         meta.put("pipelineName", pipelineName);
-        meta.put("canOperatePipeline", securityService.hasOperatePermissionForPipeline(currentUserLoginName(), pipelineName));
+        meta.put("canOperatePipeline", securityService.hasOperatePermissionForPipeline(currentUsernameCis(), pipelineName));
         meta.put("canAdministerPipeline", securityService.hasAdminPermissionsForPipeline(currentUsername(), name));
 
         PipelineConfig found = goConfigService.findPipelineByName(name);

@@ -69,8 +69,8 @@ class CompareControllerTest implements ControllerTrait<CompareController>, Secur
       }
 
       @Override
-      String getPipelineName() {
-        return "up42"
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: "up42")
       }
     }
 

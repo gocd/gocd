@@ -69,8 +69,8 @@ public class PackageRepositoryControllerV1 extends ApiController implements Spar
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
-            before("/*", mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before("", mimeType, this.apiAuthenticationHelper::checkAnyPipelineGroupAdminUserAnd403);
+            before("/*", mimeType, this.apiAuthenticationHelper::checkAnyPipelineGroupAdminUserAnd403);
 
             get("", mimeType, this::index);
             get(Routes.PackageRepository.REPO_ID, mimeType, this::show);

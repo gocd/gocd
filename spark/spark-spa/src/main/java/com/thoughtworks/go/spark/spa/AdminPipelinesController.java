@@ -45,7 +45,7 @@ public class AdminPipelinesController implements SparkController {
     @Override
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkPipelineGroupAdminOfAnyGroup);
+            before("", authenticationHelper::checkAnyPipelineGroupAdminUserAnd403);
             get("", this::index, engine);
         });
     }

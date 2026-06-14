@@ -25,7 +25,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.PipelineGroupOperateUserSecurity
+import com.thoughtworks.go.spark.GroupOperateUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -52,7 +52,7 @@ class MaterialSearchControllerTest implements ControllerTrait<MaterialSearchCont
   }
 
   @Nested
-  class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+  class Security implements SecurityTestTrait, GroupOperateUserSecurity {
     @Delegate ControllerTrait<MaterialSearchController> c = MaterialSearchControllerTest.this
     @Delegate SecurityServiceTrait s = MaterialSearchControllerTest.this
 
@@ -63,12 +63,12 @@ class MaterialSearchControllerTest implements ControllerTrait<MaterialSearchCont
 
     @Override
     void makeHttpCall() {
-      getWithApiHeader(controller.controllerPath([fingerprint: 'foo', pipeline_name: getPipelineName(), search_text: 'abc']))
+      getWithApiHeader(controller.controllerPath([fingerprint: 'foo', pipeline_name: pipelineSpecifier.pipelineName(), search_text: 'abc']))
     }
 
     @Override
-    String getPipelineName() {
-      return 'some-pipeline'
+    PipelineSpecifier getPipelineSpecifier() {
+      new PipelineSpecifier(pipelineName: 'some-pipeline')
     }
   }
 

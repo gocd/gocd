@@ -60,7 +60,7 @@ public class ServerSiteUrlsConfigControllerV1 extends ApiController implements S
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
-            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before("", mimeType, this.apiAuthenticationHelper::checkAnyPipelineGroupAdminUserAnd403);
 
             get("", mimeType, this::index);
             post("", mimeType, this::createOrUpdate);

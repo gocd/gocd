@@ -51,7 +51,7 @@ public class ClickyPipelineConfigController implements SparkController {
     @Override
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
-            before(Routes.PipelineConfig.NAME + "/edit", authenticationHelper::checkPipelineGroupAdminOfPipelineOrGroupInURLUserAnd403);
+            before(Routes.PipelineConfig.NAME + "/edit", authenticationHelper::checkPipelineGroupAdminViaNameParamsAnd403);
             get(Routes.PipelineConfig.NAME + "/edit", this::index, engine);
         });
     }

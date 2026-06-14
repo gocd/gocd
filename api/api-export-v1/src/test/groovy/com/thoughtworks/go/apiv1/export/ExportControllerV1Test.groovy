@@ -56,7 +56,6 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
     new ExportControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigPluginService, goConfigService, entityHashingService)
   }
 
-
   @Nested
   class ExportPipeline {
     String pipelinePath(String name) {
@@ -75,7 +74,12 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(pipelinePath("foo")))
+        getWithApiHeader(controller.controllerPath(pipelinePath(getPipelineName())))
+      }
+
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: "foo")
       }
     }
 

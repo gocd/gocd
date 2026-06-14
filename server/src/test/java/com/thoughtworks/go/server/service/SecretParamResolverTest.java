@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
@@ -53,6 +54,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
@@ -105,6 +107,72 @@ class SecretParamResolverTest {
 
             assertThatCode(() -> secretParamResolver.resolve(gitMaterial))
                     .isInstanceOf(RuntimeException.class);
+
+            verifyNoInteractions(goConfigService);
+            verifyNoInteractions(secretsExtension);
+        }
+
+        @Test
+        void shouldResolveSecretParamsForSpecificPipelineGroup() {
+            GitMaterial gitMaterial = new GitMaterial("http://example.com");
+
+            gitMaterial.setPassword("{{SECRET:[secret_config_id][password]}}");
+
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
+            when(goConfigService.cruiseConfig())
+                .thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password")))
+                .thenReturn(List.of(new Secret("password", "some-password")));
+
+            String pipelineGroupName = "some_group";
+            secretParamResolver.resolve(gitMaterial, Optional.of(pipelineGroupName));
+
+            verify(rulesService).validateSecretConfigReferences(any(), eq(PipelineConfigs.class), eq(pipelineGroupName), any());
+            assertThat(gitMaterial.passwordForCommandLine()).isEqualTo("some-password");
+        }
+
+        @Test
+        void shouldErrorOutForSpecificPipelineGroup_IfMaterialsDoNotHavePermissionToReferToASecretConfig() {
+            GitMaterial gitMaterial = new GitMaterial("http://example.com");
+            gitMaterial.setPassword("{{SECRET:[secret_config_id][password]}}");
+
+            String pipelineGroupName = "some_group";
+            doThrow(new RuntimeException()).when(rulesService).validateSecretConfigReferences(any(), eq(PipelineConfigs.class), eq(pipelineGroupName), any());
+
+            assertThatCode(() -> secretParamResolver.resolve(gitMaterial, Optional.of(pipelineGroupName)))
+                .isInstanceOf(RuntimeException.class);
+
+            verifyNoInteractions(goConfigService);
+            verifyNoInteractions(secretsExtension);
+        }
+
+        @Test
+        void shouldResolveSecretParamsForConfigurationRepositoryMaterial() {
+            GitMaterial gitMaterial = new GitMaterial("http://example.com");
+
+            gitMaterial.setPassword("{{SECRET:[secret_config_id][password]}}");
+
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
+            when(goConfigService.cruiseConfig())
+                .thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password")))
+                .thenReturn(List.of(new Secret("password", "some-password")));
+
+            secretParamResolver.resolve(gitMaterial, Optional.empty());
+
+            verify(rulesService).validateSecretConfigReferences(any(), eq(ConfigRepoConfig.class), eq(""), any());
+            assertThat(gitMaterial.passwordForCommandLine()).isEqualTo("some-password");
+        }
+
+        @Test
+        void shouldErrorOutForConfigurationRepositoryMaterial_IfMaterialsDoNotHavePermissionToReferToASecretConfig() {
+            GitMaterial gitMaterial = new GitMaterial("http://example.com");
+            gitMaterial.setPassword("{{SECRET:[secret_config_id][password]}}");
+
+            doThrow(new RuntimeException()).when(rulesService).validateSecretConfigReferences(any(), eq(ConfigRepoConfig.class), eq(""), any());
+
+            assertThatCode(() -> secretParamResolver.resolve(gitMaterial, Optional.empty()))
+                .isInstanceOf(RuntimeException.class);
 
             verifyNoInteractions(goConfigService);
             verifyNoInteractions(secretsExtension);

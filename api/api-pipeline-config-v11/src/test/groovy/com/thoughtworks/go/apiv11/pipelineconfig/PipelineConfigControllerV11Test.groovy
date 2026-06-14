@@ -107,7 +107,12 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath('/foo'))
+        getWithApiHeader(controller.controllerPath(getPipelineName()))
+      }
+
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: 'foo')
       }
     }
 
@@ -208,9 +213,13 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(), [group: "new_grp"])
+        postWithApiHeader(controller.controllerPath(), [group: getGroupName()])
       }
 
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        return new PipelineSpecifier(groupName: "new_grp")
+      }
     }
 
     @Nested
@@ -457,13 +466,18 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        def pipelineConfig = PipelineConfigMother.pipelineConfig("foo")
+        def pipelineConfig = PipelineConfigMother.pipelineConfig(getPipelineName())
         pipelineConfig.setOrigin(new FileConfigOrigin())
         putWithApiHeader(controller.controllerPath('/foo'), [
           'accept'      : controller.mimeType,
           'If-Match'    : 'cached-digest',
           'content-type': 'application/json'
         ], toObjectString({ PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName) }))
+      }
+
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: 'foo')
       }
     }
 
@@ -715,7 +729,12 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        deleteWithApiHeader(controller.controllerPath('/foo'))
+        deleteWithApiHeader(controller.controllerPath(getPipelineName()))
+      }
+
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: 'foo')
       }
     }
 
@@ -787,7 +806,12 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        putWithApiHeader(controller.controllerPath('/foo/extract_to_template'), [:])
+        putWithApiHeader(controller.controllerPath(getPipelineName(), 'extract_to_template'), [:])
+      }
+
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: 'foo')
       }
     }
 

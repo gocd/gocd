@@ -184,8 +184,14 @@ export class SparkRoutes {
     return `${url}?${q}`;
   }
 
-  static materialConnectionCheck(): string {
-    return `/go/api/admin/internal/material_test`;
+  static materialConnectionCheck(pipelineGroup: string, pipelineName?: string): string {
+    const params: any = {group_name: pipelineGroup};
+
+    if (pipelineName) {
+      Object.assign(params, {pipeline_name: pipelineName});
+    }
+
+    return `/go/api/admin/internal/material_test?${m.buildQueryString(params)}`;
   }
 
   static configRepoConnectionCheck(id: string): string {

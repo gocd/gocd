@@ -60,13 +60,20 @@ trait PipelineAccessSecurity {
   @Test
   void "should allow pipeline view users, with security enabled"() {
     enableSecurity()
-    loginAsPipelineViewUser(pipelineName)
+    loginAsPipelineViewUser(pipelineSpecifier)
 
     makeHttpCall()
 
     assertRequestAllowed()
   }
 
-  abstract String getPipelineName()
+  abstract SecurityServiceTrait.PipelineSpecifier getPipelineSpecifier()
 
+  String getGroupName() {
+    return pipelineSpecifier.groupName()
+  }
+
+  String getPipelineName() {
+    return pipelineSpecifier.pipelineName()
+  }
 }

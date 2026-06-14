@@ -51,7 +51,7 @@ import static java.util.Objects.isNull;
 @NoArgsConstructor
 public class ConfigRepoConfig extends RuleAwarePluginProfile {
     private List<String> allowedActions = List.of("refer");
-    private List<String> allowedTypes = unmodifiableListOf(PIPELINE, PIPELINE_GROUP, ENVIRONMENT);
+    private List<String> allowedTypes = immutableListOf(PIPELINE, PIPELINE_GROUP, ENVIRONMENT);
     // defines source of configuration. Any will fit
     @ConfigSubtag(optional = false)
     private MaterialConfig repo;

@@ -254,7 +254,7 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
   class Create {
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
       @Delegate SecurityServiceTrait s = TemplateConfigControllerV7Test.this
       @Delegate ControllerTrait<TemplateConfigControllerV7> c = TemplateConfigControllerV7Test.this
 

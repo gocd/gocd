@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.spark.spa
 
+import com.thoughtworks.go.spark.AnyGroupAdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
 import org.junit.jupiter.api.Nested
@@ -34,7 +34,7 @@ class PluginsControllerTest implements ControllerTrait<PluginsController>, Secur
   @Nested
   class Index {
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
       @Delegate ControllerTrait<PluginsController> c = PluginsControllerTest.this
       @Delegate SecurityServiceTrait s = PluginsControllerTest.this
 

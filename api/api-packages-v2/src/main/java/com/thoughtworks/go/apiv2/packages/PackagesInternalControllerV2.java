@@ -72,7 +72,7 @@ public class PackagesInternalControllerV2 extends ApiController implements Spark
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before(Routes.Packages.VERIFY_CONNECTION, mimeType, this::setContentType);
-            before(Routes.Packages.VERIFY_CONNECTION, mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before(Routes.Packages.VERIFY_CONNECTION, mimeType, this.apiAuthenticationHelper::checkAnyPipelineGroupAdminUserAnd403);
 
             post(Routes.Packages.VERIFY_CONNECTION, mimeType, this::verifyConnection);
         });

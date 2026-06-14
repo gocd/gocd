@@ -46,7 +46,7 @@ public class PluggableScmsController implements SparkController {
     @Override
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before("", authenticationHelper::checkAnyPipelineGroupAdminUserAnd403);
             get("", this::index, engine);
         });
     }

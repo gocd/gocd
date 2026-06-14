@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.accessToken
 import com.thoughtworks.go.api.AdminUserOnlyIfSecurityEnabled
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenter
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokensRepresenter
 import com.thoughtworks.go.config.exceptions.EntityType
@@ -64,7 +64,7 @@ class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserA
   
   @Override
   AdminUserAccessTokenControllerV1 createControllerInstance() {
-    return new AdminUserAccessTokenControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), accessTokenService)
+    return new AdminUserAccessTokenControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), accessTokenService)
   }
 
   @Nested

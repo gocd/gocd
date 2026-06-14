@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv2.backups
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv2.backups.representers.BackupRepresenter
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.server.domain.BackupStatus
@@ -173,6 +173,6 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
 
   @Override
   BackupsControllerV2 createControllerInstance() {
-    return new BackupsControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), backupService)
+    return new BackupsControllerV2(new ApiAuthorizationHelper(securityService, goConfigService), backupService)
   }
 }

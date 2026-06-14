@@ -22,7 +22,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv7.agents.model.AgentBulkUpdateRequest;
@@ -79,16 +79,16 @@ public class AgentsControllerV7 extends ApiController implements SparkSpringCont
     private static final Logger LOG = LoggerFactory.getLogger(AgentsControllerV7.class);
 
     private final AgentService agentService;
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final SecurityService securityService;
     private final EnvironmentConfigService environmentConfigService;
 
     @Autowired
-    public AgentsControllerV7(AgentService agentService, ApiAuthenticationHelper apiAuthenticationHelper,
+    public AgentsControllerV7(AgentService agentService, ApiAuthorizationHelper apiAuthorizationHelper,
                               SecurityService securityService, EnvironmentConfigService environmentConfigService) {
         super(ApiVersion.v7);
         this.agentService = agentService;
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.securityService = securityService;
         this.environmentConfigService = environmentConfigService;
     }
@@ -107,7 +107,7 @@ public class AgentsControllerV7 extends ApiController implements SparkSpringCont
             before("/*", mimeType, this::checkSecurityOr403);
 
             before(Routes.AgentsAPI.KILL_RUNNING_TASKS, mimeType, this::verifyContentType);
-            before(Routes.AgentsAPI.KILL_RUNNING_TASKS, mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
+            before(Routes.AgentsAPI.KILL_RUNNING_TASKS, mimeType, apiAuthorizationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::index);
             get(Routes.AgentsAPI.UUID, mimeType, this::show);
@@ -257,10 +257,10 @@ public class AgentsControllerV7 extends ApiController implements SparkSpringCont
 
     private void checkSecurityOr403(Request request, Response response) {
         if (List.of("GET", "HEAD").contains(request.requestMethod().toUpperCase())) {
-            apiAuthenticationHelper.checkUserAnd403(request, response);
+            apiAuthorizationHelper.checkUserAnd403(request, response);
             return;
         }
-        apiAuthenticationHelper.checkAdminUserAnd403(request, response);
+        apiAuthorizationHelper.checkAdminUserAnd403(request, response);
     }
 
     private List<String> toList(JsonArray jsonArr) {

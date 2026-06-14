@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv7.admin.templateconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv7.admin.templateconfig.representers.ParametersRepresenter
 import com.thoughtworks.go.apiv7.admin.templateconfig.representers.TemplateConfigRepresenter
 import com.thoughtworks.go.apiv7.admin.templateconfig.representers.TemplatesConfigRepresenter
@@ -59,7 +59,7 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
 
   @Override
   TemplateConfigControllerV7 createControllerInstance() {
-    return new TemplateConfigControllerV7(templateConfigService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService)
+    return new TemplateConfigControllerV7(templateConfigService, new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService)
   }
 
   @Nested

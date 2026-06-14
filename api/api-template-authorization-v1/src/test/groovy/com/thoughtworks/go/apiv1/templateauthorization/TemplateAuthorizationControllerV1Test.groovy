@@ -17,7 +17,7 @@
 package com.thoughtworks.go.apiv1.templateauthorization
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.templateauthorization.representers.AuthorizationRepresenter
 import com.thoughtworks.go.config.*
 import com.thoughtworks.go.server.service.EntityHashingService
@@ -53,7 +53,7 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
 
   @Override
   TemplateAuthorizationControllerV1 createControllerInstance() {
-    new TemplateAuthorizationControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, templateConfigService)
+    new TemplateAuthorizationControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService, templateConfigService)
   }
 
   @Nested

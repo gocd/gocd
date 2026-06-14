@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv3.environments
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv3.environments.representers.EnvironmentRepresenter
 import com.thoughtworks.go.apiv3.environments.representers.EnvironmentsRepresenter
 import com.thoughtworks.go.config.*
@@ -55,7 +55,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
   @Override
   EnvironmentsControllerV3 createControllerInstance() {
-    new EnvironmentsControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), environmentConfigService, entityHashingService)
+    new EnvironmentsControllerV3(new ApiAuthorizationHelper(securityService, goConfigService), environmentConfigService, entityHashingService)
 
   }
 

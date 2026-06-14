@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.artifactstoreconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.artifactstoreconfig.representers.ArtifactStoreRepresenter
 import com.thoughtworks.go.apiv1.artifactstoreconfig.representers.ArtifactStoresRepresenter
 import com.thoughtworks.go.config.ArtifactStore
@@ -56,8 +56,8 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
 
   @Override
   ArtifactStoreConfigController createControllerInstance() {
-    def apiAuthenticationHelper = new ApiAuthenticationHelper(securityService, goConfigService)
-    return new ArtifactStoreConfigController(apiAuthenticationHelper, artifactStoreService, entityHashingService)
+    def apiAuthorizationHelper = new ApiAuthorizationHelper(securityService, goConfigService)
+    return new ArtifactStoreConfigController(apiAuthorizationHelper, artifactStoreService, entityHashingService)
   }
 
   @Nested

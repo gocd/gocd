@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.mailserver
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv1.mailserver.representers.MailServerRepresenter
 import com.thoughtworks.go.config.MailHost
@@ -52,7 +52,7 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
 
   @Override
   MailServerControllerV1 createControllerInstance() {
-    new MailServerControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigService, serverConfigService)
+    new MailServerControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), goConfigService, serverConfigService)
   }
 
   @Nested

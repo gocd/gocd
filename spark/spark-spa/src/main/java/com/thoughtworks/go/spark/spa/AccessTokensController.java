@@ -23,7 +23,7 @@ import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
@@ -35,16 +35,16 @@ import java.util.Map;
 import static spark.Spark.*;
 
 public class AccessTokensController implements SparkController {
-    private final SPAAuthenticationHelper authenticationHelper;
+    private final SpaAuthorizationHelper authorizationHelper;
     private final AuthorizationExtensionCacheService authorizationExtensionCacheService;
     private final SecurityAuthConfigService securityAuthConfigService;
     private final TemplateEngine engine;
 
-    public AccessTokensController(SPAAuthenticationHelper authenticationHelper,
+    public AccessTokensController(SpaAuthorizationHelper authorizationHelper,
                                   AuthorizationExtensionCacheService authorizationExtensionCacheService,
                                   SecurityAuthConfigService securityAuthConfigService,
                                   TemplateEngine engine) {
-        this.authenticationHelper = authenticationHelper;
+        this.authorizationHelper = authorizationHelper;
         this.authorizationExtensionCacheService = authorizationExtensionCacheService;
         this.securityAuthConfigService = securityAuthConfigService;
         this.engine = engine;
@@ -58,7 +58,7 @@ public class AccessTokensController implements SparkController {
     @Override
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkUserAnd403);
+            before("", authorizationHelper::checkUserAnd403);
             get("", this::index, engine);
         });
     }

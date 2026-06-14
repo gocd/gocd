@@ -18,7 +18,7 @@ package com.thoughtworks.go.api.spring;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.spark.spring.AbstractAuthenticationHelper;
+import com.thoughtworks.go.spark.spring.AbstractAuthorizationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.HaltException;
@@ -26,10 +26,10 @@ import spark.Request;
 import spark.Response;
 
 @Component
-public class ApiAuthenticationHelper extends AbstractAuthenticationHelper {
+public class ApiAuthorizationHelper extends AbstractAuthorizationHelper {
 
     @Autowired
-    public ApiAuthenticationHelper(SecurityService securityService, GoConfigService goConfigService) {
+    public ApiAuthorizationHelper(SecurityService securityService, GoConfigService goConfigService) {
         super(securityService, goConfigService);
     }
 

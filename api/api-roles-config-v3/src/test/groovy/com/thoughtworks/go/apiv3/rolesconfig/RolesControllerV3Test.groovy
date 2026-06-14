@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv3.rolesconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.apiv3.rolesconfig.representers.RoleRepresenter
 import com.thoughtworks.go.apiv3.rolesconfig.representers.RolesRepresenter
@@ -51,7 +51,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
 
   @Override
   RolesControllerV3 createControllerInstance() {
-    new RolesControllerV3(roleConfigService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService)
+    new RolesControllerV3(roleConfigService, new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService)
   }
 
   @Nested

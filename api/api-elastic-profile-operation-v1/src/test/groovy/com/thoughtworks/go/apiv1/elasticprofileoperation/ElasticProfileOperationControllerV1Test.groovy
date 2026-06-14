@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.elasticprofileoperation
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.config.elastic.ElasticProfile
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
@@ -48,7 +48,7 @@ class ElasticProfileOperationControllerV1Test implements SecurityServiceTrait, C
 
   @Override
   ElasticProfileOperationControllerV1 createControllerInstance() {
-    new ElasticProfileOperationControllerV1(elasticProfileService, new ApiAuthenticationHelper(securityService, goConfigService))
+    new ElasticProfileOperationControllerV1(elasticProfileService, new ApiAuthorizationHelper(securityService, goConfigService))
   }
 
 

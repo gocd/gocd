@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv2.elasticprofile
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv2.elasticprofile.representers.ElasticProfileRepresenter
 import com.thoughtworks.go.apiv2.elasticprofile.representers.ElasticProfilesRepresenter
 import com.thoughtworks.go.config.elastic.ClusterProfile
@@ -62,7 +62,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
   @Override
   ElasticProfileControllerV2 createControllerInstance() {
-    return new ElasticProfileControllerV2(elasticProfileService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, clusterProfileService)
+    return new ElasticProfileControllerV2(elasticProfileService, new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService, clusterProfileService)
   }
 
   @Nested

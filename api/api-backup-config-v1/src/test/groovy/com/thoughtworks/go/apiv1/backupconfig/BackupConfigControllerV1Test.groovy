@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.backupconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.backupconfig.representers.BackupConfigRepresenter
 import com.thoughtworks.go.config.BackupConfig
 import com.thoughtworks.go.config.ServerConfig
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when
 class BackupConfigControllerV1Test implements SecurityServiceTrait, ControllerTrait<BackupConfigControllerV1> {
   @Override
   BackupConfigControllerV1 createControllerInstance() {
-    new BackupConfigControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigService)
+    new BackupConfigControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), goConfigService)
   }
 
   @Nested

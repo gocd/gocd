@@ -20,7 +20,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
@@ -31,12 +31,12 @@ import java.util.Map;
 import static spark.Spark.*;
 
 public class NewPreferencesController implements SparkController {
-    private final SPAAuthenticationHelper authenticationHelper;
+    private final SpaAuthorizationHelper authorizationHelper;
     private final TemplateEngine engine;
     private final GoConfigService goConfigService;
 
-    public NewPreferencesController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, GoConfigService goConfigService) {
-        this.authenticationHelper = authenticationHelper;
+    public NewPreferencesController(SpaAuthorizationHelper authorizationHelper, TemplateEngine engine, GoConfigService goConfigService) {
+        this.authorizationHelper = authorizationHelper;
         this.engine = engine;
         this.goConfigService = goConfigService;
     }
@@ -49,7 +49,7 @@ public class NewPreferencesController implements SparkController {
     @Override
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkUserAnd403);
+            before("", authorizationHelper::checkUserAnd403);
             get("", this::index, engine);
         });
     }

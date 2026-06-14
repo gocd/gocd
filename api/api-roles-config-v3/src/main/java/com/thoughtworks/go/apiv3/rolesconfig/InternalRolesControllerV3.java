@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv3.rolesconfig;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.apiv3.rolesconfig.models.RolesViewModel;
 import com.thoughtworks.go.apiv3.rolesconfig.representers.RolesViewModelRepresenter;
 import com.thoughtworks.go.config.RolesConfig;
@@ -42,7 +42,7 @@ import static spark.Spark.*;
 @Component
 public class InternalRolesControllerV3 extends ApiController implements SparkSpringController {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final RoleConfigService roleConfigService;
     private final EnvironmentConfigService environmentConfigService;
     private final ConfigRepoService configRepoService;
@@ -50,14 +50,14 @@ public class InternalRolesControllerV3 extends ApiController implements SparkSpr
     private final ClusterProfilesService clusterProfilesService;
 
     @Autowired
-    public InternalRolesControllerV3(ApiAuthenticationHelper apiAuthenticationHelper,
+    public InternalRolesControllerV3(ApiAuthorizationHelper apiAuthorizationHelper,
                                      RoleConfigService roleConfigService,
                                      EnvironmentConfigService environmentConfigService,
                                      ConfigRepoService configRepoService,
                                      ElasticProfileService elasticProfileService,
                                      ClusterProfilesService clusterProfilesService) {
         super(ApiVersion.v3);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.roleConfigService = roleConfigService;
         this.environmentConfigService = environmentConfigService;
         this.configRepoService = configRepoService;
@@ -76,7 +76,7 @@ public class InternalRolesControllerV3 extends ApiController implements SparkSpr
             before("", mimeType, this::setContentType);
             before("", mimeType, this::verifyContentType);
 
-            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::index);
         });

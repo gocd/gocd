@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv2.compare
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv2.compare.representers.PipelineInstanceModelsRepresenter
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.domain.buildcause.BuildCause
@@ -56,7 +56,7 @@ class InternalCompareControllerV2Test implements SecurityServiceTrait, Controlle
 
   @Override
   InternalCompareControllerV2 createControllerInstance() {
-    return new InternalCompareControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), pipelineHistoryService)
+    return new InternalCompareControllerV2(new ApiAuthorizationHelper(securityService, goConfigService), pipelineHistoryService)
   }
 
   @Nested

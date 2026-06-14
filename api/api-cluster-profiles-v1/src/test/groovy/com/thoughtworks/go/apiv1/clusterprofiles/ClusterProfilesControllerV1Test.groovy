@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.clusterprofiles
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.clusterprofiles.representers.ClusterProfileRepresenter
 import com.thoughtworks.go.apiv1.clusterprofiles.representers.ClusterProfilesRepresenter
 import com.thoughtworks.go.config.elastic.ClusterProfile
@@ -54,7 +54,7 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
 
   @Override
   ClusterProfilesControllerV1 createControllerInstance() {
-    new ClusterProfilesControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), clusterProfilesService, entityHashingService)
+    new ClusterProfilesControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), clusterProfilesService, entityHashingService)
   }
 
   @Nested

@@ -21,7 +21,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.artifactstoreconfig.representers.ArtifactStoreRepresenter;
 import com.thoughtworks.go.apiv1.artifactstoreconfig.representers.ArtifactStoresRepresenter;
@@ -48,15 +48,15 @@ import static spark.Spark.*;
 @Component
 public class ArtifactStoreConfigController extends ApiController implements SparkSpringController, CrudController<ArtifactStore> {
     private static final String ID_PARAM = "id";
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final ArtifactStoreService artifactStoreService;
     private final EntityHashingService entityHashingService;
 
     @Autowired
-    public ArtifactStoreConfigController(ApiAuthenticationHelper apiAuthenticationHelper, ArtifactStoreService artifactStoreService,
+    public ArtifactStoreConfigController(ApiAuthorizationHelper apiAuthorizationHelper, ArtifactStoreService artifactStoreService,
                                          EntityHashingService entityHashingService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.artifactStoreService = artifactStoreService;
         this.entityHashingService = entityHashingService;
     }
@@ -98,8 +98,8 @@ public class ArtifactStoreConfigController extends ApiController implements Spar
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
-            before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", mimeType, apiAuthorizationHelper::checkAdminUserAnd403);
+            before("/*", mimeType, apiAuthorizationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::index);
             get(Routes.ArtifactStoreConfig.ID, mimeType, this::show);

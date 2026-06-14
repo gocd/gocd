@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.jobinstance
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.jobinstance.representers.JobInstanceRepresenter
 import com.thoughtworks.go.apiv1.jobinstance.representers.JobInstancesRepresenter
 import com.thoughtworks.go.config.exceptions.EntityType
@@ -57,7 +57,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
   @Override
   JobInstanceControllerV1 createControllerInstance() {
-    new JobInstanceControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), jobInstanceService)
+    new JobInstanceControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), jobInstanceService)
   }
 
   @Nested

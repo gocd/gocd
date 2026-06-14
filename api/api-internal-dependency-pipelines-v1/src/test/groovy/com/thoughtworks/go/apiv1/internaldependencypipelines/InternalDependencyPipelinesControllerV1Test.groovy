@@ -17,7 +17,7 @@
 package com.thoughtworks.go.apiv1.internaldependencypipelines
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig
 import com.thoughtworks.go.helper.PipelineConfigMother
@@ -41,7 +41,7 @@ class InternalDependencyPipelinesControllerV1Test implements SecurityServiceTrai
 
   @Override
   InternalDependencyPipelinesControllerV1 createControllerInstance() {
-    new InternalDependencyPipelinesControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigService)
+    new InternalDependencyPipelinesControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), goConfigService)
   }
 
   @Nested

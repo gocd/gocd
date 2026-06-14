@@ -16,7 +16,7 @@
 package com.thoughtworks.go.api.support
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.server.service.support.ServerStatusService
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
@@ -39,7 +39,7 @@ class ApiSupportControllerV1Test implements SecurityServiceTrait, ControllerTrai
 
   @Override
   ApiSupportController createControllerInstance() {
-    new ApiSupportController(new ApiAuthenticationHelper(securityService, goConfigService), serverStatusService)
+    new ApiSupportController(new ApiAuthorizationHelper(securityService, goConfigService), serverStatusService)
   }
 
   @Nested

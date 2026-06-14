@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.configrepooperations
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException
@@ -51,7 +51,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
 
   @Override
   ConfigRepoOperationsControllerV1 createControllerInstance() {
-    return new ConfigRepoOperationsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), pluginService, configRepoService, goConfigService, partialConfigService)
+    return new ConfigRepoOperationsControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), pluginService, configRepoService, goConfigService, partialConfigService)
   }
 
   @Nested

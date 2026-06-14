@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv2.securityauthconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.config.SecurityAuthConfig
 import com.thoughtworks.go.plugin.domain.common.ValidationResult
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse
@@ -50,7 +50,7 @@ class SecurityAuthConfigInternalControllerV2Test implements SecurityServiceTrait
 
   @Override
   SecurityAuthConfigInternalControllerV2 createControllerInstance() {
-    new SecurityAuthConfigInternalControllerV2(securityAuthConfigService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService)
+    new SecurityAuthConfigInternalControllerV2(securityAuthConfigService, new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService)
   }
 
   @Nested

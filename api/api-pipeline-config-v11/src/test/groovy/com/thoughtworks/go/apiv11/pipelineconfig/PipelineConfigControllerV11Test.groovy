@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv11.pipelineconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv11.admin.pipelineconfig.PipelineConfigControllerV11
 import com.thoughtworks.go.apiv11.admin.shared.representers.PipelineConfigRepresenter
 import com.thoughtworks.go.config.CaseInsensitiveString
@@ -89,7 +89,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
   @Override
   PipelineConfigControllerV11 createControllerInstance() {
-    return new PipelineConfigControllerV11(pipelineConfigService, pipelinePauseService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, passwordDeserializer, goConfigService)
+    return new PipelineConfigControllerV11(pipelineConfigService, pipelinePauseService, new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService, passwordDeserializer, goConfigService)
   }
 
   @Nested

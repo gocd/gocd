@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.admin.pipelinegroups
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroupRepresenter
 import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroupsRepresenter
 import com.thoughtworks.go.config.Authorization
@@ -56,7 +56,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
   @Override
   PipelineGroupsControllerV1 createControllerInstance() {
-    return new PipelineGroupsControllerV1(pipelineConfigsService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService)
+    return new PipelineGroupsControllerV1(pipelineConfigsService, new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService)
   }
 
   @Nested

@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.apiv1.admin.encryption.spring;
 
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.apiv1.admin.encryption.EncryptionControllerDelegate;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
@@ -31,8 +31,8 @@ public class EncryptionController implements SparkSpringController {
     private final EncryptionControllerDelegate delegate;
 
     @Autowired
-    public EncryptionController(ApiAuthenticationHelper apiAuthenticationHelper) {
-        delegate = new EncryptionControllerDelegate(apiAuthenticationHelper, new GoCipher(), DEFAULT_REQUESTS_PER_MINUTE, TimeMeter.SYSTEM_NANOTIME);
+    public EncryptionController(ApiAuthorizationHelper apiAuthorizationHelper) {
+        delegate = new EncryptionControllerDelegate(apiAuthorizationHelper, new GoCipher(), DEFAULT_REQUESTS_PER_MINUTE, TimeMeter.SYSTEM_NANOTIME);
     }
 
     @Override

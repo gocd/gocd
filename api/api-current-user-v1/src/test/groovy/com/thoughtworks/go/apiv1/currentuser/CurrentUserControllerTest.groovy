@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.currentuser
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.user.representers.UserRepresenter
 import com.thoughtworks.go.domain.User
 import com.thoughtworks.go.server.service.UserService
@@ -204,6 +204,6 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
 
   @Override
   CurrentUserController createControllerInstance() {
-    return new CurrentUserController(new ApiAuthenticationHelper(securityService, goConfigService), userService)
+    return new CurrentUserController(new ApiAuthorizationHelper(securityService, goConfigService), userService)
   }
 }

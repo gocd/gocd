@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv2.adminsconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv2.adminsconfig.representers.AdminsConfigRepresenter
 import com.thoughtworks.go.apiv2.adminsconfig.representers.BulkUpdateFailureResultRepresenter
 import com.thoughtworks.go.config.AdminRole
@@ -52,7 +52,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
 
   @Override
   AdminControllerV2 createControllerInstance() {
-    return new AdminControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, adminsConfigService)
+    return new AdminControllerV2(new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService, adminsConfigService)
   }
 
   @Nested

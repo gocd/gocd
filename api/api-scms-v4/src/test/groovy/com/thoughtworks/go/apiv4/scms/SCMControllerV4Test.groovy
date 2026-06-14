@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv4.scms
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv4.scms.representers.SCMRepresenter
 import com.thoughtworks.go.apiv4.scms.representers.SCMsRepresenter
 import com.thoughtworks.go.apiv4.scms.representers.ScmUsageRepresenter
@@ -69,7 +69,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
 
   @Override
   SCMControllerV4 createControllerInstance() {
-    return new SCMControllerV4(new ApiAuthenticationHelper(securityService, goConfigService), scmService, entityHashingService, goConfigService)
+    return new SCMControllerV4(new ApiAuthorizationHelper(securityService, goConfigService), scmService, entityHashingService, goConfigService)
   }
 
   @Nested

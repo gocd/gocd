@@ -20,7 +20,7 @@ import com.thoughtworks.go.server.service.PipelineService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.PipelineAccessSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -42,7 +42,7 @@ class CompareControllerTest implements ControllerTrait<CompareController>, Secur
 
   @Override
   CompareController createControllerInstance() {
-    return new CompareController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, pipelineService)
+    return new CompareController(new SpaAuthorizationHelper(securityService, goConfigService), templateEngine, pipelineService)
   }
 
   @Nested

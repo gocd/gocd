@@ -21,7 +21,7 @@ import com.thoughtworks.go.server.service.PipelineConfigService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
@@ -41,7 +41,7 @@ class ServerInfoControllerTest implements ControllerTrait<ServerInfoController>,
 
   @Override
   ServerInfoController createControllerInstance() {
-    return new ServerInfoController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, artifactsDirHolder, pipelineConfigService)
+    return new ServerInfoController(new SpaAuthorizationHelper(securityService, goConfigService), templateEngine, artifactsDirHolder, pipelineConfigService)
   }
 
   @Nested

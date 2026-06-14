@@ -17,7 +17,7 @@
 package com.thoughtworks.go.apiv2.packages
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv2.packages.representers.PackageDefinitionRepresenter
 import com.thoughtworks.go.domain.config.Configuration
 import com.thoughtworks.go.domain.config.ConfigurationKey
@@ -66,7 +66,7 @@ class PackagesInternalControllerV2Test implements SecurityServiceTrait, Controll
 
   @Override
   PackagesInternalControllerV2 createControllerInstance() {
-    new PackagesInternalControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, packageDefinitionService, packageRepositoryService)
+    new PackagesInternalControllerV2(new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService, packageDefinitionService, packageRepositoryService)
   }
 
   @Nested

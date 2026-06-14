@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.pipelinesascodeinternal
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.config.ConfigRepoPlugin
 import com.thoughtworks.go.config.CruiseConfig
 import com.thoughtworks.go.config.GoConfigPluginService
@@ -94,7 +94,7 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
   @Override
   PipelinesAsCodeInternalControllerV1 createControllerInstance() {
     new PipelinesAsCodeInternalControllerV1(
-      new ApiAuthenticationHelper(securityService, goConfigService),
+      new ApiAuthorizationHelper(securityService, goConfigService),
       passwordDeserializer,
       goConfigService,
       pluginService,

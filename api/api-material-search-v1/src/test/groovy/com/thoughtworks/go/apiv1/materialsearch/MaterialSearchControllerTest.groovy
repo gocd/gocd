@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.materialsearch
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.materialsearch.representers.MatchedRevisionRepresenter
 import com.thoughtworks.go.domain.materials.MatchedRevision
 import com.thoughtworks.go.server.domain.Username
@@ -48,7 +48,7 @@ class MaterialSearchControllerTest implements ControllerTrait<MaterialSearchCont
 
   @Override
   MaterialSearchController createControllerInstance() {
-    return new MaterialSearchController(materialService, new ApiAuthenticationHelper(securityService, goConfigService))
+    return new MaterialSearchController(materialService, new ApiAuthorizationHelper(securityService, goConfigService))
   }
 
   @Nested

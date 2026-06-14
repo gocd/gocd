@@ -17,7 +17,7 @@
 package com.thoughtworks.go.apiv1.internalscms
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.internalscms.representers.SCMRepresenter
 import com.thoughtworks.go.apiv1.internalscms.representers.VerifyConnectionResultRepresenter
 import com.thoughtworks.go.domain.config.Configuration
@@ -48,7 +48,7 @@ class InternalSCMsControllerV1Test implements SecurityServiceTrait, ControllerTr
 
   @Override
   InternalSCMsControllerV1 createControllerInstance() {
-    new InternalSCMsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), pluggableScmService)
+    new InternalSCMsControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), pluggableScmService)
   }
 
   @Nested

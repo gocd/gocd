@@ -20,7 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.server.presentation.FetchArtifactViewHelper;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -40,14 +40,14 @@ import static spark.Spark.*;
 public class InternalDependencyPipelinesControllerV1 extends ApiController implements SparkSpringController {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final GoConfigService goConfigService;
 
     @Autowired
-    public InternalDependencyPipelinesControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,
+    public InternalDependencyPipelinesControllerV1(ApiAuthorizationHelper apiAuthorizationHelper,
                                                    GoConfigService goConfigService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.goConfigService = goConfigService;
     }
 
@@ -73,9 +73,9 @@ public class InternalDependencyPipelinesControllerV1 extends ApiController imple
 
     void checkPipelineOrTemplateViewPermissionsAnd403(Request request, Response response) {
         if (isTemplateRequest(request)) {
-            apiAuthenticationHelper.checkViewAccessToTemplateAnd403(request, response, r -> r.params("pipeline_name"));
+            apiAuthorizationHelper.checkViewAccessToTemplateAnd403(request, response, r -> r.params("pipeline_name"));
         } else {
-            apiAuthenticationHelper.checkPipelineViewPermissionsAnd403(request, response);
+            apiAuthorizationHelper.checkPipelineViewPermissionsAnd403(request, response);
         }
     }
 
@@ -85,7 +85,7 @@ public class InternalDependencyPipelinesControllerV1 extends ApiController imple
             cis(request.params("pipeline_name")),
             cis(request.params("stage_name")),
             isTemplateRequest(request),
-            name -> apiAuthenticationHelper.hasViewPermissionForPipeline(name.toString()));
+            name -> apiAuthorizationHelper.hasViewPermissionForPipeline(name.toString()));
 
         response.type("application/json");
         return GSON.toJson(helper.autosuggestMap());

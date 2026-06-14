@@ -17,7 +17,7 @@
 package com.thoughtworks.go.apiv1.packagerepository
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.packagerepository.representers.PackageRepositoryRepresenter
 import com.thoughtworks.go.domain.config.Configuration
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
@@ -54,7 +54,7 @@ class PackageRepositoryInternalControllerV1Test implements SecurityServiceTrait,
 
   @Override
   PackageRepositoryInternalControllerV1 createControllerInstance() {
-    new PackageRepositoryInternalControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, packageRepositoryService)
+    new PackageRepositoryInternalControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService, packageRepositoryService)
   }
 
   @Nested

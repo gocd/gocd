@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv2.packages
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv2.packages.representers.PackageDefinitionRepresenter
 import com.thoughtworks.go.apiv2.packages.representers.PackageDefinitionsRepresenter
 import com.thoughtworks.go.apiv2.packages.representers.PackageUsageRepresenter
@@ -59,7 +59,7 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
 
   @Override
   PackagesControllerV2 createControllerInstance() {
-    new PackagesControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, packageDefinitionService, goConfigService)
+    new PackagesControllerV2(new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService, packageDefinitionService, goConfigService)
   }
 
   @Nested

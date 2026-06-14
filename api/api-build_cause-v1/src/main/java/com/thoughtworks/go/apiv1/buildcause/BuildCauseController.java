@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.buildcause;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.apiv1.buildcause.representers.BuildCauseRepresenter;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
@@ -39,13 +39,13 @@ import static spark.Spark.*;
 @Component
 public class BuildCauseController extends ApiController implements SparkSpringController {
     private final PipelineHistoryService pipelineHistoryService;
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
 
     @Autowired
-    public BuildCauseController(PipelineHistoryService pipelineHistoryService, ApiAuthenticationHelper apiAuthenticationHelper) {
+    public BuildCauseController(PipelineHistoryService pipelineHistoryService, ApiAuthorizationHelper apiAuthorizationHelper) {
         super(ApiVersion.v1);
         this.pipelineHistoryService = pipelineHistoryService;
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
     }
 
     @Override
@@ -59,8 +59,8 @@ public class BuildCauseController extends ApiController implements SparkSpringCo
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
-            before("/*", mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
+            before("", mimeType, apiAuthorizationHelper::checkPipelineViewPermissionsAnd403);
+            before("/*", mimeType, apiAuthorizationHelper::checkPipelineViewPermissionsAnd403);
 
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);

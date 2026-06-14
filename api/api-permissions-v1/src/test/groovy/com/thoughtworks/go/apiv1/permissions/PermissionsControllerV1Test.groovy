@@ -17,7 +17,7 @@
 package com.thoughtworks.go.apiv1.permissions
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.server.service.permissions.PermissionsService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
@@ -41,7 +41,7 @@ class PermissionsControllerV1Test implements SecurityServiceTrait, ControllerTra
 
   @Override
   PermissionsControllerV1 createControllerInstance() {
-    new PermissionsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), permissionsService)
+    new PermissionsControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), permissionsService)
   }
 
   @Nested

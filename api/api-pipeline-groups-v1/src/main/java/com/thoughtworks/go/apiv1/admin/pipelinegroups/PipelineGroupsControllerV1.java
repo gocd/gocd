@@ -21,7 +21,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroupRepresenter;
 import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroupsRepresenter;
@@ -54,14 +54,14 @@ import static spark.Spark.*;
 @Component
 public class PipelineGroupsControllerV1 extends ApiController implements SparkSpringController, CrudController<PipelineConfigs> {
     private final PipelineConfigsService pipelineConfigsService;
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final EntityHashingService entityHashingService;
 
     @Autowired
-    public PipelineGroupsControllerV1(PipelineConfigsService pipelineConfigsService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService) {
+    public PipelineGroupsControllerV1(PipelineConfigsService pipelineConfigsService, ApiAuthorizationHelper apiAuthorizationHelper, EntityHashingService entityHashingService) {
         super(ApiVersion.v1);
         this.pipelineConfigsService = pipelineConfigsService;
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.entityHashingService = entityHashingService;
     }
 
@@ -72,9 +72,9 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
             before("/*", mimeType, this::setContentType);
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
-            before("", mimeType, onlyOn(apiAuthenticationHelper::checkAdminUserAnd403, HttpMethod.post));
-            before("", mimeType, onlyOn(apiAuthenticationHelper::checkAnyPipelineGroupAdminUserAnd403, HttpMethod.get, HttpMethod.head));
-            before(Routes.PipelineGroupsAdmin.NAME_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminViaNameParamsAnd403);
+            before("", mimeType, onlyOn(apiAuthorizationHelper::checkAdminUserAnd403, HttpMethod.post));
+            before("", mimeType, onlyOn(apiAuthorizationHelper::checkAnyPipelineGroupAdminUserAnd403, HttpMethod.get, HttpMethod.head));
+            before(Routes.PipelineGroupsAdmin.NAME_PATH, mimeType, apiAuthorizationHelper::checkPipelineGroupAdminViaNameParamsAnd403);
 
             get("", mimeType, this::index);
             post("", mimeType, this::create);

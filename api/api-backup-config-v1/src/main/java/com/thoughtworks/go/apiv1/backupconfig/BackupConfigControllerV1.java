@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.backupconfig.representers.BackupConfigRepresenter;
@@ -47,13 +47,13 @@ import static spark.Spark.*;
 @Component
 public class BackupConfigControllerV1 extends ApiController implements SparkSpringController, CrudController<BackupConfig> {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final GoConfigService goConfigService;
 
     @Autowired
-    public BackupConfigControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, GoConfigService goConfigService) {
+    public BackupConfigControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, GoConfigService goConfigService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.goConfigService = goConfigService;
     }
 
@@ -71,7 +71,7 @@ public class BackupConfigControllerV1 extends ApiController implements SparkSpri
             before("/*", mimeType, this::verifyContentType);
 
             // change the line below to enable appropriate security
-            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::show);
 

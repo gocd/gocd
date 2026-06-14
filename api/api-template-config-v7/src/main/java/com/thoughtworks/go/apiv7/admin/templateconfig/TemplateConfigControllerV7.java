@@ -21,7 +21,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv7.admin.templateconfig.representers.ParametersRepresenter;
 import com.thoughtworks.go.apiv7.admin.templateconfig.representers.TemplateConfigRepresenter;
@@ -57,14 +57,14 @@ import static spark.Spark.*;
 public class TemplateConfigControllerV7 extends ApiController implements SparkSpringController, CrudController<PipelineTemplateConfig> {
 
     private final TemplateConfigService templateConfigService;
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final EntityHashingService entityHashingService;
 
     @Autowired
-    public TemplateConfigControllerV7(TemplateConfigService templateConfigService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService) {
+    public TemplateConfigControllerV7(TemplateConfigService templateConfigService, ApiAuthorizationHelper apiAuthorizationHelper, EntityHashingService entityHashingService) {
         super(ApiVersion.v7);
         this.templateConfigService = templateConfigService;
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.entityHashingService = entityHashingService;
     }
 
@@ -106,11 +106,11 @@ public class TemplateConfigControllerV7 extends ApiController implements SparkSp
             before("/*", mimeType, this::setContentType);
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
-            before("", mimeType, onlyOn(apiAuthenticationHelper::checkAnyPipelineGroupAdminUserAnd403, HttpMethod.post));
-            before("", mimeType, onlyOn(apiAuthenticationHelper::checkAnyTemplateViewUserAnd403, HttpMethod.get, HttpMethod.head));
-            before(Routes.PipelineTemplateConfig.NAME, mimeType, onlyOn(apiAuthenticationHelper::checkViewAccessToTemplateAnd403, HttpMethod.get, HttpMethod.head));
-            before(Routes.PipelineTemplateConfig.NAME, mimeType, onlyOn(apiAuthenticationHelper::checkAdminOrTemplateAdminAnd403, HttpMethod.put, HttpMethod.patch, HttpMethod.delete));
-            before(Routes.PipelineTemplateConfig.PARAMETERS, mimeType, apiAuthenticationHelper::checkViewAccessToTemplateAnd403);
+            before("", mimeType, onlyOn(apiAuthorizationHelper::checkAnyPipelineGroupAdminUserAnd403, HttpMethod.post));
+            before("", mimeType, onlyOn(apiAuthorizationHelper::checkAnyTemplateViewUserAnd403, HttpMethod.get, HttpMethod.head));
+            before(Routes.PipelineTemplateConfig.NAME, mimeType, onlyOn(apiAuthorizationHelper::checkViewAccessToTemplateAnd403, HttpMethod.get, HttpMethod.head));
+            before(Routes.PipelineTemplateConfig.NAME, mimeType, onlyOn(apiAuthorizationHelper::checkAdminOrTemplateAdminAnd403, HttpMethod.put, HttpMethod.patch, HttpMethod.delete));
+            before(Routes.PipelineTemplateConfig.PARAMETERS, mimeType, apiAuthorizationHelper::checkViewAccessToTemplateAnd403);
 
             get("", mimeType, this::index);
             post("", mimeType, this::create);

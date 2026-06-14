@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.pluginsettings.representers.PluginSettingsRepresenter;
 import com.thoughtworks.go.config.exceptions.EntityType;
@@ -48,15 +48,15 @@ import static spark.Spark.*;
 @Component
 public class PluginSettingsControllerV1 extends ApiController implements SparkSpringController, CrudController<PluginSettings> {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final PluginService pluginService;
     private EntityHashingService entityHashingService;
     private final String PLUGIN_ID_KEY = "plugin_id";
 
     @Autowired
-    public PluginSettingsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, PluginService pluginService, EntityHashingService entityHashingService) {
+    public PluginSettingsControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, PluginService pluginService, EntityHashingService entityHashingService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.pluginService = pluginService;
         this.entityHashingService = entityHashingService;
     }
@@ -71,8 +71,8 @@ public class PluginSettingsControllerV1 extends ApiController implements SparkSp
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
-            before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", mimeType, apiAuthorizationHelper::checkAdminUserAnd403);
+            before("/*", mimeType, apiAuthorizationHelper::checkAdminUserAnd403);
 
             get(Routes.PluginSettingsAPI.ID, mimeType, this::show);
 

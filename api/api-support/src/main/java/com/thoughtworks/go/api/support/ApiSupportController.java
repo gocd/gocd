@@ -20,7 +20,7 @@ import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.api.ControllerMethods;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.support.representers.ProcessListRepresenter;
 import com.thoughtworks.go.server.service.support.ServerStatusService;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
@@ -50,12 +50,12 @@ public class ApiSupportController implements SparkController, ControllerMethods,
         .disableHtmlEscaping()
         .create();
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final ServerStatusService serverStatusService;
 
     @Autowired
-    public ApiSupportController(ApiAuthenticationHelper apiAuthenticationHelper, ServerStatusService serverStatusService) {
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+    public ApiSupportController(ApiAuthorizationHelper apiAuthorizationHelper, ServerStatusService serverStatusService) {
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.serverStatusService = serverStatusService;
     }
 
@@ -75,8 +75,8 @@ public class ApiSupportController implements SparkController, ControllerMethods,
             before("", this::setContentType);
             before("/*", this::setContentType);
 
-            before("", this.apiAuthenticationHelper::checkAdminUserAnd403);
-            before("/*", this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", this.apiAuthorizationHelper::checkAdminUserAnd403);
+            before("/*", this.apiAuthorizationHelper::checkAdminUserAnd403);
 
             get("", this::show);
             get(Routes.Support.PROCESS_LIST, this::processList);

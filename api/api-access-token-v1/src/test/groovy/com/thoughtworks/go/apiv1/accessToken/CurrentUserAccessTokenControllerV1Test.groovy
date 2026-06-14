@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.accessToken
 import com.thoughtworks.go.api.NormalUserOnlyIfSecurityEnabled
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenter
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokensRepresenter
 import com.thoughtworks.go.config.exceptions.EntityType
@@ -63,7 +63,7 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
 
   @Override
   CurrentUserAccessTokenControllerV1 createControllerInstance() {
-    return new CurrentUserAccessTokenControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), accessTokenService)
+    return new CurrentUserAccessTokenControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), accessTokenService)
   }
 
   @Nested

@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv2.materials;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.apiv2.materials.representers.MaterialConfigsRepresenter;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.server.service.MaterialConfigService;
@@ -36,13 +36,13 @@ import static spark.Spark.*;
 @Component
 public class MaterialConfigControllerV2 extends ApiController implements SparkSpringController {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final MaterialConfigService materialConfigService;
 
     @Autowired
-    public MaterialConfigControllerV2(ApiAuthenticationHelper apiAuthenticationHelper, MaterialConfigService materialConfigService) {
+    public MaterialConfigControllerV2(ApiAuthorizationHelper apiAuthorizationHelper, MaterialConfigService materialConfigService) {
         super(ApiVersion.v2);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.materialConfigService = materialConfigService;
     }
 
@@ -58,8 +58,8 @@ public class MaterialConfigControllerV2 extends ApiController implements SparkSp
             before("/*", mimeType, this::setContentType);
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
-            before("", this.mimeType, this.apiAuthenticationHelper::checkUserAnd403);
-            before("/*", this.mimeType, this.apiAuthenticationHelper::checkUserAnd403);
+            before("", this.mimeType, this.apiAuthorizationHelper::checkUserAnd403);
+            before("/*", this.mimeType, this.apiAuthorizationHelper::checkUserAnd403);
             get("", mimeType, this::index);
         });
     }

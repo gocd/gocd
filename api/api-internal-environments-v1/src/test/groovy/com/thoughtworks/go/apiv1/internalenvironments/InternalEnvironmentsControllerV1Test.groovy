@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.internalenvironments
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.internalenvironments.representers.MergedEnvironmentsRepresenter
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.RoleConfig
@@ -59,7 +59,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
   @Override
   InternalEnvironmentsControllerV1 createControllerInstance() {
-    new InternalEnvironmentsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), environmentConfigService, agentService)
+    new InternalEnvironmentsControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), environmentConfigService, agentService)
   }
 
   @Nested

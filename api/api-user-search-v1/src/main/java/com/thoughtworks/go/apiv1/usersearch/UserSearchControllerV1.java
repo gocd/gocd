@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv1.usersearch;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.apiv1.usersearch.representers.UserSearchResultsRepresenter;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.server.security.UserSearchService;
@@ -40,13 +40,13 @@ import static spark.Spark.*;
 @Component
 public class UserSearchControllerV1 extends ApiController implements SparkSpringController {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final UserSearchService userSearchService;
 
     @Autowired
-    public UserSearchControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, UserSearchService userSearchService) {
+    public UserSearchControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, UserSearchService userSearchService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.userSearchService = userSearchService;
     }
 
@@ -60,7 +60,7 @@ public class UserSearchControllerV1 extends ApiController implements SparkSpring
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
 
-            before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", this.mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
             get("", this.mimeType, this::show);
         });
     }

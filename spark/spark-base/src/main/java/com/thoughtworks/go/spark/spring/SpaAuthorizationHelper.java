@@ -25,10 +25,10 @@ import spark.HaltException;
 import static spark.Spark.halt;
 
 @Component
-public class SPAAuthenticationHelper extends AbstractAuthenticationHelper {
+public class SpaAuthorizationHelper extends AbstractAuthorizationHelper {
 
     @Autowired
-    public SPAAuthenticationHelper(SecurityService securityService, GoConfigService goConfigService) {
+    public SpaAuthorizationHelper(SecurityService securityService, GoConfigService goConfigService) {
         super(securityService, goConfigService);
     }
 

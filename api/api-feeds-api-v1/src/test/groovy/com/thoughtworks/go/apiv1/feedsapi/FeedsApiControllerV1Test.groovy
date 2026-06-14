@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.feedsapi
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.server.service.FeedService
@@ -41,7 +41,7 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
   @Override
   FeedsApiControllerV1 createControllerInstance() {
-    new FeedsApiControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), feedService)
+    new FeedsApiControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), feedService)
   }
 
   @Test

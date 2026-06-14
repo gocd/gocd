@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv3.secretconfigs
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv3.secretconfigs.representers.SecretConfigRepresenter
 import com.thoughtworks.go.apiv3.secretconfigs.representers.SecretConfigsRepresenter
@@ -64,7 +64,7 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
 
   @Override
   SecretConfigsControllerV3 createControllerInstance() {
-    new SecretConfigsControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), secretConfigService, entityHashingService)
+    new SecretConfigsControllerV3(new ApiAuthorizationHelper(securityService, goConfigService), secretConfigService, entityHashingService)
   }
 
   @Nested

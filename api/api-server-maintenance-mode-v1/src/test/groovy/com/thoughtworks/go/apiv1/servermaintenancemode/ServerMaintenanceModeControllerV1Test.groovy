@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.servermaintenancemode
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.servermaintenancemode.representers.MaintenanceModeInfoRepresenter
 import com.thoughtworks.go.domain.JobIdentifier
 import com.thoughtworks.go.domain.JobInstance
@@ -71,7 +71,7 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
 
   @Override
   ServerMaintenanceModeControllerV1 createControllerInstance() {
-    new ServerMaintenanceModeControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goDashboardCache, agentService, maintenanceModeService, testingClock)
+    new ServerMaintenanceModeControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), goDashboardCache, agentService, maintenanceModeService, testingClock)
   }
 
   @Nested

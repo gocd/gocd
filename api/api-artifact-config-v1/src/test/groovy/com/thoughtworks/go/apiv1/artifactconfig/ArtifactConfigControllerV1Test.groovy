@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.artifactconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException
 import com.thoughtworks.go.domain.ConfigErrors
@@ -45,7 +45,7 @@ class ArtifactConfigControllerV1Test implements SecurityServiceTrait, Controller
 
   @Override
   ArtifactConfigControllerV1 createControllerInstance() {
-    new ArtifactConfigControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, serverConfigService)
+    new ArtifactConfigControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService, serverConfigService)
   }
 
   @Nested

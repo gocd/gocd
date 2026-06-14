@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.currentuser;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.apiv1.user.representers.UserRepresenter;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.server.service.UserService;
@@ -41,13 +41,13 @@ import static spark.Spark.*;
 
 @Component
 public class CurrentUserController extends ApiController implements SparkSpringController {
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final UserService userService;
 
     @Autowired
-    public CurrentUserController(ApiAuthenticationHelper apiAuthenticationHelper, UserService userService) {
+    public CurrentUserController(ApiAuthorizationHelper apiAuthorizationHelper, UserService userService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.userService = userService;
     }
 
@@ -64,8 +64,8 @@ public class CurrentUserController extends ApiController implements SparkSpringC
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
 
-            before("", mimeType, apiAuthenticationHelper::checkNonAnonymousUser);
-            before("/*", mimeType, apiAuthenticationHelper::checkNonAnonymousUser);
+            before("", mimeType, apiAuthorizationHelper::checkNonAnonymousUser);
+            before("/*", mimeType, apiAuthorizationHelper::checkNonAnonymousUser);
 
             get("", mimeType, this::show);
             head("", mimeType, this::show);

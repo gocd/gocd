@@ -20,7 +20,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
@@ -33,12 +33,12 @@ import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static spark.Spark.*;
 
 public class ClickyPipelineConfigController implements SparkController {
-    private final SPAAuthenticationHelper authenticationHelper;
-    private GoConfigService goConfigService;
+    private final SpaAuthorizationHelper authorizationHelper;
+    private final GoConfigService goConfigService;
     private final TemplateEngine engine;
 
-    public ClickyPipelineConfigController(SPAAuthenticationHelper authenticationHelper, GoConfigService goConfigService, TemplateEngine engine) {
-        this.authenticationHelper = authenticationHelper;
+    public ClickyPipelineConfigController(SpaAuthorizationHelper authorizationHelper, GoConfigService goConfigService, TemplateEngine engine) {
+        this.authorizationHelper = authorizationHelper;
         this.goConfigService = goConfigService;
         this.engine = engine;
     }
@@ -51,7 +51,7 @@ public class ClickyPipelineConfigController implements SparkController {
     @Override
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
-            before(Routes.PipelineConfig.NAME + "/edit", authenticationHelper::checkPipelineGroupAdminViaNameParamsAnd403);
+            before(Routes.PipelineConfig.NAME + "/edit", authorizationHelper::checkPipelineGroupAdminViaNameParamsAnd403);
             get(Routes.PipelineConfig.NAME + "/edit", this::index, engine);
         });
     }

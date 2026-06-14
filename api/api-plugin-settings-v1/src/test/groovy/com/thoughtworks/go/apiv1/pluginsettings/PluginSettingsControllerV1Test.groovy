@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.pluginsettings
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.pluginsettings.representers.PluginSettingsRepresenter
 import com.thoughtworks.go.domain.config.ConfigurationKey
 import com.thoughtworks.go.domain.config.ConfigurationProperty
@@ -59,7 +59,7 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
 
   @Override
   PluginSettingsControllerV1 createControllerInstance() {
-    new PluginSettingsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), pluginService, entityHashingService)
+    new PluginSettingsControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), pluginService, entityHashingService)
   }
 
   @Nested

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv2.securityauthconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv2.securityauthconfig.representers.SecurityAuthConfigRepresenter
 import com.thoughtworks.go.apiv2.securityauthconfig.representers.SecurityAuthConfigsRepresenter
 import com.thoughtworks.go.config.SecurityAuthConfig
@@ -59,7 +59,7 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
 
   @Override
   SecurityAuthConfigControllerV2 createControllerInstance() {
-    new SecurityAuthConfigControllerV2(securityAuthConfigService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService)
+    new SecurityAuthConfigControllerV2(securityAuthConfigService, new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService)
   }
 
   @Nested

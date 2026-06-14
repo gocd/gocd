@@ -17,7 +17,7 @@
 package com.thoughtworks.go.apiv1.internalmaterials
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.internalmaterials.representers.ModificationsRepresenter
 import com.thoughtworks.go.domain.PipelineRunIdInfo
 import com.thoughtworks.go.domain.materials.MaterialConfig
@@ -57,7 +57,7 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
 
   @Override
   InternalMaterialModificationsControllerV1 createControllerInstance() {
-    return new InternalMaterialModificationsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), materialConfigService, materialService)
+    return new InternalMaterialModificationsControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), materialConfigService, materialService)
   }
 
   @Nested

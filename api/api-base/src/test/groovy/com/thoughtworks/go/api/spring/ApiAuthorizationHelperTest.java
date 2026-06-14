@@ -40,13 +40,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class ApiAuthenticationHelperTest {
+class ApiAuthorizationHelperTest {
     @Mock(strictness = Mock.Strictness.LENIENT)
     private SecurityService securityService;
     @Mock
     private GoConfigService goConfigService;
 
-    private ApiAuthenticationHelper helper;
+    private ApiAuthorizationHelper helper;
 
     private final Username ADMIN = new Username("Admin");
     private final Username BOB = new Username("Bob");
@@ -61,7 +61,7 @@ class ApiAuthenticationHelperTest {
     class GranularAuth {
         @BeforeEach
         void setUp() {
-            helper = new ApiAuthenticationHelper(securityService, goConfigService);
+            helper = new ApiAuthorizationHelper(securityService, goConfigService);
         }
 
         @Test

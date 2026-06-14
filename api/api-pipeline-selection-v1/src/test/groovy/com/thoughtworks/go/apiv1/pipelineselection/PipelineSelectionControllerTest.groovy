@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.apiv1.pipelineselection
 
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelineSelectionResponse
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelineSelectionsRepresenter
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelinesDataRepresenter
@@ -273,7 +273,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
 
   @Override
   PipelineSelectionController createControllerInstance() {
-    return new PipelineSelectionController(new ApiAuthenticationHelper(securityService, goConfigService),
+    return new PipelineSelectionController(new ApiAuthorizationHelper(securityService, goConfigService),
       pipelineSelectionsService, pipelineConfigService, systemEnvironment)
   }
 }

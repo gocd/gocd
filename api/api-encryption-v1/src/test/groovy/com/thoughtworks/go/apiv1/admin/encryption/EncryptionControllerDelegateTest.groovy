@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.admin.encryption
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.admin.encryption.representers.EncryptedValueRepresenter
 import com.thoughtworks.go.security.CryptoException
 import com.thoughtworks.go.security.GoCipher
@@ -174,6 +174,6 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
 
   @Override
   EncryptionControllerDelegate createControllerInstance() {
-    return new EncryptionControllerDelegate(new ApiAuthenticationHelper(securityService, goConfigService), cipher, REQUESTS_PER_MINUTE, timeMeter)
+    return new EncryptionControllerDelegate(new ApiAuthorizationHelper(securityService, goConfigService), cipher, REQUESTS_PER_MINUTE, timeMeter)
   }
 }

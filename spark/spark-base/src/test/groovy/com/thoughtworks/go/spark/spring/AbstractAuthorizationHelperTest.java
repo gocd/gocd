@@ -38,17 +38,17 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class AbstractAuthenticationHelperTest {
+class AbstractAuthorizationHelperTest {
     @Mock
     private SecurityService securityService;
     @Mock
     private GoConfigService goConfigService;
 
-    private AbstractAuthenticationHelper helper;
+    private AbstractAuthorizationHelper helper;
 
     @BeforeEach
     void setUp() {
-        helper = new AbstractAuthenticationHelper(securityService, goConfigService) {
+        helper = new AbstractAuthorizationHelper(securityService, goConfigService) {
             @Override
             protected HaltException renderForbiddenResponse() {
                 return Spark.halt("Forbidden");

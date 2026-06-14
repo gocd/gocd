@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv7.plugininfos
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv7.plugininfos.representers.PluginInfoRepresenter
 import com.thoughtworks.go.apiv7.plugininfos.representers.PluginInfosRepresenter
 import com.thoughtworks.go.plugin.access.ExtensionsRegistry
@@ -66,7 +66,7 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
 
   @Override
   PluginInfosControllerV7 createControllerInstance() {
-    new PluginInfosControllerV7(new ApiAuthenticationHelper(securityService, goConfigService), pluginInfoFinder, entityHashingService, defaultPluginManager, extensionRegistry)
+    new PluginInfosControllerV7(new ApiAuthorizationHelper(securityService, goConfigService), pluginInfoFinder, entityHashingService, defaultPluginManager, extensionRegistry)
   }
 
   @Nested

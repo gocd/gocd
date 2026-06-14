@@ -24,7 +24,7 @@ import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData
 import com.thoughtworks.go.server.service.PipelineConfigService
 import com.thoughtworks.go.spark.*
 import com.thoughtworks.go.spark.mocks.StubTemplateEngine
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import com.thoughtworks.go.util.json.JsonHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -48,7 +48,7 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
 
   @Override
   AnalyticsController createControllerInstance() {
-    return new AnalyticsController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, systemEnvironment, analyticsExtension, pipelineConfigService)
+    return new AnalyticsController(new SpaAuthorizationHelper(securityService, goConfigService), templateEngine, systemEnvironment, analyticsExtension, pipelineConfigService)
   }
 
   @Nested

@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv2.materials
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.base.JsonUtils
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv2.materials.representers.ModificationsRepresenter
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig
 import com.thoughtworks.go.domain.materials.Modification
@@ -56,7 +56,7 @@ class MaterialModificationsControllerV2Test implements SecurityServiceTrait, Con
 
   @Override
   MaterialModificationsControllerV2 createControllerInstance() {
-    return new MaterialModificationsControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), materialConfigService,
+    return new MaterialModificationsControllerV2(new ApiAuthorizationHelper(securityService, goConfigService), materialConfigService,
       materialService)
   }
 

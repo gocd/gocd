@@ -19,7 +19,7 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv3.users.model.UserToRepresent;
 import com.thoughtworks.go.apiv3.users.representers.BulkDeletionFailureResultRepresenter;
@@ -57,18 +57,18 @@ import static spark.Spark.*;
 @Component
 public class UsersControllerV3 extends ApiController implements SparkSpringController {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private UserService userService;
     private SecurityService securityService;
     private RoleConfigService roleConfigService;
 
     @Autowired
-    public UsersControllerV3(ApiAuthenticationHelper apiAuthenticationHelper,
+    public UsersControllerV3(ApiAuthorizationHelper apiAuthorizationHelper,
                              UserService userService,
                              SecurityService securityService,
                              RoleConfigService roleConfigService) {
         super(ApiVersion.v3);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.userService = userService;
         this.securityService = securityService;
         this.roleConfigService = roleConfigService;
@@ -87,8 +87,8 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
 
-            before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
-            before("/*", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", this.mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
+            before("/*", this.mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
 
             get("", this.mimeType, this::index);
             post("", this.mimeType, this::create);

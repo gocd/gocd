@@ -19,7 +19,7 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv3.secretconfigs.representers.SecretConfigRepresenter;
 import com.thoughtworks.go.apiv3.secretconfigs.representers.SecretConfigsRepresenter;
@@ -48,14 +48,14 @@ import static spark.Spark.*;
 public class SecretConfigsControllerV3 extends ApiController implements SparkSpringController, CrudController<SecretConfig> {
 
     public static final String CONFIG_ID_PARAM = "config_id";
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final SecretConfigService configService;
     private final EntityHashingService entityHashingService;
 
     @Autowired
-    public SecretConfigsControllerV3(ApiAuthenticationHelper apiAuthenticationHelper, SecretConfigService configService, EntityHashingService entityHashingService) {
+    public SecretConfigsControllerV3(ApiAuthorizationHelper apiAuthorizationHelper, SecretConfigService configService, EntityHashingService entityHashingService) {
         super(ApiVersion.v3);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.configService = configService;
         this.entityHashingService = entityHashingService;
     }
@@ -70,8 +70,8 @@ public class SecretConfigsControllerV3 extends ApiController implements SparkSpr
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
-            before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", mimeType, apiAuthorizationHelper::checkAdminUserAnd403);
+            before("/*", mimeType, apiAuthorizationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::index);
             get(Routes.SecretConfigsAPI.ID, mimeType, this::show);

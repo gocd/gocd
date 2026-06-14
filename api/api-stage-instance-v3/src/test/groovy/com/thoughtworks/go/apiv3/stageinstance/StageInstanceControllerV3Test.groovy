@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv3.stageinstance
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv3.stageinstance.representers.StageInstancesRepresenter
 import com.thoughtworks.go.apiv3.stageinstance.representers.StageRepresenter
 import com.thoughtworks.go.domain.*
@@ -66,7 +66,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
 
   @Override
   StageInstanceControllerV3 createControllerInstance() {
-    new StageInstanceControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), stageService, scheduleService)
+    new StageInstanceControllerV3(new ApiAuthorizationHelper(securityService, goConfigService), stageService, scheduleService)
   }
 
   @Nested

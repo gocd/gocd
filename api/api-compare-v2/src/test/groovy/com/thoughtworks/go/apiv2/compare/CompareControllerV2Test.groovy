@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv2.compare
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv2.compare.representers.ComparisonRepresenter
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
@@ -54,7 +54,7 @@ class CompareControllerV2Test implements SecurityServiceTrait, ControllerTrait<C
 
   @Override
   CompareControllerV2 createControllerInstance() {
-    new CompareControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), changesetService, pipelineService)
+    new CompareControllerV2(new ApiAuthorizationHelper(securityService, goConfigService), changesetService, pipelineService)
   }
 
   @Nested

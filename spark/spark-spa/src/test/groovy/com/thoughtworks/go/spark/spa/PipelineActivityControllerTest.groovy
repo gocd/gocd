@@ -18,7 +18,7 @@ package com.thoughtworks.go.spark.spa
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.PipelineAccessSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -35,7 +35,7 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
 
   @Override
   PipelineActivityController createControllerInstance() {
-    return new PipelineActivityController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, goConfigService, securityService)
+    return new PipelineActivityController(new SpaAuthorizationHelper(securityService, goConfigService), templateEngine, goConfigService, securityService)
   }
 
   @Test

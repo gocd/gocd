@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv3.users
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv3.users.model.UserToRepresent
 import com.thoughtworks.go.apiv3.users.representers.UserRepresenter
 import com.thoughtworks.go.apiv3.users.representers.UsersRepresenter
@@ -57,7 +57,7 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
   @Override
   UsersControllerV3 createControllerInstance() {
-    new UsersControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), userService, securityService, roleConfigService)
+    new UsersControllerV3(new ApiAuthorizationHelper(securityService, goConfigService), userService, securityService, roleConfigService)
   }
 
   @Nested

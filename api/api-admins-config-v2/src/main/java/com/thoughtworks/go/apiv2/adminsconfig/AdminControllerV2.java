@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv2.adminsconfig.models.BulkUpdateRequest;
 import com.thoughtworks.go.apiv2.adminsconfig.representers.AdminsConfigRepresenter;
@@ -48,15 +48,15 @@ import static spark.Spark.*;
 
 @Component
 public class AdminControllerV2 extends ApiController implements SparkSpringController, CrudController<AdminsConfig> {
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final EntityHashingService entityHashingService;
     private final AdminsConfigService adminsConfigService;
 
     @Autowired
-    public AdminControllerV2(ApiAuthenticationHelper apiAuthenticationHelper,
+    public AdminControllerV2(ApiAuthorizationHelper apiAuthorizationHelper,
                              EntityHashingService entityHashingService, AdminsConfigService service) {
         super(ApiVersion.v2);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.entityHashingService = entityHashingService;
         this.adminsConfigService = service;
     }
@@ -68,8 +68,8 @@ public class AdminControllerV2 extends ApiController implements SparkSpringContr
             before("/*", mimeType, this::setContentType);
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
-            before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
-            before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", mimeType, apiAuthorizationHelper::checkAdminUserAnd403);
+            before("/*", mimeType, apiAuthorizationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::show);
             put("", mimeType, this::update);

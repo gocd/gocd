@@ -18,7 +18,7 @@ package com.thoughtworks.go.spark.spa
 import com.thoughtworks.go.spark.AnyGroupAdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import org.junit.jupiter.api.Nested
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
@@ -28,7 +28,7 @@ class PluginsControllerTest implements ControllerTrait<PluginsController>, Secur
 
   @Override
   PluginsController createControllerInstance() {
-    return new PluginsController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+    return new PluginsController(new SpaAuthorizationHelper(securityService, goConfigService), templateEngine)
   }
 
   @Nested

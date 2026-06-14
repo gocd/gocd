@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv7.agents
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.config.EnvironmentConfig
 import com.thoughtworks.go.config.EnvironmentsConfig
 import com.thoughtworks.go.config.exceptions.BadRequestException
@@ -62,7 +62,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
 
   @Override
   AgentsControllerV7 createControllerInstance() {
-    return new AgentsControllerV7(agentService, new ApiAuthenticationHelper(securityService, goConfigService), securityService, environmentConfigService)
+    return new AgentsControllerV7(agentService, new ApiAuthorizationHelper(securityService, goConfigService), securityService, environmentConfigService)
   }
 
   @Nested

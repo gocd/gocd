@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.internalmaterials;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.apiv1.internalmaterials.representers.ModificationsRepresenter;
 import com.thoughtworks.go.domain.PipelineRunIdInfo;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -40,13 +40,13 @@ import static spark.Spark.*;
 
 @Component
 public class InternalMaterialModificationsControllerV1 extends ApiController implements SparkSpringController {
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final MaterialConfigService materialConfigService;
     private final MaterialService materialService;
 
-    public InternalMaterialModificationsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, MaterialConfigService materialConfigService, MaterialService materialService) {
+    public InternalMaterialModificationsControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, MaterialConfigService materialConfigService, MaterialService materialService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.materialConfigService = materialConfigService;
         this.materialService = materialService;
     }
@@ -62,7 +62,7 @@ public class InternalMaterialModificationsControllerV1 extends ApiController imp
             before("", mimeType, this::setContentType);
             before("", mimeType, this::verifyContentType);
 
-            before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
+            before("", mimeType, this.apiAuthorizationHelper::checkUserAnd403);
 
             get("", mimeType, this::modifications);
         });

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.usersearch
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.usersearch.representers.UserSearchResultsRepresenter
 import com.thoughtworks.go.domain.User
 import com.thoughtworks.go.server.security.UserSearchService
@@ -46,7 +46,7 @@ class UserSearchControllerV1Test implements SecurityServiceTrait, ControllerTrai
 
   @Override
   UserSearchControllerV1 createControllerInstance() {
-    new UserSearchControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), userSearchService)
+    new UserSearchControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), userSearchService)
   }
 
   @Nested

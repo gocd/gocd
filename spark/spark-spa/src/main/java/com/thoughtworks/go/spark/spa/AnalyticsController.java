@@ -23,7 +23,7 @@ import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.slf4j.Logger;
@@ -45,14 +45,14 @@ import static spark.Spark.*;
 public class AnalyticsController implements SparkController {
     private static final Logger LOG = LoggerFactory.getLogger(AnalyticsController.class);
 
-    private final SPAAuthenticationHelper authenticationHelper;
+    private final SpaAuthorizationHelper authorizationHelper;
     private final TemplateEngine engine;
     private final SystemEnvironment systemEnvironment;
     private final AnalyticsExtension analyticsExtension;
     private final PipelineConfigService pipelineConfigService;
 
-    public AnalyticsController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SystemEnvironment systemEnvironment, AnalyticsExtension analyticsExtension, PipelineConfigService pipelineConfigService) {
-        this.authenticationHelper = authenticationHelper;
+    public AnalyticsController(SpaAuthorizationHelper authorizationHelper, TemplateEngine engine, SystemEnvironment systemEnvironment, AnalyticsExtension analyticsExtension, PipelineConfigService pipelineConfigService) {
+        this.authorizationHelper = authorizationHelper;
         this.engine = engine;
         this.systemEnvironment = systemEnvironment;
         this.analyticsExtension = analyticsExtension;
@@ -67,7 +67,7 @@ public class AnalyticsController implements SparkController {
     @Override
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkAdminUserAnd403);
+            before("", authorizationHelper::checkAdminUserAnd403);
             get("", this::index, engine);
         });
 
@@ -120,16 +120,16 @@ public class AnalyticsController implements SparkController {
 
     private void checkPermissions(Request request, Response response) {
         if (isAnalyticsEnabledOnlyForAdmins()) {
-            authenticationHelper.checkAdminUserAnd403(request, response);
+            authorizationHelper.checkAdminUserAnd403(request, response);
             return;
         }
 
         if (isPipelineRequest(request)) {
-            authenticationHelper.checkPipelineViewPermissionsAnd403(request, response);
+            authorizationHelper.checkPipelineViewPermissionsAnd403(request, response);
         } else if (isDashboardRequest(request)) {
-            authenticationHelper.checkAdminUserAnd403(request, response);
+            authorizationHelper.checkAdminUserAnd403(request, response);
         } else {
-            authenticationHelper.checkUserAnd403(request, response);
+            authorizationHelper.checkUserAnd403(request, response);
         }
     }
 

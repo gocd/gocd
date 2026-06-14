@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv11.admin.shared.representers.PipelineConfigRepresenter;
 import com.thoughtworks.go.apiv11.admin.shared.representers.stages.ConfigHelperOptions;
@@ -57,7 +57,7 @@ import static spark.Spark.*;
 public class PipelineConfigControllerV11 extends ApiController implements SparkSpringController, CrudController<PipelineConfig> {
     private final PipelineConfigService pipelineConfigService;
     private final PipelinePauseService pipelinePauseService;
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final EntityHashingService entityHashingService;
     private final PasswordDeserializer passwordDeserializer;
     private final GoConfigService goConfigService;
@@ -65,14 +65,14 @@ public class PipelineConfigControllerV11 extends ApiController implements SparkS
     @Autowired
     public PipelineConfigControllerV11(PipelineConfigService pipelineConfigService,
                                        PipelinePauseService pipelinePauseService,
-                                       ApiAuthenticationHelper apiAuthenticationHelper,
+                                       ApiAuthorizationHelper apiAuthorizationHelper,
                                        EntityHashingService entityHashingService,
                                        PasswordDeserializer passwordDeserializer,
                                        GoConfigService goConfigService) {
         super(ApiVersion.v11);
         this.pipelineConfigService = pipelineConfigService;
         this.pipelinePauseService = pipelinePauseService;
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.entityHashingService = entityHashingService;
         this.passwordDeserializer = passwordDeserializer;
         this.goConfigService = goConfigService;
@@ -90,9 +90,9 @@ public class PipelineConfigControllerV11 extends ApiController implements SparkS
             before("/*", mimeType, this::setContentType);
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
-            before("", mimeType, apiAuthenticationHelper::checkPipelineCreationAuthorizationAnd403);
-            before(Routes.PipelineConfig.NAME, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminViaNameParamsAnd403);
-            before(Routes.PipelineConfig.EXTRACT_TO_TEMPLATE, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminViaNameParamsAnd403);
+            before("", mimeType, apiAuthorizationHelper::checkPipelineCreationAuthorizationAnd403);
+            before(Routes.PipelineConfig.NAME, mimeType, apiAuthorizationHelper::checkPipelineGroupAdminViaNameParamsAnd403);
+            before(Routes.PipelineConfig.EXTRACT_TO_TEMPLATE, mimeType, apiAuthorizationHelper::checkPipelineGroupAdminViaNameParamsAnd403);
 
             post("", mimeType, this::create);
 

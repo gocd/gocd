@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.internalpipelinestructure
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.internalpipelinestructure.models.PipelineStructureViewModel
 import com.thoughtworks.go.apiv1.internalpipelinestructure.representers.InternalPipelineStructuresRepresenter
 import com.thoughtworks.go.config.BasicCruiseConfig
@@ -59,7 +59,7 @@ class InternalPipelineStructureControllerV1Test implements SecurityServiceTrait,
 
   @Override
   InternalPipelineStructureControllerV1 createControllerInstance() {
-    new InternalPipelineStructureControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), pipelineConfigService, templateConfigService, userService, goConfigService, environmentConfigService)
+    new InternalPipelineStructureControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), pipelineConfigService, templateConfigService, userService, goConfigService, environmentConfigService)
   }
 
   @Nested

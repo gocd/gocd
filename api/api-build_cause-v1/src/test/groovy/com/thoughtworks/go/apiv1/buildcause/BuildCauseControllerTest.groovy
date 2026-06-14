@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.buildcause
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.buildcause.representers.BuildCauseRepresenter
 import com.thoughtworks.go.helpers.PipelineModelMother
 import com.thoughtworks.go.server.domain.Username
@@ -49,7 +49,7 @@ class BuildCauseControllerTest implements ControllerTrait<BuildCauseController>,
 
   @Override
   BuildCauseController createControllerInstance() {
-    new BuildCauseController(pipelineHistoryService, new ApiAuthenticationHelper(securityService, goConfigService))
+    new BuildCauseController(pipelineHistoryService, new ApiAuthorizationHelper(securityService, goConfigService))
   }
 
   @Nested

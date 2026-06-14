@@ -44,12 +44,12 @@ import static com.thoughtworks.go.config.exceptions.EntityType.Pipeline;
 import static spark.utils.StringUtils.isBlank;
 import static spark.utils.StringUtils.isNotBlank;
 
-public abstract class AbstractAuthenticationHelper {
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractAuthenticationHelper.class);
+public abstract class AbstractAuthorizationHelper {
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractAuthorizationHelper.class);
     protected final SecurityService securityService;
     protected GoConfigService goConfigService;
 
-    public AbstractAuthenticationHelper(SecurityService securityService, GoConfigService goConfigService) {
+    public AbstractAuthorizationHelper(SecurityService securityService, GoConfigService goConfigService) {
         this.securityService = securityService;
         this.goConfigService = goConfigService;
     }

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.serverhealthmessages
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.serverhealthmessages.representers.ServerHealthMessagesRepresenter
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.serverhealth.ServerHealthService
@@ -36,7 +36,7 @@ class ServerHealthMessagesControllerTest implements SecurityServiceTrait, Contro
 
   @Override
   ServerHealthMessagesController createControllerInstance() {
-    return new ServerHealthMessagesController(serverHealthService, new ApiAuthenticationHelper(securityService, goConfigService))
+    return new ServerHealthMessagesController(serverHealthService, new ApiAuthorizationHelper(securityService, goConfigService))
   }
 
   @Nested

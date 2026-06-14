@@ -21,7 +21,7 @@ import com.thoughtworks.go.server.service.SecurityAuthConfigService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
@@ -48,7 +48,7 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
 
   @Override
   ClickyPipelineConfigController createControllerInstance() {
-    return new ClickyPipelineConfigController(new SPAAuthenticationHelper(securityService, goConfigService), goConfigService, templateEngine)
+    return new ClickyPipelineConfigController(new SpaAuthorizationHelper(securityService, goConfigService), goConfigService, templateEngine)
   }
 
   @Nested

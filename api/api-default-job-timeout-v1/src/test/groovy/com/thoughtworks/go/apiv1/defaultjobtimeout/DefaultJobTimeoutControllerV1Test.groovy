@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.defaultjobtimeout
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.defaultjobtimeout.representers.DefaultJobTimeOutRepresenter
 import com.thoughtworks.go.config.CruiseConfig
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException
@@ -46,7 +46,7 @@ class DefaultJobTimeoutControllerV1Test implements SecurityServiceTrait, Control
 
   @Override
   DefaultJobTimeoutControllerV1 createControllerInstance() {
-    new DefaultJobTimeoutControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), serverConfigService)
+    new DefaultJobTimeoutControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), serverConfigService)
   }
 
   @Nested

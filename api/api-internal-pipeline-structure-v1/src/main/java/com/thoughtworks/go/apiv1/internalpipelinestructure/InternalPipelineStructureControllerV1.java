@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv1.internalpipelinestructure;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.apiv1.internalpipelinestructure.models.PipelineStructureViewModel;
 import com.thoughtworks.go.apiv1.internalpipelinestructure.representers.InternalPipelineStructuresRepresenter;
@@ -46,7 +46,7 @@ import static spark.Spark.*;
 @Component
 public class InternalPipelineStructureControllerV1 extends ApiController implements SparkSpringController {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final Map<String, Supplier<PipelineGroups>> pipelineGroupAuthorizationRegistry;
     private final Map<String, Supplier<TemplatesConfig>> templateAuthorizationRegistry;
     private final UserService userService;
@@ -54,12 +54,12 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
     private final EnvironmentConfigService environmentConfigService;
 
     @Autowired
-    public InternalPipelineStructureControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,
+    public InternalPipelineStructureControllerV1(ApiAuthorizationHelper apiAuthorizationHelper,
                                                  PipelineConfigService pipelineConfigService,
                                                  TemplateConfigService templateConfigService, UserService userService,
                                                  GoConfigService goConfigService, EnvironmentConfigService environmentConfigService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.pipelineGroupAuthorizationRegistry = Map.of(
                 "view", () -> pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername()),
                 "operate", () -> pipelineConfigService.viewableOrOperatableGroupsForIncludingConfigRepos(currentUsername()),
@@ -88,7 +88,7 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
 
-            before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
+            before("", mimeType, this.apiAuthorizationHelper::checkUserAnd403);
 
             get("", mimeType, this::index);
         });

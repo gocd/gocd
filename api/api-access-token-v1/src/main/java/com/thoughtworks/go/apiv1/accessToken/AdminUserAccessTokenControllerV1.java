@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.apiv1.accessToken;
 
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.service.AccessTokenFilter;
 import com.thoughtworks.go.server.service.AccessTokenService;
@@ -32,8 +32,8 @@ import static spark.Spark.*;
 public class AdminUserAccessTokenControllerV1 extends AbstractUserAccessTokenControllerV1 {
 
     @Autowired
-    public AdminUserAccessTokenControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, AccessTokenService AccessTokenService) {
-        super(apiAuthenticationHelper, AccessTokenService);
+    public AdminUserAccessTokenControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, AccessTokenService AccessTokenService) {
+        super(apiAuthorizationHelper, AccessTokenService);
     }
 
     @Override
@@ -47,14 +47,14 @@ public class AdminUserAccessTokenControllerV1 extends AbstractUserAccessTokenCon
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", mimeType, this.apiAuthenticationHelper::ensureSecurityEnabled);
-            before("/*", mimeType, this.apiAuthenticationHelper::ensureSecurityEnabled);
+            before("", mimeType, this.apiAuthorizationHelper::ensureSecurityEnabled);
+            before("/*", mimeType, this.apiAuthorizationHelper::ensureSecurityEnabled);
 
             before("", mimeType, this::verifyRequestIsNotUsingAccessToken);
             before("/*", mimeType, this::verifyRequestIsNotUsingAccessToken);
 
-            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
-            before("/*", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
+            before("/*", mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::getAllAccessTokens);
             post(Routes.AdminUserAccessToken.REVOKE, mimeType, this::revokeAccessToken);

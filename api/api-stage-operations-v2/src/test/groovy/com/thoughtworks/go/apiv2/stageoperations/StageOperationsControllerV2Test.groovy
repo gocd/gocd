@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv2.stageoperations
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.domain.Stage
 import com.thoughtworks.go.server.service.PipelineService
 import com.thoughtworks.go.server.service.ScheduleService
@@ -50,7 +50,7 @@ class StageOperationsControllerV2Test implements SecurityServiceTrait, Controlle
 
   @Override
   StageOperationsControllerV2 createControllerInstance() {
-    return new StageOperationsControllerV2(scheduleService, new ApiAuthenticationHelper(securityService, goConfigService), pipelineService)
+    return new StageOperationsControllerV2(scheduleService, new ApiAuthorizationHelper(securityService, goConfigService), pipelineService)
   }
 
   @Nested

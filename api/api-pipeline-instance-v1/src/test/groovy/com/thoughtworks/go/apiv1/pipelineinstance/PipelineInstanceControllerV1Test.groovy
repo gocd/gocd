@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.pipelineinstance
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceModelRepresenter
 import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceModelsRepresenter
 import com.thoughtworks.go.domain.PipelineRunIdInfo
@@ -59,7 +59,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
   @Override
   PipelineInstanceControllerV1 createControllerInstance() {
-    new PipelineInstanceControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), pipelineHistoryService)
+    new PipelineInstanceControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), pipelineHistoryService)
   }
 
   @Nested

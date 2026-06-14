@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.dependencymaterialautocomplete
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.dependencymaterialautocomplete.representers.SuggestionsRepresenter
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
@@ -37,7 +37,7 @@ class DependencyMaterialAutocompleteControllerV1Test implements SecurityServiceT
 
   @Override
   DependencyMaterialAutocompleteControllerV1 createControllerInstance() {
-    return new DependencyMaterialAutocompleteControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigService)
+    return new DependencyMaterialAutocompleteControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), goConfigService)
   }
 
   @Nested

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv4.dashboard
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv4.dashboard.representers.DashboardFor
 import com.thoughtworks.go.apiv4.dashboard.representers.DashboardRepresenter
 import com.thoughtworks.go.config.security.Permissions
@@ -69,7 +69,7 @@ class DashboardControllerV4Test implements SecurityServiceTrait, ControllerTrait
 
   @Override
   DashboardControllerV4 createControllerInstance() {
-    new DashboardControllerV4(new ApiAuthenticationHelper(securityService, goConfigService), pipelineSelectionsService, goDashboardService)
+    new DashboardControllerV4(new ApiAuthorizationHelper(securityService, goConfigService), pipelineSelectionsService, goDashboardService)
   }
 
   @Nested

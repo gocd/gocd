@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.pipelineoperations
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerOptions
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerWithOptionsViewRepresenter
 import com.thoughtworks.go.config.EnvironmentVariableConfig
@@ -77,7 +77,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
 
   @Override
   PipelineOperationsControllerV1 createControllerInstance() {
-    new PipelineOperationsControllerV1(pipelinePauseService, pipelineUnlockApiService, pipelineTriggerService, new ApiAuthenticationHelper(securityService, goConfigService), goConfigService, pipelineHistoryService)
+    new PipelineOperationsControllerV1(pipelinePauseService, pipelineUnlockApiService, pipelineTriggerService, new ApiAuthorizationHelper(securityService, goConfigService), goConfigService, pipelineHistoryService)
   }
 
   @Nested

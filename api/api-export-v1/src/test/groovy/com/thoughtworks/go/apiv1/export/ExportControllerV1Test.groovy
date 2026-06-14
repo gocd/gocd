@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.export
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.config.ConfigRepoPlugin
 import com.thoughtworks.go.config.GoConfigPluginService
 import com.thoughtworks.go.config.PipelineConfig
@@ -53,7 +53,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
 
   @Override
   ExportControllerV1 createControllerInstance() {
-    new ExportControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigPluginService, goConfigService, entityHashingService)
+    new ExportControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), goConfigPluginService, goConfigService, entityHashingService)
   }
 
   @Nested

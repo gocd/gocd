@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.internalmaterialtest
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.config.ParamConfig
 import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.git.GitMaterial
@@ -55,7 +55,7 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
 
   @Override
   InternalMaterialTestControllerV1 createControllerInstance() {
-    new InternalMaterialTestControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigService, passwordDeserializer, materialConfigConverter, systemEnvironment, secretParamResolver)
+    new InternalMaterialTestControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), goConfigService, passwordDeserializer, materialConfigConverter, systemEnvironment, secretParamResolver)
   }
 
   @Nested

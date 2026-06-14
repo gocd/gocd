@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.internalmaterials;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.internalmaterials.models.MaterialInfo;
 import com.thoughtworks.go.apiv1.internalmaterials.representers.MaterialWithModificationsRepresenter;
@@ -61,7 +61,7 @@ import static spark.Spark.*;
 @Component
 public class InternalMaterialsControllerV1 extends ApiController implements SparkSpringController {
     public static final String FINGERPRINT = "fingerprint";
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final MaterialConfigService materialConfigService;
     private final MaterialService materialService;
     private final MaintenanceModeService maintenanceModeService;
@@ -70,9 +70,9 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
     private final ServerHealthService serverHealthService;
 
     @Autowired
-    public InternalMaterialsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, MaterialConfigService materialConfigService, MaterialService materialService, MaintenanceModeService maintenanceModeService, MaterialUpdateService materialUpdateService, MaterialConfigConverter materialConfigConverter, ServerHealthService serverHealthService) {
+    public InternalMaterialsControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, MaterialConfigService materialConfigService, MaterialService materialService, MaintenanceModeService maintenanceModeService, MaterialUpdateService materialUpdateService, MaterialConfigConverter materialConfigConverter, ServerHealthService serverHealthService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.materialConfigService = materialConfigService;
         this.materialService = materialService;
         this.maintenanceModeService = maintenanceModeService;
@@ -92,8 +92,8 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
-            before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
+            before("/*", mimeType, this.apiAuthorizationHelper::checkUserAnd403);
+            before("", mimeType, this.apiAuthorizationHelper::checkUserAnd403);
 
             get(Routes.InternalMaterialConfig.USAGES, mimeType, this::usages);
             post(Routes.InternalMaterialConfig.TRIGGER_UPDATE, mimeType, this::triggerUpdate);

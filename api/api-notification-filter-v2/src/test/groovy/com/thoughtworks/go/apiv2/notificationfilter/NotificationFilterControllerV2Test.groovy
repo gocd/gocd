@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv2.notificationfilter
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv2.notificationfilter.representers.NotificationFilterRepresenter
 import com.thoughtworks.go.apiv2.notificationfilter.representers.NotificationFiltersRepresenter
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
@@ -52,7 +52,7 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
 
   @Override
   NotificationFilterControllerV2 createControllerInstance() {
-    new NotificationFilterControllerV2(new ApiAuthenticationHelper(securityService, goConfigService),
+    new NotificationFilterControllerV2(new ApiAuthorizationHelper(securityService, goConfigService),
       userService,
       goConfigService,
       entityHashingService

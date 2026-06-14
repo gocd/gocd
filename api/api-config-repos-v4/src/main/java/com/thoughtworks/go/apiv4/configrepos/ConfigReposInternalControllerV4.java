@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv4.configrepos;
 
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.abstractmaterialtest.AbstractMaterialTestController;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.apiv4.configrepos.representers.ConfigRepoWithResultListRepresenter;
 import com.thoughtworks.go.config.GoConfigRepoConfigDataSource;
 import com.thoughtworks.go.config.PartialConfigParseResult;
@@ -51,7 +51,7 @@ public class ConfigReposInternalControllerV4 extends AbstractMaterialTestControl
 
     private final ConfigRepoService service;
     private final GoConfigRepoConfigDataSource dataSource;
-    private final ApiAuthenticationHelper authHelper;
+    private final ApiAuthorizationHelper authHelper;
     private final MaterialUpdateService mus;
     private final MaterialConfigConverter converter;
     private final EnvironmentConfigService environmentConfigService;
@@ -59,7 +59,7 @@ public class ConfigReposInternalControllerV4 extends AbstractMaterialTestControl
     private final EntityHashingService entityHashingService;
 
     @Autowired
-    public ConfigReposInternalControllerV4(ApiAuthenticationHelper authHelper, ConfigRepoService service, GoConfigRepoConfigDataSource dataSource, MaterialUpdateService mus, MaterialConfigConverter converter, EnvironmentConfigService environmentConfigService, PipelineConfigsService pipelineConfigsService,
+    public ConfigReposInternalControllerV4(ApiAuthorizationHelper authHelper, ConfigRepoService service, GoConfigRepoConfigDataSource dataSource, MaterialUpdateService mus, MaterialConfigConverter converter, EnvironmentConfigService environmentConfigService, PipelineConfigsService pipelineConfigsService,
                                            GoConfigService goConfigService, PasswordDeserializer passwordDeserializer, MaterialConfigConverter materialConfigConverter, SystemEnvironment systemEnvironment, SecretParamResolver secretParamResolver, EntityHashingService entityHashingService) {
         super(ApiVersion.v4, goConfigService, passwordDeserializer, materialConfigConverter, systemEnvironment, secretParamResolver);
         this.service = service;

@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv2.compare;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.apiv2.compare.representers.ComparisonRepresenter;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.domain.MaterialRevision;
@@ -40,14 +40,14 @@ import static spark.Spark.*;
 @Component
 public class CompareControllerV2 extends ApiController implements SparkSpringController {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final ChangesetService changesetService;
     private final PipelineService pipelineService;
 
     @Autowired
-    public CompareControllerV2(ApiAuthenticationHelper apiAuthenticationHelper, ChangesetService changesetService, PipelineService pipelineService) {
+    public CompareControllerV2(ApiAuthorizationHelper apiAuthorizationHelper, ChangesetService changesetService, PipelineService pipelineService) {
         super(ApiVersion.v2);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.changesetService = changesetService;
         this.pipelineService = pipelineService;
     }
@@ -66,8 +66,8 @@ public class CompareControllerV2 extends ApiController implements SparkSpringCon
             before("/*", mimeType, this::setContentType);
             before("/*", mimeType, this::verifyContentType);
 
-            before("", mimeType, this.apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
-            before("/*", mimeType, this.apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
+            before("", mimeType, this.apiAuthorizationHelper::checkPipelineViewPermissionsAnd403);
+            before("/*", mimeType, this.apiAuthorizationHelper::checkPipelineViewPermissionsAnd403);
 
             get("", mimeType, this::index);
         });

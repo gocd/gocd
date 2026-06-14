@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.serversiteurlsconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.serversiteurlsconfig.representers.ServerSiteUrlsConfigRepresenter
 import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.SiteUrls
@@ -46,7 +46,7 @@ class ServerSiteUrlsConfigControllerV1Test implements SecurityServiceTrait, Cont
 
   @Override
   ServerSiteUrlsConfigControllerV1 createControllerInstance() {
-    new ServerSiteUrlsConfigControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), serverConfigService)
+    new ServerSiteUrlsConfigControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), serverConfigService)
   }
 
   @Nested

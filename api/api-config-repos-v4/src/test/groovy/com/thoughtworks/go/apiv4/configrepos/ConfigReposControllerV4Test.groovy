@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv4.configrepos
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.policy.Allow
@@ -77,7 +77,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
 
   @Override
   ConfigReposControllerV4 createControllerInstance() {
-    new ConfigReposControllerV4(new ApiAuthenticationHelper(securityService, goConfigService), service, entityHashingService, materialUpdateService, converter)
+    new ConfigReposControllerV4(new ApiAuthorizationHelper(securityService, goConfigService), service, entityHashingService, materialUpdateService, converter)
   }
 
   @Nested

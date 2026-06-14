@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv2.materials
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.server.materials.MaterialUpdateService
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
@@ -42,7 +42,7 @@ class MaterialNotifyControllerV2Test implements SecurityServiceTrait, Controller
 
   @Override
   MaterialNotifyControllerV2 createControllerInstance() {
-    return new MaterialNotifyControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), materialUpdateService)
+    return new MaterialNotifyControllerV2(new ApiAuthorizationHelper(securityService, goConfigService), materialUpdateService)
   }
 
   @Nested

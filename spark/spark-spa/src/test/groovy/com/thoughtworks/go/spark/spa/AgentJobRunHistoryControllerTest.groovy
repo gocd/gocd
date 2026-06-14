@@ -19,14 +19,14 @@ package com.thoughtworks.go.spark.spa
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import org.junit.jupiter.api.Nested
 
 class AgentJobRunHistoryControllerTest implements ControllerTrait<AgentJobRunHistoryController>, SecurityServiceTrait {
 
   @Override
   AgentJobRunHistoryController createControllerInstance() {
-    return new AgentJobRunHistoryController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+    return new AgentJobRunHistoryController(new SpaAuthorizationHelper(securityService, goConfigService), templateEngine)
   }
 
   @Nested

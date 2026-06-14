@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv1.internalmaterialtest;
 
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.abstractmaterialtest.AbstractMaterialTestController;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigCloner;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -47,13 +47,13 @@ import static spark.Spark.*;
 
 @Component
 public class InternalMaterialTestControllerV1 extends AbstractMaterialTestController implements SparkSpringController {
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final GoConfigService goConfigService;
 
     @Autowired
-    public InternalMaterialTestControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, GoConfigService goConfigService, PasswordDeserializer passwordDeserializer, MaterialConfigConverter materialConfigConverter, SystemEnvironment systemEnvironment, SecretParamResolver secretParamResolver) {
+    public InternalMaterialTestControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, GoConfigService goConfigService, PasswordDeserializer passwordDeserializer, MaterialConfigConverter materialConfigConverter, SystemEnvironment systemEnvironment, SecretParamResolver secretParamResolver) {
         super(ApiVersion.v1, goConfigService, passwordDeserializer, materialConfigConverter, systemEnvironment, secretParamResolver);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.goConfigService = goConfigService;
     }
 
@@ -67,7 +67,7 @@ public class InternalMaterialTestControllerV1 extends AbstractMaterialTestContro
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
 
-            before("", mimeType, this.apiAuthenticationHelper::checkPipelineGroupAdminViaNameParamsAnd403);
+            before("", mimeType, this.apiAuthorizationHelper::checkPipelineGroupAdminViaNameParamsAnd403);
             post("", mimeType, this::testConnection);
         });
     }

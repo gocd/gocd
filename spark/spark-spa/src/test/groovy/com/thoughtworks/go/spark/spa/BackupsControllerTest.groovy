@@ -20,7 +20,7 @@ import com.thoughtworks.go.server.service.BackupService
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
@@ -40,7 +40,7 @@ class BackupsControllerTest implements ControllerTrait<BackupsController>, Secur
 
   @Override
   BackupsController createControllerInstance() {
-    return new BackupsController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, backupService)
+    return new BackupsController(new SpaAuthorizationHelper(securityService, goConfigService), templateEngine, backupService)
   }
 
   @Nested

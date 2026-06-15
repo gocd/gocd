@@ -22,7 +22,7 @@ import com.thoughtworks.go.config.security.users.Everyone
 import com.thoughtworks.go.server.dashboard.GoDashboardEnvironment
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup
 import com.thoughtworks.go.server.domain.Username
-import com.thoughtworks.go.spark.util.SecureRandom
+import com.thoughtworks.go.spark.util.Random
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
@@ -35,7 +35,7 @@ class DashboardRepresenterTest {
   @Test
   void 'renders pipeline dashboard with hal representation'() {
     def personalizationEtag = "sha256hash"
-    def user = new Username(cis(SecureRandom.hex()))
+    def user = new Username(cis(Random.hex()))
     def permissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE)
 
     def group1 = new GoDashboardPipelineGroup('group1', permissions, true)

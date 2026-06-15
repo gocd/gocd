@@ -83,7 +83,6 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -134,7 +133,6 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         this.result = new HttpLocalizedOperationResult()
       }
@@ -221,7 +219,6 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -306,7 +303,6 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -405,7 +401,6 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

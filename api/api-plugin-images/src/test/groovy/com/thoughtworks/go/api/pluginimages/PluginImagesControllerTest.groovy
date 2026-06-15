@@ -21,7 +21,7 @@ import com.thoughtworks.go.plugin.domain.common.Image
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SparkController
-import com.thoughtworks.go.spark.util.SecureRandom
+import com.thoughtworks.go.spark.util.Random
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
@@ -47,7 +47,7 @@ class PluginImagesControllerTest implements ControllerTrait<SparkController> {
   class Show {
     @Test
     void 'should render an image with a hash and a long lived cache header'() {
-      def image = new Image('image/foo', Base64.encoder.encodeToString('some-image-data'.getBytes(UTF_8)), SecureRandom.hex(32))
+      def image = new Image('image/foo', Base64.encoder.encodeToString('some-image-data'.getBytes(UTF_8)), Random.hex(32))
       def pluginInfo = new CombinedPluginInfo(new AuthorizationPluginInfo(null, null, null, image, null))
       when(defaultPluginInfoFinder.pluginInfoFor('foo')).thenReturn(pluginInfo)
 
@@ -62,7 +62,7 @@ class PluginImagesControllerTest implements ControllerTrait<SparkController> {
 
     @Test
     void 'should render 304 when etag matches'() {
-      def image = new Image('image/foo', Base64.getEncoder().encodeToString('some-image-data'.getBytes(UTF_8)), SecureRandom.hex(32))
+      def image = new Image('image/foo', Base64.getEncoder().encodeToString('some-image-data'.getBytes(UTF_8)), Random.hex(32))
       def pluginInfo = new CombinedPluginInfo(new AuthorizationPluginInfo(null, null, null, image, null))
       when(defaultPluginInfoFinder.pluginInfoFor('foo')).thenReturn(pluginInfo)
 
@@ -86,7 +86,7 @@ class PluginImagesControllerTest implements ControllerTrait<SparkController> {
 
     @Test
     void 'renders 404 when hash does not match'() {
-      def image = new Image('image/foo', Base64.getEncoder().encodeToString('some-image-data'.getBytes(UTF_8)), SecureRandom.hex(32))
+      def image = new Image('image/foo', Base64.getEncoder().encodeToString('some-image-data'.getBytes(UTF_8)), Random.hex(32))
       def pluginInfo = new CombinedPluginInfo(new AuthorizationPluginInfo(null, null, null, image, null))
       when(defaultPluginInfoFinder.pluginInfoFor('foo')).thenReturn(pluginInfo)
 

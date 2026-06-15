@@ -137,7 +137,6 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -307,7 +306,6 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         when(configRepoPlugin.id()).thenReturn(PLUGIN_ID)
       }

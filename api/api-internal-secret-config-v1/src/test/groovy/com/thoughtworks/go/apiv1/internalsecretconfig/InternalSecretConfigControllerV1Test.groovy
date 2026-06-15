@@ -98,7 +98,6 @@ class InternalSecretConfigControllerV1Test implements SecurityServiceTrait, Cont
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
 
         def groups = new PipelineGroups()

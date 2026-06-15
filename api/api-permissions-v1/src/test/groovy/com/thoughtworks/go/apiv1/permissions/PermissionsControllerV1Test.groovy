@@ -46,12 +46,6 @@ class PermissionsControllerV1Test implements SecurityServiceTrait, ControllerTra
 
   @Nested
   class Index {
-
-    @BeforeEach
-    void setUp() {
-      loginAsUser()
-    }
-
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
       @Delegate SecurityServiceTrait s = PermissionsControllerV1Test.this
@@ -70,11 +64,14 @@ class PermissionsControllerV1Test implements SecurityServiceTrait, ControllerTra
 
     @Nested
     class AsNormalUser {
+      
       List permissibleEntities
       Map<String, Object> environmentPermission, configRepoPermission
 
       @BeforeEach
       void setUp() {
+        loginAsUser()
+        
         permissibleEntities = ['environment', 'config_repo']
         environmentPermission = [
           'view'      : ['QA', 'UAT', 'PROD'],

@@ -81,7 +81,6 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
 
         clusterProfile = new ClusterProfile("docker", "cd.go.docker")
@@ -125,7 +124,6 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
 
         clusterProfile = new ClusterProfile("docker", "cd.go.docker")
@@ -189,7 +187,6 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
 
         clusterProfile = new ClusterProfile("docker", "cd.go.docker")
@@ -291,7 +288,6 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
     class AsAdminUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -341,7 +337,6 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

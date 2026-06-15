@@ -77,7 +77,6 @@ class PackageRepositoryInternalControllerV1Test implements SecurityServiceTrait,
   class VerifyConnection {
     @BeforeEach
     void setUp() {
-      enableSecurity()
       loginAsAdmin()
     }
 

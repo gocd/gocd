@@ -75,7 +75,6 @@ class ElasticProfileOperationControllerV1Test implements SecurityServiceTrait, C
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

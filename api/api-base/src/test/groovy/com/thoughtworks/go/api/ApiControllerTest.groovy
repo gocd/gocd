@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.api.util.MessageJson
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder
 import com.thoughtworks.go.spark.GlobalExceptionMapper
-import com.thoughtworks.go.spark.util.SecureRandom
+import com.thoughtworks.go.spark.util.Random
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -80,7 +80,7 @@ class ApiControllerTest {
         def response = new MockHttpServletResponse()
         assertThatCode({
           baseController.verifyContentType(
-            RequestResponseFactory.create(HttpRequestBuilder."${method.toUpperCase()}"().withHeaders(['X-GoCD-Confirm': SecureRandom.hex()]).build()) as Request,
+            RequestResponseFactory.create(HttpRequestBuilder."${method.toUpperCase()}"().withHeaders(['X-GoCD-Confirm': Random.hex()]).build()) as Request,
             RequestResponseFactory.create(response)
           )
         })

@@ -29,7 +29,7 @@ import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.server.dashboard.Counter
 import com.thoughtworks.go.server.dashboard.GoDashboardPipeline
 import com.thoughtworks.go.server.domain.Username
-import com.thoughtworks.go.spark.util.SecureRandom
+import com.thoughtworks.go.spark.util.Random
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -53,7 +53,7 @@ class PipelineRepresenterTest {
     pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'),
             permissions, "grp", counter, pipelineConfig)
-    def username = new Username(cis(SecureRandom.hex()))
+    def username = new Username(cis(Random.hex()))
 
     def json = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
 
@@ -102,7 +102,7 @@ class PipelineRepresenterTest {
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'p1l1'), permissions, "grp", counter, PipelineConfigMother.pipelineConfig("p1"))
 
     def json = toObject({
-      PipelineRepresenter.toJSON(it, pipeline, new Username(cis(SecureRandom.hex())))
+      PipelineRepresenter.toJSON(it, pipeline, new Username(cis(Random.hex())))
     })
 
     assertThatJson(json).node("from_config_repo").isEqualTo(false)
@@ -116,7 +116,7 @@ class PipelineRepresenterTest {
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'p1l1', false, true, "under construction"), permissions, "grp", counter, PipelineConfigMother.pipelineConfig("p1"))
 
     def json = toObject({
-      PipelineRepresenter.toJSON(it, pipeline, new Username(cis(SecureRandom.hex())))
+      PipelineRepresenter.toJSON(it, pipeline, new Username(cis(Random.hex())))
     })
 
     assertThatJson(json).node("pause_info").isEqualTo([
@@ -136,7 +136,7 @@ class PipelineRepresenterTest {
     def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
     pipelineConfig.setOrigin(origin)
     def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'p1l1', false, true, null), permissions, "grp", counter, pipelineConfig)
-    def username = new Username(cis(SecureRandom.hex()))
+    def username = new Username(cis(Random.hex()))
 
     def json = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
 
@@ -157,7 +157,7 @@ class PipelineRepresenterTest {
       def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
       pipelineConfig.setOrigin(origin)
       def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter, pipelineConfig)
-      def username = new Username(cis(SecureRandom.hex()))
+      def username = new Username(cis(Random.hex()))
 
       def actualJson = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
 
@@ -177,7 +177,7 @@ class PipelineRepresenterTest {
       def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
       pipelineConfig.setOrigin(origin)
       def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter, pipelineConfig)
-      def username = new Username(cis(SecureRandom.hex()))
+      def username = new Username(cis(Random.hex()))
 
       def actualJson = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
 
@@ -197,7 +197,7 @@ class PipelineRepresenterTest {
       def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
       pipelineConfig.setOrigin(origin)
       def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", counter, pipelineConfig)
-      def username = new Username(cis(SecureRandom.hex()))
+      def username = new Username(cis(Random.hex()))
 
       def actualJson = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
 

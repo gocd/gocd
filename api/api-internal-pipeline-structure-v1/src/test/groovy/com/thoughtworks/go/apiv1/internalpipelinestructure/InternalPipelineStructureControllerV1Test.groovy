@@ -119,7 +119,6 @@ class InternalPipelineStructureControllerV1Test implements SecurityServiceTrait,
 
       @Test
       void 'should omit roles and users'() {
-        enableSecurity()
         loginAsUser()
 
         def users = Set.of('user1', 'user2')

@@ -70,7 +70,6 @@ class DefaultJobTimeoutControllerV1Test implements SecurityServiceTrait, Control
 
     @BeforeEach
     void setUp() {
-      enableSecurity()
       loginAsAdmin()
     }
 
@@ -110,7 +109,6 @@ class DefaultJobTimeoutControllerV1Test implements SecurityServiceTrait, Control
 
     @BeforeEach
     void setUp() {
-      enableSecurity()
       loginAsAdmin()
     }
 
@@ -170,7 +168,6 @@ class DefaultJobTimeoutControllerV1Test implements SecurityServiceTrait, Control
 
     @BeforeEach
     void setUp() {
-      enableSecurity()
       loginAsAdmin()
     }
 

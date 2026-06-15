@@ -77,7 +77,6 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -128,7 +127,6 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -181,7 +179,6 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -234,7 +231,6 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -276,7 +272,6 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

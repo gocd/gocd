@@ -74,7 +74,6 @@ class ArtifactConfigControllerV1Test implements SecurityServiceTrait, Controller
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
 
         artifactConfig = new ArtifactConfig()
@@ -127,7 +126,6 @@ class ArtifactConfigControllerV1Test implements SecurityServiceTrait, Controller
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
 
         artifactConfig = new ArtifactConfig()

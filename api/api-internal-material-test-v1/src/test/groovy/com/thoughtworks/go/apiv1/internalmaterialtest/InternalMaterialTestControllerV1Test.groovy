@@ -88,7 +88,6 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsGroupAdmin(groupName: groupName)
       }
 

@@ -93,10 +93,9 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsPipelineViewUser(pipelineName: pipelineName)
       }
 
@@ -190,10 +189,9 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsPipelineViewUser(pipelineName: pipelineName)
       }
 
@@ -367,12 +365,11 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
   }
 
   @Nested
-  class AsAuthorizedUser {
+  class AsNormalUser {
     public static final String pipelineName = "up42"
 
     @BeforeEach
     void setUp() {
-      enableSecurity()
       loginAsGroupOperateUser(pipelineName: pipelineName)
     }
 

@@ -89,7 +89,6 @@ class PackagesInternalControllerV2Test implements SecurityServiceTrait, Controll
   class VerifyConnection {
     @BeforeEach
     void setUp() {
-      enableSecurity()
       loginAsAdmin()
     }
 

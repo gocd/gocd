@@ -42,7 +42,6 @@ trait GroupOperateUserSecurity {
 
   @Test
   void 'should disallow normal users, with security enabled'() {
-    enableSecurity()
     loginAsUser()
 
     makeHttpCall()
@@ -51,7 +50,6 @@ trait GroupOperateUserSecurity {
 
   @Test
   void 'should allow admin, with security enabled'() {
-    enableSecurity()
     loginAsAdmin()
 
     makeHttpCall()
@@ -60,7 +58,6 @@ trait GroupOperateUserSecurity {
 
   @Test
   void 'should allow pipeline group admin users, with security enabled'() {
-    enableSecurity()
     loginAsGroupAdmin(pipelineSpecifier)
 
     makeHttpCall()
@@ -69,7 +66,6 @@ trait GroupOperateUserSecurity {
 
   @Test
   void 'should allow specific pipeline group operate user, with security enabled'() {
-    enableSecurity()
     loginAsGroupOperateUser(pipelineSpecifier)
 
     makeHttpCall()
@@ -78,7 +74,6 @@ trait GroupOperateUserSecurity {
 
   @Test
   void 'should disallow other pipeline group operate user, with security enabled'() {
-    enableSecurity()
     loginAsGroupOperateUser()
 
     makeHttpCall()
@@ -87,7 +82,6 @@ trait GroupOperateUserSecurity {
 
   @Test
   void "should disallow pipeline view users, with security enabled"() {
-    enableSecurity()
     loginAsPipelineViewUser(pipelineSpecifier)
 
     makeHttpCall()

@@ -59,12 +59,7 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
     }
 
     @Nested
-    class AsAuthorizedUser {
-      @BeforeEach
-      void setUp() {
-        enableSecurity()
-      }
-
+    class AsNormalUser {
       @Test
       void 'it should return encrypted value of submitted plain text passed'() {
         loginAsAdmin()

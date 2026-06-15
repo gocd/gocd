@@ -15,15 +15,15 @@
  */
 package com.thoughtworks.go.spark.util;
 
-import java.util.Random;
+public class Random {
+    private static final java.util.Random RANDOM = new java.util.Random();
 
-public class SecureRandom {
+    private Random() {}
 
     public static String hex(int length) {
-        Random random = new Random();
         StringBuilder sb = new StringBuilder();
         while (sb.length() < length) {
-            sb.append(Integer.toHexString(random.nextInt()));
+            sb.append(Integer.toHexString(RANDOM.nextInt()));
         }
         return sb.toString();
     }
@@ -33,7 +33,7 @@ public class SecureRandom {
     }
 
     public static long longNumber() {
-        return new Random().nextLong();
+        return RANDOM.nextLong();
     }
 
 }

@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv1.accessToken.representers
 
 import com.thoughtworks.go.domain.AccessToken
 import com.thoughtworks.go.spark.Routes
-import com.thoughtworks.go.spark.util.SecureRandom
+import com.thoughtworks.go.spark.util.Random
 import com.thoughtworks.go.util.TestingClock
 import org.junit.jupiter.api.Test
 
@@ -108,8 +108,8 @@ class AccessTokenRepresenterTest {
     assertThatJson(json).node("errors").isEqualTo([description: ['must not be blank']])
   }
 
-  static AccessToken.AccessTokenWithDisplayValue randomAccessToken(long id = SecureRandom.longNumber(), persisted = true) {
-    AccessToken.AccessTokenWithDisplayValue token = AccessToken.create(SecureRandom.hex(), SecureRandom.hex(), SecureRandom.hex(), new TestingClock())
+  static AccessToken.AccessTokenWithDisplayValue randomAccessToken(long id = Random.longNumber(), persisted = true) {
+    AccessToken.AccessTokenWithDisplayValue token = AccessToken.create(Random.hex(), Random.hex(), Random.hex(), new TestingClock())
     token.id = id
     if (persisted) {
       token.displayValue = null

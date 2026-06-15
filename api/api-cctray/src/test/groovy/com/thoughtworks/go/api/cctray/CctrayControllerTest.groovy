@@ -77,10 +77,9 @@ class CctrayControllerTest implements SecurityServiceTrait, ControllerTrait<Cctr
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @Test
       void 'should render XML returned by cctray service'() {
-        enableSecurity()
         loginAsUser()
         when(ccTrayService.renderCCTrayXML(eq("http://test.host/go"), eq(currentUsernameString()), any() as Appendable, any() as Consumer<String>)).thenAnswer({ InvocationOnMock invocation ->
           Appendable appendable = invocation.getArgument(2)

@@ -88,7 +88,6 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -139,7 +138,6 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -226,7 +224,6 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -377,7 +374,6 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -565,7 +561,6 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

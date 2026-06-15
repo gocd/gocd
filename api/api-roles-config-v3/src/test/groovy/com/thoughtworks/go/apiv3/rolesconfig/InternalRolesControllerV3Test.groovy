@@ -89,7 +89,6 @@ class InternalRolesControllerV3Test implements SecurityServiceTrait, ControllerT
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
 
         def gocdRoleConfig = new RoleConfig("gocd-role")

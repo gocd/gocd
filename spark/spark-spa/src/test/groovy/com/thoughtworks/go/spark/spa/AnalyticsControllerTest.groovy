@@ -78,7 +78,6 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
     }
@@ -133,7 +132,6 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       void setUp() {
         when(goConfigService.hasPipelineNamed(cis(getPipelineName()))).thenReturn(true)
         when(pipelineConfigService.pipelineConfigNamed(getPipelineName())).thenReturn(mock(PipelineConfig.class))
-        enableSecurity()
         loginAsAdmin()
       }
     }
@@ -145,7 +143,6 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
 
       @Test
       void "should allow agent analytics for normal users"() {
-        enableSecurity()
         loginAsUser()
 
         get(controller.controllerPath("plugin/agent/metric"))
@@ -156,7 +153,6 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       void "should disallow agent analytics for normal users when admin-only toggle is enabled"() {
         when(systemEnvironment.enableAnalyticsOnlyForAdmins()).thenReturn(true)
 
-        enableSecurity()
         loginAsUser()
 
         get(controller.controllerPath("plugin/agent/metric"))
@@ -167,7 +163,6 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       void "should allow agent analytics for admins when admin-only toggle is enabled"() {
         when(systemEnvironment.enableAnalyticsOnlyForAdmins()).thenReturn(true)
 
-        enableSecurity()
         loginAsAdmin()
 
         get(controller.controllerPath("plugin/agent/metric"))
@@ -178,7 +173,6 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       void "should disallow pipeline view users when admin-only toggle is enabled"() {
         when(systemEnvironment.enableAnalyticsOnlyForAdmins()).thenReturn(true)
 
-        enableSecurity()
         loginAsPipelineViewUser(pipelineName: pipelineName)
 
         makeHttpCall()
@@ -189,7 +183,6 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       void "should only allow admins when admin-only toggle is enabled"() {
         when(systemEnvironment.enableAnalyticsOnlyForAdmins()).thenReturn(true)
 
-        enableSecurity()
         loginAsAdmin()
 
         makeHttpCall()
@@ -200,7 +193,6 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       void "should allow all users to view VSM analytics"() {
         when(systemEnvironment.enableAnalyticsOnlyForAdmins()).thenReturn(false)
 
-        enableSecurity()
         loginAsUser()
 
         get(controller.controllerPath("plugin/vsm/metric"))
@@ -211,7 +203,6 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       void "should allow all users to view drilldown analytics"() {
         when(systemEnvironment.enableAnalyticsOnlyForAdmins()).thenReturn(false)
 
-        enableSecurity()
         loginAsUser()
 
         get(controller.controllerPath("plugin/drilldown/metric"))
@@ -221,7 +212,6 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       @Test
       void "should return 404 when pipeline does not exist"() {
         when(AnalyticsControllerTest.this.pipelineConfigService.pipelineConfigNamed(getPipelineName())).thenReturn(null)
-        enableSecurity()
         loginAsPipelineViewUser(pipelineName: pipelineName)
 
         makeHttpCall()

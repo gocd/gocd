@@ -82,7 +82,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -125,7 +124,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -167,7 +165,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
     class AsAdmin {
       @Test
       void 'should create a new user'() {
-        enableSecurity()
         loginAsAdmin()
 
         def jsonPayload = [
@@ -192,7 +189,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
     @Test
     void 'should not create a user if one already exists'() {
-      enableSecurity()
       loginAsAdmin()
 
       def jsonPayload = [
@@ -233,7 +229,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
     class AsAdmin {
       @Test
       void 'should update the existing user'() {
-        enableSecurity()
         loginAsAdmin()
 
         def jsonPayload = [
@@ -252,7 +247,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
     @Test
     void 'should not update login name of the user'() {
-      enableSecurity()
       loginAsAdmin()
 
       def jsonPayload = [
@@ -269,7 +263,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
     @Test
     void 'should fail updating non existing user'() {
-      enableSecurity()
       loginAsAdmin()
 
       def jsonPayload = [
@@ -309,7 +302,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
     class AsAdmin {
       @Test
       void 'should delete the existing user'() {
-        enableSecurity()
         loginAsAdmin()
 
         doAnswer({ InvocationOnMock invocation ->
@@ -326,7 +318,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
       @Test
       void 'should render error while deleting the enabled user'() {
-        enableSecurity()
         loginAsAdmin()
 
         doAnswer({ InvocationOnMock invocation ->
@@ -367,7 +358,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
        }
 
@@ -436,7 +426,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

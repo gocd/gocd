@@ -122,7 +122,6 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
 
         when(securityService.hasViewPermissionForPipeline(any(), any())).thenReturn(true)
@@ -229,7 +228,6 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
 
         when(securityService.hasViewPermissionForPipeline(any(), any())).thenReturn(true)
@@ -488,7 +486,6 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @BeforeEach
       void setup() {
-        enableSecurity()
         loginAsAdmin()
         when(goConfigService.findGroupNameByPipeline(any(CaseInsensitiveString.class))).thenReturn(groupName)
       }
@@ -743,7 +740,6 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @BeforeEach
       void setup() {
-        enableSecurity()
         loginAsAdmin()
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
       }
@@ -821,7 +817,6 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @BeforeEach
       void setup() {
-        enableSecurity()
         loginAsAdmin()
         pipeline.setOrigin(new FileConfigOrigin())
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)

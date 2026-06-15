@@ -43,7 +43,6 @@ trait AdminUserOnlyIfSecurityEnabled {
 
   @Test
   void 'should disallow normal users, with security enabled'() {
-    enableSecurity()
     loginAsUser()
 
     makeHttpCall()
@@ -52,7 +51,6 @@ trait AdminUserOnlyIfSecurityEnabled {
 
   @Test
   void 'should allow admin, with security enabled'() {
-    enableSecurity()
     loginAsAdmin()
 
     makeHttpCall()
@@ -61,7 +59,6 @@ trait AdminUserOnlyIfSecurityEnabled {
 
   @Test
   void 'should disallow pipeline group admin users, with security enabled'() {
-    enableSecurity()
     loginAsGroupAdmin()
 
     makeHttpCall()

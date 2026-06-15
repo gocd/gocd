@@ -39,7 +39,6 @@ trait NonAnonymousUserSecurity {
 
   @Test
   void 'should allow admin users with security enabled'() {
-    enableSecurity()
     loginAsAdmin()
 
     makeHttpCall()
@@ -48,7 +47,6 @@ trait NonAnonymousUserSecurity {
 
   @Test
   void 'should allow normal users with security enabled'() {
-    enableSecurity()
     loginAsUser()
 
     makeHttpCall()

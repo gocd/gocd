@@ -25,7 +25,7 @@ import com.thoughtworks.go.helpers.PipelineModelMother
 import com.thoughtworks.go.server.dashboard.Counter
 import com.thoughtworks.go.server.dashboard.GoDashboardPipeline
 import com.thoughtworks.go.server.domain.Username
-import com.thoughtworks.go.spark.util.SecureRandom
+import com.thoughtworks.go.spark.util.Random
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
@@ -51,7 +51,7 @@ class PipelineInstanceRepresenterTest {
     pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'pipeline_label'),
             permissions, "grp", counter, pipelineConfig)
-    def username = new Username(cis(SecureRandom.hex()))
+    def username = new Username(cis(Random.hex()))
 
     def json = toObject({ PipelineInstanceRepresenter.toJSON(it, pipelineInstance, pipeline, username) })
 
@@ -78,7 +78,7 @@ class PipelineInstanceRepresenterTest {
     pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'g1'),
             permissions, "grp", counter, pipelineConfig)
-    def username = new Username(cis(SecureRandom.hex()))
+    def username = new Username(cis(Random.hex()))
 
     def actualJson = toObject({ PipelineInstanceRepresenter.toJSON(it, instance, pipeline, username) })
 

@@ -87,10 +87,9 @@ class CompareControllerV2Test implements SecurityServiceTrait, ControllerTrait<C
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

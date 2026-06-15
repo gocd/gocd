@@ -81,7 +81,6 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
     class AsGroupAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsGroupAdmin()
       }
 
@@ -145,7 +144,6 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -240,7 +238,6 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -348,7 +345,6 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
       @BeforeEach
       void setup() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -482,7 +478,6 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
       @BeforeEach
       void setup() {
-        enableSecurity()
         loginAsAdmin()
       }
 

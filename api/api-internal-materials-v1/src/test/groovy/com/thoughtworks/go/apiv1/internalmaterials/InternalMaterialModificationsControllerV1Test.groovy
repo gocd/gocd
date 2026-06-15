@@ -80,7 +80,7 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       def info = new PipelineRunIdInfo(10, 1)
 
       @BeforeEach

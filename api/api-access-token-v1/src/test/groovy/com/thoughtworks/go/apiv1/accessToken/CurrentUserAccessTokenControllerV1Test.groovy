@@ -135,10 +135,9 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
     }
 
     @Nested
-    class AsAuthenticatedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsUser()
 
         when(accessTokenService.find(eq(token.id), any(String.class))).thenReturn(token)
@@ -189,12 +188,11 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
     }
 
     @Nested
-    class AsAuthenticatedUser {
+    class AsNormalUser {
       def token = randomAccessToken()
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsUser()
 
         when(accessTokenService.create(token.description, currentUsernameString(), authConfigId)).thenReturn(token)
@@ -274,10 +272,9 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
     }
 
     @Nested
-    class AsAuthenticatedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsUser()
 
       }
@@ -360,10 +357,9 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsUser()
       }
 

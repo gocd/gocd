@@ -41,7 +41,6 @@ trait NormalUserSecurity {
 
   @Test
   void 'should allow normal users, with security enabled'() {
-    enableSecurity()
     loginAsUser()
 
     makeHttpCall()

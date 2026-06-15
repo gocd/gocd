@@ -25,7 +25,7 @@ import com.thoughtworks.go.server.dashboard.GoDashboardPipeline
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup
 import com.thoughtworks.go.server.dashboard.TimeStampBasedCounter
 import com.thoughtworks.go.server.domain.Username
-import com.thoughtworks.go.spark.util.SecureRandom
+import com.thoughtworks.go.spark.util.Random
 import com.thoughtworks.go.util.Clock
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -85,7 +85,7 @@ class DashboardGroupRepresenterTest {
       pipelineGroup.addPipeline(pipeline1)
       pipelineGroup.addPipeline(pipeline2)
 
-      def username = new Username(cis(SecureRandom.hex()))
+      def username = new Username(cis(Random.hex()))
 
       def actualJson = toObjectString({ DashboardGroupRepresenter.toJSON(it, pipelineGroup, username) })
 
@@ -135,7 +135,7 @@ class DashboardGroupRepresenterTest {
       env.addPipeline(dashboardPipeline('pipeline1'))
       env.addPipeline(dashboardPipeline('pipeline2'))
 
-      def username = new Username(cis(SecureRandom.hex()))
+      def username = new Username(cis(Random.hex()))
 
       def actualJson = toObjectString({ DashboardGroupRepresenter.toJSON(it, env, username) })
 

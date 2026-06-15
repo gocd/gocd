@@ -94,7 +94,6 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
     class AsGroupAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsGroupAdmin()
       }
 
@@ -163,7 +162,6 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
     class AsGroupAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsGroupAdmin()
       }
 
@@ -257,7 +255,6 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
     class AsGroupAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsGroupAdmin()
       }
 
@@ -488,7 +485,6 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
     class AsGroupAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsGroupAdmin()
       }
 
@@ -759,7 +755,6 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
     class AsGroupAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsGroupAdmin()
       }
 

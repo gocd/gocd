@@ -77,7 +77,6 @@ class MaterialConfigControllerV2Test implements SecurityServiceTrait, Controller
     class AsUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsUser()
       }
 

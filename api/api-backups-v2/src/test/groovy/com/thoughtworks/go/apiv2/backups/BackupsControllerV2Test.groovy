@@ -60,7 +60,6 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
     class AsAdmin {
       @Test
       void 'should schedule a backup creation'() {
-        enableSecurity()
         loginAsAdmin()
         def backup = new ServerBackup("/foo/bar", new Date(), currentUserLoginName().toString(), BackupStatus.IN_PROGRESS, "", BACKUP_ID)
 
@@ -82,7 +81,6 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
     class CORS {
       @Test
       void 'bails if confirm header is missing'() {
-        enableSecurity()
         loginAsAdmin()
         postWithApiHeader(controller.controllerBasePath(), null)
         assertThatResponse()
@@ -116,7 +114,6 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

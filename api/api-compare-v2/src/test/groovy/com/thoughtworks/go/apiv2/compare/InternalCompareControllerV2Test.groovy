@@ -88,12 +88,11 @@ class InternalCompareControllerV2Test implements SecurityServiceTrait, Controlle
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       private pipelineName = "up42"
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

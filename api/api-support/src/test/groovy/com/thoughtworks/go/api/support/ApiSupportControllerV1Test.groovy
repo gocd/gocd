@@ -65,7 +65,6 @@ class ApiSupportControllerV1Test implements SecurityServiceTrait, ControllerTrai
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -122,7 +121,6 @@ class ApiSupportControllerV1Test implements SecurityServiceTrait, ControllerTrai
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

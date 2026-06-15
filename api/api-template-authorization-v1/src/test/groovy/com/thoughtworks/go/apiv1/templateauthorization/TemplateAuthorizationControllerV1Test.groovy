@@ -80,7 +80,6 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         result = new HttpLocalizedOperationResult()
       }
@@ -168,7 +167,6 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         result = new HttpLocalizedOperationResult()
       }

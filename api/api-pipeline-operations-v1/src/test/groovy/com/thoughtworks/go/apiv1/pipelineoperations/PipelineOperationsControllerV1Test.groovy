@@ -105,10 +105,9 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -190,10 +189,9 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -258,10 +256,9 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -324,7 +321,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @Test
       void 'should render trigger options'() {
         MaterialRevisions revisions = ModificationsMother.modifyOneFile(MaterialsMother.defaultSvnMaterialsWithUrl("http://example.com/svn/project"), "revision")
@@ -388,10 +385,9 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsGroupOperateUser(pipelineName: pipelineName)
       }
 
@@ -528,10 +524,9 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsGroupOperateUser(pipelineName: pipelineName)
       }
 

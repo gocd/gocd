@@ -84,7 +84,6 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -132,7 +131,6 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -217,7 +215,6 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -340,7 +337,6 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -517,7 +513,6 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

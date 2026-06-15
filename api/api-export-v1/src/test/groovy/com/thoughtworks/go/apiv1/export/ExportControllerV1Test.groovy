@@ -90,7 +90,6 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

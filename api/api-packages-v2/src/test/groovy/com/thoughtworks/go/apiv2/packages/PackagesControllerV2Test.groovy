@@ -85,7 +85,6 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -131,7 +130,6 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -217,7 +215,6 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -317,7 +314,6 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -454,7 +450,6 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

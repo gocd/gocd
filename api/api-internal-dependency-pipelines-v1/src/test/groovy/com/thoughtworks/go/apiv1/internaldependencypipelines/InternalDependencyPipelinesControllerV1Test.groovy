@@ -93,7 +93,6 @@ class InternalDependencyPipelinesControllerV1Test implements SecurityServiceTrai
   class AsAuthorizedPipelineUser {
     @BeforeEach
     void setUp() {
-      enableSecurity()
       loginAsAdmin()
       when(goConfigService.hasPipelineNamed(any(CaseInsensitiveString.class))).thenReturn(true)
     }
@@ -142,7 +141,6 @@ class InternalDependencyPipelinesControllerV1Test implements SecurityServiceTrai
   class AsTemplateAdmin {
     @BeforeEach
     void setUp() {
-      enableSecurity()
       loginAsAdmin()
       when(securityService.hasViewPermissionForPipeline(any(Username.class), anyString())).thenReturn(true)
     }

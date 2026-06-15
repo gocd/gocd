@@ -133,7 +133,6 @@ class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserA
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
 
         when(accessTokenService.find(eq(token.id), any(String.class))).thenReturn(token)
@@ -188,7 +187,6 @@ class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserA
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -277,7 +275,6 @@ class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserA
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

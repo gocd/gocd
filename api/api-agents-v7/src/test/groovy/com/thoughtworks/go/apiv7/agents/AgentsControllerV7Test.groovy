@@ -1329,7 +1329,6 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
     class AsAdmin {
       @Test
       void 'should accept instruction to kill all running tasks on agent'() {
-        enableSecurity()
         loginAsAdmin()
 
         postWithApiHeader(controller.controllerPath('agent_uuid', 'kill_running_tasks'), ['x-gocd-confirm': 'true'], null)
@@ -1342,7 +1341,6 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
 
       @Test
       void 'should return 404 if agent does not exist'() {
-        enableSecurity()
         loginAsAdmin()
 
         when(agentService.killAllRunningTasksOnAgent("agent_uuid")).thenThrow(new RecordNotFoundException("Agent does not exist."))
@@ -1356,7 +1354,6 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
 
       @Test
       void 'should return 409 if agent cannot be instructed to kill tasks'() {
-        enableSecurity()
         loginAsAdmin()
 
         when(agentService.killAllRunningTasksOnAgent("agent_uuid")).thenThrow(new InvalidAgentInstructionException("Agent is idle."))
@@ -1372,7 +1369,6 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
       class CORS {
         @Test
         void 'bails if confirm header is missing'() {
-          enableSecurity()
           loginAsAdmin()
           postWithApiHeader(controller.controllerPath('agent_uuid', 'kill_running_tasks'), null)
           assertThatResponse()

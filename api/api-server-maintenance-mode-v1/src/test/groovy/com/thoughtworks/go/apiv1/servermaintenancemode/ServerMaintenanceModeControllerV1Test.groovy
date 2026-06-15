@@ -96,7 +96,6 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
     class AsAdminUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
 
       }
@@ -165,7 +164,6 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
     class AsAdminUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
 
       }
@@ -234,7 +232,6 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
     class AsAdminUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

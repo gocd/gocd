@@ -86,7 +86,6 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
 
       @Test
       void 'should list all templates'() {
-        enableSecurity()
         loginAsAdmin()
 
         def templates = new TemplateToPipelines(cis("template"), true, true)
@@ -129,7 +128,6 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         result = new HttpLocalizedOperationResult()
       }
@@ -200,7 +198,6 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         result = new HttpLocalizedOperationResult()
       }
@@ -276,7 +273,6 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         result = new HttpLocalizedOperationResult()
       }
@@ -347,7 +343,6 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         result = new HttpLocalizedOperationResult()
       }
@@ -487,7 +482,6 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         result = new HttpLocalizedOperationResult()
       }

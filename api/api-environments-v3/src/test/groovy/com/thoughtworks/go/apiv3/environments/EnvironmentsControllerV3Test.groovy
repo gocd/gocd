@@ -81,7 +81,6 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -220,7 +219,6 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -313,7 +311,6 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -415,7 +412,6 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -615,7 +611,6 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
 
         oldConfig = new BasicEnvironmentConfig(cis("env1"))
@@ -776,7 +771,6 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

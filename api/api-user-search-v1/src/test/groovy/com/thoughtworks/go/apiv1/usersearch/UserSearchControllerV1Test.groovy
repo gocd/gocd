@@ -73,7 +73,6 @@ class UserSearchControllerV1Test implements SecurityServiceTrait, ControllerTrai
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

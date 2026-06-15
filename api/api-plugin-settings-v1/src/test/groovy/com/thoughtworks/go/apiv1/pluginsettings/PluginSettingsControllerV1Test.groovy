@@ -84,7 +84,6 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -154,7 +153,6 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -248,7 +246,6 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

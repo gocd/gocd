@@ -94,7 +94,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
         loginAsAdmin()
@@ -252,7 +252,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
         loginAsAdmin()

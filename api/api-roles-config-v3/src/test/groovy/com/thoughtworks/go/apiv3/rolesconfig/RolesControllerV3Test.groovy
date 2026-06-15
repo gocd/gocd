@@ -76,7 +76,6 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -169,7 +168,6 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         this.result = new HttpLocalizedOperationResult()
       }
@@ -251,7 +249,6 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -344,7 +341,6 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -441,7 +437,6 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -511,7 +506,6 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

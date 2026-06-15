@@ -75,7 +75,6 @@ class SecurityAuthConfigInternalControllerV2Test implements SecurityServiceTrait
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

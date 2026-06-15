@@ -85,7 +85,6 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         this.result = new HttpLocalizedOperationResult()
       }
@@ -168,7 +167,6 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -267,7 +265,6 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

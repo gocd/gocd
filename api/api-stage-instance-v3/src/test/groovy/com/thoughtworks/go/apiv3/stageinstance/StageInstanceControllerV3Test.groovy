@@ -96,7 +96,6 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
     class AsGroupOperateUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsGroupOperateUser(pipelineName: "up42")
       }
 
@@ -176,12 +175,11 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
     }
 
     @Nested
-    class AsAGroupOperateUser {
+    class AsGroupOperateUser {
       private Stage stage
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsGroupOperateUser(pipelineName: "up42")
 
         stage = mock(Stage)
@@ -313,7 +311,6 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
     class AsGroupOperateUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsGroupOperateUser(pipelineName: "up42")
       }
 
@@ -405,7 +402,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
         loginAsAdmin()
@@ -504,7 +501,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
         loginAsAdmin()

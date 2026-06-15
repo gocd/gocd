@@ -92,7 +92,7 @@ class DashboardControllerV4Test implements SecurityServiceTrait, ControllerTrait
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @Test
       void 'should get dashboard json'() {
         loginAsUser()

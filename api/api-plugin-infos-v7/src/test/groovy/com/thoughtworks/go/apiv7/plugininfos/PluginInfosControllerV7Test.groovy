@@ -91,7 +91,6 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -217,7 +216,6 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         def scmCombinedPluginInfo = new CombinedPluginInfo(createSCMPluginInfo())
         def authorizationCombinedPluginInfo = new CombinedPluginInfo(createAuthorizationPluginInfo())

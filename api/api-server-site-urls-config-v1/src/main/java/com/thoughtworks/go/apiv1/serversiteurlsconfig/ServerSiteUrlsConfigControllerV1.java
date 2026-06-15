@@ -42,7 +42,7 @@ import static spark.Spark.*;
 public class ServerSiteUrlsConfigControllerV1 extends ApiController implements SparkSpringController {
 
     private final ApiAuthorizationHelper apiAuthorizationHelper;
-    private ServerConfigService serverConfigService;
+    private final ServerConfigService serverConfigService;
 
     @Autowired
     public ServerSiteUrlsConfigControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, ServerConfigService serverConfigService) {
@@ -60,7 +60,7 @@ public class ServerSiteUrlsConfigControllerV1 extends ApiController implements S
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
-            before("", mimeType, this.apiAuthorizationHelper::checkAnyPipelineGroupAdminUserAnd403);
+            before("", mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::index);
             post("", mimeType, this::createOrUpdate);

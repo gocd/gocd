@@ -81,10 +81,9 @@ class StageOperationsControllerV2Test implements SecurityServiceTrait, Controlle
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsGroupOperateUser(pipelineName: pipelineName)
       }
 

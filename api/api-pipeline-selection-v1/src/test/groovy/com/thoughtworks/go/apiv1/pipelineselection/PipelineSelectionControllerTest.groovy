@@ -29,7 +29,7 @@ import com.thoughtworks.go.server.service.PipelineSelectionsService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.util.SecureRandom
+import com.thoughtworks.go.spark.util.Random
 import com.thoughtworks.go.testhelpers.FiltersHelper
 import com.thoughtworks.go.util.SystemEnvironment
 import org.junit.jupiter.api.Nested
@@ -51,10 +51,9 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
   class Show {
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @Test
       void 'returns the pipeline selection'() {
-        enableSecurity()
         loginAsUser()
 
         def selections = new PipelineSelections(FiltersHelper.excludes(["build-linux", "build-windows"]), new Date(), currentUserLoginId())
@@ -94,7 +93,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
 
         PipelineGroups pipelineConfigs = [group1, group2]
 
-        String cookieId = SecureRandom.hex()
+        String cookieId = Random.hex()
 
         when(pipelineSelectionsService.load(cookieId, currentUserLoginId())).thenReturn(selections)
         when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(pipelineConfigs)
@@ -114,10 +113,9 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
   class PipelinesData {
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @Test
       void 'returns the viewable pipelines'() {
-        enableSecurity()
         loginAsUser()
 
         def group1 = new BasicPipelineConfigs(group: "grp1")
@@ -154,7 +152,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
 
         PipelineGroups pipelineConfigs = [group1, group2]
 
-        String cookieId = SecureRandom.hex()
+        String cookieId = Random.hex()
 
         when(pipelineSelectionsService.load(cookieId, currentUserLoginId())).thenReturn(selections)
         when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(pipelineConfigs)
@@ -175,10 +173,9 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
   class Update {
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @Test
       void 'updates the pipeline selection and returns a message'() {
-        enableSecurity()
         loginAsUser()
 
         def payload = [
@@ -216,7 +213,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
           ]
         ]
 
-        long recordId = SecureRandom.longNumber()
+        long recordId = Random.longNumber()
         String cookie = String.valueOf(recordId)
 
         def initial = new PipelineSelections(FiltersHelper.excludes(["foo", "bar"]), new Date(), currentUserLoginId())
@@ -248,7 +245,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
           ]
         ]
 
-        long recordId = SecureRandom.longNumber()
+        long recordId = Random.longNumber()
         String cookie = String.valueOf(recordId)
 
         def initial = new PipelineSelections(FiltersHelper.excludes(["foo", "bar"]), new Date(), currentUserLoginId())

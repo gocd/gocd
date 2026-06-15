@@ -64,13 +64,12 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       User user
 
       @BeforeEach
       void setUp() {
         user = new User('jdoe', 'Jon Doe', 'jdoe,jdoe@example.com', 'jdoe@example.com', true)
-        enableSecurity()
         loginAsUser()
 
         when(userService.findUserByName(currentUserLoginName().toString())).thenReturn(user)
@@ -121,12 +120,11 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       User user = new User('jdoe', 'Jon Doe', 'jdoe,jdoe@example.com', 'jdoe@example.com', true)
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsUser()
 
         when(userService.findUserByName(currentUserLoginName().toString())).thenReturn(user)

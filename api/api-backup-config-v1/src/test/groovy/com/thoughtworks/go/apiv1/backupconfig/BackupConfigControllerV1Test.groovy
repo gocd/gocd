@@ -64,12 +64,11 @@ class BackupConfigControllerV1Test implements SecurityServiceTrait, ControllerTr
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       private ServerConfig serverConfig
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         serverConfig = new ServerConfig()
         when(goConfigService.serverConfig()).thenReturn(serverConfig)
@@ -122,12 +121,11 @@ class BackupConfigControllerV1Test implements SecurityServiceTrait, ControllerTr
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       private ServerConfig serverConfig
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         serverConfig = new ServerConfig()
         when(goConfigService.serverConfig()).thenReturn(serverConfig)

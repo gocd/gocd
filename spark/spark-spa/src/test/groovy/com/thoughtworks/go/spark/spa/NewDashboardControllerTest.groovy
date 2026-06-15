@@ -65,7 +65,6 @@ class NewDashboardControllerTest implements ControllerTrait<NewDashboardControll
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         Toggles.initializeWith(mock(FeatureToggleService.class))
       }

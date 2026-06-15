@@ -27,7 +27,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel
 import com.thoughtworks.go.server.dashboard.Counter
 import com.thoughtworks.go.server.dashboard.GoDashboardPipeline
 import com.thoughtworks.go.server.domain.Username
-import com.thoughtworks.go.spark.util.SecureRandom
+import com.thoughtworks.go.spark.util.Random
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
@@ -60,7 +60,7 @@ class StageRepresenterTest {
     pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'pipeline_label'),
             permissions, "grp", counter, pipelineConfig)
-    def username = new Username(cis(SecureRandom.hex()))
+    def username = new Username(cis(Random.hex()))
 
     def json = toObject({ StageRepresenter.toJSON(it, pipeline, stageInstance, username, "pipeline-name", "2") })
 
@@ -106,7 +106,7 @@ class StageRepresenterTest {
     pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'pipeline_label'),
             permissions, "grp", counter, pipelineConfig)
-    def username = new Username(cis(SecureRandom.hex()))
+    def username = new Username(cis(Random.hex()))
 
     def json = toObject({ StageRepresenter.toJSON(it, pipeline, stageInstance, username, "pipeline-name", "23") })
 
@@ -141,7 +141,7 @@ class StageRepresenterTest {
     pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('pipeline-name', 'pipeline_label'),
             permissions, "grp", counter, pipelineConfig)
-    def username = new Username(cis(SecureRandom.hex()))
+    def username = new Username(cis(Random.hex()))
 
     def json = toObject({ StageRepresenter.toJSON(it, pipeline, stageInstance, username, "pipeline-name", "23") })
     def expectedJson = [
@@ -175,7 +175,7 @@ class StageRepresenterTest {
     pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'pipeline_label'),
             permissions, "grp", counter, pipelineConfig)
-    def username = new Username(cis(SecureRandom.hex()))
+    def username = new Username(cis(Random.hex()))
 
     def json = toObject({ StageRepresenter.toJSON(it, pipeline, stageInstance, username, "pipeline-name", "23") })
     def expectedJson = [

@@ -90,7 +90,6 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -169,7 +168,6 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -265,7 +263,6 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -410,7 +407,6 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -588,7 +584,6 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

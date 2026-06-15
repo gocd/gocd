@@ -1,6 +1,6 @@
 services:
   trivy:
-    image: docker.io/aquasec/trivy:0.71.0@sha256:016eae51fdcf989332a5404af7e8f625cd5d95d7c0907a221d080a996f556500
+    image: docker.io/aquasec/trivy:0.71.1@sha256:53570e6911c2361ebe7995228088cf83a6b9b73e7f3cdca44bd8f8f425e80fa7
     command: [ image, --input, /scan-image, --exit-code, "${EXIT_CODE_ON_ERROR}", --config, /trivy.yaml ]
     volumes:
       - ./trivy.yaml:/trivy.yaml:ro

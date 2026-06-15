@@ -16,8 +16,8 @@
 
 import {ApiResult, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {MailServerCrud} from "../server_configuartion_crud";
 import {MailServer} from "../server_configuration";
+import {MailServerCrud} from "../server_configuration_crud";
 
 describe('ServerConfigurationCRUDSpecs', () => {
   beforeEach(() => jasmine.Ajax.install());

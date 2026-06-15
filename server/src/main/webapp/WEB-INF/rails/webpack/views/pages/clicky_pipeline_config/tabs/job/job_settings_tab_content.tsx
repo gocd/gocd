@@ -23,7 +23,7 @@ import {ElasticAgentProfilesCRUD} from "models/elastic_profiles/elastic_agent_pr
 import {Job} from "models/pipeline_configs/job";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
-import {JobTimeoutManagementCRUD} from "models/server-configuration/server_configuartion_crud";
+import {JobTimeoutManagementCRUD} from "models/server-configuration/server_configuration_crud";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {NumberField, RadioField, TextField} from "views/components/forms/input_fields";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";

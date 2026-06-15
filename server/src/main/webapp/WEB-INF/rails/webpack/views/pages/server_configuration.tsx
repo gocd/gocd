@@ -18,17 +18,17 @@ import {JsonUtils} from "helpers/json_utils";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {
-  ArtifactConfigCRUD,
-  JobTimeoutManagementCRUD,
-  MailServerCrud,
-  ServerManagementCRUD
-} from "models/server-configuration/server_configuartion_crud";
-import {
   ArtifactConfig,
   DefaultJobTimeout,
   MailServer,
   SiteUrls
 } from "models/server-configuration/server_configuration";
+import {
+  ArtifactConfigCRUD,
+  JobTimeoutManagementCRUD,
+  MailServerCrud,
+  ServerManagementCRUD
+} from "models/server-configuration/server_configuration_crud";
 import {
   ArtifactConfigVM,
   DefaultJobTimeoutVM,

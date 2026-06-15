@@ -37,7 +37,9 @@ import spark.Response;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import static java.lang.Boolean.parseBoolean;
@@ -62,7 +64,7 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
         this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.pipelineGroupAuthorizationRegistry = Map.of(
                 "view", () -> pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername()),
-                "operate", () -> pipelineConfigService.viewableOrOperatableGroupsForIncludingConfigRepos(currentUsername()),
+                "operate", () -> pipelineConfigService.operableGroupsForIncludingConfigRepos(currentUsername()),
                 "administer", () -> pipelineConfigService.adminGroupsForIncludingConfigRepos(currentUsername())
         );
 
@@ -121,8 +123,9 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
         if (!withAdditionalInfo) {
             return writerForTopLevelObject(request, response, outputWriter -> InternalPipelineStructuresRepresenter.toJSON(outputWriter, pipelineStructureViewModel));
         }
-        Collection<String> users = userService.allUsernames();
-        Collection<String> roles = userService.allRoleNames();
+
+        Collection<String> users = apiAuthorizationHelper.isPipelineGroupAdminOrTemplateAdmin() ? userService.allUsernames() : Set.of(currentUsernameString());
+        Collection<String> roles = apiAuthorizationHelper.isPipelineGroupAdminOrTemplateAdmin() ? userService.allRoleNames() : Collections.emptySet();
 
         return writerForTopLevelObject(request, response, outputWriter -> InternalPipelineStructuresRepresenter.toJSON(outputWriter, pipelineStructureViewModel, users, roles));
     }

@@ -107,7 +107,7 @@ public class PipelineConfigService {
         return groupsMatchingFilter(goConfigService.cruiseConfig(), pipelineConfigs -> securityService.isUserAdminOfGroup(username.getUsername(), pipelineConfigs.getGroup()));
     }
 
-    public PipelineGroups viewableOrOperatableGroupsForIncludingConfigRepos(Username username) {
+    public PipelineGroups operableGroupsForIncludingConfigRepos(Username username) {
         return groupsMatchingFilter(goConfigService.cruiseConfig(), pipelineConfigs -> securityService.hasOperatePermissionForGroup(username.getUsername(), pipelineConfigs.getGroup()));
     }
 

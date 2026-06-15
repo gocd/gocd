@@ -340,7 +340,7 @@ public class SecurityServiceIntegrationTest {
         Authorization authorization = new Authorization(new AdminsConfig(new AdminUser(cis(templateAdmin))));
         configHelper.addTemplate("pipeline-name", authorization, "stage-name");
 
-        boolean isAuthorized = securityService.isAuthorizedToViewAndEditTemplates(new Username(cis(templateAdmin)));
+        boolean isAuthorized = securityService.isAuthorizedToEditTemplates(new Username(cis(templateAdmin)));
 
         assertThat(isAuthorized).isTrue();
     }

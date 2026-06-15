@@ -58,7 +58,7 @@ public class InternalPipelineGroupsControllerV1 extends ApiController implements
         this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.pipelineGroupAuthorizationRegistry = Map.of(
                 "view", () -> pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername()),
-                "operate", () -> pipelineConfigService.viewableOrOperatableGroupsForIncludingConfigRepos(currentUsername()),
+                "operate", () -> pipelineConfigService.operableGroupsForIncludingConfigRepos(currentUsername()),
                 "administer", () -> pipelineConfigService.adminGroupsForIncludingConfigRepos(currentUsername())
         );
         this.environmentConfigService = environmentConfigService;

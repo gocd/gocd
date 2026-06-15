@@ -245,7 +245,7 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     @TestOnly
     CruiseConfig cloneForValidation();
 
-    boolean canViewAndEditTemplates(CaseInsensitiveString username);
+    boolean isAuthorizedToEditTemplates(CaseInsensitiveString username);
 
     boolean isAuthorizedToEditTemplate(CaseInsensitiveString templateName, CaseInsensitiveString username);
 

@@ -48,8 +48,8 @@ public class SecurityServiceTest {
         when(goConfigService.isGroupAdministrator(user.getUsername())).thenReturn(false);
         when(goConfigService.isUserAdmin(user)).thenReturn(false);
         SecurityService spy = spy(securityService);
-        doReturn(true).when(spy).isAuthorizedToViewAndEditTemplates(user);
-        assertThat(spy.canViewAdminPage(new Username(cis("user")))).isTrue();
+        doReturn(true).when(spy).isAuthorizedToEditTemplates(user);
+        assertThat(spy.canViewSomeAdminPage(new Username(cis("user")))).isTrue();
     }
 
     @Test
@@ -63,7 +63,7 @@ public class SecurityServiceTest {
         when(goConfigService.isGroupAdministrator(user.getUsername())).thenReturn(false);
         when(goConfigService.isUserAdmin(user)).thenReturn(false);
 
-        assertThat(securityService.canViewAdminPage(user)).isTrue();
+        assertThat(securityService.canViewSomeAdminPage(user)).isTrue();
     }
 
     @Test
@@ -76,10 +76,10 @@ public class SecurityServiceTest {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
 
         SecurityService spy = spy(securityService);
-        doReturn(false).when(spy).isAuthorizedToViewAndEditTemplates(user);
+        doReturn(false).when(spy).isAuthorizedToEditTemplates(user);
         doReturn(false).when(spy).isAuthorizedToViewTemplates(user);
 
-        assertThat(spy.canViewAdminPage(user)).isFalse();
+        assertThat(spy.canViewSomeAdminPage(user)).isFalse();
     }
 
     @Test
@@ -87,7 +87,7 @@ public class SecurityServiceTest {
         Username username = new Username(cis("user"));
         when(goConfigService.isUserAdmin(username)).thenReturn(Boolean.TRUE);
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
-        assertThat(securityService.canViewAdminPage(username)).isTrue();
+        assertThat(securityService.canViewSomeAdminPage(username)).isTrue();
         verify(goConfigService).isUserAdmin(username);
     }
 
@@ -95,7 +95,7 @@ public class SecurityServiceTest {
     public void shouldBeAbleToTellIfAnUserCanViewTheAdminPage() {
         final Username user = new Username(cis("user"));
         when(goConfigService.isGroupAdministrator(user.getUsername())).thenReturn(Boolean.TRUE);
-        assertThat(securityService.canViewAdminPage(new Username(cis("user")))).isTrue();
+        assertThat(securityService.canViewSomeAdminPage(new Username(cis("user")))).isTrue();
     }
 
     @Test
@@ -104,9 +104,9 @@ public class SecurityServiceTest {
         when(goConfigService.isGroupAdministrator(user.getUsername())).thenReturn(Boolean.FALSE);
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         SecurityService spy = spy(securityService);
-        doReturn(false).when(spy).isAuthorizedToViewAndEditTemplates(user);
+        doReturn(false).when(spy).isAuthorizedToEditTemplates(user);
         doReturn(false).when(spy).isAuthorizedToViewTemplates(user);
-        assertThat(spy.canViewAdminPage(new Username(cis("user")))).isFalse();
+        assertThat(spy.canViewSomeAdminPage(new Username(cis("user")))).isFalse();
     }
 
     @Test
@@ -126,7 +126,7 @@ public class SecurityServiceTest {
         when(goConfigService.isUserAdmin(user)).thenReturn(false);
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         SecurityService spy = spy(securityService);
-        doReturn(true).when(spy).isAuthorizedToViewAndEditTemplates(user);
+        doReturn(true).when(spy).isAuthorizedToEditTemplates(user);
         assertThat(spy.canCreatePipelines(new Username(cis("user")))).isFalse();
     }
 
@@ -163,7 +163,7 @@ public class SecurityServiceTest {
     }
 
     @Test
-    public void shouldSayThatAUserIsAuthorizedToViewAndEditTemplatesWhenTheUserHasPermissionsForAtLeastOneTemplate() {
+    public void shouldSayThatAUserIsAuthorizedToEditTemplatesWhenTheUserHasPermissionsForAtLeastOneTemplate() {
         CruiseConfig config = new BasicCruiseConfig();
         String theSuperAdmin = "theSuperAdmin";
         String templateName = "template";
@@ -182,10 +182,10 @@ public class SecurityServiceTest {
         when(goConfigService.isUserAdmin(new Username(cis(theSuperAdmin)))).thenReturn(true);
         when(goConfigService.isUserAdmin(new Username(cis("someOtherUserWhoIsNotAdminOfAnyTemplates")))).thenReturn(false);
 
-        assertThat(securityService.isAuthorizedToViewAndEditTemplates(new Username(templateAdminName))).isTrue();
-        assertThat(securityService.isAuthorizedToViewAndEditTemplates(new Username(secondTemplateAdminName))).isTrue();
-        assertThat(securityService.isAuthorizedToViewAndEditTemplates(new Username(cis(theSuperAdmin)))).isTrue();
-        assertThat(securityService.isAuthorizedToViewAndEditTemplates(new Username(cis("someOtherUserWhoIsNotAdminOfAnyTemplates")))).isFalse();
+        assertThat(securityService.isAuthorizedToEditTemplates(new Username(templateAdminName))).isTrue();
+        assertThat(securityService.isAuthorizedToEditTemplates(new Username(secondTemplateAdminName))).isTrue();
+        assertThat(securityService.isAuthorizedToEditTemplates(new Username(cis(theSuperAdmin)))).isTrue();
+        assertThat(securityService.isAuthorizedToEditTemplates(new Username(cis("someOtherUserWhoIsNotAdminOfAnyTemplates")))).isFalse();
     }
 
     @Test

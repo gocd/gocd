@@ -19,10 +19,7 @@ import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {
-  DependentPipeline,
-  PipelineStructureWithAdditionalInfo
-} from "models/internal_pipeline_structure/pipeline_structure";
+import {DependentPipeline, PipelineStructure} from "models/internal_pipeline_structure/pipeline_structure";
 import {PipelineStructureCRUD} from "models/internal_pipeline_structure/pipeline_structure_crud";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Template, TemplateCache} from "models/pipeline_configs/templates_cache";
@@ -159,9 +156,9 @@ export class StagesTabContent extends TabContent<PipelineConfig | TemplateConfig
   private fetchStageDependencyInformation(pipelineName: string) {
     this.pageLoading();
     PipelineStructureCRUD.allPipelines("administer", "view")
-                         .then((pipelineGroups: ApiResult<PipelineStructureWithAdditionalInfo>) => {
+                         .then((pipelineGroups: ApiResult<PipelineStructure>) => {
                            pipelineGroups.do((successResponse) => {
-                             const pipeline          = successResponse.body.pipelineStructure.findPipeline(pipelineName)!;
+                             const pipeline          = successResponse.body.findPipeline(pipelineName)!;
                              this.dependentPipelines = pipeline.dependantPipelines;
                              this.pageLoaded();
                            });

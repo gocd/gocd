@@ -224,7 +224,7 @@ export class AdminTemplatesPage extends Page<null, State> {
 
     return Promise.all([
                          TemplatesCRUD.all(),
-                         PipelineStructureCRUD.allPipelines("view", "administer"),
+                         PipelineStructureCRUD.allPipelinesPrivileged("view", "administer"),
                          PluginInfoCRUD.all({type: ExtensionTypeString.TASK}),
                        ])
                   .then((args) => {

@@ -95,7 +95,7 @@ public class TemplatesConfigTest {
         TemplatesConfig templates = configForUserWhoCanViewATemplate();
         templates.add(PipelineTemplateConfigMother.createTemplate("template200", new Authorization(new AdminsConfig(new AdminUser(templateAdmin))), StageConfigMother.manualStage("stage-name")));
 
-        assertThat(templates.canViewAndEditTemplate(templateAdmin, null)).isTrue();
+        assertThat(templates.canUserEditTemplates(templateAdmin, null)).isTrue();
     }
 
     @Test
@@ -105,7 +105,7 @@ public class TemplatesConfigTest {
         TemplatesConfig templates = configForUserWhoCanViewATemplate();
         templates.add(PipelineTemplateConfigMother.createTemplate("template200", new Authorization(new AdminsConfig(new AdminUser(templateAdmin))), StageConfigMother.manualStage("stage-name")));
 
-        assertThat(templates.canViewAndEditTemplate(nonTemplateAdmin, null)).isFalse();
+        assertThat(templates.canUserEditTemplates(nonTemplateAdmin, null)).isFalse();
     }
 
     @Test
@@ -126,7 +126,7 @@ public class TemplatesConfigTest {
     }
 
     @Test
-    public void shouldReturnTrueIfUserWithinARoleCanViewAndEditTemplates() {
+    public void shouldReturnTrueIfUserWithinARoleCanUserEditTemplates() {
         CaseInsensitiveString templateAdmin = cis("template-admin");
         Role securityConfigRole = getSecurityConfigRole(templateAdmin);
         List<Role> roles = setupRoles(securityConfigRole);
@@ -135,7 +135,7 @@ public class TemplatesConfigTest {
         templateList.add(PipelineTemplateConfigMother.createTemplate("templateName", new Authorization(new AdminsConfig(new AdminRole(securityConfigRole))), StageConfigMother.manualStage("some-random-stage")));
         TemplatesConfig templates = new TemplatesConfig(templateList.toArray(new PipelineTemplateConfig[0]));
 
-        assertThat(templates.canViewAndEditTemplate(templateAdmin, roles)).isTrue();
+        assertThat(templates.canUserEditTemplates(templateAdmin, roles)).isTrue();
     }
 
 
@@ -149,7 +149,7 @@ public class TemplatesConfigTest {
         templateList.add(PipelineTemplateConfigMother.createTemplate("templateName", new Authorization(new AdminsConfig(new AdminUser(cis("random-user")))), StageConfigMother.manualStage("stage-name")));
         TemplatesConfig templates = new TemplatesConfig(templateList.toArray(new PipelineTemplateConfig[0]));
 
-        assertThat(templates.canViewAndEditTemplate(templateAdmin, roles)).isFalse();
+        assertThat(templates.canUserEditTemplates(templateAdmin, roles)).isFalse();
     }
 
     @Test

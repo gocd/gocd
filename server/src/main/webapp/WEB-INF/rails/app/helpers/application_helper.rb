@@ -106,7 +106,7 @@ module ApplicationHelper
   end
 
   def can_view_admin_page?
-    security_service.canViewAdminPage(current_user)
+    security_service.canViewSomeAdminPage(current_user)
   end
 
   def is_user_a_group_admin?

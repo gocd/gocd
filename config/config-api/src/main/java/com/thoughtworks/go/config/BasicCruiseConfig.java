@@ -481,8 +481,8 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public boolean canViewAndEditTemplates(CaseInsensitiveString username) {
-        return isAdministrator(username.toString()) || getTemplates().canViewAndEditTemplate(username, rolesForUser(username));
+    public boolean isAuthorizedToEditTemplates(CaseInsensitiveString username) {
+        return isAdministrator(username.toString()) || getTemplates().canUserEditTemplates(username, rolesForUser(username));
     }
 
     @Override
@@ -524,7 +524,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public boolean isAuthorizedToViewTemplates(CaseInsensitiveString username) {
-        return canViewAndEditTemplates(username) || getTemplates().canUserViewTemplates(username, rolesForUser(username), isGroupAdministrator(username));
+        return isAuthorizedToEditTemplates(username) || getTemplates().canUserViewTemplates(username, rolesForUser(username), isGroupAdministrator(username));
     }
 
     private List<Role> rolesForUser(CaseInsensitiveString username) {

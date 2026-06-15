@@ -36,10 +36,10 @@ import java.util.Map;
 public class GoCDFreeMarkerView extends FreeMarkerView {
     public static final String PRINCIPAL = "principal";
     public static final String ADMINISTRATOR = "userHasAdministratorRights";
-    public static final String TEMPLATE_ADMINISTRATOR = "userHasTemplateAdministratorRights";
-    public static final String VIEW_ADMINISTRATOR_RIGHTS = "userHasViewAdministratorRights";
-    public static final String TEMPLATE_VIEW_USER = "userHasTemplateViewUserRights";
     public static final String GROUP_ADMINISTRATOR = "userHasGroupAdministratorRights";
+    public static final String CAN_VIEW_SOME_ADMIN_PAGES = "userHasViewAdministratorRights";
+    public static final String CAN_VIEW_SOME_TEMPLATES = "userHasTemplateViewUserRights";
+
     public static final String USE_COMPRESS_JS = "useCompressJS";
     public static final String CURRENT_GOCD_VERSION = "currentGoCDVersion";
     public static final String CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH = "concatenatedStageBarCancelledIconFilePath";
@@ -91,9 +91,8 @@ public class GoCDFreeMarkerView extends FreeMarkerView {
 
         model.put(ADMINISTRATOR, securityService.isUserAdmin(username));
         model.put(GROUP_ADMINISTRATOR, securityService.isUserGroupAdmin(username));
-        model.put(TEMPLATE_ADMINISTRATOR, securityService.isAuthorizedToViewAndEditTemplates(username));
-        model.put(VIEW_ADMINISTRATOR_RIGHTS, securityService.canViewAdminPage(username));
-        model.put(TEMPLATE_VIEW_USER, securityService.isAuthorizedToViewTemplates(username));
+        model.put(CAN_VIEW_SOME_ADMIN_PAGES, securityService.canViewSomeAdminPage(username));
+        model.put(CAN_VIEW_SOME_TEMPLATES, securityService.isAuthorizedToViewTemplates(username));
         model.put(USE_COMPRESS_JS, systemEnvironment.useCompressedJs());
 
         model.put(CURRENT_GOCD_VERSION, CurrentGoCDVersion.getInstance());

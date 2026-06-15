@@ -14,8 +14,6 @@
 [#-- @ftlvariable name="elasticAgentId" type="java.lang.String" --]
 
 [#-- @ftlvariable name="userHasAdministratorRights" type="boolean" --]
-[#-- @ftlvariable name="userHasTemplateAdministratorRights" type="boolean" --]
-[#-- @ftlvariable name="userHasTemplateAdministratorRights" type="boolean" --]
 [#-- @ftlvariable name="userHasViewAdministratorRights" type="boolean" --]
 [#-- @ftlvariable name="userHasTemplateViewUserRights" type="boolean" --]
 [#-- @ftlvariable name="userHasGroupAdministratorRights" type="boolean" --]

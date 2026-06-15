@@ -147,7 +147,7 @@ public abstract class AbstractAuthorizationHelper {
             throw renderForbiddenResponse();
         }
 
-        if (isBlank(templateName) && !securityService.isAuthorizedToViewAndEditTemplates(currentUsername())) {
+        if (isBlank(templateName) && !securityService.isAuthorizedToEditTemplates(currentUsername())) {
             throw renderForbiddenResponse();
         }
     }
@@ -219,9 +219,13 @@ public abstract class AbstractAuthorizationHelper {
             return;
         }
 
-        if (!(securityService.isUserAdmin(currentUsername()) || securityService.isUserGroupAdmin(currentUsername()) || securityService.isAuthorizedToViewAndEditTemplates(currentUsername()))) {
+        if (!isPipelineGroupAdminOrTemplateAdmin()) {
             throw renderForbiddenResponse();
         }
+    }
+
+    public boolean isPipelineGroupAdminOrTemplateAdmin() {
+        return securityService.canEditSomeAdminPage(this.currentUsername());
     }
 
     public void checkPipelineViewPermissionsAnd403(Request request, @SuppressWarnings("unused") Response response) {

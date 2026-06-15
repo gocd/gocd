@@ -52,7 +52,9 @@ trait SecurityServiceTrait {
     Username username = loginAsRandomUser()
 
     when(securityService.isUserAdmin(username)).thenReturn(true)
-    when(securityService.isAuthorizedToViewAndEditTemplates(username)).thenReturn(true)
+    when(securityService.canEditSomeAdminPage(username)).thenReturn(true)
+    when(securityService.canViewSomeAdminPage(username)).thenReturn(true)
+    when(securityService.isAuthorizedToEditTemplates(username)).thenReturn(true)
     when(securityService.isAuthorizedToEditTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(true)
     when(securityService.isAuthorizedToViewTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(true)
     when(securityService.isAuthorizedToViewTemplates(eq(username))).thenReturn(true)
@@ -65,7 +67,7 @@ trait SecurityServiceTrait {
     when(securityService.isUserGroupAdmin(username)).thenReturn(false)
     when(securityService.isUserAdminOfGroup(eq(username.username) as CaseInsensitiveString, any() as String)).thenReturn(false)
     when(securityService.isUserAdminOfGroup(any() as Username, any() as String)).thenReturn(false)
-    when(securityService.isAuthorizedToViewAndEditTemplates(username)).thenReturn(false)
+    when(securityService.isAuthorizedToEditTemplates(username)).thenReturn(false)
     when(securityService.isAuthorizedToEditTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(false)
     when(securityService.isAuthorizedToViewTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(false)
     when(securityService.isAuthorizedToViewTemplates(eq(username))).thenReturn(false)
@@ -81,7 +83,7 @@ trait SecurityServiceTrait {
     }
     when(securityService.isUserAdmin(Username.ANONYMOUS)).thenReturn(false)
     when(securityService.isUserGroupAdmin(Username.ANONYMOUS)).thenReturn(false)
-    when(securityService.isAuthorizedToViewAndEditTemplates(Username.ANONYMOUS)).thenReturn(false)
+    when(securityService.isAuthorizedToEditTemplates(Username.ANONYMOUS)).thenReturn(false)
     when(securityService.isAuthorizedToEditTemplate(any() as CaseInsensitiveString, eq(Username.ANONYMOUS))).thenReturn(false)
     when(securityService.isAuthorizedToViewTemplate(any() as CaseInsensitiveString, eq(Username.ANONYMOUS))).thenReturn(false)
     when(securityService.isAuthorizedToViewTemplates(Username.ANONYMOUS)).thenReturn(false)
@@ -96,6 +98,8 @@ trait SecurityServiceTrait {
   void loginAsGroupAdmin(PipelineSpecifier opts = PipelineSpecifier.random()) {
     Username username = loginAsRandomUser()
     when(securityService.isUserAdmin(username)).thenReturn(false)
+    when(securityService.canEditSomeAdminPage(username)).thenReturn(true)
+    when(securityService.canViewSomeAdminPage(username)).thenReturn(true)
     when(securityService.isUserGroupAdmin(username)).thenReturn(true)
     when(securityService.isUserAdminOfGroup(eq(username.username) as CaseInsensitiveString, eq(opts.groupName) as String)).thenReturn(true)
     when(securityService.isUserAdminOfGroup(eq(username) as Username, eq(opts.groupName))).thenReturn(true)
@@ -136,9 +140,11 @@ trait SecurityServiceTrait {
     when(goConfigService.findGroupNameByPipeline(any())).thenReturn(PipelineSpecifier.generateGroupName()) // allow other pipelines to be found; but in random groups
 
     when(securityService.isUserAdmin(username)).thenReturn(false)
+    when(securityService.canEditSomeAdminPage(username)).thenReturn(true)
+    when(securityService.canViewSomeAdminPage(username)).thenReturn(true)
     when(securityService.isUserGroupAdmin(username)).thenReturn(false)
     when(securityService.isUserAdminOfGroup(eq(username) as Username, any(String.class))).thenReturn(false)
-    when(securityService.isAuthorizedToViewAndEditTemplates(username)).thenReturn(true)
+    when(securityService.isAuthorizedToEditTemplates(username)).thenReturn(true)
     when(securityService.isAuthorizedToEditTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(true)
     when(securityService.isAuthorizedToViewTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(true)
     when(securityService.isAuthorizedToViewTemplates(username)).thenReturn(true)
@@ -148,10 +154,12 @@ trait SecurityServiceTrait {
     Username username = loginAsRandomUser()
 
     when(securityService.isUserAdmin(username)).thenReturn(false)
+    when(securityService.canEditSomeAdminPage(username)).thenReturn(false)
+    when(securityService.canViewSomeAdminPage(username)).thenReturn(true)
     when(securityService.isUserGroupAdmin(username)).thenReturn(false)
     when(securityService.isUserAdminOfGroup(eq(username) as Username, any(String.class))).thenReturn(false)
 
-    when(securityService.isAuthorizedToViewAndEditTemplates(username)).thenReturn(false)
+    when(securityService.isAuthorizedToEditTemplates(username)).thenReturn(false)
     when(securityService.isAuthorizedToEditTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(false)
     when(securityService.isAuthorizedToViewTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(true)
     when(securityService.isAuthorizedToViewTemplates(username)).thenReturn(true)
@@ -169,7 +177,7 @@ trait SecurityServiceTrait {
     when(securityService.isUserAdminOfGroup(eq(username.username) as CaseInsensitiveString, any() as String)).thenReturn(false)
     when(securityService.isUserAdminOfGroup(any() as Username, any() as String)).thenReturn(false)
 
-    when(securityService.isAuthorizedToViewAndEditTemplates(username)).thenReturn(false)
+    when(securityService.isAuthorizedToEditTemplates(username)).thenReturn(false)
     when(securityService.isAuthorizedToEditTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(false)
     when(securityService.isAuthorizedToViewTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(false)
     when(securityService.isAuthorizedToViewTemplates(eq(username))).thenReturn(false)

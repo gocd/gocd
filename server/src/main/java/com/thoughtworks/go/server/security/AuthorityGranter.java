@@ -68,7 +68,7 @@ public class AuthorityGranter {
     }
 
     private void checkAndAddTemplateAdmin(String username, Set<GrantedAuthority> authorities) {
-        if (securityService.isAuthorizedToViewAndEditTemplates(new Username(cis(username)))) {
+        if (securityService.isAuthorizedToEditTemplates(new Username(cis(username)))) {
             authorities.add(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.asAuthority());
         }
     }

@@ -36,6 +36,8 @@ import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
@@ -66,32 +68,9 @@ class InternalPipelineStructureControllerV1Test implements SecurityServiceTrait,
   class Index {
     @BeforeEach
     void setUp() {
-      loginAsUser()
-
       def cruiseConfig = mock(BasicCruiseConfig.class)
       when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig)
       when(cruiseConfig.getDependencyTable()).thenReturn(Collections.emptyMap())
-    }
-
-    @Test
-    void 'should render list of all pipeline groups'() {
-      PipelineConfigs group = PipelineConfigMother.createGroup("my-group", PipelineConfigMother.createPipelineConfig("my-pipeline", "my-stage", "my-job1", "my-job2"))
-      def template = PipelineTemplateConfigMother.createTemplate("my-template")
-
-      when(pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername())).thenReturn(new PipelineGroups([group]))
-      when(templateConfigService.templateConfigsThatCanBeViewedBy(currentUsername())).thenReturn(new TemplatesConfig(template))
-
-      getWithApiHeader(controller.controllerBasePath())
-
-      def pipelineStructureViewModel = new PipelineStructureViewModel()
-        .setPipelineGroups(new PipelineGroups([group]))
-        .setTemplatesConfig(new TemplatesConfig(template))
-        .setEnvironmentsConfig(new EnvironmentsConfig())
-        .setPipelineDependencyTable(Collections.emptyMap())
-
-      assertThatResponse()
-        .isOk()
-        .hasBodyWithJsonObject(InternalPipelineStructuresRepresenter.class, pipelineStructureViewModel)
     }
 
     @Nested
@@ -110,35 +89,90 @@ class InternalPipelineStructureControllerV1Test implements SecurityServiceTrait,
       }
     }
 
-    @Test
-    void 'should render list of pipeline grps with roles and users'() {
-      PipelineConfigs group = PipelineConfigMother.createGroup("my-group", PipelineConfigMother.createPipelineConfig("my-pipeline", "my-stage", "my-job1", "my-job2"))
-      def template = PipelineTemplateConfigMother.createTemplate("my-template")
-      def groups = new PipelineGroups([group])
-      def templateConfigs = new TemplatesConfig(template)
-      def users = Set.of('user1', 'user2')
-      def roles = List.of('role1', 'role2')
+    @Nested
+    class AsNormalUser {
+      @BeforeEach
+      void setUp() {
+        loginAsUser()
+      }
 
-      when(pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername())).thenReturn(groups)
-      when(templateConfigService.templateConfigsThatCanBeViewedBy(currentUsername())).thenReturn(templateConfigs)
-      when(userService.allUsernames()).thenReturn(users)
-      when(userService.allRoleNames()).thenReturn(roles)
+      @Test
+      void 'should render list of all pipeline groups'() {
+        PipelineConfigs group = PipelineConfigMother.createGroup("my-group", PipelineConfigMother.createPipelineConfig("my-pipeline", "my-stage", "my-job1", "my-job2"))
+        def template = PipelineTemplateConfigMother.createTemplate("my-template")
 
-      getWithApiHeader(controller.controllerBasePath() + '?with_additional_info=true')
+        when(pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername())).thenReturn(new PipelineGroups([group]))
+        when(templateConfigService.templateConfigsThatCanBeViewedBy(currentUsername())).thenReturn(new TemplatesConfig(template))
 
-      def pipelineStructureViewModel = new PipelineStructureViewModel()
-        .setPipelineGroups(groups)
-        .setTemplatesConfig(templateConfigs)
-        .setEnvironmentsConfig(new EnvironmentsConfig())
-        .setPipelineDependencyTable(Collections.emptyMap())
+        getWithApiHeader(controller.controllerBasePath())
 
-      def expectedJSON = toObjectString({
-        InternalPipelineStructuresRepresenter.toJSON(it, pipelineStructureViewModel, users, roles)
-      })
+        def pipelineStructureViewModel = new PipelineStructureViewModel()
+          .setPipelineGroups(new PipelineGroups([group]))
+          .setTemplatesConfig(new TemplatesConfig(template))
+          .setEnvironmentsConfig(new EnvironmentsConfig())
+          .setPipelineDependencyTable(Collections.emptyMap())
 
-      assertThatResponse()
-        .isOk()
-        .hasJsonBody(expectedJSON)
+        assertThatResponse()
+          .isOk()
+          .hasBodyWithJsonObject(InternalPipelineStructuresRepresenter.class, pipelineStructureViewModel)
+      }
+
+      @Test
+      void 'should omit roles and users'() {
+        enableSecurity()
+        loginAsUser()
+
+        def users = Set.of('user1', 'user2')
+        def roles = List.of('role1', 'role2')
+
+        when(pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername())).thenReturn(new PipelineGroups())
+        when(templateConfigService.templateConfigsThatCanBeViewedBy(currentUsername())).thenReturn(new TemplatesConfig())
+        when(userService.allUsernames()).thenReturn(users)
+        when(userService.allRoleNames()).thenReturn(roles)
+
+        getWithApiHeader(controller.controllerBasePath() + '?with_additional_info=true')
+
+        assertThatResponse()
+          .isOk()
+          .hasJsonBody([groups: [], templates: [], additional_info: [users: [controller.currentUsernameString()], roles: []]])
+      }
+    }
+
+    @Nested
+    class AsVariousAdmins {
+      @ParameterizedTest
+      @ValueSource(strings = ['loginAsAdmin', 'loginAsGroupAdmin', 'loginAsTemplateAdmin'])
+      void 'should render list of pipeline grps with roles and users'(String login) {
+        this."$login"()
+
+        PipelineConfigs group = PipelineConfigMother.createGroup("my-group", PipelineConfigMother.createPipelineConfig("my-pipeline", "my-stage", "my-job1", "my-job2"))
+        def template = PipelineTemplateConfigMother.createTemplate("my-template")
+        def groups = new PipelineGroups([group])
+        def templateConfigs = new TemplatesConfig(template)
+        def users = Set.of('user1', 'user2')
+        def roles = List.of('role1', 'role2')
+
+        when(pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername())).thenReturn(groups)
+        when(templateConfigService.templateConfigsThatCanBeViewedBy(currentUsername())).thenReturn(templateConfigs)
+        when(userService.allUsernames()).thenReturn(users)
+        when(userService.allRoleNames()).thenReturn(roles)
+
+        getWithApiHeader(controller.controllerBasePath() + '?with_additional_info=true')
+
+        def pipelineStructureViewModel = new PipelineStructureViewModel()
+          .setPipelineGroups(groups)
+          .setTemplatesConfig(templateConfigs)
+          .setEnvironmentsConfig(new EnvironmentsConfig())
+          .setPipelineDependencyTable(Collections.emptyMap())
+
+        def expectedJSON = toObjectString({
+          InternalPipelineStructuresRepresenter.toJSON(it, pipelineStructureViewModel, users, roles)
+        })
+
+        assertThatResponse()
+          .isOk()
+          .hasJsonBody(expectedJSON)
+      }
     }
   }
 }

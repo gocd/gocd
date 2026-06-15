@@ -144,17 +144,21 @@ public class SecurityService {
         return goConfigService.isSecurityEnabled();
     }
 
-    public boolean hasOperatePermissionForFirstStage(String pipelineName, String userName) {
-        StageConfig stage = goConfigService.findFirstStageOfPipeline(cis(pipelineName));
-        return hasOperatePermissionForStage(pipelineName, CaseInsensitiveString.str(stage.name()), userName);
+    public boolean canViewSomeAdminPage(Username username) {
+        return canEditSomeAdminPage(username) || isAuthorizedToViewTemplates(username);
     }
 
-    public boolean canViewAdminPage(Username username) {
-        return isUserAdmin(username) || isUserGroupAdmin(username) || isAuthorizedToViewAndEditTemplates(username) || isAuthorizedToViewTemplates(username);
+    public boolean canEditSomeAdminPage(Username username) {
+        return isUserAdmin(username) || isUserGroupAdmin(username) || isAuthorizedToEditTemplates(username);
     }
 
     public boolean canCreatePipelines(Username username) {
         return isUserAdmin(username) || isUserGroupAdmin(username);
+    }
+
+    public boolean hasOperatePermissionForFirstStage(String pipelineName, String userName) {
+        StageConfig stage = goConfigService.findFirstStageOfPipeline(cis(pipelineName));
+        return hasOperatePermissionForStage(pipelineName, CaseInsensitiveString.str(stage.name()), userName);
     }
 
     public boolean hasOperatePermissionForAgents(Username username) {
@@ -193,8 +197,8 @@ public class SecurityService {
         return modifiableGroups;
     }
 
-    public boolean isAuthorizedToViewAndEditTemplates(Username username) {
-        return goConfigService.cruiseConfig().canViewAndEditTemplates(username.getUsername());
+    public boolean isAuthorizedToEditTemplates(Username username) {
+        return goConfigService.cruiseConfig().isAuthorizedToEditTemplates(username.getUsername());
     }
 
     public boolean isAuthorizedToEditTemplate(CaseInsensitiveString templateName, Username username) {

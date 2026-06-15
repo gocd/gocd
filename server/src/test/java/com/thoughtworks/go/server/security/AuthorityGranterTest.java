@@ -41,7 +41,7 @@ public class AuthorityGranterTest {
     @Test
     public void shouldGrantTemplateSupervisorRoleToTemplateAdmins() {
         String templateAdmin = "template-admin";
-        when(securityService.isAuthorizedToViewAndEditTemplates(new Username(cis(templateAdmin)))).thenReturn(true);
+        when(securityService.isAuthorizedToEditTemplates(new Username(cis(templateAdmin)))).thenReturn(true);
         Set<GrantedAuthority> authorities = authorityGranter.authorities(templateAdmin);
         assertThat(authorities).contains(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.asAuthority());
         assertThat(authorities).doesNotContain(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority());
@@ -51,7 +51,7 @@ public class AuthorityGranterTest {
     @Test
     public void shouldGrantTemplateViewUserRoleToTemplateViewUsers() {
         String templateViewUser = "templateViewUser";
-        when(securityService.isAuthorizedToViewAndEditTemplates(new Username(cis(templateViewUser)))).thenReturn(false);
+        when(securityService.isAuthorizedToEditTemplates(new Username(cis(templateViewUser)))).thenReturn(false);
         when(securityService.isAuthorizedToViewTemplates(new Username(templateViewUser))).thenReturn(true);
 
         Set<GrantedAuthority> authorities = authorityGranter.authorities(templateViewUser);

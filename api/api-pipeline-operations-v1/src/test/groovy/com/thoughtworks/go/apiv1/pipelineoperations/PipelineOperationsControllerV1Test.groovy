@@ -108,7 +108,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
     class AsNormalUser {
       @BeforeEach
       void setUp() {
-        loginAsAdmin()
+        loginAsGroupOperateUser(pipelineName: pipelineName)
       }
 
       @Test
@@ -192,7 +192,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
     class AsNormalUser {
       @BeforeEach
       void setUp() {
-        loginAsAdmin()
+        loginAsGroupOperateUser(pipelineName: pipelineName)
       }
 
       @Test
@@ -259,7 +259,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
     class AsNormalUser {
       @BeforeEach
       void setUp() {
-        loginAsAdmin()
+        loginAsGroupOperateUser(pipelineName: pipelineName)
       }
 
       @Test
@@ -385,7 +385,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
     }
 
     @Nested
-    class AsNormalUser {
+    class AsGroupOperateUser {
       @BeforeEach
       void setUp() {
         loginAsGroupOperateUser(pipelineName: pipelineName)
@@ -524,7 +524,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
     }
 
     @Nested
-    class AsNormalUser {
+    class AsGroupOperateUser {
       @BeforeEach
       void setUp() {
         loginAsGroupOperateUser(pipelineName: pipelineName)

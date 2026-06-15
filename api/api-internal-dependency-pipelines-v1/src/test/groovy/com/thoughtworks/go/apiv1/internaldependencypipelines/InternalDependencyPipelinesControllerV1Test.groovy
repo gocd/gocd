@@ -90,10 +90,10 @@ class InternalDependencyPipelinesControllerV1Test implements SecurityServiceTrai
   }
 
   @Nested
-  class AsAuthorizedPipelineUser {
+  class AsNormalUser {
     @BeforeEach
     void setUp() {
-      loginAsAdmin()
+      loginAsPipelineViewUser(groupName: "first", pipelineName: "pipeline1")
       when(goConfigService.hasPipelineNamed(any(CaseInsensitiveString.class))).thenReturn(true)
     }
 
@@ -141,7 +141,7 @@ class InternalDependencyPipelinesControllerV1Test implements SecurityServiceTrai
   class AsTemplateAdmin {
     @BeforeEach
     void setUp() {
-      loginAsAdmin()
+      loginAsTemplateAdmin()
       when(securityService.hasViewPermissionForPipeline(any(Username.class), anyString())).thenReturn(true)
     }
 

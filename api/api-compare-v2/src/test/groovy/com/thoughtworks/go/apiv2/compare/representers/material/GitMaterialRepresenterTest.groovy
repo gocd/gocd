@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
+import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.util.command.UrlArgument
 import org.junit.jupiter.api.Test
@@ -31,11 +32,11 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
 
-  static def existingMaterial() {
+  MaterialConfig existingMaterial() {
     return MaterialConfigsMother.gitMaterialConfig()
   }
 
-  def existingMaterialWithErrors() {
+  MaterialConfig existingMaterialWithErrors() {
     def gitConfig = git(new UrlArgument(''), null, null, '', '', true, null, false, '', cis('!nV@l!d'), false)
     def dupGitMaterial = git(new UrlArgument(''), null, null, '', '', true, null, false, '', cis('!nV@l!d'), false)
     def materialConfigs = new MaterialConfigs(gitConfig)

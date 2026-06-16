@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
 import com.thoughtworks.go.config.materials.PasswordDeserializer
+import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.util.command.HgUrlArgument
@@ -31,18 +32,18 @@ import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 
 class TfsMaterialRepresenterTest implements MaterialRepresenterTrait {
-  def existingMaterial() {
+  MaterialConfig existingMaterial() {
     MaterialConfigsMother.tfsMaterialConfig()
   }
 
-  def getOptions() {
+  ConfigHelperOptions getOptions() {
     def deserializer = mock(PasswordDeserializer.class)
     def map = new ConfigHelperOptions(mock(BasicCruiseConfig.class), deserializer)
     when(deserializer.deserialize(any(), any(), any())).thenReturn(new GoCipher().encrypt("passwd"))
     return map
   }
 
-  def existingMaterialWithErrors() {
+  MaterialConfig existingMaterialWithErrors() {
     def tfsConfig = tfs(new GoCipher(), new HgUrlArgument(''), '', '', '', '/some-path/')
     def materialConfigs = new MaterialConfigs(tfsConfig)
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))

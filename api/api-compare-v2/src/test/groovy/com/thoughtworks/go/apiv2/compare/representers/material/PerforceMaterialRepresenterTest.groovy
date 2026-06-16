@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
+import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.security.GoCipher
 
@@ -27,11 +28,11 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.p4
 
 class PerforceMaterialRepresenterTest implements MaterialRepresenterTrait {
 
-  def existingMaterial() {
+  MaterialConfig existingMaterial() {
     MaterialConfigsMother.p4MaterialConfigFull()
   }
 
-  def existingMaterialWithErrors() {
+  MaterialConfig existingMaterialWithErrors() {
     def p4Config = p4('', '', '', false, '', new GoCipher(), cis(''), true, null, false, '/dest/')
     def materialConfigs = new MaterialConfigs(p4Config)
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))

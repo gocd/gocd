@@ -17,6 +17,8 @@ package com.thoughtworks.go.apiv11.shared.representers.materials
 
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv11.admin.shared.representers.materials.MaterialsRepresenter
+import com.thoughtworks.go.apiv11.admin.shared.representers.stages.ConfigHelperOptions
+import com.thoughtworks.go.domain.materials.MaterialConfig
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
@@ -24,6 +26,12 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 
 trait MaterialRepresenterTrait {
+
+  abstract MaterialConfig existingMaterial()
+  abstract MaterialConfig existingMaterialWithErrors()
+  abstract ConfigHelperOptions getOptions()
+  abstract Object getMaterialHash()
+  abstract Object getExpectedMaterialHashWithErrors()
 
   @Test
   void 'should render material with hal representation'() {

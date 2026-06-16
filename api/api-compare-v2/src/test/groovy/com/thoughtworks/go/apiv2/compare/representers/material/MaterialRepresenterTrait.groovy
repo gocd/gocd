@@ -16,12 +16,17 @@
 package com.thoughtworks.go.apiv2.compare.representers.material
 
 import com.thoughtworks.go.apiv2.compare.representers.MaterialRepresenter
+import com.thoughtworks.go.domain.materials.MaterialConfig
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 trait MaterialRepresenterTrait {
+  abstract MaterialConfig existingMaterial()
+  abstract MaterialConfig existingMaterialWithErrors()
+  abstract Object getMaterialHash()
+  abstract Object getExpectedMaterialHashWithErrors()
 
   @Test
   void 'should render material with hal representation'() {

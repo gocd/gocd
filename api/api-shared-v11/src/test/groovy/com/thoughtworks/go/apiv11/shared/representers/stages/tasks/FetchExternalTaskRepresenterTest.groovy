@@ -16,6 +16,7 @@
 package com.thoughtworks.go.apiv11.shared.representers.stages.tasks
 
 import com.thoughtworks.go.config.FetchPluggableArtifactTask
+import com.thoughtworks.go.domain.Task
 import com.thoughtworks.go.domain.config.Configuration
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 
@@ -23,7 +24,7 @@ import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 
 class FetchExternalTaskRepresenterTest implements TaskRepresenterTrait {
 
-  def existingTask() {
+  Task existingTask() {
     def task = new FetchPluggableArtifactTask()
     task.setPipelineName(cis('pipeline'))
     task.setStage(cis('stage'))
@@ -33,7 +34,7 @@ class FetchExternalTaskRepresenterTest implements TaskRepresenterTrait {
     return task
   }
 
-  def expectedTaskHash =
+  Map<?, ?> expectedTaskHash =
     [
       type      : 'fetch',
       attributes: [
@@ -52,7 +53,7 @@ class FetchExternalTaskRepresenterTest implements TaskRepresenterTrait {
       ]
     ]
 
-  def expectedTaskHashWithRunIf =
+  Map<?, ?> expectedTaskHashWithRunIf =
     [
       type      : 'fetch',
       attributes: [
@@ -71,7 +72,7 @@ class FetchExternalTaskRepresenterTest implements TaskRepresenterTrait {
       ]
     ]
 
-  def expectedTaskHashWithOnCancelConfig =
+  Map<?, ?> expectedTaskHashWithOnCancelConfig =
     [
       type      : 'fetch',
       attributes: [

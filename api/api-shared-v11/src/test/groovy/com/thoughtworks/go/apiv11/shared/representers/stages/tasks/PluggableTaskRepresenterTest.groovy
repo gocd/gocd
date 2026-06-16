@@ -15,8 +15,9 @@
  */
 package com.thoughtworks.go.apiv11.shared.representers.stages.tasks
 
-
+import com.thoughtworks.go.apiv11.shared.representers.helpers.TaskMother
 import com.thoughtworks.go.config.pluggabletask.PluggableTask
+import com.thoughtworks.go.domain.Task
 import com.thoughtworks.go.domain.config.Configuration
 import com.thoughtworks.go.domain.config.PluginConfiguration
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore
@@ -33,14 +34,14 @@ class PluggableTaskRepresenterTest implements TaskRepresenterTrait {
   void setUpPlugin() {
     def simpleProperty = new TaskConfigProperty('simple_key', 'value')
     def secureProperty = new TaskConfigProperty('secure_key', 'mJxU96GFuVY=').with(Property.SECURE, true)
-    def task = new com.thoughtworks.go.apiv11.shared.representers.helpers.TaskMother.StubTask()
+    def task = new TaskMother.StubTask()
     task.config().add(simpleProperty)
     task.config().add(secureProperty)
     def taskPreference = new TaskPreference(task)
     PluggableTaskConfigStore.store().setPreferenceFor("curl", taskPreference)
   }
 
-  def existingTask() {
+  Task existingTask() {
     def simpleProperty = create("simple_key", false, "value")
     def secureProperty = create("secure_key", true, "value")
     def pluginConfiguration = new PluginConfiguration("curl", "1.0")
@@ -49,7 +50,7 @@ class PluggableTaskRepresenterTest implements TaskRepresenterTrait {
     return task
   }
 
-  def expectedTaskHash =
+  Map<?, ?> expectedTaskHash =
     [
       type:       'pluggable_task',
       attributes: [
@@ -71,7 +72,7 @@ class PluggableTaskRepresenterTest implements TaskRepresenterTrait {
       ]
     ]
 
-  def expectedTaskHashWithRunIf =
+  Map<?, ?> expectedTaskHashWithRunIf =
     [
       type:       'pluggable_task',
       attributes: [
@@ -93,7 +94,7 @@ class PluggableTaskRepresenterTest implements TaskRepresenterTrait {
       ]
     ]
 
-  def expectedTaskHashWithOnCancelConfig =
+  Map<?, ?> expectedTaskHashWithOnCancelConfig =
     [
       type:       'pluggable_task',
       attributes: [

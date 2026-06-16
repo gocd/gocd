@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs
 import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig
 import com.thoughtworks.go.config.remote.FileConfigOrigin
+import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis
@@ -30,17 +31,15 @@ import static org.mockito.Mockito.mock
 
 class DependencyMaterialRepresenterTest implements MaterialRepresenterTrait {
 
-
-  def existingMaterial() {
+  MaterialConfig existingMaterial() {
     MaterialConfigsMother.dependencyMaterialConfig()
   }
 
-  def getOptions() {
+  ConfigHelperOptions getOptions() {
     return new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class))
-
   }
 
-  def existingMaterialWithErrors() {
+  MaterialConfig existingMaterialWithErrors() {
     def dependencyConfig = new DependencyMaterialConfig(cis(''), cis(''), true)
     def materialConfigs = new MaterialConfigs(dependencyConfig)
     def pipeline = new PipelineConfig(cis("p"), materialConfigs)

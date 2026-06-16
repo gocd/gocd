@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
 import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig
+import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.util.command.UrlArgument
@@ -41,16 +42,15 @@ import static org.mockito.Mockito.mock
 
 class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
 
-  static def existingMaterial() {
-    return MaterialConfigsMother.gitMaterialConfig()
+  MaterialConfig existingMaterial() {
+    MaterialConfigsMother.gitMaterialConfig()
   }
 
-  def getOptions() {
+  ConfigHelperOptions getOptions() {
     return new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class))
-
   }
 
-  def existingMaterialWithErrors() {
+  MaterialConfig existingMaterialWithErrors() {
     def gitConfig = git(new UrlArgument(''), null, null, '', '', true, null, false, '', cis('!nV@l!d'), false)
     def dupGitMaterial = git(new UrlArgument(''), null, null, '', '', true, null, false, '', cis('!nV@l!d'), false)
     def materialConfigs = new MaterialConfigs(gitConfig)

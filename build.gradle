@@ -674,6 +674,7 @@ dependencyCheck {
 
   analyzers.assemblyEnabled = false // Avoid dotnet false positives
   analyzers.retirejs.filterNonVulnerable = true // Reduces effort/memory processing retirejs results
+  analyzers.nodeAudit.skipDevDependencies = true // Reduce lower priority noise
 }
 
 dependencyCheckAggregate {

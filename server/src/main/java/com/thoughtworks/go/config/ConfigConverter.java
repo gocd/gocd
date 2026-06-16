@@ -47,6 +47,7 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.command.CommandLine;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +75,7 @@ public class ConfigConverter {
         this.agentService = agentService;
     }
 
-    public PartialConfig toPartialConfig(CRParseResult crPartialConfig, PartialConfigLoadContext context) {
+    PartialConfig toPartialConfig(CRParseResult crPartialConfig, PartialConfigLoadContext context) {
         SCMs newSCMs = new SCMs();
         PartialConfig partialConfig = new PartialConfig();
         for (CREnvironment crEnvironment : crPartialConfig.getEnvironments()) {
@@ -96,7 +97,7 @@ public class ConfigConverter {
         partialConfig.getEnvironments().forEach(environmentConfig -> environmentConfig.validateContainsAgentUUIDsFrom(uniqueAgentUuids));
     }
 
-    public Map<String, List<CRPipeline>> groupPipelinesByGroupName(Collection<CRPipeline> pipelines) {
+    private Map<String, List<CRPipeline>> groupPipelinesByGroupName(Collection<CRPipeline> pipelines) {
         Map<String, List<CRPipeline>> map = new HashMap<>();
         for (CRPipeline pipe : pipelines) {
             String key = pipe.getGroup();
@@ -105,7 +106,8 @@ public class ConfigConverter {
         return map;
     }
 
-    public BasicPipelineConfigs toBasicPipelineConfigs(Map.Entry<String, List<CRPipeline>> crPipelineGroup, PartialConfigLoadContext context, SCMs newSCMs) {
+    @VisibleForTesting
+    BasicPipelineConfigs toBasicPipelineConfigs(Map.Entry<String, List<CRPipeline>> crPipelineGroup, PartialConfigLoadContext context, SCMs newSCMs) {
         String name = crPipelineGroup.getKey();
         BasicPipelineConfigs pipelineConfigs = new BasicPipelineConfigs();
         pipelineConfigs.setGroup(name);
@@ -115,7 +117,8 @@ public class ConfigConverter {
         return pipelineConfigs;
     }
 
-    public BasicEnvironmentConfig toEnvironmentConfig(CREnvironment crEnvironment) {
+    @VisibleForTesting
+    BasicEnvironmentConfig toEnvironmentConfig(CREnvironment crEnvironment) {
         BasicEnvironmentConfig basicEnvironmentConfig =
                 new BasicEnvironmentConfig(cis(crEnvironment.getName()));
         for (String pipeline : crEnvironment.getPipelines()) {
@@ -131,7 +134,8 @@ public class ConfigConverter {
         return basicEnvironmentConfig;
     }
 
-    public EnvironmentVariableConfig toEnvironmentVariableConfig(CREnvironmentVariable crEnvironmentVariable) {
+    @VisibleForTesting
+    EnvironmentVariableConfig toEnvironmentVariableConfig(CREnvironmentVariable crEnvironmentVariable) {
         if (crEnvironmentVariable.hasEncryptedValue()) {
             // encrypted value is not null or empty string
             return new EnvironmentVariableConfig(cipher, crEnvironmentVariable.getName(), crEnvironmentVariable.getEncryptedValue());
@@ -153,7 +157,7 @@ public class ConfigConverter {
         }
     }
 
-    public PluggableTask toPluggableTask(CRPluggableTask pluggableTask) {
+    private PluggableTask toPluggableTask(CRPluggableTask pluggableTask) {
         PluginConfiguration pluginConfiguration = toPluginConfiguration(pluggableTask.getPluginConfiguration());
         Configuration configuration = toConfiguration(pluggableTask.getConfiguration());
         PluggableTask task = new PluggableTask(pluginConfiguration, configuration);
@@ -181,7 +185,8 @@ public class ConfigConverter {
         };
     }
 
-    public AbstractTask toAbstractTask(CRTask crTask) {
+    @VisibleForTesting
+    AbstractTask toAbstractTask(CRTask crTask) {
         return switch (crTask) {
             case null -> throw new ConfigConvertionException("task cannot be null");
             case CRPluggableTask crPluggableTask -> toPluggableTask(crPluggableTask);
@@ -193,7 +198,7 @@ public class ConfigConverter {
         };
     }
 
-    public FetchPluggableArtifactTask toFetchPluggableArtifactTask(CRFetchPluggableArtifactTask crTask) {
+    private FetchPluggableArtifactTask toFetchPluggableArtifactTask(CRFetchPluggableArtifactTask crTask) {
         Configuration configuration = toConfiguration(crTask.getConfiguration());
         FetchPluggableArtifactTask fetchPluggableArtifactTask = new FetchPluggableArtifactTask(cis(crTask.getPipeline() == null ? "" : crTask.getPipeline()),
                 cis(crTask.getStage()),
@@ -202,7 +207,7 @@ public class ConfigConverter {
         return fetchPluggableArtifactTask;
     }
 
-    public FetchTask toFetchTask(CRFetchArtifactTask crTask) {
+    private FetchTask toFetchTask(CRFetchArtifactTask crTask) {
         FetchTask fetchTask = new FetchTask(
                 cis(crTask.getPipeline() == null ? "" : crTask.getPipeline()),
                 cis(crTask.getStage()),
@@ -218,7 +223,7 @@ public class ConfigConverter {
         return fetchTask;
     }
 
-    public ExecTask toExecTask(CRExecTask crTask) {
+    private ExecTask toExecTask(CRExecTask crTask) {
         ExecTask execTask = new ExecTask(crTask.getCommand(), toArgList(crTask.getArguments()), crTask.getWorkingDirectory());
         execTask.setTimeout(crTask.getTimeout());
 
@@ -236,7 +241,7 @@ public class ConfigConverter {
         return arguments;
     }
 
-    public BuildTask toBuildTask(CRBuildTask crBuildTask) {
+    private BuildTask toBuildTask(CRBuildTask crBuildTask) {
         BuildTask buildTask = switch (crBuildTask.getType()) {
             case rake -> new RakeTask();
             case ant -> new AntTask();
@@ -271,11 +276,11 @@ public class ConfigConverter {
         return configuration;
     }
 
-    public PluginConfiguration toPluginConfiguration(CRPluginConfiguration pluginConfiguration) {
+    private PluginConfiguration toPluginConfiguration(CRPluginConfiguration pluginConfiguration) {
         return new PluginConfiguration(pluginConfiguration.getId(), pluginConfiguration.getVersion());
     }
 
-    public DependencyMaterialConfig toDependencyMaterialConfig(CRDependencyMaterial crDependencyMaterial) {
+    private DependencyMaterialConfig toDependencyMaterialConfig(CRDependencyMaterial crDependencyMaterial) {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(
                 cis(crDependencyMaterial.getPipeline()),
                 cis(crDependencyMaterial.getStage()),
@@ -288,43 +293,38 @@ public class ConfigConverter {
         materialConfig.setName(toMaterialName(crMaterial.getName()));
     }
 
-    public MaterialConfig toMaterialConfig(CRMaterial crMaterial, PartialConfigLoadContext context, SCMs newSCMs) {
-        switch (crMaterial) {
+    @VisibleForTesting
+    MaterialConfig toMaterialConfig(CRMaterial crMaterial, PartialConfigLoadContext context, SCMs newSCMs) {
+        return switch (crMaterial) {
             case null -> throw new ConfigConvertionException("material cannot be null");
-            case CRDependencyMaterial crDependencyMaterial -> {
-                return toDependencyMaterialConfig(crDependencyMaterial);
-            }
-            case CRScmMaterial crScmMaterial -> {
-                return toScmMaterialConfig(crScmMaterial);
-            }
-            case CRPluggableScmMaterial crPluggableScmMaterial -> {
-                return toPluggableScmMaterialConfig(crPluggableScmMaterial, context, newSCMs);
-            }
-            case CRPackageMaterial crPackageMaterial -> {
-                return toPackageMaterial(crPackageMaterial);
-            }
-            case CRConfigMaterial crConfigMaterial -> {
-                MaterialConfig repoMaterial = cloner.deepClone(context.configMaterial());
-                if (isNotEmpty(crConfigMaterial.getName())) {
-                    repoMaterial.setName(cis(crConfigMaterial.getName()));
-                }
-                if (isNotEmpty(crConfigMaterial.getDestination())) {
-                    setDestination(repoMaterial, crConfigMaterial.getDestination());
-                }
-                if (crConfigMaterial.getFilter() != null && !crConfigMaterial.getFilter().isEmpty()) {
-                    if (repoMaterial instanceof ScmMaterialConfig scmMaterialConfig) {
-                        scmMaterialConfig.setFilter(toFilter(crConfigMaterial.getFilter().getList()));
-                        scmMaterialConfig.setInvertFilter(crConfigMaterial.getFilter().isIncluded());
-                    } else { //must be a pluggable SCM
-                        PluggableSCMMaterialConfig pluggableSCMMaterial = (PluggableSCMMaterialConfig) repoMaterial;
-                        pluggableSCMMaterial.setFilter(toFilter(crConfigMaterial.getFilter().getList()));
-                        pluggableSCMMaterial.setInvertFilter(crConfigMaterial.getFilter().isIncluded());
-                    }
-                }
-                return repoMaterial;
-            }
+            case CRDependencyMaterial crDependencyMaterial -> toDependencyMaterialConfig(crDependencyMaterial);
+            case CRScmMaterial crScmMaterial -> toScmMaterialConfig(crScmMaterial);
+            case CRPluggableScmMaterial crPluggableScmMaterial -> toPluggableScmMaterialConfig(crPluggableScmMaterial, context, newSCMs);
+            case CRPackageMaterial crPackageMaterial -> toPackageMaterial(crPackageMaterial);
+            case CRConfigMaterial crConfigMaterial -> toConfigRepoMaterial(crConfigMaterial, context.configMaterial());
             default -> throw new ConfigConvertionException(String.format("unknown material type '%s'", crMaterial));
+        };
+    }
+
+    private MaterialConfig toConfigRepoMaterial(CRConfigMaterial crConfigMaterial, MaterialConfig existingMaterial) {
+        MaterialConfig repoMaterial = cloner.deepClone(existingMaterial);
+        if (isNotEmpty(crConfigMaterial.getName())) {
+            repoMaterial.setName(cis(crConfigMaterial.getName()));
         }
+        if (isNotEmpty(crConfigMaterial.getDestination())) {
+            setDestination(repoMaterial, crConfigMaterial.getDestination());
+        }
+        if (crConfigMaterial.getFilter() != null && !crConfigMaterial.getFilter().isEmpty()) {
+            if (repoMaterial instanceof ScmMaterialConfig scmMaterialConfig) {
+                scmMaterialConfig.setFilter(toFilter(crConfigMaterial.getFilter().getList()));
+                scmMaterialConfig.setInvertFilter(crConfigMaterial.getFilter().isIncluded());
+            } else { //must be a pluggable SCM
+                PluggableSCMMaterialConfig pluggableSCMMaterial = (PluggableSCMMaterialConfig) repoMaterial;
+                pluggableSCMMaterial.setFilter(toFilter(crConfigMaterial.getFilter().getList()));
+                pluggableSCMMaterial.setInvertFilter(crConfigMaterial.getFilter().isIncluded());
+            }
+        }
+        return repoMaterial;
     }
 
     private void setDestination(MaterialConfig repoMaterial, String destination) {
@@ -337,7 +337,7 @@ public class ConfigConverter {
         }
     }
 
-    public PackageMaterialConfig toPackageMaterial(CRPackageMaterial crPackageMaterial) {
+    private PackageMaterialConfig toPackageMaterial(CRPackageMaterial crPackageMaterial) {
         PackageDefinition packageDefinition = getPackageDefinition(crPackageMaterial.getPackageId());
         return new PackageMaterialConfig(toMaterialName(crPackageMaterial.getName()), crPackageMaterial.getPackageId(), packageDefinition);
     }
@@ -450,10 +450,7 @@ public class ConfigConverter {
     }
 
     private CaseInsensitiveString toMaterialName(String materialName) {
-        if (isBlank(materialName)) {
-            return null;
-        }
-        return cis(materialName);
+        return isBlank(materialName) ? null : cis(materialName);
     }
 
     private void setCommonScmMaterialMembers(ScmMaterialConfig scmMaterialConfig, CRScmMaterial crScmMaterial) {
@@ -487,7 +484,8 @@ public class ConfigConverter {
         return filter;
     }
 
-    public JobConfig toJobConfig(CRJob crJob) {
+    @VisibleForTesting
+    JobConfig toJobConfig(CRJob crJob) {
         JobConfig jobConfig = new JobConfig(crJob.getName());
         if (crJob.getEnvironmentVariables() != null) {
             for (CREnvironmentVariable crEnvironmentVariable : crJob.getEnvironmentVariables()) {
@@ -546,7 +544,8 @@ public class ConfigConverter {
         return jobConfig;
     }
 
-    public ArtifactTypeConfig toArtifactConfig(CRArtifact crArtifact) {
+    @VisibleForTesting
+    ArtifactTypeConfig toArtifactConfig(CRArtifact crArtifact) {
         switch (crArtifact.getType()) {
             case build:
                 CRBuiltInArtifact crBuildArtifact = (CRBuiltInArtifact) crArtifact;
@@ -569,7 +568,8 @@ public class ConfigConverter {
         return new Tab(crTab.getName(), crTab.getPath());
     }
 
-    public StageConfig toStage(CRStage crStage) {
+    @VisibleForTesting
+    StageConfig toStage(CRStage crStage) {
         Approval approval = toApproval(crStage.getApproval());
         StageConfig stageConfig = new StageConfig(cis(crStage.getName()), crStage.isFetchMaterials(),
                 crStage.isCleanWorkingDirectory(), approval, crStage.isNeverCleanupArtifacts(), toJobConfigs(crStage.getJobs()));
@@ -580,7 +580,8 @@ public class ConfigConverter {
         return stageConfig;
     }
 
-    public Approval toApproval(CRApproval crApproval) {
+    @VisibleForTesting
+    Approval toApproval(CRApproval crApproval) {
         if (crApproval == null) {
             return Approval.automaticApproval();
         }
@@ -612,7 +613,8 @@ public class ConfigConverter {
         return jobConfigs;
     }
 
-    public PipelineConfig toPipelineConfig(CRPipeline crPipeline, PartialConfigLoadContext context, SCMs newSCMs) {
+    @VisibleForTesting
+    PipelineConfig toPipelineConfig(CRPipeline crPipeline, PartialConfigLoadContext context, SCMs newSCMs) {
         MaterialConfigs materialConfigs = new MaterialConfigs();
         for (CRMaterial crMaterial : crPipeline.getMaterials()) {
             materialConfigs.add(toMaterialConfig(crMaterial, context, newSCMs));
@@ -662,7 +664,8 @@ public class ConfigConverter {
         return new ParamConfig(crParameter.getName(), crParameter.getValue());
     }
 
-    public TimerConfig toTimerConfig(CRTimer crTimer) {
+    @VisibleForTesting
+    TimerConfig toTimerConfig(CRTimer crTimer) {
         String spec = crTimer.getSpec();
         if (isBlank(spec)) {
             throw new RuntimeException("timer schedule is not specified");
@@ -1000,13 +1003,13 @@ public class ConfigConverter {
     }
 
     private CRHgMaterial hgMaterialToCRHgMaterial(String materialName, HgMaterialConfig hgMaterialConfig) {
-        CRHgMaterial crHgMaterial = new CRHgMaterial(materialName, hgMaterialConfig.getFolder(), hgMaterialConfig.isAutoUpdate(), hgMaterialConfig.isInvertFilter(), hgMaterialConfig.getUserName(), hgMaterialConfig.filter().ignoredFileNames(), hgMaterialConfig.getUrl(), hgMaterialConfig.getBranchAttribute());
+        CRHgMaterial crHgMaterial = new CRHgMaterial(materialName, hgMaterialConfig.getFolder(), hgMaterialConfig.isAutoUpdate(), hgMaterialConfig.isInvertFilter(), hgMaterialConfig.getUserName(), hgMaterialConfig.filter().ignoredFileNames(), hgMaterialConfig.getUriForDisplay(), hgMaterialConfig.getBranchAttribute());
         crHgMaterial.setEncryptedPassword(hgMaterialConfig.getEncryptedPassword());
         return crHgMaterial;
     }
 
     private CRGitMaterial gitMaterialToCRGitMaterial(String materialName, GitMaterialConfig gitMaterialConfig) {
-        CRGitMaterial crGitMaterial = new CRGitMaterial(materialName, gitMaterialConfig.getFolder(), gitMaterialConfig.isAutoUpdate(), gitMaterialConfig.isInvertFilter(), gitMaterialConfig.getUserName(), gitMaterialConfig.filter().ignoredFileNames(), gitMaterialConfig.getUrl(), gitMaterialConfig.getBranch(), gitMaterialConfig.isShallowClone());
+        CRGitMaterial crGitMaterial = new CRGitMaterial(materialName, gitMaterialConfig.getFolder(), gitMaterialConfig.isAutoUpdate(), gitMaterialConfig.isInvertFilter(), gitMaterialConfig.getUserName(), gitMaterialConfig.filter().ignoredFileNames(), gitMaterialConfig.getUriForDisplay(), gitMaterialConfig.getBranch(), gitMaterialConfig.isShallowClone());
         crGitMaterial.setEncryptedPassword(gitMaterialConfig.getEncryptedPassword());
         return crGitMaterial;
 
@@ -1023,7 +1026,7 @@ public class ConfigConverter {
     }
 
     private CRSvnMaterial svnMaterialToCRSvnMaterial(String materialName, SvnMaterialConfig svnMaterial) {
-        CRSvnMaterial crSvnMaterial = new CRSvnMaterial(materialName, svnMaterial.getFolder(), svnMaterial.isAutoUpdate(), svnMaterial.isInvertFilter(), svnMaterial.getUserName(), svnMaterial.filter().ignoredFileNames(), svnMaterial.getUrl(), svnMaterial.isCheckExternals());
+        CRSvnMaterial crSvnMaterial = new CRSvnMaterial(materialName, svnMaterial.getFolder(), svnMaterial.isAutoUpdate(), svnMaterial.isInvertFilter(), svnMaterial.getUserName(), svnMaterial.filter().ignoredFileNames(), svnMaterial.getUriForDisplay(), svnMaterial.isCheckExternals());
         crSvnMaterial.setEncryptedPassword(svnMaterial.getEncryptedPassword());
         return crSvnMaterial;
     }
@@ -1032,7 +1035,7 @@ public class ConfigConverter {
         CRTfsMaterial crTfsMaterial = new CRTfsMaterial(materialName,
                 tfsMaterialConfig.getFolder(),
                 tfsMaterialConfig.isAutoUpdate(),
-                tfsMaterialConfig.isInvertFilter(), tfsMaterialConfig.getUserName(), tfsMaterialConfig.filter().ignoredFileNames(), tfsMaterialConfig.getUrl(),
+                tfsMaterialConfig.isInvertFilter(), tfsMaterialConfig.getUserName(), tfsMaterialConfig.filter().ignoredFileNames(), tfsMaterialConfig.getUriForDisplay(),
                 tfsMaterialConfig.getProjectPath(),
                 tfsMaterialConfig.getDomain()
         );

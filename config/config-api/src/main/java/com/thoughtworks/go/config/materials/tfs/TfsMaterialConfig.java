@@ -73,7 +73,7 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
     @Override
     public String getUriForDisplay() {
-        return this.url.forDisplay();
+        return url != null ? url.forDisplay() : null;
     }
 
     @Override

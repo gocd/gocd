@@ -22,6 +22,6 @@ public class HgMaterialRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, HgMaterialConfig hgMaterialConfig) {
         ScmMaterialRepresenter.toJSON(jsonWriter, hgMaterialConfig);
-        jsonWriter.add("url", hgMaterialConfig.getUrl());
+        jsonWriter.add("url", hgMaterialConfig.getUriForDisplay());
     }
 }

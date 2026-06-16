@@ -125,7 +125,7 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
     @Override
     public String getUriForDisplay() {
-        return this.url.forDisplay();
+        return url != null ? url.forDisplay() : null;
     }
 
     @Override

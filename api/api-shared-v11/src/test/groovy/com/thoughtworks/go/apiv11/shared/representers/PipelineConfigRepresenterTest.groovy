@@ -242,7 +242,7 @@ class PipelineConfigRepresenterTest {
     }
 
     @Test
-    void 'should convert pipeline hash with materials  to PipelineConfig'() {
+    void 'should convert pipeline hash with materials to PipelineConfig'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         materials:
           [
@@ -250,7 +250,7 @@ class PipelineConfigRepresenterTest {
               type      : 'git',
               attributes:
                 [
-                  url             : 'http://user:password@funk.com/blank',
+                  url             : 'http://user:******@funk.com/blank',
                   destination     : 'destination',
                   filter          :
                     [

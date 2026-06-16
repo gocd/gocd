@@ -231,7 +231,7 @@ class PipelineRepresenterTest {
       can_pause             : false,
       from_config_repo      : true,
       config_repo_id          : 'repo1',
-      config_repo_material_url: 'http://user:******@funk.com/blank'
+      config_repo_material_url: 'http://funk.com/blank'
     ]
   }
 }

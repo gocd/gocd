@@ -25,7 +25,7 @@ class TfsMaterialRepresenter implements MaterialRepresenter<TfsMaterialConfig> {
     public void toJSON(OutputWriter json, TfsMaterialConfig material) {
         json.add("name", material.getName());
         json.add("auto_update", material.getAutoUpdate());
-        json.add("url", material.getUrl());
+        json.add("url", material.getUriForDisplay());
         json.add("project_path", material.getProjectPath());
         json.add("domain", material.getDomain());
         json.add("username", material.getUserName());

@@ -117,7 +117,8 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait<GitMaterial
       type       : 'git',
       fingerprint: existingMaterial().fingerprint,
       attributes : [
-        url             : "http://user:password@funk.com/blank",
+        url             : "http://funk.com/blank",
+        username        : "user",
         destination     : "destination",
         filter          : [
           ignore: ['**/*.html', '**/foobar/']
@@ -131,5 +132,4 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait<GitMaterial
       ]
     ]
   }
-
 }

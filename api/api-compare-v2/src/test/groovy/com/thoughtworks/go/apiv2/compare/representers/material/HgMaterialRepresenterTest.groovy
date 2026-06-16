@@ -43,7 +43,7 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
     [
       type      : 'hg',
       attributes: [
-        url          : "http://user:pass@domain/path##branch",
+        url          : "http://user:******@domain/path##branch",
         destination  : "dest-folder",
         filter       : [
           ignore: ['**/*.html', '**/foobar/']

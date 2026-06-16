@@ -99,7 +99,7 @@ public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwar
 
     @Override
     public String getUriForDisplay() {
-        return this.url.forDisplay();
+        return url != null ? url.forDisplay() : null;
     }
 
     @Override

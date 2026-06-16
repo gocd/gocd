@@ -48,13 +48,13 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
 
   @Test
   void "should serialize material without name"() {
-    def actualJson = toObjectString({ MaterialRepresenter.toJSON(it, git("http://user:password@funk.com/blank")) })
+    def actualJson = toObjectString({ MaterialRepresenter.toJSON(it, git("http://funk.com/blank")) })
 
     def expectedJson =
       [
         type      : 'git',
         attributes: [
-          url             : "http://user:password@funk.com/blank",
+          url             : "http://funk.com/blank",
           destination     : null,
           filter          : null,
           invert_filter   : false,
@@ -64,7 +64,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
           submodule_folder: null,
           shallow_clone   : false,
           display_type    : "Git",
-          description     : "URL: http://user:******@funk.com/blank, Branch: master",
+          description     : "URL: http://funk.com/blank, Branch: master",
         ]
       ]
 
@@ -73,7 +73,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
 
   @Test
   void "should serialize material with blank branch"() {
-    def actualJson = toObjectString({ MaterialRepresenter.toJSON(it, git("http://user:password@funk.com/blank", "")) })
+    def actualJson = toObjectString({ MaterialRepresenter.toJSON(it, git("http://funk.com/blank", "")) })
 
     assertThatJson(actualJson).isEqualTo(gitMaterialBasicHash)
   }
@@ -82,7 +82,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
     [
       type      : 'git',
       attributes: [
-        url             : "http://user:password@funk.com/blank",
+        url             : "http://funk.com/blank",
         destination     : "destination",
         filter          : [
           ignore: ['**/*.html', '**/foobar/']
@@ -94,7 +94,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
         name            : 'AwesomeGitMaterial',
         auto_update     : false,
         display_type    : "Git",
-        description     : "URL: http://user:******@funk.com/blank, Branch: branch",
+        description     : "URL: http://funk.com/blank, Branch: branch",
       ]
     ]
 
@@ -102,7 +102,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
     [
       type      : 'git',
       attributes: [
-        url             : "http://user:password@funk.com/blank",
+        url             : "http://funk.com/blank",
         destination     : null,
         filter          : null,
         invert_filter   : false,
@@ -112,7 +112,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
         submodule_folder: null,
         shallow_clone   : false,
         display_type    : "Git",
-        description     : "URL: http://user:******@funk.com/blank, Branch: ",
+        description     : "URL: http://funk.com/blank, Branch: ",
       ]
     ]
 

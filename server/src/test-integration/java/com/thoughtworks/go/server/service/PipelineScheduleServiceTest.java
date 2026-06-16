@@ -17,9 +17,12 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.ScmMaterial;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.materials.TestingMaterial;
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
@@ -49,6 +52,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
@@ -137,12 +145,12 @@ public class PipelineScheduleServiceTest {
     @Test
     public void shouldScheduleStageAfterModifications() throws Exception {
         scheduleAndCompleteInitialPipelines();
-        TestingMaterial stubMaterial = new TestingMaterial();
+        ScmMaterial stubMaterial = new GitMaterial("nowhere");
 
         mingleConfig.setMaterialConfigs(new MaterialConfigs(stubMaterial.config()));
 
         MaterialRevisions revisions = new MaterialRevisions();
-        revisions.addRevision(stubMaterial, stubMaterial.modificationsSince());
+        revisions.addRevision(stubMaterial, multipleModifications());
         BuildCause buildCause = BuildCause.createWithModifications(revisions, "");
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
         Pipeline pipeline = instanceFactory.createPipelineInstance(mingleConfig, buildCause, new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
@@ -157,13 +165,13 @@ public class PipelineScheduleServiceTest {
 
         configHelper.lockPipeline("mingle");
 
-        TestingMaterial stubMaterial = new TestingMaterial();
+        ScmMaterial stubMaterial = new GitMaterial("nowhere");
         mingleConfig.setMaterialConfigs(new MaterialConfigs(stubMaterial.config()));
 
         assertThat(pipelineLockService.isLocked("mingle")).isEqualTo(false);
 
         MaterialRevisions revisions = new MaterialRevisions();
-        revisions.addRevision(stubMaterial, stubMaterial.modificationsSince());
+        revisions.addRevision(stubMaterial, multipleModifications());
         BuildCause buildCause = BuildCause.createWithModifications(revisions, "");
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
         Pipeline pipeline = instanceFactory.createPipelineInstance(mingleConfig, buildCause, new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider());
@@ -183,10 +191,10 @@ public class PipelineScheduleServiceTest {
         agentService.saveOrUpdate(new Agent("uuid3", "localhost", "127.0.0.1", "cookie3"));
         configHelper.setRunOnAllAgents(CaseInsensitiveString.str(evolveConfig.name()), STAGE_NAME, "unit", true);
 
-        TestingMaterial stubMaterial = new TestingMaterial();
+        ScmMaterial stubMaterial = new GitMaterial("nowhere");
         evolveConfig.setMaterialConfigs(new MaterialConfigs(stubMaterial.config()));
         MaterialRevisions revisions = new MaterialRevisions();
-        revisions.addRevision(stubMaterial, stubMaterial.modificationsSince());
+        revisions.addRevision(stubMaterial, multipleModifications());
         BuildCause buildCause = BuildCause.createWithModifications(revisions, "");
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
 
@@ -213,10 +221,10 @@ public class PipelineScheduleServiceTest {
 	public void shouldScheduleMultipleJobsWhenToBeRunMultipleInstance() {
 		configHelper.setRunMultipleInstance(CaseInsensitiveString.str(evolveConfig.name()), STAGE_NAME, "unit", 2);
 
-		TestingMaterial stubMaterial = new TestingMaterial();
+		ScmMaterial stubMaterial = new GitMaterial("nowhere");
 		evolveConfig.setMaterialConfigs(new MaterialConfigs(stubMaterial.config()));
 		MaterialRevisions revisions = new MaterialRevisions();
-		revisions.addRevision(stubMaterial, stubMaterial.modificationsSince());
+		revisions.addRevision(stubMaterial, multipleModifications());
 		BuildCause buildCause = BuildCause.createWithModifications(revisions, "");
 		dbHelper.saveMaterials(buildCause.getMaterialRevisions());
 
@@ -284,11 +292,11 @@ public class PipelineScheduleServiceTest {
     public void shouldForceStagePlanWithModificationsSinceLast() throws Exception {
         Pipeline completedMingle = scheduleAndCompleteInitialPipelines();
         pipelineDao.loadPipeline(completedMingle.getId());
-        TestingMaterial testingMaterial = new TestingMaterial();
+        ScmMaterial testingMaterial = new GitMaterial("nowhere");
         mingleConfig.setMaterialConfigs(new MaterialConfigs(testingMaterial.config()));
 
         MaterialRevisions revisions = new MaterialRevisions();
-        revisions.addRevision(testingMaterial, testingMaterial.modificationsSince());
+        revisions.addRevision(testingMaterial, multipleModifications());
         BuildCause buildCause = BuildCause.createManualForced(revisions, Username.ANONYMOUS);
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
         Pipeline forcedPipeline = instanceFactory.createPipelineInstance(mingleConfig, buildCause, new DefaultSchedulingContext(
@@ -455,5 +463,26 @@ public class PipelineScheduleServiceTest {
         assertThat(completedMingleStage.getJobInstances().getFirst().getState()).isEqualTo(JobState.Completed);
         Pipeline pipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(pipelineConfig.name()));
         return dbHelper.passPipelineFirstStageOnly(pipeline);
+    }
+
+    private List<Modification> multipleModifications() {
+        List<Modification> modifications = new ArrayList<>();
+
+        Date today = new Date();
+        Date yesterday = Date.from(Instant.now().minus(1, ChronoUnit.DAYS));
+
+        Modification modification1 = new Modification("lgao", "Fixing the not checked in files", "foo@bar.com", yesterday, "99");
+        modification1.createModifiedFile("build.xml", "\\build", ModifiedAction.added);
+        modifications.add(modification1);
+
+        Modification modification2 = new Modification("committer", "Added the README file", "foo@bar.com", today, "100");
+        modification2.createModifiedFile("oldbuild.xml", "\\build", ModifiedAction.added);
+        modifications.add(modification2);
+
+        Modification modification3 = new Modification("committer <html />", "Added the README file with <html />", "foo@bar.com", today, "101");
+        modification3.createModifiedFile("README.txt", "\\build", ModifiedAction.added);
+        modifications.add(modification3);
+
+        return modifications;
     }
 }

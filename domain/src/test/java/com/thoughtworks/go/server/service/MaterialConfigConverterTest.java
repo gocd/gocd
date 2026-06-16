@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.domain.materials.TestingMaterialConfig;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstance;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
 import com.thoughtworks.go.domain.materials.mercurial.HgMaterialInstance;
@@ -29,8 +29,9 @@ import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
 
 public class MaterialConfigConverterTest {
     @Test
@@ -51,11 +52,8 @@ public class MaterialConfigConverterTest {
     public void shouldThrowIfYouTryToFindTheInstanceTypeOfSomeRandomConfigType() {
         MaterialConfigConverter converter = new MaterialConfigConverter();
 
-        try {
-            converter.getInstanceType(new TestingMaterialConfig());
-            fail("Should have thrown up");
-        } catch (Exception e) {
-            assertEquals("Unexpected type: TestingMaterialConfig", e.getMessage());
-        }
+        assertThatThrownBy(() -> converter.getInstanceType(mock(MaterialConfig.class)))
+            .isInstanceOf(NullPointerException.class)
+            .hasMessageStartingWith("Unexpected type: MaterialConfig$MockitoMock");
     }
 }

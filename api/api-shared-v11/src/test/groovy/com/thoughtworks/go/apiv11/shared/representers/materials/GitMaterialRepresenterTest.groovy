@@ -60,26 +60,26 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
     return materialConfigs.getFirst()
   }
 
-  @Test
-  void "should serialize material without name"() {
-    def actualJson = toObjectString({
-      MaterialsRepresenter.toJSON(it, git("http://funk.com/blank"))
-    })
-
-    assertThatJson(actualJson).isEqualTo(gitMaterialBasicHashWithoutCredentials)
-  }
-
-  @Test
-  void "should serialize material with blank branch"() {
-    def actualJson = toObjectString({
-      MaterialsRepresenter.toJSON(it, git("http://funk.com/blank", ""))
-    })
-
-    assertThatJson(actualJson).isEqualTo(gitMaterialBasicHashWithoutCredentials)
-  }
-
   @Nested
   class Credentials {
+    @Test
+    void "should serialize material with credentials without name"() {
+      def actualJson = toObjectString({
+        MaterialsRepresenter.toJSON(it, git("http://user:pass@funk.com/blank"))
+      })
+
+      assertThatJson(actualJson).isEqualTo(gitMaterialHashWithCredentials)
+    }
+
+    @Test
+    void "should serialize material with credentials with blank branch"() {
+      def actualJson = toObjectString({
+        MaterialsRepresenter.toJSON(it, git("http://user:pass@funk.com/blank", ""))
+      })
+
+      assertThatJson(actualJson).isEqualTo(gitMaterialHashWithCredentials)
+    }
+
     @Test
     void "should deserialize material with credentials as attributes"() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
@@ -235,7 +235,8 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
     [
       type      : 'git',
       attributes: [
-        url             : "http://user:password@funk.com/blank",
+        url             : "http://funk.com/blank",
+        username        : "user",
         destination     : "destination",
         filter          : [
           ignore: ['**/*.html', '**/foobar/']
@@ -249,11 +250,11 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
       ]
     ]
 
-  def gitMaterialBasicHashWithoutCredentials =
+  def gitMaterialHashWithCredentials =
     [
       type      : 'git',
       attributes: [
-        url             : "http://funk.com/blank",
+        url             : "http://user:******@funk.com/blank",
         destination     : null,
         filter          : null,
         invert_filter   : false,

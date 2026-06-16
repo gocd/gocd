@@ -193,16 +193,6 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
         return String.format("AbstractMaterial{name=%s, type=%s}", name, materialType);
     }
 
-    @Override
-    public MaterialConfig config() {
-        throw new RuntimeException("You need to implement this");
-    }
-
-    @Override
-    public Map<String, Object> getAttributes(boolean addSecureFields) {
-        throw new RuntimeException("You need to implement this");
-    }
-
     protected boolean hasDestinationFolder() {
         return !isBlank(getFolder());
     }

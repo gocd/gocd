@@ -31,7 +31,10 @@ import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigVisitor;
 import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.materials.*;
+import com.thoughtworks.go.domain.materials.DirectoryCleaner;
+import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.util.ArtifactUtil;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
@@ -250,8 +253,6 @@ public class Materials extends BaseCollection<Material> {
             return new PackageMaterial((PackageMaterialConfig) materialConfig);
         } else if (PluggableSCMMaterial.TYPE.equals(materialConfig.getType())) {
             return new PluggableSCMMaterial((PluggableSCMMaterialConfig) materialConfig);
-        } else if (TestingMaterial.TYPE.equals(materialConfig.getType())) {
-            return new TestingMaterial((TestingMaterialConfig) materialConfig);
         }
         throw new RuntimeException("Unexpected material type: " + materialConfig.getClass() + ": " + materialConfig);
     }

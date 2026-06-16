@@ -17,10 +17,12 @@ package com.thoughtworks.go.config.materials;
 
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.SecretParam;
+import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.materials.DummyMaterial;
-import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.*;
+import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.util.command.UrlArgument;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -29,6 +31,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -194,11 +197,106 @@ class ScmMaterialTest {
         }
 
         @Test
-        void shouldBeAnEmptyListInAbsenceOfSecretParamsinMaterialPassword() {
+        void shouldBeAnEmptyListInAbsenceOfSecretParamsInMaterialPassword() {
             DummyMaterial dummyMaterial = new DummyMaterial();
 
             assertThat(dummyMaterial.getSecretParams()).isNull();
         }
     }
 
+    private static final class DummyMaterial extends ScmMaterial {
+        private String url;
+
+        public DummyMaterial() {
+            super("DummyMaterial");
+        }
+
+        @Override
+        public String getUrl() {
+            return url;
+        }
+
+        @Override
+        public String urlForCommandLine() {
+            return url;
+        }
+
+        @Override
+        protected UrlArgument getUrlArgument() {
+            return new UrlArgument(url);
+        }
+
+        @Override
+        public String getLongDescription() {
+            return "Dummy";
+        }
+
+        @Override
+        public MaterialConfig config() {
+            throw unsupported();
+        }
+
+        @Override
+        public Map<String, Object> getAttributes(boolean addSecureFields) {
+            throw unsupported();
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        @Override
+        protected String getLocation() {
+            return getUrl();
+        }
+
+        @Override
+        public String getTypeForDisplay() {
+            return "Dummy";
+        }
+
+        @Override
+        public Class<MaterialInstance> getInstanceType() {
+            throw unsupported();
+        }
+
+        @Override
+        public MaterialInstance createMaterialInstance() {
+            throw unsupported();
+        }
+
+        @Override
+        public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
+            throw unsupported();
+        }
+
+        @Override
+        public void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+            throw unsupported();
+        }
+
+        @Override
+        public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
+            throw unsupported();
+        }
+
+        @Override
+        public boolean isCheckExternals() {
+            throw unsupported();
+        }
+
+        private UnsupportedOperationException unsupported() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected void appendCriteria(Map<String, Object> parameters) {
+        }
+
+        @Override
+        protected void appendAttributes(Map<String, Object> parameters) {
+            throw unsupported();
+        }
+
+    }
 }

@@ -69,9 +69,6 @@
       <property name="domain"/>
     </subclass>
 
-    <subclass name="com.thoughtworks.go.domain.materials.TestingMaterialInstance" discriminator-value="TestingMaterial">
-      <property name="url"/>
-    </subclass>
     <subclass name="com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialInstance"
               discriminator-value="PackageMaterialInstance">
       <property name="configuration"/>

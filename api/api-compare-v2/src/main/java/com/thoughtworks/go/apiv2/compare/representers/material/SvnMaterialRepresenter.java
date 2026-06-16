@@ -22,7 +22,7 @@ public class SvnMaterialRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, SvnMaterialConfig svnMaterialConfig) {
         ScmMaterialRepresenter.toJSON(jsonWriter, svnMaterialConfig);
-        jsonWriter.add("url", svnMaterialConfig.getUrl());
+        jsonWriter.add("url", svnMaterialConfig.getUriForDisplay());
         jsonWriter.add("check_externals", svnMaterialConfig.isCheckExternals());
         jsonWriter.add("username", svnMaterialConfig.getUserName());
         jsonWriter.addIfNotNull("encrypted_password", svnMaterialConfig.getEncryptedPassword());

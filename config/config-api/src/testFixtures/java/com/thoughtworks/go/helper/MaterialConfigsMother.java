@@ -341,7 +341,7 @@ public class MaterialConfigsMother {
 
     public static GitMaterialConfig gitMaterialConfig() {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
-        return git(new UrlArgument("http://user:password@funk.com/blank"), null, null, "branch", "sub_module_folder", false, filter, false, "destination", cis("AwesomeGitMaterial"), true);
+        return git(new UrlArgument("http://funk.com/blank"), "user", null, "branch", "sub_module_folder", false, filter, false, "destination", cis("AwesomeGitMaterial"), true);
     }
 
     public static GitMaterialConfig gitMaterialConfig(String url) {

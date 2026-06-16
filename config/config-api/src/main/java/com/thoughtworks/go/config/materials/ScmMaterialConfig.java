@@ -160,6 +160,10 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
 
     public abstract boolean isCheckExternals();
 
+    /**
+     * @return The raw configured url/uri. Note that this MAY include unredacted credentials.
+     * @see #getUriForDisplay() for the redacted version
+     */
     public abstract String getUrl();
 
     public abstract void setUrl(String url);

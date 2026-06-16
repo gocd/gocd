@@ -101,17 +101,6 @@ public class ZipArtifactCacheTest {
         }
     }
 
-    // FIXME
-//    @Test
-//    public void shouldCanonicalizeDirectoryPaths() throws Exception {
-//        testDirArtifactFolder = new ArtifactFolder(JOB_IDENTIFIER, new File(artifact, "dir"), "dir");
-//        waitForCacheCreated();
-//        assertThat(new File(cacheDir, "dir.zip.tmp")).doesNotExist();
-//        assertThat(new File(cacheDir, "dir.zip")).exists();
-//        new ZipUtil().unzip(new File(cacheDir, "dir.zip"), cacheDir);
-//        assertThat(new File(cacheDir, "dir/file1")).exists();
-//    }
-
     @Test
     public void shouldRecoverFromOldZipTmpFile() throws Exception {
         File cacheDir = new File(tempDir, "cache/artifacts/" + JOB_FOLDERS);

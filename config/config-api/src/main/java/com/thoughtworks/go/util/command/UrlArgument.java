@@ -48,7 +48,7 @@ public class UrlArgument extends CommandArgument {
     }
 
     static String modifyUserInfo(String url, UserInfoRedactor userInfoRedactor) {
-        // Short-circuit parsing of URLs without any userinfo (doesn't matter if it's placed incorrectly.
+        // Short-circuit parsing of URLs without any userinfo.
         if (urlCannotHaveUserInfo(url)) {
             return url;
         }

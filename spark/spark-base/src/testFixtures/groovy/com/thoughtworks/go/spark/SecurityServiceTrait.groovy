@@ -172,7 +172,7 @@ trait SecurityServiceTrait {
   }
 
   void loginAsPipelineViewUser(@NamedParam(value = 'groupName', type = String) @NamedParam(value = 'pipelineName', type = String) Map<String, String> opts) {
-    loginAsPipelineViewUser(new PipelineSpecifier(groupName: opts.groupName, pipelineName: opts.pipelineName))
+    loginAsPipelineViewUser(new PipelineSpecifier(opts))
   }
 
   void loginAsPipelineViewUser(PipelineSpecifier opts = PipelineSpecifier.random()) {

@@ -111,11 +111,6 @@ public class ServerHealthState {
         return new ServerHealthState(HealthStateLevel.WARNING, stateType, message, description, milliSeconds);
     }
 
-    public static ServerHealthState failToScheduling(HealthStateType healthStateType, String pipelineName, String description) {
-        String message = String.format("Failed to trigger pipeline [%s]", pipelineName);
-        return new ServerHealthState(HealthStateLevel.ERROR, healthStateType, message, description);
-    }
-
     public static ServerHealthState failedToScheduleStage(HealthStateType healthStateType, String pipelineName, String stageName, String description) {
         String message = String.format("Failed to trigger stage [%s] pipeline [%s]", stageName, pipelineName);
         return new ServerHealthState(HealthStateLevel.ERROR, healthStateType, message, description, Timeout.TWO_MINUTES);

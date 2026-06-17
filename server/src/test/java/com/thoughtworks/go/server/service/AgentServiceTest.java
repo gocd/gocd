@@ -62,7 +62,7 @@ import static com.thoughtworks.go.helper.AgentInstanceMother.*;
 import static com.thoughtworks.go.server.service.AgentRuntimeInfo.fromServer;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forAgent;
 import static com.thoughtworks.go.serverhealth.HealthStateType.duplicateAgent;
-import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
+import static com.thoughtworks.go.serverhealth.ServerHealthState.warningUnsafeHtml;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static com.thoughtworks.go.util.Timeout.THIRTY_SECONDS;
@@ -577,7 +577,7 @@ class AgentServiceTest {
                         runtimeInfo.agentInfoForDisplay(), original.agentInfoForDisplay());
 
                 String desc = "Please check the agent installation. Click <a href='" + docsUrl("/faq/agent_guid_issue.html") + "' target='_blank'>here</a> for more info.";
-                ServerHealthState serverHealthState = warning(msg, desc, duplicateAgent(forAgent(runtimeInfo.getCookie())), THIRTY_SECONDS);
+                ServerHealthState serverHealthState = warningUnsafeHtml(msg, desc, duplicateAgent(forAgent(runtimeInfo.getCookie())), THIRTY_SECONDS);
 
                 verify(serverHealthService).update(serverHealthState);
             }

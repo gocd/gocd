@@ -139,7 +139,7 @@ public class PipelineSchedulerIntegrationTest {
         final ScheduleOptions scheduleOptions = new ScheduleOptions(new HashMap<>(), Map.of("KEY", "value"), new HashMap<>());
         HttpOperationResult operationResult = new HttpOperationResult();
         goConfigService.pipelineConfigNamed(cis(PIPELINE_MINGLE)).setVariables(env("KEY", "somejunk"));
-        serverHealthService.update(ServerHealthState.failedToScheduleStage(HealthStateType.general(HealthStateScope.forPipeline(PIPELINE_MINGLE)), PIPELINE_MINGLE, DEV_STAGE, "should wait till cleared"));
+        serverHealthService.update(ScheduleService.stageSchedulingFailedState(PIPELINE_MINGLE, DEV_STAGE, "should wait till cleared", HealthStateType.general(HealthStateScope.forPipeline(PIPELINE_MINGLE))));
         pipelineScheduler.manualProduceBuildCauseAndSave(PIPELINE_MINGLE, Username.ANONYMOUS, scheduleOptions, operationResult);
         assertThat(operationResult.canContinue()).describedAs(operationResult.message()).isTrue();
 

@@ -58,7 +58,7 @@ import static com.thoughtworks.go.domain.AgentConfigStatus.Pending;
 import static com.thoughtworks.go.domain.AgentInstance.createFromAgent;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
-import static com.thoughtworks.go.serverhealth.ServerHealthState.warningWithHtml;
+import static com.thoughtworks.go.serverhealth.ServerHealthState.warningUnsafeHtml;
 import static com.thoughtworks.go.util.CommaSeparatedString.append;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static com.thoughtworks.go.util.TriState.TRUE;
@@ -69,6 +69,7 @@ import static java.util.stream.Collectors.*;
 import static java.util.stream.StreamSupport.stream;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.collections4.ListUtils.union;
+import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
@@ -494,9 +495,11 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         if (agentRuntimeInfo.hasDuplicateCookie(agentDao.cookieFor(agentRuntimeInfo.getIdentifier()))) {
             LOGGER.warn("Found agent [{}] with duplicate uuid. Please check the agent installation.", agentRuntimeInfo.agentInfoDebugString());
             serverHealthService.update(
-                    warning(format("[%s] has duplicate unique identifier which conflicts with [%s]", agentRuntimeInfo.agentInfoForDisplay(), findAgentAndRefreshStatus(agentRuntimeInfo.getUUId()).agentInfoForDisplay()),
-                            "Please check the agent installation. Click <a href='" + docsUrl("/faq/agent_guid_issue.html") + "' target='_blank'>here</a> for more info.",
-                            HealthStateType.duplicateAgent(HealthStateScope.forAgent(agentRuntimeInfo.getCookie())), Timeout.THIRTY_SECONDS));
+                warningUnsafeHtml(format("[%s] has duplicate unique identifier which conflicts with [%s]",
+                        escapeHtml4(agentRuntimeInfo.agentInfoForDisplay()),
+                        escapeHtml4(findAgentAndRefreshStatus(agentRuntimeInfo.getUUId()).agentInfoForDisplay())),
+                    "Please check the agent installation. Click <a href='" + docsUrl("/faq/agent_guid_issue.html") + "' target='_blank'>here</a> for more info.",
+                    HealthStateType.duplicateAgent(HealthStateScope.forAgent(agentRuntimeInfo.getCookie())), Timeout.THIRTY_SECONDS));
             throw new AgentWithDuplicateUUIDException(format("Agent [%s] has invalid cookie", agentRuntimeInfo.agentInfoDebugString()));
         }
     }

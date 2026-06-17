@@ -143,7 +143,7 @@ public class JobIdentifier implements Serializable, LocatableEntity {
 
         JobIdentifier that = (JobIdentifier) o;
 
-        return Objects.equals(buildId, that.buildId) &&
+        return buildId == that.buildId &&
             Objects.equals(buildName, that.buildName) &&
             pipelineCounter == that.pipelineCounter &&
             Objects.equals(pipelineLabel, that.pipelineLabel) &&

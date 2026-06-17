@@ -133,7 +133,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public List<AgentInstance> agentsStuckInCancel() {
-        return currentInstances().stream().filter(AgentInstance::isStuckInCancel).collect(toList());
+        return currentInstances().stream().filter(AgentInstance::isStuckInCancel).toList();
     }
 
     public void syncAgentInstancesFrom(Agents agentsFromDB) {

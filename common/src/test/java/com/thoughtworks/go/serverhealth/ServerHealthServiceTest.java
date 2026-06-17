@@ -17,12 +17,10 @@ package com.thoughtworks.go.serverhealth;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.Timeout;
 import org.junit.jupiter.api.AfterEach;
@@ -31,7 +29,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Set;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.*;
@@ -39,8 +36,6 @@ import static com.thoughtworks.go.serverhealth.ServerHealthMatcher.containsState
 import static com.thoughtworks.go.serverhealth.ServerHealthMatcher.doesNotContainState;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ServerHealthServiceTest {
     private static final String PIPELINE_NAME = "pipeline";
@@ -168,91 +163,5 @@ public class ServerHealthServiceTest {
         serverHealthService.removeByScope(scope);
         assertThat(serverHealthService.logsSorted().size()).isEqualTo(1);
         assertThat(serverHealthService).satisfies(containsState(globalId));
-    }
-
-    @Test
-    public void stateRelatedPipelineNames() {
-        HgMaterial hgMaterial = MaterialsMother.hgMaterial();
-        CruiseConfig config = new BasicCruiseConfig();
-        config.addPipeline("group", PipelineConfigMother.pipelineConfig(PIPELINE_NAME, new MaterialConfigs(hgMaterial.config())));
-        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(hgMaterial.config())));
-        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
-
-        serverHealthService = new ServerHealthService();
-        serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forPipeline(PIPELINE_NAME))));
-        assertThat(serverHealthService.logsSorted().getFirst().getPipelineNames(config)).isEqualTo(Set.of(PIPELINE_NAME));
-
-        serverHealthService = new ServerHealthService();
-        serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forStage(PIPELINE_NAME, "stage1"))));
-        assertThat(serverHealthService.logsSorted().getFirst().getPipelineNames(config)).isEqualTo(Set.of(PIPELINE_NAME));
-
-
-        serverHealthService = new ServerHealthService();
-        serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forJob(PIPELINE_NAME, "stage1", "job1"))));
-        assertThat(serverHealthService.logsSorted().getFirst().getPipelineNames(config)).isEqualTo(Set.of(PIPELINE_NAME));
-    }
-
-    @Test
-    public void globalStateRelatedPipelineNames() {
-        HgMaterial hgMaterial = MaterialsMother.hgMaterial();
-        CruiseConfig config = new BasicCruiseConfig();
-        config.addPipeline("group", PipelineConfigMother.pipelineConfig(PIPELINE_NAME, new MaterialConfigs(hgMaterial.config())));
-        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(hgMaterial.config())));
-        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
-
-        serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.invalidConfig()));
-        assertTrue(serverHealthService.logsSorted().getFirst().getPipelineNames(config).isEmpty());
-
-    }
-
-    @Test
-    public void noPipelineMatchMaterialStateRelatedPipelineNames() {
-        HgMaterial hgMaterial = MaterialsMother.hgMaterial();
-        CruiseConfig config = new BasicCruiseConfig();
-        config.addPipeline("group", PipelineConfigMother.pipelineConfig(PIPELINE_NAME, new MaterialConfigs(hgMaterial.config())));
-        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(hgMaterial.config())));
-        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
-
-        serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forMaterial(MaterialsMother.p4Material()))));
-        assertTrue(serverHealthService.logsSorted().getFirst().getPipelineNames(config).isEmpty());
-    }
-
-    @Test
-    public void materialStateRelatedPipelineNames() {
-        HgMaterial hgMaterial = MaterialsMother.hgMaterial();
-        CruiseConfig config = new BasicCruiseConfig();
-        config.addPipeline("group", PipelineConfigMother.pipelineConfig(PIPELINE_NAME, new MaterialConfigs(hgMaterial.config())));
-        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(hgMaterial.config())));
-        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
-
-        serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forMaterial(hgMaterial))));
-        Set<String> pipelines = serverHealthService.logsSorted().getFirst().getPipelineNames(config);
-        assertEquals(Set.of("pipeline", "pipeline2"), pipelines);
-    }
-
-    @Test
-    public void materialUpdateStateRelatedPipelineNames() {
-        HgMaterial hgMaterial = MaterialsMother.hgMaterial();
-        CruiseConfig config = new BasicCruiseConfig();
-        config.addPipeline("group", PipelineConfigMother.pipelineConfig(PIPELINE_NAME, new MaterialConfigs(hgMaterial.config())));
-        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(hgMaterial.config())));
-        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
-
-        serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forMaterialUpdate(hgMaterial))));
-        Set<String> pipelines = serverHealthService.logsSorted().getFirst().getPipelineNames(config);
-        assertEquals(Set.of("pipeline", "pipeline2"), pipelines);
-    }
-
-    @Test
-    public void faninErrorStateRelatedPipelineNames() {
-        HgMaterial hgMaterial = MaterialsMother.hgMaterial();
-        CruiseConfig config = new BasicCruiseConfig();
-        config.addPipeline("group", PipelineConfigMother.pipelineConfig(PIPELINE_NAME, new MaterialConfigs(hgMaterial.config())));
-        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(hgMaterial.config())));
-        config.addPipeline("group", PipelineConfigMother.pipelineConfig("pipeline3"));
-
-        serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forFanin("pipeline2"))));
-        Set<String> pipelines = serverHealthService.logsSorted().getFirst().getPipelineNames(config);
-        assertEquals(Set.of("pipeline2"), pipelines);
     }
 }

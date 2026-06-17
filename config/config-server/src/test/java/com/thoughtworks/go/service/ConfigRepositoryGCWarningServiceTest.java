@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -49,16 +48,11 @@ public class ConfigRepositoryGCWarningServiceTest {
 
         service.checkRepoAndAddWarningIfRequired();
         List<ServerHealthState> healthStates = serverHealthService.logsSortedForScope(HealthStateScope.forConfigRepo("GC"));
-        String message = "Action required: Run 'git gc' on config.git repo";
-        String description = "Number of loose objects in your Configuration repository(config.git) has grown beyond " +
-                "the configured threshold. As the size of config repo increases, the config save operations tend to slow down " +
-                "drastically. It is recommended that you run 'git gc' from " +
-                "'&lt;go server installation directory&gt;/db/config.git/' to address this problem. Go can do this " +
-                "automatically on a periodic basis if you enable automatic GC. <a target='_blank' href='" + docsUrl("/advanced_usage/config_repo.html") + "'>read more...</a>";
-
-        assertThat(healthStates.getFirst().getDescription()).isEqualTo(description);
+        assertThat(healthStates.getFirst().getMessage()).isEqualTo("Action required: Run 'git gc' on config.git repo");
+        assertThat(healthStates.getFirst().getDescription())
+            .contains("&lt;GoCD server installation directory&gt;")
+            .contains("<a target='_blank' href='");
         assertThat(healthStates.getFirst().getLogLevel()).isEqualTo(HealthStateLevel.WARNING);
-        assertThat(healthStates.getFirst().getMessage()).isEqualTo(message);
     }
 
     @Test

@@ -20,6 +20,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +30,12 @@ import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 
 @Component
 public class ConfigRepositoryGCWarningService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigRepositoryGCWarningService.class);
+    private static final String SCOPE = "GC";
+
     private final ConfigRepository configRepository;
     private final ServerHealthService serverHealthService;
     private final SystemEnvironment systemEnvironment;
-    private static final String SCOPE = "GC";
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigRepositoryGCWarningService.class.getName());
 
     @Autowired
     public ConfigRepositoryGCWarningService(ConfigRepository configRepository, ServerHealthService serverHealthService, SystemEnvironment systemEnvironment) {
@@ -46,13 +48,14 @@ public class ConfigRepositoryGCWarningService {
         try {
             if (configRepository.getLooseObjectCount() >= systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_LOOSE_OBJECT_WARNING_THRESHOLD)) {
                 String message = "Action required: Run 'git gc' on config.git repo";
-                String description = "Number of loose objects in your Configuration repository(config.git) has grown beyond " +
-                        "the configured threshold. As the size of config repo increases, the config save operations tend to slow down " +
-                        "drastically. It is recommended that you run 'git gc' from " +
-                        "'&lt;go server installation directory&gt;/db/config.git/' to address this problem. Go can do this " +
-                        "automatically on a periodic basis if you enable automatic GC. <a target='_blank' href='" + docsUrl("/advanced_usage/config_repo.html") + "'>read more...</a>";
-
-                serverHealthService.update(ServerHealthState.warningWithHtml(message, description, HealthStateType.general(HealthStateScope.forConfigRepo(SCOPE))));
+                String description = """
+                    Number of loose objects in the GoCD config.git has grown beyond the configured threshold. \
+                    As the size of config repo increases, config save operations tend to slow down drastically. \
+                    It is recommended that you run 'git gc' from '&lt;GoCD server installation directory&gt;/db/config.git' \
+                    to address this problem. GoCD can do this automatically on a periodic basis if you enable automatic GC. \
+                    <a target='_blank' href='%s'>read more...</a>"""
+                    .formatted(docsUrl("/advanced_usage/config_repo.html"));
+                serverHealthService.update(ServerHealthState.warningUnsafeHtml(message, description, HealthStateType.general(HealthStateScope.forConfigRepo(SCOPE)), Timeout.NEVER));
                 LOGGER.warn("{}:{}", message, description);
             } else {
                 serverHealthService.removeByScope(HealthStateScope.forConfigRepo(SCOPE));

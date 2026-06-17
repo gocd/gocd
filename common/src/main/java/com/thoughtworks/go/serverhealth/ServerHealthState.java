@@ -15,19 +15,20 @@
  */
 package com.thoughtworks.go.serverhealth;
 
-import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.util.Timeout;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 
 public class ServerHealthState {
@@ -35,10 +36,10 @@ public class ServerHealthState {
 
     private final HealthStateLevel healthStateLevel;
     private final HealthStateType type;
-    private final String message;
-    private final String description;
-    private final Date timestamp;
-    private final Instant expiryTime;
+    private final @NotNull String message;
+    private final @NotNull String description;
+    private final @NotNull Date timestamp;
+    private final @Nullable Instant expiryTime;
 
     private ServerHealthState(HealthStateLevel healthStateLevel, HealthStateType type) {
         this(healthStateLevel, type, "", "");
@@ -49,23 +50,14 @@ public class ServerHealthState {
     }
 
     private ServerHealthState(HealthStateLevel healthStateLevel, HealthStateType type, String message, String description, Timeout timeout) {
-        bombIfNull(description, "description cannot be null");
-        bombIfNull(message, "message cannot be null");
-        this.healthStateLevel = healthStateLevel;
-        this.type = type;
-        this.message = message;
-        this.description = description;
-        this.expiryTime = timeout == Timeout.NEVER ? null : SystemTimeClock.get().timeoutTime(timeout);
-        this.timestamp = new Date();
+        this(healthStateLevel, type, message, description, timeout.inMillis());
     }
 
     private ServerHealthState(HealthStateLevel healthStateLevel, HealthStateType healthStateType, String message, String description, long milliSeconds) {
-        bombIfNull(description, "description cannot be null");
-        bombIfNull(message, "message cannot be null");
         this.healthStateLevel = healthStateLevel;
         this.type = healthStateType;
-        this.message = message;
-        this.description = description;
+        this.message = requireNonNull(message, "message cannot be null");
+        this.description = requireNonNull(description, "description cannot be null");
         this.expiryTime = milliSeconds == Timeout.NEVER.inMillis() ? null : SystemTimeClock.get().timeoutTime(milliSeconds);
         this.timestamp = new Date();
     }
@@ -78,37 +70,24 @@ public class ServerHealthState {
         return new ServerHealthState(HealthStateLevel.WARNING, healthStateType, escapeHtml4(message), escapeHtml4(description));
     }
 
+    public static ServerHealthState warning(String message, String description, HealthStateType healthStateType, Timeout timeout) {
+        return new ServerHealthState(HealthStateLevel.WARNING, healthStateType, escapeHtml4(message), escapeHtml4(description), timeout);
+    }
+
+    /**
+     * BE CAREFUL - this does no escaping of HTML before rendering back to UI, so users must ensure there is nothing
+     * dynamic; or ensure it is already escaped.
+     */
+    public static ServerHealthState warningUnsafeHtml(String message, String description, HealthStateType stateType, Timeout timeout) {
+        return new ServerHealthState(HealthStateLevel.WARNING, stateType, message, description, timeout);
+    }
+
     public static ServerHealthState error(String message, String description, HealthStateType type) {
         return new ServerHealthState(HealthStateLevel.ERROR, type, escapeHtml4(message), escapeHtml4(description));
     }
 
     public static ServerHealthState error(String message, String description, HealthStateType type, Timeout timeout) {
         return new ServerHealthState(HealthStateLevel.ERROR, type, escapeHtml4(message), escapeHtml4(description), timeout);
-    }
-
-    public static ServerHealthState errorWithHtml(String message, String description, HealthStateType type) {
-        return new ServerHealthState(HealthStateLevel.ERROR, type, message, description);
-    }
-
-    public static ServerHealthState warning(String message, String description, HealthStateType healthStateType, Timeout timeout) {
-        return new ServerHealthState(HealthStateLevel.WARNING, healthStateType, message, description, timeout);
-    }
-
-    public static ServerHealthState warning(String message, String description, HealthStateType healthStateType, long milliSeconds) {
-        return new ServerHealthState(HealthStateLevel.WARNING, healthStateType, escapeHtml4(message), escapeHtml4(description), milliSeconds);
-    }
-
-    public static ServerHealthState warningWithHtml(String message, String description, HealthStateType stateType) {
-        return new ServerHealthState(HealthStateLevel.WARNING, stateType, message, description);
-    }
-
-    public static ServerHealthState warningWithHtml(String message, String description, HealthStateType stateType, long milliSeconds) {
-        return new ServerHealthState(HealthStateLevel.WARNING, stateType, message, description, milliSeconds);
-    }
-
-    public static ServerHealthState failedToScheduleStage(HealthStateType healthStateType, String pipelineName, String stageName, String description) {
-        String message = String.format("Failed to trigger stage [%s] pipeline [%s]", stageName, pipelineName);
-        return new ServerHealthState(HealthStateLevel.ERROR, healthStateType, message, description, Timeout.TWO_MINUTES);
     }
 
     public HealthStateType getType() {
@@ -122,7 +101,6 @@ public class ServerHealthState {
     public boolean isRealSuccess() {
         return this.healthStateLevel.equals(HealthStateLevel.OK);
     }
-
 
     public boolean isSuccess() {
         return isRealSuccess() || isWarning();
@@ -138,26 +116,19 @@ public class ServerHealthState {
         if (this == o) {
             return true;
         }
-        if (o == null) {
-            return false;
-        }
-        if (this.getClass() != o.getClass()) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
         ServerHealthState that = (ServerHealthState) o;
-        return this.healthStateLevel.equals(that.healthStateLevel) &&
-            this.type.equals(that.type) &&
-            this.description.equals(that.description) &&
-            this.message.equals(that.message);
+        return healthStateLevel == that.healthStateLevel &&
+            Objects.equals(type, that.type) &&
+            message.equals(that.message) &&
+            description.equals(that.description);
     }
 
     @Override
     public int hashCode() {
-        int result = healthStateLevel.hashCode();
-        result = 31 * result + type.hashCode();
-        result = 31 * result + message.hashCode();
-        result = 31 * result + description.hashCode();
-        return result;
+        return Objects.hash(healthStateLevel, type, message, description);
     }
 
     public Map<String, String> asJson() {
@@ -172,15 +143,15 @@ public class ServerHealthState {
         return healthStateLevel;
     }
 
-    public String getMessage() {
+    public @NotNull String getMessage() {
         return message;
     }
 
-    public String getDescription() {
+    public @NotNull String getDescription() {
         return description;
     }
 
-    public Date getTimestamp() {
+    public @NotNull Date getTimestamp() {
         return timestamp;
     }
 
@@ -194,9 +165,5 @@ public class ServerHealthState {
 
     public boolean hasExpired() {
         return expiryTime != null && expiryTime.isBefore(SystemTimeClock.get().currentTime());
-    }
-
-    public Set<String> getPipelineNames(CruiseConfig config) {
-        return type.getPipelineNames(config);
     }
 }

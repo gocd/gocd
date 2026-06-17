@@ -16,13 +16,11 @@
 package com.thoughtworks.go.serverhealth;
 
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Objects;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
@@ -42,10 +40,6 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
 
     public static HealthStateScope forPipeline(String pipelineName) {
         return new HealthStateScope(ScopeType.PIPELINE, pipelineName);
-    }
-
-    public static HealthStateScope forFanin(String pipelineName) {
-        return new HealthStateScope(ScopeType.FANIN, pipelineName);
     }
 
     public static HealthStateScope forStage(String pipelineName, String stageName) {
@@ -134,23 +128,20 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
     }
 
     @Override
-    public boolean equals(Object that) {
-        if (this == that) { return true; }
-        if (that == null) { return false; }
-        if (getClass() != that.getClass()) { return false; }
-        return equals((HealthStateScope) that);
-    }
-
-    private boolean equals(HealthStateScope that) {
-        if (type != that.type) { return false; }
-        return scope.equals(that.scope);
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        HealthStateScope that = (HealthStateScope) o;
+        return type == that.type && Objects.equals(scope, that.scope);
     }
 
     @Override
     public int hashCode() {
-        int result = type.hashCode();
-        result = 31 * result + (scope != null ? scope.hashCode() : 0);
-        return result;
+        return Objects.hash(type, scope);
     }
 
     public boolean isRemovedFromConfig(CruiseConfig cruiseConfig) {
@@ -168,44 +159,7 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
         return comparison;
     }
 
-    public Set<String> getPipelineNames(CruiseConfig config) {
-        HashSet<String> pipelineNames = new HashSet<>();
-        switch (type) {
-            case PIPELINE:
-            case FANIN:
-                pipelineNames.add(scope);
-                break;
-            case STAGE:
-            case JOB:
-                pipelineNames.add(scope.split("/")[0]);
-                break;
-            case MATERIAL:
-                for (PipelineConfig pc : config.getAllPipelineConfigs()) {
-                    for (MaterialConfig mc : pc.materialConfigs()) {
-                        String scope = HealthStateScope.forMaterialConfig(mc).getScope();
-                        if (scope.equals(this.scope)) {
-                            pipelineNames.add(pc.name().toString());
-                        }
-                    }
-                }
-                break;
-            case MATERIAL_UPDATE:
-                for (PipelineConfig pc : config.getAllPipelineConfigs()) {
-                    for (MaterialConfig mc : pc.materialConfigs()) {
-                        String scope = HealthStateScope.forMaterialConfigUpdate(mc).getScope();
-                        if (scope.equals(this.scope)) {
-                            pipelineNames.add(pc.name().toString());
-                        }
-                    }
-                }
-                break;
-        }
-
-        return pipelineNames;
-    }
-
     enum ScopeType {
-
         GLOBAL,
         CONFIG_REPO,
         GROUP {

@@ -136,34 +136,19 @@ public class ServerHealthStateTest {
     public void shouldEscapeWarningMessageAndDescriptionByDefault() {
         ServerHealthState warningStateWithoutTimeout = ServerHealthState.warning("\"<message1 & message2>\"", "\"<message1 & message2>\"", HealthStateType.general(HealthStateScope.forPipeline("foo")));
         ServerHealthState warningStateWithTimeout = ServerHealthState.warning("\"<message1 & message2>\"", "\"<message1 & message2>\"", HealthStateType.general(HealthStateScope.forPipeline("foo")), Timeout.TEN_SECONDS);
-        ServerHealthState warningState = ServerHealthState.warning("\"<message1 & message2>\"", "\"<message1 & message2>\"", HealthStateType.general(HealthStateScope.forPipeline("foo")), 15L);
 
         assertThat(warningStateWithoutTimeout.getMessage()).isEqualTo("&quot;&lt;message1 &amp; message2&gt;&quot;");
         assertThat(warningStateWithoutTimeout.getDescription()).isEqualTo("&quot;&lt;message1 &amp; message2&gt;&quot;");
 
-        assertThat(warningStateWithTimeout.getMessage()).isEqualTo("\"<message1 & message2>\"");
-        assertThat(warningStateWithTimeout.getDescription()).isEqualTo("\"<message1 & message2>\"");
-
-        assertThat(warningState.getMessage()).isEqualTo("&quot;&lt;message1 &amp; message2&gt;&quot;");
-        assertThat(warningState.getDescription()).isEqualTo("&quot;&lt;message1 &amp; message2&gt;&quot;");
+        assertThat(warningStateWithTimeout.getMessage()).isEqualTo("&quot;&lt;message1 &amp; message2&gt;&quot;");
+        assertThat(warningStateWithTimeout.getDescription()).isEqualTo("&quot;&lt;message1 &amp; message2&gt;&quot;");
     }
 
     @Test
     public void shouldPreserverHtmlInWarningMessageAndDescription() {
-        ServerHealthState warningState = ServerHealthState.warningWithHtml("\"<message1 & message2>\"", "\"<message1 & message2>\"", HealthStateType.general(HealthStateScope.forPipeline("foo")));
-        ServerHealthState warningStateWithTime = ServerHealthState.warningWithHtml("\"<message1 & message2>\"", "\"<message1 & message2>\"", HealthStateType.general(HealthStateScope.forPipeline("foo")), 15L);
+        ServerHealthState warningStateWithTime = ServerHealthState.warningUnsafeHtml("\"<message1 & message2>\"", "\"<message1 & message2>\"", HealthStateType.general(HealthStateScope.forPipeline("foo")), Timeout.THIRTY_SECONDS);
 
-        assertThat(warningState.getMessage()).isEqualTo("\"<message1 & message2>\"");
-        assertThat(warningState.getDescription()).isEqualTo("\"<message1 & message2>\"");
         assertThat(warningStateWithTime.getMessage()).isEqualTo("\"<message1 & message2>\"");
         assertThat(warningStateWithTime.getDescription()).isEqualTo("\"<message1 & message2>\"");
-    }
-
-    @Test
-    public void shouldPreserveHtmlInErrorMessageAndDescription() {
-        ServerHealthState error = ServerHealthState.errorWithHtml("\"<message1 & message2>\"", "\"<message1 & message2>\"", HealthStateType.general(HealthStateScope.forPipeline("foo")));
-
-        assertThat(error.getMessage()).isEqualTo("\"<message1 & message2>\"");
-        assertThat(error.getDescription()).isEqualTo("\"<message1 & message2>\"");
     }
 }

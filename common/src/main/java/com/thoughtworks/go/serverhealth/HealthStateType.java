@@ -18,7 +18,6 @@ package com.thoughtworks.go.serverhealth;
 import com.thoughtworks.go.config.CruiseConfig;
 
 import java.util.Objects;
-import java.util.Set;
 
 public class HealthStateType implements Comparable<HealthStateType> {
 
@@ -114,9 +113,5 @@ public class HealthStateType implements Comparable<HealthStateType> {
     @Override
     public int compareTo(HealthStateType o) {
         return scope.compareTo(o.scope);
-    }
-
-    public Set<String> getPipelineNames(CruiseConfig cruiseConfig) {
-        return scope.getPipelineNames(cruiseConfig);
     }
 }

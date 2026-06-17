@@ -37,7 +37,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -67,14 +67,9 @@ public class MaterialDatabaseUpdaterTest {
         Exception exception = new RuntimeException("failed");
         String message = "Modification check failed for material: " + material.getLongDescription() + "\nAffected pipelines are blah.";
         when(goConfigService.pipelinesWithMaterial(material.config().getFingerprint())).thenReturn(List.of(cis("blah")));
-        ServerHealthState error = ServerHealthState.errorWithHtml(message, exception.getMessage(), HealthStateType.general(HealthStateScope.forMaterial(material)));
+        ServerHealthState error = ServerHealthState.error(message, exception.getMessage(), HealthStateType.general(HealthStateScope.forMaterial(material)));
         when(materialRepository.findMaterialInstance(material)).thenThrow(exception);
-        try {
-            materialDatabaseUpdater.updateMaterial(material);
-            fail("should have thrown exception");
-        } catch (Exception e) {
-            assertThat(e).isEqualTo(exception);
-        }
+        assertThatThrownBy(() -> materialDatabaseUpdater.updateMaterial(material)).isEqualTo(exception);
         verify(healthService).update(error);
     }
 
@@ -95,13 +90,7 @@ public class MaterialDatabaseUpdaterTest {
 
         when(materialRepository.findMaterialInstance(material)).thenThrow(exceptionWithNullMessage);
 
-        try {
-            materialDatabaseUpdater.updateMaterial(material);
-            fail("should have thrown exception");
-        } catch (Exception e) {
-            assertThat(e).isEqualTo(exceptionWithNullMessage);
-        }
-
-        verify(healthService).update(ServerHealthState.errorWithHtml(message, "Unknown error", HealthStateType.general(HealthStateScope.forMaterial(material))));
+        assertThatThrownBy(() -> materialDatabaseUpdater.updateMaterial(material)).isEqualTo(exceptionWithNullMessage);
+        verify(healthService).update(ServerHealthState.error(message, "Unknown error", HealthStateType.general(HealthStateScope.forMaterial(material))));
     }
 }

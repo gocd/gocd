@@ -42,6 +42,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.util.Timeout;
 import org.apache.commons.lang3.Strings;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
@@ -198,7 +199,11 @@ public class ScheduleService {
     }
 
     private ServerHealthState stageSchedulingFailedState(String pipelineName, CannotScheduleException e) {
-        return ServerHealthState.failedToScheduleStage(HealthStateType.general(HealthStateScope.forStage(pipelineName, e.getStageName())), pipelineName, e.getStageName(), e.getMessage());
+        return stageSchedulingFailedState(pipelineName, e.getStageName(), e.getMessage(), HealthStateType.general(HealthStateScope.forStage(pipelineName, e.getStageName())));
+    }
+
+    static ServerHealthState stageSchedulingFailedState(String pipelineName, String stageName, String description, HealthStateType healthStateType) {
+        return ServerHealthState.error(String.format("Failed to trigger stage [%s] pipeline [%s]", stageName, pipelineName), description, healthStateType, Timeout.TWO_MINUTES);
     }
 
     private ServerHealthState stageSchedulingSuccessfulState(String pipelineName, String stageName) {

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.serverhealth;
 
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.util.Timeout;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -32,8 +31,8 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 
 public class ServerHealthState {
-    public static final FastDateFormat TIMESTAMP_FORMAT = FastDateFormat.getInstance("MMM-dd HH:mm:ss");
-    static Clock clock = new SystemTimeClock();
+    static final FastDateFormat TIMESTAMP_FORMAT = FastDateFormat.getInstance("MMM-dd HH:mm:ss");
+
     private final HealthStateLevel healthStateLevel;
     private final HealthStateType type;
     private final String message;
@@ -72,11 +71,11 @@ public class ServerHealthState {
     }
 
     private void setTimeout(long milliSeconds) {
-        this.expiryTime = milliSeconds == Timeout.NEVER.inMillis() ? null : clock.timeoutTime(milliSeconds);
+        this.expiryTime = milliSeconds == Timeout.NEVER.inMillis() ? null : SystemTimeClock.get().timeoutTime(milliSeconds);
     }
 
     public void setTimeout(Timeout timeout) {
-        this.expiryTime = timeout == Timeout.NEVER ? null : clock.timeoutTime(timeout);
+        this.expiryTime = timeout == Timeout.NEVER ? null : SystemTimeClock.get().timeoutTime(timeout);
     }
 
     public static ServerHealthState success(HealthStateType type) {
@@ -203,7 +202,7 @@ public class ServerHealthState {
     }
 
     public boolean hasExpired() {
-        return expiryTime != null && expiryTime.isBefore(clock.currentTime());
+        return expiryTime != null && expiryTime.isBefore(SystemTimeClock.get().currentTime());
     }
 
     public Set<String> getPipelineNames(CruiseConfig config) {

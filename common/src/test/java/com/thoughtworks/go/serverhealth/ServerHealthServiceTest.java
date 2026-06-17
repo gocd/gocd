@@ -23,7 +23,6 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.Timeout;
 import org.junit.jupiter.api.AfterEach;
@@ -50,19 +49,18 @@ public class ServerHealthServiceTest {
     private HealthStateType pipelineId;
     private TestingClock testingClock;
 
-
     @BeforeEach
     public void setUp() {
+        testingClock = TestingClock.switchForSystem();
+
         serverHealthService = new ServerHealthService();
         globalId = HealthStateType.general(GLOBAL);
         pipelineId = HealthStateType.general(forPipeline(PIPELINE_NAME));
-        testingClock = new TestingClock();
-        ServerHealthState.clock = testingClock;
     }
 
     @AfterEach
     public void tearDown() {
-        ServerHealthState.clock = new SystemTimeClock();
+        testingClock.close();
     }
 
     @Test

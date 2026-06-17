@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.serverhealth;
 
-import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.Timeout;
 import org.junit.jupiter.api.AfterEach;
@@ -24,8 +23,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 
-import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
-import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -46,13 +43,12 @@ public class ServerHealthStateTest {
 
     @BeforeEach
     public void setUp() {
-        testingClock = new TestingClock();
-        ServerHealthState.clock = testingClock;
+        testingClock = TestingClock.switchForSystem();
     }
 
     @AfterEach
     public void tearDown() {
-        ServerHealthState.clock = new SystemTimeClock();
+        testingClock.close();
     }
 
     @Test

@@ -22,6 +22,12 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 public class SystemTimeClock implements Clock, Serializable {
+    private static final SystemTimeClock INSTANCE = new SystemTimeClock();
+
+    public static Clock get() {
+        return INSTANCE;
+    }
+
     @Override
     public Instant currentTime() {
         return Instant.now();

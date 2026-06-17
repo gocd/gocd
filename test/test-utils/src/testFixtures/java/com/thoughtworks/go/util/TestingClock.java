@@ -15,6 +15,9 @@
  */
 package com.thoughtworks.go.util;
 
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -25,16 +28,42 @@ import java.util.List;
 
 import static java.time.ZoneId.systemDefault;
 
-public class TestingClock implements Clock {
-    private Instant currentTime;
+public class TestingClock implements Clock, AutoCloseable {
     private final List<Long> sleeps = new ArrayList<>();
+    private final MockedStatic<SystemTimeClock> mockedClock;
+
+    private Instant currentTime;
 
     public TestingClock() {
         this(Instant.now());
     }
 
     public TestingClock(Instant instant) {
+        this(instant, null);
+    }
+
+    private TestingClock(Instant instant, MockedStatic<SystemTimeClock> mockedStatic) {
         this.currentTime = instant;
+        this.mockedClock = mockedStatic;
+    }
+
+    public static TestingClock switchForSystem() {
+        return switchForSystem(Instant.now());
+    }
+
+    public static TestingClock switchForSystem(Instant instant) {
+        MockedStatic<SystemTimeClock> mockedClock = Mockito.mockStatic(SystemTimeClock.class);
+        TestingClock testingClock = new TestingClock(instant, mockedClock);
+        mockedClock.when(SystemTimeClock::get).thenReturn(testingClock);
+        return testingClock;
+    }
+
+    @Override
+    public void close() {
+        sleeps.clear();
+        if (mockedClock != null) {
+            mockedClock.close();
+        }
     }
 
     @Override

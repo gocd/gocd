@@ -26,6 +26,7 @@ dependencies {
   testFixturesApi(project(':base')) { capabilities { requireFeature('logging') } }
   testFixturesApi project(':util')
   testFixturesImplementation project.deps.logback
+  testFixturesImplementation project.deps.mockitoCore
 
   testFixturesApi project.deps.assertJ
   testFixturesApi enforcedPlatform(project.deps.junit5Bom)

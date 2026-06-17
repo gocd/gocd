@@ -347,9 +347,7 @@ public class ElasticAgentPluginService {
             elasticAgentPluginRegistry.reportJobCompletion(pluginId, elasticAgentId, jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
         } catch (RulesViolationException | SecretResolutionFailureException e) {
             String description = format("The job completion call to the plugin for the job identifier [%s] failed for secrets resolution: %s ", jobIdentifier.toString(), e.getMessage());
-            ServerHealthState healthState = error("Failed to notify plugin", description, general(scopeForJob(jobIdentifier)));
-            healthState.setTimeout(Timeout.FIVE_MINUTES);
-            serverHealthService.update(healthState);
+            serverHealthService.update(error("Failed to notify plugin", description, general(scopeForJob(jobIdentifier)), Timeout.FIVE_MINUTES));
             LOGGER.error(description);
         }
     }

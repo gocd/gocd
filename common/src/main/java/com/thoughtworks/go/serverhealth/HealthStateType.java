@@ -23,63 +23,57 @@ import java.util.Set;
 public class HealthStateType implements Comparable<HealthStateType> {
 
     private final String name;
-    private final int httpCode;
     private final HealthStateScope scope;
     private final String subkey;
 
-    private HealthStateType(String name, int httpCode, HealthStateScope scope, String subkey) {
+    private HealthStateType(String name, HealthStateScope scope, String subkey) {
         this.name = name;
-        this.httpCode = httpCode;
         this.scope = scope;
         this.subkey = subkey;
     }
 
-    public int getHttpCode() {
-        return httpCode;
-    }
-
     public static HealthStateType general(HealthStateScope scope) {
-        return new HealthStateType("GENERAL", 406, scope, null);
+        return new HealthStateType("GENERAL", scope, null);
     }
 
     public static HealthStateType withSubkey(HealthStateScope scope, String subkey) {
-        return new HealthStateType("GENERAL_WITH_SUBKEY", 406, scope, subkey);
+        return new HealthStateType("GENERAL_WITH_SUBKEY", scope, subkey);
     }
 
     public static HealthStateType invalidConfig() {
-        return new HealthStateType("INVALID_CONFIG", 406, HealthStateScope.GLOBAL, null);
+        return new HealthStateType("INVALID_CONFIG", HealthStateScope.GLOBAL, null);
     }
 
     public static HealthStateType forbiddenForPipeline(String pipelineName) {
-        return new HealthStateType("FORBIDDEN", 403, HealthStateScope.forPipeline(pipelineName), null);
+        return new HealthStateType("FORBIDDEN", HealthStateScope.forPipeline(pipelineName), null);
     }
 
     public static HealthStateType forbiddenForGroup(String groupName) {
-        return new HealthStateType("FORBIDDEN", 403, HealthStateScope.forGroup(groupName), null);
+        return new HealthStateType("FORBIDDEN", HealthStateScope.forGroup(groupName), null);
     }
 
     public static HealthStateType forbidden() {
-        return new HealthStateType("FORBIDDEN", 403, HealthStateScope.GLOBAL, null);
+        return new HealthStateType("FORBIDDEN", HealthStateScope.GLOBAL, null);
     }
 
     public static HealthStateType artifactsDiskFull() {
-        return new HealthStateType("ARTIFACTS_DISK_FULL", 400, HealthStateScope.GLOBAL, null);
+        return new HealthStateType("ARTIFACTS_DISK_FULL", HealthStateScope.GLOBAL, null);
     }
 
     public static HealthStateType databaseDiskFull() {
-        return new HealthStateType("DATABASE_DISK_FULL", 400, HealthStateScope.GLOBAL, null);
+        return new HealthStateType("DATABASE_DISK_FULL", HealthStateScope.GLOBAL, null);
     }
 
     public static HealthStateType artifactsDirChanged() {
-        return new HealthStateType("ARTIFACTS_DIR_CHANGED", 406, HealthStateScope.GLOBAL, null);
+        return new HealthStateType("ARTIFACTS_DIR_CHANGED", HealthStateScope.GLOBAL, null);
     }
 
     public static HealthStateType notFound() {
-        return new HealthStateType("NOT_FOUND", 404, HealthStateScope.GLOBAL, null);
+        return new HealthStateType("NOT_FOUND", HealthStateScope.GLOBAL, null);
     }
 
     public static HealthStateType duplicateAgent(HealthStateScope scope) {
-        return new HealthStateType("DUPLICATE_AGENT", 406, scope, null);
+        return new HealthStateType("DUPLICATE_AGENT", scope, null);
     }
 
     @Override
@@ -91,15 +85,14 @@ public class HealthStateType implements Comparable<HealthStateType> {
             return false;
         }
         HealthStateType that = (HealthStateType) o;
-        return httpCode == that.httpCode &&
-                Objects.equals(name, that.name) &&
+        return Objects.equals(name, that.name) &&
                 Objects.equals(scope, that.scope) &&
                 Objects.equals(subkey, that.subkey);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, httpCode, scope, subkey);
+        return Objects.hash(name, scope, subkey);
     }
 
     public HealthStateScope getScope() {

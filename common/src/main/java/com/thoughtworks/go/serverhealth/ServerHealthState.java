@@ -38,7 +38,7 @@ public class ServerHealthState {
     private final String message;
     private final String description;
     private final Date timestamp;
-    private Instant expiryTime;
+    private final Instant expiryTime;
 
     private ServerHealthState(HealthStateLevel healthStateLevel, HealthStateType type) {
         this(healthStateLevel, type, "", "");
@@ -55,7 +55,7 @@ public class ServerHealthState {
         this.type = type;
         this.message = message;
         this.description = description;
-        setTimeout(timeout);
+        this.expiryTime = timeout == Timeout.NEVER ? null : SystemTimeClock.get().timeoutTime(timeout);
         this.timestamp = new Date();
     }
 
@@ -66,16 +66,8 @@ public class ServerHealthState {
         this.type = healthStateType;
         this.message = message;
         this.description = description;
-        setTimeout(milliSeconds);
-        this.timestamp = new Date();
-    }
-
-    private void setTimeout(long milliSeconds) {
         this.expiryTime = milliSeconds == Timeout.NEVER.inMillis() ? null : SystemTimeClock.get().timeoutTime(milliSeconds);
-    }
-
-    public void setTimeout(Timeout timeout) {
-        this.expiryTime = timeout == Timeout.NEVER ? null : SystemTimeClock.get().timeoutTime(timeout);
+        this.timestamp = new Date();
     }
 
     public static ServerHealthState success(HealthStateType type) {
@@ -88,6 +80,10 @@ public class ServerHealthState {
 
     public static ServerHealthState error(String message, String description, HealthStateType type) {
         return new ServerHealthState(HealthStateLevel.ERROR, type, escapeHtml4(message), escapeHtml4(description));
+    }
+
+    public static ServerHealthState error(String message, String description, HealthStateType type, Timeout timeout) {
+        return new ServerHealthState(HealthStateLevel.ERROR, type, escapeHtml4(message), escapeHtml4(description), timeout);
     }
 
     public static ServerHealthState errorWithHtml(String message, String description, HealthStateType type) {
@@ -179,11 +175,6 @@ public class ServerHealthState {
     public String getMessage() {
         return message;
     }
-
-    public int getHttpCode() {
-        return getType().getHttpCode();
-    }
-
 
     public String getDescription() {
         return description;

@@ -621,6 +621,10 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return templateApplied;
     }
 
+    public boolean requiresTemplateApplication() {
+        return hasTemplate() && !hasTemplateApplied();
+    }
+
     public void setTemplateName(CaseInsensitiveString templateName) {
         ensureNoStagesDefined(templateName);
         this.templateName = templateName;

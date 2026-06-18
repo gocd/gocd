@@ -179,7 +179,7 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
         ]
 
         User newUser = new User(user.name, user.displayName, data.checkin_aliases, 'foo', false)
-        def result = new HttpLocalizedOperationResult()
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult()
         result.badRequest("Some error message")
 
         doAnswer({ InvocationOnMock invocation ->

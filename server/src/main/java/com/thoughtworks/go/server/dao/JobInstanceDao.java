@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.dao;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.ui.SortOrder;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -42,9 +43,9 @@ public interface JobInstanceDao {
 
     JobInstances findHungJobs(List<String> liveAgentIdList);
 
-    JobInstance buildByIdWithTransitions(long id);
+    @NotNull JobInstance buildByIdWithTransitions(long id);
 
-    JobInstance buildById(long buildId);
+    @NotNull JobInstance buildById(long buildId);
 
     JobInstance mostRecentJobWithTransitions(JobIdentifier jobIdentifier);
 

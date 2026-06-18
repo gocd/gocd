@@ -491,7 +491,7 @@ class BuildAssignmentServiceTest {
         String pipelineGroupName = "pipeline-group1";
         String environmentName = "uat_environment";
 
-        when(goConfigService.findGroupNameByPipeline(cis(pipelineName))).thenReturn(pipelineGroupName);
+        when(goConfigService.findGroupNameByPipelineOptional(cis(pipelineName))).thenReturn(Optional.of(pipelineGroupName));
         when(environmentConfigService.environmentForPipeline(pipelineName)).thenReturn(new BasicEnvironmentConfig(cis(environmentName)));
         EnvironmentVariableContext context = buildAssignmentService.buildEnvVarContext(pipelineName);
 

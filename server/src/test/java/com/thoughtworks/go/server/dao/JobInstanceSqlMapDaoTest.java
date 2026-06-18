@@ -94,9 +94,6 @@ class JobInstanceSqlMapDaoTest {
             final StageIdentifier stageIdentifierOne = new StageIdentifier("Foo_", 1, "Bar", "stage", "1");
             final StageIdentifier stageIdentifierTwo = new StageIdentifier("Foo", 1, "_Bar", "stage", "1");
 
-            System.out.println(jobInstanceSqlMapDao.cacheKeyForOriginalJobIdentifier(stageIdentifierOne, "job"));
-            System.out.println(jobInstanceSqlMapDao.cacheKeyForOriginalJobIdentifier(stageIdentifierTwo, "job"));
-
             assertThat(jobInstanceSqlMapDao.cacheKeyForOriginalJobIdentifier(stageIdentifierOne, "job"))
                 .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForOriginalJobIdentifier(stageIdentifierTwo, "job"));
         }

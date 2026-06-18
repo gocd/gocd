@@ -353,7 +353,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
      * It will also resolve secrets, if any wrt environment config
      */
     EnvironmentVariableContext buildEnvVarContext(String pipelineName) {
-        String pipelineGroupName = goConfigService.findGroupNameByPipeline(cis(pipelineName));
+        String pipelineGroupName = goConfigService.findGroupNameByPipelineOptional(cis(pipelineName)).orElse(null);
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext(GO_PIPELINE_GROUP_NAME, pipelineGroupName);
 
         EnvironmentConfig environmentForPipeline = environmentConfigService.environmentForPipeline(pipelineName);

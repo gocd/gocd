@@ -138,10 +138,6 @@ public class StageIdentifier implements Serializable, LocatableEntity {
         return result;
     }
 
-    public String ccProjectName() {
-        return String.format("%s :: %s", getPipelineName(), getStageName());
-    }
-
     public String webPathAfterContext() {
         return "/pipelines/" + stageLocator();
     }

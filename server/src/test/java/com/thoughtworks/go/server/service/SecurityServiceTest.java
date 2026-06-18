@@ -39,7 +39,7 @@ public class SecurityServiceTest {
         goConfigService = mock(GoConfigService.class);
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(goConfigService.security()).thenReturn(new SecurityConfig());
-        securityService = new SecurityService(goConfigService, systemEnvironment);
+        securityService = new SecurityService(goConfigService);
     }
 
     @Test

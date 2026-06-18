@@ -17,66 +17,17 @@ package com.thoughtworks.go.config.security;
 
 import com.thoughtworks.go.config.security.permissions.PipelinePermission;
 import com.thoughtworks.go.config.security.users.Users;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
+public record Permissions(Users viewers, Users operators, Users admins, PipelinePermission pipelinePermission) {
+    public static final Permissions NOONE = new Permissions(Users.NOONE, Users.NOONE, Users.NOONE, PipelinePermission.NOONE);
+    public static final Permissions EVERYONE = new Permissions(Users.EVERYONE, Users.EVERYONE, Users.EVERYONE, PipelinePermission.EVERYONE);
 
-public class Permissions {
-    private final Users viewers;
-    private final Users operators;
-    private final Users admins;
-    private final PipelinePermission pipelinePermission;
-
-    public Permissions(Users viewers, Users operators, Users admins, PipelinePermission pipelinePermission) {
-        this.viewers = viewers;
-        this.operators = operators;
-        this.admins = admins;
-        this.pipelinePermission = pipelinePermission;
+    public @NotNull Users pipelineOperators() {
+        return pipelinePermission.pipelineOperators();
     }
 
-    public Users viewers() {
-        return viewers;
-    }
-
-    public Users operators() {
-        return operators;
-    }
-
-    public Users admins() {
-        return admins;
-    }
-
-    public Users pipelineOperators() {
-        return pipelinePermission.getPipelineOperators();
-    }
-
-    public Users stageOperators(String stageName) {
-        Users stageOperators = this.pipelinePermission.getStageOperators(stageName);
-        return stageOperators == null ? operators : stageOperators;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        Permissions that = (Permissions) o;
-
-        return Objects.equals(viewers, that.viewers) &&
-            Objects.equals(operators, that.operators) &&
-            Objects.equals(admins, that.admins) &&
-            Objects.equals(pipelinePermission, that.pipelinePermission);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = viewers != null ? viewers.hashCode() : 0;
-        result = 31 * result + (operators != null ? operators.hashCode() : 0);
-        result = 31 * result + (admins != null ? admins.hashCode() : 0);
-        result = 31 * result + (pipelinePermission != null ? pipelinePermission.hashCode() : 0);
-        return result;
+    public @NotNull Users stageOperators(String stageName) {
+        return this.pipelinePermission.stageOperators(stageName).orElse(operators);
     }
 }

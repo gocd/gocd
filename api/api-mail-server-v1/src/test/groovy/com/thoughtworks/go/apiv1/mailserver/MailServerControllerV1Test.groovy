@@ -290,7 +290,7 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
         ]
 
         when(serverConfigService.sendTestMail(eq(mailHost), any())).thenAnswer({ InvocationOnMock invocation ->
-          def result = invocation.getArgument(1) as HttpLocalizedOperationResult
+          HttpLocalizedOperationResult result = invocation.getArgument(1)
           result.setMessage("woohoo!")
         })
         postWithApiHeader(controller.controllerPath(Routes.MailServer.TEST_EMAIL), json)

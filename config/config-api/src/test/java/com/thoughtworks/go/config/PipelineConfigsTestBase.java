@@ -52,40 +52,34 @@ public abstract class PipelineConfigsTestBase {
     }
 
     @Test
-    public void shouldUseDefaultViewPermissionsForViewersOfAGroupIfAuthorizationIsNotDefined() {
-        assertThat(createEmpty().hasViewPermission(cis("anyone"), null, true)).isTrue();
-        assertThat(createEmpty().hasViewPermission(cis("anyone"), null, false)).isFalse();
+    public void shouldReturnFalseForViewersOfAGroupIfAuthorizationIsNotDefined() {
+        assertThat(createEmpty().hasViewPermission(cis("anyone"), null)).isFalse();
     }
 
     @Test
     public void shouldReturnFalseIfViewPermissionIsNotDefined() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getOperationConfig().add(new AdminUser(cis("jez")));
-        assertThat(group.hasViewPermission(cis("jez"), null, true)).isFalse();
+        assertThat(group.hasViewPermission(cis("jez"), null)).isFalse();
     }
 
     @Test
     public void shouldReturnFalseIfUserDoesNotHaveViewPermission() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getViewConfig().add(new AdminUser(cis("jez")));
-        assertThat(group.hasViewPermission(cis("anyone"), null, true)).isFalse();
+        assertThat(group.hasViewPermission(cis("anyone"), null)).isFalse();
     }
 
     @Test
     public void shouldReturnTrueIfUserHasViewPermission() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getViewConfig().add(new AdminUser(cis("jez")));
-        assertThat(group.hasViewPermission(cis("jez"), null, true)).isTrue();
-    }
-
-    @Test
-    public void shouldReturnTrueForOperatePermissionIfAuthorizationIsNotDefined_AndDefaultPermissionForGroupsWithNoAuthIsToAllowAll() {
-        assertThat(createEmpty().hasOperatePermission(cis("anyone"), null, true)).isTrue();
+        assertThat(group.hasViewPermission(cis("jez"), null)).isTrue();
     }
 
     @Test
     public void shouldReturnTrueForOperatePermissionIfAuthorizationIsNotDefined_AndDefaultPermissionForGroupsWithNoAuthIsToDeny() {
-        assertThat(createEmpty().hasOperatePermission(cis("anyone"), null, false)).isFalse();
+        assertThat(createEmpty().hasOperatePermission(cis("anyone"), null)).isFalse();
     }
 
     @Test
@@ -157,21 +151,21 @@ public abstract class PipelineConfigsTestBase {
     public void shouldReturnFalseIfOperatePermissionIsNotDefined() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getViewConfig().add(new AdminUser(cis("jez")));
-        assertThat(group.hasOperatePermission(cis("jez"), null, true)).isFalse();
+        assertThat(group.hasOperatePermission(cis("jez"), null)).isFalse();
     }
 
     @Test
     public void shouldReturnFalseIfUserDoesNotHaveOperatePermission() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getOperationConfig().add(new AdminUser(cis("jez")));
-        assertThat(group.hasOperatePermission(cis("anyone"), null, true)).isFalse();
+        assertThat(group.hasOperatePermission(cis("anyone"), null)).isFalse();
     }
 
     @Test
     public void shouldReturnTrueIfUserHasOperatePermission() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getOperationConfig().add(new AdminUser(cis("jez")));
-        assertThat(group.hasOperatePermission(cis("jez"), null, true)).isTrue();
+        assertThat(group.hasOperatePermission(cis("jez"), null)).isTrue();
     }
 
     @Test

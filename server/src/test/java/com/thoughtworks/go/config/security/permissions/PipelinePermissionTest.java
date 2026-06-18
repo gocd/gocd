@@ -17,6 +17,8 @@
 package com.thoughtworks.go.config.security.permissions;
 
 import com.thoughtworks.go.config.security.users.AllowedUsers;
+import com.thoughtworks.go.config.security.users.Users;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,8 +26,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class PipelinePermissionTest {
 
@@ -37,27 +39,35 @@ class PipelinePermissionTest {
         StagePermission stage1 = new StagePermission("stage1", new AllowedUsers(Set.of("admin", "operator1", "operator2"), Collections.emptySet()));
         StagePermission stage2 = new StagePermission("stage2", new AllowedUsers(Set.of("admin", "operator1"), Collections.emptySet()));
 
-        pipelinePermission = new PipelinePermission(List.of(stage1, stage2));
+        pipelinePermission = new StageDerivedPipelinePermission(List.of(stage1, stage2));
     }
 
     @Test
     void shouldReturnStage1PermissionsAsPipelinePermissions() {
-        assertEquals(new AllowedUsers(Set.of("admin", "operator1", "operator2"), Collections.emptySet()), pipelinePermission.getPipelineOperators());
+        assertThat(pipelinePermission.pipelineOperators())
+            .isEqualTo(new AllowedUsers(Set.of("admin", "operator1", "operator2"), Collections.emptySet()));
     }
 
     @Test
     void shouldReturnStagePermissionsProvidedStageName() {
-        assertEquals(new AllowedUsers(Set.of("admin", "operator1", "operator2"), Collections.emptySet()), pipelinePermission.getStageOperators("stage1"));
-        assertEquals(new AllowedUsers(Set.of("admin", "operator1"), Collections.emptySet()), pipelinePermission.getStageOperators("stage2"));
+        assertThat(pipelinePermission.stageOperators("stage1"))
+            .contains(new AllowedUsers(Set.of("admin", "operator1", "operator2"), Collections.emptySet()));
+        assertThat(pipelinePermission.stageOperators("stage2"))
+            .contains(new AllowedUsers(Set.of("admin", "operator1"), Collections.emptySet()));
     }
 
     @Test
     void shouldNotFailWhenInvalidStageNameIsSpecified() {
-        assertNull(pipelinePermission.getStageOperators("stageX"));
+        assertThat(pipelinePermission.stageOperators("stageX")).isEmpty();
     }
 
     @Test
-    void shouldReturnEveryonePermissionWhenPipelineIsNull() {
-        assertEquals(EveryonePermission.INSTANCE, PipelinePermission.from(null, new AllowedUsers(Collections.emptySet(), Collections.emptySet())));
+    void shouldConstructFromStages() {
+        assertThat(StageDerivedPipelinePermission.from(PipelineConfigMother.createPipelineConfigWithStages("p", "s1", "s2"), s ->
+            cis("s1").equals(s.name()) ? Users.EVERYONE : Users.NOONE ))
+            .isEqualTo(new StageDerivedPipelinePermission(List.of(
+                new StagePermission("s1", Users.EVERYONE),
+                new StagePermission("s2", Users.NOONE)
+            )));
     }
 }

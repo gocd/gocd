@@ -18,8 +18,8 @@ package com.thoughtworks.go.apiv4.dashboard.representers
 import com.thoughtworks.go.config.TrackingTool
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.config.security.Permissions
-import com.thoughtworks.go.config.security.permissions.NoOnePermission
-import com.thoughtworks.go.config.security.users.NoOne
+import com.thoughtworks.go.config.security.permissions.PipelinePermission
+import com.thoughtworks.go.config.security.users.Users
 import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.helpers.PipelineModelMother
 import com.thoughtworks.go.server.dashboard.Counter
@@ -44,7 +44,7 @@ class PipelineInstanceRepresenterTest {
     def pipelineInstance = PipelineModelMother.pipeline_instance_model_empty("p1", "s1")
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
-    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
+    def permissions = new Permissions(Users.NOONE, Users.NOONE, Users.NOONE, PipelinePermission.NOONE)
     def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
     pipelineConfig.setOrigin(new FileConfigOrigin())
     pipelineConfig.setTrackingTool(new TrackingTool("http://example.com/\${ID}", "##\\d+"))
@@ -71,7 +71,7 @@ class PipelineInstanceRepresenterTest {
                                                                 stages: [[name: "cruise", counter: "10", approved_by: "Anonymous"]]])
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
-    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
+    def permissions = new Permissions(Users.NOONE, Users.NOONE, Users.NOONE, PipelinePermission.NOONE)
     def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
     pipelineConfig.setOrigin(new FileConfigOrigin())
     pipelineConfig.setTrackingTool(new TrackingTool("http://example.com/\${ID}", "##\\d+"))

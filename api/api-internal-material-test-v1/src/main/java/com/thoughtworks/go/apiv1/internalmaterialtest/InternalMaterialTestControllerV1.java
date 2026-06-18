@@ -86,7 +86,7 @@ public class InternalMaterialTestControllerV1 extends AbstractMaterialTestContro
         // and add the params to the new pipeline config object
         // Otherwise, pipeline is being created and no parameter expansion is possible.
         if (pipelineName.isPresent()) {
-            PipelineConfig pipelineConfig = Optional.ofNullable(goConfigService.findGroupByPipeline(pipelineName.get()))
+            PipelineConfig pipelineConfig = goConfigService.findGroupByPipelineOptional(pipelineName.get())
                 .filter(g -> g.isNamed(pipelineGroupName))
                 .map(g -> g.findBy(pipelineName.get()))
                 .orElseThrow(() -> new RecordNotFoundException(notFoundMessage()));

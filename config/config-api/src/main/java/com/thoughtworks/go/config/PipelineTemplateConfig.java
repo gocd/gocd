@@ -118,7 +118,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         ParamsConfig paramsConfig = this.referredParams();
         for (CaseInsensitiveString pipelineName : pipelineNames) {
             PipelineConfig pipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineName);
-            PipelineConfigs pipelineGroup = preprocessedConfig.findGroupOfPipeline(pipelineConfig);
+            PipelineConfigs pipelineGroup = preprocessedConfig.findGroupByPipeline(pipelineConfig);
             PipelineConfigSaveValidationContext contextForStages = PipelineConfigSaveValidationContext.forChain(false, pipelineGroup.getGroup(), preprocessedConfig, pipelineConfig);
             validateParams(pipelineConfig, paramsConfig);
             validatePartsOfPipelineConfig(pipelineConfig, contextForStages);

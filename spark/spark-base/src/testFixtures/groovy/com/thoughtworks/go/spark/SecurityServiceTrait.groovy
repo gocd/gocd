@@ -61,7 +61,7 @@ trait SecurityServiceTrait {
     when(securityService.isAuthorizedToViewTemplate(any() as CaseInsensitiveString, eq(Username.ANONYMOUS))).thenReturn(false)
     when(securityService.isAuthorizedToViewTemplates(Username.ANONYMOUS)).thenReturn(false)
     when(goConfigService.groups()).thenReturn(new PipelineGroups())
-    when(goConfigService.findGroupNameByPipeline(any())).thenReturn(PipelineSpecifier.generateGroupName()) // allow other pipelines to be found; but in random groups
+    when(goConfigService.findGroupNameByPipelineOptional(any())).thenReturn(Optional.of(PipelineSpecifier.generateGroupName())) // allow other pipelines to be found; but in random groups
   }
 
   void loginAsAdmin() {
@@ -90,7 +90,7 @@ trait SecurityServiceTrait {
     when(securityService.isAuthorizedToViewTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(false)
     when(securityService.isAuthorizedToViewTemplates(eq(username))).thenReturn(false)
     when(goConfigService.groups()).thenReturn(new PipelineGroups())
-    when(goConfigService.findGroupNameByPipeline(any())).thenReturn(PipelineSpecifier.generateGroupName()) // allow other pipelines to be found; but in random groups
+    when(goConfigService.findGroupNameByPipelineOptional(any())).thenReturn(Optional.of(PipelineSpecifier.generateGroupName())) // allow other pipelines to be found; but in random groups
   }
 
   void loginAsGroupAdmin(@NamedParam(value = 'groupName', type = String) @NamedParam(value = 'pipelineName', type = String) Map<String, String> opts) {
@@ -108,8 +108,8 @@ trait SecurityServiceTrait {
     when(securityService.isUserAdminOfGroup(eq(username) as Username, eq(opts.groupName))).thenReturn(true)
 
     PipelineGroups groups = mock(PipelineGroups.class)
-    when(goConfigService.findGroupNameByPipeline(any())).thenReturn(PipelineSpecifier.generateGroupName()) // allow other pipelines to be found; but in random groups
-    when(goConfigService.findGroupNameByPipeline(cis(opts.pipelineName))).thenReturn(opts.groupName)
+    when(goConfigService.findGroupNameByPipelineOptional(any())).thenReturn(Optional.of(PipelineSpecifier.generateGroupName())) // allow other pipelines to be found; but in random groups
+    when(goConfigService.findGroupNameByPipelineOptional(cis(opts.pipelineName))).thenReturn(Optional.of(opts.groupName))
     when(goConfigService.groups()).thenReturn(groups)
     when(groups.hasGroup(opts.groupName)).thenReturn(true)
     when(securityService.hasOperatePermissionForGroup(username.username, opts.groupName)).thenReturn(true)
@@ -128,8 +128,8 @@ trait SecurityServiceTrait {
     when(securityService.isUserAdminOfGroup(eq(username) as Username, eq(opts.groupName))).thenReturn(false)
 
     PipelineGroups groups = mock(PipelineGroups.class)
-    when(goConfigService.findGroupNameByPipeline(any())).thenReturn(PipelineSpecifier.generateGroupName()) // allow other pipelines to be found; but in random groups
-    when(goConfigService.findGroupNameByPipeline(cis(opts.pipelineName))).thenReturn(opts.groupName)
+    when(goConfigService.findGroupNameByPipelineOptional(any())).thenReturn(Optional.of(PipelineSpecifier.generateGroupName())) // allow other pipelines to be found; but in random groups
+    when(goConfigService.findGroupNameByPipelineOptional(cis(opts.pipelineName))).thenReturn(Optional.of(opts.groupName))
     when(goConfigService.groups()).thenReturn(groups)
     when(groups.hasGroup(opts.groupName)).thenReturn(true)
     when(securityService.hasOperatePermissionForGroup(eq(username.username), eq(opts.groupName))).thenReturn(true)
@@ -142,7 +142,7 @@ trait SecurityServiceTrait {
     PipelineGroups groups = mock(PipelineGroups.class)
     when(goConfigService.groups()).thenReturn(groups)
     when(groups.hasGroup(anyString())).thenReturn(true)
-    when(goConfigService.findGroupNameByPipeline(any())).thenReturn(PipelineSpecifier.generateGroupName()) // allow other pipelines to be found; but in random groups
+    when(goConfigService.findGroupNameByPipelineOptional(any())).thenReturn(Optional.of(PipelineSpecifier.generateGroupName())) // allow other pipelines to be found; but in random groups
 
     when(securityService.isUserAdmin(username)).thenReturn(false)
     when(securityService.canEditSomeAdminPage(username)).thenReturn(true)
@@ -190,8 +190,8 @@ trait SecurityServiceTrait {
     when(securityService.isAuthorizedToViewTemplates(eq(username))).thenReturn(false)
 
     PipelineGroups groups = mock(PipelineGroups.class)
-    when(goConfigService.findGroupNameByPipeline(any())).thenReturn(PipelineSpecifier.generateGroupName()) // allow other pipelines to be found; but in random groups
-    when(goConfigService.findGroupNameByPipeline(cis(opts.pipelineName))).thenReturn(opts.groupName)
+    when(goConfigService.findGroupNameByPipelineOptional(any())).thenReturn(Optional.of(PipelineSpecifier.generateGroupName())) // allow other pipelines to be found; but in random groups
+    when(goConfigService.findGroupNameByPipelineOptional(cis(opts.pipelineName))).thenReturn(Optional.of(opts.groupName))
     when(goConfigService.groups()).thenReturn(groups)
     when(groups.hasGroup(opts.groupName)).thenReturn(true)
     when(securityService.hasOperatePermissionForGroup(eq(username.username), eq(opts.groupName))).thenReturn(false)

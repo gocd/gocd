@@ -272,7 +272,7 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
 
         def pipelineConfig = pipelineConfig(pipelineName)
         pipelineConfig.addParam(new ParamConfig("test-param", "param-value"))
-        when(goConfigService.findGroupByPipeline(cis(pipelineName))).thenReturn(createGroup(groupName, pipelineConfig))
+        when(goConfigService.findGroupByPipelineOptional(cis(pipelineName))).thenReturn(Optional.of(createGroup(groupName, pipelineConfig)))
 
         postWithApiHeader(controller.controllerPath(Map.of("group_name", groupName, "pipeline_name", pipelineName)), [
           "type"         : "git",
@@ -285,7 +285,7 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
           .hasJsonBody(["message": "Connection OK."])
           .isOk()
 
-        verify(goConfigService).findGroupByPipeline(cis(pipelineName))
+        verify(goConfigService).findGroupByPipelineOptional(cis(pipelineName))
 
         def captor = ArgumentCaptor.forClass(MaterialConfig.class)
         verify(materialConfigConverter).toMaterial(captor.capture())
@@ -301,7 +301,8 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
         def validationBean = ValidationBean.notValid("some-error")
         when(material.checkConnection(any())).thenReturn(validationBean)
         when(materialConfigConverter.toMaterial(any(MaterialConfig.class))).thenReturn(material)
-        when(goConfigService.findGroupByPipeline(any())).thenReturn(createGroup("unauthorized-group", createPipelineConfig(pipelineName, "someStage", "someJob")))
+        when(goConfigService.findGroupByPipelineOptional(any()))
+          .thenReturn(Optional.of(createGroup("unauthorized-group", createPipelineConfig(pipelineName, "someStage", "someJob"))))
 
         postWithApiHeader(controller.controllerPath(Map.of("group_name", groupName, "pipeline_name", pipelineName)), [
           "type"      : "git",

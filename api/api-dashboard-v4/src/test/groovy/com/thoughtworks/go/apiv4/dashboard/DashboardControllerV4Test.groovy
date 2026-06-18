@@ -20,8 +20,8 @@ import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv4.dashboard.representers.DashboardFor
 import com.thoughtworks.go.apiv4.dashboard.representers.DashboardRepresenter
 import com.thoughtworks.go.config.security.Permissions
-import com.thoughtworks.go.config.security.permissions.EveryonePermission
-import com.thoughtworks.go.config.security.users.Everyone
+import com.thoughtworks.go.config.security.permissions.PipelinePermission
+import com.thoughtworks.go.config.security.users.Users
 import com.thoughtworks.go.server.dashboard.GoDashboardEnvironment
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup
 import com.thoughtworks.go.server.domain.user.Filters
@@ -174,7 +174,7 @@ class DashboardControllerV4Test implements SecurityServiceTrait, ControllerTrait
         loginAsUser()
 
         def pipelineSelections = PipelineSelections.ALL
-        def pipelineGroup = new GoDashboardPipelineGroup('group1', new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE), true)
+        def pipelineGroup = new GoDashboardPipelineGroup('group1', new Permissions(Users.EVERYONE, Users.EVERYONE, Users.EVERYONE, PipelinePermission.EVERYONE), true)
         pipelineGroup.addPipeline(GoDashboardPipelineMother.dashboardPipeline('pipeline1'))
         pipelineGroup.addPipeline(GoDashboardPipelineMother.dashboardPipeline('pipeline2'))
         when(pipelineSelectionsService.load((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
@@ -208,13 +208,13 @@ class DashboardControllerV4Test implements SecurityServiceTrait, ControllerTrait
   }
 
   private static GoDashboardEnvironment environment(String name) {
-    GoDashboardEnvironment environment = new GoDashboardEnvironment(name, Everyone.INSTANCE, true)
+    GoDashboardEnvironment environment = new GoDashboardEnvironment(name, Users.EVERYONE, true)
     environment.addPipeline(GoDashboardPipelineMother.dashboardPipeline('pipeline1'))
     return environment
   }
 
   private static Permissions permissions() {
-    new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE)
+    new Permissions(Users.EVERYONE, Users.EVERYONE, Users.EVERYONE, PipelinePermission.EVERYONE)
   }
 
   private String computeEtag(List<GoDashboardPipelineGroup> pipelineGroups, List<GoDashboardEnvironment> envs) {

@@ -286,7 +286,7 @@ public class PipelineHistoryServiceIntegrationTest {
     public void shouldNotLoadLatestOrEmptyInstanceForAllConfiguredPipelinesWhenNotViewable() {
         configHelper.removePipeline(pipelineTwo.pipelineName);
         Pipeline pipeline = pipelineOne.createdPipelineWithAllStagesPassed();
-        String groupName = configHelper.currentConfig().getGroups().findGroupNameByPipeline(cis(pipeline.getName()));
+        String groupName = configHelper.currentConfig().getGroups().findGroupByPipeline(cis(pipeline.getName())).getGroup();
         configHelper.setViewPermissionForGroup(groupName, "admin");
         PipelineInstanceModels pipelines = pipelineHistoryService.latestInstancesForConfiguredPipelines(new Username(cis("foo")));
         assertThat(pipelines.size()).isEqualTo(0);
@@ -339,7 +339,7 @@ public class PipelineHistoryServiceIntegrationTest {
     @Test
     public void findPipelineInstanceShouldNotFindPipelineInstancesNotViewableByUser() {
         Pipeline pipeline = pipelineOne.createdPipelineWithAllStagesPassed();
-        String groupName = configHelper.currentConfig().getGroups().findGroupNameByPipeline(cis(pipeline.getName()));
+        String groupName = configHelper.currentConfig().getGroups().findGroupByPipeline(cis(pipeline.getName())).getGroup();
         configHelper.setViewPermissionForGroup(groupName, "admin");
 
         HttpOperationResult result = new HttpOperationResult();

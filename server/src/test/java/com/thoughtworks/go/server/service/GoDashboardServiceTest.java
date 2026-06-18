@@ -18,12 +18,11 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
 import com.thoughtworks.go.config.security.Permissions;
-import com.thoughtworks.go.config.security.permissions.EveryonePermission;
-import com.thoughtworks.go.config.security.permissions.NoOnePermission;
+import com.thoughtworks.go.config.security.permissions.PipelinePermission;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
-import com.thoughtworks.go.config.security.users.Everyone;
-import com.thoughtworks.go.config.security.users.NoOne;
+import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.dashboard.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.DashboardFilter;
@@ -39,6 +38,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
@@ -80,7 +80,7 @@ public class GoDashboardServiceTest {
         PipelineConfigs groupConfig = config.findGroup("group1");
         GoDashboardPipeline pipeline = pipeline("pipeline1");
 
-        when(goConfigService.findGroupByPipeline(cis("pipeline1"))).thenReturn(groupConfig);
+        when(goConfigService.findGroupByPipelineOptional(cis("pipeline1"))).thenReturn(Optional.of(groupConfig));
         when(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, groupConfig)).thenReturn(pipeline);
 
         service.updateCacheForPipeline(cis("pipeline1"));
@@ -94,7 +94,7 @@ public class GoDashboardServiceTest {
         PipelineConfigs groupConfig = config.findGroup("group1");
         GoDashboardPipeline pipeline = pipeline("pipeline1");
 
-        when(goConfigService.findGroupByPipeline(cis("pipeline1"))).thenReturn(groupConfig);
+        when(goConfigService.findGroupByPipelineOptional(cis("pipeline1"))).thenReturn(Optional.of(groupConfig));
         when(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, groupConfig)).thenReturn(pipeline);
 
         service.updateCacheForPipeline(pipelineConfig);
@@ -155,10 +155,10 @@ public class GoDashboardServiceTest {
     public void allPipelineGroupsForDashboard_shouldRetrieveOnlyPipelineGroupsViewableByTheUser() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
         GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1", new Permissions(new AllowedUsers(Set.of("user1"), Collections.emptySet()),
-                NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE));
+                Users.NOONE, Users.NOONE, PipelinePermission.NOONE));
 
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1");
-        GoDashboardPipeline pipeline2 = pipeline("pipeline2", "group2", new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE));
+        GoDashboardPipeline pipeline2 = pipeline("pipeline2", "group2", new Permissions(Users.NOONE, Users.NOONE, Users.NOONE, PipelinePermission.NOONE));
 
         addPipelinesToCache(pipeline1, pipeline2);
 
@@ -172,10 +172,10 @@ public class GoDashboardServiceTest {
     public void allEnvironmentsForDashboard_shouldRetrieveOnlyPipelinesViewableByTheUser() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
         GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1", new Permissions(new AllowedUsers(Set.of("user1"), Collections.emptySet()),
-                NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE));
+                Users.NOONE, Users.NOONE, PipelinePermission.NOONE));
 
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1");
-        GoDashboardPipeline pipeline2 = pipeline("pipeline2", "group2", new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE));
+        GoDashboardPipeline pipeline2 = pipeline("pipeline2", "group2", new Permissions(Users.NOONE, Users.NOONE, Users.NOONE, PipelinePermission.NOONE));
 
         addPipelinesToCache(pipeline1, pipeline2);
 
@@ -242,7 +242,7 @@ public class GoDashboardServiceTest {
     @Test
     public void allPipelineGroupsForDashboard_shouldNotListEmptyPipelineGroup() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
-        addPipelinesToCache(pipeline("pipeline1", "group1", new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)));
+        addPipelinesToCache(pipeline("pipeline1", "group1", new Permissions(Users.NOONE, Users.NOONE, Users.NOONE, PipelinePermission.NOONE)));
 
         List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
 
@@ -252,7 +252,7 @@ public class GoDashboardServiceTest {
     @Test
     public void allEnvironmentsForDashboard_shouldNotListEmptyPipelineGroup() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
-        addPipelinesToCache(pipeline("pipeline1", "group1", new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)));
+        addPipelinesToCache(pipeline("pipeline1", "group1", new Permissions(Users.NOONE, Users.NOONE, Users.NOONE, PipelinePermission.NOONE)));
 
         configMother.addEnvironmentConfig(config, "env1", "pipeline1");
         List<GoDashboardEnvironment> pipelineGroups = allEnvironmentsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
@@ -265,8 +265,8 @@ public class GoDashboardServiceTest {
         configMother.addPipelineWithGroup(config, "group1", "pipeline2", "stage1A", "job1A1");
 
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
-        GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1", new Permissions(Everyone.INSTANCE,
-                Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE));
+        GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1", new Permissions(Users.EVERYONE,
+                Users.EVERYONE, Users.EVERYONE, PipelinePermission.EVERYONE));
 
         addPipelinesToCache(pipeline1);
 
@@ -282,8 +282,8 @@ public class GoDashboardServiceTest {
         configMother.addPipelineWithGroup(config, "group1", "pipeline2", "stage1A", "job1A1");
 
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
-        GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1", new Permissions(Everyone.INSTANCE,
-                Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE));
+        GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1", new Permissions(Users.EVERYONE,
+                Users.EVERYONE, Users.EVERYONE, PipelinePermission.EVERYONE));
 
         addPipelinesToCache(pipeline1);
         configMother.addEnvironmentConfig(config, "env1", "pipeline1", "pipeline2");
@@ -299,9 +299,9 @@ public class GoDashboardServiceTest {
     public void shouldRemoveExistingPipelineEntryInCacheWhenPipelineConfigIsRemoved() {
         BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
         PipelineConfig pipelineConfig = new GoConfigMother().addPipeline(config, "pipeline1", "stage1", "job1");
-        config.findGroupOfPipeline(pipelineConfig).remove(pipelineConfig);
+        config.findGroupByPipeline(pipelineConfig).remove(pipelineConfig);
 
-        when(goConfigService.findGroupByPipeline(any())).thenReturn(null);
+        when(goConfigService.findGroupByPipelineOptional(any())).thenReturn(Optional.empty());
         // simulate the event
         service.updateCacheForPipeline(pipelineConfig);
         verify(cache).remove(pipelineConfig.getName());
@@ -313,14 +313,26 @@ public class GoDashboardServiceTest {
     public void shouldRemoveExistingPipelineEntryInCacheWhenPipelineIsRemoved() {
         BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
         PipelineConfig pipelineConfig = new GoConfigMother().addPipeline(config, "pipeline1", "stage1", "job1");
-        config.findGroupOfPipeline(pipelineConfig).remove(pipelineConfig);
+        config.findGroupByPipeline(pipelineConfig).remove(pipelineConfig);
 
-        when(goConfigService.findGroupByPipeline(any())).thenReturn(null);
+        when(goConfigService.findGroupByPipelineOptional(any())).thenReturn(Optional.empty());
         // simulate the event
         service.updateCacheForPipeline(pipelineConfig.name());
         verify(cache).remove(pipelineConfig.getName());
         verify(dashboardCurrentStateLoader).clearEntryFor(pipelineConfig.getName());
         verifyNoMoreInteractions(dashboardCurrentStateLoader);
+    }
+
+    @Test
+    public void shouldIgnoreEventsForPipelineConfigsWithOutTemplatesApplied() {
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfigWithTemplate("pipeline1", "template1");
+
+        when(goConfigService.findGroupByPipelineOptional(any())).thenReturn(Optional.of(new BasicPipelineConfigs(pipelineConfig)));
+
+        service.updateCacheForPipeline(pipelineConfig);
+
+        verify(goConfigService).findGroupByPipelineOptional(cis("pipeline1"));
+        verifyNoInteractions(cache);
     }
 
     private List<GoDashboardEnvironment> allEnvironmentsForDashboard(DashboardFilter filter, Username username) {

@@ -31,6 +31,8 @@ import spark.HaltException;
 import spark.Request;
 import spark.Spark;
 
+import java.util.Optional;
+
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -86,7 +88,7 @@ class AbstractAuthorizationHelperTest {
         void shouldFallbackToPipelinePathParam() {
             when(request.params("pipeline_name")).thenReturn("pipeline-from-path");
             when(request.queryParams("pipeline_name")).thenReturn("pipeline-from-query");
-            when(goConfigService.findGroupNameByPipeline(cis("pipeline-from-path"))).thenReturn("group-from-pipeline");
+            when(goConfigService.findGroupNameByPipelineOptional(cis("pipeline-from-path"))).thenReturn(Optional.of("group-from-pipeline"));
 
             assertThat(helper.getPipelineGroupFrom(request)).isEqualTo("group-from-pipeline");
         }
@@ -94,7 +96,7 @@ class AbstractAuthorizationHelperTest {
         @Test
         void shouldFallbackToPipelineFromQueryParam() {
             when(request.queryParams("pipeline_name")).thenReturn("pipeline-from-query");
-            when(goConfigService.findGroupNameByPipeline(cis("pipeline-from-query"))).thenReturn("group-from-pipeline");
+            when(goConfigService.findGroupNameByPipelineOptional(cis("pipeline-from-query"))).thenReturn(Optional.of("group-from-pipeline"));
 
             assertThat(helper.getPipelineGroupFrom(request)).isEqualTo("group-from-pipeline");
         }
@@ -103,7 +105,7 @@ class AbstractAuthorizationHelperTest {
         void shouldAllowBothGroupAndPipelineNameIfMatching() {
             when(request.queryParams("group_name")).thenReturn("group-from-query");
             when(request.queryParams("pipeline_name")).thenReturn("pipeline-from-query");
-            when(goConfigService.findGroupNameByPipeline(cis("pipeline-from-query"))).thenReturn("group-from-query");
+            when(goConfigService.findGroupNameByPipelineOptional(cis("pipeline-from-query"))).thenReturn(Optional.of("group-from-query"));
 
             assertThat(helper.getPipelineGroupFrom(request)).isEqualTo("group-from-query");
         }
@@ -111,7 +113,7 @@ class AbstractAuthorizationHelperTest {
         @Test
         void shouldFailWhenPipelineSpecifiedByGroupNotFound() {
             when(request.queryParams("pipeline_name")).thenReturn("pipeline-from-query");
-            when(goConfigService.findGroupNameByPipeline(any())).thenReturn(null);
+            when(goConfigService.findGroupNameByPipelineOptional(any())).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> helper.getPipelineGroupFrom(request))
                 .isInstanceOf(RecordNotFoundException.class)
@@ -122,7 +124,7 @@ class AbstractAuthorizationHelperTest {
         void shouldFailWhenPipelineSpecifiedByGroupDoesNotMatchGroup() {
             when(request.queryParams("group_name")).thenReturn("group-from-query");
             when(request.queryParams("pipeline_name")).thenReturn("pipeline-from-query");
-            when(goConfigService.findGroupNameByPipeline(cis("pipeline-from-query"))).thenReturn("another-group");
+            when(goConfigService.findGroupNameByPipelineOptional(cis("pipeline-from-query"))).thenReturn(Optional.of("another-group"));
 
             assertThatThrownBy(() -> helper.getPipelineGroupFrom(request))
                 .isInstanceOf(HaltException.class);

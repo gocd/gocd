@@ -159,6 +159,10 @@ public class CcTrayActivityListener implements Initializer, Daemonized, JobStatu
         return new EntityConfigChangedListener<>() {
             @Override
             public void onEntityConfigChange(final PipelineConfig pipelineConfig) {
+                if (pipelineConfig.requiresTemplateApplication()) {
+                    LOGGER.debug("Ignoring CCTray event for templated pipeline [{}] without template applied", pipelineConfig);
+                    return;
+                }
                 processor.add(new Action() {
                     @Override
                     public void call() {

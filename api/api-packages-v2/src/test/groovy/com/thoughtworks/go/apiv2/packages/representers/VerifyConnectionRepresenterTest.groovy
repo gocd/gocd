@@ -30,7 +30,7 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class VerifyConnectionRepresenterTest {
-  static packageDefinition
+  static PackageDefinition packageDefinition
 
   static {
     def configurationProperties = new Configuration(new ConfigurationProperty(new ConfigurationKey('PACKAGE_NAME'), new ConfigurationValue('foo')))
@@ -45,7 +45,7 @@ class VerifyConnectionRepresenterTest {
 
   @Test
   void 'should serialize verify connection response'() {
-    def result = new HttpLocalizedOperationResult()
+    HttpLocalizedOperationResult result = new HttpLocalizedOperationResult()
     result.badRequest("Boom!, can not verify connection")
     def actualJson = toObjectString({ VerifyConnectionRepresenter.toJSON(it, result, packageDefinition) })
 

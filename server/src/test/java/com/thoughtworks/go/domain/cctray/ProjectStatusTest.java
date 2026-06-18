@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
+import static com.thoughtworks.go.domain.cctray.ProjectStatus.Key.keyFrom;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -55,7 +56,7 @@ public class ProjectStatusTest {
 
     @Test
     public void shouldProvideItsXmlRepresentation_WhenThereAreNoBreakers() {
-        ProjectStatus status = new ProjectStatus("name", "activity1", "build-status-1", "build-label-1",
+        ProjectStatus status = new ProjectStatus(keyFrom("name"), 0, "activity1", "build-status-1", "build-label-1",
                 Dates.parseIso8601StrictOffset("2010-05-23T10:00:00+02:00"), "web-url");
 
         assertThat(status.xmlRepresentation()).isEqualTo("<Project name=\"name\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" " +
@@ -64,7 +65,7 @@ public class ProjectStatusTest {
 
     @Test
     public void shouldProvideItsXmlRepresentation_WhenThereAreBreakers() {
-        ProjectStatus status = new ProjectStatus("name", "activity1", "build-status-1", "build-label-1",
+        ProjectStatus status = new ProjectStatus(keyFrom("name"), 0, "activity1", "build-status-1", "build-label-1",
                 Dates.parseIso8601StrictOffset("2010-05-23T10:00:00+02:00"), "web-url", new LinkedHashSet<>(List.of("breaker1", "breaker2")));
 
         assertThat(status.xmlRepresentation()).isEqualTo("<Project name=\"name\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" " +
@@ -74,8 +75,8 @@ public class ProjectStatusTest {
 
     @Test
     public void shouldAlwaysHaveEmptyStringAsXMLRepresentationOfANullProjectStatus() {
-        assertThat(new ProjectStatus.NullProjectStatus("some-name").xmlRepresentation()).isEmpty();
-        assertThat(new ProjectStatus.NullProjectStatus("some-other-name").xmlRepresentation()).isEmpty();
+        assertThat(new ProjectStatus.NullProjectStatus(keyFrom("some-name")).xmlRepresentation()).isEmpty();
+        assertThat(new ProjectStatus.NullProjectStatus(keyFrom("some-other-name")).xmlRepresentation()).isEmpty();
     }
 
     @Test
@@ -93,6 +94,6 @@ public class ProjectStatusTest {
     }
 
     private static @NonNull ProjectStatus dummyStatus() {
-        return new ProjectStatus("name", "activity", "Success", "1", new Date(), "/web-url");
+        return new ProjectStatus(keyFrom("name"), 0, "activity", "Success", "1", new Date(), "/web-url");
     }
 }

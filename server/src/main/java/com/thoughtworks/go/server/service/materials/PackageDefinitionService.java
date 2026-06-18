@@ -55,12 +55,13 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Service
 public class PackageDefinitionService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PackageDefinitionService.class);
+
     private final EntityHashingService entityHashingService;
     private final GoConfigService goConfigService;
     private final SecretParamResolver secretParamResolver;
-    PackageRepositoryExtension packageRepositoryExtension;
+    private final PackageRepositoryExtension packageRepositoryExtension;
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(PackageDefinitionService.class);
 
     @Autowired
     public PackageDefinitionService(PackageRepositoryExtension packageRepositoryExtension, EntityHashingService entityHashingService, GoConfigService goConfigService, SecretParamResolver secretParamResolver) {

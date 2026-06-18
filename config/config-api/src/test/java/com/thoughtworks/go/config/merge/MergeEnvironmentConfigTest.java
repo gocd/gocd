@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
@@ -476,8 +475,8 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         uatRemotePart.addAgent(remoteAgent);
         MergeEnvironmentConfig environmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
 
-        assertThat(environmentConfig.originForAgent(localAgent)).isEqualTo(Optional.of(new FileConfigOrigin()));
-        assertThat(environmentConfig.originForAgent(remoteAgent)).isEqualTo(Optional.of(new RepoConfigOrigin()));
+        assertThat(environmentConfig.originForAgent(localAgent)).contains(new FileConfigOrigin());
+        assertThat(environmentConfig.originForAgent(remoteAgent)).contains(new RepoConfigOrigin());
     }
 
     @Test

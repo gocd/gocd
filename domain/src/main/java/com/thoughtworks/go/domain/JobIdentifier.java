@@ -191,9 +191,6 @@ public class JobIdentifier implements Serializable, LocatableEntity {
                 stageCounter);
     }
 
-    public String ccProjectName() {
-        return String.format("%s :: %s :: %s", getPipelineName(), getStageName(), getBuildName());
-    }
 
     public String webPathAfterContext() {
         return "/tab/build/detail/" + buildLocator();

@@ -249,6 +249,14 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
+    False positive as the Cookie*RequestCache does not seem to existing in earlier versions of Spring, as required by the
+    issue described at https://spring.io/security/cve-2026-41706
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@.*$</packageUrl>
+    <cve>CVE-2026-41706</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
     False positive as GoCD does authenticate with X.509 certificates via Spring, as seemingly required by
     https://spring.io/security/cve-2026-47838
     ]]></notes>

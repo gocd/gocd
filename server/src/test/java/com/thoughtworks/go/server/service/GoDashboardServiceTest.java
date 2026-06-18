@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.security.permissions.PipelinePermission;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.dashboard.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.DashboardFilter;
@@ -320,6 +321,18 @@ public class GoDashboardServiceTest {
         verify(cache).remove(pipelineConfig.getName());
         verify(dashboardCurrentStateLoader).clearEntryFor(pipelineConfig.getName());
         verifyNoMoreInteractions(dashboardCurrentStateLoader);
+    }
+
+    @Test
+    public void shouldIgnoreEventsForPipelineConfigsWithOutTemplatesApplied() {
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfigWithTemplate("pipeline1", "template1");
+
+        when(goConfigService.findGroupByPipelineOptional(any())).thenReturn(Optional.of(new BasicPipelineConfigs(pipelineConfig)));
+
+        service.updateCacheForPipeline(pipelineConfig);
+
+        verify(goConfigService).findGroupByPipelineOptional(cis("pipeline1"));
+        verifyNoInteractions(cache);
     }
 
     private List<GoDashboardEnvironment> allEnvironmentsForDashboard(DashboardFilter filter, Username username) {

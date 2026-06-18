@@ -24,6 +24,8 @@ import com.thoughtworks.go.server.dashboard.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.DashboardFilter;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,10 +37,12 @@ import static com.thoughtworks.go.config.security.util.SecurityConfigUtils.*;
 /* Understands how to interact with the GoDashboardCache cache. */
 @Service
 public class GoDashboardService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoDashboardService.class);
+
     private final GoDashboardCache cache;
     private final GoDashboardCurrentStateLoader dashboardCurrentStateLoader;
     private final GoConfigService goConfigService;
-    private GoConfigPipelinePermissionsAuthority permissionsAuthority;
+    private final GoConfigPipelinePermissionsAuthority permissionsAuthority;
 
     @Autowired
     public GoDashboardService(GoDashboardCache cache, GoDashboardCurrentStateLoader dashboardCurrentStateLoader, GoConfigPipelinePermissionsAuthority permissionsAuthority, GoConfigService goConfigService) {
@@ -174,6 +178,11 @@ public class GoDashboardService {
     }
 
     private void addPipelineToCache(@NotNull PipelineConfig pipelineConfig, @NotNull PipelineConfigs g) {
+        // Skip non-expanded pipeline configs, as they won't have the template applied and thus won't be valid for use in the dashboard.
+        if (pipelineConfig.requiresTemplateApplication()) {
+            LOGGER.debug("Ignoring dashboard event for templated pipeline [{}] without template applied", pipelineConfig);
+            return;
+        }
         cache.put(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, g));
     }
 

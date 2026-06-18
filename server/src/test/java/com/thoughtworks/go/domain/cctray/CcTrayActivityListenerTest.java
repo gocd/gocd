@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
@@ -132,6 +133,28 @@ public class CcTrayActivityListenerTest {
         waitForProcessingToHappen();
 
         verify(ccTrayConfigChangeHandler).call(pipelineConfig);
+    }
+
+    @Test
+    public void unAppliedTemplate_WhenPipelineConfigChanges_ShouldIgnoreEvent() throws InterruptedException {
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfigWithTemplate("pipeline1", "template1");
+
+        CcTrayConfigChangeHandler ccTrayConfigChangeHandler = mock(CcTrayConfigChangeHandler.class);
+        ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
+        doNothing().when(goConfigService).register(captor.capture());
+
+        listener = new CcTrayActivityListener(goConfigService, mock(CcTrayJobStatusChangeHandler.class),  mock(CcTrayStageStatusChangeHandler.class), ccTrayConfigChangeHandler);
+        listener.initialize();
+        listener.start();
+
+        List<ConfigChangedListener> listeners = captor.getAllValues();
+        assertThat(listeners.get(1) instanceof EntityConfigChangedListener).isTrue();
+        @SuppressWarnings("unchecked") EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener = (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
+
+        pipelineConfigChangeListener.onEntityConfigChange(pipelineConfig);
+        waitForProcessingToHappen();
+
+        verifyNoInteractions(ccTrayConfigChangeHandler);
     }
 
     @Test

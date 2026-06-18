@@ -354,9 +354,11 @@
     <cve>CVE-2025-4949</cve>
   </suppress>
 
-  <suppress>
+  <suppress until="2026-06-25">
     <notes><![CDATA[
-    Suppress false positive from bad OSSIndex data - only affects v3.1.0 according to https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-5jmj-h7xm-6q6v
+    Only affects 3.1.0+ according to maintainer at https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-5jmj-h7xm-6q6v
+    however there is some debate over affected versions, https://github.com/FasterXML/jackson-databind/pull/5964
+    No fix available for now, so suppressing for a week.
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson-databind@2\..*$</packageUrl>
     <vulnerabilityName>CVE-2026-54515</vulnerabilityName>

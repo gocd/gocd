@@ -33,7 +33,7 @@ class TfsMaterialRepresenterTest implements MaterialRepresenterTrait<TfsMaterial
   }
 
   TfsMaterialConfig existingMaterialWithErrors() {
-    def tfsConfig = tfs(new GoCipher(), new HgUrlArgument(''), '', '', '', '/some-path/')
+    def tfsConfig = tfs(new HgUrlArgument(''), '', '', '', '/some-path/')
     def materialConfigs = new MaterialConfigs(tfsConfig)
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
     return materialConfigs.getFirst() as TfsMaterialConfig

@@ -149,7 +149,7 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException nfe) {
-            throw new BadRequestException(format("The '%s' must be an integer.", entity.replaceAll("_", " ")));
+            throw new BadRequestException(format("The '%s' must be an integer.", entity.replace('_', ' ')));
         }
     }
 

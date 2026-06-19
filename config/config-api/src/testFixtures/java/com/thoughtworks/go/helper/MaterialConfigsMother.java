@@ -30,7 +30,6 @@ import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.packagerepository.*;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 
@@ -125,18 +124,13 @@ public class MaterialConfigsMother {
         return svn(url, null, null, checkExternals);
     }
 
-    public static SvnMaterialConfig svn(String url, String userName, String password, boolean checkExternals) {
-        return svn(url, userName, password, checkExternals, new GoCipher());
-    }
-
     public static SvnMaterialConfig svn(String url, String userName, String password, boolean checkExternals, String folder) {
         SvnMaterialConfig svnMaterialConfig = svn(url, userName, password, checkExternals);
         svnMaterialConfig.setFolder(folder);
         return svnMaterialConfig;
     }
 
-    //there is no need to mock GoCipher as it already using test provider
-    public static SvnMaterialConfig svn(String url, String userName, String password, boolean checkExternals, GoCipher goCipher) {
+    public static SvnMaterialConfig svn(String url, String userName, String password, boolean checkExternals) {
         SvnMaterialConfig svnMaterialConfig = svn();
         svnMaterialConfig.setUrl(url);
         svnMaterialConfig.setUserName(userName);
@@ -145,9 +139,8 @@ public class MaterialConfigsMother {
         return svnMaterialConfig;
     }
 
-    //there is no need to mock GoCipher as it already using test provider
     public static SvnMaterialConfig svn(UrlArgument url, String userName, String password, boolean checkExternals,
-                                        GoCipher goCipher, boolean autoUpdate, Filter filter, boolean invertFilter,
+                                        boolean autoUpdate, Filter filter, boolean invertFilter,
                                         String folder, CaseInsensitiveString name) {
         SvnMaterialConfig svnMaterialConfig = svn();
         svnMaterialConfig.setUrl(url.originalArgument());
@@ -166,31 +159,30 @@ public class MaterialConfigsMother {
         return new TfsMaterialConfig();
     }
 
-    public static TfsMaterialConfig tfs(GoCipher goCipher, String url, String userName, String domain, String projectPath) {
-        return tfs(goCipher, new UrlArgument(url), userName, domain, null, projectPath);
+    public static TfsMaterialConfig tfs(String url, String userName, String domain, String projectPath) {
+        return tfs(new UrlArgument(url), userName, domain, null, projectPath);
     }
 
     public static TfsMaterialConfig tfs(String url) {
-        return tfs(new GoCipher(), new UrlArgument(url), null, null, "password");
+        return tfs(new UrlArgument(url), null, null, "password");
     }
 
-    public static TfsMaterialConfig tfs(UrlArgument urlArgument, String password, String encryptedPassword, GoCipher goCipher) {
-        TfsMaterialConfig tfsMaterialConfig = tfs(goCipher, urlArgument, null, null, password);
+    public static TfsMaterialConfig tfs(UrlArgument urlArgument, String password, String encryptedPassword) {
+        TfsMaterialConfig tfsMaterialConfig = tfs(urlArgument, null, null, password);
         tfsMaterialConfig.setEncryptedPassword(encryptedPassword);
         return tfsMaterialConfig;
     }
 
-    public static TfsMaterialConfig tfs(GoCipher goCipher, UrlArgument url, String userName, String domain, String projectPath) {
-        return tfs(goCipher, url.originalArgument(), userName, domain, projectPath);
+    public static TfsMaterialConfig tfs(UrlArgument url, String userName, String domain, String projectPath) {
+        return tfs(url.originalArgument(), userName, domain, projectPath);
     }
 
-    //avoid using GoCipher: there is no need to mock GoCipher as it already using test provider
-    public static TfsMaterialConfig tfs(GoCipher goCipher, UrlArgument url, String userName, String domain, String password, String projectPath) {
-        return tfs(url, userName, domain, password, projectPath, goCipher, true, null, false, null, null);
+    public static TfsMaterialConfig tfs(UrlArgument url, String userName, String domain, String password, String projectPath) {
+        return tfs(url, userName, domain, password, projectPath, true, null, false, null, null);
     }
 
     public static TfsMaterialConfig tfs(UrlArgument url, String userName, String domain, String password, String projectPath,
-                                        GoCipher goCipher, boolean autoUpdate, Filter filter, boolean invertFilter,
+                                        boolean autoUpdate, Filter filter, boolean invertFilter,
                                         String folder, CaseInsensitiveString name) {
         TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig();
         tfsMaterialConfig.setUrl(url == null ? null : url.originalArgument());
@@ -217,23 +209,14 @@ public class MaterialConfigsMother {
         return p4MaterialConfig;
     }
 
-    public static P4MaterialConfig p4(String url, String view, String userName) {
-        P4MaterialConfig p4MaterialConfig = p4(url, view);
+    public static P4MaterialConfig p4(String serverAndPort, String view, String userName) {
+        P4MaterialConfig p4MaterialConfig = p4(serverAndPort, view);
         p4MaterialConfig.setUserName(userName);
         return p4MaterialConfig;
     }
 
-    public static P4MaterialConfig p4(String serverAndPort, String password, String encryptedPassword, GoCipher goCipher) {
-        P4MaterialConfig p4MaterialConfig = p4();
-        p4MaterialConfig.setUrl(serverAndPort);
-        p4MaterialConfig.setPassword(password);
-        p4MaterialConfig.setEncryptedPassword(encryptedPassword);
-        return p4MaterialConfig;
-    }
-
     public static P4MaterialConfig p4(String serverAndPort, String userName, String password, Boolean useTickets, String viewStr,
-                                      GoCipher goCipher, CaseInsensitiveString name, boolean autoUpdate, Filter filter,
-                                      boolean invertFilter, String folder) {
+                                      CaseInsensitiveString name, boolean autoUpdate, Filter filter, boolean invertFilter, String folder) {
         P4MaterialConfig p4MaterialConfig = p4();
         p4MaterialConfig.setUrl(serverAndPort);
         p4MaterialConfig.setUserName(userName);
@@ -384,7 +367,7 @@ public class MaterialConfigsMother {
     }
 
     public static SvnMaterialConfig svnMaterialConfig(String svnUrl, String folder, boolean autoUpdate) {
-        SvnMaterialConfig materialConfig = svn(new UrlArgument(svnUrl), "user", "pass", true, new GoCipher(), autoUpdate, new Filter(new IgnoredFiles("*.doc")), false,
+        SvnMaterialConfig materialConfig = svn(new UrlArgument(svnUrl), "user", "pass", true, autoUpdate, new Filter(new IgnoredFiles("*.doc")), false,
                 folder, cis("svn-material"));
         materialConfig.setPassword("pass");
         return materialConfig;
@@ -392,10 +375,10 @@ public class MaterialConfigsMother {
 
     public static SvnMaterialConfig svnMaterialConfig(String svnUrl, String folder, String userName, String password, boolean checkExternals, String filterPattern) {
         SvnMaterialConfig svnMaterial = svn(svnUrl, userName, password, checkExternals, folder);
-        if (filterPattern != null)
+        if (filterPattern != null) {
             svnMaterial.setFilter(new Filter(new IgnoredFiles(filterPattern)));
-        String name = svnUrl.replaceAll("/", "_");
-        name = name.replaceAll(":", "_");
+        }
+        String name = svnUrl.replace('/', '_').replace(':', '_');
         svnMaterial.setName(cis(name));
         return svnMaterial;
     }
@@ -412,12 +395,11 @@ public class MaterialConfigsMother {
 
     public static TfsMaterialConfig tfsMaterialConfig() {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
-        TfsMaterialConfig tfsMaterialConfig = tfs(new GoCipher(), new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "some_domain", "passwd", "walk_this_path");
+        TfsMaterialConfig tfsMaterialConfig = tfs(new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "some_domain", "passwd", "walk_this_path");
         tfsMaterialConfig.setFilter(filter);
         tfsMaterialConfig.setName(cis("tfs-material"));
         tfsMaterialConfig.setFolder("dest-folder");
         return tfsMaterialConfig;
-
     }
 
     public static GitMaterialConfig git(String url, String username, String password) {

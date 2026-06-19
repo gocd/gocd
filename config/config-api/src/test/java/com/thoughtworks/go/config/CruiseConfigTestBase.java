@@ -37,7 +37,6 @@ import com.thoughtworks.go.domain.packagerepository.*;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.FunctionalUtils;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.junit.jupiter.api.Test;
@@ -581,7 +580,7 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
         hgMaterialConfig.setAutoUpdate(false);
         final MaterialConfig gitMaterialConfig = git("http://git_url");
         gitMaterialConfig.setAutoUpdate(false);
-        final MaterialConfig tfsMaterialConfig = tfs(mock(GoCipher.class), new UrlArgument("http://tfs_url"), "username", "domain", "password", "project_path");
+        final MaterialConfig tfsMaterialConfig = tfs(new UrlArgument("http://tfs_url"), "username", "domain", "password", "project_path");
         tfsMaterialConfig.setAutoUpdate(false);
         final MaterialConfig p4MaterialConfig = p4("http://p4_url", "view", "username");
         p4MaterialConfig.setAutoUpdate(false);

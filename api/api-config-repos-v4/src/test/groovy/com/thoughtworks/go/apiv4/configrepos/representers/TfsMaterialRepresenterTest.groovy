@@ -37,7 +37,7 @@ class TfsMaterialRepresenterTest {
 
   @Test
   void toJSON() {
-    TfsMaterialConfig config = tfs(new GoCipher(), REPO_URL, null, DOMAIN, PROJECT_PATH)
+    TfsMaterialConfig config = tfs(REPO_URL, null, DOMAIN, PROJECT_PATH)
     String json = toObjectString({ w -> new TfsMaterialRepresenter().toJSON(w, config) })
 
     assertThatJson(json).isEqualTo([
@@ -52,8 +52,7 @@ class TfsMaterialRepresenterTest {
 
   @Test
   void 'toJSON() with auth'() {
-    def goCipher = new GoCipher()
-    TfsMaterialConfig config = tfs(goCipher, REPO_URL, USER, DOMAIN, PASSWORD, PROJECT_PATH)
+    TfsMaterialConfig config = tfs(REPO_URL, USER, DOMAIN, PASSWORD, PROJECT_PATH)
 
     String json = toObjectString({ w -> new TfsMaterialRepresenter().toJSON(w, config) })
 
@@ -64,7 +63,7 @@ class TfsMaterialRepresenterTest {
       domain            : DOMAIN,
       auto_update       : true,
       username          : USER,
-      encrypted_password: goCipher.encrypt(PASSWORD)
+      encrypted_password: new GoCipher().encrypt(PASSWORD)
     ])
   }
 
@@ -80,11 +79,10 @@ class TfsMaterialRepresenterTest {
       password    : PASSWORD
     ])
 
-    def goCipher = new GoCipher()
-    TfsMaterialConfig expected = tfs(goCipher, REPO_URL, USER, DOMAIN, PASSWORD, PROJECT_PATH)
+    TfsMaterialConfig expected = tfs(REPO_URL, USER, DOMAIN, PASSWORD, PROJECT_PATH)
 
     def actual = new TfsMaterialRepresenter().fromJSON(json)
     assertEquals(expected, actual)
-    assertTrue(goCipher.passwordEquals(expected.encryptedPassword, actual.encryptedPassword))
+    assertTrue(new GoCipher().passwordEquals(expected.encryptedPassword, actual.encryptedPassword))
   }
 }

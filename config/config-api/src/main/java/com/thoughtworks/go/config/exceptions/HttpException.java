@@ -35,7 +35,7 @@ public abstract class HttpException extends RuntimeException {
     }
 
     public String asXML() {
-        String tag = status.name().toLowerCase().replaceAll("_", "-");
+        String tag = status.name().toLowerCase().replace('_', '-');
         return format("""
             <%s>
               <message>%s</message>

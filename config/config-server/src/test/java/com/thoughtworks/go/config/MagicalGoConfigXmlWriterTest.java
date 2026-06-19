@@ -687,7 +687,7 @@ public class MagicalGoConfigXmlWriterTest {
         cruiseConfig.initializeServer();
         PipelineConfig tfs_pipeline = cruiseConfig.pipelineConfigByName(cis("tfs_pipeline"));
         tfs_pipeline.materialConfigs().clear();
-        tfs_pipeline.addMaterialConfig(tfs(new GoCipher(), new UrlArgument("http://tfs.com"), "username", "CORPORATE", "password", "$/project_path"));
+        tfs_pipeline.addMaterialConfig(tfs(new UrlArgument("http://tfs.com"), "username", "CORPORATE", "password", "$/project_path"));
         xmlWriter.write(cruiseConfig, output, false);
     }
 

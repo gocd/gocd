@@ -31,7 +31,6 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -467,7 +466,7 @@ Above scenario allowed
         attributeMap.put(TfsMaterialConfig.TYPE, tfsAttrMap);
         materialConfigs.setConfigAttributes(attributeMap);
 
-        TfsMaterialConfig tfsMaterialConfig = tfs(new GoCipher(), new UrlArgument("foo"), "bar", "CORPORATE", "baz", "to_hell");
+        TfsMaterialConfig tfsMaterialConfig = tfs(new UrlArgument("foo"), "bar", "CORPORATE", "baz", "to_hell");
         tfsMaterialConfig.setName(cis("crapy_material"));
         assertThat(materialConfigs.getFirst()).isEqualTo(tfsMaterialConfig);
         assertThat(tfsMaterialConfig.getPassword()).isEqualTo("baz");

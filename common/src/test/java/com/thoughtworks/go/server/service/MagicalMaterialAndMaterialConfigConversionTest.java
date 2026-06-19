@@ -34,7 +34,6 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
@@ -71,11 +70,11 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     @SuppressWarnings("unused")
     private static Stream<MaterialConfig> testMaterials() {
         return Stream.of(
-                svn(url("svn-url"), "user", "pass", true, new GoCipher(), true, filterFor("*.txt"), false, "folder", cis("name1")),
+                svn(url("svn-url"), "user", "pass", true, true, filterFor("*.txt"), false, "folder", cis("name1")),
                 git(url("git-url"), null, "pass", "branch", "submodule", true, filterFor("*.doc"), false, "folder", cis("gitMaterial"), false),
                 hg(new HgUrlArgument("hg-url"), null, "pass", null, true, filterFor("*.png"), false, "folder", cis("hgMaterial")),
-                p4("localhost:9090", "user", "pass", true, "view", new GoCipher(), cis("p4Material"), true, filterFor("*.jpg"), false, "folder"),
-                tfs(url("tfs-url"), "user", "domain", "pass", "prj-path", new GoCipher(), true, filterFor("*.txt"), false, "folder", cis("tfsMaterial")),
+                p4("localhost:9090", "user", "pass", true, "view", cis("p4Material"), true, filterFor("*.jpg"), false, "folder"),
+                tfs(url("tfs-url"), "user", "domain", "pass", "prj-path", true, filterFor("*.txt"), false, "folder", cis("tfsMaterial")),
                 new PackageMaterialConfig(cis("name"), "pkg-id", packageDefinition),
                 new PluggableSCMMaterialConfig(cis("name"), scmConfig, "folder", filterFor("*.txt"), false),
                 new DependencyMaterialConfig(cis("name1"), cis("pipeline1"), cis("stage1")));

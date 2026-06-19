@@ -241,14 +241,6 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-    False positive as GoCD does not use OAuth2 RelyingPartyRegistration via Spring Security as required to exploit the
-    issue described at https://spring.io/security/cve-2026-41003
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@.*$</packageUrl>
-    <cve>CVE-2026-41003</cve>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
     False positive as the Cookie*RequestCache does not seem to existing in earlier versions of Spring, as required by the
     issue described at https://spring.io/security/cve-2026-41706
     ]]></notes>

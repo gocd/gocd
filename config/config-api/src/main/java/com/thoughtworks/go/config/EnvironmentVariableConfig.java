@@ -142,12 +142,6 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         context.setProperty(name, getValue(), isSecure());
     }
 
-    public void addToIfExists(EnvironmentVariableContext context) {
-        if (context.hasProperty(name)) {
-            addTo(context);
-        }
-    }
-
     public void validateName(Map<String, EnvironmentVariableConfig> variableConfigMap, ValidationContext validationContext) {
         String currentVariableName = name.toLowerCase();
         String parentDisplayName = validationContext.getParentDisplayName();

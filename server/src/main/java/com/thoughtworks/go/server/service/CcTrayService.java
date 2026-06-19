@@ -54,7 +54,7 @@ public class CcTrayService {
             """);
         for (ProjectStatus status : statuses) {
             if (!isSecurityEnabled || status.canBeViewedBy(userName)) {
-                String xmlRepresentation = status.xmlRepresentation().replaceAll(ProjectStatus.SITE_URL_PREFIX, siteUrlPrefix);
+                String xmlRepresentation = status.xmlRepresentation().replace(ProjectStatus.SITE_URL_PREFIX, siteUrlPrefix);
                 if (!isBlank(xmlRepresentation)) {
                     appendable.append("  ").append(xmlRepresentation).append('\n');
                 }

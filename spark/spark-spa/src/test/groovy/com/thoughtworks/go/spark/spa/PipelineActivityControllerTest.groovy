@@ -98,7 +98,7 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
 
       @Override
       void makeHttpCall() {
-        get(controller.controllerBasePath().replaceAll(":pipeline_name", getPipelineName()))
+        get(controller.controllerBasePath().replace(":pipeline_name", getPipelineName()))
       }
 
       @Override

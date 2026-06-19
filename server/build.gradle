@@ -561,7 +561,7 @@ def war = tasks.register('war', Jar) {
 
   from("${webAppDir}/WEB-INF/web.xml") {
     filter {
-      it.replaceAll('<param-value>development</param-value>', '<param-value>production</param-value>')
+      it.replace('<param-value>development</param-value>', '<param-value>production</param-value>')
     }
     into "/WEB-INF"
   }

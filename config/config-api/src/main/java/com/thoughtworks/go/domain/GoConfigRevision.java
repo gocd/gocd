@@ -28,14 +28,16 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class GoConfigRevision {
-    @SuppressWarnings("RegExpEmptyAlternationBranch")
     private static final String DELIMITER_CHAR = "|";
-    private static final String DELIMITER = "\\" + DELIMITER_CHAR;
-    private static final String VALUE = "(([^" + DELIMITER_CHAR + "]|" + DELIMITER + DELIMITER + ")+)";
-    private static final int GROUPS_IN_VALUE_MATCHER = 2; //the VALUE matcher has one subgroup per group 1 + 1 = 2
+    private static final String DELIMITER_CHAR_REGEX = "\\" + DELIMITER_CHAR;
+    private static final String VALUE_REGEX_PART = "(([^" + DELIMITER_CHAR + "]|" + DELIMITER_CHAR_REGEX + DELIMITER_CHAR_REGEX + ")+)";
+
+    private static final Pattern PATTERN = Pattern.compile("^" + Fragment.string(VALUE_REGEX_PART, DELIMITER_CHAR_REGEX) + "$");
 
     public enum Fragment {
         user, timestamp, schema_version, go_edition, go_version, md5;
+
+        private static final int GROUPS_IN_VALUE_MATCHER = 2; //the VALUE matcher has one subgroup per group 1 + 1 = 2
 
         public String represent(String value) {
             return this + ":" + value;
@@ -45,22 +47,20 @@ public class GoConfigRevision {
             return ArrayUtils.indexOf(values(), this);
         }
 
-        private static String string(String value, String delimiter) {
+        private static String string(String value, String regexDelimiter) {
             return Arrays.stream(values())
                 .map(f -> f.represent(value))
-                .collect(Collectors.joining(delimiter));
+                .collect(Collectors.joining(regexDelimiter));
         }
 
         private String unesc(String escapedValue) {
-            return escapedValue.replaceAll(DELIMITER + DELIMITER, DELIMITER_CHAR);
+            return escapedValue.replace(DELIMITER_CHAR + DELIMITER_CHAR, DELIMITER_CHAR);
         }
 
         private String getMatch(Matcher matcher) {
             return unesc(matcher.group(offset() * GROUPS_IN_VALUE_MATCHER + 1));
         }
     }
-
-    private static final Pattern PATTERN = Pattern.compile("^" + Fragment.string(VALUE, DELIMITER) + "$");
 
     private final String md5;
     private final String username;
@@ -108,7 +108,7 @@ public class GoConfigRevision {
     }
 
     public static String esc(Object content) {
-        return content.toString().replaceAll(DELIMITER, DELIMITER_CHAR + DELIMITER_CHAR);
+        return content.toString().replace(DELIMITER_CHAR, DELIMITER_CHAR + DELIMITER_CHAR);
     }
 
     public String getGoVersion() {

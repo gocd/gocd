@@ -20,18 +20,11 @@ import org.apache.commons.io.input.UnixLineEndingInputStream;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class CommandUtils {
-
-    private static final Pattern QUOTED_STRING = Pattern.compile("^(['\"]).+(\\1)$");
-    private static final Pattern UNESCAPED_SPACE_OR_QUOTES = Pattern.compile("(?<!\\\\)(?:\\\\{2})*[ '\"]");
-    private static final Pattern DOUBLE_QUOTE = Pattern.compile("(\")");
-
     public static String exec(String... commands) {
         return exec(null, commands);
     }
@@ -72,12 +65,34 @@ public class CommandUtils {
      * @return the quoted String, if not already quoted
      */
     public static String quoteArgument(String argument) {
-        if (QUOTED_STRING.matcher(argument).matches() || !UNESCAPED_SPACE_OR_QUOTES.matcher(argument).find()) {
-            // assume the argument is well-formed if it's already quoted or if there are no unescaped spaces or quotes
-            return argument;
-        }
+        // assume the argument is well-formed if it's already quoted or if there are no unescaped spaces or quotes
+        return needsQuoting(argument) ? '"' + argument.replace("\"", "\\\"") + '"' : argument;
+    }
 
-        return String.format("\"%s\"", DOUBLE_QUOTE.matcher(argument).replaceAll(Matcher.quoteReplacement("\\") + "$1"));
+    private static boolean needsQuoting(String argument) {
+        return !isWrapped(argument) && hasUnescapedSpecial(argument);
+    }
+
+    private static boolean isWrapped(final String s) {
+        return s.length() > 2 && (
+            (s.charAt(0) == '\'' && s.charAt(s.length() - 1) == '\'') ||
+                (s.charAt(0) == '"' && s.charAt(s.length() - 1) == '"')
+        );
+    }
+
+    private static boolean hasUnescapedSpecial(String s) {
+        boolean escaped = false;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (escaped) {
+                escaped = false; // this char is escaped, skip it
+            } else if (c == '\\') {
+                escaped = true;  // next char is escaped
+            } else if (c == ' ' || c == '\'' || c == '"') {
+                return true; // found an unescaped special char
+            }
+        }
+        return false;
     }
 
     public static String shellJoin(String... args) {

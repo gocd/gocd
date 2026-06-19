@@ -549,7 +549,7 @@ tasks.register('upgradeApi') {
         eachLine
           .replace(oldPackagePrefix, newPackagePrefix)
           .replace(oldControllerClassSuffix, newControllerClassSuffix)
-          .replaceAll("ApiVersion\\.v${currentMaxApiVersion}", "ApiVersion.v${apiVersion}")
+          .replace("ApiVersion.v${currentMaxApiVersion}", "ApiVersion.v${apiVersion}")
       }
       filter(FixCrLfFilter, eol: FixCrLfFilter.CrLf.newInstance("unix"))
 

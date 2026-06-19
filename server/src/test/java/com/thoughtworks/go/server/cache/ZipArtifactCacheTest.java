@@ -75,7 +75,7 @@ public class ZipArtifactCacheTest {
         waitForCacheCreated();
         assertThat(zipArtifactCache)
             .satisfies(cache -> assertThat(cache.cacheCreated(testDirArtifactFolder)).isTrue())
-            .satisfies(cache -> assertThat(cache.cachedFile(testDirArtifactFolder).getAbsolutePath().replaceAll("\\\\", "/")).endsWith("cache/artifacts/" + JOB_FOLDERS + "/dir.zip"));
+            .satisfies(cache -> assertThat(cache.cachedFile(testDirArtifactFolder).getAbsolutePath().replace('\\', '/')).endsWith("cache/artifacts/" + JOB_FOLDERS + "/dir.zip"));
     }
 
     @Test
@@ -94,7 +94,7 @@ public class ZipArtifactCacheTest {
 
             threads.forEach(thread -> {
                 assertThat(thread.isDone()).isTrue();
-                assertThat(thread.artifact.replaceAll("\\\\", "/")).endsWith(JOB_FOLDERS + "/dir.zip");
+                assertThat(thread.artifact.replace('\\', '/')).endsWith(JOB_FOLDERS + "/dir.zip");
             });
         } finally {
             threads.forEach(Thread::interrupt);

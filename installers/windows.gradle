@@ -87,7 +87,7 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
           }
 
           filter { String eachLine ->
-            eachLine = eachLine.replaceAll("=${installerType.baseName}".toString(), "=${installerType.windowsAndOSXServiceName}".toString())
+            eachLine = eachLine.replace("=${installerType.baseName}".toString(), "=${installerType.windowsAndOSXServiceName}".toString())
             return eachLine
           }
 
@@ -135,7 +135,7 @@ def configureNSIS(Task packageTask, InstallerType installerType, File buildRoot,
 
       unInstallManifestFile.withWriter { out ->
         injected.objectFactory.fileTree().from(installerContents).forEach { File eachFile ->
-          out.println("Delete \"\$INSTDIR\\${installerContents.relativePath(eachFile).replaceAll("/", "\\\\")}\"")
+          out.println("Delete \"\$INSTDIR\\${installerContents.relativePath(eachFile).replace('/', '\\')}\"")
         }
       }
 

@@ -474,7 +474,7 @@ subprojects {
       testTask.testClassesDirs.files.each { File classDir ->
         if (classDir.exists()) {
           classDir.eachFileRecurse(groovy.io.FileType.FILES) { f ->
-            def relPath = new File(classDir.toURI().relativize(f.toURI()).toString()).toString().replaceAll(/\$.*/, '.*').replaceAll(/\.class/, '.*')
+            def relPath = new File(classDir.toURI().relativize(f.toURI()).toString()).toString().replaceAll(/\$.*/, '.*').replace('.class', '.*')
             if (relPath.endsWith("Test.*")) files << relPath
           }
         }

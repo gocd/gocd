@@ -115,7 +115,8 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = ConfigMigrator.migrate(content, 21, 22);
 
-        String expected = content.replaceAll("(?<!do_not_sub_)#", "##").replace("<cruise schemaVersion=\"21\">", "<cruise schemaVersion=\"22\">");
+        String expected = content.replaceAll("(?<!do_not_sub_)#", "##")
+            .replace("<cruise schemaVersion=\"21\">", "<cruise schemaVersion=\"22\">");
         assertStringsIgnoringLineBreaksAreEqual(expected, migratedContent);
     }
 
@@ -135,9 +136,9 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = ConfigMigrator.migrate(content, 22, 34);
 
-        String expected = content.replaceAll("#\\{jez_passwd\\}", "badger")
+        String expected = content.replace("#{jez_passwd}", "badger")
             .replace("<cruise schemaVersion=\"22\">", "<cruise schemaVersion=\"34\">")
-            .replaceAll("##", "#");
+            .replace("##", "#");
         assertStringsIgnoringLineBreaksAreEqual(expected, migratedContent);
     }
 
@@ -2323,7 +2324,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @SuppressWarnings("SameParameterValue")
     private void assertStringContainsIgnoringCarriageReturn(String actual, String substring) {
-        assertThat(actual.replaceAll("\\r", "")).contains(substring.replaceAll("\\r", ""));
+        assertThat(actual.replace("\r", "")).contains(substring.replace("\r", ""));
     }
 
     private String migrateXmlString(String content, int fromVersion) {

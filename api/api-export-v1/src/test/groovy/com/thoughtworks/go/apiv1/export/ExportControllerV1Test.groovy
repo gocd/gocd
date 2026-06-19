@@ -59,7 +59,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
   @Nested
   class ExportPipeline {
     String pipelinePath(String name) {
-      return Export.PIPELINES_PATH.replaceAll(":pipeline_name", name)
+      return Export.PIPELINES_PATH.replace(":pipeline_name", name)
     }
 
     @Nested

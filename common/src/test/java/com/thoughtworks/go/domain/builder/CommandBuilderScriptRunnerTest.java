@@ -17,6 +17,7 @@ package com.thoughtworks.go.domain.builder;
 
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.util.command.CommandLine;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -41,7 +42,7 @@ public class CommandBuilderScriptRunnerTest extends AbstractCommandBuilderScript
         @Test
         void commandInSpacePathCanRunMultipleArgsInclSpaces() throws Exception {
             List<String> paths = createTestFoldersIn();
-            String[] pathsAsStrings = paths.stream().map(s -> '"' + s + '"').toArray(String[]::new);
+            String[] pathsAsStrings = paths.stream().map(s -> StringUtils.wrapIfMissing(s, '"')).toArray(String[]::new);
             assertThatExecutableOutputIncludesArgs(executableWithPathSpaces(TAR_WINDOWS).toString(), new String[] { "-cvf", "test.tar"}, pathsAsStrings);
         }
 
@@ -54,7 +55,7 @@ public class CommandBuilderScriptRunnerTest extends AbstractCommandBuilderScript
         @Test
         void commandInNormalPathCanRunMultipleArgsInclSpaces() throws Exception {
             List<String> paths = createTestFoldersIn();
-            String[] pathsAsStrings = paths.stream().map(s -> '"' + s + '"').toArray(String[]::new);
+            String[] pathsAsStrings = paths.stream().map(s -> StringUtils.wrapIfMissing(s, '"')).toArray(String[]::new);
             assertThatExecutableOutputIncludesArgs(TAR_WINDOWS.toString(), new String[] { "-cvf", "test.tar"}, pathsAsStrings);
         }
     }

@@ -27,14 +27,10 @@ import static java.lang.String.valueOf;
 public abstract class HtmlErrorPage {
 
     public static String errorPage(int code, String message) {
-        return Holder.INSTANCE.replaceAll(buildRegex("status_code"), valueOf(code))
-                .replaceAll(buildRegex("error_message"), StringEscapeUtils.escapeHtml4(message));
+        return Holder.INSTANCE
+                .replace("{{status_code}}", valueOf(code))
+                .replace("{{error_message}}", StringEscapeUtils.escapeHtml4(message));
     }
-
-    private static String buildRegex(final String value) {
-        return "\\{\\{" + value + "\\}\\}";
-    }
-
 
     private static class Holder {
         private static final String INSTANCE = fileContents();
@@ -46,7 +42,5 @@ public abstract class HtmlErrorPage {
                 throw new RuntimeException(e);
             }
         }
-
     }
-
 }

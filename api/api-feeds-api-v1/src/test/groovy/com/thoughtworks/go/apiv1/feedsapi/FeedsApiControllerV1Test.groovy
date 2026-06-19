@@ -155,13 +155,13 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.STAGES_XML).replaceAll(":pipeline_name", "up42"))
+        getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.STAGES_XML).replace(":pipeline_name", "up42"))
       }
     }
 
     @Test
     void 'should call feed service to get stages xml'() {
-      getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.STAGES_XML).replaceAll(":pipeline_name", "up42"))
+      getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.STAGES_XML).replace(":pipeline_name", "up42"))
 
       verify(feedService).stagesXml(currentUsername(), "up42", null, "http://test.host/go")
       verifyNoMoreInteractions(feedService)
@@ -169,7 +169,7 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
     @Test
     void 'should call feed service to get stages xml before id'() {
-      getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.STAGES_XML.replaceAll(":pipeline_name", "up42") + "?before=100"))
+      getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.STAGES_XML.replace(":pipeline_name", "up42") + "?before=100"))
 
       verify(feedService).stagesXml(currentUsername(), "up42", 100, "http://test.host/go")
       verifyNoMoreInteractions(feedService)

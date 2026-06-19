@@ -32,7 +32,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -99,7 +98,7 @@ public class CommandLineTest {
         final String argWithMismatchedDblQuote = "argMisMatch='singlequoted\"WithMismatchedDblQuote'";
         cl2.withArg(argWithMismatchedDblQuote);
         assertEquals(DBL_QUOTE + EXEC_WITH_SPACES + DBL_QUOTE + " " +
-                        DBL_QUOTE + argWithMismatchedDblQuote.replaceAll("\"", Matcher.quoteReplacement("\\\"")) + DBL_QUOTE, cl2.toString(),
+                        DBL_QUOTE + argWithMismatchedDblQuote.replace("\"", "\\\"") + DBL_QUOTE, cl2.toString(),
                 "Should escape double quotes inside the string");
     }
 

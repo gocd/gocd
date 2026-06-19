@@ -17,6 +17,7 @@ package com.thoughtworks.go.server;
 
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
+import org.eclipse.jetty.util.StringUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -46,11 +47,8 @@ public class JettyCustomErrorPageHandler extends ErrorPageErrorHandler {
     }
 
     private String replaceHtml(int code, String message) {
-        return fileContents.replaceAll(buildRegex("status_code"), valueOf(code))
-                .replaceAll(buildRegex("error_message"), message);
-    }
-
-    private String buildRegex(final String value) {
-        return "\\{\\{" + value + "\\}\\}";
+        return fileContents
+            .replace("{{status_code}}", valueOf(code))
+            .replace("{{error_message}}", StringUtil.sanitizeXmlString(message));
     }
 }

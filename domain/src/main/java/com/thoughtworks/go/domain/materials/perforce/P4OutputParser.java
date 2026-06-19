@@ -84,7 +84,7 @@ public class P4OutputParser {
     }
 
     private void parseComment(Matcher matcher, Modification modification) {
-        modification.setComment(matcher.group(2).replaceAll("\\t", "").trim());
+        modification.setComment(matcher.group(2).replace("\t", "").trim());
     }
 
     private void parseFileLines(Modification modification, String lines) {

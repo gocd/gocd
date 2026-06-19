@@ -80,9 +80,9 @@ public class ModeAwareFilter implements Filter {
         String path = "server_in_maintenance_mode.html";
         try (InputStream resourceAsStream = Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(path))) {
             return new String(resourceAsStream.readAllBytes(), UTF_8)
-                    .replaceAll("%updatedBy%", maintenanceModeService.updatedBy())
-                    .replaceAll("%updatedOn%", maintenanceModeService.updatedOn())
-                    .replaceAll("%docsBaseUrl%", CurrentGoCDVersion.getInstance().baseDocsUrl());
+                    .replace("%updatedBy%", maintenanceModeService.updatedBy())
+                    .replace("%updatedOn%", maintenanceModeService.updatedOn())
+                    .replace("%docsBaseUrl%", CurrentGoCDVersion.getInstance().baseDocsUrl());
         }
     }
 

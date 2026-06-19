@@ -365,7 +365,7 @@ class BuildWorkTest {
     void shouldReportUploadMessageWhenUpload() throws Exception {
         String destFolder = "dest\\test\\sub-folder";
         final String url = String.format("%s/remoting/files/%s/%s/%s/%s/%s/%s?attempt=1&buildId=0", SERVER_URL, PIPELINE_NAME, PIPELINE_LABEL, STAGE_NAME, STAGE_COUNTER, JOB_PLAN_NAME,
-                destFolder.replaceAll("\\\\", "/"));
+                destFolder.replace('\\', '/'));
 
         String artifactFile = "example.txt";
         File basedir = new File("pipelines/pipeline1");

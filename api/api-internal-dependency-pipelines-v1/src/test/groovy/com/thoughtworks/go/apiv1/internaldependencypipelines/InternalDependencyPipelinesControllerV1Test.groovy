@@ -182,6 +182,6 @@ class InternalDependencyPipelinesControllerV1Test implements SecurityServiceTrai
   }
 
   String path(String name, String stageName) {
-    return controller.controllerBasePath().replaceAll(":pipeline_name", name).replaceAll(':stage_name', stageName)
+    return controller.controllerBasePath().replace(":pipeline_name", name).replace(':stage_name', stageName)
   }
 }

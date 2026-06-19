@@ -26,6 +26,7 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertTrue
 
 class SvnMaterialRepresenterTest {
   private static final String REPO_URL = "svn+ssh://username:password@10.106.191.164/home/svn/shproject"

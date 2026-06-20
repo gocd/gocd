@@ -35,28 +35,30 @@ import com.thoughtworks.go.util.TimeProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
-import static com.thoughtworks.go.util.Timeout.TEN_SECONDS;
+import static java.lang.Math.max;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 @Component
 public class ScheduleHelper {
-    private StubScheduleCheckCompletedListener scheduleCompleteListener;
-    private PipelineScheduler pipelineScheduler;
+    private final StubScheduleCheckCompletedListener scheduleCompleteListener;
+    private final PipelineScheduler pipelineScheduler;
     private final GoConfigService goConfigService;
-    private PipelineService pipelineService;
-    private MaterialRepository materialRepository;
+    private final PipelineService pipelineService;
+    private final MaterialRepository materialRepository;
     private final PipelineScheduleQueue pipelineScheduleQueue;
     private final TransactionTemplate transactionTemplate;
-    static private long waitTime;
-    private static final long ONE_SECOND = 1000;
-    private MaterialDatabaseUpdater materialDatabaseUpdater;
-    private InstanceFactory instanceFactory;
+    private final MaterialDatabaseUpdater materialDatabaseUpdater;
+    private final InstanceFactory instanceFactory;
+
+    private static Duration waitTime;
 
     @Autowired
     public ScheduleHelper(ScheduleCheckCompletedTopic scheduleCheckCompletedTopic, PipelineScheduler pipelineScheduler,
@@ -121,22 +123,22 @@ public class ScheduleHelper {
 
     public void autoSchedulePipelinesWithRealMaterials(String... pipelines) throws Exception {
         updateMaterials(pipelines);
-        long startTime = System.currentTimeMillis();
+        Instant startTime = Instant.now();
         pipelineScheduler.onTimer();
         if (pipelines.length == 0) {
-            await().atLeast(waitTime(), TimeUnit.MILLISECONDS);
+            await().atLeast(waitTime());
         } else {
             await()
                 .atMost(20, TimeUnit.SECONDS)
                 .untilAsserted(() -> assertThat(scheduleCompleteListener.pipelines).contains(pipelines));
 
-            setWaitTime(System.currentTimeMillis() - startTime);
+            setWaitTime(Duration.between(Instant.now(), startTime));
         }
 
         scheduleCompleteListener.reset();
     }
 
-    private void updateMaterials(String... pipelines) throws Exception {
+    private void updateMaterials(String... pipelines) {
         for (String pipeline : pipelines) {
             Materials materials = new MaterialConfigConverter().toMaterials(goConfigService.getCurrentConfig().pipelineConfigByName(cis(pipeline)).materialConfigs());
             for (Material material : materials) {
@@ -145,20 +147,13 @@ public class ScheduleHelper {
         }
     }
 
-    private void setWaitTime(long time) {
-        if (time > waitTime) {
+    private void setWaitTime(Duration time) {
+        if (time.compareTo(waitTime) > 0) {
             waitTime = time;
         }
     }
 
-    private long waitTime() {
-        long result;
-
-        if (waitTime > 0) {
-            result = Math.max(waitTime, ONE_SECOND) * 2;
-        } else {
-            result = TEN_SECONDS.inMillis();
-        }
-        return result;
+    private Duration waitTime() {
+        return waitTime.isZero() ? Duration.ofSeconds(10) : Duration.ofSeconds(2 * max(waitTime.toSeconds(), 1));
     }
 }

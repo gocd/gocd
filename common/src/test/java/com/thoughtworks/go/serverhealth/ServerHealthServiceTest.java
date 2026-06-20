@@ -22,11 +22,11 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.util.TestingClock;
-import com.thoughtworks.go.util.Timeout;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -61,9 +61,9 @@ public class ServerHealthServiceTest {
     @Test
     public void shouldRemoveExpiredLogMessages() {
         testingClock.setTime(LocalDateTime.of(2002,10,10,10,10,10,10).toInstant(ZoneOffset.UTC));
-        ServerHealthState expiresInNinetySecs = warning("hg-message1", "description", HealthStateType.databaseDiskFull(), Timeout.NINETY_SECONDS);
-        ServerHealthState expiresInThreeMinutes = warning("hg-message2", "description", HealthStateType.artifactsDirChanged(), Timeout.THREE_MINUTES);
-        ServerHealthState expiresNever = warning("hg-message3", "description", HealthStateType.artifactsDiskFull(), Timeout.NEVER);
+        ServerHealthState expiresInNinetySecs = warning("hg-message1", "description", HealthStateType.databaseDiskFull(), Duration.ofSeconds(90));
+        ServerHealthState expiresInThreeMinutes = warning("hg-message2", "description", HealthStateType.artifactsDirChanged(), Duration.ofMinutes(3));
+        ServerHealthState expiresNever = warning("hg-message3", "description", HealthStateType.artifactsDiskFull());
         serverHealthService.update(expiresInThreeMinutes);
         serverHealthService.update(expiresInNinetySecs);
         serverHealthService.update(expiresNever);
@@ -76,7 +76,7 @@ public class ServerHealthServiceTest {
         logs = serverHealthService.logsSorted();
         assertThat(logs.size()).isEqualTo(2);
         assertThat(logs).contains(expiresInThreeMinutes, expiresNever);
-        testingClock.addMillis((int) Timeout.TWO_MINUTES.inMillis());
+        testingClock.add(Duration.ofMinutes(2));
         serverHealthService.purgeStaleHealthMessages(new BasicCruiseConfig());
         logs = serverHealthService.logsSorted();
         assertThat(logs.size()).isEqualTo(1);

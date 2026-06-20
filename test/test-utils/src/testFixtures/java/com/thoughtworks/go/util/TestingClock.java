@@ -19,9 +19,9 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -102,30 +102,20 @@ public class TestingClock implements Clock, AutoCloseable {
     }
 
     @Override
-    public Instant timeoutTime(Timeout timeout) {
-        return timeoutTime(timeout.inMillis());
+    public Instant timeoutTime(Duration timeout) {
+        return currentTime.plus(timeout);
     }
 
-    @Override
-    public Instant timeoutTime(long milliSeconds) {
-        return addDuration(milliSeconds, ChronoUnit.MILLIS);
+    public void addSeconds(long amount) {
+        add(Duration.ofSeconds(amount));
     }
 
-    public void addSeconds(int numberOfSeconds) {
-        add(numberOfSeconds, ChronoUnit.SECONDS);
+    public void addMillis(long amount) {
+        add(Duration.ofMillis(amount));
     }
 
-
-    public void addMillis(int millis) {
-        add(millis, ChronoUnit.MILLIS);
-    }
-
-    private void add(int duration, ChronoUnit unit) {
-        currentTime = addDuration(duration, unit);
-    }
-
-    private Instant addDuration(long duration, ChronoUnit unit) {
-        return currentTime.plus(duration, unit);
+    public void add(Duration duration) {
+        currentTime = currentTime.plus(duration);
     }
 
     public void setTime(Instant instant) {

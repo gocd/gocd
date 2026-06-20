@@ -16,11 +16,11 @@
 package com.thoughtworks.go.serverhealth;
 
 import com.thoughtworks.go.util.TestingClock;
-import com.thoughtworks.go.util.Timeout;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -86,12 +86,12 @@ public class ServerHealthStateTest {
     @Test
     public void shouldExpireAfterTheExpiryTime() {
         testingClock.setTime(Instant.now());
-        ServerHealthState expireInFiveMins = ServerHealthState.warning("message", "desc", HealthStateType.databaseDiskFull(), Timeout.FIVE_MINUTES);
+        ServerHealthState expireInFiveMins = ServerHealthState.warning("message", "desc", HealthStateType.databaseDiskFull(), Duration.ofMinutes(5));
         ServerHealthState expireNever = ServerHealthState.warning("message", "desc", HealthStateType.databaseDiskFull());
         assertThat(expireInFiveMins.hasExpired()).isFalse();
-        testingClock.addMillis((int) Timeout.TWO_MINUTES.inMillis());
+        testingClock.add(Duration.ofMinutes(2));
         assertThat(expireInFiveMins.hasExpired()).isFalse();
-        testingClock.addMillis((int) Timeout.THREE_MINUTES.inMillis());
+        testingClock.add(Duration.ofMinutes(3));
         assertThat(expireInFiveMins.hasExpired()).isFalse();
         testingClock.addMillis(10);
         assertThat(expireInFiveMins.hasExpired()).isTrue();
@@ -135,7 +135,7 @@ public class ServerHealthStateTest {
     @Test
     public void shouldEscapeWarningMessageAndDescriptionByDefault() {
         ServerHealthState warningStateWithoutTimeout = ServerHealthState.warning("\"<message1 & message2>\"", "\"<message1 & message2>\"", HealthStateType.general(HealthStateScope.forPipeline("foo")));
-        ServerHealthState warningStateWithTimeout = ServerHealthState.warning("\"<message1 & message2>\"", "\"<message1 & message2>\"", HealthStateType.general(HealthStateScope.forPipeline("foo")), Timeout.TEN_SECONDS);
+        ServerHealthState warningStateWithTimeout = ServerHealthState.warning("\"<message1 & message2>\"", "\"<message1 & message2>\"", HealthStateType.general(HealthStateScope.forPipeline("foo")), Duration.ofSeconds(10));
 
         assertThat(warningStateWithoutTimeout.getMessage()).isEqualTo("&quot;&lt;message1 &amp; message2&gt;&quot;");
         assertThat(warningStateWithoutTimeout.getDescription()).isEqualTo("&quot;&lt;message1 &amp; message2&gt;&quot;");
@@ -146,7 +146,7 @@ public class ServerHealthStateTest {
 
     @Test
     public void shouldPreserverHtmlInWarningMessageAndDescription() {
-        ServerHealthState warningStateWithTime = ServerHealthState.warningUnsafeHtml("\"<message1 & message2>\"", "\"<message1 & message2>\"", HealthStateType.general(HealthStateScope.forPipeline("foo")), Timeout.THIRTY_SECONDS);
+        ServerHealthState warningStateWithTime = ServerHealthState.warningUnsafeHtml("\"<message1 & message2>\"", "\"<message1 & message2>\"", HealthStateType.general(HealthStateScope.forPipeline("foo")), Duration.ofSeconds(30));
 
         assertThat(warningStateWithTime.getMessage()).isEqualTo("\"<message1 & message2>\"");
         assertThat(warningStateWithTime.getDescription()).isEqualTo("\"<message1 & message2>\"");

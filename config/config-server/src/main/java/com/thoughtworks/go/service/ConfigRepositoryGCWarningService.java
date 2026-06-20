@@ -20,7 +20,6 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +54,7 @@ public class ConfigRepositoryGCWarningService {
                     to address this problem. GoCD can do this automatically on a periodic basis if you enable automatic GC. \
                     <a target='_blank' href='%s'>read more...</a>"""
                     .formatted(docsUrl("/advanced_usage/config_repo.html"));
-                serverHealthService.update(ServerHealthState.warningUnsafeHtml(message, description, HealthStateType.general(HealthStateScope.forConfigRepo(SCOPE)), Timeout.NEVER));
+                serverHealthService.update(ServerHealthState.warningUnsafeHtml(message, description, HealthStateType.general(HealthStateScope.forConfigRepo(SCOPE))));
                 LOGGER.warn("{}:{}", message, description);
             } else {
                 serverHealthService.removeByScope(HealthStateScope.forConfigRepo(SCOPE));

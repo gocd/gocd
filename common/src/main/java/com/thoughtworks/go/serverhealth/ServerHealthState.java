@@ -16,12 +16,12 @@
 package com.thoughtworks.go.serverhealth;
 
 import com.thoughtworks.go.util.SystemTimeClock;
-import com.thoughtworks.go.util.Timeout;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -46,19 +46,15 @@ public class ServerHealthState {
     }
 
     private ServerHealthState(HealthStateLevel healthStateLevel, HealthStateType type, String message, String description) {
-        this(healthStateLevel, type, message, description, Timeout.NEVER);
+        this(healthStateLevel, type, message, description, null);
     }
 
-    private ServerHealthState(HealthStateLevel healthStateLevel, HealthStateType type, String message, String description, Timeout timeout) {
-        this(healthStateLevel, type, message, description, timeout.inMillis());
-    }
-
-    private ServerHealthState(HealthStateLevel healthStateLevel, HealthStateType healthStateType, String message, String description, long milliSeconds) {
+    private ServerHealthState(HealthStateLevel healthStateLevel, HealthStateType type, String message, String description, Duration timeout) {
         this.healthStateLevel = healthStateLevel;
-        this.type = healthStateType;
+        this.type = type;
         this.message = requireNonNull(message, "message cannot be null");
         this.description = requireNonNull(description, "description cannot be null");
-        this.expiryTime = milliSeconds == Timeout.NEVER.inMillis() ? null : SystemTimeClock.get().timeoutTime(milliSeconds);
+        this.expiryTime = timeout == null || timeout.isZero() ? null : SystemTimeClock.get().timeoutTime(timeout);
         this.timestamp = new Date();
     }
 
@@ -70,7 +66,7 @@ public class ServerHealthState {
         return new ServerHealthState(HealthStateLevel.WARNING, healthStateType, escapeHtml4(message), escapeHtml4(description));
     }
 
-    public static ServerHealthState warning(String message, String description, HealthStateType healthStateType, Timeout timeout) {
+    public static ServerHealthState warning(String message, String description, HealthStateType healthStateType, Duration timeout) {
         return new ServerHealthState(HealthStateLevel.WARNING, healthStateType, escapeHtml4(message), escapeHtml4(description), timeout);
     }
 
@@ -78,7 +74,15 @@ public class ServerHealthState {
      * BE CAREFUL - this does no escaping of HTML before rendering back to UI, so users must ensure there is nothing
      * dynamic; or ensure it is already escaped.
      */
-    public static ServerHealthState warningUnsafeHtml(String message, String description, HealthStateType stateType, Timeout timeout) {
+    public static ServerHealthState warningUnsafeHtml(String message, String description, HealthStateType stateType) {
+        return new ServerHealthState(HealthStateLevel.WARNING, stateType, message, description);
+    }
+
+    /**
+     * BE CAREFUL - this does no escaping of HTML before rendering back to UI, so users must ensure there is nothing
+     * dynamic; or ensure it is already escaped.
+     */
+    public static ServerHealthState warningUnsafeHtml(String message, String description, HealthStateType stateType, Duration timeout) {
         return new ServerHealthState(HealthStateLevel.WARNING, stateType, message, description, timeout);
     }
 
@@ -86,7 +90,7 @@ public class ServerHealthState {
         return new ServerHealthState(HealthStateLevel.ERROR, type, escapeHtml4(message), escapeHtml4(description));
     }
 
-    public static ServerHealthState error(String message, String description, HealthStateType type, Timeout timeout) {
+    public static ServerHealthState error(String message, String description, HealthStateType type, Duration timeout) {
         return new ServerHealthState(HealthStateLevel.ERROR, type, escapeHtml4(message), escapeHtml4(description), timeout);
     }
 

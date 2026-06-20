@@ -23,7 +23,6 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
-import com.thoughtworks.go.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,8 +121,7 @@ public class ConsoleActivityMonitor {
         serverHealthService.update(ServerHealthState.warningUnsafeHtml(
             format("Job '%s' is not responding", namespacedJob),
             messages.hungWarningHtml(jobIdentifier.buildLocator(), namespacedJob, difference),
-            HealthStateType.general(forJob(jobIdentifier.getPipelineName(), jobIdentifier.getStageName(), jobIdentifier.getBuildName())),
-            Timeout.NEVER)
+            HealthStateType.general(forJob(jobIdentifier.getPipelineName(), jobIdentifier.getStageName(), jobIdentifier.getBuildName())))
         );
     }
 

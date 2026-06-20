@@ -46,6 +46,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.slf4j.event.Level;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -65,7 +66,6 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.duplicateAgent;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warningUnsafeHtml;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static com.thoughtworks.go.util.Timeout.THIRTY_SECONDS;
 import static com.thoughtworks.go.util.TriState.*;
 import static java.lang.String.format;
 import static java.util.Arrays.sort;
@@ -577,7 +577,7 @@ class AgentServiceTest {
                         runtimeInfo.agentInfoForDisplay(), original.agentInfoForDisplay());
 
                 String desc = "Please check the agent installation. Click <a href='" + docsUrl("/faq/agent_guid_issue.html") + "' target='_blank'>here</a> for more info.";
-                ServerHealthState serverHealthState = warningUnsafeHtml(msg, desc, duplicateAgent(forAgent(runtimeInfo.getCookie())), THIRTY_SECONDS);
+                ServerHealthState serverHealthState = warningUnsafeHtml(msg, desc, duplicateAgent(forAgent(runtimeInfo.getCookie())), Duration.ofSeconds(30));
 
                 verify(serverHealthService).update(serverHealthState);
             }

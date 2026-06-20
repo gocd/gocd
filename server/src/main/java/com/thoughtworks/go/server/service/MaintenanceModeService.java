@@ -83,7 +83,7 @@ public class MaintenanceModeService {
     }
 
     public void mduStartedForMaterial(Material material) {
-        runningMDUs.put(material.getFingerprint(), new MaterialPerformingMDU(material, new Timestamp(timeProvider.currentTimeMillis())));
+        runningMDUs.put(material.getFingerprint(), new MaterialPerformingMDU(material, timeProvider.currentSqlTimestamp()));
     }
 
     public void mduFinishedForMaterial(Material material) {

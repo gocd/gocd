@@ -27,7 +27,6 @@ import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.command.*;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import com.thoughtworks.go.work.GoPublisher;
@@ -38,19 +37,17 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.messageOf;
-import static java.lang.String.format;
 
 public class BuildWork implements Work {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildWork.class);
     private static final JobIdentifier INVALID_IDENTIFIER = new JobIdentifier("Unknown", 0, "Unknown", "Unknown", "Unknown", "Unknown", -1L);
+    private static final DateTimeFormatter CONSOLE_LOG_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z", Locale.ENGLISH);
 
     private final BuildAssignment assignment;
 
@@ -59,7 +56,6 @@ public class BuildWork implements Work {
     private final String consoleLogCharset;
 
     private transient DefaultGoPublisher goPublisher;
-    private transient TimeProvider timeProvider;
     private transient File workingDirectory;
     private transient MaterialRevisions materialRevisions;
     private transient Builders builders;
@@ -73,7 +69,6 @@ public class BuildWork implements Work {
     private void initialize(AgentWorkContext agentWorkContext) {
         JobIdentifier jobIdentifier = assignment.getJobIdentifier();
 
-        this.timeProvider = new TimeProvider();
         agentWorkContext.getAgentRuntimeInfo().busy(new AgentBuildingInfo(jobIdentifier.buildLocatorForDisplay(), jobIdentifier.buildLocator()));
         this.workingDirectory = assignment.getWorkingDirectory();
         this.materialRevisions = assignment.materialRevisions();
@@ -129,7 +124,7 @@ public class BuildWork implements Work {
             return null;
         }
 
-        goPublisher.consumeLineWithPrefix(format("Job Started: %s\n", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(timeProvider.currentUtilDate())));
+        goPublisher.consumeLineWithPrefix("Job Started: " + CONSOLE_LOG_FORMAT.format(ZonedDateTime.now()));
 
         prepareJob(agentIdentifier, scmExtension);
 
@@ -270,7 +265,6 @@ public class BuildWork implements Work {
         int result;
         result = assignment != null ? assignment.hashCode() : 0;
         result = 31 * result + (goPublisher != null ? goPublisher.hashCode() : 0);
-        result = 31 * result + (timeProvider != null ? timeProvider.hashCode() : 0);
         return result;
     }
 

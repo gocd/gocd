@@ -48,7 +48,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.zip.ZipInputStream;
 
-import static com.thoughtworks.go.publishers.GoArtifactsManipulator.PUBLISH_MAX_RETRIES;
+import static com.thoughtworks.go.server.service.ArtifactsService.PUBLISH_MAX_RETRIES;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;

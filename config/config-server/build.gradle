@@ -19,6 +19,7 @@ description = 'API to configure/access cruise-config.xml'
 dependencies {
   implementation project(':config:config-api')
   implementation project(':common')
+  implementation project(':domain')
   implementation project(':util')
   implementation(project.deps.jgit) {
     exclude(group: 'org.apache.httpcomponents')
@@ -30,6 +31,7 @@ dependencies {
   implementation project.deps.caffeine
   implementation project.deps.commonsIO
   implementation project.deps.commonsLang3
+  implementation project.deps.commonsText
   implementation project.deps.cloning
   implementation project.deps.jakartaAnnotation
   api project.deps.jdom
@@ -43,6 +45,7 @@ dependencies {
 
   testImplementation project(":plugin-infra:go-plugin-infra")
   testImplementation(testFixtures(project(":config:config-api")))
+  testImplementation(testFixtures(project(":domain")))
   testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation project.deps.junit5Api
   testImplementation project.deps.assertJ
@@ -56,6 +59,7 @@ dependencies {
   }
   testFixturesImplementation project(':base')
   testFixturesImplementation project(':util')
+  testFixturesApi project.deps.assertJ
 }
 
 test {

@@ -77,7 +77,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String CONSOLE_PUBLISH_INTERVAL_SECONDS = "cruise.console.publish.interval";
 
 
-    public static final String SERVICE_URL = "serviceUrl";
     public static final String AGENT_SSL_VERIFICATION_MODE = "sslVerificationMode";
     public static final String AGENT_ROOT_CERT_FILE = "rootCertFile";
     public static final String AGENT_PRIVATE_KEY = "sslPrivateKeyFile";
@@ -97,6 +96,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String TFS_SOCKET_TIMEOUT_PROPERTY = "tfs.socket.block.timeout";
 
     static final String UNRESPONSIVE_JOB_WARNING_THRESHOLD = "cruise.unresponsive.job.warning";
+
+    public static final GoSystemProperty<String> SERVICE_URL = new CachedProperty<>(new GoStringSystemProperty("serviceUrl", "https://localhost:8153" + WEBAPP_CONTEXT_PATH));
 
     public static final int DEFAULT_MAIL_SENDER_TIMEOUT_IN_MILLIS = (int) SECONDS.toMillis(60);
     private static final GoSystemProperty<Integer> MAIL_SENDER_TIMEOUT_IN_MILLIS = new GoIntSystemProperty("cruise.mail.sender.timeout", DEFAULT_MAIL_SENDER_TIMEOUT_IN_MILLIS);
@@ -192,7 +193,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         System.getenv("GIT_ALLOW_PROTOCOL") == null ? "http:https:ssh:git:file:rsync" : System.getenv("GIT_ALLOW_PROTOCOL")
     );
 
-    private volatile static Integer agentConnectionTimeout;
+    private volatile static Duration agentConnectionTimeout;
     private volatile static String cruiseConfigDir;
     private volatile static Charset consoleLogCharset;
 
@@ -209,6 +210,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public SystemEnvironment(Properties properties) {
         this.properties = properties;
+    }
+
+    public static String getNormalizedServiceUrl() {
+        return UrlUtil.normalizeUrlString(SERVICE_URL.getValue());
     }
 
     public <T> @NotNull T get(@NotNull GoSystemProperty<T> systemProperty) {
@@ -401,17 +406,13 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return getPropertyImpl(CONFIG_FILE_PROPERTY, getConfigDir() + "/cruise-config.xml");
     }
 
-    public int getAgentConnectionTimeout() {
+    public Duration getAgentConnectionTimeout() {
         return Objects.requireNonNullElseGet(agentConnectionTimeout,
-            () -> agentConnectionTimeout = Integer.valueOf(getPropertyImpl(AGENT_CONNECTION_TIMEOUT_IN_SECONDS, "300")));
+            () -> agentConnectionTimeout = Duration.ofSeconds(Long.parseLong(getPropertyImpl(AGENT_CONNECTION_TIMEOUT_IN_SECONDS, "300"))));
     }
 
     public Integer getConsolePublishIntervalSeconds() {
         return Integer.valueOf(getPropertyImpl(CONSOLE_PUBLISH_INTERVAL_SECONDS, "10"));
-    }
-
-    public String getServiceUrl() {
-        return getPropertyImpl(SERVICE_URL, defaultRemotingUrl());
     }
 
     public File getRootCertFile() {
@@ -448,11 +449,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
             return SslVerificationMode.NONE;
         }
         return SslVerificationMode.valueOf(getPropertyImpl(AGENT_SSL_VERIFICATION_MODE));
-    }
-
-
-    private String defaultRemotingUrl() {
-        return "https://localhost:8153" + WEBAPP_CONTEXT_PATH;
     }
 
     public boolean useCompressedJs() {

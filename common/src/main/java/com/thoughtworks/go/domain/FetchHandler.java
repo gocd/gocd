@@ -22,11 +22,11 @@ import java.io.InputStream;
 import java.io.Serializable;
 
 public interface FetchHandler extends Serializable {
-    String url(String remoteHost, String workingUrl);
+    String url(String uriPathFromContext);
 
     void handle(InputStream stream) throws IOException;
 
-    boolean handleResult(int returncode, GoPublisher goPublisher);
+    boolean handleResult(int httpCode, GoPublisher goPublisher);
 
     void useArtifactMd5Checksums(ArtifactMd5Checksums artifactMd5Checksums);
 

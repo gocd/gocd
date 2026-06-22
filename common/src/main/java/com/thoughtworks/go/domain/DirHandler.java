@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
-import com.thoughtworks.go.validation.ChecksumValidator;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -34,21 +34,21 @@ import java.util.zip.ZipInputStream;
 import static java.lang.String.format;
 
 public class DirHandler implements FetchHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(DirHandler.class);
+
     private final String srcFile;
     private final File destOnAgent;
-    private static final Logger LOG = LoggerFactory.getLogger(DirHandler.class);
+    private final ChecksumValidationPublisher checksumValidationPublisher = new ChecksumValidationPublisher();
     private ArtifactMd5Checksums artifactMd5Checksums;
-    private ChecksumValidationPublisher checksumValidationPublisher;
 
     public DirHandler(String srcFile, File destOnAgent) {
         this.srcFile = srcFile;
         this.destOnAgent = destOnAgent;
-        checksumValidationPublisher = new ChecksumValidationPublisher();
     }
 
     @Override
-    public String url(String remoteHost, String workingUrl) {
-        return format("%s/remoting/files/%s.zip", remoteHost, workingUrl);
+    public String url(String uriPathFromContext) {
+        return format("%s/remoting/files/%s.zip", SystemEnvironment.getNormalizedServiceUrl(), uriPathFromContext);
     }
 
     @Override

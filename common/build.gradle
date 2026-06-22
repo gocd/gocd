@@ -34,7 +34,7 @@ dependencies {
   serverOnlyImplementation(project(':plugin-infra:go-plugin-access')) { capabilities { requireFeature('server-only') } }
   api project(':config:config-api')
   serverOnlyApi(project(':config:config-api')) { capabilities { requireFeature('server-only') } }
-  implementation project.deps.apacheHttpMime
+  implementation project.deps.commonsCodec
   implementation project.deps.commonsCollections4
   implementation project.deps.commonsIO
   implementation project.deps.commonsText

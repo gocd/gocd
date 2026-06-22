@@ -447,9 +447,12 @@ subprojects {
     def tmpDir = project.file("${System.getProperty('java.io.tmpdir')}/gocd-tests/${new BigInteger(32, new SecureRandom()).toString(32)}")
     systemProperty 'java.io.tmpdir', tmpDir
 
-    if (testTask.project.name == 'agent') {
+    if (testTask.project.name == 'agent' && !testTask.name.contains('functional')) {
       jvmArgs += InstallerTypeAgent.instance.jvmInternalAccessArgs
-    } else if (testTask.project.name.startsWithAny('server', 'config', 'common', 'domain', 'go-plugin-infra', 'api')) {
+    } else if (testTask.project.name == 'agent') {
+      // Functional agent tests currently use server XML config for some reason.
+      jvmArgs += InstallerTypeServer.instance.jvmInternalAccessArgs
+    } else if (testTask.project.name.startsWithAny('server', 'api', 'config')) {
       // The tests for these projects often need modules to be opened or use server-style unsafe access which has warnings logged
       jvmArgs += InstallerTypeServer.instance.jvmInternalAccessArgs
     }

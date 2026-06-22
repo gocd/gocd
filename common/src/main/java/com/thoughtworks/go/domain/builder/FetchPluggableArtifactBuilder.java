@@ -28,6 +28,7 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import com.thoughtworks.go.util.json.JsonHelper;
 import com.thoughtworks.go.work.DefaultGoPublisher;
+import com.thoughtworks.go.work.GoPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +91,7 @@ public class FetchPluggableArtifactBuilder extends Builder {
         }
     }
 
-    private void updateEnvironmentVariableContextWith(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, List<FetchArtifactEnvironmentVariable> newEnvironmentVariables) {
+    private void updateEnvironmentVariableContextWith(GoPublisher publisher, EnvironmentVariableContext environmentVariableContext, List<FetchArtifactEnvironmentVariable> newEnvironmentVariables) {
         for (FetchArtifactEnvironmentVariable variable : newEnvironmentVariables) {
             String name = variable.name();
 

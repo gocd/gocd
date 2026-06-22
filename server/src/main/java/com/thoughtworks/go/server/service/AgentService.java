@@ -235,19 +235,18 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     public boolean requestRegistration(AgentRuntimeInfo agentRuntimeInfo) {
         LOGGER.debug("Agent is requesting registration {}", agentRuntimeInfo);
-
         AgentInstance agentInstance = agentInstances.register(agentRuntimeInfo);
-        boolean registration = agentInstance.assignCertification();
 
+        boolean registered = agentInstance.isRegistered();
         Agent agent = agentInstance.getAgent();
-        if (agentInstance.isRegistered() && !agent.cookieAssigned()) {
+        if (registered && !agent.cookieAssigned()) {
             generateAndAddCookie(agent);
             saveOrUpdate(agentInstance.getAgent());
             bombIfAgentHasErrors(agent);
             LOGGER.debug("New Agent approved {}", agentRuntimeInfo);
         }
 
-        return registration;
+        return registered;
     }
 
     @TestOnly
@@ -307,8 +306,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         agentInstance.killRunningTasks();
     }
 
-    private long cancelledForMins(Date cancelledAt) {
-        return between(cancelledAt.toInstant(), Instant.now()).toMinutes();
+    private long cancelledForMins(Instant cancelledAt) {
+        return between(cancelledAt, Instant.now()).toMinutes();
     }
 
     public void building(String uuid, AgentBuildingInfo agentBuildingInfo) {

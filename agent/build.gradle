@@ -47,12 +47,14 @@ configurations {
 dependencies {
   implementation(project(':agent-common')) { capabilities { requireFeature('agent-client') } }
   runtimeOnly(project(':base')) { capabilities { requireFeature('agent-client') } }
-  implementation project(':common')
+  api project(':common')
   implementation project(':domain')
   implementation project(':plugin-infra:go-plugin-access')
   implementation project(':plugin-infra:go-plugin-infra')
   implementation project(':config:config-api')
   implementation project.deps.jakartaAnnotation
+  implementation project.deps.commonsCodec
+  implementation project.deps.commonsCollections4
   implementation project.deps.commonsConfiguration
   implementation project.deps.commonsIO
   implementation project.deps.springContext
@@ -62,10 +64,13 @@ dependencies {
   implementation(project.deps.apacheHttpComponents) {
     exclude(module: 'commons-codec')
   }
+  implementation project.deps.apacheHttpMime
   if (project.deps.apacheHttpComponents) {
     runtimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
   }
 
+  testImplementation(testFixtures(project(':common')))
+  testImplementation(testFixtures(project(':domain')))
   testImplementation(testFixtures(project(':test:test-utils')))
 
   testImplementation project.deps.junit5Api
@@ -80,6 +85,7 @@ dependencies {
   testImplementation project.deps.mockitoJunit5
 
   functionalTestImplementation project.deps.apacheHttpComponents
+  functionalTestImplementation(testFixtures(project(':server')))
 
   extractedAtTopLevel project(':agent-process-launcher')
   extractedAtTopLevel project(':jar-class-loader')
@@ -198,6 +204,8 @@ tasks.register('functionalTest', Test) {
     html.required = true
     junitXml.required = true
   }
+
+  systemProperty('go.enforce.server.immutability', 'N')
 }
 
 check.dependsOn(functionalTest)

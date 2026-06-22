@@ -53,6 +53,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.net.InetAddress;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -645,7 +646,7 @@ public class AgentServiceIntegrationTest {
         @Test
         void shouldMarkAgentAsLostContactWhenAgentDoesNotPingWithinTimeoutPeriod() {
             new SystemEnvironment().setProperty("agent.connection.timeout", "-1");
-            Date date = Date.from(LocalDateTime.of(1970, 1, 1, 1, 1, 1).toInstant(ZoneOffset.UTC));
+            Instant date = LocalDateTime.of(1970, 1, 1, 1, 1, 1).toInstant(ZoneOffset.UTC);
             AgentInstance instance = idle(date, "CCeDev01");
             ReflectionUtil.<AgentRuntimeInfo>getField(instance, "agentRuntimeInfo").setOperatingSystem("Minix");
 
@@ -665,7 +666,7 @@ public class AgentServiceIntegrationTest {
             new SystemEnvironment().setProperty("agent.connection.timeout", "-1");
             configHelper.addMailHost(new MailHost("ghost.name", 25, "loser", "boozer", true, false, "go@foo.mail.com", "admin@foo.mail.com"));
 
-            Date date = Date.from(LocalDateTime.of(1970, 1, 1, 1, 1, 1).toInstant(ZoneOffset.UTC));
+            Instant date = LocalDateTime.of(1970, 1, 1, 1, 1, 1).toInstant(ZoneOffset.UTC);
             AgentInstance idleAgentInstance = idle(date, "CCeDev01");
             ReflectionUtil.<AgentRuntimeInfo>getField(idleAgentInstance, "agentRuntimeInfo").setOperatingSystem("Minix");
 
@@ -868,7 +869,7 @@ public class AgentServiceIntegrationTest {
     class LoadingAgents {
         @Test
         void shouldLoadAllAgents() {
-            AgentInstance idleAgentInstance = idle(new Date(), "CCeDev01");
+            AgentInstance idleAgentInstance = idle(Instant.now(), "CCeDev01");
             AgentInstance pendingAgentInstance = pending();
             AgentInstance buildingAgentInstance = building();
             AgentInstance deniedAgentInstance = disabled();

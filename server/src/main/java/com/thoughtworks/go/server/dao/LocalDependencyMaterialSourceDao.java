@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.dao;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageAsDMR;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.Stages;
 import com.thoughtworks.go.domain.materials.Modification;

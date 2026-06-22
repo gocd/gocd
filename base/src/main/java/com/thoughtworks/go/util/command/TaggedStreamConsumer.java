@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.util.command;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Adds ability to annotate lines received by {@link StreamConsumer} so that console
  * log lines can be meaningfully parsed.
@@ -38,5 +40,5 @@ public interface TaggedStreamConsumer extends StreamConsumer {
     String PUBLISH_ERR = "ae";
     String COMPLETED = "ex";
 
-    void taggedConsumeLine(String tag, String line);
+    void taggedConsumeLine(@NotNull String tag, @NotNull String line);
 }

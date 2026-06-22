@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.util.command;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.event.Level;
 
@@ -39,7 +40,7 @@ public final class StreamLogger implements StreamConsumer {
     }
 
     @Override
-    public void consumeLine(String line) {
+    public void consumeLine(@NotNull String line) {
         switch (level) {
             case ERROR:
                 logger.error(line);

@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.domain.FileHandler;
 import com.thoughtworks.go.remote.StandardHeaders;
-import com.thoughtworks.go.server.domain.ZippedArtifact;
 import com.thoughtworks.go.util.ArtifactUtil;
 import lombok.experimental.UtilityClass;
 import org.springframework.web.servlet.ModelAndView;
@@ -27,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import static java.net.HttpURLConnection.*;
@@ -48,12 +46,7 @@ public class FileModelAndView {
                 }
             });
         } else {
-            Map<String, Object> model = new HashMap<>();
-			if (file instanceof ZippedArtifact) {
-				model.put(FileView.NEED_TO_ZIP, true);
-			}
-            model.put("targetFile", file);
-            return new ModelAndView(VIEW_NAME, model);
+            return new ModelAndView(VIEW_NAME, Map.of("targetFile", file));
         }
     }
 

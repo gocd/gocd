@@ -20,12 +20,13 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;
-import com.thoughtworks.go.publishers.GoArtifactsManipulator;
+import com.thoughtworks.go.publishers.ArtifactManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.ConsoleOutputTransmitter;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemUtil;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,29 +39,23 @@ import static java.lang.String.format;
 public class DefaultGoPublisher implements GoPublisher {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultGoPublisher.class);
     private final AgentRuntimeInfo agentRuntimeInfo;
-    private final Charset consoleLogCharset;
-    private final GoArtifactsManipulator manipulator;
+    private final ArtifactManipulator manipulator;
     private final JobIdentifier jobIdentifier;
     private final AgentIdentifier agentIdentifier;
     private final BuildRepositoryRemote remoteBuildRepository;
-    private ConsoleOutputTransmitter consoleOutputTransmitter;
+    private final ConsoleOutputTransmitter consoleOutputTransmitter;
     private final String currentWorkingDirectory = SystemUtil.currentWorkingDirectory();
 
-    public DefaultGoPublisher(GoArtifactsManipulator manipulator, JobIdentifier jobIdentifier,
+    public DefaultGoPublisher(ArtifactManipulator manipulator, JobIdentifier jobIdentifier,
                               BuildRepositoryRemote remoteBuildRepository,
-                              AgentRuntimeInfo agentRuntimeInfo, Charset consoleLogCharset) {
+                              AgentRuntimeInfo agentRuntimeInfo,
+                              Charset consoleLogCharset) {
         this.manipulator = manipulator;
         this.jobIdentifier = jobIdentifier;
         this.agentIdentifier = agentRuntimeInfo.getIdentifier();
         this.remoteBuildRepository = remoteBuildRepository;
         this.agentRuntimeInfo = agentRuntimeInfo;
-        this.consoleLogCharset = consoleLogCharset;
-        init();
-    }
-
-    //do not put the logic into the constructor it is really hard to stub.
-    protected void init() {
-        consoleOutputTransmitter = manipulator.createConsoleOutputTransmitter(jobIdentifier, agentIdentifier, consoleLogCharset);
+        this.consoleOutputTransmitter = this.manipulator.createConsoleOutputTransmitter(this.jobIdentifier, agentIdentifier, consoleLogCharset);
     }
 
     @Override
@@ -72,10 +67,6 @@ public class DefaultGoPublisher implements GoPublisher {
         manipulator.fetch(this, fetchArtifact);
     }
 
-    @Override
-    public void consumeLine(String line) {
-        taggedConsumeLine(null, line);
-    }
 
     @Override
     public void close() {
@@ -123,13 +114,18 @@ public class DefaultGoPublisher implements GoPublisher {
     }
 
     @Override
-    public void consumeLineWithPrefix(String message) {
-        taggedConsumeLineWithPrefix(NOTICE, message);
+    public void consumeLine(@NotNull String line) {
+        taggedConsumeLine(NOTICE, line);
     }
 
     @Override
-    public void taggedConsumeLineWithPrefix(String tag, String message) {
-        taggedConsumeLine(tag, String.format("[%s] %s", PRODUCT_NAME, message));
+    public void consumeLineWithPrefix(@NotNull String line) {
+        taggedConsumeLineWithPrefix(NOTICE, line);
+    }
+
+    @Override
+    public void taggedConsumeLineWithPrefix(@NotNull String tag, String line) {
+        taggedConsumeLine(tag, String.format("[%s] %s", PRODUCT_NAME, line));
     }
 
     @Override
@@ -139,7 +135,7 @@ public class DefaultGoPublisher implements GoPublisher {
     }
 
     @Override
-    public void taggedConsumeLine(String tag, String line) {
+    public void taggedConsumeLine(@NotNull String tag, @NotNull String line) {
         consoleOutputTransmitter.taggedConsumeLine(tag, line);
     }
 

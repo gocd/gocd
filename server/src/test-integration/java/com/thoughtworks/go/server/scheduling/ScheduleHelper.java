@@ -58,7 +58,7 @@ public class ScheduleHelper {
     private final MaterialDatabaseUpdater materialDatabaseUpdater;
     private final InstanceFactory instanceFactory;
 
-    private static Duration waitTime;
+    private static Duration waitTime = Duration.ZERO;
 
     @Autowired
     public ScheduleHelper(ScheduleCheckCompletedTopic scheduleCheckCompletedTopic, PipelineScheduler pipelineScheduler,

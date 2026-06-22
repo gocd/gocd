@@ -43,8 +43,8 @@ import static java.lang.String.format;
  */
 public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, PasswordAwareMaterial {
     private static final Logger LOGGER = LoggerFactory.getLogger(SvnMaterial.class);
+    private final boolean checkExternals;
     private UrlArgument url;
-    private boolean checkExternals;
     private transient Subversion svnLazyLoaded;
 
     public static final String TYPE = "SvnMaterial";

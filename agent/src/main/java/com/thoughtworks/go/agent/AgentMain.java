@@ -37,7 +37,7 @@ public final class AgentMain {
         new SystemEnvironment().setProperty("go.process.type", "agent");
         Map<String, String> stringStringMap = args.toProperties();
 
-        new SystemEnvironment().setProperty(SystemEnvironment.SERVICE_URL, args.getServerUrl().toString());
+        new SystemEnvironment().setProperty(SystemEnvironment.SERVICE_URL.propertyName(), args.getServerUrl().toString());
         for (Map.Entry<String, String> entry : stringStringMap.entrySet()) {
             new SystemEnvironment().setProperty(entry.getKey(), entry.getValue());
         }

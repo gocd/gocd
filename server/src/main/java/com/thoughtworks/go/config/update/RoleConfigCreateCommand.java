@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.validation.RolesConfigUpdateValidator;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.isEmpty;
 

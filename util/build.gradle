@@ -27,6 +27,7 @@ dependencies {
   api project.deps.cloning
   implementation project.deps.jdom
   implementation project.deps.slf4jApi
+  compileOnly project.deps.jetBrainsAnnotations
 
   testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation project.deps.junit5Api

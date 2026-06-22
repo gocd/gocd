@@ -16,6 +16,7 @@
 package com.thoughtworks.go.util.command;
 
 import com.thoughtworks.go.util.TestingClock;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -115,7 +116,7 @@ public class StreamPumperTest {
         }
 
         @Override
-        public void consumeLine(String line) {
+        public void consumeLine(@NotNull String line) {
             lines.add(line);
         }
     }

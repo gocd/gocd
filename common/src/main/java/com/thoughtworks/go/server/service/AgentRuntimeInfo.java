@@ -140,14 +140,14 @@ public class AgentRuntimeInfo implements Serializable {
         }
         AgentRuntimeInfo that = (AgentRuntimeInfo) o;
         return Objects.equals(identifier, that.identifier) &&
-                runtimeStatus == that.runtimeStatus &&
-                Objects.equals(buildingInfo, that.buildingInfo) &&
-                Objects.equals(location, that.location) &&
-                Objects.equals(usableSpace, that.usableSpace) &&
-                Objects.equals(operatingSystemName, that.operatingSystemName) &&
-                Objects.equals(agentBootstrapperVersion, that.agentBootstrapperVersion) &&
-                Objects.equals(agentVersion, that.agentVersion) &&
-                Objects.equals(cookie, that.cookie);
+            runtimeStatus == that.runtimeStatus &&
+            Objects.equals(buildingInfo, that.buildingInfo) &&
+            Objects.equals(location, that.location) &&
+            Objects.equals(usableSpace, that.usableSpace) &&
+            Objects.equals(operatingSystemName, that.operatingSystemName) &&
+            Objects.equals(agentBootstrapperVersion, that.agentBootstrapperVersion) &&
+            Objects.equals(agentVersion, that.agentVersion) &&
+            Objects.equals(cookie, that.cookie);
     }
 
     @Override

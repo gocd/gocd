@@ -635,7 +635,6 @@ tasks.register('verifyWar', VerifyJarTask) {
         "hibernate-jpa-2.0-api-1.0.1.Final.jar",
         "httpclient-${project.versions.apacheHttpComponents}.jar",
         "httpcore-4.4.16.jar",
-        "httpmime-${project.versions.apacheHttpComponents}.jar",
         "invokebinder-1.13.jar",
         "istack-commons-runtime-4.1.2.jar",
         "jackson-annotations-${project.versions.jacksonBom.replaceFirst(/\.\d+$/, '')}.jar",

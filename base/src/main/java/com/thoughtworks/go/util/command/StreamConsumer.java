@@ -20,6 +20,8 @@
  */
 package com.thoughtworks.go.util.command;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Works in concert with the StreamPumper class to
  * allow implementations to gain access to the lines being
@@ -33,7 +35,7 @@ public interface StreamConsumer extends AutoCloseable {
     /**
      * Called when the StreamPumper pumps a line from the Stream.
      */
-    void consumeLine(String line);
+    void consumeLine(@NotNull String line);
 
     @Override
     default void close() {}

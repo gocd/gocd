@@ -18,6 +18,7 @@ package com.thoughtworks.go.remote.work;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,15 +52,12 @@ public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Run
     }
 
     @Override
-    public void consumeLine(String line) {
-        taggedConsumeLine(null, line);
+    public void consumeLine(@NotNull String line) {
+        taggedConsumeLine(NOTICE, line);
     }
 
     @Override
-    public void taggedConsumeLine(String tag, String line) {
-        if (tag == null) {
-            tag = "  ";
-        }
+    public void taggedConsumeLine(@NotNull String tag, @NotNull String line) {
         String taggedDate = format("%s|%s", tag, FORMATTER.format(LocalTime.now()));
         String logLine = format("%s %s", taggedDate, line).replace("\n", "\n" + taggedDate + " ");
         synchronized (buffer) {

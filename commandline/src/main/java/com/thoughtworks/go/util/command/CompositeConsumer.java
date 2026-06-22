@@ -1,0 +1,55 @@
+/*
+ * Copyright Thoughtworks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.thoughtworks.go.util.command;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * CompositeConsumer multicasts strings to any set of {@link StreamConsumer} or {@link TaggedStreamConsumer} instances
+ */
+public class CompositeConsumer implements TaggedStreamConsumer {
+    private final List<StreamConsumer> consumers = new LinkedList<>();
+    private final String defaultTag;
+
+    public CompositeConsumer(String defaultTag, StreamConsumer... consumers) {
+        this.defaultTag = defaultTag;
+        this.consumers.addAll(Arrays.asList(consumers));
+    }
+
+    public CompositeConsumer(StreamConsumer... consumers) {
+        this(null, consumers);
+    }
+
+    @Override
+    public void taggedConsumeLine(@NotNull String tag, @NotNull String line) {
+        for (StreamConsumer consumer : consumers) {
+            if (consumer instanceof TaggedStreamConsumer taggedStreamConsumer) {
+                taggedStreamConsumer.taggedConsumeLine(tag, line);
+            } else {
+                consumer.consumeLine(line);
+            }
+        }
+    }
+
+    @Override
+    public void consumeLine(@NotNull String line) {
+        taggedConsumeLine(defaultTag, line);
+    }
+}

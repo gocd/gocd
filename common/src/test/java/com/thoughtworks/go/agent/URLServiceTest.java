@@ -31,13 +31,14 @@ public class URLServiceTest {
 
     @BeforeEach
     public void setUp() {
+        new SystemEnvironment().set(SystemEnvironment.SERVICE_URL, BASE_URL + "/");
         urlService = new URLService();
         jobIdentifier = new JobIdentifier("pipelineName", -2, "LATEST", "stageName", "LATEST", "buildName", 123L);
     }
 
     @AfterEach
     public void teardown() {
-        new SystemEnvironment().clearProperty(SystemEnvironment.SERVICE_URL);
+        new SystemEnvironment().clearProperty(SystemEnvironment.SERVICE_URL.propertyName());
     }
 
     @Test
@@ -64,8 +65,7 @@ public class URLServiceTest {
 
     @Test
     public void shouldReturnServerUrlWithSubpath() {
-        new SystemEnvironment().setProperty(SystemEnvironment.SERVICE_URL, BASE_URL + "/");
-        assertThat(new URLService().serverUrlFor("someSubPath/xyz")).isEqualTo(BASE_URL + "/someSubPath/xyz");
+        assertThat(urlService.serverUrlFor("someSubPath/xyz")).isEqualTo(BASE_URL + "/someSubPath/xyz");
     }
 
 }

@@ -42,7 +42,7 @@
 
   <bean id="urlService" class="com.thoughtworks.go.agent.URLService"/>
   <bean id="httpService" class="com.thoughtworks.go.agent.HttpService"/>
-  <bean id="artifactsManipulator" class="com.thoughtworks.go.publishers.GoArtifactsManipulator"/>
+  <bean id="artifactManipulator" class="com.thoughtworks.go.publishers.GoArtifactManipulator"/>
   <bean id="sslInfrastructureService" class="com.thoughtworks.go.agent.service.SslInfrastructureService"/>
   <bean id="agentUpgradeService" class="com.thoughtworks.go.agent.service.AgentUpgradeService"/>
   <bean id="agentRegistry" class="com.thoughtworks.go.config.DefaultAgentRegistry"/>

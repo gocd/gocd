@@ -69,12 +69,12 @@ public class BuildWork implements Work {
     private void initialize(AgentWorkContext agentWorkContext) {
         JobIdentifier jobIdentifier = assignment.getJobIdentifier();
 
-        agentWorkContext.getAgentRuntimeInfo().busy(new AgentBuildingInfo(jobIdentifier.buildLocatorForDisplay(), jobIdentifier.buildLocator()));
+        agentWorkContext.agentRuntimeInfo().busy(new AgentBuildingInfo(jobIdentifier.buildLocatorForDisplay(), jobIdentifier.buildLocator()));
         this.workingDirectory = assignment.getWorkingDirectory();
         this.materialRevisions = assignment.materialRevisions();
-        this.goPublisher = new DefaultGoPublisher(agentWorkContext.getArtifactsManipulator(), jobIdentifier, agentWorkContext.getRepositoryRemote(), agentWorkContext.getAgentRuntimeInfo(), consoleLogCharset());
-        this.artifactsPublisher = new ArtifactsPublisher(goPublisher, agentWorkContext.getArtifactExtension(), assignment.getArtifactStores(), agentWorkContext.getPluginRequestProcessorRegistry(), workingDirectory);
-        this.builders = new Builders(assignment.getBuilders(), goPublisher, agentWorkContext.getTaskExtension(), agentWorkContext.getArtifactExtension(), agentWorkContext.getPluginRequestProcessorRegistry());
+        this.goPublisher = new DefaultGoPublisher(agentWorkContext.artifactManipulator(), jobIdentifier, agentWorkContext.repositoryRemote(), agentWorkContext.agentRuntimeInfo(), consoleLogCharset());
+        this.artifactsPublisher = new ArtifactsPublisher(goPublisher, agentWorkContext.artifactExtension(), assignment.getArtifactStores(), agentWorkContext.pluginRequestProcessorRegistry(), workingDirectory);
+        this.builders = new Builders(assignment.getBuilders(), goPublisher, agentWorkContext.taskExtension(), agentWorkContext.artifactExtension(), agentWorkContext.pluginRequestProcessorRegistry());
     }
 
     private Charset consoleLogCharset() {
@@ -86,7 +86,7 @@ public class BuildWork implements Work {
         LOGGER.info("Executing received job BuildWork...");
         initialize(agentWorkContext);
         try {
-            JobResult result = build(environmentVariableContext, agentWorkContext.getAgentIdentifier(), agentWorkContext.getScmExtension());
+            JobResult result = build(environmentVariableContext, agentWorkContext.agentIdentifier(), agentWorkContext.scmExtension());
             reportCompletion(result);
         } catch (InvalidAgentException e) {
             LOGGER.error("Agent UUID changed in the middle of the build.", e);
@@ -182,7 +182,7 @@ public class BuildWork implements Work {
     }
 
     private void setupEnvironmentContext(EnvironmentVariableContext context) {
-        context.setProperty("GO_SERVER_URL", new SystemEnvironment().getServiceUrl(), false);
+        context.setProperty("GO_SERVER_URL", SystemEnvironment.getNormalizedServiceUrl(), false);
         context.addAll(assignment.initialEnvironmentVariableContext());
         materialRevisions.populateAgentSideEnvironmentVariables(context, workingDirectory);
     }

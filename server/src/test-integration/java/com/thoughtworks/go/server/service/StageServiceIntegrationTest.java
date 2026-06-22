@@ -29,7 +29,6 @@ import com.thoughtworks.go.domain.feed.FeedEntries;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.fixture.PipelineWithMultipleStages;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
@@ -454,8 +453,7 @@ public class StageServiceIntegrationTest {
         job2.setAgentUuid(UUID);
         JobInstance buildingJob = jobInstanceDao.save(stage11.getId(), job2);
 
-        final DurationBean duration = stageService.getBuildDuration("Cruise-1.1", STAGE_NAME, buildingJob);
-        assertThat(duration.getDuration())
+        assertThat(stageService.getBuildDuration("Cruise-1.1", STAGE_NAME, buildingJob))
             .describedAs("we should not load duration according to stage name + job name + agent uuid only, "
                 + "we should also use pipeline name as a parameter")
             .isEqualTo(0L);

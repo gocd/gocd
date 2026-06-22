@@ -15,13 +15,15 @@
  */
 package com.thoughtworks.go.util.command;
 
+import org.jetbrains.annotations.NotNull;
+
 public interface ConsoleOutputStreamConsumer {
 
-    void stdOutput(String line);
+    void stdOutput(@NotNull String line);
 
-    void errOutput(String line);
+    void errOutput(@NotNull String line);
 
-    void taggedStdOutput(String tag, String line);
+    void taggedStdOutput(@NotNull String tag, @NotNull String line);
 
-    void taggedErrOutput(String tag, String line);
+    void taggedErrOutput(@NotNull String tag, @NotNull String line);
 }

@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.util.command;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,22 +34,22 @@ public class SafeOutputStreamConsumer implements ConsoleOutputStreamConsumer {
     }
 
     @Override
-    public void taggedStdOutput(String tag, String line) {
+    public void taggedStdOutput(@NotNull String tag, @NotNull String line) {
         consumer.taggedStdOutput(tag, redactSecretsFrom(line));
     }
 
     @Override
-    public void taggedErrOutput(String tag, String line) {
+    public void taggedErrOutput(@NotNull String tag, @NotNull String line) {
         consumer.taggedErrOutput(tag, redactSecretsFrom(line));
     }
 
     @Override
-    public void stdOutput(String line) {
+    public void stdOutput(@NotNull String line) {
         consumer.stdOutput(redactSecretsFrom(line));
     }
 
     @Override
-    public void errOutput(String line) {
+    public void errOutput(@NotNull String line) {
         consumer.errOutput(redactSecretsFrom(line));
     }
 

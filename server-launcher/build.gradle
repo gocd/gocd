@@ -95,6 +95,7 @@ tasks.register('mainJar', Jar) {
   from({ configurations.packagingInMainJarServerJar.collect { it.isDirectory() ? it : zipTree(it) } }) {
     include "**/GoLauncher*.class"
     include "**/GoServer*.class"
+    include "**/util/validators/*.class"
 
     into('/')
   }
@@ -102,7 +103,6 @@ tasks.register('mainJar', Jar) {
   from({ configurations.packagingInMainJarCommonJar.collect { it.isDirectory() ? it : zipTree(it) } }) {
     include "**/SubprocessLogger*.class"
     include "**/CurrentProcess*.class"
-    include "**/validators/*.class"
 
     into('/')
   }
@@ -113,7 +113,7 @@ tasks.register('mainJar', Jar) {
     include "**/SystemEnvironment*.class"
     include "**/UrlUtil.class"
     include "**/ConfigDirProvider.class"
-    include "**/validators/*.class"
+    include "**/util/validators/*.class"
     include "**/SystemUtil.class"
 
     into('/')

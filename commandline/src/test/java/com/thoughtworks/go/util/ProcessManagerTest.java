@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -99,12 +100,11 @@ class ProcessManagerTest {
         processMap.put(processTwo, processWrapperTwo);
 
         when(processWrapperOne.getProcessTag()).thenReturn(tag1);
-        when(processWrapperOne.getIdleTime()).thenReturn(200L);
+        when(processWrapperOne.idleFor()).thenReturn(Duration.ofMillis(200));
         when(processWrapperTwo.getProcessTag()).thenReturn(tag2);
-        when(processWrapperTwo.getIdleTime()).thenReturn(100L);
+        when(processWrapperTwo.idleFor()).thenReturn(Duration.ofMillis(100));
 
-        long timeout = processManager.getIdleTimeFor(tag2);
-        assertThat(timeout).isEqualTo(100L);
+        assertThat(processManager.idleTimeFor(tag2)).isEqualTo(Duration.ofMillis(100));
     }
 
     @Test

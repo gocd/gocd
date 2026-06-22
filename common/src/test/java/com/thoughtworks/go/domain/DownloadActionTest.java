@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.agent.HttpService;
+import com.thoughtworks.go.remote.work.artifact.WorkDownloader;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TestingClock;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +49,7 @@ public class DownloadActionTest {
     @Test
     public void shouldRetryWhenCreatingFolderZipCache() throws Exception {
         when(fetchHandler.handleResult(200, publisher)).thenReturn(true);
-        MockCachingFetchZipHttpService httpService = new MockCachingFetchZipHttpService(3);
+        MockCachingWorkDownloader httpService = new MockCachingWorkDownloader(3);
         DownloadAction downloadAction = new DownloadAction(httpService, publisher, clock);
 
         downloadAction.perform("foo", fetchHandler);
@@ -62,7 +62,7 @@ public class DownloadActionTest {
     public void shouldRetryThreeTimesWhenDownloadFails() throws Exception {
         when(fetchHandler.handleResult(200, publisher)).thenReturn(true);
         try (LogFixture logging = logFixtureFor(DownloadAction.class, Level.DEBUG)) {
-            FailSometimesHttpService httpService = new FailSometimesHttpService(3);
+            FailSometimesWorkDownloader httpService = new FailSometimesWorkDownloader(3);
             DownloadAction downloadAction = new DownloadAction(httpService, publisher, clock);
             downloadAction.perform("foo", fetchHandler);
 
@@ -81,7 +81,7 @@ public class DownloadActionTest {
     @Test
     public void shouldFailAfterFourthTryWhenDownloadFails() {
         try (LogFixture logging = logFixtureFor(DownloadAction.class, Level.DEBUG)) {
-            FailSometimesHttpService httpService = new FailSometimesHttpService(99);
+            FailSometimesWorkDownloader httpService = new FailSometimesWorkDownloader(99);
             try {
                 new DownloadAction(httpService, new StubGoPublisher(), clock).perform("foo", fetchHandler);
                 fail("Expected to throw exception after four tries");
@@ -95,7 +95,7 @@ public class DownloadActionTest {
     @Test
     public void shouldReturnWithoutRetryingArtifactIsNotModified() throws Exception {
         fetchHandler = new FileHandler(new File(""), getSrc());
-        HttpService httpService = mock(HttpService.class);
+        WorkDownloader httpService = mock(WorkDownloader.class);
         StubGoPublisher goPublisher = new StubGoPublisher();
 
         when(httpService.download("foo", fetchHandler)).thenReturn(HttpURLConnection.HTTP_NOT_MODIFIED);
@@ -111,12 +111,11 @@ public class DownloadActionTest {
         return "";
     }
 
-    private static class MockCachingFetchZipHttpService extends HttpService {
+    private static class MockCachingWorkDownloader implements WorkDownloader {
         private final int count;
         private int timesCalled = 0;
 
-        MockCachingFetchZipHttpService(int count) {
-            super(null, null);
+        MockCachingWorkDownloader(int count) {
             this.count = count;
         }
 
@@ -144,12 +143,11 @@ public class DownloadActionTest {
         assertThat(actual).isLessThanOrEqualTo(max);
     }
 
-    private static class FailSometimesHttpService extends HttpService {
+    private static class FailSometimesWorkDownloader implements WorkDownloader {
         private final int count;
         private int timesCalled = 0;
 
-        public FailSometimesHttpService(int count) {
-            super(null, null);
+        public FailSometimesWorkDownloader(int count) {
             this.count = count;
         }
 

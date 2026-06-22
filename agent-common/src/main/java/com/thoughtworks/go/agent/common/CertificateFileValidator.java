@@ -16,7 +16,6 @@
 package com.thoughtworks.go.agent.common;
 
 import com.beust.jcommander.ParameterException;
-import com.thoughtworks.go.agent.common.ssl.CertificateFileParser;
 
 import java.io.File;
 

@@ -37,7 +37,6 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.Timeout;
 import com.thoughtworks.go.util.TriState;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.annotations.VisibleForTesting;
@@ -47,6 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
@@ -235,19 +235,18 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     public boolean requestRegistration(AgentRuntimeInfo agentRuntimeInfo) {
         LOGGER.debug("Agent is requesting registration {}", agentRuntimeInfo);
-
         AgentInstance agentInstance = agentInstances.register(agentRuntimeInfo);
-        boolean registration = agentInstance.assignCertification();
 
+        boolean registered = agentInstance.isRegistered();
         Agent agent = agentInstance.getAgent();
-        if (agentInstance.isRegistered() && !agent.cookieAssigned()) {
+        if (registered && !agent.cookieAssigned()) {
             generateAndAddCookie(agent);
             saveOrUpdate(agentInstance.getAgent());
             bombIfAgentHasErrors(agent);
             LOGGER.debug("New Agent approved {}", agentRuntimeInfo);
         }
 
-        return registration;
+        return registered;
     }
 
     @TestOnly
@@ -295,7 +294,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     private void addWarningForAgentsStuckInCancel() {
         agentInstances.agentsStuckInCancel().forEach(agentInstance -> serverHealthService.update(warning(format("Agent `%s` is stuck in cancel.", agentInstance.getHostname()),
                 format("Looks like the agent is stuck cancelling a job, the job was cancelled %s minutes ago.", cancelledForMins(agentInstance.cancelledAt())),
-                HealthStateType.general(GLOBAL), Timeout.THIRTY_SECONDS)));
+                HealthStateType.general(GLOBAL), Duration.ofSeconds(30))));
     }
 
     public void killAllRunningTasksOnAgent(String uuid) throws InvalidAgentInstructionException {
@@ -307,8 +306,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         agentInstance.killRunningTasks();
     }
 
-    private long cancelledForMins(Date cancelledAt) {
-        return between(cancelledAt.toInstant(), Instant.now()).toMinutes();
+    private long cancelledForMins(Instant cancelledAt) {
+        return between(cancelledAt, Instant.now()).toMinutes();
     }
 
     public void building(String uuid, AgentBuildingInfo agentBuildingInfo) {
@@ -499,7 +498,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                         escapeHtml4(agentRuntimeInfo.agentInfoForDisplay()),
                         escapeHtml4(findAgentAndRefreshStatus(agentRuntimeInfo.getUUId()).agentInfoForDisplay())),
                     "Please check the agent installation. Click <a href='" + docsUrl("/faq/agent_guid_issue.html") + "' target='_blank'>here</a> for more info.",
-                    HealthStateType.duplicateAgent(HealthStateScope.forAgent(agentRuntimeInfo.getCookie())), Timeout.THIRTY_SECONDS));
+                    HealthStateType.duplicateAgent(HealthStateScope.forAgent(agentRuntimeInfo.getCookie())), Duration.ofSeconds(30)));
             throw new AgentWithDuplicateUUIDException(format("Agent [%s] has invalid cookie", agentRuntimeInfo.agentInfoDebugString()));
         }
     }

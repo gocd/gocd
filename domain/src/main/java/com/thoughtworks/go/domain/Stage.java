@@ -70,7 +70,7 @@ public class Stage extends PersistentObject {
         this.approvalType = approvalType;
         this.fetchMaterials = fetchMaterials;
         this.cleanWorkingDir = cleanWorkingDir;
-        this.createdTime = new Timestamp(clock.currentTimeMillis());
+        this.createdTime = clock.currentSqlTimestamp();
     }
 
     public Stage(String name, JobInstances jobInstances, String approvedBy, String cancelledBy, String approvalType, boolean fetchMaterials, boolean cleanWorkingDir, String configVersion, final Clock clock) {
@@ -420,7 +420,7 @@ public class Stage extends PersistentObject {
         setApprovedBy(context.getApprovedBy());
         setLatestRun(true);
         resetResult();
-        setCreatedTime(new Timestamp(clock.currentTimeMillis()));
+        setCreatedTime(clock.currentSqlTimestamp());
         jobInstances.resetJobsIds();
     }
 

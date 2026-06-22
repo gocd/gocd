@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.agent.HttpService;
+import com.thoughtworks.go.remote.work.artifact.WorkDownloader;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.work.GoPublisher;
 import org.slf4j.Logger;
@@ -24,16 +24,15 @@ import org.slf4j.LoggerFactory;
 import java.net.HttpURLConnection;
 
 public class DownloadAction {
+    private static final Logger LOG = LoggerFactory.getLogger(DownloadAction.class);
+    private static final int DOWNLOAD_SLEEP_MILLIS = 5000;
 
-    private final HttpService httpService;
+    private final WorkDownloader downloader;
     private final GoPublisher goPublisher;
     private final Clock clock;
-    private static final int DOWNLOAD_SLEEP_MILLIS = 5000;
-    private static final Logger LOG = LoggerFactory.getLogger(DownloadAction.class);
 
-
-    public DownloadAction(HttpService httpService, GoPublisher goPublisher, Clock clock) {
-        this.httpService = httpService;
+    public DownloadAction(WorkDownloader downloader, GoPublisher goPublisher, Clock clock) {
+        this.downloader = downloader;
         this.goPublisher = goPublisher;
         this.clock = clock;
     }
@@ -44,7 +43,7 @@ public class DownloadAction {
             retryCount++;
             String message;
             try {
-                int rc = download(httpService, url, handler);
+                int rc = download(downloader, url, handler);
                 if (handler.handleResult(rc, goPublisher)) {
                     return;
                 }
@@ -69,11 +68,11 @@ public class DownloadAction {
         LOG.warn(message);
     }
 
-    private int download(HttpService httpService, String url, FetchHandler handler) throws Exception {
-        int returnCode = httpService.download(url, handler);
+    private int download(WorkDownloader downloader, String url, FetchHandler handler) throws Exception {
+        int returnCode = downloader.download(url, handler);
         while (returnCode == HttpURLConnection.HTTP_ACCEPTED) {
             clock.sleepForMillis(DOWNLOAD_SLEEP_MILLIS);
-            returnCode = httpService.download(url, handler);
+            returnCode = downloader.download(url, handler);
         }
         return returnCode;
     }

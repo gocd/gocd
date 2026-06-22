@@ -55,7 +55,6 @@ public abstract class AgentController {
     private final String ipAddress;
 
     public AgentController(SslInfrastructureService sslInfrastructureService,
-                           SystemEnvironment systemEnvironment,
                            AgentRegistry agentRegistry,
                            PluginManager pluginManager,
                            SubprocessLogger subprocessLogger,
@@ -68,7 +67,7 @@ public abstract class AgentController {
         this.agentHealthHolder = agentHealthHolder;
         PluginManagerReference.reference().setPluginManager(pluginManager);
         hostName = SystemUtil.getLocalhostNameOrRandomNameIfNotFound();
-        ipAddress = SystemUtil.getClientIp(systemEnvironment.getServiceUrl());
+        ipAddress = SystemUtil.getClientIp(SystemEnvironment.getNormalizedServiceUrl());
     }
 
     public abstract void ping();

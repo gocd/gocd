@@ -26,7 +26,7 @@ import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.monitor.PluginJarLocationMonitor;
-import com.thoughtworks.go.publishers.GoArtifactsManipulator;
+import com.thoughtworks.go.publishers.GoArtifactManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.work.AgentWorkContext;
@@ -47,7 +47,7 @@ public class AgentHTTPClientController extends AgentController {
     private static final Logger LOG = LoggerFactory.getLogger(AgentHTTPClientController.class);
 
     private final RemotingClient client;
-    private final GoArtifactsManipulator manipulator;
+    private final GoArtifactManipulator manipulator;
     private final SslInfrastructureService sslInfrastructureService;
     private final ArtifactExtension artifactExtension;
     private final PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
@@ -60,7 +60,7 @@ public class AgentHTTPClientController extends AgentController {
 
     @Autowired
     public AgentHTTPClientController(RemotingClient client,
-                                     GoArtifactsManipulator manipulator,
+                                     GoArtifactManipulator manipulator,
                                      SslInfrastructureService sslInfrastructureService,
                                      AgentRegistry agentRegistry,
                                      AgentUpgradeService agentUpgradeService,
@@ -73,7 +73,7 @@ public class AgentHTTPClientController extends AgentController {
                                      PluginRequestProcessorRegistry pluginRequestProcessorRegistry,
                                      AgentHealthHolder agentHealthHolder,
                                      PluginJarLocationMonitor pluginJarLocationMonitor) {
-        super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService, agentHealthHolder);
+        super(sslInfrastructureService, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService, agentHealthHolder);
         this.client = client;
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;

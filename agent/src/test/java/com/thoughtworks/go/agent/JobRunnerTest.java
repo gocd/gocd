@@ -19,9 +19,7 @@ import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -36,7 +34,6 @@ public class JobRunnerTest {
     private JobRunner runner;
     private Work work;
     private AgentIdentifier agentIdentifier;
-    private UpstreamPipelineResolver resolver;
 
     @BeforeEach
     void setUp() {
@@ -44,13 +41,7 @@ public class JobRunnerTest {
         work = mock(Work.class);
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
 
-        new SystemEnvironment().setProperty(SystemEnvironment.SERVICE_URL, SERVER_URL);
-        resolver = mock(UpstreamPipelineResolver.class);
-    }
-
-    @AfterEach
-    void tearDown() {
-        verifyNoMoreInteractions(resolver);
+        new SystemEnvironment().set(SystemEnvironment.SERVICE_URL, SERVER_URL);
     }
 
     @Nested

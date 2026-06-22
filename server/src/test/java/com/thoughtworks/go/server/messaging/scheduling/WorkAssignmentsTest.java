@@ -20,7 +20,6 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.work.FakeWork;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +31,7 @@ import static org.mockito.Mockito.*;
 
 public class WorkAssignmentsTest {
     private static final Work NO_WORK = new NoWork();
-    private static final Work REAL_WORK = new FakeWork();
+    private static final Work REAL_WORK = mock(Work.class);
 
     private WorkAssignments assignments;
     private AgentRuntimeInfo agent;

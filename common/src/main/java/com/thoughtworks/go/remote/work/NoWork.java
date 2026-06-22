@@ -24,7 +24,7 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 public class NoWork implements Work {
     @Override
     public void doWork(EnvironmentVariableContext environmentVariableContext, AgentWorkContext agentWorkContext) {
-        agentWorkContext.getAgentRuntimeInfo().idle();
+        agentWorkContext.agentRuntimeInfo().idle();
     }
 
     @Override

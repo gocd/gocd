@@ -16,6 +16,7 @@
 package com.thoughtworks.go.domain;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 /**
  * Understands different states agent can be in
@@ -40,18 +41,22 @@ public enum AgentStatus implements Comparable<AgentStatus>, Serializable {
     }
 
     public static AgentStatus fromRuntime(AgentRuntimeStatus runtimeStatus) {
-        if (runtimeStatus == AgentRuntimeStatus.LostContact) { return LostContact; }
-        if (runtimeStatus == AgentRuntimeStatus.Missing) { return Missing; }
-        if (runtimeStatus == AgentRuntimeStatus.Building) { return Building; }
-        if (runtimeStatus == AgentRuntimeStatus.Idle) { return Idle; }
-        if (runtimeStatus == AgentRuntimeStatus.Cancelled) { return Cancelled; }
-        throw new IllegalArgumentException("Unknown runtime status " + runtimeStatus);
+        return switch (runtimeStatus) {
+            case Idle -> Idle;
+            case Building -> Building;
+            case LostContact -> LostContact;
+            case Missing -> Missing;
+            case Cancelled -> Cancelled;
+            case Unknown -> throw new IllegalArgumentException("Unknown runtime status " + runtimeStatus);
+        };
     }
 
-    public static AgentStatus fromConfig(AgentConfigStatus configStatus) {
-        if (configStatus == AgentConfigStatus.Pending) { return Pending; }
-        if (configStatus == AgentConfigStatus.Disabled) { return Disabled; }
-        throw new IllegalArgumentException("Unknown config status " + configStatus);
+    public static Optional<AgentStatus> fromConfig(AgentConfigStatus configStatus) {
+        return switch (configStatus) {
+            case Enabled -> Optional.empty();
+            case Pending -> Optional.of(Pending);
+            case Disabled -> Optional.of(Disabled);
+        };
     }
 
     public boolean isEnabled() {

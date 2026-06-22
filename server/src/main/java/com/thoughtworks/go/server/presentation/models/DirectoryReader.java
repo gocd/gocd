@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.presentation.models;
 
-import com.thoughtworks.go.agent.URLService;
 import com.thoughtworks.go.domain.DirectoryEntries;
 import com.thoughtworks.go.domain.FileDirectoryEntry;
 import com.thoughtworks.go.domain.FolderDirectoryEntry;
@@ -26,12 +25,10 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 public class DirectoryReader {
-    private final URLService urlService;
     private final JobIdentifier jobIdentifier;
 
     public DirectoryReader(JobIdentifier jobIdentifier) {
         this.jobIdentifier = jobIdentifier;
-        urlService = new URLService();
     }
 
     /**
@@ -62,7 +59,7 @@ public class DirectoryReader {
     }
 
     private String getUrl(String currentPath, String name) {
-        return urlService.getRestfulArtifactUrl(jobIdentifier, getCurrentPath(currentPath) + name);
+        return "/files/" + jobIdentifier.artifactLocator(getCurrentPath(currentPath) + name);
     }
 
     private String getCurrentPath(String currentPath) {

@@ -17,6 +17,7 @@ package com.thoughtworks.go.util;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -64,12 +65,7 @@ public class SystemTimeClock implements Clock, Serializable {
     }
 
     @Override
-    public Instant timeoutTime(Timeout timeout) {
-        return timeoutTime(timeout.inMillis());
-    }
-
-    @Override
-    public Instant timeoutTime(long timeoutInMillis) {
-        return currentTime().plusMillis(timeoutInMillis);
+    public Instant timeoutTime(Duration duration) {
+        return currentTime().plus(duration);
     }
 }

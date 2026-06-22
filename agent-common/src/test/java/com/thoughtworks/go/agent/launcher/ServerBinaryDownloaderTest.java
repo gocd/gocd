@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.agent.launcher;
 
-import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
+import com.thoughtworks.go.agent.common.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.testhelper.FakeGoServer;
 import com.thoughtworks.go.agent.testhelper.FakeGoServerExtension;
 import com.thoughtworks.go.agent.testhelper.GoTestResource;
-import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
+import com.thoughtworks.go.agent.testhelper.ServerUrlGeneratorMother;
 import com.thoughtworks.go.util.SslVerificationMode;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -60,7 +60,7 @@ public class ServerBinaryDownloaderTest {
 
     @Test
     public void shouldSetMd5AndSSLPortHeaders() throws Exception {
-        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()));
+        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE.name(), null, null, null), ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()));
         downloader.downloadIfNecessary(DownloadableFile.AGENT);
 
         MessageDigest digester = MessageDigest.getInstance("MD5");

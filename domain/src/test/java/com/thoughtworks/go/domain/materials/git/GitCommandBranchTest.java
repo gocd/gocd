@@ -17,7 +17,7 @@
 package com.thoughtworks.go.domain.materials.git;
 
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
-import com.thoughtworks.go.mail.SysOutStreamConsumer;
+import com.thoughtworks.go.util.SysOutStreamConsumer;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;

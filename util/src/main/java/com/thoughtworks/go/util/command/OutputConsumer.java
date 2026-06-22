@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.util.command;
 
+import org.jetbrains.annotations.NotNull;
+
 public class OutputConsumer implements StreamConsumer {
     private final ConsoleOutputStreamConsumer consoleOutputStreamConsumer;
 
@@ -23,7 +25,7 @@ public class OutputConsumer implements StreamConsumer {
     }
 
     @Override
-    public void consumeLine(String line) {
+    public void consumeLine(@NotNull String line) {
         consoleOutputStreamConsumer.stdOutput(line);
     }
 }

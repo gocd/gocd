@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.feed.Author;
 import com.thoughtworks.go.domain.feed.FeedEntries;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
-import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
@@ -230,18 +229,18 @@ public class StageService implements StageFinder {
         });
     }
 
-    public DurationBean getBuildDuration(String pipelineName, String stageName, JobInstance job) {
+    public long getBuildDuration(String pipelineName, String stageName, JobInstance job) {
         return getDuration(pipelineName, stageName, job);
     }
 
-    private DurationBean getDuration(String pipelineName, String stageName, JobInstance job) {
+    private long getDuration(String pipelineName, String stageName, JobInstance job) {
         if (job.isCompleted()) {
             // Calculating duration is an expensive query; only do so when the stage is building.
-            return new DurationBean(job.getId(), 0L);
+            return 0L;
         }
 
         Long duration = stageDao.getDurationOfLastSuccessfulOnAgent(pipelineName, stageName, job);
-        return new DurationBean(job.getId(), duration == null ? 0L : duration);
+        return duration == null ? 0L : duration;
     }
 
     public Stage mostRecentPassed(String pipelineName, String stageName) {

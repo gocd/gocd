@@ -23,35 +23,16 @@ java {
   registerFeature('logging') {
     usingSourceSet(sourceSets.create('logging'))
   }
-
-  // For use of the GoAgentServerClientBuilder
-  registerFeature('agentClient') {
-    usingSourceSet(sourceSets.create('agentClient'))
-  }
 }
 
-CapabilitySupport.extendMain(project, 'logging', 'agentClient')
+CapabilitySupport.extendMain(project, 'logging')
 
 dependencies {
   api project.deps.slf4jApi
   loggingApi project.deps.logback
 
-  agentClientApi project.deps.logback
-  agentClientImplementation project.deps.bouncyCastle
-  agentClientImplementation project.deps.bouncyCastlePkix
-
-  agentClientImplementation(project.deps.apacheHttpComponents) {
-    exclude(module: 'commons-codec')
-  }
-  if (project.deps.apacheHttpComponents) {
-    agentClientRuntimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
-  }
-
-  compileOnly project.deps.jakartaAnnotation
   compileOnly project.deps.jetBrainsAnnotations
 
-  testImplementation(testFixtures(project(':test:test-utils')))
-  testImplementation(testFixtures(project(':agent-common')))
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testRuntimeOnly project.deps.junit5PlatformLauncher

@@ -23,6 +23,7 @@ dependencies {
   implementation project.deps.commonsLang3
 
   testImplementation(testFixtures(project(":api:api-base")))
+  testImplementation(testFixtures(project(":server")))
 
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine

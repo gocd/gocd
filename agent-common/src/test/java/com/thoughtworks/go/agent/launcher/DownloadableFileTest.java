@@ -16,7 +16,7 @@
 package com.thoughtworks.go.agent.launcher;
 
 import com.thoughtworks.go.agent.ServerUrlGenerator;
-import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
+import com.thoughtworks.go.agent.testhelper.ServerUrlGeneratorMother;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;

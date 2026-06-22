@@ -51,11 +51,11 @@ class MaintenanceModeInfoRepresenterTest {
     def hgMaterial = MaterialsMother.hgMaterial()
     def svnMaterial = MaterialsMother.svnMaterial()
 
-    def gitMaterialMDUStartTime = 10000000l
-    def hgMaterialMDUStartTime = 20000000l
-    def svnMaterialMDUStartTime = 30000000l
+    def gitMaterialMDUStartTime = new Timestamp(10000000l)
+    def hgMaterialMDUStartTime = new Timestamp(20000000l)
+    def svnMaterialMDUStartTime = new Timestamp(30000000l)
 
-    when(timeProvider.currentTimeMillis())
+    when(timeProvider.currentSqlTimestamp())
       .thenReturn(gitMaterialMDUStartTime)
       .thenReturn(hgMaterialMDUStartTime)
       .thenReturn(svnMaterialMDUStartTime)

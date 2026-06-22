@@ -97,7 +97,7 @@ public class AgentControllerTest {
     }
 
     private AgentController createAgentController() {
-        return new AgentController(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager,
+        return new AgentController(sslInfrastructureService, agentRegistry, pluginManager,
             subprocessLogger, agentUpgradeService, agentHealthHolder) {
             @Override
             public void ping() {

@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.policy.SupportedAction;
 import com.thoughtworks.go.config.policy.SupportedEntity;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
@@ -96,7 +95,7 @@ public class JobControllerTest {
         when(jobInstanceService.buildByIdWithTransitions(job.getId())).thenReturn(job);
         when(jobInstanceDao.mostRecentJobWithTransitions(job.getIdentifier())).thenReturn(newJob);
         when(agentService.findAgentByUUID(newJob.getAgentUuid())).thenReturn(Agent.blankAgent(newJob.getAgentUuid()));
-        when(stageService.getBuildDuration(pipelineName, stageName, newJob)).thenReturn(new DurationBean(newJob.getId(), 5L));
+        when(stageService.getBuildDuration(pipelineName, stageName, newJob)).thenReturn(5L);
 
         ModelAndView modelAndView = jobController.handleRequest(pipelineName, stageName, job.getId(), response);
 

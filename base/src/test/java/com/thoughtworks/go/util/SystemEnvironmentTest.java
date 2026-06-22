@@ -62,9 +62,9 @@ class SystemEnvironmentTest {
     @Test
     void shouldCacheAgentConnectionSystemPropertyOnFirstAccess() {
         System.setProperty(SystemEnvironment.AGENT_CONNECTION_TIMEOUT_IN_SECONDS, "1");
-        assertThat(systemEnvironment.getAgentConnectionTimeout()).isEqualTo(1);
+        assertThat(systemEnvironment.getAgentConnectionTimeout()).isEqualTo(Duration.ofSeconds(1));
         System.setProperty(SystemEnvironment.AGENT_CONNECTION_TIMEOUT_IN_SECONDS, "2");
-        assertThat(systemEnvironment.getAgentConnectionTimeout()).isEqualTo(1);
+        assertThat(systemEnvironment.getAgentConnectionTimeout()).isEqualTo(Duration.ofSeconds(1));
     }
 
     @Test

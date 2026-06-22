@@ -27,9 +27,10 @@ import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.util.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.time.Duration;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forJob;
@@ -91,7 +92,7 @@ public class ScheduledPipelineLoader {
 
     private void updateServerHealthStateToError(JobInstance jobInstance, String message, String description) {
         HealthStateScope scope = forJob(jobInstance.getPipelineName(), jobInstance.getStageName(), jobInstance.getName());
-        serverHealthService.update(error(message, description, general(scope), Timeout.FIVE_MINUTES));
+        serverHealthService.update(error(message, description, general(scope), Duration.ofMinutes(5)));
     }
 
     private MaterialConfig materialFrom(MaterialConfigs knownMaterials, MaterialRevision materialRevision) {

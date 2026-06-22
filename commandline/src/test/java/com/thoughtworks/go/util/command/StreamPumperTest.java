@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.util.command;
 
-import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.util.TestingClock;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -24,9 +24,9 @@ import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.util.TestUtils.sleepQuietly;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,12 +38,10 @@ public class StreamPumperTest {
         String line1 = "line1";
         String line2 = "line2";
         String lines = line1 + "\n" + line2;
-        ByteArrayInputStream inputStream =
-                new ByteArrayInputStream(lines.getBytes());
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(lines.getBytes());
 
         TestConsumer consumer = new TestConsumer();
-        StreamPumper pumper = new StreamPumper(inputStream, consumer, "", StandardCharsets.UTF_8, new SystemTimeClock());
-        new Thread(pumper).start();
+        StreamPumper.pump(inputStream, consumer, "", StandardCharsets.UTF_8);
 
         //Check the consumer to see if it got both lines.
         assertThat(consumer.wasLineConsumed(line1, 1000)).isTrue();
@@ -53,20 +51,16 @@ public class StreamPumperTest {
     @Test
     public void shouldKnowIfPumperExpired() throws Exception {
         PipedOutputStream output = new PipedOutputStream();
-        try (output) {
-            InputStream inputStream = new PipedInputStream(output);
-            TestingClock clock = new TestingClock();
-            StreamPumper pumper = new StreamPumper(inputStream, new TestConsumer(), "", StandardCharsets.UTF_8, clock);
-            new Thread(pumper).start();
+        InputStream inputStream = new PipedInputStream(output);
+        TestingClock clock = new TestingClock();
+        StreamPumper pumper = StreamPumper.pump(inputStream, new TestConsumer(), "", StandardCharsets.UTF_8, clock);
 
-            output.write("line1\n".getBytes());
-            output.flush();
+        output.write("line1\n".getBytes());
+        output.flush();
 
-            long timeoutDuration = 2L;
-            assertThat(pumper.didTimeout(timeoutDuration, TimeUnit.SECONDS)).isFalse();
-            clock.addSeconds(5);
-            assertThat(pumper.didTimeout(timeoutDuration, TimeUnit.SECONDS)).isTrue();
-        }
+        assertThat(pumper.completedInLessThan(Duration.ofSeconds(2))).isFalse();
+        clock.addSeconds(5);
+        assertThat(pumper.completedInLessThan(Duration.ofSeconds(2))).isTrue();
     }
 
     @Test
@@ -74,15 +68,14 @@ public class StreamPumperTest {
         PipedOutputStream output = new PipedOutputStream();
         InputStream inputStream = new PipedInputStream(output);
         TestingClock clock = new TestingClock();
-        StreamPumper pumper = new StreamPumper(inputStream, new TestConsumer(), "", StandardCharsets.UTF_8, clock);
-        new Thread(pumper).start();
+        StreamPumper pumper = StreamPumper.pump(inputStream, new TestConsumer(), "", StandardCharsets.UTF_8, clock);
 
         output.write("line1\n".getBytes());
         output.flush();
         output.close();
         pumper.readToEnd();
         clock.addSeconds(2);
-        assertThat(pumper.didTimeout(1L, TimeUnit.SECONDS)).isFalse();
+        assertThat(pumper.completedInLessThan(Duration.ofSeconds(1))).isFalse();
     }
 
     /**
@@ -123,7 +116,7 @@ public class StreamPumperTest {
         }
 
         @Override
-        public void consumeLine(String line) {
+        public void consumeLine(@NotNull String line) {
             lines.add(line);
         }
     }

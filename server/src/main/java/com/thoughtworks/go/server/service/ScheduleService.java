@@ -42,7 +42,6 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.TimeProvider;
-import com.thoughtworks.go.util.Timeout;
 import org.apache.commons.lang3.Strings;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
@@ -53,6 +52,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -203,7 +203,7 @@ public class ScheduleService {
     }
 
     static ServerHealthState stageSchedulingFailedState(String pipelineName, String stageName, String description, HealthStateType healthStateType) {
-        return ServerHealthState.error(String.format("Failed to trigger stage [%s] pipeline [%s]", stageName, pipelineName), description, healthStateType, Timeout.TWO_MINUTES);
+        return ServerHealthState.error(String.format("Failed to trigger stage [%s] pipeline [%s]", stageName, pipelineName), description, healthStateType, Duration.ofMinutes(2));
     }
 
     private ServerHealthState stageSchedulingSuccessfulState(String pipelineName, String stageName) {

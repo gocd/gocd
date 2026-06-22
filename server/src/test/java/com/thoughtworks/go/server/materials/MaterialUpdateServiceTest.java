@@ -57,6 +57,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -420,7 +421,7 @@ public class MaterialUpdateServiceTest {
         when(material.getUriForDisplay()).thenReturn("uri");
         when(material.getLongDescription()).thenReturn("details to uniquely identify a material");
         when(material.isAutoUpdate()).thenReturn(true);
-        when(processManager.getIdleTimeFor(new MaterialFingerprintTag("fingerprint"))).thenReturn(60010L);
+        when(processManager.idleTimeFor(new MaterialFingerprintTag("fingerprint"))).thenReturn(Duration.ofMillis(60010));
 
         //when
         service.updateMaterial(material);

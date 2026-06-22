@@ -20,7 +20,6 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
-import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
 import com.thoughtworks.go.server.view.artifacts.BuildIdArtifactLocator;
@@ -43,6 +42,8 @@ import static java.lang.String.format;
 @Service
 public class ArtifactsService implements ArtifactUrlReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactsService.class);
+    static final int PUBLISH_MAX_RETRIES = 3;
+
     private final ArtifactsDirHolder artifactsDirHolder;
     private final ZipUtil zipUtil;
     private final JobResolverService jobResolverService;
@@ -87,7 +88,7 @@ public class ArtifactsService implements ArtifactUrlReader {
             return true;
         } catch (IOException e) {
             final String message = format("Failed to save the file to: [%s]", destPath);
-            if (attempt < GoArtifactsManipulator.PUBLISH_MAX_RETRIES) {
+            if (attempt < PUBLISH_MAX_RETRIES) {
                 LOGGER.warn(message, e);
             } else {
                 LOGGER.error(message, e);

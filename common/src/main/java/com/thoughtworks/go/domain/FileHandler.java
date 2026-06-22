@@ -16,7 +16,7 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.ExceptionUtils;
-import com.thoughtworks.go.validation.ChecksumValidator;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -51,16 +51,16 @@ public class FileHandler implements FetchHandler {
     }
 
     @Override
-    public String url(String remoteHost, String workingUrl) {
+    public String url(String uriPathFromContext) {
         boolean fileExist = artifact.exists();
         if (LOG.isDebugEnabled()) {
             LOG.debug("Requesting the file [{}], exist? [{}]", artifact.getAbsolutePath(), fileExist);
         }
         if (fileExist && artifact.isFile()) {
             String sha1 = sha1Digest(artifact);
-            return format("%s/remoting/files/%s?sha1=%s", remoteHost, workingUrl, encodePartParanoid(sha1));
+            return format("%s/remoting/files/%s?sha1=%s", SystemEnvironment.getNormalizedServiceUrl(), uriPathFromContext, encodePartParanoid(sha1));
         } else {
-            return format("%s/remoting/files/%s", remoteHost, workingUrl);
+            return format("%s/remoting/files/%s", SystemEnvironment.getNormalizedServiceUrl(), uriPathFromContext);
         }
     }
 

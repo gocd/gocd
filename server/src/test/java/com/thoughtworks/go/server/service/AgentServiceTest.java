@@ -21,10 +21,7 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
-import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.AgentRuntimeStatus;
-import com.thoughtworks.go.domain.NullAgent;
-import com.thoughtworks.go.domain.NullAgentInstance;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.InvalidAgentInstructionException;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.AgentMother;
@@ -46,6 +43,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.slf4j.event.Level;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -57,7 +55,6 @@ import static com.thoughtworks.go.domain.AgentInstance.FilterBy.Elastic;
 import static com.thoughtworks.go.domain.AgentInstance.FilterBy.Null;
 import static com.thoughtworks.go.domain.AgentInstance.createFromLiveAgent;
 import static com.thoughtworks.go.domain.AgentRuntimeStatus.Idle;
-import static com.thoughtworks.go.domain.AgentStatus.fromConfig;
 import static com.thoughtworks.go.helper.AgentInstanceMother.*;
 import static com.thoughtworks.go.server.service.AgentRuntimeInfo.fromServer;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forAgent;
@@ -65,7 +62,6 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.duplicateAgent;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warningUnsafeHtml;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static com.thoughtworks.go.util.Timeout.THIRTY_SECONDS;
 import static com.thoughtworks.go.util.TriState.*;
 import static java.lang.String.format;
 import static java.util.Arrays.sort;
@@ -302,7 +298,7 @@ class AgentServiceTest {
                 when(agentDao.getAgentsByUUIDs(uuids)).thenReturn(agents);
                 when(agentInstances.filterPendingAgents(uuids)).thenReturn(emptyList());
                 when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
-                when(agentInstance.getStatus()).thenReturn(fromConfig(Pending));
+                when(agentInstance.getStatus()).thenReturn(AgentStatus.Pending);
 
                 String configEnvName = "config-repo-env";
                 BasicEnvironmentConfig remoteEnvConfig = new BasicEnvironmentConfig(cis(configEnvName));
@@ -577,7 +573,7 @@ class AgentServiceTest {
                         runtimeInfo.agentInfoForDisplay(), original.agentInfoForDisplay());
 
                 String desc = "Please check the agent installation. Click <a href='" + docsUrl("/faq/agent_guid_issue.html") + "' target='_blank'>here</a> for more info.";
-                ServerHealthState serverHealthState = warningUnsafeHtml(msg, desc, duplicateAgent(forAgent(runtimeInfo.getCookie())), THIRTY_SECONDS);
+                ServerHealthState serverHealthState = warningUnsafeHtml(msg, desc, duplicateAgent(forAgent(runtimeInfo.getCookie())), Duration.ofSeconds(30));
 
                 verify(serverHealthService).update(serverHealthState);
             }
@@ -848,7 +844,6 @@ class AgentServiceTest {
             Agent agent = mock(Agent.class);
 
             when(agentInstances.register(runtimeInfo)).thenReturn(agentInstance);
-            when(agentInstance.assignCertification()).thenReturn(false);
             when(agentInstance.getAgent()).thenReturn(agent);
 
             boolean registration = agentService.requestRegistration(runtimeInfo);
@@ -867,7 +862,6 @@ class AgentServiceTest {
             Agent agent = mock(Agent.class);
 
             when(agentInstances.register(runtimeInfo)).thenReturn(agentInstance);
-            when(agentInstance.assignCertification()).thenReturn(true);
             when(agentInstance.getAgent()).thenReturn(agent);
             when(agentInstance.isRegistered()).thenReturn(true);
 
@@ -892,7 +886,6 @@ class AgentServiceTest {
             AgentRuntimeInfo runtimeInfo = fromServer(building().getAgent(), false, "sandbox", 0L, "linux");
 
             when(agentInstances.register(runtimeInfo)).thenReturn(mockAgentInstance);
-            when(mockAgentInstance.assignCertification()).thenReturn(false);
             when(mockAgentInstance.getAgent()).thenReturn(mockAgent);
             when(mockAgentInstance.isRegistered()).thenReturn(true);
 
@@ -1432,7 +1425,7 @@ class AgentServiceTest {
             AgentInstance agentInstance = mock(AgentInstance.class);
 
             when(agentInstances.agentsStuckInCancel()).thenReturn(List.of(agentInstance));
-            when(agentInstance.cancelledAt()).thenReturn(Date.from(Instant.now().minus(20, ChronoUnit.MINUTES)));
+            when(agentInstance.cancelledAt()).thenReturn(Instant.now().minus(20, ChronoUnit.MINUTES));
             when(agentInstance.getHostname()).thenReturn("test_agent");
 
             agentService.refresh();

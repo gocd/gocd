@@ -59,7 +59,7 @@ def dependencies = [
 ]
 
 tasks.register('createVersionFile') {
-  def goVersions = project.goVersions as GoVersions
+  def goVersions = rootProject.goVersions as GoVersions
   inputs.property('goVersions', goVersions)
 
   def file = layout.buildDirectory.file("version.txt").get().asFile

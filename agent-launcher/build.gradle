@@ -25,16 +25,16 @@ configurations {
 dependencies {
   implementation(project(':base')) { capabilities { requireFeature('logging') } }
   implementation(project(':agent-common')) { capabilities { requireFeature('agent-client') } }
-  implementation project.deps.commonsIO
-  implementation project.deps.slf4jApi
+  implementation rootProject.deps.commonsIO
+  implementation rootProject.deps.slf4jApi
 
   testImplementation(testFixtures(project(':agent-common')))
-  testImplementation project.deps.junit5Api
-  testImplementation project.deps.mockitoCore
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.assertJ
-  testImplementation project.deps.systemStubs
+  testImplementation rootProject.deps.junit5Api
+  testImplementation rootProject.deps.mockitoCore
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.assertJ
+  testImplementation rootProject.deps.systemStubs
 
 }
 
@@ -61,17 +61,17 @@ tasks.register('verifyJar', VerifyJarTask) {
       "agent-common-${project.version}.jar",
       "agent-launcher-${project.version}-classes.jar",
       "base-${project.version}.jar",
-      "bcpkix-jdk18on-${project.versions.bouncyCastle}.jar",
-      "bcprov-jdk18on-${project.versions.bouncyCastle}.jar",
-      "bcutil-jdk18on-${project.versions.bouncyCastle}.jar",
-      "commons-io-${project.versions.commonsIO}.jar",
-      "httpclient-${project.versions.apacheHttpComponents}.jar",
+      "bcpkix-jdk18on-${rootProject.versions.bouncyCastle}.jar",
+      "bcprov-jdk18on-${rootProject.versions.bouncyCastle}.jar",
+      "bcutil-jdk18on-${rootProject.versions.bouncyCastle}.jar",
+      "commons-io-${rootProject.versions.commonsIO}.jar",
+      "httpclient-${rootProject.versions.apacheHttpComponents}.jar",
       "httpcore-4.4.16.jar",
-      "jcl-over-slf4j-${project.versions.slf4jBom}.jar",
-      "jcommander-${project.versions.jcommander}.jar",
-      "logback-classic-${project.versions.logback}.jar",
-      "logback-core-${project.versions.logback}.jar",
-      "slf4j-api-${project.versions.slf4jBom}.jar",
+      "jcl-over-slf4j-${rootProject.versions.slf4jBom}.jar",
+      "jcommander-${rootProject.versions.jcommander}.jar",
+      "logback-classic-${rootProject.versions.logback}.jar",
+      "logback-core-${rootProject.versions.logback}.jar",
+      "slf4j-api-${rootProject.versions.slf4jBom}.jar",
     ]
   ]
 }

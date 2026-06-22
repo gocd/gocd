@@ -15,12 +15,12 @@
  */
 
 dependencies {
-  implementation project.deps.commonsDbcp
-  if (project.deps.commonsDbcp) {
-    runtimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
+  implementation rootProject.deps.commonsDbcp
+  if (rootProject.deps.commonsDbcp) {
+    runtimeOnly rootProject.deps.slf4jJcl // Allow commons-logging replacement
   }
 
-  annotationProcessor project.deps.lombok
-  compileOnly project.deps.lombok
+  annotationProcessor rootProject.deps.lombok
+  compileOnly rootProject.deps.lombok
 }
 

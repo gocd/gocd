@@ -22,10 +22,10 @@ def destFile(String url) {
 }
 
 def downloadTanukiDeltaPack = tasks.register('downloadTanukiDeltaPack', DownloadFile) {
-  def srcUrl = "https://download.tanukisoftware.com/wrapper/${project.versions.tanuki.split('-').first()}/wrapper-delta-pack-${project.versions.tanuki}.tar.gz"
+  def srcUrl = "https://download.tanukisoftware.com/wrapper/${rootProject.versions.tanuki.split('-').first()}/wrapper-delta-pack-${rootProject.versions.tanuki}.tar.gz"
   src srcUrl
   dest destFile(srcUrl)
-  checksum = project.versions.tanukiSha256sum
+  checksum = rootProject.versions.tanukiSha256sum
 }
 
 tasks.register('extractDeltaPack', Copy) {

@@ -21,45 +21,45 @@ dependencies {
   implementation project(':common')
   implementation project(':domain')
   implementation project(':util')
-  implementation(project.deps.jgit) {
+  implementation(rootProject.deps.jgit) {
     exclude(group: 'org.apache.httpcomponents')
     exclude(module: 'jsch')
     exclude(module: 'jzlib')
   }
-  implementation project.deps.springContext
-  implementation project.deps.slf4jApi
-  implementation project.deps.caffeine
-  implementation project.deps.commonsIO
-  implementation project.deps.commonsLang3
-  implementation project.deps.commonsText
-  implementation project.deps.cloning
-  implementation project.deps.jakartaAnnotation
-  api project.deps.jdom
-  if (project.deps.jdom) {
+  implementation rootProject.deps.springContext
+  implementation rootProject.deps.slf4jApi
+  implementation rootProject.deps.caffeine
+  implementation rootProject.deps.commonsIO
+  implementation rootProject.deps.commonsLang3
+  implementation rootProject.deps.commonsText
+  implementation rootProject.deps.cloning
+  implementation rootProject.deps.jakartaAnnotation
+  api rootProject.deps.jdom
+  if (rootProject.deps.jdom) {
     // Required for use of org.jdom2.xpath.XPathFactory where jaxen is the default impl
-    runtimeOnly project.deps.jaxen
+    runtimeOnly rootProject.deps.jaxen
   }
-  compileOnly project.deps.jetBrainsAnnotations
-  annotationProcessor project.deps.lombok
-  compileOnly project.deps.lombok
+  compileOnly rootProject.deps.jetBrainsAnnotations
+  annotationProcessor rootProject.deps.lombok
+  compileOnly rootProject.deps.lombok
 
   testImplementation project(":plugin-infra:go-plugin-infra")
   testImplementation(testFixtures(project(":config:config-api")))
   testImplementation(testFixtures(project(":domain")))
   testImplementation(testFixtures(project(':test:test-utils')))
-  testImplementation project.deps.junit5Api
-  testImplementation project.deps.assertJ
-  testImplementation project.deps.xmlUnit
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.mockitoJunit5
+  testImplementation rootProject.deps.junit5Api
+  testImplementation rootProject.deps.assertJ
+  testImplementation rootProject.deps.xmlUnit
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.mockitoJunit5
 
   testFixturesApi(project(':config:config-api')) {
     capabilities { requireFeature('server-only') }
   }
   testFixturesImplementation project(':base')
   testFixturesImplementation project(':util')
-  testFixturesApi project.deps.assertJ
+  testFixturesApi rootProject.deps.assertJ
 }
 
 test {

@@ -28,29 +28,29 @@ javaPlatform {
 dependencies {
   // Use BOMs to control versions of dependencies for other projects where possible.
   // This is following https://docs.gradle.org/current/userguide/platforms.html#sub:bom_import
-  api enforcedPlatform(project.deps.slf4jBom)
-  api enforcedPlatform(project.deps.jacksonBom)
-  api platform(project.deps.jaxbBom)
+  api enforcedPlatform(rootProject.deps.slf4jBom)
+  api enforcedPlatform(rootProject.deps.jacksonBom)
+  api platform(rootProject.deps.jaxbBom)
 
   constraints {
-    api project.deps.commonsCodec
-    api project.deps.commonsCollections
-    api project.deps.commonsIO
-    api project.deps.commonsLang3
-    api project.deps.commonsPool
-    api project.deps.commonsText
-    api project.deps.jetBrainsAnnotations
-    api project.deps.objenesis
-    api(project.deps.jakartaAnnotation) {
+    api rootProject.deps.commonsCodec
+    api rootProject.deps.commonsCollections
+    api rootProject.deps.commonsIO
+    api rootProject.deps.commonsLang3
+    api rootProject.deps.commonsPool
+    api rootProject.deps.commonsText
+    api rootProject.deps.jetBrainsAnnotations
+    api rootProject.deps.objenesis
+    api(rootProject.deps.jakartaAnnotation) {
       version {
-        strictly project.versions.jakartaAnnotation
+        strictly rootProject.versions.jakartaAnnotation
       }
     }
-    api project.deps.assertJ
-    api project.deps.hamcrest
+    api rootProject.deps.assertJ
+    api rootProject.deps.hamcrest
   }
 
-  api enforcedPlatform(project.deps.junit5Bom)
-  api enforcedPlatform(project.deps.mockitoBom)
-  api enforcedPlatform(project.deps.testcontainersBom)
+  api enforcedPlatform(rootProject.deps.junit5Bom)
+  api enforcedPlatform(rootProject.deps.mockitoBom)
+  api enforcedPlatform(rootProject.deps.testcontainersBom)
 }

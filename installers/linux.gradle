@@ -144,7 +144,7 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
     def licenseSource = "${rootProject.projectDir}/LICENSE"
     inputs.file(licenseSource)
 
-    def goVersions = project.goVersions as GoVersions
+    def goVersions = rootProject.goVersions as GoVersions
     inputs.property('goVersions', goVersions)
 
     def injected = project.objects.newInstance(Injected)

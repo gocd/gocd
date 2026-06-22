@@ -312,9 +312,9 @@ tasks.register('newApi') {
 
             testImplementation(testFixtures(project(":api:api-base")))
 
-            testImplementation project.deps.junit5Api
-            testRuntimeOnly project.deps.junit5Engine
-            testRuntimeOnly project.deps.junit5PlatformLauncher
+            testImplementation rootProject.deps.junit5Api
+            testRuntimeOnly rootProject.deps.junit5Engine
+            testRuntimeOnly rootProject.deps.junit5PlatformLauncher
           }
         """
       out.println(contents.stripIndent().trim() + "\n")

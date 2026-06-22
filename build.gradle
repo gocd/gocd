@@ -33,7 +33,6 @@ import dev.yumi.gradle.licenser.api.comment.CStyleHeaderComment
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 
 import java.security.SecureRandom
-import java.util.stream.Collectors
 
 plugins {
   id 'base'
@@ -335,7 +334,7 @@ subprojects {
       // Force all sub-projects to have managed dependency versions for certain transitive dependencies
       api platform(project(':build-platform'))
       compileOnlyApi platform(project(':build-platform'))
-      testJavaAgents("${project.deps.mockitoCore}:${project.versions.mockitoBom}")
+      testJavaAgents("${rootProject.deps.mockitoCore}:${rootProject.versions.mockitoBom}")
 
       components {
         // workaround for Caffeine metadata declaring dependencies that are not needed at runtime
@@ -368,20 +367,20 @@ subprojects {
   configurations.configureEach {
     resolutionStrategy {
       dependencySubstitution {
-        substitute module("dom4j:dom4j") using module(project.deps.dom4j as String) because("Upgrade the legacy dom4j in old Hibernate 3.6; dom4j 2 should be sufficiently compatible")
-        substitute module("javassist:javassist") using module(project.deps.javassist as String) because("Upgrade the legacy javassist in old Hibernate 3.6")
-        substitute module("net.sf.ehcache:ehcache") using module(project.deps.ehcache as String) because("Use the much slimmer core artifact which is fine for our use case")
-        substitute module("commons-logging:commons-logging") using module("${project.deps.slf4jJcl}:${project.versions.slf4jBom}") because("Replace commons-logging implementations with the slf4j apis that redirect logs to slf4j per https://www.slf4j.org/legacy.html")
-        substitute module("com.bucket4j:bucket4j-core") using module(project.deps.bucket4j as String) because("Replace bucket4j-core with Java 17+ variant")
+        substitute module("dom4j:dom4j") using module(rootProject.deps.dom4j as String) because("Upgrade the legacy dom4j in old Hibernate 3.6; dom4j 2 should be sufficiently compatible")
+        substitute module("javassist:javassist") using module(rootProject.deps.javassist as String) because("Upgrade the legacy javassist in old Hibernate 3.6")
+        substitute module("net.sf.ehcache:ehcache") using module(rootProject.deps.ehcache as String) because("Use the much slimmer core artifact which is fine for our use case")
+        substitute module("commons-logging:commons-logging") using module("${rootProject.deps.slf4jJcl}:${rootProject.versions.slf4jBom}") because("Replace commons-logging implementations with the slf4j apis that redirect logs to slf4j per https://www.slf4j.org/legacy.html")
+        substitute module("com.bucket4j:bucket4j-core") using module(rootProject.deps.bucket4j as String) because("Replace bucket4j-core with Java 17+ variant")
 
-        substitute module("javax.annotation:javax.annotation-api") using module(project.deps.jakartaAnnotation as String) because("Javax Annotation has migrated to jakarta annotations")
-        substitute module("javax.inject:javax.inject") using module(project.deps.jakartaInject as String) because("Javax Inject API has migrated to jakarta Inject API")
-        substitute module("javax.servlet:javax.servlet-api") using module(project.deps.servletApi as String) because("Javax Servlet API has migrated to jakarta Servlet API")
-        substitute module("javax.servlet:servlet-api") using module(project.deps.servletApi as String) because("Javax Servlet API has migrated to jakarta Servlet API")
-        substitute module("org.eclipse.jetty.toolchain:jetty-servlet-api") using module(project.deps.servletApi as String) because("Javax Servlet API has migrated to jakarta Servlet API")
-        substitute module("javax.transaction:jta") using module(project.deps.jakartaTransaction as String) because("Javax Transaction API has migrated to jakarta Transaction API")
+        substitute module("javax.annotation:javax.annotation-api") using module(rootProject.deps.jakartaAnnotation as String) because("Javax Annotation has migrated to jakarta annotations")
+        substitute module("javax.inject:javax.inject") using module(rootProject.deps.jakartaInject as String) because("Javax Inject API has migrated to jakarta Inject API")
+        substitute module("javax.servlet:javax.servlet-api") using module(rootProject.deps.servletApi as String) because("Javax Servlet API has migrated to jakarta Servlet API")
+        substitute module("javax.servlet:servlet-api") using module(rootProject.deps.servletApi as String) because("Javax Servlet API has migrated to jakarta Servlet API")
+        substitute module("org.eclipse.jetty.toolchain:jetty-servlet-api") using module(rootProject.deps.servletApi as String) because("Javax Servlet API has migrated to jakarta Servlet API")
+        substitute module("javax.transaction:jta") using module(rootProject.deps.jakartaTransaction as String) because("Javax Transaction API has migrated to jakarta Transaction API")
 
-        substitute module("org.hamcrest:hamcrest-core") using module(project.deps.hamcrest as String) because("Hamcrest core/library/all have been merged together: https://hamcrest.org/JavaHamcrest/distributables")
+        substitute module("org.hamcrest:hamcrest-core") using module(rootProject.deps.hamcrest as String) because("Hamcrest core/library/all have been merged together: https://hamcrest.org/JavaHamcrest/distributables")
       }
     }
   }
@@ -486,7 +485,7 @@ subprojects {
 
       def partition = new FilePartition(files)
       def testsToRun = partition.currentFiles()
-      allTestClasses = getTestClassesForTask(testsToRun)
+      allTestClasses = FilePartition.testClassesFromFiles(testsToRun)
       partition.logTo(rootProject.logger)
 
       (files - testsToRun).each { f ->
@@ -630,14 +629,6 @@ tasks.register('allTestsJunitHtmlReport', TestReport) { TestReport thisTask ->
   destinationDirectory = layout.buildDirectory.dir("reports/tests/allTests")
 }
 
-static List<String> getTestClassesForTask(List<String> testsToRun) {
-  return testsToRun.stream()
-    .filter { testToRun -> !testToRun.matches(".*[/|\\\\].*Abstract.*Test.*") }
-    .filter { testToRun -> testToRun.endsWith("Test.*") }
-    .map { testToRun -> testToRun.replaceAll(".\\*", "").replaceAll("[^\\w.*]", ".") }
-    .collect(Collectors.toList())
-}
-
 extensions.getByType(DependencyAnalysisExtension).with {
    // Temporarily disable dependency analysis until we can configure it to work with our multi-module setup and the fact that we have a lot of "internal" dependencies that are not declared as such in the module metadata of our dependencies, which causes a lot of false positives. See)
   abi { AbiHandler h ->
@@ -649,7 +640,7 @@ extensions.getByType(DependencyAnalysisExtension).with {
   issues { IssueHandler h ->
     h.all { ProjectIssueHandler ph ->
       ph.onCompileOnly { Issue i ->
-        i.exclude(project.deps.jakartaAnnotation as String) // Spring needs at runtime
+        i.exclude(rootProject.deps.jakartaAnnotation as String) // Spring needs at runtime
       }
       ph.onIncorrectConfiguration { Issue i ->
       }

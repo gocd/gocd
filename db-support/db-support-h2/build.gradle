@@ -15,15 +15,15 @@
  */
 
 dependencies {
-  implementation project.deps.h2
+  implementation rootProject.deps.h2
   implementation project(':db-support:db-support-base')
 
   testImplementation project(':db-support:db-migration')
   testImplementation(testFixtures(project(":db-support:db-migration")))
 
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.assertJ
-  testImplementation project.deps.commonsDbcp
+  testImplementation rootProject.deps.junit5Api
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.assertJ
+  testImplementation rootProject.deps.commonsDbcp
 }

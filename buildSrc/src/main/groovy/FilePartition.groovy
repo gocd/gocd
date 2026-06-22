@@ -1,5 +1,7 @@
 import org.gradle.api.logging.Logger
 
+import java.util.stream.Collectors
+
 /*
  * Copyright Thoughtworks, Inc.
  *
@@ -45,9 +47,17 @@ class FilePartition {
     (allPartitions[partitionIndex - 1] ?: []) as List<String>
   }
 
-  String logTo(Logger logger) {
+  void logTo(Logger logger) {
     logger.quiet("Partitioned ${allFiles.size()} files into ${totalPartitions} buckets with approx ${testsPerPartition} files per bucket. Using seed ${seed}.")
     logger.quiet("To reproduce the test failure, run with:")
     logger.quiet("PARTITION_SEED=${seed} GO_JOB_RUN_COUNT=${totalPartitions} GO_JOB_RUN_INDEX=${partitionIndex} ./gradlew YOUR_TARGET\n")
+  }
+
+  static List<String> testClassesFromFiles(List<String> testsToRun) {
+    return testsToRun.stream()
+      .filter { testToRun -> !testToRun.matches(".*[/|\\\\].*Abstract.*Test.*") }
+      .filter { testToRun -> testToRun.endsWith("Test.*") }
+      .map { testToRun -> testToRun.replaceAll(".\\*", "").replaceAll("[^\\w.*]", ".") }
+      .collect(Collectors.toList())
   }
 }

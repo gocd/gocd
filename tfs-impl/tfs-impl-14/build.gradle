@@ -29,10 +29,10 @@ def destFile(String url) {
 }
 
 tasks.register('downloadTfsSdk', DownloadFile) {
-  def srcUrl = "https://github.com/microsoft/team-explorer-everywhere/releases/download/${project.versions.tfsSdk}/TFS-SDK-${project.versions.tfsSdk}.zip"
+  def srcUrl = "https://github.com/microsoft/team-explorer-everywhere/releases/download/${rootProject.versions.tfsSdk}/TFS-SDK-${rootProject.versions.tfsSdk}.zip"
   src srcUrl
   dest destFile(srcUrl)
-  checksum = project.versions.tfsSdkSha256sum
+  checksum = rootProject.versions.tfsSdkSha256sum
 }
 
 tasks.register('extractTfsSdk', Copy) {
@@ -60,14 +60,14 @@ dependencies {
   implementation project(':base')
   implementation project(':common')
   implementation project(':domain')
-  implementation files(tasks.named('extractTfsSdk').map { Copy copy -> new File(copy.destinationDir, "lib/com.microsoft.tfs.sdk-${project.versions.tfsSdk}.jar") })
-  compileOnly project.deps.jetBrainsAnnotations
+  implementation files(tasks.named('extractTfsSdk').map { Copy copy -> new File(copy.destinationDir, "lib/com.microsoft.tfs.sdk-${rootProject.versions.tfsSdk}.jar") })
+  compileOnly rootProject.deps.jetBrainsAnnotations
 
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.mockitoCore
-  testImplementation project.deps.assertJ
+  testImplementation rootProject.deps.junit5Api
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.mockitoCore
+  testImplementation rootProject.deps.assertJ
 }
 
 def fatJar = tasks.register('fatJar', Jar) {
@@ -92,7 +92,7 @@ tasks.register('verifyJar', VerifyJarTask) {
   expectedJars = [
     "lib": [
       "tfs-impl-14-${project.version}-classes.jar",
-      "com.microsoft.tfs.sdk-${project.versions.tfsSdk}.jar",
+      "com.microsoft.tfs.sdk-${rootProject.versions.tfsSdk}.jar",
     ]
   ]
 }

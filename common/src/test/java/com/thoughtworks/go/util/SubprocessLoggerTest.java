@@ -41,11 +41,8 @@ public class SubprocessLoggerTest {
         CurrentProcess currentProcess = mock(CurrentProcess.class);
         logger = new SubprocessLogger(currentProcess);
         try (LogFixture log = logFixtureFor(SubprocessLogger.class, Level.TRACE)) {
-            logger.run();
-            String result;
-            synchronized (log) {
-                result = log.getLog();
-            }
+            logger.logSubprocess();
+            String result = log.getLog();
             assertThat(result).isEmpty();
         }
     }
@@ -55,12 +52,8 @@ public class SubprocessLoggerTest {
         logger = new SubprocessLogger(stubProcess());
         String allLogs;
         try (LogFixture log = logFixtureFor(SubprocessLogger.class, Level.TRACE)) {
-            logger.run();
-            String result;
-            synchronized (log) {
-                result = log.getLog();
-            }
-            allLogs = result;
+            logger.logSubprocess();
+            allLogs = log.getLog();
         }
         assertThat(allLogs).contains("Logged all subprocesses.");
     }
@@ -71,12 +64,8 @@ public class SubprocessLoggerTest {
         String allLogs;
         try (LogFixture log = logFixtureFor(SubprocessLogger.class, Level.TRACE)) {
             logger.registerAsExitHook("foo bar baz");
-            logger.run();
-            String result;
-            synchronized (log) {
-                result = log.getLog();
-            }
-            allLogs = result;
+            logger.logSubprocess();
+            allLogs = log.getLog();
         }
         assertThat(allLogs).isEqualToNormalizingNewlines("""
                 WARN foo bar baz

@@ -31,13 +31,12 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static java.lang.String.format;
-
 public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleOutputTransmitter.class);
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+    private static final int MAX_BUFFER_SIZE = 10 * 1024;
 
-    private final CircularFifoQueue<String> buffer = new CircularFifoQueue<>(10 * 1024); // maximum 10k lines
+    private final CircularFifoQueue<String> buffer = new CircularFifoQueue<>(MAX_BUFFER_SIZE); // maximum 10k lines
     private final ConsoleAppender consoleAppender;
     private final ScheduledThreadPoolExecutor executor;
 
@@ -58,8 +57,21 @@ public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Run
 
     @Override
     public void taggedConsumeLine(@NotNull String tag, @NotNull String line) {
-        String taggedDate = format("%s|%s", tag, FORMATTER.format(LocalTime.now()));
-        String logLine = format("%s %s", taggedDate, line).replace("\n", "\n" + taggedDate + " ");
+        String timestamp = FORMATTER.format(LocalTime.now());
+
+        int approximateLength = tag.length() + timestamp.length() + line.length();
+        StringBuilder logLineBuilder = new StringBuilder(approximateLength);
+
+        line.lines().forEach(l -> logLineBuilder
+            .append(tag)
+            .append('|')
+            .append(timestamp)
+            .append(' ')
+            .append(l)
+            .append('\n'));
+
+        logLineBuilder.setLength(logLineBuilder.length() - 1); // remove trailing new line from above
+        String logLine = logLineBuilder.toString();
         synchronized (buffer) {
             buffer.add(logLine);
         }
@@ -84,10 +96,13 @@ public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Run
             toFlush = new ArrayList<>(buffer);
             buffer.clear();
         }
+        if (toFlush.isEmpty()) {
+            return;
+        }
         try {
             consoleAppender.append(toFlush.stream().collect(Collectors.joining("\n", "", "\n")));
         } catch (IOException e) {
-            LOGGER.warn("Could not send console output to server", e);
+            LOGGER.warn("Could not send console output to server; re-adding logs to buffer", e);
             synchronized (buffer) {
                 toFlush.addAll(buffer);
                 buffer.clear();

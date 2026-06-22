@@ -237,9 +237,9 @@ class GoSmtpMailSenderTest {
     }
 
     private static class FakeMailSession {
-        private Transport transport = mock(Transport.class);
-        private MimeMessage message = mock(MimeMessage.class);
-        private MailSession session = mock(MailSession.class);
+        private final Transport transport = mock(Transport.class);
+        private final MimeMessage message = mock(MimeMessage.class);
+        private final MailSession session = mock(MailSession.class);
 
         public static void tearDown() {
             MailSession.fakeSessionJustForTestsSinceSessionClassIsFinal = null;

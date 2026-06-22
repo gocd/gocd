@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.remote.work;
 
+import com.thoughtworks.go.agent.HttpServiceStub;
 import com.thoughtworks.go.agent.URLService;
 import com.thoughtworks.go.agent.testhelpers.FakeBuildRepositoryRemote;
 import com.thoughtworks.go.config.ArtifactStores;

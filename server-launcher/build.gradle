@@ -103,7 +103,6 @@ tasks.register('mainJar', Jar) {
   from({ configurations.packagingInMainJarCommonJar.collect { it.isDirectory() ? it : zipTree(it) } }) {
     include "**/SubprocessLogger*.class"
     include "**/CurrentProcess*.class"
-    include "**/validators/*.class"
 
     into('/')
   }

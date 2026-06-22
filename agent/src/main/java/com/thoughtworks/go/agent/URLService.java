@@ -53,17 +53,8 @@ public class URLService implements ServerUrlGenerator {
         return format("%s/remoting/files/%s?attempt=%d&buildId=%d", baseRemotingURL, jobIdentifier.artifactLocator(filePath), attempt, jobIdentifier.getBuildId());
     }
 
-    /*
-     * Server will use this method, the base url is in the request.
-     */
-    public String getRestfulArtifactUrl(JobIdentifier jobIdentifier, String filePath) {
-        return format("/files/%s", jobIdentifier.artifactLocator(filePath));
-    }
-
     @Override
     public String serverUrlFor(String subPath) {
         return format("%s/%s", baseRemotingURL, subPath);
     }
-
-
 }

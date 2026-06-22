@@ -20,7 +20,7 @@ import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.testhelper.FakeGoServer;
 import com.thoughtworks.go.agent.testhelper.FakeGoServerExtension;
 import com.thoughtworks.go.agent.testhelper.GoTestResource;
-import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
+import com.thoughtworks.go.agent.testhelper.ServerUrlGeneratorMother;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.*;

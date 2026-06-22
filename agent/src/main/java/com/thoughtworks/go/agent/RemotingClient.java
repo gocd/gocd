@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.agent;
 
-import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
+import com.thoughtworks.go.agent.common.GoAgentServerHttpClient;
 import com.thoughtworks.go.config.DefaultAgentRegistry;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobResult;

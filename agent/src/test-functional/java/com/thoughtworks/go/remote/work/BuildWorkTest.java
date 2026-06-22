@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.remote.work;
 
+import com.thoughtworks.go.agent.HttpServiceStub;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobResult;
@@ -354,7 +355,7 @@ class BuildWorkTest {
         Files.writeString(new File(basedir, artifactFile).toPath(), "foo", UTF_8);
 
         buildWork = getWork(willUploadToDest(artifactFile, destFolder), PIPELINE_NAME);
-        com.thoughtworks.go.remote.work.HttpServiceStub httpService = new com.thoughtworks.go.remote.work.HttpServiceStub(HTTP_OK);
+        HttpServiceStub httpService = new HttpServiceStub(HTTP_OK);
         artifactManipulator = new GoArtifactManipulatorStub(httpService);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), scmExtension, taskExtension, null, pluginRequestProcessorRegistry));

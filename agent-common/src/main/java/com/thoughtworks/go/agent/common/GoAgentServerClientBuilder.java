@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.agent.common.ssl;
+package com.thoughtworks.go.agent.common;
 
 import com.thoughtworks.go.util.SslVerificationMode;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -54,6 +54,10 @@ public abstract class GoAgentServerClientBuilder<T> {
     protected final char[] agentKeystorePassword = UUID.randomUUID().toString().toCharArray();
 
     public abstract T build() throws Exception;
+
+    GoAgentServerClientBuilder(File rootCertificate, String sslVerificationMode, File agentSslCertificate, File agentSslPrivateKey, File agentSslPrivateKeyPassphraseFile) {
+        this(rootCertificate, SslVerificationMode.valueOf(sslVerificationMode), agentSslCertificate, agentSslPrivateKey, agentSslPrivateKeyPassphraseFile);
+    }
 
     GoAgentServerClientBuilder(File rootCertificate, SslVerificationMode sslVerificationMode, File agentSslCertificate, File agentSslPrivateKey, File agentSslPrivateKeyPassphraseFile) {
         this.rootCertificate = rootCertificate;
@@ -125,17 +129,15 @@ public abstract class GoAgentServerClientBuilder<T> {
     }
 
     private InputDecryptorProvider newInputDecryptorProvider() throws OperatorCreationException, IOException {
-        InputDecryptorProvider decProv = new JceOpenSSLPKCS8DecryptorProviderBuilder()
+        return new JceOpenSSLPKCS8DecryptorProviderBuilder()
             .setProvider(BouncyCastleProviderHolder.INSTANCE)
             .build(passphrase());
-        return decProv;
     }
 
     private PEMDecryptorProvider newPemDecryptorProvider() throws IOException {
-        PEMDecryptorProvider decProv = new JcePEMDecryptorProviderBuilder()
+        return new JcePEMDecryptorProviderBuilder()
             .setProvider(BouncyCastleProviderHolder.INSTANCE)
             .build(passphrase());
-        return decProv;
     }
 
     private List<X509Certificate> agentCertificate() throws IOException, CertificateException {

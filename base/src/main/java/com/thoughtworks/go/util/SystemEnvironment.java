@@ -444,11 +444,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
 
-    public SslVerificationMode getAgentSslVerificationMode() {
-        if (getPropertyImpl(AGENT_SSL_VERIFICATION_MODE) == null) {
-            return SslVerificationMode.NONE;
-        }
-        return SslVerificationMode.valueOf(getPropertyImpl(AGENT_SSL_VERIFICATION_MODE));
+    public @NotNull String getAgentSslVerificationMode() {
+        return getPropertyImpl(AGENT_SSL_VERIFICATION_MODE, "NONE");
     }
 
     public boolean useCompressedJs() {

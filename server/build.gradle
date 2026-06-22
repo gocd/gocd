@@ -196,8 +196,9 @@ dependencies {
   testImplementation project.deps.springTest
   testImplementation(testFixtures(project(':domain')))
 
-  integrationTestImplementation(project(':base')) { capabilities { requireFeature('agent-client') } }
+  integrationTestImplementation(project(':base'))
   integrationTestImplementation project.deps.urlrewrite
+  integrationTestImplementation project.deps.apacheHttpComponents
   integrationTestImplementation project.deps.springTest
   integrationTestImplementation project.deps.springTestJunit5
   integrationTestImplementation(testFixtures(project(":domain")))

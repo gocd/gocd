@@ -19,7 +19,7 @@ import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.server.web.GoRequestContext;
 import com.thoughtworks.go.server.web.JsonRenderer;
 import com.thoughtworks.go.server.web.JsonView;
-import org.apache.http.HttpHeaders;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 

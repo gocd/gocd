@@ -29,9 +29,14 @@ dependencies {
   compileOnly project.deps.lombok
 
   api(project(':base')) { capabilities { requireFeature('logging') } }
-  agentClientApi(project(':base')) { capabilities { requireFeature('agent-client') } }
+  agentClientApi(project(':base'))
+
   implementation project.deps.jcommander
   agentClientRuntimeOnly project.deps.jcommander
+
+  agentClientCompileOnly project.deps.jakartaAnnotation
+  agentClientImplementation project.deps.bouncyCastle
+  agentClientImplementation project.deps.bouncyCastlePkix
 
   agentClientImplementation(project.deps.apacheHttpComponents) {
     exclude(module: 'commons-codec')

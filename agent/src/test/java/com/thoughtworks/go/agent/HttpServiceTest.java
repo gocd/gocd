@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.agent;
 
-import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
+import com.thoughtworks.go.agent.common.GoAgentServerHttpClient;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.domain.FetchHandler;
 import org.apache.http.HttpVersion;
@@ -44,19 +44,19 @@ public class HttpServiceTest {
     public File folderToSaveDownloadFiles;
 
     private HttpService service;
-    private HttpService.HttpClientFactory httpClientFactory;
+    private HttpService.HttpMethodFactory httpMethodFactory;
     private GoAgentServerHttpClient httpClient;
 
     @BeforeEach
     public void setUp() {
-        httpClientFactory = mock(HttpService.HttpClientFactory.class);
+        httpMethodFactory = mock(HttpService.HttpMethodFactory.class);
         httpClient = mock(GoAgentServerHttpClient.class);
-        when(httpClientFactory.httpClient()).thenReturn(httpClient);
+        when(httpMethodFactory.httpClient()).thenReturn(httpClient);
 
         AgentRegistry agentRegistry = mock(AgentRegistry.class);
         when(agentRegistry.token()).thenReturn("some-token");
         when(agentRegistry.uuid()).thenReturn("some-guid");
-        service = new HttpService(httpClientFactory, agentRegistry);
+        service = new HttpService(httpMethodFactory, agentRegistry);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class HttpServiceTest {
         when(httpClient.execute(mockPostMethod)).thenReturn(response);
 
         when(uploadingFile.exists()).thenReturn(true);
-        when(httpClientFactory.createPost(uploadUrl)).thenReturn(mockPostMethod);
+        when(httpMethodFactory.createPost(uploadUrl)).thenReturn(mockPostMethod);
         when(mockPostMethod.getURI()).thenReturn(new URI(uploadUrl));
 
         service.upload(uploadUrl, 100L, uploadingFile, checksums);
@@ -81,7 +81,7 @@ public class HttpServiceTest {
         verify(mockPostMethod).setHeader(REQUEST_CONFIRM_MODIFICATION, "true");
         verify(mockPostMethod).setHeader(REQUEST_UUID, "some-guid");
         verify(mockPostMethod).setHeader(REQUEST_AUTH, "some-token");
-        verify(httpClientFactory).createMultipartRequestEntity(uploadingFile, checksums);
+        verify(httpMethodFactory).createMultipartRequestEntity(uploadingFile, checksums);
         verify(httpClient).execute(mockPostMethod);
     }
 
@@ -98,7 +98,7 @@ public class HttpServiceTest {
         when(response.getEntity()).thenReturn(basicHttpEntity);
         when(response.getStatusLine()).thenReturn(new BasicStatusLine(HttpVersion.HTTP_1_1, 200, "OK"));
         when(httpClient.execute(mockGetMethod)).thenReturn(response);
-        when(httpClientFactory.createGet(url)).thenReturn(mockGetMethod);
+        when(httpMethodFactory.createGet(url)).thenReturn(mockGetMethod);
 
         when(mockGetMethod.getURI()).thenReturn(new URI(url));
 
@@ -109,7 +109,7 @@ public class HttpServiceTest {
 
     @Test
     public void shouldNotFailIfChecksumFileIsNotPresent() throws IOException {
-        HttpService.HttpClientFactory factory = new HttpService.HttpClientFactory(null);
+        HttpService.HttpMethodFactory factory = new HttpService.HttpMethodFactory(null);
         File artifact = new File(folderToSaveDownloadFiles, "artifact");
         artifact.createNewFile();
         try {
@@ -121,7 +121,7 @@ public class HttpServiceTest {
 
     @Test
     public void shouldCreateMultipleRequestWithChecksumValues() throws IOException {
-        HttpService.HttpClientFactory factory = new HttpService.HttpClientFactory(null);
+        HttpService.HttpMethodFactory factory = new HttpService.HttpMethodFactory(null);
         File artifact = new File(folderToSaveDownloadFiles, "artifact");
         artifact.createNewFile();
         try {

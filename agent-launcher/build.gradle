@@ -23,7 +23,7 @@ configurations {
 }
 
 dependencies {
-  implementation(project(':base')) { capabilities { requireFeature('agent-client') } }
+  implementation(project(':base')) { capabilities { requireFeature('logging') } }
   implementation(project(':agent-common')) { capabilities { requireFeature('agent-client') } }
   implementation project.deps.commonsIO
   implementation project.deps.slf4jApi

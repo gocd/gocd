@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.agent.common.ssl;
+package com.thoughtworks.go.agent.common;
 
 import com.thoughtworks.go.util.SslVerificationMode;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -31,6 +31,10 @@ import java.io.File;
 import java.security.KeyStore;
 
 public class GoAgentServerHttpClientBuilder extends GoAgentServerClientBuilder<CloseableHttpClient> {
+
+    public GoAgentServerHttpClientBuilder(File rootCertificate, String sslVerificationMode, File agentSslCertificate, File agentSslPrivateKey, File agentSslPrivateKeyPassphraseFile) {
+        super(rootCertificate, sslVerificationMode, agentSslCertificate, agentSslPrivateKey, agentSslPrivateKeyPassphraseFile);
+    }
 
     public GoAgentServerHttpClientBuilder(File rootCertificate, SslVerificationMode sslVerificationMode, File agentSslCertificate, File agentSslPrivateKey, File agentSslPrivateKeyPassphraseFile) {
         super(rootCertificate, sslVerificationMode, agentSslCertificate, agentSslPrivateKey, agentSslPrivateKeyPassphraseFile);

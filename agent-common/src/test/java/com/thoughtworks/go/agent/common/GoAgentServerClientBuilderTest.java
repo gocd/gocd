@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.agent.common.ssl;
+package com.thoughtworks.go.agent.common;
 
 import com.thoughtworks.go.util.SslVerificationMode;
 import org.assertj.core.api.InstanceOfAssertFactories;

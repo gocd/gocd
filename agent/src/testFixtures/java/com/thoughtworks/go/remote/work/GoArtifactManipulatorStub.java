@@ -16,6 +16,7 @@
 package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.agent.HttpService;
+import com.thoughtworks.go.agent.HttpServiceStub;
 import com.thoughtworks.go.agent.URLService;
 import com.thoughtworks.go.domain.FetchHandler;
 import com.thoughtworks.go.domain.JobIdentifier;

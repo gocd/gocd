@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.agent.common.ssl;
+package com.thoughtworks.go.agent.common;
 
 import org.apache.http.client.methods.HttpRequestBase;
 import org.junit.jupiter.api.Test;

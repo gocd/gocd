@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.agent.common.ssl;
+package com.thoughtworks.go.agent.common;
 
 import com.thoughtworks.go.agent.ServerUrlGenerator;
 import com.thoughtworks.go.agent.testhelper.FakeGoServer;
@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-import static com.thoughtworks.go.mothers.ServerUrlGeneratorMother.generatorFor;
+import static com.thoughtworks.go.agent.testhelper.ServerUrlGeneratorMother.generatorFor;
 import static com.thoughtworks.go.util.TestFileUtil.resourceToTempFile;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

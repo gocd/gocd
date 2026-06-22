@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.remote.work;
+package com.thoughtworks.go.agent;
 
-import com.thoughtworks.go.agent.HttpService;
 import com.thoughtworks.go.domain.FetchHandler;
 
 import java.io.File;
@@ -34,7 +33,7 @@ public class HttpServiceStub extends HttpService {
     }
 
     public HttpServiceStub(int returnCode) {
-        super(null, null);
+        super((HttpMethodFactory) null, null);
         this.returnCode = returnCode;
     }
 

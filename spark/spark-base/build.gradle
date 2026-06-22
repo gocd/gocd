@@ -38,7 +38,6 @@ dependencies {
     exclude(group: 'org.eclipse.jetty.websocket')
   }
   api project.deps.servletApi
-  implementation project.deps.apacheHttpComponents
 
   testImplementation localGroovy()
 

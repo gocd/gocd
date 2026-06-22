@@ -15,12 +15,11 @@
  */
 package com.thoughtworks.go.server.web;
 
-import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
-import com.thoughtworks.go.util.SslVerificationMode;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.eclipse.jetty.util.resource.Resource;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.AfterAll;
@@ -237,8 +236,7 @@ public class UrlRewriterIntegrationTest {
     @ParameterizedTest
     @MethodSource("testResponseAssertions")
     public void shouldRewrite(final ResponseAssertion assertion) throws Exception {
-        GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null);
-        try (CloseableHttpClient httpClient = builder.build();
+        try (CloseableHttpClient httpClient = HttpClientBuilder.create().build();
              CloseableHttpResponse response = httpClient.execute(httpMethodFor(assertion))) {
             assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpServletResponse.SC_OK);
             assertThat(new String(response.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8)).isEqualTo(assertion.servedUrl);

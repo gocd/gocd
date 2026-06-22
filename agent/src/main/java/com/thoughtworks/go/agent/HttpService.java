@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.agent;
 
-import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
+import com.thoughtworks.go.agent.common.GoAgentServerHttpClient;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.domain.FetchHandler;
 import com.thoughtworks.go.remote.work.artifact.WorkDownloader;
@@ -44,15 +44,16 @@ public class HttpService implements WorkDownloader {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpService.class);
 
     private final AgentRegistry agentRegistry;
-    private final HttpClientFactory httpClientFactory;
+    private final HttpMethodFactory httpMethodFactory;
 
     @Autowired
     public HttpService(GoAgentServerHttpClient httpClient, AgentRegistry agentRegistry) {
-        this(new HttpClientFactory(httpClient), agentRegistry);
+        this(new HttpMethodFactory(httpClient), agentRegistry);
     }
 
-    HttpService(HttpClientFactory httpClientFactory, AgentRegistry agentRegistry) {
-        this.httpClientFactory = httpClientFactory;
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    HttpService(HttpMethodFactory httpMethodFactory, AgentRegistry agentRegistry) {
+        this.httpMethodFactory = httpMethodFactory;
         this.agentRegistry = agentRegistry;
     }
 
@@ -74,10 +75,10 @@ public class HttpService implements WorkDownloader {
     }
 
     private HttpPost createHttpPostForUpload(String url, long size, File artifactFile, Properties artifactChecksums) throws IOException {
-        HttpPost filePost = httpClientFactory.createPost(url);
+        HttpPost filePost = httpMethodFactory.createPost(url);
         setSizeHeader(filePost, size);
         filePost.setHeader(REQUEST_CONFIRM_MODIFICATION, "true");
-        filePost.setEntity(httpClientFactory.createMultipartRequestEntity(artifactFile, artifactChecksums));
+        filePost.setEntity(httpMethodFactory.createMultipartRequestEntity(artifactFile, artifactChecksums));
         return filePost;
     }
 
@@ -85,7 +86,7 @@ public class HttpService implements WorkDownloader {
     public int download(String url, FetchHandler handler) throws IOException {
         try {
             PerfTimer timer = PerfTimer.start(LOGGER, String.format("Downloading from url [%s]", url));
-            try (CloseableHttpResponse response = execute(httpClientFactory.createGet(url))) {
+            try (CloseableHttpResponse response = execute(httpMethodFactory.createGet(url))) {
                 timer.stop();
                 int statusCode = response.getStatusLine().getStatusCode();
 
@@ -106,7 +107,7 @@ public class HttpService implements WorkDownloader {
 
     public CloseableHttpResponse execute(HttpRequestBase httpMethod) throws IOException {
         @SuppressWarnings("resource") // Believe this is intentional to re-use the client
-        GoAgentServerHttpClient client = httpClientFactory.httpClient();
+        GoAgentServerHttpClient client = httpMethodFactory.httpClient();
 
         httpMethod.setHeader(REQUEST_UUID, agentRegistry.uuid());
         httpMethod.setHeader(REQUEST_AUTH, agentRegistry.token());
@@ -123,16 +124,7 @@ public class HttpService implements WorkDownloader {
     /**
      * Used to wrap the constructors in order to mock them out.
      */
-    static class HttpClientFactory {
-        private final GoAgentServerHttpClient httpClient;
-
-        public HttpClientFactory(GoAgentServerHttpClient httpClient) {
-            this.httpClient = httpClient;
-        }
-
-        public GoAgentServerHttpClient httpClient() {
-            return httpClient;
-        }
+    public record HttpMethodFactory(GoAgentServerHttpClient httpClient) {
 
         public HttpPost createPost(String url) {
             return new HttpPost(url);

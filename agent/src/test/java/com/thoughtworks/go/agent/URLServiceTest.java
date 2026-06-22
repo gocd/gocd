@@ -42,14 +42,6 @@ public class URLServiceTest {
     }
 
     @Test
-    public void shouldReturnProperDownloadUrl() {
-        String downloadUrl1 = urlService.getRestfulArtifactUrl(jobIdentifier, "file");
-        String downloadUrl2 = urlService.getRestfulArtifactUrl(jobIdentifier, "/file");
-        assertThat(downloadUrl1).isEqualTo("/files/pipelineName/LATEST/stageName/LATEST/buildName/file");
-        assertThat(downloadUrl1).isEqualTo(downloadUrl2);
-    }
-
-    @Test
     public void shouldReturnProperRestfulUrlOfArtifact() {
         String downloadUrl1 = urlService.getUploadUrlOfAgent(jobIdentifier, "file");
         String downloadUrl2 = urlService.getUploadUrlOfAgent(jobIdentifier, "/file");

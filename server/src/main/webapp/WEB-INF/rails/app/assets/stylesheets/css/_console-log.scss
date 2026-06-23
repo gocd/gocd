@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 @use "sass:color";
+@use "sass:map";
 @import "@fortawesome/fontawesome-free/scss/functions";
 @import "@fortawesome/fontawesome-free/scss/variables";
 @import "@fortawesome/fontawesome-free/scss/mixins";
@@ -77,7 +78,6 @@ $PROGRESS_BAR_BG_SIZE: 70px;
   $height-of-non-console-log-elements: 500px;
 
   overflow: auto;
-  white-space: pre;
   white-space: pre-wrap;
   word-break: break-all;
   overflow-wrap: break-word;
@@ -89,6 +89,18 @@ $PROGRESS_BAR_BG_SIZE: 70px;
   font-family: Monaco, Consolas, Inconsolata, Menlo, "Liberation Mono", "Courier New", monospace;
   font-size: 13px;
 
+  a {
+    all: revert;
+
+    color: white;
+    text-decoration: underline dashed;
+
+    &:hover, &:visited {
+      color: white;
+      text-decoration: underline;
+    }
+  }
+
   .fas {
     font-family: FontAwesome, sans-serif;
     font-weight: 900;
@@ -97,6 +109,14 @@ $PROGRESS_BAR_BG_SIZE: 70px;
   .white-theme & {
     background-color: white;
     color: #000;
+
+    a {
+      color: #000;
+
+      &:hover, &:visited {
+        color: #000;
+      }
+    }
   }
 }
 
@@ -344,20 +364,40 @@ code {
   }
 }
 
+$ansi: (
+  black:   #000000,
+  red:     #c91b00,
+  green:   #00c200,
+  yellow:  #c7c400,
+  blue:    #2225c4,
+  magenta: #ca30c7,
+  cyan:    #00c5c7,
+  white:   #c7c7c7,
+
+  bright-black:   #686868,
+  bright-red:     #ff6e67,
+  bright-green:   #5ffa68,
+  bright-yellow:  #fffc67,
+  bright-blue:    #6871ff,
+  bright-magenta: #ff77ff,
+  bright-cyan:    #60fdff,
+  bright-white:   #ffffff
+);
+
 @each $color in black, red, green, yellow, blue, magenta, cyan, white {
   .ansi-#{"" + $color}-fg {
-    color: $color;
+    color: map.get($ansi, $color);
   }
 
   .ansi-#{"" + $color}-bg {
-    background-color: $color;
+    background-color: map.get($ansi, $color);
   }
 
   .ansi-bright-#{"" + $color}-fg {
-    color: color.adjust($color, $lightness: 33%);
+    color: map.get($ansi, 'bright-' + $color);
   }
 
   .ansi-bright-#{"" + $color}-bg {
-    background-color: color.adjust($color, $lightness: 33%);
+    background-color: map.get($ansi, 'bright-' + $color);
   }
 }

@@ -1,9 +1,9 @@
 {
   "ansi_up": {
     "moduleName": "ansi_up",
-    "moduleVersion": "6.0.6",
+    "moduleVersion": "6.1.0-gocd",
     "moduleUrls": [
-      "https://github.com/drudru/ansi_up"
+      "https://github.com/gocd-contrib/ansi_up"
     ],
     "moduleLicenses": [
       {

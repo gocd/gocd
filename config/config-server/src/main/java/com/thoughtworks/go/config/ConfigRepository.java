@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.service;
+package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.exceptions.ConfigMergeException;
-import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ThrowingFn;
 import com.thoughtworks.go.util.VoidThrowingFn;

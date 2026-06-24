@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.server.messaging.ServerBackupQueue;
 import com.thoughtworks.go.server.persistence.ServerBackupRepository;
 import com.thoughtworks.go.server.service.backup.BackupUpdateListener;
-import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;

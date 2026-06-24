@@ -36,7 +36,6 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.service.ConfigRepository;
 import org.apache.commons.io.FileUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -123,7 +122,7 @@ public class GoConfigFileHelper {
         try {
 
             MaintenanceModeService maintenanceModeService = new MaintenanceModeService(new TimeProvider(), systemEnvironment);
-            ServerHealthService serverHealthService = new ServerHealthService();
+            ServerHealthService serverHealthService = new ServerHealthService(mock());
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
             configRepository.initialize();
             

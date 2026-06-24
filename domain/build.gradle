@@ -59,6 +59,7 @@ dependencies {
   testFixturesApi project(':domain')
   testFixturesApi(testFixtures(project(':test:test-utils')))
   testFixturesApi rootProject.deps.junit5Api
+  testFixturesImplementation rootProject.deps.mockitoCore
   testFixturesImplementation(testFixtures(project(":config:config-api")))
   testFixturesImplementation project(':commandline')
   testFixturesImplementation rootProject.deps.assertJ

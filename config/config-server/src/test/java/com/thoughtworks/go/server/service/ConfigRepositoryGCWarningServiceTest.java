@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.service;
+package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.ConfigRepository;
+import com.thoughtworks.go.config.ConfigRepositoryGCWarningService;
 import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +38,7 @@ public class ConfigRepositoryGCWarningServiceTest {
     @BeforeEach
     public void setUp() {
         configRepository = mock(ConfigRepository.class);
-        serverHealthService = new ServerHealthService();
+        serverHealthService = new ServerHealthService(mock());
         systemEnvironment = mock(SystemEnvironment.class);
         service = new ConfigRepositoryGCWarningService(configRepository, serverHealthService, systemEnvironment);
     }

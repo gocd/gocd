@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.BackupConfig;
+import com.thoughtworks.go.config.ConfigRepository;
 import com.thoughtworks.go.config.GoMailSender;
 import com.thoughtworks.go.security.AESCipherProvider;
 import com.thoughtworks.go.security.DESCipherProvider;
@@ -32,7 +33,6 @@ import com.thoughtworks.go.server.persistence.ServerBackupRepository;
 import com.thoughtworks.go.server.service.backup.BackupStatusUpdater;
 import com.thoughtworks.go.server.service.backup.BackupUpdateListener;
 import com.thoughtworks.go.server.web.BackupStatusProvider;
-import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;

@@ -41,7 +41,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.server.security.GoAcl;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.Pair;
 import com.thoughtworks.go.util.SystemTimeClock;

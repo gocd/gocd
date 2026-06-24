@@ -44,8 +44,7 @@ public final class AgentMain {
 
         Logger logger = LoggerFactory.getLogger(AgentMain.class); // Deliberately initializing logger late
         logger.info("Go Agent starting...");
-        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
-        ctx.registerShutdownHook();
+        new ClassPathXmlApplicationContext("applicationContext.xml").registerShutdownHook();
         logger.info("Go Agent started & running in background.");
     }
 }

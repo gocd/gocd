@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.domain.InstanceFactory;
 import com.thoughtworks.go.domain.NullPipeline;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.SchedulingContext;

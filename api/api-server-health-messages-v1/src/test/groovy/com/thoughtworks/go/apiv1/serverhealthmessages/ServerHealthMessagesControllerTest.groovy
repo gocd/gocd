@@ -28,12 +28,14 @@ import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.BeanFactory
 
 import static com.thoughtworks.go.api.base.JsonUtils.toArrayString
+import static org.mockito.Mockito.mock
 
 class ServerHealthMessagesControllerTest implements SecurityServiceTrait, ControllerTrait<ServerHealthMessagesController> {
 
-  ServerHealthService serverHealthService = new ServerHealthService()
+  ServerHealthService serverHealthService = new ServerHealthService(mock(BeanFactory.class))
 
   @Override
   ServerHealthMessagesController createControllerInstance() {

@@ -18,7 +18,6 @@ package com.thoughtworks.go.helper;
 import com.thoughtworks.go.config.Approval;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.util.TimeProvider;
 
 import java.sql.Timestamp;

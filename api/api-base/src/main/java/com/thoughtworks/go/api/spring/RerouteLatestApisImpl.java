@@ -20,10 +20,8 @@ import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.spark.RerouteLatestApis;
 import com.thoughtworks.go.spark.spring.RouteEntry;
 import com.thoughtworks.go.spark.spring.RouteInformationProvider;
-import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -35,16 +33,17 @@ import java.util.function.BiFunction;
 import static com.thoughtworks.go.api.ApiVersion.LATEST_VERSION_MIMETYPE;
 
 @Component
-public class RerouteLatestApisImpl implements RerouteLatestApis, ApplicationContextAware {
+public class RerouteLatestApisImpl implements RerouteLatestApis {
     private final RouteInformationProvider routeInformationProvider;
     private final FeatureToggleService features;
-    private ApplicationContext applicationContext;
+    private final ListableBeanFactory beanFactory;
     private RouteToggles routeToggles;
 
     @Autowired
-    public RerouteLatestApisImpl(RouteInformationProvider routeInformationProvider, FeatureToggleService features) {
+    public RerouteLatestApisImpl(RouteInformationProvider routeInformationProvider, FeatureToggleService features, ListableBeanFactory beanFactory) {
         this.routeInformationProvider = routeInformationProvider;
         this.features = features;
+        this.beanFactory = beanFactory;
     }
 
     // ignore special paths and those that are toggled off
@@ -109,7 +108,7 @@ public class RerouteLatestApisImpl implements RerouteLatestApis, ApplicationCont
     }
 
     private RouteToggles resolveRouteToggles() {
-        return new RouteToggles(applicationContext.getBeansWithAnnotation(ToggleRegisterLatest.class).values()
+        return new RouteToggles(beanFactory.getBeansWithAnnotation(ToggleRegisterLatest.class).values()
             .stream()
             .reduce(new ArrayList<>(), (BiFunction<List<RouteToggle>, Object, List<RouteToggle>>) (all, o) -> {
                 for (ToggleRegisterLatest meta : o.getClass().getAnnotationsByType(ToggleRegisterLatest.class)) {
@@ -118,10 +117,5 @@ public class RerouteLatestApisImpl implements RerouteLatestApis, ApplicationCont
                 return all;
             }, (l, r) -> r) /* ignored, not parallel */,
             features);
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
     }
 }

@@ -57,7 +57,7 @@ public class GoConfigRepoConfigDataSourceTest {
 
     @BeforeEach
     public void setUp() {
-        serverHealthService = new ServerHealthService();
+        serverHealthService = new ServerHealthService(mock());
         configPluginService = mock(GoConfigPluginService.class);
         configRepoService = mock(ConfigRepoService.class);
         plugin = mock(PartialConfigProvider.class);

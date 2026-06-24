@@ -33,7 +33,7 @@ import java.time.ZoneOffset;
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.*;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;import static org.mockito.Mockito.mock;
 
 public class ServerHealthServiceTest {
     private static final String PIPELINE_NAME = "pipeline";
@@ -46,7 +46,7 @@ public class ServerHealthServiceTest {
     public void setUp() {
         testingClock = TestingClock.switchForSystem();
 
-        serverHealthService = new ServerHealthService();
+        serverHealthService = new ServerHealthService(mock());
         globalId = HealthStateType.general(GLOBAL);
         pipelineId = HealthStateType.general(forPipeline(PIPELINE_NAME));
     }

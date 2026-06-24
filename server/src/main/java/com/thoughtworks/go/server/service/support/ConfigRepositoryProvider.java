@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.service.support;
 
-import com.thoughtworks.go.service.ConfigRepository;
+import com.thoughtworks.go.config.ConfigRepository;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;

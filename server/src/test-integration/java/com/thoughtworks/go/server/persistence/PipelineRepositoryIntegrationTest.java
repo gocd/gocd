@@ -35,7 +35,6 @@ import com.thoughtworks.go.server.domain.user.ExcludesFilter;
 import com.thoughtworks.go.server.domain.user.Filters;
 import com.thoughtworks.go.server.domain.user.IncludesFilter;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
-import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.service.ScheduleTestUtil;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;

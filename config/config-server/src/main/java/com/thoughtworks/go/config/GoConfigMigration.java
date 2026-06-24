@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.XmlUtils;
 import org.jdom2.Element;

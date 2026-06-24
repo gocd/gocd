@@ -323,7 +323,7 @@ public class JobInstanceServiceTest {
 
     @Test
     public void shouldRemoveJobRelatedServerHealthMessagesOnConfigChange() {
-        ServerHealthService serverHealthService = new ServerHealthService();
+        ServerHealthService serverHealthService = new ServerHealthService(mock());
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p1", "s1", "j1"))));
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p2", "s2", "j2"))));
         assertThat(serverHealthService.logsSorted().errorCount()).isEqualTo(2);
@@ -335,7 +335,7 @@ public class JobInstanceServiceTest {
 
     @Test
     public void shouldRemoveJobRelatedServerHealthMessagesOnPipelineConfigChange() {
-        ServerHealthService serverHealthService = new ServerHealthService();
+        ServerHealthService serverHealthService = new ServerHealthService(mock());
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p1", "s1", "j1"))));
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p2", "s2", "j2"))));
         assertThat(serverHealthService.logsSorted().errorCount()).isEqualTo(2);

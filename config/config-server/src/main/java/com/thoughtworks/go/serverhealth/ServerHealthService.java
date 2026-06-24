@@ -18,9 +18,8 @@ package com.thoughtworks.go.serverhealth;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.CruiseConfigProvider;
 import org.jetbrains.annotations.TestOnly;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,9 +32,14 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.toList;
 
 @Service
-public class ServerHealthService implements ApplicationContextAware {
+public class ServerHealthService {
     private final ConcurrentMap<HealthStateType, ServerHealthState> serverHealth = new ConcurrentHashMap<>();
-    private ApplicationContext applicationContext;
+    private final BeanFactory beanFactory;
+
+    @Autowired
+    public ServerHealthService(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
+    }
 
     public List<ServerHealthState> logsSortedForScope(HealthStateScope scope) {
         return serverHealth.entrySet().stream()
@@ -62,8 +66,7 @@ public class ServerHealthService implements ApplicationContextAware {
 
     // called from spring timer
     public synchronized void onTimer() {
-        CruiseConfig currentConfig = applicationContext.getBean(CruiseConfigProvider.class).getCurrentConfig();
-        purgeStaleHealthMessages(currentConfig);
+        purgeStaleHealthMessages(beanFactory.getBean(CruiseConfigProvider.class).getCurrentConfig());
     }
 
     void purgeStaleHealthMessages(CruiseConfig cruiseConfig) {
@@ -98,10 +101,5 @@ public class ServerHealthService implements ApplicationContextAware {
 
     public boolean containsError(HealthStateType type, HealthStateLevel level) {
         return serverHealth.values().stream().anyMatch(state -> state.getType().equals(type) && state.getLogLevel() == level);
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
     }
 }

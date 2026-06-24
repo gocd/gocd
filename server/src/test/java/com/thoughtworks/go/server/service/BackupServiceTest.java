@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.ConfigRepository;
 import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.domain.BackupStatus;
 import com.thoughtworks.go.server.domain.ServerBackup;
@@ -23,7 +24,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.ServerBackupQueue;
 import com.thoughtworks.go.server.messaging.StartServerBackupMessage;
 import com.thoughtworks.go.server.persistence.ServerBackupRepository;
-import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;

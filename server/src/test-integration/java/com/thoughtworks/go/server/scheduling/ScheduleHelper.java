@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.domain.DefaultSchedulingContext;
+import com.thoughtworks.go.domain.InstanceFactory;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.SchedulingContext;
 import com.thoughtworks.go.domain.buildcause.BuildCause;

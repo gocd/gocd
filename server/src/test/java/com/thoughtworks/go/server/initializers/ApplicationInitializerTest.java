@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.initializers;
 
 import com.thoughtworks.go.config.CachedGoConfig;
+import com.thoughtworks.go.config.ConfigRepository;
 import com.thoughtworks.go.config.GoFileConfigDataSource;
 import com.thoughtworks.go.config.InvalidConfigMessageRemover;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
@@ -34,7 +35,6 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.support.ResourceMonitoring;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
-import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -131,8 +131,9 @@ public class ApplicationInitializerTest {
     private PipelineLabelCorrector pipelineLabelCorrector;
     @Mock
     private ConfigRepositoryInitializer configRepositoryInitializer;
+
     @InjectMocks
-    ApplicationInitializer initializer = new ApplicationInitializer();
+    ApplicationInitializer initializer;
 
     @BeforeEach
     public void setUp() {

@@ -654,6 +654,7 @@ extensions.getByType(DependencyAnalysisExtension).with {
 }
 
 dependencyCheck {
+  autoUpdate = true
   data.directory = layout.buildDirectory.dir("dependency-check-data").get().asFile.path
 
   failBuildOnCVSS = 1
@@ -661,7 +662,9 @@ dependencyCheck {
   suppressionFile = rootProject.file('build-platform/dependency-check-suppress.xml').toPath().toString()
   skipTestGroups = true
 
+  nvd.validForHours = 24
   nvd.datafeedUrl = 'https://nexus.gocd.io/repository/nvd-data-feeds-proxy/nvdcve-2.0-{0}.json.gz'
+  
   analyzers.ossIndex.password = System.getenv("OSS_INDEX_API_TOKEN") ?: ""
   analyzers.ossIndex.validForHours = 24 * 7 // save credits by checking only weekly
   analyzers.centralEnabled = true // Allow for matching jar dependencies which sit inside jruby gems etc

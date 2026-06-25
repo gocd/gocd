@@ -719,6 +719,7 @@ if (System.getenv().containsKey("NEXUS_CACHE_USERNAME")) {
   tasks.register('uploadDependencyCheckCache', Zip) {
     from layout.buildDirectory.file("dependency-check-data")
     archiveFileName = "dependency-check-data-updated.zip"
+    preserveFileTimestamps = true
     destinationDirectory = layout.buildDirectory
 
     def injected = project.objects.newInstance(Injected)

@@ -37,7 +37,7 @@ import java.security.SecureRandom
 plugins {
   id 'base'
   id 'org.owasp.dependencycheck' version '12.2.2'
-  id 'com.autonomousapps.dependency-analysis' version '3.15.0'
+  id 'com.autonomousapps.dependency-analysis' version '3.16.0'
 }
 
 // Updated via automated scripting

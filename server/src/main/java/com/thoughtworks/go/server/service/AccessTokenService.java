@@ -41,6 +41,7 @@ import static org.apache.commons.lang3.StringUtils.substring;
 @Service
 public class AccessTokenService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessTokenService.class);
+    @SuppressWarnings("LoggerInitializedWithForeignClass")
     private static final Logger ACCESS_TOKEN_LOGGER = LoggerFactory.getLogger(AccessToken.class);
     private final Clock timeProvider;
 

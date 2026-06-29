@@ -153,7 +153,7 @@ public class AccessTokenService {
 
     public void updateLastUsedCacheWith(AccessToken accessToken) {
         if (!securityService.isSecurityEnabled()) {
-            throw new UnsupportedOperationException("Security is disable. Updating cache is not allowed.");
+            throw new UnsupportedOperationException("Security is disabled. Updating cache is not allowed.");
         }
 
         synchronized (accessTokenIdToLastUsedTimestampCache) {
@@ -163,7 +163,7 @@ public class AccessTokenService {
 
     public void onTimer() {
         if (!securityService.isSecurityEnabled()) {
-            LOGGER.debug("Security is disable. Not updating `LastUsedTime` in DB.");
+            LOGGER.debug("Security is disabled. Not updating `LastUsedTime` in DB.");
             return;
         }
 

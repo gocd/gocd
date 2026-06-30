@@ -17,7 +17,9 @@
    scope[:show_elapsed] = scope[:show_elapsed].nil? ? true : scope[:show_elapsed]
    scope[:elapsed_time] = scope[:job].getElapsedTimeForDisplay()
    scope[:has_elapsed_time] = !scope[:elapsed_time].empty?
-   if scope[:job].isCompleted() or (scope[:job].getPercentComplete() == 0 or scope[:job].getPercentComplete() == 100) %>
+   if scope[:job].isCompleted() \
+      or (scope[:job].getPercentComplete() == 0 \
+      or scope[:job].getPercentComplete() == 100) %>
     <div class="elapsed_time">
         <% if scope[:has_elapsed_time] %>
             <% if scope[:show_elapsed] %>

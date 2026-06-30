@@ -4785,8 +4785,6 @@ __metadata:
     karma-jasmine: "npm:^5.1.0"
     karma-jasmine-html-reporter: "npm:^2.2.0"
     karma-jasmine-seed-reporter: "npm:^0.2.0"
-    karma-junit-reporter: "npm:^2.0.1"
-    karma-safari-launcher: "npm:^1.0.0"
     karma-sourcemap-loader: "npm:^0.4.0"
     license-checker: "npm:^25.0.1"
     lodash: "npm:^4.18.1"
@@ -5852,27 +5850,6 @@ __metadata:
   peerDependencies:
     karma: ^6.0.0
   checksum: 10c0/827843d2b4af5396c35de6911d15304955bd7376f96527f46285beb0178510aa401ff123a010a9ee3f13aeeeb56f64a9a3e22d7d61fb58ee76a2845b153a9d20
-  languageName: node
-  linkType: hard
-
-"karma-junit-reporter@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "karma-junit-reporter@npm:2.0.1"
-  dependencies:
-    path-is-absolute: "npm:^1.0.0"
-    xmlbuilder: "npm:12.0.0"
-  peerDependencies:
-    karma: ">=0.9"
-  checksum: 10c0/ab243908a950ee67cc03fff53cedf0be32cfd05e544af3115cfccae850688b49d62a060aafc244763fac75f67bf1454312430bc5269ff17afba671dd010191b9
-  languageName: node
-  linkType: hard
-
-"karma-safari-launcher@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "karma-safari-launcher@npm:1.0.0"
-  peerDependencies:
-    karma: ">=0.9"
-  checksum: 10c0/7e8a005b01b19db6c1bc6019dc724a335c1bd47df9d63a2ae18caa200149409f210f85b67b3efec3894994d6506bcd186280dbc470c96d7d61e4afa18036d50c
   languageName: node
   linkType: hard
 
@@ -9476,13 +9453,6 @@ __metadata:
     utf-8-validate:
       optional: true
   checksum: 10c0/ef4a243476283fc49bc7550966c4af4aa0eef56273837211e700de3b664e08604a760cdddcb5ba43c049140e74ccfec5b0ee0bb439e08c2adf9138902fdde5f9
-  languageName: node
-  linkType: hard
-
-"xmlbuilder@npm:12.0.0":
-  version: 12.0.0
-  resolution: "xmlbuilder@npm:12.0.0"
-  checksum: 10c0/9d166aef70a4264f8650b5fcf11a29cd811ca6bbd63b830389ffb496ac253ade30f67f3cf22250468f374a2dbf84ed6f7a183b4623953d906e20057349e74f12
   languageName: node
   linkType: hard
 

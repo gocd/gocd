@@ -266,8 +266,8 @@
       const l = $(lw.insertContent(fs, t.OUT, "00:00:00.000", "\u001B[0;38:2:1:135:175:255mColored\u001B[0m"));
       const node = l.find("span");
       expect(node.length).toBe(1);
-      expect(node).toHaveAttr('style', 'color:rgb(135,175,255)');
-      expect(node).toHaveText('Colored');
+      expect(node.attr("style")).toBe('color:rgb(135,175,255)');
+      expect(node.text()).toBe('Colored');
     });
 
     it("LineWriter insertContent/Header handles ANSI URLs", function () {

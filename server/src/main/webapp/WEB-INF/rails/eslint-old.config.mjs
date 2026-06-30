@@ -30,7 +30,7 @@ export const nonWebPackedLegacyConfig = {
       ...globals.jquery,
       module: true,
 
-      // Jasmine jquery
+      // Utility helper for tests, mounted globally from spec/javascripts/support/jasmine-fixtures.js
       setFixtures: 'readonly',
 
       // often js

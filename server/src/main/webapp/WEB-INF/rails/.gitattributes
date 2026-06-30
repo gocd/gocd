@@ -1,6 +1,7 @@
 tsconfig.json     linguist-language=JSON-with-Comments
 babel.config.json linguist-language=JSON-with-Comments
 
+*.js.msx          linguist-language=JavaScript
 *.html.erb        linguist-language=HTML
 *.json.erb        linguist-language=JSON
 *.scss.erb        linguist-language=SCSS

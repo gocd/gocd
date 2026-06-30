@@ -4297,10 +4297,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"filesize@npm:^11.0.18":
-  version: 11.0.18
-  resolution: "filesize@npm:11.0.18"
-  checksum: 10c0/fdc8986d68c8e5708677bd39a4049222c08f8f666950bf782c4b1323dfd4f82341ecd323da379f5cca6b3b53888346b5ce8c7812eb931cb63554ae0732aa7ea6
+"filesize@npm:^11.0.19":
+  version: 11.0.19
+  resolution: "filesize@npm:11.0.19"
+  checksum: 10c0/e63505d6a3f3669e4741faee6d4c11db06841aa32473945dafac48c5596d43fba10dd6e365f98842404a5fe4157d50969732e5157f96edf13a2bea7565a59420
   languageName: node
   linkType: hard
 
@@ -4816,7 +4816,7 @@ __metadata:
     eslint-plugin-react: "npm:^7.37.5"
     eslint-webpack-plugin: "npm:^6.0.0"
     file-loader: "npm:^6.2.0"
-    filesize: "npm:^11.0.18"
+    filesize: "npm:^11.0.19"
     fork-ts-checker-webpack-plugin: "npm:^9.1.0"
     foundation-sites: "npm:^6.9.0"
     fs-extra: "npm:^11.3.5"

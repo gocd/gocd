@@ -48,6 +48,7 @@
     <cve>CVE-2024-38808</cve>
     <cve>CVE-2026-41849</cve>
     <cve>CVE-2026-41850</cve>
+    <cve>CVE-2026-41851</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
@@ -138,6 +139,17 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
     <cve>CVE-2026-41848</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    While GoCD does use spring-web for multipart request upload handling, it is allowed only from agent-specific APIs
+    for artifact uploading which are specially authenticated/authorized. It may be vulnerable to the issue described at
+    https://spring.io/security/cve-2026-41853 however its impact is extremely limited and would require agent breach or
+    masquerading to exploit, and is likely not a realistic attack vector without much more serious breaches. Additionally,
+    it requires an external WAF, and allows only WAF bypass. Risk is likely to be zero to minimal.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <cve>CVE-2026-41853</cve>
   </suppress>
 
   <suppress>
@@ -420,6 +432,27 @@
 
   <suppress>
     <notes><![CDATA[
+    Suppress false positive from nokogiri. GoCD does not use Ruby/nokogiri to validate docs against HTML schemas, so
+    is not vulnerable to https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-8678-w3jw-xfc2
+    ]]></notes>
+    <packageUrl regex="true">^pkg:gem/nokogiri@.*$</packageUrl>
+    <cve>CVE-2026-57234</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    Suppress false positives from nokogiri which only affect CRuby; not JRuby.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:gem/nokogiri@.*$</packageUrl>
+    <cve>CVE-2026-57235</cve>
+    <cve>CVE-2026-57236</cve>
+    <cve>CVE-2026-57434</cve>
+    <cve>CVE-2026-57435</cve>
+    <cve>CVE-2026-57436</cve>
+    <cve>CVE-2026-57437</cve>
+    <cve>CVE-2026-57438</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
     Suppress false positives from nokogiri-java via embedded xercesImpl-2.12.2.jar which claim something specify to JBoss
     at https://nvd.nist.gov/vuln/detail/CVE-2017-7503 and a somewhat vaguely defined possible threading deadlock at
     https://nvd.nist.gov/vuln/detail/CVE-2017-10355 that doesn't appear to be legitimately tagged or exploitable based
@@ -429,7 +462,6 @@
     <vulnerabilityName>CVE-2017-7503</vulnerabilityName>
     <vulnerabilityName>CVE-2017-10355</vulnerabilityName>
   </suppress>
-
   <suppress>
     <notes><![CDATA[
     Suppress false positives from nokogiri-java via embedded neko-htmlunit-2.63.0.jar pending https://github.com/sparklemotion/nokogiri/issues/2565

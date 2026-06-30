@@ -15,8 +15,8 @@
  */
 
 import _ from "lodash";
+import TerserPlugin from "minimizer-webpack-plugin";
 import path from "node:path";
-import TerserPlugin from "terser-webpack-plugin";
 import webpack from "webpack";
 import {getBabelLoader} from "./loaders/babel-loader";
 import {getCssLoaders} from "./loaders/css-loader";

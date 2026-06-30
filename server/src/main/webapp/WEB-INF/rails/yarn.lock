@@ -1935,12 +1935,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jquery@npm:^3.5.34":
-  version: 3.5.34
-  resolution: "@types/jquery@npm:3.5.34"
-  dependencies:
-    "@types/sizzle": "npm:*"
-  checksum: 10c0/c85eec82531912cc497c34daad3509cf54875a0457c64d82b4fe17a4a27a313150c0882b7dd345b7e98c9116e0bae64c3942b7a76f6edcd664efa701cd1f2d81
+"@types/jquery@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "@types/jquery@npm:4.0.1"
+  checksum: 10c0/8cacbee3ec548cca54079212ef0722882df53fa5e47ee7b082ed541d288487fd830faf6fb535b996d4c3e9b99e7ffa6bbc463da1b7f9e22a9b95005c55aba862
   languageName: node
   linkType: hard
 
@@ -2001,13 +1999,6 @@ __metadata:
   version: 1.7.5
   resolution: "@types/shell-quote@npm:1.7.5"
   checksum: 10c0/ddcf225e85e5520e3f44411d7d79eee0e56477fab705d0d93e293b61b9f8de2a57db6e859d492a24bc9e0d071c0490271efeae832756e2ac0d4d255922ac281d
-  languageName: node
-  linkType: hard
-
-"@types/sizzle@npm:*":
-  version: 2.3.10
-  resolution: "@types/sizzle@npm:2.3.10"
-  checksum: 10c0/d43ec1cd0b5e1f66b1abeaf359608853629cd3d6b8dc8b3b40b85a5ee2ce149a4485ccd7eee5c58b5a2814d384f5a951f1dab5d49041ad83457270cb2bc66fe7
   languageName: node
   linkType: hard
 
@@ -4743,7 +4734,7 @@ __metadata:
     "@types/fs-extra": "npm:^11.0.4"
     "@types/jasmine": "npm:^6.0.0"
     "@types/jasmine-ajax": "npm:^3.3.5"
-    "@types/jquery": "npm:^3.5.34"
+    "@types/jquery": "npm:^4.0.1"
     "@types/license-checker": "npm:^25.0.6"
     "@types/lodash": "npm:^4.17.24"
     "@types/mithril": "npm:2.2.8"
@@ -4777,7 +4768,7 @@ __metadata:
     jasmine: "npm:^6.3.0"
     jasmine-ajax: "npm:^5.0.0"
     jasmine-browser-runner: "npm:^4.0.0"
-    jquery: "npm:^3.7.1"
+    jquery: "npm:^4.0.0"
     karma: "npm:^6.4.4"
     karma-chrome-launcher: "npm:^3.2.0"
     karma-firefox-launcher: "npm:^2.1.3"
@@ -5649,10 +5640,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jquery@npm:^3.7.1":
-  version: 3.7.1
-  resolution: "jquery@npm:3.7.1"
-  checksum: 10c0/808cfbfb758438560224bf26e17fcd5afc7419170230c810dd11f5c1792e2263e2970cca8d659eb84fcd9acc301edb6d310096e450277d54be4f57071b0c82d9
+"jquery@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "jquery@npm:4.0.0"
+  checksum: 10c0/06d8d0f51121af5a691f8b59c74823157bb5b60eea915b30eaa920d6c0ffd91e60ba81e9b97bd8203f331f9dd8d0ec9a4b010935ea314bdd2f15453c29bc780b
   languageName: node
   linkType: hard
 

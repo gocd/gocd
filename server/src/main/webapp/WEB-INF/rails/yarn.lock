@@ -1928,10 +1928,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jasmine@npm:^5.1.15":
-  version: 5.1.15
-  resolution: "@types/jasmine@npm:5.1.15"
-  checksum: 10c0/824119f85fd01f88a251fb654f58b135ba38d1085137b4bf57ecaa74b129ba617da58183b9f5f9cf271c86c72cf1f33b6277afb720a1734574cd953b4da2bf22
+"@types/jasmine@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@types/jasmine@npm:6.0.0"
+  checksum: 10c0/9521bb7bd9c897ba6333478cd1c4acd68f813ea9b2ebf0f61283cc0357a9d7581c44f1798f4733ad662b3d1498449ebbb074a0e8bf96b95d6c72e9651fe7e047
   languageName: node
   linkType: hard
 
@@ -4749,7 +4749,7 @@ __metadata:
     "@shopify/draggable": "npm:1.2.1"
     "@types/awesomplete": "npm:^1.1.16"
     "@types/fs-extra": "npm:^11.0.4"
-    "@types/jasmine": "npm:^5.1.15"
+    "@types/jasmine": "npm:^6.0.0"
     "@types/jasmine-ajax": "npm:^3.3.5"
     "@types/jquery": "npm:^3.5.34"
     "@types/license-checker": "npm:^25.0.6"
@@ -5600,14 +5600,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jasmine-core@npm:^5":
-  version: 5.13.0
-  resolution: "jasmine-core@npm:5.13.0"
-  checksum: 10c0/3bbf1dbbde8017f41872a27f22bafd164fe4fcf834347af23d7d5a63e7e35c72c79e1596e6b384dd2906e885518419e13a6c7535ffabf8256b624110d664599d
-  languageName: node
-  linkType: hard
-
-"jasmine-core@npm:~6.3.0":
+"jasmine-core@npm:^6, jasmine-core@npm:~6.3.0":
   version: 6.3.0
   resolution: "jasmine-core@npm:6.3.0"
   checksum: 10c0/4176118dce0545f841a9bd57b22db82eff7a974d94fc73e06b4c7148d29ea276cdc00fbe2bb9631bc4264e6868b423650c818987b4f79bd512295c9abef0d344

@@ -26,10 +26,12 @@ updates:
       default-days: 2
     open-pull-requests-limit: 99
     groups:
+      babel:
+        patterns: [ "@babel/*" ]
       jasmine:
         patterns: [ "jasmine*", "@types/jasmine*" ]
       webpack:
-        patterns: [ "webpack*", "*-loader", "*-webpack-plugin", "*mini-css-extract-plugin", "@babel/*" ]
+        patterns: [ "webpack*", "*-loader", "*-webpack-plugin", "*mini-css-extract-plugin" ]
       eslint:
         patterns: [ "eslint*", "@eslint/*", "@types/eslint*" ]
       types:

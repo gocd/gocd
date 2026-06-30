@@ -70,7 +70,7 @@ describe("Exec Task Modal", () => {
     expect(helper.qa("span")[2]).toContainText(argumentsHelpText);
   });
 
-  it("should bind arguments input to model", () => {
+  it("should bind arguments input to model via array", () => {
     const execTask = new ExecTask("ls", ["-a", "-h"], undefined,"tmp", []);
     mount(execTask);
 
@@ -100,7 +100,7 @@ describe("Exec Task Modal", () => {
     expect(helper.qa("span")[2]).toContainText(argumentsHelpText);
   });
 
-  it("should bind arguments input to model", () => {
+  it("should bind arguments input to model via string", () => {
     const execTask = new ExecTask("ls", [], "-alh", "tmp", []);
     mount(execTask);
 

@@ -18,156 +18,153 @@ import {Dashboard} from "models/dashboard/dashboard";
 import {Pipelines} from "models/dashboard/pipelines";
 import _ from "lodash";
 
-describe("Dashboard", () => {
+describe("Dashboard Model", () => {
+  const originalDebounce = _.debounce;
 
-  describe('Dashboard Model', () => {
-    const originalDebounce = _.debounce;
-
-    let dashboard;
-    beforeEach(() => {
-      dashboard = new Dashboard();
-      dashboard.initialize(dashboardData);
-      dashboard._performRouting = _.noop;
-      jasmine.Ajax.install();
-    });
-
-    afterEach(() => jasmine.Ajax.uninstall());
-
-    beforeAll(() => {
-      spyOn(_, 'debounce').and.callFake((func) => {
-        return function () {
-          func.apply(this, arguments);
-        };
-      });
-    });
-
-    afterAll(() => {
-      _.debounce = originalDebounce;
-    });
-
-    it("should get pipeline groups", () => {
-      const expectedPipelineGroups = new DashboardGroups(dashboardData._embedded.pipeline_groups).groups;
-      const actualPipelineGroups   = dashboard.getPipelineGroups().groups;
-
-      expect(actualPipelineGroups.length).toEqual(expectedPipelineGroups.length);
-    });
-
-    it("should get pipelines", () => {
-      const expectedPipelines = new Pipelines(dashboardData._embedded.pipelines);
-      const actualPipelines   = dashboard.getPipelines();
-
-      expect(actualPipelines.length).toEqual(expectedPipelines.length);
-    });
-
-    it("should find the pipeline by pipeline name", () => {
-      const pipelineName     = "up42";
-      const expectedPipeline = Pipelines.fromJSON(dashboardData._embedded.pipelines).find(pipelineName);
-      const actualPipeline   = dashboard.findPipeline(pipelineName);
-
-      expect(actualPipeline.name).toEqual(expectedPipeline.name);
-    });
-
-    it('should get new dashboard json', async () => {
-      jasmine.Ajax.stubRequest('/go/api/dashboard?allowEmpty=false', undefined, 'GET').andReturn({
-        responseText: JSON.stringify(dashboardData),
-        responseHeaders: {
-          ETag: 'etag',
-          'Content-Type': 'application/vnd.go.cd.v4+json'
-        },
-        status: 200
-      });
-
-      const dash = await Dashboard.get();
-
-      const expected = new Dashboard();
-      expected.initialize(dash);
-      expect(expected.getPipelineGroups().groups.length).toBe(1);
-
-      expect(jasmine.Ajax.requests.count()).toBe(1);
-      const request = jasmine.Ajax.requests.mostRecent();
-      expect(request.method).toBe('GET');
-      expect(request.url).toMatch(/^\/go\/api\/dashboard(?:\?|&|$)/);
-      expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v4+json');
-    });
-
-    const dashboardData = {
-      "_embedded": {
-        "pipeline_groups": [
-          {
-            "_links":    {
-              "self": {
-                "href": "http://localhost:8153/go/api/config/pipeline_groups/first"
-              },
-              "doc":  {
-                "href": "https://api.gocd.org/current/#pipeline-groups"
-              }
-            },
-            "name":      "first",
-            "pipelines": ["up42"]
-          }
-        ],
-        "pipelines":       [
-          {
-            "_links":                 {
-              "self": {
-                "href": "http://localhost:8153/go/api/pipelines/up42/history"
-              },
-              "doc":  {
-                "href": "https://api.gocd.org/current/#pipelines"
-              }
-            },
-            "name":                   "up42",
-            "last_updated_timestamp": 1510299695473,
-            "locked":                 false,
-            "template_info": {
-              "is_using_template": false,
-              "template_name":     null
-            },
-            "pause_info":             {
-              "paused":       false,
-              "paused_by":    null,
-              "pause_reason": null
-            },
-            "_embedded":              {
-              "instances": [
-                {
-                  "_links":       {
-                    "self": {
-                      "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
-                    },
-                    "doc":  {
-                      "href": "https://api.gocd.org/current/#get-pipeline-instance"
-                    }
-                  },
-                  "label":        "1",
-                  "counter":      "1",
-                  "scheduled_at": "2017-11-10T07:25:28.539Z",
-                  "triggered_by": "changes",
-                  "_embedded":    {
-                    "stages": [
-                      {
-                        "_links":       {
-                          "self": {
-                            "href": "http://localhost:8153/go/api/stages/up42/1/up42_stage/1"
-                          },
-                          "doc":  {
-                            "href": "https://api.gocd.org/current/#get-stage-instance"
-                          }
-                        },
-                        "name":         "up42_stage",
-                        "counter":      "1",
-                        "status":       "Failed",
-                        "approved_by":  "changes",
-                        "scheduled_at": "2017-11-10T07:25:28.539Z"
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    };
+  let dashboard;
+  beforeEach(() => {
+    dashboard = new Dashboard();
+    dashboard.initialize(dashboardData);
+    dashboard._performRouting = _.noop;
+    jasmine.Ajax.install();
   });
+
+  afterEach(() => jasmine.Ajax.uninstall());
+
+  beforeAll(() => {
+    spyOn(_, 'debounce').and.callFake((func) => {
+      return function () {
+        func.apply(this, arguments);
+      };
+    });
+  });
+
+  afterAll(() => {
+    _.debounce = originalDebounce;
+  });
+
+  it("should get pipeline groups", () => {
+    const expectedPipelineGroups = new DashboardGroups(dashboardData._embedded.pipeline_groups).groups;
+    const actualPipelineGroups = dashboard.getPipelineGroups().groups;
+
+    expect(actualPipelineGroups.length).toEqual(expectedPipelineGroups.length);
+  });
+
+  it("should get pipelines", () => {
+    const expectedPipelines = new Pipelines(dashboardData._embedded.pipelines);
+    const actualPipelines = dashboard.getPipelines();
+
+    expect(actualPipelines.length).toEqual(expectedPipelines.length);
+  });
+
+  it("should find the pipeline by pipeline name", () => {
+    const pipelineName = "up42";
+    const expectedPipeline = Pipelines.fromJSON(dashboardData._embedded.pipelines).find(pipelineName);
+    const actualPipeline = dashboard.findPipeline(pipelineName);
+
+    expect(actualPipeline.name).toEqual(expectedPipeline.name);
+  });
+
+  it('should get new dashboard json', async () => {
+    jasmine.Ajax.stubRequest('/go/api/dashboard?allowEmpty=false', undefined, 'GET').andReturn({
+      responseText: JSON.stringify(dashboardData),
+      responseHeaders: {
+        ETag: 'etag',
+        'Content-Type': 'application/vnd.go.cd.v4+json'
+      },
+      status: 200
+    });
+
+    const dash = await Dashboard.get();
+
+    const expected = new Dashboard();
+    expected.initialize(dash);
+    expect(expected.getPipelineGroups().groups.length).toBe(1);
+
+    expect(jasmine.Ajax.requests.count()).toBe(1);
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.method).toBe('GET');
+    expect(request.url).toMatch(/^\/go\/api\/dashboard(?:\?|&|$)/);
+    expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v4+json');
+  });
+
+  const dashboardData = {
+    "_embedded": {
+      "pipeline_groups": [
+        {
+          "_links": {
+            "self": {
+              "href": "http://localhost:8153/go/api/config/pipeline_groups/first"
+            },
+            "doc": {
+              "href": "https://api.gocd.org/current/#pipeline-groups"
+            }
+          },
+          "name": "first",
+          "pipelines": ["up42"]
+        }
+      ],
+      "pipelines": [
+        {
+          "_links": {
+            "self": {
+              "href": "http://localhost:8153/go/api/pipelines/up42/history"
+            },
+            "doc": {
+              "href": "https://api.gocd.org/current/#pipelines"
+            }
+          },
+          "name": "up42",
+          "last_updated_timestamp": 1510299695473,
+          "locked": false,
+          "template_info": {
+            "is_using_template": false,
+            "template_name": null
+          },
+          "pause_info": {
+            "paused": false,
+            "paused_by": null,
+            "pause_reason": null
+          },
+          "_embedded": {
+            "instances": [
+              {
+                "_links": {
+                  "self": {
+                    "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
+                  },
+                  "doc": {
+                    "href": "https://api.gocd.org/current/#get-pipeline-instance"
+                  }
+                },
+                "label": "1",
+                "counter": "1",
+                "scheduled_at": "2017-11-10T07:25:28.539Z",
+                "triggered_by": "changes",
+                "_embedded": {
+                  "stages": [
+                    {
+                      "_links": {
+                        "self": {
+                          "href": "http://localhost:8153/go/api/stages/up42/1/up42_stage/1"
+                        },
+                        "doc": {
+                          "href": "https://api.gocd.org/current/#get-stage-instance"
+                        }
+                      },
+                      "name": "up42_stage",
+                      "counter": "1",
+                      "status": "Failed",
+                      "approved_by": "changes",
+                      "scheduled_at": "2017-11-10T07:25:28.539Z"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  };
 });

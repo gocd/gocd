@@ -239,19 +239,6 @@ describe("Permissions Tab Content", () => {
     stage.approval().authorization()._users.push(Stream("user1"), Stream("user2"));
     mount(stage);
 
-    expect(helper.byTestId("input-field-for-user1")).toBeInDOM();
-    expect(helper.q("input", helper.byTestId("input-field-for-user1"))).toHaveValue("user1");
-
-    expect(helper.byTestId("input-field-for-user2")).toBeInDOM();
-    expect(helper.q("input", helper.byTestId("input-field-for-user2"))).toHaveValue("user2");
-  });
-
-  it("should render users in an input field", () => {
-    const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test"));
-    stage.approval().authorization().isInherited(false);
-    stage.approval().authorization()._users.push(Stream("user1"), Stream("user2"));
-    mount(stage);
-
     expect(helper.qa("input", helper.byTestId("users"))).toHaveLength(2);
 
     expect(helper.byTestId("input-field-for-user1")).toBeInDOM();

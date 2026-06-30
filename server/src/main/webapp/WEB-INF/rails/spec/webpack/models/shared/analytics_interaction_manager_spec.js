@@ -82,15 +82,6 @@ describe("AnalyticsInteractionManager", () => {
       expect(Models.toUrl(uid, {chzbrgr: "absolutely"})).toBe("/go/analytics/ohai/lolcat/canhas?chzbrgr=absolutely", "toUrl() converts extra params to query paramters");
     });
 
-    it("toUrl() constructs an analytics URL based on uid", () => {
-      const Models = Interactions.ns("Namespacely");
-      const ordinal = 5, plugin = "ohai", type = "lolcat", id = "canhas";
-      const uid = Models.uid(ordinal, plugin, type, id);
-
-      expect(Models.toUrl(uid)).toBe("/go/analytics/ohai/lolcat/canhas");
-      expect(Models.toUrl(uid, {chzbrgr: "absolutely"})).toBe("/go/analytics/ohai/lolcat/canhas?chzbrgr=absolutely", "toUrl() converts extra params to query paramters");
-    });
-
     it("modelFor() idempotently ensures a model exists for a given uid", () => {
       const Models = Interactions.ns("Namespacely");
       const ordinal = 5, plugin = "ohai", type = "lolcat", id = "canhas";

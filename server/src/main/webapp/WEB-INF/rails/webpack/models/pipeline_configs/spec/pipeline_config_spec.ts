@@ -212,7 +212,7 @@ describe("PipelineConfig model", () => {
     expect(config.toPutApiPayload().label_template).toBe("${COUNT}-pipeline");
   });
 
-  it("should serialize pipeline config template", () => {
+  it("should serialize empty pipeline config template", () => {
     const config = new PipelineConfig("name", defaultMaterials, defaultStages).withGroup("foo");
     config.labelTemplate("");
 
@@ -285,7 +285,7 @@ function stubPipelineTrigger(name: string) {
                                                                                                });
 }
 
-describe('MaterialsSpec', () => {
+describe('PipelineConfig MaterialsSpec', () => {
   it('should return false if all scm and pluggable scm materials have non empty destination', () => {
     const materials      = new Materials();
     const gitAttrs       = new GitMaterialAttributes(undefined, true, "https://github.com/gocd/gocd");

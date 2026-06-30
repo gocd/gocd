@@ -15,7 +15,7 @@
  */
 import {Pipeline} from "models/dashboard/pipeline";
 
-describe("Dashboard", () => {
+describe("Dashboard Pipeline Model", () => {
 
   let pipelineJson, defaultPauseInfo;
   beforeEach(() => {

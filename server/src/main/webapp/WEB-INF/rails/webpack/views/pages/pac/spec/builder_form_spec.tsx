@@ -40,16 +40,6 @@ describe("AddPaC: BuilderForm", () => {
     helper.onchange(`input[type="text"]`, "foo");
   });
 
-  it("fires content change handler when the form changes", (done) => {
-    const vm = new PipelineConfigVM();
-    helper.mount(() => <BuilderForm pluginId={Stream()} vm={vm} onContentChange={(changed: boolean) => {
-      expect(changed).toBe(true);
-      done();
-    }}/>);
-
-    helper.onchange(`input[type="text"]`, "foo");
-  });
-
   it("detects changes to task terminal (non-input)", (done) => {
     const vm = new PipelineConfigVM();
     helper.mount(() => <BuilderForm pluginId={Stream()} vm={vm} onContentChange={(changed: boolean) => {

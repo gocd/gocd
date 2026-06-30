@@ -17,72 +17,68 @@ import {SparkRoutes} from "helpers/spark_routes";
 import {Material} from "models/dashboard/material";
 import Stream from "mithril/stream";
 
-describe("Dashboard", () => {
-  describe('Material Model', () => {
-
-    it('should validate selected material when it is invalid', () => {
-      const material = new Material({
-        type:         'Git',
-        name:         'name',
-        fingerprint:  'fingerprint',
-        folder:       'folder',
-        revision:     'revision',
-        pipelineName: 'pipelineName'
-      });
-
-      material.searchText = Stream('foo');
-      material.selection  = Stream('');
-
-      expect(material.validate()).toBe(false);
+describe("Dashboard Material Model", () => {
+  it('should validate selected material when it is invalid', () => {
+    const material = new Material({
+      type: 'Git',
+      name: 'name',
+      fingerprint: 'fingerprint',
+      folder: 'folder',
+      revision: 'revision',
+      pipelineName: 'pipelineName'
     });
 
-    it('should validate selected material when it is valid', () => {
-      const material      = new Material({
-        type:         'Git',
-        name:         'name',
-        fingerprint:  'fingerprint',
-        folder:       'folder',
-        revision:     'revision',
-        pipelineName: 'pipelineName'
-      });
-      material.searchText = Stream('foo');
-      material.selection  = Stream('foo');
-      expect(material.validate()).toBe(true);
-    });
+    material.searchText = Stream('foo');
+    material.selection = Stream('');
 
-    it('should perform search', () => {
-      jasmine.Ajax.withMock(() => {
-        jasmine.Ajax.stubRequest(SparkRoutes.pipelineMaterialSearchPath('pipelineName', 'fingerprint', 'foo'), undefined, 'GET')
-          .andReturn({
-            responseText:    JSON.stringify(json),
-            responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
-            status:          200
-          });
-        const material = new Material({
-          type:         'Git',
-          name:         'name',
-          fingerprint:  'fingerprint',
-          folder:       'folder',
-          revision:     'revision',
-          pipelineName: 'pipelineName'
-        });
-        material.searchText = Stream('foo');
-        material.performSearch().then(() => {
-          expect(material.searchResults()).toEqual(json);
-        });
-      });
-    });
-
-    const json = [
-      {
-        "revision": {
-          "date":              "2018-02-08T04:32:11Z",
-          "user":              "GoCD Team <go-cd-dev@googlegroups.com>",
-          "comment":           "Refactor Pipeline Widget (#4311)\n\n* Extract out PipelineHeaderWidget and PipelineOperationsWidget into seperate msx files",
-          "last_run_revision": "foo"
-        }
-      }
-    ];
-
+    expect(material.validate()).toBe(false);
   });
+
+  it('should validate selected material when it is valid', () => {
+    const material = new Material({
+      type: 'Git',
+      name: 'name',
+      fingerprint: 'fingerprint',
+      folder: 'folder',
+      revision: 'revision',
+      pipelineName: 'pipelineName'
+    });
+    material.searchText = Stream('foo');
+    material.selection = Stream('foo');
+    expect(material.validate()).toBe(true);
+  });
+
+  it('should perform search', () => {
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest(SparkRoutes.pipelineMaterialSearchPath('pipelineName', 'fingerprint', 'foo'), undefined, 'GET')
+        .andReturn({
+          responseText: JSON.stringify(json),
+          responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
+          status: 200
+        });
+      const material = new Material({
+        type: 'Git',
+        name: 'name',
+        fingerprint: 'fingerprint',
+        folder: 'folder',
+        revision: 'revision',
+        pipelineName: 'pipelineName'
+      });
+      material.searchText = Stream('foo');
+      material.performSearch().then(() => {
+        expect(material.searchResults()).toEqual(json);
+      });
+    });
+  });
+
+  const json = [
+    {
+      "revision": {
+        "date": "2018-02-08T04:32:11Z",
+        "user": "GoCD Team <go-cd-dev@googlegroups.com>",
+        "comment": "Refactor Pipeline Widget (#4311)\n\n* Extract out PipelineHeaderWidget and PipelineOperationsWidget into seperate msx files",
+        "last_run_revision": "foo"
+      }
+    }
+  ];
 });

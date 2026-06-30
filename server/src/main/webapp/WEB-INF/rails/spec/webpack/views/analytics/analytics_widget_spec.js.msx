@@ -52,7 +52,7 @@ describe("Analytics Widget", () => {
     expect(helper.q('.global')).toBeInDOM();
   });
 
-  it('should render global chart contents when global tab is selected', () => {
+  it('should render global chart contents when specific tab is selected', () => {
     helper.click(helper.qa('.dashboard-tabs li')[1]);
 
     expect(helper.qa('.dashboard-tabs li')[1]).toContainText("Pipeline");

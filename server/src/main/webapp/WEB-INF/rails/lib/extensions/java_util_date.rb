@@ -20,6 +20,6 @@ Java::JavaUtil::Date.class_eval do
   end
 
   def to_long_display_date_time
-    Dates.formatToLongDateTime(self)
+    com.thoughtworks.go.util.Dates.formatToLongDateTime(self)
   end
 end

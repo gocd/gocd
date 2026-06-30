@@ -180,7 +180,7 @@ class StagesController < ApplicationController
   end
 
   def date_range(stage_summary_models)
-    [Dates::formatToSimpleDate(stage_summary_models.last.getStage().scheduledDate()), Dates::formatToSimpleDate(stage_summary_models.first.getStage().scheduledDate())]
+    [Dates.formatToSimpleDate(stage_summary_models.last.getStage().scheduledDate()), Dates.formatToSimpleDate(stage_summary_models.first.getStage().scheduledDate())]
   end
 
   def can_view_settings?

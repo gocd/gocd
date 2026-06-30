@@ -92,6 +92,58 @@ describe("PipelineRunInfoWidget", () => {
       expect(helper.byTestId("time", pipelineRunContainer))
         .toHaveAttr("title", timeFormatter.formatInServerTime(pipelineRunInfo.scheduledTimestamp()));
     });
+
+    it("should not render commit info when there are no material revisions", () => {
+      pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.underConstruction().groups[0].history[0]);
+      mount(pipelineRunInfo);
+
+      const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
+      expect(helper.byTestId("commit-info", pipelineRunContainer)).not.toBeInDOM();
+    });
+  });
+
+  describe("Commit info", () => {
+    it("should render commit author from the first material revision", () => {
+      const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(passed("Test")));
+      mount(pipelineRunInfo);
+
+      const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
+      expect(helper.byTestId("commit-info", pipelineRunContainer)).toBeInDOM();
+      expect(helper.byTestId("commit-author", pipelineRunContainer)).toBeInDOM();
+      expect(helper.byTestId("commit-author", pipelineRunContainer))
+        .toHaveText(pipelineRunInfo.materialRevisions()[0].user());
+    });
+
+    it("should render shortened commit hash (first 8 chars) from the first material revision", () => {
+      const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(passed("Test")));
+      mount(pipelineRunInfo);
+
+      const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
+      const fullRevision         = pipelineRunInfo.materialRevisions()[0].revision();
+      expect(helper.byTestId("commit-hash", pipelineRunContainer)).toBeInDOM();
+      expect(helper.byTestId("commit-hash", pipelineRunContainer))
+        .toHaveText(fullRevision.substring(0, 8));
+    });
+
+    it("should show full commit hash as tooltip on commit hash element", () => {
+      const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(passed("Test")));
+      mount(pipelineRunInfo);
+
+      const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
+      const fullRevision         = pipelineRunInfo.materialRevisions()[0].revision();
+      expect(helper.byTestId("commit-hash", pipelineRunContainer))
+        .toHaveAttr("title", fullRevision);
+    });
+
+    it("should show full author name as tooltip on commit author element", () => {
+      const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(passed("Test")));
+      mount(pipelineRunInfo);
+
+      const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
+      const author               = pipelineRunInfo.materialRevisions()[0].user();
+      expect(helper.byTestId("commit-author", pipelineRunContainer))
+        .toHaveAttr("title", author);
+    });
   });
 
   describe("Stage status", () => {

@@ -120,7 +120,6 @@
   <context:component-scan base-package="com.thoughtworks.go.serverhealth"/>
   <context:component-scan base-package="com.thoughtworks.go.domain"/>
   <context:component-scan base-package="com.thoughtworks.go.service"/>
-  <context:component-scan base-package="com.thoughtworks.go.server.cache"/>
   <context:component-scan base-package="com.thoughtworks.go.server.service"/>
   <context:component-scan base-package="com.thoughtworks.go.server.perf"/>
   <context:component-scan base-package="com.thoughtworks.go.server.service.support"/>

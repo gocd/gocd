@@ -35,7 +35,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.listener.BaseUrlChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.initializers.Initializer;

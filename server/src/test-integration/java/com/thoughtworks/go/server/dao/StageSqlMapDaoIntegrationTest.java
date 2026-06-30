@@ -26,7 +26,7 @@ import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.ScheduleService;
 import com.thoughtworks.go.server.service.ScheduleTestUtil;
@@ -53,6 +53,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
@@ -903,8 +904,8 @@ public class StageSqlMapDaoIntegrationTest {
         dbHelper.pass(completed);
         Pipeline scheduled = dbHelper.schedulePipeline(mingleConfig, new TimeProvider());
         assignJobInstances(pipelineAndFirstStageOf(scheduled).stage, pipelineAndFirstStageOf(completed).stage);
-        Long duration = stageDao.getDurationOfLastSuccessfulOnAgent(str(mingleConfig.name()), STAGE_DEV, scheduled.getFirstStage().getJobInstances().getFirst());
-        assertThat(duration).isGreaterThan(0L);
+        Duration duration = stageDao.getDurationOfLastSuccessfulOnAgent(scheduled.getFirstStage().getJobInstances().getFirst());
+        assertThat(duration).isPositive();
     }
 
     @Test

@@ -29,7 +29,7 @@ import com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.security.ProductionIVProvider;
 import com.thoughtworks.go.security.TestIVProvider;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.jupiter.api.BeforeEach;

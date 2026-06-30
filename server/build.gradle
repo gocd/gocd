@@ -121,10 +121,6 @@ dependencies {
   implementation rootProject.deps.mybatis
   implementation rootProject.deps.mybatisSpring
   implementation rootProject.deps.ehcache
-  implementation(rootProject.deps.oscache) {
-    exclude(module: 'jms')
-  }
-
   implementation rootProject.deps.activeMQ
 
   implementation rootProject.deps.gson
@@ -146,7 +142,7 @@ dependencies {
   if (rootProject.deps.springWeb) {
     runtimeOnly rootProject.deps.commonsFileUpload // used by CommonsMultipartResolver
   }
-  if (rootProject.deps.commonsDbcp || rootProject.deps.oscache || rootProject.deps.springWeb) {
+  if (rootProject.deps.commonsDbcp || rootProject.deps.springWeb) {
     runtimeOnly rootProject.deps.slf4jJcl // Allow commons-logging replacement
   }
   implementation rootProject.deps.aspectj
@@ -686,7 +682,6 @@ tasks.register('verifyWar', VerifyJarTask) {
         "org.apache.felix.framework-${rootProject.versions.felix}.jar",
         "org.eclipse.jgit-${rootProject.versions.jgit}.jar",
         "org.eclipse.jgit.http.server-${rootProject.versions.jgit}.jar",
-        "oscache-${rootProject.versions.oscache}.jar",
         "plugin-metadata-store-${project.version}.jar",
         "postgresql-${rootProject.versions.postgresql}.jar",
         "quartz-${rootProject.versions.quartz}.jar",

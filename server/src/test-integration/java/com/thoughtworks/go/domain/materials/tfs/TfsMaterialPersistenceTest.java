@@ -18,7 +18,7 @@ package com.thoughtworks.go.domain.materials.tfs;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.util.GoConfigFileHelper;

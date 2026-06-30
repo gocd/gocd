@@ -23,6 +23,7 @@ import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
@@ -73,7 +74,7 @@ public class JobStatusJsonPresentationModelTest {
     public void shouldShowElapsedAndRemainingTimeForIncompleteBuild() {
         JobInstance instance = building("test", Date.from(Instant.now().minusSeconds(5)));
 
-        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class), 10L);
+        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class), Duration.ofSeconds(10));
         Map<String, Object> json = presenter.toJsonHash();
 
         assertThatJson(JsonHelper.toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("""

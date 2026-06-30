@@ -38,7 +38,7 @@ import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.SCMProperty;
 import com.thoughtworks.go.plugin.access.scm.SCMPropertyConfiguration;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
 import com.thoughtworks.go.serverhealth.HealthStateScope;

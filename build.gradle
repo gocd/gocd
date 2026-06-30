@@ -134,7 +134,6 @@ def libraries = [
   mybatisSpring       : 'org.mybatis:mybatis-spring:2.1.2',
   mysql               : 'com.mysql:mysql-connector-j:9.7.0',
   objenesis           : 'org.objenesis:objenesis:3.5',
-  oscache             : 'opensymphony:oscache:2.4.1',
   oshi                : 'com.github.oshi:oshi-core:7.3.2',
   postgresql          : 'org.postgresql:postgresql:42.7.11',
   quartz              : 'org.quartz-scheduler:quartz:2.5.2',

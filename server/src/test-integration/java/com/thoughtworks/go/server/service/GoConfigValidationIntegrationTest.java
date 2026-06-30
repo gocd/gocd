@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.transaction.TransactionCallbackWithoutResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;

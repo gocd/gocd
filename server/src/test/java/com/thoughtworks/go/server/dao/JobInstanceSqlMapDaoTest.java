@@ -15,10 +15,11 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import com.opensymphony.oscache.base.Cache;
+import com.github.benmanes.caffeine.cache.Cache;
 import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.persistence.ArtifactPlanRepository;
 import com.thoughtworks.go.server.persistence.ResourceRepository;
 import com.thoughtworks.go.server.service.StubGoCache;
@@ -43,7 +44,7 @@ import static org.mockito.Mockito.*;
 class JobInstanceSqlMapDaoTest {
     private JobInstanceSqlMapDao jobInstanceSqlMapDao;
     @Mock
-    private Cache cache;
+    private Cache<JobInstance.BuildDurationKey, ?> cache;
     @Mock
     private TransactionSynchronizationManager transactionSynchronizationManager;
     @Mock

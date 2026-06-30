@@ -262,41 +262,34 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
 
     // Begin Date / Time Related Methods
 
-    public long durationOfCompletedBuildInSeconds() {
-        Date buildingDate = getStartedDateFor(JobState.Building);
-        Date completedDate = getCompletedDate();
-        if (buildingDate == null || completedDate == null) {
-            return 0;
-        }
-        long elapsedSecs = Math.round((double) (completedDate.getTime() - buildingDate.getTime()) / 1000);
-        return elapsedSecs == 0 ? 1 : elapsedSecs; // Ensure at least 1 second for completed jobs
+    public Duration durationOfCompletedBuild() {
+        Date started = getStartedDateFor(JobState.Building);
+        Date completed = getCompletedDate();
+
+        return started == null || completed == null
+            ? Duration.ZERO
+            : atLeastOneSecond(Duration.ofMillis(completed.getTime() - started.getTime()));
     }
 
-    public String getCurrentBuildDuration() {
-        return String.valueOf(elapsedSeconds());
-    }
-
-    private long elapsedSeconds() {
+    public Duration getElapsedTime() {
         if (state.isCompleted()) {
-            return durationOfCompletedBuildInSeconds();
+            return durationOfCompletedBuild();
         }
 
-        Date buildingDate = getStartedDateFor(JobState.Building);
-        if (buildingDate != null) {
-            long elapsedSecs = Math.round((double) (timeProvider.currentTimeMillis() - buildingDate.getTime()) / 1000);
-            return elapsedSecs == 0 ? 1 : elapsedSecs; // Ensure at least 1 second for in-progress jobs
-        } else {
-            return 0;
-        }
+        Date started = getStartedDateFor(JobState.Building);
+        // Ensure at least 1 second for in-progress jobs
+        return started == null
+            ? Duration.ZERO
+            : atLeastOneSecond(Duration.ofMillis(timeProvider.currentTimeMillis() - started.getTime()));
+    }
+
+    private static Duration atLeastOneSecond(Duration elapsed) {
+        return elapsed.toSeconds() == 0 ? Duration.ofSeconds(1) : elapsed;
     }
 
     public Date getStartedDateFor(JobState state) {
         JobStateTransition transition = this.stateTransitions.byState(state);
         return transition == null ? null : transition.getStateChangeTime();
-    }
-
-    public Duration getElapsedTime() {
-        return Duration.ofSeconds(elapsedSeconds());
     }
 
     public RunDuration getDuration() {
@@ -359,13 +352,11 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         return identifier;
     }
 
-    public String getBuildDurationKey(String pipelineName, String stageName) {
-        return String.format("BUILD_DURATION: %s_%s_%s_%s",
-            pipelineName,
-            stageName,
-            getName(),
-            getAgentUuid());
+    public BuildDurationKey toBuildDurationKey() {
+        return new BuildDurationKey(getPipelineName(), getStageName(), getName(), getAgentUuid());
     }
+
+    public record BuildDurationKey(String pipelineName, String stageName, String jobName, String agentUuid) {}
 
     public boolean isAssignedToAgent() {
         return getAgentUuid() != null;

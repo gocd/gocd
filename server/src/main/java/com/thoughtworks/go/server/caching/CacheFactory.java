@@ -13,28 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.server.cache;
+package com.thoughtworks.go.server.caching;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
-@Component
-public class GoCacheFactory {
+import java.time.Duration;
+
+@Configuration
+public class CacheFactory {
 
     private final CacheConfiguration cacheConfiguration;
     private final TransactionSynchronizationManager transactionSynchronizationManager;
 
-    public GoCacheFactory(TransactionSynchronizationManager transactionSynchronizationManager,
-                          @Value("${cruise.cache.elements.limit}") int maxElementsInMemory,
-                          @Value("${cruise.cache.is.eternal}") boolean eternal) {
+    public CacheFactory(TransactionSynchronizationManager transactionSynchronizationManager,
+                        @Value("${cruise.cache.elements.limit}") int maxElementsInMemory,
+                        @Value("${cruise.cache.is.eternal}") boolean eternal) {
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         cacheConfiguration = new CacheConfiguration("goCache", maxElementsInMemory)
                 .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE))
@@ -43,11 +46,18 @@ public class GoCacheFactory {
     }
 
     @Bean(name = "goCache")
-    public GoCache createCache() {
-        CacheManager cacheManager = CacheManager.newInstance(new Configuration().name(getClass().getName()));
+    public GoCache domainObjectCache() {
+        CacheManager cacheManager = CacheManager.newInstance(new net.sf.ehcache.config.Configuration().name(getClass().getName()));
         Cache cache = new Cache(cacheConfiguration);
         cacheManager.addCache(cache);
         return new GoCache(cache, transactionSynchronizationManager);
+    }
+
+    @Bean(name = "buildDurationCache")
+    public com.github.benmanes.caffeine.cache.Cache<JobInstance.BuildDurationKey, Duration> buildDurationCache() {
+        return Caffeine.newBuilder()
+            .maximumSize(1000)
+            .build();
     }
 
 }

@@ -33,7 +33,7 @@ module JavaSpecImports
   java_import com.thoughtworks.go.domain.valuestreammap.UnrunPipelineRevision unless defined? UnrunPipelineRevision
   java_import com.thoughtworks.go.domain.valuestreammap.PipelineDependencyNode unless defined? PipelineDependencyNode
   java_import com.thoughtworks.go.domain.valuestreammap.SCMDependencyNode unless defined? SCMDependencyNode
-  java_import com.thoughtworks.go.server.cache.GoCache unless defined? GoCache
+  java_import com.thoughtworks.go.server.caching.GoCache unless defined? GoCache
   java_import com.thoughtworks.go.domain.buildcause.BuildCause unless defined? BuildCause
   java_import com.thoughtworks.go.domain.ConfigErrors unless defined? ConfigErrors
   java_import com.thoughtworks.go.config.BasicCruiseConfig unless defined? BasicCruiseConfig

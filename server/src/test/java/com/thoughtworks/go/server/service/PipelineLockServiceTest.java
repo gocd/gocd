@@ -321,9 +321,7 @@ public class PipelineLockServiceTest {
             pipelineLockService.registerListener(listener3);
             pipelineLockService.unlock("pipeline1");
 
-            synchronized (logFixture) {
-                assertTrue(logFixture.contains(Level.WARN, "Failed to notify listener (ListenerWhichFails)"), logFixture.getLog());
-            }
+            assertTrue(logFixture.contains(Level.WARN, "Failed to notify listener (ListenerWhichFails)"), logFixture.getLog());
         }
 
         verify(listener1).lockStatusChanged(Event.unLock("pipeline1"));

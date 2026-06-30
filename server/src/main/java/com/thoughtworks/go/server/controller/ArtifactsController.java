@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.remote.StandardHeaders;
-import com.thoughtworks.go.server.cache.ZipArtifactCache;
+import com.thoughtworks.go.server.caching.ZipArtifactCache;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.security.ConfirmationConstraint;
 import com.thoughtworks.go.server.service.ArtifactsService;

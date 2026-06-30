@@ -95,7 +95,7 @@ public class JobInstanceModel {
     }
 
     private Duration eta() {
-        return jobDurationStrategy.getExpectedDuration(getIdentifier().getPipelineName(), getIdentifier().getStageName(), instance);
+        return jobDurationStrategy.getExpectedDuration(instance);
     }
 
     public Duration getElapsedTime() {

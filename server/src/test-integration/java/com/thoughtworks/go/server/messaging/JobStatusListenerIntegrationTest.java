@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;

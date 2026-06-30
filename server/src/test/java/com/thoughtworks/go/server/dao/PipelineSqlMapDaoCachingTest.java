@@ -30,7 +30,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.JobHistory;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.StubGoCache;

@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.StageState;
 import com.thoughtworks.go.domain.valuestreammap.*;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;

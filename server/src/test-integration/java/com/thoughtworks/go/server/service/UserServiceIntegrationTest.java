@@ -21,7 +21,7 @@ import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.helper.ConfigFileFixture;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.UserSqlMapDao;
 import com.thoughtworks.go.server.domain.Username;

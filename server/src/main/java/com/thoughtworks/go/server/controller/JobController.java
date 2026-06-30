@@ -153,7 +153,7 @@ public class JobController {
 
             JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(mostRecentJobInstance,
                     agentService.findAgentByUUID(mostRecentJobInstance.getAgentUuid()),
-                    stageService.getBuildDuration(pipelineName, stageName, mostRecentJobInstance));
+                    stageService.getBuildDuration(mostRecentJobInstance));
             json = createBuildInfo(presenter);
         } catch (Exception e) {
             LOGGER.warn("Unexpected error rendering job status as JSON", e);

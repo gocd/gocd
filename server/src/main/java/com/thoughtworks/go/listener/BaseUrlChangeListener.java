@@ -18,7 +18,7 @@ package com.thoughtworks.go.listener;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

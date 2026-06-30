@@ -19,7 +19,7 @@ import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.exception.UnregisteredAgentException;
 import com.thoughtworks.go.listener.DatabaseEntityChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.UuidGenerator;

@@ -30,7 +30,7 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageMother;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
@@ -167,14 +167,14 @@ public class StageServiceTest {
         StageService service = new StageService(stageDao, null, null, alwaysAllow(), null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
             goCache);
         when(stageDao.getAllRunsOfStageForPipelineInstance(stageId.getPipelineName(), stageId.getPipelineCounter(), stageId.getStageName())).thenReturn(stages);
-        when(stageDao.getExpectedDuration(theJob.getPipelineName(), theJob.getStageName(), theJob)).thenReturn(Duration.ofSeconds(10));
+        when(stageDao.getExpectedDuration(theJob)).thenReturn(Duration.ofSeconds(10));
 
         StageSummaryModel stageForView = service.findStageSummaryByIdentifier(stageId, ALWAYS_ALLOW_USER, new HttpLocalizedOperationResult());
 
         JobInstanceModel job = stageForView.passedJobs().getFirst();
         assertThat(job.getElapsedTime()).isEqualTo(theJob.getElapsedTime());
         assertThat(job.getPercentComplete()).isEqualTo(90);
-        verify(stageDao).getExpectedDuration(theJob.getPipelineName(), theJob.getStageName(), theJob);
+        verify(stageDao).getExpectedDuration(theJob);
     }
 
     @Test

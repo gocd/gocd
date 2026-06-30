@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.server.cache;
+package com.thoughtworks.go.server.caching;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.service.ArtifactsDirHolder;

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.server.cache.ZipArtifactCache;
+import com.thoughtworks.go.server.caching.ZipArtifactCache;
 import com.thoughtworks.go.server.controller.actions.TextAction;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.service.ArtifactsService;

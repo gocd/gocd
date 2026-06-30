@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.server.cache.ZipArtifactCache;
+import com.thoughtworks.go.server.caching.ZipArtifactCache;
 import com.thoughtworks.go.server.view.artifacts.PreparingArtifactFile;
 import org.springframework.web.servlet.ModelAndView;
 

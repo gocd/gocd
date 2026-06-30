@@ -27,8 +27,8 @@ import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
-import com.thoughtworks.go.server.cache.CacheKeyGenerator;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.CacheKeyGenerator;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
@@ -58,6 +58,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -229,18 +230,14 @@ public class StageService implements StageFinder {
         });
     }
 
-    public long getBuildDuration(String pipelineName, String stageName, JobInstance job) {
-        return getDuration(pipelineName, stageName, job);
-    }
-
-    private long getDuration(String pipelineName, String stageName, JobInstance job) {
+    public Duration getBuildDuration(JobInstance job) {
         if (job.isCompleted()) {
             // Calculating duration is an expensive query; only do so when the stage is building.
-            return 0L;
+            return Duration.ZERO;
         }
 
-        Long duration = stageDao.getDurationOfLastSuccessfulOnAgent(pipelineName, stageName, job);
-        return duration == null ? 0L : duration;
+        Duration duration = stageDao.getDurationOfLastSuccessfulOnAgent(job);
+        return duration == null ? Duration.ZERO : duration;
     }
 
     public Stage mostRecentPassed(String pipelineName, String stageName) {

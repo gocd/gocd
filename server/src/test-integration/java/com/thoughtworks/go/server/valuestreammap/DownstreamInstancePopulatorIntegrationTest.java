@@ -22,7 +22,7 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.valuestreammap.*;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;

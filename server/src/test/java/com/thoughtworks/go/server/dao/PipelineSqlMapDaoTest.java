@@ -19,7 +19,7 @@ import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.SqlMapClientTemplate;
 import com.thoughtworks.go.util.TimeProvider;

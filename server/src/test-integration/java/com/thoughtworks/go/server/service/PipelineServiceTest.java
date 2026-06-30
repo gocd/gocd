@@ -26,7 +26,7 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.StageMother;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;

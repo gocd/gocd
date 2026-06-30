@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import net.sf.ehcache.Ehcache;
 import org.mockito.Answers;

@@ -21,7 +21,7 @@ import com.thoughtworks.go.domain.PipelineState;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.service.StubGoCache;
 import com.thoughtworks.go.server.transaction.SqlMapClientTemplate;

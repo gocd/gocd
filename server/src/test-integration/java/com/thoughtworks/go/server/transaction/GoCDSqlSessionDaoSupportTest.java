@@ -17,7 +17,7 @@ package com.thoughtworks.go.server.transaction;
 
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.User;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.util.GoConfigFileHelper;

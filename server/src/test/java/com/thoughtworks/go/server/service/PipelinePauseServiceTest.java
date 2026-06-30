@@ -263,9 +263,7 @@ public class PipelinePauseServiceTest {
             pipelinePauseService.registerListener(listener3);
             pipelinePauseService.pause(VALID_PIPELINE, "reason", VALID_USER, result);
 
-            synchronized (logFixture) {
-                assertTrue(logFixture.contains(Level.WARN, "Failed to notify listener (ListenerWhichFails)"), logFixture.getLog());
-            }
+            assertTrue(logFixture.contains(Level.WARN, "Failed to notify listener (ListenerWhichFails)"), logFixture.getLog());
             assertThat(result.isSuccessful()).isTrue();
             assertThat(result.httpCode()).isEqualTo(HttpURLConnection.HTTP_OK);
         }

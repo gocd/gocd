@@ -131,11 +131,7 @@ public class DownloadActionTest {
     }
 
     private void shouldHaveLogged(LogFixture logging, Level level, String message) {
-        String result;
-        synchronized (logging) {
-            result = logging.getLog();
-        }
-        assertTrue(logging.contains(level, message), "Expected log to contain " + message + " but got:\n" + result);
+        assertTrue(logging.contains(level, message), "Expected log to contain " + message + " but got:\n" + logging.getLog());
     }
 
     private void assertBetween(Long actual, long min, long max) {

@@ -15,9 +15,7 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import com.opensymphony.oscache.base.Cache;
-import com.opensymphony.oscache.base.CacheEntry;
-import com.opensymphony.oscache.base.NeedsRefreshException;
+import com.github.benmanes.caffeine.cache.Cache;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.StageConfig;
@@ -27,8 +25,8 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
-import com.thoughtworks.go.server.cache.CacheKeyGenerator;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.CacheKeyGenerator;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.domain.StageIdentity;
 import com.thoughtworks.go.server.domain.StageStatusListener;
@@ -44,9 +42,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.annotations.VisibleForTesting;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
@@ -62,18 +59,17 @@ import static java.lang.String.format;
 
 @Component
 public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, StageStatusListener, JobStatusListener {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StageSqlMapDao.class);
     private final CacheKeyGenerator cacheKeyGenerator;
     private final TransactionTemplate transactionTemplate;
     private final JobInstanceSqlMapDao buildInstanceDao;
-    private final Cache buildDurationCache;
+    private final Cache<JobInstance.BuildDurationKey, Duration> buildDurationCache;
     private final TransactionSynchronizationManager transactionSynchronizationManager;
     private final Cloner cloner = ClonerFactory.instance();
     private final DynamicReadWriteLock readWriteLock = new DynamicReadWriteLock();
 
     @Autowired
     public StageSqlMapDao(JobInstanceSqlMapDao buildInstanceDao,
-                          Cache buildDurationCache,
+                          @Qualifier("buildDurationCache") Cache<JobInstance.BuildDurationKey, Duration> buildDurationCache,
                           TransactionTemplate transactionTemplate,
                           SqlSessionFactory sqlSessionFactory,
                           GoCache goCache,
@@ -228,9 +224,9 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
     @Override
-    public Duration getExpectedDuration(String pipelineName, String stageName, JobInstance job) {
-        Long durationSecs = getDurationOfLastSuccessfulOnAgent(pipelineName, stageName, job);
-        return durationSecs == null ? Duration.ZERO : Duration.ofSeconds(durationSecs);
+    public Duration getExpectedDuration(JobInstance job) {
+        Duration duration = getDurationOfLastSuccessfulOnAgent(job);
+        return duration == null ? Duration.ZERO : duration;
     }
 
 
@@ -238,44 +234,23 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     // TODO: this performans (miserably) on an environment with elastic agents, and there is no result or ETA
     // TODO: to show because of this implementation
     @Override
-    public @Nullable Long getDurationOfLastSuccessfulOnAgent(String pipelineName, String stageName, JobInstance job) {
-        String key = job.getBuildDurationKey(pipelineName, stageName);
-        Long duration;
-        try {
-            duration = (Long) buildDurationCache.getFromCache(key, CacheEntry.INDEFINITE_EXPIRY);
-        } catch (NeedsRefreshException nre) {
-            boolean updated = false;
-            try {
-                duration = recalculateBuildDuration(pipelineName, stageName, job);
-                buildDurationCache.putInCache(key, duration);
-                updated = true;
-            } finally {
-                if (!updated) {
-                    // It is essential that cancelUpdate is called if the
-                    // cached content could not be rebuilt
-                    buildDurationCache.cancelUpdate(key);
-                    LOGGER.warn("refresh cancelled for {}", key);
-                }
-            }
-        }
-        return duration;
+    public @Nullable Duration getDurationOfLastSuccessfulOnAgent(JobInstance job) {
+        return buildDurationCache.get(job.toBuildDurationKey(), this::recalculateBuildDuration);
     }
 
-    private @Nullable Long recalculateBuildDuration(String pipelineName, String stageName, JobInstance job) {
-        Map<String, Object> toGet =
-            arguments("buildName", job.getName())
-                .and("agentUuid", job.getAgentUuid())
-                .and("stageName", stageName)
-                .and("pipelineName", pipelineName)
-                .asMap();
-
+    private @Nullable Duration recalculateBuildDuration(JobInstance.BuildDurationKey key) {
         // Return a list of job id's and stage names, entries sorted by id.
-        Long buildId = getSqlMapClientTemplate().queryForObject("getLastSuccessfulBuildIdOnAgent", toGet);
+        Long buildId = getSqlMapClientTemplate().queryForObject("getLastSuccessfulBuildIdOnAgent", Map.<String, Object>of(
+            "buildName", key.jobName(),
+            "agentUuid", key.agentUuid(),
+            "stageName", key.stageName(),
+            "pipelineName", key.pipelineName())
+        );
         if (buildId == null) {
             return null;
         }
         JobInstance mostRecent = buildInstanceDao.buildByIdWithTransitions(buildId);
-        return mostRecent.durationOfCompletedBuildInSeconds();
+        return mostRecent.durationOfCompletedBuild();
     }
 
     @Override

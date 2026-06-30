@@ -35,7 +35,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
@@ -67,6 +67,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -453,10 +454,10 @@ public class StageServiceIntegrationTest {
         job2.setAgentUuid(UUID);
         JobInstance buildingJob = jobInstanceDao.save(stage11.getId(), job2);
 
-        assertThat(stageService.getBuildDuration("Cruise-1.1", STAGE_NAME, buildingJob))
+        assertThat(stageService.getBuildDuration(buildingJob))
             .describedAs("we should not load duration according to stage name + job name + agent uuid only, "
                 + "we should also use pipeline name as a parameter")
-            .isEqualTo(0L);
+            .isEqualTo(Duration.ZERO);
     }
 
     @Test

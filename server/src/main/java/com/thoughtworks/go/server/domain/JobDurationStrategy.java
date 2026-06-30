@@ -34,11 +34,11 @@ public interface JobDurationStrategy {
         }
 
         @Override
-        public Duration getExpectedDuration(String pipelineName, String stageName, JobInstance job) {
+        public Duration getExpectedDuration(JobInstance job) {
             return duration;
         }
     }
 
-    Duration getExpectedDuration(String pipelineName, String stageName, JobInstance job);
+    Duration getExpectedDuration(JobInstance job);
 
 }

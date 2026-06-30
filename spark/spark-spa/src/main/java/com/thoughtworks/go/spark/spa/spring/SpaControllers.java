@@ -17,7 +17,7 @@ package com.thoughtworks.go.spark.spa.spring;
 
 import com.thoughtworks.go.plugin.access.analytics.AnalyticsExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;

@@ -17,7 +17,7 @@ package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

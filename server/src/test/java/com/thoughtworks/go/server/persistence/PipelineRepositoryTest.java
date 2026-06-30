@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.persistence;
 
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.database.QueryExtensions;
 import com.thoughtworks.go.server.domain.PipelineTimeline;

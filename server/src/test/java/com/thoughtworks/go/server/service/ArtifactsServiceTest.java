@@ -126,11 +126,7 @@ public class ArtifactsServiceTest {
         try (LogFixture logFixture = logFixtureFor(ArtifactsService.class, Level.DEBUG)) {
             ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
             artifactsService.saveFile(destFile, stream, true, 1);
-            String result;
-            synchronized (logFixture) {
-                result = logFixture.getLog();
-            }
-            assertThat(result).contains("Failed to save the file to:");
+            assertThat(logFixture.getLog()).contains("Failed to save the file to:");
         }
     }
 
@@ -147,11 +143,7 @@ public class ArtifactsServiceTest {
         try (LogFixture logFixture = logFixtureFor(ArtifactsService.class, Level.DEBUG)) {
             ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
             artifactsService.saveFile(destFile, stream, true, PUBLISH_MAX_RETRIES);
-            String result;
-            synchronized (logFixture) {
-                result = logFixture.getLog();
-            }
-            assertThat(result).contains("Failed to save the file to:");
+            assertThat(logFixture.getLog()).contains("Failed to save the file to:");
         }
     }
 

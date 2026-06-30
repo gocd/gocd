@@ -15,14 +15,14 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import com.opensymphony.oscache.base.Cache;
+import com.github.benmanes.caffeine.cache.Cache;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.server.cache.CacheKeyGenerator;
-import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.cache.LazyCache;
+import com.thoughtworks.go.server.caching.CacheKeyGenerator;
+import com.thoughtworks.go.server.caching.GoCache;
+import com.thoughtworks.go.server.caching.LazyCache;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.persistence.ArtifactPlanRepository;
 import com.thoughtworks.go.server.persistence.ResourceRepository;
@@ -44,6 +44,7 @@ import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionCallback;
@@ -59,7 +60,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     private static final Logger LOG = LoggerFactory.getLogger(JobInstanceSqlMapDao.class);
     private final LazyCache latestCompletedCache;
     private final CacheKeyGenerator cacheKeyGenerator;
-    private final Cache buildDurationCache;
+    private final Cache<JobInstance.BuildDurationKey, ?> buildDurationCache;
     private final TransactionSynchronizationManager transactionSynchronizationManager;
     private final TransactionTemplate transactionTemplate;
     private final EnvironmentVariableDao environmentVariableDao;
@@ -73,7 +74,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
                                 GoCache goCache,
                                 TransactionTemplate transactionTemplate,
                                 SqlSessionFactory sqlSessionFactory,
-                                Cache buildDurationCache,
+                                @Qualifier("buildDurationCache") Cache<JobInstance.BuildDurationKey, ?> buildDurationCache,
                                 TransactionSynchronizationManager transactionSynchronizationManager,
                                 ResourceRepository resourceRepository,
                                 ArtifactPlanRepository artifactPlanRepository,
@@ -468,9 +469,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
             }
         }
         if (jobInstance.getIdentifier() != null) {
-            String pipelineName = jobInstance.getIdentifier().getPipelineName();
-            String stageName = jobInstance.getIdentifier().getStageName();
-            buildDurationCache.flushEntry(jobInstance.getBuildDurationKey(pipelineName, stageName));
+            buildDurationCache.invalidate(jobInstance.toBuildDurationKey());
         }
     }
 
@@ -520,7 +519,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     @PreDestroy
     public void destroy() {
-        buildDurationCache.flushAll(new Date());
+        buildDurationCache.invalidateAll();
         latestCompletedCache.destroy();
     }
 }

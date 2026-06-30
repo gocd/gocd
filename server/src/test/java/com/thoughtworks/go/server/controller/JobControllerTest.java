@@ -39,6 +39,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.net.HttpURLConnection;
+import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 import java.util.OptionalInt;
@@ -95,14 +96,14 @@ public class JobControllerTest {
         when(jobInstanceService.buildByIdWithTransitions(job.getId())).thenReturn(job);
         when(jobInstanceDao.mostRecentJobWithTransitions(job.getIdentifier())).thenReturn(newJob);
         when(agentService.findAgentByUUID(newJob.getAgentUuid())).thenReturn(Agent.blankAgent(newJob.getAgentUuid()));
-        when(stageService.getBuildDuration(pipelineName, stageName, newJob)).thenReturn(5L);
+        when(stageService.getBuildDuration(newJob)).thenReturn(Duration.ofSeconds(5));
 
         ModelAndView modelAndView = jobController.handleRequest(pipelineName, stageName, job.getId(), response);
 
         verify(jobInstanceService).buildByIdWithTransitions(job.getId());
         verify(agentService).findAgentByUUID(newJob.getAgentUuid());
         verify(jobInstanceDao).mostRecentJobWithTransitions(job.getIdentifier());
-        verify(stageService).getBuildDuration(pipelineName, stageName, newJob);
+        verify(stageService).getBuildDuration(newJob);
 
         assertThatJson(((List<?>) modelAndView.getModel().get("json")).getFirst())
             .and(

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.server.cache;
+package com.thoughtworks.go.server.caching;
 
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
@@ -69,13 +69,9 @@ public class GoCacheTest {
         goCache.put("loser_user", user);
         assertThat(goCache.<Object>get("loser_user")).isEqualTo(user);
         try (LogFixture logFixture = logFixtureFor(GoCache.class, Level.DEBUG)) {
-            String result;
-            synchronized (logFixture) {
-                result = logFixture.getLog();
-            }
-            String allLogs = result;
-            assertThat(allLogs).doesNotContain("added to cache without an id.");
-            assertThat(allLogs).doesNotContain("without an id served out of cache.");
+            assertThat(logFixture.getLog())
+                .doesNotContain("added to cache without an id.")
+                .doesNotContain("without an id served out of cache.");
         }
     }
 

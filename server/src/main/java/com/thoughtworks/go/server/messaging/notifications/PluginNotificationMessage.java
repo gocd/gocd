@@ -17,58 +17,10 @@ package com.thoughtworks.go.server.messaging.notifications;
 
 import com.thoughtworks.go.server.messaging.PluginAwareMessage;
 
-import java.util.Objects;
+import java.io.Serializable;
 
-public class PluginNotificationMessage<T> implements PluginAwareMessage {
-    private final String pluginId;
-    private final String requestName;
-    private final T data;
-
-    public PluginNotificationMessage(String pluginId, String requestName, T data) {
-        this.pluginId = pluginId;
-        this.requestName = requestName;
-        this.data = data;
-    }
-
-    public String getRequestName() {
-        return requestName;
-    }
-
-    public T getData() {
-        return data;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        PluginNotificationMessage<?> that = (PluginNotificationMessage<?>) o;
-        return Objects.equals(pluginId, that.pluginId) &&
-                Objects.equals(requestName, that.requestName) &&
-                Objects.equals(data, that.data);
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(pluginId, requestName, data);
-    }
-
-    @Override
-    public String pluginId() {
-        return pluginId;
-    }
-
-    @Override
-    public String toString() {
-        return "PluginNotificationMessage{" +
-                "pluginId='" + pluginId + '\'' +
-                ", requestName='" + requestName + '\'' +
-                ", data=" + data +
-                '}';
-    }
-}
+public record PluginNotificationMessage<T extends Serializable>(
+    String pluginId,
+    String requestName,
+    T data
+) implements PluginAwareMessage {}

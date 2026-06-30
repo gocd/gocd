@@ -18,4 +18,10 @@ package com.thoughtworks.go.domain.notificationdata;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 
-public record StageNotificationData(Stage stage,  BuildCause buildCause, String pipelineGroup) {};
+import java.io.Serializable;
+
+public record StageNotificationData(
+    Stage stage,
+    BuildCause buildCause,
+    String pipelineGroup
+) implements Serializable { }

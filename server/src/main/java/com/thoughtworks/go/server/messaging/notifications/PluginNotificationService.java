@@ -32,6 +32,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,7 +49,7 @@ public class PluginNotificationService {
     private final PipelineDao pipelineSqlMapDao;
     private final StageDao stageDao;
     private final SystemEnvironment systemEnvironment;
-    private final Map<String, NotificationDataCreator<?, ?>> notificationCreators = new HashMap<>();
+    private final Map<String, NotificationDataCreator<?, ? extends Serializable>> notificationCreators = new HashMap<>();
 
     @Autowired
     public PluginNotificationService(NotificationPluginRegistry notificationPluginRegistry,
@@ -77,7 +78,8 @@ public class PluginNotificationService {
         Set<String> interestedPlugins = notificationPluginRegistry.getPluginsInterestedIn(requestName);
         long timeToLive = systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS);
         for (String pluginId : interestedPlugins) {
-            @SuppressWarnings("unchecked") PluginNotificationMessage<?> message = new PluginNotificationMessage<>(pluginId, requestName, ((NotificationDataCreator<Object, ?>) notificationCreators.get(requestName)).notificationDataFor(instance));
+            @SuppressWarnings("unchecked") var creator = (NotificationDataCreator<Object, ? extends Serializable>) notificationCreators.get(requestName);
+            PluginNotificationMessage<?> message = new PluginNotificationMessage<>(pluginId, requestName, creator.notificationDataFor(instance));
             pluginNotificationsQueueHandler.post(message, timeToLive);
         }
     }
@@ -140,7 +142,7 @@ public class PluginNotificationService {
         return Approval.TYPE_MANUAL.equalsIgnoreCase(stage.getApprovalType());
     }
 
-    private interface NotificationDataCreator<T, V> {
+    private interface NotificationDataCreator<T, V extends Serializable> {
         V notificationDataFor(T t);
     }
 }

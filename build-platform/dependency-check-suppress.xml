@@ -416,9 +416,9 @@
   <!-- Suppression rules for dependencies only visible after a ./gradlew prepare (yarn install / bundle install / tw-go-plugins bundled download -->
   <suppress>
     <notes><![CDATA[
-    Suppress false positive vulnerabilities from test/documentation code that sits inside Javascript node_modules
+    Suppress false positive vulnerabilities from dev/test/documentation code that sits inside Javascript node_modules or vendored node_modules
     ]]></notes>
-    <filePath regex="true">^.*/node_modules/.*/(test|tests|docs)/.*\.js$</filePath>
+    <filePath regex="true">^.*/(node_modules/.*/tests?/|webpack/vendors-node_modules).*\.js$</filePath>
     <vulnerabilityName regex="true">.*</vulnerabilityName>
   </suppress>
 

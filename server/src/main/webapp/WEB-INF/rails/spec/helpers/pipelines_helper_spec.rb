@@ -55,15 +55,6 @@ describe PipelinesHelper do
   end
 
   describe "stage_status_for_ui" do
-
-    before :each do
-      @default_timezone = java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("Asia/Colombo"))
-    end
-
-    after :each do
-      java.util.TimeZone.setDefault(@default_timezone)
-    end
-
     it "should display the trigger message with the time and username" do
       date = Dates.from(ZonedDateTime.of(2010, 8, 20, 18, 3, 44, 0, ZoneOffset.ofHoursMinutes(5, 30)))
       message = trigger_message_with_formatted_date_time(date, "Vipul")

@@ -64,7 +64,7 @@ public class ArtifactMessageConverterV2Test {
                 "   }" +
                 "}";
 
-        assertThatJson(expectedStr).isEqualTo(publishArtifactMessage);
+        assertThatJson(publishArtifactMessage).isEqualTo(expectedStr);
     }
 
     @Test
@@ -128,7 +128,7 @@ public class ArtifactMessageConverterV2Test {
                   "agent_working_directory": "/temp"
                 }""";
 
-        assertThatJson(expectedStr).isEqualTo(fetchArtifactMessage);
+        assertThatJson(fetchArtifactMessage).isEqualTo(expectedStr);
     }
 
     @Test

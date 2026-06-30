@@ -390,7 +390,7 @@ public class BackupServiceIntegrationTest {
         waitForBackupToStart.acquire();
         try {
             String backupStartedTimeString = backupService.backupRunningSinceISO8601().get();
-            Date backupTime = Dates.parseIso8601CompactOffset(backupStartedTimeString);
+            Date backupTime = Dates.parseIso8601CompactOffsetNoMillis(backupStartedTimeString);
 
             ServerBackup runningBackup = ReflectionUtil.getField(backupService, "runningBackup");
             assertThat(runningBackup.getTime()).isCloseTo(backupTime, 1000L); // No millis in format

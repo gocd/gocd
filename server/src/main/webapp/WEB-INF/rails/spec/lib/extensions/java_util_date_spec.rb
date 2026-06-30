@@ -17,14 +17,6 @@
 require 'rails_helper'
 
 describe Java::JavaUtil::Date do
-  before :each do
-    @default_timezone = java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("Asia/Colombo"))
-  end
-
-  after :each do
-    java.util.TimeZone.setDefault(@default_timezone)
-  end
-
   it "should format date as '20 Aug, 2010 at 18:03:44 [+0530]'" do
     date           = Dates.from(ZonedDateTime.of(2010, 8, 20, 18, 3, 44, 0, ZoneOffset.ofHoursMinutes(5, 30)))
     formmated_date = date.to_long_display_date_time

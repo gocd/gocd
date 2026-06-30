@@ -93,14 +93,14 @@ public class PluginNotificationServiceTest {
         assertThat(message.requestName()).isEqualTo(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION);
         assertThat(message.data() instanceof AgentNotificationData).isTrue();
         AgentNotificationData data = (AgentNotificationData) message.data();
-        assertThat(data.getUuid()).isEqualTo(agentInstance.getUuid());
-        assertThat(data.getHostName()).isEqualTo(agentInstance.getHostname());
+        assertThat(data.uuid()).isEqualTo(agentInstance.getUuid());
+        assertThat(data.hostName()).isEqualTo(agentInstance.getHostname());
         assertFalse(data.isElastic());
-        assertThat(data.getIpAddress()).isEqualTo(agentInstance.getIpAddress());
-        assertThat(data.getFreeSpace()).isEqualTo(agentInstance.freeDiskSpace().toString());
-        assertThat(data.getAgentConfigState()).isEqualTo(agentInstance.getAgentConfigStatus().name());
-        assertThat(data.getAgentState()).isEqualTo(agentInstance.getRuntimeStatus().agentState().name());
-        assertThat(data.getBuildState()).isEqualTo(agentInstance.getRuntimeStatus().buildState().name());
+        assertThat(data.ipAddress()).isEqualTo(agentInstance.getIpAddress());
+        assertThat(data.freeSpace()).isEqualTo(agentInstance.freeDiskSpace().toString());
+        assertThat(data.agentConfigState()).isEqualTo(agentInstance.getAgentConfigStatus().name());
+        assertThat(data.agentState()).isEqualTo(agentInstance.getRuntimeStatus().agentState().name());
+        assertThat(data.buildState()).isEqualTo(agentInstance.getRuntimeStatus().buildState().name());
     }
 
     @Test
@@ -269,7 +269,7 @@ public class PluginNotificationServiceTest {
         assertThat(notificationMessage.requestName()).isEqualTo(requestName);
         assertThat(notificationMessage.data()).isInstanceOf(AgentNotificationData.class);
         AgentNotificationData data = (AgentNotificationData) notificationMessage.data();
-        assertThat(data.getUuid()).isEqualTo(agentInstance.getUuid());
-        assertThat(data.getAgentState()).isEqualTo(agentInstance.getStatus().toString());
+        assertThat(data.uuid()).isEqualTo(agentInstance.getUuid());
+        assertThat(data.agentState()).isEqualTo(agentInstance.getStatus().toString());
     }
 }

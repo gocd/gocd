@@ -27,13 +27,14 @@ import org.slf4j.event.Level;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -42,7 +43,6 @@ import static org.mockito.Mockito.when;
 
 class P4OutputParserTest {
     private P4OutputParser parser;
-    private static final SimpleDateFormat DESCRIPTION_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     private P4Client p4Client;
 
     @BeforeEach
@@ -63,7 +63,7 @@ class P4OutputParserTest {
         String output = "Change 2 on 08/08/19 by cceuser@connect4 'some modification message'";
         Modification modification = new Modification();
         try {
-            parser.parseFirstLine(modification, output, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+            parser.parseFirstLine(modification, output, new ConsoleResult(0, emptyList(), emptyList(), emptyList(), emptyList()));
         } catch (P4OutputParseException e) {
             assertThat(e.getMessage()).contains("Could not parse P4 describe:");
 
@@ -71,7 +71,7 @@ class P4OutputParserTest {
     }
 
     @Test
-    void shouldRetrieveModificationFromDescription() throws P4OutputParseException, ParseException {
+    void shouldRetrieveModificationFromDescription() throws P4OutputParseException {
         String output =
                 """
                         Change 2 by cce123user@connect4_10.18.2.31 on 2008/08/19 15:04:43
@@ -84,10 +84,10 @@ class P4OutputParserTest {
                         ... //depot/README.txt#2 edit
                         ... //depot/cruise-output/log.xml#1 delete
                         """;
-        Modification mod = parser.modificationFromDescription(output, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+        Modification mod = parser.modificationFromDescription(output, new ConsoleResult(0, emptyList(), emptyList(), emptyList(), emptyList()));
         assertThat(mod.getRevision()).isEqualTo("2");
         assertThat(mod.getUserName()).isEqualTo("cce123user@connect4_10.18.2.31");
-        assertThat(mod.getModifiedTime()).isEqualTo(DESCRIPTION_FORMAT.parse("2008/08/19 15:04:43"));
+        assertThat(mod.getModifiedTime()).isEqualTo(Date.from(ZonedDateTime.of(2008, 8, 19, 15, 4, 43, 0, ZoneOffset.systemDefault()).toInstant()));
         assertThat(mod.getComment()).isEqualTo("Added config file");
         List<ModifiedFile> files = mod.getModifiedFiles();
         assertThat(files.size()).isEqualTo(3);
@@ -108,7 +108,7 @@ class P4OutputParserTest {
         try (InputStream resource = Objects.requireNonNull(getClass().getResourceAsStream("/BIG_P4_OUTPUT.txt"))) {
             output = new String(resource.readAllBytes(), StandardCharsets.UTF_8);
         }
-        Modification modification = parser.modificationFromDescription(output, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+        Modification modification = parser.modificationFromDescription(output, new ConsoleResult(0, emptyList(), emptyList(), emptyList(), emptyList()));
         assertThat(modification.getModifiedFiles().size()).isEqualTo(1304);
         assertThat(modification.getModifiedFiles().getFirst().getFileName()).isEqualTo("Internal Projects/ABC/Customers3/ABC/RIP/SomeProject/data/main/config/lib/java/AdvJDBCColumnHandler.jar");
     }
@@ -118,7 +118,7 @@ class P4OutputParserTest {
     void shouldThrowExceptionWhenCannotParseChanges() {
         String line = "Some line I don't understand";
         try {
-            parser.modificationFromDescription(line, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+            parser.modificationFromDescription(line, new ConsoleResult(0, emptyList(), emptyList(), emptyList(), emptyList()));
             fail("Should throw exception if can't parse the description");
         } catch (P4OutputParseException expected) {
             assertThat(expected.getMessage()).contains(line);
@@ -153,7 +153,7 @@ class P4OutputParserTest {
                         ... //APP/AB/Core/Templates/Somemv.RemotingService/coordinator_template.config#69 edit
                         """;
 
-        Modification modification = parser.modificationFromDescription(description, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+        Modification modification = parser.modificationFromDescription(description, new ConsoleResult(0, emptyList(), emptyList(), emptyList(), emptyList()));
         assertThat(modification.getComment()).isEqualTo("""
                 Add a WCF CrossDomainPolicyService and CrossDomain.xml.
                 Update service reference.
@@ -175,7 +175,7 @@ class P4OutputParserTest {
 
                         ... //depot/file#5 edit""";
 
-        Modification modification = parser.modificationFromDescription(description, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+        Modification modification = parser.modificationFromDescription(description, new ConsoleResult(0, emptyList(), emptyList(), emptyList(), emptyList()));
         assertThat(modification.getComment()).isEqualTo("""
                 Affected files ...
 
@@ -194,7 +194,7 @@ class P4OutputParserTest {
 
                         ... //another_depot/1.txt#6 edit""";
 
-        Modification modification = parser.modificationFromDescription(description, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+        Modification modification = parser.modificationFromDescription(description, new ConsoleResult(0, emptyList(), emptyList(), emptyList(), emptyList()));
         assertThat(modification.getComment()).isEmpty();
     }
 
@@ -215,11 +215,11 @@ class P4OutputParserTest {
             """;
 
     @Test
-    void shouldMatchWhenCommentsAreMultipleLines() throws P4OutputParseException, ParseException {
-        Modification modification = parser.modificationFromDescription(BUG_2503_OUTPUT, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+    void shouldMatchWhenCommentsAreMultipleLines() throws P4OutputParseException {
+        Modification modification = parser.modificationFromDescription(BUG_2503_OUTPUT, new ConsoleResult(0, emptyList(), emptyList(), emptyList(), emptyList()));
 
         assertThat(parser.revisionFromChange(BUG_2503_OUTPUT)).isEqualTo(122636L);
-        assertThat(modification.getModifiedTime()).isEqualTo(DESCRIPTION_FORMAT.parse("2009/02/06 17:53:57"));
+        assertThat(modification.getModifiedTime()).isEqualTo(Date.from(ZonedDateTime.of(2009, 2, 6, 17, 53, 57, 0, ZoneOffset.systemDefault()).toInstant()));
         assertThat(modification.getModifiedFiles().size()).isEqualTo(1);
         assertThat(modification.getUserName()).isEqualTo("ipaipa@ipaipa-STANDARD-DHTML");
     }
@@ -260,7 +260,7 @@ class P4OutputParserTest {
                 Affected files ...
                 """);
 
-        List<Modification> modifications = parser.modifications(new ConsoleResult(0, List.of(output.split("\n")), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+        List<Modification> modifications = parser.modifications(new ConsoleResult(0, List.of(output.split("\n")), emptyList(), emptyList(), emptyList()));
         assertThat(modifications.size()).isEqualTo(20);
     }
 
@@ -273,7 +273,7 @@ class P4OutputParserTest {
 
             when(p4Client.describe(anyLong())).thenReturn(description);
 
-            List<Modification> modifications = parser.modifications(new ConsoleResult(0, List.of(output.split("\n")), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+            List<Modification> modifications = parser.modifications(new ConsoleResult(0, List.of(output.split("\n")), emptyList(), emptyList(), emptyList()));
             assertThat(modifications.size()).isEqualTo(0);
             assertThat(logging.getLog()).contains(description);
         }

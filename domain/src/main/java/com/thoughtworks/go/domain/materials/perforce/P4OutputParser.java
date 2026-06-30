@@ -24,9 +24,11 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,7 +39,7 @@ import static org.apache.commons.lang3.StringUtils.splitByWholeSeparator;
 
 public class P4OutputParser {
     private static final Logger LOG = LoggerFactory.getLogger(P4OutputParser.class);
-    private static final String P4_DATE_PATTERN = "yyyy/MM/dd HH:mm:ss";
+    private static final DateTimeFormatter P4_DATE_PATTERN = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").withZone(ZoneOffset.systemDefault());
 
     private static final Pattern DESCRIBE_OUTPUT_PATTERN = Pattern.compile("^(.+)\n\\s+((.*\n)*)\\s+", Pattern.MULTILINE);
     private static final Pattern CHANGE_PATTERN = Pattern.compile("^Change (\\d+) ");
@@ -109,11 +111,7 @@ public class P4OutputParser {
         if (matcher.find()) {
             modification.setRevision(matcher.group(1));
             modification.setUserName(matcher.group(2));
-            try {
-                modification.setModifiedTime(new SimpleDateFormat(P4_DATE_PATTERN).parse(matcher.group(3)));
-            } catch (ParseException e) {
-                throw bomb(e);
-            }
+            modification.setModifiedTime(Date.from(P4_DATE_PATTERN.parse(matcher.group(3), Instant::from)));
         } else {
             LOG.warn("Could not parse P4 describe: {}", result.redactFrom(line));
             throw new P4OutputParseException("Could not parse P4 describe: " + result.redactFrom(line));

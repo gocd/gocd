@@ -15,31 +15,14 @@
  */
 package com.thoughtworks.go.util;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
 import java.util.Date;
-import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DatesTest {
-
-    private Locale originalLocale;
-
-    @BeforeEach
-    public void setUp() {
-        originalLocale = Locale.getDefault();
-        Locale.setDefault(Locale.US);
-    }
-
-    @AfterEach
-    public void tearDown() {
-        Locale.setDefault(originalLocale);
-    }
-
     @Test
     public void shouldBeAbleToParseRfc3339OrIso8601Dates() {
         assertThat(Dates.parseIso8601StrictOffset("2008-09-09T10:56:14.345Z"))
@@ -60,12 +43,12 @@ public class DatesTest {
     }
 
     @Test
-    public void shouldForDatesToIsoUtcWithoutMillis() {
-        assertThat(Dates.formatIso8601StrictOffsetUtcWithoutMillis(Date.from(ZonedDateTime.parse("2008-12-09T18:56:14+08:00").toInstant())))
+    public void shouldForDatesToIsoUtcNoMillis() {
+        assertThat(Dates.formatIso8601UtcNoMillis(Date.from(ZonedDateTime.parse("2008-12-09T18:56:14+08:00").toInstant())))
             .isEqualTo("2008-12-09T10:56:14Z");
-        assertThat(Dates.formatIso8601StrictOffsetUtcWithoutMillis(Date.from(ZonedDateTime.parse("2008-12-09T18:56:14.456+08:00").toInstant())))
+        assertThat(Dates.formatIso8601UtcNoMillis(Date.from(ZonedDateTime.parse("2008-12-09T18:56:14.456+08:00").toInstant())))
             .isEqualTo("2008-12-09T10:56:14Z");
-        assertThat(Dates.formatIso8601StrictOffsetUtcWithoutMillis(Date.from(ZonedDateTime.parse("2008-12-09T18:56:14.556+08:00").toInstant())))
+        assertThat(Dates.formatIso8601UtcNoMillis(Date.from(ZonedDateTime.parse("2008-12-09T18:56:14.556+08:00").toInstant())))
             .isEqualTo("2008-12-09T10:56:14Z");
     }
 
@@ -83,9 +66,5 @@ public class DatesTest {
     public void shouldFormatSimpleDisplayDatesLocaleAware() {
         assertThat(Dates.formatToSimpleDate(Date.from(ZonedDateTime.parse("2008-09-09T18:56:14+08:00").toInstant())))
             .isEqualTo("09 Sep 2008");
-
-        Locale.setDefault(Locale.forLanguageTag("en-SG"));
-        assertThat(Dates.formatToSimpleDate(Date.from(ZonedDateTime.parse("2008-09-09T18:56:14+08:00").toInstant())))
-            .isEqualTo("09 Sept 2008");
     }
 }

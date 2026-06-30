@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -96,7 +96,7 @@ public class PluginNotificationService {
                     agentInstance.getAgentConfigStatus().name(),
                     agentInstance.getRuntimeStatus().agentState().name(),
                     agentInstance.getRuntimeStatus().buildState().name(),
-                    new Date()
+                    Instant.now()
             );
         }
     }

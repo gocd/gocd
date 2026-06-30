@@ -54,7 +54,7 @@ public class MaterialRevisionsJsonBuilder extends ModificationVisitorAdapter {
         materialJson.put("revision", revision.getRevision().getRevision());
         materialJson.put("revision_href", revision.getRevision().getRevisionUrl());
         materialJson.put("user", revision.buildCausedBy());
-        materialJson.put("date", Dates.formatIso8601CompactOffset(revision.getDateOfLatestModification()));
+        materialJson.put("date", Dates.formatIso8601SystemCompactOffsetNoMillis(revision.getDateOfLatestModification()));
         materialJson.put("changed", valueOf(revision.isChanged()));
         materialJson.put("modifications", modificationsJson);
 
@@ -73,7 +73,7 @@ public class MaterialRevisionsJsonBuilder extends ModificationVisitorAdapter {
         Map<String, Object> jsonMap = new LinkedHashMap<>();
         jsonMap.put("user", modification.getUserDisplayName());
         jsonMap.put("revision", modification.getRevision());
-        jsonMap.put("date", Dates.formatIso8601CompactOffset(modification.getModifiedTime()));
+        jsonMap.put("date", Dates.formatIso8601SystemCompactOffsetNoMillis(modification.getModifiedTime()));
         String comment = modification.getComment();
         if (!revision.getMaterial().getMaterialType().equals(TYPE)) {
             comment = commentRenderer.render(comment);

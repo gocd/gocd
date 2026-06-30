@@ -98,7 +98,7 @@ public class ProjectStatus {
     @Override
     public String toString() {
         return String.format("ProjectStatus[%s, %s, %s, %s, %s, %s, %s]", key.projectName(), activity, lastBuildStatus, lastBuildLabel,
-                Dates.formatIso8601CompactOffset(lastBuildTime) + "(" + lastBuildTime.getTime() + ")", webPathAfterContext, breakers);
+                Dates.formatIso8601SystemCompactOffsetNoMillis(lastBuildTime) + "(" + lastBuildTime.getTime() + ")", webPathAfterContext, breakers);
     }
 
     public String getLastBuildLabel() {

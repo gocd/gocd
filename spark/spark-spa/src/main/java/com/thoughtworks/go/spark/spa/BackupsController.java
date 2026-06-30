@@ -67,7 +67,7 @@ public class BackupsController implements SparkController {
 
     private Map<String, Object> meta() {
         Map<String, Object> meta = new HashMap<>();
-        meta.put("lastBackupTime", backupService.lastBackupTime().map(Dates::formatIso8601StrictOffsetUtcWithoutMillis).orElse(null));
+        meta.put("lastBackupTime", backupService.lastBackupTime().map(Dates::formatIso8601UtcNoMillis).orElse(null));
         meta.put("lastBackupUser", backupService.lastBackupUser().orElse(null));
         meta.put("availableDiskSpace", backupService.availableDiskSpace());
         meta.put("backupLocation", backupService.backupLocation());

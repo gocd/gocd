@@ -61,7 +61,7 @@ public class MaterialRevisionsJsonBuilderTest {
     public void shouldShowEachMaterialInJson() {
         MaterialRevision materialRevision = materialRevisions.getMaterialRevision(0);
         String expectedRevision = materialRevision.getRevision().getRevision();
-        String expectedDate = Dates.formatIso8601CompactOffset(materialRevision.getDateOfLatestModification());
+        String expectedDate = Dates.formatIso8601SystemCompactOffsetNoMillis(materialRevision.getDateOfLatestModification());
 
         String jsonRevisions = buildJson();
         assertThatJson(jsonRevisions)
@@ -99,7 +99,7 @@ public class MaterialRevisionsJsonBuilderTest {
             .and(
                 a -> a.node("user").isEqualTo(ModificationsMother.MOD_USER),
                 a -> a.node("comment").isEqualTo(ModificationsMother.MOD_COMMENT),
-                a -> a.node("date").isEqualTo(Dates.formatIso8601CompactOffset(ModificationsMother.TWO_DAYS_AGO_CHECKIN)),
+                a -> a.node("date").isEqualTo(Dates.formatIso8601SystemCompactOffsetNoMillis(ModificationsMother.TWO_DAYS_AGO_CHECKIN)),
                 a -> a.node("modifiedFiles").isArray().hasSize(1)
                     .first()
                     .and(

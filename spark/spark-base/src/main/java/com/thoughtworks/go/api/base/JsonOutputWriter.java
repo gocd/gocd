@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.Date;
-import java.util.TimeZone;
 import java.util.function.Consumer;
 
 public class JsonOutputWriter {
@@ -44,7 +43,6 @@ public class JsonOutputWriter {
 
     protected final Writer writer;
     private final RequestContext requestContext;
-    private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 
     public JsonOutputWriter(Writer writer, RequestContext requestContext) {
         this.writer = writer;
@@ -429,7 +427,7 @@ public class JsonOutputWriter {
     }
 
     public static String jsonDate(Date value) {
-        return value == null ? null : ISO8601Utils.format(value, false, UTC);
+        return value == null ? null : ISO8601Utils.format(value, false);
     }
 
 }

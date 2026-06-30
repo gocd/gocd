@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 public class StageConverter extends DataConverter<StageNotificationDTO> {
-    public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private final Stage stage;
     private final String pipelineGroup;
     private final BuildCause buildCause;

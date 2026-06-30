@@ -17,9 +17,10 @@ package com.thoughtworks.go.plugin.access.notification.v4;
 
 import com.thoughtworks.go.domain.notificationdata.AgentNotificationData;
 import com.thoughtworks.go.plugin.access.notification.DataConverter;
+import com.thoughtworks.go.util.Dates;
 
 public class AgentConverter extends DataConverter<AgentNotificationDTO> {
-    private AgentNotificationData agentNotificationData;
+    private final AgentNotificationData agentNotificationData;
 
     public AgentConverter(AgentNotificationData agentNotificationData) {
         this.agentNotificationData = agentNotificationData;
@@ -28,16 +29,16 @@ public class AgentConverter extends DataConverter<AgentNotificationDTO> {
     @Override
     protected AgentNotificationDTO transformData() {
         return new AgentNotificationDTO(
-                agentNotificationData.getUuid(),
-                agentNotificationData.getHostName(),
-                agentNotificationData.isElastic(),
-                agentNotificationData.getIpAddress(),
-                agentNotificationData.getOperatingSystem(),
-                agentNotificationData.getFreeSpace(),
-                agentNotificationData.getAgentConfigState(),
-                agentNotificationData.getAgentState(),
-                agentNotificationData.getBuildState(),
-                DateUtil.dateToString(agentNotificationData.getTransitionTime())
-                );
+            agentNotificationData.uuid(),
+            agentNotificationData.hostName(),
+            agentNotificationData.isElastic(),
+            agentNotificationData.ipAddress(),
+            agentNotificationData.operatingSystem(),
+            agentNotificationData.freeSpace(),
+            agentNotificationData.agentConfigState(),
+            agentNotificationData.agentState(),
+            agentNotificationData.buildState(),
+            Dates.formatIso8601UtcCompactOffsetWithMillis(agentNotificationData.transitionTime())
+        );
     }
 }

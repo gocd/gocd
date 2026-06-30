@@ -221,7 +221,7 @@ public abstract class ArtifactExtensionTestBase {
                 "  \"agent_working_directory\": \"/temp\"" +
                 "}";
 
-        assertThatJson(expectedJSON).isEqualTo(request.requestBody());
+        assertThatJson(request.requestBody()).isEqualTo(expectedJSON);
 
         assertThat(response.getMetadata()).hasSize(1).containsEntry("artifact-version", "10.12.0");
     }

@@ -363,7 +363,7 @@ public class BackupService implements BackupStatusProvider {
     @Override
     public Optional<String> backupRunningSinceISO8601() {
         if (runningBackup != null) {
-            return Optional.of(Dates.formatIso8601CompactOffset(runningBackup.getTime()));
+            return Optional.of(Dates.formatIso8601SystemCompactOffsetNoMillis(runningBackup.getTime()));
         }
         return Optional.empty();
     }

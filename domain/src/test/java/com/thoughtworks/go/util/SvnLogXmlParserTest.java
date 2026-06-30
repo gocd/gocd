@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -79,7 +78,7 @@ public class SvnLogXmlParserTest {
     }
 
     @Test
-    public void shouldParse() throws ParseException {
+    public void shouldParse() {
         SvnLogXmlParser parser = new SvnLogXmlParser();
         List<Modification> materialRevisions = parser.parse(XML, "", new SafeSaxBuilder());
         assertThat(materialRevisions.size()).isEqualTo(1);

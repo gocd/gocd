@@ -37,7 +37,7 @@ public class ServerStatusService {
 
     public Map<String, Object> asJsonCompatibleMap() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
-        json.put("Timestamp", Dates.formatIso8601CompactOffset(new Date()));
+        json.put("Timestamp", Dates.formatIso8601SystemCompactOffsetNoMillis(new Date()));
 
         for (ServerInfoProvider provider : providers) {
             try {

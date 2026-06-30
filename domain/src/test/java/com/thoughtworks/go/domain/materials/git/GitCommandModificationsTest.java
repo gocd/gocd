@@ -31,7 +31,6 @@ import java.io.InputStream;
 import java.time.Instant;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -226,13 +225,13 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
     @Test
     void shouldIncludeChangesFromTheFutureInModificationCheck() throws Exception {
         String originalNode = git.latestModification().getFirst().getRevision();
-        Date threeDaysFromNow = Date.from(Instant.now().plus(3, ChronoUnit.DAYS).with(ChronoField.NANO_OF_SECOND, 0));
+        Instant threeDaysFromNow = Instant.now().plus(3, ChronoUnit.DAYS).with(ChronoField.NANO_OF_SECOND, 0);
         File testingFile = checkInNewRemoteFileInFuture(threeDaysFromNow);
 
         Modification modification = git.latestModification().getFirst();
         assertNotEquals(originalNode, modification.getRevision());
         assertEquals("New checkin of " + testingFile.getName(), modification.getComment());
-        assertEquals(threeDaysFromNow, modification.getModifiedTime());
+        assertEquals(threeDaysFromNow, modification.getModifiedTime().toInstant());
     }
 
     @Test
@@ -284,10 +283,9 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
         return testingFile;
     }
 
-    private File checkInNewRemoteFileInFuture(Date checkinDate) throws IOException {
+    private File checkInNewRemoteFileInFuture(Instant checkinDate) throws IOException {
         GitCommand remoteGit = new GitCommand(null, repoLocation, GitMaterialConfig.DEFAULT_BRANCH, false, null);
         File testingFile = new File(repoLocation, "testing-file" + System.currentTimeMillis() + ".txt");
-        //noinspection ResultOfMethodCallIgnored
         testingFile.createNewFile();
         remoteGit.add(testingFile);
         remoteGit.commitOnDate("New checkin of " + testingFile.getName(), checkinDate);

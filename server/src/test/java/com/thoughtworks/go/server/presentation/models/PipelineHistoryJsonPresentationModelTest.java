@@ -240,7 +240,7 @@ public class PipelineHistoryJsonPresentationModelTest {
             .and(
                 a -> a.node("groups[0].history[0].materialRevisions[0].revision").isEqualTo("svn.100"),
                 a -> a.node("groups[0].history[0].materialRevisions[0].user").isEqualTo("user"),
-                a -> a.node("groups[0].history[0].materialRevisions[0].date").isEqualTo(Dates.formatIso8601CompactOffset(modificationDate))
+                a -> a.node("groups[0].history[0].materialRevisions[0].date").isEqualTo(Dates.formatIso8601SystemCompactOffsetNoMillis(modificationDate))
         );
     }
 

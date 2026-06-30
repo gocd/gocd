@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 
 import java.io.File;
+import java.time.Instant;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -250,8 +251,8 @@ public class GitCommand extends SCMCommand {
     }
 
     @TestOnly
-    public void commitOnDate(String message, Date commitDate) {
-        CommandLine gitCmd = gitWd().withArgs("commit", "--date", Dates.formatIso8601CompactOffset(commitDate), "-m", message);
+    public void commitOnDate(String message, Instant commitDate) {
+        CommandLine gitCmd = gitWd().withArgs("commit", "--date", Dates.formatIso8601SystemCompactOffsetNoMillis(commitDate), "-m", message);
         runOrBomb(gitCmd);
     }
 

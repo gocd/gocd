@@ -24,7 +24,8 @@ import com.thoughtworks.go.util.json.JsonHelper;
 import org.jetbrains.annotations.TestOnly;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 
@@ -40,6 +41,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  * </modification>
  */
 public class Modification extends PersistentObject implements Comparable<Modification>, Serializable {
+    private static final DateTimeFormatter TO_STRING_FORMAT = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").withZone(ZoneOffset.systemDefault());
     public static final String ANONYMOUS = "anonymous";
 
     private String userName;
@@ -179,14 +181,11 @@ public class Modification extends PersistentObject implements Comparable<Modific
 
     @Override
     public String toString() {
-        SimpleDateFormat formatter =
-            new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         StringBuilder sb = new StringBuilder();
         if (materialInstance != null) {
             sb.append("Material: ").append(materialInstance).append('\n');
         }
-        String timeString = modifiedTime == null ? "" : formatter.format(modifiedTime);
-        sb.append("Last Modified: ").append(timeString).append('\n');
+        sb.append("Last Modified: ").append(modifiedTime == null ? "" : TO_STRING_FORMAT.format(modifiedTime.toInstant())).append('\n');
         sb.append("Revision: ").append(revision).append('\n');
         sb.append("UserName: ").append(userName).append('\n');
         sb.append("EmailAddress: ").append(emailAddress).append('\n');

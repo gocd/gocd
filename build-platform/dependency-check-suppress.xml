@@ -347,7 +347,7 @@
     <cve>CVE-2025-4949</cve>
   </suppress>
 
-  <suppress until="2026-06-25">
+  <suppress until="2026-07-07">
     <notes><![CDATA[
     Only affects 3.1.0+ according to maintainer at https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-5jmj-h7xm-6q6v
     however there is some debate over affected versions, https://github.com/FasterXML/jackson-databind/pull/5964

@@ -16,21 +16,26 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.collections4.map.PassiveExpiringMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.ConcurrentMap;
 
 import static java.util.UUID.randomUUID;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @Service
 public class EphemeralAutoRegisterKeyService {
-    private PassiveExpiringMap<String, String> keyStore;
+    private final ConcurrentMap<String, String> keyStore;
 
     @Autowired
     public EphemeralAutoRegisterKeyService(SystemEnvironment systemEnvironment) {
-        keyStore = new PassiveExpiringMap<>(systemEnvironment.getEphemeralAutoRegisterKeyExpiryInMillis(), MILLISECONDS);
+        keyStore = Caffeine.newBuilder()
+            .expireAfterWrite(systemEnvironment.getEphemeralAutoRegisterKeyExpiryInMillis(), MILLISECONDS)
+            .<String, String>build()
+            .asMap();
     }
 
     public String autoRegisterKey() {
@@ -41,11 +46,6 @@ public class EphemeralAutoRegisterKeyService {
     }
 
     public boolean validateAndRevoke(String autoRegisterKey) {
-        if (keyStore.containsKey(autoRegisterKey)) {
-            keyStore.remove(autoRegisterKey);
-            return true;
-        }
-
-        return false;
+        return keyStore.remove(autoRegisterKey, autoRegisterKey);
     }
 }

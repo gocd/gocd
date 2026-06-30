@@ -84,7 +84,7 @@ public class JobInstanceModel {
 
     public int getPercentComplete() {
         Duration eta = eta();
-        if (eta.toMillis() == 0) {
+        if (eta.isZero()) {
             return 0;
         }
         Duration elapsedTime = getElapsedTime();
@@ -103,8 +103,8 @@ public class JobInstanceModel {
     }
 
     public String getElapsedTimeForDisplay() {
-        long seconds = getElapsedTime().toSeconds();
-        return seconds == 0 ? "" : DurationFormatUtils.formatDurationWords(Duration.ofSeconds(seconds).toMillis(), true, true);
+        Duration elapsedTime = getElapsedTime();
+        return elapsedTime.isZero() ? "" : DurationFormatUtils.formatDurationWords(elapsedTime.toMillis(), true, true);
     }
 
     public boolean isCompleted() {

@@ -214,17 +214,7 @@ public class PipelineWithTwoStages {
     }
 
     private Pipeline latestPipelineWithIdentifiers() {
-        Pipeline pipeline;
-        pipeline = dbHelper.getPipelineDao().mostRecentPipeline(pipelineName);
-
-        //TODO: #2318 - pipeline loaded from DB should contain identifiers
-        for (Stage stage : pipeline.getStages()) {
-            stage.setIdentifier(new StageIdentifier(pipeline, stage));
-            for (JobInstance jobInstance : stage.getJobInstances()) {
-                jobInstance.setIdentifier(new JobIdentifier(pipeline, stage, jobInstance));
-            }
-        }
-        return pipeline;
+        return dbHelper.getPipelineDao().mostRecentPipeline(pipelineName);
     }
 
     protected void scheduleAndCompleteFollowingStages(Pipeline pipeline, JobResult result) {

@@ -560,8 +560,6 @@ public class ScheduleService {
                         }
 
                         job.changeState(jobState);
-                        //TODO: #2318 JobInstance should contain identifier after it's loaded from database
-                        job.setIdentifier(jobIdentifier);
                         jobInstanceService.updateStateAndResult(job);
 
                         synchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
@@ -704,8 +702,6 @@ public class ScheduleService {
                 if (jobInstance.isNull() || jobInstance.getResult() == JobResult.Cancelled || jobInstance.getState() == JobState.Rescheduled) {
                     return;
                 }
-                //TODO: #2318 JobInstance should contain identifier after it's loaded from database
-                jobInstance.setIdentifier(jobIdentifier);
                 if (!Strings.CS.equals(jobInstance.getAgentUuid(), agentUuid)) {
                     LOGGER.error("Build Instance is using agent [{}] but status updating from agent [{}]", jobInstance.getAgentUuid(), agentUuid);
                     throw new InvalidAgentException("AgentUUID has changed in the middle of a job. AgentUUID:" + agentUuid + ", Build: " + jobInstance);

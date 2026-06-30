@@ -277,11 +277,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
         try {
             jobPlans.remove(jobPlan);
             LOGGER.info("Removing job plan {} that no longer exists in the config", jobPlan);
-            JobInstance instance = jobInstanceService.buildByIdWithTransitions(jobPlan.getJobId());
-            //#2846 - remove this hack
-            instance.setIdentifier(jobPlan.getIdentifier());
-
-            scheduleService.cancelJob(instance);
+            scheduleService.cancelJob(jobInstanceService.buildByIdWithTransitions(jobPlan.getJobId()));
             LOGGER.info("Successfully removed job plan {} that no longer exists in the config", jobPlan);
         } catch (Exception e) {
             LOGGER.warn("Unable to remove plan {} from queue that no longer exists in the config ({})", jobPlan, e.toString());

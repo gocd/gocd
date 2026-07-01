@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.TimeProvider;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 
 import java.io.Serializable;
@@ -124,7 +125,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         this.result = result;
     }
 
-    public String getAgentUuid() {
+    public @Nullable String getAgentUuid() {
         return agentUuid;
     }
 
@@ -356,7 +357,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         return new BuildDurationKey(getPipelineName(), getStageName(), getName(), getAgentUuid());
     }
 
-    public record BuildDurationKey(String pipelineName, String stageName, String jobName, String agentUuid) {}
+    public record BuildDurationKey(@NotNull String pipelineName, @NotNull String stageName, @NotNull String jobName, @Nullable String agentUuid) {}
 
     public boolean isAssignedToAgent() {
         return getAgentUuid() != null;

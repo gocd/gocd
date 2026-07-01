@@ -53,7 +53,7 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import javax.annotation.PreDestroy;
 import java.util.*;
 
-import static com.thoughtworks.go.util.IBatisUtil.arguments;
+import static com.thoughtworks.go.server.dao.NullableMaps.nullableMapOf;
 
 @Component
 public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobInstanceDao, JobStatusListener {
@@ -227,13 +227,12 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
             synchronized (key) {
                 jobIdentifier = goCache.get(key);
                 if (jobIdentifier == null) {
-                    Map<String, Object> params =
-                        arguments("pipelineName", stageIdentifier.getPipelineName())
-                            .and("pipelineCounter", stageIdentifier.getPipelineCounter())
-                            .and("stageName", stageIdentifier.getStageName())
-                            .and("stageCounter", Integer.parseInt(stageIdentifier.getStageCounter()))
-                            .and("jobName", jobName)
-                            .asMap();
+                    Map<String, Object> params = nullableMapOf(
+                        "pipelineName", stageIdentifier.getPipelineName(),
+                        "pipelineCounter", stageIdentifier.getPipelineCounter(),
+                        "stageName", stageIdentifier.getStageName(),
+                        "stageCounter", Integer.valueOf(stageIdentifier.getStageCounter()),
+                        "jobName", jobName);
 
                     jobIdentifier = getSqlMapClientTemplate().queryForObject("findJobId", params);
 
@@ -264,19 +263,18 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
                                                   SortOrder order,
                                                   int offset,
                                                   int limit) {
-        Map<String, Object> params =
-            arguments("uuid", uuid)
-                .and("offset", offset)
-                .and("limit", limit)
-                .and("column", jobHistoryColumns.getColumnName())
-                .and("order", order.toString())
-                .asMap();
+        Map<String, Object> params = nullableMapOf(
+            "uuid", uuid,
+            "offset", offset,
+            "limit", limit,
+            "column", jobHistoryColumns.getColumnName(),
+            "order", order.toString());
         return getSqlMapClientTemplate().queryForList("completedJobsOnAgent", params);
     }
 
     @Override
     public int totalCompletedJobsOnAgent(String uuid) {
-        return getSqlMapClientTemplate().queryForObject("totalCompletedJobsOnAgent", arguments("uuid", uuid).asMap());
+        return getSqlMapClientTemplate().queryForObject("totalCompletedJobsOnAgent", nullableMapOf("uuid", uuid));
     }
 
     @Override
@@ -426,7 +424,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     private JobPlan _loadJobPlan(Long jobId) {
-        DefaultJobPlan jobPlan = getSqlMapClientTemplate().queryForObject("scheduledPlan", arguments("id", jobId).asMap());
+        DefaultJobPlan jobPlan = getSqlMapClientTemplate().queryForObject("scheduledPlan", nullableMapOf("id", jobId));
         if (jobPlan == null) {
             return null;
         }
@@ -457,8 +455,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     @Override
     public JobInstances findHungJobs(List<String> liveAgentIdList) {
-        List<JobInstance> list = getSqlMapClientTemplate().queryForList("getHungJobs",
-            arguments("liveAgentIdList", liveAgentIdList).asMap());
+        List<JobInstance> list = getSqlMapClientTemplate().queryForList("getHungJobs", nullableMapOf("liveAgentIdList", liveAgentIdList));
         return new JobInstances(list);
     }
 
@@ -488,9 +485,10 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     @Override
     public PipelineRunIdInfo getOldestAndLatestJobInstanceId(String pipelineName, String stageName, String jobConfigName) {
-        Map<String, Object> params = arguments("pipelineName", pipelineName)
-            .and("stageName", stageName)
-            .and("jobConfigName", jobConfigName).asMap();
+        Map<String, Object> params = nullableMapOf(
+            "pipelineName", pipelineName,
+            "stageName", stageName,
+            "jobConfigName", jobConfigName);
         return getSqlMapClientTemplate().queryForObject("getOldestAndLatestJobRun", params);
     }
 

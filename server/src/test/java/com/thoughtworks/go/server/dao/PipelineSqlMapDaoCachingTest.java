@@ -56,7 +56,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
-import static com.thoughtworks.go.util.IBatisUtil.arguments;
+import static com.thoughtworks.go.server.dao.NullableMaps.nullableMapOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -271,7 +271,7 @@ class PipelineSqlMapDaoCachingTest {
     @Test
     void shouldInvalidateCacheWhenPipelineIsUnPaused() {
         String pipelineName = "pipelineName";
-        Map<String, Object> args = arguments("pipelineName", pipelineName).and("pauseCause", null).and("pauseBy", null).and("paused", false).asMap();
+        Map<String, Object> args = nullableMapOf("pipelineName", pipelineName, "pauseCause", null, "pauseBy", null, "paused", false);
         when(mockTemplate.update("updatePipelinePauseState", args)).thenReturn(0);
         when(mockTemplate.queryForObject("getPipelinePauseState", pipelineName)).thenReturn(PipelinePauseInfo.notPaused());
         // ensure cache is initialized

@@ -54,6 +54,7 @@ export interface PipelinesScrollOptions {
 
 export interface Attrs extends Operations {
   pipelineGroups: Stream<PipelineGroups>;
+  canMovePipeline: boolean;
   createPipelineGroup: () => void;
   scrollOptions: PipelinesScrollOptions;
 }
@@ -246,11 +247,10 @@ export class PipelineGroupsWidget extends MithrilViewComponent<Attrs> {
         </div>
       ];
     }
-    const canMovePipeline = vnode.attrs.pipelineGroups().length > 1;
     return (
       <div data-test-id="pipeline-groups">
         {vnode.attrs.pipelineGroups().map((group) => {
-          return <PipelineGroupWidget canMovePipeline={canMovePipeline} group={group} {...vnode.attrs} />;
+          return <PipelineGroupWidget {...vnode.attrs} group={group} />;
         })}
       </div>
     );

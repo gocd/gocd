@@ -243,6 +243,7 @@ export class AdminPipelinesPage extends Page<null, State> {
       sm,
       shouldOpenEditView: this.operation === "edit"
     };
+    const canMovePipeline                              = vnode.state.pipelineGroups().length > 1;
     const filteredPipelineGrps: Stream<PipelineGroups> = Stream();
     if (vnode.state.searchText()) {
       const results = _.filter(vnode.state.pipelineGroups(), (grp: PipelineGroup) => grp.matches(vnode.state.searchText()));
@@ -259,7 +260,10 @@ export class AdminPipelinesPage extends Page<null, State> {
     return (
       <div>
         <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
-        <PipelineGroupsWidget {...vnode.state} pipelineGroups={filteredPipelineGrps} scrollOptions={scrollOptions}/>
+        <PipelineGroupsWidget {...vnode.state}
+                              pipelineGroups={filteredPipelineGrps}
+                              canMovePipeline={canMovePipeline}
+                              scrollOptions={scrollOptions}/>
       </div>
     );
   }

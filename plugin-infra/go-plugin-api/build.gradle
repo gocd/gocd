@@ -33,6 +33,7 @@ dependencies {
   testRuntimeOnly rootProject.deps.junit5PlatformLauncher
   testImplementation rootProject.deps.mockitoCore
   testImplementation rootProject.deps.assertJ
+  testImplementation rootProject.deps.systemStubs
   testImplementation(testFixtures(project(':test:test-utils')))
 }
 

@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.api.logging;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
 
 import java.lang.reflect.Field;
+import java.util.Optional;
 
 /**
  * Logger for use by plugin developers.
@@ -26,25 +27,22 @@ import java.lang.reflect.Field;
  * @see <a href="https://developer.gocd.org/current/writing_go_plugins/go_plugins_basics.html" target="_blank">Go Plugin Documentation</a>
  */
 public class Logger {
+    private static final String DEFAULT_PLUGIN_ID = "UNKNOWN";
     private static LoggingService loggingService;
 
     private final String pluginId;
     private final String loggerName;
 
     public static Logger getLoggerFor(Class<?> loggerClass) {
-        String id;
-        try {
-            Class<?> defaultGoPluginActivator = loggerClass.getClassLoader().loadClass("com.thoughtworks.go.plugin.activation.DefaultGoPluginActivator");
-            id = (String) getPluginIdStaticFieldFrom(defaultGoPluginActivator);
-        } catch (Exception e) {
-            id = "UNKNOWN";
-            System.err.println("Could not find pluginId for logger: " + loggerClass.toString());
-        }
-        return getLoggerFor(loggerClass, id);
+        return getLoggerFor(loggerClass.getName(), getPluginIdForElse(loggerClass));
     }
 
     public static Logger getLoggerFor(Class<?> loggerClass, String pluginId) {
-        return new Logger(loggerClass.getName(), pluginId);
+        return getLoggerFor(loggerClass.getName(), pluginId);
+    }
+
+    public static Logger getLoggerFor(String name, String pluginId) {
+        return new Logger(name, pluginId);
     }
 
     public static void initialize(LoggingService loggingService) {
@@ -72,7 +70,7 @@ public class Logger {
     /**
      * Messages to be logged in debug mode.
      *
-     * @param message a string containing the message to be logged.
+     * @param message   a string containing the message to be logged.
      * @param throwable error to be logged
      */
     public void debug(String message, Throwable throwable) {
@@ -109,8 +107,8 @@ public class Logger {
      * is disabled for the DEBUG level. </p>
      *
      * @param message the format string.
-     * @param arg1   the first argument
-     * @param arg2   the second argument
+     * @param arg1    the first argument
+     * @param arg2    the second argument
      */
     public void debug(String message, Object arg1, Object arg2) {
         if (loggingService == null) {
@@ -154,8 +152,8 @@ public class Logger {
     /**
      * Messages to be logged in info mode.
      *
-     * @param message a string containing the message to be logged.
-     * @param throwable error to be lgoged
+     * @param message   a string containing the message to be logged.
+     * @param throwable error to be logged
      */
     public void info(String message, Throwable throwable) {
         if (loggingService == null) {
@@ -191,8 +189,8 @@ public class Logger {
      * is disabled for the INFO level. </p>
      *
      * @param message the format string.
-     * @param arg1   the first argument
-     * @param arg2   the second argument
+     * @param arg1    the first argument
+     * @param arg2    the second argument
      */
     public void info(String message, Object arg1, Object arg2) {
         if (loggingService == null) {
@@ -236,8 +234,8 @@ public class Logger {
     /**
      * Messages to be logged in warn mode.
      *
-     * @param message a string containing the message to be logged.
-     * @param throwable error to be lgoged
+     * @param message   a string containing the message to be logged.
+     * @param throwable error to be logged
      */
     public void warn(String message, Throwable throwable) {
         if (loggingService == null) {
@@ -273,8 +271,8 @@ public class Logger {
      * is disabled for the WARN level. </p>
      *
      * @param message the format string.
-     * @param arg1   the first argument
-     * @param arg2   the second argument
+     * @param arg1    the first argument
+     * @param arg2    the second argument
      */
     public void warn(String message, Object arg1, Object arg2) {
         if (loggingService == null) {
@@ -318,8 +316,8 @@ public class Logger {
     /**
      * Messages to be logged in error mode.
      *
-     * @param message a string containing the message to be logged.
-     * @param throwable error to be lgoged
+     * @param message   a string containing the message to be logged.
+     * @param throwable error to be logged
      */
     public void error(String message, Throwable throwable) {
         if (loggingService == null) {
@@ -355,8 +353,8 @@ public class Logger {
      * is disabled for the ERROR level. </p>
      *
      * @param message the format string.
-     * @param arg1   the first argument
-     * @param arg2   the second argument
+     * @param arg1    the first argument
+     * @param arg2    the second argument
      */
     public void error(String message, Object arg1, Object arg2) {
         if (loggingService == null) {
@@ -384,13 +382,21 @@ public class Logger {
         loggingService.error(pluginId, loggerName, message, arguments);
     }
 
-    private static Object getPluginIdStaticFieldFrom(Class<?> kls) {
+    private static String getPluginIdForElse(Class<?> loggerClass) {
         try {
-            Field field = kls.getDeclaredField("pluginId");
-            field.setAccessible(true);
-            return field.get(null);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+            Field pluginIdField = loggerClass.getClassLoader()
+                .loadClass("com.thoughtworks.go.plugin.activation.DefaultGoPluginActivator")
+                .getDeclaredField("pluginId");
+
+            if (pluginIdField.trySetAccessible()) {
+                return Optional.ofNullable((String) pluginIdField.get(null)).orElse(DEFAULT_PLUGIN_ID);
+            } else {
+                System.err.println("Could not find pluginId for logger: " + loggerClass);
+                return DEFAULT_PLUGIN_ID;
+            }
+        } catch (Exception e) {
+            System.err.println("Could not find pluginId for logger: " + loggerClass + " due to " + e);
+            return DEFAULT_PLUGIN_ID;
         }
     }
 }

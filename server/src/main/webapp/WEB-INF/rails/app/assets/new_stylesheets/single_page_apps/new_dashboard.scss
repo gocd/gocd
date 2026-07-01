@@ -345,6 +345,13 @@ body {
   &.disabled {
     color: #999;
     cursor: not-allowed;
+    background: none;
+
+    &:hover,
+    &:focus {
+      color: #999;
+      background: none;
+    }
   }
 }
 

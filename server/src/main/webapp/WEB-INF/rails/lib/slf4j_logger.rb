@@ -153,7 +153,7 @@ class Slf4jLogger
         self.send(level.to_sym, msg.join(' - ')) unless msg.empty?
       end
 
-      return true
+      true
     end
 
     alias_method :unknown, :warn

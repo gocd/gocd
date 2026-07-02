@@ -124,7 +124,7 @@ def libraries = [
   jruby               : 'org.jruby:jruby:9.4.15.0',
   jsonUnit            : 'net.javacrumbs.json-unit:json-unit-assertj:5.1.2',
   jsoup               : 'org.jsoup:jsoup:1.22.2',
-  junit5Bom           : 'org.junit:junit-bom:6.1.0',
+  junit5Bom           : 'org.junit:junit-bom:6.1.1',
   liquibase           : 'org.liquibase:liquibase-core:5.0.3',
   liquibaseSlf4j      : 'com.mattbertolini:liquibase-slf4j:5.1.0',
   logback             : 'ch.qos.logback:logback-classic:1.5.37',

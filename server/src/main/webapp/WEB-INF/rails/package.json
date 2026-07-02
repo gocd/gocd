@@ -119,7 +119,7 @@
     "typescript": "^6.0.3",
     "upath": "^3.0.7",
     "url-loader": "^4.1.1",
-    "webpack": "^5.108.1",
+    "webpack": "^5.108.3",
     "webpack-assets-manifest": "^6.5.2",
     "webpack-cli": "^7.1.0"
   },

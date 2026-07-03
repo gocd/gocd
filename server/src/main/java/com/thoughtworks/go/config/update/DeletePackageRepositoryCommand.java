@@ -38,9 +38,9 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 public class DeletePackageRepositoryCommand implements EntityConfigUpdateCommand<PackageRepository> {
     private final GoConfigService goConfigService;
     private final PackageRepository repository;
-    private PackageRepository existingPackageRepository;
     private final Username username;
     private final HttpLocalizedOperationResult result;
+    private PackageRepository existingPackageRepository;
 
     public DeletePackageRepositoryCommand(GoConfigService goConfigService, PackageRepository repository, Username username, HttpLocalizedOperationResult result) {
         this.goConfigService = goConfigService;
@@ -51,7 +51,7 @@ public class DeletePackageRepositoryCommand implements EntityConfigUpdateCommand
 
     @Override
     public void update(CruiseConfig modifiedConfig) {
-        existingPackageRepository = modifiedConfig.getPackageRepositories().findByRepoId(repository.getRepoId());
+        existingPackageRepository = modifiedConfig.getPackageRepositories().findByRepoIdOrBomb(repository.getId());
         PackageRepositories packageRepositories = modifiedConfig.getPackageRepositories();
         packageRepositories.removePackageRepository(this.repository.getId());
         modifiedConfig.setPackageRepositories(packageRepositories);

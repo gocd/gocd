@@ -73,7 +73,7 @@ public class DeleteSCMConfigCommandTest {
     @Test
     public void shouldValidateWhetherSCMIsAssociatedWithPipelines() {
         PipelineConfig pipelineConfig = new GoConfigMother().addPipeline(cruiseConfig, "p1", "s1", "j1");
-        pipelineConfig.addMaterialConfig(new PluggableSCMMaterialConfig(scmConfig.getSCMId()));
+        pipelineConfig.addMaterialConfig(new PluggableSCMMaterialConfig(scmConfig.getId()));
         DeleteSCMConfigCommand command = new DeleteSCMConfigCommand(scmConfig, pluggableScmService, result, currentUser, goConfigService);
 
         assertThatThrownBy(() -> command.isValid(cruiseConfig))

@@ -23,9 +23,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.join;
 
 @ConfigTag("configuration")
 @ConfigCollection(value = ConfigurationProperty.class)
@@ -33,8 +31,6 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
 
     public static final String CONFIGURATION = "configuration";
     public static final String METADATA = "metadata";
-    public static final String VALUE_KEY = "value";
-    public static final String ERRORS_KEY = "errors";
 
     private final ConfigErrors errors = new ConfigErrors();
 
@@ -175,42 +171,6 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
             }
         }
         return configurationMap;
-    }
-
-    //Used in erb
-    public Map<String, Map<String, Object>> getPropertyMetadataAndValuesAsMap() {
-        Map<String, Map<String, Object>> configMap = new HashMap<>();
-        for (ConfigurationProperty property : this) {
-            Map<String, Object> mapValue = new HashMap<>();
-            mapValue.put("isSecure", property.isSecure());
-            if (property.isSecure()) {
-                mapValue.put(VALUE_KEY, property.getEncryptedValue());
-            } else {
-                final String value = property.getConfigurationValue() == null ? null : property.getConfigurationValue().getValue();
-                mapValue.put(VALUE_KEY, value);
-            }
-            mapValue.put("displayValue", property.getDisplayValue());
-            configMap.put(property.getConfigKeyName(), mapValue);
-        }
-        return configMap;
-    }
-
-    public Map<String, Map<String, String>> getConfigWithErrorsAsMap() {
-        Map<String, Map<String, String>> configMap = new HashMap<>();
-        for (ConfigurationProperty property : this) {
-            Map<String, String> mapValue = new HashMap<>();
-            if (property.isSecure()) {
-                mapValue.put(VALUE_KEY, property.getEncryptedValue());
-            } else {
-                final String value = property.getConfigurationValue() == null ? null : property.getConfigurationValue().getValue();
-                mapValue.put(VALUE_KEY, value);
-            }
-            if (!property.getAllErrors().isEmpty()) {
-                mapValue.put(ERRORS_KEY, join(property.getAllErrors().stream().map(ConfigErrors::getAll).collect(toList()), ", "));
-            }
-            configMap.put(property.getConfigKeyName(), mapValue);
-        }
-        return configMap;
     }
 
     @Override

@@ -88,11 +88,6 @@ public class PackageRepository implements Serializable, Validatable, SecretParam
         return id;
     }
 
-    //used in erb as it cannot access id attribute as it treats 'id' as keyword
-    public String getRepoId() {
-        return getId();
-    }
-
     public void setId(String id) {
         this.id = id;
     }

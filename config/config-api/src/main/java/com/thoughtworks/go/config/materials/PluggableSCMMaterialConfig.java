@@ -65,7 +65,7 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
     public PluggableSCMMaterialConfig(CaseInsensitiveString name, SCM scmConfig, String folder, Filter filter, boolean invertFilter) {
         super(TYPE);
         this.name = name;
-        this.scmId = scmConfig == null ? null : scmConfig.getSCMId();
+        this.scmId = scmConfig == null ? null : scmConfig.getId();
         this.scmConfig = scmConfig;
         this.folder = folder;
         this.filter = filter;

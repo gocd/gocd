@@ -48,7 +48,7 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
 
     @Override
     public void update(CruiseConfig modifiedConfig) {
-        PackageRepository oldRepo = modifiedConfig.getPackageRepositories().findByRepoId(newRepo.getRepoId());
+        PackageRepository oldRepo = modifiedConfig.getPackageRepositories().findByRepoIdOrBomb(newRepo.getId());
         this.newRepo.setPackages(oldRepo.getPackages());
         PackageRepositories repositories = modifiedConfig.getPackageRepositories();
         repositories.replaceIfNotEmpty(oldRepo, newRepo);
@@ -72,7 +72,7 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
     }
 
     private boolean isIdSame() {
-        boolean isRepoIdSame = newRepo.getRepoId().equals(oldRepoId);
+        boolean isRepoIdSame = newRepo.getId().equals(oldRepoId);
         if (!isRepoIdSame) {
             result.unprocessableEntity("Changing the repository id is not supported by this API.");
         }
@@ -80,10 +80,10 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
     }
 
     private boolean isRequestFresh() {
-        PackageRepository oldRepo = goConfigService.getPackageRepository(newRepo.getRepoId());
+        PackageRepository oldRepo = goConfigService.getPackageRepository(newRepo.getId());
         boolean freshRequest = entityHashingService.hashForEntity(oldRepo).equals(digest);
         if (!freshRequest) {
-            result.stale(EntityType.PackageRepository.staleConfig(newRepo.getRepoId()));
+            result.stale(EntityType.PackageRepository.staleConfig(newRepo.getId()));
         }
         return freshRequest;
     }

@@ -98,11 +98,6 @@ public class SCM implements Serializable, Validatable, ConfigOriginTraceable, Se
         return id;
     }
 
-    //used in erb as it cannot access id attribute as it treats 'id' as keyword
-    public String getSCMId() {
-        return getId();
-    }
-
     public void setId(String id) {
         this.id = id;
     }

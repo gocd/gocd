@@ -77,7 +77,7 @@ public class UpdatePackageConfigCommand extends PackageConfigCommand {
     }
 
     private boolean isRepositoryPresent(CruiseConfig cruiseConfig) {
-        String repoId = newPackage.getRepository().getRepoId();
+        String repoId = newPackage.getRepository().getId();
         if (cruiseConfig.getPackageRepositories().findByRepoId(repoId) == null) {
             result.unprocessableEntity(EntityType.PackageRepository.notFoundMessage(repoId));
             return false;

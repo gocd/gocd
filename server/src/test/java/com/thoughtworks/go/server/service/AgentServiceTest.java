@@ -296,7 +296,7 @@ class AgentServiceTest {
                 AgentInstance agentInstance = mock(AgentInstance.class);
 
                 when(agentDao.getAgentsByUUIDs(uuids)).thenReturn(agents);
-                when(agentInstances.filterPendingAgents(uuids)).thenReturn(emptyList());
+                when(agentInstances.findPendingAgentsCloned(uuids)).thenReturn(emptyList());
                 when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
                 when(agentInstance.getStatus()).thenReturn(AgentStatus.Pending);
 

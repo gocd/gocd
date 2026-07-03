@@ -109,7 +109,7 @@ public class JobRerunScheduleServiceTest {
         Pipeline pipeline = PipelineMother.passedPipelineInstance("mingle", "build", "unit");
 
         Stage firstStage = pipeline.getFirstStage();
-        Stage expectedStageToBeCreated = firstStage.createClone();
+        Stage expectedStageToBeCreated = firstStage.deepClone();
 
         stub(mingleConfig, pipeline, firstStage);
         stubConfigMd5Cal("latest-md5");

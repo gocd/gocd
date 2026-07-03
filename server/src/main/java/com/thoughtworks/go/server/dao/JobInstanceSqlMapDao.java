@@ -40,6 +40,7 @@ import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -219,14 +220,14 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     @Override
-    public JobIdentifier findOriginalJobIdentifier(StageIdentifier stageIdentifier, String jobName) {
+    public @Nullable JobIdentifier findOriginalJobIdentifier(StageIdentifier stageIdentifier, String jobName) {
         String key = cacheKeyForOriginalJobIdentifier(stageIdentifier, jobName);
 
-        JobIdentifier jobIdentifier = goCache.get(key);
-        if (jobIdentifier == null) {
+        JobIdentifier jobId = goCache.get(key);
+        if (jobId == null) {
             synchronized (key) {
-                jobIdentifier = goCache.get(key);
-                if (jobIdentifier == null) {
+                jobId = goCache.get(key);
+                if (jobId == null) {
                     Map<String, Object> params = nullableMapOf(
                         "pipelineName", stageIdentifier.getPipelineName(),
                         "pipelineCounter", stageIdentifier.getPipelineCounter(),
@@ -234,14 +235,14 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
                         "stageCounter", Integer.valueOf(stageIdentifier.getStageCounter()),
                         "jobName", jobName);
 
-                    jobIdentifier = getSqlMapClientTemplate().queryForObject("findJobId", params);
+                    jobId = getSqlMapClientTemplate().queryForObject("findJobId", params);
 
-                    goCache.put(key, jobIdentifier);
+                    goCache.put(key, jobId);
                 }
             }
         }
 
-        return cloner.deepClone(jobIdentifier);
+        return jobId == null ? null : new JobIdentifier(jobId);
     }
 
     @VisibleForTesting

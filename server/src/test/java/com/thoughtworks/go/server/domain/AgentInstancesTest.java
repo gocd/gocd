@@ -26,7 +26,6 @@ import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +44,6 @@ import java.util.UUID;
 
 import static com.thoughtworks.go.domain.AgentInstance.FilterBy.*;
 import static com.thoughtworks.go.domain.AgentInstance.createFromAgent;
-import static com.thoughtworks.go.domain.AgentInstance.createFromLiveAgent;
 import static com.thoughtworks.go.domain.AgentRuntimeStatus.*;
 import static com.thoughtworks.go.helper.AgentInstanceMother.*;
 import static com.thoughtworks.go.server.service.AgentRuntimeInfo.fromServer;
@@ -122,7 +120,7 @@ class AgentInstancesTest {
         void shouldFindPendingAgents() {
             AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
 
-            List<Agent> pendingAgents = agentInstances.filterPendingAgents(List.of(idle.getUuid(),
+            List<Agent> pendingAgents = agentInstances.findPendingAgentsCloned(List.of(idle.getUuid(),
                 pending.getUuid(),
                 building.getUuid(),
                 disabled.getUuid()));
@@ -133,17 +131,17 @@ class AgentInstancesTest {
         @Test
         void shouldReturnEmptyListWhenNullOrEmptyListOfUUIDsAreSpecifiedInFilterPendingAgents() {
             AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
-            List<Agent> pendingAgents = agentInstances.filterPendingAgents(emptyList());
+            List<Agent> pendingAgents = agentInstances.findPendingAgentsCloned(emptyList());
             assertThat(pendingAgents.size()).isEqualTo(0);
 
-            pendingAgents = agentInstances.filterPendingAgents(null);
+            pendingAgents = agentInstances.findPendingAgentsCloned(null);
             assertThat(pendingAgents.size()).isEqualTo(0);
         }
 
         @Test
         void shouldReturnEmptyListWhenNullOrEmptyUUIDsAreSpecifiedAsElementsInTheListOfUUIDsInFilterPendingAgents() {
             AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
-            List<Agent> pendingAgents = agentInstances.filterPendingAgents(Arrays.asList(null, null, "  "));
+            List<Agent> pendingAgents = agentInstances.findPendingAgentsCloned(Arrays.asList(null, null, "  "));
             assertThat(pendingAgents.size()).isEqualTo(0);
         }
 
@@ -195,64 +193,6 @@ class AgentInstancesTest {
 
             AgentInstances registeredAgentInstances = agentInstances.findRegisteredAgents();
             assertThat(registeredAgentInstances.size()).isEqualTo(0);
-        }
-    }
-
-    @Nested
-    class Filter {
-        @Test
-        void shouldFilterAgentInstancesBasedOnListOfUUIDs() {
-            AgentInstances instances = new AgentInstances(mock(AgentStatusChangeListener.class));
-
-            Agent agent1 = new Agent("uuid-1", "host-1", "192.168.1.2");
-            Agent agent2 = new Agent("uuid-2", "host-2", "192.168.1.3");
-            Agent agent3 = new Agent("uuid-3", "host-3", "192.168.1.4");
-
-            AgentRuntimeInfo runtime1 = fromServer(agent1, true, "/foo/bar", 100L, "linux");
-            AgentRuntimeInfo runtime2 = fromServer(agent2, true, "/bar/baz", 200L, "linux");
-            AgentRuntimeInfo runtime3 = fromServer(agent3, true, "/baz/quux", 300L, "linux");
-
-            AgentInstance instance1 = createFromLiveAgent(runtime1, systemEnvironment, mock(AgentStatusChangeListener.class));
-            AgentInstance instance2 = createFromLiveAgent(runtime2, systemEnvironment, mock(AgentStatusChangeListener.class));
-            AgentInstance instance3 = createFromLiveAgent(runtime3, systemEnvironment, mock(AgentStatusChangeListener.class));
-
-            instances.add(instance1);
-            instances.add(instance2);
-            instances.add(instance3);
-
-            List<String> uuids = List.of("uuid-1", "uuid-3");
-            List<AgentInstance> filteredInstances = instances.filter(uuids);
-
-            assertThat(filteredInstances).contains(instance1, instance3);
-            assertThat(filteredInstances.size()).isEqualTo(2);
-        }
-
-        @Test
-        void shouldFilterAgentInstancesBasedOnNullOrEmptyListOfUUIDs() {
-            AgentStatusChangeListener mockListener = mock(AgentStatusChangeListener.class);
-            AgentInstances instances = new AgentInstances(mockListener);
-
-            Agent agent1 = new Agent("uuid-1", "host-1", "192.168.1.2");
-            Agent agent2 = new Agent("uuid-2", "host-2", "192.168.1.3");
-            Agent agent3 = new Agent("uuid-3", "host-3", "192.168.1.4");
-
-            AgentRuntimeInfo runtime1 = fromServer(agent1, true, "/foo/bar", 100L, "linux");
-            AgentRuntimeInfo runtime2 = fromServer(agent2, true, "/bar/baz", 200L, "linux");
-            AgentRuntimeInfo runtime3 = fromServer(agent3, true, "/baz/quux", 300L, "linux");
-
-            AgentInstance instance1 = createFromLiveAgent(runtime1, systemEnvironment, mockListener);
-            AgentInstance instance2 = createFromLiveAgent(runtime2, systemEnvironment, mockListener);
-            AgentInstance instance3 = createFromLiveAgent(runtime3, systemEnvironment, mockListener);
-
-            instances.add(instance1);
-            instances.add(instance2);
-            instances.add(instance3);
-
-            List<AgentInstance> filteredInstances = instances.filter(emptyList());
-            assertThat(filteredInstances.size()).isEqualTo(0);
-
-            filteredInstances = instances.filter(null);
-            assertThat(filteredInstances.size()).isEqualTo(0);
         }
     }
 

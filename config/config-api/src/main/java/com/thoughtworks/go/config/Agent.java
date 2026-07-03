@@ -19,7 +19,6 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.IpAddress;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.util.ClonerFactory;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.Collection;
@@ -76,9 +75,7 @@ public class Agent extends PersistentObject {
         setId(anotherAgent.getId());
         setDeleted(anotherAgent.isDeleted());
 
-        if (anotherAgent.getCookie() != null) {
-            setCookie(anotherAgent.getCookie());
-        }
+        setCookie(anotherAgent.getCookie());
     }
 
     public Agent(String uuid) {
@@ -217,10 +214,6 @@ public class Agent extends PersistentObject {
 
     public boolean isNull() {
         return false;
-    }
-
-    public Agent deepClone() {
-        return ClonerFactory.instance().deepClone(this);
     }
 
     public boolean isFromLocalHost() {

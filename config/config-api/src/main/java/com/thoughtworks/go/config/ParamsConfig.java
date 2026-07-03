@@ -116,4 +116,14 @@ public class ParamsConfig extends BaseCollection<ParamConfig> implements Validat
         }
         return names;
     }
+
+    public ParamsConfig deepClone() {
+        return this.stream()
+            .map(pc -> {
+                ParamConfig paramConfig = new ParamConfig(pc.getName(), pc.getValue());
+                paramConfig.errors().addAll(pc.errors()); // Unsure if these are needed, but replicating old Cloner usage
+                return paramConfig;
+            })
+            .collect(ParamsConfig::new, ParamsConfig::add, ParamsConfig::addAll);
+    }
 }

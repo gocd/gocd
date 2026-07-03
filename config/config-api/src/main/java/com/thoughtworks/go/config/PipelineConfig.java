@@ -683,7 +683,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     @Override
     public ParamResolver applyOver(ParamResolver enclosingScope) {
-        return enclosingScope.override(ClonerFactory.instance().deepClone(params));
+        return enclosingScope.override(params.deepClone());
     }
 
     public ParamsConfig getParams() {

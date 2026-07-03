@@ -23,6 +23,8 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class JobIdentifier implements Serializable, LocatableEntity {
+    public static final String LATEST = "latest";
+
     @Expose
     private String pipelineName;
     @Expose
@@ -38,7 +40,6 @@ public class JobIdentifier implements Serializable, LocatableEntity {
     private long buildId;
     @Expose
     private String stageCounter;
-    public static final String LATEST = "latest";
     @Expose
     private Integer rerunOfCounter;
 
@@ -72,6 +73,11 @@ public class JobIdentifier implements Serializable, LocatableEntity {
         this.stageCounter = stageCounter;
         this.buildName = buildName;
         this.buildId = buildId;
+    }
+
+    public JobIdentifier(JobIdentifier job) {
+        this(job.getPipelineName(), job.getPipelineCounter(), job.getPipelineLabel(), job.getStageName(), job.getStageCounter(), job.getBuildName(), job.getBuildId());
+        this.rerunOfCounter = job.rerunOfCounter;
     }
 
     public void setPipelineName(String pipelineName) {

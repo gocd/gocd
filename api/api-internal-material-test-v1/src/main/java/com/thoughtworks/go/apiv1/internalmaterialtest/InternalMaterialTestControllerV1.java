@@ -19,7 +19,6 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.abstractmaterialtest.AbstractMaterialTestController;
 import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigCloner;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -99,8 +98,10 @@ public class InternalMaterialTestControllerV1 extends AbstractMaterialTestContro
     }
 
     private void expandParamsIntoMaterialFromExisting(ScmMaterialConfig scmMaterialConfig, PipelineConfig existingPipeline) {
-        PipelineConfig temporaryConfig = new PipelineConfig(existingPipeline.name(), new MaterialConfigs(scmMaterialConfig));
-        temporaryConfig.setParams(new GoConfigCloner().deepClone(existingPipeline.getParams()));
+        PipelineConfig temporaryConfig = new PipelineConfig(
+            existingPipeline.name(),
+            new MaterialConfigs(scmMaterialConfig));
+        temporaryConfig.setParams(existingPipeline.getParams().deepClone());
 
         new ConfigParamPreprocessor().process(temporaryConfig);
     }

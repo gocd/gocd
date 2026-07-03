@@ -27,6 +27,7 @@ import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
@@ -37,8 +38,6 @@ import java.util.stream.Stream;
 import static com.thoughtworks.go.domain.AgentInstance.createFromAgent;
 import static com.thoughtworks.go.util.SystemEnvironment.MAX_PENDING_AGENTS_ALLOWED;
 import static java.lang.String.join;
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
 
 public class AgentInstances implements Iterable<AgentInstance> {
@@ -111,8 +110,8 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
         synchronized (uuidToAgentInstanceMap) {
             stream(this.spliterator(), false)
-                    .filter(agentInstance -> agentInstance.getStatus().isRegistered())
-                    .forEach(registeredInstances::add);
+                .filter(agentInstance -> agentInstance.getStatus().isRegistered())
+                .forEach(registeredInstances::add);
         }
 
         return registeredInstances;
@@ -190,16 +189,6 @@ public class AgentInstances implements Iterable<AgentInstance> {
         findAgentAndRefreshStatus(uuid).building(agentBuildingInfo);
     }
 
-    public List<AgentInstance> filter(List<String> uuids) {
-        if (uuids == null || uuids.isEmpty()) {
-            return emptyList();
-        }
-
-        return stream(this.spliterator(), false)
-                .filter(agentInstance -> uuids.contains(agentInstance.getUuid()))
-                .collect(toList());
-    }
-
     public LinkedMultiValueMap<String, ElasticAgentMetadata> getAllElasticAgentsGroupedByPluginId() {
         LinkedMultiValueMap<String, ElasticAgentMetadata> map = new LinkedMultiValueMap<>();
 
@@ -218,39 +207,43 @@ public class AgentInstances implements Iterable<AgentInstance> {
         Collection<AgentInstance> agentInstances = uuidToAgentInstanceMap.values();
 
         List<AgentInstance> matchingElasticInstances = agentInstances.stream()
-                .filter(agentInstance -> agentInstance.isElastic()
-                        && agentInstance.elasticAgentMetadata().elasticAgentId().equals(elasticAgentId)
-                        && agentInstance.elasticAgentMetadata().elasticPluginId().equals(elasticPluginId))
-                .toList();
+            .filter(agentInstance -> agentInstance.isElastic()
+                && agentInstance.elasticAgentMetadata().elasticAgentId().equals(elasticAgentId)
+                && agentInstance.elasticAgentMetadata().elasticPluginId().equals(elasticPluginId))
+            .toList();
 
         if (matchingElasticInstances.isEmpty()) {
             return null;
         }
 
         if (matchingElasticInstances.size() > 1) {
-            Collection<String> uuids = matchingElasticInstances.stream().map(AgentInstance::getUuid).collect(toList());
+            Collection<String> uuids = matchingElasticInstances.stream().map(AgentInstance::getUuid).toList();
             throw new IllegalStateException("Found multiple agents with the same elastic agent id [" + join(", ", uuids) + "]");
         }
 
         return matchingElasticInstances.getFirst();
     }
 
-    public List<Agent> filterPendingAgents(List<String> uuids) {
-        return (uuids == null || uuids.isEmpty() ? new ArrayList<String>() : uuids)
-                .stream()
-                .map(this::findAgent)
-                .filter(this::isPendingAndNotNullInstance)
-                .map(agentInstance -> agentInstance.getAgent().deepClone())
-                .collect(toList());
+    public List<Agent> findPendingAgentsCloned(@Nullable List<String> uuids) {
+        return Objects.<List<String>>requireNonNullElseGet(uuids, Collections::emptyList)
+            .stream()
+            .map(this::findAgent)
+            .filter(this::isPendingAndNotNullInstance)
+            .map(agentInstance -> new Agent(agentInstance.getAgent()))
+            .toList();
     }
 
-    public List<String> filterBy(List<String> uuids, FilterBy filter) {
-        return (uuids == null || uuids.isEmpty() ? new ArrayList<String>() : uuids)
-                .stream()
-                .map(this::findAgent)
-                .filter(agentInstance -> agentInstance.matches(filter))
-                .map(AgentInstance::getUuid)
-                .collect(toList());
+    public List<String> filterBy(@Nullable List<String> uuids, FilterBy filter) {
+        return findStream(uuids)
+            .filter(agentInstance -> agentInstance.matches(filter))
+            .map(AgentInstance::getUuid)
+            .toList();
+    }
+
+    private @NotNull Stream<AgentInstance> findStream(@Nullable List<String> uuids) {
+        return Objects.<List<String>>requireNonNullElseGet(uuids, Collections::emptyList)
+            .stream()
+            .map(this::findAgent);
     }
 
     private boolean isPendingAndNotNullInstance(AgentInstance agentInstance) {
@@ -259,8 +252,8 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
     private List<AgentInstance> getRemovableAgents() {
         return stream(this.spliterator(), false)
-                .filter(AgentInstance::canRemove)
-                .collect(toList());
+            .filter(AgentInstance::canRemove)
+            .toList();
     }
 
     private Collection<AgentInstance> currentInstances() {

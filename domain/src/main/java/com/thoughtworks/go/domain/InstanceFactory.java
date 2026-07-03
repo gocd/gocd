@@ -55,7 +55,7 @@ public class InstanceFactory {
     }
 
     public Stage createStageForRerunOfJobs(Stage stage, List<String> jobNames, SchedulingContext context, StageConfig stageConfig, Clock clock, String latestMd5) {
-        Stage newStage = stage.createClone();
+        Stage newStage = stage.deepClone();
         newStage.prepareForRerunOf(context, latestMd5, clock);
         createRerunJobs(newStage, jobNames, context, stageConfig, clock);
         return newStage;

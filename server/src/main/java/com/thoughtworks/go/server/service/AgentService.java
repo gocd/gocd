@@ -154,7 +154,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
             List<Agent> agents = agentDao.getAgentsByUUIDs(uuids);
             if (state.isPresent()) {
-                agents.addAll(agentInstances.filterPendingAgents(uuids));
+                agents.addAll(agentInstances.findPendingAgentsCloned(uuids));
             }
 
             agents.forEach(agent -> setResourcesEnvsAndState(agent, resourcesToAdd, resourcesToRemove, envsToAdd, envsToRemove, state, environmentConfigService));

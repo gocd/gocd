@@ -30,6 +30,7 @@ import java.util.Objects;
 
 public class Stage extends PersistentObject {
     private static final Logger LOG = LoggerFactory.getLogger(Stage.class);
+    private static final StageResult DEFAULT_RESULT = StageResult.Unknown;
 
     private Long pipelineId;
     private String name;
@@ -51,7 +52,6 @@ public class Stage extends PersistentObject {
     private Integer rerunOfCounter;
     private boolean artifactsDeleted;
 
-    private static final StageResult DEFAULT_RESULT = StageResult.Unknown;
     private String configVersion = null;
     private StageIdentifier previousStage;
 
@@ -407,7 +407,7 @@ public class Stage extends PersistentObject {
         return cleanWorkingDir;
     }
 
-    public Stage createClone() {
+    public Stage deepClone() {
         return ClonerFactory.instance().deepClone(this);
     }
 

@@ -62,7 +62,7 @@ class TemplateExpansionPreprocessorTest {
 
     @Test
     public void shouldCloneStagesSoThatMutationDoesNotAffectTemplate() {
-        PipelineConfig pipelineConfig = new PipelineConfig(cis("pipelineName"), new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig("http://google.com")));
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("pipelineName"), new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig("https://google.com")));
         pipelineConfig.setTemplateName(cis("templateName"));
         PipelineTemplateConfig template = new PipelineTemplateConfig();
         JobConfig jobConfigFromTemplate = new JobConfig("job-1");

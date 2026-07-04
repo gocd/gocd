@@ -85,7 +85,7 @@ public class ChangesetServiceIntegrationTest {
         dbHelper.onSetUp();
         configHelper = new GoConfigFileHelper(goConfigDao);
         configHelper.onSetUp();
-        git = MaterialsMother.gitMaterial("http://google.com", null, "master");
+        git = MaterialsMother.gitMaterial("https://google.com", null, "master");
         git.setFolder("git");
         hg = MaterialsMother.hgMaterial();
         hg.setFolder("hg");

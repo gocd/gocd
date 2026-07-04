@@ -754,7 +754,7 @@ public class StageServiceIntegrationTest {
         ManualBuild build = new ManualBuild(loser);
         Date checkinTime = new Date();
 
-        GitMaterial git = MaterialsMother.gitMaterial("http://google.com", null, "master");
+        GitMaterial git = MaterialsMother.gitMaterial("https://google.com", null, "master");
         git.setFolder("git");
         HgMaterial hg = MaterialsMother.hgMaterial();
         hg.setFolder("hg");

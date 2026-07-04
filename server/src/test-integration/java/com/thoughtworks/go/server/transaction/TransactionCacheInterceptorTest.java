@@ -155,7 +155,7 @@ public class TransactionCacheInterceptorTest {
     }
 
     private MaterialInstance hgInstance() {
-        HgMaterial hgMaterial = new HgMaterial("http://google.com", null);
+        HgMaterial hgMaterial = new HgMaterial("https://google.com", null);
         return hgMaterial.createMaterialInstance();
     }
 }

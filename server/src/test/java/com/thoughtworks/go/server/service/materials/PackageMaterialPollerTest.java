@@ -204,23 +204,23 @@ class PackageMaterialPollerTest {
 
     @Test
     void shouldPopulatePackageModificationComment_WithTrackbackUrlAndComment() {
-        PackageRevision packageRevision = new PackageRevision(null, null, null, "Built on host1", "http://google.com");
+        PackageRevision packageRevision = new PackageRevision(null, null, null, "Built on host1", "https://google.com");
         PackageMaterial packageMaterial = MaterialsMother.packageMaterial();
         when(packageRepositoryExtension.getLatestRevision(eq(packageMaterial.getPluginId()), any(), any())).thenReturn(packageRevision);
 
         List<Modification> modifications = poller.latestModification(packageMaterial, null, null);
-        assertThatJson(modifications.getFirst().getComment()).isEqualTo("{\"COMMENT\":\"Built on host1\",\"TRACKBACK_URL\":\"http://google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}");
+        assertThatJson(modifications.getFirst().getComment()).isEqualTo("{\"COMMENT\":\"Built on host1\",\"TRACKBACK_URL\":\"https://google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}");
     }
 
     @Test
     void shouldPopulatePackageModificationComment_WithTrackbackUrl_ForModificationsSince() {
-        PackageRevision packageRevision = new PackageRevision(null, null, null, "some comment", "http://google.com");
+        PackageRevision packageRevision = new PackageRevision(null, null, null, "some comment", "https://google.com");
         PackageMaterialRevision previousRevision = new PackageMaterialRevision("rev", new Date());
         PackageMaterial packageMaterial = MaterialsMother.packageMaterial();
         when(packageRepositoryExtension.latestModificationSince(eq(packageMaterial.getPluginId()), any(), any(), any())).thenReturn(packageRevision);
 
         List<Modification> modifications = poller.modificationsSince(packageMaterial, null, previousRevision, null);
-        assertThatJson(modifications.getFirst().getComment()).isEqualTo("{\"COMMENT\":\"some comment\",\"TRACKBACK_URL\":\"http://google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}");
+        assertThatJson(modifications.getFirst().getComment()).isEqualTo("{\"COMMENT\":\"some comment\",\"TRACKBACK_URL\":\"https://google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}");
     }
 
     @Nested

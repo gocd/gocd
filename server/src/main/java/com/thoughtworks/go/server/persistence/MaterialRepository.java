@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.ui.ModificationForPipeline;
 import com.thoughtworks.go.server.ui.PipelineId;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.hibernate.*;
@@ -762,10 +761,6 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     private Stream<Modification> checkAndRemoveDuplicates(MaterialInstance materialInstance, List<Modification> newChanges) {
-        if (!new SystemEnvironment().get(SystemEnvironment.CHECK_AND_REMOVE_DUPLICATE_MODIFICATIONS)) {
-            return newChanges.stream();
-        }
-
         Set<String> matchingRevisionsFromDb = findExistingRevisions(materialInstance, newChanges.stream().map(Modification::getRevision).toList());
         if (matchingRevisionsFromDb.isEmpty()) {
             return newChanges.stream();

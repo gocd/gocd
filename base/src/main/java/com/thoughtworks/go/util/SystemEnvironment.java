@@ -153,7 +153,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final GoSystemProperty<Boolean> GO_SERVER_SHALLOW_CLONE = new GoBooleanSystemProperty("go.server.shallowClone", false);
 
     public static final GoSystemProperty<Integer> MAX_PENDING_AGENTS_ALLOWED = new GoIntSystemProperty("max.pending.agents.allowed", 100);
-    public static final GoSystemProperty<Boolean> CHECK_AND_REMOVE_DUPLICATE_MODIFICATIONS = new GoBooleanSystemProperty("go.modifications.removeDuplicates", true);
     public static final GoSystemProperty<Boolean> GO_DIAGNOSTICS_MODE = new GoBooleanSystemProperty("go.diagnostics.mode", false);
 
     public static final GoSystemProperty<Integer> DEPENDENCY_MATERIAL_UPDATE_LISTENERS = new GoIntSystemProperty("dependency.material.check.threads", 3);

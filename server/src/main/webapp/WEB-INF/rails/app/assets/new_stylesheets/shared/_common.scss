@@ -298,42 +298,6 @@ ul.key-value-pair {
   }
 }
 
-.plugin-group-header {
-  .btn-group {
-    float: right;
-  }
-
-  .warning {
-    @include icon-before($type: exclamation-triangle, $size: $component-icon-size, $color: #fff702);
-
-    &::before {
-      font-size: 20px;
-      text-align: center;
-      vertical-align: middle;
-    }
-  }
-}
-
-.plugin-config-read-only {
-  .key-value-pair {
-    .key {
-      width: 25%;
-      max-width: 200px;
-      word-break: break-all;
-    }
-
-    .value {
-      width: 70%;
-      overflow-x: auto;
-    }
-  }
-}
-
-.page-save-in-progress {
-  pointer-events: none;
-  opacity: 0.3;
-}
-
 // silent classes
 
 %title {

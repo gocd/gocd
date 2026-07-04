@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.ui.ModificationForPipeline;
 import com.thoughtworks.go.server.ui.PipelineId;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.hibernate.*;
@@ -55,6 +54,7 @@ import java.io.File;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.server.persistence.MaterialQueries.loadModificationQuery;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -70,7 +70,8 @@ import static org.hibernate.criterion.Restrictions.isNull;
 public class MaterialRepository extends HibernateDaoSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(MaterialRepository.class.getName());
     private static final int BATCH_SIZE_NUM_PIPELINES_TO_GET_PIPELINE_MATERIAL_REVISIONS = 500;
-    private static final int BATCH_SIZE_NUM_PIPELINE_MATERIAL_REVISION_To_GET_MODIFICATIONS = 100;
+    private static final int BATCH_SIZE_NUM_PIPELINE_MATERIAL_REVISION_TO_GET_MODIFICATIONS = 100;
+    private static final int BATCH_SIZE_NUM_REVISIONS_TO_CHECK_FOR_DUPLICATES = 1000;
 
     private final GoCache goCache;
     private final TransactionSynchronizationManager transactionSynchronizationManager;
@@ -305,7 +306,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     private void loadModificationsIntoCache(Set<PipelineMaterialRevision> pmrs) {
-        List<List<PipelineMaterialRevision>> pmrbatches = ListUtils.partition(List.copyOf(pmrs), BATCH_SIZE_NUM_PIPELINE_MATERIAL_REVISION_To_GET_MODIFICATIONS);
+        List<List<PipelineMaterialRevision>> pmrbatches = ListUtils.partition(List.copyOf(pmrs), BATCH_SIZE_NUM_PIPELINE_MATERIAL_REVISION_TO_GET_MODIFICATIONS);
         final int total = pmrs.size();
         int remaining = total;
         for (List<PipelineMaterialRevision> pmrBatch : pmrbatches) {
@@ -744,17 +745,11 @@ public class MaterialRepository extends HibernateDaoSupport {
         if (newChanges.isEmpty()) {
             return;
         }
-        List<Modification> list = new ArrayList<>(newChanges);
-        Collections.reverse(list);
-        for (Modification modification : list) {
-            modification.setMaterialInstance(materialInstance);
-        }
-
+        newChanges.forEach(modification -> modification.setMaterialInstance(materialInstance));
+        
         try {
-            checkAndRemoveDuplicates(materialInstance, newChanges, list);
-            for (Modification modification : list) {
-                getHibernateTemplate().saveOrUpdate(modification);
-            }
+            checkAndRemoveDuplicates(materialInstance, newChanges.reversed())
+                .forEach(modification -> getHibernateTemplate().saveOrUpdate(modification));
         } catch (Exception e) {
             String message = "Cannot save modification: ";
             LOGGER.error(message, e);
@@ -765,35 +760,33 @@ public class MaterialRepository extends HibernateDaoSupport {
         removeCachedModificationsFor(materialInstance);
     }
 
-    private void checkAndRemoveDuplicates(MaterialInstance materialInstance,
-                                          List<Modification> newChanges,
-                                          List<Modification> list) {
-        if (!new SystemEnvironment().get(SystemEnvironment.CHECK_AND_REMOVE_DUPLICATE_MODIFICATIONS)) {
-            return;
-        }
-        DetachedCriteria criteria = DetachedCriteria.forClass(Modification.class);
-        criteria.setProjection(Projections.projectionList().add(Projections.property("revision")));
-        criteria.add(Restrictions.eq("materialInstance.id", materialInstance.getId()));
-        List<String> revisions = new ArrayList<>();
-        for (Modification modification : newChanges) {
-            revisions.add(modification.getRevision());
-        }
-        criteria.add(Restrictions.in("revision", revisions));
-        @SuppressWarnings("unchecked") List<String> matchingRevisionsFromDb = (List<String>) getHibernateTemplate().findByCriteria(criteria);
-        if (!matchingRevisionsFromDb.isEmpty()) {
-            for (final String revision : matchingRevisionsFromDb) {
-                Modification modification = list.stream().filter(item -> item.getRevision().equals(revision)).findFirst().orElse(null);
-                list.remove(modification);
-            }
-        }
-        if (!newChanges.isEmpty() && list.isEmpty()) {
-            LOGGER.debug("All modifications already exist in db [{}]", revisions);
-        }
-        if (!matchingRevisionsFromDb.isEmpty()) {
-            LOGGER.info("Saving revisions for material [{}] after removing the following duplicates {}",
-                materialInstance.toOldMaterial(null, null, null).getLongDescription(), matchingRevisionsFromDb);
+    private Stream<Modification> checkAndRemoveDuplicates(MaterialInstance materialInstance, List<Modification> newChanges) {
+        Set<String> matchingRevisionsFromDb = findExistingRevisions(materialInstance, newChanges.stream().map(Modification::getRevision).toList());
+        if (matchingRevisionsFromDb.isEmpty()) {
+            return newChanges.stream();
         }
 
+        LOGGER.info("Saving revisions for material [{}] after removing the following duplicates {}",
+            materialInstance.toOldMaterial(null, null, null).getLongDescription(), matchingRevisionsFromDb);
+
+        return newChanges.stream().filter(item -> !matchingRevisionsFromDb.contains(item.getRevision()));
+    }
+
+    // Batched so the IN clause never exceeds DB driver parameter limits, e.g. PostgreSQL's 16-bit
+    // signed parameter count cap of 32767, which otherwise fails material updates for large
+    // commit histories.
+    private Set<String> findExistingRevisions(MaterialInstance materialInstance, List<String> revisions) {
+        Set<String> matchingRevisionsFromDb = new HashSet<>();
+        for (List<String> batch : ListUtils.partition(revisions, BATCH_SIZE_NUM_REVISIONS_TO_CHECK_FOR_DUPLICATES)) {
+            DetachedCriteria criteria = DetachedCriteria.forClass(Modification.class);
+            criteria.setProjection(Projections.projectionList().add(Projections.property("revision")));
+            criteria.add(Restrictions.eq("materialInstance.id", materialInstance.getId()));
+            criteria.add(Restrictions.in("revision", batch));
+            @SuppressWarnings("unchecked")
+            List<String> existingBatch = (List<String>) getHibernateTemplate().findByCriteria(criteria);
+            matchingRevisionsFromDb.addAll(existingBatch);
+        }
+        return matchingRevisionsFromDb;
     }
 
     public Modification findModificationWithRevision(@NotNull Material material, final String revision) {

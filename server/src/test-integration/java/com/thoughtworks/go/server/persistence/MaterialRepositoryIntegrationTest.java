@@ -1237,9 +1237,6 @@ public class MaterialRepositoryIntegrationTest {
 
     @Test
     public void shouldRemoveDuplicatesAcrossBatchesWhenCheckingALargeNumberOfRevisions() {
-        // Exercises the batched IN-clause used by MaterialRepository.findExistingRevisionsInBatches,
-        // which prevents DB-driver parameter-count limits (e.g. PostgreSQL's 32767 cap) from breaking
-        // material updates on repositories with very large commit histories.
         final MaterialInstance materialInstance = repo.findOrCreateFrom(new GitMaterial(UUID.randomUUID().toString(), "branch"));
         final int initialCount = 1500;
         final List<Modification> firstSet = getModifications(initialCount);
@@ -1260,7 +1257,6 @@ public class MaterialRepositoryIntegrationTest {
         assertThat(repo.getTotalModificationsFor(materialInstance)).isEqualTo((long) initialCount + 1000);
     }
 
-    //Slow test - takes ~1 min to run. Will remove if it causes issues. - Jyoti
     @Test
     public void shouldBeAbleToHandleLargeNumberOfModifications() {
         final MaterialInstance materialInstance = repo.findOrCreateFrom(new GitMaterial(UUID.randomUUID().toString(), "branch"));

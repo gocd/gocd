@@ -70,7 +70,7 @@ import static org.hibernate.criterion.Restrictions.isNull;
 public class MaterialRepository extends HibernateDaoSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(MaterialRepository.class.getName());
     private static final int BATCH_SIZE_NUM_PIPELINES_TO_GET_PIPELINE_MATERIAL_REVISIONS = 500;
-    private static final int BATCH_SIZE_NUM_PIPELINE_MATERIAL_REVISION_To_GET_MODIFICATIONS = 100;
+    private static final int BATCH_SIZE_NUM_PIPELINE_MATERIAL_REVISION_TO_GET_MODIFICATIONS = 100;
     private static final int BATCH_SIZE_NUM_REVISIONS_TO_CHECK_FOR_DUPLICATES = 1000;
 
     private final GoCache goCache;
@@ -306,7 +306,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     private void loadModificationsIntoCache(Set<PipelineMaterialRevision> pmrs) {
-        List<List<PipelineMaterialRevision>> pmrbatches = ListUtils.partition(List.copyOf(pmrs), BATCH_SIZE_NUM_PIPELINE_MATERIAL_REVISION_To_GET_MODIFICATIONS);
+        List<List<PipelineMaterialRevision>> pmrbatches = ListUtils.partition(List.copyOf(pmrs), BATCH_SIZE_NUM_PIPELINE_MATERIAL_REVISION_TO_GET_MODIFICATIONS);
         final int total = pmrs.size();
         int remaining = total;
         for (List<PipelineMaterialRevision> pmrBatch : pmrbatches) {

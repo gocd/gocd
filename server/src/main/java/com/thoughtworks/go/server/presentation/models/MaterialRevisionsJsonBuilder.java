@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.presentation.models;
 
+import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.domain.CommentRenderer;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.ModificationVisitorAdapter;
@@ -29,7 +30,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.config.materials.PackageMaterial.TYPE;
 import static java.lang.String.valueOf;
 
 public class MaterialRevisionsJsonBuilder extends ModificationVisitorAdapter {
@@ -74,11 +74,10 @@ public class MaterialRevisionsJsonBuilder extends ModificationVisitorAdapter {
         jsonMap.put("user", modification.getUserDisplayName());
         jsonMap.put("revision", modification.getRevision());
         jsonMap.put("date", Dates.formatIso8601SystemCompactOffsetNoMillis(modification.getModifiedTime()));
-        String comment = modification.getComment();
-        if (!revision.getMaterial().getMaterialType().equals(TYPE)) {
-            comment = commentRenderer.render(comment);
-        }
-        jsonMap.put("comment", comment);
+        jsonMap.put("comment", PackageMaterial.TYPE.equals(revision.getMaterial().getMaterialType())
+            ? modification.getComment() // Send back what should be raw JSON for rendering on UI :-(
+            : commentRenderer.render(modification.getComment())
+        );
         jsonMap.put("modifiedFiles", modifiedFilesJson);
 
         modificationsJson.add(jsonMap);

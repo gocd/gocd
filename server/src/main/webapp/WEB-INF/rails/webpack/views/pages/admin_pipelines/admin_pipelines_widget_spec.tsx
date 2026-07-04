@@ -46,6 +46,7 @@ describe("PipelineGroupsWidget", () => {
       doExtractPipeline: jasmine.createSpy("doExtractPipeline"),
       doMovePipeline: jasmine.createSpy("doMovePipeline"),
       pipelineGroups: Stream(new PipelineGroups()),
+      canMovePipeline: false,
       onError: jasmine.createSpy("onError"),
       onSuccessfulSave: jasmine.createSpy("onSuccessfulSave"),
       scrollOptions: {sm: stubAllMethods(["hasTarget", "shouldScroll"]), shouldOpenEditView: false}
@@ -287,6 +288,20 @@ describe("PipelineGroupsWidget", () => {
     it("should be able to move a pipeline", () => {
       attrs.pipelineGroups().push(new PipelineGroup("foo", new Pipelines(PipelineWithOrigin.fromJSON(pipelineJSON))));
       attrs.pipelineGroups().push(new PipelineGroup("bar", new Pipelines()));
+      attrs.canMovePipeline = true;
+      helper.mount(() => {
+        return <PipelineGroupsWidget {...attrs}/>;
+      });
+
+      const movePipelineElement = helper.byTestId(`move-pipeline-${pipelineJSON.name}`);
+
+      expect(movePipelineElement).not.toBeDisabled();
+      expect(movePipelineElement).toHaveAttr("title", "Move pipeline 'some-pipeline'");
+    });
+
+    it("should allow moving a pipeline when only one group is rendered but more groups exist (e.g. when filtering)", () => {
+      attrs.pipelineGroups().push(new PipelineGroup("foo", new Pipelines(PipelineWithOrigin.fromJSON(pipelineJSON))));
+      attrs.canMovePipeline = true;
       helper.mount(() => {
         return <PipelineGroupsWidget {...attrs}/>;
       });

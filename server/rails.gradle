@@ -327,7 +327,7 @@ tasks.register('rspec', ExecuteUnderRailsTask) {
   jvmArgs += (InstallerTypeServer.instance.jvmInternalAccessArgs - jvmArgs) // Add additional args not already needed by JRuby alone
   args = ['-S', 'rspec', '--backtrace']
   if (project.hasProperty('opts')) {
-    args += Commandline.translateCommandline(project.property('opts') as String)
+    args += Commandline.translateCommandline(project.property('opts') as String).toList()
   }
   environment += [
     'REPORTS_DIR': "${layout.buildDirectory.get()}/rspec-results"

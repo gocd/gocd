@@ -32,7 +32,8 @@ import {Pagination} from "views/components/pagination/models/pagination";
 import state from "views/dashboard/models/stage_overview_state";
 import {Page, PageState} from "views/pages/page";
 import {ResultAwarePage} from "views/pages/page_operations";
-import {PipelinePauseHeader} from "views/pages/pipeline_activity/common/pipeline_pause_header";
+import {PipelineHeaderTitle} from "views/pages/partials/pipeline_header_title";
+import {PipelinePauseActions} from "views/pages/partials/pipeline_pause_actions";
 import {PipelineActivityWidget} from "views/pages/pipeline_activity/pipeline_activity_widget";
 import {StageOverviewViewModel} from "../dashboard/stage_overview/models/stage_overview_view_model";
 import {ConfirmationDialog} from "./pipeline_activity/confirmation_modal";
@@ -182,20 +183,25 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   }
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {
-    let title: m.Children = <div data-test-id="pipeline-pause-header"/>;
+    let title: m.Children   = <div data-test-id="pipeline-pause-header"/>;
+    let actions: m.Children = null;
 
     if (this.pipelineActivity()) {
-      title = <PipelinePauseHeader pipelineName={this.pipelineActivity().pipelineName()}
-                                   flashMessage={this.flashMessage}
-                                   shouldShowPauseUnpause={this.pipelineActivity().canPause()}
-                                   shouldShowPipelineSettings={Page.isUserAnAdmin() || Page.isUserAGroupAdmin()}/>;
+      title   = <PipelineHeaderTitle pipelineName={this.pipelineActivity().pipelineName()}/>;
+      actions = <PipelinePauseActions pipelineName={this.pipelineActivity().pipelineName()}
+                                      flashMessage={this.flashMessage}
+                                      shouldShowPauseUnpause={this.pipelineActivity().canPause()}
+                                      shouldShowPipelineSettings={Page.isUserAnAdmin() || Page.isUserAGroupAdmin()}/>;
     }
 
     return <HeaderPanel title={title} sectionName={this.pageName()} buttons={
-      <SearchField property={this.filterText} label={"Search"}
-                   dataTestId={"search-field"}
-                   placeholder={"Filter history..."}
-                   onchange={this.fetchData.bind(this)}/>
+      <div class={styles.headerActions}>
+        {actions}
+        <SearchField property={this.filterText} label={"Search"}
+                     dataTestId={"search-field"}
+                     placeholder={"Filter history..."}
+                     onchange={this.fetchData.bind(this)}/>
+      </div>
     } help={this.helpText()}/>;
   }
 

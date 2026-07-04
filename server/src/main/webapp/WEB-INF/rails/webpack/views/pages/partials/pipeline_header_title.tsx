@@ -14,26 +14,29 @@
  * limitations under the License.
  */
 
-import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {Link} from "views/components/link";
-import styles from "./index.scss";
+import styles from "./pipeline_header_title.scss";
 
 interface Attrs {
   pipelineName: string;
+  // When provided, the pipeline name is rendered as a link to this href.
+  link?: string;
+  linkTitle?: string;
 }
 
-export class CompareHeaderWidget extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>) {
-    return <div className={styles.pageHeader}>
-      <div className={styles.pipelineInfo}>
-        <span className={styles.label} data-test-id="page-header-pipeline-label">Pipeline</span>
-        <span className={styles.value} data-test-id="page-header-pipeline-name">
-          <Link href={SparkRoutes.pipelineHistoryPath(vnode.attrs.pipelineName)}
-                title="Pipeline Activities"> {vnode.attrs.pipelineName}</Link>
-        </span>
-      </div>
+export class PipelineHeaderTitle extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>): m.Children {
+    const {pipelineName, link, linkTitle} = vnode.attrs;
+
+    const name = link === undefined
+      ? pipelineName
+      : <Link href={link} title={linkTitle}>{pipelineName}</Link>;
+
+    return <div class={styles.pipelineInfo}>
+      <span class={styles.label} data-test-id="page-header-pipeline-label">Pipeline</span>
+      <span class={styles.value} title={pipelineName} data-test-id="page-header-pipeline-name">{name}</span>
     </div>;
   }
 }

@@ -19,20 +19,6 @@ $width-for-msg: 100px;
 $width-for-instance-selection: 360px;
 $dropdown-button-content-z-index: 5;
 
-.page-header {
-  display: flex;
-
-  .pipeline-info {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-
-    .value {
-      font-size: 15px;
-    }
-  }
-}
-
 .label {
   font-size: 0.625rem;
 }

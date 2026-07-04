@@ -25,7 +25,7 @@ import * as Icons from "views/components/icons";
 import {Link} from "views/components/link";
 import {PipelineStatus} from "views/pages/pipeline_activity/common/models/pipeline_status";
 import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
-import styles from "../index.scss";
+import styles from "./pipeline_pause_actions.scss";
 
 interface Attrs {
   pipelineName: string;
@@ -41,7 +41,7 @@ interface State {
   pipelineStatus: Stream<PipelineStatus>;
 }
 
-export class PipelinePauseHeader extends MithrilComponent<Attrs, State> {
+export class PipelinePauseActions extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
     vnode.state.pipelineStatus = Stream();
     if (vnode.attrs.pipelineStatus) {
@@ -52,17 +52,20 @@ export class PipelinePauseHeader extends MithrilComponent<Attrs, State> {
   }
 
   view(vnode: m.Vnode<Attrs, State>): m.Children {
-    return <div class={styles.pageHeader}>
-      <div class={styles.pipelineInfo}>
-        <span class={styles.label} data-test-id="page-header-pipeline-label">Pipeline</span>
-        <span class={styles.value}
-              title={vnode.attrs.pipelineName}
-              data-test-id="page-header-pipeline-name">{vnode.attrs.pipelineName}</span>
-      </div>
+    const pauseUnpauseButton = this.getPipelinePauseUnpauseButton(vnode);
+    const pauseMessage       = this.pauseMessageText(vnode);
+    const settingsLink       = this.pipelineSettingsLink(vnode);
 
-      {this.getPipelinePauseUnpauseButton(vnode)}
-      {this.pauseMessageText(vnode)}
-      {this.pipelineSettingsLink(vnode)}
+    // Nothing to show (e.g. can't pause, not paused, and no settings icon) -
+    // render nothing rather than an empty box that still claims layout/gap.
+    if (!pauseUnpauseButton && !pauseMessage && !settingsLink) {
+      return;
+    }
+
+    return <div class={styles.pauseActions} data-test-id="pipeline-pause-actions">
+      {pauseUnpauseButton}
+      {pauseMessage}
+      {settingsLink}
     </div>;
   }
 

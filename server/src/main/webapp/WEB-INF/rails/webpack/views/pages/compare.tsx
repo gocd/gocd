@@ -15,6 +15,7 @@
  */
 import {docsUrl} from "gen/gocd_version";
 import {SuccessResponse} from "helpers/api_request_builder";
+import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Comparison} from "models/compare/compare";
@@ -26,7 +27,7 @@ import {FlashMessage} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {Link} from "views/components/link";
 import {Page, PageState} from "views/pages/page";
-import {CompareHeaderWidget} from "./compare/compare_header_widget";
+import {PipelineHeaderTitle} from "views/pages/partials/pipeline_header_title";
 import {ComparisonResultWidget} from "./compare/comparison_result_widget";
 import {ComparisonSelectionWidget} from "./compare/comparison_selection_widget";
 
@@ -114,8 +115,11 @@ export class ComparePage extends Page<null, State> {
   }
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {
-    const sectionName = <CompareHeaderWidget pipelineName={this.getMeta().pipelineName}/>;
+    const pipelineName = this.getMeta().pipelineName;
+    const title        = <PipelineHeaderTitle pipelineName={pipelineName}
+                                              link={SparkRoutes.pipelineHistoryPath(pipelineName)}
+                                              linkTitle="Pipeline Activities"/>;
 
-    return <HeaderPanel title={sectionName} sectionName={this.pageName()} help={this.helpText()}/>;
+    return <HeaderPanel title={title} sectionName={this.pageName()} help={this.helpText()}/>;
   }
 }

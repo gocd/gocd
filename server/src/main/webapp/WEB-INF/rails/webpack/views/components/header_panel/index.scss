@@ -28,7 +28,11 @@ $page-item-padding: 30px;
   display: flex;
   left: 0;
   right: 0;
-  place-content: center space-between;
+
+  // Lay the title and buttons out left-to-right (not space-between): when the
+  // content can't fit, the buttons get pushed off the right edge rather than
+  // overlapping the title. See .page_title / .title for the shrink priority.
+  justify-content: flex-start;
   align-items: center;
   box-sizing: border-box;
   background: $page-header-bg;
@@ -44,6 +48,11 @@ $page-item-padding: 30px;
   display: flex;
   align-self: center;
 
+  // The section name (e.g. "Pipeline Activity") is the page's identity: keep it
+  // on one line and never let it shrink. The title (e.g. the pipeline name)
+  // yields first instead.
+  flex-shrink: 0;
+
   &::after {
     content: "|";
     color: $line-color;
@@ -55,6 +64,7 @@ $page-item-padding: 30px;
   margin: 0;
   font-size: $header-font-size;
   font-weight: $header-font-weight;
+  white-space: nowrap;
 }
 
 .title {
@@ -63,13 +73,43 @@ $page-item-padding: 30px;
   font-size: $header-font-size;
   font-weight: $header-font-weight;
   margin: 0;
+
+  // Let a long title truncate instead of pushing the buttons off-screen. The
+  // <h1> is the flex item that shrinks, so min-width: 0 + overflow: hidden here
+  // is what actually lets it shrink below its content and ellipsize. (A short
+  // title still sits at its natural width - no gap before a help icon.)
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// When there is a section name, the title is secondary (e.g. the pipeline name)
+// and the help icon lives with the section name - so the title has nothing
+// beside it to crowd. Give it a min-width floor so a long title ellipsizes and
+// stays partially visible instead of collapsing, while the buttons overflow
+// off-screen. (Titles without a section name keep their natural width so a short
+// title stays snug against its help icon.)
+.section-wrapper ~ .title {
+  min-width: 200px;
+}
+
+// The buttons wrapper. margin-left: auto pushes it to the far right (next to the
+// title); flex-shrink: 0 keeps it rigid so it overflows off-screen rather than
+// shrinking or overlapping the title when the window is narrow.
+.page-actions {
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .page_title {
-  display: flex;
-  align-content: center;
-  align-items: center;
-  height: 100%;
+  // display: contents removes this wrapper's box so the section, title (<h1>),
+  // help and key-value pairs become direct flex items of .page-header. That is
+  // what lets the title's min-width act as a real flex floor (so a widget title
+  // can stop shrinking and ellipsize) and lets the buttons overflow off-screen
+  // instead of overlapping the section / title when there is no room.
+  display: contents;
 }
 
 .key-value-pairs {

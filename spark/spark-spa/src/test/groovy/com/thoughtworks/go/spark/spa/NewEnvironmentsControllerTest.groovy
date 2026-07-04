@@ -18,7 +18,7 @@ package com.thoughtworks.go.spark.spa
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import org.junit.jupiter.api.Nested
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
@@ -28,13 +28,15 @@ class NewEnvironmentsControllerTest implements ControllerTrait<NewEnvironmentsCo
 
   @Override
   NewEnvironmentsController createControllerInstance() {
-    return new NewEnvironmentsController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+    return new NewEnvironmentsController(new SpaAuthorizationHelper(securityService, goConfigService), templateEngine)
   }
 
   @Nested
   class Index {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate ControllerTrait<NewEnvironmentsController> c = NewEnvironmentsControllerTest.this
+      @Delegate SecurityServiceTrait s = NewEnvironmentsControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.admin.pipelinegroups
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroupRepresenter
 import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroupsRepresenter
 import com.thoughtworks.go.config.Authorization
@@ -27,10 +27,7 @@ import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.PipelineConfigService
 import com.thoughtworks.go.server.service.PipelineConfigsService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
-import com.thoughtworks.go.spark.AdminUserSecurity
-import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
-import com.thoughtworks.go.spark.SecurityServiceTrait
+import com.thoughtworks.go.spark.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -59,13 +56,15 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
   @Override
   PipelineGroupsControllerV1 createControllerInstance() {
-    return new PipelineGroupsControllerV1(pipelineConfigsService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService)
+    return new PipelineGroupsControllerV1(pipelineConfigsService, new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService)
   }
 
   @Nested
   class Index {
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PipelineGroupsControllerV1Test.this
+      @Delegate ControllerTrait<PipelineGroupsControllerV1> c = PipelineGroupsControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -82,7 +81,6 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
     class AsGroupAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsGroupAdmin()
       }
 
@@ -126,6 +124,8 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PipelineGroupsControllerV1Test.this
+      @Delegate ControllerTrait<PipelineGroupsControllerV1> c = PipelineGroupsControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -144,7 +144,6 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -169,7 +168,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
         when(pipelineConfigsService.createGroup(any(), any(), any())).then({ InvocationOnMock invocation ->
           pipelineGroup.addError("group", "Invalid name")
-          result = invocation.getArguments()[2]
+          result = invocation.getArgument(2)
           result.unprocessableEntity("message from server")
         })
 
@@ -215,7 +214,8 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
-
+      @Delegate SecurityServiceTrait s = PipelineGroupsControllerV1Test.this
+      @Delegate ControllerTrait<PipelineGroupsControllerV1> c = PipelineGroupsControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -224,7 +224,12 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath('/group'))
+        getWithApiHeader(controller.controllerPath(getGroupName()))
+      }
+
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        return new PipelineSpecifier(groupName: "group")
       }
     }
 
@@ -233,7 +238,6 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -310,6 +314,9 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PipelineGroupsControllerV1Test.this
+      @Delegate ControllerTrait<PipelineGroupsControllerV1> c = PipelineGroupsControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "update"
@@ -318,13 +325,18 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
       @Override
       void makeHttpCall() {
         def group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig('pipeline1'))
-        group.setGroup("group")
+        group.setGroup(getGroupName())
         def headers = [
           'If-Match': 'cached-digest',
         ]
-        putWithApiHeader(controller.controllerPath('/group'), headers, toObjectString({
+        putWithApiHeader(controller.controllerPath(getGroupName()), headers, toObjectString({
           PipelineGroupRepresenter.toJSON(it, group)
         }))
+      }
+
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        return new PipelineSpecifier(groupName: "group")
       }
     }
 
@@ -333,7 +345,6 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
       @BeforeEach
       void setup() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -403,7 +414,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         group.addError("authorization", "Invalid authorization")
 
         when(pipelineConfigsService.updateGroup(any(), any(), any(), any())).then({ InvocationOnMock invocation ->
-          result = invocation.getArguments()[3]
+          result = invocation.getArgument(3)
           result.unprocessableEntity("message from server")
         })
 
@@ -443,6 +454,9 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PipelineGroupsControllerV1Test.this
+      @Delegate ControllerTrait<PipelineGroupsControllerV1> c = PipelineGroupsControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "destroy"
@@ -450,7 +464,12 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
       @Override
       void makeHttpCall() {
-        deleteWithApiHeader(controller.controllerPath('/foo'))
+        deleteWithApiHeader(controller.controllerPath(getGroupName()))
+      }
+
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        return new PipelineSpecifier(groupName: "goo")
       }
     }
 
@@ -459,7 +478,6 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
       @BeforeEach
       void setup() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -469,7 +487,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups([group]))
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.setMessage("The group 'group1' was deleted successfully.")
         }).when(pipelineConfigsService).deleteGroup(any(), eq(group), any())
 
@@ -498,7 +516,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups([group]))
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.unprocessableEntity("Cannot delete group when not empty")
         }).when(pipelineConfigsService).deleteGroup(any(), eq(group), any())
 

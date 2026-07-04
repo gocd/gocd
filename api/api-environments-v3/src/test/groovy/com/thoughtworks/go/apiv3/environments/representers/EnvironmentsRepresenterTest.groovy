@@ -16,27 +16,27 @@
 package com.thoughtworks.go.apiv3.environments.representers
 
 import com.thoughtworks.go.config.BasicEnvironmentConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.EnvironmentConfig
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class EnvironmentsRepresenterTest {
 
   @Test
   void 'should serialize list of environments to JSON'() {
-    EnvironmentConfig env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+    EnvironmentConfig env1 = new BasicEnvironmentConfig(cis("env1"))
     env1.addAgent("agent1")
     env1.addAgent("agent2")
     env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-    env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
-    env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+    env1.addPipeline(cis("Pipeline1"))
+    env1.addPipeline(cis("Pipeline2"))
 
-    EnvironmentConfig env2 = new BasicEnvironmentConfig(new CaseInsensitiveString("env2"))
+    EnvironmentConfig env2 = new BasicEnvironmentConfig(cis("env2"))
     env2.addEnvironmentVariable("GROOVY_HOME", "/bin/groovy")
-    env2.addPipeline(new CaseInsensitiveString("Pipeline3"))
+    env2.addPipeline(cis("Pipeline3"))
 
     def listOfEnvironments = [env1, env2]
 

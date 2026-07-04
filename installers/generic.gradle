@@ -63,16 +63,16 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
     destinationDirectory = project.base.distsDirectory.dir("zip")
     archiveBaseName = installerType.baseName
 
-    into("${installerType.baseName}-${project.goVersions.goVersion}")
+    into("${installerType.baseName}-${rootProject.goVersions.goVersion}")
 
     from("${rootProject.projectDir}/LICENSE")
 
     from("${extractDeltaPack.destinationDir}/src/bin/App.sh.in") {
       filter({ String eachLine ->
         eachLine = eachLine
-          .replaceAll('@app.name@', installerType.baseName)
-          .replaceAll('@app.long.name@', installerType.baseName)
-          .replaceAll('@app.description@', installerType.baseName)
+          .replace('@app.name@', installerType.baseName)
+          .replace('@app.long.name@', installerType.baseName)
+          .replace('@app.description@', installerType.baseName)
 
         if (eachLine == 'WRAPPER_CMD="./wrapper"') {
           eachLine = 'WRAPPER_CMD="../wrapper/wrapper"'
@@ -151,9 +151,9 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
     from("${extractDeltaPack.destinationDir}/src/conf/wrapper.conf.in") {
       filter({ String eachLine ->
         eachLine = eachLine
-          .replaceAll('@app.name@', installerType.baseName)
-          .replaceAll('@app.long.name@', installerType.baseName)
-          .replaceAll('@app.description@', installerType.baseName)
+          .replace('@app.name@', installerType.baseName)
+          .replace('@app.long.name@', installerType.baseName)
+          .replace('@app.description@', installerType.baseName)
 
         if (eachLine == 'wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperSimpleApp') {
           eachLine = 'wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperJarApp'

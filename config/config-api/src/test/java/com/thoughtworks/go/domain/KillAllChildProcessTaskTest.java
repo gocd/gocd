@@ -22,7 +22,6 @@ import java.util.HashMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
-
 public class KillAllChildProcessTaskTest {
     @Test
     public void shouldReturnDefaultsForCancelTaskAndGetConditions() {

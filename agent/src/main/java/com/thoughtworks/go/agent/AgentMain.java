@@ -37,15 +37,14 @@ public final class AgentMain {
         new SystemEnvironment().setProperty("go.process.type", "agent");
         Map<String, String> stringStringMap = args.toProperties();
 
-        new SystemEnvironment().setProperty(SystemEnvironment.SERVICE_URL, args.getServerUrl().toString());
+        new SystemEnvironment().setProperty(SystemEnvironment.SERVICE_URL.propertyName(), args.getServerUrl().toString());
         for (Map.Entry<String, String> entry : stringStringMap.entrySet()) {
             new SystemEnvironment().setProperty(entry.getKey(), entry.getValue());
         }
 
         Logger logger = LoggerFactory.getLogger(AgentMain.class); // Deliberately initializing logger late
         logger.info("Go Agent starting...");
-        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
-        ctx.registerShutdownHook();
+        new ClassPathXmlApplicationContext("applicationContext.xml").registerShutdownHook();
         logger.info("Go Agent started & running in background.");
     }
 }

@@ -16,9 +16,8 @@
 package com.thoughtworks.go.apiv1.internalmaterialtest
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.config.CaseInsensitiveString
-import com.thoughtworks.go.config.PipelineConfig
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
+import com.thoughtworks.go.config.ParamConfig
 import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.git.GitMaterial
 import com.thoughtworks.go.domain.materials.MaterialConfig
@@ -38,31 +37,25 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
+import static com.thoughtworks.go.helper.PipelineConfigMother.*
 import static org.junit.jupiter.api.Assertions.assertEquals
-import static org.mockito.ArgumentMatchers.*
+import static org.mockito.ArgumentMatchers.any
+import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
 
 @MockitoSettings(strictness = Strictness.LENIENT)
 class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, ControllerTrait<InternalMaterialTestControllerV1> {
 
-  @Mock
-  PasswordDeserializer passwordDeserializer
-
-  @Mock
-  MaterialConfigConverter materialConfigConverter
-
-  @Mock
-  SystemEnvironment systemEnvironment
-
-  @Mock
-  GitCommand gitCommand
-  @Mock
-  SecretParamResolver secretParamResolver
-
+  @Mock PasswordDeserializer passwordDeserializer
+  @Mock MaterialConfigConverter materialConfigConverter
+  @Mock SystemEnvironment systemEnvironment
+  @Mock GitCommand gitCommand
+  @Mock SecretParamResolver secretParamResolver
 
   @Override
   InternalMaterialTestControllerV1 createControllerInstance() {
-    new InternalMaterialTestControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigService, passwordDeserializer, materialConfigConverter, systemEnvironment, secretParamResolver)
+    new InternalMaterialTestControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), goConfigService, passwordDeserializer, materialConfigConverter, systemEnvironment, secretParamResolver)
   }
 
   @Nested
@@ -70,6 +63,8 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
 
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = InternalMaterialTestControllerV1Test.this
+      @Delegate ControllerTrait<InternalMaterialTestControllerV1> c = InternalMaterialTestControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -78,36 +73,74 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerBasePath(), "{}")
+        postWithApiHeader(controller.controllerPath(Map.of("group_name", getGroupName())), [:])
+      }
+
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(groupName: 'some-group')
       }
     }
 
     @Nested
-    class AsAdminUser {
+    class AsGroupAdmin {
+      String groupName = "some-pipeline-group"
+
       @BeforeEach
       void setUp() {
-        loginAsAdmin()
+        loginAsGroupAdmin(groupName: groupName)
+      }
+
+      @Test
+      void 'should be forbidden without group_name or pipeline_name'() {
+        postWithApiHeader(controller.controllerBasePath(), [
+          "type"      : "git",
+          "attributes": [
+            "url": "some-url"
+          ]
+        ])
+
+        assertThatResponse()
+          .hasJsonMessage("You are not authorized to perform this action.")
+          .isForbidden()
+      }
+
+      @Test
+      void 'should render error when authorized via pipeline_name without group_name'() {
+        String pipelineName = "some-pipeline-name"
+        loginAsGroupAdmin(pipelineName: pipelineName)
+
+        postWithApiHeader(controller.controllerPath(Map.of("pipeline_name", pipelineName)), [
+          "type"      : "git",
+          "attributes": [
+            "url": "some-url"
+          ]
+        ])
+
+        assertThatResponse()
+          .hasJsonMessage("Request is missing parameter `group_name`")
+          .isBadRequest()
       }
 
       @Test
       void 'should render error if material type is invalid'() {
-        postWithApiHeader(controller.controllerBasePath(), ["type": "some-random-type"])
+        postWithApiHeader(controller.controllerPath(Map.of("group_name", groupName)), ["type": "some-random-type"])
         assertThatResponse()
-          .isUnprocessableEntity()
           .hasJsonMessage("Your request could not be processed. Invalid material type 'some-random-type'. It has to be one of [git, hg, svn, p4, tfs, dependency, package, plugin].")
+          .isUnprocessableEntity()
       }
 
       @Test
       void 'should render error if material type does not support check connection functionality'() {
-        postWithApiHeader(controller.controllerBasePath(), ["type": "dependency"])
+        postWithApiHeader(controller.controllerPath(Map.of("group_name", groupName)), ["type": "dependency"])
         assertThatResponse()
-          .isUnprocessableEntity()
           .hasJsonMessage("Your request could not be processed. The material of type 'dependency' does not support connection testing.")
+          .isUnprocessableEntity()
       }
 
       @Test
       void 'should render error if material is not valid'() {
-        postWithApiHeader(controller.controllerBasePath(), [
+        postWithApiHeader(controller.controllerPath(Map.of("group_name", groupName)), [
           "type"      : "git",
           "attributes": [
             "url"               : "",
@@ -138,9 +171,8 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
         ]
 
         assertThatResponse()
-          .isUnprocessableEntity()
-          .hasJsonMessage("There was an error with the material configuration.\\n- url: URL cannot be blank")
           .hasJsonBody(expectedJSON)
+          .isUnprocessableEntity()
       }
 
       @Test
@@ -150,7 +182,7 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
         when(material.checkConnection(any())).thenReturn(validationBean)
         when(materialConfigConverter.toMaterial(any(MaterialConfig.class))).thenReturn(material)
 
-        postWithApiHeader(controller.controllerBasePath(), [
+        postWithApiHeader(controller.controllerPath(Map.of("group_name", groupName)), [
           "type"      : "git",
           "attributes": [
             "url": "some-url"
@@ -158,8 +190,8 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
         ])
 
         assertThatResponse()
-          .isUnprocessableEntity()
           .hasJsonMessage("some-error")
+          .isUnprocessableEntity()
       }
 
       @Test
@@ -169,7 +201,7 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
         when(material.checkConnection(any())).thenReturn(validationBean)
         when(materialConfigConverter.toMaterial(any(MaterialConfig.class))).thenReturn(material)
 
-        postWithApiHeader(controller.controllerBasePath(), [
+        postWithApiHeader(controller.controllerPath(Map.of("group_name", groupName)), [
           "type"      : "git",
           "attributes": [
             "url": "some-url"
@@ -177,8 +209,8 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
         ])
 
         assertThatResponse()
-          .isOk()
           .hasJsonMessage("Connection OK.")
+          .isOk()
       }
 
       @Test
@@ -188,70 +220,100 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
         when(material.checkConnection(any())).thenReturn(validationBean)
         when(materialConfigConverter.toMaterial(any(MaterialConfig.class))).thenReturn(material)
 
-        postWithApiHeader(controller.controllerBasePath(), [
+        postWithApiHeader(controller.controllerPath(Map.of("group_name", groupName)), [
           "type"      : "git",
           "attributes": [
             "url": "some-url"
           ]
         ])
 
+        assertThatResponse()
+          .hasJsonMessage("Connection OK.")
+          .isOk()
+
         def mockOrders = inOrder(secretParamResolver, material)
 
-        mockOrders.verify(secretParamResolver).resolve(eq(material), anyString())
+        mockOrders.verify(secretParamResolver).resolve(eq(material), eq(Optional.of("some-pipeline-group")))
         mockOrders.verify(material).checkConnection(any())
-        assertThatResponse()
-          .isOk()
-          .hasJsonMessage("Connection OK.")
       }
 
       @Test
-      void 'should resolve params when pipeline_name is provided'() {
+      void 'should not resolve params when pipeline_name is not provided'() {
         def material = mock(GitMaterial.class)
         def validationBean = ValidationBean.valid()
         when(material.checkConnection(any())).thenReturn(validationBean)
         when(materialConfigConverter.toMaterial(any(MaterialConfig.class))).thenReturn(material)
-        when(goConfigService.pipelineConfigNamed(any(CaseInsensitiveString.class))).thenReturn(new PipelineConfig())
 
-        postWithApiHeader(controller.controllerBasePath(), [
-          "pipeline_name": "some-pipeline-name",
+        postWithApiHeader(controller.controllerPath(Map.of("group_name", groupName)), [
           "type"         : "git",
           "attributes"   : [
-            "url": "http://some-url/val##"
+            "url": "http://some-url/val/#{test-param}"
           ]
         ])
 
-        verify(goConfigService).pipelineConfigNamed(any(CaseInsensitiveString.class))
+        assertThatResponse()
+          .hasJsonBody(["message": "Connection OK."])
+          .isOk()
 
         def captor = ArgumentCaptor.forClass(MaterialConfig.class)
         verify(materialConfigConverter).toMaterial(captor.capture())
-        assertEquals(captor.value.getUriForDisplay(), "http://some-url/val#")
-
-        assertThatResponse()
-          .isOk()
+        assertEquals("http://some-url/val/#{test-param}", captor.value.getUriForDisplay())
       }
 
       @Test
-      void 'should resolve params even when pipeline_name is not provided'() {
+      void 'should resolve params when pipeline_name is also provided'() {
+        def pipelineName = "some-pipeline-name"
+        loginAsGroupAdmin(groupName: groupName, pipelineName: pipelineName) // need to mock access to both
+
         def material = mock(GitMaterial.class)
         def validationBean = ValidationBean.valid()
         when(material.checkConnection(any())).thenReturn(validationBean)
         when(materialConfigConverter.toMaterial(any(MaterialConfig.class))).thenReturn(material)
 
-        postWithApiHeader(controller.controllerBasePath(), [
-          "type"      : "git",
-          "attributes": [
-            "url": "http://some-url/val##"
+        def pipelineConfig = pipelineConfig(pipelineName)
+        pipelineConfig.addParam(new ParamConfig("test-param", "param-value"))
+        when(goConfigService.findGroupByPipelineOptional(cis(pipelineName))).thenReturn(Optional.of(createGroup(groupName, pipelineConfig)))
+
+        postWithApiHeader(controller.controllerPath(Map.of("group_name", groupName, "pipeline_name", pipelineName)), [
+          "type"         : "git",
+          "attributes"   : [
+            "url": "http://some-url/val/#{test-param}"
           ]
         ])
 
-        verify(goConfigService, never()).pipelineConfigNamed(any(CaseInsensitiveString.class))
+        assertThatResponse()
+          .hasJsonBody(["message": "Connection OK."])
+          .isOk()
+
+        verify(goConfigService).findGroupByPipelineOptional(cis(pipelineName))
 
         def captor = ArgumentCaptor.forClass(MaterialConfig.class)
         verify(materialConfigConverter).toMaterial(captor.capture())
-        assertEquals(captor.value.getUriForDisplay(), "http://some-url/val#")
+        assertEquals("http://some-url/val/param-value", captor.value.getUriForDisplay())
+      }
+
+      @Test
+      void 'should render error if pipeline is not part of authorized group'() {
+        disableSecurity() // testing conservative fallback logic if not already validated in before()
+
+        def pipelineName = "other-random-pipeline"
+        def material = mock(GitMaterial.class)
+        def validationBean = ValidationBean.notValid("some-error")
+        when(material.checkConnection(any())).thenReturn(validationBean)
+        when(materialConfigConverter.toMaterial(any(MaterialConfig.class))).thenReturn(material)
+        when(goConfigService.findGroupByPipelineOptional(any()))
+          .thenReturn(Optional.of(createGroup("unauthorized-group", createPipelineConfig(pipelineName, "someStage", "someJob"))))
+
+        postWithApiHeader(controller.controllerPath(Map.of("group_name", groupName, "pipeline_name", pipelineName)), [
+          "type"      : "git",
+          "attributes": [
+            "url": "some-url"
+          ]
+        ])
 
         assertThatResponse()
-          .isOk()
+          .hasJsonMessage("Either the resource you requested was not found, or you are not authorized to perform this action.")
+          .isNotFound()
       }
     }
   }

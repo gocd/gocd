@@ -43,7 +43,6 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.TimeProvider;
-import com.thoughtworks.go.util.Timeout;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.Strings;
 import org.jetbrains.annotations.TestOnly;
@@ -54,6 +53,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -347,9 +347,7 @@ public class ElasticAgentPluginService {
             elasticAgentPluginRegistry.reportJobCompletion(pluginId, elasticAgentId, jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
         } catch (RulesViolationException | SecretResolutionFailureException e) {
             String description = format("The job completion call to the plugin for the job identifier [%s] failed for secrets resolution: %s ", jobIdentifier.toString(), e.getMessage());
-            ServerHealthState healthState = error("Failed to notify plugin", description, general(scopeForJob(jobIdentifier)));
-            healthState.setTimeout(Timeout.FIVE_MINUTES);
-            serverHealthService.update(healthState);
+            serverHealthService.update(error("Failed to notify plugin", description, general(scopeForJob(jobIdentifier)), Duration.ofMinutes(5)));
             LOGGER.error(description);
         }
     }

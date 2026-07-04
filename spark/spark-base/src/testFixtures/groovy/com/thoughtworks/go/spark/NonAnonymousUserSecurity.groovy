@@ -15,8 +15,10 @@
  */
 package com.thoughtworks.go.spark
 
+import groovy.transform.SelfType
 import org.junit.jupiter.api.Test
 
+@SelfType([SecurityServiceTrait, ControllerTrait, SecurityTestTraitBasics])
 trait NonAnonymousUserSecurity {
   @Test
   void 'should allow nobody with security disabled'() {
@@ -37,7 +39,6 @@ trait NonAnonymousUserSecurity {
 
   @Test
   void 'should allow admin users with security enabled'() {
-    enableSecurity()
     loginAsAdmin()
 
     makeHttpCall()
@@ -46,7 +47,6 @@ trait NonAnonymousUserSecurity {
 
   @Test
   void 'should allow normal users with security enabled'() {
-    enableSecurity()
     loginAsUser()
 
     makeHttpCall()

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.serversiteurlsconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.serversiteurlsconfig.representers.ServerSiteUrlsConfigRepresenter
 import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.SiteUrls
@@ -24,18 +24,18 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidException
 import com.thoughtworks.go.domain.SecureSiteUrl
 import com.thoughtworks.go.domain.SiteUrl
 import com.thoughtworks.go.server.service.ServerConfigService
+import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.*
 
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -46,13 +46,15 @@ class ServerSiteUrlsConfigControllerV1Test implements SecurityServiceTrait, Cont
 
   @Override
   ServerSiteUrlsConfigControllerV1 createControllerInstance() {
-    new ServerSiteUrlsConfigControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), serverConfigService)
+    new ServerSiteUrlsConfigControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), serverConfigService)
   }
 
   @Nested
   class Index {
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = ServerSiteUrlsConfigControllerV1Test.this
+      @Delegate ControllerTrait<ServerSiteUrlsConfigControllerV1> c = ServerSiteUrlsConfigControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -69,7 +71,6 @@ class ServerSiteUrlsConfigControllerV1Test implements SecurityServiceTrait, Cont
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -92,7 +93,9 @@ class ServerSiteUrlsConfigControllerV1Test implements SecurityServiceTrait, Cont
   @Nested
   class Create {
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = ServerSiteUrlsConfigControllerV1Test.this
+      @Delegate ControllerTrait<ServerSiteUrlsConfigControllerV1> c = ServerSiteUrlsConfigControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -109,7 +112,6 @@ class ServerSiteUrlsConfigControllerV1Test implements SecurityServiceTrait, Cont
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -133,7 +135,7 @@ class ServerSiteUrlsConfigControllerV1Test implements SecurityServiceTrait, Cont
         def jsonPayload = ['site_url'       : 'foo',
                            'secure_site_url': 'https://foo']
 
-        when(serverConfigService.createOrUpdateServerSiteUrls(Mockito.any() as SiteUrls)).thenThrow(new RuntimeException("failed to save : # anon _ site urlsite urls is invalid. foo should conform to the pattern - (https?://.+)?"))
+        when(serverConfigService.createOrUpdateServerSiteUrls(any() as SiteUrls)).thenThrow(new RuntimeException("failed to save : # anon _ site urlsite urls is invalid. foo should conform to the pattern - (https?://.+)?"))
 
         postWithApiHeader(controller.controllerBasePath(), jsonPayload)
 
@@ -148,7 +150,7 @@ class ServerSiteUrlsConfigControllerV1Test implements SecurityServiceTrait, Cont
         def jsonPayload = ['site_url'       : 'http://foo',
                            'secure_site_url': 'foo']
 
-        when(serverConfigService.createOrUpdateServerSiteUrls(Mockito.any() as SiteUrls)).thenThrow(new RuntimeException("failed to save : # anon _ secure site urlsite urls is invalid. foo should conform to the pattern - (https://.+)?"))
+        when(serverConfigService.createOrUpdateServerSiteUrls(any() as SiteUrls)).thenThrow(new RuntimeException("failed to save : # anon _ secure site urlsite urls is invalid. foo should conform to the pattern - (https://.+)?"))
 
         postWithApiHeader(controller.controllerBasePath(), jsonPayload)
 
@@ -163,7 +165,9 @@ class ServerSiteUrlsConfigControllerV1Test implements SecurityServiceTrait, Cont
   @Nested
   class Update {
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = ServerSiteUrlsConfigControllerV1Test.this
+      @Delegate ControllerTrait<ServerSiteUrlsConfigControllerV1> c = ServerSiteUrlsConfigControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -180,7 +184,6 @@ class ServerSiteUrlsConfigControllerV1Test implements SecurityServiceTrait, Cont
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -204,7 +207,7 @@ class ServerSiteUrlsConfigControllerV1Test implements SecurityServiceTrait, Cont
         def jsonPayload = ['site_url'       : 'foo',
                            'secure_site_url': 'https://foo']
 
-        when(serverConfigService.createOrUpdateServerSiteUrls(Mockito.any() as SiteUrls)).thenThrow(new GoConfigInvalidException(new BasicCruiseConfig(), "Invalid format for site url."))
+        when(serverConfigService.createOrUpdateServerSiteUrls(any() as SiteUrls)).thenThrow(new GoConfigInvalidException(new BasicCruiseConfig(), "Invalid format for site url."))
 
         putWithApiHeader(controller.controllerBasePath(), jsonPayload)
 
@@ -219,7 +222,7 @@ class ServerSiteUrlsConfigControllerV1Test implements SecurityServiceTrait, Cont
         def jsonPayload = ['site_url'       : 'http://foo',
                            'secure_site_url': 'foo']
 
-        when(serverConfigService.createOrUpdateServerSiteUrls(Mockito.any() as SiteUrls)).thenThrow(new GoConfigInvalidException(new BasicCruiseConfig(), "Invalid format for secure site url. 'http://foo.bar' must start with https"))
+        when(serverConfigService.createOrUpdateServerSiteUrls(any() as SiteUrls)).thenThrow(new GoConfigInvalidException(new BasicCruiseConfig(), "Invalid format for secure site url. 'http://foo.bar' must start with https"))
 
         putWithApiHeader(controller.controllerBasePath(), jsonPayload)
 

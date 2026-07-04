@@ -25,6 +25,7 @@ import com.thoughtworks.go.server.service.SecurityService;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
@@ -45,12 +46,12 @@ class ExtractTemplateFromPipelineEntityConfigUpdateCommandTest {
         assertThat(cruiseConfig.getTemplates()).isEmpty();
         command.update(cruiseConfig);
 
-        PipelineTemplateConfig template = cruiseConfig.getTemplates().templateByName(new CaseInsensitiveString("new-template"));
+        PipelineTemplateConfig template = cruiseConfig.getTemplates().templateByName(cis("new-template"));
 
         assertThat(template)
                 .isNotNull()
                 .hasSize(1)
-                .element(0).satisfies(stageConfig -> assertThat(stageConfig.name()).isEqualTo(new CaseInsensitiveString("mingle")));
+                .element(0).satisfies(stageConfig -> assertThat(stageConfig.name()).isEqualTo(cis("mingle")));
 
         assertThat(template.getAuthorization()).isEqualTo(new Authorization(new AdminsConfig(new AdminUser(currentUser.getUsername()))));
     }
@@ -68,12 +69,12 @@ class ExtractTemplateFromPipelineEntityConfigUpdateCommandTest {
         assertThat(cruiseConfig.getTemplates()).isEmpty();
         command.update(cruiseConfig);
 
-        PipelineTemplateConfig template = cruiseConfig.getTemplates().templateByName(new CaseInsensitiveString("new-template"));
+        PipelineTemplateConfig template = cruiseConfig.getTemplates().templateByName(cis("new-template"));
 
         assertThat(template)
                 .isNotNull()
                 .hasSize(1)
-                .element(0).satisfies(stageConfig -> assertThat(stageConfig.name()).isEqualTo(new CaseInsensitiveString("mingle")));
+                .element(0).satisfies(stageConfig -> assertThat(stageConfig.name()).isEqualTo(cis("mingle")));
 
         assertThat(template.getAuthorization()).isEqualTo(new Authorization());
     }

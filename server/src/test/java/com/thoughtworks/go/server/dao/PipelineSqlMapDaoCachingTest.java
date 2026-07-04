@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
@@ -31,7 +30,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.JobHistory;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.StubGoCache;
@@ -56,7 +55,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.IBatisUtil.arguments;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+import static com.thoughtworks.go.server.dao.NullableMaps.nullableMapOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -139,12 +139,12 @@ class PipelineSqlMapDaoCachingTest {
     void savePipeline_shouldClearLatestPipelineIdCacheCaseInsensitively() {
         when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn(List.of(99L));
         doAnswer((Answer<Object>) invocation -> {
-            ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
+            ((TransactionSynchronizationAdapter) invocation.getArgument(0)).afterCommit();
             return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any());
 
         when(transactionTemplate.execute(any())).then(invocation -> {
-            ((TransactionCallback<?>) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
+            ((TransactionCallback<?>) invocation.getArgument(0)).doInTransaction(new SimpleTransactionStatus());
             return null;
         });
 
@@ -260,7 +260,7 @@ class PipelineSqlMapDaoCachingTest {
     @Test
     void shouldRemoveLatestPassedStageForPipelineFromCacheUponStageStatusChangeCaseInsensitively() {
         String stage = "stage";
-        Stage passedStage = StageMother.passedStageInstance(stage.toUpperCase(), "job", "pipeline-name");
+        Stage passedStage = StageMother.passedStageInstance("pipeline-name", stage.toUpperCase(), "job");
         passedStage.setPipelineId(10L);
 
         goCache.put(pipelineDao.cacheKeyForLatestPassedStage(passedStage.getPipelineId(), stage), new StageIdentifier());
@@ -271,7 +271,7 @@ class PipelineSqlMapDaoCachingTest {
     @Test
     void shouldInvalidateCacheWhenPipelineIsUnPaused() {
         String pipelineName = "pipelineName";
-        Map<String, Object> args = arguments("pipelineName", pipelineName).and("pauseCause", null).and("pauseBy", null).and("paused", false).asMap();
+        Map<String, Object> args = nullableMapOf("pipelineName", pipelineName, "pauseCause", null, "pauseBy", null, "paused", false);
         when(mockTemplate.update("updatePipelinePauseState", args)).thenReturn(0);
         when(mockTemplate.queryForObject("getPipelinePauseState", pipelineName)).thenReturn(PipelinePauseInfo.notPaused());
         // ensure cache is initialized
@@ -344,16 +344,16 @@ class PipelineSqlMapDaoCachingTest {
 
 
         MaterialRevisions materialRevisions = new MaterialRevisions(
-                new MaterialRevision(new DependencyMaterial(new CaseInsensitiveString("p"), new CaseInsensitiveString("s")), new Modification("u", "comment", "email", new Date(), "p/1/s/1")));
+                new MaterialRevision(new DependencyMaterial(cis("p"), cis("s")), new Modification("u", "comment", "email", new Date(), "p/1/s/1")));
         Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
 
         doAnswer((Answer<Object>) invocation -> {
-            ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
+            ((TransactionSynchronizationAdapter) invocation.getArgument(0)).afterCommit();
             return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any());
 
         when(transactionTemplate.execute(any())).then(invocation -> {
-            ((TransactionCallback<?>) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
+            ((TransactionCallback<?>) invocation.getArgument(0)).doInTransaction(new SimpleTransactionStatus());
             return null;
         });
 
@@ -373,7 +373,7 @@ class PipelineSqlMapDaoCachingTest {
 
 
         MaterialRevisions materialRevisions = new MaterialRevisions(
-                new MaterialRevision(new DependencyMaterial(new CaseInsensitiveString("p"), new CaseInsensitiveString("s")), new Modification("u", "comment", "email", new Date(), "p/2/s/1")));
+                new MaterialRevision(new DependencyMaterial(cis("p"), cis("s")), new Modification("u", "comment", "email", new Date(), "p/2/s/1")));
         Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
 
         pipelineDao.save(pipeline);
@@ -424,12 +424,12 @@ class PipelineSqlMapDaoCachingTest {
         MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(new GitMaterial("url", "branch"), new Modification("user", "comment", "email", new Date(), "r1")));
         Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
         doAnswer((Answer<Object>) invocation -> {
-            ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
+            ((TransactionSynchronizationAdapter) invocation.getArgument(0)).afterCommit();
             return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any());
 
         when(transactionTemplate.execute(any())).then(invocation -> {
-            ((TransactionCallback<?>) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
+            ((TransactionCallback<?>) invocation.getArgument(0)).doInTransaction(new SimpleTransactionStatus());
             return null;
         });
 

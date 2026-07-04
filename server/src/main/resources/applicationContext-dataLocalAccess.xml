@@ -27,26 +27,12 @@
 
     <context:annotation-config/>
     <context:component-scan base-package="com.thoughtworks.go.util"/>
+    <context:component-scan base-package="com.thoughtworks.go.server.caching"/>
     <context:component-scan base-package="com.thoughtworks.go.server.dao"/>
     <context:component-scan base-package="com.thoughtworks.go.server.database"/>
     <context:component-scan base-package="com.thoughtworks.go.server.persistence"/>
     <import resource="propertyConfigurer.xml"/>
     <import resource="classpath*:optional-development-server-configurer.xml"/>
-
-    <bean id="buildDurationCache" class="com.opensymphony.oscache.base.Cache">
-        <constructor-arg value="true"/>
-        <!-- useMemoryCaching -->
-        <constructor-arg value="false"/>
-        <!-- unlimitedDiskCache -->
-        <constructor-arg value="false"/>
-        <!-- overflowPersistence -->
-        <constructor-arg value="false"/>
-        <!-- blocking -->
-        <constructor-arg value="com.opensymphony.oscache.base.algorithm.LRUCache"/>
-        <!-- algorithmClass -->
-        <constructor-arg value="1000"/>
-        <!-- capacity -->
-    </bean>
 
     <!-- ========================= RESOURCE DEFINITIONS ========================= -->
     <!-- Local Apache Commons DBCP DataSource that refers to a combined database -->

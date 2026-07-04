@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.Agents;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
@@ -38,6 +37,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.nio.file.Path;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -142,7 +142,7 @@ public class RestfulServiceTest {
         Stage rerunStage = instanceFactory.createStageForRerunOfJobs(stage, List.of(PipelineWithTwoStages.DEV_STAGE_SECOND_JOB),
                 new DefaultSchedulingContext("loser", new Agents()),
                 pipelineFixture.pipelineConfig().getStage(
-                        new CaseInsensitiveString(pipelineFixture.devStage)), new TimeProvider(), "md5");
+                        cis(pipelineFixture.devStage)), new TimeProvider(), "md5");
         stageDao.saveWithJobs(pipeline, rerunStage);
         dbHelper.passStage(rerunStage);
 

@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.thoughtworks.go.config.Authorization.ALLOW_GROUP_ADMINS;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 /**
  * Understands abstracting a pipeline definition
@@ -104,8 +105,8 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
             for (JobConfig jobConfig : stageConfig.getJobs()) {
                 externalArtifactConfigs.addAll(jobConfig.artifactTypeConfigs().getPluggableArtifactConfigs());
                 for (Task task : jobConfig.getTasks()) {
-                    if (task instanceof FetchPluggableArtifactTask) {
-                        fetchExternalArtifactTasks.add((FetchPluggableArtifactTask) task);
+                    if (task instanceof FetchPluggableArtifactTask fetchPluggableArtifactTask) {
+                        fetchExternalArtifactTasks.add(fetchPluggableArtifactTask);
                     }
                 }
             }
@@ -117,7 +118,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         ParamsConfig paramsConfig = this.referredParams();
         for (CaseInsensitiveString pipelineName : pipelineNames) {
             PipelineConfig pipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineName);
-            PipelineConfigs pipelineGroup = preprocessedConfig.findGroupOfPipeline(pipelineConfig);
+            PipelineConfigs pipelineGroup = preprocessedConfig.findGroupByPipeline(pipelineConfig);
             PipelineConfigSaveValidationContext contextForStages = PipelineConfigSaveValidationContext.forChain(false, pipelineGroup.getGroup(), preprocessedConfig, pipelineConfig);
             validateParams(pipelineConfig, paramsConfig);
             validatePartsOfPipelineConfig(pipelineConfig, contextForStages);
@@ -240,7 +241,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
     }
 
     public void setName(String name) {
-        setName(new CaseInsensitiveString(name));
+        setName(cis(name));
     }
 
     public void setName(CaseInsensitiveString name) {
@@ -294,7 +295,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         Map<String, String> attributeMap = (Map<String, String>) attributes;
         if (attributeMap.containsKey(NAME)) {
             String strName = attributeMap.get(NAME);
-            name = new CaseInsensitiveString(strName);
+            name = cis(strName);
         }
         if (attributeMap.containsKey(AUTHORIZATION)) {
             this.authorization = new Authorization();

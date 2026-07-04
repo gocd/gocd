@@ -29,6 +29,6 @@ public class NullPipeline extends Pipeline {
 
     @Override
     public BuildCause getBuildCause() {
-        return BuildCause.createWithModifications(MaterialRevisions.EMPTY, "");
+        return BuildCause.createEmpty();
     }
 }

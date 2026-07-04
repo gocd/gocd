@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
-import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -36,7 +35,6 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.*;
-import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -63,9 +61,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -103,12 +100,14 @@ public class GoConfigMigratorIntegrationTest {
     @Autowired
     private DatabaseAccessHelper dbHelper;
     private List<Exception> exceptions;
+    @Autowired
+    private GoConfigDao goConfigDao;
 
     @BeforeEach
     public void setUp(@TempDir File temporaryFolder, ResetCipher resetCipher) throws Exception {
         dbHelper.onSetUp();
         configFile = new File(temporaryFolder, "cruise-config.xml").toPath();
-        new SystemEnvironment().setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, configFile.toAbsolutePath().toString());
+        systemEnvironment.setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, configFile.toAbsolutePath().toString());
         GoConfigFileHelper.clearConfigVersions();
         configRepository = new ConfigRepository(systemEnvironment);
         configRepository.initialize();
@@ -138,7 +137,7 @@ public class GoConfigMigratorIntegrationTest {
         goFileConfigDataSource.forceLoad(configFile);
 
         CruiseConfig cruiseConfig = loadConfigFileWithContent(config);
-        assertThat(cruiseConfig.schemaVersion()).isEqualTo(CONFIG_SCHEMA_VERSION);
+        assertThat(cruiseConfig.schemaVersion()).isEqualTo(GoConfigSchema.VERSION);
         assertThat(configRepository.getRevision(ConfigRepository.CURRENT).getUsername()).isNotEqualTo("Upgrade");
     }
 
@@ -151,7 +150,7 @@ public class GoConfigMigratorIntegrationTest {
                  <pipeline name='does_not_exist'/>
                 </pipelines>
                 </environment>
-                </environments>""", CONFIG_SCHEMA_VERSION);
+                </environments>""", GoConfigSchema.VERSION);
         try {
             loadConfigFileWithContent(configString);
             fail("Should not upgrade invalid config file");
@@ -163,7 +162,7 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldUpgradeCruiseConfigFileIfVersionDoesNotMatch() throws Exception {
         CruiseConfig cruiseConfig = loadConfigFileWithContent(ConfigFileFixture.OLD);
-        assertThat(cruiseConfig.schemaVersion()).isEqualTo(CONFIG_SCHEMA_VERSION);
+        assertThat(cruiseConfig.schemaVersion()).isEqualTo(GoConfigSchema.VERSION);
     }
 
     @Test
@@ -204,7 +203,7 @@ public class GoConfigMigratorIntegrationTest {
     public void shouldMoveApprovalFromAPreviousStageToTheBeginningOfASecondStage() throws Exception {
         CruiseConfig cruiseConfig = loadConfigFileWithContent(ConfigFileFixture.VERSION_0);
 
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline"));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis("pipeline"));
         StageConfig firstStage = pipelineConfig.get(0);
         StageConfig secondStage = pipelineConfig.get(1);
         assertThat(firstStage.requiresApproval()).isEqualTo(Boolean.FALSE);
@@ -219,32 +218,32 @@ public class GoConfigMigratorIntegrationTest {
 
         CruiseConfig cruiseConfig = loadConfigFileWithContent(xml);
 
-        PipelineConfig pipeline = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("evolve"));
+        PipelineConfig pipeline = cruiseConfig.pipelineConfigByName(cis("evolve"));
 
-        StageConfig dbStage = pipeline.findBy(new CaseInsensitiveString("db"));
+        StageConfig dbStage = pipeline.findBy(cis("db"));
         assertThat(dbStage.requiresApproval()).isFalse();
 
-        StageConfig installStage = pipeline.findBy(new CaseInsensitiveString("install"));
+        StageConfig installStage = pipeline.findBy(cis("install"));
         assertThat(installStage.requiresApproval()).isTrue();
     }
 
     @Test
     public void shouldMigrateMaterialFolderAttributeToDest() throws Exception {
         CruiseConfig cruiseConfig = loadConfigFileWithContent(ConfigFileFixture.VERSION_2);
-        MaterialConfig actual = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("multiple")).materialConfigs().getFirst();
+        MaterialConfig actual = cruiseConfig.pipelineConfigByName(cis("multiple")).materialConfigs().getFirst();
         assertThat(actual.getFolder()).isEqualTo("part1");
     }
 
     @Test
     public void shouldMigrateRevision5ToTheLatest() throws Exception {
         CruiseConfig cruiseConfig = loadConfigFileWithContent(ConfigFileFixture.VERSION_5);
-        assertThat(cruiseConfig.schemaVersion()).isEqualTo(CONFIG_SCHEMA_VERSION);
+        assertThat(cruiseConfig.schemaVersion()).isEqualTo(GoConfigSchema.VERSION);
     }
 
     @Test
     public void shouldMigrateRevision7To8() throws Exception {
         CruiseConfig cruiseConfig = loadConfigFileWithContent(ConfigFileFixture.VERSION_7);
-        HgMaterialConfig hgConfig = (HgMaterialConfig) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework")).materialConfigs().getFirst();
+        HgMaterialConfig hgConfig = (HgMaterialConfig) cruiseConfig.pipelineConfigByName(cis("framework")).materialConfigs().getFirst();
         assertThat(hgConfig.getFolder()).isNull();
         assertThat(hgConfig.filter()).isNotNull();
     }
@@ -254,11 +253,11 @@ public class GoConfigMigratorIntegrationTest {
         String content = Files.readString(
                 Path.of("../common/src/test/resources/data/config/version4/cruise-config-dependency-migration.xml"), UTF_8);
         CruiseConfig cruiseConfig = loadConfigFileWithContent(content);
-        MaterialConfig actual = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("depends")).materialConfigs().getFirst();
+        MaterialConfig actual = cruiseConfig.pipelineConfigByName(cis("depends")).materialConfigs().getFirst();
         assertThat(actual).isInstanceOf(DependencyMaterialConfig.class);
         DependencyMaterialConfig depends = (DependencyMaterialConfig) actual;
-        assertThat(depends.getPipelineName()).isEqualTo(new CaseInsensitiveString("multiple"));
-        assertThat(depends.getStageName()).isEqualTo(new CaseInsensitiveString("helloworld-part2"));
+        assertThat(depends.getPipelineName()).isEqualTo(cis("multiple"));
+        assertThat(depends.getStageName()).isEqualTo(cis("helloworld-part2"));
     }
 
     @Test
@@ -266,7 +265,7 @@ public class GoConfigMigratorIntegrationTest {
         Files.writeString(configFile, ConfigFileFixture.JOBS_WITH_DIFFERENT_CASE, UTF_8);
         GoConfigHolder configHolder = goConfigMigrator.migrate();
         assertThat(configHolder).isNull();
-        PipelineConfig frameworkPipeline = goConfigService.getCurrentConfig().getPipelineConfigByName(new CaseInsensitiveString("framework"));
+        PipelineConfig frameworkPipeline = goConfigService.getCurrentConfig().getPipelineConfigByName(cis("framework"));
         assertThat(frameworkPipeline).isNull();
 
         assertThat(exceptions.size()).isEqualTo(1);
@@ -311,8 +310,9 @@ public class GoConfigMigratorIntegrationTest {
 
         goConfigMigrator.migrate();
 
-        assertThat(Files.readString(configFile, UTF_8)).contains("encryptedPassword=");
-        assertThat(Files.readString(configFile, UTF_8)).doesNotContain("password=");
+        String content = Files.readString(configFile, UTF_8);
+        assertThat(content).contains("encryptedPassword=");
+        assertThat(content).doesNotContain("password=");
     }
 
     @Test
@@ -351,16 +351,16 @@ public class GoConfigMigratorIntegrationTest {
 
         RolesConfig roles = cruiseConfig.server().security().getRoles();
         assertThat(roles.size()).isEqualTo(2);
-        assertThat(roles.getFirst()).isEqualTo(new RoleConfig(new CaseInsensitiveString("bAr"),
-                new RoleUser(new CaseInsensitiveString("quux")),
-                new RoleUser(new CaseInsensitiveString("bang")),
-                new RoleUser(new CaseInsensitiveString("LoSeR")),
-                new RoleUser(new CaseInsensitiveString("baz"))));
+        assertThat(roles.getFirst()).isEqualTo(new RoleConfig(cis("bAr"),
+                new RoleUser(cis("quux")),
+                new RoleUser(cis("bang")),
+                new RoleUser(cis("LoSeR")),
+                new RoleUser(cis("baz"))));
 
-        assertThat(roles.get(1)).isEqualTo(new RoleConfig(new CaseInsensitiveString("Foo"),
-                new RoleUser(new CaseInsensitiveString("foo")),
-                new RoleUser(new CaseInsensitiveString("LoSeR")),
-                new RoleUser(new CaseInsensitiveString("bar"))));
+        assertThat(roles.get(1)).isEqualTo(new RoleConfig(cis("Foo"),
+                new RoleUser(cis("foo")),
+                new RoleUser(cis("LoSeR")),
+                new RoleUser(cis("bar"))));
     }
 
     @Test
@@ -432,13 +432,13 @@ public class GoConfigMigratorIntegrationTest {
 
         ServerConfig server = config.server();
         RolesConfig roles = server.security().getRoles();
-        assertThat(roles).contains(new RoleConfig(new CaseInsensitiveString("admins"), new RoleUser(new CaseInsensitiveString("admin_one")), new RoleUser(new CaseInsensitiveString("admin_two"))));
-        assertThat(roles).contains(new RoleConfig(new CaseInsensitiveString("devs"), new RoleUser(new CaseInsensitiveString("dev_one")), new RoleUser(new CaseInsensitiveString("dev_two")),
-                new RoleUser(new CaseInsensitiveString("dev_three"))));
+        assertThat(roles).contains(new RoleConfig(cis("admins"), new RoleUser(cis("admin_one")), new RoleUser(cis("admin_two"))));
+        assertThat(roles).contains(new RoleConfig(cis("devs"), new RoleUser(cis("dev_one")), new RoleUser(cis("dev_two")),
+                new RoleUser(cis("dev_three"))));
     }
 
     @Test
-    public void shouldSetServerId_toARandomUUID_ifServerTagDoesntExist() {
+    public void shouldSetServerId_toARandomUUID_ifServerTagDoesNotExist() {
         GoConfigService.XmlPartialSaver<CruiseConfig> fileSaver = goConfigService.fileSaver(true);
         GoConfigValidity configValidity = fileSaver.saveXml("<cruise schemaVersion='" + 53 + "'>\n"
                 + "</cruise>", goConfigService.getCurrentConfig().getMd5());
@@ -483,9 +483,9 @@ public class GoConfigMigratorIntegrationTest {
                 </pipeline>
                 """, 62);
         CruiseConfig configAfterMigration = migrateConfigAndLoadTheNewConfig(oldContent);
-        String currentContent = Files.readString(Path.of(goConfigService.fileLocation()), UTF_8);
+        String currentContent = Files.readString(Path.of(goConfigDao.fileLocation()), UTF_8);
 
-        PipelineConfig pipelineConfig = configAfterMigration.pipelineConfigByName(new CaseInsensitiveString("old-timer"));
+        PipelineConfig pipelineConfig = configAfterMigration.pipelineConfigByName(cis("old-timer"));
         TimerConfig timer = pipelineConfig.getTimer();
 
         assertThat(configAfterMigration.schemaVersion()).isGreaterThan(62);
@@ -651,7 +651,7 @@ public class GoConfigMigratorIntegrationTest {
         JobConfig jobConfig = pipelineConfig.getFirstStageConfig().getJobs().getFirst();
         Tasks tasks = jobConfig.getTasks();
         assertThat(tasks.size()).isEqualTo(1);
-        assertThat(tasks.getFirst() instanceof PluggableTask).isTrue();
+        assertThat(tasks.getFirst()).isInstanceOf(PluggableTask.class);
     }
 
     @Test
@@ -717,7 +717,7 @@ public class GoConfigMigratorIntegrationTest {
     }
 
     @Test
-    public void ShouldTrimEnvironmentVariables_asPartOfMigration85() throws Exception {
+    public void shouldTrimEnvironmentVariables_asPartOfMigration85() throws Exception {
         String configXml = """
                 <cruise schemaVersion='84'>
                   <pipelines group='first'>
@@ -743,7 +743,7 @@ public class GoConfigMigratorIntegrationTest {
                 </cruise>
                 """;
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
-        PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
+        PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(cis("up42"));
         EnvironmentVariablesConfig variables = pipelineConfig.getVariables();
         assertThat(variables.getPlainTextVariables().getFirst().getName()).isEqualTo("test");
         assertThat(variables.getPlainTextVariables().getFirst().getValue()).isEqualTo("foobar");
@@ -781,7 +781,7 @@ public class GoConfigMigratorIntegrationTest {
                 """;
 
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
-        PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
+        PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(cis("up42"));
         JobConfig jobConfig = pipelineConfig.getStages().getFirst().getJobs().getFirst();
 
         assertThat(migratedConfig.schemaVersion()).isGreaterThan(86);
@@ -841,7 +841,7 @@ public class GoConfigMigratorIntegrationTest {
                 """;
 
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
-        PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
+        PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(cis("up42"));
         JobConfigs jobs = pipelineConfig.getStages().getFirst().getJobs();
 
         ElasticProfiles profiles = migratedConfig.getElasticConfig().getProfiles();
@@ -915,7 +915,7 @@ public class GoConfigMigratorIntegrationTest {
                 """;
 
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
-        PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
+        PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(cis("up42"));
         JobConfigs buildJobs = pipelineConfig.getStages().get(0).getJobs();
         JobConfigs distJobs = pipelineConfig.getStages().get(1).getJobs();
 
@@ -991,8 +991,8 @@ public class GoConfigMigratorIntegrationTest {
                 """;
 
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
-        PipelineConfig up42 = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
-        PipelineConfig up43 = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up43"));
+        PipelineConfig up42 = migratedConfig.pipelineConfigByName(cis("up42"));
+        PipelineConfig up43 = migratedConfig.pipelineConfigByName(cis("up43"));
         JobConfigs up42Jobs = up42.getStages().getFirst().getJobs();
         JobConfigs up43Jobs = up43.getStages().getFirst().getJobs();
 
@@ -1011,35 +1011,31 @@ public class GoConfigMigratorIntegrationTest {
     }
 
     @Test
-    public void shouldAddTokenGenerationKeyAttributeOnServerAsPartOf99To100Migration() {
-        try {
-            String configXml = """
-                    <cruise schemaVersion='99'><server artifactsdir="artifacts" agentAutoRegisterKey="041b5c7e-dab2-11e5-a908-13f95f3c6ef6" webhookSecret="5f8b5eac-1148-4145-aa01-7b2934b6e1ab" commandRepositoryLocation="default" serverId="dev-id">
-                        <security>
-                          <authConfigs>
-                            <authConfig id="9cad79b0-4d9e-4a62-829c-eb4d9488062f" pluginId="cd.go.authentication.passwordfile">
-                              <property>
-                                <key>PasswordFilePath</key>
-                                <value>../manual-testing/ant_hg/password.properties</value>
-                              </property>
-                            </authConfig>
-                          </authConfigs>
-                          <roles>
-                            <role name="xyz" />
-                          </roles>
-                          <admins>
-                            <user>admin</user>
-                          </admins>
-                        </security>
-                      </server>
-                    </cruise>
-                """;
+    public void shouldAddTokenGenerationKeyAttributeOnServerAsPartOf99To100Migration() throws Exception {
+        String configXml = """
+                <cruise schemaVersion='99'><server artifactsdir="artifacts" agentAutoRegisterKey="041b5c7e-dab2-11e5-a908-13f95f3c6ef6" webhookSecret="5f8b5eac-1148-4145-aa01-7b2934b6e1ab" commandRepositoryLocation="default" serverId="dev-id">
+                    <security>
+                      <authConfigs>
+                        <authConfig id="9cad79b0-4d9e-4a62-829c-eb4d9488062f" pluginId="cd.go.authentication.passwordfile">
+                          <property>
+                            <key>PasswordFilePath</key>
+                            <value>../manual-testing/ant_hg/password.properties</value>
+                          </property>
+                        </authConfig>
+                      </authConfigs>
+                      <roles>
+                        <role name="xyz" />
+                      </roles>
+                      <admins>
+                        <user>admin</user>
+                      </admins>
+                    </security>
+                  </server>
+                </cruise>
+            """;
 
-            final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml);
-            assertThat(isNotBlank(cruiseConfig.server().getTokenGenerationKey())).isTrue();
-        } catch (Exception e) {
-            System.err.println("jyoti singh: " + e.getMessage());
-        }
+        final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml);
+        assertThat(isNotBlank(cruiseConfig.server().getTokenGenerationKey())).isTrue();
     }
 
     @Test
@@ -1142,7 +1138,7 @@ public class GoConfigMigratorIntegrationTest {
     }
 
     @Test
-    public void shouldSkipParamResoulutionForElasticConfig_asPartOf100To101Migration() throws Exception {
+    public void shouldSkipParamResolutionForElasticConfig_asPartOf100To101Migration() throws Exception {
         String configXml = """
                 <cruise schemaVersion='100'>
                 <server artifactsdir="artifactsDir" agentAutoRegisterKey="041b5c7e-dab2-11e5-a908-13f95f3c6ef6" webhookSecret="5f8b5eac-1148-4145-aa01-7b2934b6e1ab" commandRepositoryLocation="default" serverId="dev-id">
@@ -1239,18 +1235,18 @@ public class GoConfigMigratorIntegrationTest {
 
         final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml);
 
-        assertThat(cruiseConfig.pipelines("first").findBy(str("up42")).getTrackingTool().getLink()).isEqualTo("http://github.com/gocd/gocd/issues/${ID}");
-        assertThat(cruiseConfig.pipelines("first").findBy(str("up43")).getTrackingTool().getLink()).isEqualTo("https://github.com/gocd/gocd/issues/${ID}");
-        assertThat(cruiseConfig.pipelines("second").findBy(str("up12")).getTrackingTool().getLink()).isEqualTo("http://github.com/gocd/gocd/issues/${ID}");
-        assertThat(cruiseConfig.pipelines("second").findBy(str("up13")).getTrackingTool().getLink()).isEqualTo("http://github.com/gocd/gocd/issues/${ID}");
+        assertThat(cruiseConfig.pipelines("first").findBy(cis("up42")).getTrackingTool().getLink()).isEqualTo("http://github.com/gocd/gocd/issues/${ID}");
+        assertThat(cruiseConfig.pipelines("first").findBy(cis("up43")).getTrackingTool().getLink()).isEqualTo("https://github.com/gocd/gocd/issues/${ID}");
+        assertThat(cruiseConfig.pipelines("second").findBy(cis("up12")).getTrackingTool().getLink()).isEqualTo("http://github.com/gocd/gocd/issues/${ID}");
+        assertThat(cruiseConfig.pipelines("second").findBy(cis("up13")).getTrackingTool().getLink()).isEqualTo("http://github.com/gocd/gocd/issues/${ID}");
     }
 
     @Test
     public void shouldRunMigration59_convertLogTypeToArtifact() throws Exception {
         final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(ConfigFileFixture.WITH_LOG_ARTIFACT_CONFIG);
 
-        ArtifactTypeConfigs artifactTypeConfigs = cruiseConfig.getAllPipelineConfigs().getFirst().getStage(new CaseInsensitiveString("mingle")).getJobs().getJob(
-                new CaseInsensitiveString("bluemonkeybutt")).artifactTypeConfigs();
+        ArtifactTypeConfigs artifactTypeConfigs = cruiseConfig.getAllPipelineConfigs().getFirst().getStage(cis("mingle")).getJobs().getJob(
+                cis("bluemonkeybutt")).artifactTypeConfigs();
 
         assertThat(artifactTypeConfigs.getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("from1");
         assertThat(artifactTypeConfigs.getBuiltInArtifactConfigs().get(0).getDestination()).isEqualTo("");
@@ -1520,7 +1516,7 @@ public class GoConfigMigratorIntegrationTest {
         final String content = configWithTimerBasedPipeline(valueForOnChangesInTimer);
         CruiseConfig configAfterMigration = migrateConfigAndLoadTheNewConfig(content);
 
-        PipelineConfig pipelineConfig = configAfterMigration.pipelineConfigByName(new CaseInsensitiveString("old-timer"));
+        PipelineConfig pipelineConfig = configAfterMigration.pipelineConfigByName(cis("old-timer"));
         return pipelineConfig.getTimer();
     }
 
@@ -1542,9 +1538,7 @@ public class GoConfigMigratorIntegrationTest {
 
     private CruiseConfig migrateConfigAndLoadTheNewConfig(String content) throws Exception {
         Files.writeString(configFile, content, UTF_8);
-        GoConfigHolder configHolder = goConfigMigrator.migrate();
-        assert configHolder != null;
-        return configHolder.config;
+        return goConfigMigrator.migrate().config;
     }
 
     private CruiseConfig loadConfigFileWithContent(String content) throws Exception {

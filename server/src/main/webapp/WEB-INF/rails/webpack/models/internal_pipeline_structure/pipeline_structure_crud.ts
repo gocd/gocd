@@ -16,17 +16,26 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {PipelineStructureWithAdditionalInfo} from "./pipeline_structure";
+import {PipelineStructure, PipelineStructureWithAdditionalInfo} from "./pipeline_structure";
 
 export class PipelineStructureCRUD {
   private static LATEST_API_VERSION_HEADER = ApiVersion.latest;
 
-  static allPipelines(groupAuthorization: "view" | "operate" | "administer",
-                      templateAuthorization: "view" | "administer") {
+  static allPipelinesPrivileged(groupAuthorization: "view" | "operate" | "administer",
+                                templateAuthorization: "view" | "administer") {
     return ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalPipelinesListPath(groupAuthorization, templateAuthorization, true),
                                  this.LATEST_API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => {
                               return result.map((body) => PipelineStructureWithAdditionalInfo.fromJSON(JSON.parse(body)));
                             });
+  }
+
+  static allPipelines(groupAuthorization: "view" | "operate" | "administer",
+                                templateAuthorization: "view" | "administer") {
+    return ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalPipelinesListPath(groupAuthorization, templateAuthorization),
+      this.LATEST_API_VERSION_HEADER)
+      .then((result: ApiResult<string>) => {
+        return result.map((body) => PipelineStructure.fromJSON(JSON.parse(body)));
+      });
   }
 }

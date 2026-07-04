@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
@@ -37,6 +36,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.pluggableSCMMaterialConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -65,7 +65,7 @@ public class UpdateSCMConfigCommandTest {
     @BeforeEach
     public void setup() {
         result = new HttpLocalizedOperationResult();
-        currentUser = new Username(new CaseInsensitiveString("user"));
+        currentUser = new Username(cis("user"));
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
         scm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"))));
         scm.setName("material");
@@ -100,12 +100,12 @@ public class UpdateSCMConfigCommandTest {
         command.update(cruiseConfig);
 
         PluggableSCMMaterialConfig materialConfig1 = (PluggableSCMMaterialConfig) cruiseConfig
-                .getPipelineConfigByName(new CaseInsensitiveString("p1")).materialConfigs().getFirst();
+                .getPipelineConfigByName(cis("p1")).materialConfigs().getFirst();
 
         assertThat(materialConfig1.getSCMConfig()).isEqualTo(updatedSCM);
 
         PluggableSCMMaterialConfig materialConfig2 = (PluggableSCMMaterialConfig) cruiseConfig
-                .getPipelineConfigByName(new CaseInsensitiveString("p2")).materialConfigs().getFirst();
+                .getPipelineConfigByName(cis("p2")).materialConfigs().getFirst();
         assertThat(materialConfig2.getSCMConfig()).isEqualTo(updatedSCM);
     }
 

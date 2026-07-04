@@ -17,13 +17,13 @@ package com.thoughtworks.go.apiv4.configrepos.representers
 
 import com.thoughtworks.go.api.representers.JsonReader
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig
 import com.thoughtworks.go.security.GoCipher
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
@@ -67,7 +67,7 @@ class GitMaterialRepresenterTest {
       ])
 
       def materialConfig = new GitMaterialRepresenter().fromJSON(json)
-      assertThat(materialConfig.getName()).isEqualTo(new CaseInsensitiveString("Test"))
+      assertThat(materialConfig.getName()).isEqualTo(cis("Test"))
       assertThat(materialConfig.getUrl()).isEqualTo(REPO_URL)
       assertThat(materialConfig.getBranch()).isEqualTo(BRANCH)
       assertThat(materialConfig.getAutoUpdate()).isTrue()

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.SupplierUtils;
-import org.apache.commons.text.StringEscapeUtils;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +26,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import static com.thoughtworks.go.util.UriEncodingUtil.encodePartParanoid;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 
 public class DefaultCommentRenderer implements CommentRenderer {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCommentRenderer.class);
@@ -79,15 +80,11 @@ public class DefaultCommentRenderer implements CommentRenderer {
     }
 
     private String dynamicLink(Matcher matcher) {
-        String linkWithRealId = StringEscapeUtils.escapeHtml4(link.replace("${ID}", id(matcher)));
-        return String.format("<a href=\"%s\" target=\"story_tracker\">%s</a>", linkWithRealId, textOnLink(matcher));
+        String href = link.replace("${ID}", encodePartParanoid(id(matcher)));
+        return "<a href=\"%s\" target=\"story_tracker\">%s</a>".formatted(escapeHtml4(href), escapeHtml4(matcher.group()));
     }
 
-    private String textOnLink(Matcher matcher) {
-        return StringEscapeUtils.escapeHtml4(matcher.group());
-    }
-
-    private String contentsOfFirstGroupThatMatched(Matcher matcher) {
+    private String firstMatchingGroup(Matcher matcher) {
         for (int i = 1; i <= matcher.groupCount(); i++) {
             String groupContent = matcher.group(i);
             if (groupContent != null) {
@@ -98,7 +95,7 @@ public class DefaultCommentRenderer implements CommentRenderer {
     }
 
     private String id(Matcher matcher) {
-        return matcher.groupCount() > 0 ? contentsOfFirstGroupThatMatched(matcher) : matcher.group();
+        return matcher.groupCount() > 0 ? firstMatchingGroup(matcher) : matcher.group();
     }
 
     private static class Comment {
@@ -109,7 +106,7 @@ public class DefaultCommentRenderer implements CommentRenderer {
         }
 
         public void escapeAndAdd(String text) {
-            buffer.append(StringEscapeUtils.escapeHtml4(text));
+            buffer.append(escapeHtml4(text));
         }
 
         public void add(String text) {

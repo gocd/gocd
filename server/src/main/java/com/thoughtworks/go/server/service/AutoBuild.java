@@ -26,10 +26,11 @@ import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.materials.MaterialChecker;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 /**
  * Understands a build that was triggered by a change in some external materials
@@ -58,19 +59,19 @@ public class AutoBuild implements BuildType {
         }
 
         if (!originalMaterialRevisions.hasDependencyMaterials()) {
-            return BuildCause.createWithModifications(originalMaterialRevisions, GoConstants.DEFAULT_APPROVED_BY);
+            return BuildCause.createWithModificationsAutomaticallyTriggered(originalMaterialRevisions);
         }
 
         CruiseConfig cruiseConfig = goConfigService.currentCruiseConfig();
 
         MaterialRevisions recomputedBasedOnDependencies;
         if (systemEnvironment.enforceRevisionCompatibilityWithUpstream()) {
-            recomputedBasedOnDependencies = fanInOn(originalMaterialRevisions, cruiseConfig, new CaseInsensitiveString(pipelineName));
+            recomputedBasedOnDependencies = fanInOn(originalMaterialRevisions, cruiseConfig, cis(pipelineName));
         } else {
             recomputedBasedOnDependencies = fanInOffTriangleDependency(originalMaterialRevisions, cruiseConfig);
         }
         if (recomputedBasedOnDependencies != null && canRunWithRecomputedRevisions(materialConfigurationChanged, previousMaterialRevisions, recomputedBasedOnDependencies)) {
-            return BuildCause.createWithModifications(recomputedBasedOnDependencies, GoConstants.DEFAULT_APPROVED_BY);
+            return BuildCause.createWithModificationsAutomaticallyTriggered(recomputedBasedOnDependencies);
         }
         return null;
     }

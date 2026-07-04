@@ -19,11 +19,11 @@ import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
@@ -44,8 +44,7 @@ public class JobStatusJsonPresentationModelTest {
 
         final Agent agent = new Agent("1234", "localhost", "1234", "cookie");
 
-        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance,
-            agent, mock(DurationBean.class));
+        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, agent);
         Map<String, Object> json = presenter.toJsonHash();
 
         assertThatJson(JsonHelper.toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
@@ -75,8 +74,7 @@ public class JobStatusJsonPresentationModelTest {
     public void shouldShowElapsedAndRemainingTimeForIncompleteBuild() {
         JobInstance instance = building("test", Date.from(Instant.now().minusSeconds(5)));
 
-        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class),
-            new DurationBean(instance.getId(), 10L));
+        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class), Duration.ofSeconds(10));
         Map<String, Object> json = presenter.toJsonHash();
 
         assertThatJson(JsonHelper.toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
@@ -95,7 +93,7 @@ public class JobStatusJsonPresentationModelTest {
 
         // "Not assigned" should depend on whether or not the JobInstance has an agentUuid, regardless of
         // the Agent object passed to the presenter, as this is the canonical definition of job assignment
-        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class), mock(DurationBean.class));
+        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance);
 
         assertThatJson(JsonHelper.toJson(presenter.toJsonHash())).when(IGNORING_EXTRA_FIELDS)
             .isEqualTo("""
@@ -111,7 +109,7 @@ public class JobStatusJsonPresentationModelTest {
 
         JobStatusJsonPresentationModel presenter =
             new JobStatusJsonPresentationModel(instance,
-                new Agent("1234", "localhost", "address", "cookie"), mock(DurationBean.class));
+                new Agent("1234", "localhost", "address", "cookie"));
         assertThatJson(JsonHelper.toJson(presenter.toJsonHash())).when(IGNORING_EXTRA_FIELDS).isEqualTo("""
             {
               "agent": "localhost"

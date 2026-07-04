@@ -24,15 +24,14 @@ public enum AgentRuntimeStatus {
     public AgentRuntimeStatus buildState() {
         return switch (this) {
             case Idle, Cancelled, Building -> this;
-            default -> Unknown;
+            case LostContact, Missing, Unknown -> Unknown;
         };
     }
 
     public AgentRuntimeStatus agentState() {
         return switch (this) {
-            case Idle, Missing, LostContact, Building -> this;
+            case Idle, Missing, LostContact, Building, Unknown -> this;
             case Cancelled -> Building;
-            default -> Unknown;
         };
     }
 }

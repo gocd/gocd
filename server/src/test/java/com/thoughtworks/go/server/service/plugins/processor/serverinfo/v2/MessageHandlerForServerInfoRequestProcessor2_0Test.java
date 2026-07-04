@@ -48,6 +48,6 @@ public class MessageHandlerForServerInfoRequestProcessor2_0Test {
                 goCDVersion.gitRevision()
         );
 
-        assertThatJson(expectedJsonStr).isEqualTo(processor.serverInfoToJSON(serverConfig));
+        assertThatJson(processor.serverInfoToJSON(serverConfig)).isEqualTo(expectedJsonStr);
     }
 }

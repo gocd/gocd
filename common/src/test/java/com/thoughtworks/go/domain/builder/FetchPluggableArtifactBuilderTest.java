@@ -16,7 +16,6 @@
 package com.thoughtworks.go.domain.builder;
 
 import com.thoughtworks.go.config.ArtifactStore;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.FetchPluggableArtifactTask;
 import com.thoughtworks.go.domain.ChecksumFileHandler;
 import com.thoughtworks.go.domain.JobIdentifier;
@@ -42,6 +41,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
 import static com.thoughtworks.go.util.ArtifactUtil.PLUGGABLE_ARTIFACT_METADATA_FOLDER;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.OUT;
@@ -77,8 +77,8 @@ public class FetchPluggableArtifactBuilderTest {
         jobIdentifier = new JobIdentifier("cruise", -10, "1", "dev", "1", "windows", 1L);
         artifactStore = new ArtifactStore("s3", PLUGIN_ID, ConfigurationPropertyMother.create("ACCESS_KEY", true, "hksjdfhsksdfh"));
 
-        fetchPluggableArtifactTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("dev"),
-            new CaseInsensitiveString("windows"),
+        fetchPluggableArtifactTask = new FetchPluggableArtifactTask(cis("dev"),
+            cis("windows"),
             "artifactId",
             ConfigurationPropertyMother.create("Destination", false, "build/"));
 

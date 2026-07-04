@@ -43,6 +43,7 @@ import java.io.ByteArrayOutputStream;
 import java.time.Duration;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -269,7 +270,7 @@ public class GoConfigServiceIntegrationTest {
     public void shouldNotThrowUpOnConfigSaveWhenIndependentChangesAreMade_ViaMergeFlow() throws Exception {
         // Priming current configuration to add lines simulating the license section before removal
         for (int i = 0; i < 10; i++) {
-            configHelper.addRole(new RoleConfig(new CaseInsensitiveString("admin_role_" + i), new RoleUser(new CaseInsensitiveString("admin_user_" + i))));
+            configHelper.addRole(new RoleConfig(cis("admin_role_" + i), new RoleUser(cis("admin_user_" + i))));
         }
 
         // User 1 loads page
@@ -281,7 +282,7 @@ public class GoConfigServiceIntegrationTest {
         CruiseConfig user2SeeingConfig = configHelper.load();
 
         // User 1 edits old config to make an independent change
-        new GoConfigMother().addRole(user1SeeingConfig, new RoleConfig(new CaseInsensitiveString("admin_role"), new RoleUser(new CaseInsensitiveString("admin_user"))));
+        new GoConfigMother().addRole(user1SeeingConfig, new RoleConfig(cis("admin_role"), new RoleUser(cis("admin_user"))));
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         configHelper.getXml(user1SeeingConfig, os);
 

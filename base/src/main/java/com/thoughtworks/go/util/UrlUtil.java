@@ -15,31 +15,16 @@
  */
 package com.thoughtworks.go.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.function.Function;
 
 public class UrlUtil {
     private UrlUtil() {}
-
-    // TODO This encoding implementation is likely not URL compliant - is it a problem?
-    public static String encodeInUtf8(String url) {
-        StringBuilder builder = new StringBuilder();
-        Arrays.stream(url.split("/")).forEachOrdered(part -> {
-            builder.append(URLEncoder.encode(part, StandardCharsets.UTF_8));
-            builder.append('/');
-        });
-
-        if (!url.endsWith("/")) {
-            builder.deleteCharAt(builder.length() - 1);
-        }
-        return builder.toString();
-    }
 
     public static URL fromString(String url) {
         return fromString(url, RuntimeException::new);
@@ -71,6 +56,20 @@ public class UrlUtil {
             return new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), null, null, null).toString();
         } catch (Exception e) {
             throw new RuntimeException(String.format("Url [%s] does not appear to be a valid URL", url), e);
+        }
+    }
+
+    public static String normalizeUrlString(@NotNull String encodedUrlString) {
+        return encodedUrlString.endsWith("/") ? encodedUrlString.substring(0, encodedUrlString.length() - 1) : encodedUrlString;
+    }
+
+    public static String joinPathPartsPreEncoded(String left, String right) {
+        if (left.endsWith("/")) {
+            return left + (right.startsWith("/") ? right.substring(1) : right);
+        } else if (!right.startsWith("/")) {
+            return left + "/" + right;
+        } else {
+            return left + right;
         }
     }
 }

@@ -19,6 +19,8 @@ import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.Objects;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 @ConfigTag("user")
 public class RoleUser implements Validatable {
     private static final String NAME = "name";
@@ -35,7 +37,7 @@ public class RoleUser implements Validatable {
     }
 
     public RoleUser(String name) {
-        this.name = new CaseInsensitiveString(name);
+        this.name = cis(name);
     }
 
     @Override

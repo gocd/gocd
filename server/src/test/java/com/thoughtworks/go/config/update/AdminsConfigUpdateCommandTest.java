@@ -15,7 +15,10 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.AdminUser;
+import com.thoughtworks.go.config.AdminsConfig;
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -28,6 +31,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -56,7 +60,7 @@ public class AdminsConfigUpdateCommandTest {
 
     @Test
     public void shouldUpdateThePreprocessedCruiseConfigAdminsConfig() {
-        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(new CaseInsensitiveString("user")));
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(cis("user")));
 
         AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, adminsConfig, currentUser, result, entityHashingService, null);
 
@@ -79,7 +83,7 @@ public class AdminsConfigUpdateCommandTest {
 
     @Test
     public void shouldNotContinueIfRequestIsStale() {
-        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(new CaseInsensitiveString("user")));
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(cis("user")));
         String digest = "digest";
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -94,7 +98,7 @@ public class AdminsConfigUpdateCommandTest {
 
     @Test
     public void canContinue_adminUserShouldBeAbleToUpdateAFreshRequest() {
-        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(new CaseInsensitiveString("user")));
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(cis("user")));
         String digest = "digest";
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -119,8 +123,8 @@ public class AdminsConfigUpdateCommandTest {
 
     @Test
     public void isValid_shouldEnsureTheAdminsConfigHasErrorsIfValidationFails() {
-        AdminsConfig adminsInPreprocessedConfig = new AdminsConfig(new AdminUser(new CaseInsensitiveString("")));
-        AdminsConfig adminsConfigRequest = new AdminsConfig(new AdminUser(new CaseInsensitiveString("")));
+        AdminsConfig adminsInPreprocessedConfig = new AdminsConfig(new AdminUser(cis("")));
+        AdminsConfig adminsConfigRequest = new AdminsConfig(new AdminUser(cis("")));
         cruiseConfig.server().security().setAdminsConfig(adminsInPreprocessedConfig);
 
         AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, adminsConfigRequest, currentUser, result, entityHashingService, "digest");

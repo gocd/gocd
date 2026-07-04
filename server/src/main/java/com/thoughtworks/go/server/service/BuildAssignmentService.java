@@ -46,6 +46,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
@@ -137,10 +138,10 @@ public class BuildAssignmentService implements ConfigChangedListener {
         List<JobPlan> jobsToRemove = new ArrayList<>();
 
         for (JobPlan jobPlan : allJobPlans) {
-            if (pipelineConfig.name().equals(new CaseInsensitiveString(jobPlan.getPipelineName()))) {
-                StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(jobPlan.getStageName()));
+            if (pipelineConfig.name().equals(cis(jobPlan.getPipelineName()))) {
+                StageConfig stageConfig = pipelineConfig.findBy(cis(jobPlan.getStageName()));
                 if (stageConfig != null) {
-                    JobConfig jobConfig = stageConfig.jobConfigByConfigName(new CaseInsensitiveString(jobPlan.getName()));
+                    JobConfig jobConfig = stageConfig.jobConfigByConfigName(cis(jobPlan.getName()));
                     if (jobConfig == null) {
                         jobsToRemove.add(jobPlan);
                     }
@@ -155,7 +156,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
 
     private List<JobPlan> getAllJobPlansFromDeletedPipeline(PipelineConfig pipelineConfig, List<JobPlan> allJobPlans) {
         return allJobPlans.stream()
-                .filter(jobPlan -> new CaseInsensitiveString(jobPlan.getPipelineName()).equals(pipelineConfig.name()))
+                .filter(jobPlan -> cis(jobPlan.getPipelineName()).equals(pipelineConfig.name()))
                 .collect(toList());
     }
 
@@ -258,7 +259,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
             LOGGER.info("[Configuration Changed] Removing jobs for pipelines that no longer exist in configuration.");
             List<JobPlan> jobsToRemove = new ArrayList<>();
             for (JobPlan jobPlan : jobPlans) {
-                if (!cruiseConfig.hasBuildPlan(new CaseInsensitiveString(jobPlan.getPipelineName()), new CaseInsensitiveString(jobPlan.getStageName()), jobPlan.getName(), true)) {
+                if (!cruiseConfig.hasBuildPlan(cis(jobPlan.getPipelineName()), cis(jobPlan.getStageName()), jobPlan.getName(), true)) {
                     jobsToRemove.add(jobPlan);
                 }
             }
@@ -267,7 +268,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
     }
 
     private void removeJobIfNotPresentInCruiseConfig(CruiseConfig cruiseConfig, JobPlan jobPlan) {
-        if (!cruiseConfig.hasBuildPlan(new CaseInsensitiveString(jobPlan.getPipelineName()), new CaseInsensitiveString(jobPlan.getStageName()), jobPlan.getName(), true)) {
+        if (!cruiseConfig.hasBuildPlan(cis(jobPlan.getPipelineName()), cis(jobPlan.getStageName()), jobPlan.getName(), true)) {
             tryRemoveJob(jobPlan);
         }
     }
@@ -276,11 +277,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
         try {
             jobPlans.remove(jobPlan);
             LOGGER.info("Removing job plan {} that no longer exists in the config", jobPlan);
-            JobInstance instance = jobInstanceService.buildByIdWithTransitions(jobPlan.getJobId());
-            //#2846 - remove this hack
-            instance.setIdentifier(jobPlan.getIdentifier());
-
-            scheduleService.cancelJob(instance);
+            scheduleService.cancelJob(jobInstanceService.buildByIdWithTransitions(jobPlan.getJobId()));
             LOGGER.info("Successfully removed job plan {} that no longer exists in the config", jobPlan);
         } catch (Exception e) {
             LOGGER.warn("Unable to remove plan {} from queue that no longer exists in the config ({})", jobPlan, e.toString());
@@ -352,7 +349,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
      * It will also resolve secrets, if any wrt environment config
      */
     EnvironmentVariableContext buildEnvVarContext(String pipelineName) {
-        String pipelineGroupName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
+        String pipelineGroupName = goConfigService.findGroupNameByPipelineOptional(cis(pipelineName)).orElse(null);
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext(GO_PIPELINE_GROUP_NAME, pipelineGroupName);
 
         EnvironmentConfig environmentForPipeline = environmentConfigService.environmentForPipeline(pipelineName);

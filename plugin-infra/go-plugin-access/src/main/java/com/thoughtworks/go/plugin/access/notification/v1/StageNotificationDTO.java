@@ -21,9 +21,9 @@ import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.StageState;
+import com.thoughtworks.go.util.Dates;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +94,7 @@ public class StageNotificationDTO {
 
         public ModificationDTO(String revision, Date modifiedTime, Map<String, String> data) {
             this.revision = revision;
-            this.modifiedTime = dateToString(modifiedTime);
+            this.modifiedTime = Dates.formatIso8601UtcWithMillis(modifiedTime);
             this.data = data;
         }
     }
@@ -135,8 +135,8 @@ public class StageNotificationDTO {
             this.approvedBy = approvedBy;
             this.state = state.toString();
             this.result = result.toString();
-            this.createTime = timestampToString(createTime);
-            this.lastTransitionTime = timestampToString(lastTransitionTime);
+            this.createTime = Dates.formatIso8601UtcWithMillis(createTime);
+            this.lastTransitionTime = Dates.formatIso8601UtcWithMillis(lastTransitionTime);
             this.jobs = jobs;
         }
     }
@@ -163,19 +163,11 @@ public class StageNotificationDTO {
 
         public JobDTO(String name, Date scheduleTime, Date completeTime, JobState state, JobResult result, String agentUuid) {
             this.name = name;
-            this.scheduleTime = dateToString(scheduleTime);
-            this.completeTime = dateToString(completeTime);
+            this.scheduleTime = Dates.formatIso8601UtcWithMillis(scheduleTime);
+            this.completeTime = Dates.formatIso8601UtcWithMillis(completeTime);
             this.state = state.toString();
             this.result = result.toString();
             this.agentUuid = agentUuid;
         }
-    }
-
-    private static String timestampToString(Timestamp timestamp) {
-        return timestamp == null ? "" : new SimpleDateFormat(StageConverter.DATE_PATTERN).format(timestamp);
-    }
-
-    private static String dateToString(Date date) {
-        return date == null ? "" : new SimpleDateFormat(StageConverter.DATE_PATTERN).format(date);
     }
 }

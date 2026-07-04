@@ -16,9 +16,9 @@
 package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.security.Permissions;
-import com.thoughtworks.go.config.security.permissions.NoOnePermission;
+import com.thoughtworks.go.config.security.permissions.PipelinePermission;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
-import com.thoughtworks.go.config.security.users.NoOne;
+import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.server.domain.Username;
 import org.junit.jupiter.api.Test;
 
@@ -32,10 +32,10 @@ public class GoDashboardPipelineGroupTest {
     @Test
     public void shouldKnowWhetherAUserCanAdministerIt() {
         Permissions permissions = new Permissions(
-                NoOne.INSTANCE,
-                NoOne.INSTANCE,
+                Users.NOONE,
+                Users.NOONE,
                 new AllowedUsers(Set.of("admin1"), Collections.emptySet()),
-                NoOnePermission.INSTANCE);
+                PipelinePermission.NOONE);
 
         GoDashboardPipelineGroup pipelineGroup = new GoDashboardPipelineGroup("group1", permissions, true);
 

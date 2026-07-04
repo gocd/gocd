@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.Approval.*;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.RunOnAllAgentsJobTypeConfig.MARKER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -38,7 +40,7 @@ public class StageConfigTest {
         config.setConfigAttributes(Map.of(StageConfig.NAME, "foo_bar"));
         config.setConfigAttributes(Map.of(StageConfig.FETCH_MATERIALS, "0"));
         config.setConfigAttributes(Map.of(StageConfig.CLEAN_WORKING_DIR, "1"));
-        assertThat(config.name()).isEqualTo(new CaseInsensitiveString("foo_bar"));
+        assertThat(config.name()).isEqualTo(cis("foo_bar"));
         assertThat(config.isFetchMaterials()).isFalse();
         assertThat(config.isCleanWorkingDir()).isTrue();
     }
@@ -92,8 +94,8 @@ public class StageConfigTest {
         config.setConfigAttributes(map);
 
         assertThat(config.getOperateUsers()).hasSize(2);
-        assertThat(config.getOperateUsers()).contains(new AdminUser(new CaseInsensitiveString("user1")));
-        assertThat(config.getOperateUsers()).contains(new AdminUser(new CaseInsensitiveString("user2")));
+        assertThat(config.getOperateUsers()).contains(new AdminUser(cis("user1")));
+        assertThat(config.getOperateUsers()).contains(new AdminUser(cis("user2")));
     }
 
     @Test
@@ -111,8 +113,8 @@ public class StageConfigTest {
         config.setConfigAttributes(map);
 
         assertThat(config.getOperateRoles().size()).isEqualTo(2);
-        assertThat(config.getOperateRoles()).contains(new AdminRole(new CaseInsensitiveString("role1")));
-        assertThat(config.getOperateRoles()).contains(new AdminRole(new CaseInsensitiveString("role2")));
+        assertThat(config.getOperateRoles()).contains(new AdminRole(cis("role1")));
+        assertThat(config.getOperateRoles()).contains(new AdminRole(cis("role2")));
     }
 
     private Map<String, String> nameMap(final String name) {
@@ -138,15 +140,15 @@ public class StageConfigTest {
     @Test
     public void shouldSetApprovalFromConfigAttrs() {
         StageConfig config = new StageConfig();
-        config.setConfigAttributes(Map.of(StageConfig.APPROVAL, Map.of(Approval.TYPE, Approval.MANUAL)));
-        assertThat(config.getApproval().getType()).isEqualTo(Approval.MANUAL);
+        config.setConfigAttributes(Map.of(StageConfig.APPROVAL, Map.of(TYPE, TYPE_MANUAL)));
+        assertThat(config.getApproval().getType()).isEqualTo(TYPE_MANUAL);
         config.setConfigAttributes(new HashMap<>());
-        assertThat(config.getApproval().getType()).isEqualTo(Approval.MANUAL);
+        assertThat(config.getApproval().getType()).isEqualTo(TYPE_MANUAL);
 
-        config.setConfigAttributes(Map.of(StageConfig.APPROVAL, Map.of(Approval.TYPE, Approval.SUCCESS)));
-        assertThat(config.getApproval().getType()).isEqualTo(Approval.SUCCESS);
+        config.setConfigAttributes(Map.of(StageConfig.APPROVAL, Map.of(TYPE, TYPE_SUCCESS)));
+        assertThat(config.getApproval().getType()).isEqualTo(TYPE_SUCCESS);
         config.setConfigAttributes(new HashMap<>());
-        assertThat(config.getApproval().getType()).isEqualTo(Approval.SUCCESS);
+        assertThat(config.getApproval().getType()).isEqualTo(TYPE_SUCCESS);
     }
 
     @Test
@@ -154,8 +156,8 @@ public class StageConfigTest {
         StageConfig config = new StageConfig();
         Map<String, List<Map<String, String>>> stageAttrs = Map.of(StageConfig.JOBS, List.of(Map.of(JobConfig.NAME, "con-job"), Map.of(JobConfig.NAME, "boring-job")));
         config.setConfigAttributes(stageAttrs);
-        assertThat(config.getJobs().getFirst().name()).isEqualTo(new CaseInsensitiveString("con-job"));
-        assertThat(config.getJobs().getLast().name()).isEqualTo(new CaseInsensitiveString("boring-job"));
+        assertThat(config.getJobs().getFirst().name()).isEqualTo(cis("con-job"));
+        assertThat(config.getJobs().getLast().name()).isEqualTo(cis("boring-job"));
     }
 
     @Test
@@ -166,7 +168,7 @@ public class StageConfigTest {
         JobConfigs jobs = new JobConfigs();
         jobs.add(allAgentsJob);
         jobs.add(new JobConfig("job"));
-        StageConfig stage = new StageConfig(new CaseInsensitiveString("stage-name"), jobs);
+        StageConfig stage = new StageConfig(cis("stage-name"), jobs);
 
         JobConfig found = stage.jobConfigByInstanceName("job-for-all-agents-" + MARKER + "-1", true);
         assertThat(found).isEqualTo(allAgentsJob);
@@ -183,7 +185,7 @@ public class StageConfigTest {
         JobConfigs jobs = new JobConfigs();
         jobs.add(ambiguousJob);
         jobs.add(allAgentsJob);
-        StageConfig stage = new StageConfig(new CaseInsensitiveString("stage-name"), jobs);
+        StageConfig stage = new StageConfig(cis("stage-name"), jobs);
 
         JobConfig found = stage.jobConfigByInstanceName("job-for-all-agents-" + MARKER + "-1", true);
         assertThat(found).isEqualTo(allAgentsJob);
@@ -198,10 +200,10 @@ public class StageConfigTest {
         StageConfig stageConfig = pipelineConfig.getFirst();
 
         JobConfig newJob = new JobConfig("foo!");
-        StageConfig newlyAddedStage = new StageConfig(new CaseInsensitiveString("."), new JobConfigs(newJob));
+        StageConfig newlyAddedStage = new StageConfig(cis("."), new JobConfigs(newJob));
         pipelineConfig.addStageWithoutValidityAssertion(newlyAddedStage);
 
-        stageConfig.getJobs().addJobWithoutValidityAssertion(new JobConfig(new CaseInsensitiveString("con-job"), new ResourceConfigs(), new ArtifactTypeConfigs(), new Tasks(new ExecTask("ls", "-la", "foo"))));
+        stageConfig.getJobs().addJobWithoutValidityAssertion(new JobConfig(cis("con-job"), new ResourceConfigs(), new ArtifactTypeConfigs(), new Tasks(new ExecTask("ls", "-la", "foo"))));
 
         List<ConfigErrors> allErrors = config.validateAfterPreprocess();
         assertThat(allErrors).hasSize(4);
@@ -221,8 +223,8 @@ public class StageConfigTest {
         StageConfigMother.addApprovalWithUsers(stage, "user1", "user2");
         StageConfigMother.addApprovalWithRoles(stage, "role1", "role2");
 
-        assertThat(stage.getOperateUsers()).isEqualTo(List.of(new AdminUser(new CaseInsensitiveString("user1")), new AdminUser(new CaseInsensitiveString("user2"))));
-        assertThat(stage.getOperateRoles()).isEqualTo(List.of(new AdminRole(new CaseInsensitiveString("role1")), new AdminRole(new CaseInsensitiveString("role2"))));
+        assertThat(stage.getOperateUsers()).isEqualTo(List.of(new AdminUser(cis("user1")), new AdminUser(cis("user2"))));
+        assertThat(stage.getOperateRoles()).isEqualTo(List.of(new AdminRole(cis("role1")), new AdminRole(cis("role2"))));
     }
 
     @Test
@@ -233,7 +235,7 @@ public class StageConfigTest {
         stageConfig.setName(null);
         stageConfig.validate(null);
         assertThat(stageConfig.errors().firstErrorOn(StageConfig.NAME)).contains("Invalid stage name 'null'");
-        stageConfig.setName(new CaseInsensitiveString(""));
+        stageConfig.setName(cis(""));
         stageConfig.validate(null);
         assertThat(stageConfig.errors().firstErrorOn(StageConfig.NAME)).contains("Invalid stage name 'null'");
     }
@@ -243,7 +245,7 @@ public class StageConfigTest {
         EnvironmentVariablesConfig variables = mock(EnvironmentVariablesConfig.class);
         JobConfigs jobConfigs = mock(JobConfigs.class);
         Approval approval = mock(Approval.class);
-        StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("stage$"), jobConfigs, approval);
+        StageConfig stageConfig = new StageConfig(cis("stage$"), jobConfigs, approval);
         stageConfig.setVariables(variables);
 
         stageConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig(), stageConfig));
@@ -264,10 +266,10 @@ public class StageConfigTest {
         ConfigErrors jobErrors = new ConfigErrors();
         jobErrors.add("KEY", "ERROR");
         when(jobConfigs.errors()).thenReturn(jobErrors);
-        StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("stage$"), jobConfigs, approval);
+        StageConfig stageConfig = new StageConfig(cis("stage$"), jobConfigs, approval);
 
         PipelineConfig pipelineConfig = new PipelineConfig();
-        pipelineConfig.setTemplateName(new CaseInsensitiveString("template"));
+        pipelineConfig.setTemplateName(cis("template"));
         stageConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", pipelineConfig, stageConfig));
 
         assertThat(stageConfig.errors().firstErrorOn(StageConfig.NAME)).contains("Invalid stage name 'stage$'");
@@ -282,7 +284,7 @@ public class StageConfigTest {
         when(jobConfigs.validateTree(any())).thenReturn(true);
         when(approval.validateTree(any())).thenReturn(true);
 
-        StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("p1"), jobConfigs);
+        StageConfig stageConfig = new StageConfig(cis("p1"), jobConfigs);
         stageConfig.setVariables(variables);
         stageConfig.setApproval(approval);
 
@@ -303,7 +305,7 @@ public class StageConfigTest {
         when(jobConfigs.validateTree(any())).thenReturn(false);
         when(approval.validateTree(any())).thenReturn(false);
 
-        StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("p1"), jobConfigs);
+        StageConfig stageConfig = new StageConfig(cis("p1"), jobConfigs);
         stageConfig.setVariables(variables);
         stageConfig.setApproval(approval);
 

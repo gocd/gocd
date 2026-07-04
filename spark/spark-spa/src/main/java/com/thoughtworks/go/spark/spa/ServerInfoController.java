@@ -21,7 +21,7 @@ import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
@@ -33,13 +33,13 @@ import java.util.Map;
 import static spark.Spark.*;
 
 public class ServerInfoController implements SparkController {
-    private final SPAAuthenticationHelper authenticationHelper;
+    private final SpaAuthorizationHelper authorizationHelper;
     private final TemplateEngine engine;
     private final ArtifactsDirHolder artifactsDirHolder;
     private final PipelineConfigService pipelineConfigService;
 
-    public ServerInfoController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, ArtifactsDirHolder artifactsDirHolder, PipelineConfigService pipelineConfigService) {
-        this.authenticationHelper = authenticationHelper;
+    public ServerInfoController(SpaAuthorizationHelper authorizationHelper, TemplateEngine engine, ArtifactsDirHolder artifactsDirHolder, PipelineConfigService pipelineConfigService) {
+        this.authorizationHelper = authorizationHelper;
         this.engine = engine;
         this.artifactsDirHolder = artifactsDirHolder;
         this.pipelineConfigService = pipelineConfigService;
@@ -53,7 +53,7 @@ public class ServerInfoController implements SparkController {
     @Override
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkUserAnd403);
+            before("", authorizationHelper::checkUserAnd403);
             get("", this::index, engine);
         });
     }

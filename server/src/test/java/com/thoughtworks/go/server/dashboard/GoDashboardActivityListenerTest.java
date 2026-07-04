@@ -40,6 +40,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.*;
 
@@ -156,7 +157,7 @@ public class GoDashboardActivityListenerTest {
     @Test
     public void onInitializationAndStartOfDaemons_shouldRegisterAListener_WhichCallsTemplateConfigChangeHandler_ForTemplateConfigChangeHandling() throws Exception {
         GoDashboardTemplateConfigChangeHandler handler = mock(GoDashboardTemplateConfigChangeHandler.class);
-        PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("t1"));
+        PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(cis("t1"));
 
         ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
         doNothing().when(goConfigService).register(captor.capture());

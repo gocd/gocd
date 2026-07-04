@@ -30,7 +30,7 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
@@ -54,6 +54,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.File;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -431,7 +432,7 @@ public class AutoTriggerDependencyResolutionTest {
         configHelper.setMaterialConfigForPipeline("P2", svn.config());
         cruiseConfig = goConfigDao.currentConfig();
         String p1_2 = u.runAndPass(p1, "g2");
-        String p2_2 = u.runAndPass(new ScheduleTestUtil.AddedPipeline(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("P2")), p2.material), "s1");
+        String p2_2 = u.runAndPass(new ScheduleTestUtil.AddedPipeline(cruiseConfig.pipelineConfigByName(cis("P2")), p2.material), "s1");
         String p3_2 = u.runAndPass(p3, p1_2, p2_2);
 
         //day 3:
@@ -676,7 +677,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(hg, true, "h3"),
             u.mr(up1, true, up1_1));
 
-        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("current"));
+        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, cis("current"));
         assertThat(finalRevisions).isEqualTo(expected);
     }
 
@@ -705,7 +706,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(hg, true, "h1"),
             u.mr(up1, true, up1_1));
 
-        assertThat(getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("current"))).isEqualTo(expected);
+        assertThat(getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, cis("current"))).isEqualTo(expected);
     }
 
     @Test
@@ -741,7 +742,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(third, true, third_3),
             u.mr(second, true, second_4));
 
-        assertThat(getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("last"))).isEqualTo(expected);
+        assertThat(getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, cis("last"))).isEqualTo(expected);
     }
 
     @Test
@@ -778,7 +779,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(third, true, third_3),
             u.mr(second, true, second_2));
 
-        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("last"));
+        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, cis("last"));
         assertThat(finalRevisions).isEqualTo(expected);
     }
 
@@ -815,7 +816,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(third, true, third_3),
             u.mr(second, true, second_3));
 
-        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("last"));
+        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, cis("last"));
         assertThat(finalRevisions).isEqualTo(expected);
     }
 
@@ -849,7 +850,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(up1, false, up1_1),
             u.mr(svn, true, "s2"));
 
-        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("current"));
+        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, cis("current"));
         assertThat(finalRevisions).isEqualTo(expected);
     }
 
@@ -878,7 +879,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(up1, false, up1_1),
             u.mr(common, false, common_3));
 
-        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("current"));
+        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, cis("current"));
         assertThat(finalRevisions).isEqualTo(expected);
     }
 
@@ -910,7 +911,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(up1, false, up1_1),
             u.mr(common, false, common_4));
 
-        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("current"));
+        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, cis("current"));
         assertThat(finalRevisions).isEqualTo(expected);
     }
 
@@ -939,7 +940,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(hg, true, "hg2"),
             u.mr(up1, true, up1_1));
 
-        MaterialRevisions revisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("current"));
+        MaterialRevisions revisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, cis("current"));
         assertThat(revisions).isEqualTo(expected);
     }
 
@@ -1060,7 +1061,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(second, true, second_2),
             u.mr(third, true, third_3));
 
-        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("last"));
+        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, cis("last"));
         assertThat(finalRevisions).isEqualTo(expected);
     }
 
@@ -1088,7 +1089,7 @@ public class AutoTriggerDependencyResolutionTest {
         configHelper.setMaterialConfigForPipeline("P2", git1.config());
         CruiseConfig cruiseConfig = goConfigDao.currentConfig();
         String p1_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i), "g11", "g22");
-        ScheduleTestUtil.AddedPipeline new_p2 = new ScheduleTestUtil.AddedPipeline(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("p2")), p2.material);
+        ScheduleTestUtil.AddedPipeline new_p2 = new ScheduleTestUtil.AddedPipeline(cruiseConfig.pipelineConfigByName(cis("p2")), p2.material);
         u.scheduleWith(new_p2, "g11");
 
         MaterialRevisions given = u.mrs(
@@ -1336,7 +1337,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(git, true, "g1"),
             u.mr(p4, true, p4_1));
 
-        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("p5"));
+        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, cis("p5"));
         assertThat(finalRevisions).isEqualTo(expected);
     }
 
@@ -1369,7 +1370,7 @@ public class AutoTriggerDependencyResolutionTest {
             u.mr(git, true, "g1"),
             u.mr(p4, true, p4_1));
 
-        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("p5"));
+        MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, cis("p5"));
         assertThat(finalRevisions).isEqualTo(expected);
     }
 
@@ -1552,7 +1553,7 @@ public class AutoTriggerDependencyResolutionTest {
 
         MaterialRevisions given = u.mrs(u.mr(p8, true, p8_1));
 
-        assertThat(getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, new CaseInsensitiveString("p11"))).isEqualTo(given);
+        assertThat(getRevisionsBasedOnDependencies(goConfigDao.currentConfig(), given, cis("p11"))).isEqualTo(given);
     }
 
     @Test
@@ -1614,7 +1615,7 @@ public class AutoTriggerDependencyResolutionTest {
 
         configHelper.setMaterialConfigForPipeline("p2", u.m(p1).materialConfig(), u.m(svn).materialConfig());
 
-        p2 = new ScheduleTestUtil.AddedPipeline(goConfigService.currentCruiseConfig().pipelineConfigByName(new CaseInsensitiveString("p2")), p2.material);
+        p2 = new ScheduleTestUtil.AddedPipeline(goConfigService.currentCruiseConfig().pipelineConfigByName(cis("p2")), p2.material);
 
         MaterialRevisions given = u.mrs(
             u.mr(p1, false, p1_1),
@@ -1939,7 +1940,7 @@ public class AutoTriggerDependencyResolutionTest {
 
         configHelper.setMaterialConfigForPipeline("p2", u.m(p1).materialConfig(), u.m(svn).materialConfig());
 
-        p2 = new ScheduleTestUtil.AddedPipeline(goConfigService.currentCruiseConfig().pipelineConfigByName(new CaseInsensitiveString("p2")), p2.material);
+        p2 = new ScheduleTestUtil.AddedPipeline(goConfigService.currentCruiseConfig().pipelineConfigByName(cis("p2")), p2.material);
 
         MaterialRevisions given = u.mrs(
             u.mr(p1, false, p1_1),

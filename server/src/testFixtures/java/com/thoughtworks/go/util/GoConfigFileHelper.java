@@ -36,7 +36,6 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.service.ConfigRepository;
 import org.apache.commons.io.FileUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -47,6 +46,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
@@ -122,7 +122,7 @@ public class GoConfigFileHelper {
         try {
 
             MaintenanceModeService maintenanceModeService = new MaintenanceModeService(new TimeProvider(), systemEnvironment);
-            ServerHealthService serverHealthService = new ServerHealthService();
+            ServerHealthService serverHealthService = new ServerHealthService(mock());
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
             configRepository.initialize();
             
@@ -152,7 +152,7 @@ public class GoConfigFileHelper {
     }
 
     private static JobConfig defaultBuildPlan(String name) {
-        JobConfig job = new JobConfig(new CaseInsensitiveString(name), new ResourceConfigs(), new ArtifactTypeConfigs());
+        JobConfig job = new JobConfig(cis(name), new ResourceConfigs(), new ArtifactTypeConfigs());
         job.addTask(new AntTask());
         return job;
     }
@@ -184,7 +184,7 @@ public class GoConfigFileHelper {
             Admin[] result = new Admin[userNames.length];
             for (int i = 0; i < userNames.length; i++) {
                 String userName = userNames[i];
-                result[i] = new AdminUser(new CaseInsensitiveString(userName));
+                result[i] = new AdminUser(cis(userName));
             }
             return result;
         }
@@ -293,8 +293,8 @@ public class GoConfigFileHelper {
 
     public PipelineConfig addPipelineWithTemplate(String groupName, String pipelineName, String templateName) {
         CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(pipelineName), MaterialConfigsMother.mockMaterialConfigs("svn:///user:pass@tmp/foo"));
-        pipelineConfig.setTemplateName(new CaseInsensitiveString(templateName));
+        PipelineConfig pipelineConfig = new PipelineConfig(cis(pipelineName), MaterialConfigsMother.mockMaterialConfigs("svn:///user:pass@tmp/foo"));
+        pipelineConfig.setTemplateName(cis(templateName));
         cruiseConfig.findGroup(groupName).add(pipelineConfig);
         writeConfigFile(cruiseConfig);
         return pipelineConfig;
@@ -408,7 +408,7 @@ public class GoConfigFileHelper {
 
     public PipelineConfig addStageToPipeline(String pipelineName, StageConfig stageConfig) {
         CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis(pipelineName));
         pipelineConfig.add(stageConfig);
         writeConfigFile(cruiseConfig);
         return pipelineConfig;
@@ -416,24 +416,24 @@ public class GoConfigFileHelper {
 
     public void addEnvironmentVariableToPipeline(String pipelineName, EnvironmentVariablesConfig envVars) {
         CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis(pipelineName));
         pipelineConfig.setVariables(envVars);
         writeConfigFile(cruiseConfig);
     }
 
     public void addEnvironmentVariableToStage(String pipelineName, String stageName, EnvironmentVariablesConfig envVars) {
         CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(stageName));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis(pipelineName));
+        StageConfig stageConfig = pipelineConfig.findBy(cis(stageName));
         stageConfig.setVariables(envVars);
         writeConfigFile(cruiseConfig);
     }
 
     public void addEnvironmentVariableToJob(String pipelineName, String stageName, String jobName, EnvironmentVariablesConfig envVars) {
         CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(stageName));
-        JobConfig jobConfig = stageConfig.jobConfigByConfigName(new CaseInsensitiveString(jobName));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis(pipelineName));
+        StageConfig stageConfig = pipelineConfig.findBy(cis(stageName));
+        JobConfig jobConfig = stageConfig.jobConfigByConfigName(cis(jobName));
         jobConfig.setVariables(envVars);
         writeConfigFile(cruiseConfig);
     }
@@ -449,8 +449,8 @@ public class GoConfigFileHelper {
 
     public StageConfig removeStage(String pipelineName, String stageName) {
         CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(stageName));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis(pipelineName));
+        StageConfig stageConfig = pipelineConfig.findBy(cis(stageName));
         pipelineConfig.remove(stageConfig);
         writeConfigFile(cruiseConfig);
         return stageConfig;
@@ -466,9 +466,8 @@ public class GoConfigFileHelper {
     }
 
     public PipelineConfigs removePipeline(String pipelineName, CruiseConfig cruiseConfig) {
-        String groupName = cruiseConfig.getGroups().findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
-        PipelineConfigs groups = cruiseConfig.getGroups().findGroup(groupName);
-        groups.remove(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName)));
+        PipelineConfigs groups = cruiseConfig.getGroups().findGroupByPipeline(cis(pipelineName));
+        groups.remove(cruiseConfig.pipelineConfigByName(cis(pipelineName)));
         return groups;
     }
 
@@ -479,7 +478,7 @@ public class GoConfigFileHelper {
     public PipelineConfig addPipelineWithInvalidMaterial(String pipelineName, String stageName) {
         CruiseConfig cruiseConfig = loadForEdit();
         StageConfig stageConfig = StageConfigMother.custom(stageName, defaultBuildPlans("buildName"));
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(pipelineName), invalidRepositoryMaterialConfigs(), stageConfig);
+        PipelineConfig pipelineConfig = new PipelineConfig(cis(pipelineName), invalidRepositoryMaterialConfigs(), stageConfig);
         cruiseConfig.addPipeline(DEFAULT_GROUP, pipelineConfig);
         writeConfigFile(cruiseConfig);
         return pipelineConfig;
@@ -570,7 +569,7 @@ public class GoConfigFileHelper {
 
     public void requireApproval(String pipelineName, String stageName) {
         CruiseConfig cruiseConfig = loadForEdit();
-        cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).findBy(new CaseInsensitiveString(stageName)).updateApproval(Approval.manualApproval());
+        cruiseConfig.pipelineConfigByName(cis(pipelineName)).findBy(cis(stageName)).updateApproval(Approval.manualApproval());
         writeConfigFile(cruiseConfig);
     }
 
@@ -605,8 +604,8 @@ public class GoConfigFileHelper {
     }
 
     public void addAuthorizedUserForStage(String pipelineName, String stageName, String... users) {
-        CaseInsensitiveString pipeline = new CaseInsensitiveString(pipelineName);
-        CaseInsensitiveString stage = new CaseInsensitiveString(stageName);
+        CaseInsensitiveString pipeline = cis(pipelineName);
+        CaseInsensitiveString stage = cis(stageName);
 
         if (!currentConfig().stageConfigByName(pipeline, stage).getApproval().isManual()) {
             configureStageAsManualApproval(pipelineName, stageName);
@@ -616,7 +615,7 @@ public class GoConfigFileHelper {
         StageConfig stageConfig = cruiseConfig.stageConfigByName(pipeline, stage);
         Approval approval = stageConfig.getApproval();
         for (String user : users) {
-            approval.getAuthConfig().add(new AdminUser(new CaseInsensitiveString(user)));
+            approval.getAuthConfig().add(new AdminUser(cis(user)));
         }
 
         writeConfigFile(cruiseConfig);
@@ -625,14 +624,14 @@ public class GoConfigFileHelper {
     public void addAuthorizedUserForPipelineGroup(String user) {
         CruiseConfig cruiseConfig = loadForEdit();
         PipelineConfigs group = cruiseConfig.getGroups().getFirst();
-        group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString(user)));
+        group.getAuthorization().getViewConfig().add(new AdminUser(cis(user)));
         writeConfigFile(cruiseConfig);
     }
 
     public void addAuthorizedUserForPipelineGroup(String user, String groupName) {
         CruiseConfig cruiseConfig = loadForEdit();
         PipelineConfigs group = cruiseConfig.getGroups().findGroup(groupName);
-        group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString(user)));
+        group.getAuthorization().getViewConfig().add(new AdminUser(cis(user)));
         writeConfigFile(cruiseConfig);
     }
 
@@ -644,14 +643,14 @@ public class GoConfigFileHelper {
     public void setAdminPermissionForGroup(String groupName, String user) {
         CruiseConfig cruiseConfig = loadForEdit();
         PipelineConfigs group = cruiseConfig.getGroups().findGroup(groupName);
-        group.getAuthorization().getAdminsConfig().add(new AdminUser(new CaseInsensitiveString(user)));
+        group.getAuthorization().getAdminsConfig().add(new AdminUser(cis(user)));
         writeConfigFile(cruiseConfig);
     }
 
     public void setViewPermissionForGroup(String groupName, String username) {
         CruiseConfig cruiseConfig = loadForEdit();
         PipelineConfigs group = cruiseConfig.getGroups().findGroup(groupName);
-        group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString(username)));
+        group.getAuthorization().getViewConfig().add(new AdminUser(cis(username)));
         writeConfigFile(cruiseConfig);
     }
 
@@ -666,14 +665,14 @@ public class GoConfigFileHelper {
 
     public void setOperatePermissionForStage(String pipelineName, String stageName, String username) {
         CruiseConfig cruiseConfig = loadForEdit();
-        StageConfig stageConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).findBy(new CaseInsensitiveString(stageName));
-        stageConfig.updateApproval(new Approval(new AuthConfig(new AdminUser(new CaseInsensitiveString(username)))));
+        StageConfig stageConfig = cruiseConfig.pipelineConfigByName(cis(pipelineName)).findBy(cis(stageName));
+        stageConfig.updateApproval(new Approval(new AuthConfig(new AdminUser(cis(username)))));
         writeConfigFile(cruiseConfig);
     }
 
     public void setPipelineLabelTemplate(String pipelineName, String labelTemplate) {
         CruiseConfig config = loadForEdit();
-        config.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).setLabelTemplate(labelTemplate);
+        config.pipelineConfigByName(cis(pipelineName)).setLabelTemplate(labelTemplate);
         writeConfigFile(config);
     }
 
@@ -692,23 +691,23 @@ public class GoConfigFileHelper {
 
     public void setRunOnAllAgents(String pipelineName, String stageName, String jobName, boolean runOnAllAgents) {
         CruiseConfig config = loadForEdit();
-        PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        pipelineConfig.findBy(new CaseInsensitiveString(stageName)).jobConfigByInstanceName(jobName, true).setRunOnAllAgents(runOnAllAgents);
+        PipelineConfig pipelineConfig = config.pipelineConfigByName(cis(pipelineName));
+        pipelineConfig.findBy(cis(stageName)).jobConfigByInstanceName(jobName, true).setRunOnAllAgents(runOnAllAgents);
         writeConfigFile(config);
     }
 
     public void setRunMultipleInstance(String pipelineName, String stageName, String jobName, int runInstanceCount) {
         CruiseConfig config = loadForEdit();
-        PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        pipelineConfig.findBy(new CaseInsensitiveString(stageName)).jobConfigByInstanceName(jobName, true).setRunInstanceCount(runInstanceCount);
+        PipelineConfig pipelineConfig = config.pipelineConfigByName(cis(pipelineName));
+        pipelineConfig.findBy(cis(stageName)).jobConfigByInstanceName(jobName, true).setRunInstanceCount(runInstanceCount);
         writeConfigFile(config);
     }
 
     public void addResourcesFor(String pipelineName, String stageName, String jobName, String... resources) {
         CruiseConfig config = loadForEdit();
-        PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        PipelineConfig pipelineConfig = config.pipelineConfigByName(cis(pipelineName));
         for (String resource : resources) {
-            pipelineConfig.findBy(new CaseInsensitiveString(stageName)).jobConfigByConfigName(new CaseInsensitiveString(jobName)).addResourceConfig(resource);
+            pipelineConfig.findBy(cis(stageName)).jobConfigByConfigName(cis(jobName)).addResourceConfig(resource);
         }
         writeConfigFile(config);
     }
@@ -716,7 +715,7 @@ public class GoConfigFileHelper {
     public void addAssociatedEntitiesForAJob(String pipelineName, String stageName, String jobName, ResourceConfigs resourceConfigs,
                                              ArtifactTypeConfigs artifactConfigs) {
         CruiseConfig config = loadForEdit();
-        JobConfig jobConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).findBy(new CaseInsensitiveString(stageName)).jobConfigByConfigName(new CaseInsensitiveString(jobName));
+        JobConfig jobConfig = config.pipelineConfigByName(cis(pipelineName)).findBy(cis(stageName)).jobConfigByConfigName(cis(jobName));
         ReflectionUtil.setField(jobConfig, "resourceConfigs", resourceConfigs);
         ReflectionUtil.setField(jobConfig, "artifactTypeConfigs", artifactConfigs);
         writeConfigFile(config);
@@ -724,7 +723,7 @@ public class GoConfigFileHelper {
 
     public PipelineConfig addMaterialToPipeline(String pipelineName, MaterialConfig materialConfig) {
         CruiseConfig config = loadForEdit();
-        PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        PipelineConfig pipelineConfig = config.pipelineConfigByName(cis(pipelineName));
         for (MaterialConfig materialConfig1 : new MaterialConfig[]{materialConfig}) {
             pipelineConfig.addMaterialConfig(materialConfig1);
         }
@@ -734,7 +733,7 @@ public class GoConfigFileHelper {
 
     public PipelineConfig removeMaterialFromPipeline(String pipelineName, MaterialConfig materialConfig) {
         CruiseConfig config = loadForEdit();
-        PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        PipelineConfig pipelineConfig = config.pipelineConfigByName(cis(pipelineName));
         pipelineConfig.removeMaterialConfig(materialConfig);
         writeConfigFile(config);
         return pipelineConfig;
@@ -742,9 +741,9 @@ public class GoConfigFileHelper {
 
     public PipelineConfig changeStageNameForToPipeline(String pipelineName, String oldStageName, String newStageName) {
         CruiseConfig config = loadForEdit();
-        PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        PipelineConfig pipelineConfig = config.pipelineConfigByName(cis(pipelineName));
 
-        StageConfig stage = pipelineConfig.getStage(new CaseInsensitiveString(oldStageName));
+        StageConfig stage = pipelineConfig.getStage(cis(oldStageName));
         int index = pipelineConfig.indexOf(stage);
 
         stage = StageConfigMother.custom(newStageName, stage.isFetchMaterials(), stage.isCleanWorkingDir(), stage.getJobs(), stage.getApproval());
@@ -757,7 +756,7 @@ public class GoConfigFileHelper {
     public void blockPipelineGroupExceptFor(String pipelineGroupName, String roleName) {
         CruiseConfig config = loadForEdit();
         PipelineConfigs configs = config.getGroups().findGroup(pipelineGroupName);
-        Authorization authorization = new Authorization(new OperationConfig(new AdminRole(new CaseInsensitiveString(roleName))), new ViewConfig(new AdminRole(new CaseInsensitiveString(roleName))));
+        Authorization authorization = new Authorization(new OperationConfig(new AdminRole(cis(roleName))), new ViewConfig(new AdminRole(cis(roleName))));
         configs.setAuthorization(authorization);
         writeConfigFile(config);
     }
@@ -766,7 +765,7 @@ public class GoConfigFileHelper {
         CruiseConfig cruiseConfig = loadForEdit();
         AdminsConfig adminsConfig = cruiseConfig.server().security().adminsConfig();
         for (String adminName : adminNames) {
-            adminsConfig.add(new AdminUser(new CaseInsensitiveString(adminName)));
+            adminsConfig.add(new AdminUser(cis(adminName)));
         }
         writeConfigFile(cruiseConfig);
     }
@@ -775,14 +774,14 @@ public class GoConfigFileHelper {
         CruiseConfig cruiseConfig = loadForEdit();
         AdminsConfig adminsConfig = cruiseConfig.server().security().adminsConfig();
         for (String roleName : roleNames) {
-            adminsConfig.add(new AdminRole(new CaseInsensitiveString(roleName)));
+            adminsConfig.add(new AdminRole(cis(roleName)));
         }
         writeConfigFile(cruiseConfig);
     }
 
     public void lockPipeline(String name) {
         CruiseConfig config = loadForEdit();
-        PipelineConfig pipeline = config.pipelineConfigByName(new CaseInsensitiveString(name));
+        PipelineConfig pipeline = config.pipelineConfigByName(cis(name));
         pipeline.setLockBehaviorIfNecessary(LOCK_VALUE_LOCK_ON_FAILURE);
         writeConfigFile(config);
     }
@@ -811,9 +810,9 @@ public class GoConfigFileHelper {
 
     public void removeJob(String pipelineName, String stageName, String jobName) {
         CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(stageName));
-        JobConfig job = stageConfig.getJobs().getJob(new CaseInsensitiveString(jobName));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis(pipelineName));
+        StageConfig stageConfig = pipelineConfig.findBy(cis(stageName));
+        JobConfig job = stageConfig.getJobs().getJob(cis(jobName));
         stageConfig.getJobs().remove(job);
         writeConfigFile(cruiseConfig);
     }
@@ -856,7 +855,7 @@ public class GoConfigFileHelper {
             @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) {
                 JobConfig job = cruiseConfig.findJob(pipelineName, stageName, oldJobName);
-                ReflectionUtil.setField(job, "jobName", new CaseInsensitiveString(newJobName));
+                ReflectionUtil.setField(job, "jobName", cis(newJobName));
                 return cruiseConfig;
             }
         };
@@ -871,8 +870,8 @@ public class GoConfigFileHelper {
 
     private StageConfig pushJobIntoStage(String pipelineName, String stageName, JobConfig jobConfig) {
         CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(stageName));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis(pipelineName));
+        StageConfig stageConfig = pipelineConfig.findBy(cis(stageName));
         stageConfig.allBuildPlans().clear();
         stageConfig.allBuildPlans().add(jobConfig);
         writeConfigFile(cruiseConfig);
@@ -889,7 +888,7 @@ public class GoConfigFileHelper {
 
     private PipelineConfig addMaterialConfigForPipeline(String pipelinename, MaterialConfig... materialConfigs) {
         CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelinename));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis(pipelinename));
         pipelineConfig.setMaterialConfigs(new MaterialConfigs(materialConfigs));
 
         writeConfigFile(cruiseConfig);
@@ -898,7 +897,7 @@ public class GoConfigFileHelper {
 
     private PipelineConfig replaceMaterialConfigForPipeline(String pipelinename, MaterialConfigs materialConfigs) {
         CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelinename));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis(pipelinename));
         pipelineConfig.setMaterialConfigs(materialConfigs);
 
         writeConfigFile(cruiseConfig);
@@ -907,8 +906,8 @@ public class GoConfigFileHelper {
 
     private void updateApproval(String pipelineName, String ftStage, Approval manualApproval) {
         CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        StageConfig config = pipelineConfig.findBy(new CaseInsensitiveString(ftStage));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis(pipelineName));
+        StageConfig config = pipelineConfig.findBy(cis(ftStage));
         config.updateApproval(manualApproval);
         writeConfigFile(cruiseConfig);
     }

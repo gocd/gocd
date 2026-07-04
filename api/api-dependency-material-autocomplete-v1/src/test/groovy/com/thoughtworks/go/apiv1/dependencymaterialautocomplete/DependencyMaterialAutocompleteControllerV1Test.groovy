@@ -16,19 +16,20 @@
 package com.thoughtworks.go.apiv1.dependencymaterialautocomplete
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.dependencymaterialautocomplete.representers.SuggestionsRepresenter
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.StageConfig
+import com.thoughtworks.go.spark.AnyGroupAdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.mockito.Mockito.when
 
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -36,11 +37,13 @@ class DependencyMaterialAutocompleteControllerV1Test implements SecurityServiceT
 
   @Override
   DependencyMaterialAutocompleteControllerV1 createControllerInstance() {
-    return new DependencyMaterialAutocompleteControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigService)
+    return new DependencyMaterialAutocompleteControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), goConfigService)
   }
 
   @Nested
-  class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+  class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
+    @Delegate SecurityServiceTrait s = DependencyMaterialAutocompleteControllerV1Test.this
+    @Delegate ControllerTrait<DependencyMaterialAutocompleteControllerV1> c = DependencyMaterialAutocompleteControllerV1Test.this
 
     @Override
     String getControllerMethodUnderTest() {
@@ -73,7 +76,7 @@ class DependencyMaterialAutocompleteControllerV1Test implements SecurityServiceT
     }
 
     private CaseInsensitiveString ident(String name) {
-      return new CaseInsensitiveString(name)
+      return cis(name)
     }
 
     private PipelineConfig pipeline(String name, StageConfig... stages) {

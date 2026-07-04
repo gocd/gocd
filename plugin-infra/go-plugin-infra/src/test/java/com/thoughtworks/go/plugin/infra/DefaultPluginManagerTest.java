@@ -140,7 +140,7 @@ class DefaultPluginManagerTest {
         doNothing().when(goPlugin).initializeGoApplicationAccessor(captor.capture());
 
         doAnswer(invocationOnMock -> {
-            @SuppressWarnings("unchecked") ActionWithReturn<GoPlugin, GoPluginApiResponse> action = (ActionWithReturn<GoPlugin, GoPluginApiResponse>) invocationOnMock.getArguments()[3];
+            @SuppressWarnings("unchecked") ActionWithReturn<GoPlugin, GoPluginApiResponse> action = invocationOnMock.getArgument(3);
             return action.execute(goPlugin, descriptor);
         }).when(goPluginOSGiFramework).doOn(eq(GoPlugin.class), eq("plugin-id"), eq(extensionType), any());
 
@@ -162,7 +162,7 @@ class DefaultPluginManagerTest {
         when(goPluginOSGiFramework.hasReferenceFor(GoPlugin.class, pluginId, extensionType)).thenReturn(true);
 
         lenient().doAnswer(invocationOnMock -> {
-            @SuppressWarnings("unchecked") ActionWithReturn<GoPlugin, GoPluginApiResponse> action = (ActionWithReturn<GoPlugin, GoPluginApiResponse>) invocationOnMock.getArguments()[2];
+            @SuppressWarnings("unchecked") ActionWithReturn<GoPlugin, GoPluginApiResponse> action = invocationOnMock.getArgument(2);
             return action.execute(goPlugin, descriptor);
         }).when(goPluginOSGiFramework).doOn(eq(GoPlugin.class), eq(pluginId), eq(extensionType), any());
         lenient().when(goPlugin.pluginIdentifier()).thenReturn(pluginIdentifier);

@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv2.materials;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -41,13 +41,13 @@ import static spark.Spark.*;
 @Component
 public class MaterialNotifyControllerV2 extends ApiController implements SparkSpringController {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final MaterialUpdateService materialUpdateService;
 
     @Autowired
-    public MaterialNotifyControllerV2(ApiAuthenticationHelper apiAuthenticationHelper, MaterialUpdateService materialUpdateService) {
+    public MaterialNotifyControllerV2(ApiAuthorizationHelper apiAuthorizationHelper, MaterialUpdateService materialUpdateService) {
         super(ApiVersion.v2);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.materialUpdateService = materialUpdateService;
     }
 
@@ -63,8 +63,8 @@ public class MaterialNotifyControllerV2 extends ApiController implements SparkSp
             before("/*", mimeType, this::setContentType);
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
-            before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
-            before("/*", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", this.mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
+            before("/*", this.mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
             post(Routes.MaterialNotify.SVN, mimeType, this::svnNotify);
             post(Routes.MaterialNotify.GIT, mimeType, this::gitNotify);
             post(Routes.MaterialNotify.HG, mimeType, this::hgNotify);

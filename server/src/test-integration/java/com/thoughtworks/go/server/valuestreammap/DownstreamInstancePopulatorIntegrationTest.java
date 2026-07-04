@@ -22,7 +22,7 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.valuestreammap.*;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
@@ -40,6 +40,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -92,17 +93,17 @@ public class DownstreamInstancePopulatorIntegrationTest {
                          + P3 +
         */
 
-        CaseInsensitiveString pName = new CaseInsensitiveString("p");
-        CaseInsensitiveString p2name = new CaseInsensitiveString("p2");
-        CaseInsensitiveString p3name = new CaseInsensitiveString("p3");
-        CaseInsensitiveString p4name = new CaseInsensitiveString("p4");
+        CaseInsensitiveString pName = cis("p");
+        CaseInsensitiveString p2name = cis("p2");
+        CaseInsensitiveString p3name = cis("p3");
+        CaseInsensitiveString p4name = cis("p4");
         ValueStreamMap valueStreamMap = new ValueStreamMap(pName, new PipelineRevision(pName.toString(), 1, "13.1.1"));
         Node nodep2 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(p2name, p2name.toString()), pName);
         Node nodep3 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(p3name, p3name.toString()), p2name);
         Node nodep4 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(p4name, p4name.toString()), p3name);
         valueStreamMap.addDownstreamNode(new PipelineDependencyNode(p4name, p4name.toString()), p2name);
 
-        valueStreamMap.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"),new CaseInsensitiveString("git"), pName, new MaterialRevision(null));
+        valueStreamMap.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"),cis("git"), pName, new MaterialRevision(null));
 
         GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
         u.checkinInOrder(g1,"g_1");
@@ -133,17 +134,17 @@ public class DownstreamInstancePopulatorIntegrationTest {
                          + P3 +
         */
 
-        CaseInsensitiveString pName = new CaseInsensitiveString("p");
-        CaseInsensitiveString p3name = new CaseInsensitiveString("p3");
-        CaseInsensitiveString p2name = new CaseInsensitiveString("p2");
-        CaseInsensitiveString p4name = new CaseInsensitiveString("p4");
-        CaseInsensitiveString g1Name = new CaseInsensitiveString("g1");
+        CaseInsensitiveString pName = cis("p");
+        CaseInsensitiveString p3name = cis("p3");
+        CaseInsensitiveString p2name = cis("p2");
+        CaseInsensitiveString p4name = cis("p4");
+        CaseInsensitiveString g1Name = cis("g1");
         ValueStreamMap valueStreamMap = new ValueStreamMap(pName, new PipelineRevision(pName.toString(), 1, "13.1.1"));
         Node nodep2 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(p2name, p2name.toString()), pName);
         Node nodep3 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(p3name, p3name.toString()), p2name);
         Node nodep4 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(p4name, p4name.toString()), p3name);
         valueStreamMap.addDownstreamNode(new PipelineDependencyNode(p4name, p4name.toString()), p2name);
-        valueStreamMap.addUpstreamMaterialNode(new SCMDependencyNode(g1Name.toString(), g1Name.toString(), "git"),new CaseInsensitiveString("git"), pName, new MaterialRevision(null));
+        valueStreamMap.addUpstreamMaterialNode(new SCMDependencyNode(g1Name.toString(), g1Name.toString(), "git"),cis("git"), pName, new MaterialRevision(null));
 
         GitMaterial g1 = u.wf(new GitMaterial(g1Name.toString()), "folder3");
         u.checkinInOrder(g1,"g_1");
@@ -176,14 +177,14 @@ public class DownstreamInstancePopulatorIntegrationTest {
                        P3
         */
 
-        ValueStreamMap valueStreamMap = new ValueStreamMap(new CaseInsensitiveString("p"), new PipelineRevision("p", 1, "13.1.1"));
-        Node nodep2 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p2"), "p2"), new CaseInsensitiveString("p"));
-        Node nodep3 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p3"), "p3"), new CaseInsensitiveString("p"));
-        Node nodep4 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p4"), "p4"), new CaseInsensitiveString("p2"));
-        valueStreamMap.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p4"), "p4"), new CaseInsensitiveString("p3"));
-        Node nodep5 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p5"), "p5"), new CaseInsensitiveString("p4"));
+        ValueStreamMap valueStreamMap = new ValueStreamMap(cis("p"), new PipelineRevision("p", 1, "13.1.1"));
+        Node nodep2 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(cis("p2"), "p2"), cis("p"));
+        Node nodep3 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(cis("p3"), "p3"), cis("p"));
+        Node nodep4 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(cis("p4"), "p4"), cis("p2"));
+        valueStreamMap.addDownstreamNode(new PipelineDependencyNode(cis("p4"), "p4"), cis("p3"));
+        Node nodep5 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(cis("p5"), "p5"), cis("p4"));
         valueStreamMap.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"),
-                new CaseInsensitiveString("git"), new CaseInsensitiveString("p"), new MaterialRevision(null));
+                cis("git"), cis("p"), new MaterialRevision(null));
 
         GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
         u.checkinInOrder(g1,"g_1");
@@ -251,13 +252,13 @@ public class DownstreamInstancePopulatorIntegrationTest {
 
 		ValueStreamMap valueStreamMap = new ValueStreamMap(g1, g1Instance, g1Modification);
 		Node gitNode = valueStreamMap.getCurrentMaterial();
-		Node nodep1 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p"), "p"), gitNode.getId());
-		Node nodep2 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p2"), "p2"), new CaseInsensitiveString("p"));
-		Node nodep3 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p3"), "p3"), new CaseInsensitiveString("p2"));
-		Node nodep4 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p4"), "p4"), new CaseInsensitiveString("p3"));
-		valueStreamMap.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("p4"), "p4"), new CaseInsensitiveString("p2"));
-		Node nodep5 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("q"), "q"), gitNode.getId());
-		Node nodep6 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(new CaseInsensitiveString("r"), "r"), gitNode.getId());
+		Node nodep1 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(cis("p"), "p"), gitNode.getId());
+		Node nodep2 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(cis("p2"), "p2"), cis("p"));
+		Node nodep3 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(cis("p3"), "p3"), cis("p2"));
+		Node nodep4 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(cis("p4"), "p4"), cis("p3"));
+		valueStreamMap.addDownstreamNode(new PipelineDependencyNode(cis("p4"), "p4"), cis("p2"));
+		Node nodep5 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(cis("q"), "q"), gitNode.getId());
+		Node nodep6 = valueStreamMap.addDownstreamNode(new PipelineDependencyNode(cis("r"), "r"), gitNode.getId());
 
 		downstreamInstancePopulator.apply(valueStreamMap);
 

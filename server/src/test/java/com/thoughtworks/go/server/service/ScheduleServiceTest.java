@@ -40,6 +40,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.JobResult.*;
 import static com.thoughtworks.go.domain.JobState.Building;
 import static com.thoughtworks.go.domain.JobState.Completed;
@@ -78,10 +79,10 @@ public class ScheduleServiceTest {
     @Test
     public void shouldCancelStage() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Pipeline pipeline = PipelineMother.pipeline("pipeline-name", StageMother.passedStageInstance("mingle", "job-bar", "pipeline-name"));
+        Pipeline pipeline = PipelineMother.pipeline("pipeline-name", StageMother.passedStageInstance("pipeline-name", "mingle", "job-bar"));
         Stage spiedStage = spy(pipeline.getFirstStage());
         long stageId = spiedStage.getId();
-        Username admin = new Username(new CaseInsensitiveString("admin"));
+        Username admin = new Username(cis("admin"));
         doReturn(true).when(spiedStage).isActive();
         when(stageService.stageById(stageId)).thenReturn(spiedStage);
         when(securityService.hasOperatePermissionForStage(pipeline.getName(), spiedStage.getName(), admin.getUsername().toString())).thenReturn(true);
@@ -102,10 +103,10 @@ public class ScheduleServiceTest {
     @Test
     public void shouldNotCancelStageIfItsNotActive() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Pipeline pipeline = PipelineMother.pipeline("pipeline-name", StageMother.passedStageInstance("mingle", "job-bar", "pipeline-name"));
+        Pipeline pipeline = PipelineMother.pipeline("pipeline-name", StageMother.passedStageInstance("pipeline-name", "mingle", "job-bar"));
         Stage firstStage = pipeline.getFirstStage();
         long stageId = firstStage.getId();
-        Username admin = new Username(new CaseInsensitiveString("admin"));
+        Username admin = new Username(cis("admin"));
         when(stageService.stageById(stageId)).thenReturn(firstStage);
         Stage resultStage = service.cancelAndTriggerRelevantStages(stageId, admin, result);
         assertThat(resultStage).isEqualTo(firstStage);
@@ -120,11 +121,11 @@ public class ScheduleServiceTest {
     @Test
     public void shouldNotCancelStageWhenTheUserDoesNotHaveOperatePermission() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Pipeline pipeline = PipelineMother.pipeline("pipeline-name", StageMother.passedStageInstance("mingle", "job-bar", "pipeline-name"));
+        Pipeline pipeline = PipelineMother.pipeline("pipeline-name", StageMother.passedStageInstance("pipeline-name", "mingle", "job-bar"));
         Stage spiedStage = spy(pipeline.getFirstStage());
 
         long stageId = spiedStage.getId();
-        Username admin = new Username(new CaseInsensitiveString("admin"));
+        Username admin = new Username(cis("admin"));
 
         doReturn(true).when(spiedStage).isActive();
         when(stageService.stageById(stageId)).thenReturn(spiedStage);
@@ -159,28 +160,29 @@ public class ScheduleServiceTest {
     @Test
     public void shouldSetServerHealthMessageWhenStageScheduleFailsWithCannotScheduleException() {
         final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline-quux");
-        when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipeline-quux"))).thenReturn(pipelineConfig);
-        when(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("pipeline-quux"))).thenReturn(new Agents());
+        when(goConfigService.pipelineConfigNamed(cis("pipeline-quux"))).thenReturn(pipelineConfig);
+        when(environmentConfigService.agentsForPipeline(cis("pipeline-quux"))).thenReturn(new Agents());
         when(goConfigService.scheduleStage("pipeline-quux", "mingle", new DefaultSchedulingContext("loser", new Agents()))).thenThrow(new CannotScheduleException("foo", "stage-baz"));
         try {
-            Pipeline pipeline = PipelineMother.pipeline("pipeline-quux", StageMother.passedStageInstance("mingle", "job-bar", "pipeline-name"));
+            Pipeline pipeline = PipelineMother.pipeline("pipeline-quux", StageMother.passedStageInstance("pipeline-name", "mingle", "job-bar"));
             service.scheduleStage(pipeline, "mingle", "loser",
                     new ScheduleService.NewStageInstanceCreator(goConfigService), new ScheduleService.ExceptioningErrorHandler());
             fail("should have failed as stage could not be scheduled");
         } catch (CannotScheduleException e) {
             assertThat(e.getMessage()).isEqualTo("foo");
         }
-        verify(serverHealthService).update(ServerHealthState.failedToScheduleStage(HealthStateType.general(HealthStateScope.forStage("pipeline-quux", "stage-baz")),
-                "pipeline-quux", "stage-baz", "foo"));
+        verify(serverHealthService).update(
+            ScheduleService.stageSchedulingFailedState("pipeline-quux", "stage-baz", "foo", HealthStateType.general(HealthStateScope.forStage("pipeline-quux", "stage-baz")))
+        );
     }
 
     @Test
     public void shouldClearServerHealthMessageWhenStageScheduleCompletesSuccessfully() {
         final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline-quux");
-        when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipeline-quux"))).thenReturn(pipelineConfig);
-        when(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("pipeline-quux"))).thenReturn(new Agents());
+        when(goConfigService.pipelineConfigNamed(cis("pipeline-quux"))).thenReturn(pipelineConfig);
+        when(environmentConfigService.agentsForPipeline(cis("pipeline-quux"))).thenReturn(new Agents());
         when(goConfigService.scheduleStage("pipeline-quux", "mingle", new DefaultSchedulingContext("loser", new Agents()))).thenReturn(new Stage());
-        Stage stageConfig = StageMother.passedStageInstance("mingle", "job-bar", "pipeline-name");
+        Stage stageConfig = StageMother.passedStageInstance("pipeline-name", "mingle", "job-bar");
         service.scheduleStage(PipelineMother.pipeline("pipeline-quux", stageConfig), "mingle", "loser",
                 new ScheduleService.NewStageInstanceCreator(goConfigService), new ScheduleService.ExceptioningErrorHandler());
         verify(serverHealthService).update(ServerHealthState.success(HealthStateType.general(HealthStateScope.forStage("pipeline-quux", "mingle"))));
@@ -189,7 +191,7 @@ public class ScheduleServiceTest {
     @Test
     public void shouldSetServerHealthMessageWhenPipelineCreationFailsWithCannotScheduleException() {
         final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline-quux");
-        when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipeline-quux"))).thenReturn(pipelineConfig);
+        when(goConfigService.pipelineConfigNamed(cis("pipeline-quux"))).thenReturn(pipelineConfig);
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
         when(cruiseConfig.getMd5()).thenReturn("md5-test");
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
@@ -197,28 +199,29 @@ public class ScheduleServiceTest {
         when(pipelineScheduleQueue.createPipeline(any(), eq(pipelineConfig), any(), eq("md5-test"), eq(timeProvider))).thenThrow(
                 new CannotScheduleException("foo", "stage-baz"));
         final Map<CaseInsensitiveString, BuildCause> map = new HashMap<>();
-        map.put(new CaseInsensitiveString("pipeline-quux"), BuildCause.createManualForced());
+        map.put(cis("pipeline-quux"), BuildCause.createManualForced());
         when(pipelineScheduleQueue.toBeScheduled()).thenReturn(map);
 
         service.autoSchedulePipelinesFromRequestBuffer();
 
-        verify(serverHealthService).update(ServerHealthState.failedToScheduleStage(HealthStateType.general(HealthStateScope.forStage("pipeline-quux", "stage-baz")),
-                "pipeline-quux", "stage-baz", "foo"));
+        verify(serverHealthService).update(
+            ScheduleService.stageSchedulingFailedState("pipeline-quux", "stage-baz", "foo", HealthStateType.general(HealthStateScope.forStage("pipeline-quux", "stage-baz")))
+        );
     }
 
     @Test
     public void shouldClearServerHealthMessageWhenPipelineGetsCreatedSuccessfully() {
         final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline-quux");
         final MaterialConfig materialConfig = pipelineConfig.materialConfigs().getFirst();
-        when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipeline-quux"))).thenReturn(pipelineConfig);
+        when(goConfigService.pipelineConfigNamed(cis("pipeline-quux"))).thenReturn(pipelineConfig);
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
         when(cruiseConfig.getMd5()).thenReturn("md5-test");
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(schedulingChecker.canAutoTriggerConsumer(pipelineConfig)).thenReturn(true);
         when(pipelineScheduleQueue.createPipeline(any(), eq(pipelineConfig), any(), eq("md5-test"), eq(timeProvider))).thenReturn(PipelineMother.schedule(pipelineConfig,
-                BuildCause.createManualForced(new MaterialRevisions(new MaterialRevision(new MaterialConfigConverter().toMaterial(materialConfig), ModificationsMother.aCheckIn("123", "foo.c"))), new Username(new CaseInsensitiveString("loser")))));
+                BuildCause.createManualForced(new MaterialRevisions(new MaterialRevision(new MaterialConfigConverter().toMaterial(materialConfig), ModificationsMother.aCheckIn("123", "foo.c"))), new Username(cis("loser")))));
         final Map<CaseInsensitiveString, BuildCause> map = new HashMap<>();
-        map.put(new CaseInsensitiveString("pipeline-quux"), BuildCause.createManualForced());
+        map.put(cis("pipeline-quux"), BuildCause.createManualForced());
         when(pipelineScheduleQueue.toBeScheduled()).thenReturn(map);
 
         service.autoSchedulePipelinesFromRequestBuffer();

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.pluginsettings
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.pluginsettings.representers.PluginSettingsRepresenter
 import com.thoughtworks.go.domain.config.ConfigurationKey
 import com.thoughtworks.go.domain.config.ConfigurationProperty
@@ -59,13 +59,16 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
 
   @Override
   PluginSettingsControllerV1 createControllerInstance() {
-    new PluginSettingsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), pluginService, entityHashingService)
+    new PluginSettingsControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), pluginService, entityHashingService)
   }
 
   @Nested
   class Show {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PluginSettingsControllerV1Test.this
+      @Delegate ControllerTrait<PluginSettingsControllerV1> c = PluginSettingsControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'show'
@@ -81,7 +84,6 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -133,6 +135,8 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PluginSettingsControllerV1Test.this
+      @Delegate ControllerTrait<PluginSettingsControllerV1> c = PluginSettingsControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -149,7 +153,6 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -206,7 +209,7 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
         when(pluginService.pluginInfoForExtensionThatHandlesPluginSettings(pluginSettings.pluginId)).thenReturn(pluginInfo())
         when(entityHashingService.hashForEntity(pluginSettings)).thenReturn('some-digest')
         doAnswer({ InvocationOnMock invocation ->
-          def result = (HttpLocalizedOperationResult) invocation.arguments.last()
+          def result = (HttpLocalizedOperationResult) invocation.getArgument(2)
           result.unprocessableEntity("Boom!")
           return null
         }).when(pluginService).createPluginSettings(any(), any(), any())
@@ -225,6 +228,8 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PluginSettingsControllerV1Test.this
+      @Delegate ControllerTrait<PluginSettingsControllerV1> c = PluginSettingsControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -241,7 +246,6 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -391,7 +395,7 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
         when(pluginService.pluginInfoForExtensionThatHandlesPluginSettings(pluginSettings.pluginId)).thenReturn(pluginInfo())
         when(entityHashingService.hashForEntity(pluginSettings)).thenReturn('some-digest')
         doAnswer({ InvocationOnMock invocation ->
-          def result = (HttpLocalizedOperationResult) invocation.arguments[2]
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.unprocessableEntity("Boom!")
           return null
         }).when(pluginService).updatePluginSettings(any(), any(), any(), any())

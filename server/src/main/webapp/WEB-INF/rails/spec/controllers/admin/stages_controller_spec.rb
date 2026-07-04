@@ -80,7 +80,7 @@ describe Admin::StagesController do
         result = HttpLocalizedOperationResult.new
         allow(@go_config_service).to receive(:configChangesFor).with("md5_value_2", "md5_value_1", result).and_return(nil)
         get :config_change, params: {:later_md5 => "md5_value_2", :earlier_md5 => "md5_value_1"}
-        expect(assigns(:config_change_error_message)).to eq "This is the first entry in the config versioning. Please refer config tab to view complete configuration during this run."
+        expect(assigns(:config_change_error_message)).to eq "This is the first entry in the config versioning."
       end
     end
   end

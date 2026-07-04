@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv11.pipelineconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv11.admin.pipelineconfig.PipelineConfigControllerV11
 import com.thoughtworks.go.apiv11.admin.shared.representers.PipelineConfigRepresenter
 import com.thoughtworks.go.config.CaseInsensitiveString
@@ -54,6 +54,7 @@ import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
@@ -88,7 +89,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
   @Override
   PipelineConfigControllerV11 createControllerInstance() {
-    return new PipelineConfigControllerV11(pipelineConfigService, pipelinePauseService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, passwordDeserializer, goConfigService)
+    return new PipelineConfigControllerV11(pipelineConfigService, pipelinePauseService, new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService, passwordDeserializer, goConfigService)
   }
 
   @Nested
@@ -96,7 +97,8 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
-
+      @Delegate SecurityServiceTrait s = PipelineConfigControllerV11Test.this
+      @Delegate ControllerTrait<PipelineConfigControllerV11> c = PipelineConfigControllerV11Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -105,7 +107,12 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath('/foo'))
+        getWithApiHeader(controller.controllerPath(getPipelineName()))
+      }
+
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: 'foo')
       }
     }
 
@@ -115,7 +122,6 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
 
         when(securityService.hasViewPermissionForPipeline(any(), any())).thenReturn(true)
@@ -196,6 +202,8 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PipelineConfigControllerV11Test.this
+      @Delegate ControllerTrait<PipelineConfigControllerV11> c = PipelineConfigControllerV11Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -204,9 +212,13 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(), [group: "new_grp"])
+        postWithApiHeader(controller.controllerPath(), [group: getGroupName()])
       }
 
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        return new PipelineSpecifier(groupName: "new_grp")
+      }
     }
 
     @Nested
@@ -216,7 +228,6 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
 
         when(securityService.hasViewPermissionForPipeline(any(), any())).thenReturn(true)
@@ -234,7 +245,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
           PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName)
         })])
 
-        verify(pipelineConfigService).createPipelineConfig(any(Username.class) as Username, any(PipelineConfig.class) as PipelineConfig, any(HttpLocalizedOperationResult.class) as HttpLocalizedOperationResult, eq("new_grp"))
+        verify(pipelineConfigService).createPipelineConfig(any(), any(), any(), eq("new_grp"))
 
         def expectedJSON = toObjectString({ PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName) })
 
@@ -256,7 +267,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
           PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName)
         })])
 
-        verify(pipelineConfigService).createPipelineConfig(any(Username.class) as Username, any(PipelineConfig.class) as PipelineConfig, any(HttpLocalizedOperationResult.class) as HttpLocalizedOperationResult, eq("new_grp"))
+        verify(pipelineConfigService).createPipelineConfig(any(), any(), any(), eq("new_grp"))
 
         def expectedJSON = toObjectString({ PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName) })
 
@@ -280,7 +291,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
           PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName)
         })])
 
-        verify(pipelineConfigService).createPipelineConfig(any(Username.class) as Username, any(PipelineConfig.class) as PipelineConfig, any(HttpLocalizedOperationResult.class) as HttpLocalizedOperationResult, eq("new_grp"))
+        verify(pipelineConfigService).createPipelineConfig(any(), any(), any(), eq("new_grp"))
 
         def expectedJSON = toObjectString({ PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName) })
 
@@ -304,7 +315,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
           PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName)
         })])
 
-        verify(pipelineConfigService).createPipelineConfig(any(Username.class) as Username, any(PipelineConfig.class) as PipelineConfig, any(HttpLocalizedOperationResult.class) as HttpLocalizedOperationResult, eq("new_grp"))
+        verify(pipelineConfigService).createPipelineConfig(any(), any(), any(), eq("new_grp"))
 
         def expectedJSON = toObjectString({ PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName) })
 
@@ -331,7 +342,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
           PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName)
         })])
 
-        verify(pipelineConfigService).createPipelineConfig(any(Username.class) as Username, any(PipelineConfig.class) as PipelineConfig, any(HttpLocalizedOperationResult.class) as HttpLocalizedOperationResult, eq("new_grp"))
+        verify(pipelineConfigService).createPipelineConfig(any(), any(), any(), eq("new_grp"))
 
         def expectedJSON = toObjectString({ PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName) })
 
@@ -354,7 +365,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
         when(pipelineConfigService.createPipelineConfig(any(), any(), any(), eq("group"))).then({ InvocationOnMock invocation ->
           pipelineConfig.addError("labelTemplate", String.format(PipelineConfig.LABEL_TEMPLATE_ERROR_MESSAGE, "foo bar"))
-          result = invocation.getArguments()[2]
+          result = invocation.getArgument(2)
           result.unprocessableEntity("message from server")
         })
 
@@ -381,6 +392,17 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
       }
 
       @Test
+      void 'should fail if name is blank'() {
+        def pipeline = pipeline()
+        pipeline.remove("name")
+        postWithApiHeader(controller.controllerPath(), [group: "new_grp", pipeline: pipeline])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Pipeline name must be specified for creating a pipeline.")
+      }
+
+      @Test
       void "should fail if group is blank"() {
         postWithApiHeader(controller.controllerPath(), [group: '', pipeline: pipeline()])
 
@@ -397,7 +419,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
         PipelineConfig pipelineBeingSaved = null
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig)
         when(pipelineConfigService.createPipelineConfig(any(), any(), any(), eq("group"))).then({ InvocationOnMock invocation ->
-          pipelineBeingSaved = invocation.getArguments()[1]
+          pipelineBeingSaved = invocation.getArgument(1)
         })
 
         postWithApiHeader(controller.controllerPath(), [group: "group", pipeline: pipelineWithPluggableMaterial("pipeline1", "package", "package-name")])
@@ -416,7 +438,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
         PipelineConfig pipelineBeingSaved = null
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig)
         when(pipelineConfigService.createPipelineConfig(any(), any(), any(), eq("group"))).then({ InvocationOnMock invocation ->
-          pipelineBeingSaved = invocation.getArguments()[1]
+          pipelineBeingSaved = invocation.getArgument(1)
         })
 
         postWithApiHeader(controller.controllerPath(), [group: "group", pipeline: pipelineWithPluggableMaterial("pipeline1", "plugin", "scm-id")])
@@ -432,6 +454,9 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PipelineConfigControllerV11Test.this
+      @Delegate ControllerTrait<PipelineConfigControllerV11> c = PipelineConfigControllerV11Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "update"
@@ -439,13 +464,18 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        def pipelineConfig = PipelineConfigMother.pipelineConfig("foo")
+        def pipelineConfig = PipelineConfigMother.pipelineConfig(getPipelineName())
         pipelineConfig.setOrigin(new FileConfigOrigin())
         putWithApiHeader(controller.controllerPath('/foo'), [
           'accept'      : controller.mimeType,
           'If-Match'    : 'cached-digest',
           'content-type': 'application/json'
         ], toObjectString({ PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName) }))
+      }
+
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: 'foo')
       }
     }
 
@@ -456,7 +486,6 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @BeforeEach
       void setup() {
-        enableSecurity()
         loginAsAdmin()
         when(goConfigService.findGroupNameByPipeline(any(CaseInsensitiveString.class))).thenReturn(groupName)
       }
@@ -580,7 +609,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
         pipelineConfig.addError("labelTemplate", String.format(PipelineConfig.LABEL_TEMPLATE_ERROR_MESSAGE, 'foo bar'))
 
         when(pipelineConfigService.updatePipelineConfig(any(), any(), anyString(), eq("digest"), any())).then({ InvocationOnMock invocation ->
-          result = invocation.getArguments()[4]
+          result = invocation.getArgument(4)
           result.unprocessableEntity("message from server")
         })
 
@@ -633,7 +662,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
         when(entityHashingService.hashForEntity(pipelineConfig, groupName)).thenReturn('digest')
         when(pipelineConfigService.updatePipelineConfig(any(), any(), anyString(), any(), any())).then({ InvocationOnMock invocation ->
-          pipelineBeingSaved = invocation.getArguments()[1]
+          pipelineBeingSaved = invocation.getArgument(1)
         })
 
         def headers = [
@@ -664,7 +693,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
         when(entityHashingService.hashForEntity(pipelineConfig, groupName)).thenReturn('digest')
 
         when(pipelineConfigService.updatePipelineConfig(any(), any(), anyString(), any(), any())).then({ InvocationOnMock invocation ->
-          pipelineBeingSaved = invocation.getArguments()[1]
+          pipelineBeingSaved = invocation.getArgument(1)
         })
 
         def headers = [
@@ -687,6 +716,9 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PipelineConfigControllerV11Test.this
+      @Delegate ControllerTrait<PipelineConfigControllerV11> c = PipelineConfigControllerV11Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "destroy"
@@ -694,7 +726,12 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        deleteWithApiHeader(controller.controllerPath('/foo'))
+        deleteWithApiHeader(controller.controllerPath(getPipelineName()))
+      }
+
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: 'foo')
       }
     }
 
@@ -703,7 +740,6 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @BeforeEach
       void setup() {
-        enableSecurity()
         loginAsAdmin()
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
       }
@@ -711,9 +747,9 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
       @Test
       void "should delete pipeline config for an admin"() {
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.setMessage("The pipeline 'pipeline1' was deleted successfully.")
-        }).when(pipelineConfigService).deletePipelineConfig(any(), eq(this.pipeline), any())
+        }).when(pipelineConfigService).deletePipelineConfig(any(), eq(pipeline), any())
 
 
         deleteWithApiHeader(controller.controllerPath("/pipeline1"))
@@ -756,6 +792,9 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
   class ExtractToTemplate {
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PipelineConfigControllerV11Test.this
+      @Delegate ControllerTrait<PipelineConfigControllerV11> c = PipelineConfigControllerV11Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "extractToTemplate"
@@ -763,7 +802,12 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        putWithApiHeader(controller.controllerPath('/foo/extract_to_template'), [:])
+        putWithApiHeader(controller.controllerPath(getPipelineName(), 'extract_to_template'), [:])
+      }
+
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: 'foo')
       }
     }
 
@@ -773,11 +817,10 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
       @BeforeEach
       void setup() {
-        enableSecurity()
         loginAsAdmin()
         pipeline.setOrigin(new FileConfigOrigin())
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
-        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString("pipeline1"))).thenReturn("some-group")
+        when(goConfigService.findGroupNameByPipeline(cis("pipeline1"))).thenReturn("some-group")
       }
 
       @Test

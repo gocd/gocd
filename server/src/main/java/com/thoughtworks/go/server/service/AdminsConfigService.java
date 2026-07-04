@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 
 @Component
@@ -96,8 +97,8 @@ public class AdminsConfigService {
 
         usersToAdd.forEach(user -> existingAdmins.add(new AdminUser(user)));
         rolesToAdd.forEach(role -> existingAdmins.add(new AdminRole(role)));
-        usersToRemove.forEach(user -> existingAdmins.remove(new AdminUser(new CaseInsensitiveString(user))));
-        rolesToRemove.forEach(role -> existingAdmins.remove(new AdminRole(new CaseInsensitiveString(role))));
+        usersToRemove.forEach(user -> existingAdmins.remove(new AdminUser(cis(user))));
+        rolesToRemove.forEach(role -> existingAdmins.remove(new AdminRole(cis(role))));
         AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, new AdminsConfig(existingAdmins),
                 currentUser, result, entityHashingService, md5);
         updateConfig(currentUser, result, command);

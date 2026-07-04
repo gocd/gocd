@@ -20,8 +20,8 @@ import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ConfigFileFixture.ONE_PIPELINE;
-import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TrackingToolSerializationTest {
@@ -60,7 +60,7 @@ public class TrackingToolSerializationTest {
             %s
           </pipelines>
         </cruise>
-        """.formatted(CONFIG_SCHEMA_VERSION, PIPELINE_WITH_TRACKINGTOOL);
+        """.formatted(GoConfigSchema.VERSION, PIPELINE_WITH_TRACKINGTOOL);
 
     @BeforeEach
     public void setUp() {
@@ -71,7 +71,7 @@ public class TrackingToolSerializationTest {
     @Test
     public void shouldLoadTrackingTool() throws Exception {
         CruiseConfig cruiseConfig = loader.loadConfigHolder(CONFIG_WITH_TRACKINGTOOL).config;
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis("pipeline1"));
         TrackingTool trackingTool = pipelineConfig.trackingToolOrDefault();
 
         assertThat(trackingTool.getLink()).isEqualTo("http://mingle05/projects/cce/cards/${ID}");
@@ -82,7 +82,7 @@ public class TrackingToolSerializationTest {
     @Test
     public void shouldWriteTrackingToolToConfig() throws Exception {
         CruiseConfig cruiseConfig = loader.loadConfigHolder(CONFIG_WITH_TRACKINGTOOL).config;
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis("pipeline1"));
 
         assertThat(writer.toXmlPartial(pipelineConfig)).isEqualTo(PIPELINE_WITH_TRACKINGTOOL);
     }
@@ -90,7 +90,7 @@ public class TrackingToolSerializationTest {
     @Test
     public void shouldNotReturnNullWhenTrackingToolIsNotConfigured() throws Exception {
         CruiseConfig cruiseConfig = loader.loadConfigHolder(ONE_PIPELINE).config;
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis("pipeline1"));
         TrackingTool trackingTool = pipelineConfig.trackingToolOrDefault();
 
         assertThat(trackingTool).isNotNull();

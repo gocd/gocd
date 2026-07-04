@@ -33,8 +33,8 @@ import java.io.IOException;
 
 import static com.thoughtworks.go.http.mocks.MockHttpServletResponseAssert.assertThat;
 import static com.thoughtworks.go.server.newsecurity.filterchains.DenyGoCDAccessForArtifactsFilterChainTest.wrap;
-import static com.thoughtworks.go.util.GoConstants.GIGA_BYTE;
-import static com.thoughtworks.go.util.GoConstants.MEGA_BYTE;
+import static com.thoughtworks.go.util.FileSizeUtils.fromGigaToBytes;
+import static com.thoughtworks.go.util.FileSizeUtils.fromMegaToBytes;
 import static org.mockito.Mockito.*;
 
 class ArtifactSizeEnforcementFilterChainTest {
@@ -45,7 +45,7 @@ class ArtifactSizeEnforcementFilterChainTest {
     @BeforeEach
     void setUp() {
         File artifactsDir = mock(File.class);
-        when(artifactsDir.getUsableSpace()).thenReturn(GIGA_BYTE);
+        when(artifactsDir.getUsableSpace()).thenReturn(fromGigaToBytes(1));
         ArtifactsDirHolder artifactsDirHolder = mock(ArtifactsDirHolder.class);
         when(artifactsDirHolder.getArtifactsDir()).thenReturn(artifactsDir);
         filter = new ArtifactSizeEnforcementFilterChain(new ArtifactSizeEnforcementFilter(artifactsDirHolder, new SystemEnvironment()));
@@ -67,7 +67,7 @@ class ArtifactSizeEnforcementFilterChainTest {
     @ParameterizedTest
     @ValueSource(strings = {"/files/bar/foo.zip", "/remoting/files/bar/foo.zip"})
     void shouldAllowIfEnoughDiskSpaceIsAvailable(String path) throws IOException, ServletException {
-        MockHttpServletRequest request = HttpRequestBuilder.POST(path).withHeader(StandardHeaders.REQUEST_ARTIFACT_PAYLOAD_SIZE, 100 * MEGA_BYTE).build();
+        MockHttpServletRequest request = HttpRequestBuilder.POST(path).withHeader(StandardHeaders.REQUEST_ARTIFACT_PAYLOAD_SIZE_BYTES, fromMegaToBytes(100)).build();
 
         filter.doFilter(request, response, filterChain);
 
@@ -79,7 +79,7 @@ class ArtifactSizeEnforcementFilterChainTest {
     @ParameterizedTest
     @ValueSource(strings = {"/files/bar/foo.zip", "/remoting/files/bar/foo.zip"})
     void shouldDisallowIfNotEnoughDiskSpaceIsAvailable(String path) throws IOException, ServletException {
-        MockHttpServletRequest request = HttpRequestBuilder.POST(path).withHeader(StandardHeaders.REQUEST_ARTIFACT_PAYLOAD_SIZE, 600 * MEGA_BYTE).build();
+        MockHttpServletRequest request = HttpRequestBuilder.POST(path).withHeader(StandardHeaders.REQUEST_ARTIFACT_PAYLOAD_SIZE_BYTES, fromMegaToBytes(600)).build();
 
         filter.doFilter(request, response, filterChain);
 

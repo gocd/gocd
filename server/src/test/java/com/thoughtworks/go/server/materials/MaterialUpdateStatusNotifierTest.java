@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
@@ -23,6 +22,7 @@ import com.thoughtworks.go.domain.materials.Material;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -46,7 +46,7 @@ public class MaterialUpdateStatusNotifierTest {
 
     @Test
     public void shouldKnowAboutAListenerBasedOnAPipelineConfig() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("config"), new MaterialConfigs());
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("config"), new MaterialConfigs());
         materialUpdateStatusNotifier.registerListenerFor(pipelineConfig, mock(MaterialUpdateStatusListener.class));
         assertThat(materialUpdateStatusNotifier.hasListenerFor(pipelineConfig)).isTrue();
         materialUpdateStatusNotifier.removeListenerFor(pipelineConfig);
@@ -55,7 +55,7 @@ public class MaterialUpdateStatusNotifierTest {
 
     @Test
     public void shouldNotifyListenerWhenItsMaterialIsUpdated() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("config"), new MaterialConfigs());
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("config"), new MaterialConfigs());
         Material material = new HgMaterial("url", null);
         pipelineConfig.addMaterialConfig(material.config());
         MaterialUpdateStatusListener mockStatusListener = mock(MaterialUpdateStatusListener.class);
@@ -68,7 +68,7 @@ public class MaterialUpdateStatusNotifierTest {
 
     @Test
     public void shouldNotNotifyListenerWhenUnknownMaterialIsUpdated() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("config"), new MaterialConfigs());
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("config"), new MaterialConfigs());
         MaterialUpdateStatusListener mockStatusListener = mock(MaterialUpdateStatusListener.class);
 
         materialUpdateStatusNotifier.registerListenerFor(pipelineConfig, mockStatusListener);
@@ -80,7 +80,7 @@ public class MaterialUpdateStatusNotifierTest {
 
     @Test
     public void shouldBeAbleToUnregisterAListenerDuringACallback() {
-        final PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("config"), new MaterialConfigs());
+        final PipelineConfig pipelineConfig = new PipelineConfig(cis("config"), new MaterialConfigs());
         Material material = new HgMaterial("url", null);
         pipelineConfig.addMaterialConfig(material.config());
         MaterialUpdateStatusListener statusListener = new MaterialUpdateStatusListener() {
@@ -105,10 +105,10 @@ public class MaterialUpdateStatusNotifierTest {
     public void shouldNotifyListenerWhenItsMaterialIsUpdatedEvenIfAnotherListenerThrowsAnException() {
         Material sharedMaterial = new HgMaterial("url", null);
 
-        PipelineConfig pipelineConfig1 = new PipelineConfig(new CaseInsensitiveString("config"), new MaterialConfigs());
+        PipelineConfig pipelineConfig1 = new PipelineConfig(cis("config"), new MaterialConfigs());
 
         pipelineConfig1.addMaterialConfig(sharedMaterial.config());
-        PipelineConfig pipelineConfig2 = new PipelineConfig(new CaseInsensitiveString("another-config"), new MaterialConfigs());
+        PipelineConfig pipelineConfig2 = new PipelineConfig(cis("another-config"), new MaterialConfigs());
 
         pipelineConfig2.addMaterialConfig(sharedMaterial.config());
 

@@ -21,7 +21,7 @@ import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
@@ -34,12 +34,12 @@ import static java.lang.String.format;
 import static spark.Spark.*;
 
 public class CompareController implements SparkController {
-    private final SPAAuthenticationHelper authenticationHelper;
+    private final SpaAuthorizationHelper authorizationHelper;
     private final TemplateEngine engine;
     private final PipelineService pipelineService;
 
-    public CompareController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, PipelineService pipelineService) {
-        this.authenticationHelper = authenticationHelper;
+    public CompareController(SpaAuthorizationHelper authorizationHelper, TemplateEngine engine, PipelineService pipelineService) {
+        this.authorizationHelper = authorizationHelper;
         this.engine = engine;
         this.pipelineService = pipelineService;
     }
@@ -52,7 +52,7 @@ public class CompareController implements SparkController {
     @Override
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
-            before(Routes.Compare.COMPARE, authenticationHelper::checkPipelineViewPermissionsAnd403);
+            before(Routes.Compare.COMPARE, authorizationHelper::checkPipelineViewPermissionsAnd403);
             get(Routes.Compare.COMPARE, this::index, engine);
         });
     }

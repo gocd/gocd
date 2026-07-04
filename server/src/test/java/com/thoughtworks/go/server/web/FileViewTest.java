@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.server.web;
 
-import com.thoughtworks.go.util.TempDirUtils;
-import com.thoughtworks.go.util.ZipUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -25,15 +23,13 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.zip.ZipInputStream;
 
-import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
+import static com.thoughtworks.go.server.controller.actions.TextAction.CONTENT_TYPE;
 import static com.thoughtworks.go.util.TempDirUtils.newFile;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -70,7 +66,7 @@ public class FileViewTest {
         when(fourGBfile.length()).thenReturn(fourGB);
 
         HttpServletResponse responseMock = mock(HttpServletResponse.class);
-        view.setContentLength(false, fourGBfile, responseMock);
+        view.setContentLength(fourGBfile, responseMock);
 
         verify(responseMock).addHeader("Content-Length", "4658798592");
         verifyNoMoreInteractions(responseMock);
@@ -80,25 +76,10 @@ public class FileViewTest {
     public void testShouldOutputTxtFileContentAsTextPlain() throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("targetFile", file);
-        when(mockServletContext.getMimeType(any())).thenReturn(RESPONSE_CHARSET);
+        when(mockServletContext.getMimeType(any())).thenReturn(CONTENT_TYPE);
         view.render(model, mockRequest, mockResponse);
-        assertEquals(RESPONSE_CHARSET, mockResponse.getContentType());
+        assertEquals(CONTENT_TYPE, mockResponse.getContentType());
         assertEquals(5, getContentLength(mockResponse));
-    }
-
-    @Test
-    public void testShouldZipFileIfZipIsRequired() throws Exception {
-        Map<String, Object> model = new HashMap<>();
-        model.put("targetFile", file);
-        model.put(FileView.NEED_TO_ZIP, true);
-
-        view.render(model, mockRequest, mockResponse);
-
-        // Unzip from the response and verify that the we can read the file back
-        File unzipHere = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
-        new ZipUtil().unzip(
-                new ZipInputStream(new ByteArrayInputStream(mockResponse.getContentAsByteArray())), unzipHere);
-        assertEquals("hello", Files.readString(new File(unzipHere, file.getName()).toPath(), UTF_8));
     }
 
     @Test
@@ -106,7 +87,7 @@ public class FileViewTest {
         Map<String, Object> model = new HashMap<>();
         model.put("targetFile", file);
 
-        when(mockServletContext.getMimeType(any())).thenReturn(RESPONSE_CHARSET);
+        when(mockServletContext.getMimeType(any())).thenReturn(CONTENT_TYPE);
 
         view.render(model, mockRequest, mockResponse);
 

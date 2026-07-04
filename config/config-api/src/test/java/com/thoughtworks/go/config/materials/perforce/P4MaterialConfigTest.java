@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.p4;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -53,7 +54,7 @@ class P4MaterialConfigTest {
         assertThat(p4MaterialConfig.getView()).isEqualTo("some-view");
         assertThat(p4MaterialConfig.getUseTickets()).isTrue();
         assertThat(p4MaterialConfig.getFolder()).isEqualTo("folder");
-        assertThat(p4MaterialConfig.getName()).isEqualTo(new CaseInsensitiveString("material-name"));
+        assertThat(p4MaterialConfig.getName()).isEqualTo(cis("material-name"));
         assertThat(p4MaterialConfig.isAutoUpdate()).isFalse();
         assertThat(p4MaterialConfig.filter()).isEqualTo(new Filter(new IgnoredFiles("/root"), new IgnoredFiles("/**/*.help")));
     }

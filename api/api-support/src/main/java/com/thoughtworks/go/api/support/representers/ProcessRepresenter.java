@@ -24,6 +24,6 @@ public class ProcessRepresenter {
     public static void toJSON(OutputWriter writer, ProcessWrapper process) {
         writer.add("command", process.getCommand())
                 .add("start_time", process.getStartTimeForDisplay())
-                .add("idle_time", format("%d minutes", process.getIdleTime() / 60000));
+                .add("idle_time", format("%d minutes", process.idleFor().toMinutes()));
     }
 }

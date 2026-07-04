@@ -15,9 +15,7 @@
  */
 package com.thoughtworks.go.spark.spa
 
-
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigs
 import com.thoughtworks.go.domain.PipelineGroups
@@ -26,7 +24,7 @@ import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData
 import com.thoughtworks.go.server.service.PipelineConfigService
 import com.thoughtworks.go.spark.*
 import com.thoughtworks.go.spark.mocks.StubTemplateEngine
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import com.thoughtworks.go.util.json.JsonHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -38,6 +36,7 @@ import spark.ModelAndView
 import spark.Request
 import spark.Response
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static java.lang.String.format
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.*
@@ -49,7 +48,7 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
 
   @Override
   AnalyticsController createControllerInstance() {
-    return new AnalyticsController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, systemEnvironment, analyticsExtension, pipelineConfigService)
+    return new AnalyticsController(new SpaAuthorizationHelper(securityService, goConfigService), templateEngine, systemEnvironment, analyticsExtension, pipelineConfigService)
   }
 
   @Nested
@@ -79,13 +78,15 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
     }
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<AnalyticsController> c = AnalyticsControllerTest.this
+      @Delegate SecurityServiceTrait s = AnalyticsControllerTest.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "index"
@@ -129,18 +130,19 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
 
       @BeforeEach
       void setUp() {
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(getPipelineName()))).thenReturn(true)
+        when(goConfigService.hasPipelineNamed(cis(getPipelineName()))).thenReturn(true)
         when(pipelineConfigService.pipelineConfigNamed(getPipelineName())).thenReturn(mock(PipelineConfig.class))
-        enableSecurity()
         loginAsAdmin()
       }
     }
 
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate ControllerTrait<AnalyticsController> c = AnalyticsControllerTest.this
+      @Delegate SecurityServiceTrait s = AnalyticsControllerTest.this
+
       @Test
       void "should allow agent analytics for normal users"() {
-        enableSecurity()
         loginAsUser()
 
         get(controller.controllerPath("plugin/agent/metric"))
@@ -151,7 +153,6 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       void "should disallow agent analytics for normal users when admin-only toggle is enabled"() {
         when(systemEnvironment.enableAnalyticsOnlyForAdmins()).thenReturn(true)
 
-        enableSecurity()
         loginAsUser()
 
         get(controller.controllerPath("plugin/agent/metric"))
@@ -162,7 +163,6 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       void "should allow agent analytics for admins when admin-only toggle is enabled"() {
         when(systemEnvironment.enableAnalyticsOnlyForAdmins()).thenReturn(true)
 
-        enableSecurity()
         loginAsAdmin()
 
         get(controller.controllerPath("plugin/agent/metric"))
@@ -173,8 +173,7 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       void "should disallow pipeline view users when admin-only toggle is enabled"() {
         when(systemEnvironment.enableAnalyticsOnlyForAdmins()).thenReturn(true)
 
-        enableSecurity()
-        loginAsPipelineViewUser(pipelineName)
+        loginAsPipelineViewUser(pipelineName: pipelineName)
 
         makeHttpCall()
         assertRequestForbidden()
@@ -184,7 +183,6 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       void "should only allow admins when admin-only toggle is enabled"() {
         when(systemEnvironment.enableAnalyticsOnlyForAdmins()).thenReturn(true)
 
-        enableSecurity()
         loginAsAdmin()
 
         makeHttpCall()
@@ -195,7 +193,6 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       void "should allow all users to view VSM analytics"() {
         when(systemEnvironment.enableAnalyticsOnlyForAdmins()).thenReturn(false)
 
-        enableSecurity()
         loginAsUser()
 
         get(controller.controllerPath("plugin/vsm/metric"))
@@ -206,7 +203,6 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       void "should allow all users to view drilldown analytics"() {
         when(systemEnvironment.enableAnalyticsOnlyForAdmins()).thenReturn(false)
 
-        enableSecurity()
         loginAsUser()
 
         get(controller.controllerPath("plugin/drilldown/metric"))
@@ -215,9 +211,8 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
 
       @Test
       void "should return 404 when pipeline does not exist"() {
-        when(pipelineConfigService.pipelineConfigNamed(getPipelineName())).thenReturn(null)
-        enableSecurity()
-        loginAsPipelineViewUser(pipelineName)
+        when(AnalyticsControllerTest.this.pipelineConfigService.pipelineConfigNamed(getPipelineName())).thenReturn(null)
+        loginAsPipelineViewUser(pipelineName: pipelineName)
 
         makeHttpCall()
         assertRequestMissing()
@@ -225,12 +220,12 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
 
       @Override
       def assertRequestAllowed() {
-        verify(controller)."${controllerMethodUnderTest}"(any(), any())
-
         ((MockHttpServletResponseAssert) assertThatResponse())
           .hasStatus(99999)
           .hasContentType("application/json")
           .hasBody("{\"data\": \"rendered ${this.reachedControllerMessage}\"}".toString())
+
+        verify(controller)."${controllerMethodUnderTest}"(any(), any())
       }
 
       void assertRequestMissing() {
@@ -246,7 +241,7 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       void stubControllerAction() {
         this.reachedControllerMessage = UUID.randomUUID().toString()
         doAnswer({ InvocationOnMock invocation ->
-          Response res = invocation.arguments.last()
+          Response res = invocation.getArgument(1)
           res.status(99999)
           res.type("application/json")
           return "{\"data\": \"rendered ${this.reachedControllerMessage}\"}".toString()
@@ -265,15 +260,15 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       }
 
       @Override
-      String getPipelineName() {
-        return "testPipeline"
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: "testPipeline")
       }
 
       @BeforeEach
       void setUp() {
         stubControllerAction()
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(getPipelineName()))).thenReturn(true)
-        when(pipelineConfigService.pipelineConfigNamed(getPipelineName())).thenReturn(mock(PipelineConfig.class))
+        when(goConfigService.hasPipelineNamed(cis(getPipelineName()))).thenReturn(true)
+        when(AnalyticsControllerTest.this.pipelineConfigService.pipelineConfigNamed(getPipelineName())).thenReturn(mock(PipelineConfig.class))
       }
     }
   }

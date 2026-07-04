@@ -16,8 +16,7 @@
 package com.thoughtworks.go.apiv1.export
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.config.CaseInsensitiveString
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.config.ConfigRepoPlugin
 import com.thoughtworks.go.config.GoConfigPluginService
 import com.thoughtworks.go.config.PipelineConfig
@@ -35,6 +34,7 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.plugin.access.configrepo.ExportedConfig.from
 import static com.thoughtworks.go.spark.Routes.Export
 import static org.mockito.Mockito.when
@@ -53,18 +53,19 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
 
   @Override
   ExportControllerV1 createControllerInstance() {
-    new ExportControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigPluginService, goConfigService, entityHashingService)
+    new ExportControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), goConfigPluginService, goConfigService, entityHashingService)
   }
-
 
   @Nested
   class ExportPipeline {
     String pipelinePath(String name) {
-      return Export.PIPELINES_PATH.replaceAll(":pipeline_name", name)
+      return Export.PIPELINES_PATH.replace(":pipeline_name", name)
     }
 
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = ExportControllerV1Test.this
+      @Delegate ControllerTrait<ExportControllerV1> c = ExportControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -73,7 +74,12 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(pipelinePath("foo")))
+        getWithApiHeader(controller.controllerPath(pipelinePath(getPipelineName())))
+      }
+
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: "foo")
       }
     }
 
@@ -84,7 +90,6 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -96,7 +101,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig('pipeline1')
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString("pipeline1"))).thenReturn(groupName)
+        when(goConfigService.findGroupNameByPipeline(cis("pipeline1"))).thenReturn(groupName)
         when(goConfigService.editablePipelineConfigNamed('pipeline1')).thenReturn(pipeline)
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
@@ -172,7 +177,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString("pipeline1"))).thenReturn(groupName)
+        when(goConfigService.findGroupNameByPipeline(cis("pipeline1"))).thenReturn(groupName)
         when(goConfigService.editablePipelineConfigNamed("pipeline1")).thenReturn(pipeline)
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)

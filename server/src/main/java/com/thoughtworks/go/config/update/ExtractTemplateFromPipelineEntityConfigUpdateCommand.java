@@ -25,6 +25,8 @@ import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 public class ExtractTemplateFromPipelineEntityConfigUpdateCommand implements EntityConfigUpdateCommand<PipelineConfig> {
 
     private final SecurityService securityService;
@@ -40,7 +42,7 @@ public class ExtractTemplateFromPipelineEntityConfigUpdateCommand implements Ent
                                                                 Username currentUser) {
         this.securityService = securityService;
         this.pipelineName = pipelineName;
-        this.newTemplate = new PipelineTemplateConfig(new CaseInsensitiveString(templateName));
+        this.newTemplate = new PipelineTemplateConfig(cis(templateName));
         this.currentUser = currentUser;
     }
 
@@ -51,7 +53,7 @@ public class ExtractTemplateFromPipelineEntityConfigUpdateCommand implements Ent
             newTemplate.setAuthorization(new Authorization(new AdminsConfig(new AdminUser(currentUser.getUsername()))));
         }
         // set the stages on the new template
-        preprocessedPipelineConfig = preprocessedConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        preprocessedPipelineConfig = preprocessedConfig.pipelineConfigByName(cis(pipelineName));
         newTemplate.copyStages(preprocessedPipelineConfig);
         // change the pointer on the pipeline
         preprocessedPipelineConfig.templatize(this.newTemplate.name());
@@ -77,7 +79,7 @@ public class ExtractTemplateFromPipelineEntityConfigUpdateCommand implements Ent
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        PipelineConfig pipelineConfig = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        PipelineConfig pipelineConfig = cruiseConfig.getPipelineConfigByName(cis(pipelineName));
         if (pipelineConfig == null) {
             throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
         }

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv2.stageoperations
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.domain.Stage
 import com.thoughtworks.go.server.service.PipelineService
 import com.thoughtworks.go.server.service.ScheduleService
@@ -26,7 +26,7 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.PipelineGroupOperateUserSecurity
+import com.thoughtworks.go.spark.GroupOperateUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -42,22 +42,15 @@ import static org.mockito.Mockito.*
 
 @MockitoSettings(strictness = Strictness.LENIENT)
 class StageOperationsControllerV2Test implements SecurityServiceTrait, ControllerTrait<StageOperationsControllerV2> {
-  @Mock
-  ScheduleService scheduleService
-
-  @Mock
-  StageService stageService
-
-  @Mock
-  SchedulingCheckerService schedulingChecker
-
-  @Mock
-  PipelineService pipelineService
+  @Mock ScheduleService scheduleService
+  @Mock StageService stageService
+  @Mock SchedulingCheckerService schedulingChecker
+  @Mock PipelineService pipelineService
 
 
   @Override
   StageOperationsControllerV2 createControllerInstance() {
-    return new StageOperationsControllerV2(scheduleService, new ApiAuthenticationHelper(securityService, goConfigService), pipelineService)
+    return new StageOperationsControllerV2(scheduleService, new ApiAuthorizationHelper(securityService, goConfigService), pipelineService)
   }
 
   @Nested
@@ -67,7 +60,9 @@ class StageOperationsControllerV2Test implements SecurityServiceTrait, Controlle
     String stageName = "run-tests"
 
     @Nested
-    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+    class Security implements SecurityTestTrait, GroupOperateUserSecurity {
+      @Delegate SecurityServiceTrait s = StageOperationsControllerV2Test.this
+      @Delegate ControllerTrait<StageOperationsControllerV2> c = StageOperationsControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -76,22 +71,20 @@ class StageOperationsControllerV2Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run'), [:])
+        postWithApiHeader(controller.controllerPath(getPipelineName(), Run.this.pipelineCounter, Run.this.stageName, 'run'), [:])
       }
 
       @Override
-      String getPipelineName() {
-        return Run.this.pipelineName
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: Run.this.pipelineName)
       }
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
-        loginAsGroupOperateUser(pipelineName)
-
+        loginAsGroupOperateUser(pipelineName: pipelineName)
       }
 
       @Test

@@ -45,7 +45,7 @@ import java.io.File;
 import java.time.Instant;
 import java.util.*;
 
-import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.time.temporal.ChronoUnit.HOURS;
 
 public class ScheduleTestUtil {
@@ -303,7 +303,7 @@ public class ScheduleTestUtil {
     }
 
     public MaterialDeclaration m(AddedPipeline pipeline, String materialName) {
-        return m(new DependencyMaterial(new CaseInsensitiveString(materialName), pipeline.material.getPipelineName(), pipeline.material.getStageName()));
+        return m(new DependencyMaterial(cis(materialName), pipeline.material.getPipelineName(), pipeline.material.getStageName()));
     }
 
     public AddedPipeline saveConfigWithTimer(String pipelineName, TimerConfig timer, MaterialDeclaration... materialDeclaration) {
@@ -314,7 +314,7 @@ public class ScheduleTestUtil {
             materialConfigs.add(materialConfig);
         }
         PipelineConfig cfg = configHelper.addPipelineWithGroupAndTimer(DEFAULT_GROUP, pipelineName, materialConfigs, stageName, timer, "job1");
-        return new AddedPipeline(cfg, new DependencyMaterial(str(pipelineName), str(stageName)));
+        return new AddedPipeline(cfg, new DependencyMaterial(cis(pipelineName), cis(stageName)));
     }
 
     public AddedPipeline saveConfigWithGroup(String groupName, String pipelineName, MaterialDeclaration... materialDecls) {
@@ -334,7 +334,7 @@ public class ScheduleTestUtil {
         MaterialConfig materialConfig = GoConfigMother.deepClone(materialDeclaration.material.config());
         materialConfigs.add(materialConfig);
         PipelineConfig cfg = configHelper.addPipelineWithGroup(DEFAULT_GROUP, pipelineName, materialConfigs, stageName, builds);
-        return new AddedPipeline(cfg, new DependencyMaterial(str(pipelineName), str(stageName)));
+        return new AddedPipeline(cfg, new DependencyMaterial(cis(pipelineName), cis(stageName)));
     }
 
     public void addPackageDefinition(PackageMaterialConfig pkgMaterialConfig) {
@@ -356,17 +356,17 @@ public class ScheduleTestUtil {
             materialConfigs.add(materialConfig);
         }
         PipelineConfig cfg = configHelper.addPipelineWithGroup(groupName, pipelineName, materialConfigs, stageName, "job1");
-        return new AddedPipeline(cfg, new DependencyMaterial(str(pipelineName), str(stageName)));
+        return new AddedPipeline(cfg, new DependencyMaterial(cis(pipelineName), cis(stageName)));
     }
 
     public AddedPipeline changeStagenameForToPipeline(String pipelineName, String oldStageName, String newStageName) {
         PipelineConfig cfg = configHelper.changeStageNameForToPipeline(pipelineName, oldStageName, newStageName);
-        return new AddedPipeline(cfg, new DependencyMaterial(str(pipelineName), str(newStageName)));
+        return new AddedPipeline(cfg, new DependencyMaterial(cis(pipelineName), cis(newStageName)));
     }
 
     public AddedPipeline addStageToPipeline(CaseInsensitiveString pipelineName, String stageName) {
         PipelineConfig config = configHelper.addStageToPipeline(pipelineName.toString(), stageName);
-        return new AddedPipeline(config, new DependencyMaterial(pipelineName, new CaseInsensitiveString(stageName)));
+        return new AddedPipeline(config, new DependencyMaterial(pipelineName, cis(stageName)));
     }
 
 

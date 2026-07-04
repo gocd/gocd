@@ -116,16 +116,16 @@ public class JobInstanceTest {
         JobInstance instance = JobInstanceMother.building("jobConfig1");
         instance.setClock(timeProvider);
         when(timeProvider.currentTimeMillis()).thenReturn(1000000L);
-        long before = Long.parseLong(instance.getCurrentBuildDuration());
+        Duration before = instance.getElapsedTime();
         when(timeProvider.currentTimeMillis()).thenReturn(5000000L);
-        long after = Long.parseLong(instance.getCurrentBuildDuration());
+        Duration after = instance.getElapsedTime();
         assertThat(after).isGreaterThan(before);
     }
 
     @Test
     public void shouldReturnTotalDurationOfBuild() {
         JobInstance instance = JobInstanceMother.completed("jobConfig1");
-        assertThat(instance.getCurrentBuildDuration()).isEqualTo(instance.durationOfCompletedBuildInSeconds() + "");
+        assertThat(instance.getElapsedTime()).isEqualTo(instance.durationOfCompletedBuild());
     }
 
     @Test
@@ -187,15 +187,15 @@ public class JobInstanceTest {
     @Test
     public void shouldDetermineDurationOfCompletedBuild() {
         JobInstance testJob = JobInstanceMother.completed("testJob");
-        Long duration = testJob.durationOfCompletedBuildInSeconds();
-        assertThat(duration).isEqualTo(120L);
+        Duration duration = testJob.durationOfCompletedBuild();
+        assertThat(duration).isEqualTo(Duration.ofSeconds(120));
     }
 
     @Test
     public void durationShouldBeZeroForIncompleteBuild() {
         JobInstance building = JobInstanceMother.scheduled("building");
-        Long duration = building.durationOfCompletedBuildInSeconds();
-        assertThat(duration).isEqualTo(0L);
+        Duration duration = building.durationOfCompletedBuild();
+        assertThat(duration).isEqualTo(Duration.ZERO);
     }
 
     @Test

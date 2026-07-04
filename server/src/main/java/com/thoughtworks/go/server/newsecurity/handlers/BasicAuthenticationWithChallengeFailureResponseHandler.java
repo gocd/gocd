@@ -44,10 +44,8 @@ public class BasicAuthenticationWithChallengeFailureResponseHandler implements R
                        int statusCode,
                        String errorMessage) throws IOException {
 
-        if (!isAjaxRequest(request)) {
-            if (securityService.isSecurityEnabled()) {
-                response.addHeader("WWW-Authenticate", "Basic realm=\"GoCD\"");
-            }
+        if (!isAjaxRequest(request) && securityService.isSecurityEnabled()) {
+            response.addHeader("WWW-Authenticate", "Basic realm=\"GoCD\"");
         }
 
         response.setStatus(statusCode);

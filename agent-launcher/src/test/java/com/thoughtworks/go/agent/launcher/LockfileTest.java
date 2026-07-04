@@ -83,11 +83,11 @@ public class LockfileTest {
     @Test
     public void shouldSpawnTouchLoopOnSet() throws IOException {
         Lockfile lockfile = mock(Lockfile.class);
-        doCallRealMethod().when(lockfile).setHooks();
+        doCallRealMethod().when(lockfile).createLock();
         doNothing().when(lockfile).touch();
-        doNothing().when(lockfile).spawnTouchLoop();
-        lockfile.setHooks();
-        verify(lockfile).spawnTouchLoop();
+        doNothing().when(lockfile).spawnTouchLoopIfNecessary();
+        lockfile.createLock();
+        verify(lockfile).spawnTouchLoopIfNecessary();
     }
 
     @Test
@@ -106,7 +106,7 @@ public class LockfileTest {
         Lockfile lockfile = spy(new Lockfile(mockfile));
         when(mockfile.exists()).thenReturn(false);
         when(mockfile.getAbsolutePath()).thenReturn("/abcd/dummyFile");
-        doThrow(new IOException("dummy")).when(lockfile).setHooks();
+        doThrow(new IOException("dummy")).when(lockfile).createLock();
         assertThat(lockfile.tryLock()).isFalse();
         verify(mockfile).exists();
     }

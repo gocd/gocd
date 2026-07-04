@@ -55,7 +55,7 @@ export default function (config) {
         served: true
       };
     }),
-    reporters: ['progress', 'junit', 'kjhtml', 'html', 'jasmine-seed'],
+    reporters: ['dots', 'kjhtml', 'html', 'jasmine-seed'],
     htmlReporter: {
       outputDir: path.resolve('../../../../../target/karma_reports'),
       templatePath: null,
@@ -65,15 +65,6 @@ export default function (config) {
       urlFriendlyName: false,
       preserveDescribeNesting: false,
       foldAll: false,
-    },
-    junitReporter: {
-      outputDir: path.resolve('../../../../../target/karma_reports'),
-      outputFile: undefined,
-      suite: '',
-      useBrowserName: true,
-      nameFormatter: undefined,
-      classNameFormatter: undefined,
-      properties: {}
     },
     port: 9876,
     colors: true,

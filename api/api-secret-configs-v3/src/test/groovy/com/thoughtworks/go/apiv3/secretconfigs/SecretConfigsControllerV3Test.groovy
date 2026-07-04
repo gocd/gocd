@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv3.secretconfigs
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv3.secretconfigs.representers.SecretConfigRepresenter
 import com.thoughtworks.go.apiv3.secretconfigs.representers.SecretConfigsRepresenter
@@ -41,7 +41,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
@@ -65,7 +64,7 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
 
   @Override
   SecretConfigsControllerV3 createControllerInstance() {
-    new SecretConfigsControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), secretConfigService, entityHashingService)
+    new SecretConfigsControllerV3(new ApiAuthorizationHelper(securityService, goConfigService), secretConfigService, entityHashingService)
   }
 
   @Nested
@@ -73,6 +72,9 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = SecretConfigsControllerV3Test.this
+      @Delegate ControllerTrait<SecretConfigsControllerV3> c = SecretConfigsControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'index'
@@ -88,7 +90,6 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -149,6 +150,9 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = SecretConfigsControllerV3Test.this
+      @Delegate ControllerTrait<SecretConfigsControllerV3> c = SecretConfigsControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'show'
@@ -164,7 +168,6 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -242,6 +245,8 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = SecretConfigsControllerV3Test.this
+      @Delegate ControllerTrait<SecretConfigsControllerV3> c = SecretConfigsControllerV3Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -258,7 +263,6 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -300,7 +304,7 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
 
         def secretConfig = fromJSON(GsonTransformer.instance.jsonReaderFrom(jsonPayload))
 
-        when(entityHashingService.hashForEntity(Mockito.any() as SecretConfig)).thenReturn('some-digest')
+        when(entityHashingService.hashForEntity(any() as SecretConfig)).thenReturn('some-digest')
         when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs())
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
@@ -353,11 +357,11 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
 
         def jsonPayload = toObjectString({ toJSON(it, expectedConfig) })
 
-        when(secretConfigService.create(Mockito.any() as Username, Mockito.any() as SecretConfig, Mockito.any() as LocalizedOperationResult))
+        when(secretConfigService.create(any(), any() as SecretConfig, any()))
           .then({ InvocationOnMock invocation ->
-          SecretConfig secretConfig = invocation.getArguments()[1]
+          SecretConfig secretConfig = invocation.getArgument(1)
           secretConfig.addError("plugin_id", "Plugin not installed.")
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.unprocessableEntity("validation failed")
         })
 
@@ -385,6 +389,8 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
   class Update {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = SecretConfigsControllerV3Test.this
+      @Delegate ControllerTrait<SecretConfigsControllerV3> c = SecretConfigsControllerV3Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -401,7 +407,6 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -459,7 +464,7 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
         when(entityHashingService.hashForEntity(newSecretConfig)).thenReturn('new-digest')
         when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs(secretConfig)).thenReturn(new SecretConfigs(newSecretConfig))
         when(secretConfigService.update(eq(currentUsername()), eq('some-digest'), eq(newSecretConfig), any(LocalizedOperationResult))).thenAnswer({
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) it.getArguments().last()
+          HttpLocalizedOperationResult result = it.getArgument(3)
           result.setMessage("SecretConfig 'secrets_id' was updated successfully.")
         })
 
@@ -561,6 +566,8 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
   class Destroy {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = SecretConfigsControllerV3Test.this
+      @Delegate ControllerTrait<SecretConfigsControllerV3> c = SecretConfigsControllerV3Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -577,7 +584,6 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -586,8 +592,8 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
         def secretConfig = new SecretConfig("ForDeploy", "file-plugin")
 
         when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs(secretConfig))
-        when(secretConfigService.delete(Mockito.any() as Username, Mockito.any() as SecretConfig, Mockito.any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+        when(secretConfigService.delete(any(), any() as SecretConfig, any())).then({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.setMessage(LocalizedMessage.resourceDeleteSuccessful('secret config', secretConfig.getId()))
         })
 
@@ -617,8 +623,8 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
 
         when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs(secretConfig))
         doAnswer({ InvocationOnMock invocation ->
-          ((HttpLocalizedOperationResult) invocation.arguments.last()).unprocessableEntity("save failed")
-        }).when(secretConfigService).delete(any() as Username, eq(secretConfig), any() as LocalizedOperationResult)
+          ((HttpLocalizedOperationResult) invocation.getArgument(2)).unprocessableEntity("save failed")
+        }).when(secretConfigService).delete(any() as Username, eq(secretConfig), any())
 
         deleteWithApiHeader(controller.controllerPath('/ForDeploy'))
 

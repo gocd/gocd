@@ -25,8 +25,8 @@ module.exports = {
     'spec/javascripts/**/*[sS]pec.?(m)js',
   ],
   helpers: [
-    'node_modules/jasmine-jquery/lib/jasmine-jquery.js',
     'node_modules/jasmine-ajax/lib/mock-ajax.js',
+    'spec/javascripts/support/jasmine-fixtures.js',
   ],
   env: {
     'stopSpecOnExpectationFailure': false,

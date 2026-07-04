@@ -15,13 +15,14 @@
  */
 package com.thoughtworks.go.domain.materials.scm;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.util.json.JsonHelper;
 
 import java.util.Objects;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 public class PluggableSCMMaterialInstance extends MaterialInstance {
 
@@ -35,7 +36,7 @@ public class PluggableSCMMaterialInstance extends MaterialInstance {
     @Override
     public Material toOldMaterial(String name, String folder, String password) {
         PluggableSCMMaterial pluggableSCMMaterial = JsonHelper.fromJsonExposeOnly(configuration, PluggableSCMMaterial.class);
-        pluggableSCMMaterial.setName(new CaseInsensitiveString(name));
+        pluggableSCMMaterial.setName(cis(name));
         pluggableSCMMaterial.setId(id);
         pluggableSCMMaterial.setFolder(folder);
         pluggableSCMMaterial.setFingerprint(getFingerprint());

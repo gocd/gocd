@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
@@ -30,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -112,7 +112,7 @@ public class MaterialConfigService {
             .stream()
             .filter(grp -> securityService.hasViewPermissionForGroup(username, grp.getGroup()))
             .forEach(grp -> grp.forEach(pipelineConfig -> {
-                boolean hasOperatePermission = securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(username), grp.getGroup());
+                boolean hasOperatePermission = securityService.hasOperatePermissionForGroup(cis(username), grp.getGroup());
                 pipelineConfig.materialConfigs()
                     .forEach(materialConfig -> {
                         // Need to canonicalise the config we use, since we can have different configs with the same fingerprint
@@ -134,7 +134,7 @@ public class MaterialConfigService {
         boolean hasOperatePermissionForMaterial = false;
         for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
             boolean hasViewPermissionForGroup = securityService.hasViewPermissionForGroup(username, pipelineGroup.getGroup());
-            boolean hasOperatePermissionForGroup = securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(username), pipelineGroup.getGroup());
+            boolean hasOperatePermissionForGroup = securityService.hasOperatePermissionForGroup(cis(username), pipelineGroup.getGroup());
             for (PipelineConfig pipelineConfig : pipelineGroup) {
                 for (MaterialConfig currentMaterialConfig : pipelineConfig.materialConfigs()) {
                     if (currentMaterialConfig.getFingerprint().equals(materialFingerprint)) {

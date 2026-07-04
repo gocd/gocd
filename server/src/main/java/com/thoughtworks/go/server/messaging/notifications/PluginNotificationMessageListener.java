@@ -42,14 +42,14 @@ public class PluginNotificationMessageListener implements GoMessageListener<Plug
         HealthStateScope scope = HealthStateScope.aboutPlugin(message.pluginId());
         try {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Sending {} notification message {} for plugin {}", message.getRequestName(), message, message.pluginId());
+                LOGGER.debug("Sending {} notification message {} for plugin {}", message.requestName(), message, message.pluginId());
             }
-            Result result = notificationExtension.notify(message.pluginId(), message.getRequestName(), message.getData());
+            Result result = notificationExtension.notify(message.pluginId(), message.requestName(), message.data());
 
             if (result.isSuccessful()) {
                 serverHealthService.removeByScope(scope);
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Successfully sent {} notification message {} for plugin {}", message.getRequestName(), message, message.pluginId());
+                    LOGGER.debug("Successfully sent {} notification message {} for plugin {}", message.requestName(), message, message.pluginId());
                 }
             } else {
                 String errorDescription = result.getMessages() == null ? null : join(", ", result.getMessages());

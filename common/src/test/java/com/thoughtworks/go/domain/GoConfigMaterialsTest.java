@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GoConfigMaterialsTest {
@@ -40,7 +41,7 @@ public class GoConfigMaterialsTest {
     @Test
     public void shouldProvideSetOfSchedulableMaterials() {
         SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig("url", "svnDir", true);
-        PipelineConfig pipeline1 = new PipelineConfig(new CaseInsensitiveString("pipeline1"), new MaterialConfigs(svnMaterialConfig));
+        PipelineConfig pipeline1 = new PipelineConfig(cis("pipeline1"), new MaterialConfigs(svnMaterialConfig));
         CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline1));
         assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines()).contains(svnMaterialConfig);
     }
@@ -49,7 +50,7 @@ public class GoConfigMaterialsTest {
     public void shouldIncludeScmMaterialsFromManualPipelinesInSchedulableMaterials() {
         PipelineConfig pipeline1 = pipelineWithManyMaterials(true);
 
-        pipeline1.add(new StageConfig(new CaseInsensitiveString("manual-stage"), new JobConfigs(), new Approval()));
+        pipeline1.add(new StageConfig(cis("manual-stage"), new JobConfigs(), new Approval()));
         CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline1));
         assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines().size()).isEqualTo(4);
     }
@@ -60,7 +61,7 @@ public class GoConfigMaterialsTest {
         pipeline1.addMaterialConfig(getPackageMaterialConfigWithAutoUpdateFalse());
         pipeline1.addMaterialConfig(getPackageMaterialConfigWithAutoUpdateTrue());
 
-        pipeline1.add(new StageConfig(new CaseInsensitiveString("manual-stage"), new JobConfigs(), new Approval()));
+        pipeline1.add(new StageConfig(cis("manual-stage"), new JobConfigs(), new Approval()));
         CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline1));
         assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines().size()).isEqualTo(4);
     }
@@ -74,7 +75,7 @@ public class GoConfigMaterialsTest {
         nonAutoUpdateMaterialConfig.getSCMConfig().setAutoUpdate(false);
         pipeline1.addMaterialConfig(nonAutoUpdateMaterialConfig);
 
-        pipeline1.add(new StageConfig(new CaseInsensitiveString("manual-stage"), new JobConfigs(), new Approval()));
+        pipeline1.add(new StageConfig(cis("manual-stage"), new JobConfigs(), new Approval()));
         CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline1));
         Set<MaterialConfig> materialsBelongingToAutoPipelines = config.getAllUniqueMaterialsBelongingToAutoPipelines();
         assertThat(materialsBelongingToAutoPipelines.size()).isEqualTo(4);
@@ -85,20 +86,20 @@ public class GoConfigMaterialsTest {
         PackageDefinition packageDefinition = new PackageDefinition("packageWithAutoUpdateFalse", "DLF Package", new Configuration());
         packageDefinition.setRepository(PackageRepositoryMother.create("DLF"));
         packageDefinition.setAutoUpdate(false);
-        return new PackageMaterialConfig(new CaseInsensitiveString("JamesBond"), "packageWithAutoUpdateFalse", packageDefinition);
+        return new PackageMaterialConfig(cis("JamesBond"), "packageWithAutoUpdateFalse", packageDefinition);
     }
 
     private PackageMaterialConfig getPackageMaterialConfigWithAutoUpdateTrue() {
         PackageDefinition packageDefinition = new PackageDefinition("packageWithAutoUpdateFalse", "DTDC Package", new Configuration());
         packageDefinition.setRepository(PackageRepositoryMother.create("DTDC"));
         packageDefinition.setAutoUpdate(true);
-        return new PackageMaterialConfig(new CaseInsensitiveString("Krish"), "packageWithAutoUpdateTrue", packageDefinition);
+        return new PackageMaterialConfig(cis("Krish"), "packageWithAutoUpdateTrue", packageDefinition);
     }
 
     @Test
     public void uniqueMaterialForAutoPipelinesShouldNotReturnPackageMaterialsWithAutoUpdateFalse() {
         PipelineConfig pipeline1 = pipelineWithManyMaterials(false);
-        pipeline1.add(new StageConfig(new CaseInsensitiveString("manual-stage"), new JobConfigs(), new Approval()));
+        pipeline1.add(new StageConfig(cis("manual-stage"), new JobConfigs(), new Approval()));
         CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline1));
         assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines().size()).isEqualTo(3);
 
@@ -111,14 +112,14 @@ public class GoConfigMaterialsTest {
         MaterialConfig gitMaterialConfig = MaterialConfigsMother.gitMaterialConfig("/foo/bar.git");
         HgMaterialConfig hgMaterialConfig = MaterialConfigsMother.hgMaterialConfig();
         P4MaterialConfig p4MaterialConfig = MaterialConfigsMother.p4MaterialConfig();
-        return new PipelineConfig(new CaseInsensitiveString("pipeline1"), new MaterialConfigs(svnMaterialConfig, hgMaterialConfig, gitMaterialConfig, p4MaterialConfig));
+        return new PipelineConfig(cis("pipeline1"), new MaterialConfigs(svnMaterialConfig, hgMaterialConfig, gitMaterialConfig, p4MaterialConfig));
     }
 
     @Test
     public void shouldIncludeDependencyMaterialsFromManualPipelinesInSchedulableMaterials() {
         DependencyMaterialConfig dependencyMaterialConfig = MaterialConfigsMother.dependencyMaterialConfig();
-        PipelineConfig pipeline1 = new PipelineConfig(new CaseInsensitiveString("pipeline1"), new MaterialConfigs(dependencyMaterialConfig));
-        pipeline1.add(new StageConfig(new CaseInsensitiveString("manual-stage"), new JobConfigs(), new Approval()));
+        PipelineConfig pipeline1 = new PipelineConfig(cis("pipeline1"), new MaterialConfigs(dependencyMaterialConfig));
+        pipeline1.add(new StageConfig(cis("manual-stage"), new JobConfigs(), new Approval()));
         CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline1));
         Set<MaterialConfig> materialConfigs = config.getAllUniqueMaterialsBelongingToAutoPipelines();
         assertThat(materialConfigs.size()).isEqualTo(1);
@@ -129,8 +130,8 @@ public class GoConfigMaterialsTest {
     public void shouldOnlyHaveOneCopyOfAMaterialIfOnlyTheFolderIsDifferent() {
         SvnMaterialConfig svn = MaterialConfigsMother.svnMaterialConfig("url", "folder1", true);
         SvnMaterialConfig svnInDifferentFolder = MaterialConfigsMother.svnMaterialConfig("url", "folder2");
-        PipelineConfig pipeline1 = new PipelineConfig(new CaseInsensitiveString("pipeline1"), new MaterialConfigs(svn));
-        PipelineConfig pipeline2 = new PipelineConfig(new CaseInsensitiveString("pipeline2"), new MaterialConfigs(svnInDifferentFolder));
+        PipelineConfig pipeline1 = new PipelineConfig(cis("pipeline1"), new MaterialConfigs(svn));
+        PipelineConfig pipeline2 = new PipelineConfig(cis("pipeline2"), new MaterialConfigs(svnInDifferentFolder));
 
         CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline1, pipeline2));
         assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines().size()).isEqualTo(1);
@@ -140,8 +141,8 @@ public class GoConfigMaterialsTest {
     public void shouldHaveBothMaterialsIfTheTypeIsDifferent() {
         SvnMaterialConfig svn = MaterialConfigsMother.svnMaterialConfig("url", "folder1", true);
         HgMaterialConfig hg = MaterialConfigsMother.hgMaterialConfig("url", "folder2");
-        PipelineConfig pipeline1 = new PipelineConfig(new CaseInsensitiveString("pipeline1"), new MaterialConfigs(svn));
-        PipelineConfig pipeline2 = new PipelineConfig(new CaseInsensitiveString("pipeline2"), new MaterialConfigs(hg));
+        PipelineConfig pipeline1 = new PipelineConfig(cis("pipeline1"), new MaterialConfigs(svn));
+        PipelineConfig pipeline2 = new PipelineConfig(cis("pipeline2"), new MaterialConfigs(hg));
 
         CruiseConfig config = new BasicCruiseConfig(new BasicPipelineConfigs(pipeline1, pipeline2));
         assertThat(config.getAllUniqueMaterialsBelongingToAutoPipelines().size()).isEqualTo(2);

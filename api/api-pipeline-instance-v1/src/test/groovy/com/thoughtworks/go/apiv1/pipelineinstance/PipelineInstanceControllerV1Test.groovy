@@ -16,10 +16,9 @@
 package com.thoughtworks.go.apiv1.pipelineinstance
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceModelRepresenter
 import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceModelsRepresenter
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.domain.PipelineRunIdInfo
 import com.thoughtworks.go.domain.buildcause.BuildCause
 import com.thoughtworks.go.helper.ModificationsMother
@@ -30,10 +29,9 @@ import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.PipelineHistoryService
-import com.thoughtworks.go.server.service.result.HttpOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.GroupOperateUserSecurity
 import com.thoughtworks.go.spark.PipelineAccessSecurity
-import com.thoughtworks.go.spark.PipelineGroupOperateUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -49,6 +47,7 @@ import java.time.Instant
 import java.util.stream.Stream
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 
@@ -60,7 +59,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
   @Override
   PipelineInstanceControllerV1 createControllerInstance() {
-    new PipelineInstanceControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), pipelineHistoryService)
+    new PipelineInstanceControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), pipelineHistoryService)
   }
 
   @Nested
@@ -69,11 +68,13 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
     @BeforeEach
     void setUp() {
-      when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true)
+      when(goConfigService.hasPipelineNamed(cis(pipelineName))).thenReturn(true)
     }
 
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate SecurityServiceTrait s = PipelineInstanceControllerV1Test.this
+      @Delegate ControllerTrait<PipelineInstanceControllerV1> c = PipelineInstanceControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -82,28 +83,27 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath("${pipelineName}/4/instance"))
+        getWithApiHeader(controller.controllerPath("${Instance.this.pipelineName}/4/instance"))
       }
 
       @Override
-      String getPipelineName() {
-        return Instance.this.pipelineName
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: Instance.this.pipelineName)
       }
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
-        loginAsPipelineViewUser(pipelineName)
+        loginAsPipelineViewUser(pipelineName: pipelineName)
       }
 
       @Test
       void 'should return the pipeline instance corresponding to the counter'() {
         PipelineInstanceModel pipelineInstanceModel = getPipelineInstanceModel()
 
-        when(pipelineHistoryService.findPipelineInstance(eq(pipelineName), eq(4), any(Username.class), any(HttpOperationResult.class))).thenReturn(pipelineInstanceModel)
+        when(pipelineHistoryService.findPipelineInstance(eq(pipelineName), eq(4), any(Username.class), any())).thenReturn(pipelineInstanceModel)
 
         getWithApiHeader(controller.controllerPath(pipelineName, "4", "instance"))
 
@@ -116,7 +116,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
       @Test
       void 'should throw 404 if the pipeline does not exist'() {
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(false)
+        when(goConfigService.hasPipelineNamed(cis(pipelineName))).thenReturn(false)
 
         getWithApiHeader(controller.controllerPath(pipelineName, "4", "instance"))
 
@@ -164,11 +164,13 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
     @BeforeEach
     void setUp() {
-      when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true)
+      when(goConfigService.hasPipelineNamed(cis(pipelineName))).thenReturn(true)
     }
 
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate SecurityServiceTrait s = PipelineInstanceControllerV1Test.this
+      @Delegate ControllerTrait<PipelineInstanceControllerV1> c = PipelineInstanceControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -177,21 +179,20 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(pipelineName, 'history'), [:])
+        getWithApiHeader(controller.controllerPath(History.this.pipelineName, 'history'), [:])
       }
 
       @Override
-      String getPipelineName() {
-        return History.this.pipelineName
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: History.this.pipelineName)
       }
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
-        loginAsPipelineViewUser(pipelineName)
+        loginAsPipelineViewUser(pipelineName: pipelineName)
       }
 
       @Test
@@ -342,7 +343,9 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
   @Nested
   class Comment {
     @Nested
-    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+    class Security implements SecurityTestTrait, GroupOperateUserSecurity {
+      @Delegate SecurityServiceTrait s = PipelineInstanceControllerV1Test.this
+      @Delegate ControllerTrait<PipelineInstanceControllerV1> c = PipelineInstanceControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -351,24 +354,23 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(pipelineName, 1, "comment"), [:])
+        postWithApiHeader(controller.controllerPath(getPipelineName(), 1, "comment"), [:])
       }
 
       @Override
-      String getPipelineName() {
-        return "up42"
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: 'up42')
       }
     }
   }
 
   @Nested
-  class AsAuthorizedUser {
+  class AsNormalUser {
     public static final String pipelineName = "up42"
 
     @BeforeEach
     void setUp() {
-      enableSecurity()
-      loginAsGroupOperateUser(pipelineName)
+      loginAsGroupOperateUser(pipelineName: pipelineName)
     }
 
     @Test

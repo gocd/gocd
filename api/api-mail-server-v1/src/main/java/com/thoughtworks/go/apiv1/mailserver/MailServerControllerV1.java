@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.mailserver.representers.MailServerRepresenter;
@@ -49,14 +49,14 @@ import static spark.Spark.*;
 @Component
 public class MailServerControllerV1 extends ApiController implements SparkSpringController, CrudController<MailHost> {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final GoConfigService goConfigService;
     private final ServerConfigService serverConfigService;
 
     @Autowired
-    public MailServerControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, GoConfigService goConfigService, ServerConfigService serverConfigService) {
+    public MailServerControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, GoConfigService goConfigService, ServerConfigService serverConfigService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.goConfigService = goConfigService;
         this.serverConfigService = serverConfigService;
     }
@@ -72,8 +72,8 @@ public class MailServerControllerV1 extends ApiController implements SparkSpring
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
-            before("/*", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", this.mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
+            before("/*", this.mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::show);
             post("", mimeType, this::createOrUpdate);

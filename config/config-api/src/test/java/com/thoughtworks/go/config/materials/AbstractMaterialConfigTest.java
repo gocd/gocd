@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -65,30 +66,30 @@ class AbstractMaterialConfigTest {
     @Test
     void shouldReturnTrueIfMaterialNameIsUsedInPipelineTemplate() {
         AbstractMaterialConfig material = new TestMaterialConfig("");
-        material.setName(new CaseInsensitiveString("funky_name"));
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${funky_name}", "", false, null, new BaseCollection<>());
+        material.setName(cis("funky_name"));
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("blah"), "${COUNT}-${funky_name}", "", false, null, new BaseCollection<>());
         assertThat(material.isUsedInLabelTemplate(pipelineConfig)).isTrue();
     }
 
     @Test
     void shouldReturnTrueIfMaterialNameIsUsedInPipelineTemplate_caseInsensitive() {
         AbstractMaterialConfig material = new TestMaterialConfig("");
-        material.setName(new CaseInsensitiveString("funky_name"));
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${funky_Name}", "", false, null, new BaseCollection<>());
+        material.setName(cis("funky_name"));
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("blah"), "${COUNT}-${funky_Name}", "", false, null, new BaseCollection<>());
         assertThat(material.isUsedInLabelTemplate(pipelineConfig)).isTrue();
     }
 
     @Test
     void shouldReturnFalseIfMaterialNameIsNotUsedInPipelineTemplate() {
         AbstractMaterialConfig material = new TestMaterialConfig("");
-        material.setName(new CaseInsensitiveString("funky_name"));
-        assertThat(material.isUsedInLabelTemplate(new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${test1}-test", "", false, null, new BaseCollection<>()))).isFalse();
+        material.setName(cis("funky_name"));
+        assertThat(material.isUsedInLabelTemplate(new PipelineConfig(cis("blah"), "${COUNT}-${test1}-test", "", false, null, new BaseCollection<>()))).isFalse();
     }
 
     @Test
     void shouldReturnFalseIfMaterialNameIsNotDefined() {
         AbstractMaterialConfig material = new TestMaterialConfig("test");
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${test}-test", "", false, null, new BaseCollection<>());
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("blah"), "${COUNT}-${test}-test", "", false, null, new BaseCollection<>());
         assertThat(material.isUsedInLabelTemplate(pipelineConfig)).isFalse();
     }
 
@@ -97,16 +98,16 @@ class AbstractMaterialConfigTest {
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
         when(pipelineConfig.getLabelTemplate()).thenReturn("${COUNT}-${hg}-${dep}-${pkg}-${scm}");
         MaterialConfig hg = mock(HgMaterialConfig.class);
-        when(hg.getName()).thenReturn(new CaseInsensitiveString("hg"));
+        when(hg.getName()).thenReturn(cis("hg"));
         when(hg.isUsedInLabelTemplate(pipelineConfig)).thenCallRealMethod();
         MaterialConfig dependency = mock(DependencyMaterialConfig.class);
-        when(dependency.getName()).thenReturn(new CaseInsensitiveString("dep"));
+        when(dependency.getName()).thenReturn(cis("dep"));
         when(dependency.isUsedInLabelTemplate(pipelineConfig)).thenCallRealMethod();
         MaterialConfig aPackage = mock(PackageMaterialConfig.class);
-        when(aPackage.getName()).thenReturn(new CaseInsensitiveString("pkg"));
+        when(aPackage.getName()).thenReturn(cis("pkg"));
         when(aPackage.isUsedInLabelTemplate(pipelineConfig)).thenCallRealMethod();
         MaterialConfig aPluggableSCM = mock(PluggableSCMMaterialConfig.class);
-        when(aPluggableSCM.getName()).thenReturn(new CaseInsensitiveString("scm"));
+        when(aPluggableSCM.getName()).thenReturn(cis("scm"));
         when(aPluggableSCM.isUsedInLabelTemplate(pipelineConfig)).thenCallRealMethod();
 
         assertThat(hg.isUsedInLabelTemplate(pipelineConfig)).isTrue();
@@ -126,10 +127,10 @@ class AbstractMaterialConfigTest {
         materialConfig.setName((CaseInsensitiveString) null);
         materialConfig.validate(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig()));
         assertThat(materialConfig.errors().getAllOn(AbstractMaterialConfig.MATERIAL_NAME)).isEmpty();
-        materialConfig.setName(new CaseInsensitiveString(null));
+        materialConfig.setName(cis(null));
         materialConfig.validate(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig()));
         assertThat(materialConfig.errors().getAllOn(AbstractMaterialConfig.MATERIAL_NAME)).isEmpty();
-        materialConfig.setName(new CaseInsensitiveString(""));
+        materialConfig.setName(cis(""));
         materialConfig.validate(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig()));
         assertThat(materialConfig.errors().getAllOn(AbstractMaterialConfig.MATERIAL_NAME)).isEmpty();
     }

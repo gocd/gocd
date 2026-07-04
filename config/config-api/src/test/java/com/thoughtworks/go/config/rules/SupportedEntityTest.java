@@ -71,8 +71,8 @@ class SupportedEntityTest {
     }
 
     @Test
-    void shouldReturnUnmodifiableListOfTheSupportedEntities() {
-        List<String> entities = unmodifiableListOf(PIPELINE_GROUP, ENVIRONMENT);
+    void shouldReturnImmutableListOfTheSupportedEntities() {
+        List<String> entities = immutableListOf(PIPELINE_GROUP, ENVIRONMENT);
 
         assertThat(entities).hasSize(2).contains(PIPELINE_GROUP.getType(), ENVIRONMENT.getType());
         //noinspection DataFlowIssue

@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.util;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 
 import java.time.*;
@@ -25,36 +27,56 @@ import java.util.Locale;
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
 public class Dates {
-    private static final DateTimeFormatter ISO_FORMATTER_NO_MILLIS = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZZ");
-    private static final DateTimeFormatter ISO_FORMATTER_UTC_NO_MILLIS = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneOffset.UTC);
-    private static final DateTimeFormatter FORMATTER_SIMPLE_DISPLAY_DATE = DateTimeFormatter.ofPattern("dd MMM yyyy").withZone(ZoneId.systemDefault());
+    private static final DateTimeFormatter ISO_FORMATTER_OFFSET_NO_MILLIS = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
+    private static final DateTimeFormatter ISO_FORMATTER_OFFSET_MILLIS    = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
+    private static final DateTimeFormatter ISO_FORMATTER_UTC_NO_MILLIS    = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneOffset.UTC);
+    private static final DateTimeFormatter ISO_FORMATTER_UTC_MILLIS       = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneOffset.UTC);
+
+    private static final DateTimeFormatter FORMATTER_SIMPLE_DISPLAY_DATE  = DateTimeFormatter.ofPattern("dd MMM yyyy")
+        .withLocale(Locale.ROOT).withZone(ZoneId.systemDefault());
+    private static final DateTimeFormatter FORMATTER_LONG_DATE_TIME       = DateTimeFormatter.ofPattern("dd MMM, yyyy 'at' HH:mm:ss '['Z']'")
+        .withLocale(Locale.ROOT).withZone(ZoneId.systemDefault());
 
     @TestOnly
-    public static Date from(LocalDateTime date) {
+    public static @Nullable Date from(@Nullable LocalDateTime date) {
         return date == null ? null : Date.from(date.atZone(ZoneId.systemDefault()).toInstant());
     }
 
-    public static Date from(ZonedDateTime date) {
+    public static @Nullable Date from(@Nullable ZonedDateTime date) {
         return date == null ? null : Date.from(date.toInstant());
     }
 
-    public static String formatIso8601CompactOffset(Date date) {
-        return formatIso8601CompactOffset(date.toInstant());
+    public static @NotNull String formatIso8601SystemCompactOffsetNoMillis(@NotNull Instant date) {
+        return ISO_FORMATTER_OFFSET_NO_MILLIS.format(date.atZone(ZoneId.systemDefault()));
     }
 
-    public static String formatIso8601CompactOffset(Instant date) {
-        return ISO_FORMATTER_NO_MILLIS.format(date.atZone(ZoneId.systemDefault()));
+    public static @NotNull String formatIso8601SystemCompactOffsetNoMillis(@NotNull Date date) {
+        return formatIso8601SystemCompactOffsetNoMillis(date.toInstant());
     }
 
-    public static String formatIso8601StrictOffsetUtcWithoutMillis(Date date) {
-        return ISO_FORMATTER_UTC_NO_MILLIS.format(date.toInstant());
+    public static @NotNull String formatIso8601UtcCompactOffsetWithMillis(@Nullable Instant date) {
+        return date == null ? "" : ISO_FORMATTER_OFFSET_MILLIS.format(date.atZone(ZoneOffset.UTC));
     }
 
-    public static String formatIso8601ForCCTray(Date date) {
-        if (date == null) {
-            return null;
-        }
-        return ISO_FORMATTER_UTC_NO_MILLIS.format(date.toInstant());
+    public static @NotNull String formatIso8601UtcCompactOffsetWithMillis(@Nullable Date date) {
+        return date == null ? "" : formatIso8601UtcCompactOffsetWithMillis(date.toInstant());
+    }
+
+    public static @NotNull String formatIso8601UtcWithMillis(@Nullable Instant date) {
+        return date == null ? "" : ISO_FORMATTER_UTC_MILLIS.format(date);
+    }
+
+    public static @NotNull String formatIso8601UtcWithMillis(@Nullable Date date) {
+        return date == null ? "" : formatIso8601UtcWithMillis(date.toInstant());
+    }
+
+    public static @NotNull String formatIso8601UtcNoMillis(@Nullable Date date) {
+        return date == null ? "" : ISO_FORMATTER_UTC_NO_MILLIS.format(date.toInstant());
+    }
+
+    public static @Nullable String formatIso8601ForCCTray(@Nullable Date date) {
+        return date == null ? null : ISO_FORMATTER_UTC_NO_MILLIS.format(date.toInstant());
     }
 
     /**
@@ -63,8 +85,18 @@ public class Dates {
      * @return The parsed date
      */
     @TestOnly
-    public static Date parseIso8601CompactOffset(String date) {
-        return Date.from(ISO_FORMATTER_NO_MILLIS.parse(date, ZonedDateTime::from).toInstant());
+    public static @NotNull Date parseIso8601CompactOffsetNoMillis(@NotNull String date) {
+        return Date.from(ISO_FORMATTER_OFFSET_NO_MILLIS.parse(date, ZonedDateTime::from).toInstant());
+    }
+
+    /**
+     * Parses a date that is ISO8601-like, but has no milliseconds, and uses "compact" offsets, e.g +0200 instead of +02:00
+     * @param date An ISO8601 compatible date
+     * @return The parsed date
+     */
+    @TestOnly
+    public static @NotNull Date parseIso8601CompactOffsetWithMillis(@NotNull String date) {
+        return Date.from(ISO_FORMATTER_OFFSET_MILLIS.parse(date, ZonedDateTime::from).toInstant());
     }
 
     /**
@@ -73,12 +105,17 @@ public class Dates {
      * @param date An ISO8601 or RFC3339 compatible date
      * @return The parsed date
      */
-    public static Date parseIso8601StrictOffset(String date) {
+    public static @NotNull Date parseIso8601StrictOffset(@NotNull String date) {
         return Date.from(ISO_OFFSET_DATE_TIME.parse(date, ZonedDateTime::from).toInstant());
     }
 
     @SuppressWarnings("unused") // Used from Ruby stages_controller
-    public static String formatToSimpleDate(Date date) {
-        return FORMATTER_SIMPLE_DISPLAY_DATE.withLocale(Locale.getDefault()).format(date.toInstant());
+    public static @NotNull String formatToSimpleDate(@NotNull Date date) {
+        return FORMATTER_SIMPLE_DISPLAY_DATE.format(date.toInstant());
+    }
+
+    @SuppressWarnings("unused") // Used from Ruby Java Util Date adapter
+    public static @NotNull String formatToLongDateTime(@NotNull Date date) {
+        return FORMATTER_LONG_DATE_TIME.format(date.toInstant());
     }
 }

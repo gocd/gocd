@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain.materials;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -40,6 +39,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -71,7 +71,7 @@ public class MaterialsTest {
     @Test
     void shouldNotGetDependencyMaterialWhenOneOtherScmMaterialWithNoFolder() {
         Materials materials = new Materials();
-        Material material1 = new DependencyMaterial(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar"));
+        Material material1 = new DependencyMaterial(cis("foo"), cis("bar"));
 
         Material material2 = new HgMaterial("", null);
 
@@ -152,7 +152,7 @@ public class MaterialsTest {
         HgMaterialConfig materialTwo = hg("http://url2", null);
         materialTwo.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "foLder"));
         CruiseConfig config = GoConfigMother.configWithPipelines("one");
-        PipelineConfig pipelineOne = config.pipelineConfigByName(new CaseInsensitiveString("one"));
+        PipelineConfig pipelineOne = config.pipelineConfigByName(cis("one"));
         pipelineOne.setMaterialConfigs(new MaterialConfigs(materialOne, materialTwo));
 
         MaterialConfigs materials = pipelineOne.materialConfigs();
@@ -169,7 +169,7 @@ public class MaterialsTest {
     void shouldReturnTrueIfScmMaterialHasNoDestinationFolderSet() {
         Materials materials = new Materials();
         SvnMaterial material1 = new SvnMaterial("url", "user", "pass", false);
-        DependencyMaterial material2 = new DependencyMaterial(new CaseInsensitiveString("pipelineName"), new CaseInsensitiveString("stageName"));
+        DependencyMaterial material2 = new DependencyMaterial(cis("pipelineName"), cis("stageName"));
         SvnMaterial material3 = new SvnMaterial("url", "user", "pass", false);
         material3.setFolder("foo");
         materials.add(material1);
@@ -232,13 +232,13 @@ public class MaterialsTest {
 
     @Test
     void shouldReturnANewDependencyMaterialIfTheMaterialsCollectionDoesNotHaveAHgMaterial() {
-        assertThat(new Materials().getDependencyMaterial()).isEqualTo(new DependencyMaterial(new CaseInsensitiveString(""), new CaseInsensitiveString("")));
+        assertThat(new Materials().getDependencyMaterial()).isEqualTo(new DependencyMaterial(cis(""), cis("")));
     }
 
     @Test
     void shouldReturnExistingDependencyMaterialFromMaterialsIfItContainsOne() {
         Materials materials = new Materials();
-        DependencyMaterial existingMaterial = new DependencyMaterial(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar"));
+        DependencyMaterial existingMaterial = new DependencyMaterial(cis("foo"), cis("bar"));
         materials.add(existingMaterial);
         assertThat(materials.getDependencyMaterial()).isSameAs(existingMaterial);
     }

@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.agent.service;
 
-import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
+import com.thoughtworks.go.agent.common.GoAgentServerHttpClient;
 import com.thoughtworks.go.config.AgentRegistry;
 import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolVersion;

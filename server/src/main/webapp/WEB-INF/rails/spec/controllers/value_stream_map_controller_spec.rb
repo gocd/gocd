@@ -19,7 +19,7 @@ require 'rails_helper'
 describe ValueStreamMapController do
   include ApplicationHelper
 
-  before(:each)  do
+  before(:each) do
     @value_stream_map_service = double('value_stream_map_service')
     @pipeline_service = double('pipeline_service')
     @material_config_service = double('material_config_service')
@@ -42,7 +42,7 @@ describe ValueStreamMapController do
     @stage_detail_path_partial = proc do |pipeline_name, pipeline_counter, stage_name, stage_counter|
       stage_detail_tab_path_for(pipeline_name: pipeline_name, pipeline_counter: pipeline_counter, stage_name: stage_name, stage_counter: stage_counter)
     end
-    @pipeline_edit_path_normal_edit = proc { |pipeline_name | edit_path_for_pipeline(pipeline_name) }
+    @pipeline_edit_path_normal_edit = proc { |pipeline_name| edit_path_for_pipeline(pipeline_name) }
   end
 
   describe "show" do
@@ -69,7 +69,7 @@ describe ValueStreamMapController do
     it "should show Error message when pipeline name and counter cannot be resolved to a unique instance" do
       pipeline = "foo"
       allow(@pipeline_service).to receive(:findPipelineByNameAndCounter).with("foo", 1).and_throw(Exception.new())
-      get :show, params:{pipeline_name: pipeline, pipeline_counter: 1}
+      get :show, params: { pipeline_name: pipeline, pipeline_counter: 1 }
 
       expect(assigns(:pipeline)).to eq(nil)
     end
@@ -83,7 +83,7 @@ describe ValueStreamMapController do
         model = vsm.presentationModel()
         expect(@value_stream_map_service).to receive(:getValueStreamMap).with(CaseInsensitiveString.new(pipeline), 1, @user, @result).and_return(model)
 
-        get :show, params:{pipeline_name: pipeline, pipeline_counter: 1, format: "json"}
+        get :show, params: { pipeline_name: pipeline, pipeline_counter: 1, format: "json" }
 
         expect(response.status).to eq(200)
 
@@ -93,18 +93,18 @@ describe ValueStreamMapController do
       it "should render pipeline dependency graph JSON with pipeline instance and stage details" do
         allow(@pipeline_service).to receive(:findPipelineByNameAndCounter).with("current", 1).and_return(nil)
         revision_p1_1 = PipelineRevision.new("p1", 1, "label-p1-1")
-        revision_p1_1.addStages(Stages.new([StageMother.passedStageInstance("stage-1-for-p1-1", "j1", "p1"), StageMother.passedStageInstance("stage-2-for-p1-1", "j2", "p1")]))
-          modification = com.thoughtworks.go.domain.materials.Modification.new("user", "comment", "", java.util.Date.new() , "r1")
-          modifications = com.thoughtworks.go.domain.materials.Modifications.new([modification].to_java(com.thoughtworks.go.domain.materials.Modification))
+        revision_p1_1.addStages(Stages.new([StageMother.passedStageInstance("p1", "stage-1-for-p1-1", "j1"), StageMother.passedStageInstance("p1", "stage-2-for-p1-1", "j2")]))
+        modification = com.thoughtworks.go.domain.materials.Modification.new("user", "comment", "", java.util.Date.new(), "r1")
+        modifications = com.thoughtworks.go.domain.materials.Modifications.new([modification].to_java(com.thoughtworks.go.domain.materials.Modification))
         pipeline = "current"
         vsm = ValueStreamMap.new(CaseInsensitiveString.new(pipeline), nil)
         vsm.addUpstreamPipelineNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_1, CaseInsensitiveString.new(pipeline))
-        vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git1", "http://git.com", "Git"),CaseInsensitiveString.new("git"), CaseInsensitiveString.new("p1"), MaterialRevision.new(nil, false, modification))
+        vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git1", "http://git.com", "Git"), CaseInsensitiveString.new("git"), CaseInsensitiveString.new("p1"), MaterialRevision.new(nil, false, modification))
         vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git2", "http://git.com", "Git"), nil, CaseInsensitiveString.new("p1"), MaterialRevision.new(nil, false, modifications))
         model = vsm.presentationModel()
-        expect(@value_stream_map_service).to receive(:getValueStreamMap).with(CaseInsensitiveString.new(pipeline), 1,@user, @result).and_return(model)
+        expect(@value_stream_map_service).to receive(:getValueStreamMap).with(CaseInsensitiveString.new(pipeline), 1, @user, @result).and_return(model)
 
-        get :show, params:{pipeline_name: pipeline, pipeline_counter: 1, format: "json"}
+        get :show, params: { pipeline_name: pipeline, pipeline_counter: 1, format: "json" }
 
         graph_details = JSON.parse(response.body)
         expected_graph_details = JSON.parse(expected_json_for_graph_with_pipeline_instance_details)
@@ -119,7 +119,7 @@ describe ValueStreamMapController do
           allow(result).to receive(:message).and_return("error")
         end
 
-        get :show, params:{pipeline_name: pipeline, pipeline_counter: 1, format: "json"}
+        get :show, params: { pipeline_name: pipeline, pipeline_counter: 1, format: "json" }
 
         expect(response.body).to eq({ error: "error" }.to_json)
       end
@@ -128,7 +128,7 @@ describe ValueStreamMapController do
     describe "render html" do
       it "should render html when html format" do
         allow(@pipeline_service).to receive(:findPipelineByNameAndCounter).with("P1", 1).and_return(nil)
-        get :show, params:{pipeline_name: "P1", pipeline_counter: 1}
+        get :show, params: { pipeline_name: "P1", pipeline_counter: 1 }
         assert_template "show"
       end
     end
@@ -277,12 +277,12 @@ describe ValueStreamMapController do
     describe "render json" do
       it "should get the pipeline dependency graph json" do
         material = GitMaterial.new("url")
-        vsm = ValueStreamMap.new(material, nil, com.thoughtworks.go.domain.materials.Modification.new("user", "comment", "", java.util.Date.new() , "r1"))
+        vsm = ValueStreamMap.new(material, nil, com.thoughtworks.go.domain.materials.Modification.new("user", "comment", "", java.util.Date.new(), "r1"))
         vsm.addDownstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), vsm.current_material.getId())
         model = vsm.presentationModel()
         expect(@value_stream_map_service).to receive(:getValueStreamMap).with(material.getFingerprint(), 'revision', @user, @result).and_return(model)
 
-        get :show_material, params:{material_fingerprint: material.getFingerprint(), revision: 'revision', format: "json"}
+        get :show_material, params: { material_fingerprint: material.getFingerprint(), revision: 'revision', format: "json" }
 
         expect(response.status).to eq(200)
 
@@ -296,7 +296,7 @@ describe ValueStreamMapController do
           allow(result).to receive(:message).and_return("error")
         end
 
-        get :show_material, params:{material_fingerprint: fingerprint, revision: revision, format: "json"}
+        get :show_material, params: { material_fingerprint: fingerprint, revision: revision, format: "json" }
 
         expect(response.body).to eq({ error: "error" }.to_json)
       end
@@ -309,7 +309,7 @@ describe ValueStreamMapController do
         expect(@user).to receive(:getUsername).and_return(CaseInsensitiveString.new('some_user'))
         expect(@material_config_service).to receive(:getMaterialConfig).with('some_user', 'fingerprint', anything()).and_return(material_config)
 
-        get :show_material, params:{material_fingerprint: 'fingerprint', revision: 'revision'}
+        get :show_material, params: { material_fingerprint: 'fingerprint', revision: 'revision' }
 
         assert_template "show_material"
         expect(assigns(:material_display_name)).to eq('http://some.repo')
@@ -319,7 +319,7 @@ describe ValueStreamMapController do
         expect(@user).to receive(:getUsername).and_return(CaseInsensitiveString.new('some_user'))
         expect(@material_config_service).to receive(:getMaterialConfig).with('some_user', 'fingerprint', anything()).and_return(nil)
 
-        get :show_material, params:{material_fingerprint: 'fingerprint', revision: 'revision'}
+        get :show_material, params: { material_fingerprint: 'fingerprint', revision: 'revision' }
 
         assert_template "show_material"
         expect(assigns(:material_display_name)).to be_nil

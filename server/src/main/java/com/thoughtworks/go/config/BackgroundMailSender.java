@@ -22,14 +22,12 @@ import lombok.EqualsAndHashCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 @EqualsAndHashCode
 public class BackgroundMailSender implements GoMailSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(BackgroundMailSender.class);
-    private static final AtomicInteger COUNTER = new AtomicInteger(0);
 
     private final GoMailSender mailSender;
     private final int timeoutMillis;
@@ -55,7 +53,8 @@ public class BackgroundMailSender implements GoMailSender {
 
     private ValidationBean execute(Supplier<ValidationBean> sender) {
         AtomicReference<ValidationBean> validation = new AtomicReference<>(null);
-        Thread thread = new Thread(() -> validation.set(sender.get()), "mailSender-" + COUNTER.incrementAndGet());
+        Thread thread = Thread.ofVirtual().unstarted(() -> validation.set(sender.get()));
+        thread.setName("MailSender" + thread.getName());
         thread.setDaemon(true);
         thread.start();
         try {

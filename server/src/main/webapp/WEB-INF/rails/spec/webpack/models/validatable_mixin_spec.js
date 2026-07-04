@@ -19,7 +19,7 @@ import {mixins as s} from "helpers/string-plus";
 import {Validatable} from "models/mixins/validatable_mixin";
 import {Mixins} from "models/mixins/model_mixins";
 
-describe('Validatable', () => {
+describe('Validatable MixIn', () => {
 
 
   describe('errors', () => {

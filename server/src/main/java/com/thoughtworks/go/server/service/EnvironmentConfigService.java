@@ -46,6 +46,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
 import static java.util.Collections.sort;
@@ -111,7 +112,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
     }
 
     public EnvironmentConfig environmentForPipeline(String pipelineName) {
-        return environments.findEnvironmentForPipeline(new CaseInsensitiveString(pipelineName));
+        return environments.findEnvironmentForPipeline(cis(pipelineName));
     }
 
     public Agents agentsForPipeline(final CaseInsensitiveString pipelineName) {
@@ -155,15 +156,15 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
     }
 
     public EnvironmentConfig getEnvironmentConfig(String envName) {
-        return environments.named(new CaseInsensitiveString(envName));
+        return environments.named(cis(envName));
     }
 
     public EnvironmentConfig find(String envName) {
-        return environments.find(new CaseInsensitiveString(envName));
+        return environments.find(cis(envName));
     }
 
     public EnvironmentConfig getEnvironmentForEdit(String envName) {
-        return cloner.deepClone(goConfigService.getConfigForEditing().getEnvironments().find(new CaseInsensitiveString(envName)));
+        return cloner.deepClone(goConfigService.getConfigForEditing().getEnvironments().find(cis(envName)));
     }
 
     List<EnvironmentConfig> getAllLocalEnvironments() {
@@ -182,7 +183,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         ConfigElementForEdit<EnvironmentConfig> configElmForEdit = null;
         try {
             CruiseConfig cruiseConfig = goConfigService.getMergedConfigForEditing();
-            EnvironmentConfig envConfig = environments.named(new CaseInsensitiveString(envName));
+            EnvironmentConfig envConfig = environments.named(cis(envName));
             configElmForEdit = new ConfigElementForEdit<>(cloner.deepClone(envConfig), cruiseConfig.getMd5());
         } catch (RecordNotFoundException e) {
             result.badRequest(EntityType.Environment.notFoundMessage(envName));
@@ -317,7 +318,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         for (PipelineConfig pipelineConfig : pipelineConfigs) {
             String pipelineName = str(pipelineConfig.name());
             if (securityService.hasViewPermissionForPipeline(user, pipelineName)) {
-                EnvironmentConfig environment = environments.findEnvironmentForPipeline(new CaseInsensitiveString(pipelineName));
+                EnvironmentConfig environment = environments.findEnvironmentForPipeline(cis(pipelineName));
                 if (environment != null) {
                     pipelines.add(new EnvironmentPipelineModel(pipelineName, str(environment.name())));
                 } else {

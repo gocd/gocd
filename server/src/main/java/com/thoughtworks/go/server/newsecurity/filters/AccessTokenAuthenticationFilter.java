@@ -50,8 +50,12 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Component
 public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
     protected final Logger LOGGER = LoggerFactory.getLogger(AccessTokenAuthenticationFilter.class);
+    @SuppressWarnings("LoggerInitializedWithForeignClass")
     protected final Logger ACCESS_TOKEN_LOGGER = LoggerFactory.getLogger(AccessToken.class);
+
+    private static final Pattern BEARER_AUTH_EXTRACTOR_PATTERN = Pattern.compile("bearer (.*)", Pattern.CASE_INSENSITIVE);
     private static final String BAD_CREDENTIALS_MSG = "Invalid Personal Access Token.";
+
     protected final SecurityService securityService;
     private final SecurityAuthConfigService securityAuthConfigService;
     private final AccessTokenBasedPluginAuthenticationProvider authenticationProvider;
@@ -99,8 +103,6 @@ public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private AccessTokenCredential extractAuthTokenCredential(String authorizationHeader) {
-        final Pattern BEARER_AUTH_EXTRACTOR_PATTERN = Pattern.compile("bearer (.*)", Pattern.CASE_INSENSITIVE);
-
         if (isBlank(authorizationHeader)) {
             return null;
         }

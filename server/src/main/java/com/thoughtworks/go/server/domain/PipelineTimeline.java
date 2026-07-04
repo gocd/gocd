@@ -30,6 +30,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 /**
  * Understands a sorted collection of PipelineMaterialModification
  */
@@ -57,7 +59,7 @@ public class PipelineTimeline {
     public Collection<PipelineTimelineEntry> getEntriesFor(String pipelineName) {
         naturalOrderLock.readLock().lock();
         try {
-            return Collections.unmodifiableCollection(naturalOrderPmm.getOrDefault(new CaseInsensitiveString(pipelineName), Collections.emptyNavigableSet()));
+            return Collections.unmodifiableCollection(naturalOrderPmm.getOrDefault(cis(pipelineName), Collections.emptyNavigableSet()));
         } finally {
             naturalOrderLock.readLock().unlock();
         }
@@ -68,7 +70,7 @@ public class PipelineTimeline {
     }
 
     public void add(PipelineTimelineEntry pipelineTimelineEntry) {
-        CaseInsensitiveString pipelineName = new CaseInsensitiveString(pipelineTimelineEntry.getPipelineName());
+        CaseInsensitiveString pipelineName = cis(pipelineTimelineEntry.getPipelineName());
         initializedNaturalOrderCollection(pipelineName).add(pipelineTimelineEntry);
         initializedScheduleOrderCollection(pipelineName).add(pipelineTimelineEntry);
         pipelineTimelineEntry.setInsertedBefore(naturalOrderAfter(pipelineTimelineEntry));
@@ -99,7 +101,7 @@ public class PipelineTimeline {
                     }
 
                     private void rollbackNewEntryFor(PipelineTimelineEntry entry) {
-                        CaseInsensitiveString pipelineName = new CaseInsensitiveString(entry.getPipelineName());
+                        CaseInsensitiveString pipelineName = cis(entry.getPipelineName());
                         initializedNaturalOrderCollection(pipelineName).remove(entry);
                         initializedScheduleOrderCollection(pipelineName).remove(entry);
                     }
@@ -201,7 +203,7 @@ public class PipelineTimeline {
     private PipelineTimelineEntry naturalOrderAfter(PipelineTimelineEntry pipelineTimelineEntry) {
         naturalOrderLock.readLock().lock();
         try {
-            return naturalOrderPmm.get(new CaseInsensitiveString(pipelineTimelineEntry.getPipelineName())).higher(pipelineTimelineEntry);
+            return naturalOrderPmm.get(cis(pipelineTimelineEntry.getPipelineName())).higher(pipelineTimelineEntry);
         } finally {
             naturalOrderLock.readLock().unlock();
         }
@@ -210,7 +212,7 @@ public class PipelineTimeline {
     PipelineTimelineEntry naturalOrderBefore(PipelineTimelineEntry pipelineTimelineEntry) {
         naturalOrderLock.readLock().lock();
         try {
-            return naturalOrderPmm.get(new CaseInsensitiveString(pipelineTimelineEntry.getPipelineName())).lower(pipelineTimelineEntry);
+            return naturalOrderPmm.get(cis(pipelineTimelineEntry.getPipelineName())).lower(pipelineTimelineEntry);
         } finally {
             naturalOrderLock.readLock().unlock();
         }

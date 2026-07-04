@@ -15,7 +15,10 @@
  */
 package com.thoughtworks.go.config.materials.perforce;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ConfigAttribute;
+import com.thoughtworks.go.config.ConfigSubtag;
+import com.thoughtworks.go.config.ConfigTag;
+import com.thoughtworks.go.config.ParamsAttributeAware;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.util.command.UrlArgument;
@@ -123,7 +126,7 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     }
 
     @Override
-    public void validateConcreteScmMaterial(ValidationContext validationContext) {
+    public void validateConcreteScmMaterial() {
         if (getView() == null || getView().trim().isEmpty()) {
             errors.add(VIEW, "P4 view cannot be empty.");
         }

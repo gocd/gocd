@@ -244,6 +244,14 @@
       expect(node.attr("style")).toBeUndefined();
     });
 
+    it("LineWriter insertContent/Header handles ANSI style", function () {
+      fs.markMultiline(); // insertContent() requires a section body element
+      const l = $(lw.insertContent(fs, t.OUT, "08:08:32.046", "\u001B[1mbolded\u001B[m"));
+      const node = l.find("span");
+      expect(node.text()).toBe("bolded");
+      expect(node.attr("style")).toContain("bold");
+    });
+
     it("LineWriter insertContent/Header handles ANSI color and style", function () {
       fs.markMultiline(); // insertContent() requires a section body element
       const l = $(lw.insertContent(fs, t.OUT, "00:00:00.000", "Starting \u001B[1;33;40mcolor"));
@@ -251,6 +259,15 @@
       expect(node.length).toBe(1);
       expect(node.text()).toBe("color");
       expect(node.attr("style")).toContain("bold");
+    });
+
+    it("LineWriter insertContent/Header handles ANSI truecolor style", function () {
+      fs.markMultiline(); // insertContent() requires a section body element
+      const l = $(lw.insertContent(fs, t.OUT, "00:00:00.000", "\u001B[0;38:2:1:135:175:255mColored\u001B[0m"));
+      const node = l.find("span");
+      expect(node.length).toBe(1);
+      expect(node.attr("style")).toBe('color:rgb(135,175,255)');
+      expect(node.text()).toBe('Colored');
     });
 
     it("LineWriter insertContent/Header handles ANSI URLs", function () {
@@ -262,13 +279,6 @@
       expect(node.attr("href")).toBe("http://example.com/escape\"me");
     });
 
-    it("LineWriter insertContent/Header handles ANSI style", function () {
-      fs.markMultiline(); // insertContent() requires a section body element
-      const l = $(lw.insertContent(fs, t.OUT, "08:08:32.046", "\u001B[1mbolded\u001B[m"));
-      const node = l.find("span");
-      expect(node.text()).toBe("bolded");
-      expect(node.attr("style")).toContain("bold");
-    });
 
     it("LineWriter formats exit code", function () {
       const h = $($(lw.insertHeader(fs, t.INFO, "00:00:00.000", "Starting build")));

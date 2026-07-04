@@ -15,23 +15,23 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentPipelineConfig;
 import com.thoughtworks.go.config.EnvironmentPipelinesConfig;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class EnvironmentPipelineMatcherTest {
 
     @Test
     public void shouldMatchPipelineNameIgnoringCase() {
-        EnvironmentPipelineMatcher matcher = new EnvironmentPipelineMatcher(new CaseInsensitiveString("env"), List.of("uuid1", "uuid2"),
+        EnvironmentPipelineMatcher matcher = new EnvironmentPipelineMatcher(cis("env"), List.of("uuid1", "uuid2"),
                 new EnvironmentPipelinesConfig() {{
-                    add(new EnvironmentPipelineConfig(new CaseInsensitiveString("pipeline1")));
-                    add(new EnvironmentPipelineConfig(new CaseInsensitiveString("pipeline2")));
+                    add(new EnvironmentPipelineConfig(cis("pipeline1")));
+                    add(new EnvironmentPipelineConfig(cis("pipeline2")));
                 }});
 
         assertThat(matcher.hasPipeline(jobPlan("PipeLine1").getPipelineName())).isTrue();

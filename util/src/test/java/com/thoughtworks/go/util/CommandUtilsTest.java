@@ -17,8 +17,6 @@ package com.thoughtworks.go.util;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.regex.Matcher;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CommandUtilsTest {
@@ -42,10 +40,10 @@ public class CommandUtilsTest {
         assertEquals(wrapQuotes(apostrophe), CommandUtils.quoteArgument(apostrophe));
         assertEquals(dontNeedQuoting, CommandUtils.quoteArgument(dontNeedQuoting));
         assertEquals(wrapQuotes(singleQuotesInside), CommandUtils.quoteArgument(singleQuotesInside));
-        assertEquals(wrapQuotes(doubleQuotesInside.replaceAll("\"", Matcher.quoteReplacement("\\\""))), CommandUtils.quoteArgument(doubleQuotesInside));
-        assertEquals(wrapQuotes(unmatchedDoubleQuotes.replaceAll("\"", Matcher.quoteReplacement("\\\""))), CommandUtils.quoteArgument(unmatchedDoubleQuotes));
+        assertEquals(wrapQuotes(doubleQuotesInside.replace("\"", "\\\"")), CommandUtils.quoteArgument(doubleQuotesInside));
+        assertEquals(wrapQuotes(unmatchedDoubleQuotes.replace("\"", "\\\"")), CommandUtils.quoteArgument(unmatchedDoubleQuotes));
         assertEquals(alreadyProperlyEscaped, CommandUtils.quoteArgument(alreadyProperlyEscaped));
-        assertEquals(wrapQuotes(bashScript.replaceAll("\"", Matcher.quoteReplacement("\\\""))), CommandUtils.quoteArgument(bashScript));
+        assertEquals(wrapQuotes(bashScript.replace("\"", "\\\"")), CommandUtils.quoteArgument(bashScript));
         assertEquals(wrapQuotes("I was \\\\\"so\\\" lazy I forgot to escape the other quote"), CommandUtils.quoteArgument(someQuotesEscapedSomeNot),
                 "Should blindly escape internal double quotes; don't try to be smart and fix " +
                         "only the unescaped quotes because that it would make it hard for users to determine why " +

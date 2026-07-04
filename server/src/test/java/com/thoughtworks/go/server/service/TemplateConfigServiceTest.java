@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -55,20 +56,20 @@ public class TemplateConfigServiceTest {
         Username admin = new Username("admin");
 
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
-        when(goConfigService.isPipelineEditable(new CaseInsensitiveString("p1"))).thenReturn(true);
-        when(goConfigService.isPipelineEditable(new CaseInsensitiveString("p2"))).thenReturn(true);
-        when(securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString("t1"), admin)).thenReturn(true);
-        when(securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString("t2"), admin)).thenReturn(true);
-        when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("t1"), admin)).thenReturn(true);
-        when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("t2"), admin)).thenReturn(true);
+        when(goConfigService.isPipelineEditable(cis("p1"))).thenReturn(true);
+        when(goConfigService.isPipelineEditable(cis("p2"))).thenReturn(true);
+        when(securityService.isAuthorizedToViewTemplate(cis("t1"), admin)).thenReturn(true);
+        when(securityService.isAuthorizedToViewTemplate(cis("t2"), admin)).thenReturn(true);
+        when(securityService.isAuthorizedToEditTemplate(cis("t1"), admin)).thenReturn(true);
+        when(securityService.isAuthorizedToEditTemplate(cis("t2"), admin)).thenReturn(true);
         when(securityService.isUserAdmin(admin)).thenReturn(true);
 
         List<TemplateToPipelines> templateToPipelines = new ArrayList<>();
-        TemplateToPipelines template1 = new TemplateToPipelines(new CaseInsensitiveString("t1"), true, true);
-        template1.add(new PipelineEditabilityInfo(new CaseInsensitiveString("p1"), true, true));
+        TemplateToPipelines template1 = new TemplateToPipelines(cis("t1"), true, true);
+        template1.add(new PipelineEditabilityInfo(cis("p1"), true, true));
         templateToPipelines.add(template1);
-        TemplateToPipelines template2 = new TemplateToPipelines(new CaseInsensitiveString("t2"), true, true);
-        template2.add(new PipelineEditabilityInfo(new CaseInsensitiveString("p2"), true, true));
+        TemplateToPipelines template2 = new TemplateToPipelines(cis("t2"), true, true);
+        template2.add(new PipelineEditabilityInfo(cis("p2"), true, true));
         templateToPipelines.add(template2);
 
         assertThat(service.getTemplatesList(admin)).isEqualTo(templateToPipelines);
@@ -77,19 +78,19 @@ public class TemplateConfigServiceTest {
     @Test
     public void shouldReturnASubsetOfTemplatesWithAssociatedPipelinesForTemplateAdmin() {
         BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
-        CaseInsensitiveString templateAdmin = new CaseInsensitiveString("template-admin");
+        CaseInsensitiveString templateAdmin = cis("template-admin");
         new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
         PipelineTemplateConfig template2 = PipelineTemplateConfigMother.createTemplate("t2", new Authorization(new AdminsConfig(new AdminUser(templateAdmin))), StageConfigMother.manualStage("foo"));
         cruiseConfig.addTemplate(template2);
 
         Username admin = new Username(templateAdmin);
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
-        when(securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString("t2"), admin)).thenReturn(true);
-        when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("t2"), admin)).thenReturn(true);
+        when(securityService.isAuthorizedToViewTemplate(cis("t2"), admin)).thenReturn(true);
+        when(securityService.isAuthorizedToEditTemplate(cis("t2"), admin)).thenReturn(true);
         when(securityService.isUserAdmin(admin)).thenReturn(false);
 
         List<TemplateToPipelines> templateToPipelines = new ArrayList<>();
-        TemplateToPipelines t2 = new TemplateToPipelines(new CaseInsensitiveString("t2"), true, false);
+        TemplateToPipelines t2 = new TemplateToPipelines(cis("t2"), true, false);
         templateToPipelines.add(t2);
 
         assertThat(service.getTemplatesList(admin)).isEqualTo(templateToPipelines);
@@ -98,19 +99,19 @@ public class TemplateConfigServiceTest {
     @Test
     public void shouldReturnASubsetOfTemplatesWithAssociatedPipelinesForTemplateViewUser() {
         BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
-        CaseInsensitiveString templateViewUser = new CaseInsensitiveString("template-view");
+        CaseInsensitiveString templateViewUser = cis("template-view");
         new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
         PipelineTemplateConfig template2 = PipelineTemplateConfigMother.createTemplate("t2", new Authorization(new ViewConfig(new AdminUser(templateViewUser))), StageConfigMother.manualStage("foo"));
         cruiseConfig.addTemplate(template2);
 
         Username templateView = new Username(templateViewUser);
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
-        when(securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString("t2"), templateView)).thenReturn(true);
-        when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("t2"), templateView)).thenReturn(false);
+        when(securityService.isAuthorizedToViewTemplate(cis("t2"), templateView)).thenReturn(true);
+        when(securityService.isAuthorizedToEditTemplate(cis("t2"), templateView)).thenReturn(false);
         when(securityService.isUserAdmin(templateView)).thenReturn(false);
 
         List<TemplateToPipelines> templateToPipelines = new ArrayList<>();
-        TemplateToPipelines t2 = new TemplateToPipelines(new CaseInsensitiveString("t2"), false, false);
+        TemplateToPipelines t2 = new TemplateToPipelines(cis("t2"), false, false);
         templateToPipelines.add(t2);
 
         assertThat(service.getTemplatesList(templateView)).isEqualTo(templateToPipelines);
@@ -119,19 +120,19 @@ public class TemplateConfigServiceTest {
     @Test
     public void shouldReturnASubsetOfTemplatesWithAssociatedPipelinesForGroupAdmin() {
         BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
-        CaseInsensitiveString groupAdmin = new CaseInsensitiveString("group-admin");
+        CaseInsensitiveString groupAdmin = cis("group-admin");
         new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
         PipelineConfigs pipelineConfigs = cruiseConfig.findGroup("defaultGroup"); //defaultGroup is set in GoConfigMother
         pipelineConfigs.setAuthorization(new Authorization(new AdminsConfig(new AdminUser(groupAdmin))));
 
         Username groupAdminUser = new Username(groupAdmin);
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
-        when(goConfigService.isPipelineEditable(new CaseInsensitiveString("p1"))).thenReturn(true);
-        when(securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString("t1"), groupAdminUser)).thenReturn(true);
+        when(goConfigService.isPipelineEditable(cis("p1"))).thenReturn(true);
+        when(securityService.isAuthorizedToViewTemplate(cis("t1"), groupAdminUser)).thenReturn(true);
 
         List<TemplateToPipelines> templateToPipelines = new ArrayList<>();
-        TemplateToPipelines t1 = new TemplateToPipelines(new CaseInsensitiveString("t1"), false, false);
-        t1.add(new PipelineEditabilityInfo(new CaseInsensitiveString("p1"), true, true));
+        TemplateToPipelines t1 = new TemplateToPipelines(cis("t1"), false, false);
+        t1.add(new PipelineEditabilityInfo(cis("p1"), true, true));
         templateToPipelines.add(t1);
 
         assertThat(service.getTemplatesList(groupAdminUser)).isEqualTo(templateToPipelines);
@@ -140,12 +141,12 @@ public class TemplateConfigServiceTest {
     @Test
     public void shouldReturnAnEmptyListOfTemplatesForARegularUser() {
         BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
-        CaseInsensitiveString regularUser = new CaseInsensitiveString("view");
+        CaseInsensitiveString regularUser = cis("view");
         new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
 
         Username viewUser = new Username(regularUser);
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
-        when(securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString("t1"), viewUser)).thenReturn(false);
+        when(securityService.isAuthorizedToViewTemplate(cis("t1"), viewUser)).thenReturn(false);
 
         assertThat(service.getTemplatesList(viewUser)).isEqualTo(new ArrayList<>());
     }
@@ -164,9 +165,9 @@ public class TemplateConfigServiceTest {
     @Test
     public void shouldPopulateErrorInResultOnFailure() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Username user = new Username(new CaseInsensitiveString("user"));
+        Username user = new Username(cis("user"));
         String templateName = "template-name";
-        PipelineTemplateConfig pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString(templateName), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
+        PipelineTemplateConfig pipelineTemplateConfig = new PipelineTemplateConfig(cis(templateName), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
         String errorMessage = "invalid template";
         doThrow(new GoConfigInvalidException(GoConfigMother.defaultCruiseConfig(), errorMessage)).when(goConfigService).updateConfig(any(), any());
 
@@ -181,7 +182,7 @@ public class TemplateConfigServiceTest {
     @Test
     public void shouldReturnAllTemplatesThatCanBeEditedByUser() {
         BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
-        CaseInsensitiveString username = new CaseInsensitiveString("template-edit-user");
+        CaseInsensitiveString username = cis("template-edit-user");
 
         PipelineTemplateConfig editableTemplate = PipelineTemplateConfigMother.createTemplate(
                 "editable-template",
@@ -193,7 +194,7 @@ public class TemplateConfigServiceTest {
         cruiseConfig.setTemplates(templates);
 
         when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
-        when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("editable-template"), new Username(username))).thenReturn(true);
+        when(securityService.isAuthorizedToEditTemplate(cis("editable-template"), new Username(username))).thenReturn(true);
 
         TemplatesConfig actual = service.templateConfigsThatCanBeEditedBy(new Username(username));
         TemplatesConfig expected = new TemplatesConfig(editableTemplate);
@@ -203,7 +204,7 @@ public class TemplateConfigServiceTest {
     @Test
     public void shouldReturnAllTemplatesThatCanBeViewedByUser() {
         BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
-        CaseInsensitiveString username = new CaseInsensitiveString("template-user");
+        CaseInsensitiveString username = cis("template-user");
 
         PipelineTemplateConfig viewableTemplate = PipelineTemplateConfigMother.createTemplate(
                 "template",
@@ -215,7 +216,7 @@ public class TemplateConfigServiceTest {
         cruiseConfig.setTemplates(templates);
 
         when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
-        when(securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString("template"), new Username(username))).thenReturn(true);
+        when(securityService.isAuthorizedToViewTemplate(cis("template"), new Username(username))).thenReturn(true);
 
         TemplatesConfig actual = service.templateConfigsThatCanBeViewedBy(new Username(username));
         TemplatesConfig expected = new TemplatesConfig(viewableTemplate);
@@ -232,12 +233,12 @@ public class TemplateConfigServiceTest {
 
     @SuppressWarnings("SameParameterValue")
     private PipelineTemplateConfig template(final String name) {
-        return new PipelineTemplateConfig(new CaseInsensitiveString(name), StageConfigMother.stageConfig("some_stage"));
+        return new PipelineTemplateConfig(cis(name), StageConfigMother.stageConfig("some_stage"));
     }
 
     private BasicCruiseConfig getCruiseConfigWithSecurityEnabled() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(new AdminsConfig(new AdminUser(cis("admin")))), null);
         cruiseConfig.setServerConfig(serverConfig);
         GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
         return cruiseConfig;

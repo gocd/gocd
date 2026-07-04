@@ -23,7 +23,6 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
+import static com.thoughtworks.go.util.FileSizeUtils.fromGigaToBytes;
+import static com.thoughtworks.go.util.FileSizeUtils.fromGigaToMegabytes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -47,7 +48,6 @@ public class ArtifactsDiskCleanerTest {
     private StageService stageService;
     private ArtifactsService artifactService;
     private ConfigDbStateRepository configDbStateRepository;
-    private ServerHealthService serverHealthService;
 
     @BeforeEach
     public void setUp() {
@@ -72,11 +72,11 @@ public class ArtifactsDiskCleanerTest {
     @Test
     public void shouldTriggerOnConfiguredPurgeStartLimit() {
         serverConfig.setPurgeLimits(null, null);
-        assertThat(artifactsDiskCleaner.limitInMb()).isEqualTo(Long.valueOf(Integer.MAX_VALUE));
+        assertThat(artifactsDiskCleaner.limitInMegabytes()).isEqualTo(Long.MAX_VALUE);
         serverConfig.setPurgeLimits(20.0, 30.0);
-        assertThat(artifactsDiskCleaner.limitInMb()).isEqualTo(20 * GoConstants.MEGABYTES_IN_GIGABYTE);
+        assertThat(artifactsDiskCleaner.limitInMegabytes()).isEqualTo(fromGigaToMegabytes(20));
         serverConfig.setPurgeLimits(15.0, 30.0);
-        assertThat(artifactsDiskCleaner.limitInMb()).isEqualTo(15 * GoConstants.MEGABYTES_IN_GIGABYTE);
+        assertThat(artifactsDiskCleaner.limitInMegabytes()).isEqualTo(fromGigaToMegabytes(15));
     }
 
     @Test
@@ -107,20 +107,20 @@ public class ArtifactsDiskCleanerTest {
     @Test
     public void shouldDeleteOldestStagesFirst_untilHasEnoughFreeDisk() {
         serverConfig.setPurgeLimits(5.0, 9.0);
-        Stage stageOne = StageMother.passedStageInstance("stage", "build", "pipeline");
-        Stage stageTwo = StageMother.passedStageInstance("another", "job", "with-pipeline");
-        Stage stageThree = StageMother.passedStageInstance("yet-another", "job1", "foo-pipeline");
+        Stage stageOne = StageMother.passedStageInstance("pipeline", "stage", "build");
+        Stage stageTwo = StageMother.passedStageInstance("with-pipeline", "another", "job");
+        Stage stageThree = StageMother.passedStageInstance("foo-pipeline", "yet-another", "job1");
 
         when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(List.of(stageOne, stageTwo, stageThree));
-        when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(4 * GoConstants.GIGA_BYTE);
+        when(diskSpaceChecker.getUsableSpaceBytes(goConfigService.artifactsDir())).thenReturn(fromGigaToBytes(4));
 
         doAnswer((Answer<Object>) invocation -> {
-            when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(6 * GoConstants.GIGA_BYTE);
+            when(diskSpaceChecker.getUsableSpaceBytes(goConfigService.artifactsDir())).thenReturn(fromGigaToBytes(6));
             return null;
         }).when(artifactService).purgeArtifactsForStage(stageOne);
 
         doAnswer((Answer<Object>) invocation -> {
-            when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(10 * GoConstants.GIGA_BYTE);
+            when(diskSpaceChecker.getUsableSpaceBytes(goConfigService.artifactsDir())).thenReturn(fromGigaToBytes(10));
             return null;
         }).when(artifactService).purgeArtifactsForStage(stageTwo);
 
@@ -135,14 +135,14 @@ public class ArtifactsDiskCleanerTest {
     @Test
     public void shouldDeleteMultiplePagesOfOldestStagesHavingArtifacts() {
         serverConfig.setPurgeLimits(5.0, 9.0);
-        final Stage stageOne = StageMother.passedStageInstance("stage", "build", "pipeline");
-        final Stage stageTwo = StageMother.passedStageInstance("another", "job", "with-pipeline");
-        final Stage stageThree = StageMother.passedStageInstance("yet-another", "job1", "foo-pipeline");
-        final Stage stageFour = StageMother.passedStageInstance("foo-stage", "bar-job", "baz-pipeline");
-        final Stage stageFive = StageMother.passedStageInstance("bar-stage", "baz-job", "quux-pipeline");
+        final Stage stageOne = StageMother.passedStageInstance("pipeline", "stage", "build");
+        final Stage stageTwo = StageMother.passedStageInstance("with-pipeline", "another", "job");
+        final Stage stageThree = StageMother.passedStageInstance("foo-pipeline", "yet-another", "job1");
+        final Stage stageFour = StageMother.passedStageInstance("baz-pipeline", "foo-stage", "bar-job");
+        final Stage stageFive = StageMother.passedStageInstance("quux-pipeline", "bar-stage", "baz-job");
 
         when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(List.of(stageOne, stageTwo));
-        when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(4 * GoConstants.GIGA_BYTE);
+        when(diskSpaceChecker.getUsableSpaceBytes(goConfigService.artifactsDir())).thenReturn(fromGigaToBytes(4));
 
         doAnswer((Answer<Object>) invocation -> {
             when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(List.of(stageThree, stageFour));
@@ -175,7 +175,7 @@ public class ArtifactsDiskCleanerTest {
 
     @Test
     public void shouldUseA_NonServerHealthAware_result() {
-        serverHealthService = mock(ServerHealthService.class);
+        ServerHealthService serverHealthService = mock(ServerHealthService.class);
         OperationResult operationResult = artifactsDiskCleaner.resultFor(new DiskSpaceOperationResult(serverHealthService));
         assertThat(operationResult).isInstanceOf(ServerHealthStateOperationResult.class);
     }

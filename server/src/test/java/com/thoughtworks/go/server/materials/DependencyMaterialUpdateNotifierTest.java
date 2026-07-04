@@ -124,7 +124,7 @@ public class DependencyMaterialUpdateNotifierTest {
 
     @Test
     public void shouldUpdateMaterialOnStageChange() {
-        Stage stage = StageMother.passedStageInstance("Stage1", "plan", "Pipeline1");
+        Stage stage = StageMother.passedStageInstance("Pipeline1", "Stage1", "plan");
         DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial(stage.getIdentifier().getPipelineName(), stage.getName());
         Set<DependencyMaterialConfig> schedulableMaterialConfigs = Set.of((DependencyMaterialConfig) dependencyMaterial.config());
 
@@ -144,7 +144,7 @@ public class DependencyMaterialUpdateNotifierTest {
         notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService, serverHealthService);
         notifier.initialize();
 
-        Stage pipeline2Stage2 = StageMother.passedStageInstance("Stage2", "plan", "Pipeline2");
+        Stage pipeline2Stage2 = StageMother.passedStageInstance("Pipeline2", "Stage2", "plan");
         notifier.stageStatusChanged(pipeline2Stage2);
 
         verify(materialUpdateService, never()).updateMaterial(any(DependencyMaterial.class));
@@ -170,7 +170,7 @@ public class DependencyMaterialUpdateNotifierTest {
 
     @Test
     public void shouldRetryUpdatingMaterialsPreviouslyInProgress_OnMaterialUpdate() {
-        Stage stage = StageMother.passedStageInstance("Stage1", "plan", "Pipeline1");
+        Stage stage = StageMother.passedStageInstance("Pipeline1", "Stage1", "plan");
         DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial(stage.getIdentifier().getPipelineName(), stage.getName());
         Set<DependencyMaterialConfig> schedulableMaterialConfigs = Set.of((DependencyMaterialConfig) dependencyMaterial.config());
 
@@ -190,7 +190,7 @@ public class DependencyMaterialUpdateNotifierTest {
 
     @Test
     public void shouldRetryUpdatingMaterialsIfPreviouslyUpdatesFailed_OnMaterialUpdate() {
-        Stage stage = StageMother.passedStageInstance("Stage1", "plan", "Pipeline1");
+        Stage stage = StageMother.passedStageInstance("Pipeline1", "Stage1", "plan");
         DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial(stage.getIdentifier().getPipelineName(), stage.getName());
         Set<DependencyMaterialConfig> schedulableMaterialConfigs = Set.of((DependencyMaterialConfig) dependencyMaterial.config());
 
@@ -208,7 +208,7 @@ public class DependencyMaterialUpdateNotifierTest {
 
     @Test
     public void shouldDoNothingIfMaterialUpdateIsDisabled() {
-        Stage stage = StageMother.passedStageInstance("Stage1", "plan", "Pipeline1");
+        Stage stage = StageMother.passedStageInstance("Pipeline1", "Stage1", "plan");
         DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial(stage.getIdentifier().getPipelineName(), stage.getName());
         Set<DependencyMaterialConfig> schedulableMaterialConfigs = Set.of((DependencyMaterialConfig) dependencyMaterial.config());
 

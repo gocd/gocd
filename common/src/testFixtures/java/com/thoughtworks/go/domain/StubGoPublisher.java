@@ -15,8 +15,11 @@
  */
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.publishers.ArtifactManipulator;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.work.DefaultGoPublisher;
+import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -25,10 +28,11 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
 
 public class StubGoPublisher extends DefaultGoPublisher {
+    private final Map<File, String> uploadedFiles = new HashMap<>();
     private String message = "";
-    private Map<File, String> uploadedFiles = new HashMap<>();
     private boolean shouldFail;
 
     public StubGoPublisher() {
@@ -36,31 +40,30 @@ public class StubGoPublisher extends DefaultGoPublisher {
     }
 
     public StubGoPublisher(boolean shouldFail) {
-        super(null, null, null, AgentRuntimeInfo.initialState(NullAgent.createNullAgent()), StandardCharsets.UTF_8);
+        super(mock(ArtifactManipulator.class), null, null, AgentRuntimeInfo.initialState(NullAgent.createNullAgent()), StandardCharsets.UTF_8);
         this.shouldFail = shouldFail;
     }
 
-    @Override
     protected void init() {
     }
 
     @Override
-    public void taggedConsumeLineWithPrefix(String tag, String message) {
+    public void taggedConsumeLineWithPrefix(@NonNull String tag, String line) {
+        this.message += line;
+    }
+
+    @Override
+    public void taggedConsumeLine(@NotNull String tag, @NotNull String message) {
         this.message += message;
     }
 
     @Override
-    public void taggedConsumeLine(String tag, String message) {
-        this.message += message;
+    public void consumeLineWithPrefix(@NonNull String line) {
+        this.message += line;
     }
 
     @Override
-    public void consumeLineWithPrefix(String message) {
-        this.message += message;
-    }
-
-    @Override
-    public void consumeLine(String message) {
+    public void consumeLine(@NotNull String message) {
         this.message += message;
     }
 

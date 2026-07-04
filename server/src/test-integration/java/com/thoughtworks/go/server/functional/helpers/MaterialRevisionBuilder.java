@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.functional.helpers;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.JobConfigs;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
@@ -35,6 +34,7 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.mockito.Mockito.when;
 
 public class MaterialRevisionBuilder {
@@ -59,7 +59,7 @@ public class MaterialRevisionBuilder {
             if (buildCause.length == 0) {
                 throw new RuntimeException("Cannot create instance without a buildcause. You can retrieve it without buildcause once it has been created");
             }
-            DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(STAGE_NAME));
+            DependencyMaterial material = new DependencyMaterial(cis(pipelineName), cis(STAGE_NAME));
             DependencyMaterialRevision revision = DependencyMaterialRevision.create(pipelineName, counter, "label", STAGE_NAME, 1);
             instanceToRevision.put(key, revision.convert(material, modifiedTime));
             final long id = getNextId();
@@ -71,7 +71,7 @@ public class MaterialRevisionBuilder {
         for (MaterialRevision revision : buildCauseOfThisPipeline(buildCause)) {
             materials.add(revision.getMaterial());
         }
-        PipelineConfig config = new PipelineConfig(new CaseInsensitiveString(pipelineName), materials.convertToConfigs(), new StageConfig(new CaseInsensitiveString(STAGE_NAME), new JobConfigs()));
+        PipelineConfig config = new PipelineConfig(cis(pipelineName), materials.convertToConfigs(), new StageConfig(cis(STAGE_NAME), new JobConfigs()));
         return new Tuple(new PipelineConfigDependencyGraph(config, dependencyGraphsFor(buildCause)), materialRevision);
     }
 

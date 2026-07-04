@@ -16,13 +16,15 @@
 package com.thoughtworks.go.domain;
 
 import com.google.gson.annotations.Expose;
-import com.thoughtworks.go.util.UrlUtil;
+import com.thoughtworks.go.util.UriEncodingUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
 import java.io.Serializable;
 import java.util.Objects;
 
 public class JobIdentifier implements Serializable, LocatableEntity {
+    public static final String LATEST = "latest";
+
     @Expose
     private String pipelineName;
     @Expose
@@ -38,7 +40,6 @@ public class JobIdentifier implements Serializable, LocatableEntity {
     private long buildId;
     @Expose
     private String stageCounter;
-    public static final String LATEST = "latest";
     @Expose
     private Integer rerunOfCounter;
 
@@ -72,6 +73,11 @@ public class JobIdentifier implements Serializable, LocatableEntity {
         this.stageCounter = stageCounter;
         this.buildName = buildName;
         this.buildId = buildId;
+    }
+
+    public JobIdentifier(JobIdentifier job) {
+        this(job.getPipelineName(), job.getPipelineCounter(), job.getPipelineLabel(), job.getStageName(), job.getStageCounter(), job.getBuildName(), job.getBuildId());
+        this.rerunOfCounter = job.rerunOfCounter;
     }
 
     public void setPipelineName(String pipelineName) {
@@ -143,7 +149,7 @@ public class JobIdentifier implements Serializable, LocatableEntity {
 
         JobIdentifier that = (JobIdentifier) o;
 
-        return Objects.equals(buildId, that.buildId) &&
+        return buildId == that.buildId &&
             Objects.equals(buildName, that.buildName) &&
             pipelineCounter == that.pipelineCounter &&
             Objects.equals(pipelineLabel, that.pipelineLabel) &&
@@ -167,7 +173,7 @@ public class JobIdentifier implements Serializable, LocatableEntity {
 
     public String buildLocator() {
         //TODO: the encoding logic should be moved to presentation layer
-        return UrlUtil.encodeInUtf8(stageLocator() + "/" + buildName);
+        return UriEncodingUtil.encodePathPartial(stageLocator() + "/" + buildName);
     }
 
     private String stageLocator() {
@@ -178,16 +184,12 @@ public class JobIdentifier implements Serializable, LocatableEntity {
         return getStageIdentifier().stageLocatorForDisplay() + "/" + buildName;
     }
 
-    public String propertyLocator(String propertyName) {
-        return UrlUtil.encodeInUtf8(stageLocator() + "/" + buildName + "/" + propertyName);
-    }
-
     public String artifactLocator(String filePath) {
         //TODO: we should make sure data is valid at the beginning instead of fixing it here
         if (filePath.startsWith("/")) {
             filePath = filePath.substring(1);
         }
-        return UrlUtil.encodeInUtf8(stageLocator() + "/" + buildName + "/" + filePath);
+        return UriEncodingUtil.encodePathPartial(stageLocator() + "/" + buildName + "/" + filePath);
     }
 
     public StageIdentifier getStageIdentifier() {
@@ -195,12 +197,9 @@ public class JobIdentifier implements Serializable, LocatableEntity {
                 stageCounter);
     }
 
-    public String ccProjectName() {
-        return String.format("%s :: %s :: %s", getPipelineName(), getStageName(), getBuildName());
-    }
 
-    public String webUrl() {
-        return "tab/build/detail/" + buildLocator();
+    public String webPathAfterContext() {
+        return "/tab/build/detail/" + buildLocator();
     }
 
     public JobConfigIdentifier jobConfigIdentifier() {
@@ -213,12 +212,6 @@ public class JobIdentifier implements Serializable, LocatableEntity {
 
     public void setPipelineCounter(int pipelineCounter) {
         this.pipelineCounter = pipelineCounter;
-    }
-
-    public boolean isSameStageConfig(JobIdentifier other) {
-        return getPipelineName().equalsIgnoreCase(other.getPipelineName())
-                && getStageName().equalsIgnoreCase(other.getStageName());
-
     }
 
     public void populateEnvironmentVariables(EnvironmentVariableContext environmentVariableContext) {

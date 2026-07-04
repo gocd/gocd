@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -27,6 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ManualBuildTest {
@@ -35,7 +35,7 @@ public class ManualBuildTest {
 
     @BeforeEach
     public void setUp() {
-        manualBuild = new ManualBuild(new Username(new CaseInsensitiveString("cruise-user")));
+        manualBuild = new ManualBuild(new Username(cis("cruise-user")));
         SvnMaterial material = new SvnMaterial("http://foo.bar/baz", "user", "pass", false);
         materialRevisions = new MaterialRevisions(new MaterialRevision(material, new Modification(new Date(), "1234", "MOCK_LABEL-12", null)));
     }

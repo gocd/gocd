@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.plugin.access.configrepo;
 
-
 import java.util.Map;
 
 import static java.lang.String.format;

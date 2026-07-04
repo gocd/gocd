@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
 import com.thoughtworks.go.plugin.access.notification.DataConverter;
+import com.thoughtworks.go.util.Dates;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,9 +34,9 @@ public class StageConverter extends DataConverter<StageNotificationDTO> {
     private final BuildCause buildCause;
 
     public StageConverter(StageNotificationData stageNotificationData) {
-        this.stage = stageNotificationData.getStage();
-        this.pipelineGroup = stageNotificationData.getPipelineGroup();
-        this.buildCause = stageNotificationData.getBuildCause();
+        this.stage = stageNotificationData.stage();
+        this.pipelineGroup = stageNotificationData.pipelineGroup();
+        this.buildCause = stageNotificationData.buildCause();
     }
 
     @Override
@@ -44,22 +45,35 @@ public class StageConverter extends DataConverter<StageNotificationDTO> {
         int pipelineCounter = stage.getIdentifier().getPipelineCounter();
         String pipelineLabel = stage.getIdentifier().getPipelineLabel();
         StageNotificationDTO.PipelineDTO pipeline = new StageNotificationDTO.PipelineDTO(pipelineName, pipelineCounter,
-                pipelineLabel, pipelineGroup, createBuildCause(buildCause), createStageDTO());
+            pipelineLabel, pipelineGroup, createBuildCause(buildCause), createStageDTO());
         return new StageNotificationDTO(pipeline);
     }
 
     private StageNotificationDTO.StageDTO createStageDTO() {
         List<StageNotificationDTO.JobDTO> jobs = new ArrayList<>();
         for (JobInstance job : stage.getJobInstances()) {
-            StageNotificationDTO.JobDTO jobDTO = new StageNotificationDTO.JobDTO(job.getName(),
-                    DateUtil.dateToString(job.getScheduledDate()), DateUtil.dateToString(job.getAssignedDate()),
-                    DateUtil.dateToString(job.getCompletedDate()), job.getState(), job.getResult(), job.getAgentUuid());
+            StageNotificationDTO.JobDTO jobDTO = new StageNotificationDTO.JobDTO(
+                job.getName(),
+                Dates.formatIso8601UtcCompactOffsetWithMillis(job.getScheduledDate()),
+                Dates.formatIso8601UtcCompactOffsetWithMillis(job.getAssignedDate()),
+                Dates.formatIso8601UtcCompactOffsetWithMillis(job.getCompletedDate()),
+                job.getState(),
+                job.getResult(),
+                job.getAgentUuid());
             jobs.add(jobDTO);
         }
 
-        return new StageNotificationDTO.StageDTO(stage.getName(), stage.getCounter(), stage.getApprovalType(), stage.getApprovedBy(),
-                stage.getPreviousStage(), stage.getState(), stage.getResult(), DateUtil.dateToString(stage.getCreatedTime()),
-                DateUtil.dateToString(stage.getLastTransitionedTime()), jobs);
+        return new StageNotificationDTO.StageDTO(
+            stage.getName(),
+            stage.getCounter(),
+            stage.getApprovalType(),
+            stage.getApprovedBy(),
+            stage.getPreviousStage(),
+            stage.getState(),
+            stage.getResult(),
+            Dates.formatIso8601UtcCompactOffsetWithMillis(stage.getCreatedTime()),
+            Dates.formatIso8601UtcCompactOffsetWithMillis(stage.getLastTransitionedTime()),
+            jobs);
     }
 
     private List<StageNotificationDTO.MaterialRevisionDTO> createBuildCause(BuildCause buildCause) {
@@ -69,8 +83,10 @@ public class StageConverter extends DataConverter<StageNotificationDTO> {
             attributes.put("fingerprint", currentRevision.getMaterial().getFingerprint());
             List<StageNotificationDTO.ModificationDTO> modifications = new ArrayList<>();
             for (Modification modification : currentRevision.getModifications()) {
-                modifications.add(new StageNotificationDTO.ModificationDTO(modification.getRevision(),
-                        DateUtil.dateToString(modification.getModifiedTime()), modification.getAdditionalDataMap()));
+                modifications.add(new StageNotificationDTO.ModificationDTO(
+                    modification.getRevision(),
+                    Dates.formatIso8601UtcCompactOffsetWithMillis(modification.getModifiedTime()),
+                    modification.getAdditionalDataMap()));
             }
             revisions.add(new StageNotificationDTO.MaterialRevisionDTO(attributes, currentRevision.isChanged(), modifications));
         }

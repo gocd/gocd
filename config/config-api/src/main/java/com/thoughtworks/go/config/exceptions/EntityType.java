@@ -111,6 +111,10 @@ public enum EntityType {
         return format("%s %s '%s' was not found!", capitalize(this.entityType), this.nameOrId.descriptor, id);
     }
 
+    public String notFoundMessage(EntityType lookupBy, String id) {
+        return format("%s (lookup by %s %s '%s') was not found!", capitalize(this.entityType), capitalize(lookupBy.entityType), lookupBy.nameOrId.descriptor, id);
+    }
+
     public String notFoundMessage(long id) {
         return notFoundMessage(String.valueOf(id));
     }

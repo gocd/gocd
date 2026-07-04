@@ -21,7 +21,7 @@ import com.thoughtworks.go.domain.PipelineState;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.service.StubGoCache;
 import com.thoughtworks.go.server.transaction.SqlMapClientTemplate;
@@ -107,7 +107,7 @@ public class PipelineStateDaoCachingTest {
     public void lockPipeline_ShouldSavePipelineStateAndInvalidateCache() {
         final List<TransactionSynchronizationAdapter> transactionSynchronizationAdapters = new ArrayList<>();
         doAnswer(invocation -> {
-            TransactionSynchronizationAdapter adapter= (TransactionSynchronizationAdapter) invocation.getArguments()[0];
+            TransactionSynchronizationAdapter adapter = invocation.getArgument(0);
             transactionSynchronizationAdapters.add(adapter);
             return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any());
@@ -140,7 +140,7 @@ public class PipelineStateDaoCachingTest {
     public void unlockPipeline_shouldSavePipelineStateAndInvalidateCache() {
         final List<TransactionSynchronizationAdapter> transactionSynchronizationAdapters = new ArrayList<>();
         doAnswer(invocation -> {
-            TransactionSynchronizationAdapter adapter= (TransactionSynchronizationAdapter) invocation.getArguments()[0];
+            TransactionSynchronizationAdapter adapter = invocation.getArgument(0);
             transactionSynchronizationAdapters.add(adapter);
             return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any());
@@ -163,7 +163,7 @@ public class PipelineStateDaoCachingTest {
 
     private void setupTransactionTemplate(List<TransactionSynchronizationAdapter> transactionSynchronizationAdapters) {
         when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
-            org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
+            org.springframework.transaction.support.TransactionCallbackWithoutResult callback = invocation.getArgument(0);
             callback.doInTransaction(new SimpleTransactionStatus());
             for (TransactionSynchronizationAdapter synchronizationAdapter : transactionSynchronizationAdapters) {
                 synchronizationAdapter.afterCommit();

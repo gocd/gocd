@@ -17,37 +17,44 @@
 package com.thoughtworks.go.apiv1.internaldependencypipelines
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.config.*
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig
 import com.thoughtworks.go.helper.PipelineConfigMother
-import com.thoughtworks.go.server.service.GoConfigService
+import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.NormalUserSecurity
+import com.thoughtworks.go.spark.PipelineAccessSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.util.SystemEnvironment
+import com.thoughtworks.go.spark.TemplateViewUserSecurity
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
+import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.when
 
 @MockitoSettings(strictness = Strictness.LENIENT)
 class InternalDependencyPipelinesControllerV1Test implements SecurityServiceTrait, ControllerTrait<InternalDependencyPipelinesControllerV1> {
-  @Mock
-  GoConfigService goConfigService
-
 
   @Override
   InternalDependencyPipelinesControllerV1 createControllerInstance() {
-    new InternalDependencyPipelinesControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), new SystemEnvironment(), goConfigService)
+    new InternalDependencyPipelinesControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), goConfigService)
   }
 
   @Nested
   class Index {
     @Nested
-    class Security implements SecurityTestTrait, NormalUserSecurity {
+    class PipelineSecurity implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate SecurityServiceTrait s = InternalDependencyPipelinesControllerV1Test.this
+      @Delegate ControllerTrait<InternalDependencyPipelinesControllerV1> c = InternalDependencyPipelinesControllerV1Test.this
+
+      @BeforeEach
+      void setUp() {
+        when(goConfigService.hasPipelineNamed(any(CaseInsensitiveString.class))).thenReturn(true)
+      }
 
       @Override
       String getControllerMethodUnderTest() {
@@ -56,50 +63,125 @@ class InternalDependencyPipelinesControllerV1Test implements SecurityServiceTrai
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(path('pipeline', 'stage'))
+        getWithApiHeader(path('pipeline1', 'stage1'))
+      }
+
+      @Override
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: 'pipeline1')
+      }
+    }
+
+    @Nested
+    class TemplateSecurity implements SecurityTestTrait, TemplateViewUserSecurity {
+      @Delegate SecurityServiceTrait s = InternalDependencyPipelinesControllerV1Test.this
+      @Delegate ControllerTrait<InternalDependencyPipelinesControllerV1> c = InternalDependencyPipelinesControllerV1Test.this
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "index"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(path('template1', 'stage1') + '?template=true')
       }
     }
   }
 
-  @Test
-  void 'should return pipeline auto suggestions'() {
-    def config = new BasicCruiseConfig()
-    config.addPipeline("first", PipelineConfigMother.pipelineConfig("pipeline1"))
-    when(goConfigService.getMergedConfigForEditing()).thenReturn(config)
+  @Nested
+  class AsNormalUser {
+    @BeforeEach
+    void setUp() {
+      loginAsPipelineViewUser(groupName: "first", pipelineName: "pipeline1")
+      when(goConfigService.hasPipelineNamed(any(CaseInsensitiveString.class))).thenReturn(true)
+    }
 
-    getWithApiHeader(path('pipeline1', 'stage'))
+    @Test
+    void 'should return pipeline auto suggestions'() {
+      def config = new BasicCruiseConfig()
+      config.addPipeline("first", PipelineConfigMother.pipelineConfig("pipeline1"))
+      when(goConfigService.getMergedConfigForEditing()).thenReturn(config)
 
-    assertThatResponse()
-      .isOk()
-      .hasJsonBody('{' +
-      '  "pipeline1": {' +
-      '    "mingle": {}' +
-      '  },' +
-      '  "": {' +
-      '    "mingle": {}' +
-      '  }' +
-      '}')
+      getWithApiHeader(path('pipeline1', 'stage'))
+
+      assertThatResponse()
+        .isOk()
+        .hasJsonBody([
+          "pipeline1": ["mingle": [:]],
+          ""         : ["mingle": [:]]
+        ])
+    }
+
+    @Test
+    void 'should filter out upstream pipelines the user cannot view'() {
+      def upstream = PipelineConfigMother.pipelineConfig("upstream")
+      def downstream = PipelineConfigMother.pipelineConfig("downstream")
+      downstream.addMaterialConfig(new DependencyMaterialConfig(cis("upstream"), cis("mingle")))
+
+      def config = new BasicCruiseConfig()
+      config.addPipeline("first", upstream)
+      config.addPipeline("first", downstream)
+      when(goConfigService.getMergedConfigForEditing()).thenReturn(config)
+      when(securityService.hasViewPermissionForPipeline(any(Username.class), anyString())).thenReturn(false)
+      when(securityService.hasViewPermissionForPipeline(any(Username.class), eq("downstream"))).thenReturn(true)
+
+      getWithApiHeader(path('downstream', 'stage'))
+
+      assertThatResponse()
+        .isOk()
+        .hasJsonBody([
+          "downstream": ["mingle": [:]],
+          ""          : ["mingle": [:]]
+        ])
+    }
   }
 
-  @Test
-  void 'should return template auto suggestions'() {
-    def config = new BasicCruiseConfig()
-    config.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("template1"), new StageConfig(new CaseInsensitiveString("stage1"), new JobConfigs())))
-    config.addPipeline("first", PipelineConfigMother.pipelineConfig("pipeline1"))
-    when(goConfigService.getMergedConfigForEditing()).thenReturn(config)
+  @Nested
+  class AsTemplateAdmin {
+    @BeforeEach
+    void setUp() {
+      loginAsTemplateAdmin()
+      when(securityService.hasViewPermissionForPipeline(any(Username.class), anyString())).thenReturn(true)
+    }
 
-    getWithApiHeader(path('template1', 'stage1') + '?template=true')
+    @Test
+    void 'should return template auto suggestions'() {
+      def config = new BasicCruiseConfig()
+      config.addTemplate(new PipelineTemplateConfig(cis("template1"), new StageConfig(cis("stage1"), new JobConfigs())))
+      config.addPipeline("first", PipelineConfigMother.pipelineConfig("pipeline1"))
+      when(goConfigService.getMergedConfigForEditing()).thenReturn(config)
 
-    assertThatResponse()
-      .isOk()
-      .hasJsonBody('{' +
-      '  "pipeline1": {' +
-      '    "mingle": {}' +
-      '  }' +
-      '}')
+      getWithApiHeader(path('template1', 'stage1') + '?template=true')
+
+      assertThatResponse()
+        .isOk()
+        .hasJsonBody([
+          "pipeline1": ["mingle": [:]]
+        ])
+    }
+
+    @Test
+    void 'should filter out non-viewable pipelines from template auto suggestions'() {
+      def config = new BasicCruiseConfig()
+      config.addTemplate(new PipelineTemplateConfig(cis("template1"), new StageConfig(cis("stage1"), new JobConfigs())))
+      config.addPipeline("visible", PipelineConfigMother.pipelineConfig("visible"))
+      config.addPipeline("hidden", PipelineConfigMother.pipelineConfig("hidden"))
+      when(goConfigService.getMergedConfigForEditing()).thenReturn(config)
+      when(securityService.hasViewPermissionForPipeline(any(Username.class), anyString())).thenReturn(false)
+      when(securityService.hasViewPermissionForPipeline(any(Username.class), eq("visible"))).thenReturn(true)
+
+      getWithApiHeader(path('template1', 'stage1') + '?template=true')
+
+      assertThatResponse()
+        .isOk()
+        .hasJsonBody([
+          "visible": ["mingle": [:]]
+        ])
+    }
   }
 
   String path(String name, String stageName) {
-    return controller.controllerBasePath().replaceAll(":pipeline_name", name).replaceAll(':stage_name', stageName)
+    return controller.controllerBasePath().replace(":pipeline_name", name).replace(':stage_name', stageName)
   }
 }

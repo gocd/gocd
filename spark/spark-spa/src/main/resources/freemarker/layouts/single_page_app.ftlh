@@ -44,7 +44,7 @@
 <body id="${controllerName}-page"
       data-controller-name="${controllerName}"
       data-is-user-admin="${securityService.isUserAdmin(currentUser)?c}"
-      data-can-user-view-admin="${securityService.canViewAdminPage(currentUser)?c}"
+      data-can-user-view-admin="${securityService.canViewSomeAdminPage(currentUser)?c}"
       data-is-user-group-admin="${securityService.isUserGroupAdmin(currentUser)?c}"
       data-can-user-view-templates="${securityService.isAuthorizedToViewTemplates(currentUser)?c}"
       data-show-analytics-dashboard="${showAnalyticsDashboard?c}"

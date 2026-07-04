@@ -34,7 +34,8 @@ A lot of useful information like links to user documentation, design documentati
 These organisations kindly provide resources that support the development of GoCD.
 
 <a href="https://www.thoughtworks.com/insights/topic/open-source"><img src="https://www.thoughtworks.com/etc.clientlibs/thoughtworks/clientlibs/clientlib-site/resources/images/thoughtworks-logo.svg" alt="Thoughtworks logo." height="45" margin="25"/></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href="https://jb.gg/OpenSource"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg" alt="JetBrains logo. Copyright © JetBrains s.r.o. JetBrains and the JetBrains logo are trwademarks of JetBrains s.r.o." height="50"/></a>
+<a href="https://jb.gg/OpenSource"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg" alt="JetBrains logo. Copyright © JetBrains s.r.o. JetBrains and the JetBrains logo are trwademarks of JetBrains s.r.o." height="50"/></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="https://www.tanukisoftware.com/en/products"><img src="https://www.tanukisoftware.com/common/images/tanukiLogoLight.png" alt="Tanuki Software logo" height="45" margin="25"/></a>
 
 ## License
 

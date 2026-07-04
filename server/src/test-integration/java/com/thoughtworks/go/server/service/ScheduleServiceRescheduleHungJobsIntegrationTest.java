@@ -25,7 +25,7 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
@@ -50,8 +50,8 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
-import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -109,7 +109,7 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
     public void shouldNotRescheduleCancelledBuilds() {
         String agentId = "uuid";
         final Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, modifySomeFiles(evolveConfig), new DefaultSchedulingContext(
-                DEFAULT_APPROVED_BY), "md5-test", new TimeProvider());
+            APPROVER_AUTOMATICALLY_TRIGGERED), "md5-test", new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline);
         buildAssignmentService.assignWorkToAgent(agent(new Agent(agentId)));
 
@@ -133,7 +133,7 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
         AgentInstance instance = agent(agent);
         BuildCause buildCause = modifySomeFiles(evolveConfig);
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
-        Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, buildCause, new DefaultSchedulingContext(DEFAULT_APPROVED_BY), "md5-test", new TimeProvider());
+        Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, buildCause, new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), "md5-test", new TimeProvider());
         buildAssignmentService.onTimer();
 
         Stage stage = pipeline.getFirstStage();

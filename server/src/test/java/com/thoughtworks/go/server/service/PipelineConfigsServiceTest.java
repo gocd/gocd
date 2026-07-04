@@ -39,6 +39,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -61,7 +62,7 @@ public class PipelineConfigsServiceTest {
 
     @BeforeEach
     public void setUp() {
-        validUser = new Username(new CaseInsensitiveString("validUser"));
+        validUser = new Username(cis("validUser"));
         service = new PipelineConfigsService(ConfigElementImplementationRegistryMother.withNoPlugins(), goConfigService, securityService, entityHashingService);
         result = new HttpLocalizedOperationResult();
 
@@ -100,7 +101,7 @@ public class PipelineConfigsServiceTest {
     @Test
     public void shouldReturnUnauthorizedResultWhenUserIsNotAuthorizedToViewGroup_onGetXml() {
         String groupName = "some-secret-group";
-        Username invalidUser = new Username(new CaseInsensitiveString("invalidUser"));
+        Username invalidUser = new Username(cis("invalidUser"));
         when(securityService.isUserAdminOfGroup(invalidUser.getUsername(), groupName)).thenReturn(false);
 
         String actual = service.getXml(groupName, invalidUser, result);
@@ -176,7 +177,7 @@ public class PipelineConfigsServiceTest {
     @Test
     public void shouldReturnUnauthorizedResultWhenUserIsNotAuthorizedToViewGroup_onUpdateXml() throws Exception {
         String groupName = "some-secret-group";
-        Username invalidUser = new Username(new CaseInsensitiveString("invalidUser"));
+        Username invalidUser = new Username(cis("invalidUser"));
         when(securityService.isUserAdminOfGroup(invalidUser.getUsername(), groupName)).thenReturn(false);
 
         GoConfigOperationalResponse<PipelineConfigs> actual = service.updateXml(groupName, "", "md5", invalidUser, result);

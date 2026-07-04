@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.accessToken;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenter;
@@ -38,12 +38,12 @@ import java.util.Arrays;
 import java.util.List;
 
 abstract class AbstractUserAccessTokenControllerV1 extends ApiController implements SparkSpringController {
-    protected final ApiAuthenticationHelper apiAuthenticationHelper;
+    protected final ApiAuthorizationHelper apiAuthorizationHelper;
     protected AccessTokenService accessTokenService;
 
-    public AbstractUserAccessTokenControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, AccessTokenService AccessTokenService) {
+    public AbstractUserAccessTokenControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, AccessTokenService AccessTokenService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.accessTokenService = AccessTokenService;
     }
 

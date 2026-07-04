@@ -118,10 +118,11 @@ public class ConsoleActivityMonitor {
 
     private void addJobHungWarning(JobIdentifier jobIdentifier, Duration difference, LogMessages messages) {
         String namespacedJob = format("%s/%s/%s", jobIdentifier.getPipelineName(), jobIdentifier.getStageName(), jobIdentifier.getBuildName());
-        serverHealthService.update(ServerHealthState.warningWithHtml(
-                format("Job '%s' is not responding", namespacedJob),
-                messages.hungWarningMessage(jobIdentifier.buildLocator(), namespacedJob, difference),
-                HealthStateType.general(forJob(jobIdentifier.getPipelineName(), jobIdentifier.getStageName(), jobIdentifier.getBuildName()))));
+        serverHealthService.update(ServerHealthState.warningUnsafeHtml(
+            format("Job '%s' is not responding", namespacedJob),
+            messages.hungWarningHtml(jobIdentifier.buildLocator(), namespacedJob, difference),
+            HealthStateType.general(forJob(jobIdentifier.getPipelineName(), jobIdentifier.getStageName(), jobIdentifier.getBuildName())))
+        );
     }
 
     private void removeHungJobWarning(JobIdentifier jobIdentifier) {
@@ -139,7 +140,7 @@ public class ConsoleActivityMonitor {
     private interface LogMessages {
         String consoleMessage(Duration difference);
 
-        String hungWarningMessage(String buildLocator, String namespacedJob, Duration difference);
+        String hungWarningHtml(String buildLocator, String namespacedJob, Duration difference);
     }
 
     private LogMessages scheduledJobMessages() {
@@ -150,8 +151,10 @@ public class ConsoleActivityMonitor {
             }
 
             @Override
-            public String hungWarningMessage(String buildLocator, String namespacedJob, Duration difference) {
-                return format("Job <a href='/go/tab/build/detail/%s'>%s</a> is currently running but it has not been assigned an agent in the last %s minute(s). This job may be hung.", buildLocator, namespacedJob, difference.toMinutes());
+            public String hungWarningHtml(String buildLocator, String namespacedJob, Duration difference) {
+                return format("Job <a href='/go/tab/build/detail/%s'>%s</a> is currently running but it has not been assigned an agent in the last %s minute(s). This job may be hung.",
+                    buildLocator, namespacedJob, difference.toMinutes()
+                );
             }
         };
     }
@@ -164,8 +167,10 @@ public class ConsoleActivityMonitor {
             }
 
             @Override
-            public String hungWarningMessage(String buildLocator, String namespacedJob, Duration difference) {
-                return format("Job <a href='/go/tab/build/detail/%s'>%s</a> is currently running but has not shown any console activity in the last %s minute(s). This job may be hung.", buildLocator, namespacedJob, difference.toMinutes());
+            public String hungWarningHtml(String buildLocator, String namespacedJob, Duration difference) {
+                return format("Job <a href='/go/tab/build/detail/%s'>%s</a> is currently running but has not shown any console activity in the last %s minute(s). This job may be hung.",
+                    buildLocator, namespacedJob, difference.toMinutes()
+                );
             }
         };
     }

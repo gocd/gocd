@@ -30,6 +30,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.ArtifactUtil.PLUGGABLE_ARTIFACT_METADATA_FOLDER;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
@@ -50,8 +51,8 @@ public class FetchTaskBuilder implements TaskBuilder<AbstractFetchTask> {
         final Builder cancelBuilder = builderFactory.builderFor(task.cancelTask(), pipeline, resolver);
         final ChecksumFileHandler checksumHandler = getChecksumHandler(task, pipeline.getName());
 
-        if (task instanceof FetchTask) {
-            return createFetchTaskBuilder((FetchTask) task, pipeline, fetchFrom, cancelBuilder, checksumHandler);
+        if (task instanceof FetchTask fetchTask) {
+            return createFetchTaskBuilder(fetchTask, pipeline, fetchFrom, cancelBuilder, checksumHandler);
         } else {
             return createPluggableFetchTaskBuilder((FetchPluggableArtifactTask) task, pipeline, fetchFrom, cancelBuilder, checksumHandler);
         }
@@ -103,8 +104,8 @@ public class FetchTaskBuilder implements TaskBuilder<AbstractFetchTask> {
         PathFromAncestor pipelineNamePathFromAncestor = task.getPipelineNamePathFromAncestor();
         if (pipelineNamePathFromAncestor == null
                 || CaseInsensitiveString.isEmpty(pipelineNamePathFromAncestor.getPath())
-                || new CaseInsensitiveString(currentPipeline.getName()).equals(pipelineNamePathFromAncestor.getPath())) {
-            task.setPipelineName(new CaseInsensitiveString(currentPipeline.getName()));
+                || cis(currentPipeline.getName()).equals(pipelineNamePathFromAncestor.getPath())) {
+            task.setPipelineName(cis(currentPipeline.getName()));
 
             String stageCounter = JobIdentifier.LATEST;
             if (currentPipeline.hasStageBeenRun(CaseInsensitiveString.str(task.getStage()))) {
@@ -136,7 +137,7 @@ public class FetchTaskBuilder implements TaskBuilder<AbstractFetchTask> {
             }
 
             String stageCounter = JobIdentifier.LATEST;
-            if (task.getStage().equals(new CaseInsensitiveString(revision.getStageName()))) {
+            if (task.getStage().equals(cis(revision.getStageName()))) {
                 stageCounter = String.valueOf(revision.getStageCounter());
             }
             return new JobIdentifier(new StageIdentifier(CaseInsensitiveString.str(pipelineNamePathFromAncestor.getAncestorName()), revision.getPipelineCounter(), revision.getPipelineLabel(),

@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -44,7 +45,7 @@ public class ParamConfigTest {
     public void shouldValidateName() {
         ParamConfig paramConfig = new ParamConfig();
         ValidationContext validationContext = mock(ValidationContext.class);
-        when(validationContext.getPipeline()).thenReturn(new PipelineConfig(new CaseInsensitiveString("p"), null));
+        when(validationContext.getPipeline()).thenReturn(new PipelineConfig(cis("p"), null));
         paramConfig.validateName(new HashMap<>(), validationContext);
         assertThat(paramConfig.errors().firstErrorOn(ParamConfig.NAME)).isEqualTo("Parameter cannot have an empty name for pipeline 'p'.");
     }

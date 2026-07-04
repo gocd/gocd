@@ -21,9 +21,7 @@ import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
-import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -591,7 +589,7 @@ public class GoFileConfigDataSource {
     }
 
     private ConfigModifyingUser getConfigUpdatingUser(UpdateConfigCommand updatingCommand) {
-        return updatingCommand instanceof UserAware ? ((UserAware) updatingCommand).user() : new ConfigModifyingUser();
+        return updatingCommand instanceof UserAware userAware ? userAware.user() : new ConfigModifyingUser();
     }
 
     private String getUnmergedConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder, List<PartialConfig> partials) throws IOException, JDOMException {

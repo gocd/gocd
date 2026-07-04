@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.XmlUtils;
 import org.jdom2.Element;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +74,7 @@ public class GoConfigMigration {
     }
 
     public String upgradeIfNecessary(String content) {
-        return upgrade(content, getCurrentSchemaVersion(content));
+        return upgrade(content, getCurrentSchemaVersion(content), GoConfigSchema.VERSION);
     }
 
     private void backup(File configFile, File backupFile) throws IOException {
@@ -86,12 +86,8 @@ public class GoConfigMigration {
         return new File(configFile + ".invalid." + BACKUP_FILE_FORMATTER.format(timeProvider.currentTime().atZone(ZoneId.systemDefault())));
     }
 
-    private String upgrade(String content, int currentVersion) {
-        int targetVersion = GoConfigSchema.currentSchemaVersion();
-        return upgrade(content, currentVersion, targetVersion);
-    }
-
-    public String upgrade(String content, int currentVersion, int targetVersion) {
+    @VisibleForTesting
+    String upgrade(String content, int currentVersion, int targetVersion) {
         LOG.info("Upgrading config file from version {} to version {}", currentVersion, targetVersion);
         List<URL> upgradeScripts = upgradeScripts(currentVersion, targetVersion);
 

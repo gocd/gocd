@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -88,7 +89,7 @@ public class RoleConfigServiceTest {
 
     @Test
     public void create_shouldIgnoreValidationForGoCDRole() {
-        RoleConfig role = new RoleConfig(new CaseInsensitiveString("operate"));
+        RoleConfig role = new RoleConfig(cis("operate"));
 
         roleConfigService.create(null, role, null);
 
@@ -128,7 +129,7 @@ public class RoleConfigServiceTest {
 
     @Test
     public void update_shouldIgnoreValidationForGoCDRole() {
-        RoleConfig role = new RoleConfig(new CaseInsensitiveString("operate"));
+        RoleConfig role = new RoleConfig(cis("operate"));
 
         roleConfigService.update(null, "md5", role, null);
 
@@ -198,14 +199,14 @@ public class RoleConfigServiceTest {
         Username bob = new Username("Bob");
         Username john = new Username("John");
 
-        RoleConfig role1 = new RoleConfig(new CaseInsensitiveString("role1"));
+        RoleConfig role1 = new RoleConfig(cis("role1"));
         role1.addUser(new RoleUser(bob.getUsername()));
         role1.addUser(new RoleUser(john.getUsername()));
 
-        RoleConfig role2 = new RoleConfig(new CaseInsensitiveString("role2"));
+        RoleConfig role2 = new RoleConfig(cis("role2"));
         role2.addUser(new RoleUser(bob.getUsername()));
 
-        RoleConfig role3 = new RoleConfig(new CaseInsensitiveString("role3"));
+        RoleConfig role3 = new RoleConfig(cis("role3"));
         role3.addUser(new RoleUser(john.getUsername()));
 
         cruiseConfig.server().security().addRole(role1);

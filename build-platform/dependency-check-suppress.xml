@@ -46,6 +46,9 @@
     <cve>CVE-2023-20861</cve>
     <cve>CVE-2023-20863</cve>
     <cve>CVE-2024-38808</cve>
+    <cve>CVE-2026-41849</cve>
+    <cve>CVE-2026-41850</cve>
+    <cve>CVE-2026-41851</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
@@ -55,7 +58,7 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
     <cve>CVE-2022-22968</cve>
-    <cve>CVE-2024-38820</cve>
+    <cve>CVE-2024-38820</cve> <!-- trivy only -->
     <cve>CVE-2024-38827</cve>
     <cve>CVE-2025-22233</cve>
   </suppress>
@@ -101,16 +104,54 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-    According to https://spring.io/security/cve-2026-22741 and https://spring.io/security/cve-2026-22745 these issues
-    only affects serving of static resources via spring-web/webflux. GoCD does not server static assets from the
-    filesystem via Spring Web resource handler mechanisms (it uses Jetty for static assets alongside custom handlers for
-    artifact downloading.
+    According to https://spring.io/security/cve-2026-22741, https://spring.io/security/cve-2026-22745 and
+    https://spring.io/security/cve-2026-41841 these issues only affects serving of static resources via spring-web/webflux.
+    GoCD does not serve static assets from the filesystem via Spring Web resource handler mechanisms (it uses Jetty for
+    static assets alongside custom handlers for artifact downloading.
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
     <cve>CVE-2026-22741</cve>
     <cve>CVE-2026-22745</cve>
+    <cve>CVE-2026-41841</cve>
+    <cve>CVE-2026-41842</cve>
   </suppress>
-  
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not appear to configure any `/**` mappings within its configuration, so does not appear to be vulnerable to
+    as required to exploit https://spring.io/security/cve-2026-41844
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <cve>CVE-2026-41844</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not use parse/use JSPs, so is not vulnerable to the issues with `JavaScriptUtils.javaScriptEscape`
+    or JSP Form tags as described in https://spring.io/security/cve-2026-41845 and https://spring.io/security/cve-2026-41846
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <cve>CVE-2026-41845</cve>
+    <cve>CVE-2026-41846</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    It is not believed that there any way within GoCD for a user to supply patterns that will end up in AntPathMatchers
+    as required to exploit https://spring.io/security/cve-2026-41848
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <cve>CVE-2026-41848</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    While GoCD does use spring-web for multipart request upload handling, it is allowed only from agent-specific APIs
+    for artifact uploading which are specially authenticated/authorized. It may be vulnerable to the issue described at
+    https://spring.io/security/cve-2026-41853 however its impact is extremely limited and would require agent breach or
+    masquerading to exploit, and is likely not a realistic attack vector without much more serious breaches. Additionally,
+    it requires an external WAF, and allows only WAF bypass. Risk is likely to be zero to minimal.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <cve>CVE-2026-41853</cve>
+  </suppress>
+
   <suppress>
     <notes><![CDATA[
     GoCD does not appear to parse/use ETags off Spring Framework endpoints. While it does use
@@ -166,6 +207,22 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
+    According to https://spring.io/security/cve-2023-20862 this affects 5.7 but not "earlier unsupported versions" so there is no
+    reason to believe it affects Spring Security 4.x and thus seems an OSSIndex false positive.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(web|config)@4.*$</packageUrl>
+    <cve>CVE-2023-20862</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    According to https://spring.io/security/cve-2024-22257 this only affects applications that use AuthenticatedVoter which
+    GoCD does not use.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-core@4.*$</packageUrl>
+    <cve>CVE-2024-22257</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
     After review of https://spring.io/security/cve-2026-22732 it doesn't appear GoCD is affected by this issue. It
     only seems to happen in cases where Spring Framework writes content length headers early and directly to the response
     (without buffering in HttpHeaders as in earlier versions), and Spring Security is needed to write headers directly
@@ -190,14 +247,6 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-    False positive as GoCD does authenticate with X.509 certificates via Spring; and seems to be for 7.0+ only in any case,
-    so 4.x is not affected.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@.*$</packageUrl>
-    <vulnerabilityName>CVE-2026-22747</vulnerabilityName>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
     False positive as GoCD does not use OAuth2 Token validation via NimbusJwtDecoder
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@.*$</packageUrl>
@@ -205,19 +254,19 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-    According to https://spring.io/security/cve-2023-20862 this affects 5.7 but not "earlier unsupported versions" so there is no
-    reason to believe it affects Spring Security 4.x and thus seems an OSSIndex false positive.
+    False positive as the Cookie*RequestCache does not seem to existing in earlier versions of Spring, as required by the
+    issue described at https://spring.io/security/cve-2026-41706
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(web|config)@4.*$</packageUrl>
-    <vulnerabilityName>CVE-2023-20862</vulnerabilityName>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@.*$</packageUrl>
+    <cve>CVE-2026-41706</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
-    According to https://spring.io/security/cve-2024-22257 this only affects applications that use AuthenticatedVoter which
-    GoCD does not use.
+    False positive as GoCD does authenticate with X.509 certificates via Spring, as seemingly required by
+    https://spring.io/security/cve-2026-47838
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-core@4.*$</packageUrl>
-    <cve>CVE-2024-22257</cve>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@.*$</packageUrl>
+    <cve>CVE-2026-47838</cve>
   </suppress>
 
   <suppress>
@@ -310,6 +359,16 @@
     <cve>CVE-2025-4949</cve>
   </suppress>
 
+  <suppress until="2026-07-07">
+    <notes><![CDATA[
+    Only affects 3.1.0+ according to maintainer at https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-5jmj-h7xm-6q6v
+    however there is some debate over affected versions, https://github.com/FasterXML/jackson-databind/pull/5964
+    No fix available for now, so suppressing for a week.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson-databind@2\..*$</packageUrl>
+    <vulnerabilityName>CVE-2026-54515</vulnerabilityName>
+  </suppress>
+
   <suppress>
     <notes><![CDATA[
     GoCD does not seem to be vulnerable to these issues as it does not use Angular in a vulnerable way.
@@ -327,7 +386,6 @@
     <cve>CVE-2023-26118</cve>
     <cve>CVE-2024-8373</cve>
     <cve>CVE-2025-0716</cve>
-    <cve>CVE-2025-2336</cve>
     <cve>CVE-2025-4690</cve>
     <vulnerabilityName>GHSA-28hp-fgcr-2r4h</vulnerabilityName>
     <vulnerabilityName>GHSA-5cp4-xmrw-59wf</vulnerabilityName>
@@ -358,9 +416,9 @@
   <!-- Suppression rules for dependencies only visible after a ./gradlew prepare (yarn install / bundle install / tw-go-plugins bundled download -->
   <suppress>
     <notes><![CDATA[
-    Suppress false positive vulnerabilities from test/documentation code that sits inside Javascript node_modules
+    Suppress false positive vulnerabilities from dev/test/documentation code that sits inside Javascript node_modules or vendored node_modules
     ]]></notes>
-    <filePath regex="true">^.*/node_modules/.*/(test|tests|docs)/.*\.js$</filePath>
+    <filePath regex="true">^.*/(node_modules/.*/tests?/|webpack/vendors-node_modules).*\.js$</filePath>
     <vulnerabilityName regex="true">.*</vulnerabilityName>
   </suppress>
 
@@ -374,19 +432,41 @@
 
   <suppress>
     <notes><![CDATA[
-    Suppress false positive from nokogiri-java via embedded xercesImpl-2.12.2.jar which claims the somewhat vaguely defined possible
-    threading deadlock at https://nvd.nist.gov/vuln/detail/CVE-2017-10355 This doesn't appear to be legitimately tagged or exploitable
-    based on conversation at https://github.com/jeremylong/DependencyCheck/issues/4614  
+    Suppress false positive from nokogiri. GoCD does not use Ruby/nokogiri to validate docs against HTML schemas, so
+    is not vulnerable to https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-8678-w3jw-xfc2
+    ]]></notes>
+    <packageUrl regex="true">^pkg:gem/nokogiri@.*$</packageUrl>
+    <cve>CVE-2026-57234</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    Suppress false positives from nokogiri which only affect CRuby; not JRuby.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:gem/nokogiri@.*$</packageUrl>
+    <cve>CVE-2026-57235</cve>
+    <cve>CVE-2026-57236</cve>
+    <cve>CVE-2026-57434</cve>
+    <cve>CVE-2026-57435</cve>
+    <cve>CVE-2026-57436</cve>
+    <cve>CVE-2026-57437</cve>
+    <cve>CVE-2026-57438</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    Suppress false positives from nokogiri-java via embedded xercesImpl-2.12.2.jar which claim something specify to JBoss
+    at https://nvd.nist.gov/vuln/detail/CVE-2017-7503 and a somewhat vaguely defined possible threading deadlock at
+    https://nvd.nist.gov/vuln/detail/CVE-2017-10355 that doesn't appear to be legitimately tagged or exploitable based
+    on conversation at https://github.com/dependency-check/DependencyCheck/issues/4614
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/xerces/xercesImpl@.*$</packageUrl>
+    <vulnerabilityName>CVE-2017-7503</vulnerabilityName>
     <vulnerabilityName>CVE-2017-10355</vulnerabilityName>
   </suppress>
-
   <suppress>
     <notes><![CDATA[
     Suppress false positives from nokogiri-java via embedded neko-htmlunit-2.63.0.jar pending https://github.com/sparklemotion/nokogiri/issues/2565
     and corresponding release of nokogiri. The issues highlighted here appear to affect only htmlunit, not neko-htmlunit however
-    due to them sharing a CPE are grouped here. https://github.com/jeremylong/DependencyCheck/issues/5656#issuecomment-1846504862 has
+    due to them sharing a CPE are grouped here. https://github.com/dependency-check/DependencyCheck/issues/5656#issuecomment-1846504862 has
     an assessment so GoCD is not believed to be affected by the suppressed CVEs, even if it did use nokogiri via JRuby to parse malicious HTML
     which it is understood it does not.
     ]]></notes>
@@ -404,19 +484,6 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/jline/jline@2\..*$</packageUrl>
     <cve>CVE-2023-50572</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-    Suppress false positives from Bouncy Castle 1.79 as included within jruby-stdlib 9.4.14.0. The affected parts of Bouncy Castle do not appear to be used/relevant to
-    JRuby or GoCD, so these are almost certainly false positives. https://www.bouncycastle.org/download/bouncy-castle-java/?filter=java%3Drelease-1-84
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.bouncycastle/bc(pkix|prov)-jdk18on@.*$</packageUrl>
-    <cve>CVE-2025-14813</cve>
-    <cve>CVE-2026-0636</cve>
-    <cve>CVE-2026-3505</cve>
-    <cve>CVE-2026-5588</cve>
-    <cve>CVE-2026-5598</cve>
   </suppress>
 
   <suppress>

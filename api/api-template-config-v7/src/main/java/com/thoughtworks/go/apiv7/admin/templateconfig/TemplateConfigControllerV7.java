@@ -21,11 +21,12 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv7.admin.templateconfig.representers.ParametersRepresenter;
 import com.thoughtworks.go.apiv7.admin.templateconfig.representers.TemplateConfigRepresenter;
 import com.thoughtworks.go.apiv7.admin.templateconfig.representers.TemplatesConfigRepresenter;
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ParamsConfig;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.config.TemplateToPipelines;
@@ -42,9 +43,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
+import spark.route.HttpMethod;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
@@ -54,14 +57,14 @@ import static spark.Spark.*;
 public class TemplateConfigControllerV7 extends ApiController implements SparkSpringController, CrudController<PipelineTemplateConfig> {
 
     private final TemplateConfigService templateConfigService;
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final EntityHashingService entityHashingService;
 
     @Autowired
-    public TemplateConfigControllerV7(TemplateConfigService templateConfigService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService) {
+    public TemplateConfigControllerV7(TemplateConfigService templateConfigService, ApiAuthorizationHelper apiAuthorizationHelper, EntityHashingService entityHashingService) {
         super(ApiVersion.v7);
         this.templateConfigService = templateConfigService;
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.entityHashingService = entityHashingService;
     }
 
@@ -103,11 +106,11 @@ public class TemplateConfigControllerV7 extends ApiController implements SparkSp
             before("/*", mimeType, this::setContentType);
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
-            before("", mimeType, onlyOn(apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403, "POST"));
-            before("", mimeType, onlyOn(apiAuthenticationHelper::checkIsAllowedToSeeAnyTemplates403, "GET", "HEAD"));
-            before(Routes.PipelineTemplateConfig.NAME, mimeType, onlyOn(apiAuthenticationHelper::checkViewAccessToTemplateAnd403, "GET", "HEAD"));
-            before(Routes.PipelineTemplateConfig.NAME, mimeType, onlyOn(apiAuthenticationHelper::checkAdminOrTemplateAdminAnd403, "PUT", "PATCH", "DELETE"));
-            before(Routes.PipelineTemplateConfig.PARAMETERS, mimeType, apiAuthenticationHelper::checkViewAccessToTemplateAnd403);
+            before("", mimeType, onlyOn(apiAuthorizationHelper::checkAnyPipelineGroupAdminUserAnd403, HttpMethod.post));
+            before("", mimeType, onlyOn(apiAuthorizationHelper::checkAnyTemplateViewUserAnd403, HttpMethod.get, HttpMethod.head));
+            before(Routes.PipelineTemplateConfig.NAME, mimeType, onlyOn(apiAuthorizationHelper::checkViewAccessToTemplateAnd403, HttpMethod.get, HttpMethod.head));
+            before(Routes.PipelineTemplateConfig.NAME, mimeType, onlyOn(apiAuthorizationHelper::checkAdminOrTemplateAdminAnd403, HttpMethod.put, HttpMethod.patch, HttpMethod.delete));
+            before(Routes.PipelineTemplateConfig.PARAMETERS, mimeType, apiAuthorizationHelper::checkViewAccessToTemplateAnd403);
 
             get("", mimeType, this::index);
             post("", mimeType, this::create);
@@ -193,10 +196,13 @@ public class TemplateConfigControllerV7 extends ApiController implements SparkSp
 
 
     private void haltIfEntityBySameNameInRequestExists(PipelineTemplateConfig templateConfig, HttpLocalizedOperationResult result) {
-        if (templateConfigService.loadForView(templateConfig.name().toString(), result) == null) {
+        CaseInsensitiveString name = Optional.ofNullable(templateConfig.name())
+            .orElseThrow(() -> haltBecauseOfReason("Template name must be specified for creating a template."));
+
+        if (templateConfigService.loadForView(name.toString(), result) == null) {
             return;
         }
-        templateConfig.addError("name", EntityType.Template.alreadyExists(templateConfig.name()));
-        throw haltBecauseEntityAlreadyExists(jsonWriter(templateConfig), "template", templateConfig.name());
+        templateConfig.addError("name", EntityType.Template.alreadyExists(name));
+        throw haltBecauseEntityAlreadyExists(jsonWriter(templateConfig), "template", name);
     }
 }

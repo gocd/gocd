@@ -16,8 +16,8 @@
 package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.security.Permissions;
-import com.thoughtworks.go.config.security.permissions.EveryonePermission;
-import com.thoughtworks.go.config.security.users.Everyone;
+import com.thoughtworks.go.config.security.permissions.PipelinePermission;
+import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
 import com.thoughtworks.go.util.SystemTimeClock;
@@ -30,7 +30,7 @@ public class GoDashboardPipelineMother {
     }
 
     public static GoDashboardPipeline pipeline(String pipelineName, String groupName) {
-        Permissions permissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE);
+        Permissions permissions = new Permissions(Users.EVERYONE, Users.EVERYONE, Users.EVERYONE, PipelinePermission.EVERYONE);
         return pipeline(pipelineName, groupName, permissions);
     }
 

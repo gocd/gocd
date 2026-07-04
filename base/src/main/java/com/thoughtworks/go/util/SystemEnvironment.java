@@ -40,12 +40,13 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String CRUISE_LISTEN_HOST = "cruise.listen.host";
     public static final String CRUISE_SERVER_PORT = "cruise.server.port";
 
-    private static final String JETTY_XML = "jetty.xml";
     public static final String CRUISE_SERVER_WAR_PROPERTY = "cruise.server.war";
 
     public static final String CRUISE_CONFIG_REPO_DIR = "cruise.config.repo.dir";
     public static final String DB_BASE_DIR = "db/";
     private static final String CONFIG_REPO_DEFAULT_PATH = DB_BASE_DIR + "config.git";
+
+    public static final String WEBAPP_CONTEXT_PATH = "/go";
 
     public static final String ACTIVEMQ_USE_JMX = "activemq.use.jmx";
     public static final String ACTIVEMQ_QUEUE_PREFETCH = "activemq.queue.prefetch";
@@ -76,7 +77,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String CONSOLE_PUBLISH_INTERVAL_SECONDS = "cruise.console.publish.interval";
 
 
-    public static final String SERVICE_URL = "serviceUrl";
     public static final String AGENT_SSL_VERIFICATION_MODE = "sslVerificationMode";
     public static final String AGENT_ROOT_CERT_FILE = "rootCertFile";
     public static final String AGENT_PRIVATE_KEY = "sslPrivateKeyFile";
@@ -96,6 +96,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String TFS_SOCKET_TIMEOUT_PROPERTY = "tfs.socket.block.timeout";
 
     static final String UNRESPONSIVE_JOB_WARNING_THRESHOLD = "cruise.unresponsive.job.warning";
+
+    public static final GoSystemProperty<String> SERVICE_URL = new CachedProperty<>(new GoStringSystemProperty("serviceUrl", "https://localhost:8153" + WEBAPP_CONTEXT_PATH));
 
     public static final int DEFAULT_MAIL_SENDER_TIMEOUT_IN_MILLIS = (int) SECONDS.toMillis(60);
     private static final GoSystemProperty<Integer> MAIL_SENDER_TIMEOUT_IN_MILLIS = new GoIntSystemProperty("cruise.mail.sender.timeout", DEFAULT_MAIL_SENDER_TIMEOUT_IN_MILLIS);
@@ -131,14 +133,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final GoSystemProperty<Integer> GO_SERVER_AUTHORIZATION_EXTENSION_CALLS_CACHE_TIMEOUT_IN_SECONDS = new GoIntSystemProperty("go.server.authorization.extension.calls.cache.timeout.in.secs", 60);
 
-    public static final GoSystemProperty<String> JETTY_XML_FILE_NAME = new GoStringSystemProperty("jetty.xml.file.name", JETTY_XML);
+    public static final GoSystemProperty<String> JETTY_XML_FILE_NAME = new GoStringSystemProperty("jetty.xml.file.name", "jetty.xml");
 
-    public static final String JETTY = "com.thoughtworks.go.server.JettyServer";
-    public static final GoSystemProperty<String> APP_SERVER = new CachedProperty<>(new GoStringSystemProperty("app.server", JETTY));
+    public static final GoSystemProperty<String> APP_SERVER = new CachedProperty<>(new GoStringSystemProperty("app.server", "com.thoughtworks.go.server.JettyServer"));
     public static final GoSystemProperty<String> GO_LANDING_PAGE = new GoStringSystemProperty("go.landing.page", "/pipelines");
-
-    public static final GoSystemProperty<Boolean> FETCH_ARTIFACT_AUTO_SUGGEST = new GoBooleanSystemProperty("go.fetch-artifact.auto-suggest", true);
-    public static final GoSystemProperty<Boolean> GO_FETCH_ARTIFACT_TEMPLATE_AUTO_SUGGEST = new GoBooleanSystemProperty("go.fetch-artifact.template.auto-suggest", true);
 
     public static final GoSystemProperty<Boolean> GO_CONFIG_REPO_GC_AGGRESSIVE = new GoBooleanSystemProperty("go.config.repo.gc.aggressive", true);
     public static final GoSystemProperty<Long> GO_CONFIG_REPO_GC_EXPIRE_IN_HOURS = new GoLongSystemProperty("go.config.repo.gc.expire", 24L);
@@ -178,7 +176,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     private static final GoSystemProperty<Boolean> ENABLE_ANALYTICS_ONLY_FOR_ADMINS = new GoBooleanSystemProperty("go.enable.analytics.only.for.admins", false);
     public static final GoSystemProperty<Long> NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS = new GoLongSystemProperty("plugins.notification.message.ttl.millis", MINUTES.toMillis(2));
-    public static final GoSystemProperty<Boolean> ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP = new GoBooleanSystemProperty("allow.everyone.to.view.operate.groups.with.no.authorization.setup", false);
 
     public static final GoSystemProperty<Boolean> ENABLE_HSTS_HEADER = new GoBooleanSystemProperty("gocd.enable.hsts.header", false);
     public static final GoSystemProperty<Long> HSTS_HEADER_MAX_AGE_IN_SECONDS = new GoLongSystemProperty("gocd.hsts.header.max.age", DAYS.toSeconds(365));
@@ -196,11 +193,12 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         System.getenv("GIT_ALLOW_PROTOCOL") == null ? "http:https:ssh:git:file:rsync" : System.getenv("GIT_ALLOW_PROTOCOL")
     );
 
-    private volatile static Integer agentConnectionTimeout;
+    private volatile static Duration agentConnectionTimeout;
     private volatile static String cruiseConfigDir;
-    private volatile static Long databaseFullSizeLimit;
     private volatile static Charset consoleLogCharset;
-    private volatile static Long artifactFullSizeLimit;
+
+    private volatile static Long databaseFullSizeLimitMegabytes;
+    private volatile static Long artifactFullSizeLimitMegabytes;
     private volatile static Long diskSpaceCacheRefresherInterval;
 
     private Properties properties;
@@ -212,6 +210,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public SystemEnvironment(Properties properties) {
         this.properties = properties;
+    }
+
+    public static String getNormalizedServiceUrl() {
+        return UrlUtil.normalizeUrlString(SERVICE_URL.getValue());
     }
 
     public <T> @NotNull T get(@NotNull GoSystemProperty<T> systemProperty) {
@@ -257,14 +259,14 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return get(MAIL_SENDER_TIMEOUT_IN_MILLIS);
     }
 
-    public long getArtifactRepositoryFullLimit() {
-        return Objects.requireNonNullElseGet(artifactFullSizeLimit,
-            () -> artifactFullSizeLimit = Long.valueOf(trimMegaFromSize(getPropertyImpl(ARTIFACT_FULL_SIZE_LIMIT, "100M"))));
+    public long getArtifactRepositoryFullLimitMegabytes() {
+        return Objects.requireNonNullElseGet(artifactFullSizeLimitMegabytes,
+            () -> artifactFullSizeLimitMegabytes = Long.valueOf(trimMegaFromSize(getPropertyImpl(ARTIFACT_FULL_SIZE_LIMIT, "100M"))));
     }
 
-    public long getDatabaseDiskSpaceFullLimit() {
-        return Objects.requireNonNullElseGet(databaseFullSizeLimit,
-            () -> databaseFullSizeLimit = Long.valueOf(trimMegaFromSize(getPropertyImpl(DATABASE_FULL_SIZE_LIMIT, "100M"))));
+    public long getDatabaseDiskSpaceFullLimitMegabytes() {
+        return Objects.requireNonNullElseGet(databaseFullSizeLimitMegabytes,
+            () -> databaseFullSizeLimitMegabytes = Long.valueOf(trimMegaFromSize(getPropertyImpl(DATABASE_FULL_SIZE_LIMIT, "100M"))));
     }
 
     public long getDiskSpaceCacheRefresherInterval() {
@@ -281,15 +283,15 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         diskSpaceCacheRefresherInterval = interval;
     }
 
-    public long getAgentSizeLimit() {
+    public long getAgentSizeLimitBytes() {
         return Long.parseLong(trimMegaFromSize(getPropertyImpl(AGENT_SIZE_LIMIT, "100M"))) * 1024 * 1024;
     }
 
-    public long getArtifactRepositoryWarningLimit() {
+    public long getArtifactRepositoryWarningLimitMegabytes() {
         return Long.parseLong(trimMegaFromSize(getPropertyImpl(ARTIFACT_WARNING_SIZE_LIMIT, "1024M")));
     }
 
-    public long getDatabaseDiskSpaceWarningLimit() {
+    public long getDatabaseDiskSpaceWarningLimitMegabytes() {
         return Long.parseLong(trimMegaFromSize(getPropertyImpl(DATABASE_WARNING_SIZE_LIMIT, "1024M")));
     }
 
@@ -404,17 +406,13 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return getPropertyImpl(CONFIG_FILE_PROPERTY, getConfigDir() + "/cruise-config.xml");
     }
 
-    public int getAgentConnectionTimeout() {
+    public Duration getAgentConnectionTimeout() {
         return Objects.requireNonNullElseGet(agentConnectionTimeout,
-            () -> agentConnectionTimeout = Integer.valueOf(getPropertyImpl(AGENT_CONNECTION_TIMEOUT_IN_SECONDS, "300")));
+            () -> agentConnectionTimeout = Duration.ofSeconds(Long.parseLong(getPropertyImpl(AGENT_CONNECTION_TIMEOUT_IN_SECONDS, "300"))));
     }
 
     public Integer getConsolePublishIntervalSeconds() {
         return Integer.valueOf(getPropertyImpl(CONSOLE_PUBLISH_INTERVAL_SECONDS, "10"));
-    }
-
-    public String getServiceUrl() {
-        return getPropertyImpl(SERVICE_URL, defaultRemotingUrl());
     }
 
     public File getRootCertFile() {
@@ -446,16 +444,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
 
-    public SslVerificationMode getAgentSslVerificationMode() {
-        if (getPropertyImpl(AGENT_SSL_VERIFICATION_MODE) == null) {
-            return SslVerificationMode.NONE;
-        }
-        return SslVerificationMode.valueOf(getPropertyImpl(AGENT_SSL_VERIFICATION_MODE));
-    }
-
-
-    private String defaultRemotingUrl() {
-        return "https://localhost:8153" + getWebappContextPath();
+    public @NotNull String getAgentSslVerificationMode() {
+        return getPropertyImpl(AGENT_SSL_VERIFICATION_MODE, "NONE");
     }
 
     public boolean useCompressedJs() {
@@ -479,17 +469,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private void clearCachedSystemEnvironment() {
         agentConnectionTimeout = null;
         cruiseConfigDir = null;
-        databaseFullSizeLimit = null;
-        artifactFullSizeLimit = null;
+        databaseFullSizeLimitMegabytes = null;
+        artifactFullSizeLimitMegabytes = null;
         consoleLogCharset = null;
-    }
-
-    public String getWebappContextPath() {
-        return getPropertyImpl("cruise.server.context", "/go");
-    }
-
-    public String pathFor(String appPath) {
-        return (getWebappContextPath() + "/" + appPath).replaceAll("//", "/");
     }
 
     public String getCruiseWar() {
@@ -544,13 +526,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return MATERIAL_UPDATE_IDLE_INTERVAL_IN_MILLIS.getValue();
     }
 
-    public String landingPage() {
-        return GO_LANDING_PAGE.getValue();
-    }
-
-
-    public boolean isFetchArtifactTemplateAutoSuggestEnabled() {
-        return GO_FETCH_ARTIFACT_TEMPLATE_AUTO_SUGGEST.getValue();
+    public String getLandingPage() {
+        return UrlUtil.joinPathPartsPreEncoded(WEBAPP_CONTEXT_PATH, GO_LANDING_PAGE.getValue());
     }
 
     public boolean isAutoRegisterLocalAgentEnabled() {
@@ -571,10 +548,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public boolean isSessionCookieSecure() {
         return GO_SERVER_SESSION_COOKIE_SECURE.getValue();
-    }
-
-    public boolean isProductionMode() {
-        return GO_SERVER_MODE.getValue().equalsIgnoreCase("production");
     }
 
     public boolean isReAuthenticationEnabled() {

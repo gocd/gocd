@@ -22,22 +22,10 @@ describe "admin/configuration/split_pane.html.erb" do
     allow(view).to receive(:config_view_path).and_return("config_view_path")
     allow(view).to receive(:config_update_path).and_return('config_update_path')
   end
-
-  it "should render heading" do
-    assign(:conflicted_config, GoConfig.new({"content" => 'conflicted-content', "md5" => 'conflict-md5', "location" => "path_to_config_xml"}))
-    assign(:go_config, GoConfig.new({"content" => 'current-content', "md5" => 'current-md5', "location" => "path_to_config_xml"}))
-
-    render
-
-    Capybara.string(response.body).find('div.heading').tap do |div|
-      expect(div).to have_selector("span", :text => "Configuration File Path:")
-      expect(div).to have_selector("span", :text => "path_to_config_xml")
-    end
-  end
-
+  
   it "should render view" do
-    assign(:conflicted_config, GoConfig.new({"content" => 'conflicted-content', "md5" => 'conflict-md5', "location" => "path_to_config_xml"}))
-    assign(:go_config, GoConfig.new({"content" => 'current-content', "md5" => 'current-md5', "location" => "path_to_config_xml"}))
+    assign(:conflicted_config, GoConfig.new(content: 'conflicted-content', md5: 'conflict-md5'))
+    assign(:go_config, GoConfig.new(content: 'current-content', md5: 'current-md5'))
     date = java.util.Date.new(1366866649)
     difference = "#{time_ago_in_words(date.to_string)} #{'ago'}"
     cruise_config_revision = double("cruise config revision")
@@ -67,15 +55,15 @@ describe "admin/configuration/split_pane.html.erb" do
             end
           end
           expect(current_content).to have_selector("input[type='hidden'][name='go_config[md5]'][value='current-md5']", visible: :hidden)
-          expect(current_content).to have_selector("textarea#content[name='go_config[content]'][data-config-url='/go/api/admin/config/current-md5.xml']")
+          expect(current_content).to have_selector("textarea#content[name='go_config[content]']", visible: :hidden)
         end
       end
     end
   end
 
   it "should not bomb when no time stamp for current revision exists" do
-    assign(:conflicted_config, GoConfig.new({"content" => 'conflicted-content', "md5" => 'conflict-md5', "location" => "path_to_config_xml"}))
-    assign(:go_config, GoConfig.new({"content" => 'current-content', "md5" => 'current-md5', "location" => "path_to_config_xml"}))
+    assign(:conflicted_config, GoConfig.new(content: 'conflicted-content', md5: 'conflict-md5'))
+    assign(:go_config, GoConfig.new(content: 'current-content', md5: 'current-md5'))
     assign(:go_config_revision, nil)
 
     render
@@ -84,8 +72,8 @@ describe "admin/configuration/split_pane.html.erb" do
   end
 
   it "should show global errors in case of config save failure" do
-    assign(:conflicted_config, GoConfig.new({"content" => 'conflicted-content', "md5" => 'conflict-md5', "location" => "path_to_config_xml"}))
-    assign(:go_config, GoConfig.new({"content" => 'current-content', "md5" => 'current-md5', "location" => "path_to_config_xml"}))
+    assign(:conflicted_config, GoConfig.new(content: 'conflicted-content', md5: 'conflict-md5'))
+    assign(:go_config, GoConfig.new(content: 'current-content', md5: 'current-md5'))
     assign(:errors, ['some error that has happened', 'more lines'])
 
     render

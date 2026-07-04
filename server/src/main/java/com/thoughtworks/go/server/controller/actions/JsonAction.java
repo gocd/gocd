@@ -19,8 +19,7 @@ import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.server.web.GoRequestContext;
 import com.thoughtworks.go.server.web.JsonRenderer;
 import com.thoughtworks.go.server.web.JsonView;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.apache.http.HttpHeaders;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 
@@ -28,50 +27,33 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_JSON;
-import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET_JSON;
+import static com.thoughtworks.go.util.json.JsonAware.ERROR_KEY;
 import static java.net.HttpURLConnection.*;
 
 public class JsonAction implements RestfulAction {
+    public static final String CONTENT_TYPE = "application/json; charset=utf-8";
+    private static final String CACHE_CONTROL_CLEAR = "max-age=1, no-cache";
+
     private final int status;
-    private final Object json;
+    private final Object jsonSerializable;
 
-    public static JsonAction from(ServerHealthState serverHealthState) {
-        if (serverHealthState.isSuccess()) {
-            return jsonCreated(new LinkedHashMap<>());
-        }
-
-        Map<String, Object> jsonLog = new LinkedHashMap<>();
-        jsonLog.put(ERROR_FOR_JSON, serverHealthState.getDescription());
-        return new JsonAction(serverHealthState.getType().getHttpCode(), jsonLog);
+    public static JsonAction jsonFound(Object jsonSerializable) {
+        return new JsonAction(HTTP_OK, jsonSerializable);
     }
 
-    public static JsonAction jsonCreated(Object json) {
-        return new JsonAction(HTTP_CREATED, json);
-    }
-
-    public static JsonAction jsonFound(Object json) {
-        return new JsonAction(HTTP_OK, json);
-    }
-
-    public static JsonAction jsonNotAcceptable(Object json) {
-        return new JsonAction(HTTP_NOT_ACCEPTABLE, json);
-    }
-
-    public static JsonAction jsonForbidden() {
-        return new JsonAction(HTTP_FORBIDDEN, new LinkedHashMap<>());
+    public static JsonAction jsonNotAcceptable(String message) {
+        return new JsonAction(HTTP_NOT_ACCEPTABLE, Map.of(ERROR_KEY, message));
     }
 
     public static JsonAction jsonForbidden(String message) {
-        return new JsonAction(HTTP_FORBIDDEN, JsonView.getSimpleAjaxResult(ERROR_FOR_JSON, message));
+        return new JsonAction(HTTP_FORBIDDEN, Map.of(ERROR_KEY, message));
     }
 
-    public static JsonAction jsonBadRequest(Object json) {
-        return new JsonAction(HTTP_BAD_REQUEST, json);
+    public static JsonAction jsonBadRequest(String message) {
+        return new JsonAction(HTTP_BAD_REQUEST, Map.of(ERROR_KEY, message));
     }
 
     public static JsonAction jsonNotFound(Object json) {
@@ -88,33 +70,31 @@ public class JsonAction implements RestfulAction {
 
     @Override
     public ModelAndView respond(HttpServletResponse response) {
-        return new JsonModelAndView(response, json, status);
+        return new JsonModelAndView(response, jsonSerializable, status);
     }
 
-    private JsonAction(int status, Object json) {
+    private JsonAction(int status, Object jsonSerializable) {
         this.status = status;
-        this.json = json;
+        this.jsonSerializable = jsonSerializable;
     }
 
     public ModelAndView createView() {
-        SimpleJsonView view = new SimpleJsonView(status, json);
-        return new ModelAndView(view, JsonView.asMap(json));
+        SimpleJsonView view = new SimpleJsonView(status, jsonSerializable);
+        return new ModelAndView(view, JsonView.asMap(jsonSerializable));
     }
 
-    private static final String CLEAR_CACHE = "max-age=1, no-cache";
-
-    public static class SimpleJsonView implements View {
+    private static class SimpleJsonView implements View {
         private final int status;
-        private final Object json;
+        private final Object jsonSerializable;
 
-        public SimpleJsonView(int status, Object json) {
+        private SimpleJsonView(int status, Object jsonSerializable) {
             this.status = status;
-            this.json = json;
+            this.jsonSerializable = jsonSerializable;
         }
 
         @Override
         public String getContentType() {
-            return RESPONSE_CHARSET_JSON;
+            return CONTENT_TYPE;
         }
 
         @Override
@@ -124,11 +104,11 @@ public class JsonAction implements RestfulAction {
             // If any other pages need to clear the cache, we might want to move this
             // logic to an interceptor.
             GoRequestContext goRequestContext = new GoRequestContext(request);
-            response.addHeader(HttpHeaders.CACHE_CONTROL, CLEAR_CACHE);
+            response.addHeader(HttpHeaders.CACHE_CONTROL, CACHE_CONTROL_CLEAR);
             response.setStatus(status);
             response.setContentType(getContentType());
             try (PrintWriter writer = response.getWriter()) {
-                JsonRenderer.render(json, goRequestContext, writer);
+                JsonRenderer.render(jsonSerializable, goRequestContext, writer);
             }
         }
     }
@@ -145,9 +125,9 @@ public class JsonAction implements RestfulAction {
             // This will force the browser to clear the cache only for this page.
             // If any other pages need to clear the cache, we might want to move this
             // logic to an interceptor.
-            response.addHeader(HttpHeaders.CACHE_CONTROL, CLEAR_CACHE);
+            response.addHeader(HttpHeaders.CACHE_CONTROL, CACHE_CONTROL_CLEAR);
             response.setStatus(status);
-            response.setContentType(RESPONSE_CHARSET_JSON);
+            response.setContentType(CONTENT_TYPE);
         }
     }
 }

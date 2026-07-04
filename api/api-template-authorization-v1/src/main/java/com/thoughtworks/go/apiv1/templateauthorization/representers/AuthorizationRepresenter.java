@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
@@ -86,7 +87,7 @@ public class AuthorizationRepresenter {
     }
 
     private static void populateConfig(AdminsConfig config, JsonReader jsonReader) {
-        jsonReader.readArrayIfPresent("users", users -> users.forEach(user -> config.add(new AdminUser(new CaseInsensitiveString(user.getAsString())))));
-        jsonReader.readArrayIfPresent("roles", roles -> roles.forEach(role -> config.add(new AdminRole(new CaseInsensitiveString(role.getAsString())))));
+        jsonReader.readArrayIfPresent("users", users -> users.forEach(user -> config.add(new AdminUser(cis(user.getAsString())))));
+        jsonReader.readArrayIfPresent("roles", roles -> roles.forEach(role -> config.add(new AdminRole(cis(role.getAsString())))));
     }
 }

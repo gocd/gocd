@@ -20,7 +20,7 @@ class StagesController < ApplicationController
   include StagesHelper
   include SparkUrlAware
 
-  STAGE_DETAIL_ACTIONS = [:overview, :materials, :jobs, :rerun_jobs, :stats, :stats_iframe, :stage_config]
+  STAGE_DETAIL_ACTIONS = [:overview, :materials, :jobs, :rerun_jobs, :stats, :stats_iframe]
   BASE_TIME = Time.parse("00:00:00")
   STAGE_DURATION_RANGE = 300
   layout "pipelines", :only => STAGE_DETAIL_ACTIONS
@@ -85,11 +85,6 @@ class StagesController < ApplicationController
 
 
     render layout: nil
-  end
-
-  def stage_config
-    @ran_with_config_revision = go_config_service.getConfigAtVersion(@stage.getStage().getConfigVersion())
-    render_stage
   end
 
   def materials
@@ -185,7 +180,7 @@ class StagesController < ApplicationController
   end
 
   def date_range(stage_summary_models)
-    [Dates::formatToSimpleDate(stage_summary_models.last.getStage().scheduledDate()), Dates::formatToSimpleDate(stage_summary_models.first.getStage().scheduledDate())]
+    [Dates.formatToSimpleDate(stage_summary_models.last.getStage().scheduledDate()), Dates.formatToSimpleDate(stage_summary_models.first.getStage().scheduledDate())]
   end
 
   def can_view_settings?

@@ -16,7 +16,10 @@
 package com.thoughtworks.go.apiv3.rolesconfig.representers
 
 import com.thoughtworks.go.apiv3.rolesconfig.models.RolesViewModel
-import com.thoughtworks.go.config.*
+import com.thoughtworks.go.config.PluginRoleConfig
+import com.thoughtworks.go.config.RoleConfig
+import com.thoughtworks.go.config.RoleUser
+import com.thoughtworks.go.config.RolesConfig
 import com.thoughtworks.go.domain.config.ConfigurationKey
 import com.thoughtworks.go.domain.config.ConfigurationProperty
 import com.thoughtworks.go.domain.config.ConfigurationValue
@@ -24,12 +27,13 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class RolesViewModelRepresenterTest {
   private final PluginRoleConfig pluginRoleConfig = new PluginRoleConfig("blackbird", "ldap", new ConfigurationProperty(new ConfigurationKey("abc"), new ConfigurationValue("def")))
 
-  private final RoleConfig goCDRoleConfig = new RoleConfig(new CaseInsensitiveString("admins"), new RoleUser("bob"))
+  private final RoleConfig goCDRoleConfig = new RoleConfig(cis("admins"), new RoleUser("bob"))
 
   @Test
   void 'should serialize into json'() {

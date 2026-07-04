@@ -38,7 +38,6 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.GoConstants;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -135,7 +134,7 @@ public class JobControllerIntegrationTest {
             controller.jobDetail(pipelineFixture.pipelineName, "1", pipelineFixture.devStage, "1", "invalid-job");
         } catch (Exception e) {
             ModelAndView modelAndView = controller.handle(request, response, e);
-            assertThat((String) modelAndView.getModel().get(GoConstants.ERROR_FOR_PAGE)).contains("invalid-job not found");
+            assertThat((String) modelAndView.getModel().get(ExceptionsPage.ERROR_MESSAGE_KEY)).contains("invalid-job not found");
         }
     }
 

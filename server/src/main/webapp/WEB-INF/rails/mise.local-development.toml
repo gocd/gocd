@@ -1,3 +1,3 @@
 # Configuration for https://mise.jdx.dev/ as an alternative to asdf, jabba, sdkman, rvm, nvm etc
 [tools]
-"ruby" = "jruby-9.4.14.0"
+"ruby" = "jruby-9.4.15.0"

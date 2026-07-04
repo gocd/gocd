@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.OMNIPRESENT_AGENT;
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environments;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
@@ -91,9 +92,9 @@ class EnvironmentConfigServiceTest {
     void shouldGetEditablePartOfEnvironmentConfig() {
         String uat = "uat";
 
-        BasicEnvironmentConfig local = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
+        BasicEnvironmentConfig local = new BasicEnvironmentConfig(cis("uat"));
         local.addEnvironmentVariable("user", "admin");
-        BasicEnvironmentConfig remote = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
+        BasicEnvironmentConfig remote = new BasicEnvironmentConfig(cis("uat"));
         remote.addEnvironmentVariable("foo", "bar");
         MergeEnvironmentConfig merged = new MergeEnvironmentConfig(local, remote);
 
@@ -116,9 +117,9 @@ class EnvironmentConfigServiceTest {
     void shouldReturnAllTheLocalEnvironments() {
         String uat = "uat";
 
-        BasicEnvironmentConfig local = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
+        BasicEnvironmentConfig local = new BasicEnvironmentConfig(cis("uat"));
         local.addEnvironmentVariable("user", "admin");
-        BasicEnvironmentConfig remote = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
+        BasicEnvironmentConfig remote = new BasicEnvironmentConfig(cis("uat"));
         remote.addEnvironmentVariable("foo", "bar");
         MergeEnvironmentConfig merged = new MergeEnvironmentConfig(local, remote);
 
@@ -143,8 +144,8 @@ class EnvironmentConfigServiceTest {
     void shouldReturnAllTheMergedEnvironments() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         CruiseConfig config = new BasicCruiseConfig();
-        BasicEnvironmentConfig env = new BasicEnvironmentConfig(new CaseInsensitiveString("foo"));
-        env.addPipeline(new CaseInsensitiveString("bar"));
+        BasicEnvironmentConfig env = new BasicEnvironmentConfig(cis("foo"));
+        env.addPipeline(cis("bar"));
         env.addAgent("baz");
         env.addEnvironmentVariable("quux", "bang");
         EnvironmentsConfig environments = config.getEnvironments();
@@ -206,9 +207,9 @@ class EnvironmentConfigServiceTest {
         when(agentService.getAgentByUUID("uat-agent")).thenReturn(agentUnderEnv);
         when(agentService.getAgentByUUID(OMNIPRESENT_AGENT)).thenReturn(omnipresentAgent);
 
-        assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline")).size()).isEqualTo(2);
-        assertTrue(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline")).contains(agentUnderEnv));
-        assertTrue(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline")).contains(omnipresentAgent));
+        assertThat(environmentConfigService.agentsForPipeline(cis("uat-pipeline")).size()).isEqualTo(2);
+        assertTrue(environmentConfigService.agentsForPipeline(cis("uat-pipeline")).contains(agentUnderEnv));
+        assertTrue(environmentConfigService.agentsForPipeline(cis("uat-pipeline")).contains(omnipresentAgent));
     }
 
     @Test
@@ -222,8 +223,8 @@ class EnvironmentConfigServiceTest {
         when(agentService.agents()).thenReturn(agents);
 
 
-        assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("no-env-pipeline")).size()).isEqualTo(1);
-        assertTrue(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("no-env-pipeline")).contains(noEnvAgent));
+        assertThat(environmentConfigService.agentsForPipeline(cis("no-env-pipeline")).size()).isEqualTo(1);
+        assertTrue(environmentConfigService.agentsForPipeline(cis("no-env-pipeline")).contains(noEnvAgent));
     }
 
     @Test
@@ -257,16 +258,16 @@ class EnvironmentConfigServiceTest {
 
         List<EnvironmentConfig> envsForAgent = environmentConfigService.getAgentEnvironments("uat-agent");
         assertThat(envsForAgent.size()).isEqualTo(1);
-        assertTrue(envsForAgent.contains(envConfigs.named(new CaseInsensitiveString("uat"))));
+        assertTrue(envsForAgent.contains(envConfigs.named(cis("uat"))));
 
         envsForAgent = environmentConfigService.getAgentEnvironments("prod-agent");
         assertThat(envsForAgent.size()).isEqualTo(1);
-        assertTrue(envsForAgent.contains(envConfigs.named(new CaseInsensitiveString("prod"))));
+        assertTrue(envsForAgent.contains(envConfigs.named(cis("prod"))));
 
         envsForAgent = environmentConfigService.getAgentEnvironments(OMNIPRESENT_AGENT);
         assertThat(envsForAgent.size()).isEqualTo(2);
-        assertTrue(envsForAgent.contains(envConfigs.named(new CaseInsensitiveString("uat"))));
-        assertTrue(envsForAgent.contains(envConfigs.named(new CaseInsensitiveString("prod"))));
+        assertTrue(envsForAgent.contains(envConfigs.named(cis("uat"))));
+        assertTrue(envsForAgent.contains(envConfigs.named(cis("prod"))));
     }
 
     @Nested
@@ -275,10 +276,10 @@ class EnvironmentConfigServiceTest {
         void shouldCreateANewEnvironment() {
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
             List<String> selectedAgents = new ArrayList<>();
-            Username user = new Username(new CaseInsensitiveString("user"));
+            Username user = new Username(cis("user"));
             when(securityService.isUserAdmin(user)).thenReturn(true);
             String environmentName = "foo-environment";
-            when(mockGoConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName))).thenReturn(false);
+            when(mockGoConfigService.hasEnvironmentNamed(cis(environmentName))).thenReturn(false);
             environmentConfigService.createEnvironment(env(environmentName, new ArrayList<>(), new ArrayList<>(), selectedAgents), user, result);
 
             assertThat(result.isSuccessful()).isTrue();
@@ -287,15 +288,15 @@ class EnvironmentConfigServiceTest {
         @Test
         void shouldCreateANewEnvironmentWithAgentsAndNoPipelines() {
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            Username user = new Username(new CaseInsensitiveString("user"));
+            Username user = new Username(cis("user"));
             when(securityService.isUserAdmin(user)).thenReturn(true);
             String environmentName = "foo-environment";
-            when(mockGoConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName))).thenReturn(false);
+            when(mockGoConfigService.hasEnvironmentNamed(cis(environmentName))).thenReturn(false);
 
             environmentConfigService.createEnvironment(env(environmentName, new ArrayList<>(), new ArrayList<>(), List.of("agent-guid-1")), user, result);
 
             assertThat(result.isSuccessful()).isTrue();
-            BasicEnvironmentConfig envConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
+            BasicEnvironmentConfig envConfig = new BasicEnvironmentConfig(cis(environmentName));
             envConfig.addAgent("agent-guid-1");
         }
 
@@ -303,15 +304,15 @@ class EnvironmentConfigServiceTest {
         void shouldCreateANewEnvironmentWithEnvironmentVariables() {
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
             List<String> selectedAgents = new ArrayList<>();
-            Username user = new Username(new CaseInsensitiveString("user"));
+            Username user = new Username(cis("user"));
             when(securityService.isUserAdmin(user)).thenReturn(true);
             String environmentName = "foo-environment";
-            when(mockGoConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName))).thenReturn(false);
+            when(mockGoConfigService.hasEnvironmentNamed(cis(environmentName))).thenReturn(false);
             List<Map<String, String>> envVariables = new ArrayList<>(List.of(envVar("SHELL", "/bin/zsh"), envVar("HOME", "/home/cruise")));
             environmentConfigService.createEnvironment(env(environmentName, new ArrayList<>(), envVariables, selectedAgents), user, result);
 
             assertThat(result.isSuccessful()).isTrue();
-            BasicEnvironmentConfig expectedConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
+            BasicEnvironmentConfig expectedConfig = new BasicEnvironmentConfig(cis(environmentName));
             expectedConfig.addEnvironmentVariable("SHELL", "/bin/zsh");
             expectedConfig.addEnvironmentVariable("HOME", "/home/cruise");
         }
@@ -319,17 +320,17 @@ class EnvironmentConfigServiceTest {
         @Test
         void shouldCreateANewEnvironmentWithPipelineSelections() {
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            Username user = new Username(new CaseInsensitiveString("user"));
+            Username user = new Username(cis("user"));
             when(securityService.isUserAdmin(user)).thenReturn(true);
             String environmentName = "foo-environment";
-            when(mockGoConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName))).thenReturn(false);
+            when(mockGoConfigService.hasEnvironmentNamed(cis(environmentName))).thenReturn(false);
             List<String> selectedPipelines = List.of("first", "second");
             environmentConfigService.createEnvironment(env(environmentName, selectedPipelines, new ArrayList<>(), new ArrayList<>()), user, result);
 
             assertThat(result.isSuccessful()).isTrue();
-            BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
-            config.addPipeline(new CaseInsensitiveString("first"));
-            config.addPipeline(new CaseInsensitiveString("second"));
+            BasicEnvironmentConfig config = new BasicEnvironmentConfig(cis(environmentName));
+            config.addPipeline(cis("first"));
+            config.addPipeline(cis("second"));
         }
 
         private Map<String, String> envVar(String name, String value) {
@@ -342,7 +343,7 @@ class EnvironmentConfigServiceTest {
 
     @Test
     void getAllLocalPipelinesForUser_shouldReturnAllPipelinesToWhichAlongWithTheEnvironmentsToWhichTheyBelong() {
-        Username user = new Username(new CaseInsensitiveString("user"));
+        Username user = new Username(cis("user"));
 
         String fooPipeline = "foo";
         String barPipeline = "bar";
@@ -367,7 +368,7 @@ class EnvironmentConfigServiceTest {
 
     @Test
     void getAllLocalPipelinesForUser_shouldReturnOnlyLocalPipelines() {
-        Username user = new Username(new CaseInsensitiveString("user"));
+        Username user = new Username(cis("user"));
 
         when(mockGoConfigService.getAllLocalPipelineConfigs()).thenReturn(List.of(pipelineConfig("foo"), pipelineConfig("bar"), pipelineConfig("baz")));
 
@@ -384,7 +385,7 @@ class EnvironmentConfigServiceTest {
 
     @Test
     void getAllRemotePipelinesForUserInEnvironment_shouldReturnOnlyRemotelyAssignedPipelinesWhichUserHasPermissionToView() {
-        Username user = new Username(new CaseInsensitiveString("user"));
+        Username user = new Username(cis("user"));
 
         when(mockGoConfigService.getAllPipelineConfigs()).thenReturn(List.of(pipelineConfig("foo"), pipelineConfig("bar"), pipelineConfig("baz")));
 
@@ -393,7 +394,7 @@ class EnvironmentConfigServiceTest {
         when(securityService.hasViewPermissionForPipeline(user, "baz")).thenReturn(false);
 
         EnvironmentsConfig environmentConfigs = environmentsConfig("foo-env", "foo");
-        EnvironmentConfig fooEnv = environmentConfigs.named(new CaseInsensitiveString("foo-env"));
+        EnvironmentConfig fooEnv = environmentConfigs.named(cis("foo-env"));
         fooEnv.setOrigins(new RepoConfigOrigin());
         environmentConfigService.syncEnvironments(environmentConfigs);
         List<EnvironmentPipelineModel> pipelines = environmentConfigService.getAllRemotePipelinesForUserInEnvironment(user, fooEnv);
@@ -407,8 +408,8 @@ class EnvironmentConfigServiceTest {
     void shouldReturnEnvironmentConfigForEdit() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         CruiseConfig config = new BasicCruiseConfig();
-        BasicEnvironmentConfig env = new BasicEnvironmentConfig(new CaseInsensitiveString("foo"));
-        env.addPipeline(new CaseInsensitiveString("bar"));
+        BasicEnvironmentConfig env = new BasicEnvironmentConfig(cis("foo"));
+        env.addPipeline(cis("bar"));
         env.addAgent("baz");
         env.addEnvironmentVariable("quux", "bang");
         EnvironmentsConfig environments = config.getEnvironments();
@@ -422,8 +423,8 @@ class EnvironmentConfigServiceTest {
     @Test
     void shouldReturnResultWithMessageThatConfigWasMerged_WhenMergingEnvironmentChanges_NewUpdateEnvironmentMethod() {
         String environmentName = "env_name";
-        EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
-        Username user = new Username(new CaseInsensitiveString("user"));
+        EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(cis(environmentName));
+        Username user = new Username(cis("user"));
         environmentConfigService.syncEnvironments(environments("uat", "prod", "env_name"));
 
         when(securityService.isUserAdmin(user)).thenReturn(true);
@@ -439,8 +440,8 @@ class EnvironmentConfigServiceTest {
     @Test
     void shouldReturnResultWithMessageThatConfigisUpdated_WhenUpdatingLatestConfiguration_NewUpdateEnvironmentMethod() {
         String environmentName = "env_name";
-        EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
-        Username user = new Username(new CaseInsensitiveString("user"));
+        EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(cis(environmentName));
+        Username user = new Username(cis("user"));
 
         when(securityService.isUserAdmin(user)).thenReturn(true);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -456,8 +457,8 @@ class EnvironmentConfigServiceTest {
         String environmentName = "foo-environment";
         String pipelineName = "up42";
         environmentConfigService.syncEnvironments(environmentsConfig(environmentName, pipelineName));
-        EnvironmentConfig expectedEnvironmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
-        expectedEnvironmentConfig.addPipeline(new CaseInsensitiveString(pipelineName));
+        EnvironmentConfig expectedEnvironmentConfig = new BasicEnvironmentConfig(cis(environmentName));
+        expectedEnvironmentConfig.addPipeline(cis(pipelineName));
         assertThat(environmentConfigService.getEnvironmentConfig(environmentName)).isEqualTo(expectedEnvironmentConfig);
     }
 
@@ -490,7 +491,7 @@ class EnvironmentConfigServiceTest {
         EnvironmentConfig envConfig = environmentConfigService.find(envName);
 
         assertThat(envConfig).isNotNull();
-        assertThat(envConfig.name()).isEqualTo(new CaseInsensitiveString(envName));
+        assertThat(envConfig.name()).isEqualTo(cis(envName));
     }
 
     @Nested
@@ -518,8 +519,8 @@ class EnvironmentConfigServiceTest {
 
     private EnvironmentsConfig environmentsConfig(String envName, String pipelineName) {
         EnvironmentsConfig environments = new EnvironmentsConfig();
-        BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(envName));
-        config.addPipeline(new CaseInsensitiveString(pipelineName));
+        BasicEnvironmentConfig config = new BasicEnvironmentConfig(cis(envName));
+        config.addPipeline(cis(pipelineName));
         environments.add(config);
         return environments;
     }
@@ -619,8 +620,8 @@ class EnvironmentConfigServiceTest {
     @Test
     void shouldReturnResultWithMessageOnSuccessInPatchEnv() {
         String environmentName = "env_name";
-        EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
-        Username user = new Username(new CaseInsensitiveString("user"));
+        EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(cis(environmentName));
+        Username user = new Username(cis("user"));
         environmentConfigService.syncEnvironments(environments("uat", "prod", "env_name"));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -633,8 +634,8 @@ class EnvironmentConfigServiceTest {
     @Test
     void shouldReturnResultWithFailedMessageIfUserIsNotAuthorizedInPatchEnv() {
         String environmentName = "env_name";
-        EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
-        Username user = new Username(new CaseInsensitiveString("user"));
+        EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(cis(environmentName));
+        Username user = new Username(cis("user"));
         environmentConfigService.syncEnvironments(environments("uat", "prod", "env_name"));
 
         doThrow(ConfigUpdateCheckFailedException.class)
@@ -650,8 +651,8 @@ class EnvironmentConfigServiceTest {
     @Test
     void shouldReturnResultWithSuccessMessageOnDeleteEnv() {
         String environmentName = "env_name";
-        EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
-        Username user = new Username(new CaseInsensitiveString("user"));
+        EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(cis(environmentName));
+        Username user = new Username(cis("user"));
         environmentConfigService.syncEnvironments(environments("uat", "prod", "env_name"));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -664,8 +665,8 @@ class EnvironmentConfigServiceTest {
     @Test
     void shouldReturnResultWithFailedMessageIfUserIsNotAuthorizedToDeleteEnv() {
         String environmentName = "env_name";
-        EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
-        Username user = new Username(new CaseInsensitiveString("user"));
+        EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(cis(environmentName));
+        Username user = new Username(cis("user"));
         environmentConfigService.syncEnvironments(environments("uat", "prod", "env_name"));
 
         doThrow(ConfigUpdateCheckFailedException.class)
@@ -685,7 +686,7 @@ class EnvironmentConfigServiceTest {
             String uuid = "uuid";
             String environmentName = "foo-environment";
             EnvironmentsConfig environments = new EnvironmentsConfig();
-            BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
+            BasicEnvironmentConfig config = new BasicEnvironmentConfig(cis(environmentName));
             config.addAgent(uuid);
             environments.add(config);
             environmentConfigService.syncEnvironments(environments);
@@ -729,7 +730,7 @@ class EnvironmentConfigServiceTest {
             String uuid = "uuid";
             String environmentName = "foo-environment";
             EnvironmentsConfig environments = new EnvironmentsConfig();
-            BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
+            BasicEnvironmentConfig config = new BasicEnvironmentConfig(cis(environmentName));
             config.addAgent(uuid);
             environments.add(config);
             environmentConfigService.syncEnvironments(environments);
@@ -755,7 +756,7 @@ class EnvironmentConfigServiceTest {
         String uuid = "uuid";
         String environmentName = "foo-environment";
         EnvironmentsConfig environments = new EnvironmentsConfig();
-        BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
+        BasicEnvironmentConfig config = new BasicEnvironmentConfig(cis(environmentName));
         config.addAgent(uuid);
         environments.add(config);
         environmentConfigService.syncEnvironments(environments);
@@ -778,7 +779,7 @@ class EnvironmentConfigServiceTest {
         String uuid = "uuid";
         String environmentName = "foo-environment";
         EnvironmentsConfig environments = new EnvironmentsConfig();
-        environments.add(new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName)));
+        environments.add(new BasicEnvironmentConfig(cis(environmentName)));
         environmentConfigService.syncEnvironments(environments);
 
         EnvironmentConfig environmentConfig = environmentConfigService.getEnvironmentConfig(environmentName);
@@ -806,8 +807,8 @@ class EnvironmentConfigServiceTest {
         String envName = "foo-environment";
         String envName1 = "bar-environment";
         EnvironmentsConfig environments = new EnvironmentsConfig();
-        environments.add(new BasicEnvironmentConfig(new CaseInsensitiveString(envName)));
-        BasicEnvironmentConfig envConfig1 = new BasicEnvironmentConfig(new CaseInsensitiveString(envName1));
+        environments.add(new BasicEnvironmentConfig(cis(envName)));
+        BasicEnvironmentConfig envConfig1 = new BasicEnvironmentConfig(cis(envName1));
         envConfig1.addAgent(uuid);
         environments.add(envConfig1);
         environmentConfigService.syncEnvironments(environments);
@@ -837,8 +838,8 @@ class EnvironmentConfigServiceTest {
     @Test
     void shouldNotUpdateTheCacheIfNullIsPassedForSync() {
         EnvironmentsConfig environments = new EnvironmentsConfig();
-        environments.add(new BasicEnvironmentConfig(new CaseInsensitiveString("uat")));
-        environments.add(new BasicEnvironmentConfig(new CaseInsensitiveString("prod")));
+        environments.add(new BasicEnvironmentConfig(cis("uat")));
+        environments.add(new BasicEnvironmentConfig(cis("prod")));
 
         environmentConfigService.syncEnvironments(environments);
 
@@ -867,11 +868,11 @@ class EnvironmentConfigServiceTest {
     }
 
     private static BasicEnvironmentConfig env(String name, List<String> selectedPipelines, List<Map<String, String>> environmentVariables, List<String> selectedAgents) {
-        BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(name));
+        BasicEnvironmentConfig config = new BasicEnvironmentConfig(cis(name));
 
         if (selectedPipelines != null) {
             for (String selectedPipeline : selectedPipelines) {
-                config.addPipeline(new CaseInsensitiveString(selectedPipeline));
+                config.addPipeline(cis(selectedPipeline));
             }
         }
 

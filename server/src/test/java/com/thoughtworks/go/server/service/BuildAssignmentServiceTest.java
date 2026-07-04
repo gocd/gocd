@@ -51,6 +51,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialsMother.packageMaterial;
 import static com.thoughtworks.go.helper.MaterialsMother.pluggableSCMMaterial;
 import static com.thoughtworks.go.server.service.BuildAssignmentService.GO_AGENT_RESOURCES;
@@ -477,7 +478,7 @@ class BuildAssignmentServiceTest {
         String pipelineName = "pipeline1";
         String environmentName = "uat_environment";
 
-        when(environmentConfigService.environmentForPipeline(pipelineName)).thenReturn(new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName)));
+        when(environmentConfigService.environmentForPipeline(pipelineName)).thenReturn(new BasicEnvironmentConfig(cis(environmentName)));
         EnvironmentVariableContext context = buildAssignmentService.buildEnvVarContext(pipelineName);
 
         assertThat(context.getProperties().size()).isEqualTo(2);
@@ -490,8 +491,8 @@ class BuildAssignmentServiceTest {
         String pipelineGroupName = "pipeline-group1";
         String environmentName = "uat_environment";
 
-        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName))).thenReturn(pipelineGroupName);
-        when(environmentConfigService.environmentForPipeline(pipelineName)).thenReturn(new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName)));
+        when(goConfigService.findGroupNameByPipelineOptional(cis(pipelineName))).thenReturn(Optional.of(pipelineGroupName));
+        when(environmentConfigService.environmentForPipeline(pipelineName)).thenReturn(new BasicEnvironmentConfig(cis(environmentName)));
         EnvironmentVariableContext context = buildAssignmentService.buildEnvVarContext(pipelineName);
 
         assertThat(context.getProperties().size()).isEqualTo(2);

@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.materialsearch;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.apiv1.materialsearch.representers.MatchedRevisionRepresenter;
 import com.thoughtworks.go.domain.materials.MatchedRevision;
 import com.thoughtworks.go.server.service.MaterialService;
@@ -40,13 +40,13 @@ import static spark.Spark.*;
 public class MaterialSearchController extends ApiController implements SparkSpringController {
 
     private final MaterialService materialService;
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
 
     @Autowired
-    public MaterialSearchController(MaterialService materialService, ApiAuthenticationHelper apiAuthenticationHelper) {
+    public MaterialSearchController(MaterialService materialService, ApiAuthorizationHelper apiAuthorizationHelper) {
         super(ApiVersion.v1);
         this.materialService = materialService;
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
     }
 
     @Override
@@ -60,8 +60,8 @@ public class MaterialSearchController extends ApiController implements SparkSpri
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
-            before("/*", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
+            before("", mimeType, apiAuthorizationHelper::checkPipelineGroupOperateViaNameParamsAnd403);
+            before("/*", mimeType, apiAuthorizationHelper::checkPipelineGroupOperateViaNameParamsAnd403);
 
             get("", mimeType, this::search);
             head("", mimeType, this::search);

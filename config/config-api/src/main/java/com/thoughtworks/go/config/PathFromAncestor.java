@@ -20,6 +20,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 @ConfigAttributeValue(fieldName = "path", createForNull = false)
 public class PathFromAncestor {
     public static final String DELIMITER = "/";
@@ -30,7 +32,7 @@ public class PathFromAncestor {
     private CaseInsensitiveString cachedAncestorName;
 
     public PathFromAncestor(String path) {
-        this(new CaseInsensitiveString(path));
+        this(cis(path));
     }
 
     public PathFromAncestor(CaseInsensitiveString path) {
@@ -66,7 +68,7 @@ public class PathFromAncestor {
                 return null;
             }
             int index = stringPath.indexOf(DELIMITER);
-            cachedAncestorName = index == -1 ? path : new CaseInsensitiveString(stringPath.substring(0, index));
+            cachedAncestorName = index == -1 ? path : cis(stringPath.substring(0, index));
         }
         return cachedAncestorName;
     }
@@ -78,14 +80,14 @@ public class PathFromAncestor {
             return null;
         }
         int index = stringPath.lastIndexOf(DELIMITER);
-        return index == -1 ? path : new CaseInsensitiveString(stringPath.substring(index + 1));
+        return index == -1 ? path : cis(stringPath.substring(index + 1));
     }
 
     private List<CaseInsensitiveString> pathToAncestor(int upTill) {
         List<CaseInsensitiveString> fragments = new ArrayList<>();
         String[] allFragments = path().split(DELIMITER);
         for (int i = allFragments.length - 1; i > upTill; i--) {
-            fragments.add(new CaseInsensitiveString(allFragments[i]));
+            fragments.add(cis(allFragments[i]));
         }
         return fragments;
     }

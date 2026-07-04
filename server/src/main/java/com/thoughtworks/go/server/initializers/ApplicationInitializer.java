@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.initializers;
 
 import com.thoughtworks.go.config.CachedGoConfig;
+import com.thoughtworks.go.config.ConfigRepository;
 import com.thoughtworks.go.config.InvalidConfigMessageRemover;
 import com.thoughtworks.go.config.migration.AgentXmlToDBMigration;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
@@ -35,7 +36,6 @@ import com.thoughtworks.go.server.service.support.ResourceMonitoring;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ServletHelper;
-import com.thoughtworks.go.service.ConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -48,45 +48,85 @@ import javax.sql.DataSource;
 
 @Component
 public class ApplicationInitializer implements ApplicationListener<ContextRefreshedEvent> {
-    @Autowired private PluginsInitializer pluginsInitializer;
-    @Autowired private PluginsZip pluginsZip;
-    @Autowired private PipelineSqlMapDao pipelineSqlMapDao;
-    @Autowired private PipelineTimeline pipelineTimeline;
-    @Autowired private ConfigRepository configRepository;
-    @Autowired private InvalidConfigMessageRemover invalidConfigMessageRemover;
-    @Autowired private AgentService agentService;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private EnvironmentConfigService environmentConfigService;
-    @Autowired private DefaultPluginJarLocationMonitor defaultPluginJarLocationMonitor;
-    @Autowired private CachedGoConfig cachedGoConfig;
-    @Autowired private ConsoleActivityMonitor consoleActivityMonitor;
-    @Autowired private BuildAssignmentService buildAssignmentService;
-    @Autowired private PipelineScheduler pipelineScheduler;
-    @Autowired private TimerScheduler timerScheduler;
-    @Autowired private BackupScheduler backupScheduler;
-    @Autowired private ArtifactsDirHolder artifactsDirHolder;
-    @Autowired private MaterialUpdateService materialUpdateService;
-    @Autowired private InvalidateAuthenticationOnSecurityConfigChangeFilter invalidateAuthenticationOnSecurityConfigChangeFilter;
-    @Autowired private PipelineLockService pipelineLockService;
-    @Autowired private GoDiskSpaceMonitor goDiskSpaceMonitor;
-    @Autowired private ArtifactsService artifactsService;
-    @Autowired private ConsoleService consoleService;
-    @Autowired private ConfigElementImplementationRegistrar configElementImplementationRegistrar;
-    @Autowired private RailsAssetsService railsAssetsService;
-    @Autowired private FeatureToggleService featureToggleService;
-    @Autowired private CcTrayActivityListener ccTrayActivityListener;
-    @Autowired private GoDashboardActivityListener dashboardActivityListener;
-    @Autowired private EntityHashingService entityHashingService;
-    @Autowired private DependencyMaterialUpdateNotifier dependencyMaterialUpdateNotifier;
-    @Autowired private SCMMaterialSource scmMaterialSource;
-    @Autowired private ResourceMonitoring resourceMonitoring;
-    @Autowired private PipelineLabelCorrector pipelineLabelCorrector;
-    @Autowired private BackupService backupService;
-    @Autowired private DataSource dataSource;
-    @Autowired private RevokeStaleAccessTokenService revokeStaleAccessTokenService;
+    private final PluginsInitializer pluginsInitializer;
+    private final PluginsZip pluginsZip;
+    private final PipelineSqlMapDao pipelineSqlMapDao;
+    private final PipelineTimeline pipelineTimeline;
+    private final ConfigRepository configRepository;
+    private final InvalidConfigMessageRemover invalidConfigMessageRemover;
+    private final AgentService agentService;
+    private final GoConfigService goConfigService;
+    private final EnvironmentConfigService environmentConfigService;
+    private final DefaultPluginJarLocationMonitor defaultPluginJarLocationMonitor;
+    private final CachedGoConfig cachedGoConfig;
+    private final ConsoleActivityMonitor consoleActivityMonitor;
+    private final BuildAssignmentService buildAssignmentService;
+    private final PipelineScheduler pipelineScheduler;
+    private final TimerScheduler timerScheduler;
+    private final BackupScheduler backupScheduler;
+    private final ArtifactsDirHolder artifactsDirHolder;
+    private final MaterialUpdateService materialUpdateService;
+    private final InvalidateAuthenticationOnSecurityConfigChangeFilter invalidateAuthenticationOnSecurityConfigChangeFilter;
+    private final PipelineLockService pipelineLockService;
+    private final GoDiskSpaceMonitor goDiskSpaceMonitor;
+    private final ArtifactsService artifactsService;
+    private final ConsoleService consoleService;
+    private final ConfigElementImplementationRegistrar configElementImplementationRegistrar;
+    private final RailsAssetsService railsAssetsService;
+    private final FeatureToggleService featureToggleService;
+    private final CcTrayActivityListener ccTrayActivityListener;
+    private final GoDashboardActivityListener dashboardActivityListener;
+    private final EntityHashingService entityHashingService;
+    private final DependencyMaterialUpdateNotifier dependencyMaterialUpdateNotifier;
+    private final SCMMaterialSource scmMaterialSource;
+    private final ResourceMonitoring resourceMonitoring;
+    private final PipelineLabelCorrector pipelineLabelCorrector;
+    private final BackupService backupService;
+    private final DataSource dataSource;
+    private final RevokeStaleAccessTokenService revokeStaleAccessTokenService;
 
     @Value("${cruise.daemons.enabled}")
     private boolean daemonsEnabled;
+
+    @Autowired
+    public ApplicationInitializer(PipelineTimeline pipelineTimeline, PluginsInitializer pluginsInitializer, PluginsZip pluginsZip, ArtifactsDirHolder artifactsDirHolder, GoDashboardActivityListener dashboardActivityListener, EntityHashingService entityHashingService, CcTrayActivityListener ccTrayActivityListener, PipelineScheduler pipelineScheduler, DataSource dataSource, PipelineSqlMapDao pipelineSqlMapDao, ConfigRepository configRepository, BackupScheduler backupScheduler, TimerScheduler timerScheduler, RevokeStaleAccessTokenService revokeStaleAccessTokenService, InvalidConfigMessageRemover invalidConfigMessageRemover, AgentService agentService, ConfigElementImplementationRegistrar configElementImplementationRegistrar, MaterialUpdateService materialUpdateService, SCMMaterialSource scmMaterialSource, GoDiskSpaceMonitor goDiskSpaceMonitor, ResourceMonitoring resourceMonitoring, ConsoleService consoleService, PipelineLockService pipelineLockService, GoConfigService goConfigService, EnvironmentConfigService environmentConfigService, InvalidateAuthenticationOnSecurityConfigChangeFilter invalidateAuthenticationOnSecurityConfigChangeFilter, FeatureToggleService featureToggleService, DependencyMaterialUpdateNotifier dependencyMaterialUpdateNotifier, PipelineLabelCorrector pipelineLabelCorrector, BackupService backupService, DefaultPluginJarLocationMonitor defaultPluginJarLocationMonitor, RailsAssetsService railsAssetsService, BuildAssignmentService buildAssignmentService, ConsoleActivityMonitor consoleActivityMonitor, CachedGoConfig cachedGoConfig, ArtifactsService artifactsService) {
+        this.pipelineTimeline = pipelineTimeline;
+        this.pluginsInitializer = pluginsInitializer;
+        this.pluginsZip = pluginsZip;
+        this.artifactsDirHolder = artifactsDirHolder;
+        this.dashboardActivityListener = dashboardActivityListener;
+        this.entityHashingService = entityHashingService;
+        this.ccTrayActivityListener = ccTrayActivityListener;
+        this.pipelineScheduler = pipelineScheduler;
+        this.dataSource = dataSource;
+        this.pipelineSqlMapDao = pipelineSqlMapDao;
+        this.configRepository = configRepository;
+        this.backupScheduler = backupScheduler;
+        this.timerScheduler = timerScheduler;
+        this.revokeStaleAccessTokenService = revokeStaleAccessTokenService;
+        this.invalidConfigMessageRemover = invalidConfigMessageRemover;
+        this.agentService = agentService;
+        this.configElementImplementationRegistrar = configElementImplementationRegistrar;
+        this.materialUpdateService = materialUpdateService;
+        this.scmMaterialSource = scmMaterialSource;
+        this.goDiskSpaceMonitor = goDiskSpaceMonitor;
+        this.resourceMonitoring = resourceMonitoring;
+        this.consoleService = consoleService;
+        this.pipelineLockService = pipelineLockService;
+        this.goConfigService = goConfigService;
+        this.environmentConfigService = environmentConfigService;
+        this.invalidateAuthenticationOnSecurityConfigChangeFilter = invalidateAuthenticationOnSecurityConfigChangeFilter;
+        this.featureToggleService = featureToggleService;
+        this.dependencyMaterialUpdateNotifier = dependencyMaterialUpdateNotifier;
+        this.pipelineLabelCorrector = pipelineLabelCorrector;
+        this.backupService = backupService;
+        this.defaultPluginJarLocationMonitor = defaultPluginJarLocationMonitor;
+        this.railsAssetsService = railsAssetsService;
+        this.buildAssignmentService = buildAssignmentService;
+        this.consoleActivityMonitor = consoleActivityMonitor;
+        this.cachedGoConfig = cachedGoConfig;
+        this.artifactsService = artifactsService;
+    }
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {

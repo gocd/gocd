@@ -51,7 +51,7 @@ interface Attrs {
   readonly?: boolean;
   parentPipelineName?: string;
   showGitMaterialShallowClone?: boolean;
-  pipelineGroupName?: string;
+  pipelineGroupName: string;
 }
 
 function markAllDisabled(vnodes: m.ChildArray) {

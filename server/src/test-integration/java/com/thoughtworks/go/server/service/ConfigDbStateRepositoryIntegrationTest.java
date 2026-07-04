@@ -15,7 +15,10 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.StageArtifactCleanupProhibited;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -31,6 +34,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -95,7 +99,7 @@ public class ConfigDbStateRepositoryIntegrationTest {
         configDbStateRepository.flushConfigState();
 
         CruiseConfig cruiseConfig = configHelper.currentConfig();
-        StageConfig stageConfig = cruiseConfig.stageConfigByName(new CaseInsensitiveString("pipeline-one"), new CaseInsensitiveString("stage-one"));
+        StageConfig stageConfig = cruiseConfig.stageConfigByName(cis("pipeline-one"), cis("stage-one"));
         ReflectionUtil.setField(stageConfig, "artifactCleanupProhibited", true);
         configHelper.writeConfigFile(cruiseConfig);
 
@@ -116,7 +120,7 @@ public class ConfigDbStateRepositoryIntegrationTest {
         configDbStateRepository.flushConfigState();
 
         CruiseConfig cruiseConfig = configHelper.currentConfig();
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline-one"));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis("pipeline-one"));
         pipelineConfig.remove(1);
 
         configHelper.writeConfigFile(cruiseConfig);

@@ -49,6 +49,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.ZonedDateTime;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
@@ -110,7 +111,7 @@ class PipelineHistoryServiceTest {
             mock(TriggerMonitor.class),
             pipelineTimeline,
             pipelineUnlockService, schedulingCheckerService, pipelineLockService, pipelinePauseService);
-        config = CRUISE_CONFIG.pipelineConfigByName(new CaseInsensitiveString("pipeline"));
+        config = CRUISE_CONFIG.pipelineConfigByName(cis("pipeline"));
     }
 
     @Test
@@ -157,7 +158,7 @@ class PipelineHistoryServiceTest {
             PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(pipelineName);
             PipelineInstanceModel instanceModel = mock(PipelineInstanceModel.class);
             when(instanceModel.getName()).thenReturn(pipelineName);
-            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(pipelineConfig);
+            when(goConfigService.pipelineConfigNamed(cis(pipelineName))).thenReturn(pipelineConfig);
             when(pipelineDao.findPipelineHistoryByNameAndCounter(pipelineName, 100)).thenReturn(instanceModel);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(false);
 
@@ -182,7 +183,7 @@ class PipelineHistoryServiceTest {
             PipelineInstanceModel model = pipelineHistoryService.load(pipelineName, 100, username);
 
             assertThat(model).isSameAs(instanceModel);
-            assertThat(captor.getValue()).isEqualTo(new CaseInsensitiveString(pipelineName));
+            assertThat(captor.getValue()).isEqualTo(cis(pipelineName));
         }
     }
 
@@ -239,14 +240,14 @@ class PipelineHistoryServiceTest {
         PipelineTimelineEntry first = PipelineTimelineEntryMother.timelineEntry(List.of("first"), 1, now);
         PipelineTimelineEntry second = PipelineTimelineEntryMother.timelineEntry(List.of("first"), 1, now);
 
-        when(pipelineTimeline.runBefore(1, new CaseInsensitiveString("pipeline"))).thenReturn(first);
-        when(pipelineTimeline.runAfter(1, new CaseInsensitiveString("pipeline"))).thenReturn(second);
+        when(pipelineTimeline.runBefore(1, cis("pipeline"))).thenReturn(first);
+        when(pipelineTimeline.runAfter(1, cis("pipeline"))).thenReturn(second);
 
 
         PipelineInstanceModel expected = PipelineHistoryMother.pipelineHistoryItemWithOneStage("pipeline", "auto", now.toInstant());
         expected.setId(1);
         when(pipelineDao.findPipelineHistoryByNameAndCounter("pipeline", 1)).thenReturn(expected);
-        when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipeline"))).thenReturn(config);
+        when(goConfigService.pipelineConfigNamed(cis("pipeline"))).thenReturn(config);
         when(securityService.hasOperatePermissionForStage("pipeline", "auto", CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()))).thenReturn(true);
         ensureHasPermission(Username.ANONYMOUS, "pipeline");
 
@@ -261,7 +262,7 @@ class PipelineHistoryServiceTest {
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
         PipelineConfig pipelineConfig = new PipelineConfig();
         PipelinePauseInfo pipelinePauseInfo = new PipelinePauseInfo(true, "pausing pipeline for some-reason", "some-one");
-        when(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipeline-name"))).thenReturn(pipelineConfig);
+        when(cruiseConfig.getPipelineConfigByName(cis("pipeline-name"))).thenReturn(pipelineConfig);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("user-name"), "pipeline-name")).thenReturn(true);
         when(pipelinePauseService.pipelinePauseInfo("pipeline-name")).thenReturn(pipelinePauseInfo);
@@ -280,7 +281,7 @@ class PipelineHistoryServiceTest {
     @Test
     void shouldPopulateResultAsNotFound_getPipelineStatus() {
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
-        when(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipeline-name"))).thenReturn(null);
+        when(cruiseConfig.getPipelineConfigByName(cis("pipeline-name"))).thenReturn(null);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
         HttpOperationResult result = new HttpOperationResult();
@@ -294,7 +295,7 @@ class PipelineHistoryServiceTest {
     void shouldPopulateResultAsUnauthorized_getPipelineStatus() {
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
         PipelineConfig pipelineConfig = new PipelineConfig();
-        when(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipeline-name"))).thenReturn(pipelineConfig);
+        when(cruiseConfig.getPipelineConfigByName(cis("pipeline-name"))).thenReturn(pipelineConfig);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("user-name"), "pipeline-name")).thenReturn(false);
 
@@ -310,7 +311,7 @@ class PipelineHistoryServiceTest {
         @Test
         void shouldUpdateCommentUsingPipelineDao() {
             String pipelineName = "pipeline_name";
-            CaseInsensitiveString authorizedUser = new CaseInsensitiveString("can-access");
+            CaseInsensitiveString authorizedUser = cis("can-access");
             when(pipelineDao.findPipelineByNameAndCounter(pipelineName, 1)).thenReturn(mock(Pipeline.class));
             when(securityService.hasOperatePermissionForPipeline(authorizedUser, pipelineName)).thenReturn(true);
 
@@ -322,7 +323,7 @@ class PipelineHistoryServiceTest {
         @Test
         void shouldFailWhenUserIsUnauthorized() {
             String pipelineName = "pipeline_name";
-            CaseInsensitiveString unauthorizedUser = new CaseInsensitiveString("cannot-access");
+            CaseInsensitiveString unauthorizedUser = cis("cannot-access");
             when(securityService.hasOperatePermissionForPipeline(unauthorizedUser, pipelineName)).thenReturn(false);
 
             assertThatCode(() -> pipelineHistoryService.updateComment(pipelineName, 1, "test comment", new Username(unauthorizedUser)))
@@ -335,7 +336,7 @@ class PipelineHistoryServiceTest {
         @Test
         void shouldFailWhenPipelineWithCounterDoesNotExist() {
             String pipelineName = "pipeline_name";
-            CaseInsensitiveString unauthorizedUser = new CaseInsensitiveString("cannot-access");
+            CaseInsensitiveString unauthorizedUser = cis("cannot-access");
             when(securityService.hasOperatePermissionForPipeline(unauthorizedUser, pipelineName)).thenReturn(false);
 
             assertThatCode(() -> pipelineHistoryService.updateComment(pipelineName, 1, "test comment", new Username(unauthorizedUser)))
@@ -351,11 +352,11 @@ class PipelineHistoryServiceTest {
         @Test
         void shouldReturnTheLatestAndOldestPipelineRunId() {
             String pipelineName = "pipeline";
-            Username username = new Username(new CaseInsensitiveString("can-access"));
+            Username username = new Username(cis("can-access"));
 
             CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
             when(pipelineDao.getOldestAndLatestPipelineId(pipelineName)).thenReturn(new PipelineRunIdInfo(10L, 3L));
@@ -369,11 +370,11 @@ class PipelineHistoryServiceTest {
         @Test
         void shouldThrowIfPipelineDoesNotExist() {
             String pipelineName = "pipeline";
-            Username username = new Username(new CaseInsensitiveString("can-access"));
+            Username username = new Username(cis("can-access"));
             CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(false);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(false);
 
             assertThatCode(() -> pipelineHistoryService.getOldestAndLatestPipelineId(pipelineName, username))
                 .isInstanceOf(RecordNotFoundException.class)
@@ -383,11 +384,11 @@ class PipelineHistoryServiceTest {
         @Test
         void shouldThrowIfTheUserDoesNotHaveAccess() {
             String pipelineName = "pipeline";
-            Username username = new Username(new CaseInsensitiveString("cannot-access"));
+            Username username = new Username(cis("cannot-access"));
             CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(false);
 
             assertThatCode(() -> pipelineHistoryService.getOldestAndLatestPipelineId(pipelineName, username))
@@ -401,10 +402,10 @@ class PipelineHistoryServiceTest {
         @Test
         void shouldCallDaoToFetchLatestPipelineHistoryData() {
             String pipelineName = "pipeline";
-            Username username = new Username(new CaseInsensitiveString("can-access"));
+            Username username = new Username(cis("can-access"));
             CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
             when(pipelineDao.loadHistory(eq(pipelineName), any(), anyLong(), anyInt())).thenReturn(PipelineInstanceModels.createPipelineInstanceModels());
@@ -417,10 +418,10 @@ class PipelineHistoryServiceTest {
         @Test
         void shouldCallDaoToFetchPipelineHistoryDataAfterTheGivenCursor() {
             String pipelineName = "pipeline";
-            Username username = new Username(new CaseInsensitiveString("can-access"));
+            Username username = new Username(cis("can-access"));
             CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
             when(pipelineDao.loadHistory(eq(pipelineName), any(), anyLong(), anyInt())).thenReturn(PipelineInstanceModels.createPipelineInstanceModels());
@@ -433,10 +434,10 @@ class PipelineHistoryServiceTest {
         @Test
         void shouldCallDaoToFetchPipelineHistoryDataBeforeTheGivenCursor() {
             String pipelineName = "pipeline";
-            Username username = new Username(new CaseInsensitiveString("can-access"));
+            Username username = new Username(cis("can-access"));
             CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
             when(pipelineDao.loadHistory(eq(pipelineName), any(), anyLong(), anyInt())).thenReturn(PipelineInstanceModels.createPipelineInstanceModels());
@@ -449,10 +450,10 @@ class PipelineHistoryServiceTest {
         @Test
         void shouldThrowUpIfThePipelineDoesNotExist() {
             String pipelineName = "pipeline";
-            Username username = new Username(new CaseInsensitiveString("can-access"));
+            Username username = new Username(cis("can-access"));
             CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(false);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(false);
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
             assertThatCode(() -> pipelineHistoryService.loadPipelineHistoryData(username, pipelineName, 0, 0, 10))
@@ -465,10 +466,10 @@ class PipelineHistoryServiceTest {
         @Test
         void shouldThrowUpIfTheUserDoesNotHaveAccessToThePipeline() {
             String pipelineName = "pipeline";
-            Username username = new Username(new CaseInsensitiveString("can-access"));
+            Username username = new Username(cis("can-access"));
             CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(false);
 
@@ -482,10 +483,10 @@ class PipelineHistoryServiceTest {
         @Test
         void shouldThrowIfTheAfterCursorIsInvalid() {
             String pipelineName = "pipeline";
-            Username username = new Username(new CaseInsensitiveString("can-access"));
+            Username username = new Username(cis("can-access"));
             CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
@@ -499,10 +500,10 @@ class PipelineHistoryServiceTest {
         @Test
         void shouldThrowIfTheBeforeCursorIsInvalid() {
             String pipelineName = "pipeline";
-            Username username = new Username(new CaseInsensitiveString("can-access"));
+            Username username = new Username(cis("can-access"));
             CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
@@ -515,8 +516,8 @@ class PipelineHistoryServiceTest {
     }
 
     private void stubConfigServiceToReturnPipeline(String blahPipelineName, PipelineConfig blahPipelineConfig) {
-        when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(blahPipelineName))).thenReturn(blahPipelineConfig);
-        lenient().when(goConfigService.findFirstStageOfPipeline(new CaseInsensitiveString(blahPipelineName))).thenReturn(blahPipelineConfig.getFirst());
+        when(goConfigService.pipelineConfigNamed(cis(blahPipelineName))).thenReturn(blahPipelineConfig);
+        lenient().when(goConfigService.findFirstStageOfPipeline(cis(blahPipelineName))).thenReturn(blahPipelineConfig.getFirst());
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -531,6 +532,6 @@ class PipelineHistoryServiceTest {
 
     @SuppressWarnings("SameParameterValue")
     private void ensureConfigContainsPipelineIs(String pipelineName, boolean isPresent) {
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(isPresent);
+        when(goConfigService.hasPipelineNamed(cis(pipelineName))).thenReturn(isPresent);
     }
 }

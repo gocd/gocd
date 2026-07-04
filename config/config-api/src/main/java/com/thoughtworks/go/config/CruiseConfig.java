@@ -75,7 +75,7 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     JobConfig findJob(String pipelineName, String stageName, String jobName);
 
-    PipelineConfig pipelineConfigByName(CaseInsensitiveString name);
+    @NotNull PipelineConfig pipelineConfigByName(CaseInsensitiveString name);
 
     boolean hasStageConfigNamed(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName, boolean ignoreCase);
 
@@ -147,6 +147,8 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     @NotNull PipelineConfigs findGroup(String groupName);
 
+    @NotNull PipelineConfigs findGroupByPipeline(@NotNull PipelineConfig pipelineConfig);
+
     boolean isMailHostConfigured();
 
     List<PipelineConfig> getAllPipelineConfigs();
@@ -197,8 +199,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     List<ConfigErrors> validateAfterPreprocess();
 
-    PipelineConfigs findGroupOfPipeline(PipelineConfig pipelineConfig);
-
     Map<CaseInsensitiveString, List<PipelineConfig>> generatePipelineVsDownstreamMap();
 
     List<CaseInsensitiveString> pipelinesAssociatedWithTemplate(CaseInsensitiveString templateName);
@@ -245,7 +245,7 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     @TestOnly
     CruiseConfig cloneForValidation();
 
-    boolean canViewAndEditTemplates(CaseInsensitiveString username);
+    boolean isAuthorizedToEditTemplates(CaseInsensitiveString username);
 
     boolean isAuthorizedToEditTemplate(CaseInsensitiveString templateName, CaseInsensitiveString username);
 

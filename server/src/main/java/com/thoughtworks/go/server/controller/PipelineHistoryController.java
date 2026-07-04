@@ -33,11 +33,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound;
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonNotAcceptable;
-import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_JSON;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Controller
@@ -72,14 +71,14 @@ public class PipelineHistoryController {
                              @RequestParam(value = "start", required = false) Integer startParam,
                              @RequestParam(value = "labelFilter", required = false) String labelFilter,
                              HttpServletResponse response) {
-        PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
+        PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(cis(pipelineName));
         String username = CaseInsensitiveString.str(SessionUtils.currentUsername().getUsername());
 
         Pagination pagination;
         try {
             pagination = Pagination.pageByOffsetNullSafe(startParam, pipelineHistoryService.totalCount(pipelineName), perPageParam);
         } catch (Exception e) {
-            return jsonNotAcceptable(Map.of(ERROR_FOR_JSON, e.getMessage())).respond(response);
+            return jsonNotAcceptable(e.getMessage()).respond(response);
         }
 
         PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
@@ -101,7 +100,7 @@ public class PipelineHistoryController {
     }
 
     private boolean canPause(PipelineConfig pipelineConfig, String username) {
-        return securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString(username), CaseInsensitiveString.str(pipelineConfig.name()));
+        return securityService.hasOperatePermissionForPipeline(cis(username), CaseInsensitiveString.str(pipelineConfig.name()));
     }
 
     private boolean canForce(PipelineConfig pipelineConfig, String username) {

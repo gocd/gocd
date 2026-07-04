@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertFalse
 import static org.junit.jupiter.api.Assertions.assertTrue
@@ -247,10 +248,10 @@ class AuthorizationRepresenterTest {
   }
 
   static def user(name) {
-    new AdminUser(new CaseInsensitiveString(name))
+    new AdminUser(cis(name))
   }
 
   static def role(name) {
-    new AdminRole(new CaseInsensitiveString(name))
+    new AdminRole(cis(name))
   }
 }

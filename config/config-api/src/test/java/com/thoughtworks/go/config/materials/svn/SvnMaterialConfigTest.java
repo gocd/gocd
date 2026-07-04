@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -64,7 +65,7 @@ class SvnMaterialConfigTest {
         assertThat(svnMaterialConfig.getUserName()).isEqualTo("username");
         assertThat(svnMaterialConfig.isCheckExternals()).isTrue();
         assertThat(svnMaterialConfig.getFolder()).isEqualTo("folder");
-        assertThat(svnMaterialConfig.getName()).isEqualTo(new CaseInsensitiveString("material-name"));
+        assertThat(svnMaterialConfig.getName()).isEqualTo(cis("material-name"));
         assertThat(svnMaterialConfig.isAutoUpdate()).isFalse();
         assertThat(svnMaterialConfig.filter()).isEqualTo(new Filter(new IgnoredFiles("/root"), new IgnoredFiles("/**/*.help")));
     }
@@ -146,7 +147,7 @@ class SvnMaterialConfigTest {
             svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
             assertThat(svnMaterialConfig.errors().firstErrorOn(SvnMaterialConfig.MATERIAL_NAME)).isNull();
 
-            svnMaterialConfig.setName(new CaseInsensitiveString(".bad-name-with-dot"));
+            svnMaterialConfig.setName(cis(".bad-name-with-dot"));
             svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
             assertThat(svnMaterialConfig.errors().firstErrorOn(SvnMaterialConfig.MATERIAL_NAME)).isEqualTo("Invalid material name '.bad-name-with-dot'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");

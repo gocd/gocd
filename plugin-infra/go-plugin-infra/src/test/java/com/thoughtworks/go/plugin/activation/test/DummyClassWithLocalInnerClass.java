@@ -24,6 +24,7 @@ import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
 public class DummyClassWithLocalInnerClass {
 
+    @SuppressWarnings("unused")
     public void foo() {
         @Extension
         class DummyInnerClassWithExtension implements GoPlugin {

@@ -90,11 +90,16 @@ class TfsSDKCommandBuilder {
         FileUtils.deleteQuietly(tempFolder);
         tempFolder.mkdirs();
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> FileUtils.deleteQuietly(tempFolder)));
-
+        registerShutdownHook();
         explodeNatives();
         setNativePath(tempFolder);
         return new NestedJarClassLoader(getJarURL(), "org/apache/commons/logging/");
+    }
+
+    private void registerShutdownHook() {
+        Thread hook = new Thread(() -> FileUtils.deleteQuietly(tempFolder));
+        hook.setName("TfsSDKCleanup" + hook.getName());
+        Runtime.getRuntime().addShutdownHook(hook);
     }
 
     private void setNativePath(File tempFolder) {

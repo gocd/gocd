@@ -19,25 +19,25 @@ description = 'GoCD Jetty Bootstrapper'
 dependencies {
   implementation project(':base')
   implementation project(':app-server')
-  implementation project.deps.slf4jApi
+  implementation rootProject.deps.slf4jApi
 
-  compileOnly project.deps.jetty
-  compileOnly project.deps.jettyJmx
-  compileOnly project.deps.jettyServlets
-  compileOnly project.deps.jettyUtil
-  compileOnly project.deps.jettyDeploy
-  compileOnly project.deps.jettyWebsocket
+  compileOnly rootProject.deps.jetty
+  compileOnly rootProject.deps.jettyJmx
+  compileOnly rootProject.deps.jettyServlets
+  compileOnly rootProject.deps.jettyUtil
+  compileOnly rootProject.deps.jettyDeploy
+  compileOnly rootProject.deps.jettyWebsocket
 
-  testImplementation project.deps.jettyDeploy
-  testImplementation project.deps.jettyJmx
-  testImplementation project.deps.jettyWebsocket
+  testImplementation rootProject.deps.jettyDeploy
+  testImplementation rootProject.deps.jettyJmx
+  testImplementation rootProject.deps.jettyWebsocket
   testImplementation(testFixtures(project(':test:test-utils')))
-  testImplementation project.deps.junit5Api
-  testImplementation project.deps.junit5Params
-  testImplementation project.deps.mockitoCore
-  testImplementation project.deps.mockitoJunit5
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.assertJ
-  testImplementation project.deps.systemStubs
+  testImplementation rootProject.deps.junit5Api
+  testImplementation rootProject.deps.junit5Params
+  testImplementation rootProject.deps.mockitoCore
+  testImplementation rootProject.deps.mockitoJunit5
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.assertJ
+  testImplementation rootProject.deps.systemStubs
 }

@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -79,7 +80,7 @@ public class ExecTaskTest {
     public void shouldValidateWorkingDirectory() {
         ExecTask task = new ExecTask("ls", "-l", "../../../assertTaskInvalid");
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline");
-        PipelineConfig pipeline = config.pipelineConfigByName(new CaseInsensitiveString("pipeline"));
+        PipelineConfig pipeline = config.pipelineConfigByName(cis("pipeline"));
         StageConfig stage = pipeline.getFirst();
         JobConfig job = stage.getJobs().getFirst();
         job.addTask(task);
@@ -189,7 +190,7 @@ public class ExecTaskTest {
         StageConfig templateStage = StageConfigMother.stageWithTasks("templateStage");
         ExecTask execTask = new ExecTask("ls", "-la", "/");
         templateStage.getJobs().getFirst().addTask(execTask);
-        PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template_name"), templateStage);
+        PipelineTemplateConfig template = new PipelineTemplateConfig(cis("template_name"), templateStage);
         cruiseConfig.addTemplate(template);
 
         try {

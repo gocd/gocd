@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv2.securityauthconfig.representers.SecurityAuthConfigRepresenter;
 import com.thoughtworks.go.apiv2.securityauthconfig.representers.VerifyConnectionResponseRepresenter;
@@ -45,15 +45,15 @@ import static spark.Spark.*;
 @Component
 public class SecurityAuthConfigInternalControllerV2 extends ApiController implements SparkSpringController, CrudController<SecurityAuthConfig> {
 
-    private SecurityAuthConfigService securityAuthConfigService;
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private EntityHashingService entityHashingService;
+    private final SecurityAuthConfigService securityAuthConfigService;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
+    private final EntityHashingService entityHashingService;
 
     @Autowired
-    public SecurityAuthConfigInternalControllerV2(SecurityAuthConfigService securityAuthConfigService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService) {
+    public SecurityAuthConfigInternalControllerV2(SecurityAuthConfigService securityAuthConfigService, ApiAuthorizationHelper apiAuthorizationHelper, EntityHashingService entityHashingService) {
         super(ApiVersion.v2);
         this.securityAuthConfigService = securityAuthConfigService;
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.entityHashingService = entityHashingService;
     }
 
@@ -66,7 +66,7 @@ public class SecurityAuthConfigInternalControllerV2 extends ApiController implem
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before(Routes.SecurityAuthConfigAPI.VERIFY_CONNECTION, mimeType, this::setContentType);
-            before(Routes.SecurityAuthConfigAPI.VERIFY_CONNECTION, mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before(Routes.SecurityAuthConfigAPI.VERIFY_CONNECTION, mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
 
             post(Routes.SecurityAuthConfigAPI.VERIFY_CONNECTION, mimeType, this::verifyConnection);
         });

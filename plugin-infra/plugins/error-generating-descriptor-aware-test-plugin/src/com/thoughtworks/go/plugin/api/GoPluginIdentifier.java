@@ -15,6 +15,8 @@
  */
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 public class GoPluginIdentifier {
 
     private String extension;

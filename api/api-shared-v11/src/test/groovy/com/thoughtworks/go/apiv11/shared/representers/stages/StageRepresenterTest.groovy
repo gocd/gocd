@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
@@ -106,8 +107,8 @@ class StageRepresenterTest  {
       ])
       def stageConfig = StageRepresenter.fromJSON(jsonReader)
 
-      def authConfig = new AuthConfig(new AdminRole(new CaseInsensitiveString("role1")), new AdminRole(new CaseInsensitiveString("role2")),
-      new AdminUser(new CaseInsensitiveString("user1")), new AdminUser(new CaseInsensitiveString("user2")))
+      def authConfig = new AuthConfig(new AdminRole(cis("role1")), new AdminRole(cis("role2")),
+      new AdminUser(cis("user1")), new AdminUser(cis("user2")))
       def approval = new Approval(authConfig)
 
       assertEquals(approval, stageConfig.getApproval())
@@ -191,7 +192,7 @@ class StageRepresenterTest  {
   @Test
   void 'should render errors'() {
     def stageConfig = StageConfigMother.stageConfigWithEnvironmentVariable("stage#1")
-    stageConfig.getJobs().getFirst().setTasks(new Tasks(new FetchTask(new CaseInsensitiveString(""), new CaseInsensitiveString(""), new CaseInsensitiveString(""), null, null)))
+    stageConfig.getJobs().getFirst().setTasks(new Tasks(new FetchTask(cis(""), cis(""), cis(""), null, null)))
     stageConfig.addError('name', 'Invalid stage name')
 
     def actualJson = toObjectString({ StageRepresenter.toJSON(it, stageConfig) })

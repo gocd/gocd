@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.packagerepository
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.packagerepository.representers.PackageRepositoriesRepresenter
 import com.thoughtworks.go.apiv1.packagerepository.representers.PackageRepositoryRepresenter
 import com.thoughtworks.go.domain.config.Configuration
@@ -26,8 +26,8 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.materials.PackageRepositoryService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.spark.AnyGroupAdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -54,7 +54,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
 
   @Override
   PackageRepositoryControllerV1 createControllerInstance() {
-    new PackageRepositoryControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, packageRepositoryService)
+    new PackageRepositoryControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService, packageRepositoryService)
   }
 
   @Nested
@@ -62,7 +62,6 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
 
     @BeforeEach
     void setUp() {
-      enableSecurity()
       loginAsAdmin()
     }
 
@@ -84,7 +83,9 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
     }
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PackageRepositoryControllerV1Test.this
+      @Delegate ControllerTrait<PackageRepositoryControllerV1> c = PackageRepositoryControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -105,7 +106,6 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -168,7 +168,9 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
     }
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PackageRepositoryControllerV1Test.this
+      @Delegate ControllerTrait<PackageRepositoryControllerV1> c = PackageRepositoryControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -189,7 +191,6 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -201,9 +202,9 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
         def json = toObjectString({ PackageRepositoryRepresenter.toJSON(it, packageRepository) })
 
         when(entityHashingService.hashForEntity(packageRepository)).thenReturn('etag')
-        when(packageRepositoryService.createPackageRepository(eq(packageRepository), eq(currentUsername()), any(HttpLocalizedOperationResult.class))).then({
+        when(packageRepositoryService.createPackageRepository(eq(packageRepository), eq(currentUsername()), any())).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(2)
             result.setMessage("Package repository was created successfully")
         })
 
@@ -255,7 +256,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
 
         when(packageRepositoryService.createPackageRepository(any(), any(), any())).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(2)
             result.unprocessableEntity("Validation error.")
         })
 
@@ -268,7 +269,9 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
     }
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PackageRepositoryControllerV1Test.this
+      @Delegate ControllerTrait<PackageRepositoryControllerV1> c = PackageRepositoryControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -289,7 +292,6 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -308,7 +310,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
         when(entityHashingService.hashForEntity(updatedPackageRepository)).thenReturn('updated-etag')
         when(packageRepositoryService.updatePackageRepository(eq(updatedPackageRepository), eq(currentUsername()), anyString(), any(), anyString())).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments[3]
+            HttpLocalizedOperationResult result = invocation.getArgument(3)
             result.setMessage("Package repository was created successfully")
         })
 
@@ -375,7 +377,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
         when(entityHashingService.hashForEntity(updatedPackageRepository)).thenReturn('updated-etag')
         when(packageRepositoryService.updatePackageRepository(any(), any(), any(), any(), any())).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments[3]
+            HttpLocalizedOperationResult result = invocation.getArgument(3)
             result.unprocessableEntity("Validation error.")
         })
 
@@ -390,7 +392,9 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
     }
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PackageRepositoryControllerV1Test.this
+      @Delegate ControllerTrait<PackageRepositoryControllerV1> c = PackageRepositoryControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -408,7 +412,9 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
   class Remove {
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PackageRepositoryControllerV1Test.this
+      @Delegate ControllerTrait<PackageRepositoryControllerV1> c = PackageRepositoryControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -425,7 +431,6 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -436,9 +441,9 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
 
         when(packageRepositoryService.getPackageRepository('repo-id')).thenReturn(packageRepository)
 
-        when(packageRepositoryService.deleteRepository(eq(currentUsername()), eq(packageRepository), any(HttpLocalizedOperationResult.class))).then({
+        when(packageRepositoryService.deleteRepository(eq(currentUsername()), eq(packageRepository), any())).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(2)
             result.setMessage("Package repository was deleted successfully")
         })
 

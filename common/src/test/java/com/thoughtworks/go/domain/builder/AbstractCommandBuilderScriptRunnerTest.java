@@ -21,6 +21,7 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.ExecScript;
 import com.thoughtworks.go.util.command.InMemoryConsumer;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
@@ -52,14 +53,10 @@ public abstract class AbstractCommandBuilderScriptRunnerTest {
             "dir1", // Regular dir without spaces
             "dir 2", // Regular dir with space
             "\"dir3\""); // Regular dir without spaces pre-quoted
-        for (Path dir : paths.stream().map(p -> tempWorkDir.resolve(unQuote(p))).toList()) {
+        for (Path dir : paths.stream().map(p -> tempWorkDir.resolve(StringUtils.unwrap(p, '"'))).toList()) {
             Files.createDirectory(dir);
         }
         return paths;
-    }
-
-    private static String unQuote(String string) {
-        return string == null ? null : string.replaceAll("^\"|\"$", "");
     }
 
     protected void assertThatExecutableOutputIncludesArgs(String executableLocation, String... executableArgs) {
@@ -83,7 +80,7 @@ public abstract class AbstractCommandBuilderScriptRunnerTest {
         assertSoftly(softly -> {
             softly.assertThat(output.toString())
                 .contains(Arrays.stream(executableArgs)
-                    .map(CommandBuilderWithArgsListScriptRunnerTest::trimWrappingQuotesAndWhiteSpace)
+                    .map(arg -> StringUtils.unwrap(arg.trim(), '"'))
                     .collect(Collectors.toList()))
                 .doesNotContainIgnoringCase("not found")
                 .doesNotContainIgnoringCase("no such file");
@@ -101,7 +98,4 @@ public abstract class AbstractCommandBuilderScriptRunnerTest {
         return executable;
     }
 
-    static String trimWrappingQuotesAndWhiteSpace(String arg) {
-        return arg.trim().replaceAll("(^\"*)|(\"*$)", "");
-    }
 }

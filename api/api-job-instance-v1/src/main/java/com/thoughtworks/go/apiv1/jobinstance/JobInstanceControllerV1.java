@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv1.jobinstance;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.apiv1.jobinstance.representers.JobInstanceRepresenter;
 import com.thoughtworks.go.apiv1.jobinstance.representers.JobInstancesRepresenter;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
@@ -41,13 +41,13 @@ import static spark.Spark.*;
 
 @Component
 public class JobInstanceControllerV1 extends ApiController implements SparkSpringController {
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final JobInstanceService jobInstanceService;
 
     @Autowired
-    public JobInstanceControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, JobInstanceService jobInstanceService) {
+    public JobInstanceControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, JobInstanceService jobInstanceService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.jobInstanceService = jobInstanceService;
     }
 
@@ -62,8 +62,8 @@ public class JobInstanceControllerV1 extends ApiController implements SparkSprin
             before("/*", mimeType, this::setContentType);
             before("/*", mimeType, this::verifyContentType);
 
-            before(Routes.Job.JOB_HISTORY, mimeType, this.apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
-            before(Routes.Job.JOB_INSTANCE, mimeType, this.apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
+            before(Routes.Job.JOB_HISTORY, mimeType, this.apiAuthorizationHelper::checkPipelineViewPermissionsAnd403);
+            before(Routes.Job.JOB_INSTANCE, mimeType, this.apiAuthorizationHelper::checkPipelineViewPermissionsAnd403);
 
             get(Routes.Job.JOB_HISTORY, mimeType, this::getHistoryInfo);
             get(Routes.Job.JOB_INSTANCE, mimeType, this::getInstanceInfo);

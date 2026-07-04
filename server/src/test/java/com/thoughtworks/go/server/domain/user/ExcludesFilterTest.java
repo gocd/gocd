@@ -18,24 +18,25 @@ package com.thoughtworks.go.server.domain.user;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ExcludesFilterTest {
     @Test
     void isPipelineVisible() {
         final ExcludesFilter f = new ExcludesFilter(null, CaseInsensitiveString.list("p1"), null);
-        assertFalse(f.isPipelineVisible(new CaseInsensitiveString("p1")));
-        assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p0")));
+        assertFalse(f.isPipelineVisible(cis("p1")));
+        assertTrue(f.isPipelineVisible(cis("p0")));
     }
 
     @Test
     void allowPipeline() {
         final ExcludesFilter f = new ExcludesFilter(null, CaseInsensitiveString.list("p1"), null);
-        assertFalse(f.isPipelineVisible(new CaseInsensitiveString("p1")));
-        assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p0")));
+        assertFalse(f.isPipelineVisible(cis("p1")));
+        assertTrue(f.isPipelineVisible(cis("p0")));
 
-        f.allowPipeline(new CaseInsensitiveString("p1"));
-        assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p1")));
+        f.allowPipeline(cis("p1"));
+        assertTrue(f.isPipelineVisible(cis("p1")));
     }
 
     @Test

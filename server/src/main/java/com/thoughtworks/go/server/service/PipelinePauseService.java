@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
@@ -35,6 +34,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbiddenForPipeline;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
@@ -135,8 +135,8 @@ public class PipelinePauseService {
 
     private boolean notAuthorized(String pipelineName, String pauseBy, LocalizedOperationResult result) {
         CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        if (securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(pauseBy), cruiseConfig.findGroupOfPipeline(pipelineConfig).getGroup())) {
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis(pipelineName));
+        if (securityService.hasOperatePermissionForGroup(cis(pauseBy), cruiseConfig.findGroupByPipeline(pipelineConfig).getGroup())) {
             return false;
         }
         result.forbidden(LocalizedMessage.forbiddenToEditPipeline(pipelineName), forbiddenForPipeline(pipelineName));
@@ -145,7 +145,7 @@ public class PipelinePauseService {
 
     private boolean pipelineDoesNotExist(String pipelineName, LocalizedOperationResult result) {
         CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();
-        if (cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+        if (cruiseConfig.hasPipelineNamed(cis(pipelineName))) {
             return false;
         }
         result.notFound(EntityType.Pipeline.notFoundMessage(pipelineName), general(forPipeline(pipelineName)));

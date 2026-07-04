@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv3.users
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv3.users.model.UserToRepresent
 import com.thoughtworks.go.apiv3.users.representers.UserRepresenter
 import com.thoughtworks.go.apiv3.users.representers.UsersRepresenter
@@ -31,6 +31,7 @@ import com.thoughtworks.go.server.service.result.BulkUpdateUsersOperationResult
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -56,13 +57,15 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
   @Override
   UsersControllerV3 createControllerInstance() {
-    new UsersControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), userService, securityService, roleConfigService)
+    new UsersControllerV3(new ApiAuthorizationHelper(securityService, goConfigService), userService, securityService, roleConfigService)
   }
 
   @Nested
   class Index {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = UsersControllerV3Test.this
+      @Delegate ControllerTrait<UsersControllerV3> c = UsersControllerV3Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -79,7 +82,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -104,6 +106,9 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = UsersControllerV3Test.this
+      @Delegate ControllerTrait<UsersControllerV3> c = UsersControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "show"
@@ -111,7 +116,7 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(username))
+        getWithApiHeader(controller.controllerPath(Show.this.username))
       }
     }
 
@@ -119,7 +124,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -143,6 +147,9 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = UsersControllerV3Test.this
+      @Delegate ControllerTrait<UsersControllerV3> c = UsersControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "create"
@@ -158,7 +165,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
     class AsAdmin {
       @Test
       void 'should create a new user'() {
-        enableSecurity()
         loginAsAdmin()
 
         def jsonPayload = [
@@ -183,7 +189,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
     @Test
     void 'should not create a user if one already exists'() {
-      enableSecurity()
       loginAsAdmin()
 
       def jsonPayload = [
@@ -206,6 +211,9 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = UsersControllerV3Test.this
+      @Delegate ControllerTrait<UsersControllerV3> c = UsersControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "patchUser"
@@ -213,7 +221,7 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
       @Override
       void makeHttpCall() {
-        patchWithApiHeader(controller.controllerPath(username), [:])
+        patchWithApiHeader(controller.controllerPath(Patch.this.username), [:])
       }
     }
 
@@ -221,7 +229,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
     class AsAdmin {
       @Test
       void 'should update the existing user'() {
-        enableSecurity()
         loginAsAdmin()
 
         def jsonPayload = [
@@ -240,7 +247,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
     @Test
     void 'should not update login name of the user'() {
-      enableSecurity()
       loginAsAdmin()
 
       def jsonPayload = [
@@ -257,7 +263,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
     @Test
     void 'should fail updating non existing user'() {
-      enableSecurity()
       loginAsAdmin()
 
       def jsonPayload = [
@@ -279,6 +284,9 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = UsersControllerV3Test.this
+      @Delegate ControllerTrait<UsersControllerV3> c = UsersControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "deleteUser"
@@ -286,7 +294,7 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
       @Override
       void makeHttpCall() {
-        delete(controller.controllerPath(username))
+        delete(controller.controllerPath(Delete.this.username))
       }
     }
 
@@ -294,13 +302,12 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
     class AsAdmin {
       @Test
       void 'should delete the existing user'() {
-        enableSecurity()
         loginAsAdmin()
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(2)
           result.setMessage("The user '" + username + "' was deleted successfully.")
-        }).when(userService).deleteUser(eq(username), eq(currentUsernameString()), any(HttpLocalizedOperationResult.class))
+        }).when(userService).deleteUser(eq(username), eq(currentUsernameString()), any())
 
         delete(controller.controllerPath(username))
 
@@ -311,13 +318,12 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
       @Test
       void 'should render error while deleting the enabled user'() {
-        enableSecurity()
         loginAsAdmin()
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(2)
           result.badRequest("User '" + username + "' is not disabled.")
-        }).when(userService).deleteUser(eq(username), eq(currentUsernameString()), any(HttpLocalizedOperationResult.class))
+        }).when(userService).deleteUser(eq(username), eq(currentUsernameString()), any())
 
         delete(controller.controllerPath(username))
 
@@ -332,6 +338,9 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
   class BulkDelete {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = UsersControllerV3Test.this
+      @Delegate ControllerTrait<UsersControllerV3> c = UsersControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "bulkDelete"
@@ -349,7 +358,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
        }
 
@@ -360,9 +368,9 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
         ]
 
         doAnswer({ InvocationOnMock invocation ->
-          BulkUpdateUsersOperationResult result = (BulkUpdateUsersOperationResult) invocation.arguments.last()
+          BulkUpdateUsersOperationResult result = (BulkUpdateUsersOperationResult) invocation.getArgument(2)
           result.setMessage(LocalizedMessage.resourcesDeleteSuccessful("Users", usersToDelete))
-        }).when(userService).deleteUsers(eq(usersToDelete), eq(currentUsernameString()), any(BulkUpdateUsersOperationResult.class))
+        }).when(userService).deleteUsers(eq(usersToDelete), eq(currentUsernameString()), any())
 
         deleteWithApiHeader(controller.controllerPath(), requestBody)
 
@@ -378,11 +386,11 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
         ]
 
         doAnswer({ InvocationOnMock invocation ->
-          BulkUpdateUsersOperationResult result = (BulkUpdateUsersOperationResult) invocation.arguments.last()
+          BulkUpdateUsersOperationResult result = (BulkUpdateUsersOperationResult) invocation.getArgument(2)
           result.unprocessableEntity("Deletion failed because some users were either enabled or do not exist.")
           result.addNonExistentUserName(usersToDelete[0])
           result.addNonExistentUserName(usersToDelete[1])
-        }).when(userService).deleteUsers(eq(usersToDelete), eq(currentUsernameString()), any(BulkUpdateUsersOperationResult.class))
+        }).when(userService).deleteUsers(eq(usersToDelete), eq(currentUsernameString()), any())
 
         deleteWithApiHeader(controller.controllerPath(), requestBody)
 
@@ -396,10 +404,11 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
   @Nested
   class BulkEnableDisableUsers {
-    def bulkEnableDisableUsersPath = '/operations/state'
-
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = UsersControllerV3Test.this
+      @Delegate ControllerTrait<UsersControllerV3> c = UsersControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "bulkUpdateUsersState"
@@ -407,7 +416,7 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
       @Override
       void makeHttpCall() {
-        patchWithApiHeader(controller.controllerPath(bulkEnableDisableUsersPath), [:])
+        patchWithApiHeader(controller.controllerPath(Routes.Users.USER_STATE), [:])
       }
     }
 
@@ -417,7 +426,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -432,11 +440,11 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
         ]
 
         doAnswer({ InvocationOnMock invocation ->
-          BulkUpdateUsersOperationResult result = (BulkUpdateUsersOperationResult) invocation.arguments.last()
+          BulkUpdateUsersOperationResult result = (BulkUpdateUsersOperationResult) invocation.getArgument(2)
           result.setMessage("Users '${usersToEnable.join(', ')}' were enabled successfully.")
-        }).when(userService).bulkEnableDisableUsers(eq(usersToEnable), eq(true), any(BulkUpdateUsersOperationResult.class))
+        }).when(userService).bulkEnableDisableUsers(eq(usersToEnable), eq(true), any())
 
-        patchWithApiHeader(controller.controllerPath(bulkEnableDisableUsersPath), requestBody)
+        patchWithApiHeader(controller.controllerPath(Routes.Users.USER_STATE), requestBody)
 
         assertThatResponse()
           .isOk()
@@ -453,12 +461,12 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
         ]
 
         doAnswer({ InvocationOnMock invocation ->
-          BulkUpdateUsersOperationResult result = (BulkUpdateUsersOperationResult) invocation.arguments.last()
+          BulkUpdateUsersOperationResult result = (BulkUpdateUsersOperationResult) invocation.getArgument(2)
           result.unprocessableEntity("Update failed because some users do not exist.")
           result.addNonExistentUserName('John')
-        }).when(userService).bulkEnableDisableUsers(eq(usersToEnable), eq(true), any(BulkUpdateUsersOperationResult.class))
+        }).when(userService).bulkEnableDisableUsers(eq(usersToEnable), eq(true), any())
 
-        patchWithApiHeader(controller.controllerPath(bulkEnableDisableUsersPath), requestBody)
+        patchWithApiHeader(controller.controllerPath(Routes.Users.USER_STATE), requestBody)
 
         assertThatResponse()
           .isUnprocessableEntity()

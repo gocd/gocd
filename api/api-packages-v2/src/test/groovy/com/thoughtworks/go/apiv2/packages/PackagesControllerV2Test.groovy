@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv2.packages
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv2.packages.representers.PackageDefinitionRepresenter
 import com.thoughtworks.go.apiv2.packages.representers.PackageDefinitionsRepresenter
 import com.thoughtworks.go.apiv2.packages.representers.PackageUsageRepresenter
@@ -30,8 +30,8 @@ import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.materials.PackageDefinitionService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.spark.AnyGroupAdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.util.Pair
 import org.junit.jupiter.api.BeforeEach
@@ -59,13 +59,15 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
 
   @Override
   PackagesControllerV2 createControllerInstance() {
-    new PackagesControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, packageDefinitionService, goConfigService)
+    new PackagesControllerV2(new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService, packageDefinitionService, goConfigService)
   }
 
   @Nested
   class Index {
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PackagesControllerV2Test.this
+      @Delegate ControllerTrait<PackagesControllerV2> c = PackagesControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -83,7 +85,6 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -110,7 +111,9 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
   class Show {
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PackagesControllerV2Test.this
+      @Delegate ControllerTrait<PackagesControllerV2> c = PackagesControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -127,7 +130,6 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -194,7 +196,9 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
   class Create {
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PackagesControllerV2Test.this
+      @Delegate ControllerTrait<PackagesControllerV2> c = PackagesControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -211,7 +215,6 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -223,9 +226,9 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
         def json = toObjectString({ PackageDefinitionRepresenter.toJSON(it, packageDefinition) })
 
         when(entityHashingService.hashForEntity(packageDefinition)).thenReturn('etag')
-        when(packageDefinitionService.createPackage(eq(packageDefinition), eq('repo-id'), eq(currentUsername()), any(HttpLocalizedOperationResult.class))).then({
+        when(packageDefinitionService.createPackage(eq(packageDefinition), eq('repo-id'), eq(currentUsername()), any())).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(3)
             result.setMessage("Package definition was created successfully")
         })
 
@@ -275,7 +278,7 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
 
         when(packageDefinitionService.createPackage(any(), any(), any(), any())).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(3)
             result.unprocessableEntity("Validation error.")
         })
 
@@ -292,7 +295,9 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
   class Update {
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PackagesControllerV2Test.this
+      @Delegate ControllerTrait<PackagesControllerV2> c = PackagesControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -309,7 +314,6 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -326,9 +330,9 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
         when(entityHashingService.hashForEntity(packageDefinition)).thenReturn('etag')
         when(entityHashingService.hashForEntity(updatedPackageDefinition)).thenReturn('updated-etag')
         when(packageDefinitionService.find('id')).thenReturn(packageDefinition)
-        when(packageDefinitionService.updatePackage(eq('id'), eq(updatedPackageDefinition), eq('etag'), eq(currentUsername()), any(HttpLocalizedOperationResult.class))).then({
+        when(packageDefinitionService.updatePackage(eq('id'), eq(updatedPackageDefinition), eq('etag'), eq(currentUsername()), any())).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(4)
             result.setMessage("Package definition was updated successfully")
         })
 
@@ -396,7 +400,7 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
         when(entityHashingService.hashForEntity(updatedPackageDefinition)).thenReturn('updated-etag')
         when(packageDefinitionService.updatePackage(anyString(), any(), any(), any(), any())).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(4)
             result.unprocessableEntity("Validation error.")
         })
 
@@ -427,7 +431,9 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
   class Remove {
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PackagesControllerV2Test.this
+      @Delegate ControllerTrait<PackagesControllerV2> c = PackagesControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -444,7 +450,6 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -455,9 +460,9 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
 
         when(packageDefinitionService.find('id')).thenReturn(packageDefinition)
 
-        when(packageDefinitionService.deletePackage(eq(packageDefinition), eq(currentUsername()), any(HttpLocalizedOperationResult.class))).then({
+        when(packageDefinitionService.deletePackage(eq(packageDefinition), eq(currentUsername()), any())).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(2)
             result.setMessage("Package definition was deleted successfully")
         })
 
@@ -488,7 +493,9 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
     }
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = PackagesControllerV2Test.this
+      @Delegate ControllerTrait<PackagesControllerV2> c = PackagesControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {

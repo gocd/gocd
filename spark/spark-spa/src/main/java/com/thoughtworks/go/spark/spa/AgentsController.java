@@ -19,7 +19,7 @@ import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import spark.ModelAndView;
 import spark.Request;
@@ -33,13 +33,13 @@ import static spark.Spark.*;
 public class AgentsController implements SparkController {
     private final SystemEnvironment systemEnvironment;
     private final SecurityService securityService;
-    private final SPAAuthenticationHelper authenticationHelper;
+    private final SpaAuthorizationHelper authorizationHelper;
     private final TemplateEngine engine;
 
-    public AgentsController(SystemEnvironment systemEnvironment, SecurityService securityService, SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+    public AgentsController(SystemEnvironment systemEnvironment, SecurityService securityService, SpaAuthorizationHelper authorizationHelper, TemplateEngine engine) {
         this.systemEnvironment = systemEnvironment;
         this.securityService = securityService;
-        this.authenticationHelper = authenticationHelper;
+        this.authorizationHelper = authorizationHelper;
         this.engine = engine;
     }
 
@@ -51,7 +51,7 @@ public class AgentsController implements SparkController {
     @Override
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkUserAnd403);
+            before("", authorizationHelper::checkUserAnd403);
             get("", this::index, engine);
         });
     }

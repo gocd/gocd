@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.valuestreammap.*;
 import com.thoughtworks.go.helper.ModificationsMother;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class LevelAssignmentTest {
@@ -38,9 +39,9 @@ public class LevelAssignmentTest {
         ---> p2 ---
         */
 
-        CaseInsensitiveString current = new CaseInsensitiveString("p3");
-        CaseInsensitiveString p1name = new CaseInsensitiveString("p1");
-        CaseInsensitiveString p2name = new CaseInsensitiveString("p2");
+        CaseInsensitiveString current = cis("p3");
+        CaseInsensitiveString p1name = cis("p1");
+        CaseInsensitiveString p2name = cis("p2");
         PipelineDependencyNode p1 = new PipelineDependencyNode(p1name, p1name.toString());
         PipelineDependencyNode p2 = new PipelineDependencyNode(p2name, p2name.toString());
         SCMDependencyNode gitNode = new SCMDependencyNode("git", "g", "git");
@@ -48,9 +49,9 @@ public class LevelAssignmentTest {
         ValueStreamMap valueStreamMap = new ValueStreamMap(current, new PipelineRevision(current.toString(), 1, "1"));
         valueStreamMap.addUpstreamPipelineNode(p1, new PipelineRevision(p1name.toString(), 1, "1"), current);
         valueStreamMap.addUpstreamPipelineNode(p2, new PipelineRevision(p2name.toString(), 1, "1"), current);
-        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("trunk"), p1name, new MaterialRevision(null));
-        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("main-branch"), new CaseInsensitiveString("p3"), new MaterialRevision(null));
-        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("main-branch"), p2name, new MaterialRevision(null));
+        valueStreamMap.addUpstreamMaterialNode(gitNode, cis("trunk"), p1name, new MaterialRevision(null));
+        valueStreamMap.addUpstreamMaterialNode(gitNode, cis("main-branch"), cis("p3"), new MaterialRevision(null));
+        valueStreamMap.addUpstreamMaterialNode(gitNode, cis("main-branch"), p2name, new MaterialRevision(null));
         NodeLevelMap levelToNodeMap = new LevelAssignment().apply(valueStreamMap);
 
         assertThat(valueStreamMap.getCurrentPipeline().getLevel()).isEqualTo(0);
@@ -74,17 +75,17 @@ public class LevelAssignmentTest {
                ---> p2 ----
     	*/
 
-        CaseInsensitiveString current = new CaseInsensitiveString("p");
-        CaseInsensitiveString p1name = new CaseInsensitiveString("p1");
-        CaseInsensitiveString p2name = new CaseInsensitiveString("p2");
-        CaseInsensitiveString p3name = new CaseInsensitiveString("p3");
+        CaseInsensitiveString current = cis("p");
+        CaseInsensitiveString p1name = cis("p1");
+        CaseInsensitiveString p2name = cis("p2");
+        CaseInsensitiveString p3name = cis("p3");
         Node p1 = new PipelineDependencyNode(p1name, p1name.toString());
         Node p2 = new PipelineDependencyNode(p2name, p2name.toString());
         Node p3 = new PipelineDependencyNode(p3name, p3name.toString());
         SCMDependencyNode gitNode = new SCMDependencyNode("git", "g", "git");
 
         ValueStreamMap valueStreamMap = new ValueStreamMap(current, new PipelineRevision(current.toString(), 1, "1"));
-        valueStreamMap.addUpstreamMaterialNode(gitNode, new CaseInsensitiveString("trunk"), new CaseInsensitiveString("p"), new MaterialRevision(null));
+        valueStreamMap.addUpstreamMaterialNode(gitNode, cis("trunk"), cis("p"), new MaterialRevision(null));
 
         valueStreamMap.addDownstreamNode(p1, current);
         valueStreamMap.addDownstreamNode(p2, current);
@@ -116,10 +117,10 @@ public class LevelAssignmentTest {
 			   ---> p2 ----
 		*/
 
-		Node p = new PipelineDependencyNode(new CaseInsensitiveString("p"), "p");
-		Node p1 = new PipelineDependencyNode(new CaseInsensitiveString("p1"), "p1");
-		Node p2 = new PipelineDependencyNode(new CaseInsensitiveString("p2"), "p2");
-		Node p3 = new PipelineDependencyNode(new CaseInsensitiveString("p3"), "p3");
+		Node p = new PipelineDependencyNode(cis("p"), "p");
+		Node p1 = new PipelineDependencyNode(cis("p1"), "p1");
+		Node p2 = new PipelineDependencyNode(cis("p2"), "p2");
+		Node p3 = new PipelineDependencyNode(cis("p3"), "p3");
 
 		GitMaterial material = new GitMaterial("url");
 		Modification modification = ModificationsMother.aCheckIn("1");

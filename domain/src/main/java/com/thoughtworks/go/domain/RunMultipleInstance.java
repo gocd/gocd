@@ -16,11 +16,12 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.util.Clock;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 /**
  * Understands how to match job instances associated with run-multiple-instance Jobs
@@ -38,7 +39,7 @@ public class RunMultipleInstance implements JobType {
     public void createRerunInstances(JobInstance oldJob, JobInstances jobInstances, SchedulingContext context, StageConfig stageConfig, final Clock clock, InstanceFactory instanceFactory) {
 		context = context.rerunContext();
 		String configName = translateToConfigName(oldJob.getName());
-		JobConfig jobConfig = stageConfig.jobConfigByConfigName(new CaseInsensitiveString(configName));
+		JobConfig jobConfig = stageConfig.jobConfigByConfigName(cis(configName));
 		if (jobConfig == null) {
 			throw new CannotRerunJobException(configName, "Configuration for job doesn't exist.");
 		}

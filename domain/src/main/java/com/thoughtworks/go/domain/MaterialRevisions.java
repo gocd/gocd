@@ -29,6 +29,7 @@ import java.io.Serializable;
 import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import static java.util.stream.StreamSupport.stream;
 
 // Understands multiple materials each with their own revision
 public class MaterialRevisions implements Serializable, Iterable<MaterialRevision> {
@@ -208,14 +209,9 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
     }
 
     public boolean containsMyCheckin(Matcher matcher) {
-        for (MaterialRevision materialRevision : this) {
-            for (Modification modification : materialRevision.getModifications()) {
-                if (matcher.matches(modification.getUserName() + " " + Optional.ofNullable(modification.getComment()).orElse(""))) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return stream(spliterator(), true)
+            .flatMap(r -> r.getModifications().stream())
+            .anyMatch(m -> matcher.matches(m.getUserName()) || matcher.matches(m.getComment()));
     }
 
     public boolean isSameAs(MaterialRevisions other) {
@@ -264,8 +260,8 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
     }
 
     private String getRevisionValueOf(Revision revision) {
-        if (revision instanceof DependencyMaterialRevision) {
-            return ((DependencyMaterialRevision) revision).getPipelineLabel();
+        if (revision instanceof DependencyMaterialRevision dependencyMaterialRevision) {
+            return dependencyMaterialRevision.getPipelineLabel();
         }
         return revision.getRevision();
     }
@@ -274,8 +270,8 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
         List<DependencyMaterial> mats = new ArrayList<>();
         for (MaterialRevision materialRevision : this) {
             Material material = materialRevision.getMaterial();
-            if (material instanceof DependencyMaterial) {
-                mats.add((DependencyMaterial) material);
+            if (material instanceof DependencyMaterial dependencyMaterial) {
+                mats.add(dependencyMaterial);
             }
         }
         return mats;

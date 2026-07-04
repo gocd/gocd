@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.ui;
 
-
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

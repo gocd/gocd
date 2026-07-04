@@ -16,7 +16,8 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.server.cache.ZipArtifactCache;
+import com.thoughtworks.go.server.caching.ZipArtifactCache;
+import com.thoughtworks.go.server.controller.actions.TextAction;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.server.service.ConsoleActivityMonitor;
@@ -36,8 +37,8 @@ import org.springframework.web.servlet.ModelAndView;
 import java.io.File;
 import java.net.HttpURLConnection;
 
+import static com.thoughtworks.go.remote.StandardHeaders.Multipart;
 import static com.thoughtworks.go.remote.StandardHeaders.REQUEST_CONFIRM_MODIFICATION;
-import static com.thoughtworks.go.util.GoConstants.*;
 import static java.net.HttpURLConnection.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -90,9 +91,9 @@ public class ArtifactsControllerTest {
         when(jobInstanceDao.isJobCompleted(jobIdentifier)).thenReturn(true);
         when(consoleService.doesLogExist(jobIdentifier)).thenReturn(false);
 
-        ModelAndView view = artifactsController.consoleout("pipeline", "10", "stage", "build", "2", 1L);
+        ModelAndView view = artifactsController.consoleOutput("pipeline", "10", "stage", "build", "2", 1L);
 
-        assertThat(view.getView().getContentType()).isEqualTo(RESPONSE_CHARSET);
+        assertThat(view.getView().getContentType()).isEqualTo(TextAction.CONTENT_TYPE);
         assertThat(view.getView()).isInstanceOf(ResponseCodeView.class);
         assertThat(((ResponseCodeView) view.getView()).getContent()).contains("Console log for Job [pipeline/10/stage/2/build/103] is unavailable as it may have been purged by Go or deleted externally");
     }
@@ -107,8 +108,8 @@ public class ArtifactsControllerTest {
         when(artifactService.saveOrAppendFile(any(), any())).thenReturn(false);
 
         MockMultipartHttpServletRequest request = newMultiPartRequest();
-        request.addFile(new MockMultipartFile(REGULAR_MULTIPART_FILENAME, "content".getBytes()));
-        request.addFile(new MockMultipartFile(CHECKSUM_MULTIPART_FILENAME, "checksum-content".getBytes()));
+        request.addFile(new MockMultipartFile(Multipart.REGULAR_FILENAME, "content".getBytes()));
+        request.addFile(new MockMultipartFile(Multipart.CHECKSUM_FILENAME, "checksum-content".getBytes()));
 
         ModelAndView modelAndView = artifactsController.postArtifact("pipeline-1", "1", "stage-1", "2", "job-1", 122L, "some-path", 1, request);
 
@@ -142,7 +143,7 @@ public class ArtifactsControllerTest {
 
     @Test
     void shouldFailToGetConsoleOutWhenStageCounterIsNotAPositiveInteger() {
-        ModelAndView modelAndView = artifactsController.consoleout("pipeline-1", "1", "stage-1", "job-1", "NOT_AN_INTEGER", 122L);
+        ModelAndView modelAndView = artifactsController.consoleOutput("pipeline-1", "1", "stage-1", "job-1", "NOT_AN_INTEGER", 122L);
         assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode()).isEqualTo(HTTP_NOT_FOUND);
     }
 

@@ -131,4 +131,47 @@ class ScmMaterialConfigTest {
             assertThat(material.errors().getAllOn(FOLDER)).isEmpty();
         }
     }
+
+    private static class DummyMaterialConfig extends ScmMaterialConfig {
+        public DummyMaterialConfig() {
+            super("DummyMaterial");
+        }
+
+        @Override
+        public boolean isCheckExternals() {
+            return false;
+        }
+
+        @Override
+        public String getUrl() {
+            return null;
+        }
+
+        @Override
+        public void setUrl(String url) {
+        }
+
+        @Override
+        public String getUriForDisplay() {
+            return null;
+        }
+
+        @Override
+        public void validateConcreteScmMaterial() {
+        }
+
+        @Override
+        protected void appendCriteria(Map<String, Object> parameters) {
+        }
+
+        @Override
+        public String getTypeForDisplay() {
+            return null;
+        }
+
+        @Override
+        public String getLongDescription() {
+            return null;
+        }
+    }
 }

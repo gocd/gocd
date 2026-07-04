@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.preprocessor.ConcurrentFieldCache;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.jdom2.*;
@@ -55,7 +54,7 @@ public class MagicalGoConfigXmlWriter {
         Namespace xsiNamespace = Namespace.getNamespace("xsi", XML_NS);
         root.addNamespaceDeclaration(xsiNamespace);
         root.setAttribute("noNamespaceSchemaLocation", "cruise-config.xsd", xsiNamespace);
-        root.setAttribute("schemaVersion", Integer.toString(GoConstants.CONFIG_SCHEMA_VERSION));
+        root.setAttribute("schemaVersion", Integer.toString(GoConfigSchema.VERSION));
         return new Document(root);
     }
 
@@ -108,10 +107,10 @@ public class MagicalGoConfigXmlWriter {
         bombIf(!domainObject.getClass().isAnnotationPresent(ConfigTag.class), () -> "Object " + domainObject + " does not have a ConfigTag");
         Element element = elementFor(domainObject.getClass());
         write(domainObject, element, registry);
-        if (domainObject.getClass().isAnnotationPresent(ConfigCollection.class) && domainObject instanceof Collection) {
-            for (Object item : (Collection<?>) domainObject) {
-                if (item.getClass().isAnnotationPresent(ConfigCollection.class) && item instanceof Collection) {
-                    new ExplicitCollectionXmlFieldWithValue(domainObject.getClass(), null, (Collection<?>) item, registry).populate(element);
+        if (domainObject.getClass().isAnnotationPresent(ConfigCollection.class) && domainObject instanceof Collection<?> collection) {
+            for (Object item : collection) {
+                if (item.getClass().isAnnotationPresent(ConfigCollection.class) && item instanceof Collection<?> objects) {
+                    new ExplicitCollectionXmlFieldWithValue(domainObject.getClass(), null, objects, registry).populate(element);
                     continue;
                 }
                 Element childElement = elementFor(item.getClass());
@@ -320,8 +319,8 @@ public class MagicalGoConfigXmlWriter {
                 if (defaultCollection.contains(item)) {
                     continue;
                 }
-                if (item.getClass().isAnnotationPresent(ConfigCollection.class) && item instanceof Collection) {
-                    new ExplicitCollectionXmlFieldWithValue(originalClass, null, (Collection<?>) item, registry).populate(parent);
+                if (item.getClass().isAnnotationPresent(ConfigCollection.class) && item instanceof Collection<?> objects) {
+                    new ExplicitCollectionXmlFieldWithValue(originalClass, null, objects, registry).populate(parent);
                     continue;
                 }
                 Element childElement = elementFor(item.getClass());

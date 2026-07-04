@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.admin.encryption
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.admin.encryption.representers.EncryptedValueRepresenter
 import com.thoughtworks.go.security.CryptoException
 import com.thoughtworks.go.security.GoCipher
@@ -44,6 +44,8 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
   class Index {
     @Nested
     class Security implements SecurityTestTrait, AnyAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = EncryptionControllerDelegateTest.this
+      @Delegate ControllerTrait<EncryptionControllerDelegate> c = EncryptionControllerDelegateTest.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -57,12 +59,7 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
     }
 
     @Nested
-    class AsAuthorizedUser {
-      @BeforeEach
-      void setUp() {
-        enableSecurity()
-      }
-
+    class AsNormalUser {
       @Test
       void 'it should return encrypted value of submitted plain text passed'() {
         loginAsAdmin()
@@ -172,6 +169,6 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
 
   @Override
   EncryptionControllerDelegate createControllerInstance() {
-    return new EncryptionControllerDelegate(new ApiAuthenticationHelper(securityService, goConfigService), cipher, REQUESTS_PER_MINUTE, timeMeter)
+    return new EncryptionControllerDelegate(new ApiAuthorizationHelper(securityService, goConfigService), cipher, REQUESTS_PER_MINUTE, timeMeter)
   }
 }

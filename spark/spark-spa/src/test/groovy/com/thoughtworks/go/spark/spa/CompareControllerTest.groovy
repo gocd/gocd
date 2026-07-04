@@ -15,13 +15,12 @@
  */
 package com.thoughtworks.go.spark.spa
 
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.domain.Pipeline
 import com.thoughtworks.go.server.service.PipelineService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.PipelineAccessSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -29,6 +28,8 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
+import static com.thoughtworks.go.util.SystemEnvironment.WEBAPP_CONTEXT_PATH
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
@@ -41,7 +42,7 @@ class CompareControllerTest implements ControllerTrait<CompareController>, Secur
 
   @Override
   CompareController createControllerInstance() {
-    return new CompareController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, pipelineService)
+    return new CompareController(new SpaAuthorizationHelper(securityService, goConfigService), templateEngine, pipelineService)
   }
 
   @Nested
@@ -49,9 +50,12 @@ class CompareControllerTest implements ControllerTrait<CompareController>, Secur
 
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate ControllerTrait<CompareController> c = CompareControllerTest.this
+      @Delegate SecurityServiceTrait s = CompareControllerTest.this
+
       @BeforeEach
       void setUp() {
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(getPipelineName()))).thenReturn(true)
+        when(goConfigService.hasPipelineNamed(cis(getPipelineName()))).thenReturn(true)
       }
 
       @Override
@@ -65,8 +69,8 @@ class CompareControllerTest implements ControllerTrait<CompareController>, Secur
       }
 
       @Override
-      String getPipelineName() {
-        return "up42"
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: "up42")
       }
     }
 
@@ -89,7 +93,7 @@ class CompareControllerTest implements ControllerTrait<CompareController>, Secur
         get(controller.controllerPath("up42/0/with/4"))
 
         assertThatResponse()
-          .redirectsTo("/go" + controller.controllerPath("up42/1/with/4"))
+          .redirectsTo(WEBAPP_CONTEXT_PATH + controller.controllerPath("up42/1/with/4"))
       }
 
       @Test
@@ -97,7 +101,7 @@ class CompareControllerTest implements ControllerTrait<CompareController>, Secur
         get(controller.controllerPath("up42/3/with/0"))
 
         assertThatResponse()
-          .redirectsTo("/go" + controller.controllerPath("up42/3/with/1"))
+          .redirectsTo(WEBAPP_CONTEXT_PATH + controller.controllerPath("up42/3/with/1"))
       }
 
       @Test

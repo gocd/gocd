@@ -15,25 +15,25 @@
  */
 package com.thoughtworks.go.apiv2.compare.representers.material
 
-
 import com.thoughtworks.go.config.BasicCruiseConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
+import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.util.command.HgUrlArgument
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 
 class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
 
-  static def existingMaterial() {
+  MaterialConfig existingMaterial() {
     return MaterialConfigsMother.hgMaterialConfigFull()
   }
 
-  def existingMaterialWithErrors() {
-    def hgConfig = hg(new HgUrlArgument(''), null, null, null, true, null, false, '/dest/', new CaseInsensitiveString('!nV@l!d'))
+  MaterialConfig existingMaterialWithErrors() {
+    def hgConfig = hg(new HgUrlArgument(''), null, null, null, true, null, false, '/dest/', cis('!nV@l!d'))
     def materialConfigs = new MaterialConfigs(hgConfig)
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
     return materialConfigs.getFirst()
@@ -43,7 +43,7 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
     [
       type      : 'hg',
       attributes: [
-        url          : "http://user:pass@domain/path##branch",
+        url          : "http://user:******@domain/path##branch",
         destination  : "dest-folder",
         filter       : [
           ignore: ['**/*.html', '**/foobar/']

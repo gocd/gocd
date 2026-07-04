@@ -22,14 +22,14 @@ def destFile(String url) {
 }
 
 tasks.register('downloadWindowsJreChecksum', DownloadFile) {
-  def goVersions = project.goVersions as GoVersions
+  def goVersions = rootProject.goVersions as GoVersions
   src goVersions.packagedJavaVersion.toSha256SumURLFor(OperatingSystem.windows, Architecture.x64)
   dest destFile(src.toString())
 }
 
 tasks.register('downloadWindowsJre', DownloadFile) {
   dependsOn downloadWindowsJreChecksum
-  def goVersions = project.goVersions as GoVersions
+  def goVersions = rootProject.goVersions as GoVersions
   src goVersions.packagedJavaVersion.toDownloadURLFor(OperatingSystem.windows, Architecture.x64)
   dest destFile(src.toString())
   checksum = { downloadWindowsJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
@@ -43,7 +43,7 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
     dependsOn downloadWindowsJre
     dependsOn genericZipTask
 
-    def goVersions = project.goVersions as GoVersions
+    def goVersions = rootProject.goVersions as GoVersions
     inputs.property('goVersions', goVersions)
 
     def installerBaseDirName = "${installerType.baseName}-${goVersions.goVersion}"
@@ -87,7 +87,7 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
           }
 
           filter { String eachLine ->
-            eachLine = eachLine.replaceAll("=${installerType.baseName}".toString(), "=${installerType.windowsAndOSXServiceName}".toString())
+            eachLine = eachLine.replace("=${installerType.baseName}".toString(), "=${installerType.windowsAndOSXServiceName}".toString())
             return eachLine
           }
 
@@ -111,7 +111,7 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
 
 def configureNSIS(Task packageTask, InstallerType installerType, File buildRoot, File destDir) {
   packageTask.with {
-    def goVersions = project.goVersions as GoVersions
+    def goVersions = rootProject.goVersions as GoVersions
     def outputFile = project.file("${destDir.path}/${installerType.baseName}-${goVersions.fullVersion}-jre-64bit-setup.exe")
 
     // pad enough zeros to be able to convert the version string using simple numbers, instead of version numbers
@@ -135,7 +135,7 @@ def configureNSIS(Task packageTask, InstallerType installerType, File buildRoot,
 
       unInstallManifestFile.withWriter { out ->
         injected.objectFactory.fileTree().from(installerContents).forEach { File eachFile ->
-          out.println("Delete \"\$INSTDIR\\${installerContents.relativePath(eachFile).replaceAll("/", "\\\\")}\"")
+          out.println("Delete \"\$INSTDIR\\${installerContents.relativePath(eachFile).replace('/', '\\')}\"")
         }
       }
 
@@ -197,7 +197,7 @@ tasks.register('serverWindows64bitExe') { thisTask ->
   def packageTaskName = "${installerType}Windows64bitExe"
   tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
     architecture = Architecture.x64
-    packagedJavaVersion = (project.goVersions as GoVersions).packagedJavaVersion
+    packagedJavaVersion = (rootProject.goVersions as GoVersions).packagedJavaVersion
     packageTask = project.tasks.named(packageTaskName)
     type = installerType == "agent" ? InstallerTypeAgent.instance : InstallerTypeServer.instance
   }

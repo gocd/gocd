@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.pipelineoperations
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerOptions
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerWithOptionsViewRepresenter
 import com.thoughtworks.go.config.EnvironmentVariableConfig
@@ -49,7 +49,7 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.PipelineGroupOperateUserSecurity
+import com.thoughtworks.go.spark.GroupOperateUserSecurity
 import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
@@ -77,14 +77,16 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
 
   @Override
   PipelineOperationsControllerV1 createControllerInstance() {
-    new PipelineOperationsControllerV1(pipelinePauseService, pipelineUnlockApiService, pipelineTriggerService, new ApiAuthenticationHelper(securityService, goConfigService), goConfigService, pipelineHistoryService)
+    new PipelineOperationsControllerV1(pipelinePauseService, pipelineUnlockApiService, pipelineTriggerService, new ApiAuthorizationHelper(securityService, goConfigService), goConfigService, pipelineHistoryService)
   }
 
   @Nested
   class Pause {
     private String pipelineName = "up42"
     @Nested
-    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+    class Security implements SecurityTestTrait, GroupOperateUserSecurity {
+      @Delegate SecurityServiceTrait s = PipelineOperationsControllerV1Test.this
+      @Delegate ControllerTrait<PipelineOperationsControllerV1> c = PipelineOperationsControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -93,21 +95,20 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(pipelineName, 'pause'), [:])
+        postWithApiHeader(controller.controllerPath(Pause.this.pipelineName, 'pause'), [:])
       }
 
       @Override
-      String getPipelineName() {
-        return Pause.this.pipelineName
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: Pause.this.pipelineName)
       }
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
-        loginAsAdmin()
+        loginAsGroupOperateUser(pipelineName: pipelineName)
       }
 
       @Test
@@ -117,7 +118,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
           HttpLocalizedOperationResult result = invocation.getArgument(3)
           result.setMessage("success!")
           return result
-        }).when(pipelinePauseService).pause(any() as String, any() as String, any() as Username, any() as HttpLocalizedOperationResult)
+        }).when(pipelinePauseService).pause(any() as String, any() as String, any() as Username, any())
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'pause'), [:])
 
@@ -134,7 +135,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
           HttpLocalizedOperationResult result = invocation.getArgument(3)
           result.setMessage("success!")
           return result
-        }).when(pipelinePauseService).pause(any() as String, any() as String, any() as Username, any() as HttpLocalizedOperationResult)
+        }).when(pipelinePauseService).pause(any() as String, any() as String, any() as Username, any())
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'pause'), ['x-gocd-confirm': 'blah'], null)
 
@@ -151,7 +152,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
           HttpLocalizedOperationResult result = invocation.getArgument(3)
           result.conflict("already paused")
           return result
-        }).when(pipelinePauseService).pause(any() as String, any() as String, any() as Username, any() as HttpLocalizedOperationResult)
+        }).when(pipelinePauseService).pause(any() as String, any() as String, any() as Username, any())
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'pause'), [:])
 
@@ -167,7 +168,9 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
   class Unpause {
     private String pipelineName = "up42"
     @Nested
-    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+    class Security implements SecurityTestTrait, GroupOperateUserSecurity {
+      @Delegate SecurityServiceTrait s = PipelineOperationsControllerV1Test.this
+      @Delegate ControllerTrait<PipelineOperationsControllerV1> c = PipelineOperationsControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -176,21 +179,20 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(pipelineName, 'unpause'), [:])
+        postWithApiHeader(controller.controllerPath(Unpause.this.pipelineName, 'unpause'), [:])
       }
 
       @Override
-      String getPipelineName() {
-        return Unpause.this.pipelineName
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: Unpause.this.pipelineName)
       }
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
-        loginAsAdmin()
+        loginAsGroupOperateUser(pipelineName: pipelineName)
       }
 
       @Test
@@ -200,7 +202,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
           HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.setMessage("success!")
           return result
-        }).when(pipelinePauseService).unpause(any() as String, any() as Username, any() as HttpLocalizedOperationResult)
+        }).when(pipelinePauseService).unpause(any() as String, any() as Username, any())
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'unpause'), [:])
 
@@ -217,7 +219,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
           HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.conflict("already unpaused!")
           return result
-        }).when(pipelinePauseService).unpause(any() as String, any() as Username, any() as HttpLocalizedOperationResult)
+        }).when(pipelinePauseService).unpause(any() as String, any() as Username, any())
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'unpause'), [:])
 
@@ -233,7 +235,9 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
   class Unlock {
     private String pipelineName = "up42"
     @Nested
-    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+    class Security implements SecurityTestTrait, GroupOperateUserSecurity {
+      @Delegate SecurityServiceTrait s = PipelineOperationsControllerV1Test.this
+      @Delegate ControllerTrait<PipelineOperationsControllerV1> c = PipelineOperationsControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -242,21 +246,20 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(pipelineName, 'unlock'), [:])
+        postWithApiHeader(controller.controllerPath(Unlock.this.pipelineName, 'unlock'), [:])
       }
 
       @Override
-      String getPipelineName() {
-        return Unlock.this.pipelineName
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: Unlock.this.pipelineName)
       }
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
-        loginAsAdmin()
+        loginAsGroupOperateUser(pipelineName: pipelineName)
       }
 
       @Test
@@ -265,7 +268,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
           HttpOperationResult result = invocation.getArgument(2)
           result.ok("unlocked!")
           return result
-        }).when(pipelineUnlockApiService).unlock(any() as String, any() as Username, any() as HttpOperationResult)
+        }).when(pipelineUnlockApiService).unlock(any() as String, any() as Username, any())
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'unlock'), [:])
 
@@ -281,7 +284,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
           HttpOperationResult result = invocation.getArgument(2)
           result.conflict("pipeline is not locked", "pipeline is not locked", HealthStateType.general(HealthStateScope.forPipeline(pipelineName)))
           return result
-        }).when(pipelineUnlockApiService).unlock(any() as String, any() as Username, any() as HttpOperationResult)
+        }).when(pipelineUnlockApiService).unlock(any() as String, any() as Username, any())
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'unlock'), [:])
 
@@ -297,7 +300,9 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
   class TriggerOptionsTest {
 
     @Nested
-    class Security implements PipelineGroupOperateUserSecurity, SecurityTestTrait {
+    class Security implements SecurityTestTrait, GroupOperateUserSecurity {
+      @Delegate SecurityServiceTrait s = PipelineOperationsControllerV1Test.this
+      @Delegate ControllerTrait<PipelineOperationsControllerV1> c = PipelineOperationsControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -310,13 +315,13 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
       }
 
       @Override
-      String getPipelineName() {
-        return 'build-linux'
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: 'build-linux')
       }
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @Test
       void 'should render trigger options'() {
         MaterialRevisions revisions = ModificationsMother.modifyOneFile(MaterialsMother.defaultSvnMaterialsWithUrl("http://example.com/svn/project"), "revision")
@@ -359,7 +364,9 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
   class Schedule {
     private String pipelineName = "up42"
     @Nested
-    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+    class Security implements SecurityTestTrait, GroupOperateUserSecurity {
+      @Delegate SecurityServiceTrait s = PipelineOperationsControllerV1Test.this
+      @Delegate ControllerTrait<PipelineOperationsControllerV1> c = PipelineOperationsControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -368,21 +375,20 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(pipelineName, 'schedule'), [:])
+        postWithApiHeader(controller.controllerPath(Schedule.this.pipelineName, 'schedule'), [:])
       }
 
       @Override
-      String getPipelineName() {
-        return Schedule.this.pipelineName
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: Schedule.this.pipelineName)
       }
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsGroupOperateUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
-        loginAsGroupOperateUser(pipelineName)
+        loginAsGroupOperateUser(pipelineName: pipelineName)
       }
 
       @Test
@@ -391,7 +397,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
           HttpOperationResult result = invocation.getArgument(3)
           result.ok("scheduled!")
           return result
-        }).when(pipelineTriggerService).schedule(eq(pipelineName), any() as PipelineScheduleOptions, any() as Username, any() as HttpOperationResult)
+        }).when(pipelineTriggerService).schedule(eq(pipelineName), any() as PipelineScheduleOptions, any() as Username, any())
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'schedule'), [:])
 
@@ -415,7 +421,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
           HttpOperationResult result = invocation.getArgument(3)
           result.ok("scheduled!")
           return result
-        }).when(pipelineTriggerService).schedule(eq(pipelineName), eq(pipelineScheduleOptions), any() as Username, any() as HttpOperationResult)
+        }).when(pipelineTriggerService).schedule(eq(pipelineName), eq(pipelineScheduleOptions), any() as Username, any())
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'schedule'), convertPipelineScheduleOptionsToJSON(pipelineScheduleOptions))
 
@@ -435,7 +441,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
           HttpOperationResult result = invocation.getArgument(3)
           result.ok("scheduled!")
           return result
-        }).when(pipelineTriggerService).schedule(eq(pipelineName), eq(pipelineScheduleOptions), any() as Username, any() as HttpOperationResult)
+        }).when(pipelineTriggerService).schedule(eq(pipelineName), eq(pipelineScheduleOptions), any() as Username, any())
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'schedule'), convertPipelineScheduleOptionsToJSON(pipelineScheduleOptions))
 
@@ -451,7 +457,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
           HttpOperationResult result = invocation.getArgument(3)
           result.conflict("pipeline is not scheduled", "reason", HealthStateType.general(HealthStateScope.forPipeline(pipelineName)))
           return result
-        }).when(pipelineTriggerService).schedule(eq(pipelineName), any() as PipelineScheduleOptions, any() as Username, any() as HttpOperationResult)
+        }).when(pipelineTriggerService).schedule(eq(pipelineName), any() as PipelineScheduleOptions, any() as Username, any())
 
         postWithApiHeader(controller.controllerPath(pipelineName, 'schedule'), [:])
 
@@ -497,7 +503,9 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
   class Status {
     private String pipelineName = "up42"
     @Nested
-    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+    class Security implements SecurityTestTrait, GroupOperateUserSecurity {
+      @Delegate SecurityServiceTrait s = PipelineOperationsControllerV1Test.this
+      @Delegate ControllerTrait<PipelineOperationsControllerV1> c = PipelineOperationsControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -506,28 +514,27 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(pipelineName, 'status'), [:])
+        getWithApiHeader(controller.controllerPath(Status.this.pipelineName, 'status'), [:])
       }
 
       @Override
-      String getPipelineName() {
-        return Status.this.pipelineName
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: Status.this.pipelineName)
       }
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsGroupOperateUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
-        loginAsGroupOperateUser(pipelineName)
+        loginAsGroupOperateUser(pipelineName: pipelineName)
       }
 
       @Test
       void 'should return the pipeline status'() {
         def pipelineStatusModel = new PipelineStatusModel(false, true, new PipelinePauseInfo(true, "some pause cause", "admin"))
 
-        when(pipelineHistoryService.getPipelineStatus(eq(pipelineName), anyString(), any(HttpOperationResult.class))).thenReturn(pipelineStatusModel)
+        when(pipelineHistoryService.getPipelineStatus(eq(pipelineName), anyString(), any())).thenReturn(pipelineStatusModel)
 
         getWithApiHeader(controller.controllerPath(pipelineName, 'status'), [:])
 

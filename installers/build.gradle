@@ -41,7 +41,7 @@ dependencies {
 tasks.register('versionFile') {
   outputs.upToDateWhen { false }
 
-  def goVersions = project.goVersions as GoVersions
+  def goVersions = rootProject.goVersions as GoVersions
   inputs.property('goVersions', goVersions)
 
   def versionFile = base.distsDirectory.file("meta/version.json")

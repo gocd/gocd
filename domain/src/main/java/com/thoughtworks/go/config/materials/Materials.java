@@ -31,7 +31,10 @@ import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigVisitor;
 import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.materials.*;
+import com.thoughtworks.go.domain.materials.DirectoryCleaner;
+import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.util.ArtifactUtil;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
@@ -79,23 +82,23 @@ public class Materials extends BaseCollection<Material> {
         MaterialRevisions revisions = new MaterialRevisions();
         for (Material material : this) {
             List<Modification> modifications = new ArrayList<>();
-            if (material instanceof SvnMaterial) {
-                modifications = ((SvnMaterial) material).latestModification(baseDir, execCtx);
+            if (material instanceof SvnMaterial svnMaterial) {
+                modifications = svnMaterial.latestModification(baseDir, execCtx);
             }
-            if (material instanceof HgMaterial) {
-                modifications = ((HgMaterial) material).latestModification(baseDir, execCtx);
+            if (material instanceof HgMaterial hgMaterial) {
+                modifications = hgMaterial.latestModification(baseDir, execCtx);
             }
-            if (material instanceof GitMaterial) {
-                modifications = ((GitMaterial) material).latestModification(baseDir, execCtx);
+            if (material instanceof GitMaterial gitMaterial) {
+                modifications = gitMaterial.latestModification(baseDir, execCtx);
             }
-            if (material instanceof P4Material) {
-                modifications = ((P4Material) material).latestModification(baseDir, execCtx);
+            if (material instanceof P4Material p4Material) {
+                modifications = p4Material.latestModification(baseDir, execCtx);
             }
-            if (material instanceof TfsMaterial) {
-                modifications = ((TfsMaterial) material).latestModification(baseDir, execCtx);
+            if (material instanceof TfsMaterial tfsMaterial) {
+                modifications = tfsMaterial.latestModification(baseDir, execCtx);
             }
-            if (material instanceof DependencyMaterial) {
-                modifications = ((DependencyMaterial) material).latestModification(baseDir, execCtx);
+            if (material instanceof DependencyMaterial dependencyMaterial) {
+                modifications = dependencyMaterial.latestModification(baseDir, execCtx);
             }
             revisions.addRevision(material, modifications);
         }
@@ -183,8 +186,8 @@ public class Materials extends BaseCollection<Material> {
     private List<ScmMaterial> filterScmMaterials() {
         List<ScmMaterial> scmMaterials = new ArrayList<>();
         for (Material material : this) {
-            if (material instanceof ScmMaterial) {
-                scmMaterials.add((ScmMaterial) material);
+            if (material instanceof ScmMaterial scmMaterial) {
+                scmMaterials.add(scmMaterial);
             }
         }
         return scmMaterials;
@@ -250,8 +253,6 @@ public class Materials extends BaseCollection<Material> {
             return new PackageMaterial((PackageMaterialConfig) materialConfig);
         } else if (PluggableSCMMaterial.TYPE.equals(materialConfig.getType())) {
             return new PluggableSCMMaterial((PluggableSCMMaterialConfig) materialConfig);
-        } else if (TestingMaterial.TYPE.equals(materialConfig.getType())) {
-            return new TestingMaterial((TestingMaterialConfig) materialConfig);
         }
         throw new RuntimeException("Unexpected material type: " + materialConfig.getClass() + ": " + materialConfig);
     }

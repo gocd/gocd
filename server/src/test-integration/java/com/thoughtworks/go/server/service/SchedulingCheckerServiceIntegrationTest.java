@@ -46,6 +46,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -133,7 +134,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     public void shouldFailCheckingWhenPipelineNotYetScheduledButInScheduleQueue() {
         String pipelineName = "blahPipeline";
         PipelineConfig pipelineConfig = configHelper.addPipelineWithGroup("group2", pipelineName, "stage", "job");
-        pipelineScheduleQueue.schedule(new CaseInsensitiveString(pipelineName), BuildCause.createManualForced());
+        pipelineScheduleQueue.schedule(cis(pipelineName), BuildCause.createManualForced());
         HttpOperationResult operationResult = new HttpOperationResult();
         assertThat(schedulingChecker.canManuallyTrigger(pipelineConfig, "blahUser", operationResult)).isFalse();
         assertThat(operationResult.canContinue()).isFalse();
@@ -173,7 +174,7 @@ public class SchedulingCheckerServiceIntegrationTest {
         configHelper.addPipelineWithGroup("group2", pipelineName, "stage", "job");
         configHelper.addAuthorizedUserForStage(pipelineName, "stage", APPROVED_USER);
 
-        pipelineScheduleQueue.schedule(new CaseInsensitiveString(pipelineName), BuildCause.createWithEmptyModifications());
+        pipelineScheduleQueue.schedule(cis(pipelineName), BuildCause.createEmpty());
         assertThat(schedulingChecker.canManuallyTrigger(pipelineName, new Username(APPROVED_USER))).isTrue();
     }
 
@@ -327,7 +328,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     @Test
     public void shouldNotPassCheckingIfPipelineIsPausedForRerun() {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
-        Username userName = new Username(new CaseInsensitiveString("A humble developer"));
+        Username userName = new Username(cis("A humble developer"));
 
         configHelper.setOperatePermissionForGroup(pipelineFixture.groupName, userName.getUsername().toString(), APPROVED_USER);
         pipelinePauseService.pause(pipeline.getName(), "Upgrade scheduled", userName);
@@ -340,7 +341,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     @Test
     public void shouldNotPassCheckingIfPipelineIsPausedForManualTrigger() {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
-        Username userName = new Username(new CaseInsensitiveString("A humble developer"));
+        Username userName = new Username(cis("A humble developer"));
 
         configHelper.setOperatePermissionForGroup(pipelineFixture.groupName, userName.getUsername().toString(), APPROVED_USER);
         pipelinePauseService.pause(pipeline.getName(), "Upgrade scheduled", userName);
@@ -357,7 +358,7 @@ public class SchedulingCheckerServiceIntegrationTest {
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
 
         assertThat(schedulingChecker.canManuallyTrigger(pipelineFixture.pipelineConfig(), APPROVED_USER, result)).isFalse();
-        assertThat(result.getServerHealthState().getDescription()).contains(String.format("GoCD has less than %sb of disk space", limit));
+        assertThat(result.getServerHealthState().getDescription()).contains(String.format("GoCD has less than %sB of disk space", limit));
     }
 
     @Test
@@ -371,7 +372,7 @@ public class SchedulingCheckerServiceIntegrationTest {
 
         configHelper.addAuthorizedUserForStage(pipelineName, stageName, APPROVED_USER);
         assertThat(schedulingChecker.canScheduleStage(new PipelineIdentifier(pipelineName, 1, label), stageName, APPROVED_USER, result)).isFalse();
-        assertThat(result.getServerHealthState().getDescription()).contains(String.format("GoCD has less than %sb of disk space", limit));
+        assertThat(result.getServerHealthState().getDescription()).contains(String.format("GoCD has less than %sB of disk space", limit));
     }
 
     @Test
@@ -380,7 +381,7 @@ public class SchedulingCheckerServiceIntegrationTest {
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         assertThat(schedulingChecker.canSchedule(result)).isFalse();
-        assertThat(result.getServerHealthState().getDescription()).contains(String.format("GoCD has less than %sb of disk space", limit));
+        assertThat(result.getServerHealthState().getDescription()).contains(String.format("GoCD has less than %sB of disk space", limit));
     }
 
     @Test

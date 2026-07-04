@@ -62,9 +62,9 @@ class SystemEnvironmentTest {
     @Test
     void shouldCacheAgentConnectionSystemPropertyOnFirstAccess() {
         System.setProperty(SystemEnvironment.AGENT_CONNECTION_TIMEOUT_IN_SECONDS, "1");
-        assertThat(systemEnvironment.getAgentConnectionTimeout()).isEqualTo(1);
+        assertThat(systemEnvironment.getAgentConnectionTimeout()).isEqualTo(Duration.ofSeconds(1));
         System.setProperty(SystemEnvironment.AGENT_CONNECTION_TIMEOUT_IN_SECONDS, "2");
-        assertThat(systemEnvironment.getAgentConnectionTimeout()).isEqualTo(1);
+        assertThat(systemEnvironment.getAgentConnectionTimeout()).isEqualTo(Duration.ofSeconds(1));
     }
 
     @Test
@@ -84,31 +84,25 @@ class SystemEnvironmentTest {
     @Test
     void shouldCacheDatabaseDiskFullOnFirstAccess() {
         System.setProperty(SystemEnvironment.DATABASE_FULL_SIZE_LIMIT, "100");
-        assertThat(systemEnvironment.getDatabaseDiskSpaceFullLimit()).isEqualTo(100L);
+        assertThat(systemEnvironment.getDatabaseDiskSpaceFullLimitMegabytes()).isEqualTo(100L);
         System.setProperty(SystemEnvironment.DATABASE_FULL_SIZE_LIMIT, "50M");
-        assertThat(systemEnvironment.getDatabaseDiskSpaceFullLimit()).isEqualTo(100L);
+        assertThat(systemEnvironment.getDatabaseDiskSpaceFullLimitMegabytes()).isEqualTo(100L);
     }
 
     @Test
     void shouldCacheArtifactDiskFullOnFirstAccess() {
         System.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "100");
-        assertThat(systemEnvironment.getArtifactRepositoryFullLimit()).isEqualTo(100L);
+        assertThat(systemEnvironment.getArtifactRepositoryFullLimitMegabytes()).isEqualTo(100L);
         System.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "50M");
-        assertThat(systemEnvironment.getArtifactRepositoryFullLimit()).isEqualTo(100L);
+        assertThat(systemEnvironment.getArtifactRepositoryFullLimitMegabytes()).isEqualTo(100L);
     }
 
     @Test
     void shouldClearCachedValuesOnSettingNewProperty() {
         System.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "100");
-        assertThat(systemEnvironment.getArtifactRepositoryFullLimit()).isEqualTo(100L);
+        assertThat(systemEnvironment.getArtifactRepositoryFullLimitMegabytes()).isEqualTo(100L);
         systemEnvironment.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "50");
-        assertThat(systemEnvironment.getArtifactRepositoryFullLimit()).isEqualTo(50L);
-    }
-
-    @Test
-    void shouldPrefixApplicationPathWithContext() {
-        assertThat(systemEnvironment.pathFor("foo/bar")).isEqualTo("/go/foo/bar");
-        assertThat(systemEnvironment.pathFor("/baz/quux")).isEqualTo("/go/baz/quux");
+        assertThat(systemEnvironment.getArtifactRepositoryFullLimitMegabytes()).isEqualTo(50L);
     }
 
     @Test
@@ -202,19 +196,13 @@ class SystemEnvironmentTest {
 
     @Test
     void shouldGetDefaultLandingPageAsPipelines() {
-        String landingPage = systemEnvironment.landingPage();
-        assertThat(landingPage).isEqualTo("/pipelines");
+        assertThat(systemEnvironment.getLandingPage()).isEqualTo("/go/pipelines");
     }
 
     @Test
     void shouldAbleToOverrideDefaultLandingPageAsPipelines() {
-        try {
-            System.setProperty("go.landing.page", "/admin/pipelines");
-            String landingPage = systemEnvironment.landingPage();
-            assertThat(landingPage).isEqualTo("/admin/pipelines");
-        } finally {
-            System.clearProperty("go.landing.page");
-        }
+        systemProperties.set("go.landing.page", "/admin/pipelines");
+        assertThat(systemEnvironment.getLandingPage()).isEqualTo("/go/admin/pipelines");
     }
 
     @Test
@@ -235,18 +223,6 @@ class SystemEnvironmentTest {
         System.setProperty("go.encryption.api.max.requests", "50");
 
         assertThat(SystemEnvironment.getMaxEncryptionAPIRequestsPerMinute()).isEqualTo(50);
-    }
-
-    @Test
-    void shouldEnableTemplateAutoSuggestByDefault() {
-        assertThat(SystemEnvironment.GO_FETCH_ARTIFACT_TEMPLATE_AUTO_SUGGEST.propertyName()).isEqualTo("go.fetch-artifact.template.auto-suggest");
-        assertThat(systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled()).isTrue();
-    }
-
-    @Test
-    void shouldDisableTemplateAutoSuggest() {
-        System.setProperty("go.fetch-artifact.template.auto-suggest", "false");
-        assertThat(systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled()).isFalse();
     }
 
     @Test

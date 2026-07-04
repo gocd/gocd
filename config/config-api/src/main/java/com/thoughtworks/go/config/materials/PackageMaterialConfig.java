@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -140,7 +141,7 @@ public class PackageMaterialConfig extends AbstractMaterialConfig {
     @Override
     public CaseInsensitiveString getName() {
         if ((name == null || isEmpty(name.toString())) && packageDefinition != null) {
-            return new CaseInsensitiveString(getPackageDefinition().getRepository().getName() + "_" + packageDefinition.getName());
+            return cis(getPackageDefinition().getRepository().getName() + "_" + packageDefinition.getName());
         } else {
             return name;
         }
@@ -228,12 +229,12 @@ public class PackageMaterialConfig extends AbstractMaterialConfig {
         if (isBlank(packageId)) {
             return;
         }
-        if (map.containsKey(new CaseInsensitiveString(packageId))) {
-            AbstractMaterialConfig material = map.get(new CaseInsensitiveString(packageId));
+        if (map.containsKey(cis(packageId))) {
+            AbstractMaterialConfig material = map.get(cis(packageId));
             material.addError(PACKAGE_ID, "Duplicate package material detected!");
             addError(PACKAGE_ID, "Duplicate package material detected!");
         } else {
-            map.put(new CaseInsensitiveString(packageId), this);
+            map.put(cis(packageId), this);
         }
     }
 }

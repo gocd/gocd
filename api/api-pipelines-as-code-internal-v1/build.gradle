@@ -21,13 +21,13 @@ plugins {
 dependencies {
   implementation project(':api:api-base')
   implementation project(':api:api-shared-v11')
-  implementation project.deps.commonsLang3
-  implementation project.deps.commonsIO
-  implementation project.deps.springWeb
+  implementation rootProject.deps.commonsLang3
+  implementation rootProject.deps.commonsIO
+  implementation rootProject.deps.springWeb
 
   testImplementation(testFixtures(project(":api:api-base")))
 
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.junit5Api
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
 }

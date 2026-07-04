@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.persistence;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterial;
@@ -49,13 +48,12 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
@@ -86,9 +84,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.ModificationsMother.EMAIL_ADDRESS;
 import static com.thoughtworks.go.helper.ModificationsMother.MOD_USER;
-import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -155,7 +154,7 @@ public class MaterialRepositoryIntegrationTest {
 
     @Test
     public void shouldBeAbleToPersistADependencyMaterial() {
-        MaterialInstance materialInstance = new DependencyMaterial(new CaseInsensitiveString("name"), new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage")).createMaterialInstance();
+        MaterialInstance materialInstance = new DependencyMaterial(cis("name"), cis("pipeline"), cis("stage")).createMaterialInstance();
         repo.saveOrUpdate(materialInstance);
 
         MaterialInstance loaded = repo.find(materialInstance.getId());
@@ -493,7 +492,7 @@ public class MaterialRepositoryIntegrationTest {
         PipelineConfig pipelineConfig = PipelineMother.createPipelineConfig("mingle", new MaterialConfigs(hgMaterial.config()), "dev");
         MaterialRevisions materialRevisions = new MaterialRevisions(materialRevision);
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS),
-                new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5,
+                new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5,
                 new TimeProvider());
 
         pipelineSqlMapDao.save(pipeline);
@@ -509,7 +508,7 @@ public class MaterialRepositoryIntegrationTest {
         PipelineConfig pipelineConfig = PipelineMother.createPipelineConfig("mingle", new MaterialConfigs(hgMaterial.config()), "dev");
         MaterialRevisions materialRevisions = new MaterialRevisions(materialRevision);
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS),
-                new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5,
+                new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5,
                 new TimeProvider());
 
         pipelineSqlMapDao.save(pipeline);
@@ -524,11 +523,11 @@ public class MaterialRepositoryIntegrationTest {
     public void hasPipelineEverRunWithMultipleMaterials() {
         HgMaterial hgMaterial = MaterialsMother.hgMaterial("hgUrl", "dest");
         MaterialRevision hgMaterialRevision = saveOneScmModification(hgMaterial, "user", "file");
-        DependencyMaterial depMaterial = new DependencyMaterial(new CaseInsensitiveString("blahPipeline"), new CaseInsensitiveString("blahStage"));
+        DependencyMaterial depMaterial = new DependencyMaterial(cis("blahPipeline"), cis("blahStage"));
         MaterialRevision depMaterialRevision = saveOneDependencyModification(depMaterial, "blahPipeline/1/blahStage/1");
         PipelineConfig pipelineConfig = PipelineMother.createPipelineConfig("mingle", new MaterialConfigs(hgMaterial.config(), depMaterial.config()), "dev");
         MaterialRevisions materialRevisions = new MaterialRevisions(hgMaterialRevision, depMaterialRevision);
-        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5,
+        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5,
                 new TimeProvider());
 
         pipelineSqlMapDao.save(pipeline);
@@ -542,21 +541,21 @@ public class MaterialRepositoryIntegrationTest {
     public void hasPipelineEverRunWithMultipleMaterialsAndMultipleRuns() {
         HgMaterial hgMaterial1 = MaterialsMother.hgMaterial("hgUrl", "dest");
         MaterialRevision hgMaterialRevision1 = saveOneScmModification(hgMaterial1, "user", "file");
-        DependencyMaterial depMaterial1 = new DependencyMaterial(new CaseInsensitiveString("blahPipeline"), new CaseInsensitiveString("blahStage"));
+        DependencyMaterial depMaterial1 = new DependencyMaterial(cis("blahPipeline"), cis("blahStage"));
         MaterialRevision depMaterialRevision1 = saveOneDependencyModification(depMaterial1, "blahPipeline/1/blahStage/1");
         PipelineConfig pipelineConfig = PipelineMother.createPipelineConfig("mingle", new MaterialConfigs(hgMaterial1.config(), depMaterial1.config()), "dev");
         MaterialRevisions materialRevisions1 = new MaterialRevisions(hgMaterialRevision1, depMaterialRevision1);
-        pipelineSqlMapDao.save(instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions1, Username.ANONYMOUS), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5,
+        pipelineSqlMapDao.save(instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions1, Username.ANONYMOUS), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5,
                 new TimeProvider()));
 
         HgMaterial hgMaterial2 = MaterialsMother.hgMaterial("hgUrl", "dest");
         MaterialRevision hgMaterialRevision2 = saveOneScmModification(hgMaterial2, "user", "file");
-        DependencyMaterial depMaterial2 = new DependencyMaterial(new CaseInsensitiveString("blahPipeline"), new CaseInsensitiveString("blahStage"));
+        DependencyMaterial depMaterial2 = new DependencyMaterial(cis("blahPipeline"), cis("blahStage"));
         MaterialRevision depMaterialRevision2 = saveOneDependencyModification(depMaterial2, "blahPipeline/2/blahStage/1");
         PipelineConfig pipelineConfig2 = PipelineMother.createPipelineConfig("mingle", new MaterialConfigs(hgMaterial2.config(), depMaterial2.config()), "dev");
         MaterialRevisions materialRevisions2 = new MaterialRevisions(hgMaterialRevision2, depMaterialRevision2);
 
-        savePipeline(instanceFactory.createPipelineInstance(pipelineConfig2, BuildCause.createManualForced(materialRevisions2, Username.ANONYMOUS), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5,
+        savePipeline(instanceFactory.createPipelineInstance(pipelineConfig2, BuildCause.createManualForced(materialRevisions2, Username.ANONYMOUS), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5,
                 new TimeProvider()));
 
         MaterialRevisions revisions = new MaterialRevisions(new MaterialRevision(depMaterial1, depMaterialRevision1.getLatestModification()),
@@ -576,12 +575,12 @@ public class MaterialRepositoryIntegrationTest {
         HgMaterial material = MaterialsMother.hgMaterial("hgUrl", "dest");
         MaterialRevision hgMaterialRevision = saveOneScmModification(material, "user", "file");
 
-        DependencyMaterial depMaterial = new DependencyMaterial(new CaseInsensitiveString("blahPipeline"), new CaseInsensitiveString("blahStage"));
+        DependencyMaterial depMaterial = new DependencyMaterial(cis("blahPipeline"), cis("blahStage"));
         MaterialRevision depMaterialRevision = saveOneDependencyModification(depMaterial, "blahPipeline/1/blahStage/1");
 
         PipelineConfig pipelineConfig = PipelineMother.createPipelineConfig("mingle", new MaterialConfigs(material.config(), depMaterial.config()), "dev");
         MaterialRevisions revisions = new MaterialRevisions(hgMaterialRevision, depMaterialRevision);
-        pipelineSqlMapDao.save(instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(revisions, Username.ANONYMOUS), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5,
+        pipelineSqlMapDao.save(instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(revisions, Username.ANONYMOUS), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5,
                 new TimeProvider()));
 
         MaterialRevision laterRevision = saveOneScmModification(material, "user", "file");
@@ -604,8 +603,8 @@ public class MaterialRepositoryIntegrationTest {
         MaterialRevisions secondRun = new MaterialRevisions(first2, second1);
 
         PipelineConfig config = PipelineMother.createPipelineConfig("mingle", new MaterialConfigs(firstMaterial.config(), secondMaterial.config()), "dev");
-        savePipeline(instanceFactory.createPipelineInstance(config, BuildCause.createWithModifications(firstRun, "Pavan"), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider()));
-        savePipeline(instanceFactory.createPipelineInstance(config, BuildCause.createWithModifications(secondRun, "Shilpa-who-gets-along-well-with-her"), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5,
+        savePipeline(instanceFactory.createPipelineInstance(config, BuildCause.createWithModifications(firstRun, "Pavan"), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5, new TimeProvider()));
+        savePipeline(instanceFactory.createPipelineInstance(config, BuildCause.createWithModifications(secondRun, "Shilpa-who-gets-along-well-with-her"), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5,
                 new TimeProvider()));
 
         assertThat(repo.hasPipelineEverRunWith("mingle", new MaterialRevisions(first2, second2))).isTrue();
@@ -617,7 +616,7 @@ public class MaterialRepositoryIntegrationTest {
         MaterialRevision materialRevision = saveOneScmModification(hgMaterial, "user", "file");
         PipelineConfig pipelineConfig = PipelineMother.createPipelineConfig("mingle", new MaterialConfigs(hgMaterial.config()), "dev");
         MaterialRevisions materialRevisions = new MaterialRevisions(materialRevision);
-        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5,
+        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5,
                 new TimeProvider());
 
         GoCache spyGoCache = spy(goCache);
@@ -661,13 +660,13 @@ public class MaterialRepositoryIntegrationTest {
 
     @Test
     public void shouldSaveDependencyPipelineMaterialRevisions() {
-        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"));
+        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(cis("pipeline"), cis("stage"));
         assertCanLoadAndSaveMaterialRevisionsFor(dependencyMaterialConfig);
     }
 
     @Test
     public void shouldReturnModificationForASpecificRevision() {
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("blahPipeline"), new CaseInsensitiveString("blahStage"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("blahPipeline"), cis("blahStage"));
         MaterialRevision originalRevision = saveOneDependencyModification(dependencyMaterial, "blahPipeline/3/blahStage/1");
 
         Modification modification = repo.findModificationWithRevision(dependencyMaterial, "blahPipeline/3/blahStage/1");
@@ -728,7 +727,7 @@ public class MaterialRepositoryIntegrationTest {
 
     @Test
     public void shouldFixToAsFromForDependencyMaterialRevisionWhileSavingAndUpdating() {
-        Material material = new DependencyMaterial(new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
+        Material material = new DependencyMaterial(cis("pipeline_name"), cis("stage_name"));
         MaterialRevision firstRevision = new MaterialRevision(material, new Modifications(modification("pipeline_name/10/stage_name/1"), modification("pipeline_name/9/stage_name/2"), modification("pipeline_name/8/stage_name/2")));
         saveMaterialRev(firstRevision);
         Pipeline firstPipeline = createPipeline();
@@ -771,7 +770,7 @@ public class MaterialRepositoryIntegrationTest {
 
     @Test
     public void shouldPersistActualFromRevisionUsingTheRealFromForDependencyMaterial() {
-        Material material = new DependencyMaterial(new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
+        Material material = new DependencyMaterial(cis("pipeline_name"), cis("stage_name"));
         Modification actualFrom = modification("pipeline_name/8/stage_name/2");
         Modification from = modification("pipeline_name/10/stage_name/1");
         MaterialRevision firstRevision = new MaterialRevision(material, new Modifications(from, modification("pipeline_name/9/stage_name/2"), actualFrom));
@@ -786,7 +785,7 @@ public class MaterialRepositoryIntegrationTest {
 
     @Test
     public void shouldUseTheFromIdAsActualFromIdWhenThePipelineIsBeingBuiltForTheFirstTime() {
-        Material material = new DependencyMaterial(new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
+        Material material = new DependencyMaterial(cis("pipeline_name"), cis("stage_name"));
         Modification actualFrom = modification("pipeline_name/8/stage_name/2");
         MaterialRevision firstRevision = new MaterialRevision(material, new Modifications(modification("pipeline_name/9/stage_name/2"), actualFrom));
         saveMaterialRev(firstRevision);
@@ -810,7 +809,7 @@ public class MaterialRepositoryIntegrationTest {
 
     @Test
     public void shouldPersistActualFromRevisionForSameRevisionOfDependencyMaterialModifications() {
-        Material material = new DependencyMaterial(new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
+        Material material = new DependencyMaterial(cis("pipeline_name"), cis("stage_name"));
         Modification actualFrom = modification("pipeline_name/8/stage_name/2");
         MaterialRevision firstRevision = new MaterialRevision(material, new Modifications(actualFrom));
         saveMaterialRev(firstRevision);
@@ -871,7 +870,7 @@ public class MaterialRepositoryIntegrationTest {
 
     @Test
     public void shouldMatchPipelineLabelForDependencyModifications() {
-        DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
+        DependencyMaterial material = new DependencyMaterial(cis("pipeline-name"), cis("stage-name"));
         repo.saveOrUpdate(material.createMaterialInstance());
         MaterialRevision first = saveOneDependencyModification(material, "pipeline-name/1/stage-name/3", "my-random-label-123");
         MaterialRevision second = saveOneDependencyModification(material, "pipeline-name/3/stage-name/1", "other-label-456");
@@ -1090,14 +1089,14 @@ public class MaterialRepositoryIntegrationTest {
         Pipeline pipeline = createPipeline();
         savePMR(first, pipeline);
         savePMR(second, pipeline);
-        Long latestModId = repo.latestModificationRunByPipeline(new CaseInsensitiveString(pipeline.getName()), material);
+        Long latestModId = repo.latestModificationRunByPipeline(cis(pipeline.getName()), material);
 
         assertThat(latestModId).isEqualTo(second.getLatestModification().getId());
     }
 
     @Test
     public void shouldFindModificationsForAStageIdentifier() {
-        DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("P1"), new CaseInsensitiveString("S1"));
+        DependencyMaterial material = new DependencyMaterial(cis("P1"), cis("S1"));
         repo.saveOrUpdate(material.createMaterialInstance());
         saveOneDependencyModification(material, "P1/1/S1/1");
         saveOneDependencyModification(material, "P1/2/S1/1");
@@ -1687,7 +1686,7 @@ public class MaterialRepositoryIntegrationTest {
 
                 PipelineConfig config = PipelineMother.withTwoStagesOneBuildEach("pipeline-name", "stage-1", "stage-2");
                 config.setMaterialConfigs(materialRevisions.getMaterials().convertToConfigs());
-                pipeline[0] = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5,
+                pipeline[0] = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS), new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), md5,
                         new TimeProvider());
 
                 //this should persist the materials

@@ -91,8 +91,8 @@ public class BackupFilter extends OncePerRequestFilter {
 
     String replaceStringLiterals(String content) {
         return content
-            .replaceAll("%backup_initiated_by%", HtmlUtils.htmlEscape(backupService.backupRunningSinceISO8601().orElse("")))
-            .replaceAll("%backup_started_by%", HtmlUtils.htmlEscape(backupService.backupStartedBy().orElse("")));
+            .replace("%backup_initiated_by%", HtmlUtils.htmlEscape(backupService.backupRunningSinceISO8601().orElse("")))
+            .replace("%backup_started_by%", HtmlUtils.htmlEscape(backupService.backupStartedBy().orElse("")));
     }
 
     private boolean isBackupFinishJsonUrl(String url) {

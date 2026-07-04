@@ -29,7 +29,7 @@ import com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.security.ProductionIVProvider;
 import com.thoughtworks.go.security.TestIVProvider;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +39,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.server.service.EntityHashingService.ETAG_CACHE_KEY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -172,7 +173,7 @@ public class EntityHashingServiceTest {
         "EnvironmentConfig and List<EnvironmentConfig> without ambiguity")
     void hashesEnvironmentConfigsWithoutClassAmbiguityIssues() {
         // important to test these when typed as the non-specific parent interface
-        final EnvironmentConfig basic = new BasicEnvironmentConfig(new CaseInsensitiveString("hello"));
+        final EnvironmentConfig basic = new BasicEnvironmentConfig(cis("hello"));
         final EnvironmentConfig merged = new MergeEnvironmentConfig(basic);
         final EnvironmentsConfig mult = new EnvironmentsConfig();
         mult.add(basic);
@@ -192,8 +193,8 @@ public class EntityHashingServiceTest {
 
     @Test
     void treatsMergeEnvironmentConfigsAsCollectionsOfEnvironmentConfigs() {
-        BasicEnvironmentConfig env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env"));
-        BasicEnvironmentConfig env2 = new BasicEnvironmentConfig(new CaseInsensitiveString("env"));
+        BasicEnvironmentConfig env1 = new BasicEnvironmentConfig(cis("env"));
+        BasicEnvironmentConfig env2 = new BasicEnvironmentConfig(cis("env"));
         MergeEnvironmentConfig merged = new MergeEnvironmentConfig(env1, env2);
 
         when(goCache.get(ETAG_CACHE_KEY, "com.thoughtworks.go.config.BasicEnvironmentConfig.env"))

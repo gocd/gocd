@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -29,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Date;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
@@ -50,12 +50,12 @@ public class SpecificMaterialRevisionFactoryTest {
 
     @Test
     public void shouldCreateDependencyMaterialForAPipeline() {
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("blah-stage"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("upstream"), cis("blah-stage"));
         MaterialConfig dependencyMaterialConfig = dependencyMaterial.config();
         MaterialRevision expected = new MaterialRevision(dependencyMaterial, new Modification(new Date(), "upstream/4/blah-stage/2", "MOCK_LABEL-12", null));
 
         String upstreamFingerprint = "234fa4";
-        when(mockGoConfigService.findMaterial(new CaseInsensitiveString("blahPipeline"), upstreamFingerprint)).thenReturn(dependencyMaterialConfig);
+        when(mockGoConfigService.findMaterial(cis("blahPipeline"), upstreamFingerprint)).thenReturn(dependencyMaterialConfig);
         when(materialConfigConverter.toMaterial(dependencyMaterialConfig)).thenReturn(dependencyMaterial);
         when(mockMaterialChecker.findSpecificRevision(dependencyMaterial, "upstream/4/blah-stage/2")).thenReturn(expected);
 
@@ -66,7 +66,7 @@ public class SpecificMaterialRevisionFactoryTest {
 
     @Test
     public void shouldThrowExceptionWhenSpecifiedMaterialDoesNotExist() {
-        when(mockGoConfigService.findMaterial(new CaseInsensitiveString("blahPipeline"), "not-exist")).thenReturn(null);
+        when(mockGoConfigService.findMaterial(cis("blahPipeline"), "not-exist")).thenReturn(null);
 
         try {
             specificMaterialRevisionFactory.create("blahPipeline", Map.of("not-exist", "upstream/500/blah-stage/2"));
@@ -78,8 +78,8 @@ public class SpecificMaterialRevisionFactoryTest {
 
     @Test
     public void shouldThrowExceptionWhenSpecifiedRevisionDoesNotExist() {
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream-pipeline"), new CaseInsensitiveString("blah-stage"));
-        when(mockGoConfigService.findMaterial(new CaseInsensitiveString("blahPipeline"), dependencyMaterial.getPipelineUniqueFingerprint())).thenReturn(dependencyMaterial.config());
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("upstream-pipeline"), cis("blah-stage"));
+        when(mockGoConfigService.findMaterial(cis("blahPipeline"), dependencyMaterial.getPipelineUniqueFingerprint())).thenReturn(dependencyMaterial.config());
         when(materialConfigConverter.toMaterial(dependencyMaterial.config())).thenReturn(dependencyMaterial);
         when(mockMaterialChecker.findSpecificRevision(dependencyMaterial, "upstream-pipeline/500/blah-stage/2")).thenThrow(new RuntimeException("revision not found"));
         try {

@@ -23,42 +23,23 @@ java {
   registerFeature('logging') {
     usingSourceSet(sourceSets.create('logging'))
   }
-
-  // For use of the GoAgentServerClientBuilder
-  registerFeature('agentClient') {
-    usingSourceSet(sourceSets.create('agentClient'))
-  }
 }
 
-CapabilitySupport.extendMain(project, 'logging', 'agentClient')
+CapabilitySupport.extendMain(project, 'logging')
 
 dependencies {
-  api project.deps.slf4jApi
-  loggingApi project.deps.logback
+  api rootProject.deps.slf4jApi
+  loggingApi rootProject.deps.logback
 
-  agentClientApi project.deps.logback
-  agentClientImplementation project.deps.bouncyCastle
-  agentClientImplementation project.deps.bouncyCastlePkix
+  compileOnly rootProject.deps.jetBrainsAnnotations
 
-  agentClientImplementation(project.deps.apacheHttpComponents) {
-    exclude(module: 'commons-codec')
-  }
-  if (project.deps.apacheHttpComponents) {
-    agentClientRuntimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
-  }
-
-  compileOnly project.deps.jakartaAnnotation
-  compileOnly project.deps.jetBrainsAnnotations
-
-  testImplementation(testFixtures(project(':test:test-utils')))
-  testImplementation(testFixtures(project(':agent-common')))
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.junit5Params
-  testImplementation project.deps.systemStubs
-  testImplementation project.deps.mockitoCore
-  testImplementation project.deps.assertJ
+  testImplementation rootProject.deps.junit5Api
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.junit5Params
+  testImplementation rootProject.deps.systemStubs
+  testImplementation rootProject.deps.mockitoCore
+  testImplementation rootProject.deps.assertJ
 }
 
 def generatedResourcesOutput = file("resources-generated")
@@ -81,7 +62,7 @@ tasks.register('generateResources', Copy) {
   inputs.dir(generatedResourcesInput)
   outputs.dir(generatedResourcesOutput)
 
-  def goVersions = project.goVersions as GoVersions
+  def goVersions = rootProject.goVersions as GoVersions
   def props = [
     'goVersion'    : goVersions.goVersion,
     'distVersion'  : goVersions.distVersion,

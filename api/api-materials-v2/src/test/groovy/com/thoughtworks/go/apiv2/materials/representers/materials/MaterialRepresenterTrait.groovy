@@ -24,11 +24,8 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 trait MaterialRepresenterTrait<T extends MaterialConfig> {
 
   abstract T existingMaterial()
-
   abstract T existingMaterialWithErrors()
-
   abstract Object materialHash()
-
   abstract Object expectedMaterialHashWithErrors()
 
   @Test

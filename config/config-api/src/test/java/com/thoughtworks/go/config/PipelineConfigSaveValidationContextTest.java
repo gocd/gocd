@@ -36,6 +36,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -100,17 +101,17 @@ class PipelineConfigSaveValidationContextTest {
     @Test
     void shouldGetDependencyMaterialsForPipelines() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2", "p3");
-        PipelineConfig p2 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p2"));
-        p2.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p1"), new CaseInsensitiveString("stage")));
-        PipelineConfig p3 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p3"));
-        p3.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p2"), new CaseInsensitiveString("stage")));
+        PipelineConfig p2 = cruiseConfig.getPipelineConfigByName(cis("p2"));
+        p2.addMaterialConfig(new DependencyMaterialConfig(cis("p1"), cis("stage")));
+        PipelineConfig p3 = cruiseConfig.getPipelineConfigByName(cis("p3"));
+        p3.addMaterialConfig(new DependencyMaterialConfig(cis("p2"), cis("stage")));
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig);
 
 
-        assertThat(context.getDependencyMaterialsFor(new CaseInsensitiveString("p1")).getDependencies().isEmpty()).isTrue();
-        assertThat(context.getDependencyMaterialsFor(new CaseInsensitiveString("p2")).getDependencies()).containsExactly(new Node.DependencyNode(new CaseInsensitiveString("p1"), new CaseInsensitiveString("stage")));
-        assertThat(context.getDependencyMaterialsFor(new CaseInsensitiveString("p3")).getDependencies()).containsExactly(new Node.DependencyNode(new CaseInsensitiveString("p2"), new CaseInsensitiveString("stage")));
-        assertThat(context.getDependencyMaterialsFor(new CaseInsensitiveString("junk")).getDependencies().isEmpty()).isTrue();
+        assertThat(context.getDependencyMaterialsFor(cis("p1")).getDependencies().isEmpty()).isTrue();
+        assertThat(context.getDependencyMaterialsFor(cis("p2")).getDependencies()).containsExactly(new Node.DependencyNode(cis("p1"), cis("stage")));
+        assertThat(context.getDependencyMaterialsFor(cis("p3")).getDependencies()).containsExactly(new Node.DependencyNode(cis("p2"), cis("stage")));
+        assertThat(context.getDependencyMaterialsFor(cis("junk")).getDependencies().isEmpty()).isTrue();
     }
 
     @Test
@@ -123,15 +124,15 @@ class PipelineConfigSaveValidationContextTest {
     @Test
     void shouldFindPipelineByName() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1");
-        PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, new PipelineConfig(new CaseInsensitiveString("p2"), new MaterialConfigs()));
-        assertThat(context.getPipelineConfigByName(new CaseInsensitiveString("p1"))).isEqualTo(cruiseConfig.allPipelines().getFirst());
+        PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, new PipelineConfig(cis("p2"), new MaterialConfigs()));
+        assertThat(context.getPipelineConfigByName(cis("p1"))).isEqualTo(cruiseConfig.allPipelines().getFirst());
     }
 
     @Test
     void shouldReturnNullWhenNoMatchingPipelineIsFound() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1");
-        PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, new PipelineConfig(new CaseInsensitiveString("p2"), new MaterialConfigs()));
-        assertThat(context.getPipelineConfigByName(new CaseInsensitiveString("does_not_exist"))).isNull();
+        PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, new PipelineConfig(cis("p2"), new MaterialConfigs()));
+        assertThat(context.getPipelineConfigByName(cis("does_not_exist"))).isNull();
     }
 
 
@@ -139,7 +140,7 @@ class PipelineConfigSaveValidationContextTest {
     void shouldGetPipelineGroupForPipelineInContext() {
         String pipelineName = "p1";
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines(pipelineName);
-        PipelineConfig p1 = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        PipelineConfig p1 = cruiseConfig.pipelineConfigByName(cis(pipelineName));
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, PipelineConfigs.DEFAULT_GROUP, cruiseConfig, p1);
         assertThat(context.getPipelineGroup()).isEqualTo(cruiseConfig.findGroup(PipelineConfigs.DEFAULT_GROUP));
     }
@@ -148,8 +149,8 @@ class PipelineConfigSaveValidationContextTest {
     void shouldGetServerSecurityContext() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         SecurityConfig securityConfig = new SecurityConfig();
-        securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("admin")));
-        securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("super-admin")));
+        securityConfig.addRole(new RoleConfig(cis("admin")));
+        securityConfig.adminsConfig().add(new AdminUser(cis("super-admin")));
         cruiseConfig.server().useSecurity(securityConfig);
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig);
         assertThat(context.getServerSecurityConfig()).isEqualTo(securityConfig);
@@ -225,6 +226,6 @@ class PipelineConfigSaveValidationContextTest {
 
         Map<CaseInsensitiveString, Boolean> pipelinesWithMaterial = context.getPipelineToMaterialAutoUpdateMapByFingerprint(hg.getFingerprint());
         assertThat(pipelinesWithMaterial.size()).isEqualTo(5);
-        assertThat(pipelinesWithMaterial.keySet()).doesNotContain(new CaseInsensitiveString("another-pipeline"));
+        assertThat(pipelinesWithMaterial.keySet()).doesNotContain(cis("another-pipeline"));
     }
 }

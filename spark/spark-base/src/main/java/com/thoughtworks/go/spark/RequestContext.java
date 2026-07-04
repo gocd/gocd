@@ -20,6 +20,8 @@ import spark.Request;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static com.thoughtworks.go.util.SystemEnvironment.WEBAPP_CONTEXT_PATH;
+
 public class RequestContext {
 
     private final String host;
@@ -32,6 +34,11 @@ public class RequestContext {
         this.port = protocol.equalsIgnoreCase("https") && port == 443 || protocol.equals("http") && port == 80 ? -1 : port;
         this.protocol = protocol;
         this.contextPath = contextPath;
+    }
+
+    @SuppressWarnings("unused") // Used by Rails
+    public RequestContext(String protocol, String host, int port) {
+        this(protocol, host, port, WEBAPP_CONTEXT_PATH);
     }
 
     public static RequestContext requestContext(Request req) {

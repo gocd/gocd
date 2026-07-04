@@ -17,7 +17,7 @@ package com.thoughtworks.go.server.persistence;
 
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
@@ -40,39 +40,28 @@ import static org.mockito.Mockito.*;
 public class MaterialRepositoryTest {
 
     private MaterialRepository materialRepository;
-    private SessionFactory sessionFactory;
     private GoCache goCache;
-    private TransactionSynchronizationManager transactionSynchronizationManager;
     private HibernateTemplate mockHibernateTemplate;
     private Map<String, Object> ourCustomCache;
-    private MaterialConfigConverter materialConfigConverter;
-    private MaterialExpansionService materialExpansionService;
-    private Database databaseStrategy;
 
     @BeforeEach
     public void setUp() {
-        databaseStrategy = mock(Database.class);
-        sessionFactory = mock(SessionFactory.class);
+        Database databaseStrategy = mock(Database.class);
+        SessionFactory sessionFactory = mock(SessionFactory.class);
         goCache = mock(GoCache.class);
         ourCustomCache = new HashMap<>();
-        transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
+        TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
         mockHibernateTemplate = mock(HibernateTemplate.class);
-        materialConfigConverter = mock(MaterialConfigConverter.class);
-        materialExpansionService = mock(MaterialExpansionService.class);
+        MaterialConfigConverter materialConfigConverter = mock(MaterialConfigConverter.class);
+        MaterialExpansionService materialExpansionService = mock(MaterialExpansionService.class);
         materialRepository = new MaterialRepository(sessionFactory, goCache, 4242, transactionSynchronizationManager, materialConfigConverter, materialExpansionService, databaseStrategy);
         materialRepository.setHibernateTemplate(mockHibernateTemplate);
-        when(goCache.get(anyString())).thenAnswer(invocation -> {
-            Object[] arguments = invocation.getArguments();
-            return ourCustomCache.get(arguments[0]);
-        });
-        doAnswer(invocation -> {
-            Object[] arguments = invocation.getArguments();
-            return ourCustomCache.put((String) arguments[0], arguments[1]);
-        }).when(goCache).put(anyString(), any());
-        when(goCache.remove(anyString())).thenAnswer(invocation -> {
-            Object[] arguments = invocation.getArguments();
-            return ourCustomCache.remove(arguments[0]);
-        });
+        when(goCache.get(anyString()))
+            .thenAnswer(invocation -> ourCustomCache.get(invocation.<String>getArgument(0)));
+        doAnswer(invocation -> ourCustomCache.put(invocation.getArgument(0), invocation.<String>getArgument(1)))
+            .when(goCache).put(anyString(), any());
+        when(goCache.remove(anyString()))
+            .thenAnswer(invocation -> ourCustomCache.remove(invocation.<String>getArgument(0)));
     }
 
     @Test

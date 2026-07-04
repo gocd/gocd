@@ -51,7 +51,7 @@ class UserRepresenterTest {
   @Test
   void 'should add error message if any'() {
     def user = new User('jdoe', 'Jon Doe', 'jdoe', 'jdoe', true)
-    def result = new HttpLocalizedOperationResult()
+    HttpLocalizedOperationResult result = new HttpLocalizedOperationResult()
     result.badRequest("some message")
 
     def actualJson = toObjectString({ UserRepresenter.toJSON(it, user, result) })

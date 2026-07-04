@@ -29,6 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -75,7 +76,7 @@ class PartialConfigUpdateCommandTest {
         group.add(PipelineConfigMother.pipelineConfig("up42"));
         partial.setPipelines(new PipelineGroups(group));
         EnvironmentsConfig allEnvs = new EnvironmentsConfig();
-        CaseInsensitiveString prodEnv = new CaseInsensitiveString("prod");
+        CaseInsensitiveString prodEnv = cis("prod");
         allEnvs.add(new BasicEnvironmentConfig(prodEnv));
         partial.setEnvironments(allEnvs);
         partial.setOrigins(new RepoConfigOrigin(configRepoConfig, "123"));

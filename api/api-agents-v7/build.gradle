@@ -20,11 +20,12 @@ plugins {
 
 dependencies {
   implementation project(':api:api-base')
-  implementation project.deps.commonsLang3
+  implementation rootProject.deps.commonsLang3
 
   testImplementation(testFixtures(project(":api:api-base")))
+  testImplementation(testFixtures(project(":server")))
 
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.junit5Api
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
 }

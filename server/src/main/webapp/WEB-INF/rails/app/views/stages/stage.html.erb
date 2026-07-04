@@ -21,7 +21,6 @@
         <%= link_with_current_tab 'Overview', "overview" %>
         <%= link_with_current_tab 'Materials', "materials" %>
         <%= link_with_current_tab 'Jobs', "jobs" %>
-        <%= link_with_current_tab 'Config', "stage_config" %>
         <%= link_with_current_tab 'Graphs', "stats" %>
     </ul>
 </div>
@@ -59,10 +58,6 @@
                 }
             }, false);
         </script>
-    <% when 'stage_config' %>
-        <div id="ran_with_config">
-            <%= render :partial => "config", :locals => {:scope => {:config_revision => @ran_with_config_revision}} -%>
-        </div>
     <% end %>
 </div>
 

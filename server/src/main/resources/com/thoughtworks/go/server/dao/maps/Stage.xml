@@ -71,7 +71,7 @@
         <collection property="identifier" resultMap="Stage.stageIdentifier"/>
     </resultMap>
 
-    <resultMap id="select-stage-as-dmr" type="com.thoughtworks.go.domain.StageAsDMR">
+    <resultMap id="select-stage-as-dmr" type="com.thoughtworks.go.server.dao.StageAsDMR">
         <result property="pipelineId" column="pipelineId"/>
         <result property="completedDate" column="stateChangeTime"/>
         <collection property="identifier" resultMap="Stage.stageIdentifier"/>

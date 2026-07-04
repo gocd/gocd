@@ -37,13 +37,13 @@ public class ArtifactsDiskSpaceWarningChecker extends DiskSpaceChecker {
     }
 
     @Override
-    protected long limitInMb() {
-        return systemEnvironment.getArtifactRepositoryWarningLimit();
+    protected long limitInMegabytes() {
+        return systemEnvironment.getArtifactRepositoryWarningLimitMegabytes();
     }
 
     @Override
-    protected void createFailure(OperationResult result, long size, long availableSpace) {
-        String msg = "GoCD has less than " + size + "M of disk space available to it.";
+    protected void createFailure(OperationResult result, long limitMegabytes, long availableSpace) {
+        String msg = "GoCD has less than " + limitMegabytes + "MB of disk space available to it.";
         LOGGER.warn(msg);
         result.warning("GoCD Server's artifact repository is running low on disk space", msg, ARTIFACTS_DISK_FULL_ID);
     }

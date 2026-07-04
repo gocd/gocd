@@ -17,23 +17,6 @@
 package com.thoughtworks.go.config.security.permissions;
 
 import com.thoughtworks.go.config.security.users.Users;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.experimental.Accessors;
+import org.jetbrains.annotations.NotNull;
 
-@Getter
-@Setter
-@Accessors(chain = true)
-@EqualsAndHashCode
-@ToString
-public class StagePermission {
-    private final String stageName;
-    private final Users stageOperators;
-
-    public StagePermission(String stageName, Users stageOperators) {
-        this.stageName = stageName;
-        this.stageOperators = stageOperators;
-    }
-}
+public record StagePermission(@NotNull String stageName, @NotNull Users stageOperators) {}

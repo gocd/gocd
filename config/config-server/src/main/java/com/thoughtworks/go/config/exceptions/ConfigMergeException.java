@@ -24,8 +24,4 @@ public class ConfigMergeException extends RuntimeException {
     public ConfigMergeException(String message) {
         super(message);
     }
-
-    public ConfigMergeException(Throwable cause) {
-        super(cause);
-    }
 }

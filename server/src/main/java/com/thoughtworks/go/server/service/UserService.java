@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static java.lang.String.join;
@@ -107,7 +108,7 @@ public class UserService {
     }
 
     private boolean userNameListContainsAdmin(List<String> enabledUserNames) {
-        return enabledUserNames.stream().anyMatch(name -> securityService.isUserAdmin(new Username(new CaseInsensitiveString(name))));
+        return enabledUserNames.stream().anyMatch(name -> securityService.isUserAdmin(new Username(cis(name))));
     }
 
     public User save(final User user,
@@ -348,9 +349,9 @@ public class UserService {
 
     }
 
-    public Users findValidSubscribers(final StageConfigIdentifier identifier) {
+    public Users findValidNotificationSubscribers(StageEvent event, StageConfigIdentifier identifier) {
         Users users = userDao.findNotificationSubscribingUsers();
-        return users.filter(user -> user.hasSubscribedFor(identifier.getPipelineName(), identifier.getStageName()) &&
+        return users.filter(user -> user.hasSubscribedFor(event, identifier) &&
             securityService.hasViewPermissionForPipeline(user.getUsername(), identifier.getPipelineName()));
     }
 

@@ -48,7 +48,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.zip.ZipInputStream;
 
-import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
+import static com.thoughtworks.go.server.service.ArtifactsService.PUBLISH_MAX_RETRIES;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -126,11 +126,7 @@ public class ArtifactsServiceTest {
         try (LogFixture logFixture = logFixtureFor(ArtifactsService.class, Level.DEBUG)) {
             ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
             artifactsService.saveFile(destFile, stream, true, 1);
-            String result;
-            synchronized (logFixture) {
-                result = logFixture.getLog();
-            }
-            assertThat(result).contains("Failed to save the file to:");
+            assertThat(logFixture.getLog()).contains("Failed to save the file to:");
         }
     }
 
@@ -147,11 +143,7 @@ public class ArtifactsServiceTest {
         try (LogFixture logFixture = logFixtureFor(ArtifactsService.class, Level.DEBUG)) {
             ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
             artifactsService.saveFile(destFile, stream, true, PUBLISH_MAX_RETRIES);
-            String result;
-            synchronized (logFixture) {
-                result = logFixture.getLog();
-            }
-            assertThat(result).contains("Failed to save the file to:");
+            assertThat(logFixture.getLog()).contains("Failed to save the file to:");
         }
     }
 

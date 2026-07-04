@@ -25,12 +25,13 @@ configurations {
 dependencies {
   testFixturesApi(project(':base')) { capabilities { requireFeature('logging') } }
   testFixturesApi project(':util')
-  testFixturesImplementation project.deps.logback
+  testFixturesImplementation rootProject.deps.logback
+  testFixturesImplementation rootProject.deps.mockitoCore
 
-  testFixturesApi project.deps.assertJ
-  testFixturesApi enforcedPlatform(project.deps.junit5Bom)
-  testFixturesApi project.deps.junit5Api
-  testFixturesApi project.deps.junit5Params
+  testFixturesApi rootProject.deps.assertJ
+  testFixturesApi enforcedPlatform(rootProject.deps.junit5Bom)
+  testFixturesApi rootProject.deps.junit5Api
+  testFixturesApi rootProject.deps.junit5Params
 
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   copyOnly(testFixtures(project(':test:test-agent')))

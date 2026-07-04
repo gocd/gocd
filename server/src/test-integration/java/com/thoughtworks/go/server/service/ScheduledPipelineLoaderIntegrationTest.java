@@ -38,7 +38,7 @@ import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.SCMProperty;
 import com.thoughtworks.go.plugin.access.scm.SCMPropertyConfiguration;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -66,6 +66,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.temporal.ChronoUnit.HOURS;
@@ -132,7 +133,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
     public void shouldLoadPipelineAlongWithBuildCauseHavingMaterialPasswordsPopulated() {
         JobConfig jobConfig = new JobConfig("job-one");
         jobConfig.addTask(new AntTask());
-        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("last", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig)));
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("last", new StageConfig(cis("stage"), new JobConfigs(jobConfig)));
         pipelineConfig.materialConfigs().clear();
         SvnMaterial onDirOne = MaterialsMother.svnMaterial("google.com", "dirOne", "loser", "boozer", false, "**/*.html");
         P4Material onDirTwo = MaterialsMother.p4Material("host:987654321", "zoozer", "secret", "through-the-window", true);
@@ -245,7 +246,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
     public void shouldSetAServerHealthMessageWhenMaterialForPipelineWithBuildCauseIsNotFound() throws IllegalArtifactLocationException, IOException {
         JobConfig jobConfig = new JobConfig("job-one");
         jobConfig.addTask(new AntTask());
-        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("last", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig)));
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("last", new StageConfig(cis("stage"), new JobConfigs(jobConfig)));
         pipelineConfig.materialConfigs().clear();
         SvnMaterialConfig onDirOne = MaterialConfigsMother.svnMaterialConfig("google.com", "dirOne", "loser", "boozer", false, "**/*.html");
         final P4MaterialConfig onDirTwo = MaterialConfigsMother.p4MaterialConfig("host:987654321", "zoozer", "secret", "through-the-window", true);
@@ -259,7 +260,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         final Pipeline pipeline = dbHelper.savePipelineWithStagesAndMaterials(building);
 
         CruiseConfig cruiseConfig = configHelper.currentConfig();
-        PipelineConfig cfg = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("last"));
+        PipelineConfig cfg = cruiseConfig.pipelineConfigByName(cis("last"));
         cfg.removeMaterialConfig(cfg.materialConfigs().get(1));
         configHelper.writeConfigFile(cruiseConfig);
 
@@ -301,7 +302,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
     public void shouldSetPasswordForExpandedSvnMaterial() {
         JobConfig jobConfig = new JobConfig("job-one");
         jobConfig.addTask(new AntTask());
-        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("last", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig)));
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("last", new StageConfig(cis("stage"), new JobConfigs(jobConfig)));
         pipelineConfig.materialConfigs().clear();
         SvnMaterialConfig materialConfig = svnRepo.materialConfig();
         materialConfig.setConfigAttributes(Map.of(SvnMaterialConfig.CHECK_EXTERNALS, String.valueOf(true)));
@@ -324,12 +325,12 @@ public class ScheduledPipelineLoaderIntegrationTest {
         JobConfig jobConfig = new JobConfig("job-one");
         jobConfig.addTask(new AntTask());
 
-        PipelineConfig shallowPipeline = PipelineConfigMother.pipelineConfig("shallowPipeline", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig)));
+        PipelineConfig shallowPipeline = PipelineConfigMother.pipelineConfig("shallowPipeline", new StageConfig(cis("stage"), new JobConfigs(jobConfig)));
         shallowPipeline.materialConfigs().clear();
         shallowPipeline.addMaterialConfig(git(testRepo.projectRepositoryUrl(), true));
         configHelper.addPipeline(shallowPipeline);
 
-        PipelineConfig fullPipeline = PipelineConfigMother.pipelineConfig("fullPipeline", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig)));
+        PipelineConfig fullPipeline = PipelineConfigMother.pipelineConfig("fullPipeline", new StageConfig(cis("stage"), new JobConfigs(jobConfig)));
         fullPipeline.materialConfigs().clear();
         fullPipeline.addMaterialConfig(git(testRepo.projectRepositoryUrl(), false));
         configHelper.addPipeline(fullPipeline);

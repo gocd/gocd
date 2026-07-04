@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv4.dashboard;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv4.dashboard.representers.DashboardFor;
 import com.thoughtworks.go.apiv4.dashboard.representers.DashboardRepresenter;
@@ -59,12 +59,12 @@ public class DashboardControllerV4 extends ApiController implements SparkSpringC
 
     private final PipelineSelectionsService pipelineSelectionsService;
     private final GoDashboardService goDashboardService;
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
 
     @Autowired
-    public DashboardControllerV4(ApiAuthenticationHelper apiAuthenticationHelper, PipelineSelectionsService pipelineSelectionsService, GoDashboardService goDashboardService) {
+    public DashboardControllerV4(ApiAuthorizationHelper apiAuthorizationHelper, PipelineSelectionsService pipelineSelectionsService, GoDashboardService goDashboardService) {
         super(ApiVersion.v4);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.pipelineSelectionsService = pipelineSelectionsService;
         this.goDashboardService = goDashboardService;
     }
@@ -79,7 +79,7 @@ public class DashboardControllerV4 extends ApiController implements SparkSpringC
         path(controllerPath(), () -> {
             before("", mimeType, this::setContentType);
             before("", mimeType, this::verifyContentType);
-            before("", mimeType, apiAuthenticationHelper::checkUserAnd403);
+            before("", mimeType, apiAuthorizationHelper::checkUserAnd403);
 
             get("", mimeType, this::index);
         });

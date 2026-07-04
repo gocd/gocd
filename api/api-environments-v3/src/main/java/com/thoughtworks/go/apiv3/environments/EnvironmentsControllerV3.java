@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv3.environments.model.PatchEnvironmentRequest;
@@ -58,14 +58,14 @@ import static spark.Spark.*;
 
 @Component
 public class EnvironmentsControllerV3 extends ApiController implements SparkSpringController, CrudController<EnvironmentConfig> {
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final EnvironmentConfigService environmentConfigService;
     private final EntityHashingService entityHashingService;
 
     @Autowired
-    public EnvironmentsControllerV3(ApiAuthenticationHelper apiAuthenticationHelper, EnvironmentConfigService environmentConfigService, EntityHashingService entityHashingService) {
+    public EnvironmentsControllerV3(ApiAuthorizationHelper apiAuthorizationHelper, EnvironmentConfigService environmentConfigService, EntityHashingService entityHashingService) {
         super(ApiVersion.v3);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.environmentConfigService = environmentConfigService;
         this.entityHashingService = entityHashingService;
     }
@@ -84,7 +84,7 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
             before("", mimeType, (request, response) -> {
                 String resourceToOperateOn = "*";
                 if (request.requestMethod().equalsIgnoreCase("GET")) {
-                    apiAuthenticationHelper.checkUserAnd403(request, response);
+                    apiAuthorizationHelper.checkUserAnd403(request, response);
                     return;
                 }
 
@@ -92,10 +92,10 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
                     resourceToOperateOn = GsonTransformer.getInstance().jsonReaderFrom(request.body()).getString("name");
                 }
 
-                apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ENVIRONMENT, resourceToOperateOn);
+                apiAuthorizationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ENVIRONMENT, resourceToOperateOn);
             });
 
-            before(Routes.Environments.NAME, mimeType, (request, response) -> apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ENVIRONMENT, request.params("name")));
+            before(Routes.Environments.NAME, mimeType, (request, response) -> apiAuthorizationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ENVIRONMENT, request.params("name")));
 
             get("", mimeType, this::index);
             get(Routes.Environments.NAME, mimeType, this::show);
@@ -109,7 +109,7 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
     public String index(Request request, Response response) throws IOException {
         Set<EnvironmentConfig> userSpecificEnvironments = new HashSet<>();
         for (EnvironmentConfig environmentConfig : environmentConfigService.getEnvironments()) {
-            if (apiAuthenticationHelper.doesUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ENVIRONMENT, environmentConfig.name().toString())) {
+            if (apiAuthorizationHelper.doesUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ENVIRONMENT, environmentConfig.name().toString())) {
                 userSpecificEnvironments.add(environmentConfig);
             }
         }

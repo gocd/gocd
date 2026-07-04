@@ -19,7 +19,7 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.base.JsonOutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.internalenvironments.representers.MergedEnvironmentsRepresenter;
 import com.thoughtworks.go.config.EnvironmentConfig;
@@ -45,14 +45,14 @@ import static spark.Spark.*;
 
 @Component
 public class InternalEnvironmentsControllerV1 extends ApiController implements SparkSpringController {
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final EnvironmentConfigService environmentConfigService;
     private final AgentService agentService;
 
     @Autowired
-    public InternalEnvironmentsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, EnvironmentConfigService environmentConfigService, AgentService agentService) {
+    public InternalEnvironmentsControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, EnvironmentConfigService environmentConfigService, AgentService agentService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.environmentConfigService = environmentConfigService;
         this.agentService = agentService;
     }
@@ -68,13 +68,13 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
 
             before(Routes.InternalEnvironments.ENV_NAME, mimeType, (request, response) -> {
                 if (request.requestMethod().equalsIgnoreCase("GET")) {
-                    apiAuthenticationHelper.checkUserAnd403(request, response);
+                    apiAuthorizationHelper.checkUserAnd403(request, response);
                 } else {    // this is a PATCH request to update agent association
-                    apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, request.params("env_name"));
+                    apiAuthorizationHelper.checkUserHasPermissions(currentUsername(), SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, request.params("env_name"));
                 }
             });
 
@@ -91,7 +91,7 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
     public String indexMergedEnvironments(Request request, Response response) throws IOException {
         List<EnvironmentConfig> userSpecificEnvironments = new ArrayList<>();
         for (EnvironmentConfig env : environmentConfigService.getAllMergedEnvironments()) {
-            if (apiAuthenticationHelper.doesUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ENVIRONMENT, env.name().toString())) {
+            if (apiAuthorizationHelper.doesUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ENVIRONMENT, env.name().toString())) {
                 userSpecificEnvironments.add(env);
             }
         }

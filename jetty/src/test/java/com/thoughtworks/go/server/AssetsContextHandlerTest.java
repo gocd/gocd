@@ -47,7 +47,6 @@ public class AssetsContextHandlerTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
         when(webAppContext.getInitParameter("rails.root")).thenReturn("/rails.root");
         when(webAppContext.getWebInf()).thenReturn(Resource.newResource("WEB-INF"));
         handler = new AssetsContextHandler(systemEnvironment);

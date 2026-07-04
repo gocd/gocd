@@ -15,24 +15,23 @@
  */
 package com.thoughtworks.go.apiv4.dashboard.representers
 
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.security.Permissions
-import com.thoughtworks.go.config.security.permissions.EveryonePermission
-import com.thoughtworks.go.config.security.users.Everyone
-import com.thoughtworks.go.config.security.users.NoOne
+import com.thoughtworks.go.config.security.permissions.PipelinePermission
+import com.thoughtworks.go.config.security.users.Users
 import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.server.dashboard.GoDashboardEnvironment
 import com.thoughtworks.go.server.dashboard.GoDashboardPipeline
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup
 import com.thoughtworks.go.server.dashboard.TimeStampBasedCounter
 import com.thoughtworks.go.server.domain.Username
-import com.thoughtworks.go.spark.util.SecureRandom
+import com.thoughtworks.go.spark.util.Random
 import com.thoughtworks.go.util.Clock
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helpers.PipelineModelMother.pipeline_model
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.mockito.Mockito.mock
@@ -53,7 +52,7 @@ class DashboardGroupRepresenterTest {
 
     @Test
     void 'renders pipeline group with hal representation'() {
-      def permissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE)
+      def permissions = new Permissions(Users.EVERYONE, Users.EVERYONE, Users.EVERYONE, PipelinePermission.EVERYONE)
       def pipeline1 = dashboardPipeline('pipeline1')
       def pipeline2 = dashboardPipeline('pipeline2')
 
@@ -76,7 +75,7 @@ class DashboardGroupRepresenterTest {
 
     @Test
     void 'renders pipeline group authorization information'() {
-      def noAdminPermissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, NoOne.INSTANCE, EveryonePermission.INSTANCE)
+      def noAdminPermissions = new Permissions(Users.EVERYONE, Users.EVERYONE, Users.NOONE, PipelinePermission.EVERYONE)
 
       def pipeline1 = dashboardPipeline('pipeline1')
       def pipeline2 = dashboardPipeline('pipeline2')
@@ -85,7 +84,7 @@ class DashboardGroupRepresenterTest {
       pipelineGroup.addPipeline(pipeline1)
       pipelineGroup.addPipeline(pipeline2)
 
-      def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+      def username = new Username(cis(Random.hex()))
 
       def actualJson = toObjectString({ DashboardGroupRepresenter.toJSON(it, pipelineGroup, username) })
 
@@ -112,7 +111,7 @@ class DashboardGroupRepresenterTest {
 
     @Test
     void 'renders pipeline group with hal representation'() {
-      def env = new GoDashboardEnvironment('env1', Everyone.INSTANCE, true)
+      def env = new GoDashboardEnvironment('env1', Users.EVERYONE, true)
       env.addPipeline(dashboardPipeline('pipeline1'))
       env.addPipeline(dashboardPipeline('pipeline2'))
 
@@ -131,11 +130,11 @@ class DashboardGroupRepresenterTest {
 
     @Test
     void 'renders pipeline group authorization information'() {
-      def env = new GoDashboardEnvironment('env1', NoOne.INSTANCE, true)
+      def env = new GoDashboardEnvironment('env1', Users.NOONE, true)
       env.addPipeline(dashboardPipeline('pipeline1'))
       env.addPipeline(dashboardPipeline('pipeline2'))
 
-      def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+      def username = new Username(cis(Random.hex()))
 
       def actualJson = toObjectString({ DashboardGroupRepresenter.toJSON(it, env, username) })
 
@@ -149,7 +148,7 @@ class DashboardGroupRepresenterTest {
     }
   }
 
-  static GoDashboardPipeline dashboardPipeline(pipeline_name, group_name = "group1", permissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE), long timestamp = 1000) {
+  static GoDashboardPipeline dashboardPipeline(pipeline_name, group_name = "group1", permissions = new Permissions(Users.EVERYONE, Users.EVERYONE, Users.EVERYONE, PipelinePermission.EVERYONE), long timestamp = 1000) {
     def clock = mock(Clock.class)
     when(clock.currentTimeMillis()).thenReturn(timestamp)
     new GoDashboardPipeline(pipeline_model(pipeline_name, 'pipeline-label'), permissions, group_name, new TimeStampBasedCounter(clock), PipelineConfigMother.pipelineConfig(pipeline_name))

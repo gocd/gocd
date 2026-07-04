@@ -37,6 +37,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
@@ -73,8 +74,8 @@ public class PluggableSCMMaterialConfigTest {
     public void shouldAddErrorIfSCMNameUniquenessValidationFails() {
         Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<>();
         PluggableSCMMaterialConfig existingMaterial = new PluggableSCMMaterialConfig("scm-id");
-        nameToMaterialMap.put(new CaseInsensitiveString("scm-id"), existingMaterial);
-        nameToMaterialMap.put(new CaseInsensitiveString("foo"), git("url"));
+        nameToMaterialMap.put(cis("scm-id"), existingMaterial);
+        nameToMaterialMap.put(cis("foo"), git("url"));
 
         pluggableSCMMaterialConfig.validateNameUniqueness(nameToMaterialMap);
 
@@ -88,8 +89,8 @@ public class PluggableSCMMaterialConfigTest {
     @Test
     public void shouldPassMaterialUniquenessIfIfNoDuplicateSCMFound() {
         Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<>();
-        nameToMaterialMap.put(new CaseInsensitiveString("scm-id-new"), new PluggableSCMMaterialConfig("scm-id-new"));
-        nameToMaterialMap.put(new CaseInsensitiveString("foo"), git("url"));
+        nameToMaterialMap.put(cis("scm-id-new"), new PluggableSCMMaterialConfig("scm-id-new"));
+        nameToMaterialMap.put(cis("foo"), git("url"));
 
         pluggableSCMMaterialConfig.validateNameUniqueness(nameToMaterialMap);
 
@@ -269,7 +270,7 @@ public class PluggableSCMMaterialConfigTest {
     public void shouldDelegateToSCMConfigForAutoUpdate() {
         SCM scm = mock(SCM.class);
         when(scm.isAutoUpdate()).thenReturn(false);
-        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(new CaseInsensitiveString("scm-name"), scm, null, null, false);
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(cis("scm-name"), scm, null, null, false);
 
         assertThat(pluggableSCMMaterialConfig.isAutoUpdate()).isFalse();
 
@@ -283,7 +284,7 @@ public class PluggableSCMMaterialConfigTest {
         when(scmConfig.getConfigForDisplay()).thenReturn("k1:v1");
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, null, null, false);
 
-        assertThat(pluggableSCMMaterialConfig.getName()).isEqualTo(new CaseInsensitiveString("scm-name"));
+        assertThat(pluggableSCMMaterialConfig.getName()).isEqualTo(cis("scm-name"));
         assertThat(pluggableSCMMaterialConfig.getDisplayName()).isEqualTo("scm-name");
         assertThat(pluggableSCMMaterialConfig.getLongDescription()).isEqualTo("k1:v1");
         assertThat(pluggableSCMMaterialConfig.getUriForDisplay()).isEqualTo("k1:v1");

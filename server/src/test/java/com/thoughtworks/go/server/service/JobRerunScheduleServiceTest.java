@@ -15,7 +15,10 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -45,6 +48,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.TestUtils.doInterruptiblyQuietlyRethrowInterrupt;
 import static com.thoughtworks.go.util.TestUtils.sleepQuietlyRethrowInterrupt;
@@ -105,7 +109,7 @@ public class JobRerunScheduleServiceTest {
         Pipeline pipeline = PipelineMother.passedPipelineInstance("mingle", "build", "unit");
 
         Stage firstStage = pipeline.getFirstStage();
-        Stage expectedStageToBeCreated = firstStage.createClone();
+        Stage expectedStageToBeCreated = firstStage.deepClone();
 
         stub(mingleConfig, pipeline, firstStage);
         stubConfigMd5Cal("latest-md5");
@@ -193,7 +197,7 @@ public class JobRerunScheduleServiceTest {
 
         PipelineConfig mingleConfig = PipelineConfigMother.createPipelineConfig("mingle", "build", "unit", "functional");
         StageConfig stageConfig = mingleConfig.getFirst();
-        stageConfig.getJobs().getJob(new CaseInsensitiveString("unit")).setRunOnAllAgents(true);
+        stageConfig.getJobs().getJob(cis("unit")).setRunOnAllAgents(true);
 
         Pipeline pipeline = PipelineMother.passedPipelineInstance("mingle", "build", "unit");
 
@@ -345,7 +349,7 @@ public class JobRerunScheduleServiceTest {
 
     private void stub(PipelineConfig mingleConfig, Pipeline pipeline, Stage lastStage) {
         StageIdentifier identifier = lastStage.getIdentifier();
-        when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("mingle"))).thenReturn(mingleConfig);
+        when(goConfigService.pipelineConfigNamed(cis("mingle"))).thenReturn(mingleConfig);
         when(goConfigService.stageConfigNamed("mingle", identifier.getStageName())).thenReturn(mingleConfig.getFirst());
 
         when(schedulingChecker.canSchedule(any())).thenReturn(true);

@@ -51,8 +51,8 @@ public class MaterialAgentFactory {
             return MaterialAgent.NO_OP;
         } else if (material instanceof PluggableSCMMaterial) {
             return new PluggableSCMMaterialAgent(scmExtension, revision, workingDirectory, consumer);
-        } else if (material instanceof ScmMaterial) {
-            String destFolderPath = ((ScmMaterial) material).workingdir(workingDirectory).getAbsolutePath();
+        } else if (material instanceof ScmMaterial scmMaterial) {
+            String destFolderPath = scmMaterial.workingdir(workingDirectory).getAbsolutePath();
             return new AbstractMaterialAgent(revision, consumer, workingDirectory, new AgentSubprocessExecutionContext(agentIdentifier, destFolderPath));
         }
         throw new RuntimeException("Could not find MaterialChecker for material = " + material);

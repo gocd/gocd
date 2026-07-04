@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -33,7 +34,7 @@ public class StageConfigMother {
     }
 
     public static StageConfig oneBuildPlanWithResourcesAndMaterials(String stageName, String buildName) {
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString(buildName), new ResourceConfigs(new ResourceConfig("Windows"), new ResourceConfig(".NET")), new ArtifactTypeConfigs());
+        JobConfig jobConfig = new JobConfig(cis(buildName), new ResourceConfigs(new ResourceConfig("Windows"), new ResourceConfig(".NET")), new ArtifactTypeConfigs());
         jobConfig.addTask(new AntTask());
         JobConfigs jobConfigs = new JobConfigs(jobConfig);
         return stageConfig(stageName, jobConfigs);
@@ -41,11 +42,11 @@ public class StageConfigMother {
 
     public static StageConfig twoBuildPlansWithResourcesAndMaterials(String stageName) {
         JobConfig windoze = new JobConfig(
-                new CaseInsensitiveString("WinBuild"), new ResourceConfigs(new ResourceConfig("Windows"), new ResourceConfig(".NET")), new ArtifactTypeConfigs(List.of(new TestArtifactConfig("junit", "junit")))
+                cis("WinBuild"), new ResourceConfigs(new ResourceConfig("Windows"), new ResourceConfig(".NET")), new ArtifactTypeConfigs(List.of(new TestArtifactConfig("junit", "junit")))
         );
         windoze.addTask(new AntTask());
         JobConfig linux = new JobConfig(
-                new CaseInsensitiveString("NixBuild"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("java")), new ArtifactTypeConfigs(List.of(new TestArtifactConfig("junit", "junit")))
+                cis("NixBuild"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("java")), new ArtifactTypeConfigs(List.of(new TestArtifactConfig("junit", "junit")))
         );
         linux.addTask(new AntTask());
         JobConfigs jobConfigs = new JobConfigs(windoze, linux);
@@ -53,23 +54,23 @@ public class StageConfigMother {
     }
 
     public static StageConfig stageConfig(String stageName) {
-        return new StageConfig(new CaseInsensitiveString(stageName), new JobConfigs());
+        return new StageConfig(cis(stageName), new JobConfigs());
     }
 
     public static StageConfig stageConfig(String stageName, JobConfigs jobConfigs) {
-        return new StageConfig(new CaseInsensitiveString(stageName), jobConfigs);
+        return new StageConfig(cis(stageName), jobConfigs);
     }
 
     public static StageConfig custom(String stageName, JobConfigs jobConfigs) {
-        return new StageConfig(new CaseInsensitiveString(stageName), jobConfigs);
+        return new StageConfig(cis(stageName), jobConfigs);
     }
 
     public static StageConfig custom(String stageName, String... buildNames) {
-        return new StageConfig(new CaseInsensitiveString(stageName), BuildPlanMother.jobConfigs(buildNames));
+        return new StageConfig(cis(stageName), BuildPlanMother.jobConfigs(buildNames));
     }
 
     public static StageConfig custom(String stageName, boolean artifactCleanupProhibited, String... buildNames) {
-        StageConfig stageConfig = new StageConfig(new CaseInsensitiveString(stageName), BuildPlanMother.jobConfigs(buildNames));
+        StageConfig stageConfig = new StageConfig(cis(stageName), BuildPlanMother.jobConfigs(buildNames));
         ReflectionUtil.setField(stageConfig, "artifactCleanupProhibited", artifactCleanupProhibited);
         return stageConfig;
     }
@@ -79,18 +80,18 @@ public class StageConfigMother {
     }
 
     public static StageConfig custom(String stageName, Approval approval) {
-        return new StageConfig(new CaseInsensitiveString(stageName), BuildPlanMother.withBuildPlans("default"), approval);
+        return new StageConfig(cis(stageName), BuildPlanMother.withBuildPlans("default"), approval);
     }
 
     public static StageConfig custom(String name, boolean fetchMaterials, boolean cleanWorkingDir, JobConfigs jobConfigs, Approval approval) {
-        return new StageConfig(new CaseInsensitiveString(name), fetchMaterials, cleanWorkingDir, approval, false, jobConfigs);
+        return new StageConfig(cis(name), fetchMaterials, cleanWorkingDir, approval, false, jobConfigs);
     }
 
     public static StageConfig stageWithTasks(String stageName) {
         JobConfig job = new JobConfig("job");
         job.addTask(new ExecTask("ls", "-la", "pwd"));
         job.addTask(new AntTask());
-        return new StageConfig(new CaseInsensitiveString(stageName), new JobConfigs(job));
+        return new StageConfig(cis(stageName), new JobConfigs(job));
     }
 
     public static StageConfig manualStage(String stageName) {
@@ -116,8 +117,8 @@ public class StageConfigMother {
     public static StageConfig stageConfigWithArtifact(String stageName, String jobName, ArtifactType artifactType) {
         ArtifactTypeConfigs artifactConfigsWithTests = new ArtifactTypeConfigs();
         artifactConfigsWithTests.add(createArtifactConfig(artifactType));
-        JobConfig job1 = new JobConfig(new CaseInsensitiveString(jobName), new ResourceConfigs("abc"), artifactConfigsWithTests);
-        return new StageConfig(new CaseInsensitiveString(stageName), new JobConfigs(job1));
+        JobConfig job1 = new JobConfig(cis(jobName), new ResourceConfigs("abc"), artifactConfigsWithTests);
+        return new StageConfig(cis(stageName), new JobConfigs(job1));
     }
 
     private static ArtifactTypeConfig createArtifactConfig(ArtifactType artifactType) {
@@ -145,7 +146,7 @@ public class StageConfigMother {
     public static void addApprovalWithUsers(StageConfig stage, String... users) {
         Approval approval = stage.getApproval();
         for (String user : users) {
-            approval.getAuthConfig().add(new AdminUser(new CaseInsensitiveString(user)));
+            approval.getAuthConfig().add(new AdminUser(cis(user)));
         }
         stage.updateApproval(approval);
     }
@@ -153,7 +154,7 @@ public class StageConfigMother {
     public static void addApprovalWithRoles(StageConfig stage, String... roles) {
         Approval approval = stage.getApproval();
         for (String role : roles) {
-            approval.getAuthConfig().add(new AdminRole(new CaseInsensitiveString(role)));
+            approval.getAuthConfig().add(new AdminRole(cis(role)));
         }
         stage.updateApproval(approval);
     }

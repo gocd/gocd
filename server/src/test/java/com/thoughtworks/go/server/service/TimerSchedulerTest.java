@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.TimerConfig;
 import com.thoughtworks.go.listener.ConfigChangedListener;
@@ -35,6 +34,7 @@ import org.quartz.*;
 import java.util.Date;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfigWithTimer;
 import static com.thoughtworks.go.server.service.TimerScheduler.PIPELINE_TRIGGGER_TIMER_GROUP;
@@ -157,7 +157,7 @@ public class TimerSchedulerTest {
         @SuppressWarnings("unchecked") EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener = (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
 
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        when(pipelineConfig.name()).thenReturn(new CaseInsensitiveString(pipelineName));
+        when(pipelineConfig.name()).thenReturn(cis(pipelineName));
         when(pipelineConfig.getTimer()).thenReturn(new TimerConfig("* * * * * ?", true));
         ArgumentCaptor<JobDetail> jobDetailArgumentCaptor = ArgumentCaptor.forClass(JobDetail.class);
         ArgumentCaptor<CronTrigger> triggerArgumentCaptor = ArgumentCaptor.forClass(CronTrigger.class);

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
@@ -47,6 +46,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -90,7 +90,7 @@ public class MultipleMaterialsWithFilterTest {
         pipelineFixture.checkInToFirstMaterial("a.doc");
         pipelineFixture.checkInToSecondMaterial("b.java");
         buildCauseProducerService.autoSchedulePipeline(pipelineFixture.pipelineName, new ServerHealthStateOperationResult(), 12345);
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(pipelineFixture.pipelineName));
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(cis(pipelineFixture.pipelineName));
         assertThat(buildCause).isInstanceOf(BuildCause.class);
 
         MaterialRevisions actual = buildCause.getMaterialRevisions();
@@ -108,10 +108,10 @@ public class MultipleMaterialsWithFilterTest {
         buildCauseProducerService.autoSchedulePipeline(pipelineFixture.pipelineName, new ServerHealthStateOperationResult(), 12345);
 
         assertThat(pipelineScheduleQueue.toBeScheduled().size()).isEqualTo(size);
-        assertThat(pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(pipelineFixture.pipelineName))).isNull();
+        assertThat(pipelineScheduleQueue.toBeScheduled().get(cis(pipelineFixture.pipelineName))).isNull();
     }
 
-    public class PipelineWithMultipleMaterials extends PipelineWithTwoStages {
+public class PipelineWithMultipleMaterials extends PipelineWithTwoStages {
         private String filterForFirstMaterial;
         private SvnTestRepo svnTestRepo1;
         private SvnTestRepo svnTestRepo2;

@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.config.crud;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigHolder;
+import com.thoughtworks.go.config.GoConfigSchema;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.materials.Filter;
@@ -26,10 +26,10 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.plugin.access.scm.*;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.XsdValidationException;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.plugin.api.config.Property.*;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +47,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
 
     @Test
     public void shouldThrowXsdValidationWhenSCMIdsAreDuplicate() throws Exception {
-        String xml = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'><scms>\n" + VALID_SCM + VALID_SCM + " </scms></cruise>";
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><scms>\n" + VALID_SCM + VALID_SCM + " </scms></cruise>";
         try {
             xmlLoader.loadConfigHolder(xml);
             fail("should have thrown XsdValidationException");
@@ -61,7 +61,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
 
     @Test
     public void shouldThrowXsdValidationWhenSCMIdIsEmpty() throws Exception {
-        String xml = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'><scms>\n" + SCM_WITH_EMPTY_ID + " </scms></cruise>";
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><scms>\n" + SCM_WITH_EMPTY_ID + " </scms></cruise>";
         try {
             xmlLoader.loadConfigHolder(xml);
             fail("should have thrown XsdValidationException");
@@ -72,7 +72,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
 
     @Test
     public void shouldThrowXsdValidationWhenSCMIdIsInvalid() throws Exception {
-        String xml = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'><scms>\n" + SCM_WITH_INVALID_ID + " </scms></cruise>";
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><scms>\n" + SCM_WITH_INVALID_ID + " </scms></cruise>";
         try {
             xmlLoader.loadConfigHolder(xml);
             fail("should have thrown XsdValidationException");
@@ -83,7 +83,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
 
     @Test
     public void shouldThrowXsdValidationWhenSCMNamesAreDuplicate() throws Exception {
-        String xml = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'><scms>\n" + format(VALID_SCM_WITH_ID_NAME, "1", "scm-name") + format(VALID_SCM_WITH_ID_NAME, "2", "scm-name") + " </scms></cruise>";
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><scms>\n" + format(VALID_SCM_WITH_ID_NAME, "1", "scm-name") + format(VALID_SCM_WITH_ID_NAME, "2", "scm-name") + " </scms></cruise>";
         try {
             xmlLoader.loadConfigHolder(xml);
             fail("should have thrown XsdValidationException");
@@ -95,7 +95,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
 
     @Test
     public void shouldThrowXsdValidationWhenSCMNameIsMissing() throws Exception {
-        String xml = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'><scms>\n" + SCM_WITH_MISSING_NAME + " </scms></cruise>";
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><scms>\n" + SCM_WITH_MISSING_NAME + " </scms></cruise>";
         try {
             xmlLoader.loadConfigHolder(xml);
             fail("should have thrown XsdValidationException");
@@ -106,7 +106,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
 
     @Test
     public void shouldThrowXsdValidationWhenSCMNameIsEmpty() throws Exception {
-        String xml = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'><scms>\n" + SCM_WITH_EMPTY_NAME + " </scms></cruise>";
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><scms>\n" + SCM_WITH_EMPTY_NAME + " </scms></cruise>";
         try {
             xmlLoader.loadConfigHolder(xml);
             fail("should have thrown XsdValidationException");
@@ -117,7 +117,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
 
     @Test
     public void shouldThrowXsdValidationWhenSCMNameIsInvalid() throws Exception {
-        String xml = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'><scms>\n" + SCM_WITH_INVALID_NAME + " </scms></cruise>";
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><scms>\n" + SCM_WITH_INVALID_NAME + " </scms></cruise>";
         try {
             xmlLoader.loadConfigHolder(xml);
             fail("should have thrown XsdValidationException");
@@ -128,7 +128,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
 
     @Test
     public void shouldGenerateSCMIdWhenMissing() throws Exception {
-        String xml = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'><scms>\n" + SCM_WITH_MISSING_ID + " </scms></cruise>";
+        String xml = "<cruise schemaVersion='" + GoConfigSchema.VERSION + "'><scms>\n" + SCM_WITH_MISSING_ID + " </scms></cruise>";
 
         GoConfigHolder configHolder = xmlLoader.loadConfigHolder(xml);
 
@@ -182,7 +182,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
                 </scm>
               </scms>
             </cruise>
-            """.formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         try {
             xmlLoader.loadConfigHolder(xml);
@@ -208,7 +208,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
                </scm>
             </scms>
             </cruise>
-            """.formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         String configContent = String.format(configTemplate, false);
         GoConfigHolder holder = xmlLoader.loadConfigHolder(configContent);
         SCM scm = holder.config.getSCMs().find("2ef830d7-dd66-42d6-b393-64a84646e557");
@@ -249,10 +249,10 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
                 </stage>
               </pipeline>
             </pipelines></cruise>
-            """.formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
-        PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("new_name"));
+        PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(cis("new_name"));
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = (PluggableSCMMaterialConfig) pipelineConfig.materialConfigs().getFirst();
         assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(goConfigHolder.config.getSCMs().getFirst());
         assertThat(pluggableSCMMaterialConfig.getFolder()).isNull();
@@ -293,10 +293,10 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
                 </stage>
               </pipeline>
             </pipelines></cruise>
-            """.formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
-        PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("new_name"));
+        PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(cis("new_name"));
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = (PluggableSCMMaterialConfig) pipelineConfig.materialConfigs().getFirst();
         assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(goConfigHolder.config.getSCMs().getFirst());
         assertThat(pluggableSCMMaterialConfig.getFolder()).isEqualTo("dest");
@@ -341,7 +341,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
                 </stage>
               </pipeline>
             </pipelines></cruise>
-            """.formatted(GoConstants.CONFIG_SCHEMA_VERSION, encryptedValue);
+            """.formatted(GoConfigSchema.VERSION, encryptedValue);
 
         //meta data of scm
         SCMPropertyConfiguration scmConfiguration = new SCMPropertyConfiguration();
@@ -352,7 +352,7 @@ public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(xml);
         SCM scmConfig = goConfigHolder.config.getSCMs().getFirst();
-        PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("new_name"));
+        PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(cis("new_name"));
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = (PluggableSCMMaterialConfig) pipelineConfig.materialConfigs().getFirst();
         assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(scmConfig);
         Configuration configuration = pluggableSCMMaterialConfig.getSCMConfig().getConfiguration();

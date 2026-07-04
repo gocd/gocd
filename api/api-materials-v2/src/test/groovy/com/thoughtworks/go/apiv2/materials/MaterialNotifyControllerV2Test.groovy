@@ -16,9 +16,8 @@
 package com.thoughtworks.go.apiv2.materials
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.server.materials.MaterialUpdateService
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.Routes
@@ -43,13 +42,15 @@ class MaterialNotifyControllerV2Test implements SecurityServiceTrait, Controller
 
   @Override
   MaterialNotifyControllerV2 createControllerInstance() {
-    return new MaterialNotifyControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), materialUpdateService)
+    return new MaterialNotifyControllerV2(new ApiAuthorizationHelper(securityService, goConfigService), materialUpdateService)
   }
 
   @Nested
   class Svn {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = MaterialNotifyControllerV2Test.this
+      @Delegate ControllerTrait<MaterialNotifyControllerV2> c = MaterialNotifyControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -66,7 +67,6 @@ class MaterialNotifyControllerV2Test implements SecurityServiceTrait, Controller
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -78,7 +78,7 @@ class MaterialNotifyControllerV2Test implements SecurityServiceTrait, Controller
 
         def expectedParams = [(MaterialUpdateService.TYPE): "svn", repository_url: "ssh+svn://smiling-red-panda"]
         verify(materialUpdateService).notifyMaterialsForUpdate(
-          eq(currentUsername()), eq(expectedParams), any(HttpLocalizedOperationResult.class))
+          eq(currentUsername()), eq(expectedParams), any())
       }
 
       @Test
@@ -89,7 +89,7 @@ class MaterialNotifyControllerV2Test implements SecurityServiceTrait, Controller
 
         def expectedParams = [(MaterialUpdateService.TYPE): "svn", uuid: "some-uuid-value"]
         verify(materialUpdateService).notifyMaterialsForUpdate(
-          eq(currentUsername()), eq(expectedParams), any(HttpLocalizedOperationResult.class))
+          eq(currentUsername()), eq(expectedParams), any())
       }
 
       @Test
@@ -107,6 +107,8 @@ class MaterialNotifyControllerV2Test implements SecurityServiceTrait, Controller
   class Git {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = MaterialNotifyControllerV2Test.this
+      @Delegate ControllerTrait<MaterialNotifyControllerV2> c = MaterialNotifyControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -123,7 +125,6 @@ class MaterialNotifyControllerV2Test implements SecurityServiceTrait, Controller
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -135,7 +136,7 @@ class MaterialNotifyControllerV2Test implements SecurityServiceTrait, Controller
 
         def expectedParams = [(MaterialUpdateService.TYPE): "git", repository_url: "http://nonstop-moose/"]
         verify(materialUpdateService).notifyMaterialsForUpdate(
-          eq(currentUsername()), eq(expectedParams), any(HttpLocalizedOperationResult.class))
+          eq(currentUsername()), eq(expectedParams), any())
       }
 
       @Test
@@ -153,6 +154,8 @@ class MaterialNotifyControllerV2Test implements SecurityServiceTrait, Controller
   class Hg {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = MaterialNotifyControllerV2Test.this
+      @Delegate ControllerTrait<MaterialNotifyControllerV2> c = MaterialNotifyControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -169,7 +172,6 @@ class MaterialNotifyControllerV2Test implements SecurityServiceTrait, Controller
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -181,7 +183,7 @@ class MaterialNotifyControllerV2Test implements SecurityServiceTrait, Controller
 
         def expectedParams = [(MaterialUpdateService.TYPE): "hg", repository_url: "http://psychotic-sumatran-rhinoceros/"]
         verify(materialUpdateService).notifyMaterialsForUpdate(
-          eq(currentUsername()), eq(expectedParams), any(HttpLocalizedOperationResult.class))
+          eq(currentUsername()), eq(expectedParams), any())
       }
 
       @Test
@@ -199,6 +201,8 @@ class MaterialNotifyControllerV2Test implements SecurityServiceTrait, Controller
   class Scm {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = MaterialNotifyControllerV2Test.this
+      @Delegate ControllerTrait<MaterialNotifyControllerV2> c = MaterialNotifyControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -215,7 +219,6 @@ class MaterialNotifyControllerV2Test implements SecurityServiceTrait, Controller
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -227,7 +230,7 @@ class MaterialNotifyControllerV2Test implements SecurityServiceTrait, Controller
 
         def expectedParams = [(MaterialUpdateService.TYPE): "scm", scm_name: "pale-lionfish"]
         verify(materialUpdateService).notifyMaterialsForUpdate(
-          eq(currentUsername()), eq(expectedParams), any(HttpLocalizedOperationResult.class))
+          eq(currentUsername()), eq(expectedParams), any())
       }
 
       @Test

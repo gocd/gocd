@@ -19,7 +19,6 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.NullStage;
 import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.activity.ProjectStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -44,33 +43,36 @@ public class CcTrayStageStatusChangeHandler {
             return;
         }
 
-        cache.putAll(statusesOfStageAndItsJobsFor(stage));
+        cache.replaceForStage(stage.getIdentifier().getPipelineName(), stage.getName(), statusesOfStageAndItsJobsFor(stage));
     }
 
     public List<ProjectStatus> statusesOfStageAndItsJobsFor(Stage stage) {
         List<ProjectStatus> statuses = new ArrayList<>();
 
-        String projectName = stage.getIdentifier().ccProjectName();
         Set<String> breakers = breakersCalculator.calculateFor(stage);
-        statuses.add(getStageStatus(stage, projectName, breakers));
+        ProjectStatus stageStatus = getStageStatus(stage, breakers);
+        statuses.add(stageStatus);
 
         for (JobInstance jobInstance : stage.getJobInstances()) {
-            Set<String> jobBreakers = jobInstance.getResult() == JobResult.Failed ? breakers : new HashSet<>();
-            statuses.add(jobStatusChangeHandler.statusFor(jobInstance, jobBreakers));
+            Set<String> jobBreakers = jobInstance.getResult() == JobResult.Failed ? breakers : Collections.emptySet();
+            statuses.add(jobStatusChangeHandler.statusFor(jobInstance, stageStatus.stageOrder(), jobBreakers));
         }
         return statuses;
     }
 
-    private ProjectStatus getStageStatus(Stage stage, String projectName, Set<String> breakers) {
-        ProjectStatus existingStatus = projectByName(projectName);
+    private ProjectStatus getStageStatus(Stage stage, Set<String> breakers) {
+        ProjectStatus.Key key = new ProjectStatus.Key(stage.getIdentifier());
+        ProjectStatus existingStatus = cache.getOrDefault(key, stage.getOrderId());
 
         ProjectStatus newStatus = new ProjectStatus(
-                projectName,
-                stage.stageState().cctrayActivity(),
-                lastBuildStatus(stage, existingStatus),
-                lastBuildLabel(stage, existingStatus),
-                lastBuildTime(stage, existingStatus),
-                stage.getIdentifier().webUrl(), breakers);
+            key,
+            stage.getOrderId(),
+            stage.stageState().cctrayActivity(),
+            lastBuildStatus(stage, existingStatus),
+            lastBuildLabel(stage, existingStatus),
+            lastBuildTime(stage, existingStatus),
+            stage.getIdentifier().webPathAfterContext(),
+            breakers);
         newStatus.updateViewers(existingStatus.viewers());
 
         return newStatus;
@@ -92,10 +94,5 @@ public class CcTrayStageStatusChangeHandler {
         return stage.stageState().completed()
                 ? stage.getIdentifier().ccTrayLastBuildLabel()
                 : existingStatus.getLastBuildLabel();
-    }
-
-    private ProjectStatus projectByName(String projectName) {
-        ProjectStatus projectStatus = cache.get(projectName);
-        return projectStatus == null ? new ProjectStatus.NullProjectStatus(projectName) : projectStatus;
     }
 }

@@ -64,14 +64,13 @@ class GoServerLoadingIndicationHandlerTest {
 
         @Test
         void shouldRedirectSlashOrRootToLandingPage() throws Exception {
-            landingPageIsSetTo("/landingpage");
+            landingPageIsSetTo("/go/landingpage");
 
             MockResponse response = request("/", "*/*");
 
             assertTrue(response.wasRedirectedTo("/go/landingpage").done());
         }
     }
-
 
     @Nested
     @DisplayName("When web app is starting")
@@ -208,7 +207,7 @@ class GoServerLoadingIndicationHandlerTest {
     }
 
     private void landingPageIsSetTo(@SuppressWarnings("SameParameterValue") String landingPage) {
-        when(systemEnvironment.landingPage()).thenReturn(landingPage);
+        when(systemEnvironment.getLandingPage()).thenReturn(landingPage);
     }
 
     private static class MockResponse {

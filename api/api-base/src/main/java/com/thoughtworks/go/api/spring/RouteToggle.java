@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.spark.spring.RouteEntry;
 import org.apache.http.client.utils.URIBuilder;
+import org.springframework.util.StringUtils;
 
 import java.net.URISyntaxException;
 
@@ -34,7 +35,7 @@ class RouteToggle {
         this.version = version;
         this.descend = descend;
         if (toggleName == null || toggleName.isBlank()) {
-            this.toggleName = version.toString() + "_" + prefix.replaceAll("/", "_");
+            this.toggleName = version.toString() + "_" + prefix.replace('/', '_');
         } else {
             this.toggleName = toggleName;
         }
@@ -55,7 +56,7 @@ class RouteToggle {
 
     private String normalize(String path) {
         try {
-            return new URIBuilder().setPath(path).build().normalize().getPath().replaceAll("/$", "");
+            return StringUtils.trimTrailingCharacter(new URIBuilder().setPath(path).build().normalize().getPath(), '/');
         } catch (URISyntaxException e) {
             return path;
         }

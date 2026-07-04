@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -28,6 +29,7 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
 import com.thoughtworks.go.remote.work.BuildAssignment;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -63,12 +66,12 @@ public class SecretParamResolver {
     }
 
     public void resolve(Material material) {
-        if (material instanceof ScmMaterial) {
-            this.resolve((ScmMaterial) material);
-        } else if (material instanceof PluggableSCMMaterial) {
-            this.resolve((PluggableSCMMaterial) material);
-        } else if (material instanceof PackageMaterial) {
-            this.resolve((PackageMaterial) material);
+        if (material instanceof ScmMaterial scmMaterial) {
+            this.resolve(scmMaterial);
+        } else if (material instanceof PluggableSCMMaterial pluggableSCMMaterial) {
+            this.resolve(pluggableSCMMaterial);
+        } else if (material instanceof PackageMaterial packageMaterial) {
+            this.resolve(packageMaterial);
         }
     }
 
@@ -79,6 +82,22 @@ public class SecretParamResolver {
             resolve(scmMaterial.getSecretParams());
         } else if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("No secret params to resolve in SCM material {}.", scmMaterial.getDisplayName());
+        }
+    }
+
+    // Method used for check_connection in new pipeline or config repository flow
+    public void resolve(ScmMaterial scmMaterial, @NotNull Optional<String> pipelineGroupName) {
+        if (scmMaterial.hasSecretParams()) {
+            pipelineGroupName.ifPresentOrElse(
+                g -> rulesService.validateSecretConfigReferences(scmMaterial.getSecretParams(), PipelineConfigs.class, g, format("Material with url: '%s' in Pipeline Group:", scmMaterial.getUriForDisplay())),
+                () -> rulesService.validateSecretConfigReferences(scmMaterial.getSecretParams(), ConfigRepoConfig.class, "", format("Material with url: '%s' for Configuration Repository:", scmMaterial.getUriForDisplay()))
+            );
+            resolve(scmMaterial.getSecretParams());
+        } else if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("No secret params to resolve in SCM material {} {}.",
+                scmMaterial.getDisplayName(),
+                pipelineGroupName.map(g -> "for group " + g).orElse("for unnamed configuration repository")
+            );
         }
     }
 
@@ -98,16 +117,6 @@ public class SecretParamResolver {
             resolve(material.getSecretParams());
         } else if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("No secret params to resolve in package material {}.", material.getDisplayName());
-        }
-    }
-
-    // Method used for check_connection in new pipeline flow
-    public void resolve(ScmMaterial scmMaterial, String pipelineGroupName) {
-        if (scmMaterial.hasSecretParams()) {
-            rulesService.validateSecretConfigReferences(scmMaterial.getSecretParams(), PipelineConfigs.class, pipelineGroupName, format("Material with url: '%s' in Pipeline Group:", scmMaterial.getUriForDisplay()));
-            resolve(scmMaterial.getSecretParams());
-        } else if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("No secret params to resolve in SCM material {} for group {}.", scmMaterial.getDisplayName(), pipelineGroupName);
         }
     }
 

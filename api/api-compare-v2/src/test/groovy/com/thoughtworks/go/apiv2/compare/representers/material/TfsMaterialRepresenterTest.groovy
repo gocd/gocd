@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
+import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.util.command.HgUrlArgument
@@ -27,12 +28,12 @@ import com.thoughtworks.go.util.command.HgUrlArgument
 import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs
 
 class TfsMaterialRepresenterTest implements MaterialRepresenterTrait {
-  def existingMaterial() {
+  MaterialConfig existingMaterial() {
     MaterialConfigsMother.tfsMaterialConfig()
   }
 
-  def existingMaterialWithErrors() {
-    def tfsConfig = tfs(new GoCipher(), new HgUrlArgument(''), '', '', '', '/some-path/')
+  MaterialConfig existingMaterialWithErrors() {
+    def tfsConfig = tfs(new HgUrlArgument(''), '', '', '', '/some-path/')
     def materialConfigs = new MaterialConfigs(tfsConfig)
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
     return materialConfigs.getFirst()

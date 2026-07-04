@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv2.compare
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv2.compare.representers.ComparisonRepresenter
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
@@ -54,7 +54,7 @@ class CompareControllerV2Test implements SecurityServiceTrait, ControllerTrait<C
 
   @Override
   CompareControllerV2 createControllerInstance() {
-    new CompareControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), changesetService, pipelineService)
+    new CompareControllerV2(new ApiAuthorizationHelper(securityService, goConfigService), changesetService, pipelineService)
   }
 
   @Nested
@@ -67,6 +67,8 @@ class CompareControllerV2Test implements SecurityServiceTrait, ControllerTrait<C
 
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate SecurityServiceTrait s = CompareControllerV2Test.this
+      @Delegate ControllerTrait<CompareControllerV2> c = CompareControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -75,20 +77,19 @@ class CompareControllerV2Test implements SecurityServiceTrait, ControllerTrait<C
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(getApi('up42', 1, 1))
+        getWithApiHeader(getApi(pipelineSpecifier.pipelineName(), 1, 1))
       }
 
       @Override
-      String getPipelineName() {
-        return 'up42'
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: 'up42')
       }
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -100,7 +101,7 @@ class CompareControllerV2Test implements SecurityServiceTrait, ControllerTrait<C
         List<MaterialRevision> materialRevisions = getRevisions(new Date())
 
         when(pipelineService.isPipelineBisect(pipelineName, fromCounter, toCounter)).thenReturn(false)
-        when(changesetService.revisionsBetween(eq(pipelineName), eq(fromCounter), eq(toCounter), eq(currentUsername()), any(HttpLocalizedOperationResult.class), eq(true))).thenReturn(materialRevisions)
+        when(changesetService.revisionsBetween(eq(pipelineName), eq(fromCounter), eq(toCounter), eq(currentUsername()), any(), eq(true))).thenReturn(materialRevisions)
 
         getWithApiHeader(getApi('up42', fromCounter, toCounter))
 
@@ -114,7 +115,7 @@ class CompareControllerV2Test implements SecurityServiceTrait, ControllerTrait<C
       @Test
       void 'should return 404 if pipeline was not found'() {
         when(changesetService.revisionsBetween(anyString(), anyInt(), anyInt(), any(), any(), anyBoolean())).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArguments()[4]
+          HttpLocalizedOperationResult result = invocation.getArgument(4)
           result.notFound("not found message", HealthStateType.general(HealthStateScope.forPipeline("undefined")))
         })
 
@@ -140,8 +141,8 @@ class CompareControllerV2Test implements SecurityServiceTrait, ControllerTrait<C
 
       @Test
       void 'should return forbidden if the user does not have access to view the pipeline'() {
-        when(changesetService.revisionsBetween(anyString(), anyInt(), anyInt(), any(Username.class), any(HttpLocalizedOperationResult.class), anyBoolean())).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArguments()[4]
+        when(changesetService.revisionsBetween(anyString(), anyInt(), anyInt(), any(Username.class), any(), anyBoolean())).then({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArgument(4)
           result.forbidden("forbidden message", HealthStateType.general(HealthStateScope.forPipeline("undefined")))
         })
 

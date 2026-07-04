@@ -15,9 +15,10 @@
  */
 package com.thoughtworks.go.apiv1.accessToken
 
+import com.thoughtworks.go.api.AdminUserOnlyIfSecurityEnabled
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenter
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokensRepresenter
 import com.thoughtworks.go.config.exceptions.EntityType
@@ -27,10 +28,10 @@ import com.thoughtworks.go.domain.AccessToken
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder
 import com.thoughtworks.go.server.newsecurity.models.AccessTokenCredential
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken
+import com.thoughtworks.go.server.newsecurity.models.Credentials
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils
 import com.thoughtworks.go.server.service.AccessTokenFilter
 import com.thoughtworks.go.server.service.AccessTokenService
-import com.thoughtworks.go.spark.AdminUserOnlyIfSecurityEnabled
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.mocks.TestApplication
@@ -63,14 +64,13 @@ class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserA
   
   @Override
   AdminUserAccessTokenControllerV1 createControllerInstance() {
-    return new AdminUserAccessTokenControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), accessTokenService)
+    return new AdminUserAccessTokenControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), accessTokenService)
   }
-
 
   @Nested
   class APIAccessUsingAccessToken {
     private preFilter
-    private authenticationToken
+    AuthenticationToken<? extends Credentials> authenticationToken
 
     @BeforeEach
     void setUp() {
@@ -115,10 +115,8 @@ class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserA
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserOnlyIfSecurityEnabled {
-      @BeforeEach
-      void setUp() {
-        when(accessTokenService.find(token.id, currentUsernameString())).thenReturn(token)
-      }
+      @Delegate ControllerTrait<AdminUserAccessTokenControllerV1> c = AdminUserAccessTokenControllerV1Test.this
+      @Delegate SecurityServiceTrait s = AdminUserAccessTokenControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -127,7 +125,7 @@ class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserA
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(token.id))
+        getWithApiHeader(controller.controllerPath(Show.this.token.id))
       }
     }
 
@@ -135,7 +133,6 @@ class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserA
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
 
         when(accessTokenService.find(eq(token.id), any(String.class))).thenReturn(token)
@@ -172,10 +169,8 @@ class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserA
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserOnlyIfSecurityEnabled {
-      @BeforeEach
-      void setUp() {
-        when(accessTokenService.findAllTokensForUser(currentUsernameString(), filter)).thenReturn([token])
-      }
+      @Delegate ControllerTrait<AdminUserAccessTokenControllerV1> c = AdminUserAccessTokenControllerV1Test.this
+      @Delegate SecurityServiceTrait s = AdminUserAccessTokenControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -192,9 +187,7 @@ class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserA
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
-
       }
 
       @Test
@@ -264,6 +257,9 @@ class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserA
 
     @Nested
     class NormalSecurity implements SecurityTestTrait, AdminUserOnlyIfSecurityEnabled {
+      @Delegate ControllerTrait<AdminUserAccessTokenControllerV1> c = AdminUserAccessTokenControllerV1Test.this
+      @Delegate SecurityServiceTrait s = AdminUserAccessTokenControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "revokeAccessToken"
@@ -271,7 +267,7 @@ class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserA
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(token.id, 'revoke'), [:])
+        postWithApiHeader(controller.controllerPath(Revoke.this.token.id, 'revoke'), [:])
       }
     }
 
@@ -279,7 +275,6 @@ class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserA
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 

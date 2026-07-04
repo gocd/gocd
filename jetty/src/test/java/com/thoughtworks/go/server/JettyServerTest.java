@@ -89,7 +89,7 @@ public class JettyServerTest {
     public void setUp() {
         when(server.getThreadPool()).thenReturn(new QueuedThreadPool(1));
         Answer<Void> setHandlerMock = invocation -> {
-            serverLevelHandler = (Handler) invocation.getArguments()[0];
+            serverLevelHandler = invocation.getArgument(0);
             serverLevelHandler.setServer((Server) invocation.getMock());
             return null;
         };
@@ -99,7 +99,6 @@ public class JettyServerTest {
         doNothing().when(deploymentManager).addApp(appCaptor.capture());
 
         when(systemEnvironment.getServerPort()).thenReturn(1234);
-        when(systemEnvironment.getWebappContextPath()).thenReturn("context");
         when(systemEnvironment.getCruiseWar()).thenReturn("cruise.war");
         when(systemEnvironment.getParentLoaderPriority()).thenReturn(true);
         when(systemEnvironment.useCompressedJs()).thenReturn(true);
@@ -181,7 +180,7 @@ public class JettyServerTest {
         jettyServer.startHandlers();
 
         ContextHandler assetsContextHandler = getLoadedHandlers().get(AssetsContextHandler.class);
-        assertThat(assetsContextHandler.getContextPath()).isEqualTo("context/assets");
+        assertThat(assetsContextHandler.getContextPath()).isEqualTo("/go/assets");
 
         WebAppContext webAppContext = (WebAppContext) getLoadedHandlers().get(WebAppContext.class);
 
@@ -217,7 +216,7 @@ public class JettyServerTest {
                 WebAppConfiguration.class.getCanonicalName(),
                 JettyWebSocketConfiguration.class.getCanonicalName()
         );
-        assertThat(webAppContext.getContextPath()).isEqualTo("context");
+        assertThat(webAppContext.getContextPath()).isEqualTo("/go");
         assertThat(webAppContext.getWar()).isEqualTo("cruise.war");
         assertThat(webAppContext.isParentLoaderPriority()).isTrue();
         assertThat(webAppContext.getDefaultsDescriptor()).isEqualTo("jar:file:cruise.war!/WEB-INF/webdefault.xml");

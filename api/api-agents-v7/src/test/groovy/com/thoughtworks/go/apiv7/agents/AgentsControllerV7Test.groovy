@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv7.agents
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.config.EnvironmentConfig
 import com.thoughtworks.go.config.EnvironmentsConfig
 import com.thoughtworks.go.config.exceptions.BadRequestException
@@ -62,13 +62,16 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
 
   @Override
   AgentsControllerV7 createControllerInstance() {
-    return new AgentsControllerV7(agentService, new ApiAuthenticationHelper(securityService, goConfigService), securityService, environmentConfigService)
+    return new AgentsControllerV7(agentService, new ApiAuthorizationHelper(securityService, goConfigService), securityService, environmentConfigService)
   }
 
   @Nested
   class Index {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = AgentsControllerV7Test.this
+      @Delegate ControllerTrait<AgentsControllerV7> c = AgentsControllerV7Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'index'
@@ -204,6 +207,9 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
   class Show {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = AgentsControllerV7Test.this
+      @Delegate ControllerTrait<AgentsControllerV7> c = AgentsControllerV7Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'show'
@@ -308,6 +314,9 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
   class Update {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = AgentsControllerV7Test.this
+      @Delegate ControllerTrait<AgentsControllerV7> c = AgentsControllerV7Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'update'
@@ -967,6 +976,9 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
   class BulkUpdate {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = AgentsControllerV7Test.this
+      @Delegate ControllerTrait<AgentsControllerV7> c = AgentsControllerV7Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'bulkUpdate'
@@ -1050,6 +1062,9 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
   class Delete {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = AgentsControllerV7Test.this
+      @Delegate ControllerTrait<AgentsControllerV7> c = AgentsControllerV7Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'deleteAgent'
@@ -1117,6 +1132,9 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
   class BulkDelete {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = AgentsControllerV7Test.this
+      @Delegate ControllerTrait<AgentsControllerV7> c = AgentsControllerV7Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'bulkDeleteAgents'
@@ -1293,6 +1311,8 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
   class killRunningTasks {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = AgentsControllerV7Test.this
+      @Delegate ControllerTrait<AgentsControllerV7> c = AgentsControllerV7Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -1309,7 +1329,6 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
     class AsAdmin {
       @Test
       void 'should accept instruction to kill all running tasks on agent'() {
-        enableSecurity()
         loginAsAdmin()
 
         postWithApiHeader(controller.controllerPath('agent_uuid', 'kill_running_tasks'), ['x-gocd-confirm': 'true'], null)
@@ -1322,7 +1341,6 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
 
       @Test
       void 'should return 404 if agent does not exist'() {
-        enableSecurity()
         loginAsAdmin()
 
         when(agentService.killAllRunningTasksOnAgent("agent_uuid")).thenThrow(new RecordNotFoundException("Agent does not exist."))
@@ -1336,7 +1354,6 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
 
       @Test
       void 'should return 409 if agent cannot be instructed to kill tasks'() {
-        enableSecurity()
         loginAsAdmin()
 
         when(agentService.killAllRunningTasksOnAgent("agent_uuid")).thenThrow(new InvalidAgentInstructionException("Agent is idle."))
@@ -1352,7 +1369,6 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
       class CORS {
         @Test
         void 'bails if confirm header is missing'() {
-          enableSecurity()
           loginAsAdmin()
           postWithApiHeader(controller.controllerPath('agent_uuid', 'kill_running_tasks'), null)
           assertThatResponse()

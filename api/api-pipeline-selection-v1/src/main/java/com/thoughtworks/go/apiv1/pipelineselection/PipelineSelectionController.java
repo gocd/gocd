@@ -19,7 +19,7 @@ package com.thoughtworks.go.apiv1.pipelineselection;
 import com.google.gson.JsonParseException;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelineSelectionResponse;
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelineSelectionsRepresenter;
@@ -51,6 +51,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.util.SystemEnvironment.WEBAPP_CONTEXT_PATH;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.joinWith;
 import static spark.Spark.*;
@@ -62,18 +63,18 @@ public class PipelineSelectionController extends ApiController implements SparkS
 
     private static final String DATA_IS_OUT_OF_DATE = "Update failed because the view is out-of-date. Try refreshing the page.";
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final PipelineSelectionsService pipelineSelectionsService;
     private final PipelineConfigService pipelineConfigService;
     private final SystemEnvironment systemEnvironment;
 
     @Autowired
-    public PipelineSelectionController(ApiAuthenticationHelper apiAuthenticationHelper,
+    public PipelineSelectionController(ApiAuthorizationHelper apiAuthorizationHelper,
                                        PipelineSelectionsService pipelineSelectionsService,
                                        PipelineConfigService pipelineConfigService,
                                        SystemEnvironment systemEnvironment) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.pipelineSelectionsService = pipelineSelectionsService;
         this.pipelineConfigService = pipelineConfigService;
         this.systemEnvironment = systemEnvironment;
@@ -145,8 +146,8 @@ public class PipelineSelectionController extends ApiController implements SparkS
 
         Long recordId = pipelineSelectionsService.save(fromCookie, userId, filters);
 
-        if (!apiAuthenticationHelper.securityEnabled()) {
-            response.cookie("/go", COOKIE_NAME, String.valueOf(recordId), ONE_YEAR, systemEnvironment.isSessionCookieSecure(), true);
+        if (!apiAuthorizationHelper.securityEnabled()) {
+            response.cookie(WEBAPP_CONTEXT_PATH, COOKIE_NAME, String.valueOf(recordId), ONE_YEAR, systemEnvironment.isSessionCookieSecure(), true);
         }
 
         response.status(HttpURLConnection.HTTP_OK);

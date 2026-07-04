@@ -24,32 +24,33 @@ import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemTimeClock;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
+import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
+import java.time.Instant;
+
+import static java.time.Duration.between;
 
 public class StreamPumper implements Runnable {
 
-    private Reader in;
-
-    private boolean completed;
+    private final Reader in;
     private final StreamConsumer streamConsumer;
     private final String prefix;
-    private long lastHeard;
     private final Clock clock;
 
-    private StreamPumper(InputStream in, StreamConsumer streamConsumer, String prefix, Charset encoding) {
-        this(in, streamConsumer, prefix, encoding, new SystemTimeClock());
-    }
+    private Instant lastHeard;
+    private boolean completed;
 
-    StreamPumper(InputStream in, StreamConsumer streamConsumer, String prefix, Charset encoding, Clock clock) {
+    private StreamPumper(InputStream in, StreamConsumer streamConsumer, String prefix, Charset encoding, Clock clock) {
         this.streamConsumer = streamConsumer;
         this.prefix = prefix;
         this.clock = clock;
-        this.lastHeard = System.currentTimeMillis();
+        this.lastHeard = clock.currentTime();
         this.in = new InputStreamReader(in, encoding);
     }
 
@@ -66,7 +67,7 @@ public class StreamPumper implements Runnable {
     }
 
     private void consumeLine(String line) {
-        lastHeard = System.currentTimeMillis();
+        lastHeard = clock.currentTime();
         if (streamConsumer != null) {
             if (prefix == null || prefix.isBlank()) {
                 streamConsumer.consumeLine(line);
@@ -76,35 +77,38 @@ public class StreamPumper implements Runnable {
         }
     }
 
-
     public void readToEnd() {
-        while (!completed) {
+        while (!completed && !Thread.currentThread().isInterrupted()) {
             try {
-                clock.sleepForMillis(100);
+                clock.sleepForMillis(50);
             } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
             }
         }
     }
 
     public static StreamPumper pump(InputStream stream, StreamConsumer streamConsumer, String prefix, Charset encoding) {
-        StreamPumper pumper = new StreamPumper(stream, streamConsumer, prefix, encoding);
-        new Thread(pumper).start();
+        return pump(stream, streamConsumer, prefix, encoding, new SystemTimeClock());
+    }
+
+    @VisibleForTesting
+    static StreamPumper pump(InputStream stream, StreamConsumer streamConsumer, String prefix, Charset encoding, Clock clock) {
+        StreamPumper pumper = new StreamPumper(stream, streamConsumer, prefix, encoding, clock);
+        Thread thread = Thread.ofVirtual().unstarted(pumper);
+        thread.setName("StreamPumper" + thread.getName());
+        thread.start();
         return pumper;
     }
 
-    private Long timeSinceLastLine(TimeUnit unit) {
-        long now = clock.currentTimeMillis();
-        return unit.convert(now - lastHeard, TimeUnit.MILLISECONDS);
-    }
-
-    public boolean didTimeout(long duration, TimeUnit unit) {
+    @TestOnly
+    boolean completedInLessThan(Duration duration) {
         if (completed) {
             return false;
         }
-        return timeSinceLastLine(unit) > duration;
+        return duration.compareTo(between(lastHeard, clock.currentTime())) < 0;
     }
 
-    public long getLastHeard() {
+    public Instant getLastHeard() {
         return lastHeard;
     }
 }

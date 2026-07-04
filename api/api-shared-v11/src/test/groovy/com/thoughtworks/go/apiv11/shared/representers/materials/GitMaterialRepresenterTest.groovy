@@ -19,12 +19,12 @@ import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv11.admin.shared.representers.materials.MaterialsRepresenter
 import com.thoughtworks.go.apiv11.admin.shared.representers.stages.ConfigHelperOptions
 import com.thoughtworks.go.config.BasicCruiseConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
 import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig
+import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.util.command.UrlArgument
@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
@@ -41,18 +42,17 @@ import static org.mockito.Mockito.mock
 
 class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
 
-  static def existingMaterial() {
-    return MaterialConfigsMother.gitMaterialConfig()
+  MaterialConfig existingMaterial() {
+    MaterialConfigsMother.gitMaterialConfig()
   }
 
-  def getOptions() {
+  ConfigHelperOptions getOptions() {
     return new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class))
-
   }
 
-  def existingMaterialWithErrors() {
-    def gitConfig = git(new UrlArgument(''), null, null, '', '', true, null, false, '', new CaseInsensitiveString('!nV@l!d'), false)
-    def dupGitMaterial = git(new UrlArgument(''), null, null, '', '', true, null, false, '', new CaseInsensitiveString('!nV@l!d'), false)
+  MaterialConfig existingMaterialWithErrors() {
+    def gitConfig = git(new UrlArgument(''), null, null, '', '', true, null, false, '', cis('!nV@l!d'), false)
+    def dupGitMaterial = git(new UrlArgument(''), null, null, '', '', true, null, false, '', cis('!nV@l!d'), false)
     def materialConfigs = new MaterialConfigs(gitConfig)
     materialConfigs.add(dupGitMaterial)
 
@@ -60,26 +60,26 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
     return materialConfigs.getFirst()
   }
 
-  @Test
-  void "should serialize material without name"() {
-    def actualJson = toObjectString({
-      MaterialsRepresenter.toJSON(it, git("http://funk.com/blank"))
-    })
-
-    assertThatJson(actualJson).isEqualTo(gitMaterialBasicHashWithoutCredentials)
-  }
-
-  @Test
-  void "should serialize material with blank branch"() {
-    def actualJson = toObjectString({
-      MaterialsRepresenter.toJSON(it, git("http://funk.com/blank", ""))
-    })
-
-    assertThatJson(actualJson).isEqualTo(gitMaterialBasicHashWithoutCredentials)
-  }
-
   @Nested
   class Credentials {
+    @Test
+    void "should serialize material with credentials without name"() {
+      def actualJson = toObjectString({
+        MaterialsRepresenter.toJSON(it, git("http://user:pass@funk.com/blank"))
+      })
+
+      assertThatJson(actualJson).isEqualTo(gitMaterialHashWithCredentials)
+    }
+
+    @Test
+    void "should serialize material with credentials with blank branch"() {
+      def actualJson = toObjectString({
+        MaterialsRepresenter.toJSON(it, git("http://user:pass@funk.com/blank", ""))
+      })
+
+      assertThatJson(actualJson).isEqualTo(gitMaterialHashWithCredentials)
+    }
+
     @Test
     void "should deserialize material with credentials as attributes"() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
@@ -235,7 +235,8 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
     [
       type      : 'git',
       attributes: [
-        url             : "http://user:password@funk.com/blank",
+        url             : "http://funk.com/blank",
+        username        : "user",
         destination     : "destination",
         filter          : [
           ignore: ['**/*.html', '**/foobar/']
@@ -249,11 +250,11 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
       ]
     ]
 
-  def gitMaterialBasicHashWithoutCredentials =
+  def gitMaterialHashWithCredentials =
     [
       type      : 'git',
       attributes: [
-        url             : "http://funk.com/blank",
+        url             : "http://user:******@funk.com/blank",
         destination     : null,
         filter          : null,
         invert_filter   : false,

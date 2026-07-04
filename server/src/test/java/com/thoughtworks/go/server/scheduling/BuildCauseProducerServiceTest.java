@@ -60,6 +60,7 @@ import org.mockito.stubbing.Answer;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
@@ -72,7 +73,7 @@ import static org.mockito.Mockito.*;
 public class BuildCauseProducerServiceTest {
     private static final ServerHealthState SERVER_ERROR = error("something", "else", HealthStateType.general(GLOBAL));
 
-    private PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs());
+    private PipelineConfig pipelineConfig = new PipelineConfig(cis("pipeline"), new MaterialConfigs());
     @Mock
     private ServerHealthService mockServerHealthService;
     @Mock
@@ -132,7 +133,7 @@ public class BuildCauseProducerServiceTest {
     @Test
     public void shouldAllowRetriggeringIfThePreviousTriggerFailed() {
         GitMaterialConfig materialConfig = MaterialConfigsMother.gitMaterialConfig();
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs(materialConfig));
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("pipeline"), new MaterialConfigs(materialConfig));
         Material material = new MaterialConfigConverter().toMaterial(materialConfig);
         buildCauseProducerService.manualSchedulePipeline(Username.CRUISE_TIMER, pipelineConfig.name(), new ScheduleOptions(), errorResult());
 
@@ -297,7 +298,7 @@ public class BuildCauseProducerServiceTest {
 
     @Test
     public void shouldBeAbleToPassInSpecificRevisionForMaterialsAndScheduleABuild() {
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream-pipeline"), new CaseInsensitiveString("stage"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("upstream-pipeline"), cis("stage"));
         SvnMaterial svnMaterial = new SvnMaterial("url", null, null, false);
         pipelineConfig.addMaterialConfig(dependencyMaterial.config());
         pipelineConfig.addMaterialConfig(svnMaterial.config());
@@ -308,7 +309,7 @@ public class BuildCauseProducerServiceTest {
         MaterialRevision specificMaterialRevision = new MaterialRevision(dependencyMaterial, new Modification(new Date(), "upstream-pipeline/2/stage/1", "MOCK_LABEL-12", null));
         when(specificMaterialRevisionFactory.create(eq("pipeline"), eq(Map.of(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/2/stage/1"))))
                 .thenReturn(new MaterialRevisions(specificMaterialRevision));
-        when(pipelineScheduleQueue.mostRecentScheduled(new CaseInsensitiveString("pipeline"))).thenReturn(BuildCause.createNeverRun());
+        when(pipelineScheduleQueue.mostRecentScheduled(cis("pipeline"))).thenReturn(BuildCause.createNeverRun());
         when(materialRepository.findLatestModification(svnMaterial)).thenReturn(new MaterialRevisions(new MaterialRevision(svnMaterial, svnModifications)));
 
         when(materialConfigConverter.toMaterials(pipelineConfig.materialConfigs())).thenReturn(new Materials(dependencyMaterial, svnMaterial));
@@ -321,12 +322,12 @@ public class BuildCauseProducerServiceTest {
                 new ScheduleOptions(Map.of(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/2/stage/1"),
                         stringStringHashMap, new HashMap<>()), new ServerHealthStateOperationResult(), 12345);
 
-        verify(pipelineScheduleQueue).schedule(eq(new CaseInsensitiveString("pipeline")), argThat(containsRevisions(new MaterialRevision(svnMaterial, svnModifications), specificMaterialRevision)));
+        verify(pipelineScheduleQueue).schedule(eq(cis("pipeline")), argThat(containsRevisions(new MaterialRevision(svnMaterial, svnModifications), specificMaterialRevision)));
     }
 
     @Test
     public void shouldHandleCaseWhereSpecifiedRevisionDoesNotExist() {
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream-pipeline"), new CaseInsensitiveString("stage"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("upstream-pipeline"), cis("stage"));
         when(specificMaterialRevisionFactory.create(eq("pipeline"), eq(Map.of(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"))))
                 .thenThrow(new RuntimeException("Invalid specified revision"));
         ManualBuild buildType = new ManualBuild(Username.ANONYMOUS);
@@ -339,7 +340,7 @@ public class BuildCauseProducerServiceTest {
 
     @Test
     public void shouldHandleCaseWhenExceptionWithoutMessageIsRaised() {
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream-pipeline"), new CaseInsensitiveString("stage"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("upstream-pipeline"), cis("stage"));
         when(specificMaterialRevisionFactory.create(eq("pipeline"), eq(Map.of(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"))))
                 .thenThrow(new NullPointerException());
         ManualBuild buildType = new ManualBuild(Username.ANONYMOUS);
@@ -444,7 +445,7 @@ public class BuildCauseProducerServiceTest {
         verify(goConfigService, times(1)).pipelineConfigNamed(pipelineConfig.name());
 
         // updated pipeline config
-        PipelineConfig updatedPipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs());
+        PipelineConfig updatedPipelineConfig = new PipelineConfig(cis("pipeline"), new MaterialConfigs());
         updatedPipelineConfig.addMaterialConfig(materialConfig1);
         updatedPipelineConfig.addMaterialConfig(materialConfig2);
         when(goConfigService.pipelineConfigNamed(pipelineConfig.name())).thenReturn(updatedPipelineConfig);
@@ -473,7 +474,7 @@ public class BuildCauseProducerServiceTest {
         PipelineConfig config = PipelineConfigMother.pipelineConfig(pipelineName);
 
         Material svnMaterial = MaterialsMother.defaultMaterials().getFirst();
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("up"), new CaseInsensitiveString("s1"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("up"), cis("s1"));
 
         config.materialConfigs().clear();
         config.addMaterialConfig(svnMaterial.config());
@@ -481,7 +482,7 @@ public class BuildCauseProducerServiceTest {
 
         lenient().when(pipelineService.getRevisionsBasedOnDependencies(any(), any(), any())).thenThrow(
                 new NoModificationsPresentForDependentMaterialException("P/1/S/1"));
-        when(pipelineScheduleQueue.mostRecentScheduled(new CaseInsensitiveString(pipelineName))).thenReturn(BuildCause.createNeverRun());
+        when(pipelineScheduleQueue.mostRecentScheduled(cis(pipelineName))).thenReturn(BuildCause.createNeverRun());
         Modification modification = ModificationsMother.checkinWithComment("r", "c", new Date(), "f1");
         when(materialRepository.findLatestModification(svnMaterial)).thenReturn(ModificationsMother.createSvnMaterialWithMultipleRevisions(1, modification));
         when(materialRepository.findLatestModification(dependencyMaterial)).thenReturn(new MaterialRevisions(ModificationsMother.changedDependencyMaterialRevision("up", 1, "1", "s", 1, new Date())));

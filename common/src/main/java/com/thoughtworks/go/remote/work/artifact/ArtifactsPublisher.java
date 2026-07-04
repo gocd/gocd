@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
-import static com.thoughtworks.go.util.GoConstants.PRODUCT_NAME;
+import static com.thoughtworks.go.work.GoPublisher.PRODUCT_NAME;
 import static java.lang.String.format;
 
 public class ArtifactsPublisher implements Serializable {

@@ -20,7 +20,7 @@ import {Stage} from "models/pipeline_configs/stage";
 import {StagePermissionWidget} from "views/pages/clicky_pipeline_config/widgets/stage_permission_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
-describe("StageSettingsTab", () => {
+describe("StagePermissionWidget", () => {
   const helper = new TestHelper();
 
   afterEach(helper.unmount.bind(helper));

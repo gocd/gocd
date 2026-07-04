@@ -24,8 +24,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class StageStatusPluginNotifier implements StageStatusListener {
-    private NotificationPluginRegistry notificationPluginRegistry;
-    private PluginNotificationService pluginNotificationService;
+    private final NotificationPluginRegistry notificationPluginRegistry;
+    private final PluginNotificationService pluginNotificationService;
 
     @Autowired
     public StageStatusPluginNotifier(NotificationPluginRegistry notificationPluginRegistry, PluginNotificationService pluginNotificationService) {

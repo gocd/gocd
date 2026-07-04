@@ -152,7 +152,7 @@ tasks.register('newSPA') {
           package com.thoughtworks.go.spark.spa;
           import com.thoughtworks.go.spark.Routes;
           import com.thoughtworks.go.spark.SparkController;
-          import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
+          import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper;
           import spark.ModelAndView;
           import spark.Request;
           import spark.Response;
@@ -163,10 +163,10 @@ tasks.register('newSPA') {
           import static spark.Spark.*;
 
           public class ${entityName}Controller implements SparkController {
-            private final SPAAuthenticationHelper authenticationHelper;
+            private final SpaAuthorizationHelper authorizationHelper;
             private final TemplateEngine engine;
-            public ${entityName}Controller(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
-              this.authenticationHelper = authenticationHelper;
+            public ${entityName}Controller(SpaAuthorizationHelper authorizationHelper, TemplateEngine engine) {
+              this.authorizationHelper = authorizationHelper;
               this.engine = engine;
             }
 
@@ -178,7 +178,7 @@ tasks.register('newSPA') {
             @Override
             public void setupRoutes() {
                path(controllerBasePath(), () -> {
-                  before("", authenticationHelper::checkAdminUserAnd403);
+                  before("", authorizationHelper::checkAdminUserAnd403);
                   get("", this::index, engine);
               });
             }
@@ -197,7 +197,7 @@ tasks.register('newSPA') {
 
     List<String> lines = file('spark/spark-spa/src/main/java/com/thoughtworks/go/spark/spa/spring/SpaControllers.java').readLines()
     def insertionIdx = lines.findIndexOf { l -> (l =~ /^\s*sparkControllers.add/).find() }
-    lines.add(insertionIdx, "\t\tsparkControllers.add(new ${entityName}Controller(authenticationHelper, templateEngineFactory.create(${entityName}Controller.class, () -> COMPONENT_LAYOUT_PATH)));")
+    lines.add(insertionIdx, "\t\tsparkControllers.add(new ${entityName}Controller(authorizationHelper, templateEngineFactory.create(${entityName}Controller.class, () -> COMPONENT_LAYOUT_PATH)));")
 
     file('spark/spark-spa/src/main/java/com/thoughtworks/go/spark/spa/spring/SpaControllers.java').withWriter { out ->
       out.println(lines.join("\n").trim() + "\n")
@@ -312,9 +312,9 @@ tasks.register('newApi') {
 
             testImplementation(testFixtures(project(":api:api-base")))
 
-            testImplementation project.deps.junit5Api
-            testRuntimeOnly project.deps.junit5Engine
-            testRuntimeOnly project.deps.junit5PlatformLauncher
+            testImplementation rootProject.deps.junit5Api
+            testRuntimeOnly rootProject.deps.junit5Engine
+            testRuntimeOnly rootProject.deps.junit5PlatformLauncher
           }
         """
       out.println(contents.stripIndent().trim() + "\n")
@@ -345,7 +345,7 @@ tasks.register('newApi') {
           import com.thoughtworks.go.api.ApiVersion;
           import com.thoughtworks.go.api.CrudController;
           import com.thoughtworks.go.api.base.OutputWriter;
-          import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+          import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
           import com.thoughtworks.go.config.exceptions.EntityType;
           import com.thoughtworks.go.config.exceptions.HttpException;
           import com.thoughtworks.go.server.service.EntityHashingService;
@@ -363,13 +363,13 @@ tasks.register('newApi') {
           @Component
           public class ${controllerClassName} extends ApiController implements SparkSpringController, CrudController<${entityClassName}> {
 
-              private final ApiAuthenticationHelper apiAuthenticationHelper;
+              private final ApiAuthorizationHelper apiAuthorizationHelper;
               private final EntityHashingService entityHashingService;
 
               @Autowired
-              public ${controllerClassName}(ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService) {
+              public ${controllerClassName}(ApiAuthorizationHelper apiAuthorizationHelper, EntityHashingService entityHashingService) {
                   super(ApiVersion.${project.apiVersion});
-                  this.apiAuthenticationHelper = apiAuthenticationHelper;
+                  this.apiAuthorizationHelper = apiAuthorizationHelper;
                   this.entityHashingService = entityHashingService;
               }
 
@@ -390,7 +390,7 @@ tasks.register('newApi') {
                       // get("", mimeType, this::index);
 
                       // change the line below to enable appropriate security
-                      before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+                      before("", mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
                       // to be implemented
                   });
               }
@@ -452,7 +452,7 @@ tasks.register('newApi') {
 
           package ${packageName}
 
-          import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+          import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
           import com.thoughtworks.go.spark.ControllerTrait
           import com.thoughtworks.go.spark.SecurityServiceTrait
           import org.junit.jupiter.api.BeforeEach
@@ -461,12 +461,11 @@ tasks.register('newApi') {
           import org.mockito.junit.jupiter.MockitoSettings
           import org.mockito.quality.Strictness
 
-          @MockitoSettings(strictness = Strictness.LENIENT)
           class ${controllerClassName}Test implements SecurityServiceTrait, ControllerTrait<${controllerClassName}> {
 
             @Override
             ${controllerClassName} createControllerInstance() {
-              new ${controllerClassName}(new ApiAuthenticationHelper(securityService, goConfigService))
+              new ${controllerClassName}(new ApiAuthorizationHelper(securityService, goConfigService))
             }
 
             @Nested
@@ -483,6 +482,8 @@ tasks.register('newApi') {
 
               @Nested
               class Security implements SecurityTestTrait, AdminUserSecurity {
+                @Delegate ControllerTrait<${controllerClassName}> c = ${controllerClassName}Test.this
+                @Delegate SecurityServiceTrait s = ${controllerClassName}Test.this
 
                 @Override
                 String getControllerMethodUnderTest() {
@@ -548,7 +549,7 @@ tasks.register('upgradeApi') {
         eachLine
           .replace(oldPackagePrefix, newPackagePrefix)
           .replace(oldControllerClassSuffix, newControllerClassSuffix)
-          .replaceAll("ApiVersion\\.v${currentMaxApiVersion}", "ApiVersion.v${apiVersion}")
+          .replace("ApiVersion.v${currentMaxApiVersion}", "ApiVersion.v${apiVersion}")
       }
       filter(FixCrLfFilter, eol: FixCrLfFilter.CrLf.newInstance("unix"))
 

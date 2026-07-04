@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv2.materials
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.base.JsonUtils
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv2.materials.representers.ModificationsRepresenter
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig
 import com.thoughtworks.go.domain.materials.Modification
@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.materials.Modifications
 import com.thoughtworks.go.server.materials.MaterialUpdateService
 import com.thoughtworks.go.server.service.MaterialConfigService
 import com.thoughtworks.go.server.service.MaterialService
-import com.thoughtworks.go.server.service.result.HttpOperationResult
 import com.thoughtworks.go.server.util.Pagination
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
@@ -57,7 +56,7 @@ class MaterialModificationsControllerV2Test implements SecurityServiceTrait, Con
 
   @Override
   MaterialModificationsControllerV2 createControllerInstance() {
-    return new MaterialModificationsControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), materialConfigService,
+    return new MaterialModificationsControllerV2(new ApiAuthorizationHelper(securityService, goConfigService), materialConfigService,
       materialService)
   }
 
@@ -65,6 +64,8 @@ class MaterialModificationsControllerV2Test implements SecurityServiceTrait, Con
   class MaterialModifications {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = MaterialModificationsControllerV2Test.this
+      @Delegate ControllerTrait<MaterialModificationsControllerV2> c = MaterialModificationsControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -81,7 +82,6 @@ class MaterialModificationsControllerV2Test implements SecurityServiceTrait, Con
     class AsUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsUser()
       }
 
@@ -97,7 +97,7 @@ class MaterialModificationsControllerV2Test implements SecurityServiceTrait, Con
         materialConfig.url = "http://example.git/"
 
         when(materialService.getTotalModificationsFor(materialConfig)).thenReturn(2l)
-        when(materialConfigService.getMaterialConfig(eq(currentUsernameString()), eq("fingerprint"), any(HttpOperationResult.class)))
+        when(materialConfigService.getMaterialConfig(eq(currentUsernameString()), eq("fingerprint"), any()))
           .thenReturn(materialConfig)
         when(materialService.getModificationsFor(materialConfig, pagination)).thenReturn(modifications)
 

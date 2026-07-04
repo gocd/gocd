@@ -42,7 +42,7 @@
 
   <bean id="urlService" class="com.thoughtworks.go.agent.URLService"/>
   <bean id="httpService" class="com.thoughtworks.go.agent.HttpService"/>
-  <bean id="artifactsManipulator" class="com.thoughtworks.go.publishers.GoArtifactsManipulator"/>
+  <bean id="artifactManipulator" class="com.thoughtworks.go.publishers.GoArtifactManipulator"/>
   <bean id="sslInfrastructureService" class="com.thoughtworks.go.agent.service.SslInfrastructureService"/>
   <bean id="agentUpgradeService" class="com.thoughtworks.go.agent.service.AgentUpgradeService"/>
   <bean id="agentRegistry" class="com.thoughtworks.go.config.DefaultAgentRegistry"/>
@@ -55,10 +55,10 @@
   <bean id="taskExtension" class="com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension"/>
   <bean id="artifactExtension" class="com.thoughtworks.go.plugin.access.artifact.ArtifactExtension"/>
   <bean id="remoting" class="com.thoughtworks.go.agent.RemotingClient"/>
-  <bean id="httpClient" class="com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient">
+  <bean id="httpClient" class="com.thoughtworks.go.agent.common.GoAgentServerHttpClient">
     <constructor-arg ref="httpClientBuilder"/>
   </bean>
-  <bean id="httpClientBuilder" class="com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder">
+  <bean id="httpClientBuilder" class="com.thoughtworks.go.agent.common.GoAgentServerHttpClientBuilder">
     <constructor-arg ref="systemEnvironment"/>
   </bean>
 

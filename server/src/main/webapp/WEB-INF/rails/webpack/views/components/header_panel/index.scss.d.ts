@@ -5,6 +5,7 @@ export const keyValuePair: string;
 export const keyValuePairs: string;
 export const mappings: string;
 export const names: string;
+export const pageActions: string;
 export const pageHeader: string;
 export const pageTitle: string;
 export const page_title: string;

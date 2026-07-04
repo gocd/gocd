@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.domain;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.helper.PipelineTimelineEntryMother;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
@@ -31,6 +30,7 @@ import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -80,8 +80,8 @@ public class PipelineTimelineTest {
     }
 
     private void assertBeforeAfter(PipelineTimeline mods, PipelineTimelineEntry actual, PipelineTimelineEntry before, PipelineTimelineEntry after) {
-        PipelineTimelineEntry actualBefore = mods.runBefore(actual.getId(), new CaseInsensitiveString(pipelineName));
-        PipelineTimelineEntry actualAfter = mods.runAfter(actual.getId(), new CaseInsensitiveString(pipelineName));
+        PipelineTimelineEntry actualBefore = mods.runBefore(actual.getId(), cis(pipelineName));
+        PipelineTimelineEntry actualAfter = mods.runAfter(actual.getId(), cis(pipelineName));
 
         assertEquals(actualBefore, before, "Expected " + before + " to be before " + actual + ". Got " + actualBefore);
         assertEquals(actualAfter, after, "Expected " + after + " to be after " + actual + ". Got " + actualAfter);
@@ -146,11 +146,11 @@ public class PipelineTimelineTest {
         assertThat(anotherPipeline2.insertedBefore()).isEqualTo(anotherPipeline3);
         assertThat(anotherPipeline2.insertedAfter()).isEqualTo(anotherPipeline1);
 
-        assertThat(mods.runAfter(anotherPipeline2.getId(), new CaseInsensitiveString("another"))).isEqualTo(anotherPipeline3);
-        assertThat(mods.runBefore(anotherPipeline2.getId(), new CaseInsensitiveString("another"))).isEqualTo(anotherPipeline1);
+        assertThat(mods.runAfter(anotherPipeline2.getId(), cis("another"))).isEqualTo(anotherPipeline3);
+        assertThat(mods.runBefore(anotherPipeline2.getId(), cis("another"))).isEqualTo(anotherPipeline1);
 
-        assertThat(mods.runAfter(first.getId(), new CaseInsensitiveString(first.getPipelineName()))).isNull();
-        assertThat(mods.runAfter(second.getId(), new CaseInsensitiveString(second.getPipelineName()))).isEqualTo(third);
+        assertThat(mods.runAfter(first.getId(), cis(first.getPipelineName()))).isNull();
+        assertThat(mods.runAfter(second.getId(), cis(second.getPipelineName()))).isEqualTo(third);
     }
 
     @Test
@@ -216,9 +216,9 @@ public class PipelineTimelineTest {
         assertThat(timeline.maximumId()).isEqualTo(2L);
         assertThat(timeline.getEntriesFor("pipeline").size()).isEqualTo(2);
         assertThat(allEntries).contains(first, second);
-        assertThat(timeline.instanceCount(new CaseInsensitiveString("pipeline"))).isEqualTo(2);
-        assertThat(timeline.instanceFor(new CaseInsensitiveString("pipeline"), 0)).isEqualTo(first);
-        assertThat(timeline.instanceFor(new CaseInsensitiveString("pipeline"), 1)).isEqualTo(second);
+        assertThat(timeline.instanceCount(cis("pipeline"))).isEqualTo(2);
+        assertThat(timeline.instanceFor(cis("pipeline"), 0)).isEqualTo(first);
+        assertThat(timeline.instanceFor(cis("pipeline"), 1)).isEqualTo(second);
     }
 
     @SuppressWarnings("unchecked")
@@ -229,7 +229,7 @@ public class PipelineTimelineTest {
                 for (PipelineTimelineEntry entry : repositoryEntries) {
                     timeline.add(entry);
                 }
-                ((List<PipelineTimelineEntry>) invocationOnMock.getArguments()[1]).addAll(List.of(repositoryEntries));
+                ((List<PipelineTimelineEntry>) invocationOnMock.getArgument(1)).addAll(List.of(repositoryEntries));
                 return List.of(repositoryEntries);
             }).when(pipelineRepository).updatePipelineTimeline(eq(timeline), anyList());
         }
@@ -237,7 +237,7 @@ public class PipelineTimelineTest {
 
     private void stubTransactionSynchronization() {
         doAnswer(invocationOnMock -> {
-            transactionSynchronization = (TransactionSynchronization) invocationOnMock.getArguments()[0];
+            transactionSynchronization = invocationOnMock.getArgument(0);
             return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any());
     }
@@ -246,7 +246,7 @@ public class PipelineTimelineTest {
         this.txnStatus = status;
         if (restub) {
             when(transactionTemplate.execute(any())).thenAnswer(invocationOnMock -> {
-                TransactionCallback<?> callback = (TransactionCallback<?>) invocationOnMock.getArguments()[0];
+                TransactionCallback<?> callback = invocationOnMock.getArgument(0);
                 callback.doInTransaction(null);
                 if (txnStatus == TransactionSynchronization.STATUS_COMMITTED) {
                     transactionSynchronization.afterCommit();
@@ -261,8 +261,8 @@ public class PipelineTimelineTest {
     public void shouldReturnNullForPipelineBeforeAndAfterIfPipelineDoesNotExist() {
         PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         timeline.add(first);
-        assertThat(timeline.runBefore(2, new CaseInsensitiveString("not-present"))).isNull();
-        assertThat(timeline.runAfter(2, new CaseInsensitiveString("not-present"))).isNull();
+        assertThat(timeline.runBefore(2, cis("not-present"))).isNull();
+        assertThat(timeline.runAfter(2, cis("not-present"))).isNull();
     }
 
     @Test

@@ -16,19 +16,17 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
-import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.remote.StandardHeaders;
 import com.thoughtworks.go.server.controller.actions.JsonAction;
 import com.thoughtworks.go.server.controller.actions.RestfulAction;
-import com.thoughtworks.go.server.controller.actions.XmlAction;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.ConfirmationConstraint;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.web.JsonView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,89 +41,57 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonByValidity;
-import static com.thoughtworks.go.server.controller.actions.XmlAction.X_CRUISE_CONFIG_MD5;
-import static java.net.HttpURLConnection.HTTP_OK;
+import static com.thoughtworks.go.server.controller.actions.TextAction.forbidden;
+import static com.thoughtworks.go.server.controller.actions.TextAction.notFound;
+import static com.thoughtworks.go.server.controller.actions.XmlAction.xmlFound;
 
 @Controller
 public class GoConfigAdministrationController {
-    private ConfirmationConstraint confirmationConstraint;
-    private GoConfigService goConfigService;
-    private SecurityService securityService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigAdministrationController.class);
 
-    public GoConfigAdministrationController() {
-    }
+    private final ConfirmationConstraint confirmationConstraint = new ConfirmationConstraint();
+    private final GoConfigService goConfigService;
+    private final SecurityService securityService;
 
     @Autowired
     GoConfigAdministrationController(GoConfigService goConfigService, SecurityService securityService) {
         this.goConfigService = goConfigService;
         this.securityService = securityService;
-        this.confirmationConstraint = new ConfirmationConstraint();
     }
 
-    @RequestMapping(value = "/admin/restful/configuration/file/GET/xml", method = RequestMethod.GET)
-    public void getCurrentConfigXml(@RequestParam(value = "md5", required = false) String md5, HttpServletResponse response) throws IOException {
-        getXmlPartial(md5, goConfigService.fileSaver(false)).respond(response);
+    @RequestMapping(value = "/spring-internal/admin/configuration/file/GET/xml", method = RequestMethod.GET)
+    public void getCurrentConfigXml(HttpServletResponse response) throws IOException {
+        (!isCurrentUserAdmin() ? forbidden(forbiddenMessage()) : configXmlFromMemory())
+            .respond(response);
     }
 
-    @RequestMapping(value = "/admin/restful/configuration/file/GET/historical-xml", method = RequestMethod.GET)
-    public void getConfigRevision(@RequestParam(value = "version") String version, HttpServletResponse response) throws IOException {
-        GoConfigRevision configRevision = goConfigService.getConfigAtVersion(version);
-        String md5 = configRevision.getMd5();
-        response.setStatus(HTTP_OK);
-        response.setContentType("text/xml");
-        response.setCharacterEncoding("utf-8");
-        response.setHeader(X_CRUISE_CONFIG_MD5, md5);
-        if (configRevision.isByteArrayBacked()) {
-            response.getOutputStream().write(configRevision.getConfigXmlBytes());
-        } else {
-            response.getWriter().write(configRevision.getContent());
-        }
-    }
-
-    private RestfulAction getXmlPartial(String oldMd5, GoConfigService.XmlPartialSaver<?> xmlPartialSaver) {
-        if (!isCurrentUserAdmin()) {
-            return XmlAction.xmlForbidden(forbiddenMessage());
-        }
-        String xml;
-        try {
-            xml = xmlPartialSaver.asXml();
-        } catch (Exception e) {
-            return XmlAction.xmlNotFound(e.getMessage());
-        }
-        String newMd5 = xmlPartialSaver.getMd5();
-
-        if (oldMd5 != null && !oldMd5.equals(newMd5)) {
-            return XmlAction.xmlMd5Conflict(ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH, newMd5);
-        }
-
-        return XmlAction.xmlFound(xml, newMd5);
-    }
-
-    private String forbiddenMessage() {
-        return String.format("User '%s' does not have permissions to administer", getCurrentUsername());
-    }
-
-    @RequestMapping(value = "/admin/restful/configuration/file/POST/xml", method = RequestMethod.POST)
+    @RequestMapping(value = "/spring-internal/admin/configuration/file/POST/xml", method = RequestMethod.POST)
     public ModelAndView postFileAsXml(@RequestParam("xmlFile") String xmlFile,
                                       @RequestParam("md5") String md5,
                                       HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (!confirmationConstraint.isSatisfied(request)) {
-            return JsonAction.jsonBadRequest(Map.of("message", String.format("Missing required header `%s`", StandardHeaders.REQUEST_CONFIRM_MODIFICATION))).respond(response);
-        }
 
-        if (!isCurrentUserAdmin()) {
-            return JsonAction.jsonForbidden().respond(response);
+        if (!confirmationConstraint.isSatisfied(request)) {
+            return JsonAction.jsonBadRequest(String.format("Missing required header `%s`", StandardHeaders.REQUEST_CONFIRM_MODIFICATION)).respond(response);
+        } else if (!isCurrentUserAdmin()) {
+            return JsonAction.jsonForbidden(forbiddenMessage()).respond(response);
         }
         return postXmlPartial(goConfigService.fileSaver(false), xmlFile, md5).respond(response);
     }
 
-    private RestfulAction postXmlPartial(GoConfigService.XmlPartialSaver<?> xmlPartialSaver, String xmlPartial, String expectedMd5) {
-        if (!isCurrentUserAdmin()) {
-            return JsonAction.jsonForbidden(forbiddenMessage());
+    private RestfulAction configXmlFromMemory() {
+        try {
+            GoConfigService.XmlPartialSaver<?> xmlPartialSaver = goConfigService.fileSaver(false);
+            return xmlFound(xmlPartialSaver.asXml(), xmlPartialSaver.getMd5());
+        } catch (Exception e) {
+            LOGGER.warn("Unable to serialize config XML from memory for return: {}", e.toString());
+            return notFound("Unable to retrieve config XML for return");
         }
+    }
+
+    private RestfulAction postXmlPartial(GoConfigService.XmlPartialSaver<?> xmlPartialSaver, String xmlPartial, String expectedMd5) {
         GoConfigValidity configValidity = xmlPartialSaver.saveXml(xmlPartial, expectedMd5);
         if (configValidity.isValid()) {
-            return JsonAction.jsonFound(JsonView.getSimpleAjaxResult("result", "File changed successfully."));
+            return JsonAction.jsonFound(Map.<String, Object>of("result", "File changed successfully."));
         } else {
             GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) configValidity;
             Map<String, Object> jsonMap = new LinkedHashMap<>();
@@ -133,6 +99,10 @@ public class GoConfigAdministrationController {
             jsonMap.put("originalContent", xmlPartial);
             return jsonByValidity(jsonMap, invalidGoConfig);
         }
+    }
+
+    private String forbiddenMessage() {
+        return String.format("User '%s' does not have permissions to administer", getCurrentUsername());
     }
 
     private boolean isCurrentUserAdmin() {

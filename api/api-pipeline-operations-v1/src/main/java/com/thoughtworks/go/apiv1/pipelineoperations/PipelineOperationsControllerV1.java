@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.pipelineoperations;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.PipelineScheduleOptionsRepresenter;
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.PipelineStatusModelRepresenter;
@@ -47,19 +47,19 @@ import static spark.Spark.*;
 @Component
 public class PipelineOperationsControllerV1 extends ApiController implements SparkSpringController {
     private final PipelinePauseService pipelinePauseService;
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final PipelineUnlockApiService pipelineUnlockApiService;
     private final PipelineTriggerService pipelineTriggerService;
     private final GoConfigService goConfigService;
     private final PipelineHistoryService pipelineHistoryService;
 
     @Autowired
-    public PipelineOperationsControllerV1(PipelinePauseService pipelinePauseService, PipelineUnlockApiService pipelineUnlockApiService, PipelineTriggerService pipelineTriggerService, ApiAuthenticationHelper apiAuthenticationHelper, GoConfigService goConfigService, PipelineHistoryService pipelineHistoryService) {
+    public PipelineOperationsControllerV1(PipelinePauseService pipelinePauseService, PipelineUnlockApiService pipelineUnlockApiService, PipelineTriggerService pipelineTriggerService, ApiAuthorizationHelper apiAuthorizationHelper, GoConfigService goConfigService, PipelineHistoryService pipelineHistoryService) {
         super(ApiVersion.v1);
         this.pipelinePauseService = pipelinePauseService;
         this.pipelineUnlockApiService = pipelineUnlockApiService;
         this.pipelineTriggerService = pipelineTriggerService;
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.goConfigService = goConfigService;
         this.pipelineHistoryService = pipelineHistoryService;
     }
@@ -77,12 +77,12 @@ public class PipelineOperationsControllerV1 extends ApiController implements Spa
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
 
-            before(Routes.Pipeline.PAUSE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
-            before(Routes.Pipeline.UNPAUSE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
-            before(Routes.Pipeline.UNLOCK_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
-            before(Routes.Pipeline.TRIGGER_OPTIONS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
-            before(Routes.Pipeline.SCHEDULE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
-            before(Routes.Pipeline.STATUS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
+            before(Routes.Pipeline.PAUSE_PATH, mimeType, apiAuthorizationHelper::checkPipelineGroupOperateViaNameParamsAnd403);
+            before(Routes.Pipeline.UNPAUSE_PATH, mimeType, apiAuthorizationHelper::checkPipelineGroupOperateViaNameParamsAnd403);
+            before(Routes.Pipeline.UNLOCK_PATH, mimeType, apiAuthorizationHelper::checkPipelineGroupOperateViaNameParamsAnd403);
+            before(Routes.Pipeline.TRIGGER_OPTIONS_PATH, mimeType, apiAuthorizationHelper::checkPipelineGroupOperateViaNameParamsAnd403);
+            before(Routes.Pipeline.SCHEDULE_PATH, mimeType, apiAuthorizationHelper::checkPipelineGroupOperateViaNameParamsAnd403);
+            before(Routes.Pipeline.STATUS_PATH, mimeType, apiAuthorizationHelper::checkPipelineGroupOperateViaNameParamsAnd403);
 
             post(Routes.Pipeline.PAUSE_PATH, mimeType, this::pause);
             post(Routes.Pipeline.UNPAUSE_PATH, mimeType, this::unpause);

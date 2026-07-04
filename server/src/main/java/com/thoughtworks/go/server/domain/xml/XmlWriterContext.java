@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.domain.xml;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.util.UrlUtil;
 import org.apache.commons.lang3.Strings;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -57,10 +58,7 @@ public class XmlWriterContext {
     }
 
     public String relative(String path) {
-        if (Strings.CS.startsWith(path, "/")) {
-            return this.baseUrl + path;
-        }
-        return this.baseUrl + "/" + path;
+        return UrlUtil.joinPathPartsPreEncoded(this.baseUrl, path);
     }
 
     private String stripEndSlashIfPresent(String baseUrl) {
@@ -104,6 +102,6 @@ public class XmlWriterContext {
     }
 
     public String jobDetailsLink(JobIdentifier identifier) {
-        return relative(identifier.webUrl());
+        return relative(identifier.webPathAfterContext());
     }
 }

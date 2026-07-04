@@ -89,7 +89,7 @@ public class ElasticAgentExtensionConverterV4Test {
                   }
                 }""";
 
-        assertThatJson(expected).isEqualTo(actual);
+        assertThatJson(actual).isEqualTo(expected);
     }
 
     @Test
@@ -108,7 +108,7 @@ public class ElasticAgentExtensionConverterV4Test {
                   }
                 }""";
 
-        assertThatJson(expected).isEqualTo(actual);
+        assertThatJson(actual).isEqualTo(expected);
     }
 
     @Test
@@ -119,7 +119,7 @@ public class ElasticAgentExtensionConverterV4Test {
                 "  \"elastic_agent_id\": \"%s\"" +
                 "}", elasticAgentId);
 
-        assertThatJson(expected).isEqualTo(actual);
+        assertThatJson(actual).isEqualTo(expected);
     }
 
     @Test
@@ -137,7 +137,7 @@ public class ElasticAgentExtensionConverterV4Test {
                   }
                 }""";
 
-        assertThatJson(expected).isEqualTo(actual);
+        assertThatJson(actual).isEqualTo(expected);
     }
 
     @Test

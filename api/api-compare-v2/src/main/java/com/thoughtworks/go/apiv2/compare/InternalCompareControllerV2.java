@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv2.compare;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.apiv2.compare.representers.PipelineInstanceModelsRepresenter;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.service.PipelineHistoryService;
@@ -36,13 +36,13 @@ import static spark.Spark.*;
 
 @Component
 public class InternalCompareControllerV2 extends ApiController implements SparkSpringController {
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final PipelineHistoryService pipelineHistoryService;
 
     @Autowired
-    public InternalCompareControllerV2(ApiAuthenticationHelper apiAuthenticationHelper, PipelineHistoryService pipelineHistoryService) {
+    public InternalCompareControllerV2(ApiAuthorizationHelper apiAuthorizationHelper, PipelineHistoryService pipelineHistoryService) {
         super(ApiVersion.v2);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.pipelineHistoryService = pipelineHistoryService;
     }
 
@@ -57,7 +57,7 @@ public class InternalCompareControllerV2 extends ApiController implements SparkS
             before("/*", mimeType, this::setContentType);
             before("/*", mimeType, this::verifyContentType);
 
-            before(Routes.CompareAPI.INTERNAL_LIST, mimeType, this.apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
+            before(Routes.CompareAPI.INTERNAL_LIST, mimeType, this.apiAuthorizationHelper::checkPipelineViewPermissionsAnd403);
 
             get(Routes.CompareAPI.INTERNAL_LIST, mimeType, this::list);
         });

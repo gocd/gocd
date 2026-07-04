@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.exceptions.EntityType;
@@ -46,6 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.i18n.LocalizedMessage.cannotDeleteResourceBecauseOfDependentPipelines;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,7 +68,7 @@ public class DeletePackageConfigCommandTest {
 
     @BeforeEach
     public void setup() {
-        currentUser = new Username(new CaseInsensitiveString("user"));
+        currentUser = new Username(cis("user"));
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
         packageUuid = "random-uuid";
         configuration = new Configuration(new ConfigurationProperty(new ConfigurationKey("PACKAGE_ID"), new ConfigurationValue("prettyjson")));
@@ -94,7 +94,7 @@ public class DeletePackageConfigCommandTest {
 
     @Test
     public void shouldNotDeletePackageIfItIsUsedAsAMaterialInPipeline() {
-        MaterialConfigs materialConfigs = new MaterialConfigs(new PackageMaterialConfig(new CaseInsensitiveString("fooPackage"), packageUuid, packageDefinition));
+        MaterialConfigs materialConfigs = new MaterialConfigs(new PackageMaterialConfig(cis("fooPackage"), packageUuid, packageDefinition));
         Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> pipelinesUsingPackages = new HashMap<>();
         Pair<PipelineConfig, PipelineConfigs> pair = new Pair<>(PipelineConfigMother.pipelineConfig("some-pipeline", "stage", materialConfigs), null);
         List<Pair<PipelineConfig, PipelineConfigs>> pairs = new ArrayList<>();

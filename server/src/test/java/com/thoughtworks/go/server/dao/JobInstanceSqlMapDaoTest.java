@@ -15,10 +15,11 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import com.opensymphony.oscache.base.Cache;
+import com.github.benmanes.caffeine.cache.Cache;
 import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.persistence.ArtifactPlanRepository;
 import com.thoughtworks.go.server.persistence.ResourceRepository;
 import com.thoughtworks.go.server.service.StubGoCache;
@@ -43,7 +44,7 @@ import static org.mockito.Mockito.*;
 class JobInstanceSqlMapDaoTest {
     private JobInstanceSqlMapDao jobInstanceSqlMapDao;
     @Mock
-    private Cache cache;
+    private Cache<JobInstance.BuildDurationKey, ?> cache;
     @Mock
     private TransactionSynchronizationManager transactionSynchronizationManager;
     @Mock
@@ -93,9 +94,6 @@ class JobInstanceSqlMapDaoTest {
         void shouldGenerateADifferentMutexWhenPartOfPipelineIsInterchangedWithStageName() {
             final StageIdentifier stageIdentifierOne = new StageIdentifier("Foo_", 1, "Bar", "stage", "1");
             final StageIdentifier stageIdentifierTwo = new StageIdentifier("Foo", 1, "_Bar", "stage", "1");
-
-            System.out.println(jobInstanceSqlMapDao.cacheKeyForOriginalJobIdentifier(stageIdentifierOne, "job"));
-            System.out.println(jobInstanceSqlMapDao.cacheKeyForOriginalJobIdentifier(stageIdentifierTwo, "job"));
 
             assertThat(jobInstanceSqlMapDao.cacheKeyForOriginalJobIdentifier(stageIdentifierOne, "job"))
                 .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForOriginalJobIdentifier(stageIdentifierTwo, "job"));

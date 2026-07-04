@@ -147,7 +147,7 @@
 
           const match = rawLine.match(LEGACY_LOG_LINE);
           if (match) {
-            timestamp = $.trim(match[1] || "");
+            timestamp = (match[1] || "").trim();
             line = match[2] || "";
           } else {
             timestamp = "";

@@ -43,6 +43,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -126,7 +127,7 @@ public class RoleConfigCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         PluginRoleConfig pluginRoleConfig = new PluginRoleConfig("test", "ldap");
         cruiseConfig.server().security().addRole(pluginRoleConfig);
-        cruiseConfig.server().security().addRole(new RoleConfig(new CaseInsensitiveString("test")));
+        cruiseConfig.server().security().addRole(new RoleConfig(cis("test")));
 
         RoleConfigCommand command = new StubCommand(goConfigService, pluginRoleConfig, extension, currentUser, result);
 
@@ -216,7 +217,7 @@ public class RoleConfigCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Policy policy = new Policy();
         policy.add(new Allow("*", "*", "*"));
-        RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("foo"), new Users(), policy);
+        RoleConfig roleConfig = new RoleConfig(cis("foo"), new Users(), policy);
         cruiseConfig.server().security().addRole(roleConfig);
 
         RoleConfigCommand command = new StubCommand(goConfigService, roleConfig, extension, currentUser, result);

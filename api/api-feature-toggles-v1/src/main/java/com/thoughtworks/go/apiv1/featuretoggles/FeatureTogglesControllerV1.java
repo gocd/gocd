@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.featuretoggles;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.featuretoggles.representers.FeatureTogglesRepresenter;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
@@ -39,13 +39,13 @@ import static spark.Spark.*;
 
 @Component
 public class FeatureTogglesControllerV1 extends ApiController implements SparkSpringController {
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private FeatureToggleService featureToggleService;
 
     @Autowired
-    public FeatureTogglesControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, FeatureToggleService featureToggleService) {
+    public FeatureTogglesControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, FeatureToggleService featureToggleService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.featureToggleService = featureToggleService;
     }
 
@@ -60,8 +60,8 @@ public class FeatureTogglesControllerV1 extends ApiController implements SparkSp
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
-            before("/*", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
+            before("/*", mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::index);
             put(Routes.FeatureToggle.FEATURE_TOGGLE_KEY, mimeType, this::update);

@@ -101,7 +101,7 @@ public class AdminsConfigUpdateCommand implements EntityConfigUpdateCommand<Admi
         return freshRequest;
     }
 
-    private final boolean isAuthorized() {
+    private boolean isAuthorized() {
         if (goConfigService.isUserAdmin(currentUser)) {
             return true;
         }

@@ -49,7 +49,7 @@ public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM>
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         SCMs scms = preprocessedConfig.getSCMs();
-        preprocessedGlobalScmConfig = scms.find(globalScmConfig.getSCMId());
+        preprocessedGlobalScmConfig = scms.find(globalScmConfig.getId());
         preprocessedGlobalScmConfig.validate(null);
         if (preprocessedGlobalScmConfig.getAllErrors().isEmpty()) {
             scms.validate(null);
@@ -86,10 +86,10 @@ public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM>
 
     SCM findSCM(CruiseConfig cruiseConfig) {
         SCMs scms = cruiseConfig.getSCMs();
-        SCM existingSCM = scms.find(globalScmConfig.getSCMId());
+        SCM existingSCM = scms.find(globalScmConfig.getId());
         if (existingSCM == null) {
-            result.notFound(EntityType.SCM.notFoundMessage(globalScmConfig.getSCMId()), HealthStateType.notFound());
-            throw new NullPointerException(String.format("The pluggable scm material with id '%s' is not found.", globalScmConfig.getSCMId()));
+            result.notFound(EntityType.SCM.notFoundMessage(globalScmConfig.getId()), HealthStateType.notFound());
+            throw new NullPointerException(String.format("The pluggable scm material with id '%s' is not found.", globalScmConfig.getId()));
         } else {
             return existingSCM;
         }

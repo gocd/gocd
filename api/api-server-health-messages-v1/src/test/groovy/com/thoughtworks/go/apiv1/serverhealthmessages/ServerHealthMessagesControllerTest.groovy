@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.serverhealthmessages
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.serverhealthmessages.representers.ServerHealthMessagesRepresenter
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.serverhealth.ServerHealthService
@@ -25,24 +25,29 @@ import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.BeanFactory
 
 import static com.thoughtworks.go.api.base.JsonUtils.toArrayString
+import static org.mockito.Mockito.mock
 
 class ServerHealthMessagesControllerTest implements SecurityServiceTrait, ControllerTrait<ServerHealthMessagesController> {
 
-  ServerHealthService serverHealthService = new ServerHealthService()
+  ServerHealthService serverHealthService = new ServerHealthService(mock(BeanFactory.class))
 
   @Override
   ServerHealthMessagesController createControllerInstance() {
-    return new ServerHealthMessagesController(serverHealthService, new ApiAuthenticationHelper(securityService, goConfigService))
+    return new ServerHealthMessagesController(serverHealthService, new ApiAuthorizationHelper(securityService, goConfigService))
   }
 
   @Nested
   class Show {
     @Nested
     class Security implements NormalUserSecurity, SecurityTestTrait {
+      @Delegate SecurityServiceTrait s = ServerHealthMessagesControllerTest.this
+      @Delegate ControllerTrait<ServerHealthMessagesController> c = ServerHealthMessagesControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -57,6 +62,11 @@ class ServerHealthMessagesControllerTest implements SecurityServiceTrait, Contro
 
     @Nested
     class AsNormalUser {
+      @BeforeEach
+      void setUp() {
+        loginAsUser()
+      }
+
       @Test
       void 'should render server health messages'() {
         def state = ServerHealthState.error("not enough disk space, halting scheduling", "There is not enough disk space on the artifact filesystem", HealthStateType.artifactsDiskFull())

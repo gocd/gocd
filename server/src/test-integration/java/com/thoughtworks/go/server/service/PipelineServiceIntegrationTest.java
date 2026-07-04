@@ -26,14 +26,13 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.jupiter.api.AfterEach;
@@ -49,6 +48,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -214,10 +214,10 @@ public class PipelineServiceIntegrationTest {
     }
 
     private Pipeline createNewPipeline() {
-        if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString("Test"))) {
+        if (!goConfigService.hasPipelineNamed(cis("Test"))) {
             configHelper.addPipeline("Test", "dev");
         }
-        Pipeline pipeline = new Pipeline("Test", "testing-${COUNT}", BuildCause.createWithEmptyModifications(), new EnvironmentVariables());
+        Pipeline pipeline = new Pipeline("Test", "testing-${COUNT}", BuildCause.createEmpty(), new EnvironmentVariables());
         return pipelineService.save(pipeline);
     }
 
@@ -255,7 +255,7 @@ public class PipelineServiceIntegrationTest {
     }
 
     private Pipeline createPipelineWhoseLabelIsNumberAndNotSameWithCounter() {
-        Pipeline pipeline = new Pipeline("Test", "${COUNT}0", BuildCause.createWithEmptyModifications(), new EnvironmentVariables());
+        Pipeline pipeline = new Pipeline("Test", "${COUNT}0", BuildCause.createEmpty(), new EnvironmentVariables());
         pipeline.updateCounter(9);
         pipelineDao.save(pipeline);
         return pipeline;
@@ -264,7 +264,7 @@ public class PipelineServiceIntegrationTest {
     private Pipeline createPipelineWithStagesAndMods() {
         PipelineConfig config = PipelineMother.twoBuildPlansWithResourcesAndMaterials("tester", "dev");
         configHelper.addPipeline(CaseInsensitiveString.str(config.name()), CaseInsensitiveString.str(config.getFirst().name()));
-        Pipeline pipeline = instanceFactory.createPipelineInstance(config, modifySomeFiles(config), new DefaultSchedulingContext(GoConstants.DEFAULT_APPROVED_BY), "md5-test", new TimeProvider());
+        Pipeline pipeline = instanceFactory.createPipelineInstance(config, modifySomeFiles(config), new DefaultSchedulingContext(BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED), "md5-test", new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline);
         return pipeline;
     }

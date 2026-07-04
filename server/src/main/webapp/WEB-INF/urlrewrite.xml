@@ -744,12 +744,6 @@
   </rule>
 
   <rule>
-    <name>Elastic Agent Configurations SPA Redirect</name>
-    <from>^/admin/elastic_profiles(/?)$</from>
-    <to type="temporary-redirect" last="true">/go/admin/elastic_agent_configurations</to>
-  </rule>
-
-  <rule>
     <name>Elastic Agent Configurations SPA</name>
     <from>^/admin/elastic_agent_configurations(/?)$</from>
     <to last="true">/spark/admin/elastic_agent_configurations</to>
@@ -1128,7 +1122,7 @@
   <rule>
     <name>RESTful Artifacts - List All builds artifacts</name>
     <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+?)(\.json)?(\?.*)?$</from>
-    <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=</to>
+    <to type="forward">/spring-internal/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=</to>
   </rule>
 
   <rule>
@@ -1136,7 +1130,7 @@
     <condition type="parameter" name="startLineNumber"/>
     <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
     <set name="startLineNumber">{parameter:startLineNumber}</set>
-    <to type="forward">/consoleout.json?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
+    <to type="forward">/spring-internal/consoleout.json?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
   </rule>
 
   <rule>
@@ -1144,37 +1138,25 @@
     <condition type="parameter" name="sha1"/>
     <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
     <set name="sha1">{parameter:sha1}</set>
-    <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
+    <to type="forward">/spring-internal/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
   </rule>
 
   <rule>
     <name>RESTful Artifacts without filepath</name>
     <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(\?.*)?$</from>
-    <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=</to>
+    <to type="forward">/spring-internal/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=</to>
   </rule>
 
   <rule>
     <name>RESTful Artifacts with filepath</name>
     <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.+?)(\?.*)?$</from>
-    <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
+    <to type="forward">/spring-internal/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
   </rule>
 
   <rule>
     <name>Configuration Administration RESTful url - File</name>
     <from>^/api/admin/config.xml$</from>
-    <to type="forward" last="true">/admin/restful/configuration/file/%{attribute:_method}/xml?version=current</to>
-  </rule>
-
-  <rule>
-    <name>Configuration Administration RESTful url - File</name>
-    <from>^/api/admin/config/([^/]+)\.xml$</from>
-    <to type="forward" last="true">/admin/restful/configuration/file/%{attribute:_method}/historical-xml?version=$1</to>
-  </rule>
-
-  <rule>
-    <name>Configuration Administration RESTful url - File</name>
-    <from>^/admin/configuration/file\.xml(\?.*)?$</from>
-    <to type="forward">/admin/restful/configuration/file/%{attribute:_method}/%{attribute:_type}</to>
+    <to type="forward" last="true">/spring-internal/admin/configuration/file/%{attribute:_method}/xml</to>
   </rule>
 
   <rule>
@@ -1184,13 +1166,7 @@
   </rule>
 
   <rule>
-    <name>Pipeline history page redirect to new SPA</name>
-    <from>/tab/pipeline/history/([^/]+)</from>
-    <to type="redirect" last="true">/go/pipeline/activity/$1</to>
-  </rule>
-
-  <rule>
-    <name>Stage detail beta</name>
+    <name>Stage Detail</name>
     <from>/pipelines/([^/]+)/([^/]+)/([^/]+)/([^/]+)</from>
     <to type="forward">/pipelines/history?pipelineName=$1&amp;label=$2&amp;stageName=$3&amp;counter=$4</to>
   </rule>

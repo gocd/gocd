@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server;
 
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpStatus;
@@ -59,7 +58,7 @@ class GoServerLoadingIndicationHandler extends ContextHandler {
                 handleQueriesWhenWebAppIsStarting(baseRequest, response);
             } else if ("/".equals(target)) {
                 addHeaders(response);
-                response.sendRedirect(GoConstants.GO_URL_CONTEXT + systemEnvironment.landingPage());
+                response.sendRedirect(systemEnvironment.getLandingPage());
             }
         }
 

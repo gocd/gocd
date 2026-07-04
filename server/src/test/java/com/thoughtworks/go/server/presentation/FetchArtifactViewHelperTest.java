@@ -15,30 +15,29 @@
  */
 package com.thoughtworks.go.server.presentation;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.server.presentation.FetchArtifactViewHelper.PermissionResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Map;
+import java.util.Set;
 
-import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
-import static java.util.Map.entry;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 
 @ExtendWith(MockitoExtension.class)
 public class FetchArtifactViewHelperTest {
-    @Mock(strictness = Mock.Strictness.LENIENT)
-    private SystemEnvironment systemEnvironment;
+    private static final Gson GSON = new GsonBuilder().serializeNulls().create();
+    private static final PermissionResolver ALL_VIEWABLE = name -> true;
+
     private CruiseConfig cruiseConfig;
 
 
@@ -69,51 +68,47 @@ public class FetchArtifactViewHelperTest {
      */
     @BeforeEach
     public void setUp() {
-        when(systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled()).thenReturn(true);
-
-        when(systemEnvironment.get(SystemEnvironment.FETCH_ARTIFACT_AUTO_SUGGEST)).thenReturn(true);
-
         PipelineConfig random = PipelineConfigMother.pipelineConfig("random_pipeline");
-        JobConfigs randomJobs = random.getStage(new CaseInsensitiveString("mingle")).getJobs();
+        JobConfigs randomJobs = random.getStage(cis("mingle")).getJobs();
         randomJobs.add(new JobConfig("mingle_job"));
 
         PipelineConfig uppest = PipelineConfigMother.createPipelineConfig("uppest", "uppest_stage_1", "uppest_job_1", "uppest_job_1a");
         uppest.add(StageConfigMother.custom("uppest_stage_2", "uppest_job_2"));
         uppest.add(StageConfigMother.custom("uppest_stage_3", "uppest_job_3"));
-        uppest.getStage("uppest_stage_1").getJobs().getJob(new CaseInsensitiveString("uppest_job_1")).artifactTypeConfigs().add(new PluggableArtifactConfig("a1", "hub"));
+        uppest.getStage("uppest_stage_1").getJobs().getJob(cis("uppest_job_1")).artifactTypeConfigs().add(new PluggableArtifactConfig("a1", "hub"));
 
         PipelineConfig upper = PipelineConfigMother.createPipelineConfig("upper", "upper_stage_1", "upper_job_1", "upper_job_1a");
         upper.add(StageConfigMother.custom("upper_stage_2", "upper_job_2"));
         upper.add(StageConfigMother.custom("upper_stage_3", "upper_job_3"));
-        upper.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("uppest"), new CaseInsensitiveString("uppest_stage_2")));
+        upper.addMaterialConfig(new DependencyMaterialConfig(cis("uppest"), cis("uppest_stage_2")));
 
         PipelineConfig downer = PipelineConfigMother.createPipelineConfig("downer", "downer_stage_1", "downer_job_1", "downer_job_1a");
         downer.add(StageConfigMother.custom("downer_stage_2", "downer_job_2"));
         downer.add(StageConfigMother.custom("downer_stage_3", "downer_job_3"));
-        downer.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("upper"), new CaseInsensitiveString("upper_stage_2")));
+        downer.addMaterialConfig(new DependencyMaterialConfig(cis("upper"), cis("upper_stage_2")));
 
         PipelineConfig downest = PipelineConfigMother.createPipelineConfig("downest", "downest_stage_1", "downest_job_1", "downest_job_1a");
         downest.add(StageConfigMother.custom("downest_stage_2", "downest_job_2"));
         downest.add(StageConfigMother.custom("downest_stage_3", "downest_job_3"));
-        downest.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("downer"), new CaseInsensitiveString("downer_stage_2")));
+        downest.addMaterialConfig(new DependencyMaterialConfig(cis("downer"), cis("downer_stage_2")));
 
         PipelineConfig downestWithMultiplePaths = PipelineConfigMother.createPipelineConfig("downest_wmp", "downest_wmp_stage_1", "downest_wmp_job_1", "downest_wmp_job_1a");
         downestWithMultiplePaths.add(StageConfigMother.custom("downest_wmp_stage_2", "downest_wmp_job_2"));
         downestWithMultiplePaths.add(StageConfigMother.custom("downest_wmp_stage_3", "downest_wmp_job_3"));
-        downestWithMultiplePaths.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("downer"), new CaseInsensitiveString("downer_stage_2")));
-        downestWithMultiplePaths.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("upper"), new CaseInsensitiveString("upper_stage_2")));
-        downestWithMultiplePaths.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("random_pipeline"), new CaseInsensitiveString("mingle")));
+        downestWithMultiplePaths.addMaterialConfig(new DependencyMaterialConfig(cis("downer"), cis("downer_stage_2")));
+        downestWithMultiplePaths.addMaterialConfig(new DependencyMaterialConfig(cis("upper"), cis("upper_stage_2")));
+        downestWithMultiplePaths.addMaterialConfig(new DependencyMaterialConfig(cis("random_pipeline"), cis("mingle")));
 
         PipelineConfig randomOther = PipelineConfigMother.pipelineConfig("randomOther_pipeline");
-        JobConfigs randomOtherJobs = randomOther.getStage(new CaseInsensitiveString("mingle")).getJobs();
+        JobConfigs randomOtherJobs = randomOther.getStage(cis("mingle")).getJobs();
         randomOtherJobs.add(new JobConfig("mingle_job_from_other_pipeline"));
 
         TemplatesConfig templates = new TemplatesConfig(
-                new PipelineTemplateConfig(new CaseInsensitiveString("template-1"),
-                        StageConfigMother.custom("t1-stage-1", "t1-job-1", "t1-job-1a"),
-                        StageConfigMother.custom("t1-stage-2", "t1-job-2"),
-                        StageConfigMother.custom("t1-stage-3", "t1-job-3")),
-                new PipelineTemplateConfig(new CaseInsensitiveString("template-2"), StageConfigMother.custom("t2-stage-1", "t2-job-1", "t2-job-1a"), StageConfigMother.custom("t2-stage-2", "t2-job-2")));
+            new PipelineTemplateConfig(cis("template-1"),
+                StageConfigMother.custom("t1-stage-1", "t1-job-1", "t1-job-1a"),
+                StageConfigMother.custom("t1-stage-2", "t1-job-2"),
+                StageConfigMother.custom("t1-stage-3", "t1-job-3")),
+            new PipelineTemplateConfig(cis("template-2"), StageConfigMother.custom("t2-stage-1", "t2-job-1", "t2-job-1a"), StageConfigMother.custom("t2-stage-2", "t2-job-2")));
 
         cruiseConfig = configWith(uppest, upper, downer, downest, downestWithMultiplePaths, random, randomOther);
         cruiseConfig.setTemplates(templates);
@@ -121,290 +116,246 @@ public class FetchArtifactViewHelperTest {
     }
 
     @Test
-    public void shouldNotSuggestIfTurnedOff() {
-        when(systemEnvironment.get(SystemEnvironment.FETCH_ARTIFACT_AUTO_SUGGEST)).thenReturn(false);
-
-        Map<CaseInsensitiveString, Map<CaseInsensitiveString, ?>> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("uppest"), new CaseInsensitiveString("uppest_stage_3"), false).autosuggestMap();
-
-        assertThat(jobForFetchHierarchy.isEmpty()).isTrue();
-    }
-
-    @Test
-    public void shouldNotSuggestForTemplatesIfToggleIsTurnedOff() {
-        when(systemEnvironment.get(SystemEnvironment.FETCH_ARTIFACT_AUTO_SUGGEST)).thenReturn(true);
-        when(systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled()).thenReturn(false);
-        Map<CaseInsensitiveString, Map<CaseInsensitiveString, ?>> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("templateName"), new CaseInsensitiveString("template_stage_3"), true).autosuggestMap();
-
-        assertThat(jobForFetchHierarchy.isEmpty()).isTrue();
-    }
-
-    @Test
     public void shouldSuggest_AncestorFetch_validForFetchArtifactCall_fromLocalPipeline() {
-        Map<CaseInsensitiveString, Map<CaseInsensitiveString, ?>> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("uppest"), new CaseInsensitiveString("uppest_stage_3"), false).autosuggestMap();
+        var targetPipeline = cis("uppest");
+        var targetStage = cis("uppest_stage_3");
+        var hierarchy = new FetchArtifactViewHelper(cruiseConfig, targetPipeline, targetStage, false, ALL_VIEWABLE).autosuggestMap();
 
-        assertThat(jobForFetchHierarchy).isEqualTo(
-                Map.of(str("uppest"),
-                        Map.of(str("uppest_stage_1"),
-                                Map.of(str("uppest_job_1"), Map.of("a1", "docker.plugin.id"), str("uppest_job_1a"), Map.of()),
-                          str("uppest_stage_2"),
-                                Map.of(str("uppest_job_2"), Map.of())),
-                  str(""),
-                        Map.of(str("uppest_stage_1"),
-                                Map.of(str("uppest_job_1"), Map.of("a1", "docker.plugin.id"), str("uppest_job_1a"), Map.of()),
-                          str("uppest_stage_2"),
-                                Map.of(str("uppest_job_2"), Map.of()))));
+        assertThatJson(GSON.toJson(hierarchy)).isEqualTo("""
+            {
+              "uppest": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              }
+            }""");
     }
 
     @Test
     public void shouldSuggest_AncestorFetch_validForFetchArtifactCall_fromDirectUpstream() {
-        Map<CaseInsensitiveString, Map<CaseInsensitiveString, ?>> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("upper"), new CaseInsensitiveString("upper_stage_3"), false).autosuggestMap();
+        var targetPipeline = cis("upper");
+        var targetStage = cis("upper_stage_3");
+        var hierarchy = new FetchArtifactViewHelper(cruiseConfig, targetPipeline, targetStage, false, ALL_VIEWABLE).autosuggestMap();
 
-        assertThat(jobForFetchHierarchy).isEqualTo(
-                Map.of(str("uppest"),
-                        Map.of(str("uppest_stage_1"),
-                                Map.of(str("uppest_job_1"), Map.of("a1", "docker.plugin.id"), str("uppest_job_1a"), Map.of()),
-                          str("uppest_stage_2"),
-                                Map.of(str("uppest_job_2"), Map.of())),
-                  str("upper"),
-                        Map.of(str("upper_stage_1"),
-                                Map.of(str("upper_job_1"), Map.of(), str("upper_job_1a"), Map.of()),
-                          str("upper_stage_2"),
-                                Map.of(str("upper_job_2"), Map.of())),
-                  str(""),
-                        Map.of(str("upper_stage_1"),
-                                Map.of(str("upper_job_1"), Map.of(), str("upper_job_1a"), Map.of()),
-                          str("upper_stage_2"),
-                                Map.of(str("upper_job_2"), Map.of()))));
+        assertThatJson(GSON.toJson(hierarchy)).isEqualTo("""
+            {
+              "uppest": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "upper": {
+                "upper_stage_1": { "upper_job_1": {}, "upper_job_1a": {} },
+                "upper_stage_2": { "upper_job_2": {} }
+              },
+              "": {
+                "upper_stage_1": { "upper_job_1": {}, "upper_job_1a": {} },
+                "upper_stage_2": { "upper_job_2": {} }
+              }
+            }""");
     }
 
     @Test
     public void shouldSuggest_AncestorFetch_validForFetchArtifactCall_fromAncestorUpstream() {
-        Map<CaseInsensitiveString, Map<CaseInsensitiveString, ?>> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("downest"), new CaseInsensitiveString("downest_stage_3"), false).autosuggestMap();
+        var targetPipeline = cis("downest");
+        var targetStage = cis("downest_stage_3");
+        var hierarchy = new FetchArtifactViewHelper(cruiseConfig, targetPipeline, targetStage, false, ALL_VIEWABLE).autosuggestMap();
 
-        assertThat(jobForFetchHierarchy).isEqualTo(
-                Map.of(str("uppest/upper/downer"),
-                        Map.of(str("uppest_stage_1"),
-                                Map.of(str("uppest_job_1"), Map.of("a1", "docker.plugin.id"), str("uppest_job_1a"), Map.of()),
-                          str("uppest_stage_2"),
-                                Map.of(str("uppest_job_2"), Map.of())),
-                  str("upper/downer"),
-                        Map.of(str("upper_stage_1"),
-                                Map.of(str("upper_job_1"), Map.of(), str("upper_job_1a"), Map.of()),
-                          str("upper_stage_2"),
-                                Map.of(str("upper_job_2"), Map.of())),
-                  str("downer"),
-                        Map.of(str("downer_stage_1"),
-                                Map.of(str("downer_job_1"), Map.of(), str("downer_job_1a"), Map.of()),
-                          str("downer_stage_2"),
-                                Map.of(str("downer_job_2"), Map.of())),
-                  str("downest"),
-                        Map.of(str("downest_stage_1"),
-                                Map.of(str("downest_job_1"), Map.of(), str("downest_job_1a"), Map.of()),
-                          str("downest_stage_2"),
-                                Map.of(str("downest_job_2"), Map.of())),
-                  str(""),
-                        Map.of(str("downest_stage_1"),
-                                Map.of(str("downest_job_1"), Map.of(), str("downest_job_1a"), Map.of()),
-                          str("downest_stage_2"),
-                                Map.of(str("downest_job_2"), Map.of()))));
+        assertThatJson(GSON.toJson(hierarchy)).isEqualTo("""
+            {
+              "uppest/upper/downer": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "upper/downer": {
+                "upper_stage_1": { "upper_job_1": {}, "upper_job_1a": {} },
+                "upper_stage_2": { "upper_job_2": {} }
+              },
+              "downer": {
+                "downer_stage_1": { "downer_job_1": {}, "downer_job_1a": {} },
+                "downer_stage_2": { "downer_job_2": {} }
+              },
+              "downest": {
+                "downest_stage_1": { "downest_job_1": {}, "downest_job_1a": {} },
+                "downest_stage_2": { "downest_job_2": {} }
+              },
+              "": {
+                "downest_stage_1": { "downest_job_1": {}, "downest_job_1a": {} },
+                "downest_stage_2": { "downest_job_2": {} }
+              }
+            }""");
     }
 
     @Test
     public void shouldSuggest_AncestorFetch_validForFetchArtifactCall_fromAncestorUpstream_withMultiplePathsToSameDestination() {
-        Map<CaseInsensitiveString, Map<CaseInsensitiveString, ?>> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("downest_wmp"), new CaseInsensitiveString("downest_wmp_stage_3"), false).autosuggestMap();
+        var targetPipeline = cis("downest_wmp");
+        var targetStage = cis("downest_wmp_stage_3");
+        var hierarchy = new FetchArtifactViewHelper(cruiseConfig, targetPipeline, targetStage, false, ALL_VIEWABLE).autosuggestMap();
 
-
-        assertThat(jobForFetchHierarchy).isEqualTo(
-                Map.of(str("uppest/upper/downer"),
-                        Map.of(str("uppest_stage_1"),
-                                Map.of(str("uppest_job_1"), Map.of("a1", "docker.plugin.id"), str("uppest_job_1a"), Map.of()),
-                          str("uppest_stage_2"),
-                                Map.of(str("uppest_job_2"), Map.of())),
-                  str("uppest/upper"),
-                        Map.of(str("uppest_stage_1"),
-                                Map.of(str("uppest_job_1"), Map.of("a1", "docker.plugin.id"), str("uppest_job_1a"), Map.of()),
-                          str("uppest_stage_2"),
-                                Map.of(str("uppest_job_2"), Map.of())),
-                  str("upper"),
-                        Map.of(str("upper_stage_1"),
-                                Map.of(str("upper_job_1"), Map.of(), str("upper_job_1a"), Map.of()),
-                          str("upper_stage_2"),
-                                Map.of(str("upper_job_2"), Map.of())),
-                  str("upper/downer"),
-                        Map.of(str("upper_stage_1"),
-                                Map.of(str("upper_job_1"), Map.of(), str("upper_job_1a"), Map.of()),
-                          str("upper_stage_2"),
-                                Map.of(str("upper_job_2"), Map.of())),
-                  str("downer"),
-                        Map.of(str("downer_stage_1"),
-                                Map.of(str("downer_job_1"), Map.of(), str("downer_job_1a"), Map.of()),
-                          str("downer_stage_2"),
-                                Map.of(str("downer_job_2"), Map.of())),
-                  str("random_pipeline"),
-                        Map.of(str("mingle"),
-                                Map.of(str("mingle_job"), Map.of())),
-                  str("downest_wmp"),
-                        Map.of(str("downest_wmp_stage_1"),
-                                Map.of(str("downest_wmp_job_1"), Map.of(), str("downest_wmp_job_1a"), Map.of()),
-                          str("downest_wmp_stage_2"),
-                                Map.of(str("downest_wmp_job_2"), Map.of())),
-                  str(""),
-                        Map.of(str("downest_wmp_stage_1"),
-                                Map.of(str("downest_wmp_job_1"), Map.of(), str("downest_wmp_job_1a"), Map.of()),
-                          str("downest_wmp_stage_2"),
-                                Map.of(str("downest_wmp_job_2"), Map.of()))));
+        assertThatJson(GSON.toJson(hierarchy)).isEqualTo("""
+            {
+              "uppest/upper/downer": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "uppest/upper": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "upper": {
+                "upper_stage_1": { "upper_job_1": {}, "upper_job_1a": {} },
+                "upper_stage_2": { "upper_job_2": {} }
+              },
+              "upper/downer": {
+                "upper_stage_1": { "upper_job_1": {}, "upper_job_1a": {} },
+                "upper_stage_2": { "upper_job_2": {} }
+              },
+              "downer": {
+                "downer_stage_1": { "downer_job_1": {}, "downer_job_1a": {} },
+                "downer_stage_2": { "downer_job_2": {} }
+              },
+              "random_pipeline": {
+                "mingle": { "mingle_job": {} }
+              },
+              "downest_wmp": {
+                "downest_wmp_stage_1": { "downest_wmp_job_1": {}, "downest_wmp_job_1a": {} },
+                "downest_wmp_stage_2": { "downest_wmp_job_2": {} }
+              },
+              "": {
+                "downest_wmp_stage_1": { "downest_wmp_job_1": {}, "downest_wmp_job_1a": {} },
+                "downest_wmp_stage_2": { "downest_wmp_job_2": {} }
+              }
+            }""");
     }
 
     @Test
     public void shouldSuggest_AllPathsInEntireConfigDependencyGraph_fromAnyStageToAnyUpstreamStage() {
-        Map<CaseInsensitiveString, Map<CaseInsensitiveString, ?>> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString("template-1"), new CaseInsensitiveString("t1-stage-3"), true).autosuggestMap();
+        var targetTemplate = cis("template-1");
+        var targetStage = cis("t1-stage-3");
+        var hierarchy = new FetchArtifactViewHelper(cruiseConfig, targetTemplate, targetStage, true, ALL_VIEWABLE).autosuggestMap();
 
-        assertThat(jobForFetchHierarchy).isEqualTo(
-            Map.ofEntries(
-                entry(str("uppest/upper/downer/downest"),
-                    Map.of(str("uppest_stage_1"),
-                        Map.of(str("uppest_job_1"), Map.of("a1", "docker.plugin.id"), str("uppest_job_1a"), Map.of()),
-                        str("uppest_stage_2"),
-                        Map.of(str("uppest_job_2"), Map.of()))),
-                entry(str("uppest/upper/downer/downest_wmp"),
-                    Map.of(str("uppest_stage_1"),
-                        Map.of(str("uppest_job_1"), Map.of("a1", "docker.plugin.id"), str("uppest_job_1a"), Map.of()),
-                        str("uppest_stage_2"),
-                        Map.of(str("uppest_job_2"), Map.of()))),
-                entry(str("uppest/upper/downer"),
-                    Map.of(str("uppest_stage_1"),
-                        Map.of(str("uppest_job_1"), Map.of("a1", "docker.plugin.id"), str("uppest_job_1a"), Map.of()),
-                        str("uppest_stage_2"),
-                        Map.of(str("uppest_job_2"), Map.of()))),
-                entry(str("uppest/upper"),
-                    Map.of(str("uppest_stage_1"),
-                        Map.of(str("uppest_job_1"), Map.of("a1", "docker.plugin.id"), str("uppest_job_1a"), Map.of()),
-                        str("uppest_stage_2"),
-                        Map.of(str("uppest_job_2"), Map.of()))),
-                entry(str("uppest/upper/downest_wmp"),
-                    Map.of(str("uppest_stage_1"),
-                        Map.of(str("uppest_job_1"), Map.of("a1", "docker.plugin.id"), str("uppest_job_1a"), Map.of()),
-                        str("uppest_stage_2"),
-                        Map.of(str("uppest_job_2"), Map.of()))),
-                entry(str("uppest"),
-                    Map.of(str("uppest_stage_1"),
-                        Map.of(str("uppest_job_1"), Map.of("a1", "docker.plugin.id"), str("uppest_job_1a"), Map.of()),
-                        str("uppest_stage_2"),
-                        Map.of(str("uppest_job_2"), Map.of()),
-                        str("uppest_stage_3"),
-                        Map.of(str("uppest_job_3"), Map.of()))),
-                entry(str("upper/downer/downest_wmp"),
-                    Map.of(str("upper_stage_1"),
-                        Map.of(str("upper_job_1"), Map.of(), str("upper_job_1a"), Map.of()),
-                        str("upper_stage_2"),
-                        Map.of(str("upper_job_2"), Map.of()))),
-                entry(str("upper/downer/downest"),
-                    Map.of(str("upper_stage_1"),
-                        Map.of(str("upper_job_1"), Map.of(), str("upper_job_1a"), Map.of()),
-                        str("upper_stage_2"),
-                        Map.of(str("upper_job_2"), Map.of()))),
-                entry(str("upper/downer"),
-                    Map.of(str("upper_stage_1"),
-                        Map.of(str("upper_job_1"), Map.of(), str("upper_job_1a"), Map.of()),
-                        str("upper_stage_2"),
-                        Map.of(str("upper_job_2"), Map.of()))),
-                entry(str("upper/downest_wmp"),
-                    Map.of(str("upper_stage_1"),
-                        Map.of(str("upper_job_1"), Map.of(), str("upper_job_1a"), Map.of()),
-                        str("upper_stage_2"),
-                        Map.of(str("upper_job_2"), Map.of()))),
-                entry(str("upper"),
-                    Map.of(str("upper_stage_1"),
-                        Map.of(str("upper_job_1"), Map.of(), str("upper_job_1a"), Map.of()),
-                        str("upper_stage_2"),
-                        Map.of(str("upper_job_2"), Map.of()),
-                        str("upper_stage_3"),
-                        Map.of(str("upper_job_3"), Map.of()))),
-                entry(str("downer/downest_wmp"),
-                    Map.of(str("downer_stage_1"),
-                        Map.of(str("downer_job_1"), Map.of(), str("downer_job_1a"), Map.of()),
-                        str("downer_stage_2"),
-                        Map.of(str("downer_job_2"), Map.of()))),
-                entry(str("downer/downest"),
-                    Map.of(str("downer_stage_1"),
-                        Map.of(str("downer_job_1"), Map.of(), str("downer_job_1a"), Map.of()),
-                        str("downer_stage_2"),
-                        Map.of(str("downer_job_2"), Map.of()))),
-                entry(str("downer"),
-                    Map.of(str("downer_stage_1"),
-                        Map.of(str("downer_job_1"), Map.of(), str("downer_job_1a"), Map.of()),
-                        str("downer_stage_2"),
-                        Map.of(str("downer_job_2"), Map.of()),
-                        str("downer_stage_3"),
-                        Map.of(str("downer_job_3"), Map.of()))),
-                entry(str("random_pipeline"),
-                    Map.of(str("mingle"),
-                        Map.of(str("mingle_job"), Map.of()))),
-                entry(str("random_pipeline/downest_wmp"),
-                    Map.of(str("mingle"),
-                        Map.of(str("mingle_job"), Map.of()))),
-                entry(str("downest"),
-                    Map.of(str("downest_stage_1"),
-                        Map.of(str("downest_job_1"), Map.of(), str("downest_job_1a"), Map.of()),
-                        str("downest_stage_2"),
-                        Map.of(str("downest_job_2"), Map.of()),
-                        str("downest_stage_3"),
-                        Map.of(str("downest_job_3"), Map.of()))),
-                entry(str("downest_wmp"),
-                    Map.of(str("downest_wmp_stage_1"),
-                        Map.of(str("downest_wmp_job_1"), Map.of(), str("downest_wmp_job_1a"), Map.of()),
-                        str("downest_wmp_stage_2"),
-                        Map.of(str("downest_wmp_job_2"), Map.of()),
-                        str("downest_wmp_stage_3"),
-                        Map.of(str("downest_wmp_job_3"), Map.of()))),
-                entry(str("randomOther_pipeline"),
-                    Map.of(str("mingle"),
-                        Map.of(str("mingle_job_from_other_pipeline"), Map.of()))),
-                entry(str(""),
-                    Map.of(str("t1-stage-1"),
-                        Map.of(str("t1-job-1"), Map.of(), str("t1-job-1a"), Map.of()),
-                        str("t1-stage-2"),
-                        Map.of(str("t1-job-2"), Map.of())))));
+        assertThatJson(GSON.toJson(hierarchy)).isEqualTo("""
+            {
+              "uppest": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} },
+                "uppest_stage_3": { "uppest_job_3": {} }
+              },
+              "uppest/upper": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "uppest/upper/downer": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "uppest/upper/downest_wmp": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "uppest/upper/downer/downest": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "uppest/upper/downer/downest_wmp": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "upper": {
+                "upper_stage_1": { "upper_job_1": {}, "upper_job_1a": {} },
+                "upper_stage_2": { "upper_job_2": {} },
+                "upper_stage_3": { "upper_job_3": {} }
+              },
+              "upper/downer": {
+                "upper_stage_1": { "upper_job_1": {}, "upper_job_1a": {} },
+                "upper_stage_2": { "upper_job_2": {} }
+              },
+              "upper/downest_wmp": {
+                "upper_stage_1": { "upper_job_1": {}, "upper_job_1a": {} },
+                "upper_stage_2": { "upper_job_2": {} }
+              },
+              "upper/downer/downest": {
+                "upper_stage_1": { "upper_job_1": {}, "upper_job_1a": {} },
+                "upper_stage_2": { "upper_job_2": {} }
+              },
+              "upper/downer/downest_wmp": {
+                "upper_stage_1": { "upper_job_1": {}, "upper_job_1a": {} },
+                "upper_stage_2": { "upper_job_2": {} }
+              },
+              "downer": {
+                "downer_stage_1": { "downer_job_1": {}, "downer_job_1a": {} },
+                "downer_stage_2": { "downer_job_2": {} },
+                "downer_stage_3": { "downer_job_3": {} }
+              },
+              "downer/downest": {
+                "downer_stage_1": { "downer_job_1": {}, "downer_job_1a": {} },
+                "downer_stage_2": { "downer_job_2": {} }
+              },
+              "downer/downest_wmp": {
+                "downer_stage_1": { "downer_job_1": {}, "downer_job_1a": {} },
+                "downer_stage_2": { "downer_job_2": {} }
+              },
+              "downest": {
+                "downest_stage_1": { "downest_job_1": {}, "downest_job_1a": {} },
+                "downest_stage_2": { "downest_job_2": {} },
+                "downest_stage_3": { "downest_job_3": {} }
+              },
+              "downest_wmp": {
+                "downest_wmp_stage_1": { "downest_wmp_job_1": {}, "downest_wmp_job_1a": {} },
+                "downest_wmp_stage_2": { "downest_wmp_job_2": {} },
+                "downest_wmp_stage_3": { "downest_wmp_job_3": {} }
+              },
+              "random_pipeline": {
+                "mingle": { "mingle_job": {} }
+              },
+              "random_pipeline/downest_wmp": {
+                "mingle": { "mingle_job": {} }
+              },
+              "randomOther_pipeline": {
+                "mingle": { "mingle_job_from_other_pipeline": {} }
+              },
+              "": {
+                "t1-stage-1": { "t1-job-1": {}, "t1-job-1a": {} },
+                "t1-stage-2": { "t1-job-2": {} }
+              }
+            }""");
     }
 
 
     @Test
     public void shouldProvideNoAutoSuggestionWhenThereIsOnlyOneTemplateAndAPipelineIsUsingThatTemplate() {
-        when(systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled()).thenReturn(true);
-        when(systemEnvironment.get(SystemEnvironment.FETCH_ARTIFACT_AUTO_SUGGEST)).thenReturn(true);
+        var targetTemplate = cis("template-for-pipeline-my-pipeline");
+        var targetStage = cis("stage-1");
 
         cruiseConfig = new BasicCruiseConfig();
-
-        String templateName = "template-for-pipeline-my-pipeline";
-        PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString(templateName),
-                StageConfigMother.custom("stage-1", "stage1-job-1"));
+        PipelineTemplateConfig template = new PipelineTemplateConfig(targetTemplate,
+            StageConfigMother.custom(targetStage.toString(), "stage1-job-1"));
 
         PipelineConfig pipeline = new PipelineConfig();
         pipeline.setName("my-pipeline");
-        pipeline.setTemplateName(new CaseInsensitiveString(templateName));
+        pipeline.setTemplateName(targetTemplate);
 
         cruiseConfig.addTemplate(template);
         cruiseConfig.addPipeline("first", pipeline);
 
-        Map<CaseInsensitiveString, Map<CaseInsensitiveString, ?>> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString(templateName), new CaseInsensitiveString("stage-1"), true).autosuggestMap();
+        var hierarchy = new FetchArtifactViewHelper(cruiseConfig, targetTemplate, targetStage, true, ALL_VIEWABLE).autosuggestMap();
 
-        assertTrue(jobForFetchHierarchy.isEmpty());
+        assertThatJson(GSON.toJson(hierarchy)).isEqualTo("{}");
     }
 
     @Test
     public void shouldProvideAutoSuggestionForTemplateOfPipelinesWhichAreNotUsingThatTemplate() {
-        when(systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled()).thenReturn(true);
-        when(systemEnvironment.get(SystemEnvironment.FETCH_ARTIFACT_AUTO_SUGGEST)).thenReturn(true);
+        var targetTemplate = cis("template-for-pipeline-my-pipeline");
+        var targetStage = cis("stage-1");
 
         cruiseConfig = new BasicCruiseConfig();
-
-        String templateName = "template-for-pipeline-my-pipeline";
-        PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString(templateName),
-                StageConfigMother.custom("stage-1", "stage1-job-1"));
+        PipelineTemplateConfig template = new PipelineTemplateConfig(targetTemplate, StageConfigMother.custom(targetStage.toString(), "stage1-job-1"));
 
         PipelineConfig pipelineUsingTemplate = new PipelineConfig();
         pipelineUsingTemplate.setName("my-pipeline");
-        pipelineUsingTemplate.setTemplateName(new CaseInsensitiveString(templateName));
+        pipelineUsingTemplate.setTemplateName(targetTemplate);
 
         PipelineConfig normalPipeline = PipelineConfigMother.createPipelineConfig("downest", "downest_stage_1", "downest_job_1", "downest_job_1a");
 
@@ -412,8 +363,226 @@ public class FetchArtifactViewHelperTest {
         cruiseConfig.addPipeline("first", pipelineUsingTemplate);
         cruiseConfig.addPipeline("first", normalPipeline);
 
-        Map<CaseInsensitiveString, Map<CaseInsensitiveString, ?>> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString(templateName), new CaseInsensitiveString("stage-1"), true).autosuggestMap();
+        var hierarchy = new FetchArtifactViewHelper(cruiseConfig, targetTemplate, targetStage, true, ALL_VIEWABLE).autosuggestMap();
 
-        assertThat(jobForFetchHierarchy).isEqualTo(Map.of(str("downest"), Map.of(str("downest_stage_1"), Map.of(str("downest_job_1"), Map.of(), str("downest_job_1a"), Map.of()))));
+        assertThatJson(GSON.toJson(hierarchy)).isEqualTo("""
+            {
+              "downest": {
+                "downest_stage_1": { "downest_job_1": {}, "downest_job_1a": {} }
+              }
+            }""");
+    }
+
+    @Test
+    public void shouldEmitViewableDirectUpstreamsAndAncestorsReachableThroughHiddenIntermediates() {
+        var targetPipeline = cis("downest");
+        var targetStage = cis("downest_stage_3");
+
+        // Hidden: upper (intermediate between viewable downer and viewable uppest)
+        Set<CaseInsensitiveString> viewable = Set.of(targetPipeline, cis("downer"), cis("uppest"));
+
+        var hierarchy = new FetchArtifactViewHelper(cruiseConfig, targetPipeline, targetStage, false, viewable::contains).autosuggestMap();
+
+        assertThatJson(GSON.toJson(hierarchy)).isEqualTo("""
+            {
+              "downest": {
+                "downest_stage_1": { "downest_job_1": {}, "downest_job_1a": {} },
+                "downest_stage_2": { "downest_job_2": {} }
+              },
+              "downer": {
+                "downer_stage_1": { "downer_job_1": {}, "downer_job_1a": {} },
+                "downer_stage_2": { "downer_job_2": {} }
+              },
+              "uppest/upper/downer": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "": {
+                "downest_stage_1": { "downest_job_1": {}, "downest_job_1a": {} },
+                "downest_stage_2": { "downest_job_2": {} }
+              }
+            }""");
+    }
+
+    @Test
+    public void shouldEmitViewableAncestorThroughMultipleConsecutiveHiddenIntermediates() {
+        var targetPipeline = cis("downest");
+        var targetStage = cis("downest_stage_3");
+        // Hidden: upper, downer (two consecutive hidden hops between viewable downest and viewable uppest)
+        Set<CaseInsensitiveString> viewable = Set.of(targetPipeline, cis("uppest"));
+
+        var hierarchy = new FetchArtifactViewHelper(cruiseConfig, targetPipeline, targetStage, false, viewable::contains).autosuggestMap();
+
+        assertThatJson(GSON.toJson(hierarchy)).isEqualTo("""
+            {
+              "downest": {
+                "downest_stage_1": { "downest_job_1": {}, "downest_job_1a": {} },
+                "downest_stage_2": { "downest_job_2": {} }
+              },
+              "uppest/upper/downer": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "": {
+                "downest_stage_1": { "downest_job_1": {}, "downest_job_1a": {} },
+                "downest_stage_2": { "downest_job_2": {} }
+              }
+            }""");
+    }
+
+    @Test
+    public void shouldEmitOnlyViewablePipelineStagesUnderEveryReachablePathInTemplateAutoSuggest() {
+        var targetTemplate = cis("template-1");
+        var targetStage = cis("t1-stage-3");
+        // Hidden: every pipeline except uppest (upper, downer, downest, downest_wmp, random_pipeline, randomOther_pipeline)
+        Set<CaseInsensitiveString> viewable = Set.of(cis("uppest"));
+
+        var hierarchy = new FetchArtifactViewHelper(cruiseConfig, targetTemplate, targetStage, true, viewable::contains).autosuggestMap();
+
+        assertThatJson(GSON.toJson(hierarchy)).isEqualTo("""
+            {
+              "uppest": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} },
+                "uppest_stage_3": { "uppest_job_3": {} }
+              },
+              "uppest/upper": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "uppest/upper/downer": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "uppest/upper/downest_wmp": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "uppest/upper/downer/downest": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "uppest/upper/downer/downest_wmp": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "": {
+                "t1-stage-1": { "t1-job-1": {}, "t1-job-1a": {} },
+                "t1-stage-2": { "t1-job-2": {} }
+              }
+            }""");
+    }
+
+    @Test
+    public void shouldEmitOnlyLocalStagesWhenAllUpstreamPipelinesAreHidden() {
+        var targetPipeline = cis("downest");
+        CaseInsensitiveString targetStage = cis("downest_stage_3");
+        // Hidden: every pipeline except the requested downest (so all of its upstreams downer/upper/uppest)
+        PermissionResolver onlyDownest = targetPipeline::equals;
+
+        var hierarchy = new FetchArtifactViewHelper(cruiseConfig, targetPipeline, targetStage, false, onlyDownest).autosuggestMap();
+
+        assertThatJson(GSON.toJson(hierarchy)).isEqualTo("""
+            {
+              "downest": {
+                "downest_stage_1": { "downest_job_1": {}, "downest_job_1a": {} },
+                "downest_stage_2": { "downest_job_2": {} }
+              },
+              "": {
+                "downest_stage_1": { "downest_job_1": {}, "downest_job_1a": {} },
+                "downest_stage_2": { "downest_job_2": {} }
+              }
+            }""");
+    }
+
+    @Test
+    public void shouldEmitViewableDirectUpstreamsAndDropHiddenSiblings() {
+        var targetPipeline = cis("downest_wmp");
+        var targetStage = cis("downest_wmp_stage_3");
+        // Hidden: downer, upper, uppest (chain ancestors of downest_wmp) and randomOther_pipeline
+        Set<CaseInsensitiveString> viewable = Set.of(targetPipeline, cis("random_pipeline"));
+
+        var hierarchy = new FetchArtifactViewHelper(cruiseConfig, targetPipeline, targetStage, false, viewable::contains).autosuggestMap();
+
+        assertThatJson(GSON.toJson(hierarchy)).isEqualTo("""
+            {
+              "downest_wmp": {
+                "downest_wmp_stage_1": { "downest_wmp_job_1": {}, "downest_wmp_job_1a": {} },
+                "downest_wmp_stage_2": { "downest_wmp_job_2": {} }
+              },
+              "random_pipeline": {
+                "mingle": { "mingle_job": {} }
+              },
+              "": {
+                "downest_wmp_stage_1": { "downest_wmp_job_1": {}, "downest_wmp_job_1a": {} },
+                "downest_wmp_stage_2": { "downest_wmp_job_2": {} }
+              }
+            }""");
+    }
+
+    @Test
+    public void shouldEmitOnlyTemplateLocalStagesWhenNoUpstreamPipelinesAreViewable() {
+        var targetTemplate = cis("template-1");
+        var targetStage = cis("t1-stage-3");
+        // Hidden: every pipeline
+        PermissionResolver none = name -> false;
+
+        var hierarchy = new FetchArtifactViewHelper(cruiseConfig, targetTemplate, targetStage, true, none).autosuggestMap();
+
+        assertThatJson(GSON.toJson(hierarchy)).isEqualTo("""
+            {
+              "": {
+                "t1-stage-1": { "t1-job-1": {}, "t1-job-1a": {} },
+                "t1-stage-2": { "t1-job-2": {} }
+              }
+            }""");
+    }
+
+    @Test
+    public void shouldEmitViewablePipelinesUnderAllReachablePathsIncludingViaHiddenIntermediatesInTemplateAutoSuggest() {
+        var targetTemplate = cis("template-1");
+        var targetStage = cis("t1-stage-3");
+        // Hidden: upper, downer, downest (intermediates between template seeds and viewable uppest), random_pipeline, randomOther_pipeline
+        Set<CaseInsensitiveString> viewable = Set.of(cis("downest_wmp"), cis("uppest"));
+
+        var hierarchy = new FetchArtifactViewHelper(cruiseConfig, targetTemplate, targetStage, true, viewable::contains).autosuggestMap();
+
+        assertThatJson(GSON.toJson(hierarchy)).isEqualTo("""
+            {
+              "uppest": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} },
+                "uppest_stage_3": { "uppest_job_3": {} }
+              },
+              "uppest/upper": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "uppest/upper/downer": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "uppest/upper/downest_wmp": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "uppest/upper/downer/downest": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "uppest/upper/downer/downest_wmp": {
+                "uppest_stage_1": { "uppest_job_1": { "a1": "docker.plugin.id" }, "uppest_job_1a": {} },
+                "uppest_stage_2": { "uppest_job_2": {} }
+              },
+              "downest_wmp": {
+                "downest_wmp_stage_1": { "downest_wmp_job_1": {}, "downest_wmp_job_1a": {} },
+                "downest_wmp_stage_2": { "downest_wmp_job_2": {} },
+                "downest_wmp_stage_3": { "downest_wmp_job_3": {} }
+              },
+              "": {
+                "t1-stage-1": { "t1-job-1": {}, "t1-job-1a": {} },
+                "t1-stage-2": { "t1-job-2": {} }
+              }
+            }""");
     }
 }

@@ -15,16 +15,17 @@
  */
 package com.thoughtworks.go.server.dashboard;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.domain.PipelineLockStatusChangeListener;
 import com.thoughtworks.go.server.service.GoDashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 /* Understands what needs to be done to keep the dashboard cache updated, when a pipeline is locked or unlocked. */
 @Component
 public class GoDashboardPipelineLockStatusChangeHandler {
-    private GoDashboardService cacheUpdateService;
+    private final GoDashboardService cacheUpdateService;
 
     @Autowired
     public GoDashboardPipelineLockStatusChangeHandler(GoDashboardService cacheUpdateService) {
@@ -32,6 +33,6 @@ public class GoDashboardPipelineLockStatusChangeHandler {
     }
 
     public void call(PipelineLockStatusChangeListener.Event event) {
-        cacheUpdateService.updateCacheForPipeline(new CaseInsensitiveString(event.pipelineName()));
+        cacheUpdateService.updateCacheForPipeline(cis(event.pipelineName()));
     }
 }

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
@@ -25,12 +24,11 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.feed.Author;
 import com.thoughtworks.go.domain.feed.FeedEntries;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
-import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
-import com.thoughtworks.go.server.cache.CacheKeyGenerator;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.CacheKeyGenerator;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
@@ -60,11 +58,13 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.server.service.HistoryUtil.validateCursor;
 
 @Service
@@ -135,7 +135,7 @@ public class StageService implements StageFinder {
                                          String stageCounter,
                                          String username,
                                          OperationResult result) {
-        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(cis(pipelineName))) {
             String message = String.format("Pipeline '%s' not found", pipelineName);
             result.notFound("Not Found", message, HealthStateType.general(HealthStateScope.GLOBAL));
             return null;
@@ -161,7 +161,7 @@ public class StageService implements StageFinder {
                                          String stageName,
                                          String stageCounter,
                                          Username username) {
-        if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+        if (!goConfigService.hasPipelineNamed(cis(pipelineName))) {
             throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
         }
 
@@ -230,18 +230,14 @@ public class StageService implements StageFinder {
         });
     }
 
-    public DurationBean getBuildDuration(String pipelineName, String stageName, JobInstance job) {
-        return getDuration(pipelineName, stageName, job);
-    }
-
-    private DurationBean getDuration(String pipelineName, String stageName, JobInstance job) {
+    public Duration getBuildDuration(JobInstance job) {
         if (job.isCompleted()) {
             // Calculating duration is an expensive query; only do so when the stage is building.
-            return new DurationBean(job.getId(), 0L);
+            return Duration.ZERO;
         }
 
-        Long duration = stageDao.getDurationOfLastSuccessfulOnAgent(pipelineName, stageName, job);
-        return new DurationBean(job.getId(), duration == null ? 0L : duration);
+        Duration duration = stageDao.getDurationOfLastSuccessfulOnAgent(job);
+        return duration == null ? Duration.ZERO : duration;
     }
 
     public Stage mostRecentPassed(String pipelineName, String stageName) {
@@ -413,7 +409,7 @@ public class StageService implements StageFinder {
                 }
 
                 String pipelineForRev = rev.getPipelineId().getPipelineName();
-                if (!config.hasPipelineNamed(new CaseInsensitiveString(pipelineForRev))) {
+                if (!config.hasPipelineNamed(cis(pipelineForRev))) {
                     LOGGER.debug("pipeline not found: {}", pipelineForRev);
                 }
             }
@@ -475,7 +471,7 @@ public class StageService implements StageFinder {
     }
 
     private void checkForExistenceAndAccess(Username username, String pipelineName) {
-        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(cis(pipelineName))) {
             throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
         }
         if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {

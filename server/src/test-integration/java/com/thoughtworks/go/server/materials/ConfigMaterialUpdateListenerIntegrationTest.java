@@ -45,6 +45,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.File;
 import java.nio.file.Path;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -319,7 +320,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         assertThat(goConfigService.hasPipelineNamed(pipelineConfig.name())).isTrue();
         assertThat(goConfigService.pipelineConfigNamed(pipelineConfig.name())).isEqualTo(pipelineConfig);
         // and no trace of badPipe
-        assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("badPipe"))).isFalse();
+        assertThat(goConfigService.hasPipelineNamed(cis("badPipe"))).isFalse();
     }
 
 }

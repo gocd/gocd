@@ -49,6 +49,7 @@ import org.jetbrains.annotations.VisibleForTesting;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.server.service.HistoryUtil.validateCursor;
 import static java.lang.String.format;
 
@@ -102,7 +103,7 @@ public class PipelineHistoryService {
             throw new RecordNotFoundException(EntityType.PipelineInstance, pipelineCounter);
         }
 
-        PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipeline.getName()));
+        PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(cis(pipeline.getName()));
         if (!securityService.hasViewPermissionForPipeline(username, pipeline.getName())) {
             throw new NotAuthorizedException(NOT_AUTHORIZED_TO_VIEW_PIPELINE);
         }
@@ -113,12 +114,12 @@ public class PipelineHistoryService {
     public PipelineInstanceModels load(String pipelineName, Pagination pagination, String username, boolean populateCanRun) {
         PipelineInstanceModels history = pipelineDao.loadHistory(pipelineName, pagination.getPageSize(), pagination.getOffset());
 
-        PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
+        PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(cis(pipelineName));
 
         for (PipelineInstanceModel pipelineInstanceModel : history) {
-            populatePipelineInstanceModel(new Username(new CaseInsensitiveString(username)), populateCanRun, pipelineConfig, pipelineInstanceModel);
+            populatePipelineInstanceModel(new Username(cis(username)), populateCanRun, pipelineConfig, pipelineInstanceModel);
         }
-        addEmptyPipelineInstanceIfNeeded(pipelineName, history, new Username(new CaseInsensitiveString(username)), pipelineConfig, populateCanRun);
+        addEmptyPipelineInstanceIfNeeded(pipelineName, history, new Username(cis(username)), pipelineConfig, populateCanRun);
         return history;
     }
 
@@ -151,7 +152,7 @@ public class PipelineHistoryService {
     }
 
     private void checkForExistenceAndAccess(Username username, String pipelineName) {
-        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(cis(pipelineName))) {
             throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
         }
         if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
@@ -160,7 +161,7 @@ public class PipelineHistoryService {
     }
 
     public PipelineStatusModel getPipelineStatus(String pipelineName, String username, OperationResult result) {
-        PipelineConfig pipelineConfig = goConfigService.currentCruiseConfig().getPipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        PipelineConfig pipelineConfig = goConfigService.currentCruiseConfig().getPipelineConfigByName(cis(pipelineName));
         if (pipelineConfig == null) {
             result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
             return null;
@@ -189,7 +190,7 @@ public class PipelineHistoryService {
 
     private void populatePipelineInstanceModel(PipelineConfig pipelineConfig, PipelineInstanceModel pipelineInstanceModel) {
         if (pipelineInstanceModel.getId() > 0) {
-            CaseInsensitiveString pipelineName = new CaseInsensitiveString(pipelineInstanceModel.getName());
+            CaseInsensitiveString pipelineName = cis(pipelineInstanceModel.getName());
             pipelineInstanceModel.setPipelineAfter(pipelineTimeline.runAfter(pipelineInstanceModel.getId(), pipelineName));
             pipelineInstanceModel.setPipelineBefore(pipelineTimeline.runBefore(pipelineInstanceModel.getId(), pipelineName));
         }
@@ -207,7 +208,7 @@ public class PipelineHistoryService {
     }
 
     private void appendFollowingStagesFromConfig(String pipelineName, StageInstanceModels stageHistory) {
-        stageHistory.updateFutureStagesFrom(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName)));
+        stageHistory.updateFutureStagesFrom(goConfigService.pipelineConfigNamed(cis(pipelineName)));
     }
 
     private void populateCanRunStatus(Username username, PipelineInstanceModel pipelineInstanceModel) {
@@ -240,7 +241,7 @@ public class PipelineHistoryService {
     private PipelineInstanceModel addEmptyPipelineInstance(String pipelineName, Username username, PipelineConfig pipelineConfig, boolean populateCanRun) {
         StageInstanceModels stageHistory = new StageInstanceModels();
         appendFollowingStagesFromConfig(pipelineName, stageHistory);
-        PipelineInstanceModel model = PipelineInstanceModel.createEmptyPipelineInstanceModel(pipelineName, BuildCause.createWithEmptyModifications(), stageHistory);
+        PipelineInstanceModel model = PipelineInstanceModel.createEmptyPipelineInstanceModel(pipelineName, BuildCause.createEmpty(), stageHistory);
         populatePipelineInstanceModel(username, populateCanRun, pipelineConfig, model);
         model.setCanRun(true);
         return model;
@@ -248,11 +249,11 @@ public class PipelineHistoryService {
 
     @VisibleForTesting
     PipelineInstanceModels loadWithEmptyAsDefault(String pipelineName, Pagination pagination, String userName) {
-        if (!securityService.hasViewPermissionForPipeline(new Username(new CaseInsensitiveString(userName)), pipelineName)) {
+        if (!securityService.hasViewPermissionForPipeline(new Username(cis(userName)), pipelineName)) {
             return PipelineInstanceModels.createPipelineInstanceModels();
         }
         PipelineInstanceModels pipelineInstanceModels;
-        if (triggerMonitor.isAlreadyTriggered(new CaseInsensitiveString(pipelineName))) {
+        if (triggerMonitor.isAlreadyTriggered(cis(pipelineName))) {
 
             StageInstanceModels stageHistory = new StageInstanceModels();
             appendFollowingStagesFromConfig(pipelineName, stageHistory);
@@ -286,7 +287,7 @@ public class PipelineHistoryService {
 
     @SuppressWarnings("unused") // May be used in Rails code
     public boolean validate(String pipelineName, Username username, OperationResult result) {
-        if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+        if (!goConfigService.hasPipelineNamed(cis(pipelineName))) {
             String pipelineNotKnown = format("Pipeline named [%s] is not known.", pipelineName);
             result.notFound(pipelineNotKnown, pipelineNotKnown, HealthStateType.general(HealthStateScope.GLOBAL));
             return false;
@@ -312,7 +313,7 @@ public class PipelineHistoryService {
             return null;
         }
         if (pipelineInstanceModel == null && pipelineCounter == 0) {
-            pipelineInstanceModel = PipelineInstanceModel.createEmptyPipelineInstanceModel(pipelineName, BuildCause.createWithEmptyModifications(), new StageInstanceModels());
+            pipelineInstanceModel = PipelineInstanceModel.createEmptyPipelineInstanceModel(pipelineName, BuildCause.createEmpty(), new StageInstanceModels());
         }
         if (pipelineInstanceModel == null) {
             String pipelineInstanceNotFound = format("Pipeline [%s/%s] not found.", pipelineName, pipelineCounter);
@@ -358,7 +359,7 @@ public class PipelineHistoryService {
     }
 
     private int limitForPipeline(String pipelineName, int limit) {
-        return goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName)).size() * limit;
+        return goConfigService.pipelineConfigNamed(cis(pipelineName)).size() * limit;
     }
 
     private void populateMaterialRevisionsOnBuildCause(PipelineInstanceModel model) {

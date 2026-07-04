@@ -26,7 +26,7 @@ class HgMaterialRepresenter implements MaterialRepresenter<HgMaterialConfig> {
     public void toJSON(OutputWriter json, HgMaterialConfig material) {
         json.add("name", material.getName());
         json.add("auto_update", material.getAutoUpdate());
-        json.add("url", material.getUrl());
+        json.add("url", material.getUriForDisplay());
         json.addIfNotNull("username", material.getUserName());
         json.addIfNotNull("encrypted_password", material.getEncryptedPassword());
         json.addIfNotNull("branch", material.getBranchAttribute());

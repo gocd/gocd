@@ -16,10 +16,9 @@
 package com.thoughtworks.go.apiv3.stageinstance
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv3.stageinstance.representers.StageInstancesRepresenter
 import com.thoughtworks.go.apiv3.stageinstance.representers.StageRepresenter
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.domain.*
 import com.thoughtworks.go.presentation.pipelinehistory.JobHistory
 import com.thoughtworks.go.presentation.pipelinehistory.JobHistoryItem
@@ -32,8 +31,8 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.GroupOperateUserSecurity
 import com.thoughtworks.go.spark.PipelineAccessSecurity
-import com.thoughtworks.go.spark.PipelineGroupOperateUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -51,6 +50,7 @@ import java.time.LocalDateTime
 import java.util.stream.Stream
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 
@@ -66,13 +66,15 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
 
   @Override
   StageInstanceControllerV3 createControllerInstance() {
-    new StageInstanceControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), stageService, scheduleService)
+    new StageInstanceControllerV3(new ApiAuthorizationHelper(securityService, goConfigService), stageService, scheduleService)
   }
 
   @Nested
   class RerunBadJobs {
     @Nested
-    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+    class Security implements SecurityTestTrait, GroupOperateUserSecurity {
+      @Delegate SecurityServiceTrait s = StageInstanceControllerV3Test.this
+      @Delegate ControllerTrait<StageInstanceControllerV3> c = StageInstanceControllerV3Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -85,8 +87,8 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
       }
 
       @Override
-      String getPipelineName() {
-        return "up42"
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: 'up42')
       }
     }
 
@@ -94,8 +96,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
     class AsGroupOperateUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
-        loginAsGroupOperateUser("up42")
+        loginAsGroupOperateUser(pipelineName: "up42")
       }
 
       @Test
@@ -103,9 +104,9 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
         Stage stage = mock(Stage)
         String expectedResponseBody = "Request to rerun job(s) is accepted"
 
-        when(stageService.findStageWithIdentifier(eq("up42"), eq(3), eq("stage1"), eq("1"), anyString(), any() as HttpOperationResult)).thenReturn(stage)
-        when(scheduleService.rerunFailedJobs(any() as Stage, any() as HttpOperationResult)).then({ InvocationOnMock invocation ->
-          HttpOperationResult operationResult = invocation.getArguments().last() as HttpOperationResult
+        when(stageService.findStageWithIdentifier(eq("up42"), eq(3), eq("stage1"), eq("1"), anyString(), any())).thenReturn(stage)
+        when(scheduleService.rerunFailedJobs(any() as Stage, any())).then({ InvocationOnMock invocation ->
+          HttpOperationResult operationResult = invocation.getArgument(1)
           operationResult.accepted(expectedResponseBody, "", HealthStateType.general(HealthStateScope.forStage("up42", "stage1")))
           return stage
         })
@@ -117,12 +118,12 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
           .hasContentType(controller.mimeType)
           .hasJsonMessage(expectedResponseBody)
 
-        verify(scheduleService).rerunFailedJobs(eq(stage), any() as HttpOperationResult)
+        verify(scheduleService).rerunFailedJobs(eq(stage), any())
       }
 
       @Test
       void 'should not call schedule service if stage is instance of NullStage'() {
-        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any() as HttpOperationResult)).thenReturn(new NullStage("foo"))
+        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any())).thenReturn(new NullStage("foo"))
 
         postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-failed-jobs'), [:])
 
@@ -136,7 +137,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
 
       @Test
       void 'should not call schedule service if stage does not exist'() {
-        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any() as HttpOperationResult)).thenReturn(null)
+        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any())).thenReturn(null)
 
         postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-failed-jobs'), [:])
 
@@ -153,7 +154,9 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
   @Nested
   class RerunSelectedJobs {
     @Nested
-    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+    class Security implements SecurityTestTrait, GroupOperateUserSecurity {
+      @Delegate SecurityServiceTrait s = StageInstanceControllerV3Test.this
+      @Delegate ControllerTrait<StageInstanceControllerV3> c = StageInstanceControllerV3Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -166,19 +169,18 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
       }
 
       @Override
-      String getPipelineName() {
-        return "up42"
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: "up42")
       }
     }
 
     @Nested
-    class AsAGroupOperateUser {
+    class AsGroupOperateUser {
       private Stage stage
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
-        loginAsGroupOperateUser("up42")
+        loginAsGroupOperateUser(pipelineName: "up42")
 
         stage = mock(Stage)
         when(stage.getIdentifier()).thenReturn(new StageIdentifier("up42/1/stage1/1"))
@@ -194,10 +196,10 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
         String expectedMessage = "Request to rerun job(s) is accepted"
         List<String> jobs = ["test", "build", "upload"]
 
-        when(stageService.findStageWithIdentifier(eq("up42"), eq(3), eq("stage1"), eq("1"), anyString(), any() as HttpOperationResult)).thenReturn(this.stage)
-        when(scheduleService.rerunJobs(eq(this.stage), eq(jobs), any() as HttpOperationResult))
+        when(stageService.findStageWithIdentifier(eq("up42"), eq(3), eq("stage1"), eq("1"), anyString(), any())).thenReturn(this.stage)
+        when(scheduleService.rerunJobs(eq(this.stage), eq(jobs), any()))
           .then({ InvocationOnMock invocation ->
-          HttpOperationResult result = invocation.getArguments().last() as HttpOperationResult
+          HttpOperationResult result = invocation.getArgument(2)
           result.accepted(expectedMessage, "", HealthStateType.general(HealthStateScope.forStage("up42", "stage1")))
           return this.stage
         })
@@ -209,14 +211,14 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
           .hasContentType(controller.mimeType)
           .hasJsonMessage(expectedMessage)
 
-        verify(scheduleService).rerunJobs(eq(this.stage), eq(jobs), any() as HttpOperationResult)
+        verify(scheduleService).rerunJobs(eq(this.stage), eq(jobs), any())
       }
 
       @Test
       void 'should error out when any of the requested job is not in stage'() {
         List<String> jobs = ["test", "build", "integration", "functional"]
 
-        when(stageService.findStageWithIdentifier(eq("up42"), eq(3), eq("stage1"), eq("1"), anyString(), any() as HttpOperationResult)).thenReturn(this.stage)
+        when(stageService.findStageWithIdentifier(eq("up42"), eq(3), eq("stage1"), eq("1"), anyString(), any())).thenReturn(this.stage)
 
         postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-selected-jobs'), ["jobs": jobs])
 
@@ -254,7 +256,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
 
       @Test
       void 'should not call schedule service if stage is instance of NullStage'() {
-        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any() as HttpOperationResult)).thenReturn(new NullStage("foo"))
+        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any())).thenReturn(new NullStage("foo"))
 
         postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-selected-jobs'), ["jobs": ["job1"]])
 
@@ -268,7 +270,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
 
       @Test
       void 'should not call schedule service if stage does not exist'() {
-        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any() as HttpOperationResult)).thenReturn(null)
+        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any())).thenReturn(null)
 
         postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-selected-jobs'), ["jobs": ["job1"]])
 
@@ -285,7 +287,9 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
   @Nested
   class CancelStageByIdentifier {
     @Nested
-    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+    class Security implements SecurityTestTrait, GroupOperateUserSecurity {
+      @Delegate SecurityServiceTrait s = StageInstanceControllerV3Test.this
+      @Delegate ControllerTrait<StageInstanceControllerV3> c = StageInstanceControllerV3Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -298,8 +302,8 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
       }
 
       @Override
-      String getPipelineName() {
-        return "up42"
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: "up42")
       }
     }
 
@@ -307,8 +311,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
     class AsGroupOperateUser {
       @BeforeEach
       void setUp() {
-        enableSecurity()
-        loginAsGroupOperateUser("up42")
+        loginAsGroupOperateUser(pipelineName: "up42")
       }
 
       @Test
@@ -318,8 +321,8 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
 
         String expectedResponseBody = "Stage is cancelled!"
 
-        when(stageService.findStageWithIdentifier(eq("up42"), eq(3), eq("stage1"), eq("1"), anyString(), any() as HttpOperationResult)).thenReturn(stage)
-        when(scheduleService.cancelAndTriggerRelevantStages(eq(stage.getId()), eq(currentUsername()), any() as LocalizedOperationResult)).then({ InvocationOnMock invocation ->
+        when(stageService.findStageWithIdentifier(eq("up42"), eq(3), eq("stage1"), eq("1"), anyString(), any())).thenReturn(stage)
+        when(scheduleService.cancelAndTriggerRelevantStages(eq(stage.getId()), eq(currentUsername()), any())).then({ InvocationOnMock invocation ->
           LocalizedOperationResult operationResult = invocation.getArgument(2)
           operationResult.accepted(expectedResponseBody)
           return stage
@@ -332,12 +335,12 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
           .hasContentType(controller.mimeType)
           .hasJsonMessage(expectedResponseBody)
 
-        verify(scheduleService).cancelAndTriggerRelevantStages(eq(stage.getId()), eq(currentUsername()), any() as LocalizedOperationResult)
+        verify(scheduleService).cancelAndTriggerRelevantStages(eq(stage.getId()), eq(currentUsername()), any())
       }
 
       @Test
       void 'should not call schedule service if stage is instance of NullStage'() {
-        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any() as HttpOperationResult)).thenReturn(new NullStage("foo"))
+        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any())).thenReturn(new NullStage("foo"))
 
         postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'cancel'), [:])
 
@@ -351,7 +354,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
 
       @Test
       void 'should not call schedule service if stage does not exist'() {
-        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any() as HttpOperationResult)).thenReturn(null)
+        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any())).thenReturn(null)
 
         postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'cancel'), [:])
 
@@ -374,11 +377,13 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
 
     @BeforeEach
     void setUp() {
-      when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true)
+      when(goConfigService.hasPipelineNamed(cis(pipelineName))).thenReturn(true)
     }
 
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate SecurityServiceTrait s = StageInstanceControllerV3Test.this
+      @Delegate ControllerTrait<StageInstanceControllerV3> c = StageInstanceControllerV3Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -387,17 +392,17 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, stageCounter), [:])
+        getWithApiHeader(controller.controllerPath(InstanceByCounter.this.pipelineName, InstanceByCounter.this.pipelineCounter, InstanceByCounter.this.stageName, InstanceByCounter.this.stageCounter), [:])
       }
 
       @Override
-      String getPipelineName() {
-        return InstanceByCounter.this.pipelineName
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: InstanceByCounter.this.pipelineName)
       }
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
         loginAsAdmin()
@@ -405,7 +410,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
 
       @Test
       void 'should get specified stage instance'() {
-        when(stageService.findStageWithIdentifier(eq(pipelineName), eq(pipelineCounter.toInteger()), eq(stageName), eq(stageCounter), eq(currentUserLoginName().toString()), any() as HttpOperationResult)).thenReturn(getStageModel())
+        when(stageService.findStageWithIdentifier(eq(pipelineName), eq(pipelineCounter.toInteger()), eq(stageName), eq(stageCounter), eq(currentUserLoginName().toString()), any())).thenReturn(getStageModel())
 
         getWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, stageCounter), [:])
 
@@ -452,7 +457,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
           result = invocation.getArgument(5)
           result.notFound("not found", "", HealthStateType.general(HealthStateScope.forStage(pipelineName, stageName)))
           return mock(Stage)
-        }).when(stageService).findStageWithIdentifier(eq(pipelineName), eq(pipelineCounter.toInteger()), eq(stageName), eq(stageCounter), any() as String, any() as HttpOperationResult)
+        }).when(stageService).findStageWithIdentifier(eq(pipelineName), eq(pipelineCounter.toInteger()), eq(stageName), eq(stageCounter), any() as String, any())
 
         getWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, stageCounter), [:])
 
@@ -471,11 +476,13 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
 
     @BeforeEach
     void setUp() {
-      when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true)
+      when(goConfigService.hasPipelineNamed(cis(pipelineName))).thenReturn(true)
     }
 
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate SecurityServiceTrait s = StageInstanceControllerV3Test.this
+      @Delegate ControllerTrait<StageInstanceControllerV3> c = StageInstanceControllerV3Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -484,17 +491,17 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history'), [:])
+        getWithApiHeader(controller.controllerPath(getPipelineName(), History.this.stageName, 'history'), [:])
       }
 
       @Override
-      String getPipelineName() {
-        return History.this.pipelineName
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: History.this.pipelineName)
       }
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
         loginAsAdmin()

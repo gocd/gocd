@@ -15,13 +15,12 @@
  */
 package com.thoughtworks.go.apiv1.pipelineselection
 
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelineSelectionResponse
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelineSelectionsRepresenter
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelinesDataRepresenter
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelinesDataResponse
 import com.thoughtworks.go.config.BasicPipelineConfigs
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.server.domain.user.PipelineSelections
@@ -30,7 +29,7 @@ import com.thoughtworks.go.server.service.PipelineSelectionsService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.util.SecureRandom
+import com.thoughtworks.go.spark.util.Random
 import com.thoughtworks.go.testhelpers.FiltersHelper
 import com.thoughtworks.go.util.SystemEnvironment
 import org.junit.jupiter.api.Nested
@@ -38,6 +37,8 @@ import org.junit.jupiter.api.Test
 
 import javax.servlet.http.Cookie
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
+import static com.thoughtworks.go.util.SystemEnvironment.WEBAPP_CONTEXT_PATH
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 
@@ -50,18 +51,17 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
   class Show {
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @Test
       void 'returns the pipeline selection'() {
-        enableSecurity()
         loginAsUser()
 
         def selections = new PipelineSelections(FiltersHelper.excludes(["build-linux", "build-windows"]), new Date(), currentUserLoginId())
 
         def group1 = new BasicPipelineConfigs(group: "grp1")
         def group2 = new BasicPipelineConfigs(group: "grp2")
-        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline1")))
-        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline2")))
+        group2.add(new PipelineConfig(name: cis("pipeline1")))
+        group2.add(new PipelineConfig(name: cis("pipeline2")))
 
         PipelineGroups pipelineConfigs = [group1, group2]
 
@@ -88,12 +88,12 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
 
         def group1 = new BasicPipelineConfigs(group: "grp1")
         def group2 = new BasicPipelineConfigs(group: "grp2")
-        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline1")))
-        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline2")))
+        group2.add(new PipelineConfig(name: cis("pipeline1")))
+        group2.add(new PipelineConfig(name: cis("pipeline2")))
 
         PipelineGroups pipelineConfigs = [group1, group2]
 
-        String cookieId = SecureRandom.hex()
+        String cookieId = Random.hex()
 
         when(pipelineSelectionsService.load(cookieId, currentUserLoginId())).thenReturn(selections)
         when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(pipelineConfigs)
@@ -113,16 +113,15 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
   class PipelinesData {
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @Test
       void 'returns the viewable pipelines'() {
-        enableSecurity()
         loginAsUser()
 
         def group1 = new BasicPipelineConfigs(group: "grp1")
         def group2 = new BasicPipelineConfigs(group: "grp2")
-        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline1")))
-        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline2")))
+        group2.add(new PipelineConfig(name: cis("pipeline1")))
+        group2.add(new PipelineConfig(name: cis("pipeline2")))
 
         PipelineGroups pipelineConfigs = [group1, group2]
 
@@ -148,12 +147,12 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
 
         def group1 = new BasicPipelineConfigs(group: "grp1")
         def group2 = new BasicPipelineConfigs(group: "grp2")
-        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline1")))
-        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline2")))
+        group2.add(new PipelineConfig(name: cis("pipeline1")))
+        group2.add(new PipelineConfig(name: cis("pipeline2")))
 
         PipelineGroups pipelineConfigs = [group1, group2]
 
-        String cookieId = SecureRandom.hex()
+        String cookieId = Random.hex()
 
         when(pipelineSelectionsService.load(cookieId, currentUserLoginId())).thenReturn(selections)
         when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(pipelineConfigs)
@@ -174,10 +173,9 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
   class Update {
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @Test
       void 'updates the pipeline selection and returns a message'() {
-        enableSecurity()
         loginAsUser()
 
         def payload = [
@@ -215,7 +213,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
           ]
         ]
 
-        long recordId = SecureRandom.longNumber()
+        long recordId = Random.longNumber()
         String cookie = String.valueOf(recordId)
 
         def initial = new PipelineSelections(FiltersHelper.excludes(["foo", "bar"]), new Date(), currentUserLoginId())
@@ -232,7 +230,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasCookie("/go", "selected_pipelines", cookie, 31536000, false, true)
+          .hasCookie(WEBAPP_CONTEXT_PATH, "selected_pipelines", cookie, 31536000, false, true)
           .hasJsonBody([contentHash: updated.etag()])
       }
 
@@ -247,7 +245,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
           ]
         ]
 
-        long recordId = SecureRandom.longNumber()
+        long recordId = Random.longNumber()
         String cookie = String.valueOf(recordId)
 
         def initial = new PipelineSelections(FiltersHelper.excludes(["foo", "bar"]), new Date(), currentUserLoginId())
@@ -264,7 +262,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasCookie("/go", "selected_pipelines", cookie, 31536000, true, true)
+          .hasCookie(WEBAPP_CONTEXT_PATH, "selected_pipelines", cookie, 31536000, true, true)
           .hasJsonBody([contentHash: updated.etag()])
       }
     }
@@ -272,7 +270,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
 
   @Override
   PipelineSelectionController createControllerInstance() {
-    return new PipelineSelectionController(new ApiAuthenticationHelper(securityService, goConfigService),
+    return new PipelineSelectionController(new ApiAuthorizationHelper(securityService, goConfigService),
       pipelineSelectionsService, pipelineConfigService, systemEnvironment)
   }
 }

@@ -20,18 +20,18 @@ import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.AdminRole
 import com.thoughtworks.go.config.AdminUser
 import com.thoughtworks.go.config.AdminsConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 
 class AdminsConfigRepresenterTest {
   @Test
   void shouldSerializeToJSON() {
-    AdminsConfig config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")), new AdminRole(new CaseInsensitiveString("xyz")))
+    AdminsConfig config = new AdminsConfig(new AdminUser(cis("admin")), new AdminRole(cis("xyz")))
 
     def actualJson = toObjectString({ AdminsConfigRepresenter.toJSON(it, config) })
 
@@ -41,7 +41,7 @@ class AdminsConfigRepresenterTest {
 
   @Test
   void shouldSerializeToJSONWithErrors() {
-    AdminsConfig config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")), new AdminRole(new CaseInsensitiveString("xyz")))
+    AdminsConfig config = new AdminsConfig(new AdminUser(cis("admin")), new AdminRole(cis("xyz")))
 
     config.addError("users", "User name cannot be blank")
     config.addError("users", "User name cannot be blank")
@@ -64,10 +64,10 @@ class AdminsConfigRepresenterTest {
     AdminsConfig adminsConfig = AdminsConfigRepresenter.fromJSON(jsonReader)
 
     def expected = new AdminsConfig(
-      new AdminUser(new CaseInsensitiveString("user1")),
-      new AdminUser(new CaseInsensitiveString("user2")),
-      new AdminRole(new CaseInsensitiveString("qa")),
-      new AdminRole(new CaseInsensitiveString("dev")),
+      new AdminUser(cis("user1")),
+      new AdminUser(cis("user2")),
+      new AdminRole(cis("qa")),
+      new AdminRole(cis("dev")),
     )
     assertThat(adminsConfig).isEqualTo(expected)
   }

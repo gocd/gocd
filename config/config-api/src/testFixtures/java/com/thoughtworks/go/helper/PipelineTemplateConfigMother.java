@@ -16,9 +16,10 @@
 package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.Authorization;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.config.StageConfig;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 public class PipelineTemplateConfigMother {
     public static PipelineTemplateConfig createTemplate(String templateName) {
@@ -26,7 +27,7 @@ public class PipelineTemplateConfigMother {
     }
 
     public static PipelineTemplateConfig createTemplate(String templateName, Authorization authorization, StageConfig... stageConfigs) {
-        return new PipelineTemplateConfig(new CaseInsensitiveString(templateName), authorization, stageConfigs);
+        return new PipelineTemplateConfig(cis(templateName), authorization, stageConfigs);
     }
 
     public static PipelineTemplateConfig createTemplate(String templateName, StageConfig... stageConfigs) {

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CachedGoConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
@@ -31,6 +30,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -63,7 +63,7 @@ public class PipelinePauseServiceIntegrationTest {
         configHelper.writeConfigFile(cruiseConfig);
         cachedGoConfig.forceReload();
 
-        Username userName = new Username(new CaseInsensitiveString("UserFoo"));
+        Username userName = new Username(cis("UserFoo"));
         pipelinePauseService.pause(name, "tiny pause cause", userName);
         assertThat(pipelinePauseService.pipelinePauseInfo(name).getPauseCause()).isEqualTo("tiny pause cause");
         pipelinePauseService.unpause(name);
@@ -80,7 +80,7 @@ public class PipelinePauseServiceIntegrationTest {
         configHelper.writeConfigFile(cruiseConfig);
         cachedGoConfig.forceReload();
 
-        Username userName = new Username(new CaseInsensitiveString("UserFoo"));
+        Username userName = new Username(cis("UserFoo"));
         pipelinePauseService.pause(name, "pause for testing", userName);
         assertThat(pipelinePauseService.pipelinePauseInfo(name).getPauseCause()).isEqualTo("pause for testing");
         assertThat(pipelinePauseService.pipelinePauseInfo(name).isPaused()).isTrue();

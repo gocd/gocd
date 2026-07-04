@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
@@ -45,6 +44,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -116,10 +116,10 @@ public class ScheduleServiceCachedIntegrationTest {
         Pipeline assigned = pipelineFixture.createPipelineWithFirstStageAssigned();
 
         Stage stage = assigned.findStage(pipelineFixture.devStage);
-        StageSummaryModel model = stageService.findStageSummaryByIdentifier(stage.getIdentifier(), new Username(new CaseInsensitiveString("foo")), new HttpLocalizedOperationResult());
+        StageSummaryModel model = stageService.findStageSummaryByIdentifier(stage.getIdentifier(), new Username(cis("foo")), new HttpLocalizedOperationResult());
         assertThat(model.getStage().getFirstJob().getState()).isEqualTo(JobState.Assigned);
         scheduleService.updateJobStatus(stage.getFirstJob().getIdentifier(), JobState.Building);
-        StageSummaryModel reloadedModel = stageService.findStageSummaryByIdentifier(stage.getIdentifier(), new Username(new CaseInsensitiveString("foo")), new HttpLocalizedOperationResult());
+        StageSummaryModel reloadedModel = stageService.findStageSummaryByIdentifier(stage.getIdentifier(), new Username(cis("foo")), new HttpLocalizedOperationResult());
         assertThat(reloadedModel.getStage().getFirstJob().getState()).isEqualTo(JobState.Building);
     }
 
@@ -137,7 +137,7 @@ public class ScheduleServiceCachedIntegrationTest {
 
         scheduleService.updateJobStatus(stage.getFirstJob().getIdentifier(), JobState.Completed);
 
-        StageSummaryModel reloadedModel = stageService.findStageSummaryByIdentifier(stage.getIdentifier(), new Username(new CaseInsensitiveString("foo")), new HttpLocalizedOperationResult());
+        StageSummaryModel reloadedModel = stageService.findStageSummaryByIdentifier(stage.getIdentifier(), new Username(cis("foo")), new HttpLocalizedOperationResult());
         Stage reloadedStage = reloadedModel.getStage();
         assertThat(reloadedStage.getFirstJob().getState()).isEqualTo(JobState.Completed);
         assertThat(reloadedStage.getCompletedByTransitionId()).isEqualTo(reloadedStage.getFirstJob().getTransitions().byState(JobState.Completed).getId());
@@ -175,7 +175,7 @@ public class ScheduleServiceCachedIntegrationTest {
     private Pipeline tryToScheduleAPipeline() {
         BuildCause buildCause = BuildCause.createWithModifications(modifyOneFile(pipelineFixture.pipelineConfig()), "");
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
-        pipelineScheduleQueue.schedule(new CaseInsensitiveString(pipelineFixture.pipelineName), buildCause);
+        pipelineScheduleQueue.schedule(cis(pipelineFixture.pipelineName), buildCause);
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         return pipelineService.mostRecentFullPipelineByName(pipelineFixture.pipelineName);
     }

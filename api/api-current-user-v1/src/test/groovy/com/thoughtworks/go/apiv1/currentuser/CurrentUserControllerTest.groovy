@@ -16,12 +16,11 @@
 package com.thoughtworks.go.apiv1.currentuser
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.user.representers.UserRepresenter
 import com.thoughtworks.go.domain.User
 import com.thoughtworks.go.server.service.UserService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NonAnonymousUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -50,6 +49,8 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
   class Show {
     @Nested
     class Security implements SecurityTestTrait, NonAnonymousUserSecurity {
+      @Delegate ControllerTrait<CurrentUserController> c = CurrentUserControllerTest.this
+      @Delegate SecurityServiceTrait s = CurrentUserControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -63,13 +64,12 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       User user
 
       @BeforeEach
       void setUp() {
         user = new User('jdoe', 'Jon Doe', 'jdoe,jdoe@example.com', 'jdoe@example.com', true)
-        enableSecurity()
         loginAsUser()
 
         when(userService.findUserByName(currentUserLoginName().toString())).thenReturn(user)
@@ -105,6 +105,8 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
   class Update {
     @Nested
     class Security implements SecurityTestTrait, NonAnonymousUserSecurity {
+      @Delegate ControllerTrait<CurrentUserController> c = CurrentUserControllerTest.this
+      @Delegate SecurityServiceTrait s = CurrentUserControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -118,12 +120,11 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       User user = new User('jdoe', 'Jon Doe', 'jdoe,jdoe@example.com', 'jdoe@example.com', true)
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsUser()
 
         when(userService.findUserByName(currentUserLoginName().toString())).thenReturn(user)
@@ -143,7 +144,7 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
 
         doAnswer({ InvocationOnMock invocation ->
           return newUser
-        }).when(userService).save(eq(user), eq(TriState.from(null)), eq(TriState.from(data.email_me.toString())), eq(data.email), eq(data.checkin_aliases), any() as LocalizedOperationResult)
+        }).when(userService).save(eq(user), eq(TriState.from(null)), eq(TriState.from(data.email_me.toString())), eq(data.email), eq(data.checkin_aliases), any())
         patchWithApiHeader(controller.controllerBasePath(), data)
 
         def etag = '"' + controller.etagFor(toObjectString({ writer -> UserRepresenter.toJSON(writer, newUser) })) + '"'
@@ -178,14 +179,14 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
         ]
 
         User newUser = new User(user.name, user.displayName, data.checkin_aliases, 'foo', false)
-        def result = new HttpLocalizedOperationResult()
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult()
         result.badRequest("Some error message")
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result1 = invocation.arguments.last()
+          HttpLocalizedOperationResult result1 = invocation.getArgument(5)
           result1.badRequest("Some error message")
           return newUser
-        }).when(userService).save(eq(user), eq(TriState.from(null)), eq(TriState.from(data.email_me.toString())), eq(data.email), eq(data.checkin_aliases), any() as LocalizedOperationResult)
+        }).when(userService).save(eq(user), eq(TriState.from(null)), eq(TriState.from(data.email_me.toString())), eq(data.email), eq(data.checkin_aliases), any())
         patchWithApiHeader(controller.controllerBasePath(), data)
 
         def etag = '"' + controller.etagFor(toObjectString({ writer -> UserRepresenter.toJSON(writer, newUser, result) })) + '"'
@@ -201,6 +202,6 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
 
   @Override
   CurrentUserController createControllerInstance() {
-    return new CurrentUserController(new ApiAuthenticationHelper(securityService, goConfigService), userService)
+    return new CurrentUserController(new ApiAuthorizationHelper(securityService, goConfigService), userService)
   }
 }

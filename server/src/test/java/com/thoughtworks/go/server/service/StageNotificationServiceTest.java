@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -23,7 +22,6 @@ import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.InMemoryEmailNotificationTopic;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.server.service.StageNotificationService.MATERIAL_SECTION_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,7 +39,6 @@ import static org.mockito.Mockito.*;
 public class StageNotificationServiceTest {
     private PipelineService pipelineService;
     private UserService userService;
-    private SystemEnvironment systemEnvironment;
     private StageService stageService;
     private StageNotificationService stageNotificationService;
     private InMemoryEmailNotificationTopic inMemoryEmailNotificationTopic;
@@ -52,11 +50,10 @@ public class StageNotificationServiceTest {
     public void setUp() {
         pipelineService = mock(PipelineService.class);
         userService = mock(UserService.class);
-        systemEnvironment = mock(SystemEnvironment.class);
         stageService = mock(StageService.class);
         inMemoryEmailNotificationTopic = new InMemoryEmailNotificationTopic();
         serverConfigService = mock(ServerConfigService.class);
-        stageNotificationService = new StageNotificationService(pipelineService, userService, inMemoryEmailNotificationTopic, systemEnvironment, stageService, serverConfigService);
+        stageNotificationService = new StageNotificationService(pipelineService, userService, inMemoryEmailNotificationTopic, stageService, serverConfigService);
         stageIdentifier = new StageIdentifier("go", 1, "go-1", "dev", "2");
         instanceFactory = new InstanceFactory();
     }
@@ -66,7 +63,7 @@ public class StageNotificationServiceTest {
         String jezMail = prepareOneMatchedUser();
         final Date date = new Date();
         stubPipelineAndStage(date);
-        stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
+        stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(cis("loser")));
 
         String body = inMemoryEmailNotificationTopic.getBody(jezMail);
         assertThat(body).contains(MATERIAL_SECTION_HEADER);
@@ -87,9 +84,9 @@ public class StageNotificationServiceTest {
 
     @Test
     public void shouldNotComputeFailedTestSuitesWhenThereAreNoSubscribers() {
-        when(userService.findValidSubscribers(stageIdentifier.stageConfigIdentifier())).thenReturn(new Users(new ArrayList<>()));
+        when(userService.findValidNotificationSubscribers(StageEvent.Fails, stageIdentifier.stageConfigIdentifier())).thenReturn(new Users(new ArrayList<>()));
 
-        stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
+        stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(cis("loser")));
         verifyNoInteractions(stageService);
         verifyNoInteractions(pipelineService);
     }
@@ -105,7 +102,7 @@ public class StageNotificationServiceTest {
         svnModification.createModifiedFile("some.xml", "other_dir", ModifiedAction.deleted);
 
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig,
-            new ManualBuild(new Username(new CaseInsensitiveString("loser"))).onModifications(new MaterialRevisions(new MaterialRevision(new MaterialConfigConverter().toMaterials(pipelineConfig.materialConfigs()).getFirst(), svnModification)),
+            new ManualBuild(new Username(cis("loser"))).onModifications(new MaterialRevisions(new MaterialRevision(new MaterialConfigConverter().toMaterials(pipelineConfig.materialConfigs()).getFirst(), svnModification)),
                 false, null),
             new DefaultSchedulingContext("loser"), "md5-test", new TimeProvider());
         Stage stage = pipeline.getStages().getFirst();
@@ -118,7 +115,7 @@ public class StageNotificationServiceTest {
         String jezMail = "jez@cruise.com";
         User jez = new User("jez", "lgao", jezMail, true);
         jez.setNotificationFilters(List.of(new NotificationFilter("go", "dev", StageEvent.All, true)));
-        when(userService.findValidSubscribers(new StageConfigIdentifier("go", "dev"))).thenReturn(new Users(List.of(jez)));
+        when(userService.findValidNotificationSubscribers(StageEvent.Fails, new StageConfigIdentifier("go", "dev"))).thenReturn(new Users(List.of(jez)));
         return jezMail;
     }
 

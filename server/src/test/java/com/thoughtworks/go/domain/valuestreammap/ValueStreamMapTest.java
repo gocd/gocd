@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -37,7 +38,7 @@ public class ValueStreamMapTest {
         /*
             P1
          */
-        CaseInsensitiveString pipelineName = new CaseInsensitiveString("P1");
+        CaseInsensitiveString pipelineName = cis("P1");
         ValueStreamMap graph = new ValueStreamMap(pipelineName, null);
 
         assertThat(graph.getCurrentPipeline().getId()).isEqualTo(pipelineName);
@@ -54,7 +55,7 @@ public class ValueStreamMapTest {
         /*
             git_fingerprint -> P1
          */
-        CaseInsensitiveString dependent = new CaseInsensitiveString("P1");
+        CaseInsensitiveString dependent = cis("P1");
         ValueStreamMap graph = new ValueStreamMap(dependent, null);
         graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), null, dependent, new MaterialRevision(null));
         List<List<Node>> nodesAtEachLevel = graph.presentationModel().getNodesAtEachLevel();
@@ -65,7 +66,7 @@ public class ValueStreamMapTest {
         Node gitScmNode = nodesAtEachLevel.getFirst().getFirst();
         assertThat(gitScmNode.getId().toString()).isEqualTo("git_fingerprint");
         assertThat(gitScmNode.getName()).isEqualTo("git");
-        VSMTestHelper.assertThatNodeHasChildren(graph, new CaseInsensitiveString("git_fingerprint"), 0, dependent);
+        VSMTestHelper.assertThatNodeHasChildren(graph, cis("git_fingerprint"), 0, dependent);
     }
 
     @Test
@@ -75,14 +76,14 @@ public class ValueStreamMapTest {
             |_________________________^
          */
 
-        CaseInsensitiveString P1 = new CaseInsensitiveString("P1");
-        CaseInsensitiveString currentPipeline = new CaseInsensitiveString("P2");
+        CaseInsensitiveString P1 = cis("P1");
+        CaseInsensitiveString currentPipeline = cis("P2");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git1"), currentPipeline, new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), cis("git1"), currentPipeline, new MaterialRevision(null));
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(P1, P1.toString()), null, currentPipeline);
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git2"), P1, new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), cis("git2"), P1, new MaterialRevision(null));
 
-        SCMDependencyNode node = graph.findNode(new CaseInsensitiveString("git_fingerprint"));
+        SCMDependencyNode node = graph.findNode(cis("git_fingerprint"));
         HashSet<String> materialNames = new HashSet<>();
         materialNames.add("git1");
         materialNames.add("git2");
@@ -98,19 +99,19 @@ public class ValueStreamMapTest {
                             -> P2 ---- /
          */
 
-        CaseInsensitiveString P1 = new CaseInsensitiveString("P1");
-        CaseInsensitiveString P2 = new CaseInsensitiveString("P2");
-        CaseInsensitiveString currentPipeline = new CaseInsensitiveString("P3");
+        CaseInsensitiveString P1 = cis("P1");
+        CaseInsensitiveString P2 = cis("P2");
+        CaseInsensitiveString currentPipeline = cis("P3");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
         MaterialRevision revision1 = new MaterialRevision(MaterialsMother.gitMaterial("test/repo1"), oneModifiedFile("revision1"));
         MaterialRevision revision2 = new MaterialRevision(MaterialsMother.gitMaterial("test/repo2"), oneModifiedFile("revision2"));
 
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(P1, P1.toString()), null, currentPipeline);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(P2, P2.toString()), null, currentPipeline);
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git1"), P1, revision1);
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git1"), P2, revision2);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), cis("git1"), P1, revision1);
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), cis("git1"), P2, revision2);
 
-        SCMDependencyNode node = graph.findNode(new CaseInsensitiveString("git_fingerprint"));
+        SCMDependencyNode node = graph.findNode(cis("git_fingerprint"));
 
         assertThat(node.getMaterialRevisions().size()).isEqualTo(2);
         assertTrue(node.getMaterialRevisions().contains(revision1));
@@ -124,14 +125,14 @@ public class ValueStreamMapTest {
             |_________________________^
          */
 
-        CaseInsensitiveString P1 = new CaseInsensitiveString("P1");
-        CaseInsensitiveString currentPipeline = new CaseInsensitiveString("P2");
+        CaseInsensitiveString P1 = cis("P1");
+        CaseInsensitiveString currentPipeline = cis("P2");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git1"), currentPipeline, new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), cis("git1"), currentPipeline, new MaterialRevision(null));
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(P1, P1.toString()), null, currentPipeline);
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git1"), P1, new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), cis("git1"), P1, new MaterialRevision(null));
 
-        SCMDependencyNode node = graph.findNode(new CaseInsensitiveString("git_fingerprint"));
+        SCMDependencyNode node = graph.findNode(cis("git_fingerprint"));
         HashSet<String> materialNames = new HashSet<>();
         materialNames.add("git1");
 
@@ -145,14 +146,14 @@ public class ValueStreamMapTest {
             |_________________________^
          */
 
-        CaseInsensitiveString P1 = new CaseInsensitiveString("P1");
-        CaseInsensitiveString currentPipeline = new CaseInsensitiveString("P2");
+        CaseInsensitiveString P1 = cis("P1");
+        CaseInsensitiveString currentPipeline = cis("P2");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
         graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "http://git.com", "git"), null, currentPipeline, new MaterialRevision(null));
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(P1, P1.toString()), null, currentPipeline);
         graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "http://git.com", "git"), null, P1, new MaterialRevision(null));
 
-        SCMDependencyNode node = graph.findNode(new CaseInsensitiveString("git_fingerprint"));
+        SCMDependencyNode node = graph.findNode(cis("git_fingerprint"));
 
         assertTrue(node.getMaterialNames().isEmpty());
     }
@@ -162,14 +163,14 @@ public class ValueStreamMapTest {
         /*
              p4 -> p5
          */
-        CaseInsensitiveString currentPipeline = new CaseInsensitiveString("p5");
+        CaseInsensitiveString currentPipeline = cis("p5");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
-        CaseInsensitiveString p4Name = new CaseInsensitiveString("p4");
+        CaseInsensitiveString p4Name = cis("p4");
         Node p4 = graph.addUpstreamPipelineNode(new PipelineDependencyNode(p4Name, p4Name.toString()), null, currentPipeline);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(p4Name, p4Name.toString()), null, currentPipeline);
 
         assertThat(p4.getChildren().size()).isEqualTo(1);
-        VSMTestHelper.assertThatNodeHasChildren(graph, p4Name, 0, new CaseInsensitiveString("p5"));
+        VSMTestHelper.assertThatNodeHasChildren(graph, p4Name, 0, cis("p5"));
     }
 
     @Test
@@ -179,10 +180,10 @@ public class ValueStreamMapTest {
             d3             ^
              +---> d2 -----+
          */
-        CaseInsensitiveString dependent = new CaseInsensitiveString("P1");
-        CaseInsensitiveString d1 = new CaseInsensitiveString("d1");
-        CaseInsensitiveString d2 = new CaseInsensitiveString("d2");
-        CaseInsensitiveString d3 = new CaseInsensitiveString("d3");
+        CaseInsensitiveString dependent = cis("P1");
+        CaseInsensitiveString d1 = cis("d1");
+        CaseInsensitiveString d2 = cis("d2");
+        CaseInsensitiveString d3 = cis("d3");
         ValueStreamMap graph = new ValueStreamMap(dependent, null);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(d1, d1.toString()), null, dependent);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(d2, d2.toString()), null, dependent);
@@ -200,12 +201,12 @@ public class ValueStreamMapTest {
             d3             ^
              +---> d2 -----+
          */
-        CaseInsensitiveString currentPipeline = new CaseInsensitiveString("P1");
+        CaseInsensitiveString currentPipeline = cis("P1");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
-        graph.addUpstreamPipelineNode(new PipelineDependencyNode(new CaseInsensitiveString("d1"), "d1"), null, currentPipeline);
-        graph.addUpstreamPipelineNode(new PipelineDependencyNode(new CaseInsensitiveString("d2"), "d2"), null, currentPipeline);
-        graph.addUpstreamPipelineNode(new PipelineDependencyNode(new CaseInsensitiveString("d3"), "d3"), null, new CaseInsensitiveString("d1"));
-        graph.addUpstreamPipelineNode(new PipelineDependencyNode(new CaseInsensitiveString("d3"), "d3"), null, new CaseInsensitiveString("d2"));
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(cis("d1"), "d1"), null, currentPipeline);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(cis("d2"), "d2"), null, currentPipeline);
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(cis("d3"), "d3"), null, cis("d1"));
+        graph.addUpstreamPipelineNode(new PipelineDependencyNode(cis("d3"), "d3"), null, cis("d2"));
 
         List<List<Node>> nodesAtEachLevel = graph.presentationModel().getNodesAtEachLevel();
 
@@ -218,8 +219,8 @@ public class ValueStreamMapTest {
 
     @Test
     public void shouldAddADownstreamNode() {
-        CaseInsensitiveString p1 = new CaseInsensitiveString("p1");
-        CaseInsensitiveString p2 = new CaseInsensitiveString("p2");
+        CaseInsensitiveString p1 = cis("p1");
+        CaseInsensitiveString p2 = cis("p2");
         ValueStreamMap graph = new ValueStreamMap(p1, null);
         graph.addDownstreamNode(new PipelineDependencyNode(p2, p2.toString()), p1);
         List<List<Node>> nodesAtEachLevel = graph.presentationModel().getNodesAtEachLevel();
@@ -242,12 +243,12 @@ public class ValueStreamMapTest {
 				  +---------------------------------------+
 		*/
 
-        CaseInsensitiveString acceptance = new CaseInsensitiveString("acceptance");
-        CaseInsensitiveString plugins = new CaseInsensitiveString("plugins");
-        CaseInsensitiveString gitPlugins = new CaseInsensitiveString("git-plugins");
-        CaseInsensitiveString cruise = new CaseInsensitiveString("cruise");
-        CaseInsensitiveString gitTrunk = new CaseInsensitiveString("git-trunk");
-        CaseInsensitiveString hgTrunk = new CaseInsensitiveString("hg-trunk");
+        CaseInsensitiveString acceptance = cis("acceptance");
+        CaseInsensitiveString plugins = cis("plugins");
+        CaseInsensitiveString gitPlugins = cis("git-plugins");
+        CaseInsensitiveString cruise = cis("cruise");
+        CaseInsensitiveString gitTrunk = cis("git-trunk");
+        CaseInsensitiveString hgTrunk = cis("hg-trunk");
 
         ValueStreamMap graph = new ValueStreamMap(acceptance, null);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(plugins, plugins.toString()), null, acceptance);
@@ -279,9 +280,9 @@ public class ValueStreamMapTest {
              p1             ^
              +----------- +
          */
-        CaseInsensitiveString p1 = new CaseInsensitiveString("p1");
-        CaseInsensitiveString p2 = new CaseInsensitiveString("p2");
-        CaseInsensitiveString p3 = new CaseInsensitiveString("p3");
+        CaseInsensitiveString p1 = cis("p1");
+        CaseInsensitiveString p2 = cis("p2");
+        CaseInsensitiveString p3 = cis("p3");
         ValueStreamMap graph = new ValueStreamMap(p1, null);
         graph.addDownstreamNode(new PipelineDependencyNode(p2, p2.toString()), p1);
         graph.addDownstreamNode(new PipelineDependencyNode(p3, p3.toString()), p2);
@@ -308,9 +309,9 @@ public class ValueStreamMapTest {
              p1                ^
              +-----------------+
          */
-        CaseInsensitiveString p1 = new CaseInsensitiveString("p1");
-        CaseInsensitiveString p2 = new CaseInsensitiveString("p2");
-        CaseInsensitiveString p3 = new CaseInsensitiveString("p3");
+        CaseInsensitiveString p1 = cis("p1");
+        CaseInsensitiveString p2 = cis("p2");
+        CaseInsensitiveString p3 = cis("p3");
         ValueStreamMap graph = new ValueStreamMap(p1, null);
         graph.addDownstreamNode(new PipelineDependencyNode(p3, p3.toString()), p1);
 
@@ -350,16 +351,16 @@ public class ValueStreamMapTest {
                   +---------------------------------------+
         */
 
-        CaseInsensitiveString acceptance = new CaseInsensitiveString("acceptance");
-        CaseInsensitiveString plugins = new CaseInsensitiveString("plugins");
-        CaseInsensitiveString gitPlugins = new CaseInsensitiveString("git-plugins");
-        CaseInsensitiveString cruise = new CaseInsensitiveString("cruise");
-        CaseInsensitiveString gitTrunk = new CaseInsensitiveString("git-trunk");
-        CaseInsensitiveString hgTrunk = new CaseInsensitiveString("hg-trunk");
-        CaseInsensitiveString deployGo03 = new CaseInsensitiveString("deploy-go03");
-        CaseInsensitiveString deployGo02 = new CaseInsensitiveString("deploy-go02");
-        CaseInsensitiveString deployGo01 = new CaseInsensitiveString("deploy-go01");
-        CaseInsensitiveString publish = new CaseInsensitiveString("publish");
+        CaseInsensitiveString acceptance = cis("acceptance");
+        CaseInsensitiveString plugins = cis("plugins");
+        CaseInsensitiveString gitPlugins = cis("git-plugins");
+        CaseInsensitiveString cruise = cis("cruise");
+        CaseInsensitiveString gitTrunk = cis("git-trunk");
+        CaseInsensitiveString hgTrunk = cis("hg-trunk");
+        CaseInsensitiveString deployGo03 = cis("deploy-go03");
+        CaseInsensitiveString deployGo02 = cis("deploy-go02");
+        CaseInsensitiveString deployGo01 = cis("deploy-go01");
+        CaseInsensitiveString publish = cis("publish");
 
         ValueStreamMap graph = new ValueStreamMap(acceptance, null);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(plugins, plugins.toString()), null, acceptance);
@@ -406,10 +407,10 @@ public class ValueStreamMapTest {
          *  config version 2:
          *  parent -> current -> child -> grandParent
          * */
-        CaseInsensitiveString grandParent = new CaseInsensitiveString("grandParent");
-        CaseInsensitiveString parent = new CaseInsensitiveString("parent");
-        CaseInsensitiveString child = new CaseInsensitiveString("child");
-        CaseInsensitiveString currentPipeline = new CaseInsensitiveString("current");
+        CaseInsensitiveString grandParent = cis("grandParent");
+        CaseInsensitiveString parent = cis("parent");
+        CaseInsensitiveString child = cis("child");
+        CaseInsensitiveString currentPipeline = cis("current");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
         graph.addDownstreamNode(new PipelineDependencyNode(child, child.toString()), currentPipeline);
         graph.addDownstreamNode(new PipelineDependencyNode(grandParent, grandParent.toString()), child);
@@ -428,10 +429,10 @@ public class ValueStreamMapTest {
          *         |________________________^
          */
 
-        CaseInsensitiveString a = new CaseInsensitiveString("A");
-        CaseInsensitiveString b = new CaseInsensitiveString("B");
-        CaseInsensitiveString c = new CaseInsensitiveString("C");
-        CaseInsensitiveString d = new CaseInsensitiveString("D");
+        CaseInsensitiveString a = cis("A");
+        CaseInsensitiveString b = cis("B");
+        CaseInsensitiveString c = cis("C");
+        CaseInsensitiveString d = cis("D");
         ValueStreamMap valueStreamMap = new ValueStreamMap(c, null);
         valueStreamMap.addUpstreamPipelineNode(new PipelineDependencyNode(a, a.toString()), null, c);
         valueStreamMap.addUpstreamPipelineNode(new PipelineDependencyNode(b, b.toString()), null, c);
@@ -452,9 +453,9 @@ public class ValueStreamMapTest {
          *
          */
 
-        CaseInsensitiveString a = new CaseInsensitiveString("A");
-        CaseInsensitiveString b = new CaseInsensitiveString("B");
-        CaseInsensitiveString c = new CaseInsensitiveString("C");
+        CaseInsensitiveString a = cis("A");
+        CaseInsensitiveString b = cis("B");
+        CaseInsensitiveString c = cis("C");
         ValueStreamMap graph = new ValueStreamMap(b, null);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(a, a.toString()), null, b);
         graph.addUpstreamMaterialNode(new SCMDependencyNode("g", "g", "git"), null, a, new MaterialRevision(null));
@@ -472,15 +473,15 @@ public class ValueStreamMapTest {
          *          g2 --> p5(1) --> p6(1) --> p5(2) ---/
          */
 
-        CaseInsensitiveString g1 = new CaseInsensitiveString("g1");
-        CaseInsensitiveString g2 = new CaseInsensitiveString("g2");
-        CaseInsensitiveString p1 = new CaseInsensitiveString("p1");
-        CaseInsensitiveString p2 = new CaseInsensitiveString("p2");
-        CaseInsensitiveString p3 = new CaseInsensitiveString("p3");
-        CaseInsensitiveString p4 = new CaseInsensitiveString("p4");
-        CaseInsensitiveString p5 = new CaseInsensitiveString("p5");
-        CaseInsensitiveString p6 = new CaseInsensitiveString("p6");
-        CaseInsensitiveString current = new CaseInsensitiveString("current");
+        CaseInsensitiveString g1 = cis("g1");
+        CaseInsensitiveString g2 = cis("g2");
+        CaseInsensitiveString p1 = cis("p1");
+        CaseInsensitiveString p2 = cis("p2");
+        CaseInsensitiveString p3 = cis("p3");
+        CaseInsensitiveString p4 = cis("p4");
+        CaseInsensitiveString p5 = cis("p5");
+        CaseInsensitiveString p6 = cis("p6");
+        CaseInsensitiveString current = cis("current");
 
         ValueStreamMap valueStreamMap = new ValueStreamMap(current, null);
 
@@ -500,15 +501,15 @@ public class ValueStreamMapTest {
 
     @Test
     public void currentPipelineShouldHaveWarningsIfBuiltFromIncompatibleRevisions() {
-        CaseInsensitiveString current = new CaseInsensitiveString("current");
+        CaseInsensitiveString current = cis("current");
 
         ValueStreamMap valueStreamMap = new ValueStreamMap(current, null);
         SCMDependencyNode scmDependencyNode = new SCMDependencyNode("id", "git_node", "git");
         MaterialRevision rev1 = new MaterialRevision(MaterialsMother.gitMaterial("git/repo/url"), ModificationsMother.oneModifiedFile("rev1"));
         MaterialRevision rev2 = new MaterialRevision(MaterialsMother.gitMaterial("git/repo/url"), ModificationsMother.oneModifiedFile("rev2"));
 
-        valueStreamMap.addUpstreamMaterialNode(scmDependencyNode, new CaseInsensitiveString("git"), valueStreamMap.getCurrentPipeline().getId(), rev1);
-        valueStreamMap.addUpstreamMaterialNode(scmDependencyNode, new CaseInsensitiveString("git"), valueStreamMap.getCurrentPipeline().getId(), rev2);
+        valueStreamMap.addUpstreamMaterialNode(scmDependencyNode, cis("git"), valueStreamMap.getCurrentPipeline().getId(), rev1);
+        valueStreamMap.addUpstreamMaterialNode(scmDependencyNode, cis("git"), valueStreamMap.getCurrentPipeline().getId(), rev2);
 
         valueStreamMap.addWarningIfBuiltFromInCompatibleRevisions();
 
@@ -517,15 +518,15 @@ public class ValueStreamMapTest {
 
     @Test
     public void currentPipelineShouldNotHaveWarningsIfBuiltFromMultipleMaterialRevisionsWithSameLatestRevision() {
-        CaseInsensitiveString current = new CaseInsensitiveString("current");
+        CaseInsensitiveString current = cis("current");
 
         ValueStreamMap valueStreamMap = new ValueStreamMap(current, null);
         SCMDependencyNode scmDependencyNode = new SCMDependencyNode("id", "git_node", "git");
         MaterialRevision rev1 = new MaterialRevision(MaterialsMother.gitMaterial("git/repo/url"), ModificationsMother.oneModifiedFile("rev1"));
         MaterialRevision rev2 = new MaterialRevision(MaterialsMother.gitMaterial("git/repo/url"), ModificationsMother.oneModifiedFile("rev1"), ModificationsMother.oneModifiedFile("rev2"));
 
-        valueStreamMap.addUpstreamMaterialNode(scmDependencyNode, new CaseInsensitiveString("git"), valueStreamMap.getCurrentPipeline().getId(), rev1);
-        valueStreamMap.addUpstreamMaterialNode(scmDependencyNode, new CaseInsensitiveString("git"), valueStreamMap.getCurrentPipeline().getId(), rev2);
+        valueStreamMap.addUpstreamMaterialNode(scmDependencyNode, cis("git"), valueStreamMap.getCurrentPipeline().getId(), rev1);
+        valueStreamMap.addUpstreamMaterialNode(scmDependencyNode, cis("git"), valueStreamMap.getCurrentPipeline().getId(), rev2);
 
         valueStreamMap.addWarningIfBuiltFromInCompatibleRevisions();
 

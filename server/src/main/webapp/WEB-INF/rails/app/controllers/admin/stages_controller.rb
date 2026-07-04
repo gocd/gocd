@@ -21,7 +21,7 @@ module Admin
 
     def config_change
       @changes = go_config_service.configChangesFor(params[:later_md5], params[:earlier_md5], result = HttpLocalizedOperationResult.new)
-      @config_change_error_message = result.isSuccessful ? ('This is the first entry in the config versioning. Please refer config tab to view complete configuration during this run.' if @changes == nil) : result.message()
+      @config_change_error_message = result.isSuccessful ? ('This is the first entry in the config versioning.' if @changes == nil) : result.message()
     end
   end
 end

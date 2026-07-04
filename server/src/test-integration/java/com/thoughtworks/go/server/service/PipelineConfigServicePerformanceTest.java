@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -97,7 +98,7 @@ public class PipelineConfigServicePerformanceTest {
         configHelper.onSetUp();
         goConfigService.forceNotifyListeners();
         result = new HttpLocalizedOperationResult();
-        user = new Username(new CaseInsensitiveString("admin"));
+        user = new Username(cis("admin"));
     }
 
     @Test
@@ -105,8 +106,8 @@ public class PipelineConfigServicePerformanceTest {
         setupPipelines(numberOfRequests);
         final ConcurrentHashMap<String, Boolean> results = new ConcurrentHashMap<>();
         run(() -> {
-            PipelineConfig pipelineConfig = goConfigService.getConfigForEditing().pipelineConfigByName(new CaseInsensitiveString(Thread.currentThread().getName()));
-            pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
+            PipelineConfig pipelineConfig = goConfigService.getConfigForEditing().pipelineConfigByName(cis(Thread.currentThread().getName()));
+            pipelineConfig.add(new StageConfig(cis("additional_stage"), new JobConfigs(new JobConfig(cis("addtn_job")))));
             PerfTimer updateTimer = PerfTimer.start(LOG, "Saving pipelineConfig : " + pipelineConfig.name());
             pipelineConfigService.updatePipelineConfig(user, pipelineConfig, "group", entityHashingService.hashForEntity(pipelineConfig, "group"), result);
             updateTimer.stop();
@@ -123,8 +124,8 @@ public class PipelineConfigServicePerformanceTest {
         setupPipelines(numberOfRequests);
         final ConcurrentHashMap<String, Boolean> results = new ConcurrentHashMap<>();
         run(() -> {
-            PipelineConfig pipelineConfig = goConfigService.getConfigForEditing().pipelineConfigByName(new CaseInsensitiveString(Thread.currentThread().getName()));
-            pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
+            PipelineConfig pipelineConfig = goConfigService.getConfigForEditing().pipelineConfigByName(cis(Thread.currentThread().getName()));
+            pipelineConfig.add(new StageConfig(cis("additional_stage"), new JobConfigs(new JobConfig(cis("addtn_job")))));
             PerfTimer updateTimer = PerfTimer.start(LOG, "Saving pipelineConfig : " + pipelineConfig.name());
             pipelineConfigService.deletePipelineConfig(user, pipelineConfig, result);
             updateTimer.stop();
@@ -141,9 +142,9 @@ public class PipelineConfigServicePerformanceTest {
         setupPipelines(0);
         final ConcurrentHashMap<String, Boolean> results = new ConcurrentHashMap<>();
         run(() -> {
-            JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"));
-            StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig));
-            PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(Thread.currentThread().getName()), new MaterialConfigs(git("FOO")), stageConfig);
+            JobConfig jobConfig = new JobConfig(cis("job"));
+            StageConfig stageConfig = new StageConfig(cis("stage"), new JobConfigs(jobConfig));
+            PipelineConfig pipelineConfig = new PipelineConfig(cis(Thread.currentThread().getName()), new MaterialConfigs(git("FOO")), stageConfig);
             PerfTimer updateTimer = PerfTimer.start(LOG, "Saving pipelineConfig : " + pipelineConfig.name());
             pipelineConfigService.createPipelineConfig(user, pipelineConfig, result, "jumbo");
             updateTimer.stop();
@@ -245,9 +246,9 @@ public class PipelineConfigServicePerformanceTest {
         }
         final CruiseConfig configForEditing = goConfigService.getConfigForEditing();
         for (int i = 0; i < numberOfPipelinesToBeCreated; i++) {
-            JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"));
-            StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig));
-            PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline" + i), new MaterialConfigs(git("FOO")), stageConfig);
+            JobConfig jobConfig = new JobConfig(cis("job"));
+            StageConfig stageConfig = new StageConfig(cis("stage"), new JobConfigs(jobConfig));
+            PipelineConfig pipelineConfig = new PipelineConfig(cis("pipeline" + i), new MaterialConfigs(git("FOO")), stageConfig);
             configForEditing.addPipeline(groupName, pipelineConfig);
         }
 

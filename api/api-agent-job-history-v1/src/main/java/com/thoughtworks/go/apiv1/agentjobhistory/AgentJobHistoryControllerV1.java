@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv1.agentjobhistory;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.apiv1.agentjobhistory.representers.AgentJobHistoryRepresenter;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.EntityType;
@@ -50,16 +50,16 @@ public class AgentJobHistoryControllerV1 extends ApiController implements SparkS
     static final String BAD_SORT_COLUMN_MSG = "The query parameter `column` must be one of " + Arrays.stream(JobInstanceService.JobHistoryColumns.values()).map(Enum::name).collect(Collectors.joining(", "));
     static final String BAD_SORT_ORDER_MSG = "The query parameter `order` must be one of " + Arrays.stream(SortOrder.values()).map(Enum::name).collect(Collectors.joining(", "));
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final JobInstanceService jobInstanceService;
     private final AgentService agentService;
 
     @Autowired
-    public AgentJobHistoryControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,
+    public AgentJobHistoryControllerV1(ApiAuthorizationHelper apiAuthorizationHelper,
                                        JobInstanceService jobInstanceService,
                                        AgentService agentService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.jobInstanceService = jobInstanceService;
         this.agentService = agentService;
     }
@@ -74,8 +74,8 @@ public class AgentJobHistoryControllerV1 extends ApiController implements SparkS
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
-            before("/*", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
+            before("/*", mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::index);
         });

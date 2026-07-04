@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.domain.feed.stage;
 
+import com.thoughtworks.go.config.Approval;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.feed.Author;
 import com.thoughtworks.go.domain.feed.FeedEntry;
-import com.thoughtworks.go.util.GoConstants;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -148,7 +148,7 @@ public class StageFeedEntry implements FeedEntry {
     }
 
     public boolean isManuallyTriggered() {
-        return approvalType.equals(GoConstants.APPROVAL_MANUAL);
+        return Approval.TYPE_MANUAL.equals(approvalType);
     }
 
     public String getApprovedBy() {

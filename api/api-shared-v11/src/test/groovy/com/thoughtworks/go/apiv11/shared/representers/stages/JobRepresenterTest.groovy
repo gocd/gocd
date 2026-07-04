@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.junit.jupiter.api.Assertions.*
 
@@ -40,7 +41,7 @@ class JobRepresenterTest {
 
     @Test
     void 'should serialize run_instance_count with value set to 10' () {
-      def jobConfig = new JobConfig(new CaseInsensitiveString("job"))
+      def jobConfig = new JobConfig(cis("job"))
       jobConfig.setRunInstanceCount(10)
 
       def actualJson = toObject({JobRepresenter.toJSON(it, jobConfig)})
@@ -50,7 +51,7 @@ class JobRepresenterTest {
 
     @Test
     void 'should serialize run_instance_count with value `all` when runOnAllAgents is true' () {
-      def jobConfig =  new JobConfig(new CaseInsensitiveString("job"))
+      def jobConfig =  new JobConfig(cis("job"))
       jobConfig.setRunOnAllAgents(true)
 
       def actualJson = toObject({JobRepresenter.toJSON(it, jobConfig)})
@@ -60,7 +61,7 @@ class JobRepresenterTest {
 
     @Test
     void 'should serialize run_instance_count with value `nil` when runOnAllAgents is false and eunInstanceCount is unset' () {
-      def jobConfig =  new JobConfig(new CaseInsensitiveString("job"))
+      def jobConfig =  new JobConfig(cis("job"))
       def actualJson = toObject({JobRepresenter.toJSON(it, jobConfig)})
 
       assertThatJson(actualJson['run_instance_count']).isNull()
@@ -68,7 +69,7 @@ class JobRepresenterTest {
 
     @Test
     void 'should serialize timeout with value set to `10` to `10`' () {
-      def jobConfig =  new JobConfig(new CaseInsensitiveString("job"))
+      def jobConfig =  new JobConfig(cis("job"))
       jobConfig.setTimeout('10')
 
       def actualJson = toObject({JobRepresenter.toJSON(it, jobConfig)})
@@ -78,7 +79,7 @@ class JobRepresenterTest {
 
     @Test
     void 'should serialize timeout with value `0` to `never`' () {
-      def jobConfig =  new JobConfig(new CaseInsensitiveString("job"))
+      def jobConfig =  new JobConfig(cis("job"))
       jobConfig.setTimeout('0')
 
       def actualJson = toObject({JobRepresenter.toJSON(it, jobConfig)})
@@ -88,7 +89,7 @@ class JobRepresenterTest {
 
     @Test
     void 'should serialize timeout with value `nil` to `default`' () {
-      def jobConfig =  new JobConfig(new CaseInsensitiveString("job"))
+      def jobConfig =  new JobConfig(cis("job"))
       jobConfig.setTimeout(null)
 
       def actualJson = toObject({JobRepresenter.toJSON(it, jobConfig)})
@@ -98,7 +99,7 @@ class JobRepresenterTest {
 
     @Test
     void 'should serialize job elastic_profile_id' () {
-      def jobConfig =  new JobConfig(new CaseInsensitiveString("job"))
+      def jobConfig =  new JobConfig(cis("job"))
       jobConfig.setElasticProfileId('docker.unit-test')
 
       def actualJson = toObject({JobRepresenter.toJSON(it, jobConfig)})
@@ -375,8 +376,8 @@ class JobRepresenterTest {
     def plans = new ArtifactTypeConfigs()
     plans.add(new TestArtifactConfig(null, '../foo'))
     jobConfig.setArtifactTypeConfigs(plans)
-    jobConfig.setTasks(new Tasks(new FetchTask(new CaseInsensitiveString(''),
-      new CaseInsensitiveString(''), new CaseInsensitiveString(''), null, null)))
+    jobConfig.setTasks(new Tasks(new FetchTask(cis(''),
+      cis(''), cis(''), null, null)))
     jobConfig.setTabs(new Tabs(new Tab('coverage#1',
       '/Jcoverage/index.html'), new Tab('coverage#1', '/Jcoverage/path.html')))
     jobConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "grp", new PipelineConfig(),

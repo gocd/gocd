@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.util.GoConstants;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class GoConfigSchemaTest {
     @Test
     public void shouldResolveToCorrectSchemaFile() {
-        assertThat(GoConfigSchema.resolveSchemaFile(GoConstants.CONFIG_SCHEMA_VERSION)).isEqualTo("/cruise-config.xsd");
+        assertThat(GoConfigSchema.resolveSchemaFile(GoConfigSchema.VERSION)).isEqualTo("/cruise-config.xsd");
         assertThat(GoConfigSchema.resolveSchemaFile(1)).isEqualTo("/schemas/1_cruise-config.xsd");
     }
 

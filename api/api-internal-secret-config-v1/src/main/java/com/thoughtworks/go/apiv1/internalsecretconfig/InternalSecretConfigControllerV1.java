@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.internalsecretconfig;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.apiv1.internalsecretconfig.models.SecretConfigsViewModel;
 import com.thoughtworks.go.apiv1.internalsecretconfig.representers.SecretConfigsViewModelRepresenter;
 import com.thoughtworks.go.config.PipelineConfigs;
@@ -49,7 +49,7 @@ import static spark.Spark.*;
 
 @Component
 public class InternalSecretConfigControllerV1 extends ApiController implements SparkSpringController {
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private SecretConfigService secretConfigService;
     private final PipelineConfigService pipelineConfigService;
     private final EnvironmentConfigService environmentConfigService;
@@ -58,12 +58,12 @@ public class InternalSecretConfigControllerV1 extends ApiController implements S
     private final ClusterProfilesService clusterProfilesService;
 
     @Autowired
-    public InternalSecretConfigControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, SecretConfigService secretConfigService,
+    public InternalSecretConfigControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, SecretConfigService secretConfigService,
                                             PipelineConfigService pipelineConfigService, EnvironmentConfigService environmentConfigService,
                                             PluggableScmService pluggableScmService, PackageRepositoryService packageRepositoryService,
                                             ClusterProfilesService clusterProfilesService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.secretConfigService = secretConfigService;
         this.pipelineConfigService = pipelineConfigService;
         this.environmentConfigService = environmentConfigService;
@@ -83,7 +83,7 @@ public class InternalSecretConfigControllerV1 extends ApiController implements S
             before("", mimeType, this::setContentType);
             before("", mimeType, this::verifyContentType);
 
-            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::index);
         });

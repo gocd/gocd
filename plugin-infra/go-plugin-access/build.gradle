@@ -36,24 +36,24 @@ dependencies {
   implementation project(':base')
   implementation project(':config:config-api')
 
-  serverOnlyImplementation project.deps.jolt
-  serverOnlyImplementation project.deps.joltJsonUtils
+  serverOnlyImplementation rootProject.deps.jolt
+  serverOnlyImplementation rootProject.deps.joltJsonUtils
 
-  implementation project.deps.commonsCollections4
-  implementation project.deps.commonsCodec
-  implementation project.deps.commonsLang3
-  implementation project.deps.gson
-  implementation project.deps.springContext
-  compileOnly project.deps.jetBrainsAnnotations
+  implementation rootProject.deps.commonsCollections4
+  implementation rootProject.deps.commonsCodec
+  implementation rootProject.deps.commonsLang3
+  implementation rootProject.deps.gson
+  implementation rootProject.deps.springContext
+  compileOnly rootProject.deps.jetBrainsAnnotations
 
   testImplementation localGroovy()
   testImplementation(testFixtures(project(":domain")))
   testImplementation(testFixtures(project(":config:config-api")))
-  testImplementation project.deps.junit5Api
-  testImplementation project.deps.mockitoCore
-  testImplementation project.deps.mockitoJunit5
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.assertJ
-  testImplementation project.deps.jsonUnit
+  testImplementation rootProject.deps.junit5Api
+  testImplementation rootProject.deps.mockitoCore
+  testImplementation rootProject.deps.mockitoJunit5
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.assertJ
+  testImplementation rootProject.deps.jsonUnit
 }

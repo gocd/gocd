@@ -26,14 +26,13 @@ import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureExcep
 import com.thoughtworks.go.server.exceptions.RulesViolationException;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.Timeout;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.Map;
 
 import static com.thoughtworks.go.serverhealth.HealthStateScope.aboutPlugin;
@@ -120,9 +119,7 @@ public class ClusterProfilesChangedPluginNotifier extends EntityConfigChangedLis
 
     private void logAndRaiseServerHealthMessage(ClusterProfile clusterProfile, String errorMessage) {
         String description = format("[ Cluster Profile Changed Notification ] Secrets resolution failed for cluster profile [%s] associated with plugin [%s]. Plugin might have not been notified about this change.\n Messages: %s ", clusterProfile, clusterProfile.getPluginId(), errorMessage);
-        ServerHealthState healthState = error("Secret Resolution Failure", description, general(scope(clusterProfile.getPluginId())));
-        healthState.setTimeout(Timeout.FIVE_MINUTES);
-        serverHealthService.update(healthState);
+        serverHealthService.update(error("Secret Resolution Failure", description, general(scope(clusterProfile.getPluginId())), Duration.ofMinutes(5)));
         LOGGER.error(description);
     }
 

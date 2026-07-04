@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv3.users.representers
 import com.thoughtworks.go.api.representers.JsonReader
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv3.users.model.UserToRepresent
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PluginRoleConfig
 import com.thoughtworks.go.config.RoleConfig
 import com.thoughtworks.go.config.RolesConfig
@@ -28,6 +27,7 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 
@@ -37,7 +37,7 @@ class UserRepresenterTest {
   void 'renders a user'() {
     def user = UsersMother.withName("Bob")
     def gocdRole = new RoleConfig()
-    gocdRole.setName(new CaseInsensitiveString("gocdRole"))
+    gocdRole.setName(cis("gocdRole"))
     def pluginRole = new PluginRoleConfig("pluginRole", "auth-config-1")
 
     def json = toObject({

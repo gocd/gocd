@@ -15,10 +15,8 @@
  */
 package com.thoughtworks.go.server.persistence;
 
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.database.QueryExtensions;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
@@ -42,6 +40,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -131,9 +130,9 @@ public class PipelineRepositoryTest {
 
         pipelineRepository.updatePipelineTimeline(pipelineTimeline, tempEntries);
 
-        PipelineTimelineEntry timelineEntry1 = pipelineTimeline.getEntryFor(new CaseInsensitiveString("p1"), 1);
-        PipelineTimelineEntry timelineEntry2 = pipelineTimeline.getEntryFor(new CaseInsensitiveString("p1"), 2);
-        assertThat(pipelineTimeline.instanceCount(new CaseInsensitiveString("p1"))).isEqualTo(2);
+        PipelineTimelineEntry timelineEntry1 = pipelineTimeline.getEntryFor(cis("p1"), 1);
+        PipelineTimelineEntry timelineEntry2 = pipelineTimeline.getEntryFor(cis("p1"), 2);
+        assertThat(pipelineTimeline.instanceCount(cis("p1"))).isEqualTo(2);
         assertNotNull(timelineEntry1);
         assertNotNull(timelineEntry2);
         assertThat(tempEntries.size()).isEqualTo(2);
@@ -154,7 +153,7 @@ public class PipelineRepositoryTest {
             fail("Should fail to retrieve pipeline.");
         } catch (ClassCastException e) {
             assertThat(tempEntries.size()).isEqualTo(0);
-            assertThat(pipelineTimeline.instanceCount(new CaseInsensitiveString("p1"))).isEqualTo(0);
+            assertThat(pipelineTimeline.instanceCount(cis("p1"))).isEqualTo(0);
         }
     }
 
@@ -172,9 +171,9 @@ public class PipelineRepositoryTest {
         try {
             pipelineRepository.updatePipelineTimeline(pipelineTimeline, tempEntries);
         } catch (RuntimeException e) {
-            PipelineTimelineEntry timelineEntry1 = pipelineTimeline.getEntryFor(new CaseInsensitiveString("p1"), 1);
-            PipelineTimelineEntry timelineEntry2 = pipelineTimeline.getEntryFor(new CaseInsensitiveString("p1"), 2);
-            assertThat(pipelineTimeline.instanceCount(new CaseInsensitiveString("p1"))).isEqualTo(2);
+            PipelineTimelineEntry timelineEntry1 = pipelineTimeline.getEntryFor(cis("p1"), 1);
+            PipelineTimelineEntry timelineEntry2 = pipelineTimeline.getEntryFor(cis("p1"), 2);
+            assertThat(pipelineTimeline.instanceCount(cis("p1"))).isEqualTo(2);
             assertNotNull(timelineEntry1);
             assertNotNull(timelineEntry2);
             assertThat(tempEntries.size()).isEqualTo(2);

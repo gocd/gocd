@@ -15,9 +15,7 @@
  */
 package com.thoughtworks.go.apiv2.materials.representers.materials
 
-
 import com.thoughtworks.go.config.BasicCruiseConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
@@ -25,6 +23,7 @@ import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.security.GoCipher
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helper.MaterialConfigsMother.p4
 
 class PerforceMaterialRepresenterTest implements MaterialRepresenterTrait<P4MaterialConfig> {
@@ -34,7 +33,7 @@ class PerforceMaterialRepresenterTest implements MaterialRepresenterTrait<P4Mate
   }
 
   P4MaterialConfig existingMaterialWithErrors() {
-    def p4Config = p4('', '', '', false, '', new GoCipher(), new CaseInsensitiveString(''), true, null, false, '/dest/')
+    def p4Config = p4('', '', '', false, '', cis(''), true, null, false, '/dest/')
     def materialConfigs = new MaterialConfigs(p4Config)
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
     return materialConfigs.getFirst() as P4MaterialConfig

@@ -24,7 +24,6 @@ module JavaImports
 
   java_import com.thoughtworks.go.util.SystemEnvironment unless defined? SystemEnvironment
   java_import com.thoughtworks.go.util.Dates unless defined? Dates
-  java_import com.thoughtworks.go.util.GoConstants unless defined? GoConstants
   java_import com.thoughtworks.go.plugin.domain.common.PluginConstants unless defined? PluginConstants
 
   java_import com.thoughtworks.go.config.CaseInsensitiveString unless defined? CaseInsensitiveString
@@ -35,6 +34,7 @@ module JavaImports
   java_import com.thoughtworks.go.domain.StageState unless defined? StageState
   java_import com.thoughtworks.go.domain.JobResult unless defined? JobResult
   java_import com.thoughtworks.go.domain.JobState unless defined? JobState
+  java_import com.thoughtworks.go.domain.buildcause.BuildCause unless defined? BuildCause
   java_import com.thoughtworks.go.domain.valuestreammap.DependencyNodeType unless defined? DependencyNodeType
 
 

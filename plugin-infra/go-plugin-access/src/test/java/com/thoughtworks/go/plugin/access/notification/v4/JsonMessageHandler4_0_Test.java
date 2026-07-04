@@ -24,15 +24,15 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.plugin.api.response.Result;
+import com.thoughtworks.go.util.Dates;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,8 +41,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class JsonMessageHandler4_0_Test {
     private JsonMessageHandler4_0 messageHandler;
-    private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
-    public static final String DATE_PATTERN_FOR_V3 = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     @BeforeEach
     public void setUp() {
@@ -97,23 +95,23 @@ public class JsonMessageHandler4_0_Test {
     }
 
     @Test
-    public void shouldConstructTheStageNotificationRequest() throws Exception {
+    public void shouldConstructTheStageNotificationRequest() {
         Pipeline pipeline = createPipeline();
-        String gitModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(0).getLatestModification().getModifiedTime());
+        String gitModifiedTime = Dates.formatIso8601UtcCompactOffsetWithMillis(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(0).getLatestModification().getModifiedTime());
         String gitFingerprint = pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(0).getMaterial().getFingerprint();
-        String hgModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(1).getLatestModification().getModifiedTime());
+        String hgModifiedTime = Dates.formatIso8601UtcCompactOffsetWithMillis(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(1).getLatestModification().getModifiedTime());
         String hgFingerprint = pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(1).getMaterial().getFingerprint();
-        String svnModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(2).getLatestModification().getModifiedTime());
+        String svnModifiedTime = Dates.formatIso8601UtcCompactOffsetWithMillis(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(2).getLatestModification().getModifiedTime());
         String svnFingerprint = pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(2).getMaterial().getFingerprint();
-        String tfsModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(3).getLatestModification().getModifiedTime());
+        String tfsModifiedTime = Dates.formatIso8601UtcCompactOffsetWithMillis(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(3).getLatestModification().getModifiedTime());
         String tfsFingerprint = pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(3).getMaterial().getFingerprint();
-        String p4ModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(4).getLatestModification().getModifiedTime());
+        String p4ModifiedTime = Dates.formatIso8601UtcCompactOffsetWithMillis(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(4).getLatestModification().getModifiedTime());
         String p4Fingerprint = pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(4).getMaterial().getFingerprint();
-        String dependencyModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(5).getLatestModification().getModifiedTime());
+        String dependencyModifiedTime = Dates.formatIso8601UtcCompactOffsetWithMillis(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(5).getLatestModification().getModifiedTime());
         String dependencyMaterialFingerprint = pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(5).getMaterial().getFingerprint();
-        String packageMaterialModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(6).getLatestModification().getModifiedTime());
+        String packageMaterialModifiedTime = Dates.formatIso8601UtcCompactOffsetWithMillis(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(6).getLatestModification().getModifiedTime());
         String packageMaterialFingerprint = pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(6).getMaterial().getFingerprint();
-        String pluggableScmModifiedTime = dateToString(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(7).getLatestModification().getModifiedTime());
+        String pluggableScmModifiedTime = Dates.formatIso8601UtcCompactOffsetWithMillis(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(7).getLatestModification().getModifiedTime());
         String pluggableScmMaterialFingerprint = pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(7).getMaterial().getFingerprint();
 
         String expected = """
@@ -295,7 +293,7 @@ public class JsonMessageHandler4_0_Test {
             );
 
         String request = messageHandler.requestMessageForNotify(new StageNotificationData(pipeline.getFirstStage(), pipeline.getBuildCause(), "pipeline-group"));
-        assertThatJson(expected).isEqualTo(request);
+        assertThatJson(request).isEqualTo(expected);
     }
 
     @Test
@@ -306,10 +304,8 @@ public class JsonMessageHandler4_0_Test {
 
     @Test
     public void shouldConstructAgentNotificationRequestMessage() {
-        Date transition_time = new Date();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_PATTERN_FOR_V3);
-        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        String time = simpleDateFormat.format(transition_time);
+        Instant transition_time = Instant.now();
+        String time = Dates.formatIso8601UtcCompactOffsetWithMillis(transition_time);
 
         AgentNotificationData agentNotificationData = new AgentNotificationData("agent_uuid", "agent_hostname",
             true, "127.0.0.1", "rh", "100",
@@ -332,7 +328,7 @@ public class JsonMessageHandler4_0_Test {
 
         String message = messageHandler.requestMessageForNotify(agentNotificationData);
 
-        assertThatJson(expected).isEqualTo(message);
+        assertThatJson(message).isEqualTo(expected);
     }
 
     private void assertSuccessResult(Result result, List<String> messages) {
@@ -365,11 +361,11 @@ public class JsonMessageHandler4_0_Test {
         return null;
     }
 
-    private Date getFixedDate() throws Exception {
-        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").parse("2011-07-13T19:43:37.100+0530");
+    private Date getFixedDate() {
+        return Dates.parseIso8601CompactOffsetWithMillis("2011-07-13T19:43:37.100+0530");
     }
 
-    private Pipeline createPipeline() throws Exception {
+    private Pipeline createPipeline() {
         Pipeline pipeline = PipelineMother.pipelineWithAllTypesOfMaterials("pipeline-name", "stage-name", "job-name", "1");
         List<MaterialRevision> materialRevisions = pipeline.getMaterialRevisions().getRevisions();
         PackageDefinition packageDefinition = ((PackageMaterial) materialRevisions.get(6).getMaterial()).getPackageDefinition();
@@ -389,15 +385,5 @@ public class JsonMessageHandler4_0_Test {
         job.getTransition(JobState.Assigned).setStateChangeTime(getFixedDate());
         job.getTransition(JobState.Completed).setStateChangeTime(getFixedDate());
         return pipeline;
-    }
-
-    public static String dateToString(Date date) {
-        if (date != null) {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_PATTERN_FOR_V3);
-            simpleDateFormat.setTimeZone(UTC);
-            return simpleDateFormat.format(date);
-        }
-
-        return "";
     }
 }

@@ -20,35 +20,8 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 
 import java.io.Serializable;
 
-public class StageNotificationData implements Serializable {
-    private Stage stage;
-    private BuildCause buildCause;
-    private String pipelineGroup;
-
-    public StageNotificationData(Stage stage, BuildCause buildCause, String pipelineGroup) {
-        this.stage = stage;
-        this.buildCause = buildCause;
-        this.pipelineGroup = pipelineGroup;
-    }
-
-    public Stage getStage() {
-        return stage;
-    }
-
-    public BuildCause getBuildCause() {
-        return buildCause;
-    }
-
-    public String getPipelineGroup() {
-        return pipelineGroup;
-    }
-
-    @Override
-    public String toString() {
-        return "StageNotificationData{" +
-                "stage=" + stage +
-                ", buildCause=" + buildCause +
-                ", pipelineGroup='" + pipelineGroup + '\'' +
-                '}';
-    }
-}
+public record StageNotificationData(
+    Stage stage,
+    BuildCause buildCause,
+    String pipelineGroup
+) implements Serializable { }

@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.StageConfig
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toArrayString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class SuggestionsRepresenterTest {
@@ -47,7 +48,7 @@ class SuggestionsRepresenterTest {
   }
 
   private CaseInsensitiveString ident(String name) {
-    return new CaseInsensitiveString(name)
+    return cis(name)
   }
 
   private PipelineConfig pipeline(String name, StageConfig... stages) {

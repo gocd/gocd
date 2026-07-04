@@ -15,10 +15,9 @@
  */
 package com.thoughtworks.go.helper;
 
+import com.thoughtworks.go.config.Approval;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.server.service.InstanceFactory;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
 
 import java.sql.Timestamp;
@@ -27,7 +26,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
+import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static java.time.temporal.ChronoUnit.HOURS;
 
 public class StageMother {
@@ -35,14 +34,14 @@ public class StageMother {
     private StageMother() {
     }
 
-    public static Stage withOneScheduledBuild(String stageName, String failedBuildplanName,
-                                              String successfulBuildplanName, int stageId) {
-        JobInstance instance1 = JobInstanceMother.completed(failedBuildplanName, JobResult.Failed);
-        JobInstance instance2 = JobInstanceMother.completed(successfulBuildplanName, JobResult.Passed);
+    public static Stage withOneScheduledBuild(String stageName, String failedBuildjobName,
+                                              String successfulBuildjobName, int stageId) {
+        JobInstance instance1 = JobInstanceMother.completed(failedBuildjobName, JobResult.Failed);
+        JobInstance instance2 = JobInstanceMother.completed(successfulBuildjobName, JobResult.Passed);
         JobInstance instance3 = JobInstanceMother.scheduled("scheduledBuild");
         JobInstances instances = new JobInstances(instance1, instance2, instance3);
 
-        Stage stage = new Stage(stageName, instances, DEFAULT_APPROVED_BY, null, null, new TimeProvider());
+        Stage stage = new Stage(stageName, instances, APPROVER_AUTOMATICALLY_TRIGGERED, null, null, new TimeProvider());
         stage.setId(stageId);
         return stage;
     }
@@ -55,42 +54,41 @@ public class StageMother {
     }
 
     public static Stage stageWithNBuildsHavingEndState(JobState endState, JobResult result, String stageName,
-                                                       String... buildNames) {
-        return stageWithNBuildsHavingEndState(endState, result, stageName, Arrays.asList(buildNames));
+                                                       String... jobNames) {
+        return stageWithNBuildsHavingEndState(endState, result, stageName, Arrays.asList(jobNames));
     }
 
     public static Stage stageWithNBuildsHavingEndState(JobState endState, JobResult result, String stageName,
-                                                       List<String> buildNames) {
+                                                       List<String> jobNames) {
         JobInstances builds = new JobInstances();
-        for (String buildName : buildNames) {
-            builds.add(JobInstanceMother.buildEndingWithState(endState, result, buildName));
+        for (String jobName : jobNames) {
+            builds.add(JobInstanceMother.buildEndingWithState(endState, result, jobName));
         }
-        Stage stage = new Stage(stageName, builds, DEFAULT_APPROVED_BY, null, null, new TimeProvider());
+        Stage stage = new Stage(stageName, builds, APPROVER_AUTOMATICALLY_TRIGGERED, null, null, new TimeProvider());
         stage.calculateResult();
         stage.setCompletedByTransitionId(stage.getJobInstances().getLast().getTransitions().latestTransitionId());
         return stage;
     }
 
-
-    public static Stage passedStageInstance(String stageName, String planName, final String pipelineName) {
-        return passedStageInstance(pipelineName, stageName, planName, null);
+    public static Stage passedStageInstance(String pipelineName, String stageName, String jobName) {
+        return passedStageInstance(pipelineName, stageName, jobName, null);
     }
 
-    public static Stage passedStageInstance(String pipelineName, String stageName, String buildName, Instant completionDate) {
-        Stage stage = scheduledStage(pipelineName, 1, stageName, 1, buildName);
+    public static Stage passedStageInstance(String pipelineName, String stageName, String jobName, Instant completionDate) {
+        Stage stage = scheduledStage(pipelineName, 1, stageName, 1, jobName);
         passBuildInstancesOfStage(stage, completionDate);
         stage.calculateResult();
         return stage;
     }
 
-    public static Stage passedStageInstance(String pipelineName, String stageName, int stageCounter, String buildName, Instant completionDate) {
-        Stage stage = passedStageInstance(pipelineName, stageName, buildName, completionDate);
+    public static Stage passedStageInstance(String pipelineName, String stageName, int stageCounter, String jobName, Instant completionDate) {
+        Stage stage = passedStageInstance(pipelineName, stageName, jobName, completionDate);
         stage.setCounter(stageCounter);
         return stage;
     }
 
-    public static Stage createPassedStage(String pipelineName, int pipelineCounter, String stageName, int stageCounter, String buildName, Instant completionDate) {
-        Stage stage = scheduledStage(pipelineName, pipelineCounter, stageName, stageCounter, buildName);
+    public static Stage createPassedStage(String pipelineName, int pipelineCounter, String stageName, int stageCounter, String jobName, Instant completionDate) {
+        Stage stage = scheduledStage(pipelineName, pipelineCounter, stageName, stageCounter, jobName);
         passBuildInstancesOfStage(stage, completionDate);
         stage.calculateResult();
         return stage;
@@ -132,14 +130,14 @@ public class StageMother {
         return stage;
     }
 
-    public static Stage scheduledStage(String pipelineName, int pipelineCounter, String stageName, int stageCounter, String buildName) {
-        StageConfig stageConfig = StageConfigMother.oneBuildPlanWithResourcesAndMaterials(stageName, buildName);
+    public static Stage scheduledStage(String pipelineName, int pipelineCounter, String stageName, int stageCounter, String jobName) {
+        StageConfig stageConfig = StageConfigMother.oneBuildPlanWithResourcesAndMaterials(stageName, jobName);
         Stage stage = scheduleInstance(stageConfig);
         stage.setCounter(stageCounter);
         stage.setIdentifier(new StageIdentifier(pipelineName, pipelineCounter, "LABEL-" + pipelineCounter, stageName, "" + stageCounter));
         stage.setId(fakeId());
         for (JobInstance jobInstance : stage.getJobInstances()) {
-            jobInstance.setIdentifier(new JobIdentifier(pipelineName, pipelineCounter, "LABEL-" + pipelineCounter, stageName, "" + stageCounter, buildName, fakeId()));
+            jobInstance.setIdentifier(new JobIdentifier(pipelineName, pipelineCounter, "LABEL-" + pipelineCounter, stageName, "" + stageCounter, jobName, fakeId()));
         }
         return stage;
     }
@@ -148,12 +146,12 @@ public class StageMother {
         return (long) (Math.random() * 1000000000);
     }
 
-    public static Stage completedFailedStageInstance(String pipelineName, String stageName, String planName) {
-        return completedFailedStageInstance(pipelineName, stageName, planName, null);
+    public static Stage completedFailedStageInstance(String pipelineName, String stageName, String jobName) {
+        return completedFailedStageInstance(pipelineName, stageName, jobName, null);
     }
 
-    public static Stage completedFailedStageInstance(String pipelineName, String stageName, String planName, Instant completionDate) {
-        Stage completed = scheduledStage(pipelineName, 1, stageName, 1, planName);
+    public static Stage completedFailedStageInstance(String pipelineName, String stageName, String jobName, Instant completionDate) {
+        Stage completed = scheduledStage(pipelineName, 1, stageName, 1, jobName);
         completeBuildInstancesOfStage(completed, JobResult.Failed, completionDate == null ? Instant.now() : completionDate);
         completed.calculateResult();
         return completed;
@@ -173,13 +171,13 @@ public class StageMother {
     }
 
     private static Stage scheduleInstance(StageConfig stageConfig) {
-        Stage stageInstance = new InstanceFactory().createStageInstance(stageConfig, new DefaultSchedulingContext(DEFAULT_APPROVED_BY), "md5-test", new TimeProvider());
+        Stage stageInstance = new InstanceFactory().createStageInstance(stageConfig, new DefaultSchedulingContext(APPROVER_AUTOMATICALLY_TRIGGERED), "md5-test", new TimeProvider());
         stageInstance.building();
         return stageInstance;
     }
 
     public static Stage custom(String stagename) {
-        return passedStageInstance(stagename, "dev", "pipeline-name");
+        return passedStageInstance("pipeline-name", stagename, "dev");
     }
 
     public static Stage custom(String stageName, JobInstance... instances) {
@@ -191,7 +189,7 @@ public class StageMother {
     }
 
     public static Stage custom(String pipelineName, String stageName, JobInstances instances) {
-        Stage stage = new Stage(stageName, instances, DEFAULT_APPROVED_BY, null, GoConstants.APPROVAL_SUCCESS, new TimeProvider());
+        Stage stage = new Stage(stageName, instances, APPROVER_AUTOMATICALLY_TRIGGERED, null, Approval.TYPE_SUCCESS, new TimeProvider());
         stage.setIdentifier(new StageIdentifier(pipelineName, 1, "1", stageName, "1"));
         stage.building();
         return stage;

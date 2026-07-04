@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.update;
 
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PipelineGroups;
@@ -29,6 +28,7 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.*;
 
@@ -55,7 +55,6 @@ public class CreatePipelineConfigCommandTest {
                 pipelineConfig, username, localizedOperationResult, "group1", externalArtifactsService);
 
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
-        when(goConfigService.findGroupNameByPipeline(pipelineConfig.name())).thenReturn("group1");
 
         command.update(cruiseConfig);
         verify(cruiseConfig).addPipelineWithoutValidation("group1", pipelineConfig);
@@ -80,9 +79,9 @@ public class CreatePipelineConfigCommandTest {
         CreatePipelineConfigCommand command = new CreatePipelineConfigCommand(goConfigService,
                 pipelineConfig, username, localizedOperationResult, "group1", externalArtifactsService);
 
-        when(pipelineConfig.name()).thenReturn(new CaseInsensitiveString("p1"));
+        when(pipelineConfig.name()).thenReturn(cis("p1"));
         CruiseConfig preprocessedConfig = mock(CruiseConfig.class);
-        when(preprocessedConfig.getPipelineConfigByName(new CaseInsensitiveString("p1"))).thenReturn(mock(PipelineConfig.class));
+        when(preprocessedConfig.getPipelineConfigByName(cis("p1"))).thenReturn(mock(PipelineConfig.class));
 
         command.encrypt(preprocessedConfig);
 
@@ -94,7 +93,6 @@ public class CreatePipelineConfigCommandTest {
         PluggableArtifactConfig s3 = mock(PluggableArtifactConfig.class);
         PluggableArtifactConfig docker = mock(PluggableArtifactConfig.class);
         when(goConfigService.artifactStores()).thenReturn(mock(ArtifactStores.class));
-        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString("P1"))).thenReturn("group");
         ConfigErrors configErrors = new ConfigErrors();
         when(s3.errors()).thenReturn(configErrors);
         when(docker.errors()).thenReturn(configErrors);
@@ -104,8 +102,8 @@ public class CreatePipelineConfigCommandTest {
         job1.artifactTypeConfigs().add(s3);
         job2.artifactTypeConfigs().add(docker);
 
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
-                new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(cis("S1"), new JobConfigs(job1)),
+                new StageConfig(cis("S2"), new JobConfigs(job2)));
 
         CreatePipelineConfigCommand command = new CreatePipelineConfigCommand(goConfigService, pipeline, username, localizedOperationResult, "group", externalArtifactsService);
 
@@ -122,16 +120,14 @@ public class CreatePipelineConfigCommandTest {
         JobConfig job1 = JobConfigMother.jobWithNoResourceRequirement();
         JobConfig job2 = JobConfigMother.jobWithNoResourceRequirement();
 
-        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString("P1"))).thenReturn("group");
-
-        FetchPluggableArtifactTask fetchS3Task = new FetchPluggableArtifactTask(new CaseInsensitiveString("p0"), new CaseInsensitiveString("s0"), new CaseInsensitiveString("j0"), "s3");
-        FetchPluggableArtifactTask fetchDockerTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("p0"), new CaseInsensitiveString("s0"), new CaseInsensitiveString("j0"), "docker");
+        FetchPluggableArtifactTask fetchS3Task = new FetchPluggableArtifactTask(cis("p0"), cis("s0"), cis("j0"), "s3");
+        FetchPluggableArtifactTask fetchDockerTask = new FetchPluggableArtifactTask(cis("p0"), cis("s0"), cis("j0"), "docker");
 
         job1.addTask(fetchS3Task);
         job2.addTask(fetchDockerTask);
 
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
-                new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(cis("S1"), new JobConfigs(job1)),
+                new StageConfig(cis("S2"), new JobConfigs(job2)));
 
         CreatePipelineConfigCommand command = new CreatePipelineConfigCommand(goConfigService, pipeline, username, localizedOperationResult, "group", externalArtifactsService);
 

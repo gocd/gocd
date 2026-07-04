@@ -26,7 +26,6 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.security.ResetCipher;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import org.jdom2.Document;
 import org.jdom2.filter.ElementFilter;
@@ -46,6 +45,7 @@ import java.io.InputStream;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_NONE;
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWithArtifactSourceAs;
@@ -98,7 +98,7 @@ public class GoConfigMigrationIntegrationTest {
     public void shouldMigrateConfigContentAsAString() {
         String newContent = new GoConfigMigration(new TimeProvider())
             .upgradeIfNecessary(ConfigFileFixture.VERSION_0);
-        assertThat(newContent).contains("schemaVersion=\"" + GoConfigSchema.currentSchemaVersion() + "\"");
+        assertThat(newContent).contains("schemaVersion=\"" + GoConfigSchema.VERSION + "\"");
     }
 
     @Test
@@ -114,7 +114,8 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = ConfigMigrator.migrate(content, 21, 22);
 
-        String expected = content.replaceAll("(?<!do_not_sub_)#", "##").replace("<cruise schemaVersion=\"21\">", "<cruise schemaVersion=\"22\">");
+        String expected = content.replaceAll("(?<!do_not_sub_)#", "##")
+            .replace("<cruise schemaVersion=\"21\">", "<cruise schemaVersion=\"22\">");
         assertStringsIgnoringLineBreaksAreEqual(expected, migratedContent);
     }
 
@@ -134,9 +135,9 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = ConfigMigrator.migrate(content, 22, 34);
 
-        String expected = content.replaceAll("#\\{jez_passwd\\}", "badger")
+        String expected = content.replace("#{jez_passwd}", "badger")
             .replace("<cruise schemaVersion=\"22\">", "<cruise schemaVersion=\"34\">")
-            .replaceAll("##", "#");
+            .replace("##", "#");
         assertStringsIgnoringLineBreaksAreEqual(expected, migratedContent);
     }
 
@@ -363,11 +364,11 @@ public class GoConfigMigrationIntegrationTest {
         String migratedContent = migrateXmlString(configString, 69);
         assertThat(migratedContent).contains("<authorization>");
         CruiseConfig configForEdit = loader.loadConfigHolder(migratedContent).configForEdit;
-        PipelineTemplateConfig template = configForEdit.getTemplateByName(new CaseInsensitiveString("template-name"));
+        PipelineTemplateConfig template = configForEdit.getTemplateByName(cis("template-name"));
         Authorization authorization = template.getAuthorization();
         assertThat(authorization).isNotNull();
         assertThat(authorization.hasAdminsDefined()).isTrue();
-        assertThat(authorization.getAdminsConfig().getUsers()).contains(new AdminUser(new CaseInsensitiveString("admin1")), new AdminUser(new CaseInsensitiveString("admin2")));
+        assertThat(authorization.getAdminsConfig().getUsers()).contains(new AdminUser(cis("admin1")), new AdminUser(cis("admin2")));
     }
 
     @Test
@@ -2322,11 +2323,11 @@ public class GoConfigMigrationIntegrationTest {
 
     @SuppressWarnings("SameParameterValue")
     private void assertStringContainsIgnoringCarriageReturn(String actual, String substring) {
-        assertThat(actual.replaceAll("\\r", "")).contains(substring.replaceAll("\\r", ""));
+        assertThat(actual.replace("\r", "")).contains(substring.replace("\r", ""));
     }
 
     private String migrateXmlString(String content, int fromVersion) {
-        return ConfigMigrator.migrate(content, fromVersion, GoConfigSchema.currentSchemaVersion());
+        return ConfigMigrator.migrate(content, fromVersion, GoConfigSchema.VERSION);
     }
 
     private String contentFromResource(String resource) throws IOException {

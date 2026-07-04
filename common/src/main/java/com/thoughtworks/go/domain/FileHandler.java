@@ -16,7 +16,7 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.ExceptionUtils;
-import com.thoughtworks.go.validation.ChecksumValidator;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -26,8 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -35,15 +33,16 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Objects;
 
+import static com.thoughtworks.go.util.UriEncodingUtil.encodePartParanoid;
 import static java.lang.String.format;
 
 public class FileHandler implements FetchHandler {
 
+    private static final Logger LOG = LoggerFactory.getLogger(FileHandler.class);
     private final File artifact;
     private final String srcFile;
-    private static final Logger LOG = LoggerFactory.getLogger(FileHandler.class);
+    private final ChecksumValidationPublisher checksumValidationPublisher;
     private ArtifactMd5Checksums artifactMd5Checksums;
-    private ChecksumValidationPublisher checksumValidationPublisher;
 
     public FileHandler(File artifact, String srcFile) {
         this.artifact = artifact;
@@ -52,16 +51,16 @@ public class FileHandler implements FetchHandler {
     }
 
     @Override
-    public String url(String remoteHost, String workingUrl) {
+    public String url(String uriPathFromContext) {
         boolean fileExist = artifact.exists();
         if (LOG.isDebugEnabled()) {
             LOG.debug("Requesting the file [{}], exist? [{}]", artifact.getAbsolutePath(), fileExist);
         }
         if (fileExist && artifact.isFile()) {
             String sha1 = sha1Digest(artifact);
-            return format("%s/remoting/files/%s?sha1=%s", remoteHost, workingUrl, URLEncoder.encode(sha1, StandardCharsets.UTF_8));
+            return format("%s/remoting/files/%s?sha1=%s", SystemEnvironment.getNormalizedServiceUrl(), uriPathFromContext, encodePartParanoid(sha1));
         } else {
-            return format("%s/remoting/files/%s", remoteHost, workingUrl);
+            return format("%s/remoting/files/%s", SystemEnvironment.getNormalizedServiceUrl(), uriPathFromContext);
         }
     }
 

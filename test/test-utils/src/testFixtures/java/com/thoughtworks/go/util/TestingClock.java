@@ -15,26 +15,55 @@
  */
 package com.thoughtworks.go.util;
 
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import static java.time.ZoneId.systemDefault;
 
-public class TestingClock implements Clock {
-    private Instant currentTime;
+public class TestingClock implements Clock, AutoCloseable {
     private final List<Long> sleeps = new ArrayList<>();
+    private final MockedStatic<SystemTimeClock> mockedClock;
+
+    private Instant currentTime;
 
     public TestingClock() {
         this(Instant.now());
     }
 
     public TestingClock(Instant instant) {
+        this(instant, null);
+    }
+
+    private TestingClock(Instant instant, MockedStatic<SystemTimeClock> mockedStatic) {
         this.currentTime = instant;
+        this.mockedClock = mockedStatic;
+    }
+
+    public static TestingClock switchForSystem() {
+        return switchForSystem(Instant.now());
+    }
+
+    public static TestingClock switchForSystem(Instant instant) {
+        MockedStatic<SystemTimeClock> mockedClock = Mockito.mockStatic(SystemTimeClock.class);
+        TestingClock testingClock = new TestingClock(instant, mockedClock);
+        mockedClock.when(SystemTimeClock::get).thenReturn(testingClock);
+        return testingClock;
+    }
+
+    @Override
+    public void close() {
+        sleeps.clear();
+        if (mockedClock != null) {
+            mockedClock.close();
+        }
     }
 
     @Override
@@ -73,30 +102,20 @@ public class TestingClock implements Clock {
     }
 
     @Override
-    public Instant timeoutTime(Timeout timeout) {
-        return timeoutTime(timeout.inMillis());
+    public Instant timeoutTime(Duration timeout) {
+        return currentTime.plus(timeout);
     }
 
-    @Override
-    public Instant timeoutTime(long milliSeconds) {
-        return addDuration(milliSeconds, ChronoUnit.MILLIS);
+    public void addSeconds(long amount) {
+        add(Duration.ofSeconds(amount));
     }
 
-    public void addSeconds(int numberOfSeconds) {
-        add(numberOfSeconds, ChronoUnit.SECONDS);
+    public void addMillis(long amount) {
+        add(Duration.ofMillis(amount));
     }
 
-
-    public void addMillis(int millis) {
-        add(millis, ChronoUnit.MILLIS);
-    }
-
-    private void add(int duration, ChronoUnit unit) {
-        currentTime = addDuration(duration, unit);
-    }
-
-    private Instant addDuration(long duration, ChronoUnit unit) {
-        return currentTime.plus(duration, unit);
+    public void add(Duration duration) {
+        currentTime = currentTime.plus(duration);
     }
 
     public void setTime(Instant instant) {

@@ -28,11 +28,13 @@ import org.springframework.util.MimeType;
 import spark.Filter;
 import spark.Request;
 import spark.Response;
+import spark.route.HttpMethod;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Map;
-import java.util.Set;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseConfirmHeaderMissing;
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseJsonContentTypeExpected;
@@ -42,7 +44,7 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
     protected static final String DEFAULT_PAGE_SIZE = "10";
     protected String BAD_PAGE_SIZE_MSG = "The query parameter 'page_size', if specified must be a number between 10 and 100.";
     protected String BAD_CURSOR_MSG = "The query parameter '%s', if specified, must be a positive integer.";
-    private static final Set<String> UPDATE_HTTP_METHODS = Set.of("PUT", "POST", "PATCH");
+    private static final EnumSet<HttpMethod> UPDATE_HTTP_METHODS = EnumSet.of(HttpMethod.put, HttpMethod.post, HttpMethod.patch);
 
     /**
      * all controllers are singletons, so instance loggers are ok
@@ -72,8 +74,8 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
         return NOTHING;
     }
 
-    protected void verifyContentType(Request request, Response response) throws IOException {
-        if (!UPDATE_HTTP_METHODS.contains(request.requestMethod().toUpperCase())) {
+    protected void verifyContentType(Request request, @SuppressWarnings("unused") Response response) throws IOException {
+        if (!UPDATE_HTTP_METHODS.contains(HttpMethod.get(request.requestMethod().toLowerCase()))) {
             return;
         }
 
@@ -88,7 +90,7 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
         }
     }
 
-    protected void setMultipartUpload(Request req, Response res) {
+    protected void setMultipartUpload(Request req, @SuppressWarnings("unused") Response res) {
         RequestUtils.configureMultipart(req.raw());
     }
 
@@ -105,6 +107,7 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
         }
     }
 
+    @Override
     public String getMimeType() {
         return mimeType;
     }
@@ -117,9 +120,9 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
         return map;
     }
 
-    protected static Filter onlyOn(Filter filter, String... allowedMethods) {
+    protected static Filter onlyOn(Filter filter, HttpMethod... allowedMethods) {
         return (request, response) -> {
-            if (Set.of(allowedMethods).contains(request.requestMethod())) {
+            if (Arrays.stream(allowedMethods).anyMatch(m -> m.name().equalsIgnoreCase(request.requestMethod()))) {
                 filter.handle(request, response);
             }
         };

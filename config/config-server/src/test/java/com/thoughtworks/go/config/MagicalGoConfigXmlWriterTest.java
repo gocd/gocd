@@ -56,10 +56,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs;
-import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -84,7 +84,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldBeAbleToExplicitlyLockAPipeline() throws Exception {
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1");
         config.setServerConfig(new ServerConfig("foo", new SecurityConfig()));
-        config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).setLockBehaviorIfNecessary(LOCK_VALUE_LOCK_ON_FAILURE);
+        config.pipelineConfigByName(cis("pipeline1")).setLockBehaviorIfNecessary(LOCK_VALUE_LOCK_ON_FAILURE);
         xmlWriter.write(config, output, false);
         assertThat(output.toString()).contains("lockBehavior=\"" + LOCK_VALUE_LOCK_ON_FAILURE);
     }
@@ -209,7 +209,7 @@ public class MagicalGoConfigXmlWriterTest {
               </pipeline>
             </templates>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).configForEdit;
         xmlWriter.write(config, output, false);
         assertThat(output.toString().replaceAll("\\s+", " ")).contains("""
@@ -220,8 +220,8 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldWriteObjectToXmlPartial() {
         String xml = ConfigFileFixture.ONE_PIPELINE;
         CruiseConfig cruiseConfig = ConfigMigrator.load(xml);
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
-        StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString("stage"));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis("pipeline1"));
+        StageConfig stageConfig = pipelineConfig.findBy(cis("stage"));
         JobConfig build = stageConfig.jobConfigByInstanceName("functional", true);
 
         assertThat(xmlWriter.toXmlPartial(pipelineConfig)).isEqualTo("""
@@ -341,7 +341,7 @@ public class MagicalGoConfigXmlWriterTest {
               </pipeline>
             </templates>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).configForEdit;
         xmlWriter.write(config, output, false);
         assertThat(output.toString().replaceAll("\\s+", " ")).contains(
@@ -404,7 +404,7 @@ public class MagicalGoConfigXmlWriterTest {
             <stage name='stage'><jobs><job name='job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job></jobs></stage>
             </pipeline>
             </pipelines>
-            """, CONFIG_SCHEMA_VERSION);
+            """, GoConfigSchema.VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         xmlWriter.write(cruiseConfig, out, false);
@@ -439,10 +439,10 @@ public class MagicalGoConfigXmlWriterTest {
             </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework"));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis("framework"));
         ParamsConfig params = pipelineConfig.getParams();
         assertThat(params.getParamNamed("first")).isEqualTo(new ParamConfig("first", "foo"));
         assertThat(params.getParamNamed("second")).isEqualTo(new ParamConfig("second", "bar"));
@@ -478,10 +478,10 @@ public class MagicalGoConfigXmlWriterTest {
             </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
-        StageConfig stageConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework")).getFirst();
+        StageConfig stageConfig = cruiseConfig.pipelineConfigByName(cis("framework")).getFirst();
 
         assertThat(stageConfig.isFetchMaterials()).isTrue();
         stageConfig.setFetchMaterials(false);
@@ -512,13 +512,13 @@ public class MagicalGoConfigXmlWriterTest {
             </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         xmlWriter.write(cruiseConfig, out, false);
         assertThat(out.toString()).doesNotContain("cleanWorkingDir");
 
-        StageConfig stageConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework")).getFirst();
+        StageConfig stageConfig = cruiseConfig.pipelineConfigByName(cis("framework")).getFirst();
         stageConfig.setCleanWorkingDir(true);
         xmlWriter.write(cruiseConfig, out, false);
         assertThat(out.toString()).contains("cleanWorkingDir=\"true\"");
@@ -547,10 +547,10 @@ public class MagicalGoConfigXmlWriterTest {
             </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
-        StageConfig stageConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("framework")).getFirst();
+        StageConfig stageConfig = cruiseConfig.pipelineConfigByName(cis("framework")).getFirst();
         ReflectionUtil.setField(stageConfig, "artifactCleanupProhibited", false);
         xmlWriter.write(cruiseConfig, out, false);
         assertThat(out.toString()).doesNotContain("artifactCleanupProhibited=\"true\"");
@@ -573,7 +573,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldRemoveDuplicatedIgnoreTag() {
         CruiseConfig cruiseConfig = ConfigMigrator.load(ConfigFileFixture.TWO_DUPLICATED_FILTER);
 
-        int size = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).materialConfigs().getFirst().filter().size();
+        int size = cruiseConfig.pipelineConfigByName(cis("pipeline1")).materialConfigs().getFirst().filter().size();
         assertThat(size).isEqualTo(1);
     }
 
@@ -581,7 +581,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldNotAllowEmptyAuthInApproval() throws Exception {
         CruiseConfig cruiseConfig = ConfigMigrator.load(ConfigFileFixture.ONE_PIPELINE);
         StageConfig stageConfig = com.thoughtworks.go.helper.StageConfigMother.custom("newStage", new AuthConfig());
-        cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).add(stageConfig);
+        cruiseConfig.pipelineConfigByName(cis("pipeline1")).add(stageConfig);
 
         try {
             xmlWriter.write(cruiseConfig, output, false);
@@ -602,7 +602,7 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldNotDefineATrackingToolWithoutALink() {
         CruiseConfig cruiseConfig = ConfigMigrator.load(ConfigFileFixture.ONE_PIPELINE);
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis("pipeline1"));
         pipelineConfig.setTrackingTool(new TrackingTool("", "regex"));
         assertThatThrownBy(() -> xmlWriter.write(cruiseConfig, output, false))
             .hasMessageContaining("Link should be populated");
@@ -611,7 +611,7 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldSkipValidationIfExplicitlyToldWhileWritingConfig() throws Exception {
         CruiseConfig cruiseConfig = ConfigMigrator.load(ConfigFileFixture.ONE_PIPELINE);
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis("pipeline1"));
         pipelineConfig.addEnvironmentVariable("name1", "value1");
         pipelineConfig.addEnvironmentVariable("name1", "value1");
         xmlWriter.write(cruiseConfig, output, true);
@@ -621,7 +621,7 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldNotDefineATrackingToolWithoutARegex() {
         CruiseConfig cruiseConfig = ConfigMigrator.load(ConfigFileFixture.ONE_PIPELINE);
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis("pipeline1"));
         pipelineConfig.setTrackingTool(new TrackingTool("link", ""));
         assertThatThrownBy(() -> xmlWriter.write(cruiseConfig, output, false))
             .hasMessageContaining("Regex should be populated");
@@ -675,7 +675,7 @@ public class MagicalGoConfigXmlWriterTest {
         //simulate the xml partial saving logic
         CruiseConfig cruiseConfig = ConfigMigrator.load(ConfigFileFixture.CONTAINS_MULTI_DIFFERENT_STATUS_RUN_IF);
         StageConfig stage = xmlLoader.fromXmlPartial(ConfigFileFixture.SAME_STATUS_RUN_IF_PARTIAL, StageConfig.class);
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("test"));
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(cis("test"));
         pipelineConfig.set(0, stage);
         assertThatThrownBy(() -> xmlWriter.write(cruiseConfig, output, false))
             .hasMessageContaining("Duplicate unique value [passed] declared for identity constraint");
@@ -685,9 +685,9 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldNotThrowUpWhenTfsWorkspaceIsNotSpecified() throws Exception {
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("tfs_pipeline");
         cruiseConfig.initializeServer();
-        PipelineConfig tfs_pipeline = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("tfs_pipeline"));
+        PipelineConfig tfs_pipeline = cruiseConfig.pipelineConfigByName(cis("tfs_pipeline"));
         tfs_pipeline.materialConfigs().clear();
-        tfs_pipeline.addMaterialConfig(tfs(new GoCipher(), new UrlArgument("http://tfs.com"), "username", "CORPORATE", "password", "$/project_path"));
+        tfs_pipeline.addMaterialConfig(tfs(new UrlArgument("http://tfs.com"), "username", "CORPORATE", "password", "$/project_path"));
         xmlWriter.write(cruiseConfig, output, false);
     }
 
@@ -698,9 +698,9 @@ public class MagicalGoConfigXmlWriterTest {
         setDependencyOn(cruiseConfig, "upper", "uppest", "stage");
         setDependencyOn(cruiseConfig, "downer", "upper", "stage");
         setDependencyOn(cruiseConfig, "downest", "downer", "stage");
-        PipelineConfig downest = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("downest"));
-        FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("uppest/upper/downer"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "src", "dest");
-        downest.add(com.thoughtworks.go.helper.StageConfigMother.stageConfig("stage-2", new JobConfigs(new JobConfig(new CaseInsensitiveString("downloader"), new ResourceConfigs(), new ArtifactTypeConfigs(), new Tasks(fetchTask)))));
+        PipelineConfig downest = cruiseConfig.pipelineConfigByName(cis("downest"));
+        FetchTask fetchTask = new FetchTask(cis("uppest/upper/downer"), cis("stage"), cis("job"), "src", "dest");
+        downest.add(com.thoughtworks.go.helper.StageConfigMother.stageConfig("stage-2", new JobConfigs(new JobConfig(cis("downloader"), new ResourceConfigs(), new ArtifactTypeConfigs(), new Tasks(fetchTask)))));
 
         xmlWriter.write(cruiseConfig, output, false);
 
@@ -814,7 +814,7 @@ public class MagicalGoConfigXmlWriterTest {
         cruiseConfig.addPipeline("default", com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(packageMaterialConfig), new JobConfigs(jobConfig)));
         xmlWriter.write(cruiseConfig, output, false);
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(output.toString());
-        PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("test"));
+        PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(cis("test"));
         assertThat(pipelineConfig.materialConfigs().getFirst() instanceof PackageMaterialConfig).isTrue();
         assertThat(((PackageMaterialConfig) pipelineConfig.materialConfigs().getFirst()).getPackageId()).isEqualTo(packageId);
         PackageDefinition packageDefinition = goConfigHolder.config.getPackageRepositories().getFirst().getPackages().getFirst();
@@ -1035,9 +1035,9 @@ public class MagicalGoConfigXmlWriterTest {
 
     @SuppressWarnings("SameParameterValue")
     private void setDependencyOn(CruiseConfig cruiseConfig, String toPipeline, String upstreamPipeline, String upstreamStage) {
-        PipelineConfig targetPipeline = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(toPipeline));
+        PipelineConfig targetPipeline = cruiseConfig.pipelineConfigByName(cis(toPipeline));
         targetPipeline.materialConfigs().clear();
-        targetPipeline.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString(upstreamPipeline), new CaseInsensitiveString(upstreamStage)));
+        targetPipeline.addMaterialConfig(new DependencyMaterialConfig(cis(upstreamPipeline), cis(upstreamStage)));
     }
 
     private PackageRepository createPackageRepository(String pluginId, String version, String id, String name, Configuration configuration, Packages packages) {

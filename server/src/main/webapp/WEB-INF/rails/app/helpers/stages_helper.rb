@@ -71,8 +71,4 @@ module StagesHelper
     </script>
 END
   end
-
-  def is_config_used_to_run_this_stage_out_of_sync_with_current?(current_config_version, stage_config_version)
-    current_config_version != stage_config_version
-  end
  end

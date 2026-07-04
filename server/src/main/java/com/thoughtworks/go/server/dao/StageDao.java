@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 
+import java.time.Duration;
 import java.util.List;
 
 public interface StageDao extends JobDurationStrategy {
@@ -46,7 +47,7 @@ public interface StageDao extends JobDurationStrategy {
 
     boolean isStageActive(String pipelineName, String stageName);
 
-    @Nullable Long getDurationOfLastSuccessfulOnAgent(String pipelineName, String stageName, JobInstance job);
+    @Nullable Duration getDurationOfLastSuccessfulOnAgent(JobInstance job);
 
     int getMaxStageOrder(long pipelineId);
 

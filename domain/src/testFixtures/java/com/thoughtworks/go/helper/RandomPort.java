@@ -23,7 +23,7 @@ import java.net.Socket;
 
 public class RandomPort {
 
-    public static final Logger LOG = LoggerFactory.getLogger(RandomPort.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RandomPort.class);
 
     public int currentPort = 10000;
 

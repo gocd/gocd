@@ -33,6 +33,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 @Service
 public class SchedulingCheckerService {
     private final GoConfigService goConfigService;
@@ -64,7 +66,7 @@ public class SchedulingCheckerService {
     }
 
     public boolean canTriggerManualPipeline(String pipelineName, String username, OperationResult result) {
-        PipelineConfig pipelineConfig = goConfigService.currentCruiseConfig().pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        PipelineConfig pipelineConfig = goConfigService.currentCruiseConfig().pipelineConfigByName(cis(pipelineName));
         return canTriggerManualPipeline(pipelineConfig, username, result);
     }
 
@@ -75,7 +77,7 @@ public class SchedulingCheckerService {
     }
 
     public void canTriggerPipelineWithTimer(String name, ServerHealthStateOperationResult result) {
-        PipelineConfig pipelineConfig = goConfigService.getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString(name));
+        PipelineConfig pipelineConfig = goConfigService.getCurrentConfig().pipelineConfigByName(cis(name));
         canTriggerPipelineWithTimer(pipelineConfig, result);
     }
 
@@ -92,7 +94,7 @@ public class SchedulingCheckerService {
 
 
     public boolean canManuallyTrigger(String pipelineName, Username username) {
-        return canManuallyTrigger(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName)), CaseInsensitiveString.str(username.getUsername()),
+        return canManuallyTrigger(goConfigService.pipelineConfigNamed(cis(pipelineName)), CaseInsensitiveString.str(username.getUsername()),
                 new ServerHealthStateOperationResult());
     }
 

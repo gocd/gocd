@@ -20,7 +20,7 @@ import {Origin, OriginType} from "models/origin";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {EnvironmentVariablesWithOriginWidget} from "../environment_variables_with_origin_widget";
 
-describe("Environment Variables Widget", () => {
+describe("Environment Variables With Origin Widget", () => {
   const helper               = new TestHelper();
   const plainTextEnvVar      = new EnvironmentVariableWithOrigin("env1", new Origin(OriginType.GoCD), "plain-text-variables-value");
   const secureEnvVar         = new EnvironmentVariableWithOrigin("env1", new Origin(OriginType.GoCD), undefined, true, "encrypted-value");

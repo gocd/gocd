@@ -16,7 +16,6 @@
 package com.thoughtworks.go.apiv2.materials.representers.materials
 
 import com.thoughtworks.go.config.BasicCruiseConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
@@ -25,6 +24,7 @@ import com.thoughtworks.go.helper.MaterialConfigsMother
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class PluggableScmMaterialRepresenterTest {
@@ -48,7 +48,7 @@ class PluggableScmMaterialRepresenterTest {
 
   @Test
   void "should render errors"() {
-    def pluggableScmMaterial = new PluggableSCMMaterialConfig(new CaseInsensitiveString(''), null, '/dest', null, false)
+    def pluggableScmMaterial = new PluggableSCMMaterialConfig(cis(''), null, '/dest', null, false)
     def materialConfigs = new MaterialConfigs(pluggableScmMaterial)
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
 

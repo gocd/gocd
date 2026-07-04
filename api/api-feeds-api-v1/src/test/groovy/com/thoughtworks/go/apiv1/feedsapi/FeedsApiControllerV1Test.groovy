@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.feedsapi
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.server.service.FeedService
@@ -41,7 +41,7 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
   @Override
   FeedsApiControllerV1 createControllerInstance() {
-    new FeedsApiControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), feedService)
+    new FeedsApiControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), feedService)
   }
 
   @Test
@@ -81,6 +81,8 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = FeedsApiControllerV1Test.this
+      @Delegate ControllerTrait<FeedsApiControllerV1> c = FeedsApiControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -111,6 +113,8 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = FeedsApiControllerV1Test.this
+      @Delegate ControllerTrait<FeedsApiControllerV1> c = FeedsApiControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -141,6 +145,9 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = FeedsApiControllerV1Test.this
+      @Delegate ControllerTrait<FeedsApiControllerV1> c = FeedsApiControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "stagesXML"
@@ -148,13 +155,13 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.STAGES_XML).replaceAll(":pipeline_name", "up42"))
+        getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.STAGES_XML).replace(":pipeline_name", "up42"))
       }
     }
 
     @Test
     void 'should call feed service to get stages xml'() {
-      getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.STAGES_XML).replaceAll(":pipeline_name", "up42"))
+      getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.STAGES_XML).replace(":pipeline_name", "up42"))
 
       verify(feedService).stagesXml(currentUsername(), "up42", null, "http://test.host/go")
       verifyNoMoreInteractions(feedService)
@@ -162,7 +169,7 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
     @Test
     void 'should call feed service to get stages xml before id'() {
-      getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.STAGES_XML.replaceAll(":pipeline_name", "up42") + "?before=100"))
+      getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.STAGES_XML.replace(":pipeline_name", "up42") + "?before=100"))
 
       verify(feedService).stagesXml(currentUsername(), "up42", 100, "http://test.host/go")
       verifyNoMoreInteractions(feedService)
@@ -178,6 +185,8 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = FeedsApiControllerV1Test.this
+      @Delegate ControllerTrait<FeedsApiControllerV1> c = FeedsApiControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -208,6 +217,8 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = FeedsApiControllerV1Test.this
+      @Delegate ControllerTrait<FeedsApiControllerV1> c = FeedsApiControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -238,6 +249,8 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = FeedsApiControllerV1Test.this
+      @Delegate ControllerTrait<FeedsApiControllerV1> c = FeedsApiControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -268,6 +281,8 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = FeedsApiControllerV1Test.this
+      @Delegate ControllerTrait<FeedsApiControllerV1> c = FeedsApiControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {

@@ -36,11 +36,11 @@ public class PluginNotificationMessageListenerTest {
         PluginNotificationMessageListener listener = new PluginNotificationMessageListener(notificationExtension, serverHealthService);
 
         PluginNotificationMessage<?> message = new PluginNotificationMessage<>("pid", "request-name", "data");
-        when(notificationExtension.notify(message.pluginId(), message.getRequestName(), message.getData())).thenReturn(new Result());
+        when(notificationExtension.notify(message.pluginId(), message.requestName(), message.data())).thenReturn(new Result());
         listener.onMessage(message);
 
         verify(serverHealthService).removeByScope(HealthStateScope.aboutPlugin(message.pluginId()));
-        verify(notificationExtension).notify("pid", "request-name", message.getData());
+        verify(notificationExtension).notify("pid", "request-name", message.data());
     }
 
     @Test
@@ -52,7 +52,7 @@ public class PluginNotificationMessageListenerTest {
         PluginNotificationMessage<?> message = new PluginNotificationMessage<>("pid", "request-name", "data");
         Result result = new Result();
         result.withErrorMessages(List.of(new String[]{"error message 1", "error message 2"}));
-        when(notificationExtension.notify(message.pluginId(), message.getRequestName(), message.getData())).thenReturn(result);
+        when(notificationExtension.notify(message.pluginId(), message.requestName(), message.data())).thenReturn(result);
         ArgumentCaptor<ServerHealthState> argumentCaptor = ArgumentCaptor.forClass(ServerHealthState.class);
         listener.onMessage(message);
 
@@ -61,7 +61,7 @@ public class PluginNotificationMessageListenerTest {
         assertThat(serverHealthState.isSuccess()).isFalse();
         assertThat(serverHealthState.getMessage()).isEqualTo("Notification update failed for plugin: pid");
         assertThat(serverHealthState.getDescription()).isEqualTo("error message 1, error message 2");
-        verify(notificationExtension).notify("pid", "request-name", message.getData());
+        verify(notificationExtension).notify("pid", "request-name", message.data());
     }
 
     @Test
@@ -71,7 +71,7 @@ public class PluginNotificationMessageListenerTest {
         PluginNotificationMessageListener listener = new PluginNotificationMessageListener(notificationExtension, serverHealthService);
 
         PluginNotificationMessage<?> message = new PluginNotificationMessage<>("pid", "request-name", "data");
-        when(notificationExtension.notify(message.pluginId(), message.getRequestName(), message.getData())).thenThrow(new RuntimeException("error!"));
+        when(notificationExtension.notify(message.pluginId(), message.requestName(), message.data())).thenThrow(new RuntimeException("error!"));
         ArgumentCaptor<ServerHealthState> argumentCaptor = ArgumentCaptor.forClass(ServerHealthState.class);
         listener.onMessage(message);
 
@@ -80,7 +80,7 @@ public class PluginNotificationMessageListenerTest {
         assertThat(serverHealthState.isSuccess()).isFalse();
         assertThat(serverHealthState.getMessage()).isEqualTo("Notification update failed for plugin: pid");
         assertThat(serverHealthState.getDescription()).isEqualTo("error!");
-        verify(notificationExtension).notify("pid", "request-name", message.getData());
+        verify(notificationExtension).notify("pid", "request-name", message.data());
     }
 
 }

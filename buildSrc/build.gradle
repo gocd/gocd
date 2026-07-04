@@ -28,7 +28,7 @@ dependencies {
   implementation localGroovy()
   implementation gradleApi()
   implementation 'de.undercouch:gradle-download-task:5.7.0'
-  implementation 'com.github.jk1:gradle-license-report:3.1.2'
+  implementation 'com.github.jk1:gradle-license-report:3.1.4'
   implementation 'org.freemarker:freemarker:2.3.34'
   implementation 'dev.yumi:yumi-gradle-licenser:4.0.0'
 }

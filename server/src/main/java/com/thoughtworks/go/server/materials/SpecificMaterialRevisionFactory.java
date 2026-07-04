@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -24,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 /**
  * Understands how to create material revisions from an already known revision
@@ -47,7 +48,7 @@ public class SpecificMaterialRevisionFactory {
     public MaterialRevisions create(String pipelineName, Map<String, String> revisionInfo) {
         MaterialRevisions materialRevisions = new MaterialRevisions();
         for (String materialFingerprint : revisionInfo.keySet()) {
-            MaterialConfig materialConfig = goConfigService.findMaterial(new CaseInsensitiveString(pipelineName), materialFingerprint);
+            MaterialConfig materialConfig = goConfigService.findMaterial(cis(pipelineName), materialFingerprint);
             if (materialConfig == null) { throw new RuntimeException(String.format("Material with fingerprint [%s] for pipeline [%s] does not exist", materialFingerprint, pipelineName)); }
             materialRevisions.addRevision(materialChecker.findSpecificRevision(materialConfigConverter.toMaterial(materialConfig), revisionInfo.get(materialFingerprint)));
         }

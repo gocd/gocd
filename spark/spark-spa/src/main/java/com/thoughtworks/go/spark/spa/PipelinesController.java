@@ -17,7 +17,7 @@ package com.thoughtworks.go.spark.spa;
 
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.SparkController;
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
@@ -30,11 +30,11 @@ import static com.thoughtworks.go.spark.Routes.PipelineConfig.SPA_CREATE;
 import static spark.Spark.*;
 
 public class PipelinesController implements SparkController {
-    private SPAAuthenticationHelper authenticationHelper;
+    private SpaAuthorizationHelper authorizationHelper;
     private TemplateEngine engine;
 
-    public PipelinesController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
-        this.authenticationHelper = authenticationHelper;
+    public PipelinesController(SpaAuthorizationHelper authorizationHelper, TemplateEngine engine) {
+        this.authorizationHelper = authorizationHelper;
         this.engine = engine;
     }
 
@@ -46,7 +46,7 @@ public class PipelinesController implements SparkController {
     @Override
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
-            before(SPA_CREATE, authenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before(SPA_CREATE, authorizationHelper::checkAnyPipelineGroupAdminUserAnd403);
             get(SPA_CREATE, this::create, engine);
         });
     }

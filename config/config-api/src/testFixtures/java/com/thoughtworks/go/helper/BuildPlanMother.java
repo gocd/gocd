@@ -17,12 +17,14 @@ package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 public class BuildPlanMother {
 
     public static JobConfigs jobConfigs(String... buildNames) {
         JobConfigs jobConfigs = new JobConfigs();
         for (String buildName : buildNames) {
-            JobConfig jobConfig = new JobConfig(new CaseInsensitiveString(buildName), new ResourceConfigs(), new ArtifactTypeConfigs());
+            JobConfig jobConfig = new JobConfig(cis(buildName), new ResourceConfigs(), new ArtifactTypeConfigs());
             jobConfig.addTask(new AntTask());
             jobConfigs.add(jobConfig);
         }
@@ -32,7 +34,7 @@ public class BuildPlanMother {
     public static JobConfigs withBuildPlans(String... jobConfigNames) {
         JobConfigs jobConfigs = new JobConfigs();
         for (String planName : jobConfigNames) {
-            JobConfig jobConfig = new JobConfig(new CaseInsensitiveString(planName), new ResourceConfigs(), new ArtifactTypeConfigs());
+            JobConfig jobConfig = new JobConfig(cis(planName), new ResourceConfigs(), new ArtifactTypeConfigs());
             jobConfig.addTask(new AntTask());
             jobConfigs.add(jobConfig);
         }

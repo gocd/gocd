@@ -36,8 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.HashMap;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -110,7 +108,7 @@ public class ElasticProfileServiceIntegrationTest {
         assertThat(elasticProfileService.getPluginProfiles()).hasSize(1);
         ElasticProfile created = elasticProfileService.getPluginProfiles().getFirst();
         assertThat(created.getId()).isEqualTo(elasticProfileId);
-        assertThat(created.getConfigWithErrorsAsMap()).isEqualTo(new HashMap<>());
+        assertThat(created.getConfigurationAsMap(false)).isEmpty();
     }
 
     @Test
@@ -162,12 +160,13 @@ public class ElasticProfileServiceIntegrationTest {
         elasticProfileService.create(username, elasticProfile, result);
         assertThat(elasticProfileService.getPluginProfiles()).hasSize(1);
         ElasticProfile existing = elasticProfileService.getPluginProfiles().getFirst();
+        assertThat(existing.getConfigurationAsMap(false)).isEmpty();
 
-        assertThat(existing.getConfigWithErrorsAsMap()).isEmpty();
         elasticProfileService.update(username, entityHashingService.hashForEntity(this.elasticProfile), newElasticProfile, result);
         ElasticProfile updated = elasticProfileService.getPluginProfiles().getFirst();
         assertThat(updated.getId()).isEqualTo(elasticProfileId);
         assertThat(updated.getFirst()).isEqualTo(new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1")));
+        assertThat(existing.getConfigurationAsMap(false)).isEmpty();
     }
 
     @Test
@@ -178,9 +177,9 @@ public class ElasticProfileServiceIntegrationTest {
         elasticProfileService.create(username, elasticProfile, result);
         assertThat(elasticProfileService.getPluginProfiles()).hasSize(1);
 
-        assertThat(elasticProfileService.getPluginProfiles().getFirst().getConfigWithErrorsAsMap()).isEmpty();
+        assertThat(elasticProfileService.getPluginProfiles().getFirst().getConfigurationAsMap(false)).isEmpty();
         elasticProfileService.update(username, "md5", newElasticProfile, result);
-        assertThat(elasticProfileService.getPluginProfiles().getFirst().getConfigWithErrorsAsMap()).isEmpty();
+        assertThat(elasticProfileService.getPluginProfiles().getFirst().getConfigurationAsMap(false)).isEmpty();
 
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.message()).isEqualTo("Someone has modified the configuration for elastic agent profile with id 'id'. Please update your copy of the config with the changes.");
@@ -225,6 +224,6 @@ public class ElasticProfileServiceIntegrationTest {
 
         ElasticProfile found = elasticProfileService.findProfile(elasticProfileId);
         assertThat(found.getId()).isEqualTo(elasticProfileId);
-        assertThat(found.getConfigWithErrorsAsMap()).isEqualTo(new HashMap<>());
+        assertThat(found.getConfigurationAsMap(false)).isEmpty();
     }
 }

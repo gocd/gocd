@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.NullStage;
 import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.StageMother;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,11 +32,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.thoughtworks.go.domain.cctray.ProjectStatus.Key.keyFrom;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -57,6 +57,9 @@ public class CcTrayStageStatusChangeHandlerTest {
     @BeforeEach
     public void setUp() {
         handler = new CcTrayStageStatusChangeHandler(cache, jobStatusChangeHandler, breakersCalculator);
+
+        lenient().doAnswer(invocation -> new ProjectStatus.NullProjectStatus(invocation.getArgument(0), invocation.getArgument(1)))
+            .when(cache).getOrDefault(any(ProjectStatus.Key.class), anyInt());
     }
 
     @Test
@@ -65,8 +68,8 @@ public class CcTrayStageStatusChangeHandlerTest {
         JobInstance secondJob = JobInstanceMother.completed("job2");
         Stage stage = StageMother.custom("stage1", firstJob, secondJob);
 
-        when(jobStatusChangeHandler.statusFor(firstJob, new HashSet<>())).thenReturn(new ProjectStatus("job1_name", null, null, null, null, null));
-        when(jobStatusChangeHandler.statusFor(secondJob, new HashSet<>())).thenReturn(new ProjectStatus("job2_name", null, null, null, null, null));
+        when(jobStatusChangeHandler.statusFor(eq(firstJob), anyInt(), any())).thenReturn(new ProjectStatus(keyFrom("job1_name"), 0, null, null, null, null, null));
+        when(jobStatusChangeHandler.statusFor(eq(secondJob), anyInt(), any())).thenReturn(new ProjectStatus(keyFrom("job2_name"), 0, null, null, null, null, null));
 
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(stage);
 
@@ -95,8 +98,8 @@ public class CcTrayStageStatusChangeHandlerTest {
 
         handler.statusesOfStageAndItsJobsFor(stage);
 
-        verify(jobStatusChangeHandler).statusFor(job1_building, new HashSet<>());
-        verify(jobStatusChangeHandler).statusFor(job2_failed, Set.of("breaker1", "breaker2"));
+        verify(jobStatusChangeHandler).statusFor(job1_building, 0, Collections.emptySet());
+        verify(jobStatusChangeHandler).statusFor(job2_failed, 0, Set.of("breaker1", "breaker2"));
     }
 
     @Test
@@ -111,8 +114,7 @@ public class CcTrayStageStatusChangeHandlerTest {
 
     @Test
     public void shouldLeaveBuildDetailsOfStageSameAsTheDefault_WhenStageIsNotCompleted_AndThereIsNoExistingStageInCache() {
-        String projectName = "pipeline :: stage1";
-        ProjectStatus.NullProjectStatus defaultStatus = new ProjectStatus.NullProjectStatus(projectName);
+        ProjectStatus.NullProjectStatus defaultStatus = new ProjectStatus.NullProjectStatus(keyFrom("pipeline", "stage1"));
 
         Stage stage = StageMother.custom("stage1", JobInstanceMother.building("job1"));
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(stage);
@@ -126,9 +128,8 @@ public class CcTrayStageStatusChangeHandlerTest {
 
     @Test
     public void shouldLeaveBuildDetailsOfStageSameAsTheOneInCache_WhenStageIsNotCompleted_AndThereIsAnExistingStageInCache() {
-        String projectName = "pipeline :: stage1";
-        ProjectStatus existingStageStatus = new ProjectStatus(projectName, "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("stage1"));
-        when(cache.get(projectName)).thenReturn(existingStageStatus);
+        ProjectStatus existingStageStatus = new ProjectStatus(keyFrom("pipeline", "stage1"), 0, "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("stage1"));
+        when(cache.getOrDefault(eq(existingStageStatus.key()), anyInt())).thenReturn(existingStageStatus);
 
         Stage stage = StageMother.custom("stage1", JobInstanceMother.building("job1"));
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(stage);
@@ -157,10 +158,9 @@ public class CcTrayStageStatusChangeHandlerTest {
     public void shouldReuseViewersListFromExistingStatusWhenCreatingNewStatus() {
         Users viewers = viewers(Set.of(new PluginRoleConfig("admin", "ldap")),"viewer1", "viewer2");
 
-        String projectName = "pipeline :: stage1";
-        ProjectStatus existingStageStatus = new ProjectStatus(projectName, "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("stage1"));
+        ProjectStatus existingStageStatus = new ProjectStatus(keyFrom("pipeline", "stage1"), 0, "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("stage1"));
         existingStageStatus.updateViewers(viewers);
-        when(cache.get(projectName)).thenReturn(existingStageStatus);
+        when(cache.getOrDefault(eq(existingStageStatus.key()), anyInt())).thenReturn(existingStageStatus);
 
         Stage stage = StageMother.custom("stage1", JobInstanceMother.building("job1"));
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(stage);
@@ -181,13 +181,13 @@ public class CcTrayStageStatusChangeHandlerTest {
     @Test
     public void shouldUpdateCacheWhenStageWhichHasChangedIsNotANullStage() {
         Stage completedStage = StageMother.createPassedStage("pipeline", 1, "stage1", 1, "job1", Instant.now());
-        ProjectStatus jobStatus = new ProjectStatus("job1_name", "activity1", "lastBuildStatus1", "lastBuildLabel1", new Date(), "webUrl1");
-        when(jobStatusChangeHandler.statusFor(completedStage.getJobInstances().getFirst(), new HashSet<>())).thenReturn(jobStatus);
+        ProjectStatus jobStatus = new ProjectStatus(keyFrom("job1_name"), 0, "activity1", "lastBuildStatus1", "lastBuildLabel1", new Date(), "webUrl1");
+        when(jobStatusChangeHandler.statusFor(eq(completedStage.getJobInstances().getFirst()), anyInt(), any())).thenReturn(jobStatus);
 
         handler.call(completedStage);
 
         verify(breakersCalculator).calculateFor(completedStage);
-        verify(cache).putAll(statusesCaptor.capture());
+        verify(cache).replaceForStage(eq("pipeline"), eq("stage1"), statusesCaptor.capture());
 
         List<ProjectStatus> statusesWhichWereCached = statusesCaptor.getValue();
         assertThat(statusesWhichWereCached.size()).isEqualTo(2);

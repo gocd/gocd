@@ -31,7 +31,6 @@ import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-
 public class JobPresentationServiceTest {
 
     private JobDurationStrategy jobDurationStrategy;

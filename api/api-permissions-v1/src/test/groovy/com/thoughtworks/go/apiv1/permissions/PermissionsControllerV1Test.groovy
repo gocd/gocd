@@ -17,7 +17,7 @@
 package com.thoughtworks.go.apiv1.permissions
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.server.service.permissions.PermissionsService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
@@ -41,19 +41,16 @@ class PermissionsControllerV1Test implements SecurityServiceTrait, ControllerTra
 
   @Override
   PermissionsControllerV1 createControllerInstance() {
-    new PermissionsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), permissionsService)
+    new PermissionsControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), permissionsService)
   }
 
   @Nested
   class Index {
-
-    @BeforeEach
-    void setUp() {
-      loginAsUser()
-    }
-
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = PermissionsControllerV1Test.this
+      @Delegate ControllerTrait<PermissionsControllerV1> c = PermissionsControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "index"
@@ -67,11 +64,14 @@ class PermissionsControllerV1Test implements SecurityServiceTrait, ControllerTra
 
     @Nested
     class AsNormalUser {
+      
       List permissibleEntities
       Map<String, Object> environmentPermission, configRepoPermission
 
       @BeforeEach
       void setUp() {
+        loginAsUser()
+        
         permissibleEntities = ['environment', 'config_repo']
         environmentPermission = [
           'view'      : ['QA', 'UAT', 'PROD'],

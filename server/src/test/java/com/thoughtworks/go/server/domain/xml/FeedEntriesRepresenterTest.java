@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.domain.xml;
 
+import com.thoughtworks.go.config.Approval;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.feed.Author;
@@ -22,7 +23,6 @@ import com.thoughtworks.go.domain.feed.FeedEntries;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.junit5.FileSource;
 import com.thoughtworks.go.util.Dates;
-import com.thoughtworks.go.util.GoConstants;
 import org.dom4j.Document;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.xmlunit.assertj.XmlAssert;
@@ -76,6 +76,6 @@ public class FeedEntriesRepresenterTest {
     private static StageFeedEntry cancelled() {
         Date date = Dates.parseIso8601StrictOffset("2019-12-31T07:28:30+05:30");
         StageIdentifier identifier = new StageIdentifier("up42", 2, "integration-tests", "100");
-        return new StageFeedEntry(1L, 1L, identifier, 123L, date, StageResult.Cancelled, GoConstants.APPROVAL_MANUAL, "Bob", "Admin");
+        return new StageFeedEntry(1L, 1L, identifier, 123L, date, StageResult.Cancelled, Approval.TYPE_MANUAL, "Bob", "Admin");
     }
 }

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Filter;
@@ -61,6 +60,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import java.nio.file.Path;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -207,7 +207,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
     public void shouldNotScheduleDownstreamPipeline_whenIgnoreForSchedulingIsTrue() throws Exception {
         //set up a pipeline downstream to "mingle", run and save once instance of the pipelines.
         String mingleDownstreamPipelineName = "down_of_mingle";
-        DependencyMaterialConfig mingleMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(MINGLE_PIPELINE_NAME), new CaseInsensitiveString(STAGE_NAME));
+        DependencyMaterialConfig mingleMaterialConfig = new DependencyMaterialConfig(cis(MINGLE_PIPELINE_NAME), cis(STAGE_NAME));
         mingleMaterialConfig.ignoreForScheduling(true);
 
         PipelineConfig downstreamPipelineConfig = configHelper.addPipeline(mingleDownstreamPipelineName, STAGE_NAME, new MaterialConfigs(mingleMaterialConfig), "unit");
@@ -218,7 +218,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         MaterialRevisions dependencyMaterialRevisions = new MaterialRevisions(dependencyMaterialRevision);
         dbHelper.saveRevs(dependencyMaterialRevisions);
 
-        Pipeline latestDownstreamInstance = PipelineMother.schedule(downstreamPipelineConfig, BuildCause.createManualForced(dependencyMaterialRevisions, new Username(new CaseInsensitiveString("loser"))));
+        Pipeline latestDownstreamInstance = PipelineMother.schedule(downstreamPipelineConfig, BuildCause.createManualForced(dependencyMaterialRevisions, new Username(cis("loser"))));
         latestDownstreamInstance = pipelineDao.saveWithStages(latestDownstreamInstance);
         dbHelper.passStage(latestDownstreamInstance.getStages().getFirst());
 
@@ -227,18 +227,18 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         minglePipeline.runAndPass(newRevs);
         pipelineTimeline.update();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(mingleDownstreamPipelineName);
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(new CaseInsensitiveString(mingleDownstreamPipelineName));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(cis(mingleDownstreamPipelineName));
     }
 
     @Test
     public void shouldNotScheduleDownStreamPipeline_withTwoUpstreamMaterials_bothSkippedForScheduling() throws Exception {
         String downstreamPipelineName = "downstream_pipeline";
         //first upstream pipeline - "mingle"
-        DependencyMaterialConfig mingleMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(MINGLE_PIPELINE_NAME), new CaseInsensitiveString(STAGE_NAME));
+        DependencyMaterialConfig mingleMaterialConfig = new DependencyMaterialConfig(cis(MINGLE_PIPELINE_NAME), cis(STAGE_NAME));
         mingleMaterialConfig.ignoreForScheduling(true);
 
         //second upstream pipeline - "go"
-        DependencyMaterialConfig goMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(GO_PIPELINE_NAME), new CaseInsensitiveString(STAGE_NAME));
+        DependencyMaterialConfig goMaterialConfig = new DependencyMaterialConfig(cis(GO_PIPELINE_NAME), cis(STAGE_NAME));
         goMaterialConfig.ignoreForScheduling(true);
 
         PipelineConfig downstreamPipelineConfig = configHelper.addPipeline(downstreamPipelineName, STAGE_NAME, new MaterialConfigs(mingleMaterialConfig, goMaterialConfig), "unit");
@@ -254,7 +254,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         MaterialRevisions dependencyMaterialRevisions = new MaterialRevisions(mingleMaterialRevision, goMaterialRevision);
         dbHelper.saveRevs(dependencyMaterialRevisions);
 
-        Pipeline latestDownstreamInstance = PipelineMother.schedule(downstreamPipelineConfig, BuildCause.createManualForced(dependencyMaterialRevisions, new Username(new CaseInsensitiveString("loser"))));
+        Pipeline latestDownstreamInstance = PipelineMother.schedule(downstreamPipelineConfig, BuildCause.createManualForced(dependencyMaterialRevisions, new Username(cis("loser"))));
         latestDownstreamInstance = pipelineDao.saveWithStages(latestDownstreamInstance);
         dbHelper.passStage(latestDownstreamInstance.getStages().getFirst());
 
@@ -264,18 +264,18 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         goPipeline.runAndPass(newRevs);
         pipelineTimeline.update();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(downstreamPipelineName);
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(new CaseInsensitiveString(downstreamPipelineName));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(cis(downstreamPipelineName));
     }
 
     @Test
     public void shouldScheduleDownStreamPipeline_withTwoUpstreamMaterials_oneOneIsSkippedForScheduling() throws Exception {
         String downstreamPipelineName = "downstream_pipeline";
         //first upstream pipeline - "mingle"
-        DependencyMaterialConfig mingleMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(MINGLE_PIPELINE_NAME), new CaseInsensitiveString(STAGE_NAME));
+        DependencyMaterialConfig mingleMaterialConfig = new DependencyMaterialConfig(cis(MINGLE_PIPELINE_NAME), cis(STAGE_NAME));
         mingleMaterialConfig.ignoreForScheduling(true);
 
         //second upstream pipeline - "go"
-        DependencyMaterialConfig goMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(GO_PIPELINE_NAME), new CaseInsensitiveString(STAGE_NAME));
+        DependencyMaterialConfig goMaterialConfig = new DependencyMaterialConfig(cis(GO_PIPELINE_NAME), cis(STAGE_NAME));
         goMaterialConfig.ignoreForScheduling(false);
 
         PipelineConfig downstreamPipelineConfig = configHelper.addPipeline(downstreamPipelineName, STAGE_NAME, new MaterialConfigs(mingleMaterialConfig, goMaterialConfig), "unit");
@@ -291,7 +291,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         MaterialRevisions dependencyMaterialRevisions = new MaterialRevisions(mingleMaterialRevision, goMaterialRevision);
         dbHelper.saveRevs(dependencyMaterialRevisions);
 
-        Pipeline latestDownstreamInstance = PipelineMother.schedule(downstreamPipelineConfig, BuildCause.createManualForced(dependencyMaterialRevisions, new Username(new CaseInsensitiveString("loser"))));
+        Pipeline latestDownstreamInstance = PipelineMother.schedule(downstreamPipelineConfig, BuildCause.createManualForced(dependencyMaterialRevisions, new Username(cis("loser"))));
         latestDownstreamInstance = pipelineDao.saveWithStages(latestDownstreamInstance);
         dbHelper.passStage(latestDownstreamInstance.getStages().getFirst());
 
@@ -301,14 +301,14 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         goPipeline.runAndPass(newRevs);
         pipelineTimeline.update();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(downstreamPipelineName);
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(new CaseInsensitiveString(downstreamPipelineName));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(downstreamPipelineName));
     }
 
     @Test
     public void shouldScheduleDownStreamPipeline_withSCMAndDependencyMaterials_whenSCMMaterialHasChanges() throws Exception {
         String downstreamPipelineName = "downstream_pipeline";
         //first upstream pipeline - "mingle"
-        DependencyMaterialConfig mingleMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(MINGLE_PIPELINE_NAME), new CaseInsensitiveString(STAGE_NAME));
+        DependencyMaterialConfig mingleMaterialConfig = new DependencyMaterialConfig(cis(MINGLE_PIPELINE_NAME), cis(STAGE_NAME));
         mingleMaterialConfig.ignoreForScheduling(true);
 
         //setup the pipeline
@@ -320,7 +320,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         MaterialRevision gitMaterialRevision = new MaterialRevision(gitMaterial, gitTestRepo.checkInOneFile("new_file.c", "Adding a new file"));
         MaterialRevisions initialMaterialRevisions = new MaterialRevisions(mingleMaterialRevision, gitMaterialRevision);
         dbHelper.saveRevs(initialMaterialRevisions);
-        Pipeline latestDownstreamInstance = PipelineMother.schedule(downstreamPipelineConfig, BuildCause.createManualForced(initialMaterialRevisions, new Username(new CaseInsensitiveString("loser"))));
+        Pipeline latestDownstreamInstance = PipelineMother.schedule(downstreamPipelineConfig, BuildCause.createManualForced(initialMaterialRevisions, new Username(cis("loser"))));
         latestDownstreamInstance = pipelineDao.saveWithStages(latestDownstreamInstance);
         dbHelper.passStage(latestDownstreamInstance.getStages().getFirst());
 
@@ -333,14 +333,14 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         //schedule the pipeline
         pipelineTimeline.update();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(downstreamPipelineName);
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(new CaseInsensitiveString(downstreamPipelineName));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(downstreamPipelineName));
     }
 
     @Test
     public void shouldNotScheduleDownStreamPipeline_withSCMAndDependencyMaterials_whenDependencyMaterialHasChanges() throws Exception {
         String downstreamPipelineName = "downstream_pipeline";
         //first upstream pipeline - "mingle"
-        DependencyMaterialConfig mingleMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(MINGLE_PIPELINE_NAME), new CaseInsensitiveString(STAGE_NAME));
+        DependencyMaterialConfig mingleMaterialConfig = new DependencyMaterialConfig(cis(MINGLE_PIPELINE_NAME), cis(STAGE_NAME));
         mingleMaterialConfig.ignoreForScheduling(true);
 
         //setup the pipeline
@@ -352,7 +352,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         MaterialRevision gitMaterialRevision = new MaterialRevision(gitMaterial, gitTestRepo.checkInOneFile("new_file.c", "Adding a new file"));
         MaterialRevisions initialMaterialRevisions = new MaterialRevisions(mingleMaterialRevision, gitMaterialRevision);
         dbHelper.saveRevs(initialMaterialRevisions);
-        Pipeline latestDownstreamInstance = PipelineMother.schedule(downstreamPipelineConfig, BuildCause.createManualForced(initialMaterialRevisions, new Username(new CaseInsensitiveString("loser"))));
+        Pipeline latestDownstreamInstance = PipelineMother.schedule(downstreamPipelineConfig, BuildCause.createManualForced(initialMaterialRevisions, new Username(cis("loser"))));
         latestDownstreamInstance = pipelineDao.saveWithStages(latestDownstreamInstance);
         dbHelper.passStage(latestDownstreamInstance.getStages().getFirst());
 
@@ -361,7 +361,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         minglePipeline.runAndPass(newRevs);
         pipelineTimeline.update();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(downstreamPipelineName);
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(new CaseInsensitiveString(downstreamPipelineName));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(cis(downstreamPipelineName));
     }
 
     private MaterialRevisions checkinFile(SvnMaterial svn, @SuppressWarnings("SameParameterValue") String checkinFile, final SvnTestRepo svnRepository) throws Exception {

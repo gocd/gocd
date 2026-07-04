@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class PermissionsService {
-    private List<PermissionProvider> providers = new ArrayList<>();
+    private final List<PermissionProvider> providers = new ArrayList<>();
 
     @Autowired
     public PermissionsService(PermissionProvider... availableProviders) {

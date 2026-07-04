@@ -19,7 +19,7 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.api.util.MessageJson;
@@ -69,7 +69,7 @@ import static spark.Spark.*;
 public class PipelinesAsCodeInternalControllerV1 extends ApiController implements SparkSpringController {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelinesAsCodeInternalControllerV1.class);
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final PasswordDeserializer passwordDeserializer;
     private final GoConfigService goConfigService;
     private final GoConfigPluginService pluginService;
@@ -83,7 +83,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
 
     @Autowired
     public PipelinesAsCodeInternalControllerV1(
-            ApiAuthenticationHelper apiAuthenticationHelper,
+            ApiAuthorizationHelper apiAuthorizationHelper,
             PasswordDeserializer passwordDeserializer,
             GoConfigService goConfigService,
             GoConfigPluginService pluginService,
@@ -95,7 +95,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
             ConfigRepoService configRepoService,
             EntityHashingService entityHashingService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.passwordDeserializer = passwordDeserializer;
         this.goConfigService = goConfigService;
         this.pluginService = pluginService;
@@ -116,8 +116,8 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
     @Override
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
-            before(PREVIEW, this.mimeType, this::setContentType, this::verifyContentType, this.apiAuthenticationHelper::checkAdminUserAnd403);
-            before(CONFIG_FILES, this.mimeType, this::setContentType, this::verifyContentType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before(PREVIEW, this.mimeType, this::setContentType, this::verifyContentType, this.apiAuthorizationHelper::checkAdminUserAnd403);
+            before(CONFIG_FILES, this.mimeType, this::setContentType, this::verifyContentType, this.apiAuthorizationHelper::checkAdminUserAnd403);
 
             post(PREVIEW, this.mimeType, this::preview);
 
@@ -212,7 +212,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
 
     protected void validateMaterial(MaterialConfig materialConfig) {
         PipelineConfigSaveValidationContext vctx = PipelineConfigSaveValidationContext.forChain(false, null, goConfigService.getCurrentConfig(), materialConfig);
-        ((ScmMaterialConfig) materialConfig).validateConcreteScmMaterial(vctx);
+        ((ScmMaterialConfig) materialConfig).validateConcreteScmMaterial();
     }
 
     protected void checkoutFromMaterialConfig(MaterialConfig materialConfig, File folder) throws ExecutionException, InterruptedException, TimeoutException {

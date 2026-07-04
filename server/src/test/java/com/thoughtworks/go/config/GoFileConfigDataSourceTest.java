@@ -26,7 +26,6 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +41,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -97,7 +97,7 @@ public class GoFileConfigDataSourceTest {
 
         try {
             dataSource.writeWithLock(cruiseConfig1 -> {
-                cruiseConfig1.getPipelineConfigByName(new CaseInsensitiveString(pipelineName)).clear();
+                cruiseConfig1.getPipelineConfigByName(cis(pipelineName)).clear();
                 return cruiseConfig1;
             }, new GoConfigHolder(cruiseConfig, cruiseConfig));
             fail("expected the test to fail");

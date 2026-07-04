@@ -45,41 +45,47 @@ configurations {
 }
 
 dependencies {
-  implementation(project(':agent-common')) { capabilities { requireFeature('agent-client') } }
-  runtimeOnly(project(':base')) { capabilities { requireFeature('agent-client') } }
-  implementation project(':common')
+  api(project(':agent-common')) { capabilities { requireFeature('agent-client') } }
+  runtimeOnly(project(':base'))
+  api project(':common')
   implementation project(':domain')
   implementation project(':plugin-infra:go-plugin-access')
   implementation project(':plugin-infra:go-plugin-infra')
   implementation project(':config:config-api')
-  implementation project.deps.jakartaAnnotation
-  implementation project.deps.commonsConfiguration
-  implementation project.deps.commonsIO
-  implementation project.deps.springContext
-  implementation project.deps.oshi
-  compileOnly project.deps.jetBrainsAnnotations
+  implementation rootProject.deps.jakartaAnnotation
+  implementation rootProject.deps.commonsCodec
+  implementation rootProject.deps.commonsCollections4
+  implementation rootProject.deps.commonsConfiguration
+  implementation rootProject.deps.commonsIO
+  implementation rootProject.deps.springContext
+  implementation rootProject.deps.oshi
+  compileOnly rootProject.deps.jetBrainsAnnotations
 
-  implementation(project.deps.apacheHttpComponents) {
+  implementation(rootProject.deps.apacheHttpComponents) {
     exclude(module: 'commons-codec')
   }
-  if (project.deps.apacheHttpComponents) {
-    runtimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
+  implementation rootProject.deps.apacheHttpMime
+  if (rootProject.deps.apacheHttpComponents) {
+    runtimeOnly rootProject.deps.slf4jJcl // Allow commons-logging replacement
   }
 
+  testImplementation(testFixtures(project(':common')))
+  testImplementation(testFixtures(project(':domain')))
   testImplementation(testFixtures(project(':test:test-utils')))
 
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.junit5Params
-  testImplementation project.deps.springTest
-  testImplementation project.deps.springTestJunit5
-  testImplementation project.deps.assertJ
-  testImplementation project.deps.systemStubs
-  testImplementation project.deps.mockitoCore
-  testImplementation project.deps.mockitoJunit5
+  testImplementation rootProject.deps.junit5Api
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.junit5Params
+  testImplementation rootProject.deps.springTest
+  testImplementation rootProject.deps.springTestJunit5
+  testImplementation rootProject.deps.assertJ
+  testImplementation rootProject.deps.systemStubs
+  testImplementation rootProject.deps.mockitoCore
+  testImplementation rootProject.deps.mockitoJunit5
 
-  functionalTestImplementation project.deps.apacheHttpComponents
+  functionalTestImplementation rootProject.deps.apacheHttpComponents
+  functionalTestImplementation(testFixtures(project(':server')))
 
   extractedAtTopLevel project(':agent-process-launcher')
   extractedAtTopLevel project(':jar-class-loader')
@@ -127,20 +133,20 @@ tasks.register('verifyJar', VerifyJarTask) {
       "agent-${project.version}-classes.jar",
       "agent-common-${project.version}.jar",
       "angus-activation-2.0.3.jar",
-      "ant-${project.versions.apacheAnt}.jar",
+      "ant-${rootProject.versions.apacheAnt}.jar",
       "base-${project.version}.jar",
-      "bcpkix-jdk18on-${project.versions.bouncyCastle}.jar",
-      "bcprov-jdk18on-${project.versions.bouncyCastle}.jar",
-      "bcutil-jdk18on-${project.versions.bouncyCastle}.jar",
-      "cloning-${project.versions.cloning}.jar",
+      "bcpkix-jdk18on-${rootProject.versions.bouncyCastle}.jar",
+      "bcprov-jdk18on-${rootProject.versions.bouncyCastle}.jar",
+      "bcutil-jdk18on-${rootProject.versions.bouncyCastle}.jar",
+      "cloning-${rootProject.versions.cloning}.jar",
       "commandline-${project.version}.jar",
       "common-${project.version}.jar",
-      "commons-codec-${project.versions.commonsCodec}.jar",
-      "commons-collections4-${project.versions.commonsCollections4}.jar",
-      "commons-configuration2-${project.versions.commonsConfiguration}.jar",
-      "commons-io-${project.versions.commonsIO}.jar",
-      "commons-lang3-${project.versions.commonsLang3}.jar",
-      "commons-text-${project.versions.commonsText}.jar",
+      "commons-codec-${rootProject.versions.commonsCodec}.jar",
+      "commons-collections4-${rootProject.versions.commonsCollections4}.jar",
+      "commons-configuration2-${rootProject.versions.commonsConfiguration}.jar",
+      "commons-io-${rootProject.versions.commonsIO}.jar",
+      "commons-lang3-${rootProject.versions.commonsLang3}.jar",
+      "commons-text-${rootProject.versions.commonsText}.jar",
       "config-api-${project.version}.jar",
       "db-${project.version}.jar",
       "domain-${project.version}.jar",
@@ -150,38 +156,38 @@ tasks.register('verifyJar', VerifyJarTask) {
       "go-plugin-api-internal-${project.version}.jar",
       "go-plugin-domain-${project.version}.jar",
       "go-plugin-infra-${project.version}.jar",
-      "gson-${project.versions.gson}.jar",
-      "httpclient-${project.versions.apacheHttpComponents}.jar",
+      "gson-${rootProject.versions.gson}.jar",
+      "httpclient-${rootProject.versions.apacheHttpComponents}.jar",
       "httpcore-4.4.16.jar",
-      "httpmime-${project.versions.apacheHttpComponents}.jar",
+      "httpmime-${rootProject.versions.apacheHttpComponents}.jar",
       "istack-commons-runtime-4.1.2.jar",
       "jakarta.activation-api-2.1.4.jar",
-      "jakarta.annotation-api-${project.versions.jakartaAnnotation}.jar",
+      "jakarta.annotation-api-${rootProject.versions.jakartaAnnotation}.jar",
       "jakarta.xml.bind-api-4.0.5.jar",
-      "jaxb-core-${project.versions.jaxbBom}.jar",
-      "jaxb-runtime-${project.versions.jaxbBom}.jar",
-      "jcl-over-slf4j-${project.versions.slf4jBom}.jar",
-      "jcommander-${project.versions.jcommander}.jar",
-      "jdom2-${project.versions.jdom}.jar",
-      "jna-jpms-5.18.1.jar",
-      "jna-platform-jpms-5.18.1.jar",
-      "logback-classic-${project.versions.logback}.jar",
-      "logback-core-${project.versions.logback}.jar",
-      "objenesis-${project.versions.objenesis}.jar",
-      "org.apache.felix.framework-${project.versions.felix}.jar",
-      "oshi-common-${project.versions.oshi}.jar",
-      "oshi-core-${project.versions.oshi}.jar",
+      "jaxb-core-${rootProject.versions.jaxbBom}.jar",
+      "jaxb-runtime-${rootProject.versions.jaxbBom}.jar",
+      "jcl-over-slf4j-${rootProject.versions.slf4jBom}.jar",
+      "jcommander-${rootProject.versions.jcommander}.jar",
+      "jdom2-${rootProject.versions.jdom}.jar",
+      "jna-jpms-5.19.1.jar",
+      "jna-platform-jpms-5.19.1.jar",
+      "logback-classic-${rootProject.versions.logback}.jar",
+      "logback-core-${rootProject.versions.logback}.jar",
+      "objenesis-${rootProject.versions.objenesis}.jar",
+      "org.apache.felix.framework-${rootProject.versions.felix}.jar",
+      "oshi-common-${rootProject.versions.oshi}.jar",
+      "oshi-core-${rootProject.versions.oshi}.jar",
       "plugin-metadata-store-${project.version}.jar",
-      "semantic-version-${project.versions.semanticVersion}.jar",
-      "slf4j-api-${project.versions.slf4jBom}.jar",
-      "spring-aop-${project.versions.spring}.jar",
-      "spring-beans-${project.versions.spring}.jar",
-      "spring-context-${project.versions.spring}.jar",
-      "spring-core-${project.versions.spring}.jar",
-      "spring-expression-${project.versions.spring}.jar",
-      "spring-tx-${project.versions.spring}.jar",
-      "spring-web-${project.versions.spring}.jar",
-      "txw2-${project.versions.jaxbBom}.jar",
+      "semantic-version-${rootProject.versions.semanticVersion}.jar",
+      "slf4j-api-${rootProject.versions.slf4jBom}.jar",
+      "spring-aop-${rootProject.versions.spring}.jar",
+      "spring-beans-${rootProject.versions.spring}.jar",
+      "spring-context-${rootProject.versions.spring}.jar",
+      "spring-core-${rootProject.versions.spring}.jar",
+      "spring-expression-${rootProject.versions.spring}.jar",
+      "spring-tx-${rootProject.versions.spring}.jar",
+      "spring-web-${rootProject.versions.spring}.jar",
+      "txw2-${rootProject.versions.jaxbBom}.jar",
       "util-${project.version}.jar"
     ]
   ]
@@ -198,6 +204,8 @@ tasks.register('functionalTest', Test) {
     html.required = true
     junitXml.required = true
   }
+
+  systemProperty('go.enforce.server.immutability', 'N')
 }
 
 check.dependsOn(functionalTest)

@@ -19,30 +19,33 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.update.CreateOrUpdateConfigServerSiteUrlsCommand;
 import com.thoughtworks.go.config.update.CreateOrUpdateDefaultJobTimeoutCommand;
 import com.thoughtworks.go.config.update.UpdateArtifactConfigCommand;
-import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.util.SupplierUtils;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.validators.HostNameValidator;
 import com.thoughtworks.go.validators.PortValidator;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
+import org.apache.http.client.utils.URIBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.net.URI;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import static com.thoughtworks.go.server.newsecurity.utils.SessionUtils.currentUsername;
+import static com.thoughtworks.go.util.SystemEnvironment.WEBAPP_CONTEXT_PATH;
 
 @Service
 public class ServerConfigService {
     private static final String TEST_EMAIL_SUBJECT = "Go Email Notification";
 
     private final GoConfigService goConfigService;
-
     private final GoMailSenderProvider provider = GoMailSenderProvider.DEFAULT_PROVIDER;
-
 
     @Autowired
     public ServerConfigService(GoConfigService goConfigService) {
@@ -102,13 +105,18 @@ public class ServerConfigService {
         }
     }
 
-    public String siteUrlFor(String url) throws URISyntaxException {
-        ServerSiteUrlConfig siteUrl = "https".equals(new URI(url).getScheme()) ? getSecureSiteUrl() : serverConfig().getSiteUrl();
-        return siteUrl.siteUrlFor(url);
-    }
-
-    private ServerSiteUrlConfig getSecureSiteUrl() {
-        return serverConfig().getHttpsUrl();
+    public URL siteUrlWithPath(String pathQueryFragmentAfterContext) throws URISyntaxException, MalformedURLException {
+        return serverConfig()
+            .getSiteUrlPreferablySecured()
+            .withPath(WEBAPP_CONTEXT_PATH + pathQueryFragmentAfterContext)
+            .orElseGet(SupplierUtils.rethrow(() -> new URIBuilder()
+                .setScheme("http")
+                .setHost(SystemUtil.getLocalhostName())
+                .setPort(new SystemEnvironment().getServerPort())
+                .setPath(WEBAPP_CONTEXT_PATH + pathQueryFragmentAfterContext)
+                .build()
+                .toURL()
+            ));
     }
 
     private ServerConfig serverConfig() {

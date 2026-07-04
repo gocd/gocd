@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
@@ -31,6 +30,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ModificationsMother.multipleModificationList;
 import static com.thoughtworks.go.helper.ModificationsMother.multipleModifications;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,7 +56,7 @@ public class ModificationBuildCauseTest {
     public void shouldReturnBuildCauseMessageForLegacyDependencyRevision() {
         MaterialRevisions revisions = new MaterialRevisions();
         Modification modification = new Modification(new Date(), "pipelineName/10/stageName/1", "MOCK_LABEL-12", null);
-        revisions.addRevision(new DependencyMaterial(new CaseInsensitiveString("cruise"), new CaseInsensitiveString("dev")), modification);
+        revisions.addRevision(new DependencyMaterial(cis("cruise"), cis("dev")), modification);
         BuildCause modificationBuildCause = BuildCause.createWithModifications(revisions, "");
         String message = modificationBuildCause.getBuildCauseMessage();
         assertThat(message).contains("triggered by pipelineName/10/stageName/1");
@@ -66,7 +66,7 @@ public class ModificationBuildCauseTest {
     public void shouldReturnBuildCauseMessage() {
         MaterialRevisions revisions = new MaterialRevisions();
         Modification modification = new Modification(new Date(), "pipelineName/123/stageName/1", "MOCK_LABEL-12", null);
-        revisions.addRevision(new DependencyMaterial(new CaseInsensitiveString("cruise"), new CaseInsensitiveString("dev")), modification);
+        revisions.addRevision(new DependencyMaterial(cis("cruise"), cis("dev")), modification);
         BuildCause modificationBuildCause = BuildCause.createWithModifications(revisions, "");
         String message = modificationBuildCause.getBuildCauseMessage();
         assertThat(message).contains("triggered by pipelineName/123/stageName/1");
@@ -89,14 +89,14 @@ public class ModificationBuildCauseTest {
 
     @Test
     public void shouldSafelyGetBuildCausedBy() {
-        assertThat(BuildCause.createWithEmptyModifications().getBuildCauseMessage()).isEqualTo("No modifications");
+        assertThat(BuildCause.createEmpty().getBuildCauseMessage()).isEqualTo("No modifications");
     }
 
     @Test
-    public void shouldGetBuildCausedByIfIsDenpendencyMaterial() {
+    public void shouldGetBuildCausedByIfIsDependencyMaterial() {
         MaterialRevisions revisions = new MaterialRevisions();
         Modification modification = new Modification(new Date(), "pipelineName/10/stageName/1", "MOCK_LABEL-12", null);
-        revisions.addRevision(new DependencyMaterial(new CaseInsensitiveString("cruise"), new CaseInsensitiveString("dev")), modification);
+        revisions.addRevision(new DependencyMaterial(cis("cruise"), cis("dev")), modification);
         assertThat(BuildCause.createWithModifications(revisions, "").getBuildCauseMessage()).isEqualTo("triggered by pipelineName/10/stageName/1");
     }
 
@@ -111,7 +111,7 @@ public class ModificationBuildCauseTest {
 
     @Test
     public void shouldIncludeUserWhoForcedBuildInManualBuildCause() {
-        BuildCause cause = BuildCause.createManualForced(null, new Username(new CaseInsensitiveString("Joe Bloggs")));
+        BuildCause cause = BuildCause.createManualForced(null, new Username(cis("Joe Bloggs")));
         assertThat(cause.getBuildCauseMessage()).contains("Forced by Joe Bloggs");
     }
 

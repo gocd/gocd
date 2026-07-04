@@ -17,18 +17,17 @@ package com.thoughtworks.go.domain.cctray;
 
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.activity.ProjectStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 /* Understands what needs to be done to keep the CCTray cache updated, when a job status changes. */
 @Component
 public class CcTrayJobStatusChangeHandler {
-    private CcTrayCache cache;
+    private final CcTrayCache cache;
 
     @Autowired
     public CcTrayJobStatusChangeHandler(CcTrayCache cache) {
@@ -36,44 +35,46 @@ public class CcTrayJobStatusChangeHandler {
     }
 
     public void call(JobInstance job) {
-        cache.put(statusFor(job, new HashSet<>()));
+        cache.put(statusFor(job, Collections.emptySet()));
     }
 
     public ProjectStatus statusFor(JobInstance job, Set<String> breakers) {
-        String projectName = job.getIdentifier().ccProjectName();
-        ProjectStatus existingStatusOfThisJobInCache = projectByName(projectName);
+        return statusFor(job, Integer.MAX_VALUE, breakers);
+    }
+
+    public ProjectStatus statusFor(JobInstance job, int stageOrderId, Set<String> breakers) {
+        ProjectStatus.Key key = new ProjectStatus.Key(job.getIdentifier());
+        ProjectStatus existingStatus = cache.getOrDefault(key, stageOrderId);
         ProjectStatus newStatus = new ProjectStatus(
-                projectName,
-                job.getState().cctrayActivity(),
-                lastBuildStatus(existingStatusOfThisJobInCache, job),
-                lastBuildLabel(existingStatusOfThisJobInCache, job),
-                lastBuildTime(existingStatusOfThisJobInCache, job),
-                job.getIdentifier().webUrl(),
-                breakers);
-        newStatus.updateViewers(existingStatusOfThisJobInCache.viewers());
+            key,
+            stageOrderId != Integer.MAX_VALUE ? stageOrderId : existingStatus.stageOrder(),
+            job.getState().cctrayActivity(),
+            lastBuildStatus(job, existingStatus),
+            lastBuildLabel(job, existingStatus),
+            lastBuildTime(job, existingStatus),
+            job.getIdentifier().webPathAfterContext(),
+            breakers
+        );
+        newStatus.updateViewers(existingStatus.viewers());
         return newStatus;
     }
 
-    private String lastBuildStatus(ProjectStatus existingStatus, JobInstance job) {
+    private String lastBuildStatus(JobInstance job, ProjectStatus existingStatus) {
         return job.getState().isCompleted()
                 ? job.getResult().toCctrayStatus()
                 : existingStatus.getLastBuildStatus();
     }
 
-    private Date lastBuildTime(ProjectStatus existingStatus, JobInstance job) {
+    private Date lastBuildTime(JobInstance job, ProjectStatus existingStatus) {
         return job.isCompleted()
                 ? job.getStartedDateFor(JobState.Completed)
                 : existingStatus.getLastBuildTime();
     }
 
-    private String lastBuildLabel(ProjectStatus existingStatus, JobInstance job) {
+    private String lastBuildLabel(JobInstance job, ProjectStatus existingStatus) {
         return job.isCompleted()
                 ? job.getIdentifier().getStageIdentifier().ccTrayLastBuildLabel()
                 : existingStatus.getLastBuildLabel();
     }
 
-    private ProjectStatus projectByName(String projectName) {
-        ProjectStatus projectStatus = cache.get(projectName);
-        return projectStatus == null ? new ProjectStatus.NullProjectStatus(projectName) : projectStatus;
-    }
 }

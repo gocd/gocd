@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.materials;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.domain.MaterialRevision;
@@ -44,6 +43,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother.create;
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -221,7 +221,7 @@ class PackageMaterialTest {
                 new Configuration(ConfigurationPropertyMother.create("k1", false, "v1"), ConfigurationPropertyMother.create("repo-secure", true, "value")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "go-agent",
                 new Configuration(ConfigurationPropertyMother.create("k2", false, "v2"), ConfigurationPropertyMother.create("pkg-secure", true, "value")), repository));
-        material.setName(new CaseInsensitiveString("tw-dev:go-agent"));
+        material.setName(cis("tw-dev:go-agent"));
         Modifications modifications = new Modifications(new Modification(null, null, null, new Date(), "revision-123"));
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         material.populateEnvironmentContext(environmentVariableContext, new MaterialRevision(material, modifications), null);
@@ -239,7 +239,7 @@ class PackageMaterialTest {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "tw-dev", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "go-agent", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
-        material.setName(new CaseInsensitiveString("tw-dev:go-agent"));
+        material.setName(cis("tw-dev:go-agent"));
         Map<String, String> map = new HashMap<>();
         map.put("MY_NEW_KEY", "my_value");
         Modification modification = new Modification("loser", "comment", "email", new Date(), "revision-123", JsonHelper.toJsonExposeOnly(map));
@@ -261,7 +261,7 @@ class PackageMaterialTest {
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "tw-dev", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "go-agent", new Configuration(ConfigurationPropertyMother.create("k2", true, "!secure_value:with_special_chars"),
                 ConfigurationPropertyMother.create("k3", true, "secure_value_with_regular_chars")), repository));
-        material.setName(new CaseInsensitiveString("tw-dev:go-agent"));
+        material.setName(cis("tw-dev:go-agent"));
         Map<String, String> map = new HashMap<>();
         map.put("ADDITIONAL_DATA_ONE", "foobar:!secure_value:with_special_chars");
         map.put("ADDITIONAL_DATA_URL_ENCODED", "something:%21secure_value%3Awith_special_chars");
@@ -290,7 +290,7 @@ class PackageMaterialTest {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "tw-dev", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "go-agent", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
-        material.setName(new CaseInsensitiveString("tw-dev:go-agent"));
+        material.setName(cis("tw-dev:go-agent"));
         Modifications modifications = new Modifications(new Modification("loser", "comment", "email", new Date(), "revision-123", null));
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
@@ -306,7 +306,7 @@ class PackageMaterialTest {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "tw-dev", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "go-agent", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
-        material.setName(new CaseInsensitiveString("tw-dev:go-agent"));
+        material.setName(cis("tw-dev:go-agent"));
         Modifications modifications = new Modifications(new Modification("loser", "comment", "email", new Date(), "revision-123", "salkdfjdsa-jjgkj!!!vcxknbvkjk"));
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
@@ -352,9 +352,9 @@ class PackageMaterialTest {
     @Test
     void shouldPassEqualsCheckIfFingerprintIsSame() {
         PackageMaterial material1 = MaterialsMother.packageMaterial();
-        material1.setName(new CaseInsensitiveString("name1"));
+        material1.setName(cis("name1"));
         PackageMaterial material2 = MaterialsMother.packageMaterial();
-        material2.setName(new CaseInsensitiveString("name2"));
+        material2.setName(cis("name2"));
 
         assertThat(material1.equals(material2)).isTrue();
     }
@@ -501,7 +501,7 @@ class PackageMaterialTest {
         PackageMaterial material = new PackageMaterial();
         material.setPackageDefinition(pkgDef);
 
-        material.setName(new CaseInsensitiveString("tw-dev:go-agent"));
+        material.setName(cis("tw-dev:go-agent"));
         Modifications modifications = new Modifications(new Modification(null, null, null, new Date(), "revision-123"));
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         material.populateEnvironmentContext(environmentVariableContext, new MaterialRevision(material, modifications), null);

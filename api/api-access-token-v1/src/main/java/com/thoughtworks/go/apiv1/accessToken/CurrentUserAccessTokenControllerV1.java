@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.accessToken;
 
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
@@ -38,8 +38,8 @@ import static spark.Spark.*;
 public class CurrentUserAccessTokenControllerV1 extends AbstractUserAccessTokenControllerV1 {
 
     @Autowired
-    public CurrentUserAccessTokenControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, AccessTokenService AccessTokenService) {
-        super(apiAuthenticationHelper, AccessTokenService);
+    public CurrentUserAccessTokenControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, AccessTokenService AccessTokenService) {
+        super(apiAuthorizationHelper, AccessTokenService);
     }
 
     @Override
@@ -53,14 +53,14 @@ public class CurrentUserAccessTokenControllerV1 extends AbstractUserAccessTokenC
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", mimeType, this.apiAuthenticationHelper::ensureSecurityEnabled);
-            before("/*", mimeType, this.apiAuthenticationHelper::ensureSecurityEnabled);
+            before("", mimeType, this.apiAuthorizationHelper::ensureSecurityEnabled);
+            before("/*", mimeType, this.apiAuthorizationHelper::ensureSecurityEnabled);
 
             before("", mimeType, this::verifyRequestIsNotUsingAccessToken);
             before("/*", mimeType, this::verifyRequestIsNotUsingAccessToken);
 
-            before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
-            before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
+            before("", mimeType, this.apiAuthorizationHelper::checkUserAnd403);
+            before("/*", mimeType, this.apiAuthorizationHelper::checkUserAnd403);
 
             get("", mimeType, this::getAllAccessTokens);
             post("", mimeType, this::createAccessToken);

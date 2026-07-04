@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.messaging.notifications;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.Approval;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.Stage;
@@ -33,11 +33,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.SystemEnvironment.NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS;
 
 @Component
@@ -48,7 +49,7 @@ public class PluginNotificationService {
     private final PipelineDao pipelineSqlMapDao;
     private final StageDao stageDao;
     private final SystemEnvironment systemEnvironment;
-    private final Map<String, NotificationDataCreator<?, ?>> notificationCreators = new HashMap<>();
+    private final Map<String, NotificationDataCreator<?, ? extends Serializable>> notificationCreators = new HashMap<>();
 
     @Autowired
     public PluginNotificationService(NotificationPluginRegistry notificationPluginRegistry,
@@ -77,7 +78,8 @@ public class PluginNotificationService {
         Set<String> interestedPlugins = notificationPluginRegistry.getPluginsInterestedIn(requestName);
         long timeToLive = systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS);
         for (String pluginId : interestedPlugins) {
-            @SuppressWarnings("unchecked") PluginNotificationMessage<?> message = new PluginNotificationMessage<>(pluginId, requestName, ((NotificationDataCreator<Object, ?>) notificationCreators.get(requestName)).notificationDataFor(instance));
+            @SuppressWarnings("unchecked") var creator = (NotificationDataCreator<Object, ? extends Serializable>) notificationCreators.get(requestName);
+            PluginNotificationMessage<?> message = new PluginNotificationMessage<>(pluginId, requestName, creator.notificationDataFor(instance));
             pluginNotificationsQueueHandler.post(message, timeToLive);
         }
     }
@@ -94,7 +96,7 @@ public class PluginNotificationService {
                     agentInstance.getAgentConfigStatus().name(),
                     agentInstance.getRuntimeStatus().agentState().name(),
                     agentInstance.getRuntimeStatus().buildState().name(),
-                    new Date()
+                    Instant.now()
             );
         }
     }
@@ -103,7 +105,7 @@ public class PluginNotificationService {
         @Override
         public StageNotificationData notificationDataFor(Stage stage) {
             String pipelineName = stage.getIdentifier().getPipelineName();
-            String pipelineGroup = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
+            String pipelineGroup = goConfigService.findGroupNameByPipelineOptional(cis(pipelineName)).orElse(null);
             BuildCause buildCause = pipelineSqlMapDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, stage.getIdentifier().getPipelineCounter());
 
             if (!goConfigService.isFirstStage(pipelineName, stage.getName())) {
@@ -133,11 +135,11 @@ public class PluginNotificationService {
     }
 
     private boolean isStageAutomaticallyTriggered(Stage stage) {
-        return "changes".equalsIgnoreCase(stage.getApprovedBy());
+        return BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED.equalsIgnoreCase(stage.getApprovedBy());
     }
 
     private boolean isManualStage(Stage stage) {
-        return "manual".equalsIgnoreCase(stage.getApprovalType());
+        return Approval.TYPE_MANUAL.equalsIgnoreCase(stage.getApprovalType());
     }
 
     private interface NotificationDataCreator<T, V extends Serializable> {

@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv4.scms.representers.SCMRepresenter;
 import com.thoughtworks.go.apiv4.scms.representers.SCMsRepresenter;
@@ -58,15 +58,15 @@ import static spark.Spark.*;
 public class SCMControllerV4 extends ApiController implements SparkSpringController, CrudController<SCM> {
 
     public static final String MATERIAL_NAME = "material_name";
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final PluggableScmService pluggableScmService;
     private final EntityHashingService entityHashingService;
     private final GoConfigService goConfigService;
 
     @Autowired
-    public SCMControllerV4(ApiAuthenticationHelper apiAuthenticationHelper, PluggableScmService pluggableScmService, EntityHashingService entityHashingService, GoConfigService goConfigService) {
+    public SCMControllerV4(ApiAuthorizationHelper apiAuthorizationHelper, PluggableScmService pluggableScmService, EntityHashingService entityHashingService, GoConfigService goConfigService) {
         super(ApiVersion.v4);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.pluggableScmService = pluggableScmService;
         this.entityHashingService = entityHashingService;
         this.goConfigService = goConfigService;
@@ -85,8 +85,8 @@ public class SCMControllerV4 extends ApiController implements SparkSpringControl
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
 
-            before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
-            before("/*", this.mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before("", this.mimeType, this.apiAuthorizationHelper::checkAnyPipelineGroupAdminUserAnd403);
+            before("/*", this.mimeType, this.apiAuthorizationHelper::checkAnyPipelineGroupAdminUserAnd403);
 
             get("", mimeType, this::index);
             post("", mimeType, this::create);

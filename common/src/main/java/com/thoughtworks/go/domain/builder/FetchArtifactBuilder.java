@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain.builder;
 
-import com.thoughtworks.go.agent.URLService;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
@@ -27,10 +26,10 @@ import java.nio.charset.Charset;
 
 public class FetchArtifactBuilder extends Builder {
     private final JobIdentifier jobIdentifier;
-    private String srcdir;
+    private final String srcdir;
     private final String dest;
     private final FetchHandler handler;
-    private ChecksumFileHandler checksumFileHandler;
+    private final ChecksumFileHandler checksumFileHandler;
 
     public FetchArtifactBuilder(RunIfConfigs conditions, Builder cancelBuilder, String description,
                                 JobIdentifier jobIdentifier,
@@ -48,18 +47,18 @@ public class FetchArtifactBuilder extends Builder {
         publisher.fetch(this);
     }
 
-    public void fetch(DownloadAction downloadAction, URLService urlService) throws Exception {
-        downloadChecksumFile(downloadAction, urlService.baseRemoteURL());
-        downloadArtifact(downloadAction, urlService.baseRemoteURL());
+    public void fetch(DownloadAction downloadAction) throws Exception {
+        downloadChecksumFile(downloadAction);
+        downloadArtifact(downloadAction);
     }
 
-    private void downloadArtifact(DownloadAction downloadAction, String baseRemoteUrl) throws Exception {
+    private void downloadArtifact(DownloadAction downloadAction) throws Exception {
         handler.useArtifactMd5Checksums(checksumFileHandler.getArtifactMd5Checksums());
-        pullArtifact(downloadAction, handler.url(baseRemoteUrl, artifactLocator()), handler);
+        pullArtifact(downloadAction, handler.url(artifactLocator()), handler);
     }
 
-    private void downloadChecksumFile(DownloadAction downloadAction, String baseRemoteUrl) throws Exception {
-        final String checksumUrl = checksumFileHandler.url(baseRemoteUrl, jobIdentifier.buildLocator());
+    private void downloadChecksumFile(DownloadAction downloadAction) throws Exception {
+        final String checksumUrl = checksumFileHandler.url(jobIdentifier.buildLocator());
         pullArtifact(downloadAction, checksumUrl, checksumFileHandler);
     }
 

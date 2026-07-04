@@ -21,7 +21,7 @@ import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.helper.ConfigFileFixture;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.UserSqlMapDao;
 import com.thoughtworks.go.server.domain.Username;
@@ -225,7 +225,7 @@ public class UserServiceIntegrationTest {
             new NotificationFilter("pipeline1", "stage", StageEvent.All, false),
             new NotificationFilter("mingle", "dev", StageEvent.All, false));
 
-        Users users = userService.findValidSubscribers(new StageConfigIdentifier("pipeline1", "stage"));
+        Users users = userService.findValidNotificationSubscribers(StageEvent.Breaks, new StageConfigIdentifier("pipeline1", "stage"));
         assertThat(users.size()).isEqualTo(1);
         assertThat(users.getFirst()).isEqualTo(jez);
         assertThat(users.getFirst().getNotificationFilters().size()).isEqualTo(2);
@@ -242,7 +242,7 @@ public class UserServiceIntegrationTest {
         addUserWithNotificationFilter(tom,
             new NotificationFilter("mingle", "dev", StageEvent.All, false));
 
-        Users users = userService.findValidSubscribers(new StageConfigIdentifier("mingle", "dev"));
+        Users users = userService.findValidNotificationSubscribers(StageEvent.Breaks, new StageConfigIdentifier("mingle", "dev"));
         assertThat(users.size()).isEqualTo(1);
         assertThat(users.getFirst()).isEqualTo(jez);
         assertThat(users.getFirst().getNotificationFilters().size()).isEqualTo(1);

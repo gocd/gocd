@@ -29,10 +29,15 @@ import jakarta.jms.ObjectMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 
 public class JMSMessageListenerAdapter<T extends GoMessage> implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(JMSMessageListenerAdapter.class);
+    private static final ConcurrentMap<Class<?>, AtomicInteger> THREAD_COUNT = new ConcurrentHashMap<>();
 
     private final MessageConsumer consumer;
     private final GoMessageListener<T> listener;
@@ -50,7 +55,10 @@ public class JMSMessageListenerAdapter<T extends GoMessage> implements Runnable 
         this.serverHealthService = serverHealthService;
 
         thread = new Thread(this);
-        thread.setName(String.format("MessageListener-%s-%s", listener.getClass().getSimpleName(), thread.getName()));
+        thread.setName(String.format("%s-%s",
+            listener.getClass().getSimpleName(),
+            THREAD_COUNT.computeIfAbsent(listener.getClass(), clz -> new AtomicInteger(0)).incrementAndGet()
+        ));
         thread.setDaemon(true);
         thread.start();
     }

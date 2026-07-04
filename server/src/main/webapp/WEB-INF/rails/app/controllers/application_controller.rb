@@ -34,7 +34,7 @@ class ApplicationController < ActionController::Base
 
   attr_accessor :error_template_for_request
 
-  before_action :set_current_user, :populate_config_validity
+  before_action :set_current_user
 
   if Rails.env.development?
     before_action do |controller|
@@ -109,10 +109,6 @@ class ApplicationController < ActionController::Base
       message = message + "\n"
     end
     render plain: message, status: status
-  end
-
-  def populate_config_validity
-    @config_valid = go_config_service.checkConfigFileValid().isValid()
   end
 
   def is_user_an_admin?

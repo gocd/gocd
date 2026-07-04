@@ -24,7 +24,7 @@ import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.mocks.StubTemplateEngine
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
@@ -45,7 +45,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
 
   @Override
   StatusReportsController createControllerInstance() {
-    return new StatusReportsController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine,
+    return new StatusReportsController(new SpaAuthorizationHelper(securityService, goConfigService), templateEngine,
       elasticAgentPluginService, jobInstanceService)
   }
 
@@ -53,6 +53,8 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
   class PluginStatusReport {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<StatusReportsController> c = StatusReportsControllerTest.this
+      @Delegate SecurityServiceTrait s = StatusReportsControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -134,6 +136,8 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
   class AgentStatusReport {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<StatusReportsController> c = StatusReportsControllerTest.this
+      @Delegate SecurityServiceTrait s = StatusReportsControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -270,6 +274,8 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
   class ClusterStatusReport {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<StatusReportsController> c = StatusReportsControllerTest.this
+      @Delegate SecurityServiceTrait s = StatusReportsControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

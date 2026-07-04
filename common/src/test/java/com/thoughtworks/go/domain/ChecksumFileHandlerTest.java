@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -38,11 +40,17 @@ public class ChecksumFileHandlerTest {
     public void setUp(@TempDir Path tempDir) throws Exception {
         file = Files.createTempFile(tempDir, "checksum", null).toFile();
         checksumFileHandler = new ChecksumFileHandler(file);
+        new SystemEnvironment().set(SystemEnvironment.SERVICE_URL, "http://foo/go");
+    }
+
+    @AfterEach
+    public void tearDown() {
+        new SystemEnvironment().clearProperty(SystemEnvironment.SERVICE_URL.propertyName());
     }
 
     @Test
     public void shouldGenerateChecksumFileUrl() {
-        String url = checksumFileHandler.url("http://foo/go", "cruise/1/stage/1/job");
+        String url = checksumFileHandler.url("cruise/1/stage/1/job");
         assertThat(url).isEqualTo("http://foo/go/remoting/files/cruise/1/stage/1/job/cruise-output/md5.checksum");
     }
 
@@ -77,7 +85,7 @@ public class ChecksumFileHandlerTest {
     public void shouldHandleResultIfHttpCodeSaysFileNotFound() {
         StubGoPublisher goPublisher = new StubGoPublisher();
         assertThat(checksumFileHandler.handleResult(HttpURLConnection.HTTP_NOT_FOUND, goPublisher)).isTrue();
-        assertThat(goPublisher.getMessage()).contains(String.format("[WARN] The md5checksum property file was not found on the server. Hence, Go can not verify the integrity of the artifacts.", file));
+        assertThat(goPublisher.getMessage()).contains("[WARN] The md5checksum property file was not found on the server. Hence, Go can not verify the integrity of the artifacts.");
     }
 
     @Test

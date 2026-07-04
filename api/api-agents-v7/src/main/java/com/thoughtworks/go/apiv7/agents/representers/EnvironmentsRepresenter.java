@@ -17,7 +17,6 @@ package com.thoughtworks.go.apiv7.agents.representers;
 
 import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
@@ -31,6 +30,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class EnvironmentsRepresenter {
@@ -48,7 +48,7 @@ public class EnvironmentsRepresenter {
                 .toList();
 
         for (String envName : sortedEnvNames) {
-            EnvironmentConfig envConfig = envConfigs.find(new CaseInsensitiveString(envName));
+            EnvironmentConfig envConfig = envConfigs.find(cis(envName));
             if (envConfig != null) {
                 writer.addChild(childWriter -> {
                     childWriter.add("name", envName);

@@ -28,6 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,9 +49,9 @@ public class GoDashboardTemplateConfigChangeHandlerTest {
     @Test
     public void shouldRefreshAllPipelinesAssociatedWithATemplateInCacheWhenATemplateChanges() {
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
-        PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template1"));
-        CaseInsensitiveString pipeline1 = new CaseInsensitiveString("p1");
-        CaseInsensitiveString pipeline2 = new CaseInsensitiveString("p2");
+        PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(cis("template1"));
+        CaseInsensitiveString pipeline1 = cis("p1");
+        CaseInsensitiveString pipeline2 = cis("p2");
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(cruiseConfig.pipelinesAssociatedWithTemplate(templateConfig.name())).thenReturn(List.of(pipeline1, pipeline2));

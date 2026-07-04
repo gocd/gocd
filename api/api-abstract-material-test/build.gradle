@@ -22,5 +22,5 @@ dependencies {
   implementation project(':api:api-base')
   implementation project(':api:api-shared-v11')
   implementation project(':config:config-server')
-  implementation project.deps.commonsLang3
+  implementation rootProject.deps.commonsLang3
 }

@@ -25,6 +25,7 @@ import com.thoughtworks.go.util.Pair;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static java.util.stream.Collectors.*;
 
@@ -77,7 +78,7 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
 
     EnvironmentPipelineMatcher matchersForPipeline(String pipelineName) {
         return this.stream()
-                .filter(envConfig -> envConfig.containsPipeline(new CaseInsensitiveString(pipelineName)))
+                .filter(envConfig -> envConfig.containsPipeline(cis(pipelineName)))
                 .findFirst()
                 .map(EnvironmentConfig::createMatcher)
                 .orElse(null);
@@ -169,13 +170,13 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
 
     private EnvironmentConfig getOrCreateEnvironment(String envName) {
         return this.stream()
-                .filter(envConfig -> envConfig.hasName(new CaseInsensitiveString(envName)))
+                .filter(envConfig -> envConfig.hasName(cis(envName)))
                 .findAny()
                 .orElseGet(() -> createNewEnvironmentConfigAndAddToList(envName));
     }
 
     private EnvironmentConfig createNewEnvironmentConfigAndAddToList(String envName) {
-        BasicEnvironmentConfig newEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(envName));
+        BasicEnvironmentConfig newEnvConfig = new BasicEnvironmentConfig(cis(envName));
         add(newEnvConfig);
         return newEnvConfig;
     }

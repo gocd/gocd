@@ -18,7 +18,7 @@ package com.thoughtworks.go.spark.spa
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import org.junit.jupiter.api.Nested
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
@@ -30,6 +30,8 @@ class RolesControllerTest implements ControllerTrait<RolesController>, SecurityS
   class Index {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<RolesController> c = RolesControllerTest.this
+      @Delegate SecurityServiceTrait s = RolesControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -45,6 +47,6 @@ class RolesControllerTest implements ControllerTrait<RolesController>, SecurityS
 
   @Override
   RolesController createControllerInstance() {
-    return new RolesController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+    return new RolesController(new SpaAuthorizationHelper(securityService, goConfigService), templateEngine)
   }
 }

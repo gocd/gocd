@@ -23,11 +23,11 @@ import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
+import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.TestingMaterialInstance;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
@@ -48,6 +48,10 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ConfigRepositoryInitializerTest {
+    private static final String YAML_PLUGIN_ID = "yaml.config.plugin";
+    private static final String JSON_PLUGIN_ID = "json.config.plugin";
+    private static final String GROOVY_PLUGIN_ID = "groovy.config.plugin";
+
     @Mock
     private PluginManager pluginManager;
 
@@ -71,9 +75,6 @@ class ConfigRepositoryInitializerTest {
     private GoPluginDescriptor yamlPluginDescriptor;
     private GoPluginDescriptor jsonPluginDescriptor;
     private GoPluginDescriptor groovyPluginDescriptor;
-    private String YAML_PLUGIN_ID = "yaml.config.plugin";
-    private String JSON_PLUGIN_ID = "json.config.plugin";
-    private String GROOVY_PLUGIN_ID = "groovy.config.plugin";
     private ConfigReposConfig repoConfigs;
 
     @BeforeEach
@@ -131,7 +132,7 @@ class ConfigRepositoryInitializerTest {
 
         GitMaterialConfig gitMaterialConfig = (GitMaterialConfig) repoConfigs.getFirst().getRepo();
         Material gitMaterial = new Materials(new MaterialConfigs(gitMaterialConfig)).getFirst();
-        TestingMaterialInstance gitMaterialInstance = new TestingMaterialInstance("git-repo", "flyweight");
+        MaterialInstance gitMaterialInstance = mock(MaterialInstance.class);
         File folder = new File("repo-folder");
         MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(gitMaterial, oneModifiedFile("revision1")));
         Modification modification = materialRevisions.firstModifiedMaterialRevision().getLatestModification();
@@ -166,7 +167,7 @@ class ConfigRepositoryInitializerTest {
     void shouldInitializeConfigRepositoriesWhenCruiseConfigAndAllInUsePluginsAreLoaded() {
         GitMaterialConfig gitMaterialConfig = (GitMaterialConfig) repoConfigs.getFirst().getRepo();
         Material gitMaterial = new Materials(new MaterialConfigs(gitMaterialConfig)).getFirst();
-        TestingMaterialInstance gitMaterialInstance = new TestingMaterialInstance("git-repo", "flyweight");
+        MaterialInstance gitMaterialInstance = mock(MaterialInstance.class);
         File folder = new File("repo-folder");
         MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(gitMaterial, oneModifiedFile("revision1")));
         Modification modification = materialRevisions.firstModifiedMaterialRevision().getLatestModification();
@@ -196,7 +197,7 @@ class ConfigRepositoryInitializerTest {
     void shouldNotReInitializeConfigRepositoriesWhenCruiseConfigListenerIsInvokedAgain() {
         GitMaterialConfig gitMaterialConfig = (GitMaterialConfig) repoConfigs.getFirst().getRepo();
         Material gitMaterial = new Materials(new MaterialConfigs(gitMaterialConfig)).getFirst();
-        TestingMaterialInstance gitMaterialInstance = new TestingMaterialInstance("git-repo", "flyweight");
+        MaterialInstance gitMaterialInstance = mock(MaterialInstance.class);
         File folder = new File("repo-folder");
         MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(gitMaterial, oneModifiedFile("revision1")));
         Modification modification = materialRevisions.firstModifiedMaterialRevision().getLatestModification();

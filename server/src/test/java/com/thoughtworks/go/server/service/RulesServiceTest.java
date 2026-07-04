@@ -55,7 +55,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.rules.SupportedEntity.ENVIRONMENT;
 import static com.thoughtworks.go.helper.GoConfigMother.configWithSecretConfig;
 import static com.thoughtworks.go.helper.GoConfigMother.defaultCruiseConfig;
@@ -90,9 +92,9 @@ class RulesServiceTest {
             CruiseConfig cruiseConfig = configWithSecretConfig(secretConfig);
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
-            when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(List.of(new CaseInsensitiveString("up42")));
-            when(goConfigService.findGroupByPipeline(any())).thenReturn(defaultGroup);
-            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
+            when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(List.of(cis("up42")));
+            when(goConfigService.findGroupByPipelineOptional(any())).thenReturn(Optional.of(defaultGroup));
+            when(goConfigService.findPipelineByName(cis("up42"))).thenReturn(up42);
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(gitMaterial))
                     .isInstanceOf(RulesViolationException.class)
@@ -114,12 +116,12 @@ class RulesServiceTest {
             CruiseConfig cruiseConfig = configWithSecretConfig(secretConfig);
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup, someGroup));
 
-            when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(List.of(new CaseInsensitiveString("up42"), new CaseInsensitiveString("up43")));
-            when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up42"))).thenReturn(defaultGroup);
-            when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up43"))).thenReturn(someGroup);
+            when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(List.of(cis("up42"), cis("up43")));
+            when(goConfigService.findGroupByPipelineOptional(cis("up42"))).thenReturn(Optional.of(defaultGroup));
+            when(goConfigService.findGroupByPipelineOptional(cis("up43"))).thenReturn(Optional.of(someGroup));
             when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
-            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
-            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up43"))).thenReturn(up43);
+            when(goConfigService.findPipelineByName(cis("up42"))).thenReturn(up42);
+            when(goConfigService.findPipelineByName(cis("up43"))).thenReturn(up43);
 
             assertThat(rulesService.validateSecretConfigReferences(gitMaterial)).isEqualTo(true);
         }
@@ -139,11 +141,11 @@ class RulesServiceTest {
             CruiseConfig cruiseConfig = configWithSecretConfig(secretConfig);
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup, someGroup));
 
-            when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(List.of(new CaseInsensitiveString("up42"), new CaseInsensitiveString("up43")));
-            when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up42"))).thenReturn(defaultGroup);
-            when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up43"))).thenReturn(someGroup);
-            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
-            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up43"))).thenReturn(up43);
+            when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(List.of(cis("up42"), cis("up43")));
+            when(goConfigService.findGroupByPipelineOptional(cis("up42"))).thenReturn(Optional.of(defaultGroup));
+            when(goConfigService.findGroupByPipelineOptional(cis("up43"))).thenReturn(Optional.of(someGroup));
+            when(goConfigService.findPipelineByName(cis("up42"))).thenReturn(up42);
+            when(goConfigService.findPipelineByName(cis("up43"))).thenReturn(up43);
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(gitMaterial))
                     .isInstanceOf(RulesViolationException.class)
@@ -164,10 +166,10 @@ class RulesServiceTest {
             CruiseConfig cruiseConfig = configWithSecretConfig(secretConfig);
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
-            when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(List.of(new CaseInsensitiveString("up42")));
-            when(goConfigService.findGroupByPipeline(any())).thenReturn(defaultGroup);
+            when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(List.of(cis("up42")));
+            when(goConfigService.findGroupByPipelineOptional(any())).thenReturn(Optional.of(defaultGroup));
             when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
-            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
+            when(goConfigService.findPipelineByName(cis("up42"))).thenReturn(up42);
 
             assertThat(rulesService.validateSecretConfigReferences(gitMaterial)).isEqualTo(true);
 
@@ -183,9 +185,9 @@ class RulesServiceTest {
             CruiseConfig cruiseConfig = defaultCruiseConfig();
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
-            when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(List.of(new CaseInsensitiveString("up42")));
-            when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up42"))).thenReturn(defaultGroup);
-            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
+            when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(List.of(cis("up42")));
+            when(goConfigService.findGroupByPipelineOptional(cis("up42"))).thenReturn(Optional.of(defaultGroup));
+            when(goConfigService.findPipelineByName(cis("up42"))).thenReturn(up42);
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(gitMaterial))
                     .isInstanceOf(RulesViolationException.class)
@@ -202,9 +204,9 @@ class RulesServiceTest {
             CruiseConfig cruiseConfig = defaultCruiseConfig();
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
-            when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(List.of(new CaseInsensitiveString("up42")));
-            when(goConfigService.findGroupByPipeline(any())).thenReturn(defaultGroup);
-            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
+            when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(List.of(cis("up42")));
+            when(goConfigService.findGroupByPipelineOptional(any())).thenReturn(Optional.of(defaultGroup));
+            when(goConfigService.findPipelineByName(cis("up42"))).thenReturn(up42);
 
             assertThat(rulesService.validateSecretConfigReferences(gitMaterial)).isEqualTo(true);
         }
@@ -539,11 +541,11 @@ class RulesServiceTest {
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
             when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
-            when(goConfigService.findGroupByPipeline(new CaseInsensitiveString(identifier.getPipelineName()))).thenReturn(defaultGroup);
+            when(goConfigService.findGroupByPipeline(cis(identifier.getPipelineName()))).thenReturn(defaultGroup);
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(buildAssigment)).isNull();
 
-            verify(goConfigService, atLeastOnce()).findGroupByPipeline(new CaseInsensitiveString("up42"));
+            verify(goConfigService, atLeastOnce()).findGroupByPipeline(cis("up42"));
         }
 
         @Test
@@ -563,7 +565,7 @@ class RulesServiceTest {
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
             when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
-            when(goConfigService.findGroupByPipeline(new CaseInsensitiveString(identifier.getPipelineName()))).thenReturn(defaultGroup);
+            when(goConfigService.findGroupByPipeline(cis(identifier.getPipelineName()))).thenReturn(defaultGroup);
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(buildAssigment))
                     .isInstanceOf(RulesViolationException.class)
@@ -584,7 +586,7 @@ class RulesServiceTest {
             BuildAssignment buildAssigment = createAssignment(environmentVariableContext, jobIdentifier);
 
             when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
-            when(goConfigService.findGroupByPipeline(new CaseInsensitiveString(jobIdentifier.getPipelineName()))).thenReturn(defaultGroup);
+            when(goConfigService.findGroupByPipeline(cis(jobIdentifier.getPipelineName()))).thenReturn(defaultGroup);
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(buildAssigment))
                     .isInstanceOf(RulesViolationException.class)
@@ -607,7 +609,7 @@ class RulesServiceTest {
     class ForEnvironmentConfig {
         @Test
         void shouldBeValidIfEnvironmentConfigDoesNotHaveEnvironmentVariableDefinedUsingSecretParams() {
-            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("dev"));
+            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(cis("dev"));
 
             boolean result = rulesService.validateSecretConfigReferences(environmentConfig);
 
@@ -616,7 +618,7 @@ class RulesServiceTest {
 
         @Test
         void shouldBeValidIfEnvironmentConfigCanReferToASecretConfig() {
-            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("dev"));
+            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(cis("dev"));
             environmentConfig.addEnvironmentVariable("Token", "{{SECRET:[secret_config_id][token]}}");
             Allow allow = new Allow("refer", ENVIRONMENT.getType(), "dev");
             CruiseConfig cruiseConfig = configWithSecretConfig(new SecretConfig("secret_config_id", "cd.go.secret.file", new Rules(allow)));
@@ -630,7 +632,7 @@ class RulesServiceTest {
 
         @Test
         void shouldErrorOutWhenEnvironmentConfigCannotReferToASecretConfig() {
-            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("dev"));
+            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(cis("dev"));
             environmentConfig.addEnvironmentVariable("Token", "{{SECRET:[secret_config_id][token]}}");
             CruiseConfig cruiseConfig = configWithSecretConfig(new SecretConfig("secret_config_id", "cd.go.secret.file"));
 
@@ -643,7 +645,7 @@ class RulesServiceTest {
 
         @Test
         void shouldErrorOutWhenEnvironmentConfigIsReferringToNoneExistingSecretConfig() {
-            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("dev"));
+            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(cis("dev"));
             environmentConfig.addEnvironmentVariable("Token", "{{SECRET:[secret_config_id][token]}}");
 
             when(goConfigService.cruiseConfig()).thenReturn(defaultCruiseConfig());

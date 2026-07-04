@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv1.feedsapi;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.server.service.FeedService;
 import com.thoughtworks.go.spark.DeprecatedAPI;
@@ -53,15 +53,15 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
     private static final String PIPELINE_COUNTER = "pipeline_counter";
     private static final String STAGE_NAME = "stage_name";
     private static final String STAGE_COUNTER = "stage_counter";
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final FeedService feedService;
 
     @Autowired
-    public FeedsApiControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,
+    public FeedsApiControllerV1(ApiAuthorizationHelper apiAuthorizationHelper,
                                 FeedService feedService) {
         super(ApiVersion.v1);
         this.mimeType = APPLICATION_XML_VALUE;
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.feedService = feedService;
     }
 
@@ -74,7 +74,7 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before("/*", mimeType, super::setContentType);
-            before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
+            before("/*", mimeType, this.apiAuthorizationHelper::checkUserAnd403);
 
             get(Routes.FeedsAPI.PIPELINES_XML, this.mimeType, this::pipelinesXML);
             get(Routes.FeedsAPI.STAGES_XML, this.mimeType, this::stagesXML);
@@ -149,7 +149,7 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException nfe) {
-            throw new BadRequestException(format("The '%s' must be an integer.", entity.replaceAll("_", " ")));
+            throw new BadRequestException(format("The '%s' must be an integer.", entity.replace('_', ' ')));
         }
     }
 

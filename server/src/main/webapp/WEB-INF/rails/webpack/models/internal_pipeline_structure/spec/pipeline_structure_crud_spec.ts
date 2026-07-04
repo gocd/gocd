@@ -16,16 +16,21 @@
 
 import {ApiResult, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {PipelineStructureWithAdditionalInfo, PipelineStructureWithAdditionalInfoJSON} from "../pipeline_structure";
+import {
+  PipelineStructure,
+  PipelineStructureJSON,
+  PipelineStructureWithAdditionalInfo,
+  PipelineStructureWithAdditionalInfoJSON
+} from "../pipeline_structure";
 import {PipelineStructureCRUD} from "../pipeline_structure_crud";
 
 describe('PipelineStructureCRUDSpec', () => {
   beforeEach(() => jasmine.Ajax.install());
   afterEach(() => jasmine.Ajax.uninstall());
 
-  it("should make get all env request", (done) => {
+  it("should make get structure with users/roles", (done) => {
     const apiPath = SparkRoutes.apiAdminInternalPipelinesListPath("view", "view", true);
-    jasmine.Ajax.stubRequest(apiPath).andReturn(listResponse());
+    jasmine.Ajax.stubRequest(apiPath).andReturn(listResponse(additionalJson));
 
     const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
       const responseJSON      = response.unwrap() as SuccessResponse<any>;
@@ -36,8 +41,32 @@ describe('PipelineStructureCRUDSpec', () => {
       expect(groups[0].name()).toEqual('first');
       expect(groups[0].pipelines()).toHaveLength(1);
       expect(pipelineStructure.pipelineStructure.templates()).toEqual([]);
-      expect(pipelineStructure.additionalInfo.users).toEqual(json.additional_info.users);
-      expect(pipelineStructure.additionalInfo.roles).toEqual(json.additional_info.roles);
+      expect(pipelineStructure.additionalInfo.users).toEqual(additionalJson.additional_info.users);
+      expect(pipelineStructure.additionalInfo.roles).toEqual(additionalJson.additional_info.roles);
+      done();
+    });
+
+    PipelineStructureCRUD.allPipelinesPrivileged("view", "view").then(onResponse);
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual(apiPath);
+    expect(request.method).toEqual("GET");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
+  });
+
+  it("should make get structure without users/roles", (done) => {
+    const apiPath = SparkRoutes.apiAdminInternalPipelinesListPath("view", "view");
+    jasmine.Ajax.stubRequest(apiPath).andReturn(listResponse(basicJson));
+
+    const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
+      const responseJSON      = response.unwrap() as SuccessResponse<any>;
+      const pipelineStructure = (responseJSON.body as PipelineStructure);
+
+      const groups = pipelineStructure.groups();
+      expect(groups).toHaveLength(1);
+      expect(groups[0].name()).toEqual('first');
+      expect(groups[0].pipelines()).toHaveLength(1);
+      expect(pipelineStructure.templates()).toEqual([]);
       done();
     });
 
@@ -50,7 +79,7 @@ describe('PipelineStructureCRUDSpec', () => {
   });
 });
 
-function listResponse() {
+function listResponse(json: PipelineStructureJSON | PipelineStructureWithAdditionalInfoJSON) {
   return {
     status:          200,
     responseHeaders: {
@@ -60,7 +89,7 @@ function listResponse() {
   };
 }
 
-const json = {
+const basicJson = {
   groups:    [{
     name:      "first",
     pipelines: [{
@@ -79,7 +108,11 @@ const json = {
       }]
     }]
   }],
-  templates: [],
+  templates: []
+} as PipelineStructureJSON;
+
+const additionalJson = {
+  ...basicJson,
   additional_info: {
     users: ["view", "operate", "admin"],
     roles: ["xyz"]

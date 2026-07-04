@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
-
 public class BaseCollection<T> extends ArrayList<T> {
     public BaseCollection() {}
 

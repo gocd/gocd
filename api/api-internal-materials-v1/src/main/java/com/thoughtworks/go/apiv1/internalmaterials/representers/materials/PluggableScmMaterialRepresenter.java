@@ -36,9 +36,9 @@ public class PluggableScmMaterialRepresenter implements MaterialRepresenter<Plug
     private void renderOrigin(OutputWriter outputWriter, ConfigOrigin origin) {
         if (origin instanceof FileConfigOrigin || origin == null) {
             outputWriter.add("type", "gocd");
-        } else if (origin instanceof RepoConfigOrigin) {
+        } else if (origin instanceof RepoConfigOrigin repoConfigOrigin) {
             outputWriter.add("type", "config_repo")
-                    .add("id", ((RepoConfigOrigin) origin).getConfigRepo().getId());
+                    .add("id", repoConfigOrigin.getConfigRepo().getId());
         }
     }
 }

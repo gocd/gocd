@@ -22,11 +22,11 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.validation.RolesConfigUpdateValidator;
 
 import java.util.List;
 import java.util.Objects;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
@@ -49,7 +49,7 @@ public class RolesConfigBulkUpdateCommand implements EntityConfigUpdateCommand<R
     public void update(CruiseConfig preprocessedConfig) {
         RolesConfig rolesInConfig = preprocessedConfig.server().security().getRoles();
         for (GoCDRolesBulkUpdateRequest.Operation operation : goCDRolesBulkUpdateRequest.getOperations()) {
-            RoleConfig existingRole = rolesInConfig.findByNameAndType(new CaseInsensitiveString(operation.getRoleName()), RoleConfig.class);
+            RoleConfig existingRole = rolesInConfig.findByNameAndType(cis(operation.getRoleName()), RoleConfig.class);
             if (existingRole == null) {
                 result.unprocessableEntity(EntityType.Role.notFoundMessage(operation.getRoleName()));
                 throw new RecordNotFoundException(EntityType.Role, operation.getRoleName());

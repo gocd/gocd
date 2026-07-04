@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 
@@ -67,12 +68,12 @@ class PipelineGroupRepresenterTest {
   }
 
   static def getAuthorization() {
-    new Authorization(new OperationConfig(new AdminUser(new CaseInsensitiveString("user")), new AdminRole(new CaseInsensitiveString("role"))))
+    new Authorization(new OperationConfig(new AdminUser(cis("user")), new AdminRole(cis("role"))))
   }
 
   static def getPipelineConfig() {
     def materialConfigs = MaterialConfigsMother.defaultMaterialConfigs()
-    new PipelineConfig(new CaseInsensitiveString("pipeline"), materialConfigs)
+    new PipelineConfig(cis("pipeline"), materialConfigs)
   }
 
   def groupHash =

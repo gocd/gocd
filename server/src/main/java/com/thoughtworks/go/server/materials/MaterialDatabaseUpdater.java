@@ -43,8 +43,6 @@ import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
-
 /**
  * Understands how to update materials on the database from the real SCMs
  */
@@ -113,10 +111,10 @@ public class MaterialDatabaseUpdater {
             }
             healthService.removeByScope(scope);
         } catch (Exception e) {
-            String message = escapeHtml4("Modification check failed for material: " + material.getLongDescription());
+            String message = "Modification check failed for material: " + material.getLongDescription();
             String finalMessage = message + affectedPipelinesMessageFor(material);
-            String errorDescription = e.getMessage() == null ? "Unknown error" : escapeHtml4(e.getMessage());
-            healthService.update(ServerHealthState.errorWithHtml(finalMessage, errorDescription, HealthStateType.general(scope)));
+            String errorDescription = e.getMessage() == null ? "Unknown error" : e.getMessage();
+            healthService.update(ServerHealthState.error(finalMessage, errorDescription, HealthStateType.general(scope)));
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("[Material Update] {}", message, e);

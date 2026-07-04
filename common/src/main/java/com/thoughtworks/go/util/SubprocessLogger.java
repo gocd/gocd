@@ -16,14 +16,16 @@
 package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.process.CurrentProcess;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Understands handling subprocesses
  */
-public class SubprocessLogger implements Runnable {
+public class SubprocessLogger {
     private static final Logger LOGGER = LoggerFactory.getLogger(SubprocessLogger.class);
+
     private final CurrentProcess currentProcess;
     private Thread exitHook;
     private String warnMessage = "Logged all subprocesses.";
@@ -41,14 +43,17 @@ public class SubprocessLogger implements Runnable {
         Runtime.getRuntime().addShutdownHook(exitHook());
     }
 
+    @VisibleForTesting
     Thread exitHook() {
         if (exitHook == null) {
-            exitHook = new Thread(this);
+            exitHook = new Thread(this::logSubprocess);
+            exitHook.setName("SubprocessLogger" + exitHook.getName());
         }
         return exitHook;
     }
 
-    private void logSubprocess() {
+    @VisibleForTesting
+    void logSubprocess() {
         final StringBuffer processDetails = new StringBuffer();
 
         currentProcess.immediateChildren().forEach(processInfo ->
@@ -60,8 +65,4 @@ public class SubprocessLogger implements Runnable {
         }
     }
 
-    @Override
-    public void run() {
-        logSubprocess();
-    }
 }

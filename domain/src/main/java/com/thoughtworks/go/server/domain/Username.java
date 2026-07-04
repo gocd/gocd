@@ -16,15 +16,17 @@
 package com.thoughtworks.go.server.domain;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.StringJoiner;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 public class Username implements Serializable {
-    public static final Username ANONYMOUS = new Username(new CaseInsensitiveString("anonymous"));
-    public static final Username BLANK = new Username(new CaseInsensitiveString(""));
-    public static final Username CRUISE_TIMER = new Username(new CaseInsensitiveString("timer"));
+    public static final Username ANONYMOUS = new Username(cis("anonymous"));
+    public static final Username BLANK = new Username(cis(""));
+    public static final Username CRUISE_TIMER = new Username(cis("timer"));
 
     private final CaseInsensitiveString username;
     private final String displayName;
@@ -34,7 +36,7 @@ public class Username implements Serializable {
     }
 
     public Username(final String userName) {
-        this(new CaseInsensitiveString(userName));
+        this(cis(userName));
     }
 
     public Username(final Username userName, String displayName) {
@@ -47,7 +49,7 @@ public class Username implements Serializable {
     }
 
     public Username(final String userName, String displayName) {
-        this(new CaseInsensitiveString(userName), displayName);
+        this(cis(userName), displayName);
     }
 
     public String getDisplayName() {
@@ -60,7 +62,10 @@ public class Username implements Serializable {
 
     @Override
     public String toString() {
-        return ToStringBuilder.reflectionToString(this);
+        return new StringJoiner(", ", Username.class.getSimpleName() + "[", "]")
+            .add("username=" + username)
+            .add("displayName='" + displayName + "'")
+            .toString();
     }
 
     public boolean isAnonymous() {
@@ -68,7 +73,7 @@ public class Username implements Serializable {
     }
 
     public boolean isGoAgentUser() {
-        return this.username.toLower().startsWith("_go_agent_");
+        return this.username.startsWith("_go_agent_");
     }
 
     @Override
@@ -93,6 +98,6 @@ public class Username implements Serializable {
     }
 
     public static Username valueOf(String username) {
-        return new Username(new CaseInsensitiveString(username));
+        return new Username(cis(username));
     }
 }

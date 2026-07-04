@@ -15,25 +15,20 @@
  */
 package com.thoughtworks.go.config.security.users;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.RoleUser;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 /* Understands: The set of users it has. */
-public class AllowedUsers implements Users {
-    private final Set<PluginRoleConfig> allowedRoles;
-    private Set<String> allowedUsers = new HashSet<>();
+public record AllowedUsers(Set<String> allowedUsers, Set<PluginRoleConfig> allowedRoles) implements Users {
 
     public AllowedUsers(Set<String> allowedUsers, Set<PluginRoleConfig> allowedRoles) {
+        this.allowedUsers = allowedUsers.stream().map(String::toLowerCase).collect(Collectors.toSet());
         this.allowedRoles = allowedRoles;
-        for (String user : allowedUsers) {
-            this.allowedUsers.add(user.toLowerCase());
-        }
     }
 
     @Override
@@ -44,38 +39,11 @@ public class AllowedUsers implements Users {
     private boolean containsInRole(String username) {
         for (PluginRoleConfig role : allowedRoles) {
             for (RoleUser r : role.getUsers()) {
-                if (r.getName().equals(new CaseInsensitiveString(username))) {
+                if (r.getName().equals(cis(username))) {
                     return true;
                 }
             }
         }
         return false;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        AllowedUsers that = (AllowedUsers) o;
-
-        return Objects.equals(allowedRoles, that.allowedRoles) &&
-            Objects.equals(allowedUsers, that.allowedUsers);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = allowedRoles != null ? allowedRoles.hashCode() : 0;
-        result = 31 * result + (allowedUsers != null ? allowedUsers.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
     }
 }

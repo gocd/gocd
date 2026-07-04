@@ -17,33 +17,32 @@ package com.thoughtworks.go.apiv11.shared.representers.materials
 
 import com.thoughtworks.go.apiv11.admin.shared.representers.stages.ConfigHelperOptions
 import com.thoughtworks.go.config.BasicCruiseConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
 import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig
 import com.thoughtworks.go.config.remote.FileConfigOrigin
+import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.mockito.Mockito.mock
 
 class DependencyMaterialRepresenterTest implements MaterialRepresenterTrait {
 
-
-  def existingMaterial() {
+  MaterialConfig existingMaterial() {
     MaterialConfigsMother.dependencyMaterialConfig()
   }
 
-  def getOptions() {
+  ConfigHelperOptions getOptions() {
     return new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class))
-
   }
 
-  def existingMaterialWithErrors() {
-    def dependencyConfig = new DependencyMaterialConfig(new CaseInsensitiveString(''), new CaseInsensitiveString(''), true)
+  MaterialConfig existingMaterialWithErrors() {
+    def dependencyConfig = new DependencyMaterialConfig(cis(''), cis(''), true)
     def materialConfigs = new MaterialConfigs(dependencyConfig)
-    def pipeline = new PipelineConfig(new CaseInsensitiveString("p"), materialConfigs)
+    def pipeline = new PipelineConfig(cis("p"), materialConfigs)
     pipeline.setOrigins(new FileConfigOrigin())
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), pipeline))
     return materialConfigs.getFirst()

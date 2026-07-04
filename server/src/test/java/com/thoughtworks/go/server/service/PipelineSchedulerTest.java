@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
@@ -45,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.GoConfigMother.configWithPipelines;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -105,7 +105,7 @@ public class PipelineSchedulerTest {
 
     @Test
     public void shouldAddErrorIfPipelineIsNotFound() {
-        when(configService.hasPipelineNamed(new CaseInsensitiveString("invalid"))).thenReturn(false);
+        when(configService.hasPipelineNamed(cis("invalid"))).thenReturn(false);
         OperationResult operationResult = mock(OperationResult.class);
         final Map<String, String> revisions = new HashMap<>();
         final Map<String, String> environmentVariables = new HashMap<>();
@@ -116,7 +116,7 @@ public class PipelineSchedulerTest {
 
     @Test
     public void shouldReturn404WhenVariableIsNotInConfigScope() {
-        when(configService.hasPipelineNamed(new CaseInsensitiveString("blahPipeline"))).thenReturn(true);
+        when(configService.hasPipelineNamed(cis("blahPipeline"))).thenReturn(true);
         when(configService.hasVariableInScope("blahPipeline", "blahVariable")).thenReturn(false);
         OperationResult operationResult = mock(OperationResult.class);
         final Map<String, String> revisions = new HashMap<>();
@@ -128,9 +128,9 @@ public class PipelineSchedulerTest {
 
     @Test
     public void shouldSchedulePipelineWithEnvironmentVariableOverrides() {
-        PipelineConfig pipelineConfig = configWithPipelines("blahPipeline").pipelineConfigByName(new CaseInsensitiveString("blahPipeline"));
-        when(configService.pipelineConfigNamed(new CaseInsensitiveString("blahPipeline"))).thenReturn(pipelineConfig);
-        when(configService.hasPipelineNamed(new CaseInsensitiveString("blahPipeline"))).thenReturn(true);
+        PipelineConfig pipelineConfig = configWithPipelines("blahPipeline").pipelineConfigByName(cis("blahPipeline"));
+        when(configService.pipelineConfigNamed(cis("blahPipeline"))).thenReturn(pipelineConfig);
+        when(configService.hasPipelineNamed(cis("blahPipeline"))).thenReturn(true);
         when(configService.hasVariableInScope("blahPipeline", "blahVariable")).thenReturn(true);
         OperationResult operationResult = mock(OperationResult.class);
         Map<String, String> variables = Map.of("blahVariable", "blahValue");
@@ -142,8 +142,8 @@ public class PipelineSchedulerTest {
 
     @Test
     public void shouldUpdateOperationResultTo404WhenAnInvalidMaterialIsSpecified() {
-        when(configService.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
-        when(configService.findMaterial(new CaseInsensitiveString("pipeline"), "invalid-material")).thenReturn(null);
+        when(configService.hasPipelineNamed(cis("pipeline"))).thenReturn(true);
+        when(configService.findMaterial(cis("pipeline"), "invalid-material")).thenReturn(null);
         HttpOperationResult result = new HttpOperationResult();
         final Map<String, String> environmentVariables = new HashMap<>();
         scheduler.manualProduceBuildCauseAndSave("pipeline", Username.ANONYMOUS, new ScheduleOptions(Map.of("invalid-material", "blah-revision"), environmentVariables, new HashMap<>()), result);
@@ -153,9 +153,9 @@ public class PipelineSchedulerTest {
 
     @Test
     public void shouldNotAcceptEmptyRevision() {
-        when(configService.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
+        when(configService.hasPipelineNamed(cis("pipeline"))).thenReturn(true);
         MaterialConfig materialConfig = mock(MaterialConfig.class);
-        when(configService.findMaterial(new CaseInsensitiveString("pipeline"), "invalid-material")).thenReturn(materialConfig);
+        when(configService.findMaterial(cis("pipeline"), "invalid-material")).thenReturn(materialConfig);
 
         HttpOperationResult result = new HttpOperationResult();
         final Map<String, String> environmentVariables = new HashMap<>();
@@ -180,7 +180,7 @@ public class PipelineSchedulerTest {
         @SuppressWarnings("unchecked") EntityConfigChangedListener<PipelineConfig> entityConfigChangedListener = (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
 
 
-        when(newPipeline.name()).thenReturn(new CaseInsensitiveString(pipelineName));
+        when(newPipeline.name()).thenReturn(cis(pipelineName));
         entityConfigChangedListener.onEntityConfigChange(newPipeline);
         scheduler.checkPipelines();
         verify(queue, times(1)).post(ScheduleCheckMessageMatcher.matchScheduleCheckMessage(pipelineName));
@@ -199,7 +199,7 @@ public class PipelineSchedulerTest {
 
         PipelineConfig newPipeline = mock(PipelineConfig.class);
         String pipelineName = "deleted-pipeline";
-        when(newPipeline.name()).thenReturn(new CaseInsensitiveString(pipelineName));
+        when(newPipeline.name()).thenReturn(cis(pipelineName));
         entityConfigChangedListener.onEntityConfigChange(newPipeline);
         scheduler.checkPipelines();
         verify(queue, times(0)).post(ScheduleCheckMessageMatcher.matchScheduleCheckMessage(pipelineName));

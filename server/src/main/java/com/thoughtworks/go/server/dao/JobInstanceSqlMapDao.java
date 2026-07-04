@@ -15,14 +15,14 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import com.opensymphony.oscache.base.Cache;
+import com.github.benmanes.caffeine.cache.Cache;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.server.cache.CacheKeyGenerator;
-import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.cache.LazyCache;
+import com.thoughtworks.go.server.caching.CacheKeyGenerator;
+import com.thoughtworks.go.server.caching.GoCache;
+import com.thoughtworks.go.server.caching.LazyCache;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.persistence.ArtifactPlanRepository;
 import com.thoughtworks.go.server.persistence.ResourceRepository;
@@ -39,10 +39,13 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionCallback;
@@ -51,14 +54,14 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import javax.annotation.PreDestroy;
 import java.util.*;
 
-import static com.thoughtworks.go.util.IBatisUtil.arguments;
+import static com.thoughtworks.go.server.dao.NullableMaps.nullableMapOf;
 
 @Component
 public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobInstanceDao, JobStatusListener {
     private static final Logger LOG = LoggerFactory.getLogger(JobInstanceSqlMapDao.class);
     private final LazyCache latestCompletedCache;
     private final CacheKeyGenerator cacheKeyGenerator;
-    private final Cache buildDurationCache;
+    private final Cache<JobInstance.BuildDurationKey, ?> buildDurationCache;
     private final TransactionSynchronizationManager transactionSynchronizationManager;
     private final TransactionTemplate transactionTemplate;
     private final EnvironmentVariableDao environmentVariableDao;
@@ -72,7 +75,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
                                 GoCache goCache,
                                 TransactionTemplate transactionTemplate,
                                 SqlSessionFactory sqlSessionFactory,
-                                Cache buildDurationCache,
+                                @Qualifier("buildDurationCache") Cache<JobInstance.BuildDurationKey, ?> buildDurationCache,
                                 TransactionSynchronizationManager transactionSynchronizationManager,
                                 ResourceRepository resourceRepository,
                                 ArtifactPlanRepository artifactPlanRepository,
@@ -107,7 +110,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
 
     @Override
-    public JobInstance buildByIdWithTransitions(long buildInstanceId) {
+    public @NotNull JobInstance buildByIdWithTransitions(long buildInstanceId) {
         String cacheKey = cacheKeyForJobInstanceWithTransitions(buildInstanceId);
         synchronized (cacheKey) {
             JobInstance instance = goCache.get(cacheKey);
@@ -125,11 +128,11 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     @Override
-    public JobInstance buildById(long buildId) {
+    public @NotNull JobInstance buildById(long buildId) {
         return job(buildId, "buildById");
     }
 
-    private JobInstance job(long buildId, String queryName) {
+    private @NotNull JobInstance job(long buildId, String queryName) {
         JobInstance instance = getSqlMapClientTemplate().queryForObject(queryName, buildId);
         if (instance == null) {
             throw new DataRetrievalFailureException("Could not load build with id " + buildId);
@@ -217,30 +220,29 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     @Override
-    public JobIdentifier findOriginalJobIdentifier(StageIdentifier stageIdentifier, String jobName) {
+    public @Nullable JobIdentifier findOriginalJobIdentifier(StageIdentifier stageIdentifier, String jobName) {
         String key = cacheKeyForOriginalJobIdentifier(stageIdentifier, jobName);
 
-        JobIdentifier jobIdentifier = goCache.get(key);
-        if (jobIdentifier == null) {
+        JobIdentifier jobId = goCache.get(key);
+        if (jobId == null) {
             synchronized (key) {
-                jobIdentifier = goCache.get(key);
-                if (jobIdentifier == null) {
-                    Map<String, Object> params =
-                        arguments("pipelineName", stageIdentifier.getPipelineName())
-                            .and("pipelineCounter", stageIdentifier.getPipelineCounter())
-                            .and("stageName", stageIdentifier.getStageName())
-                            .and("stageCounter", Integer.parseInt(stageIdentifier.getStageCounter()))
-                            .and("jobName", jobName)
-                            .asMap();
+                jobId = goCache.get(key);
+                if (jobId == null) {
+                    Map<String, Object> params = nullableMapOf(
+                        "pipelineName", stageIdentifier.getPipelineName(),
+                        "pipelineCounter", stageIdentifier.getPipelineCounter(),
+                        "stageName", stageIdentifier.getStageName(),
+                        "stageCounter", Integer.valueOf(stageIdentifier.getStageCounter()),
+                        "jobName", jobName);
 
-                    jobIdentifier = getSqlMapClientTemplate().queryForObject("findJobId", params);
+                    jobId = getSqlMapClientTemplate().queryForObject("findJobId", params);
 
-                    goCache.put(key, jobIdentifier);
+                    goCache.put(key, jobId);
                 }
             }
         }
 
-        return cloner.deepClone(jobIdentifier);
+        return jobId == null ? null : new JobIdentifier(jobId);
     }
 
     @VisibleForTesting
@@ -262,19 +264,18 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
                                                   SortOrder order,
                                                   int offset,
                                                   int limit) {
-        Map<String, Object> params =
-            arguments("uuid", uuid)
-                .and("offset", offset)
-                .and("limit", limit)
-                .and("column", jobHistoryColumns.getColumnName())
-                .and("order", order.toString())
-                .asMap();
+        Map<String, Object> params = nullableMapOf(
+            "uuid", uuid,
+            "offset", offset,
+            "limit", limit,
+            "column", jobHistoryColumns.getColumnName(),
+            "order", order.toString());
         return getSqlMapClientTemplate().queryForList("completedJobsOnAgent", params);
     }
 
     @Override
     public int totalCompletedJobsOnAgent(String uuid) {
-        return getSqlMapClientTemplate().queryForObject("totalCompletedJobsOnAgent", arguments("uuid", uuid).asMap());
+        return getSqlMapClientTemplate().queryForObject("totalCompletedJobsOnAgent", nullableMapOf("uuid", uuid));
     }
 
     @Override
@@ -424,7 +425,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     private JobPlan _loadJobPlan(Long jobId) {
-        DefaultJobPlan jobPlan = getSqlMapClientTemplate().queryForObject("scheduledPlan", arguments("id", jobId).asMap());
+        DefaultJobPlan jobPlan = getSqlMapClientTemplate().queryForObject("scheduledPlan", nullableMapOf("id", jobId));
         if (jobPlan == null) {
             return null;
         }
@@ -455,8 +456,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     @Override
     public JobInstances findHungJobs(List<String> liveAgentIdList) {
-        List<JobInstance> list = getSqlMapClientTemplate().queryForList("getHungJobs",
-            arguments("liveAgentIdList", liveAgentIdList).asMap());
+        List<JobInstance> list = getSqlMapClientTemplate().queryForList("getHungJobs", nullableMapOf("liveAgentIdList", liveAgentIdList));
         return new JobInstances(list);
     }
 
@@ -467,9 +467,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
             }
         }
         if (jobInstance.getIdentifier() != null) {
-            String pipelineName = jobInstance.getIdentifier().getPipelineName();
-            String stageName = jobInstance.getIdentifier().getStageName();
-            buildDurationCache.flushEntry(jobInstance.getBuildDurationKey(pipelineName, stageName));
+            buildDurationCache.invalidate(jobInstance.toBuildDurationKey());
         }
     }
 
@@ -488,9 +486,10 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     @Override
     public PipelineRunIdInfo getOldestAndLatestJobInstanceId(String pipelineName, String stageName, String jobConfigName) {
-        Map<String, Object> params = arguments("pipelineName", pipelineName)
-            .and("stageName", stageName)
-            .and("jobConfigName", jobConfigName).asMap();
+        Map<String, Object> params = nullableMapOf(
+            "pipelineName", pipelineName,
+            "stageName", stageName,
+            "jobConfigName", jobConfigName);
         return getSqlMapClientTemplate().queryForObject("getOldestAndLatestJobRun", params);
     }
 
@@ -519,7 +518,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     @PreDestroy
     public void destroy() {
-        buildDurationCache.flushAll(new Date());
+        buildDurationCache.invalidateAll();
         latestCompletedCache.destroy();
     }
 }

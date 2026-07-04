@@ -17,7 +17,7 @@
 package com.thoughtworks.go.apiv2.packages
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv2.packages.representers.PackageDefinitionRepresenter
 import com.thoughtworks.go.domain.config.Configuration
 import com.thoughtworks.go.domain.config.ConfigurationKey
@@ -29,8 +29,8 @@ import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.materials.PackageDefinitionService
 import com.thoughtworks.go.server.service.materials.PackageRepositoryService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.spark.AnyGroupAdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
@@ -66,11 +66,13 @@ class PackagesInternalControllerV2Test implements SecurityServiceTrait, Controll
 
   @Override
   PackagesInternalControllerV2 createControllerInstance() {
-    new PackagesInternalControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, packageDefinitionService, packageRepositoryService)
+    new PackagesInternalControllerV2(new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService, packageDefinitionService, packageRepositoryService)
   }
 
   @Nested
-  class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+  class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
+    @Delegate SecurityServiceTrait s = PackagesInternalControllerV2Test.this
+    @Delegate ControllerTrait<PackagesInternalControllerV2> c = PackagesInternalControllerV2Test.this
 
     @Override
     String getControllerMethodUnderTest() {
@@ -87,7 +89,6 @@ class PackagesInternalControllerV2Test implements SecurityServiceTrait, Controll
   class VerifyConnection {
     @BeforeEach
     void setUp() {
-      enableSecurity()
       loginAsAdmin()
     }
 
@@ -97,9 +98,9 @@ class PackagesInternalControllerV2Test implements SecurityServiceTrait, Controll
       def packageDefinition = new PackageDefinition('package-id-1', 'package-1', configurationProperties)
       packageDefinition.setRepository(repo)
 
-      when(packageDefinitionService.checkConnection(any(PackageDefinition.class), any(HttpLocalizedOperationResult.class))).then({
+      when(packageDefinitionService.checkConnection(any(PackageDefinition.class), any())).then({
         InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(1)
           result.setMessage("Successful Check Connection!")
       })
 
@@ -118,9 +119,9 @@ class PackagesInternalControllerV2Test implements SecurityServiceTrait, Controll
       def packageDefinition = new PackageDefinition('package-id-1', 'package-1', configurationProperties)
       packageDefinition.setRepository(new PackageRepository('package-repo-id-1', 'package-repo-name-1', null, null))
 
-      when(packageDefinitionService.checkConnection(any(PackageDefinition.class), any(HttpLocalizedOperationResult.class))).then({
+      when(packageDefinitionService.checkConnection(any(PackageDefinition.class), any())).then({
         InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(1)
           result.badRequest("Failed Check Connection!")
       })
 

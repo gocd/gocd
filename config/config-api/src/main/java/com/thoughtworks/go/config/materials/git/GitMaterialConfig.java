@@ -17,7 +17,6 @@ package com.thoughtworks.go.config.materials.git;
 
 import com.thoughtworks.go.config.ConfigAttribute;
 import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.util.command.UrlArgument;
@@ -91,7 +90,7 @@ public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwar
     }
 
     @Override
-    public void validateConcreteScmMaterial(ValidationContext validationContext) {
+    public void validateConcreteScmMaterial() {
         validateMaterialUrl(this.url);
         validateBranchOrRefSpec(this.branch);
         validateCredentials();
@@ -100,7 +99,7 @@ public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwar
 
     @Override
     public String getUriForDisplay() {
-        return this.url.forDisplay();
+        return url != null ? url.forDisplay() : null;
     }
 
     @Override

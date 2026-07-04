@@ -15,21 +15,23 @@
  */
 package com.thoughtworks.go.apiv11.shared.representers.stages.tasks
 
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.FetchTask
+import com.thoughtworks.go.domain.Task
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 
 class FetchTaskRepresenterTest implements TaskRepresenterTrait {
-  def existingTask() {
+  Task existingTask() {
     def task = new FetchTask()
-    task.setPipelineName(new CaseInsensitiveString('pipeline'))
-    task.setStage(new CaseInsensitiveString('stage'))
-    task.setJob(new CaseInsensitiveString('job'))
+    task.setPipelineName(cis('pipeline'))
+    task.setStage(cis('stage'))
+    task.setJob(cis('job'))
     task.setSrcfile("src")
     task.setDest("dest")
     return task
   }
 
-  def expectedTaskHash =
+  Map<?, ?> expectedTaskHash =
     [
       type      : 'fetch',
       attributes: [
@@ -44,7 +46,7 @@ class FetchTaskRepresenterTest implements TaskRepresenterTrait {
       ]
     ]
 
-  def expectedTaskHashWithRunIf =
+  Map<?, ?> expectedTaskHashWithRunIf =
     [
       type      : 'fetch',
       attributes: [
@@ -59,7 +61,7 @@ class FetchTaskRepresenterTest implements TaskRepresenterTrait {
       ]
     ]
 
-  def expectedTaskHashWithOnCancelConfig =
+  Map<?, ?> expectedTaskHashWithOnCancelConfig =
     [
       type      : 'fetch',
       attributes: [

@@ -29,6 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -51,9 +52,9 @@ public class CreateTemplateConfigCommandTest {
     @BeforeEach
     public void setup() {
         result = new HttpLocalizedOperationResult();
-        currentUser = new Username(new CaseInsensitiveString("user"));
+        currentUser = new Username(cis("user"));
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
+        pipelineTemplateConfig = new PipelineTemplateConfig(cis("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
     }
 
     @Test
@@ -110,9 +111,9 @@ public class CreateTemplateConfigCommandTest {
         PipelineTemplateConfig template = mock(PipelineTemplateConfig.class);
         CreateTemplateConfigCommand command = new CreateTemplateConfigCommand(template, null, securityService, result, externalArtifactsService);
 
-        when(template.name()).thenReturn(new CaseInsensitiveString("p1"));
+        when(template.name()).thenReturn(cis("p1"));
         CruiseConfig preprocessedConfig = mock(CruiseConfig.class);
-        when(preprocessedConfig.findTemplate(new CaseInsensitiveString("p1"))).thenReturn(template);
+        when(preprocessedConfig.findTemplate(cis("p1"))).thenReturn(template);
 
         command.encrypt(preprocessedConfig);
 

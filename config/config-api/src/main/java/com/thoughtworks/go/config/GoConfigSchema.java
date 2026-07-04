@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.util.GoConstants;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -25,8 +23,10 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class GoConfigSchema {
 
+    public static final int VERSION = 139;
+
     public static URI getCurrentSchema() {
-        return getResource(currentSchemaVersion());
+        return getResource(VERSION);
     }
 
     public static URI getResource(int version) {
@@ -42,12 +42,8 @@ public class GoConfigSchema {
         }
     }
 
-    public static int currentSchemaVersion() {
-        return GoConstants.CONFIG_SCHEMA_VERSION;
-    }
-
     static String resolveSchemaFile(int version) {
-        if (version == currentSchemaVersion()) {
+        if (version == VERSION) {
             return "/cruise-config.xsd";
         } else {
             return "/schemas/" + version + "_cruise-config.xsd";

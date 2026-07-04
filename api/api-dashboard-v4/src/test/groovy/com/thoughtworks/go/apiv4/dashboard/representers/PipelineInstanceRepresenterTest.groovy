@@ -15,22 +15,22 @@
  */
 package com.thoughtworks.go.apiv4.dashboard.representers
 
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.TrackingTool
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.config.security.Permissions
-import com.thoughtworks.go.config.security.permissions.NoOnePermission
-import com.thoughtworks.go.config.security.users.NoOne
+import com.thoughtworks.go.config.security.permissions.PipelinePermission
+import com.thoughtworks.go.config.security.users.Users
 import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.helpers.PipelineModelMother
 import com.thoughtworks.go.server.dashboard.Counter
 import com.thoughtworks.go.server.dashboard.GoDashboardPipeline
 import com.thoughtworks.go.server.domain.Username
-import com.thoughtworks.go.spark.util.SecureRandom
+import com.thoughtworks.go.spark.util.Random
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helpers.PipelineModelMother.pipeline_model
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
@@ -44,14 +44,14 @@ class PipelineInstanceRepresenterTest {
     def pipelineInstance = PipelineModelMother.pipeline_instance_model_empty("p1", "s1")
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
-    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
+    def permissions = new Permissions(Users.NOONE, Users.NOONE, Users.NOONE, PipelinePermission.NOONE)
     def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
     pipelineConfig.setOrigin(new FileConfigOrigin())
     pipelineConfig.setTrackingTool(new TrackingTool("http://example.com/\${ID}", "##\\d+"))
     pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'pipeline_label'),
             permissions, "grp", counter, pipelineConfig)
-    def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+    def username = new Username(cis(Random.hex()))
 
     def json = toObject({ PipelineInstanceRepresenter.toJSON(it, pipelineInstance, pipeline, username) })
 
@@ -71,14 +71,14 @@ class PipelineInstanceRepresenterTest {
                                                                 stages: [[name: "cruise", counter: "10", approved_by: "Anonymous"]]])
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
-    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
+    def permissions = new Permissions(Users.NOONE, Users.NOONE, Users.NOONE, PipelinePermission.NOONE)
     def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
     pipelineConfig.setOrigin(new FileConfigOrigin())
     pipelineConfig.setTrackingTool(new TrackingTool("http://example.com/\${ID}", "##\\d+"))
     pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'g1'),
             permissions, "grp", counter, pipelineConfig)
-    def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+    def username = new Username(cis(Random.hex()))
 
     def actualJson = toObject({ PipelineInstanceRepresenter.toJSON(it, instance, pipeline, username) })
 

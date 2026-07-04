@@ -82,22 +82,12 @@ public class TemplatesConfig extends BaseCollection<PipelineTemplateConfig> impl
         return stream().filter(t -> t.name().equals(name)).findFirst().orElse(null);
     }
 
-    public boolean canViewAndEditTemplate(CaseInsensitiveString username, List<Role> roles) {
-        for (PipelineTemplateConfig templateConfig : this) {
-            if (canUserEditTemplate(templateConfig, username, roles)) {
-                return true;
-            }
-        }
-        return false;
+    public boolean canUserEditTemplates(CaseInsensitiveString username, List<Role> roles) {
+        return this.stream().anyMatch(templateConfig -> canUserEditTemplate(templateConfig, username, roles));
     }
 
     public boolean canUserViewTemplates(CaseInsensitiveString username, List<Role> roles, boolean isGroupAdministrator) {
-        for (PipelineTemplateConfig templateConfig : this) {
-            if (hasViewAccessToTemplate(templateConfig, username, roles, isGroupAdministrator)) {
-                return true;
-            }
-        }
-        return false;
+        return this.stream().anyMatch(templateConfig -> hasViewAccessToTemplate(templateConfig, username, roles, isGroupAdministrator));
     }
 
     public boolean canUserEditTemplate(PipelineTemplateConfig template, CaseInsensitiveString username, List<Role> roles) {

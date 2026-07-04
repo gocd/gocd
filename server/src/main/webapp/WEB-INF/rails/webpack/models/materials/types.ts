@@ -19,6 +19,8 @@ import {JsonUtils} from "helpers/json_utils";
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import Stream from "mithril/stream";
+import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
+import {ConfigRepo} from "models/config_repos/types";
 import {
   DependencyMaterialAttributesJSON,
   GitMaterialAttributesJSON,
@@ -70,6 +72,10 @@ function urlForDisplay(url?: string) {
 
   return parsed.href;
 }
+
+export type MaterialTestContext =
+  | { configRepo: ConfigRepo; group?: never; pipeline?: never }
+  | { configRepo?: never; group: string; pipeline?: string };
 
 export class Materials {
   static fromJSON(material: MaterialJSON): Material {
@@ -158,22 +164,18 @@ export class Material extends ValidatableMixin {
     );
   }
 
-  checkConnection(pipelineName?: string, pipelineGroup?: string, configRepoId?: string) {
+  checkConnection(context: MaterialTestContext) {
     const payload = this.toApiPayload();
-    if (pipelineName) {
-      payload.pipeline_name = pipelineName;
-    }
-    if (pipelineGroup) {
-      payload.pipeline_group = pipelineGroup;
-    }
 
     let url: string, apiVersion: ApiVersion;
-    if (configRepoId) {
-      url        = SparkRoutes.configRepoConnectionCheck(configRepoId);
-      apiVersion = ApiVersion.v4;
-    } else {
-      url        = SparkRoutes.materialConnectionCheck();
+    if (context.configRepo) {
+      url        = SparkRoutes.configRepoConnectionCheck(context.configRepo.id());
+      apiVersion = ConfigReposCRUD.API_VERSION_HEADER;
+    } else if (context.group) {
+      url        = SparkRoutes.materialConnectionCheck(context.group, context.pipeline);
       apiVersion = Material.API_VERSION_HEADER;
+    } else {
+      throw new Error("Invalid material context for connection check");
     }
 
     return ApiRequestBuilder.POST(url, apiVersion, {payload});

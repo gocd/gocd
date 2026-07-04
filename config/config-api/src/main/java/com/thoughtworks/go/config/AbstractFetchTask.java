@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 public abstract class AbstractFetchTask extends AbstractTask implements FetchArtifactConfig {
     public static final String PIPELINE_NAME = "pipelineName";
     public static final String PIPELINE = "pipeline";
@@ -164,15 +166,8 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
             }
         }
 
-        boolean foundStageAtOrBeforeDependency = Objects.equals(dependencyStage, stage);
-        if (!foundStageAtOrBeforeDependency) {
-            for (StageConfig stageConfig : pipeline.allStagesBefore(dependencyStage)) {
-                foundStageAtOrBeforeDependency = stage.equals(stageConfig.name());
-                if (foundStageAtOrBeforeDependency) {
-                    break;
-                }
-            }
-        }
+        boolean foundStageAtOrBeforeDependency = Objects.equals(dependencyStage, stage)
+            || pipeline.allStagesBefore(dependencyStage).anyMatch(stageConfig -> stage.equals(stageConfig.name()));
 
         if (!foundStageAtOrBeforeDependency) {
             addStageMayNotCompleteBeforeDownstreamError(currentPipeline, validationContext);
@@ -299,14 +294,14 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
             return;
         }
         if (attributeMap.containsKey(PIPELINE_NAME)) {
-            this.pipelineName = new PathFromAncestor(new CaseInsensitiveString((String) attributeMap.get(PIPELINE_NAME)));
+            this.pipelineName = new PathFromAncestor(cis((String) attributeMap.get(PIPELINE_NAME)));
         }
         if (attributeMap.containsKey(STAGE)) {
-            setStage(new CaseInsensitiveString((String) attributeMap.get(STAGE)));
+            setStage(cis((String) attributeMap.get(STAGE)));
         }
         if (attributeMap.containsKey(JOB)) {
             String jobString = (String) attributeMap.get(JOB);
-            setJob(new CaseInsensitiveString(jobString));
+            setJob(cis(jobString));
         }
         setFetchTaskAttributes(attributeMap);
     }

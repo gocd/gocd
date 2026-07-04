@@ -16,6 +16,7 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.ArtifactUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -30,17 +31,17 @@ import java.util.Objects;
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 
 public class ChecksumFileHandler implements FetchHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(ChecksumFileHandler.class);
 
     private final File checksumFile;
-    private static final Logger LOG = LoggerFactory.getLogger(ChecksumFileHandler.class);
 
     public ChecksumFileHandler(File destination) {
         checksumFile = destination;
     }
 
     @Override
-    public String url(String remoteHost, String workingUrl) {
-        return String.format("%s/remoting/files/%s/%s/%s", remoteHost, workingUrl, ArtifactUtil.CRUISE_OUTPUT_FOLDER, ArtifactUtil.MD5_CHECKSUM_FILENAME);
+    public String url(String uriPathFromContext) {
+        return String.format("%s/remoting/files/%s/%s/%s", SystemEnvironment.getNormalizedServiceUrl(), uriPathFromContext, ArtifactUtil.CRUISE_OUTPUT_FOLDER, ArtifactUtil.MD5_CHECKSUM_FILENAME);
     }
 
     @Override
@@ -49,21 +50,21 @@ public class ChecksumFileHandler implements FetchHandler {
     }
 
     @Override
-    public boolean handleResult(int returncode, GoPublisher goPublisher) {
-        if (returncode == HttpURLConnection.HTTP_NOT_FOUND) {
+    public boolean handleResult(int httpCode, GoPublisher goPublisher) {
+        if (httpCode == HttpURLConnection.HTTP_NOT_FOUND) {
             deleteQuietly(checksumFile);
             goPublisher.taggedConsumeLineWithPrefix(GoPublisher.ERR, "[WARN] The md5checksum property file was not found on the server. Hence, Go can not verify the integrity of the artifacts.");
             return true;
         }
-        if (returncode == HttpURLConnection.HTTP_NOT_MODIFIED) {
+        if (httpCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
             LOG.info("[Agent Fetch Artifact] Not downloading checksum file as it has not changed");
             return true;
         }
-        if (returncode == HttpURLConnection.HTTP_OK) {
+        if (httpCode == HttpURLConnection.HTTP_OK) {
             LOG.info("[Agent Fetch Artifact] Saved checksum property file [{}]", checksumFile);
             return true;
         }
-        return returncode < HttpURLConnection.HTTP_BAD_REQUEST;
+        return httpCode < HttpURLConnection.HTTP_BAD_REQUEST;
     }
 
     @Override
@@ -78,7 +79,6 @@ public class ChecksumFileHandler implements FetchHandler {
         }
         return o instanceof ChecksumFileHandler that &&
             Objects.equals(checksumFile, that.checksumFile);
-
     }
 
     @Override

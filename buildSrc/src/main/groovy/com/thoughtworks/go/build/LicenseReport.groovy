@@ -33,6 +33,7 @@ class LicenseReport {
   private static final Set<String> ALLOWED_LICENSES = Set.of(
     "Apache-1.1",
     "Apache-2.0",
+    "BlueOak-1.0.0",
     "0BSD",
     "BSD-2-Clause",
     "BSD-3-Clause",

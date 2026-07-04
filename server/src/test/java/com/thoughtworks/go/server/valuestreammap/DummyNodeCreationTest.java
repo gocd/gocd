@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.valuestreammap.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DummyNodeCreationTest {
@@ -38,10 +39,10 @@ public class DummyNodeCreationTest {
              g                     ^
              +---- x ----- x ------+
          */
-        CaseInsensitiveString currentPipeline = new CaseInsensitiveString("d3");
-        CaseInsensitiveString d1 = new CaseInsensitiveString("d1");
-        CaseInsensitiveString d2 = new CaseInsensitiveString("d2");
-        CaseInsensitiveString g = new CaseInsensitiveString("g");
+        CaseInsensitiveString currentPipeline = cis("d3");
+        CaseInsensitiveString d1 = cis("d1");
+        CaseInsensitiveString d2 = cis("d2");
+        CaseInsensitiveString g = cis("g");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(d2, d2.toString()), null, currentPipeline);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(d1, d1.toString()), null, d2);
@@ -67,11 +68,11 @@ public class DummyNodeCreationTest {
              |             |
              ------d2-----+
          */
-        CaseInsensitiveString currentPipeline = new CaseInsensitiveString("d5");
-        CaseInsensitiveString d4 = new CaseInsensitiveString("d4");
-        CaseInsensitiveString d1 = new CaseInsensitiveString("d1");
-        CaseInsensitiveString d3 = new CaseInsensitiveString("d3");
-        CaseInsensitiveString d2 = new CaseInsensitiveString("d2");
+        CaseInsensitiveString currentPipeline = cis("d5");
+        CaseInsensitiveString d4 = cis("d4");
+        CaseInsensitiveString d1 = cis("d1");
+        CaseInsensitiveString d3 = cis("d3");
+        CaseInsensitiveString d2 = cis("d2");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(d4, d4.toString()), null, currentPipeline);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(d1, d1.toString()), null, d4);
@@ -98,10 +99,10 @@ public class DummyNodeCreationTest {
          *        |              ^
          *        ------ X -----+
          */
-        CaseInsensitiveString currentPipeline = new CaseInsensitiveString("d3");
-        CaseInsensitiveString d2 = new CaseInsensitiveString("d2");
-        CaseInsensitiveString d1 = new CaseInsensitiveString("d1");
-        CaseInsensitiveString g = new CaseInsensitiveString("g");
+        CaseInsensitiveString currentPipeline = cis("d3");
+        CaseInsensitiveString d2 = cis("d2");
+        CaseInsensitiveString d1 = cis("d1");
+        CaseInsensitiveString g = cis("g");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(d2, d2.toString()), null, currentPipeline);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(d1, d1.toString()), null, currentPipeline);
@@ -121,7 +122,7 @@ public class DummyNodeCreationTest {
         VSMTestHelper.assertThatNodeHasChildren(graph, d1, 1, d2);
         VSMTestHelper.assertThatNodeHasChildren(graph, g, 1, d1);
 
-        VSMTestHelper.assertThatNodeHasParents(graph, new CaseInsensitiveString("d3"), 1, d2);
+        VSMTestHelper.assertThatNodeHasParents(graph, cis("d3"), 1, d2);
         VSMTestHelper.assertThatNodeHasParents(graph, d2, 1, d1);
         VSMTestHelper.assertThatNodeHasParents(graph, d1, 0, g);
     }
@@ -135,10 +136,10 @@ public class DummyNodeCreationTest {
             |           ^
            d3 -- X -----+
          */
-        CaseInsensitiveString currentPipeline = new CaseInsensitiveString("d1");
-        CaseInsensitiveString d2 = new CaseInsensitiveString("d2");
-        CaseInsensitiveString d3 = new CaseInsensitiveString("d3");
-        CaseInsensitiveString d4 = new CaseInsensitiveString("d4");
+        CaseInsensitiveString currentPipeline = cis("d1");
+        CaseInsensitiveString d2 = cis("d2");
+        CaseInsensitiveString d3 = cis("d3");
+        CaseInsensitiveString d4 = cis("d4");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(d2, d2.toString()), null, currentPipeline);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(d3, d3.toString()), null, currentPipeline);
@@ -166,13 +167,13 @@ public class DummyNodeCreationTest {
             |           ^
             +---- X -----+
          */
-        CaseInsensitiveString currentPipeline = new CaseInsensitiveString("d5");
-        CaseInsensitiveString d2 = new CaseInsensitiveString("d2");
-        CaseInsensitiveString d1 = new CaseInsensitiveString("d1");
-        CaseInsensitiveString g1 = new CaseInsensitiveString("g1");
-        CaseInsensitiveString d4 = new CaseInsensitiveString("d4");
-        CaseInsensitiveString d3 = new CaseInsensitiveString("d3");
-        CaseInsensitiveString g2 = new CaseInsensitiveString("g2");
+        CaseInsensitiveString currentPipeline = cis("d5");
+        CaseInsensitiveString d2 = cis("d2");
+        CaseInsensitiveString d1 = cis("d1");
+        CaseInsensitiveString g1 = cis("g1");
+        CaseInsensitiveString d4 = cis("d4");
+        CaseInsensitiveString d3 = cis("d3");
+        CaseInsensitiveString g2 = cis("g2");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(d2, d2.toString()), null, currentPipeline);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(d1, d1.toString()), null, d2);
@@ -187,7 +188,7 @@ public class DummyNodeCreationTest {
         dummyNodeCreation.apply(graph, nodeLevelMap);
 
         VSMTestHelper.assertNumberOfLevelsInGraph(nodeLevelMap, 4);
-        VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(0), 0, new CaseInsensitiveString("d5"));
+        VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(0), 0, cis("d5"));
         VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(-1), 0, d2, d4);
         VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(-2), 2, d1, d3);
         VSMTestHelper.assertThatLevelHasNodes(nodeLevelMap.get(-3), 0, g1, g2);
@@ -203,13 +204,13 @@ public class DummyNodeCreationTest {
             |                    |
             +---> X -----p3------+
          */
-        CaseInsensitiveString currentPipeline = new CaseInsensitiveString("p6");
-        CaseInsensitiveString p4 = new CaseInsensitiveString("p4");
-        CaseInsensitiveString p1 = new CaseInsensitiveString("p1");
-        CaseInsensitiveString git = new CaseInsensitiveString("git");
-        CaseInsensitiveString p2 = new CaseInsensitiveString("p2");
-        CaseInsensitiveString p5 = new CaseInsensitiveString("p5");
-        CaseInsensitiveString p3 = new CaseInsensitiveString("p3");
+        CaseInsensitiveString currentPipeline = cis("p6");
+        CaseInsensitiveString p4 = cis("p4");
+        CaseInsensitiveString p1 = cis("p1");
+        CaseInsensitiveString git = cis("git");
+        CaseInsensitiveString p2 = cis("p2");
+        CaseInsensitiveString p5 = cis("p5");
+        CaseInsensitiveString p3 = cis("p3");
         ValueStreamMap graph = new ValueStreamMap(currentPipeline, null);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(p4, p4.toString()), null, currentPipeline);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(p1, p1.toString()), null, p4);

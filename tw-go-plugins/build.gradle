@@ -24,42 +24,42 @@ def dependencies = [
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-ldap-authentication-plugin',
-    tagName: 'v3.0.1-524',
-    asset: 'gocd-ldap-authentication-plugin-3.0.1-524.jar',
-    checksum: 'f320982074a86543acd5b2b67415e27b842e1fa96d59b7b22bf528b70622cf71'
+    tagName: 'v4.0.0-535',
+    asset: 'gocd-ldap-authentication-plugin-4.0.0-535.jar',
+    checksum: 'ea25ae53d1d769fe1e36fd353ea3be0b9a9e9765d9ee0db1b0097249ae5f2af2'
   ),
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-filebased-authentication-plugin',
-    tagName: 'v2.2.0-401',
-    asset: 'gocd-filebased-authentication-plugin-2.2.0-401.jar',
-    checksum: 'cf4810a6ac5e1c2a69a8e68b7002b054ddfd45183531bf05e33749cc6bc3d70f'
+    tagName: 'v3.0.0-418',
+    asset: 'gocd-filebased-authentication-plugin-3.0.0-418.jar',
+    checksum: 'a404b8940615829f68f9e339f07b0422b655409dc16d9d119e93f6847d77449c'
   ),
   new GithubArtifact(
     user: 'tomzo',
     repo: 'gocd-yaml-config-plugin',
-    tagName: 'v1.0.0-524',
-    asset: 'yaml-config-plugin-1.0.0-524.jar',
-    checksum: '964b6afa740bb3600dada09250dfe3c4e95d29211615769613651603cc82bc39'
+    tagName: 'v2.0.0-541',
+    asset: 'yaml-config-plugin-2.0.0-541.jar',
+    checksum: '73921fd31494a17e54164816109e51ba85dfdc24055351e503c5c6684f4708af'
   ),
   new GithubArtifact(
     user: 'tomzo',
     repo: 'gocd-json-config-plugin',
-    tagName: 'v1.0.0-370',
-    asset: 'json-config-plugin-1.0.0-370.jar',
-    checksum: '79ff2aac3fc04aa686a826b77f2e98ea5294e55df253179d59ac77dbdbd6f7e6'
+    tagName: 'v2.0.0-387',
+    asset: 'json-config-plugin-2.0.0-387.jar',
+    checksum: '7e8b9e6317859b84c033df30e53b58e0443d85de24cfba6b26a6a30c55f806c7'
   ),
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-file-based-secrets-plugin',
-    tagName: 'v1.2.1-420',
-    asset: 'gocd-file-based-secrets-plugin-1.2.1-420.jar',
-    checksum: '985a9b7640df6c66a496b455d30c8e43252da17f06a51cd5dd50d769b326ceb5'
+    tagName: 'v2.0.0-437',
+    asset: 'gocd-file-based-secrets-plugin-2.0.0-437.jar',
+    checksum: 'be67fc68bab55719a45e71f2878d5d9ec4ccff0173727ff1acc07e116ad5314c'
   )
 ]
 
 tasks.register('createVersionFile') {
-  def goVersions = project.goVersions as GoVersions
+  def goVersions = rootProject.goVersions as GoVersions
   inputs.property('goVersions', goVersions)
 
   def file = layout.buildDirectory.file("version.txt").get().asFile

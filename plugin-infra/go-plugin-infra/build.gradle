@@ -20,25 +20,25 @@ dependencies {
   implementation project(':base')
   api project(':plugin-infra:go-plugin-api')
   implementation project(':plugin-infra:go-plugin-activator')
-  implementation project.deps.logback
-  compileOnlyApi project.deps.jaxbApi
-  runtimeOnly project.deps.jaxbRuntime
-  implementation project.deps.commonsIO
-  implementation project.deps.springContext
+  implementation rootProject.deps.logback
+  compileOnlyApi rootProject.deps.jaxbApi
+  runtimeOnly rootProject.deps.jaxbRuntime
+  implementation rootProject.deps.commonsIO
+  implementation rootProject.deps.springContext
 
-  annotationProcessor project.deps.lombok
-  compileOnly project.deps.lombok
+  annotationProcessor rootProject.deps.lombok
+  compileOnly rootProject.deps.lombok
 
-  testImplementation project.deps.springTest
-  testImplementation project.deps.springTestJunit5
-  testImplementation project.deps.mockitoCore
-  testImplementation project.deps.mockitoJunit5
+  testImplementation rootProject.deps.springTest
+  testImplementation rootProject.deps.springTestJunit5
+  testImplementation rootProject.deps.mockitoCore
+  testImplementation rootProject.deps.mockitoJunit5
   testImplementation(testFixtures(project(':test:test-utils')))
-  testImplementation project.deps.tinybundles
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.assertJ
+  testImplementation rootProject.deps.tinybundles
+  testImplementation rootProject.deps.junit5Api
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.assertJ
 }
 
 clean {

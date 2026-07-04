@@ -15,7 +15,10 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.JobConfigs;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -32,7 +35,6 @@ import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.materials.MaterialChecker;
 import com.thoughtworks.go.server.service.dd.NoCompatibleUpstreamRevisionsException;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,7 +44,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Date;
 
-import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+import static com.thoughtworks.go.domain.buildcause.BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED;
 import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static com.thoughtworks.go.server.service.dd.NoCompatibleUpstreamRevisionsException.failedToFindCompatibleRevision;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,7 +86,7 @@ public class AutoBuildCauseTest {
 
         BuildCause buildCause = new AutoBuild(goConfigService, pipelineService, "foo", new SystemEnvironment(), materialChecker).onModifications(materialRevisions, false,
                 null);
-        assertThat(buildCause.getApprover()).isEqualTo(GoConstants.DEFAULT_APPROVED_BY);
+        assertThat(buildCause.getApprover()).isEqualTo(APPROVER_AUTOMATICALLY_TRIGGERED);
     }
 
     @Test
@@ -300,7 +303,7 @@ public class AutoBuildCauseTest {
         MaterialRevision dependencyRevision = dependencyMaterialRevision("up1", 1, "label", "first", 1, new Date());
         dependencyRevision.markAsChanged();
         revisions.addRevision(dependencyRevision);
-        NoCompatibleUpstreamRevisionsException expectedException = failedToFindCompatibleRevision(new CaseInsensitiveString("downstream"), mock(DependencyMaterialConfig.class));
+        NoCompatibleUpstreamRevisionsException expectedException = failedToFindCompatibleRevision(cis("downstream"), mock(DependencyMaterialConfig.class));
 
         when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenThrow(expectedException);
 
@@ -329,7 +332,7 @@ public class AutoBuildCauseTest {
 
     @Test
     public void isValidBuildCause_shouldReturnFalseIfDependencyMaterialIsSetToIgnoreForScheduling() {
-        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(str("upstream-pipeline"), str("stage1"));
+        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(cis("upstream-pipeline"), cis("stage1"));
         dependencyMaterialConfig.ignoreForScheduling(true);
         PipelineConfig pipelineToBeScheduled = GoConfigMother.createPipelineConfigWithMaterialConfig("my-pipeline",
                 dependencyMaterialConfig);
@@ -340,14 +343,14 @@ public class AutoBuildCauseTest {
         MaterialRevisions materialRevisions = new MaterialRevisions(materialRevision);
 
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, "my-pipeline", systemEnvironment, materialChecker);
-        boolean isValidBuildCause = autoBuild.isValidBuildCause(pipelineToBeScheduled, BuildCause.createWithModifications(materialRevisions, "changes"));
+        boolean isValidBuildCause = autoBuild.isValidBuildCause(pipelineToBeScheduled, BuildCause.createWithModifications(materialRevisions, APPROVER_AUTOMATICALLY_TRIGGERED));
 
         assertThat(isValidBuildCause).isFalse();
     }
 
     @Test
     public void isValidBuildCause_shouldReturnTrueIfDependencyMaterialIsNotSetToIgnoreForScheduling() {
-        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(str("upstream-pipeline"), str("stage1"));
+        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(cis("upstream-pipeline"), cis("stage1"));
         PipelineConfig pipelineToBeScheduled = GoConfigMother.createPipelineConfigWithMaterialConfig("my-pipeline",
                 dependencyMaterialConfig);
 
@@ -357,7 +360,7 @@ public class AutoBuildCauseTest {
         MaterialRevisions materialRevisions = new MaterialRevisions(materialRevision);
 
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, "my-pipeline", systemEnvironment, materialChecker);
-        boolean isValidBuildCause = autoBuild.isValidBuildCause(pipelineToBeScheduled, BuildCause.createWithModifications(materialRevisions, "changes"));
+        boolean isValidBuildCause = autoBuild.isValidBuildCause(pipelineToBeScheduled, BuildCause.createWithModifications(materialRevisions, APPROVER_AUTOMATICALLY_TRIGGERED));
 
         assertThat(isValidBuildCause).isTrue();
     }
@@ -365,11 +368,11 @@ public class AutoBuildCauseTest {
     private PipelineConfigDependencyGraph dependencyGraphOfDepthOne(MaterialConfig sharedMaterial, MaterialConfig firstOrderMaterial) {
         PipelineConfig current;
         if (firstOrderMaterial != null) {
-            current = GoConfigMother.createPipelineConfigWithMaterialConfig("current", sharedMaterial, firstOrderMaterial, new DependencyMaterialConfig(new CaseInsensitiveString("up1"),
-                    new CaseInsensitiveString("first")));
+            current = GoConfigMother.createPipelineConfigWithMaterialConfig("current", sharedMaterial, firstOrderMaterial, new DependencyMaterialConfig(cis("up1"),
+                    cis("first")));
         } else {
             current = GoConfigMother.createPipelineConfigWithMaterialConfig("current", sharedMaterial,
-                    new DependencyMaterialConfig(new CaseInsensitiveString("up1"), new CaseInsensitiveString("first")));
+                    new DependencyMaterialConfig(cis("up1"), cis("first")));
         }
         PipelineConfig upStream = GoConfigMother.createPipelineConfigWithMaterialConfig("up1", sharedMaterial);
         return new PipelineConfigDependencyGraph(current, new PipelineConfigDependencyGraph(upStream));

@@ -15,8 +15,10 @@
  */
 package com.thoughtworks.go.spark
 
+import groovy.transform.SelfType
 import org.junit.jupiter.api.Test
 
+@SelfType([SecurityServiceTrait, ControllerTrait, SecurityTestTraitBasics])
 trait NormalUserSecurity {
 
   @Test
@@ -39,7 +41,6 @@ trait NormalUserSecurity {
 
   @Test
   void 'should allow normal users, with security enabled'() {
-    enableSecurity()
     loginAsUser()
 
     makeHttpCall()

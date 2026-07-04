@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv2.securityauthconfig.representers.SecurityAuthConfigRepresenter;
 import com.thoughtworks.go.apiv2.securityauthconfig.representers.SecurityAuthConfigsRepresenter;
@@ -52,16 +52,16 @@ import static spark.Spark.*;
 public class SecurityAuthConfigControllerV2 extends ApiController implements SparkSpringController, CrudController<SecurityAuthConfig> {
 
     private final SecurityAuthConfigService securityAuthConfigService;
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final EntityHashingService entityHashingService;
 
     @Autowired
     public SecurityAuthConfigControllerV2(SecurityAuthConfigService securityAuthConfigService,
-                                          ApiAuthenticationHelper apiAuthenticationHelper,
+                                          ApiAuthorizationHelper apiAuthorizationHelper,
                                           EntityHashingService entityHashingService) {
         super(ApiVersion.v2);
         this.securityAuthConfigService = securityAuthConfigService;
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.entityHashingService = entityHashingService;
     }
 
@@ -76,8 +76,8 @@ public class SecurityAuthConfigControllerV2 extends ApiController implements Spa
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
-            before("/*", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", this.mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
+            before("/*", this.mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::index);
             get(Routes.SecurityAuthConfigAPI.ID, mimeType, this::show);

@@ -19,6 +19,25 @@
 # You can add backtrace silencers for libraries that you're using but don't wish to see in your backtraces.
 # Rails.backtrace_cleaner.add_silencer { |line| /my_noisy_library/.match?(line) }
 
+# GoCD runs on JRuby, so uncaught exceptions raised in Java however Rails' BacktraceCleaner keeps only frames matching
+# APP_DIRS_PATTERN and silences everything else, which is strictly following normal Rails layout in what it matches.
+# This strips every Java frame and leaves an unhelpful Ruby-only backtrace that stops at the ERB template.
+#
+# Extend the original to keep all `.java` frames, the original Ruby app frames and rspec app frames (`spec/` rather
+# than minitest's `test` convention).
+if defined?(Rails::BacktraceCleaner) && Rails::BacktraceCleaner.const_defined?(:APP_DIRS_PATTERN, false)
+  module Rails
+    class BacktraceCleaner
+      widened = Regexp.union(APP_DIRS_PATTERN, /\.java/, /\A(?:\.\/)?spec/)
+      remove_const(:APP_DIRS_PATTERN)
+      APP_DIRS_PATTERN = widened
+    end
+  end
+
+  # Still silence stuff from the JRuby runtime and JDK internals/reflection code
+  Rails.backtrace_cleaner.add_silencer { |line| line.match?(%r{org/jruby/|jdk/|java/lang/reflect}) }
+end
+
 # You can also remove all the silencers if you're trying to debug a problem that might stem from framework code
-# by setting BACKTRACE=1 before calling your invocation, like "BACKTRACE=1 ./bin/rails runner 'MyClass.perform'".
-Rails.backtrace_cleaner.remove_silencers! if ENV["BACKTRACE"]
+# by setting BACKTRACE=1 before calling your invocation, like "RAILS_BACKTRACE=1 ./bin/rails runner 'MyClass.perform'".
+Rails.backtrace_cleaner.remove_silencers! if ENV["RAILS_BACKTRACE"]

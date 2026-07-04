@@ -17,23 +17,22 @@ package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
-import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class SvnLogXmlParser {
-
-    private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
+    private static final DateTimeFormatter SVN_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSX");
 
     public List<Modification> parse(String svnLogOutput, String path, SafeSaxBuilder builder) {
         try {
@@ -44,7 +43,7 @@ public class SvnLogXmlParser {
         }
     }
 
-    private List<Modification> parseDOMTree(Document document, String path) throws ParseException {
+    private List<Modification> parseDOMTree(Document document, String path) {
         List<Modification> modifications = new ArrayList<>();
 
         Element rootElement = document.getRootElement();
@@ -58,7 +57,7 @@ public class SvnLogXmlParser {
         return modifications;
     }
 
-    private Modification parseLogEntry(Element logEntry, String path) throws ParseException {
+    private Modification parseLogEntry(Element logEntry, String path) {
         Element logEntryPaths = logEntry.getChild("paths");
         if (logEntryPaths == null) {
             /* Path-based access control forbids us from learning
@@ -90,25 +89,16 @@ public class SvnLogXmlParser {
     /**
      * Converts the specified SVN date string into a Date.
      *
-     * @param date with format "yyyy-MM-dd'T'HH:mm:ss.SSS" + "...Z"
+     * @param date with format "yyyy-MM-dd'T'HH:mm:ss.SSSSSS" + "...Z"
      * @return converted date
-     * @throws ParseException if specified date doesn't match the expected format
+     * @throws DateTimeException if specified date doesn't match the expected format
      */
-    static Date convertDate(String date) throws ParseException {
-        final int zIndex = date.indexOf('Z');
-        if (zIndex - 3 < 0) {
-            throw new ParseException(date
-                    + " doesn't match the expected subversion date format", date.length());
+    static Date convertDate(String date) {
+        try {
+            return Date.from(SVN_DATE_FORMATTER.parse(date, Instant::from));
+        } catch (DateTimeParseException e) {
+            throw new DateTimeException(date + " doesn't match the expected subversion date format", e);
         }
-        String withoutMicroSeconds = date.substring(0, zIndex - 3);
-
-        return getOutDateFormatter().parse(withoutMicroSeconds);
-    }
-
-    public static DateFormat getOutDateFormatter() {
-        DateFormat f = new SimpleDateFormat(SvnCommand.SVN_DATE_FORMAT_OUT);
-        f.setTimeZone(UTC);
-        return f;
     }
 
     private ModifiedAction convertAction(String action) {

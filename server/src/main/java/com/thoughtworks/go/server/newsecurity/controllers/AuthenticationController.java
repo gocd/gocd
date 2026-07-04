@@ -89,7 +89,7 @@ public class AuthenticationController {
             } else {
                 SessionUtils.setAuthenticationTokenAfterRecreatingSession(authenticationToken, request);
             }
-            String redirectUrl = savedRequest == null ? "/go/pipelines" : savedRequest.getRedirectUrl();
+            String redirectUrl = savedRequest == null ? systemEnvironment.getLandingPage() : savedRequest.getRedirectUrl();
             return new RedirectView(redirectUrl, false);
 
         } catch (AuthenticationException e) {
@@ -126,7 +126,7 @@ public class AuthenticationController {
             return new RedirectView("/pipelines", true);
         }
 
-        LOGGER.debug("Requesting authentication for form auth.");
+        LOGGER.debug("Requesting authentication for plugin auth.");
         SavedRequest savedRequest = SessionUtils.savedRequest(request);
 
         try {
@@ -152,7 +152,7 @@ public class AuthenticationController {
 
         SessionUtils.removeAuthenticationError(request);
 
-        String redirectUrl = savedRequest == null ? "/go/pipelines" : savedRequest.getRedirectUrl();
+        String redirectUrl = savedRequest == null ? systemEnvironment.getLandingPage() : savedRequest.getRedirectUrl();
 
         return new RedirectView(redirectUrl, false);
     }

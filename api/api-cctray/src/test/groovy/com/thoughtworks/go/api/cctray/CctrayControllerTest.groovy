@@ -49,6 +49,8 @@ class CctrayControllerTest implements SecurityServiceTrait, ControllerTrait<Cctr
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = CctrayControllerTest.this
+      @Delegate ControllerTrait<CctrayController> c = CctrayControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -62,23 +64,22 @@ class CctrayControllerTest implements SecurityServiceTrait, ControllerTrait<Cctr
 
       @Override
       def assertRequestForbidden() {
-        verify(controller, never())."${controllerMethodUnderTest}"(any(), any())
-
         ((MockHttpServletResponseAssert) assertThatResponse())
           .hasContentType(controller.mimeType)
           .hasStatus(403)
           .hasBody("<access-denied>\n" +
           "  <message>You are not authenticated!</message>\n" +
           "</access-denied>")
+
+        verify(controller, never())."${controllerMethodUnderTest}"(any(), any())
       }
 
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @Test
       void 'should render XML returned by cctray service'() {
-        enableSecurity()
         loginAsUser()
         when(ccTrayService.renderCCTrayXML(eq("http://test.host/go"), eq(currentUsernameString()), any() as Appendable, any() as Consumer<String>)).thenAnswer({ InvocationOnMock invocation ->
           Appendable appendable = invocation.getArgument(2)

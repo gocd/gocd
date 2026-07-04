@@ -38,7 +38,10 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.ClonerFactory;
+import com.thoughtworks.go.util.DFSCycleDetector;
+import com.thoughtworks.go.util.Node;
+import com.thoughtworks.go.util.PipelineDependencyState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
@@ -48,6 +51,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.exceptions.EntityType.Pipeline;
 import static com.thoughtworks.go.config.exceptions.EntityType.Template;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -477,8 +481,8 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public boolean canViewAndEditTemplates(CaseInsensitiveString username) {
-        return isAdministrator(username.toString()) || getTemplates().canViewAndEditTemplate(username, rolesForUser(username));
+    public boolean isAuthorizedToEditTemplates(CaseInsensitiveString username) {
+        return isAdministrator(username.toString()) || getTemplates().canUserEditTemplates(username, rolesForUser(username));
     }
 
     @Override
@@ -520,7 +524,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public boolean isAuthorizedToViewTemplates(CaseInsensitiveString username) {
-        return canViewAndEditTemplates(username) || getTemplates().canUserViewTemplates(username, rolesForUser(username), isGroupAdministrator(username));
+        return isAuthorizedToEditTemplates(username) || getTemplates().canUserViewTemplates(username, rolesForUser(username), isGroupAdministrator(username));
     }
 
     private List<Role> rolesForUser(CaseInsensitiveString username) {
@@ -599,13 +603,13 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public JobConfig findJob(String pipelineName, String stageName, String jobName) {
-        return pipelineConfigByName(new CaseInsensitiveString(pipelineName))
-                .findBy(new CaseInsensitiveString(stageName))
-                .jobConfigByConfigName(new CaseInsensitiveString(jobName));
+        return pipelineConfigByName(cis(pipelineName))
+                .findBy(cis(stageName))
+                .jobConfigByConfigName(cis(jobName));
     }
 
     @Override
-    public PipelineConfig pipelineConfigByName(final CaseInsensitiveString name) {
+    public @NotNull PipelineConfig pipelineConfigByName(final CaseInsensitiveString name) {
         if (pipelineNameToConfigMap == null) {
             pipelineNameToConfigMap = new PipelineNameToConfigMap();
         }
@@ -669,7 +673,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public JobConfig jobConfigByName(String pipelineName, String stageName, String jobInstanceName, boolean ignoreCase) {
-        JobConfig jobConfig = stageConfigByName(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName))
+        JobConfig jobConfig = stageConfigByName(cis(pipelineName), cis(stageName))
             .jobConfigByInstanceName(jobInstanceName, ignoreCase);
         bombIfNull(jobConfig, String.format("Job [%s] is not found in pipeline [%s] stage [%s].", jobInstanceName, pipelineName, stageName));
         return jobConfig;
@@ -729,7 +733,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public int schemaVersion() {
-        return GoConstants.CONFIG_SCHEMA_VERSION;
+        return GoConfigSchema.VERSION;
     }
 
     @Override
@@ -855,7 +859,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public boolean exist(String groupName, String pipelineName) {
         PipelineConfigs configs = groups.findGroup(groupName);
-        PipelineConfig pipelineConfig = configs.findBy(new CaseInsensitiveString(pipelineName));
+        PipelineConfig pipelineConfig = configs.findBy(cis(pipelineName));
         return pipelineConfig != null;
     }
 
@@ -905,6 +909,11 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
+    public @NotNull PipelineConfigs findGroupByPipeline(@NotNull PipelineConfig pipelineConfig) {
+        return groups.findGroupByPipeline(pipelineConfig.name());
+    }
+
+    @Override
     public boolean isMailHostConfigured() {
         return !(new MailHost(new GoCipher()).equals(mailHost()) || mailHost() == null);
     }
@@ -913,7 +922,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     public List<PipelineConfig> getAllPipelineConfigs() {
         if (allPipelineConfigs == null) {
             AllPipelineConfigs configs = new AllPipelineConfigs();
-            PipelineGroups groups = getGroups();
             for (PipelineConfigs group : groups) {
                 for (PipelineConfig pipelineConfig : group) {
                     configs.add(pipelineConfig);
@@ -940,7 +948,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public boolean isAdministrator(String username) {
-        return hasAdminPrivileges(new AdminUser(new CaseInsensitiveString(username)));
+        return hasAdminPrivileges(new AdminUser(cis(username)));
     }
 
     private boolean hasAdminPrivileges(Admin admin) {
@@ -1012,7 +1020,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public EnvironmentConfig addEnvironment(String environmentName) {
-        BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
+        BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(cis(environmentName));
         this.addEnvironment(environmentConfig);
         return environmentConfig;
     }
@@ -1024,13 +1032,13 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public boolean isPipelineLockable(String pipelineName) {
-        PipelineConfig pipelineConfig = pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        PipelineConfig pipelineConfig = pipelineConfigByName(cis(pipelineName));
         return pipelineConfig.isLockable();
     }
 
     @Override
     public boolean isPipelineUnlockableWhenFinished(String pipelineName) {
-        return pipelineConfigByName(new CaseInsensitiveString(pipelineName)).isUnlockableWhenFinished();
+        return pipelineConfigByName(cis(pipelineName)).isUnlockableWhenFinished();
     }
 
     @Override
@@ -1068,26 +1076,26 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public boolean hasVariableInScope(String pipelineName, String variableName) {
-        EnvironmentConfig environmentConfig = environments.findEnvironmentForPipeline(new CaseInsensitiveString(pipelineName));
+        EnvironmentConfig environmentConfig = environments.findEnvironmentForPipeline(cis(pipelineName));
         if (environmentConfig != null) {
             if (environmentConfig.hasVariable(variableName)) {
                 return true;
             }
         }
-        return pipelineConfigByName(new CaseInsensitiveString(pipelineName)).hasVariableInScope(variableName);
+        return pipelineConfigByName(cis(pipelineName)).hasVariableInScope(variableName);
     }
 
     @Override
     public EnvironmentVariablesConfig variablesFor(String pipelineName) {
-        EnvironmentVariablesConfig pipelineVariables = pipelineConfigByName(new CaseInsensitiveString(pipelineName)).getVariables();
-        EnvironmentConfig environment = this.environments.findEnvironmentForPipeline(new CaseInsensitiveString(pipelineName));
+        EnvironmentVariablesConfig pipelineVariables = pipelineConfigByName(cis(pipelineName)).getVariables();
+        EnvironmentConfig environment = this.environments.findEnvironmentForPipeline(cis(pipelineName));
         return environment != null ? environment.getVariables().overrideWith(pipelineVariables) : pipelineVariables;
     }
 
     @Override
     public boolean isGroupAdministrator(final CaseInsensitiveString userName) {
         final List<Role> roles = server().security().memberRoleFor(userName);
-        FindPipelineGroupAdminstrator finder = new FindPipelineGroupAdminstrator(userName, roles);
+        FindPipelineGroupAdministrator finder = new FindPipelineGroupAdministrator(userName, roles);
         groups.accept(finder);
         return finder.isGroupAdmin;
     }
@@ -1111,12 +1119,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public PipelineConfigs findGroupOfPipeline(PipelineConfig pipelineConfig) {
-        String groupName = getGroups().findGroupNameByPipeline(pipelineConfig.name());
-        return findGroup(groupName);
-    }
-
-    @Override
     public Map<CaseInsensitiveString, List<PipelineConfig>> generatePipelineVsDownstreamMap() {
         List<PipelineConfig> pipelineConfigs = getAllPipelineConfigs();
         Map<CaseInsensitiveString, List<PipelineConfig>> result = new HashMap<>();
@@ -1126,8 +1128,8 @@ public class BasicCruiseConfig implements CruiseConfig {
             result.computeIfAbsent(currentPipelineName, k -> new ArrayList<>());
 
             for (MaterialConfig materialConfig : currentPipeline.materialConfigs()) {
-                if (materialConfig instanceof DependencyMaterialConfig) {
-                    CaseInsensitiveString pipelineWhichTriggersMe = ((DependencyMaterialConfig) materialConfig).getPipelineName();
+                if (materialConfig instanceof DependencyMaterialConfig dependencyMaterialConfig) {
+                    CaseInsensitiveString pipelineWhichTriggersMe = dependencyMaterialConfig.getPipelineName();
                     result.computeIfAbsent(pipelineWhichTriggersMe, k -> new ArrayList<>()).add(currentPipeline);
                 }
             }
@@ -1143,7 +1145,7 @@ public class BasicCruiseConfig implements CruiseConfig {
                 allTemplatesWithAssociatedPipelines.computeIfAbsent(templateConfig.name(), k -> new HashMap<>());
             }
 
-            for (PipelineConfigs pipelineConfigs : getGroups()) {
+            for (PipelineConfigs pipelineConfigs : groups) {
                 List<PipelineConfig> pipelines = pipelineConfigs.getPipelines();
                 for (PipelineConfig pipeline : pipelines) {
                     if (pipeline.hasTemplate()) {
@@ -1301,12 +1303,12 @@ public class BasicCruiseConfig implements CruiseConfig {
         this.strategy.setOrigins(origins);
     }
 
-    private static class FindPipelineGroupAdminstrator implements PipelineGroupVisitor {
+    private static class FindPipelineGroupAdministrator implements PipelineGroupVisitor {
         private final CaseInsensitiveString username;
         private final List<Role> roles;
         private boolean isGroupAdmin;
 
-        public FindPipelineGroupAdminstrator(CaseInsensitiveString username, List<Role> roles) {
+        public FindPipelineGroupAdministrator(CaseInsensitiveString username, List<Role> roles) {
             this.username = username;
             this.roles = roles;
         }

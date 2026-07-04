@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv1.configrepooperations;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.apiv1.configrepooperations.representers.PreflightResultRepresenter;
 import com.thoughtworks.go.config.*;
@@ -56,16 +56,16 @@ import static spark.Spark.*;
 public class ConfigRepoOperationsControllerV1 extends ApiController implements SparkSpringController {
     private static final UuidGenerator UUID = new UuidGenerator();
 
-    private final ApiAuthenticationHelper authenticationHelper;
+    private final ApiAuthorizationHelper authorizationHelper;
     private final GoConfigPluginService pluginService;
     private final ConfigRepoService service;
     private final GoConfigService gcs;
     private final PartialConfigService partialConfigService;
 
     @Autowired
-    public ConfigRepoOperationsControllerV1(ApiAuthenticationHelper authenticationHelper, GoConfigPluginService pluginService, ConfigRepoService service, GoConfigService gcs, PartialConfigService partialConfigService) {
+    public ConfigRepoOperationsControllerV1(ApiAuthorizationHelper authorizationHelper, GoConfigPluginService pluginService, ConfigRepoService service, GoConfigService gcs, PartialConfigService partialConfigService) {
         super(ApiVersion.v1);
-        this.authenticationHelper = authenticationHelper;
+        this.authorizationHelper = authorizationHelper;
         this.pluginService = pluginService;
         this.service = service;
         this.gcs = gcs;
@@ -81,11 +81,11 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
-            before("", mimeType, authenticationHelper::checkAdminUserAnd403);
+            before("", mimeType, authorizationHelper::checkAdminUserAnd403);
             before("", mimeType, this::verifyContentType);
 
             before("/*", mimeType, this::setContentType);
-            before("/*", mimeType, authenticationHelper::checkAdminUserAnd403);
+            before("/*", mimeType, authorizationHelper::checkAdminUserAnd403);
             before(PREFLIGHT_PATH, mimeType, this::setMultipartUpload);
 
             post(PREFLIGHT_PATH, mimeType, this::preflight);

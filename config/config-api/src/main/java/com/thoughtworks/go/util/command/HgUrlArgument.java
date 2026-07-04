@@ -17,9 +17,6 @@ package com.thoughtworks.go.util.command;
 
 import com.thoughtworks.go.config.ConfigAttributeValue;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 @ConfigAttributeValue(fieldName = "url")
 public class HgUrlArgument extends UrlArgument {
     public static final String DOUBLE_HASH = "##";
@@ -36,8 +33,8 @@ public class HgUrlArgument extends UrlArgument {
     }
 
     @Override
-    protected String sanitizeUrl() {
-        return super.sanitizeUrl().replace(DOUBLE_HASH, SINGLE_HASH);
+    String sanitized() {
+        return super.sanitized().replace(DOUBLE_HASH, SINGLE_HASH);
     }
 
     private String removePassword(String userInfo) {
@@ -45,16 +42,6 @@ public class HgUrlArgument extends UrlArgument {
     }
 
     public String defaultRemoteUrl() {
-        final String sanitizedUrl = sanitizeUrl();
-        try {
-            URI uri = new URI(sanitizedUrl);
-            if (uri.getUserInfo() != null) {
-                uri = new URI(uri.getScheme(), removePassword(uri.getUserInfo()), uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
-                return uri.toString();
-            }
-        } catch (URISyntaxException e) {
-            return sanitizedUrl;
-        }
-        return sanitizedUrl;
+        return modifyUserInfo(sanitized(), (scheme, userInfo) -> removePassword(userInfo));
     }
 }

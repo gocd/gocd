@@ -29,14 +29,18 @@ import static org.apache.commons.lang3.StringUtils.isNumeric;
 
 @Service
 public class RestfulService {
+    private final GoConfigService goConfigService;
+    private final PipelineService pipelineService;
+    private final StageDao stageDao;
+    private final JobResolverService jobResolverService;
+
     @Autowired
-    private GoConfigService goConfigService;
-    @Autowired
-    private PipelineService pipelineService;
-    @Autowired
-    private StageDao stageDao;
-    @Autowired
-    private JobResolverService jobResolverService;
+    public RestfulService(GoConfigService goConfigService, PipelineService pipelineService, StageDao stageDao, JobResolverService jobResolverService) {
+        this.goConfigService = goConfigService;
+        this.pipelineService = pipelineService;
+        this.stageDao = stageDao;
+        this.jobResolverService = jobResolverService;
+    }
 
     /**
      * buildId should only be given when caller is absolutely sure about the job instance

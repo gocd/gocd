@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv2.backups;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.apiv2.backups.representers.BackupRepresenter;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.EntityType;
@@ -45,13 +45,13 @@ public class BackupsControllerV2 extends ApiController implements SparkSpringCon
     private static final String RETRY_INTERVAL_IN_SECONDS = "5";
     private static final String RUNNING = "running";
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final BackupService backupService;
 
     @Autowired
-    public BackupsControllerV2(ApiAuthenticationHelper apiAuthenticationHelper, BackupService backupService) {
+    public BackupsControllerV2(ApiAuthorizationHelper apiAuthorizationHelper, BackupService backupService) {
         super(ApiVersion.v2);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.backupService = backupService;
     }
 
@@ -68,8 +68,8 @@ public class BackupsControllerV2 extends ApiController implements SparkSpringCon
 
             before("", mimeType, this::verifyContentType);
 
-            before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
-            before("/*", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", this.mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
+            before("/*", this.mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
 
             post("", mimeType, this::create);
             get(ID_PATH, mimeType, this::show);

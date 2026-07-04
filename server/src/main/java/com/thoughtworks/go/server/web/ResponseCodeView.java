@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.web;
 
+import com.thoughtworks.go.server.controller.actions.TextAction;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 
@@ -22,8 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
-
-import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
 
 public class ResponseCodeView implements View {
     private final int responseCode;
@@ -36,13 +35,13 @@ public class ResponseCodeView implements View {
 
     @Override
     public String getContentType() {
-        return RESPONSE_CHARSET;
+        return TextAction.CONTENT_TYPE;
     }
 
     @Override
     public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setContentType(getContentType());
         response.setStatus(responseCode);
+        response.setContentType(getContentType());
         response.getWriter().write(message);
     }
 

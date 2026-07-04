@@ -193,7 +193,6 @@ public class AgentRegistrationController {
                                        @RequestParam("token") String token, HttpServletRequest request) {
         final String ipAddress = request.getRemoteAddr();
         LOG.debug("Processing registration request from agent [{}/{}]", hostname, ipAddress);
-        boolean keyEntry;
         String preferredHostname = hostname;
         boolean isElasticAgent = elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId);
 
@@ -260,11 +259,11 @@ public class AgentRegistrationController {
                 agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, elasticAgentId, elasticPluginId);
             }
 
-            keyEntry = agentService.requestRegistration(agentRuntimeInfo);
+            boolean registered = agentService.requestRegistration(agentRuntimeInfo);
 
             final HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-            return new ResponseEntity<>("", httpHeaders, keyEntry ? OK : ACCEPTED);
+            return new ResponseEntity<>("", httpHeaders, registered ? OK : ACCEPTED);
         } catch (Exception e) {
             LOG.error("Error occurred during agent registration process. Error: HttpCode=[{}] Message=[{}] UUID=[{}] " +
                             "Hostname=[{}] ElasticAgentID=[{}] PluginID=[{}]", UNPROCESSABLE_ENTITY, getErrorMessage(e), uuid,

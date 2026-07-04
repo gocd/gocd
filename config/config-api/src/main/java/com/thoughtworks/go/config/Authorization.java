@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @ConfigTag("authorization")
@@ -63,13 +64,13 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         USER {
             @Override
             public Admin makeUser(String name) {
-                return new AdminUser(new CaseInsensitiveString(name));
+                return new AdminUser(cis(name));
             }
         },
         ROLE {
             @Override
             public Admin makeUser(String name) {
-                return new AdminRole(new CaseInsensitiveString(name));
+                return new AdminRole(cis(name));
             }
         };
 

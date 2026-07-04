@@ -111,8 +111,8 @@ public class VSMTestHelper {
         CaseInsensitiveString pipelineName = node.getId();
         List<Revision> revisions = node.revisions();
         for (Revision revision : revisions) {
-            if (revision instanceof PipelineRevision && revision.getRevisionString().equals(new PipelineIdentifier(pipelineName.toString(), Integer.parseInt(counter)).pipelineLocator())) {
-                return (PipelineRevision) revision;
+            if (revision instanceof PipelineRevision pipelineRevision && revision.getRevisionString().equals(new PipelineIdentifier(pipelineName.toString(), Integer.parseInt(counter)).pipelineLocator())) {
+                return pipelineRevision;
             }
         }
         throw new RuntimeException(String.format("Ouch! Cannot find pipeline %s with counter %s. Node: %s", pipelineName, counter, node));

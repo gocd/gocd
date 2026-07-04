@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
+import static com.thoughtworks.go.util.SystemEnvironment.WEBAPP_CONTEXT_PATH;
+
 /**
  * Understands test http server that is used to test http client code end-to-end
  * <p>
@@ -82,7 +84,7 @@ public class HttpTestUtil {
         SessionHandler sh = new SessionHandler();
         ctx.setSessionHandler(sh);
         customizer.customize(ctx);
-        ctx.setContextPath("/go");
+        ctx.setContextPath(WEBAPP_CONTEXT_PATH);
         server.setHandler(ctx);
     }
 

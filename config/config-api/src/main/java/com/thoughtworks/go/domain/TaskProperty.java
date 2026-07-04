@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.domain;
 
+import org.springframework.util.StringUtils;
+
 import java.util.Objects;
 
 public final class TaskProperty {
@@ -27,7 +29,7 @@ public final class TaskProperty {
     }
 
     private static String defaultCssClass(String name) {
-        return name.toLowerCase().replaceAll(":$", "").replaceAll(" ", "_");
+        return StringUtils.trimTrailingCharacter(name.toLowerCase().replace(' ', '_'), ':');
     }
 
     @Override

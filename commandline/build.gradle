@@ -20,16 +20,16 @@ dependencies {
   implementation project(':base')
   implementation project(':util')
   implementation project(':config:config-api')
-  implementation project.deps.commonsIO
-  annotationProcessor project.deps.lombok
-  compileOnly project.deps.lombok
-  compileOnly project.deps.jetBrainsAnnotations
+  implementation rootProject.deps.commonsIO
+  annotationProcessor rootProject.deps.lombok
+  compileOnly rootProject.deps.lombok
+  compileOnly rootProject.deps.jetBrainsAnnotations
 
   testImplementation(testFixtures(project(':test:test-utils')))
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.mockitoCore
-  testImplementation project.deps.assertJ
-  testImplementation project.deps.systemStubs
+  testImplementation rootProject.deps.junit5Api
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.mockitoCore
+  testImplementation rootProject.deps.assertJ
+  testImplementation rootProject.deps.systemStubs
 }

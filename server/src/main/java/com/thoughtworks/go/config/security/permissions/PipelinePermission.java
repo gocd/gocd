@@ -16,47 +16,46 @@
 
 package com.thoughtworks.go.config.security.permissions;
 
-import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.security.users.Users;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.Accessors;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
-@Getter
-@Setter
-@Accessors(chain = true)
-@EqualsAndHashCode(callSuper = false)
-@ToString
-public class PipelinePermission extends ArrayList<StagePermission> {
+public interface PipelinePermission {
+    PipelinePermission NOONE = new NoOne();
+    PipelinePermission EVERYONE = new Everyone();
 
-    public PipelinePermission(List<StagePermission> permissions) {
-        super(permissions);
-    }
+    @NotNull Users pipelineOperators();
 
-    public PipelinePermission() {
-        super();
-    }
+    @NotNull Optional<Users> stageOperators(String stageName);
 
-    public Users getPipelineOperators() {
-        return this.getFirst().getStageOperators();
-    }
-
-    public Users getStageOperators(String stageName) {
-        return this.stream().filter(s -> s.getStageName().equals(stageName)).findFirst().map(StagePermission::getStageOperators).orElse(null);
-    }
-
-    public static PipelinePermission from(PipelineConfig pipeline, Users operators) {
-        if (pipeline == null) {
-            return EveryonePermission.INSTANCE;
+    @EqualsAndHashCode
+    @ToString
+    class NoOne implements PipelinePermission {
+        @Override
+        public @NotNull Users pipelineOperators() {
+            return Users.NOONE;
         }
 
-        List<StagePermission> permissions = pipeline.stream().map(stage -> new StagePermission(stage.name().toString(), operators)).collect(Collectors.toList());
-        return new PipelinePermission(permissions);
+        @Override
+        public @NotNull Optional<Users> stageOperators(String stageName) {
+            return Optional.of(Users.NOONE);
+        }
+    }
+
+    @EqualsAndHashCode
+    @ToString
+    class Everyone implements PipelinePermission {
+        @Override
+        public @NotNull Users pipelineOperators() {
+            return Users.EVERYONE;
+        }
+
+        @Override
+        public @NotNull Optional<Users> stageOperators(String stageName) {
+            return Optional.of(Users.EVERYONE);
+        }
     }
 }

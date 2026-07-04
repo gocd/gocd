@@ -16,8 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.domain.SecureSiteUrl;
-import com.thoughtworks.go.domain.SiteUrl;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
@@ -32,9 +30,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
-import java.util.function.Consumer;
 
-import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -84,23 +81,18 @@ public class SecurityServiceIntegrationTest {
     }
 
     @Test
-    public void userShouldNotHaveViewPermissionToGroupWithNoAuth_WhenDefaultPermissionIsToDeny() {
-        withDefaultGroupPermission(false, o -> assertThat(securityService.hasViewPermissionForGroup(VIEWER, GROUP_NAME)).isEqualTo(false));
-    }
-
-    @Test
-    public void userShouldHaveViewPermissionToGroupWithNoAuth_WhenDefaultPermissionIsToAllow() {
-        withDefaultGroupPermission(true, o -> assertThat(securityService.hasViewPermissionForGroup(VIEWER, GROUP_NAME)).isEqualTo(true));
+    public void userShouldNotHaveViewPermissionToGroupWithNoAuth() {
+        assertThat(securityService.hasViewPermissionForGroup(VIEWER, GROUP_NAME)).isEqualTo(false);
     }
 
     @Test
     public void userShouldHavePermissionIfAGroupAdmin() {
         configHelper.setAdminPermissionForGroup(GROUP_NAME, PIPELINE_ADMIN);
         assertThat(securityService.hasViewPermissionForGroup(PIPELINE_ADMIN, GROUP_NAME)).isTrue();
-        assertThat(securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(PIPELINE_ADMIN), GROUP_NAME)).isTrue();
-        assertThat(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString(PIPELINE_ADMIN), PIPELINE_NAME)).isTrue();
+        assertThat(securityService.hasOperatePermissionForGroup(cis(PIPELINE_ADMIN), GROUP_NAME)).isTrue();
+        assertThat(securityService.hasOperatePermissionForPipeline(cis(PIPELINE_ADMIN), PIPELINE_NAME)).isTrue();
         assertThat(securityService.hasViewPermissionForPipeline(Username.valueOf(PIPELINE_ADMIN), PIPELINE_NAME)).isTrue();
-        assertThat(securityService.hasViewPermissionForPipeline(new Username(new CaseInsensitiveString(PIPELINE_ADMIN)), PIPELINE_NAME)).isTrue();
+        assertThat(securityService.hasViewPermissionForPipeline(new Username(cis(PIPELINE_ADMIN)), PIPELINE_NAME)).isTrue();
         assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, PIPELINE_ADMIN)).isTrue();
     }
 
@@ -110,14 +102,14 @@ public class SecurityServiceIntegrationTest {
         configHelper.setViewPermissionForGroup(GROUP_NAME, viewOnly);
 
         assertThat(securityService.hasViewPermissionForGroup(viewOnly, GROUP_NAME)).isTrue();
-        assertThat(securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(viewOnly), GROUP_NAME)).isFalse();
-        assertThat(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString(viewOnly), PIPELINE_NAME)).isFalse();
+        assertThat(securityService.hasOperatePermissionForGroup(cis(viewOnly), GROUP_NAME)).isFalse();
+        assertThat(securityService.hasOperatePermissionForPipeline(cis(viewOnly), PIPELINE_NAME)).isFalse();
         assertThat(securityService.hasViewPermissionForPipeline(Username.valueOf(viewOnly), PIPELINE_NAME)).isTrue();
         assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, viewOnly)).isFalse();
 
         assertThat(securityService.hasViewPermissionForGroup(viewOnly, GROUP_NAME)).isTrue();
-        assertThat(securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(viewOnly), GROUP_NAME)).isFalse();
-        assertThat(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString(viewOnly), PIPELINE_NAME)).isFalse();
+        assertThat(securityService.hasOperatePermissionForGroup(cis(viewOnly), GROUP_NAME)).isFalse();
+        assertThat(securityService.hasOperatePermissionForPipeline(cis(viewOnly), PIPELINE_NAME)).isFalse();
         assertThat(securityService.hasViewPermissionForPipeline(Username.valueOf(viewOnly), PIPELINE_NAME)).isTrue();
         assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, viewOnly)).isFalse();
     }
@@ -131,53 +123,29 @@ public class SecurityServiceIntegrationTest {
     }
 
     @Test
-    public void userShouldNotHaveOperatePermissionToGroupWithNoAuth_WhenDefaultPermissionIsToDeny() {
-        withDefaultGroupPermission(false, o -> assertThat(securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(OPERATOR), GROUP_NAME)).isEqualTo(false));
+    public void userShouldNotHaveOperatePermissionToGroupWithNoAuth() {
+        assertThat(securityService.hasOperatePermissionForGroup(cis(OPERATOR), GROUP_NAME)).isEqualTo(false);
     }
 
     @Test
-    public void userShouldHaveOperatePermissionToGroupWithNoAuth_WhenDefaultPermissionIsToAllow() {
-        withDefaultGroupPermission(true, o -> assertThat(securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(OPERATOR), GROUP_NAME)).isEqualTo(true));
-    }
-
-    @Test
-    public void userShouldNotHaveOperatePermissionToStageInGroupWithNoAuth_WhenDefaultPermissionIsToDeny_WhenStageOperatePermissionsAreNotDefined() {
-        withDefaultGroupPermission(false, o -> {
-            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, VIEWER)).isFalse();
-            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR)).isFalse();
-        });
-    }
-
-    @Test
-    public void userShouldHaveOperatePermissionToStageInGroupWithNoAuth_WhenDefaultPermissionIsToAllow_WhenStageOperatePermissionsAreNotDefined() {
-        withDefaultGroupPermission(true, o -> {
-            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, VIEWER)).isTrue();
-            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR)).isTrue();
-        });
+    public void userShouldNotHaveOperatePermissionToStageInGroupWithNoAuth_WhenStageOperatePermissionsAreNotDefined() {
+        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, VIEWER)).isFalse();
+        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR)).isFalse();
     }
 
     @Test
     public void operatePermissionOfStageIsNotInfluencedByDefaultPermissions_ForGroupsWithNoAuthDefined_ButWithStageOperatePermissionsDefined() {
-        withDefaultGroupPermission(true, o -> {
-            configHelper.setOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR);
+        configHelper.setOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR);
 
-            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, VIEWER)).isFalse();
-            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR)).isTrue();
-        });
-
-        withDefaultGroupPermission(false, o -> {
-            configHelper.setOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR);
-
-            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, VIEWER)).isFalse();
-            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR)).isTrue();
-        });
+        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, VIEWER)).isFalse();
+        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR)).isTrue();
     }
 
     @Test
     public void shouldGiveTheGroupsModifiableByAdmin() {
         configHelper.addAdmins("admin");
         configHelper.addPipelineWithGroup("newGroup", "newPipeline", "newStage", "newJob");
-        List<String> groups = securityService.modifiableGroupsForUser(new Username(new CaseInsensitiveString("admin")));
+        List<String> groups = securityService.modifiableGroupsForUser(new Username(cis("admin")));
         assertThat(groups).contains(GROUP_NAME, "newGroup");
     }
 
@@ -185,7 +153,7 @@ public class SecurityServiceIntegrationTest {
     public void shouldGiveTheGroupsModifiableByAGroupAdmin() {
         configHelper.addPipelineWithGroup("newGroup", "newPipeline", "newStage", "newJob");
         configHelper.setAdminPermissionForGroup("newGroup", "groupAdmin");
-        List<String> groups = securityService.modifiableGroupsForUser(new Username(new CaseInsensitiveString("groupAdmin")));
+        List<String> groups = securityService.modifiableGroupsForUser(new Username(cis("groupAdmin")));
         assertThat(groups).contains("newGroup");
     }
 
@@ -194,7 +162,7 @@ public class SecurityServiceIntegrationTest {
         configHelper.addAdmins("admin");
         configHelper.addPipelineWithGroup("newGroup", "newPipeline", "newStage", "newJob");
         configHelper.setAdminPermissionForGroup("newGroup", "admin");
-        List<String> groups = securityService.modifiableGroupsForUser(new Username(new CaseInsensitiveString("admin")));
+        List<String> groups = securityService.modifiableGroupsForUser(new Username(cis("admin")));
         assertThat(groups).contains(GROUP_NAME, "newGroup");
     }
 
@@ -203,17 +171,17 @@ public class SecurityServiceIntegrationTest {
         configHelper.addAdmins("admin");
         configHelper.addPipelineWithGroup("newGroup", "newPipeline", "newStage", "newJob");
         configHelper.setAdminPermissionForGroup("newGroup", "groupAdmin");
-        List<String> groups = securityService.modifiableGroupsForUser(new Username(new CaseInsensitiveString("loser")));
+        List<String> groups = securityService.modifiableGroupsForUser(new Username(cis("loser")));
         assertThat(groups.isEmpty()).isTrue();
     }
 
     @Test
     public void shouldReturnTrueIfUserHasViewOrOperatePermissionForPipeline() {
         configHelper.setViewPermissionForGroup(GROUP_NAME, VIEWER);
-        assertThat(securityService.hasViewOrOperatePermissionForPipeline(new Username(new CaseInsensitiveString(VIEWER)), PIPELINE_NAME)).isTrue();
+        assertThat(securityService.hasViewOrOperatePermissionForPipeline(new Username(cis(VIEWER)), PIPELINE_NAME)).isTrue();
 
         configHelper.setOperatePermissionForGroup(GROUP_NAME, OPERATOR);
-        assertThat(securityService.hasViewOrOperatePermissionForPipeline(new Username(new CaseInsensitiveString(OPERATOR)), PIPELINE_NAME)).isTrue();
+        assertThat(securityService.hasViewOrOperatePermissionForPipeline(new Username(cis(OPERATOR)), PIPELINE_NAME)).isTrue();
     }
 
     @Test
@@ -229,28 +197,28 @@ public class SecurityServiceIntegrationTest {
 
     @Test
     public void shouldNotCheckOperatePermissionIfPipelineDoesNotExist() {
-        assertThat(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString(OPERATOR), "noSuchAPipeline")).isTrue();
+        assertThat(securityService.hasOperatePermissionForPipeline(cis(OPERATOR), "noSuchAPipeline")).isTrue();
     }
 
     @Test
     public void shouldNotCheckAdminPermissionsIfPipelineDoesNotExist() {
-        assertThat(securityService.hasAdminPermissionsForPipeline(new Username(ADMIN), new CaseInsensitiveString("non-existent-pipeline"))).isTrue();
+        assertThat(securityService.hasAdminPermissionsForPipeline(new Username(ADMIN), cis("non-existent-pipeline"))).isTrue();
     }
 
     @Test
     public void shouldReturnTrueForSuperAdminIfPipelineExists() {
-        assertThat(securityService.hasAdminPermissionsForPipeline(new Username(ADMIN), new CaseInsensitiveString(PIPELINE_NAME))).isTrue();
+        assertThat(securityService.hasAdminPermissionsForPipeline(new Username(ADMIN), cis(PIPELINE_NAME))).isTrue();
     }
 
     @Test
     public void shouldReturnTrueForGroupAdminForPipeline() {
         configHelper.setAdminPermissionForGroup(GROUP_NAME, PIPELINE_ADMIN);
-        assertThat(securityService.hasAdminPermissionsForPipeline(new Username(PIPELINE_ADMIN), new CaseInsensitiveString(PIPELINE_NAME))).isTrue();
+        assertThat(securityService.hasAdminPermissionsForPipeline(new Username(PIPELINE_ADMIN), cis(PIPELINE_NAME))).isTrue();
     }
 
     @Test
     public void shouldReturnFalseForNonAdminUserForPipeline() {
-        assertThat(securityService.hasAdminPermissionsForPipeline(new Username(VIEWER), new CaseInsensitiveString(PIPELINE_NAME))).isFalse();
+        assertThat(securityService.hasAdminPermissionsForPipeline(new Username(VIEWER), cis(PIPELINE_NAME))).isFalse();
     }
 
     @Test
@@ -264,13 +232,13 @@ public class SecurityServiceIntegrationTest {
     public void shouldNotCheckOperationPermissionIfSecurityIsTurnedOff() {
         configHelper.turnOffSecurity();
         configHelper.setOperatePermissionForGroup(GROUP_NAME, OPERATOR);
-        assertThat(securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(HACKER), GROUP_NAME)).isTrue();
+        assertThat(securityService.hasOperatePermissionForGroup(cis(HACKER), GROUP_NAME)).isTrue();
     }
 
     @Test
     public void shouldReturnTrueIfUserHasOperatePermission() {
         configHelper.setOperatePermissionForGroup(GROUP_NAME, OPERATOR);
-        assertThat(securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(OPERATOR), GROUP_NAME)).isTrue();
+        assertThat(securityService.hasOperatePermissionForGroup(cis(OPERATOR), GROUP_NAME)).isTrue();
     }
 
     @Test
@@ -283,24 +251,24 @@ public class SecurityServiceIntegrationTest {
     public void shouldGrantAdminOperatePermissionForAllGroups() {
         configHelper.setOperatePermissionForGroup(GROUP_NAME, OPERATOR);
         configHelper.addAuthorizedUserForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR);
-        assertThat(securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(ADMIN), GROUP_NAME)).isTrue();
+        assertThat(securityService.hasOperatePermissionForGroup(cis(ADMIN), GROUP_NAME)).isTrue();
     }
 
     @Test
     public void isUserAdminOfGroup_shouldBeTrueForASuperAdmin() {
         configHelper.addAdmins("root");
-        assertThat(securityService.isUserAdminOfGroup(new CaseInsensitiveString("root"), GROUP_NAME)).isTrue();
+        assertThat(securityService.isUserAdminOfGroup(cis("root"), GROUP_NAME)).isTrue();
     }
 
     @Test
     public void isUserAdminOfGroup_shouldBeTrueForAGroupAdmin() {
         configHelper.setAdminPermissionForGroup(GROUP_NAME, OPERATOR);
-        assertThat(securityService.isUserAdminOfGroup(new CaseInsensitiveString(OPERATOR), GROUP_NAME)).isTrue();
+        assertThat(securityService.isUserAdminOfGroup(cis(OPERATOR), GROUP_NAME)).isTrue();
     }
 
     @Test
     public void isUserAdminOfGroup_shouldBeFalseForANonGroupAdmin() {
-        assertThat(securityService.isUserAdminOfGroup(new CaseInsensitiveString("some-unauthorized-user"), GROUP_NAME)).isFalse();
+        assertThat(securityService.isUserAdminOfGroup(cis("some-unauthorized-user"), GROUP_NAME)).isFalse();
     }
 
     @Test
@@ -313,16 +281,16 @@ public class SecurityServiceIntegrationTest {
     @Test
     public void shouldReturnAllPipelinesThatUserHasViewPermissionsFor() throws Exception {
         configHelper.saveFullConfig(CONFIG_WITH_2_GROUPS, true);
-        assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("blah"))).size()).isEqualTo(0);
-        assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("admin")))).isEqualTo(List.of(new CaseInsensitiveString("pipeline1"), new CaseInsensitiveString("pipeline2")));
-        assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("pavan")))).isEqualTo(List.of(new CaseInsensitiveString("pipeline3")));
+        assertThat(securityService.viewablePipelinesFor(new Username(cis("blah"))).size()).isEqualTo(0);
+        assertThat(securityService.viewablePipelinesFor(new Username(cis("admin")))).isEqualTo(List.of(cis("pipeline1"), cis("pipeline2")));
+        assertThat(securityService.viewablePipelinesFor(new Username(cis("pavan")))).isEqualTo(List.of(cis("pipeline3")));
     }
 
     @Test
     public void shouldReturnAllPipelinesWithNoSecurity() throws Exception {
         configHelper.saveFullConfig(ConfigFileFixture.multipleMaterial("<hg url='http://localhost'/>"), true);
-        assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("admin")))).isEqualTo(List.of(new CaseInsensitiveString("ecl"), new CaseInsensitiveString("ec2"), new CaseInsensitiveString("framework")));
-        assertThat(securityService.viewablePipelinesFor(Username.ANONYMOUS)).isEqualTo(List.of(new CaseInsensitiveString("ecl"), new CaseInsensitiveString("ec2"), new CaseInsensitiveString("framework")));
+        assertThat(securityService.viewablePipelinesFor(new Username(cis("admin")))).isEqualTo(List.of(cis("ecl"), cis("ec2"), cis("framework")));
+        assertThat(securityService.viewablePipelinesFor(Username.ANONYMOUS)).isEqualTo(List.of(cis("ecl"), cis("ec2"), cis("framework")));
     }
 
     @Test
@@ -336,24 +304,12 @@ public class SecurityServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnSiteUrlAsCasServiceBaseUrlIfOnlySiteUrlIsDefined() {
-        configHelper.setBaseUrls(new SiteUrl("http://example.com"), new SecureSiteUrl());
-        assertThat(securityService.casServiceBaseUrl()).isEqualTo("http://example.com");
-    }
-
-    @Test
-    public void shouldReturnSecureSiteUrlAsCasServiceBaseUrlIfBothSiteUrlAndSecureSiteUrlAreDefined() {
-        configHelper.setBaseUrls(new SiteUrl("http://example.com"), new SecureSiteUrl("https://example.com"));
-        assertThat(securityService.casServiceBaseUrl()).isEqualTo("https://example.com");
-    }
-
-    @Test
     public void shouldReturnTrueIfUserIsAuthorizedToViewAnyOfTheTemplatesListed() {
         String templateAdmin = "template-admin-1";
-        Authorization authorization = new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString(templateAdmin))));
+        Authorization authorization = new Authorization(new AdminsConfig(new AdminUser(cis(templateAdmin))));
         configHelper.addTemplate("pipeline-name", authorization, "stage-name");
 
-        boolean isAuthorized = securityService.isAuthorizedToViewAndEditTemplates(new Username(new CaseInsensitiveString(templateAdmin)));
+        boolean isAuthorized = securityService.isAuthorizedToEditTemplates(new Username(cis(templateAdmin)));
 
         assertThat(isAuthorized).isTrue();
     }
@@ -361,11 +317,11 @@ public class SecurityServiceIntegrationTest {
     @Test
     public void shouldReturnTrueIfUserIsTemplateAdminAndCanEditTemplate() {
         String templateAdmin = "template-admin-1";
-        Authorization authorization = new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString(templateAdmin))));
-        CaseInsensitiveString templateName = new CaseInsensitiveString("pipeline-name");
+        Authorization authorization = new Authorization(new AdminsConfig(new AdminUser(cis(templateAdmin))));
+        CaseInsensitiveString templateName = cis("pipeline-name");
         configHelper.addTemplate("pipeline-name", authorization, "stage-name");
 
-        boolean isAuthorized = securityService.isAuthorizedToEditTemplate(templateName, new Username(new CaseInsensitiveString(templateAdmin)));
+        boolean isAuthorized = securityService.isAuthorizedToEditTemplate(templateName, new Username(cis(templateAdmin)));
 
         assertThat(isAuthorized).isTrue();
     }
@@ -374,23 +330,13 @@ public class SecurityServiceIntegrationTest {
     public void shouldReturnFalseIfUserIsTemplateAdminAndCannotEditTemplate() {
         String templateAdmin = "template-admin-1";
         String templateAdminNotForThisTemplate = "template-admin-2";
-        Authorization authorization = new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString(templateAdmin))));
-        CaseInsensitiveString templateName = new CaseInsensitiveString("pipeline-name");
+        Authorization authorization = new Authorization(new AdminsConfig(new AdminUser(cis(templateAdmin))));
+        CaseInsensitiveString templateName = cis("pipeline-name");
         configHelper.addTemplate("pipeline-name", authorization, "stage-name");
 
-        boolean isAuthorized = securityService.isAuthorizedToEditTemplate(templateName, new Username(new CaseInsensitiveString(templateAdminNotForThisTemplate)));
+        boolean isAuthorized = securityService.isAuthorizedToEditTemplate(templateName, new Username(cis(templateAdminNotForThisTemplate)));
 
         assertThat(isAuthorized).isFalse();
-    }
-
-    private void withDefaultGroupPermission(boolean defaultAllow, Consumer<Object> body) {
-        boolean previousValue = systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP);
-        try {
-            systemEnvironment.set(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP, defaultAllow);
-            body.accept(null);
-        } finally {
-            systemEnvironment.set(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP, previousValue);
-        }
     }
 
     private static final String CONFIG_WITH_2_GROUPS = """

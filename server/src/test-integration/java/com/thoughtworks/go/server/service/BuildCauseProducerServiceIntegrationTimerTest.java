@@ -15,14 +15,13 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
@@ -47,6 +46,7 @@ import java.nio.file.Path;
 import java.util.Date;
 import java.util.function.Predicate;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.TempDirUtils.newFile;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -126,7 +126,7 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
         buildCauseProducerService.timerSchedulePipeline(p1.config, new ServerHealthStateOperationResult());
 
         assertThat(pipelineScheduleQueue.toBeScheduled().size()).isEqualTo(1);
-        assertThat(pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(pipelineName)).getMaterialRevisions()).matches(isSameMaterialRevisionsAs(u.mrs(u.mr(git1, false, "g12"))));
+        assertThat(pipelineScheduleQueue.toBeScheduled().get(cis(pipelineName)).getMaterialRevisions()).matches(isSameMaterialRevisionsAs(u.mrs(u.mr(git1, false, "g12"))));
     }
 
     @Test
@@ -146,18 +146,18 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
         buildCauseProducerService.timerSchedulePipeline(p1.config, new ServerHealthStateOperationResult());
 
         assertThat(pipelineScheduleQueue.toBeScheduled().size()).isEqualTo(1);
-        assertThat(pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(pipelineName)).getMaterialRevisions()).matches(isSameMaterialRevisionsAs(u.mrs(u.mr(git1, true, "g11"), u.mr(up1, true, up1_1))));
+        assertThat(pipelineScheduleQueue.toBeScheduled().get(cis(pipelineName)).getMaterialRevisions()).matches(isSameMaterialRevisionsAs(u.mrs(u.mr(git1, true, "g11"), u.mr(up1, true, up1_1))));
 
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(pipelineName));
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(cis(pipelineName));
         String up1_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(up1, u.d(i++), "g11");
-        pipelineScheduleQueue.finishSchedule(new CaseInsensitiveString(pipelineName), buildCause, buildCause);
+        pipelineScheduleQueue.finishSchedule(cis(pipelineName), buildCause, buildCause);
 
         try (LogFixture logFixture = logFixtureFor(TimedBuild.class, Level.INFO)) {
             // Timer time comes around again. Will rerun since the new flag (runOnlyOnNewMaterials) is not ON.
             buildCauseProducerService.timerSchedulePipeline(p1.config, new ServerHealthStateOperationResult());
 
             assertThat(pipelineScheduleQueue.toBeScheduled().size()).isEqualTo(1);
-            assertThat(pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(pipelineName)).getMaterialRevisions()).isEqualTo(u.mrs(u.mr(git1, false, "g11"), u.mr(up1, false, up1_2)));
+            assertThat(pipelineScheduleQueue.toBeScheduled().get(cis(pipelineName)).getMaterialRevisions()).isEqualTo(u.mrs(u.mr(git1, false, "g11"), u.mr(up1, false, up1_2)));
             assertThat(logFixture.contains(Level.INFO, "Skipping scheduling of timer-triggered pipeline 'p1' as it has previously run with the latest material(s).")).isFalse();
         }
     }
@@ -178,10 +178,10 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
         buildCauseProducerService.timerSchedulePipeline(p1.config, new ServerHealthStateOperationResult());
 
         assertThat(pipelineScheduleQueue.toBeScheduled().size()).isEqualTo(1);
-        assertThat(pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(pipelineName)).getMaterialRevisions()).matches(isSameMaterialRevisionsAs(u.mrs(u.mr(git1, true, "g11"), u.mr(git2, true, "g21"))));
+        assertThat(pipelineScheduleQueue.toBeScheduled().get(cis(pipelineName)).getMaterialRevisions()).matches(isSameMaterialRevisionsAs(u.mrs(u.mr(git1, true, "g11"), u.mr(git2, true, "g21"))));
 
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(pipelineName));
-        pipelineScheduleQueue.finishSchedule(new CaseInsensitiveString(pipelineName), buildCause, buildCause);
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(cis(pipelineName));
+        pipelineScheduleQueue.finishSchedule(cis(pipelineName), buildCause, buildCause);
 
         try (LogFixture logFixture = logFixtureFor(TimedBuild.class, Level.INFO)) {
             // Timer time comes around again. Will NOT rerun since the new flag (runOnlyOnNewMaterials) is ON.
@@ -212,11 +212,11 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
         buildCauseProducerService.timerSchedulePipeline(p2.config, new ServerHealthStateOperationResult());
 
         assertThat(pipelineScheduleQueue.toBeScheduled().size()).isEqualTo(1);
-        assertThat(pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(pipelineName)).getMaterialRevisions()).matches(isSameMaterialRevisionsAs(u.mrs(u.mr(git1, true, "g11"), u.mr(git2, true, "g21"), u.mr(p1, true, p1_1))));
+        assertThat(pipelineScheduleQueue.toBeScheduled().get(cis(pipelineName)).getMaterialRevisions()).matches(isSameMaterialRevisionsAs(u.mrs(u.mr(git1, true, "g11"), u.mr(git2, true, "g21"), u.mr(p1, true, p1_1))));
 
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(pipelineName));
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(cis(pipelineName));
         u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), "g11", "g21", p1_1);
-        pipelineScheduleQueue.finishSchedule(new CaseInsensitiveString(pipelineName), buildCause, buildCause);
+        pipelineScheduleQueue.finishSchedule(cis(pipelineName), buildCause, buildCause);
 
         // Check in to git2 and run pipeline P1 once before the timer time. Then, timer happens. Shows those two materials in "yellow" (changed), on the UI.
         u.checkinFile(git2, "g22", newFile(tempDir.resolve("blah_g22")), ModifiedAction.added);
@@ -226,7 +226,7 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
             buildCauseProducerService.timerSchedulePipeline(p2.config, new ServerHealthStateOperationResult());
 
             assertThat(pipelineScheduleQueue.toBeScheduled().size()).isEqualTo(1);
-            assertThat(pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(pipelineName)).getMaterialRevisions()).matches(isSameMaterialRevisionsAs(u.mrs(u.mr(git1, false, "g11"), u.mr(git2, true, "g22"), u.mr(p1, true, p1_2))));
+            assertThat(pipelineScheduleQueue.toBeScheduled().get(cis(pipelineName)).getMaterialRevisions()).matches(isSameMaterialRevisionsAs(u.mrs(u.mr(git1, false, "g11"), u.mr(git2, true, "g22"), u.mr(p1, true, p1_2))));
             assertThat(logFixture.contains(Level.INFO, "Skipping scheduling of timer-triggered pipeline 'p1' as it has previously run with the latest material(s).")).isFalse();
         }
     }

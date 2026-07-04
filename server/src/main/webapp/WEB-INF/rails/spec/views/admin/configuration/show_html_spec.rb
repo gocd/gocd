@@ -22,19 +22,8 @@ describe "admin/configuration/show.html.erb" do
     allow(view).to receive(:config_edit_path).and_return('config_edit_path')
   end
 
-  it "should render heading" do
-    assign(:go_config, GoConfig.new({"content" => 'current-content', "md5" => 'current-md5', "location" => "path_to_config_xml"}))
-
-    render
-
-    Capybara.string(response.body).find('div.heading').tap do |div|
-      expect(div).to have_selector("span", :text => "Configuration File Path:")
-      expect(div).to have_selector("span", :text => "path_to_config_xml")
-    end
-  end
-
   it "should render view" do
-    assign(:go_config, GoConfig.new({"content" => 'config-content', "md5" => 'md5', "location" => "path_to_config_xml"}))
+    assign(:go_config, GoConfig.new(content: 'config-content', md5: 'md5'))
     date = java.util.Date.new(1366866649)
     difference = "#{time_ago_in_words(date.to_string)} #{'ago'}"
     cruise_config_revision = double("cruise config revision")
@@ -55,7 +44,7 @@ describe "admin/configuration/show.html.erb" do
             end
           end
           admin.find("div#content_area").tap do |content_area|
-            expect(content_area).to have_selector("#content_container #config-xml-content[data-config-url='/go/api/admin/config/md5.xml']", visible: :hidden)
+            expect(content_area).to have_selector("#content_container #config-xml-content", visible: :hidden)
           end
         end
       end

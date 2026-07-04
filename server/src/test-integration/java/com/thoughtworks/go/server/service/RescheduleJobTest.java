@@ -39,6 +39,7 @@ import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -132,7 +133,7 @@ public class RescheduleJobTest {
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs(List.of(new BuildArtifactConfig("s1", "d1"), new BuildArtifactConfig("s2", "d2")));
         configHelper.addAssociatedEntitiesForAJob(PIPELINE_NAME, STAGE_NAME, JOB_NAME, resourceConfigs, artifactTypeConfigs);
 
-        dbHelper.schedulePipeline(configHelper.currentConfig().getPipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME)), new TimeProvider());
+        dbHelper.schedulePipeline(configHelper.currentConfig().getPipelineConfigByName(cis(PIPELINE_NAME)), new TimeProvider());
 
         JobPlan oldJobPlan = dbHelper.getBuildInstanceDao().orderedScheduledBuilds().getFirst();
         assertThat(oldJobPlan.getResources().size()).isEqualTo(2);

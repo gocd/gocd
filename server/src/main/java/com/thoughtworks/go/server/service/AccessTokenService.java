@@ -41,6 +41,7 @@ import static org.apache.commons.lang3.StringUtils.substring;
 @Service
 public class AccessTokenService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessTokenService.class);
+    @SuppressWarnings("LoggerInitializedWithForeignClass")
     private static final Logger ACCESS_TOKEN_LOGGER = LoggerFactory.getLogger(AccessToken.class);
     private final Clock timeProvider;
 
@@ -152,7 +153,7 @@ public class AccessTokenService {
 
     public void updateLastUsedCacheWith(AccessToken accessToken) {
         if (!securityService.isSecurityEnabled()) {
-            throw new UnsupportedOperationException("Security is disable. Updating cache is not allowed.");
+            throw new UnsupportedOperationException("Security is disabled. Updating cache is not allowed.");
         }
 
         synchronized (accessTokenIdToLastUsedTimestampCache) {
@@ -162,7 +163,7 @@ public class AccessTokenService {
 
     public void onTimer() {
         if (!securityService.isSecurityEnabled()) {
-            LOGGER.debug("Security is disable. Not updating `LastUsedTime` in DB.");
+            LOGGER.debug("Security is disabled. Not updating `LastUsedTime` in DB.");
             return;
         }
 

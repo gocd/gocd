@@ -15,8 +15,10 @@
  */
 package com.thoughtworks.go.spark
 
+import groovy.transform.SelfType
 import org.junit.jupiter.api.Test
 
+@SelfType([SecurityServiceTrait, ControllerTrait, SecurityTestTraitBasics])
 trait TemplateViewUserSecurity {
 
   @Test
@@ -39,7 +41,6 @@ trait TemplateViewUserSecurity {
 
   @Test
   void 'should disallow normal users, with security enabled'() {
-    enableSecurity()
     loginAsUser()
 
     makeHttpCall()
@@ -48,7 +49,6 @@ trait TemplateViewUserSecurity {
 
   @Test
   void 'should allow admin, with security enabled'() {
-    enableSecurity()
     loginAsAdmin()
 
     makeHttpCall()
@@ -57,7 +57,6 @@ trait TemplateViewUserSecurity {
 
   @Test
   void 'should allow template admin users, with security enabled'() {
-    enableSecurity()
     loginAsTemplateAdmin()
 
     makeHttpCall()
@@ -66,7 +65,6 @@ trait TemplateViewUserSecurity {
 
   @Test
   void 'should allow template view users, with security enabled'() {
-    enableSecurity()
     loginAsTemplateViewUser()
 
     makeHttpCall()

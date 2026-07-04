@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class ParamResolver {
@@ -75,10 +76,10 @@ public class ParamResolver {
                 if (nonStringLeaf != null) {
                     Class<?> type = leaf.getType();
                     Field field = ConfigAttributeValue.Resolver.resolveAccessibleField(type, configAttributeValueFor(leaf));
-                    if (field.getType().equals(CaseInsensitiveString.class)) {
+                    if (field.getType() == CaseInsensitiveString.class) {
                         CaseInsensitiveString cis = (CaseInsensitiveString) field.get(nonStringLeaf);
                         String resolved = resolver.resolveString(resolvable, field, CaseInsensitiveString.str(cis));
-                        CaseInsensitiveString value = new CaseInsensitiveString(resolved);
+                        CaseInsensitiveString value = cis(resolved);
                         leaf.set(resolvable, type.getConstructor(CaseInsensitiveString.class).newInstance(value));
                     } else {//assume it is a string, what else can it be?
                         String resolved = resolver.resolveString(resolvable, field, (String) field.get(nonStringLeaf));

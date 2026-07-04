@@ -26,7 +26,7 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.StageMother;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
@@ -149,7 +149,7 @@ public class PipelineServiceTest {
         StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(SecurityService.class), mock(PipelineDao.class),
                 mock(ChangesetService.class), mock(GoConfigService.class), actualTransactionTemplate, transactionSynchronizationManager,
                 goCache);
-        Stage savedStage = StageMother.passedStageInstance("stage", "job", "pipeline-name");
+        Stage savedStage = StageMother.passedStageInstance("pipeline-name", "stage", "job");
         when(stageDao.save(any(), any())).thenReturn(savedStage);
 
         stageService.addStageStatusListener(stageStatusListener);

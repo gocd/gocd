@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv2.securityauthconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.config.SecurityAuthConfig
 import com.thoughtworks.go.plugin.domain.common.ValidationResult
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse
@@ -50,13 +50,16 @@ class SecurityAuthConfigInternalControllerV2Test implements SecurityServiceTrait
 
   @Override
   SecurityAuthConfigInternalControllerV2 createControllerInstance() {
-    new SecurityAuthConfigInternalControllerV2(securityAuthConfigService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService)
+    new SecurityAuthConfigInternalControllerV2(securityAuthConfigService, new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService)
   }
 
   @Nested
   class VerifyConnection {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = SecurityAuthConfigInternalControllerV2Test.this
+      @Delegate ControllerTrait<SecurityAuthConfigInternalControllerV2> c = SecurityAuthConfigInternalControllerV2Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'verifyConnection'
@@ -72,7 +75,6 @@ class SecurityAuthConfigInternalControllerV2Test implements SecurityServiceTrait
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -123,7 +125,7 @@ class SecurityAuthConfigInternalControllerV2Test implements SecurityServiceTrait
         ]
 
         when(securityAuthConfigService.verifyConnection(authConfig)).then({ InvocationOnMock invocation ->
-          SecurityAuthConfig config = invocation.getArguments()[0]
+          SecurityAuthConfig config = invocation.getArgument(0)
           config.addError("Path", "Must not be blank.")
           return new VerifyConnectionResponse("failure", "Verify connection failed", new ValidationResult())
         })

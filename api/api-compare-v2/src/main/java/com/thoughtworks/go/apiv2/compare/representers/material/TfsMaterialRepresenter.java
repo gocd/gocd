@@ -22,7 +22,7 @@ public class TfsMaterialRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, TfsMaterialConfig tfsMaterialConfig) {
         ScmMaterialRepresenter.toJSON(jsonWriter, tfsMaterialConfig);
-        jsonWriter.add("url", tfsMaterialConfig.getUrl());
+        jsonWriter.add("url", tfsMaterialConfig.getUriForDisplay());
         jsonWriter.add("domain", tfsMaterialConfig.getDomain());
         jsonWriter.add("username", tfsMaterialConfig.getUserName());
         jsonWriter.addIfNotNull("encrypted_password", tfsMaterialConfig.getEncryptedPassword());

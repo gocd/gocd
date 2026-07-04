@@ -20,6 +20,8 @@ import com.thoughtworks.go.config.*;
 import java.util.List;
 import java.util.UUID;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 public class JobConfigMother {
     public static JobConfig job() {
         JobConfig jobConfig = createJobConfigWithJobNameAndEmptyResources();
@@ -37,7 +39,7 @@ public class JobConfigMother {
     }
 
     public static JobConfig createJobConfigWithJobNameAndEmptyResources() {
-        return new JobConfig(new CaseInsensitiveString("defaultJob"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig()), new ArtifactTypeConfigs());
+        return new JobConfig(cis("defaultJob"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig()), new ArtifactTypeConfigs());
     }
 
     public static JobConfig jobConfig() {
@@ -54,7 +56,7 @@ public class JobConfigMother {
     }
 
     public static JobConfig createJobConfigWithResourceAndArtifactPlans() {
-        return new JobConfig(new CaseInsensitiveString("defaultJob"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("Java")), new ArtifactTypeConfigs(List.of(new BuildArtifactConfig("src", "dest"))));
+        return new JobConfig(cis("defaultJob"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("Java")), new ArtifactTypeConfigs(List.of(new BuildArtifactConfig("src", "dest"))));
     }
 
     public static JobConfig elasticJob(String elasticProfileId) {
@@ -66,7 +68,7 @@ public class JobConfigMother {
     public static JobConfig jobWithNoResourceRequirement() {
         JobConfig jobConfig = jobConfig();
         jobConfig.setName(UUID.randomUUID().toString());
-        jobConfig.setRunInstanceCount((String)null);
+        jobConfig.setRunInstanceCount(null);
         jobConfig.resourceConfigs().clear();
         return jobConfig;
     }

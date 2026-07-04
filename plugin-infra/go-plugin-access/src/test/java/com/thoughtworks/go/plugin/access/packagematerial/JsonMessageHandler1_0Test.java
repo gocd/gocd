@@ -23,11 +23,10 @@ import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfi
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.util.Dates;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @SuppressWarnings("SameParameterValue")
 public class JsonMessageHandler1_0Test {
-    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private JsonMessageHandler1_0 messageHandler;
     private RepositoryConfiguration repositoryConfiguration;
     private com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration;
@@ -188,8 +186,8 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldBuildRequestBodyForLatestRevisionSinceRequest() throws Exception {
-        Date timestamp = new SimpleDateFormat(DATE_FORMAT).parse("2011-07-13T19:43:37.100Z");
+    public void shouldBuildRequestBodyForLatestRevisionSinceRequest() {
+        Date timestamp = Dates.parseIso8601StrictOffset("2011-07-13T19:43:37.100Z");
         Map<String, String> data = new LinkedHashMap<>();
         data.put("dataKeyOne", "data-value-one");
         data.put("dataKeyTwo", "data-value-two");
@@ -283,10 +281,10 @@ public class JsonMessageHandler1_0Test {
         assertThat(errorMessageForPackageRevision("{\"timestamp\":\"12-01-2014\"}")).isEqualTo("Unable to de-serialize json response. Package revision timestamp should be of type string with format yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     }
 
-    private void assertPackageRevision(PackageRevision packageRevision, String revision, String user, String timestamp, String comment, String trackbackUrl) throws ParseException {
+    private void assertPackageRevision(PackageRevision packageRevision, String revision, String user, String timestamp, String comment, String trackbackUrl) {
         assertThat(packageRevision.getRevision()).isEqualTo(revision);
         assertThat(packageRevision.getUser()).isEqualTo(user);
-        assertThat(packageRevision.getTimestamp()).isEqualTo(new SimpleDateFormat(DATE_FORMAT).parse(timestamp));
+        assertThat(packageRevision.getTimestamp()).isEqualTo(Dates.parseIso8601StrictOffset(timestamp));
         assertThat(packageRevision.getRevisionComment()).isEqualTo(comment);
         assertThat(packageRevision.getTrackbackUrl()).isEqualTo(trackbackUrl);
         assertThat(packageRevision.getData().size()).isEqualTo(2);

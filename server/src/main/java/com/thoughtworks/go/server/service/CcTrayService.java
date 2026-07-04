@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.domain.cctray.CcTrayCache;
+import com.thoughtworks.go.domain.cctray.ProjectStatus;
+import lombok.SneakyThrows;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -39,6 +39,7 @@ public class CcTrayService {
         this.goConfigService = goConfigService;
     }
 
+    @SneakyThrows
     public Appendable renderCCTrayXML(String siteUrlPrefix, String userName, Appendable appendable, Consumer<String> etagConsumer) {
         boolean isSecurityEnabled = goConfigService.isSecurityEnabled();
         List<ProjectStatus> statuses = ccTrayCache.allEntriesInOrder();
@@ -47,24 +48,20 @@ public class CcTrayService {
         String etag = DigestUtils.sha256Hex(siteUrlPrefix + "/" + hashCodes);
         etagConsumer.accept(etag);
 
-        try {
-            appendable.append("""
-                <?xml version="1.0" encoding="utf-8"?>
-                <Projects>
-                """);
-            for (ProjectStatus status : statuses) {
-                if (!isSecurityEnabled || status.canBeViewedBy(userName)) {
-                    String xmlRepresentation = status.xmlRepresentation().replaceAll(ProjectStatus.SITE_URL_PREFIX, siteUrlPrefix);
-                    if (!isBlank(xmlRepresentation)) {
-                        appendable.append("  ").append(xmlRepresentation).append('\n');
-                    }
+        appendable.append("""
+            <?xml version="1.0" encoding="utf-8"?>
+            <Projects>
+            """);
+        for (ProjectStatus status : statuses) {
+            if (!isSecurityEnabled || status.canBeViewedBy(userName)) {
+                String xmlRepresentation = status.xmlRepresentation().replace(ProjectStatus.SITE_URL_PREFIX, siteUrlPrefix);
+                if (!isBlank(xmlRepresentation)) {
+                    appendable.append("  ").append(xmlRepresentation).append('\n');
                 }
             }
-
-            appendable.append("</Projects>");
-        } catch (IOException e) {
-            // ignore. `StringBuilder#append` does not throw
         }
+
+        appendable.append("</Projects>");
 
         return appendable;
     }

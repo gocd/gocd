@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.materials.AbstractMaterialConfig.MATERIAL_NAME;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.URL;
@@ -64,7 +65,7 @@ class HgMaterialConfigTest {
 
         assertThat(hgMaterialConfig.getUrl()).isEqualTo("url");
         assertThat(hgMaterialConfig.getFolder()).isEqualTo("folder");
-        assertThat(hgMaterialConfig.getName()).isEqualTo(new CaseInsensitiveString("material-name"));
+        assertThat(hgMaterialConfig.getName()).isEqualTo(cis("material-name"));
         assertThat(hgMaterialConfig.isAutoUpdate()).isFalse();
         assertThat(hgMaterialConfig.filter()).isEqualTo(new Filter(new IgnoredFiles("/root"), new IgnoredFiles("/**/*.help")));
     }
@@ -220,7 +221,7 @@ class HgMaterialConfigTest {
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
             assertThat(hgMaterialConfig.errors().firstErrorOn(MATERIAL_NAME)).isNull();
 
-            hgMaterialConfig.setName(new CaseInsensitiveString(".bad-name-with-dot"));
+            hgMaterialConfig.setName(cis(".bad-name-with-dot"));
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
             assertThat(hgMaterialConfig.errors().firstErrorOn(MATERIAL_NAME)).isEqualTo("Invalid material name '.bad-name-with-dot'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
         }

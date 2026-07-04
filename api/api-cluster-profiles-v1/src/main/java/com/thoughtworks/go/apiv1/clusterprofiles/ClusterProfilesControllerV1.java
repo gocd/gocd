@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.clusterprofiles.representers.ClusterProfileRepresenter;
 import com.thoughtworks.go.apiv1.clusterprofiles.representers.ClusterProfilesRepresenter;
@@ -51,14 +51,14 @@ import static spark.Spark.*;
 @Component
 public class ClusterProfilesControllerV1 extends ApiController implements SparkSpringController, CrudController<ClusterProfile> {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final ClusterProfilesService clusterProfilesService;
     private EntityHashingService entityHashingService;
 
     @Autowired
-    public ClusterProfilesControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, ClusterProfilesService clusterProfilesService, EntityHashingService entityHashingService) {
+    public ClusterProfilesControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, ClusterProfilesService clusterProfilesService, EntityHashingService entityHashingService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.clusterProfilesService = clusterProfilesService;
         this.entityHashingService = entityHashingService;
     }
@@ -77,7 +77,7 @@ public class ClusterProfilesControllerV1 extends ApiController implements SparkS
             before("", mimeType, (request, response) -> {
                 String resourceToOperateOn = "*";
                 if (request.requestMethod().equalsIgnoreCase("GET")) {
-                    apiAuthenticationHelper.checkUserAnd403(request, response);
+                    apiAuthorizationHelper.checkUserAnd403(request, response);
                     return;
                 }
 
@@ -86,10 +86,10 @@ public class ClusterProfilesControllerV1 extends ApiController implements SparkS
                     resourceToOperateOn = GsonTransformer.getInstance().jsonReaderFrom(request.body()).getString("id");
                 }
 
-                apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.CLUSTER_PROFILE, resourceToOperateOn);
+                apiAuthorizationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.CLUSTER_PROFILE, resourceToOperateOn);
             });
 
-            before(Routes.ClusterProfilesAPI.ID, mimeType, (request, response) -> apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.CLUSTER_PROFILE, request.params("cluster_id")));
+            before(Routes.ClusterProfilesAPI.ID, mimeType, (request, response) -> apiAuthorizationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.CLUSTER_PROFILE, request.params("cluster_id")));
 
             get("", mimeType, this::index);
             post("", mimeType, this::create);
@@ -103,7 +103,7 @@ public class ClusterProfilesControllerV1 extends ApiController implements SparkS
     public String index(Request request, Response response) throws IOException {
         final PluginProfiles<ClusterProfile> userSpecificClusterProfiles = new ClusterProfiles();
         for (ClusterProfile clusterProfile : clusterProfilesService.getPluginProfiles()) {
-            if (apiAuthenticationHelper.doesUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.CLUSTER_PROFILE, clusterProfile.getId())) {
+            if (apiAuthorizationHelper.doesUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.CLUSTER_PROFILE, clusterProfile.getId())) {
                 userSpecificClusterProfiles.add(clusterProfile);
             }
         }

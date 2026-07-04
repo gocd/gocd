@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv7.plugininfos
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv7.plugininfos.representers.PluginInfoRepresenter
 import com.thoughtworks.go.apiv7.plugininfos.representers.PluginInfosRepresenter
 import com.thoughtworks.go.plugin.access.ExtensionsRegistry
@@ -66,13 +66,16 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
 
   @Override
   PluginInfosControllerV7 createControllerInstance() {
-    new PluginInfosControllerV7(new ApiAuthenticationHelper(securityService, goConfigService), pluginInfoFinder, entityHashingService, defaultPluginManager, extensionRegistry)
+    new PluginInfosControllerV7(new ApiAuthorizationHelper(securityService, goConfigService), pluginInfoFinder, entityHashingService, defaultPluginManager, extensionRegistry)
   }
 
   @Nested
   class Show {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = PluginInfosControllerV7Test.this
+      @Delegate ControllerTrait<PluginInfosControllerV7> c = PluginInfosControllerV7Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'show'
@@ -88,7 +91,6 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -194,6 +196,9 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
   class Index {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = PluginInfosControllerV7Test.this
+      @Delegate ControllerTrait<PluginInfosControllerV7> c = PluginInfosControllerV7Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'index'
@@ -211,7 +216,6 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         def scmCombinedPluginInfo = new CombinedPluginInfo(createSCMPluginInfo())
         def authorizationCombinedPluginInfo = new CombinedPluginInfo(createAuthorizationPluginInfo())

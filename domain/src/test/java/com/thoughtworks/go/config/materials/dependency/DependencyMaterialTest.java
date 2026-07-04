@@ -26,7 +26,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
+import java.util.stream.Stream;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision.create;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -37,7 +39,7 @@ class DependencyMaterialTest {
 
     @BeforeEach
     void setup() {
-        dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"));
+        dependencyMaterial = new DependencyMaterial(cis("pipeline"), cis("stage"));
     }
 
     @Test
@@ -83,7 +85,7 @@ class DependencyMaterialTest {
 
     @Test
     void shouldBeUniqueBasedOnpipelineAndStageName() {
-        DependencyMaterial material1 = new DependencyMaterial(new CaseInsensitiveString("pipeline1"), new CaseInsensitiveString("stage1"));
+        DependencyMaterial material1 = new DependencyMaterial(cis("pipeline1"), cis("stage1"));
         Map<String, Object> map = new HashMap<>();
         material1.appendCriteria(map);
         assertThat(map).containsEntry("pipelineName", "pipeline1");
@@ -93,14 +95,14 @@ class DependencyMaterialTest {
 
     @Test
     void shouldUsePipelineNameAsMaterialNameIfItIsNotSet() {
-        assertThat(new DependencyMaterial(new CaseInsensitiveString("pipeline1"), new CaseInsensitiveString("stage1")).getName()).isEqualTo(new CaseInsensitiveString("pipeline1"));
+        assertThat(new DependencyMaterial(cis("pipeline1"), cis("stage1")).getName()).isEqualTo(cis("pipeline1"));
     }
 
     @Test
     void shouldUseMaterialNameAsMaterialNameIfItIsSet() {
-        DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("pipeline1"), new CaseInsensitiveString("stage1"));
-        material.setName(new CaseInsensitiveString("my-material-name"));
-        assertThat(material.getName()).isEqualTo(new CaseInsensitiveString("my-material-name"));
+        DependencyMaterial material = new DependencyMaterial(cis("pipeline1"), cis("stage1"));
+        material.setName(cis("my-material-name"));
+        assertThat(material.getName()).isEqualTo(cis("my-material-name"));
     }
 
     @Test
@@ -115,58 +117,59 @@ class DependencyMaterialTest {
 
     @Test
     void equalsImplementation() {
-        DependencyMaterial one = new DependencyMaterial(new CaseInsensitiveString("pipelineName"), new CaseInsensitiveString("stage"));
-        DependencyMaterial two = new DependencyMaterial(new CaseInsensitiveString("pipelineName"), new CaseInsensitiveString("stage"));
-        two.setName(new CaseInsensitiveString("other-name-that-should-be-ignored-in-equals-comparison"));
+        DependencyMaterial one = new DependencyMaterial(cis("pipelineName"), cis("stage"));
+        DependencyMaterial two = new DependencyMaterial(cis("pipelineName"), cis("stage"));
+        two.setName(cis("other-name-that-should-be-ignored-in-equals-comparison"));
         assertThat(one).isEqualTo(two);
 
-        DependencyMaterial three = new DependencyMaterial(new CaseInsensitiveString("otherPipelineName"), new CaseInsensitiveString("stage"));
+        DependencyMaterial three = new DependencyMaterial(cis("otherPipelineName"), cis("stage"));
         assertThat(three).isNotEqualTo(one);
     }
 
     @Test
     void hashCodeImplementation() {
-        DependencyMaterial one = new DependencyMaterial(new CaseInsensitiveString("pipelineName"), new CaseInsensitiveString("stage"));
-        DependencyMaterial two = new DependencyMaterial(new CaseInsensitiveString("pipelineName"), new CaseInsensitiveString("stage"));
-        two.setName(new CaseInsensitiveString("other-name-that-should-be-ignored-in-hashcode-generation"));
+        DependencyMaterial one = new DependencyMaterial(cis("pipelineName"), cis("stage"));
+        DependencyMaterial two = new DependencyMaterial(cis("pipelineName"), cis("stage"));
+        two.setName(cis("other-name-that-should-be-ignored-in-hashcode-generation"));
         assertThat(one.hashCode()).isEqualTo(two.hashCode());
 
-        DependencyMaterial three = new DependencyMaterial(new CaseInsensitiveString("otherPipelineName"), new CaseInsensitiveString("stage"));
+        DependencyMaterial three = new DependencyMaterial(cis("otherPipelineName"), cis("stage"));
         assertThat(three.hashCode()).isNotEqualTo(one.hashCode());
     }
 
     @Test
     void shouldReturnUpstreamPipelineNameAsDisplayNameIfMaterialNameIsNotDefined() {
-        DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("first"));
+        DependencyMaterial material = new DependencyMaterial(cis("upstream"), cis("first"));
         assertThat(material.getDisplayName()).isEqualTo("upstream");
     }
 
     @Test
     void shouldReturnMaterialNameIfDefined() {
-        DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("first"));
-        material.setName(new CaseInsensitiveString("my_name"));
+        DependencyMaterial material = new DependencyMaterial(cis("upstream"), cis("first"));
+        material.setName(cis("my_name"));
         assertThat(material.getDisplayName()).isEqualTo("my_name");
     }
 
     @Test
     void shouldNotTruncateshortRevision() {
-        Material material = new DependencyMaterial(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("first"));
+        Material material = new DependencyMaterial(cis("upstream"), cis("first"));
         assertThat(material.getShortRevision("pipeline-name/1/stage-name/5")).isEqualTo("pipeline-name/1/stage-name/5");
     }
 
     @Test
     void shouldUseACombinationOfPipelineAndStageNameAsURI() {
-        Material material = new DependencyMaterial(new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"));
+        Material material = new DependencyMaterial(cis("pipeline-foo"), cis("stage-bar"));
         assertThat(material.getUriForDisplay()).isEqualTo("pipeline-foo / stage-bar");
     }
 
     @Test
     void shouldDetectDependencyMaterialUsedInFetchArtifact() {
-        DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"));
+        DependencyMaterial material = new DependencyMaterial(cis("pipeline-foo"), cis("stage-bar"));
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        List<FetchTask> fetchTasks = new ArrayList<>();
-        fetchTasks.add(new FetchTask(new CaseInsensitiveString("something"), new CaseInsensitiveString("new"), "src", "dest"));
-        fetchTasks.add(new FetchTask(new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"), new CaseInsensitiveString("job"), "src", "dest"));
+        Stream<FetchTask> fetchTasks = Stream.of(
+            new FetchTask(cis("something"), cis("new"), "src", "dest"),
+            new FetchTask(cis("pipeline-foo"), cis("stage-bar"), cis("job"), "src", "dest")
+        );
         when(pipelineConfig.getFetchTasks()).thenReturn(fetchTasks);
 
         assertThat(material.isUsedInFetchArtifact(pipelineConfig)).isTrue();
@@ -174,10 +177,11 @@ class DependencyMaterialTest {
 
     @Test
     void shouldDetectDependencyMaterialUsedInFetchArtifactFromAncestor() {
-        DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("parent-pipeline"), new CaseInsensitiveString("stage-bar"));
+        DependencyMaterial material = new DependencyMaterial(cis("parent-pipeline"), cis("stage-bar"));
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        List<FetchTask> fetchTasks = new ArrayList<>();
-        fetchTasks.add(new FetchTask(new CaseInsensitiveString("grandparent-pipeline/parent-pipeline"), new CaseInsensitiveString("grandparent-stage"), new CaseInsensitiveString("grandparent-job"), "src", "dest"));
+        Stream<FetchTask> fetchTasks = Stream.of(
+            new FetchTask(cis("grandparent-pipeline/parent-pipeline"), cis("grandparent-stage"), cis("grandparent-job"), "src", "dest")
+        );
         when(pipelineConfig.getFetchTasks()).thenReturn(fetchTasks);
 
         assertThat(material.isUsedInFetchArtifact(pipelineConfig)).isTrue();
@@ -185,11 +189,12 @@ class DependencyMaterialTest {
 
     @Test
     void shouldDetectDependencyMaterialNotUsedInFetchArtifact() {
-        DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"));
+        DependencyMaterial material = new DependencyMaterial(cis("pipeline-foo"), cis("stage-bar"));
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        List<FetchTask> fetchTasks = new ArrayList<>();
-        fetchTasks.add(new FetchTask(new CaseInsensitiveString("something"), new CaseInsensitiveString("new"), "src", "dest"));
-        fetchTasks.add(new FetchTask(new CaseInsensitiveString("another"), new CaseInsensitiveString("boo"), new CaseInsensitiveString("foo"), "src", "dest"));
+        Stream<FetchTask> fetchTasks = Stream.of(
+            new FetchTask(cis("something"), cis("new"), "src", "dest"),
+            new FetchTask(cis("another"), cis("boo"), cis("foo"), "src", "dest")
+        );
         when(pipelineConfig.getFetchTasks()).thenReturn(fetchTasks);
 
         assertThat(material.isUsedInFetchArtifact(pipelineConfig)).isFalse();
@@ -197,7 +202,7 @@ class DependencyMaterialTest {
 
     @Test
     void shouldGetAttributesAllFields() {
-        DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
+        DependencyMaterial material = new DependencyMaterial(cis("pipeline-name"), cis("stage-name"));
 
         Map<String, Object> attributesWithSecureFields = material.getAttributes(true);
         assertAttributes(attributesWithSecureFields);
@@ -206,11 +211,10 @@ class DependencyMaterialTest {
         assertAttributes(attributesWithoutSecureFields);
     }
 
-
     @Test
     void shouldHandleNullOriginDuringValidationWhenUpstreamPipelineDoesNotExist() {
-        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("upstream_stage"), new CaseInsensitiveString("upstream_pipeline"), new CaseInsensitiveString("stage"));
-        PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
+        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(cis("upstream_stage"), cis("upstream_pipeline"), cis("stage"));
+        PipelineConfig pipeline = new PipelineConfig(cis("p"), new MaterialConfigs());
         pipeline.setOrigin(null);
         dependencyMaterialConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), pipeline));
         assertThat(dependencyMaterialConfig.errors().firstErrorOn(DependencyMaterialConfig.PIPELINE_STAGE_NAME)).isEqualTo("Pipeline with name 'upstream_pipeline' does not exist, it is defined as a dependency for pipeline 'p' (cruise-config.xml)");
@@ -219,8 +223,8 @@ class DependencyMaterialTest {
     @Test
     void shouldHandleNullOriginDuringValidationWhenUpstreamStageDoesNotExist() {
         CruiseConfig cruiseConfig = GoConfigMother.pipelineHavingJob("upstream_pipeline", "upstream_stage", "j1", null, null);
-        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("upstream_pipeline"), new CaseInsensitiveString("does_not_exist"));
-        PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString("downstream"), new MaterialConfigs());
+        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(cis("upstream_pipeline"), cis("does_not_exist"));
+        PipelineConfig pipeline = new PipelineConfig(cis("downstream"), new MaterialConfigs());
         pipeline.setOrigin(null);
         dependencyMaterialConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, pipeline));
         assertThat(dependencyMaterialConfig.errors().firstErrorOn(DependencyMaterialConfig.PIPELINE_STAGE_NAME)).isEqualTo("Stage with name 'does_not_exist' does not exist on pipeline 'upstream_pipeline', it is being referred to from pipeline 'downstream' (cruise-config.xml)");
@@ -242,7 +246,7 @@ class DependencyMaterialTest {
 
     @Test
     void shouldSetLongDescriptionAsCombinationOfPipelineAndStageName() {
-        DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
+        DependencyMaterial material = new DependencyMaterial(cis("pipeline-name"), cis("stage-name"));
 
         assertThat(material.getLongDescription()).isEqualTo("pipeline-name [ stage-name ]");
     }

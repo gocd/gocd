@@ -20,12 +20,12 @@ plugins {
 
 dependencies {
   implementation project(':api:api-base')
-  implementation project.deps.bucket4j
-  implementation project.deps.bucket4jCaffeine
-  implementation project.deps.caffeine
+  implementation rootProject.deps.bucket4j
+  implementation rootProject.deps.bucket4jCaffeine
+  implementation rootProject.deps.caffeine
 
   testImplementation(testFixtures(project(":api:api-base")))
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.junit5Api
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
 }

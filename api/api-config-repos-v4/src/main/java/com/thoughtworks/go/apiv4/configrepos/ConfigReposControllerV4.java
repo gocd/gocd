@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv4.configrepos.representers.ConfigRepoConfigRepresenterV4;
@@ -58,14 +58,14 @@ import static spark.Spark.*;
 
 @Component
 public class ConfigReposControllerV4 extends ApiController implements SparkSpringController, CrudController<ConfigRepoConfig> {
-    private final ApiAuthenticationHelper authHelper;
+    private final ApiAuthorizationHelper authHelper;
     private final ConfigRepoService service;
     private final EntityHashingService entityHashingService;
     private final MaterialUpdateService materialUpdateService;
     private final MaterialConfigConverter converter;
 
     @Autowired
-    public ConfigReposControllerV4(ApiAuthenticationHelper authHelper, ConfigRepoService service, EntityHashingService entityHashingService, MaterialUpdateService materialUpdateService, MaterialConfigConverter converter) {
+    public ConfigReposControllerV4(ApiAuthorizationHelper authHelper, ConfigRepoService service, EntityHashingService entityHashingService, MaterialUpdateService materialUpdateService, MaterialConfigConverter converter) {
         super(ApiVersion.v4);
         this.authHelper = authHelper;
         this.service = service;

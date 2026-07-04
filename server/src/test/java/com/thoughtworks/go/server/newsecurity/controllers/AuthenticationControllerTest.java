@@ -32,6 +32,9 @@ import com.thoughtworks.go.util.TestingClock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -42,18 +45,29 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class AuthenticationControllerTest {
     private static final String BOB = "bob";
     private static final String PASSWORD = "p@ssw0rd";
     private static final UsernamePassword CREDENTIALS = new UsernamePassword(BOB, PASSWORD);
     private static final String DISPLAY_NAME = "Bob";
-    private final PasswordBasedPluginAuthenticationProvider authenticationProvider = mock(PasswordBasedPluginAuthenticationProvider.class);
-    private final SecurityService securityService = mock(SecurityService.class);
-    private final WebBasedPluginAuthenticationProvider webBasedPluginAuthenticationProvider = mock(WebBasedPluginAuthenticationProvider.class);
-    private final SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+
+    @Mock private PasswordBasedPluginAuthenticationProvider authenticationProvider;
+    @Mock private SecurityService securityService;
+    @Mock private WebBasedPluginAuthenticationProvider webBasedPluginAuthenticationProvider;
+    @Mock private SystemEnvironment systemEnvironment;
+
     private final TestingClock clock = new TestingClock();
-    private final AuthenticationController controller = new AuthenticationController(securityService, systemEnvironment, clock, authenticationProvider, webBasedPluginAuthenticationProvider);
     private final MockHttpServletRequest request = HttpRequestBuilder.GET("/").build();
+
+    private AuthenticationController controller;
+
+    @BeforeEach
+    public void setUp() {
+        lenient().when(systemEnvironment.getLandingPage()).thenReturn("/go/pipelines");
+        controller = new AuthenticationController(securityService, systemEnvironment, clock, authenticationProvider, webBasedPluginAuthenticationProvider);
+    }
+
     private HttpSession originalSession = request.getSession(true);
 
     private void authenticateAsAnonymous() {

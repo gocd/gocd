@@ -38,8 +38,8 @@ class DenyGoCDAccessForArtifactsFilterChainTest {
 
     public static ServletResponse wrap(MockHttpServletResponse response) {
         return argThat(actualResponse -> {
-            while (actualResponse instanceof HttpServletResponseWrapper) {
-                actualResponse = ((HttpServletResponseWrapper) actualResponse).getResponse();
+            while (actualResponse instanceof HttpServletResponseWrapper httpServletResponseWrapper) {
+                actualResponse = httpServletResponseWrapper.getResponse();
             }
 
             return actualResponse == response;
@@ -48,8 +48,8 @@ class DenyGoCDAccessForArtifactsFilterChainTest {
 
     public static ServletRequest wrap(MockHttpServletRequest request) {
         return argThat(actualRequest -> {
-            while (actualRequest instanceof HttpServletRequestWrapper) {
-                actualRequest = ((HttpServletRequestWrapper) actualRequest).getRequest();
+            while (actualRequest instanceof HttpServletRequestWrapper httpServletRequestWrapper) {
+                actualRequest = httpServletRequestWrapper.getRequest();
             }
 
             return actualRequest == request;

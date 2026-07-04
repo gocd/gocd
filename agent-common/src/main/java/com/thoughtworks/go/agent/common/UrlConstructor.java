@@ -16,21 +16,19 @@
 package com.thoughtworks.go.agent.common;
 
 import com.thoughtworks.go.agent.ServerUrlGenerator;
+import com.thoughtworks.go.util.UrlUtil;
 
 public class UrlConstructor implements ServerUrlGenerator {
 
     private final String serverUrl;
 
     public UrlConstructor(String serverUrl) {
-        if (serverUrl.endsWith("/")) {
-            serverUrl = serverUrl.substring(0, serverUrl.length() - 1);
-        }
-        this.serverUrl = serverUrl;
+        this.serverUrl = UrlUtil.normalizeUrlString(serverUrl);
     }
 
     @Override
     public String serverUrlFor(String subPath) {
-        if (subPath == null || subPath.trim().length() == 0) {
+        if (subPath == null || subPath.isBlank()) {
             return serverUrl;
         }
         return serverUrl + "/" + subPath;

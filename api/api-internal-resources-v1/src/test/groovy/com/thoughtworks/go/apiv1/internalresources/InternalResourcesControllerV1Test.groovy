@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.internalresources
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.server.service.AgentService
 import com.thoughtworks.go.server.service.GoConfigService
 import com.thoughtworks.go.spark.ControllerTrait
@@ -43,7 +43,7 @@ class InternalResourcesControllerV1Test implements SecurityServiceTrait, Control
 
   @Override
   InternalResourcesControllerV1 createControllerInstance() {
-    new InternalResourcesControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigService, agentService)
+    new InternalResourcesControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), goConfigService, agentService)
   }
 
   @Nested
@@ -51,6 +51,9 @@ class InternalResourcesControllerV1Test implements SecurityServiceTrait, Control
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = InternalResourcesControllerV1Test.this
+      @Delegate ControllerTrait<InternalResourcesControllerV1> c = InternalResourcesControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'index'

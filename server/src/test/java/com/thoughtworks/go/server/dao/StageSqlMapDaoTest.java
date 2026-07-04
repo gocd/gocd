@@ -15,14 +15,13 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import com.opensymphony.oscache.base.Cache;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.domain.StageIdentity;
 import com.thoughtworks.go.server.service.StubGoCache;
 import com.thoughtworks.go.server.transaction.SqlMapClientTemplate;
@@ -53,11 +52,11 @@ class StageSqlMapDaoTest {
     void setUp() {
         goCache = new StubGoCache(new TestTransactionSynchronizationManager());
         sqlMapClientTemplate = mock(SqlMapClientTemplate.class);
-        stageSqlMapDao = new StageSqlMapDao(mock(JobInstanceSqlMapDao.class), new Cache(true, false, false), mock(TransactionTemplate.class), mock(SqlSessionFactory.class), goCache, mock(TransactionSynchronizationManager.class));
+        stageSqlMapDao = new StageSqlMapDao(mock(JobInstanceSqlMapDao.class), mock(), mock(TransactionTemplate.class), mock(SqlSessionFactory.class), goCache, mock(TransactionSynchronizationManager.class));
         stageSqlMapDao.setSqlMapClientTemplate(sqlMapClientTemplate);
         Cloner cloner = mock(Cloner.class);
         ReflectionUtil.setField(stageSqlMapDao, "cloner", cloner);
-        doAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]).when(cloner).deepClone(any());
+        doAnswer(invocationOnMock -> invocationOnMock.getArgument(0)).when(cloner).deepClone(any());
     }
 
     @Test

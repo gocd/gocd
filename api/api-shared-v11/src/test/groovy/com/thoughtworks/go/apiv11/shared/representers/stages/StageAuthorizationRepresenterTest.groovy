@@ -17,10 +17,14 @@ package com.thoughtworks.go.apiv11.shared.representers.stages
 
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv11.admin.shared.representers.stages.StageAuthorizationRepresenter
-import com.thoughtworks.go.config.*
+import com.thoughtworks.go.config.AdminRole
+import com.thoughtworks.go.config.AdminUser
+import com.thoughtworks.go.config.AdminsConfig
+import com.thoughtworks.go.config.AuthConfig
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 
@@ -57,7 +61,7 @@ class StageAuthorizationRepresenterTest {
   }
 
   static def getAdminsConfig() {
-    return new AdminsConfig(new AdminRole(new CaseInsensitiveString("admin_role")), new AdminUser(new CaseInsensitiveString("admin_user")))
+    return new AdminsConfig(new AdminRole(cis("admin_role")), new AdminUser(cis("admin_user")))
   }
 
   def stageAuthorizationHash =

@@ -19,7 +19,7 @@ import {ErrorMessages} from "models/mixins/error_messages";
 import {ValidatableMixin, Validator, ValidatorOptions} from "models/mixins/new_validatable_mixin";
 import s from "underscore.string";
 
-describe("Validatable", () => {
+describe("New Validatable Mixin", () => {
   describe("validateNonEmptyCollection", () => {
     describe("validates that Iterables are not empty:", () => {
       it("String", () => {

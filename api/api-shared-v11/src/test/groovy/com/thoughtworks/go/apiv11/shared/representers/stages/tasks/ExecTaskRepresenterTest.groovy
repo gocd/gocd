@@ -18,12 +18,13 @@ package com.thoughtworks.go.apiv11.shared.representers.stages.tasks
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv11.admin.shared.representers.stages.tasks.TaskRepresenter
 import com.thoughtworks.go.config.ExecTask
+import com.thoughtworks.go.domain.Task
 import org.junit.jupiter.api.Test
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class ExecTaskRepresenterTest implements TaskRepresenterTrait {
-  def existingTask() {
+  Task existingTask() {
     def task = new ExecTask()
     task.setCommand("sleep")
     task.setArgsList("300")
@@ -31,11 +32,11 @@ class ExecTaskRepresenterTest implements TaskRepresenterTrait {
     return task
   }
 
-  def defaultNewTask() {
+  static def defaultNewTask() {
     return new ExecTask()
   }
 
-  def expectedTaskHash =
+  Map<?, ?> expectedTaskHash =
     [
       type      : 'exec',
       attributes: [
@@ -46,7 +47,7 @@ class ExecTaskRepresenterTest implements TaskRepresenterTrait {
       ]
     ]
 
-  def expectedTaskHashWithRunIf =
+  Map<?, ?> expectedTaskHashWithRunIf =
     [
       type      : 'exec',
       attributes: [
@@ -57,12 +58,12 @@ class ExecTaskRepresenterTest implements TaskRepresenterTrait {
       ]
     ]
 
-  def expectedTaskHashWithNoAttributes =
+  Map<?, ?> expectedTaskHashWithNoAttributes =
     [
       type      : 'exec'
     ]
 
-  def expectedTaskHashWithOnCancelConfig =
+  Map<?, ?> expectedTaskHashWithOnCancelConfig =
     [
       type      : 'exec',
       attributes: [

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.dashboard;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.domain.PipelinePauseChangeListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoDashboardService;
@@ -25,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,6 +44,6 @@ public class GoDashboardPipelinePauseStatusChangeHandlerTest {
     public void shouldHandlePipelinePauseStatusChangeByRefreshingPipelineInCache() {
         handler.call(PipelinePauseChangeListener.Event.pause("pipeline1", Username.valueOf("user1")));
 
-        verify(cacheUpdateService).updateCacheForPipeline(new CaseInsensitiveString("pipeline1"));
+        verify(cacheUpdateService).updateCacheForPipeline(cis("pipeline1"));
     }
 }

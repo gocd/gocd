@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 import static java.time.ZoneOffset.UTC;
@@ -136,7 +137,7 @@ public class PipelineSelectionsServiceTest {
         enableSecurity();
         when(pipelineRepository.findPipelineSelectionsByUserId(2L)).thenReturn(PipelineSelections.ALL);
 
-        pipelineSelectionsService.update(null, 2L, new CaseInsensitiveString("newly-created-pipeline"));
+        pipelineSelectionsService.update(null, 2L, cis("newly-created-pipeline"));
 
         verify(pipelineRepository, never()).saveSelectedPipelines(any());
     }
@@ -187,8 +188,8 @@ public class PipelineSelectionsServiceTest {
     }
 
     private PipelineConfig createPipelineConfig(String... buildNames) {
-        PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString(PipelineSelectionsServiceTest.PIPELINE), new MaterialConfigs());
-        pipeline.add(new StageConfig(new CaseInsensitiveString(PipelineSelectionsServiceTest.STAGE), jobConfigs(buildNames)));
+        PipelineConfig pipeline = new PipelineConfig(cis(PipelineSelectionsServiceTest.PIPELINE), new MaterialConfigs());
+        pipeline.add(new StageConfig(cis(PipelineSelectionsServiceTest.STAGE), jobConfigs(buildNames)));
         return pipeline;
     }
 

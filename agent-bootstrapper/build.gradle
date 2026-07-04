@@ -21,18 +21,18 @@ description = 'GoCD Agent Bootstrapper'
 dependencies {
   implementation project(':base')
   implementation project(':agent-common')
-  implementation project.deps.commonsIO
-  implementation project.deps.slf4jApi
+  implementation rootProject.deps.commonsIO
+  implementation rootProject.deps.slf4jApi
 
   testImplementation project(':base')
   testImplementation(project(':agent-common')) { capabilities { requireFeature('agent-client') } }
   testImplementation(testFixtures(project(':test:test-utils')))
   testImplementation(testFixtures(project(':agent-common')))
-  testImplementation project.deps.mockitoCore
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.assertJ
+  testImplementation rootProject.deps.mockitoCore
+  testImplementation rootProject.deps.junit5Api
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.assertJ
 
   packagingOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   extractedAtTopLevel project(':jar-class-loader')
@@ -72,11 +72,11 @@ tasks.register('verifyJar', VerifyJarTask) {
       "agent-bootstrapper-${project.version}-classes.jar",
       "agent-common-${project.version}.jar",
       "base-${project.version}.jar",
-      "commons-io-${project.versions.commonsIO}.jar",
-      "jcommander-${project.versions.jcommander}.jar",
-      "logback-classic-${project.versions.logback}.jar",
-      "logback-core-${project.versions.logback}.jar",
-      "slf4j-api-${project.versions.slf4jBom}.jar",
+      "commons-io-${rootProject.versions.commonsIO}.jar",
+      "jcommander-${rootProject.versions.jcommander}.jar",
+      "logback-classic-${rootProject.versions.logback}.jar",
+      "logback-core-${rootProject.versions.logback}.jar",
+      "slf4j-api-${rootProject.versions.slf4jBom}.jar",
     ]
   ]
 }

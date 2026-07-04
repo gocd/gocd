@@ -18,7 +18,7 @@ package com.thoughtworks.go.spark.spa;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
@@ -29,11 +29,11 @@ import java.util.Map;
 import static spark.Spark.*;
 
 public class MaintenanceModeController implements SparkController {
-    private SPAAuthenticationHelper authenticationHelper;
-    private TemplateEngine engine;
+    private final SpaAuthorizationHelper authorizationHelper;
+    private final TemplateEngine engine;
 
-    public MaintenanceModeController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
-        this.authenticationHelper = authenticationHelper;
+    public MaintenanceModeController(SpaAuthorizationHelper authorizationHelper, TemplateEngine engine) {
+        this.authorizationHelper = authorizationHelper;
         this.engine = engine;
     }
 
@@ -45,7 +45,7 @@ public class MaintenanceModeController implements SparkController {
     @Override
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkAdminUserAnd403);
+            before("", authorizationHelper::checkAdminUserAnd403);
             get("", this::index, engine);
         });
     }

@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -30,39 +31,39 @@ import static org.mockito.Mockito.when;
 public class AdminsConfigTest {
     @Test
     public void shouldReturnTrueIfHasUser() {
-        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(new CaseInsensitiveString("user1")));
-        assertThat(adminsConfig.hasUser(new CaseInsensitiveString("user1"), UserRoleMatcherMother.ALWAYS_FALSE_MATCHER)).isTrue();
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(cis("user1")));
+        assertThat(adminsConfig.hasUser(cis("user1"), UserRoleMatcherMother.ALWAYS_FALSE_MATCHER)).isTrue();
     }
 
     @Test
     public void shouldReturnTrueIfUserMatchRole() {
-        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(new CaseInsensitiveString("user1")), new AdminRole(new CaseInsensitiveString("role")));
-        assertThat(adminsConfig.hasUser(new CaseInsensitiveString("roleuser"), UserRoleMatcherMother.ALWAYS_TRUE_MATCHER)).isTrue();
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(cis("user1")), new AdminRole(cis("role")));
+        assertThat(adminsConfig.hasUser(cis("roleuser"), UserRoleMatcherMother.ALWAYS_TRUE_MATCHER)).isTrue();
     }
 
     @Test
     public void shouldReturnFalseIfUserDoesNotExist() {
-        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(new CaseInsensitiveString("user1")));
-        assertThat(adminsConfig.hasUser(new CaseInsensitiveString("anyone"), UserRoleMatcherMother.ALWAYS_FALSE_MATCHER)).isFalse();
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(cis("user1")));
+        assertThat(adminsConfig.hasUser(cis("anyone"), UserRoleMatcherMother.ALWAYS_FALSE_MATCHER)).isFalse();
     }
 
     @Test
     public void shouldReturnTrueIfAUserBelongsToAnAdminRole() {
-        AdminsConfig adminsConfig = new AdminsConfig(new AdminRole(new CaseInsensitiveString("Role1")));
-        assertThat(adminsConfig.isAdmin(new AdminUser(new CaseInsensitiveString("user1")), List.of(new RoleConfig(new CaseInsensitiveString("first")
-        ), new RoleConfig(new CaseInsensitiveString("role1"))))).isTrue();
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminRole(cis("Role1")));
+        assertThat(adminsConfig.isAdmin(new AdminUser(cis("user1")), List.of(new RoleConfig(cis("first")
+        ), new RoleConfig(cis("role1"))))).isTrue();
     }
 
     @Test
     public void shouldReturnTrueIfAUserIsAnAdmin() {
-        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(new CaseInsensitiveString("USER1")));
-        assertThat(adminsConfig.isAdmin(new AdminUser(new CaseInsensitiveString("user1")), List.of(new RoleConfig(new CaseInsensitiveString("first")
-        ), new RoleConfig(new CaseInsensitiveString("role1"))))).isTrue();
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(cis("USER1")));
+        assertThat(adminsConfig.isAdmin(new AdminUser(cis("user1")), List.of(new RoleConfig(cis("first")
+        ), new RoleConfig(cis("role1"))))).isTrue();
     }
 
     @Test
     public void shouldReturnFalseIfAUserBelongsToAnAdminRoleNoRolesGiven() {
-        CaseInsensitiveString username = new CaseInsensitiveString("USER1");
+        CaseInsensitiveString username = cis("USER1");
         AdminsConfig adminsConfig = new AdminsConfig(new AdminRole(username));
         // this is how isAdmin() is used in TemplatesConfig
         assertThat(adminsConfig.isAdmin(new AdminUser(username), null)).isFalse();
@@ -70,10 +71,10 @@ public class AdminsConfigTest {
 
     @Test
     public void shouldUnderstandIfAUserIsAnAdminThroughRole() {
-        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(new CaseInsensitiveString("loser")), new AdminRole(new CaseInsensitiveString("Role1")));
-        assertThat(adminsConfig.isAdminRole(List.of(new RoleConfig(new CaseInsensitiveString("first")), new RoleConfig(new CaseInsensitiveString("role1"))))).isTrue();
-        assertThat(adminsConfig.isAdminRole(List.of(new RoleConfig(new CaseInsensitiveString("role2"))))).isFalse();
-        assertThat(adminsConfig.isAdminRole(List.of(new RoleConfig(new CaseInsensitiveString("loser"))))).isFalse();
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(cis("loser")), new AdminRole(cis("Role1")));
+        assertThat(adminsConfig.isAdminRole(List.of(new RoleConfig(cis("first")), new RoleConfig(cis("role1"))))).isTrue();
+        assertThat(adminsConfig.isAdminRole(List.of(new RoleConfig(cis("role2"))))).isFalse();
+        assertThat(adminsConfig.isAdminRole(List.of(new RoleConfig(cis("loser"))))).isFalse();
     }
 
     @Test
@@ -89,7 +90,7 @@ public class AdminsConfigTest {
 
     @Test
     public void shouldValidateIfUserNameIsBlank() {
-        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(new CaseInsensitiveString("")));
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(cis("")));
         ValidationContext validationContext = mock(ValidationContext.class);
 
         assertFalse(adminsConfig.validateTree(validationContext));
@@ -100,7 +101,7 @@ public class AdminsConfigTest {
 
     @Test
     public void shouldValidateIfRoleExists() {
-        CaseInsensitiveString roleName = new CaseInsensitiveString("admin_role");
+        CaseInsensitiveString roleName = cis("admin_role");
         AdminsConfig adminsConfig = new AdminsConfig(new AdminRole(roleName));
         ValidationContext validationContext = mock(ValidationContext.class);
         SecurityConfig securityConfig = mock(SecurityConfig.class);

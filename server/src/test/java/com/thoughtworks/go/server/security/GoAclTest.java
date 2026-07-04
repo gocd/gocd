@@ -15,43 +15,43 @@
  */
 package com.thoughtworks.go.server.security;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GoAclTest {
 
     @Test
     public void shouldBeGrantedIfUserInApprovalList() {
-        GoAcl acl = new GoAcl(List.of(new CaseInsensitiveString("admin")));
-        assertThat(acl.isGranted(new CaseInsensitiveString("admin"))).isTrue();
+        GoAcl acl = new GoAcl(List.of(cis("admin")));
+        assertThat(acl.isGranted(cis("admin"))).isTrue();
     }
 
     @Test
     public void shouldBeGrantedIfAnyUserInApprovalList() {
-        GoAcl acl = new GoAcl(List.of(new CaseInsensitiveString("admin")));
-        assertThat(acl.isGranted(new CaseInsensitiveString("admin"))).isTrue();
+        GoAcl acl = new GoAcl(List.of(cis("admin")));
+        assertThat(acl.isGranted(cis("admin"))).isTrue();
     }
 
     @Test
     public void shouldNotBeGrantedIfUserNotInApprovalList() {
-        GoAcl acl = new GoAcl(List.of(new CaseInsensitiveString("admin")));
-        assertThat(acl.isGranted(new CaseInsensitiveString("noexist"))).isFalse();
+        GoAcl acl = new GoAcl(List.of(cis("admin")));
+        assertThat(acl.isGranted(cis("noexist"))).isFalse();
     }
 
     @Test
     public void userNameShouldNotBeCaseSensitive() {
-        GoAcl acl = new GoAcl(List.of(new CaseInsensitiveString("admin")));
-        boolean granted = acl.isGranted(new CaseInsensitiveString("ADMIN"));
+        GoAcl acl = new GoAcl(List.of(cis("admin")));
+        boolean granted = acl.isGranted(cis("ADMIN"));
         assertThat(granted).isTrue();
     }
 
     @Test
     public void shouldNotGrantIfNoUsersDefined() {
         GoAcl acl = new GoAcl(List.of());
-        assertThat(acl.isGranted(new CaseInsensitiveString("ADMIN"))).isFalse();
+        assertThat(acl.isGranted(cis("ADMIN"))).isFalse();
     }
 }

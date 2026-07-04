@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv3.rolesconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.apiv3.rolesconfig.representers.RoleRepresenter
 import com.thoughtworks.go.apiv3.rolesconfig.representers.RolesRepresenter
@@ -46,22 +46,20 @@ import static org.mockito.Mockito.*
 @MockitoSettings(strictness = Strictness.LENIENT)
 class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<RolesControllerV3> {
 
-
-  @Mock
-  private RoleConfigService roleConfigService
-
-  @Mock
-  private EntityHashingService entityHashingService
+  @Mock private RoleConfigService roleConfigService
+  @Mock private EntityHashingService entityHashingService
 
   @Override
   RolesControllerV3 createControllerInstance() {
-    new RolesControllerV3(roleConfigService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService)
+    new RolesControllerV3(roleConfigService, new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService)
   }
 
   @Nested
   class Index {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = RolesControllerV3Test.this
+      @Delegate ControllerTrait<RolesControllerV3> c = RolesControllerV3Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -78,7 +76,6 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -146,9 +143,12 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
   class Show {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = RolesControllerV3Test.this
+      @Delegate ControllerTrait<RolesControllerV3> c = RolesControllerV3Test.this
+
       @BeforeEach
       void setUp() {
-        when(roleConfigService.findRole("foo")).thenReturn(new RoleConfig("foo"))
+        when(RolesControllerV3Test.this.roleConfigService.findRole("foo")).thenReturn(new RoleConfig("foo"))
       }
 
       @Override
@@ -168,7 +168,6 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         this.result = new HttpLocalizedOperationResult()
       }
@@ -233,6 +232,8 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = RolesControllerV3Test.this
+      @Delegate ControllerTrait<RolesControllerV3> c = RolesControllerV3Test.this
 
       @Override
       String getControllerMethodUnderTest() { return "create" }
@@ -248,7 +249,6 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -274,7 +274,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
         PluginRoleConfig role = new PluginRoleConfig('blackbird', 'blackbird')
 
         when(roleConfigService.create(any(), any(), any())).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.unprocessableEntity("validation failed")
         })
 
@@ -311,12 +311,15 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
   class Update {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = RolesControllerV3Test.this
+      @Delegate ControllerTrait<RolesControllerV3> c = RolesControllerV3Test.this
+
       PluginRoleConfig roleConfig = new PluginRoleConfig('blackbird', 'skunkworks')
 
       @BeforeEach
       void setUp() {
-        when(roleConfigService.findRole(roleConfig.name.toString())).thenReturn(roleConfig)
-        when(entityHashingService.hashForEntity(roleConfig)).thenReturn('cached-digest')
+        when(RolesControllerV3Test.this.roleConfigService.findRole(roleConfig.name.toString())).thenReturn(roleConfig)
+        when(RolesControllerV3Test.this.entityHashingService.hashForEntity(roleConfig)).thenReturn('cached-digest')
       }
 
       @Override
@@ -338,7 +341,6 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -410,11 +412,14 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
   class BulkUpdate {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = RolesControllerV3Test.this
+      @Delegate ControllerTrait<RolesControllerV3> c = RolesControllerV3Test.this
+
       RoleConfig roleConfig = new RoleConfig('role', new RoleUser('user'))
 
       @BeforeEach
       void setUp() {
-        when(roleConfigService.findRole(roleConfig.name.toString())).thenReturn(roleConfig)
+        when(RolesControllerV3Test.this.roleConfigService.findRole(roleConfig.name.toString())).thenReturn(roleConfig)
       }
 
       @Override
@@ -432,7 +437,6 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -477,11 +481,14 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
   class Destroy {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = RolesControllerV3Test.this
+      @Delegate ControllerTrait<RolesControllerV3> c = RolesControllerV3Test.this
+
       PluginRoleConfig roleConfig = new PluginRoleConfig('blackbird', 'skunkworks')
 
       @BeforeEach
       void setUp() {
-        when(roleConfigService.findRole('blackbird')).thenReturn(roleConfig)
+        when(RolesControllerV3Test.this.roleConfigService.findRole('blackbird')).thenReturn(roleConfig)
       }
 
       @Override
@@ -499,7 +506,6 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -519,7 +525,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
         when(roleConfigService.findRole('blackbird')).thenReturn(role)
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.setMessage("something bad happened")
         }).when(roleConfigService).delete(any(), eq(role), any())
 
@@ -538,7 +544,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
         when(roleConfigService.findRole('blackbird')).thenReturn(role)
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.unprocessableEntity("some error happened!")
         }).when(roleConfigService).delete(any(), eq(role), any())
 

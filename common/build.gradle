@@ -34,32 +34,32 @@ dependencies {
   serverOnlyImplementation(project(':plugin-infra:go-plugin-access')) { capabilities { requireFeature('server-only') } }
   api project(':config:config-api')
   serverOnlyApi(project(':config:config-api')) { capabilities { requireFeature('server-only') } }
-  implementation project.deps.apacheHttpMime
-  implementation project.deps.commonsCollections4
-  implementation project.deps.commonsIO
-  implementation project.deps.commonsText
-  implementation project.deps.commonsLang3
-  implementation project.deps.gson
-  api project.deps.springContext
-  annotationProcessor project.deps.lombok
-  compileOnly project.deps.lombok
-  compileOnly project.deps.jetBrainsAnnotations
+  implementation rootProject.deps.commonsCodec
+  implementation rootProject.deps.commonsCollections4
+  implementation rootProject.deps.commonsIO
+  implementation rootProject.deps.commonsText
+  implementation rootProject.deps.commonsLang3
+  implementation rootProject.deps.gson
+  api rootProject.deps.springContext
+  annotationProcessor rootProject.deps.lombok
+  compileOnly rootProject.deps.lombok
+  compileOnly rootProject.deps.jetBrainsAnnotations
 
   testImplementation(testFixtures(project(':config:config-api')))
   testImplementation(testFixtures(project(':domain')))
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.junit5Params
-  testImplementation project.deps.mockitoJunit5
-  testImplementation project.deps.assertJ
-  testImplementation project.deps.systemStubs
-  testImplementation project.deps.jsonUnit
+  testImplementation rootProject.deps.junit5Api
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.junit5Params
+  testImplementation rootProject.deps.mockitoJunit5
+  testImplementation rootProject.deps.assertJ
+  testImplementation rootProject.deps.systemStubs
+  testImplementation rootProject.deps.jsonUnit
 
   testFixturesApi project(":config:config-api")
-  testFixturesApi project.deps.assertJ
+  testFixturesApi rootProject.deps.assertJ
   testFixturesImplementation(testFixtures(project(':domain')))
   testFixturesImplementation(testFixtures(project(':test:test-utils')))
-  testFixturesImplementation project.deps.mockitoCore
+  testFixturesImplementation rootProject.deps.mockitoCore
 }
 

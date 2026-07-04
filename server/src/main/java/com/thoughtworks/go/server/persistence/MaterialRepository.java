@@ -22,8 +22,8 @@ import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstance;
-import com.thoughtworks.go.server.cache.CacheKeyGenerator;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.CacheKeyGenerator;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.database.QueryExtensions;
@@ -817,7 +817,7 @@ public class MaterialRepository extends HibernateDaoSupport {
                 return MaterialRepository.this.findModificationWithRevision(session, materialId, revision);
             } catch (Exception e) {
                 LOGGER.error("Error while retrieving modification with material [{}] containing revision [{}]", material, revision, e);
-                throw e instanceof HibernateException ? (HibernateException) e : new RuntimeException(e);
+                throw e instanceof HibernateException hibernateException ? hibernateException : new RuntimeException(e);
             }
         });
     }

@@ -51,6 +51,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.lang.String.format;
 
 @Service
@@ -109,7 +110,7 @@ public class BuildCauseProducerService {
         schedulingPerformanceLogger.autoSchedulePipelineStart(trackingId, pipelineName);
 
         try {
-            PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
+            PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(cis(pipelineName));
             newProduceBuildCause(pipelineConfig, new AutoBuild(goConfigService, pipelineService, pipelineName, systemEnvironment, materialChecker), result, trackingId);
         } finally {
             schedulingPerformanceLogger.autoSchedulePipelineFinish(trackingId, pipelineName);
@@ -353,8 +354,8 @@ public class BuildCauseProducerService {
         public void onMaterialUpdate(MaterialUpdateCompletedMessage message) {
             Material material = message.getMaterial();
 
-            if (message instanceof MaterialUpdateFailedMessage) {
-                String failureReason = ((MaterialUpdateFailedMessage) message).getReason();
+            if (message instanceof MaterialUpdateFailedMessage materialUpdateFailedMessage) {
+                String failureReason = materialUpdateFailedMessage.getReason();
                 LOGGER.error("not scheduling pipeline {} after manual-trigger because update of material failed with reason {}", pipelineConfig.name(), failureReason);
                 showError(CaseInsensitiveString.str(pipelineConfig.name()), format("Could not trigger pipeline '%s'", pipelineConfig.name()),
                         format("Material update failed for material '%s' because: %s", material.getDisplayName(), failureReason));

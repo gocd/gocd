@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -304,22 +305,24 @@ public class UserServiceTest {
 
     @Test
     void shouldFindUserHavingSubscriptionAndPermissionForPipeline() {
-        User foo = new User("foo", "fOO,Foo", "foo@cruise.com", false);
+        User foo = new User("foo", "fOO,Foo", "foo@cruise.com", true);
         foo.addNotificationFilter(new NotificationFilter("p1", "s1", StageEvent.Passes, true));
         User bar = new User("bar", "bAR,Bar", "bar@go.com", true);
         bar.addNotificationFilter(new NotificationFilter("p1", "s1", StageEvent.Passes, true));
-        User quux = new User("quux", "qUUX,Quux", "quux@cruise.go", false);
+        User quux = new User("quux", "qUUX,Quux", "quux@cruise.go", true);
         quux.addNotificationFilter(new NotificationFilter("p2", "s2", StageEvent.Passes, true));
+        User dontEmail = new User("quux", "qUUX,Quux", "dontemail@cruise.go", false);
+        dontEmail.addNotificationFilter(new NotificationFilter("p1", "s1", StageEvent.Passes, true));
 
-        when(userDao.findNotificationSubscribingUsers()).thenReturn(new Users(List.of(foo, bar, quux)));
+        when(userDao.findNotificationSubscribingUsers()).thenReturn(new Users(List.of(foo, bar, quux, dontEmail)));
         when(securityService.hasViewPermissionForPipeline(foo.getUsername(), "p1")).thenReturn(true);
         when(securityService.hasViewPermissionForPipeline(bar.getUsername(), "p1")).thenReturn(false);
-        assertThat(userService.findValidSubscribers(new StageConfigIdentifier("p1", "s1"))).containsExactly(foo);
+        assertThat(userService.findValidNotificationSubscribers(StageEvent.Passes, new StageConfigIdentifier("p1", "s1"))).containsExactly(foo);
     }
 
     @Test
     void shouldFindUserSubscribingForAnyPipelineAndThatHasPermission() {
-        User foo = new User("foo", "fOO,Foo", "foo@cruise.com", false);
+        User foo = new User("foo", "fOO,Foo", "foo@cruise.com", true);
         foo.addNotificationFilter(new NotificationFilter(NotificationFilter.ANY_PIPELINE, NotificationFilter.ANY_STAGE, StageEvent.Passes, true));
         User bar = new User("bar", "bAR,Bar", "bar@go.com", true);
         bar.addNotificationFilter(new NotificationFilter(NotificationFilter.ANY_PIPELINE, NotificationFilter.ANY_STAGE, StageEvent.Passes, true));
@@ -327,7 +330,7 @@ public class UserServiceTest {
         when(userDao.findNotificationSubscribingUsers()).thenReturn(new Users(List.of(foo, bar)));
         when(securityService.hasViewPermissionForPipeline(foo.getUsername(), "p1")).thenReturn(true);
         when(securityService.hasViewPermissionForPipeline(bar.getUsername(), "p1")).thenReturn(false);
-        assertThat(userService.findValidSubscribers(new StageConfigIdentifier("p1", "s1"))).containsExactly(foo);
+        assertThat(userService.findValidNotificationSubscribers(StageEvent.Passes, new StageConfigIdentifier("p1", "s1"))).containsExactly(foo);
     }
 
     @Test
@@ -623,6 +626,6 @@ public class UserServiceTest {
     }
 
     private void configureAdmin(String username, boolean isAdmin) {
-        when(securityService.isUserAdmin(new Username(new CaseInsensitiveString(username)))).thenReturn(isAdmin);
+        when(securityService.isUserAdmin(new Username(cis(username)))).thenReturn(isAdmin);
     }
 }

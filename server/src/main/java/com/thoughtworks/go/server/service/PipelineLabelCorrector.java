@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.lang.String.join;
 
 @Service
@@ -59,7 +60,7 @@ public class PipelineLabelCorrector {
 
         Map<CaseInsensitiveString, PipelineConfig> pipelineConfigHashMap = goConfigService.cruiseConfig().pipelineConfigsAsMap();
         pipelinesWithMultipleEntriesForLabelCount.forEach(pipelineWithIssue -> {
-            CaseInsensitiveString key = new CaseInsensitiveString(pipelineWithIssue);
+            CaseInsensitiveString key = cis(pipelineWithIssue);
             if (pipelineConfigHashMap.containsKey(key)) {
                 PipelineConfig pipelineConfig = pipelineConfigHashMap.get(key);
                 String pipelineNameAsSavedInConfig = pipelineConfig.name().toString();

@@ -144,7 +144,7 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
     def licenseSource = "${rootProject.projectDir}/LICENSE"
     inputs.file(licenseSource)
 
-    def goVersions = project.goVersions as GoVersions
+    def goVersions = rootProject.goVersions as GoVersions
     inputs.property('goVersions', goVersions)
 
     def injected = project.objects.newInstance(Injected)
@@ -177,9 +177,9 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
         from("${extractDeltaPack.destinationDir}/src/bin/App.sh.in") {
           filter({ String eachLine ->
             eachLine = eachLine
-              .replaceAll('@app.name@', installerType.baseName)
-              .replaceAll('@app.long.name@', installerType.baseName)
-              .replaceAll('@app.description@', installerType.baseName)
+              .replace('@app.name@', installerType.baseName)
+              .replace('@app.long.name@', installerType.baseName)
+              .replace('@app.description@', installerType.baseName)
 
             if (eachLine == 'WRAPPER_CMD="./wrapper"') {
               eachLine = 'WRAPPER_CMD="../wrapper/wrapper"'
@@ -212,9 +212,9 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
         from("${extractDeltaPack.destinationDir}/src/conf/wrapper.conf.in") {
           filter({ String eachLine ->
             eachLine = eachLine
-              .replaceAll('@app.name@', installerType.baseName)
-              .replaceAll('@app.long.name@', installerType.baseName)
-              .replaceAll('@app.description@', installerType.baseName)
+              .replace('@app.name@', installerType.baseName)
+              .replace('@app.long.name@', installerType.baseName)
+              .replace('@app.description@', installerType.baseName)
 
 //            uncomment the lines below to enable debugging of installers
 //            if (eachLine == '# wrapper.debug=TRUE') {

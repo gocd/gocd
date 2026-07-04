@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.agentjobhistory
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.agentjobhistory.representers.AgentJobHistoryRepresenter
 import com.thoughtworks.go.domain.JobInstances
 import com.thoughtworks.go.domain.JobResult
@@ -51,7 +51,7 @@ class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, Controlle
 
   @Override
   AgentJobHistoryControllerV1 createControllerInstance() {
-    new AgentJobHistoryControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), jobInstanceService, agentService)
+    new AgentJobHistoryControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), jobInstanceService, agentService)
   }
 
   @Nested
@@ -279,6 +279,8 @@ class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, Controlle
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = AgentJobHistoryControllerV1Test.this
+      @Delegate ControllerTrait<AgentJobHistoryControllerV1> c = AgentJobHistoryControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {

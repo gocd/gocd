@@ -60,10 +60,7 @@ public class GoCipher implements Serializable {
             return false;
         }
 
-        String password1 = p1.getValue();
-        String password2 = p2.getValue();
-
-        return passwordEquals(password1, password2);
+        return passwordEquals(p1.getValue(), p2.getValue());
     }
 
     public boolean passwordEquals(EncryptedVariableValueConfig p1, EncryptedVariableValueConfig p2) {
@@ -75,32 +72,20 @@ public class GoCipher implements Serializable {
             return false;
         }
 
-        String password1 = p1.getValue();
-        String password2 = p2.getValue();
-
-        return passwordEquals(password1, password2);
+        return passwordEquals(p1.getValue(), p2.getValue());
     }
 
     public int passwordHashcode(EncryptedVariableValueConfig value) {
-        if (value == null) {
-            return 0;
-        }
-
-        return passwordHashcode(value.getValue());
+        return value == null ? 0 : passwordHashcode(value.getValue());
     }
 
     public int passwordHashcode(EncryptedConfigurationValue value) {
-        if (value == null) {
-            return 0;
-        }
-
-        return passwordHashcode(value.getValue());
+        return value == null ? 0 : passwordHashcode(value.getValue());
     }
 
     public int passwordHashcode(String cipherText) {
         try {
-            String decrypt = decrypt(cipherText);
-            return decrypt.hashCode();
+            return decrypt(cipherText).hashCode();
         } catch (CryptoException e) {
             return ("bad-password-" + cipherText).hashCode();
         }

@@ -17,6 +17,7 @@ package com.thoughtworks.go.config;
 
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DeleteTemplateCommandTest {
@@ -25,7 +26,7 @@ public class DeleteTemplateCommandTest {
     public void shouldRemoveATemplateWithTheGivenName() {
         DeleteTemplateCommand command = new DeleteTemplateCommand("template", "md5");
         CruiseConfig config = new BasicCruiseConfig();
-        config.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("template")));
+        config.addTemplate(new PipelineTemplateConfig(cis("template")));
         command.update(config);
         assertThat(config.getTemplates().isEmpty()).isTrue();
     }

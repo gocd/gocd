@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -46,6 +45,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.List;
 import java.util.UUID;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -141,7 +141,7 @@ public class GoDashboardServiceIntegrationTest {
 
     private void addDummyEnvironmentToConfig(String environmentName) {
         goConfigService.updateConfig(cruiseConfig -> {
-            cruiseConfig.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName)));
+            cruiseConfig.addEnvironment(new BasicEnvironmentConfig(cis(environmentName)));
             return cruiseConfig;
         });
     }

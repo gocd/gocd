@@ -15,48 +15,81 @@
  */
 package com.thoughtworks.go.domain.cctray;
 
-import com.thoughtworks.go.domain.activity.ProjectStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static com.thoughtworks.go.domain.cctray.ProjectStatus.Key.keyFrom;
+import static java.util.Comparator.naturalOrder;
+import static java.util.Comparator.nullsFirst;
+import static java.util.stream.Collectors.toMap;
 
 /* Understands how to cache CcTray statuses, for every stage and job (project). */
 @Component
 public class CcTrayCache {
+    private static final Comparator<ProjectStatus> DISPLAY_SORT = Comparator
+        .<ProjectStatus, String>comparing(p -> p.key().pipeline())
+        .thenComparing(ProjectStatus::stageOrder)
+        .thenComparing(p -> p.key().job(), nullsFirst(naturalOrder()));
     /**
-     * Assumption: The put(), putAll() and replaceAllEntriesInCacheWith() methods, which change this cache,
-     * will always be called from the same thread (queueProcessor in CcTrayActivityListener). Even get() is
-     * called only from that thread. So, not surrounding it with a synchronizedMap. Also, uses {@link LinkedHashMap}
-     * to preserve insertion order.
+     * Marker for a job name at the upper range, doesn't have to be valid within a job name.
      */
-    private Map<String, ProjectStatus> cache;
-    private volatile List<ProjectStatus> orderedEntries;
+    private static final String MAX_JOB = "\uffff";
 
-    public CcTrayCache() {
-        this.cache = new LinkedHashMap<>();
-        this.orderedEntries = new ArrayList<>();
+    /**
+     * Assumption: Methods that hange this cache will always be called from the same thread (queueProcessor in CcTrayActivityListener).
+     * Even get() is called only from that thread. So, not synchronized. Map uses a defined order for storage to allow us to
+     * easily find chunks of the map via parts of the composite key.
+     */
+    private final NavigableMap<ProjectStatus.Key, ProjectStatus> byKey = new TreeMap<>(
+        Comparator.comparing(ProjectStatus.Key::pipeline, nullsFirst(naturalOrder()))
+            .thenComparing(ProjectStatus.Key::stage, nullsFirst(naturalOrder()))
+            .thenComparing(ProjectStatus.Key::job, nullsFirst(naturalOrder()))
+    );
+
+    /**
+     * List is swapped out for updates; and can be read by multiple threads.
+     */
+    private volatile List<ProjectStatus> orderedEntries = Collections.emptyList();
+
+    public @Nullable ProjectStatus get(ProjectStatus.Key identifier) {
+        return byKey.get(identifier);
     }
 
-    ProjectStatus get(String projectName) {
-        return cache.get(projectName);
+    public @NotNull ProjectStatus getOrDefault(ProjectStatus.Key identifier, int stageOrderId) {
+        ProjectStatus projectStatus = get(identifier);
+        return projectStatus != null ? projectStatus : new ProjectStatus.NullProjectStatus(identifier, stageOrderId);
     }
 
     public void put(ProjectStatus status) {
-        this.cache.put(status.name(), status);
+        this.byKey.put(status.key(), status);
         cacheHasChanged();
     }
 
-    public void putAll(List<ProjectStatus> statuses) {
-        cache.putAll(createReplacementItems(statuses));
+    public void replaceForStage(String pipelineName, String stageName, List<ProjectStatus> statuses) {
+        cacheStageView(pipelineName, stageName).clear();
+        byKey.putAll(createReplacementItems(statuses));
         cacheHasChanged();
     }
 
-    void replaceAllEntriesInCacheWith(List<ProjectStatus> projectStatuses) {
-        this.cache.clear();
-        this.cache.putAll(createReplacementItems(projectStatuses));
+    public void replaceForPipeline(String pipelineName, List<ProjectStatus> statuses) {
+        cachePipelineView(pipelineName).clear();
+        byKey.putAll(createReplacementItems(statuses));
+        cacheHasChanged();
+    }
+
+    private NavigableMap<ProjectStatus.Key, ProjectStatus> cachePipelineView(String pipelineName) {
+        return byKey.subMap(
+            keyFrom(pipelineName, null, null), true,
+            keyFrom(pipelineName, MAX_JOB, MAX_JOB), true
+        );
+    }
+
+    void replaceAll(List<ProjectStatus> projectStatuses) {
+        byKey.clear();
+        byKey.putAll(createReplacementItems(projectStatuses));
         cacheHasChanged();
     }
 
@@ -64,15 +97,19 @@ public class CcTrayCache {
         return this.orderedEntries;
     }
 
-    private void cacheHasChanged() {
-        this.orderedEntries = new ArrayList<>(cache.values());
+    private NavigableMap<ProjectStatus.Key, ProjectStatus> cacheStageView(String pipelineName, String stageName) {
+        return byKey.subMap(
+            keyFrom(pipelineName, stageName, null), true,
+            keyFrom(pipelineName, stageName, MAX_JOB), true
+        );
     }
 
-    private Map<String, ProjectStatus> createReplacementItems(List<ProjectStatus> statuses) {
-        Map<String, ProjectStatus> replacementItems = new LinkedHashMap<>();
-        for (ProjectStatus status : statuses) {
-            replacementItems.put(status.name(), status);
-        }
-        return replacementItems;
+    private void cacheHasChanged() {
+        this.orderedEntries = byKey.values().stream().sorted(DISPLAY_SORT).toList();
+    }
+
+    private Map<ProjectStatus.Key, ProjectStatus> createReplacementItems(List<ProjectStatus> statuses) {
+        return statuses.stream()
+            .collect(toMap(ProjectStatus::key, s -> s, (a, b) -> b, LinkedHashMap::new));
     }
 }

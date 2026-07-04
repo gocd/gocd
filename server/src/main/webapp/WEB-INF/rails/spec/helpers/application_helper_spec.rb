@@ -56,7 +56,7 @@ describe ApplicationHelper do
   it "should ask security service whether user is an admin" do
     expect(self).to receive(:security_service).and_return(security_service = double("security_service"))
     expect(self).to receive(:current_user).and_return(:user)
-    expect(security_service).to receive(:canViewAdminPage).with(:user).and_return(:is_admin?)
+    expect(security_service).to receive(:canViewSomeAdminPage).with(:user).and_return(:is_admin?)
     expect(can_view_admin_page?).to eq(:is_admin?)
   end
 

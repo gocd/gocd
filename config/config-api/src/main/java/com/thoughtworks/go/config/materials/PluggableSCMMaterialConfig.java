@@ -26,6 +26,7 @@ import java.io.File;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @ConfigTag(value = "scm")
@@ -64,7 +65,7 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
     public PluggableSCMMaterialConfig(CaseInsensitiveString name, SCM scmConfig, String folder, Filter filter, boolean invertFilter) {
         super(TYPE);
         this.name = name;
-        this.scmId = scmConfig == null ? null : scmConfig.getSCMId();
+        this.scmId = scmConfig == null ? null : scmConfig.getId();
         this.scmConfig = scmConfig;
         this.folder = folder;
         this.filter = filter;
@@ -210,7 +211,7 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
     @Override
     public CaseInsensitiveString getName() {
         if (nameIsEmpty() && !scmNameIsEmpty()) {
-            return new CaseInsensitiveString(scmConfig.getName());
+            return cis(scmConfig.getName());
         } else {
             return name;
         }
@@ -302,12 +303,12 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
         if (isBlank(scmId)) {
             return;
         }
-        if (map.containsKey(new CaseInsensitiveString(scmId))) {
-            AbstractMaterialConfig material = map.get(new CaseInsensitiveString(scmId));
+        if (map.containsKey(cis(scmId))) {
+            AbstractMaterialConfig material = map.get(cis(scmId));
             material.addError(SCM_ID, "Duplicate SCM material detected!");
             addError(SCM_ID, "Duplicate SCM material detected!");
         } else {
-            map.put(new CaseInsensitiveString(scmId), this);
+            map.put(cis(scmId), this);
         }
     }
 

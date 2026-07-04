@@ -15,11 +15,6 @@
  */
 package com.thoughtworks.go.server.service.support;
 
-import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.Dates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,30 +26,18 @@ import java.util.*;
 @Component
 public class ServerStatusService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerStatusService.class);
-    private final SecurityService securityService;
+
     private final List<ServerInfoProvider> providers = new ArrayList<>();
 
     @Autowired
-    public ServerStatusService(SecurityService securityService, ServerInfoProvider... providerArray) {
-        this.securityService = securityService;
-
+    public ServerStatusService(ServerInfoProvider... providerArray) {
         providers.addAll(Arrays.asList(providerArray));
         providers.sort(Comparator.comparingDouble(ServerInfoProvider::priority));
     }
 
-    public Map<String, Object> asJsonCompatibleMap(Username username, LocalizedOperationResult result) {
-        if (!securityService.isUserAdmin(username)) {
-            result.forbidden(LocalizedMessage.forbiddenToEdit(), HealthStateType.forbidden());
-            return null;
-        }
-
-        return serverInfoAsJsonCompatibleMap();
-
-    }
-
-    private Map<String, Object> serverInfoAsJsonCompatibleMap() {
+    public Map<String, Object> asJsonCompatibleMap() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
-        json.put("Timestamp", Dates.formatIso8601CompactOffset(new Date()));
+        json.put("Timestamp", Dates.formatIso8601SystemCompactOffsetNoMillis(new Date()));
 
         for (ServerInfoProvider provider : providers) {
             try {

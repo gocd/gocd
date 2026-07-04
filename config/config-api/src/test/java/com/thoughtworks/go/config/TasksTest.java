@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -105,7 +106,7 @@ public class TasksTest {
         ExecTask execTask = new ExecTask("foo", new Arguments(new Argument("arg")));
         Tasks tasks = new Tasks(antTask, execTask);
         String pipelineName = "p1";
-        PipelineConfig pipelineConfig = GoConfigMother.configWithPipelines(pipelineName).pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        PipelineConfig pipelineConfig = GoConfigMother.configWithPipelines(pipelineName).pipelineConfigByName(cis(pipelineName));
         StageConfig stageConfig = pipelineConfig.getStages().getFirst();
         JobConfig jobConfig = stageConfig.getJobs().getFirst();
         jobConfig.setTasks(tasks);

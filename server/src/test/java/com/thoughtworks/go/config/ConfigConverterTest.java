@@ -52,6 +52,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.helper.GoConfigMother.defaultCruiseConfig;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.*;
@@ -556,7 +557,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertConfigMaterialWhenConfigRepoIsHg() {
         // these parameters would be configured inside xml config-repo section
-        HgMaterialConfig configRepoMaterial = hg(new HgUrlArgument("url"), null, null, null, true, new Filter(new IgnoredFiles("ignore")), false, "folder", new CaseInsensitiveString("name"));
+        HgMaterialConfig configRepoMaterial = hg(new HgUrlArgument("url"), null, null, null, true, new Filter(new IgnoredFiles("ignore")), false, "folder", cis("name"));
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", null, null);
 
@@ -573,7 +574,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertConfigMaterialWhenConfigRepoIsHgWithDestination() {
         // these parameters would be configured inside xml config-repo section
-        HgMaterialConfig configRepoMaterial = hg(new HgUrlArgument("url"), null, null, null, true, new Filter(new IgnoredFiles("ignore")), false, "folder", new CaseInsensitiveString("name"));
+        HgMaterialConfig configRepoMaterial = hg(new HgUrlArgument("url"), null, null, null, true, new Filter(new IgnoredFiles("ignore")), false, "folder", cis("name"));
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", "dest1", null);
 
@@ -594,7 +595,7 @@ class ConfigConverterTest {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setSCMs(scms);
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
-        PluggableSCMMaterialConfig configRepoMaterial = new PluggableSCMMaterialConfig(new CaseInsensitiveString("scmid"), myscm, null, null, false);
+        PluggableSCMMaterialConfig configRepoMaterial = new PluggableSCMMaterialConfig(cis("scmid"), myscm, null, null, false);
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", "dest1", null);
 
@@ -614,7 +615,7 @@ class ConfigConverterTest {
         SCMs scms = new SCMs(myscm);
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setSCMs(scms);
-        PluggableSCMMaterialConfig configRepoMaterial = new PluggableSCMMaterialConfig(new CaseInsensitiveString("scmid"), myscm, null, null, true);
+        PluggableSCMMaterialConfig configRepoMaterial = new PluggableSCMMaterialConfig(cis("scmid"), myscm, null, null, true);
 
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
         when(context.configMaterial()).thenReturn(configRepoMaterial);
@@ -1090,8 +1091,8 @@ class ConfigConverterTest {
         Approval approval = configConverter.toApproval(crApproval);
         assertThat(approval.isManual()).isTrue();
         assertThat(approval.isAuthorizationDefined()).isTrue();
-        assertThat(approval.getAuthConfig().getRoles()).contains(new AdminRole(new CaseInsensitiveString("authRole")));
-        assertThat(approval.getAuthConfig().getUsers()).contains(new AdminUser(new CaseInsensitiveString("authUser")));
+        assertThat(approval.getAuthConfig().getRoles()).contains(new AdminRole(cis("authRole")));
+        assertThat(approval.getAuthConfig().getUsers()).contains(new AdminUser(cis("authUser")));
     }
 
     @Test
@@ -1296,7 +1297,7 @@ class ConfigConverterTest {
         PipelineConfig pipeline = configConverter.toPipelineConfig(crPipeline, context, new SCMs());
 
         assertThat(pipeline.isEmpty()).isTrue();
-        assertThat(pipeline.getTemplateName()).isEqualTo(new CaseInsensitiveString("template"));
+        assertThat(pipeline.getTemplateName()).isEqualTo(cis("template"));
     }
 
     @Test
@@ -1324,7 +1325,7 @@ class ConfigConverterTest {
         pipeline.setDisplayOrderWeight(10);
 
         StageConfig stage = new StageConfig();
-        stage.setName(new CaseInsensitiveString("build"));
+        stage.setName(cis("build"));
 
         JobConfig job = new JobConfig();
         job.setName("buildjob");
@@ -1334,7 +1335,7 @@ class ConfigConverterTest {
         pipeline.addStageWithoutValidityAssertion(stage);
 
         SvnMaterialConfig mat = svn();
-        mat.setName(new CaseInsensitiveString("mat"));
+        mat.setName(cis("mat"));
         mat.setUrl("url");
         pipeline.addMaterialConfig(mat);
 
@@ -1361,13 +1362,13 @@ class ConfigConverterTest {
         job.setName("buildjob");
         job.setTasks(new Tasks(new RakeTask()));
 
-        AdminRole role = new AdminRole(new CaseInsensitiveString("a_role"));
-        AdminUser user = new AdminUser(new CaseInsensitiveString("a_user"));
+        AdminRole role = new AdminRole(cis("a_role"));
+        AdminUser user = new AdminUser(cis("a_user"));
         Approval approval = new Approval();
         approval.addAdmin(user, role);
         approval.setAllowOnlyOnSuccess(true);
 
-        StageConfig stage = new StageConfig(new CaseInsensitiveString("stageName"), new JobConfigs(), approval);
+        StageConfig stage = new StageConfig(cis("stageName"), new JobConfigs(), approval);
         stage.setVariables(envVars);
         stage.setJobs(new JobConfigs(job));
         stage.setCleanWorkingDir(true);
@@ -1389,7 +1390,7 @@ class ConfigConverterTest {
 
     @Test
     void shouldConvertJobConfigToCRJob() {
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("name"),
+        JobConfig jobConfig = new JobConfig(cis("name"),
                 new ResourceConfigs(new ResourceConfig("resource1")),
                 new ArtifactTypeConfigs(new BuildArtifactConfig("src", "dest")));
         jobConfig.setRunOnAllAgents(false);
@@ -1414,7 +1415,7 @@ class ConfigConverterTest {
 
     @Test
     void shouldConvertJobConfigToCRJobWithNullTimeouBeingZerot() {
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("name"),
+        JobConfig jobConfig = new JobConfig(cis("name"),
                 new ResourceConfigs(new ResourceConfig("resource1")),
                 new ArtifactTypeConfigs(new BuildArtifactConfig("src", "dest")));
         jobConfig.setRunOnAllAgents(false);
@@ -1427,7 +1428,7 @@ class ConfigConverterTest {
 
     @Test
     void shouldConvertDependencyMaterialConfigToCRDependencyMaterial() {
-        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("name"), new CaseInsensitiveString("pipe"), new CaseInsensitiveString("stage"));
+        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(cis("name"), cis("pipe"), cis("stage"));
 
         CRDependencyMaterial crDependencyMaterial =
                 (CRDependencyMaterial) configConverter.materialToCRMaterial(dependencyMaterialConfig);
@@ -1440,7 +1441,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertGitMaterialConfigToCRGitMaterial() {
         GitMaterialConfig gitMaterialConfig = git("url", "branch", true);
-        gitMaterialConfig.setName(new CaseInsensitiveString("name"));
+        gitMaterialConfig.setName(cis("name"));
         gitMaterialConfig.setFolder("folder");
         gitMaterialConfig.setAutoUpdate(true);
         gitMaterialConfig.setInvertFilter(false);
@@ -1462,7 +1463,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertGitMaterialConfigToCRGitMaterialWhenPlainPassword() throws CryptoException {
         GitMaterialConfig gitMaterialConfig = git("url", "branch", true);
-        gitMaterialConfig.setName(new CaseInsensitiveString("name"));
+        gitMaterialConfig.setName(cis("name"));
         gitMaterialConfig.setFolder("folder");
         gitMaterialConfig.setAutoUpdate(true);
         gitMaterialConfig.setInvertFilter(false);
@@ -1486,7 +1487,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertGitMaterialConfigToCRGitMaterialWhenEncryptedPassword() throws CryptoException {
         GitMaterialConfig gitMaterialConfig = git("url", "branch", true);
-        gitMaterialConfig.setName(new CaseInsensitiveString("name"));
+        gitMaterialConfig.setName(cis("name"));
         gitMaterialConfig.setFolder("folder");
         gitMaterialConfig.setAutoUpdate(true);
         gitMaterialConfig.setInvertFilter(false);
@@ -1525,7 +1526,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertHgMaterialConfigToCRHgMaterial() {
         HgMaterialConfig hgMaterialConfig = hg("url", "folder");
-        hgMaterialConfig.setName(new CaseInsensitiveString("name"));
+        hgMaterialConfig.setName(cis("name"));
         hgMaterialConfig.setFilter(Filter.create("filter"));
         hgMaterialConfig.setAutoUpdate(true);
 
@@ -1542,7 +1543,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertHgMaterialConfigToCRHgMaterialWhenPlainPassword() throws CryptoException {
         HgMaterialConfig hgMaterialConfig = hg("url", "folder");
-        hgMaterialConfig.setName(new CaseInsensitiveString("name"));
+        hgMaterialConfig.setName(cis("name"));
         hgMaterialConfig.setFilter(Filter.create("filter"));
         hgMaterialConfig.setAutoUpdate(true);
         hgMaterialConfig.setPassword("secret");
@@ -1561,7 +1562,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertHgMaterialConfigToCRHgMaterialWhenEncryptedPassword() throws CryptoException {
         HgMaterialConfig hgMaterialConfig = hg("url", "folder");
-        hgMaterialConfig.setName(new CaseInsensitiveString("name"));
+        hgMaterialConfig.setName(cis("name"));
         hgMaterialConfig.setFilter(Filter.create("filter"));
         hgMaterialConfig.setAutoUpdate(true);
         hgMaterialConfig.setEncryptedPassword(new GoCipher().encrypt("secret"));
@@ -1595,7 +1596,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertP4MaterialConfigWhenEncryptedPassword() {
         P4MaterialConfig p4MaterialConfig = p4("server:port", "view");
-        p4MaterialConfig.setName(new CaseInsensitiveString("name"));
+        p4MaterialConfig.setName(cis("name"));
         p4MaterialConfig.setFolder("folder");
         p4MaterialConfig.setEncryptedPassword("plain-text-password");
         p4MaterialConfig.setFilter(Filter.create("filter"));
@@ -1620,7 +1621,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertP4MaterialConfigWhenPlainPassword() {
         P4MaterialConfig p4MaterialConfig = p4("server:port", "view");
-        p4MaterialConfig.setName(new CaseInsensitiveString("name"));
+        p4MaterialConfig.setName(cis("name"));
         p4MaterialConfig.setFolder("folder");
         p4MaterialConfig.setPassword("password");
         p4MaterialConfig.setFilter(Filter.create("filter"));
@@ -1644,7 +1645,7 @@ class ConfigConverterTest {
     void shouldConvertSvmMaterialConfigWhenEncryptedPassword() throws CryptoException {
         String encryptedPassword = new GoCipher().encrypt("plain-text-password");
         SvnMaterialConfig svnMaterialConfig = svn("url", true);
-        svnMaterialConfig.setName(new CaseInsensitiveString("name"));
+        svnMaterialConfig.setName(cis("name"));
         svnMaterialConfig.setEncryptedPassword(encryptedPassword);
         svnMaterialConfig.setFolder("folder");
         svnMaterialConfig.setFilter(Filter.create("filter"));
@@ -1666,7 +1667,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertSvmMaterialConfigWhenPlainPassword() {
         SvnMaterialConfig svnMaterialConfig = svn("url", true);
-        svnMaterialConfig.setName(new CaseInsensitiveString("name"));
+        svnMaterialConfig.setName(cis("name"));
         svnMaterialConfig.setPassword("pass");
         svnMaterialConfig.setFolder("folder");
         svnMaterialConfig.setFilter(Filter.create("filter"));
@@ -1691,7 +1692,7 @@ class ConfigConverterTest {
         tfsMaterialConfig.setUrl("url");
         tfsMaterialConfig.setDomain("domain");
         tfsMaterialConfig.setProjectPath("project");
-        tfsMaterialConfig.setName(new CaseInsensitiveString("name"));
+        tfsMaterialConfig.setName(cis("name"));
         tfsMaterialConfig.setPassword("pass");
         tfsMaterialConfig.setFolder("folder");
         tfsMaterialConfig.setAutoUpdate(false);
@@ -1718,7 +1719,7 @@ class ConfigConverterTest {
         tfsMaterialConfig.setUrl("url");
         tfsMaterialConfig.setDomain("domain");
         tfsMaterialConfig.setProjectPath("project");
-        tfsMaterialConfig.setName(new CaseInsensitiveString("name"));
+        tfsMaterialConfig.setName(cis("name"));
         tfsMaterialConfig.setEncryptedPassword("plain-text-password");
         tfsMaterialConfig.setFolder("folder");
         tfsMaterialConfig.setAutoUpdate(false);
@@ -1749,7 +1750,7 @@ class ConfigConverterTest {
         cruiseConfig.setSCMs(scms);
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
 
-        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(new CaseInsensitiveString("name"), myscm, "directory", Filter.create("filter"), false);
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(cis("name"), myscm, "directory", Filter.create("filter"), false);
 
         CRPluggableScmMaterial crPluggableScmMaterial =
                 (CRPluggableScmMaterial) configConverter.materialToCRMaterial(pluggableSCMMaterialConfig);
@@ -1772,7 +1773,7 @@ class ConfigConverterTest {
         cruiseConfig.setPackageRepositories(repositories);
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
 
-        PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(new CaseInsensitiveString("name"), "package-id", definition);
+        PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(cis("name"), "package-id", definition);
 
         CRPackageMaterial crPackageMaterial =
                 (CRPackageMaterial) configConverter.materialToCRMaterial(packageMaterialConfig);
@@ -1957,9 +1958,9 @@ class ConfigConverterTest {
     @Test
     void shouldConvertFetchArtifactTaskWhenSourceIsDirectoryToCR() {
         FetchTask fetchTask = new FetchTask(
-                new CaseInsensitiveString("upstream"),
-                new CaseInsensitiveString("stage"),
-                new CaseInsensitiveString("job"),
+                cis("upstream"),
+                cis("stage"),
+                cis("job"),
                 "",
                 "dest"
         );
@@ -1979,9 +1980,9 @@ class ConfigConverterTest {
     @Test
     void shouldConvertFetchArtifactTaskWhenSourceIsFileToCR() {
         FetchTask fetchTask = new FetchTask(
-                new CaseInsensitiveString("upstream"),
-                new CaseInsensitiveString("stage"),
-                new CaseInsensitiveString("job"),
+                cis("upstream"),
+                cis("stage"),
+                cis("job"),
                 "src",
                 "dest"
         );
@@ -2001,8 +2002,8 @@ class ConfigConverterTest {
     void shouldConvertFetchArtifactTaskWhenPipelineIsEmptyToCR() {
         FetchTask fetchTask = new FetchTask(
             null,
-            new CaseInsensitiveString("stage"),
-            new CaseInsensitiveString("job"),
+            cis("stage"),
+            cis("job"),
             "src",
             "dest"
         );
@@ -2021,9 +2022,9 @@ class ConfigConverterTest {
     @Test
     void shouldConvertFetchPluggableArtifactTaskToCRFetchPluggableArtifactTask() {
         FetchPluggableArtifactTask fetchPluggableArtifactTask = new FetchPluggableArtifactTask(
-                new CaseInsensitiveString("upstream"),
-                new CaseInsensitiveString("stage"),
-                new CaseInsensitiveString("job"),
+                cis("upstream"),
+                cis("stage"),
+                cis("job"),
                 "artifactId");
         fetchPluggableArtifactTask.setConditions(new RunIfConfigs(RunIfConfig.PASSED));
 
@@ -2041,8 +2042,8 @@ class ConfigConverterTest {
     void shouldConvertFetchPluggableArtifactTaskToCRFetchPluggableArtifactTaskWhenPipelineIsNotSet() {
         FetchPluggableArtifactTask fetchPluggableArtifactTask = new FetchPluggableArtifactTask(
             null,
-            new CaseInsensitiveString("stage"),
-            new CaseInsensitiveString("job"),
+            cis("stage"),
+            cis("job"),
             "artifactId");
         fetchPluggableArtifactTask.setConditions(new RunIfConfigs(RunIfConfig.PASSED));
 

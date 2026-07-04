@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
@@ -63,11 +64,11 @@ public class PipelineConfigService {
     }
 
     public PipelineConfig pipelineConfigNamed(String pipelineName) {
-        return goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
+        return goConfigService.pipelineConfigNamed(cis(pipelineName));
     }
 
     public PipelineConfig getPipelineConfig(String pipelineName) {
-        return goConfigService.getMergedConfigForEditing().getPipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        return goConfigService.getMergedConfigForEditing().getPipelineConfigByName(cis(pipelineName));
     }
 
     private void update(Username currentUser,
@@ -106,7 +107,7 @@ public class PipelineConfigService {
         return groupsMatchingFilter(goConfigService.cruiseConfig(), pipelineConfigs -> securityService.isUserAdminOfGroup(username.getUsername(), pipelineConfigs.getGroup()));
     }
 
-    public PipelineGroups viewableOrOperatableGroupsForIncludingConfigRepos(Username username) {
+    public PipelineGroups operableGroupsForIncludingConfigRepos(Username username) {
         return groupsMatchingFilter(goConfigService.cruiseConfig(), pipelineConfigs -> securityService.hasOperatePermissionForGroup(username.getUsername(), pipelineConfigs.getGroup()));
     }
 

@@ -30,6 +30,7 @@ import org.slf4j.event.Level;
 
 import java.net.HttpURLConnection;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.net.HttpURLConnection.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,15 +45,15 @@ public class PipelinePauseServiceTest {
 
     private static final String VALID_PIPELINE = "some-pipeline";
     private static final String PIPELINE_WITH_CAPITAL_NAME = "SOME-PIPELINE";
-    private static final Username VALID_USER = new Username(new CaseInsensitiveString("admin"));
+    private static final Username VALID_USER = new Username(cis("admin"));
     private static final String INVALID_PIPELINE = "nonexistent-pipeline";
-    private static final Username INVALID_USER = new Username(new CaseInsensitiveString("someone-who-not-operate"));
+    private static final Username INVALID_USER = new Username(cis("someone-who-not-operate"));
 
     @BeforeEach
     public void setUp() {
         pipelineDao = mock(PipelineSqlMapDao.class);
         goConfigDao = mock(GoConfigDao.class);
-        GoConfigService goConfigService = new GoConfigService(goConfigDao, (GoConfigMigration) null, null, null, null, null, null);
+        GoConfigService goConfigService = new GoConfigService(goConfigDao, null, null, null, null, null, null);
         securityService = mock(SecurityService.class);
         pipelinePauseService = new PipelinePauseService(pipelineDao, goConfigService, securityService);
         when(pipelineDao.pauseState(VALID_PIPELINE)).thenReturn(new PipelinePauseInfo(false, "", VALID_USER.getUsername().toString()));
@@ -262,9 +263,7 @@ public class PipelinePauseServiceTest {
             pipelinePauseService.registerListener(listener3);
             pipelinePauseService.pause(VALID_PIPELINE, "reason", VALID_USER, result);
 
-            synchronized (logFixture) {
-                assertTrue(logFixture.contains(Level.WARN, "Failed to notify listener (ListenerWhichFails)"), logFixture.getLog());
-            }
+            assertTrue(logFixture.contains(Level.WARN, "Failed to notify listener (ListenerWhichFails)"), logFixture.getLog());
             assertThat(result.isSuccessful()).isTrue();
             assertThat(result.httpCode()).isEqualTo(HttpURLConnection.HTTP_OK);
         }

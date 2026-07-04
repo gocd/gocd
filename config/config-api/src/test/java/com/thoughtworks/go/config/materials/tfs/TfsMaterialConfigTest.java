@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.materials.AbstractMaterialConfig.MATERIAL_NAME;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.URL;
@@ -46,12 +47,12 @@ class TfsMaterialConfigTest {
 
     @BeforeEach
     void setUp() {
-        tfsMaterialConfig = tfs(new GoCipher(), null, "loser", "some_domain", "passwd", "walk_this_path");
+        tfsMaterialConfig = tfs(null, "loser", "some_domain", "passwd", "walk_this_path");
     }
 
     @Test
     void shouldSetConfigAttributes() {
-        TfsMaterialConfig tfsMaterialConfig = tfs(new GoCipher(), new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "some_domain", "passwd", "walk_this_path");
+        TfsMaterialConfig tfsMaterialConfig = tfs(new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "some_domain", "passwd", "walk_this_path");
 
         Map<String, String> map = new HashMap<>();
         map.put(URL, "http://foo:8080/tfs/HelloWorld");
@@ -65,8 +66,8 @@ class TfsMaterialConfigTest {
         map.put(TfsMaterialConfig.DOMAIN, "CORPORATE");
 
         tfsMaterialConfig.setConfigAttributes(map);
-        TfsMaterialConfig newTfsMaterialConfig = tfs(new GoCipher(), new UrlArgument("http://foo:8080/tfs/HelloWorld"), "boozer", "CORPORATE", "secret", "/useless/project");
-        newTfsMaterialConfig.setName(new CaseInsensitiveString("my-tfs-material-name"));
+        TfsMaterialConfig newTfsMaterialConfig = tfs(new UrlArgument("http://foo:8080/tfs/HelloWorld"), "boozer", "CORPORATE", "secret", "/useless/project");
+        newTfsMaterialConfig.setName(cis("my-tfs-material-name"));
         newTfsMaterialConfig.setFolder("folder");
 
         assertThat(tfsMaterialConfig).isEqualTo(newTfsMaterialConfig);
@@ -74,7 +75,7 @@ class TfsMaterialConfigTest {
         assertThat(tfsMaterialConfig.isAutoUpdate()).isFalse();
         assertThat(tfsMaterialConfig.getDomain()).isEqualTo("CORPORATE");
 
-        assertThat(tfsMaterialConfig.getName()).isEqualTo(new CaseInsensitiveString("my-tfs-material-name"));
+        assertThat(tfsMaterialConfig.getName()).isEqualTo(cis("my-tfs-material-name"));
         assertThat(tfsMaterialConfig.filter()).isEqualTo(new Filter(new IgnoredFiles("/root"), new IgnoredFiles("/**/*.help")));
     }
 
@@ -86,7 +87,7 @@ class TfsMaterialConfigTest {
 
     @Test
     void setConfigAttributes_shouldUpdatePasswordWhenPasswordChangedBooleanChanged() throws Exception {
-        TfsMaterialConfig tfsMaterialConfig = tfs(new GoCipher(), new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "passwd", "walk_this_path");
+        TfsMaterialConfig tfsMaterialConfig = tfs(new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "passwd", "walk_this_path");
         Map<String, String> map = new HashMap<>();
         map.put(TfsMaterialConfig.PASSWORD, "secret");
         map.put(TfsMaterialConfig.PASSWORD_CHANGED, "1");
@@ -120,7 +121,7 @@ class TfsMaterialConfigTest {
 
         @Test
         void shouldEnsureMandatoryFieldsAreNotBlank() {
-            TfsMaterialConfig tfsMaterialConfig = tfs(new GoCipher(), new UrlArgument(""), "", "CORPORATE", "", "");
+            TfsMaterialConfig tfsMaterialConfig = tfs(new UrlArgument(""), "", "CORPORATE", "", "");
 
             tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
@@ -131,19 +132,19 @@ class TfsMaterialConfigTest {
 
         @Test
         void shouldEnsureMaterialNameIsValid() {
-            TfsMaterialConfig tfsMaterialConfig = tfs(new GoCipher(), new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "passwd", "walk_this_path");
+            TfsMaterialConfig tfsMaterialConfig = tfs(new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "passwd", "walk_this_path");
 
             tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
             assertThat(tfsMaterialConfig.errors().firstErrorOn(MATERIAL_NAME)).isNull();
-            tfsMaterialConfig.setName(new CaseInsensitiveString(".bad-name-with-dot"));
+            tfsMaterialConfig.setName(cis(".bad-name-with-dot"));
             tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
             assertThat(tfsMaterialConfig.errors().firstErrorOn(MATERIAL_NAME)).isEqualTo("Invalid material name '.bad-name-with-dot'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
         }
 
         @Test
         void shouldEnsureDestFilePathIsValid() {
-            TfsMaterialConfig tfsMaterialConfig = tfs(new GoCipher(), new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "passwd", "walk_this_path");
+            TfsMaterialConfig tfsMaterialConfig = tfs(new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "passwd", "walk_this_path");
             tfsMaterialConfig.setConfigAttributes(Map.of(FOLDER, "../a"));
 
             tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
@@ -186,7 +187,7 @@ class TfsMaterialConfigTest {
 
     @Test
     void shouldEncryptTfsPasswordAndMarkPasswordAsNull() throws Exception {
-        TfsMaterialConfig materialConfig = tfs(null, new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "password", "walk_this_path");
+        TfsMaterialConfig materialConfig = tfs(new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "password", "walk_this_path");
         materialConfig.ensureEncrypted();
 
         Object passwordFieldValue = ReflectionUtil.getField(materialConfig, "password");
@@ -198,7 +199,7 @@ class TfsMaterialConfigTest {
     @Test
     void shouldDecryptTfsPassword() throws Exception {
         String encryptedPassword = new GoCipher().encrypt("plain-text-password");
-        TfsMaterialConfig materialConfig = tfs(null, new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "secret", "walk_this_path");
+        TfsMaterialConfig materialConfig = tfs(new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "secret", "walk_this_path");
         ReflectionUtil.setField(materialConfig, "encryptedPassword", encryptedPassword);
 
         materialConfig.ensureEncrypted();
@@ -211,7 +212,7 @@ class TfsMaterialConfigTest {
         when(mockGoCipher.encrypt("password")).thenReturn("encrypted");
         when(mockGoCipher.decrypt("encrypted")).thenReturn("password");
 
-        TfsMaterialConfig materialConfig = tfs(mockGoCipher, new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "password", "walk_this_path");
+        TfsMaterialConfig materialConfig = tfs(new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "password", "walk_this_path");
         materialConfig.ensureEncrypted();
         when(mockGoCipher.encrypt("new_password")).thenReturn("new_encrypted");
         materialConfig.setPassword("new_password");
@@ -225,7 +226,7 @@ class TfsMaterialConfigTest {
         GoCipher mockGoCipher = mock(GoCipher.class);
         String fakeCipherText = "fake cipher text";
         when(mockGoCipher.decrypt(fakeCipherText)).thenThrow(new CryptoException("exception"));
-        TfsMaterialConfig materialConfig = tfs(mockGoCipher, new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "passwd", "walk_this_path");
+        TfsMaterialConfig materialConfig = tfs(new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "passwd", "walk_this_path");
         ReflectionUtil.setField(materialConfig, "encryptedPassword", fakeCipherText);
 
         assertThatThrownBy(materialConfig::getPassword)

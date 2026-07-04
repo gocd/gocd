@@ -15,26 +15,26 @@
  */
 
 dependencies {
-  implementation(project.deps.postgresql) {
+  implementation(rootProject.deps.postgresql) {
     exclude(module: 'checker-qual') // See https://github.com/pgjdbc/pgjdbc/pull/2262
   }
   implementation project(':db-support:db-support-base')
-  implementation project.deps.ztExec
-  implementation(project.deps.apacheAnt) {
+  implementation rootProject.deps.ztExec
+  implementation(rootProject.deps.apacheAnt) {
     exclude(module: 'ant-launcher')
   }
 
-  annotationProcessor project.deps.lombok
-  compileOnly project.deps.lombok
+  annotationProcessor rootProject.deps.lombok
+  compileOnly rootProject.deps.lombok
 
   testImplementation(testFixtures(project(":db-support:db-migration")))
 
-  testImplementation project.deps.testcontainersJunit
-  testImplementation project.deps.testcontainersPostgresql
+  testImplementation rootProject.deps.testcontainersJunit
+  testImplementation rootProject.deps.testcontainersPostgresql
 
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.junit5Api
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
 }
 
 test.dependsOn ':docker:configureDockerRegistryMirror'

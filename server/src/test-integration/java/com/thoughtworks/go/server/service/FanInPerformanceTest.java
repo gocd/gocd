@@ -25,7 +25,7 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helpers.GraphGenerator;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -43,6 +43,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -107,7 +108,7 @@ public class FanInPerformanceTest {
         revisions.add(u.mr(svn, true, "svn_1"));
         for (int i = 1; i <= numberOfNodesPerLevel; i++) {
             String pipelineName = String.format("pipeline_%s_%d_%d", "up", numberOfLevels, i);
-            revisions.add(u.mr(new DependencyMaterial(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString("stage")), true, pipelineName + "/1/stage/1"));
+            revisions.add(u.mr(new DependencyMaterial(cis(pipelineName), cis("stage")), true, pipelineName + "/1/stage/1"));
         }
         MaterialRevisions given = new MaterialRevisions(revisions);
 

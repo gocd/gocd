@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.ClonerFactory;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ import java.util.Objects;
 
 public class Stage extends PersistentObject {
     private static final Logger LOG = LoggerFactory.getLogger(Stage.class);
+    private static final StageResult DEFAULT_RESULT = StageResult.Unknown;
 
     private Long pipelineId;
     private String name;
@@ -50,7 +52,6 @@ public class Stage extends PersistentObject {
     private Integer rerunOfCounter;
     private boolean artifactsDeleted;
 
-    private static final StageResult DEFAULT_RESULT = StageResult.Unknown;
     private String configVersion = null;
     private StageIdentifier previousStage;
 
@@ -69,7 +70,7 @@ public class Stage extends PersistentObject {
         this.approvalType = approvalType;
         this.fetchMaterials = fetchMaterials;
         this.cleanWorkingDir = cleanWorkingDir;
-        this.createdTime = new Timestamp(clock.currentTimeMillis());
+        this.createdTime = clock.currentSqlTimestamp();
     }
 
     public Stage(String name, JobInstances jobInstances, String approvedBy, String cancelledBy, String approvalType, boolean fetchMaterials, boolean cleanWorkingDir, String configVersion, final Clock clock) {
@@ -190,7 +191,7 @@ public class Stage extends PersistentObject {
         }
     }
 
-    public Timestamp getLastTransitionedTime() {
+    public @Nullable Timestamp getLastTransitionedTime() {
         return lastTransitionedTime;
     }
 
@@ -406,7 +407,7 @@ public class Stage extends PersistentObject {
         return cleanWorkingDir;
     }
 
-    public Stage createClone() {
+    public Stage deepClone() {
         return ClonerFactory.instance().deepClone(this);
     }
 
@@ -419,7 +420,7 @@ public class Stage extends PersistentObject {
         setApprovedBy(context.getApprovedBy());
         setLatestRun(true);
         resetResult();
-        setCreatedTime(new Timestamp(clock.currentTimeMillis()));
+        setCreatedTime(clock.currentSqlTimestamp());
         jobInstances.resetJobsIds();
     }
 

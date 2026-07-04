@@ -22,8 +22,6 @@ import com.thoughtworks.go.config.exceptions.ConfigMergePreValidationException;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
-import com.thoughtworks.go.domain.GoConfigRevision;
-import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.TimeProvider;
 import org.jdom2.Document;
 import org.junit.jupiter.api.BeforeEach;

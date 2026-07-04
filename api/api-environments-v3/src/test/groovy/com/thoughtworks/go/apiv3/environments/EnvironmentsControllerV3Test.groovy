@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv3.environments
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv3.environments.representers.EnvironmentRepresenter
 import com.thoughtworks.go.apiv3.environments.representers.EnvironmentsRepresenter
 import com.thoughtworks.go.config.*
@@ -40,6 +40,7 @@ import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.when
 
@@ -54,7 +55,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
   @Override
   EnvironmentsControllerV3 createControllerInstance() {
-    new EnvironmentsControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), environmentConfigService, entityHashingService)
+    new EnvironmentsControllerV3(new ApiAuthorizationHelper(securityService, goConfigService), environmentConfigService, entityHashingService)
 
   }
 
@@ -62,6 +63,9 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
   class Index {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = EnvironmentsControllerV3Test.this
+      @Delegate ControllerTrait<EnvironmentsControllerV3> c = EnvironmentsControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'index'
@@ -77,19 +81,18 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
       @Test
       void 'should return sorted list of environments by name'() {
-        def prodEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("prod"))
-        def devEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("dev"))
-        def qaEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("qa"))
+        def prodEnv = new BasicEnvironmentConfig(cis("prod"))
+        def devEnv = new BasicEnvironmentConfig(cis("dev"))
+        def qaEnv = new BasicEnvironmentConfig(cis("qa"))
 
         prodEnv.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-        prodEnv.addPipeline(new CaseInsensitiveString("Pipeline1"))
-        prodEnv.addPipeline(new CaseInsensitiveString("Pipeline2"))
+        prodEnv.addPipeline(cis("Pipeline1"))
+        prodEnv.addPipeline(cis("Pipeline2"))
 
         def envConfigSet = new HashSet([qaEnv, devEnv, prodEnv])
         when(environmentConfigService.getEnvironments()).thenReturn(envConfigSet)
@@ -106,17 +109,17 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
         Policy directives = new Policy()
         directives.add(new Allow("administer", "environment", "blah_*"))
-        RoleConfig role = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives)
+        RoleConfig role = new RoleConfig(cis("read-only-environments"), new Users(), directives)
 
         when(goConfigService.rolesForUser(any(CaseInsensitiveString.class))).thenReturn([role])
 
-        def prodEnv1 = new BasicEnvironmentConfig(new CaseInsensitiveString("prod_env1"))
-        def devEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("dev_env1"))
-        def prodEnv2 = new BasicEnvironmentConfig(new CaseInsensitiveString("prod_env2"))
+        def prodEnv1 = new BasicEnvironmentConfig(cis("prod_env1"))
+        def devEnv = new BasicEnvironmentConfig(cis("dev_env1"))
+        def prodEnv2 = new BasicEnvironmentConfig(cis("prod_env2"))
 
         prodEnv1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-        prodEnv1.addPipeline(new CaseInsensitiveString("Pipeline1"))
-        prodEnv1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+        prodEnv1.addPipeline(cis("Pipeline1"))
+        prodEnv1.addPipeline(cis("Pipeline2"))
 
         def envConfigSet = new HashSet([prodEnv2, devEnv, prodEnv1])
         when(environmentConfigService.getEnvironments()).thenReturn(envConfigSet)
@@ -132,17 +135,17 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
         Policy directives = new Policy()
         directives.add(new Allow("administer", "environment", "prod_*"))
-        RoleConfig role = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives)
+        RoleConfig role = new RoleConfig(cis("read-only-environments"), new Users(), directives)
 
         when(goConfigService.rolesForUser(any(CaseInsensitiveString.class))).thenReturn([role])
 
-        def prodEnv1 = new BasicEnvironmentConfig(new CaseInsensitiveString("prod_env1"))
-        def devEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("dev_env1"))
-        def prodEnv2 = new BasicEnvironmentConfig(new CaseInsensitiveString("prod_env2"))
+        def prodEnv1 = new BasicEnvironmentConfig(cis("prod_env1"))
+        def devEnv = new BasicEnvironmentConfig(cis("dev_env1"))
+        def prodEnv2 = new BasicEnvironmentConfig(cis("prod_env2"))
 
         prodEnv1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-        prodEnv1.addPipeline(new CaseInsensitiveString("Pipeline1"))
-        prodEnv1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+        prodEnv1.addPipeline(cis("Pipeline1"))
+        prodEnv1.addPipeline(cis("Pipeline2"))
 
         def envConfigSet = new HashSet([prodEnv2, devEnv, prodEnv1])
         when(environmentConfigService.getEnvironments()).thenReturn(envConfigSet)
@@ -178,10 +181,10 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
       @Test
       void 'should sort set of environment config'() {
-        EnvironmentConfig stageEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("stage"))
-        EnvironmentConfig prodEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("prod"))
-        EnvironmentConfig qa1Env = new BasicEnvironmentConfig(new CaseInsensitiveString("qa1"))
-        EnvironmentConfig qa2Env = new BasicEnvironmentConfig(new CaseInsensitiveString("qa2"))
+        EnvironmentConfig stageEnv = new BasicEnvironmentConfig(cis("stage"))
+        EnvironmentConfig prodEnv = new BasicEnvironmentConfig(cis("prod"))
+        EnvironmentConfig qa1Env = new BasicEnvironmentConfig(cis("qa1"))
+        EnvironmentConfig qa2Env = new BasicEnvironmentConfig(cis("qa2"))
 
         def envConfigs = [qa1Env, stageEnv, prodEnv, qa2Env]
 
@@ -198,6 +201,9 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
   class Show {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = EnvironmentsControllerV3Test.this
+      @Delegate ControllerTrait<EnvironmentsControllerV3> c = EnvironmentsControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'show'
@@ -213,16 +219,15 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
       @Test
       void 'should return an environment config for a specified environment name'() {
-        def env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        def env1 = new BasicEnvironmentConfig(cis("env1"))
         env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-        env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
-        env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+        env1.addPipeline(cis("Pipeline1"))
+        env1.addPipeline(cis("Pipeline2"))
 
         when(entityHashingService.hashForEntity(env1)).thenReturn("digest-hash")
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
@@ -246,12 +251,12 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
       @Test
       void 'should render not modified when ETag matches'() {
-        def env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        def env1 = new BasicEnvironmentConfig(cis("env1"))
         env1.addAgent("agent1")
         env1.addAgent("agent2")
         env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-        env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
-        env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+        env1.addPipeline(cis("Pipeline1"))
+        env1.addPipeline(cis("Pipeline2"))
 
         when(entityHashingService.hashForEntity(env1)).thenReturn("digest-hash")
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
@@ -264,12 +269,12 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
       @Test
       void 'should return 200 when ETag doesn\'t matche'() {
-        def env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        def env1 = new BasicEnvironmentConfig(cis("env1"))
         env1.addAgent("agent1")
         env1.addAgent("agent2")
         env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-        env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
-        env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+        env1.addPipeline(cis("Pipeline1"))
+        env1.addPipeline(cis("Pipeline2"))
 
         when(entityHashingService.hashForEntity(env1)).thenReturn("digest-hash")
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
@@ -288,6 +293,9 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
   class Remove {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = EnvironmentsControllerV3Test.this
+      @Delegate ControllerTrait<EnvironmentsControllerV3> c = EnvironmentsControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'remove'
@@ -303,21 +311,20 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
       @Test
       void 'should delete environment with specified name'() {
-        def env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        def env1 = new BasicEnvironmentConfig(cis("env1"))
         env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-        env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
-        env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+        env1.addPipeline(cis("Pipeline1"))
+        env1.addPipeline(cis("Pipeline2"))
 
         when(environmentConfigService.getEnvironmentConfig(anyString())).thenReturn(env1)
         when(environmentConfigService.deleteEnvironment(eq(env1), eq(currentUsername()), any(HttpLocalizedOperationResult))).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArguments().last()
+            HttpLocalizedOperationResult result = invocation.getArgument(2)
             result.setMessage("Environment 'my_environment' was deleted successfully.")
         })
 
@@ -330,9 +337,9 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
       @Test
       void 'should error out if the environment does not exist'() {
-        when(environmentConfigService.getMergedEnvironmentforDisplay(anyString(), any(HttpLocalizedOperationResult.class)))
+        when(environmentConfigService.getMergedEnvironmentforDisplay(anyString(), any()))
           .then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArguments().last()
+          HttpLocalizedOperationResult result = invocation.getArgument(1)
           result.badRequest("No such environment")
         })
 
@@ -345,12 +352,12 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
       @Test
       void 'should render not modified when ETag matches'() {
-        def env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        def env1 = new BasicEnvironmentConfig(cis("env1"))
         env1.addAgent("agent1")
         env1.addAgent("agent2")
         env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-        env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
-        env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+        env1.addPipeline(cis("Pipeline1"))
+        env1.addPipeline(cis("Pipeline2"))
 
         when(entityHashingService.hashForEntity(env1)).thenReturn("digest-hash")
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
@@ -363,12 +370,12 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
       @Test
       void 'should return 200 when ETag does not match'() {
-        def env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        def env1 = new BasicEnvironmentConfig(cis("env1"))
         env1.addAgent("agent1")
         env1.addAgent("agent2")
         env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-        env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
-        env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+        env1.addPipeline(cis("Pipeline1"))
+        env1.addPipeline(cis("Pipeline2"))
 
         when(entityHashingService.hashForEntity(env1)).thenReturn("digest-hash")
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
@@ -387,6 +394,9 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
   class Update {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = EnvironmentsControllerV3Test.this
+      @Delegate ControllerTrait<EnvironmentsControllerV3> c = EnvironmentsControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'update'
@@ -402,19 +412,18 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
       @Test
       void 'should error out on update if environment rename is attempted'() {
-        def existingConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        def existingConfig = new BasicEnvironmentConfig(cis("env1"))
         existingConfig.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-        existingConfig.addPipeline(new CaseInsensitiveString("Pipeline1"))
+        existingConfig.addPipeline(cis("Pipeline1"))
 
-        def newConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env2"))
+        def newConfig = new BasicEnvironmentConfig(cis("env2"))
         newConfig.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-        newConfig.addPipeline(new CaseInsensitiveString("Pipeline1"))
+        newConfig.addPipeline(cis("Pipeline1"))
 
         when(entityHashingService.hashForEntity(existingConfig)).thenReturn("ffff")
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(existingConfig)
@@ -430,13 +439,13 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
       @Test
       void 'should not error out on update if the environment name provided has is case different only'() {
-        def existingConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        def existingConfig = new BasicEnvironmentConfig(cis("env1"))
         existingConfig.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-        existingConfig.addPipeline(new CaseInsensitiveString("Pipeline1"))
+        existingConfig.addPipeline(cis("Pipeline1"))
 
-        def newConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("Env1"))
+        def newConfig = new BasicEnvironmentConfig(cis("Env1"))
         newConfig.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-        newConfig.addPipeline(new CaseInsensitiveString("Pipeline1"))
+        newConfig.addPipeline(cis("Pipeline1"))
 
         when(entityHashingService.hashForEntity(existingConfig)).thenReturn("ffff")
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(existingConfig)
@@ -453,9 +462,9 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
       @Test
       void 'should not update if etag does not match'() {
-        def env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        def env1 = new BasicEnvironmentConfig(cis("env1"))
         env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-        env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
+        env1.addPipeline(cis("Pipeline1"))
 
 
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
@@ -473,11 +482,11 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
       @Test
       void 'should update environment'() {
-        def env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        def env1 = new BasicEnvironmentConfig(cis("env1"))
         env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
         env1.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), "Secured", new GoCipher().encrypt("confidential")))
-        env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
-        env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+        env1.addPipeline(cis("Pipeline1"))
+        env1.addPipeline(cis("Pipeline2"))
 
         when(entityHashingService.hashForEntity(env1)).thenReturn("ffff")
 
@@ -485,7 +494,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
         when(environmentConfigService.updateEnvironment(eq("env1"), eq(env1), eq(currentUsername()), anyString(), any(HttpLocalizedOperationResult))).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(4)
             result.setMessage("Updated environment '\" + oldEnvironmentConfigName + \"'.")
         })
 
@@ -541,13 +550,13 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
           "message": "Error parsing environment config from the request"
         ]
 
-        def env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        def env1 = new BasicEnvironmentConfig(cis("env1"))
         env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
         env1.addEnvironmentVariable(new EnvironmentVariableConfig(
           new GoCipher(), "Secured", new GoCipher().encrypt("confidential"))
         )
-        env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
-        env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+        env1.addPipeline(cis("Pipeline1"))
+        env1.addPipeline(cis("Pipeline2"))
 
         when(entityHashingService.hashForEntity(env1)).thenReturn("ffff")
 
@@ -565,7 +574,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         when(environmentConfigService.getMergedEnvironmentforDisplay(eq("env1"), any(HttpLocalizedOperationResult)))
           .then({
           InvocationOnMock invocation ->
-            def result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            def result = (HttpLocalizedOperationResult) invocation.getArgument(1)
             result.badRequest("The environment does not exist")
         })
         putWithApiHeader(controller.controllerPath("env1"), [name: "env1"])
@@ -581,6 +590,9 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
   class PartialUpdate {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = EnvironmentsControllerV3Test.this
+      @Delegate ControllerTrait<EnvironmentsControllerV3> c = EnvironmentsControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'partialUpdate'
@@ -599,20 +611,19 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
 
-        oldConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        oldConfig = new BasicEnvironmentConfig(cis("env1"))
         oldConfig.addEnvironmentVariable("JAVA_HOME", "/bin/java")
         oldConfig.addEnvironmentVariable("URL", "google.com")
-        oldConfig.addPipeline(new CaseInsensitiveString("Pipeline1"))
-        oldConfig.addPipeline(new CaseInsensitiveString("Pipeline2"))
-        oldConfig.addPipeline(new CaseInsensitiveString("Pipeline3"))
+        oldConfig.addPipeline(cis("Pipeline1"))
+        oldConfig.addPipeline(cis("Pipeline2"))
+        oldConfig.addPipeline(cis("Pipeline3"))
 
-        updatedConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        updatedConfig = new BasicEnvironmentConfig(cis("env1"))
         updatedConfig.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-        updatedConfig.addPipeline(new CaseInsensitiveString("Pipeline1"))
-        updatedConfig.addPipeline(new CaseInsensitiveString("Pipeline2"))
+        updatedConfig.addPipeline(cis("Pipeline1"))
+        updatedConfig.addPipeline(cis("Pipeline2"))
       }
 
       @Test
@@ -624,7 +635,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
           eq(oldConfig), anyList(), anyList(), anyList(), anyList(), eq(currentUsername()), any(HttpLocalizedOperationResult))
         ).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(6)
             result.setMessage("Updated environment '\" + oldEnvironmentConfigName + \"'.")
         })
 
@@ -663,7 +674,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         when(environmentConfigService.getMergedEnvironmentforDisplay(eq("env1"), any(HttpLocalizedOperationResult)))
           .then({
           InvocationOnMock invocation ->
-            def result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            def result = (HttpLocalizedOperationResult) invocation.getArgument(1)
             result.badRequest("The environment does not exist")
         })
         patchWithApiHeader(controller.controllerPath("env1"), [name: "env1"])
@@ -682,7 +693,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
           eq(oldConfig), anyList(), anyList(), anyList(), anyList(), eq(currentUsername()), any(HttpLocalizedOperationResult))
         ).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(6)
             result.setMessage("Updated environment '\" + oldEnvironmentConfigName + \"'.")
         })
 
@@ -742,6 +753,9 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
   class Create {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = EnvironmentsControllerV3Test.this
+      @Delegate ControllerTrait<EnvironmentsControllerV3> c = EnvironmentsControllerV3Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'create'
@@ -757,24 +771,23 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
       @Test
       void 'should create environment with specified parameters'() {
-        def env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        def env1 = new BasicEnvironmentConfig(cis("env1"))
         env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
         env1.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), "Secured", new GoCipher().encrypt("confidential")))
-        env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
-        env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+        env1.addPipeline(cis("Pipeline1"))
+        env1.addPipeline(cis("Pipeline2"))
 
         def json = toObjectString({ EnvironmentRepresenter.toJSON(it, env1) })
 
         when(entityHashingService.hashForEntity(env1)).thenReturn("digest-hash")
         when(environmentConfigService.createEnvironment(eq(env1), eq(currentUsername()), any(HttpLocalizedOperationResult))).then({
           InvocationOnMock invocation ->
-            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArgument(2)
             result.setMessage("Environment was created successfully")
         })
 
@@ -846,7 +859,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
       @Test
       void 'should error out if the environment already exists'() {
-        when(environmentConfigService.getMergedEnvironmentforDisplay(anyString(), any(HttpLocalizedOperationResult.class)))
+        when(environmentConfigService.getMergedEnvironmentforDisplay(anyString(), any()))
           .thenReturn(new ConfigElementForEdit<EnvironmentConfig>(new BasicEnvironmentConfig(), "digeststring"))
 
         postWithApiHeader(controller.controllerPath(), [name: "env1"])

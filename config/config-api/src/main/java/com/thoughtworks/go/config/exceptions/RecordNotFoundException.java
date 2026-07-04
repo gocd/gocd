@@ -46,4 +46,7 @@ public class RecordNotFoundException extends HttpException {
         this(type.notFoundMessage(ids));
     }
 
+    public RecordNotFoundException(EntityType type, EntityType lookupBy, CaseInsensitiveString id) {
+        this(type.notFoundMessage(lookupBy, id.toString()));
+    }
 }

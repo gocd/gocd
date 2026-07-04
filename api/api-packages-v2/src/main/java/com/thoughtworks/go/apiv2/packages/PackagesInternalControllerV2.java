@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv2.packages.representers.PackageDefinitionRepresenter;
 import com.thoughtworks.go.apiv2.packages.representers.VerifyConnectionRepresenter;
@@ -46,18 +46,18 @@ import static spark.Spark.*;
 @Component
 public class PackagesInternalControllerV2 extends ApiController implements SparkSpringController, CrudController<PackageDefinition> {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final EntityHashingService entityHashingService;
     private final PackageDefinitionService packageDefinitionService;
     private PackageRepositoryService packageRepositoryService;
 
     @Autowired
-    public PackagesInternalControllerV2(ApiAuthenticationHelper apiAuthenticationHelper,
+    public PackagesInternalControllerV2(ApiAuthorizationHelper apiAuthorizationHelper,
                                         EntityHashingService entityHashingService,
                                         PackageDefinitionService packageDefinitionService,
                                         PackageRepositoryService packageRepositoryService) {
         super(ApiVersion.v2);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.entityHashingService = entityHashingService;
         this.packageDefinitionService = packageDefinitionService;
         this.packageRepositoryService = packageRepositoryService;
@@ -72,7 +72,7 @@ public class PackagesInternalControllerV2 extends ApiController implements Spark
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before(Routes.Packages.VERIFY_CONNECTION, mimeType, this::setContentType);
-            before(Routes.Packages.VERIFY_CONNECTION, mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before(Routes.Packages.VERIFY_CONNECTION, mimeType, this.apiAuthorizationHelper::checkAnyPipelineGroupAdminUserAnd403);
 
             post(Routes.Packages.VERIFY_CONNECTION, mimeType, this::verifyConnection);
         });

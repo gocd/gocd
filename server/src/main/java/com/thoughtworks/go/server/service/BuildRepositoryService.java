@@ -46,7 +46,7 @@ public class BuildRepositoryService {
         scheduleService.jobCompleting(jobIdentifier, result, agentUuid);
     }
 
-    public void updateStatusFromAgent(JobIdentifier jobIdentifier, JobState jobState, String agentUuid) throws Exception {
+    public void updateStatusFromAgent(JobIdentifier jobIdentifier, JobState jobState, String agentUuid) {
         checkAgentUUID(jobIdentifier, agentUuid, jobState.toString());
         LOGGER.debug("Changing status of job instance with identifier {} to {} from agent[{}]", jobIdentifier, jobState, agentUuid);
         scheduleService.updateJobStatus(jobIdentifier, jobState);

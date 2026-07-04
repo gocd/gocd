@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.packagerepository.representers.PackageRepositoryRepresenter;
 import com.thoughtworks.go.apiv1.packagerepository.representers.VerifyConnectionRepresenter;
@@ -45,14 +45,14 @@ import static spark.Spark.*;
 @Component
 public class PackageRepositoryInternalControllerV1 extends ApiController implements SparkSpringController, CrudController<PackageRepository> {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final EntityHashingService entityHashingService;
     private final PackageRepositoryService packageRepositoryService;
 
     @Autowired
-    public PackageRepositoryInternalControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, PackageRepositoryService packageRepositoryService) {
+    public PackageRepositoryInternalControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, EntityHashingService entityHashingService, PackageRepositoryService packageRepositoryService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.entityHashingService = entityHashingService;
         this.packageRepositoryService = packageRepositoryService;
     }
@@ -66,7 +66,7 @@ public class PackageRepositoryInternalControllerV1 extends ApiController impleme
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before(Routes.PackageRepository.VERIFY_CONNECTION, mimeType, this::setContentType);
-            before(Routes.PackageRepository.VERIFY_CONNECTION, mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before(Routes.PackageRepository.VERIFY_CONNECTION, mimeType, this.apiAuthorizationHelper::checkAnyPipelineGroupAdminUserAnd403);
 
             post(Routes.PackageRepository.VERIFY_CONNECTION, mimeType, this::verifyConnection);
         });

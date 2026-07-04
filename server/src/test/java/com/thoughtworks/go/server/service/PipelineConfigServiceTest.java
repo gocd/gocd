@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.UUID;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
@@ -71,12 +72,12 @@ public class PipelineConfigServiceTest {
     public void shouldGetPipelineConfigBasedOnName() {
         String pipelineName = "pipeline";
         PipelineConfig pipeline = pipelineConfigService.getPipelineConfig(pipelineName);
-        assertThat(pipeline).isEqualTo(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName)));
+        assertThat(pipeline).isEqualTo(cruiseConfig.pipelineConfigByName(cis(pipelineName)));
     }
 
     private void downstream(PipelineConfigs configs) {
         PipelineConfig down = PipelineConfigMother.pipelineConfig("down");
-        down.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("mingle")));
+        down.addMaterialConfig(new DependencyMaterialConfig(cis("pipeline"), cis("mingle")));
         configs.add(down);
     }
 
@@ -91,8 +92,8 @@ public class PipelineConfigServiceTest {
         job1.addTask(xUnit);
         job2.addTask(docker);
 
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
-                new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(cis("S1"), new JobConfigs(job1)),
+                new StageConfig(cis("S2"), new JobConfigs(job2)));
 
         pipelineConfigService.updatePipelineConfig(null, pipeline, "group", null, null);
 
@@ -111,8 +112,8 @@ public class PipelineConfigServiceTest {
         job1.addTask(xUnit);
         job2.addTask(docker);
 
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
-                new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(cis("S1"), new JobConfigs(job1)),
+                new StageConfig(cis("S2"), new JobConfigs(job2)));
 
         pipelineConfigService.createPipelineConfig(null, pipeline, null, null);
 

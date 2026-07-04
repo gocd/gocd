@@ -17,8 +17,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 
-import java.io.File;
-
 import static com.thoughtworks.go.util.SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT;
 import static com.thoughtworks.go.util.SystemEnvironment.ARTIFACT_WARNING_SIZE_LIMIT;
 
@@ -26,14 +24,6 @@ public class DiskSpaceSimulator {
     public void onTearDown() {
         new SystemEnvironment().clearProperty(ARTIFACT_FULL_SIZE_LIMIT);
         new SystemEnvironment().clearProperty(ARTIFACT_WARNING_SIZE_LIMIT);
-    }
-
-    public String simulateDiskSpaceLow() {
-        onTearDown();
-        long space = new File(".").getFreeSpace() / 1024;
-        String limit = (space-10) + "M";
-        new SystemEnvironment().setProperty(ARTIFACT_WARNING_SIZE_LIMIT, limit);
-        return limit;
     }
 
     public String simulateDiskFull() {

@@ -23,6 +23,7 @@ describe Admin::PipelinesSnippetController do
     allow(controller).to receive(:security_service).and_return(@security_service)
     @pipeline_configs_service = double('Pipelines Configs Service')
     @go_config_service = double('Go Config Service')
+    allow(@go_config_service).to receive(:checkConfigFileValid).and_return(GoConfigValidity.valid())
     allow(controller).to receive(:pipeline_configs_service).and_return(@pipeline_configs_service)
     allow(controller).to receive(:go_config_service).and_return(@go_config_service)
   end
@@ -51,7 +52,6 @@ describe Admin::PipelinesSnippetController do
 
   describe "actions" do
     before :each do
-      expect(controller).to receive(:populate_config_validity).and_return(true)
       @result = double(HttpLocalizedOperationResult)
       allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
     end
@@ -67,6 +67,7 @@ describe Admin::PipelinesSnippetController do
         expect(@security_service).to receive(:modifiableGroupsForUser).with(@user).and_return(["first", "second"])
         get :index
         expect(response).to redirect_to pipelines_snippet_show_path(:group_name => "first")
+        expect(assigns[:config_valid]).to eq(true)
       end
     end
 
@@ -87,6 +88,7 @@ describe Admin::PipelinesSnippetController do
         expect(assigns[:group_name]).to eq("valid_group")
         expect(assigns[:modifiable_groups].size).to eq(1)
         expect(assigns[:modifiable_groups]).to include "foo"
+        expect(assigns[:config_valid]).to eq(true)
         expect(response).to render_template :show
         assert_template layout: "admin"
       end
@@ -126,6 +128,7 @@ describe Admin::PipelinesSnippetController do
         expect(assigns[:config_md5]).to eq('md5_value_for_configuration')
         expect(assigns[:modifiable_groups].size).to eq(1)
         expect(assigns[:modifiable_groups]).to include "foo"
+        expect(assigns[:config_valid]).to eq(true)
         expect(response).to render_template :edit
         assert_template layout: "admin"
       end
@@ -191,6 +194,7 @@ describe Admin::PipelinesSnippetController do
         expect(assigns[:group_as_xml]).to eq(updated_xml)
         expect(assigns[:modifiable_groups].size).to eq(1)
         expect(assigns[:modifiable_groups]).to include "foo"
+        expect(assigns[:config_valid]).to eq(true)
         expect(assigns[:errors]).to eq(['error message'])
         expect(flash.now[:error]).to eq("failed")
         assert_template layout: "admin"

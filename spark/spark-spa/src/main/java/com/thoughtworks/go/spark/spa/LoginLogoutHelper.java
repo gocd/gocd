@@ -20,12 +20,12 @@ import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStor
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.GoConfigService;
-import org.springframework.web.util.UriUtils;
 import spark.Request;
 
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.thoughtworks.go.util.UriEncodingUtil.encodePathSegment;
 
 public class LoginLogoutHelper {
     private final GoConfigService goConfigService;
@@ -72,7 +72,7 @@ public class LoginLogoutHelper {
         metaBuilder.put("webBasedPlugins", webBasedAuthenticationPlugins.stream().map(authorizationPluginInfo -> Map.of(
                 "pluginName", authorizationPluginInfo.getDescriptor().about().name(),
                 "imageUrl", authorizationPluginInfo.getImage().toDataURI(),
-                "redirectUrl", "/go/plugin/" + getEncodePathSegment(authorizationPluginInfo.getDescriptor().id()) + "/login"
+                "redirectUrl", "/go/plugin/" + encodePathSegment(authorizationPluginInfo.getDescriptor().id()) + "/login"
             )).collect(Collectors.toList())
         );
 
@@ -83,14 +83,4 @@ public class LoginLogoutHelper {
 
         return Collections.unmodifiableMap(metaBuilder);
     }
-
-    private static String getEncodePathSegment(String value) {
-        try {
-            return UriUtils.encodePathSegment(value, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
 }

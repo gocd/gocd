@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Stage;
@@ -38,6 +37,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.net.HttpURLConnection.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -76,7 +76,7 @@ public class ScheduleServiceSecurityTest {
         configHelper.addAdmins("admin");
         configHelper.setOperatePermissionForGroup("defaultGroup", "jez");
         Pipeline pipeline = pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
-        Username anonymous = new Username(new CaseInsensitiveString("anonymous"));
+        Username anonymous = new Username(cis("anonymous"));
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
         Stage resultStage = scheduleService.cancelAndTriggerRelevantStages(pipeline.getStages().byName(pipelineFixture.ftStage).getId(), anonymous, operationResult);
 
@@ -89,7 +89,7 @@ public class ScheduleServiceSecurityTest {
     public void shouldReturnAppropriateHttpResultIfTheStageIsInvalid() throws Exception {
         configHelper.enableSecurity();
         configHelper.setOperatePermissionForGroup("defaultGroup", "jez");
-        Username jez = new Username(new CaseInsensitiveString("jez"));
+        Username jez = new Username(cis("jez"));
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
         Stage resultStage = scheduleService.cancelAndTriggerRelevantStages(-23L, jez, operationResult);
 

@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.perforce.P4Client;
 import com.thoughtworks.go.domain.materials.perforce.P4MaterialInstance;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -41,6 +40,7 @@ import java.util.*;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static com.thoughtworks.go.work.GoPublisher.PRODUCT_NAME;
 import static java.lang.Long.parseLong;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -155,9 +155,9 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         boolean cleaned = cleanDirectoryIfRepoChanged(workingDir, outputConsumer);
         String revision = revisionContext.getLatestRevision().getRevision();
         try {
-            outputConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision, serverAndPort));
+            outputConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", PRODUCT_NAME, updatingTarget(), revision, serverAndPort));
             p4(workingDir, outputConsumer).sync(parseLong(revision), cleaned, outputConsumer);
-            outputConsumer.stdOutput(format("[%s] Done.\n", GoConstants.PRODUCT_NAME));
+            outputConsumer.stdOutput(format("[%s] Done.\n", PRODUCT_NAME));
         } catch (Exception e) {
             bomb(e);
         }
@@ -310,7 +310,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
 
             String existingRepoId = Files.readString(file.toPath(), UTF_8);
             if (!p4RepoId.equals(existingRepoId)) {
-                outputConsumer.stdOutput(format("[%s] Working directory has changed. Deleting and re-creating it.", GoConstants.PRODUCT_NAME));
+                outputConsumer.stdOutput(format("[%s] Working directory has changed. Deleting and re-creating it.", PRODUCT_NAME));
                 FileUtils.deleteDirectory(workingDirectory);
                 workingDirectory.mkdirs();
                 Files.writeString(file.toPath(), p4RepoId, UTF_8);

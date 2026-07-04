@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.util.command;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,7 @@ public class InMemoryConsumer implements StreamConsumer {
     private final Queue<String> lines = new ConcurrentLinkedQueue<>();
 
     @Override
-    public void consumeLine(String line) {
+    public void consumeLine(@NotNull String line) {
         try {
             lines.add(line);
         } catch (RuntimeException e) {

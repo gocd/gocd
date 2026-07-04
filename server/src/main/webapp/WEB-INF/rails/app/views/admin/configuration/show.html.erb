@@ -24,7 +24,6 @@
 -%>
 <div class="sub_tab_container_content">
     <div id="tab-content-of-source-xml">
-        <%= render :partial => 'admin/configuration/heading', :locals => {:scope => {:go_config => @go_config}} -%>
         <div class="admin_holder" id="admin-holder-for-admin-config-source-xml">
             <div class='form_heading'>
                 <div class="buttons-group">
@@ -34,7 +33,7 @@
             </div>
             <div id="content_area">
                 <div id="content_container" style="height: 400px">
-                  <textarea data-config-url="<%= "/go/api/admin/config/#{@go_config.md5}.xml" %>" class="wrap_pre" id="config-xml-content" style="display: none;" readonly aria-readonly="true"></textarea>
+                  <textarea class="wrap_pre" id="config-xml-content" style="display: none;" readonly aria-readonly="true"></textarea>
                   <div class="spinner-container" style="
                     position:      relative;
                     top:           30%;
@@ -62,7 +61,7 @@
                 $(function() {
                   var httpRequest = new XMLHttpRequest();
                   let textArea = document.querySelector('#config-xml-content');
-                  httpRequest.open('GET', textArea.getAttribute('data-config-url'), true);
+                  httpRequest.open('GET', '/go/api/admin/config.xml', true);
                   httpRequest.send();
                   httpRequest.onreadystatechange = function() {
                     if (httpRequest.readyState === XMLHttpRequest.DONE) {

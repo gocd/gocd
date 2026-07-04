@@ -19,8 +19,8 @@ import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.helper.JobInstanceMother;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -33,9 +33,10 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.thoughtworks.go.domain.cctray.ProjectStatus.Key.keyFrom;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class CcTrayJobStatusChangeHandlerTest {
@@ -44,11 +45,16 @@ public class CcTrayJobStatusChangeHandlerTest {
     @Captor
     ArgumentCaptor<ProjectStatus> statusCaptor;
 
+    @BeforeEach
+    void setUp() {
+        lenient().doAnswer(invocation -> new ProjectStatus.NullProjectStatus(invocation.getArgument(0), invocation.getArgument(1)))
+            .when(cache).getOrDefault(any(ProjectStatus.Key.class), anyInt());
+    }
 
     @Test
     public void shouldGetJobStatusWithNewActivity_NotTheOneInCache() {
-        ProjectStatus status = new ProjectStatus(projectNameFor("job1"), "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("job1"));
-        when(cache.get(projectNameFor("job1"))).thenReturn(status);
+        ProjectStatus existingStageStatus = new ProjectStatus(keyFor("job1"), 0, "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("job1"));
+        when(cache.getOrDefault(eq(existingStageStatus.key()), anyInt())).thenReturn(existingStageStatus);
 
         CcTrayJobStatusChangeHandler handler = new CcTrayJobStatusChangeHandler(cache);
         ProjectStatus newStatus = handler.statusFor(JobInstanceMother.building("job1"), new HashSet<>());
@@ -58,23 +64,23 @@ public class CcTrayJobStatusChangeHandlerTest {
 
     @Test
     public void shouldCreateNewStatusWithOldValuesFromCache_WhenNewJob_HasNotCompleted() {
-        ProjectStatus oldStatusInCache = new ProjectStatus(projectNameFor("job1"), "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("job1"));
-        when(cache.get(projectNameFor("job1"))).thenReturn(oldStatusInCache);
+        ProjectStatus existingStageStatus = new ProjectStatus(keyFor("job1"), 0, "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("job1"));
+        when(cache.getOrDefault(eq(existingStageStatus.key()), anyInt())).thenReturn(existingStageStatus);
 
         CcTrayJobStatusChangeHandler handler = new CcTrayJobStatusChangeHandler(cache);
         ProjectStatus newStatus = handler.statusFor(JobInstanceMother.building("job1"), new HashSet<>());
 
-        assertThat(newStatus.getLastBuildStatus()).isEqualTo(oldStatusInCache.getLastBuildStatus());
-        assertThat(newStatus.getLastBuildLabel()).isEqualTo(oldStatusInCache.getLastBuildLabel());
-        assertThat(newStatus.getLastBuildTime()).isEqualTo(oldStatusInCache.getLastBuildTime());
-        assertThat(newStatus.getBreakers()).isEqualTo(oldStatusInCache.getBreakers());
+        assertThat(newStatus.getLastBuildStatus()).isEqualTo(existingStageStatus.getLastBuildStatus());
+        assertThat(newStatus.getLastBuildLabel()).isEqualTo(existingStageStatus.getLastBuildLabel());
+        assertThat(newStatus.getLastBuildTime()).isEqualTo(existingStageStatus.getLastBuildTime());
+        assertThat(newStatus.getBreakers()).isEqualTo(existingStageStatus.getBreakers());
         assertThat(webUrlOf(newStatus)).isEqualTo(webUrlFor("job1"));
     }
 
     @Test
     public void shouldCreateNewStatusWithNoPartsUsedFromCache_WhenNewJob_HasCompleted() {
-        ProjectStatus oldStatusInCache = new ProjectStatus(projectNameFor("job1"), "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("job1"));
-        when(cache.get(projectNameFor("job1"))).thenReturn(oldStatusInCache);
+        ProjectStatus existingStageStatus = new ProjectStatus(keyFor("job1"), 0, "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("job1"));
+        when(cache.getOrDefault(eq(existingStageStatus.key()), anyInt())).thenReturn(existingStageStatus);
 
         CcTrayJobStatusChangeHandler handler = new CcTrayJobStatusChangeHandler(cache);
         ProjectStatus newStatus = handler.statusFor(JobInstanceMother.completed("job1"), new HashSet<>());
@@ -95,6 +101,7 @@ public class CcTrayJobStatusChangeHandlerTest {
         breakers.add("def");
 
         CcTrayJobStatusChangeHandler handler = new CcTrayJobStatusChangeHandler(cache);
+
         ProjectStatus newStatus = handler.statusFor(JobInstanceMother.completed(jobName), breakers);
 
         assertThat(newStatus.getBreakers()).isEqualTo(breakers);
@@ -104,9 +111,9 @@ public class CcTrayJobStatusChangeHandlerTest {
     public void shouldReuseViewersListFromExistingStatusWhenCreatingNewStatus() {
         Users viewers = new AllowedUsers(Set.of("viewer1", "viewer2"), Set.of(new PluginRoleConfig("admin", "ldap")));
 
-        ProjectStatus oldStatusInCache = new ProjectStatus(projectNameFor("job1"), "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("job1"));
-        oldStatusInCache.updateViewers(viewers);
-        when(cache.get(projectNameFor("job1"))).thenReturn(oldStatusInCache);
+        ProjectStatus existingStageStatus = new ProjectStatus(keyFor("job1"), 0, "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("job1"));
+        existingStageStatus.updateViewers(viewers);
+        when(cache.getOrDefault(eq(existingStageStatus.key()), anyInt())).thenReturn(existingStageStatus);
 
         CcTrayJobStatusChangeHandler handler = new CcTrayJobStatusChangeHandler(cache);
         ProjectStatus newStatus = handler.statusFor(JobInstanceMother.building("job1"), new HashSet<>());
@@ -117,8 +124,8 @@ public class CcTrayJobStatusChangeHandlerTest {
     @Test
     public void shouldUpdateValueInCacheWhenJobHasChanged() {
         String jobName = "job1";
-        ProjectStatus existingStatusInCache = new ProjectStatus(projectNameFor(jobName), "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor(jobName));
-        when(cache.get(projectNameFor(jobName))).thenReturn(existingStatusInCache);
+        ProjectStatus existingStageStatus = new ProjectStatus(keyFor(jobName), 0, "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor(jobName));
+        when(cache.getOrDefault(eq(existingStageStatus.key()), anyInt())).thenReturn(existingStageStatus);
 
         CcTrayJobStatusChangeHandler handler = new CcTrayJobStatusChangeHandler(cache);
         JobInstance completedJob = JobInstanceMother.completed(jobName);
@@ -126,7 +133,7 @@ public class CcTrayJobStatusChangeHandlerTest {
 
         verify(cache).put(statusCaptor.capture());
         ProjectStatus newStatusInCache = statusCaptor.getValue();
-        assertThat(newStatusInCache.name()).isEqualTo(projectNameFor(jobName));
+        assertThat(newStatusInCache.key()).isEqualTo(keyFor(jobName));
         assertThat(newStatusInCache.getLastBuildStatus()).isEqualTo("Success");
         assertThat(newStatusInCache.getLastBuildLabel()).isEqualTo("label-1");
         assertThat(newStatusInCache.getLastBuildTime()).isEqualTo(completedJob.getCompletedDate());
@@ -135,8 +142,8 @@ public class CcTrayJobStatusChangeHandlerTest {
         assertThat(webUrlOf(newStatusInCache)).isEqualTo(webUrlFor(jobName));
     }
 
-    private String projectNameFor(String jobName) {
-        return "pipeline :: stage :: " + jobName;
+    private ProjectStatus.Key keyFor(String jobName) {
+        return keyFrom("pipeline", "stage", jobName);
     }
 
     private String webUrlOf(ProjectStatus status) {

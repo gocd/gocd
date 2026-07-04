@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.util.command;
 
+import org.jetbrains.annotations.NotNull;
+
 public class ExecScript implements Script, StreamConsumer {
     private final String errorStr;
     private int exitCode;
@@ -30,7 +32,7 @@ public class ExecScript implements Script, StreamConsumer {
      * @param line the line of output to parse
      */
     @Override
-    public synchronized void consumeLine(final String line) {
+    public synchronized void consumeLine(@NotNull String line) {
         // check if the output contains the error string
         if (errorStr != null && !errorStr.isEmpty() && errorStr.equalsIgnoreCase(line.trim())) {
             foundError = true;

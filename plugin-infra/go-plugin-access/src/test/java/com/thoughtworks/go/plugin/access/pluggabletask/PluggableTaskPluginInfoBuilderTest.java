@@ -70,7 +70,7 @@ public class PluggableTaskPluginInfoBuilderTest {
         when(descriptor.id()).thenReturn(pluginId);
 
         doAnswer(invocation -> {
-            @SuppressWarnings("unchecked") final Action<Task> action = (Action<Task>) invocation.getArguments()[1];
+            @SuppressWarnings("unchecked") final Action<Task> action = invocation.getArgument(1);
             action.execute(task, descriptor);
             return null;
         }).when(extension).doOnTask(eq("plugin1"), any());

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.PackageMaterial;
@@ -80,6 +79,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother.create;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.time.ZoneOffset.UTC;
@@ -223,7 +223,7 @@ public class MaterialServiceTest {
         }
     }, P4Material.class);
 
-    private static final Arguments DEPENDENCY_LATEST_MODIFICATIONS = Arguments.of(new DependencyMaterial(new CaseInsensitiveString("p1"), new CaseInsensitiveString("s1")) {
+    private static final Arguments DEPENDENCY_LATEST_MODIFICATIONS = Arguments.of(new DependencyMaterial(cis("p1"), cis("s1")) {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
             return MODIFICATIONS;

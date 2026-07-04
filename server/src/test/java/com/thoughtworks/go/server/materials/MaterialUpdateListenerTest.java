@@ -79,7 +79,7 @@ public class MaterialUpdateListenerTest {
 
     private void setupTransactionTemplateStub() {
         when(transactionTemplate.executeWithExceptionHandling(any())).thenAnswer(invocationOnMock -> {
-            TransactionCallback callback = (TransactionCallback) invocationOnMock.getArguments()[0];
+            TransactionCallback callback = invocationOnMock.getArgument(0);
             callback.doInTransaction(null);
             return null;
         });

@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
-import org.springframework.context.ApplicationContext
+import org.springframework.beans.factory.ListableBeanFactory
 import org.springframework.mock.web.MockHttpServletResponse
 import spark.*
 import spark.servlet.SparkFilter
@@ -88,7 +88,7 @@ class RerouteLatestApisImplTest {
     FeatureToggleService features
 
     @Mock
-    ApplicationContext context
+    ListableBeanFactory context
 
     private SparkController controller1
     private SparkController controller2
@@ -207,8 +207,7 @@ class RerouteLatestApisImplTest {
         @Test
         void shouldRegisterLatestRoutes() {
             // original route list
-            RerouteLatestApisImpl rerouteLatestApis = new RerouteLatestApisImpl(routeInformationProvider, features)
-            rerouteLatestApis.setApplicationContext(context)
+            RerouteLatestApisImpl rerouteLatestApis = new RerouteLatestApisImpl(routeInformationProvider, features, context)
             when(context.getBeansWithAnnotation()).thenReturn(Collections.emptyMap())
 
             routeInformationProvider.cacheRouteInformation()
@@ -247,8 +246,7 @@ class RerouteLatestApisImplTest {
 
         @Test
         void 'ignores annotated controllers when calculating the latest version route alias if matching toggle is off'() {
-            RerouteLatestApisImpl rerouteLatestApis = new RerouteLatestApisImpl(routeInformationProvider, features)
-            rerouteLatestApis.setApplicationContext(context)
+            RerouteLatestApisImpl rerouteLatestApis = new RerouteLatestApisImpl(routeInformationProvider, features, context)
             when(context.getBeansWithAnnotation(ToggleRegisterLatest.class)).thenReturn(
                     Map.of(TestControllerV2.class.name, controller2)
             )
@@ -293,8 +291,7 @@ class RerouteLatestApisImplTest {
 
         @Test
         void 'considers annotated controllers when calculating the latest version route alias if matching toggle is on'() {
-            RerouteLatestApisImpl rerouteLatestApis = new RerouteLatestApisImpl(routeInformationProvider, features)
-            rerouteLatestApis.setApplicationContext(context)
+            RerouteLatestApisImpl rerouteLatestApis = new RerouteLatestApisImpl(routeInformationProvider, features, context)
             when(context.getBeansWithAnnotation(ToggleRegisterLatest.class)).thenReturn(
                     Map.of(TestControllerV2.class.name, controller2)
             )

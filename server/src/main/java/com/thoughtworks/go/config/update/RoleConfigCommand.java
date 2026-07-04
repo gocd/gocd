@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.validation.RolesConfigUpdateValidator;
 
 import java.util.List;
 

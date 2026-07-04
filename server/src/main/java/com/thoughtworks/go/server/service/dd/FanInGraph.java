@@ -86,10 +86,10 @@ public class FanInGraph {
         for (MaterialConfig material : target.materialConfigs()) {
             FanInNode<?> node = nodes.computeIfAbsent(material.getFingerprint(), k -> FanInNode.create(material));
             root.addChild(node);
-            if (node instanceof DependencyFanInNode) {
+            if (node instanceof DependencyFanInNode dependencyFanInNode) {
                 DependencyMaterialConfig dependencyMaterial = (DependencyMaterialConfig) material;
                 fingerprintDepMaterialMap.put(dependencyMaterial.getFingerprint(), dependencyMaterial);
-                handleDependencyMaterial(scmMaterialSet, dependencyMaterial, (DependencyFanInNode) node, visitedNodes);
+                handleDependencyMaterial(scmMaterialSet, dependencyMaterial, dependencyFanInNode, visitedNodes);
             } else {
                 handleScmMaterial(scmMaterialSet, material);
             }

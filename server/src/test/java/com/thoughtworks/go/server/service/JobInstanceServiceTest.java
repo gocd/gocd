@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
@@ -54,6 +53,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.JobInstanceMother.completed;
 import static com.thoughtworks.go.helper.JobInstanceMother.scheduled;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -323,7 +323,7 @@ public class JobInstanceServiceTest {
 
     @Test
     public void shouldRemoveJobRelatedServerHealthMessagesOnConfigChange() {
-        ServerHealthService serverHealthService = new ServerHealthService();
+        ServerHealthService serverHealthService = new ServerHealthService(mock());
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p1", "s1", "j1"))));
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p2", "s2", "j2"))));
         assertThat(serverHealthService.logsSorted().errorCount()).isEqualTo(2);
@@ -335,7 +335,7 @@ public class JobInstanceServiceTest {
 
     @Test
     public void shouldRemoveJobRelatedServerHealthMessagesOnPipelineConfigChange() {
-        ServerHealthService serverHealthService = new ServerHealthService();
+        ServerHealthService serverHealthService = new ServerHealthService(mock());
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p1", "s1", "j1"))));
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p2", "s2", "j2"))));
         assertThat(serverHealthService.logsSorted().errorCount()).isEqualTo(2);
@@ -364,7 +364,7 @@ public class JobInstanceServiceTest {
     @Test
     public void shouldFindJobInstancesWithTransitions() {
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
+        when(cruiseConfig.hasPipelineNamed(cis("pipeline"))).thenReturn(true);
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("user"), "pipeline")).thenReturn(true);
         JobInstance instance = new JobInstance("job");
         when(jobInstanceDao.mostRecentJobWithTransitions(any())).thenReturn(instance);
@@ -377,7 +377,7 @@ public class JobInstanceServiceTest {
     @Test
     void shouldThrowExceptionIfPipelineDoesNotExistForJobInstance() {
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
+        when(cruiseConfig.hasPipelineNamed(cis("pipeline"))).thenReturn(false);
         JobInstanceService jobInstanceService = new JobInstanceService(jobInstanceDao, null, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, serverHealthService);
 
         assertThatCode(() -> jobInstanceService.findJobInstanceWithTransitions("pipeline", "stage", "job", 1, 1, new Username("admin")))
@@ -388,7 +388,7 @@ public class JobInstanceServiceTest {
     @Test
     void shouldThrowExceptionIfTheUserDoesNotHaveAccessToViewPipelineForJobInstance() {
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
+        when(cruiseConfig.hasPipelineNamed(cis("pipeline"))).thenReturn(true);
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("user"), "pipeline")).thenReturn(false);
 
         JobInstanceService jobInstanceService = new JobInstanceService(jobInstanceDao, null, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
@@ -414,7 +414,7 @@ public class JobInstanceServiceTest {
         @Test
         void shouldFetchLatestRecords() {
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
             jobService.getJobHistoryViaCursor(username, pipelineName, stageName, jobConfigName, 0, 0, 10);
@@ -425,7 +425,7 @@ public class JobInstanceServiceTest {
         @Test
         void shouldFetchRecordsAfterTheSpecifiedCursor() {
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
             jobService.getJobHistoryViaCursor(username, pipelineName, stageName, jobConfigName, 2, 0, 10);
@@ -436,7 +436,7 @@ public class JobInstanceServiceTest {
         @Test
         void shouldFetchRecordsBeforeTheSpecifiedCursor() {
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
             jobService.getJobHistoryViaCursor(username, pipelineName, stageName, jobConfigName, 0, 2, 10);
@@ -456,7 +456,7 @@ public class JobInstanceServiceTest {
         @Test
         void shouldThrowErrorIfUserDoesNotHaveAccessRights() {
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
 
             assertThatCode(() -> jobService.getJobHistoryViaCursor(username, pipelineName, stageName, jobConfigName, 0, 0, 10))
                     .isInstanceOf(NotAuthorizedException.class)
@@ -466,7 +466,7 @@ public class JobInstanceServiceTest {
         @Test
         void shouldThrowErrorIfCursorIsANegativeInteger() {
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
             assertThatCode(() -> jobService.getJobHistoryViaCursor(username, pipelineName, stageName, jobConfigName, -10, 0, 10))
@@ -495,7 +495,7 @@ public class JobInstanceServiceTest {
         @Test
         void shouldReturnTheLatestAndOldestRunID() {
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
             jobService.getOldestAndLatestJobInstanceId(username, pipelineName, stageName, jobConfigName);
@@ -516,7 +516,7 @@ public class JobInstanceServiceTest {
         @Test
         void shouldThrowErrorIfUserDoesNotHaveAccessRights() {
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(cruiseConfig.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
 
             assertThatCode(() -> jobService.getOldestAndLatestJobInstanceId(username, pipelineName, stageName, jobConfigName))
                     .isInstanceOf(NotAuthorizedException.class)

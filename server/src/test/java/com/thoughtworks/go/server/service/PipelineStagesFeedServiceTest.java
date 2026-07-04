@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.feed.FeedEntries;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.*;
@@ -36,7 +36,7 @@ public class PipelineStagesFeedServiceTest {
 
     @BeforeEach
     public void setUp() {
-        user = new Username(new CaseInsensitiveString("barrow"));
+        user = new Username(cis("barrow"));
         expected = new FeedEntries();
         stageService = mock(StageService.class);
         securityService = mock(SecurityService.class);

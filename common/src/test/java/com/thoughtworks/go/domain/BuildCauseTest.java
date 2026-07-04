@@ -43,8 +43,8 @@ public class BuildCauseTest {
 
     @Test
     public void differentBuildCausesShouldNotBeTheSame() {
-        assertThat(BuildCause.createWithEmptyModifications().isSameAs(BuildCause.createManualForced())).isFalse();
-        assertThat(BuildCause.createManualForced().isSameAs(BuildCause.createWithEmptyModifications())).isFalse();
+        assertThat(BuildCause.createEmpty().isSameAs(BuildCause.createManualForced())).isFalse();
+        assertThat(BuildCause.createManualForced().isSameAs(BuildCause.createEmpty())).isFalse();
     }
 
     @Test
@@ -63,7 +63,7 @@ public class BuildCauseTest {
         MaterialRevisions first = new MaterialRevisions(
             new MaterialRevision(MaterialsMother.svnMaterial(), oneModifiedFile("revision1"))
         );
-        BuildCause buildCause = BuildCause.createWithEmptyModifications();
+        BuildCause buildCause = BuildCause.createEmpty();
         buildCause.setMaterialRevisions(first);
         assertThat(buildCause.getBuildCauseMessage()).isEqualTo("modified by lgao");
     }

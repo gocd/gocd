@@ -24,7 +24,6 @@ import java.util.Comparator;
 
 import static java.util.stream.Collectors.toCollection;
 
-
 public class Stages extends BaseCollection<Stage> implements StageContainer {
 
     private static final Comparator<Stage> STAGE_COMPARATOR = Comparator.comparingInt(Stage::getOrderId);

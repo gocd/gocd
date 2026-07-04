@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 public class CachedGoPartialsTest {
 
@@ -42,7 +43,7 @@ public class CachedGoPartialsTest {
 
     @BeforeEach
     public void setUp() {
-        serverHealthService = new ServerHealthService();
+        serverHealthService = new ServerHealthService(mock());
         partials = new CachedGoPartials(serverHealthService);
         configRepo1 = ConfigRepoConfig.createConfigRepoConfig(git("url1"), "plugin", "id1");
         part1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(configRepo1, "1"));

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.view.artifacts;
 
 import com.thoughtworks.go.domain.LocatableEntity;
-import com.thoughtworks.go.server.cache.ArtifactCache;
+import com.thoughtworks.go.server.caching.ArtifactCache;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;

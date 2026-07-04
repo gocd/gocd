@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.PackageMaterial;
@@ -30,7 +29,7 @@ import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
@@ -48,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.SystemEnvironment.RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -126,10 +126,10 @@ public class FaninDependencyResolutionTest {
 
         ScheduleTestUtil.AddedPipeline up = u.saveConfigWith("up", u.m(git));
         ScheduleTestUtil.MaterialDeclaration upForMid = u.m(up);
-        ((DependencyMaterial) upForMid.material).setName(new CaseInsensitiveString("up-for-mid"));
+        ((DependencyMaterial) upForMid.material).setName(cis("up-for-mid"));
         ScheduleTestUtil.AddedPipeline mid = u.saveConfigWith("mid", upForMid);
         ScheduleTestUtil.MaterialDeclaration upForDown = u.m(up);
-        ((DependencyMaterial) upForDown.material).setName(new CaseInsensitiveString("up-for-down"));
+        ((DependencyMaterial) upForDown.material).setName(cis("up-for-down"));
         ScheduleTestUtil.AddedPipeline down = u.saveConfigWith("down", u.m(mid), upForDown);
         CruiseConfig cruiseConfig = goConfigDao.currentConfig();
 
@@ -145,8 +145,8 @@ public class FaninDependencyResolutionTest {
 
         for (MaterialRevision revisionsBasedOnDependency : revisionsBasedOnDependencies) {
             DependencyMaterial dependencyPipeline = (DependencyMaterial) revisionsBasedOnDependency.getMaterial();
-            if (dependencyPipeline.getPipelineName().equals(new CaseInsensitiveString("up"))) {
-                assertThat(dependencyPipeline.getName()).isEqualTo(new CaseInsensitiveString("up-for-down"));
+            if (dependencyPipeline.getPipelineName().equals(cis("up"))) {
+                assertThat(dependencyPipeline.getName()).isEqualTo(cis("up-for-down"));
             }
         }
         assertThat(revisionsBasedOnDependencies).isEqualTo(given);
@@ -398,9 +398,9 @@ public class FaninDependencyResolutionTest {
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(git));
         ScheduleTestUtil.AddedPipeline p2_s1 = u.saveConfigWith("p2", "s1", u.m(git));
         ScheduleTestUtil.AddedPipeline p2_s2 = u.addStageToPipeline(p2_s1.config.name(), "s2");
-        ScheduleTestUtil.MaterialDeclaration p2_material = u.m(new DependencyMaterial(p2_s1.config.name(), new CaseInsensitiveString("s2")));
+        ScheduleTestUtil.MaterialDeclaration p2_material = u.m(new DependencyMaterial(p2_s1.config.name(), cis("s2")));
         ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", p2_material, u.m(p1));
-        ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("p4", u.m(new DependencyMaterial(p2_s1.config.name(), new CaseInsensitiveString("s1"))));
+        ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("p4", u.m(new DependencyMaterial(p2_s1.config.name(), cis("s1"))));
 
         u.checkinInOrder(git, "g1");
         String p1_1 = u.runAndPass(p1, "g1");
@@ -444,7 +444,7 @@ public class FaninDependencyResolutionTest {
 
         configHelper.setMaterialConfigForPipeline("P2", git3.config());
         CruiseConfig cruiseConfig = goConfigDao.currentConfig();
-        p2 = new ScheduleTestUtil.AddedPipeline(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("P2")), p2.material);
+        p2 = new ScheduleTestUtil.AddedPipeline(cruiseConfig.pipelineConfigByName(cis("P2")), p2.material);
 
         u.checkinInOrder(git1, "git1_3");
         u.checkinInOrder(git2, "git2_3");
@@ -470,7 +470,7 @@ public class FaninDependencyResolutionTest {
 
         configHelper.setMaterialConfigForPipeline("P2", git2.config());
         cruiseConfig = goConfigDao.currentConfig();
-        p2 = new ScheduleTestUtil.AddedPipeline(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("P2")), p2.material);
+        p2 = new ScheduleTestUtil.AddedPipeline(cruiseConfig.pipelineConfigByName(cis("P2")), p2.material);
 
         //check wat happend to p4
 
@@ -830,8 +830,8 @@ public class FaninDependencyResolutionTest {
 
         ScheduleTestUtil.AddedPipeline p2_s1 = u.saveConfigWith("p2", "s1", u.m(git));
         ScheduleTestUtil.AddedPipeline p2_s2 = u.addStageToPipeline(p2_s1.config.name(), "s2");
-        ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(new DependencyMaterial(p2_s1.config.name(), new CaseInsensitiveString("s1"))));
-        ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("p4", u.m(new DependencyMaterial(p2_s1.config.name(), new CaseInsensitiveString("s2"))));
+        ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(new DependencyMaterial(p2_s1.config.name(), cis("s1"))));
+        ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("p4", u.m(new DependencyMaterial(p2_s1.config.name(), cis("s2"))));
         ScheduleTestUtil.AddedPipeline p5 = u.saveConfigWith("p5", u.m(p3), u.m(p4));
 
         String p2_s1_1 = u.runAndPass(p2_s1, "g1");

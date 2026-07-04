@@ -32,27 +32,12 @@ public class StageStatusMessage implements GoMessage {
         this(stageIdentifier, stageState, result, Username.BLANK);
     }
 
-    //TODO: create a separate StageCancelledMessage
     public StageStatusMessage(StageIdentifier stageIdentifier, StageState stageState, StageResult result,
                               Username userName) {
         this.stageIdentifier = stageIdentifier;
         this.stageState = stageState;
         this.result = result;
         this.userName = userName;
-    }
-
-    @Override
-    public String toString() {
-        return "StageStatusMessage{" +
-                "stageIdentifier=" + stageIdentifier +
-                ", stageState=" + stageState +
-                ", result=" + result +
-                ", userName=" + userName +
-                '}';
-    }
-
-    public boolean isStageCompleted() {
-        return stageState.completed();
     }
 
     public StageIdentifier getStageIdentifier() {
@@ -63,34 +48,29 @@ public class StageStatusMessage implements GoMessage {
         return result;
     }
 
+    public Username username() {
+        return userName;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         StageStatusMessage that = (StageStatusMessage) o;
-
-        return result == that.result &&
-            stageIdentifier.equals(that.stageIdentifier) &&
+        return Objects.equals(stageIdentifier, that.stageIdentifier) &&
             stageState == that.stageState &&
+            result == that.result &&
             Objects.equals(userName, that.userName);
     }
 
     @Override
     public int hashCode() {
-        int result1;
-        result1 = stageIdentifier.hashCode();
-        result1 = 31 * result1 + stageState.hashCode();
-        result1 = 31 * result1 + result.hashCode();
-        result1 = 31 * result1 + (userName != null ? userName.hashCode() : 0);
-        return result1;
+        return Objects.hash(stageIdentifier, stageState, result, userName);
     }
 
-    public Username username() {
-        return userName;
+    @Override
+    public String toString() {
+        return "StageStatusMessage{stageIdentifier=" + stageIdentifier + ", stageState=" + stageState + ", result=" + result + ", userName=" + userName + '}';
     }
 }

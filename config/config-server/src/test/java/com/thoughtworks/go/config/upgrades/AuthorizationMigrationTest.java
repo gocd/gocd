@@ -17,11 +17,11 @@ package com.thoughtworks.go.config.upgrades;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.GoConstants;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 // test for 14.xsl
@@ -79,7 +79,7 @@ public class AuthorizationMigrationTest {
     @Test
     public void shouldMigrateAuthToAuthorization() throws Exception {
         String newConfig = ConfigMigrator.migrate(CONFIG_WITH_AUTH).replace("\r\n", "\n");
-        assertThat(newConfig).contains(String.valueOf(GoConstants.CONFIG_SCHEMA_VERSION));
+        assertThat(newConfig).contains(String.valueOf(GoConfigSchema.VERSION));
         assertThat(newConfig).contains(NEW_AUTHORIZATION);
     }
 
@@ -92,7 +92,7 @@ public class AuthorizationMigrationTest {
     @Test
     public void shouldBeAbleToParseNewConfig() {
         CruiseConfig newConfig = ConfigMigrator.loadWithMigration(CONFIG_WITH_AUTH).config;
-        assertThat(newConfig.stageConfigByName(new CaseInsensitiveString("pipeline1"), new CaseInsensitiveString("stage1")).getApproval().getAuthConfig().size()).isEqualTo(3);
+        assertThat(newConfig.stageConfigByName(cis("pipeline1"), cis("stage1")).getApproval().getAuthConfig().size()).isEqualTo(3);
     }
 
     @Test

@@ -18,7 +18,7 @@ package com.thoughtworks.go.spark.spa;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
@@ -30,11 +30,11 @@ import java.util.Map;
 import static spark.Spark.*;
 
 public class AgentJobRunHistoryController implements SparkController {
-    private final SPAAuthenticationHelper authenticationHelper;
+    private final SpaAuthorizationHelper authorizationHelper;
     private final TemplateEngine engine;
 
-    public AgentJobRunHistoryController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
-        this.authenticationHelper = authenticationHelper;
+    public AgentJobRunHistoryController(SpaAuthorizationHelper authorizationHelper, TemplateEngine engine) {
+        this.authorizationHelper = authorizationHelper;
         this.engine = engine;
     }
 
@@ -46,7 +46,7 @@ public class AgentJobRunHistoryController implements SparkController {
     @Override
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
-            before(String.format("%s/job_run_history", Routes.AgentsSPA.AGENT_UUID), authenticationHelper::checkAdminUserAnd403);
+            before(String.format("%s/job_run_history", Routes.AgentsSPA.AGENT_UUID), authorizationHelper::checkAdminUserAnd403);
             get(String.format("%s/job_run_history", Routes.AgentsSPA.AGENT_UUID), this::index, engine);
         });
     }

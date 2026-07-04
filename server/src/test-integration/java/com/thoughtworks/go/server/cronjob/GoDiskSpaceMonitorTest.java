@@ -35,7 +35,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 
-import static com.thoughtworks.go.util.GoConstants.MEGA_BYTE;
+import static com.thoughtworks.go.util.FileSizeUtils.fromMegaToBytes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -47,9 +47,9 @@ import static org.mockito.Mockito.when;
     "classpath:/testPropertyConfigurer.xml",
     "classpath:/spring-all-servlet.xml",
 })
-
 public class GoDiskSpaceMonitorTest {
-    private static final long LOADS_OF_DISK_SPACE = 10000000000L * MEGA_BYTE;
+    private static final long LOADS_OF_DISK_SPACE = fromMegaToBytes(10000000000L);
+
     @Autowired
     private GoConfigService goConfigService;
     @Autowired
@@ -86,14 +86,14 @@ public class GoDiskSpaceMonitorTest {
     @Test
     @ExtendWith(ArtifactsDiskIsLow.class)
     public void shouldStoreAndReportCheckResult() {
-        when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
-        when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(ArtifactsDiskIsLow.limitBytes() + 1L);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(ArtifactsDiskIsLow.limitBytes() + 1L);
 
         goDiskSpaceMonitor.onTimer();
         assertThat(goDiskSpaceMonitor.isLowOnDisk()).isTrue();
 
-        when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
-        when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(LOADS_OF_DISK_SPACE);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(LOADS_OF_DISK_SPACE);
 
         goDiskSpaceMonitor.onTimer();
         assertThat(goDiskSpaceMonitor.isLowOnDisk()).isFalse();
@@ -102,16 +102,16 @@ public class GoDiskSpaceMonitorTest {
     @Test
     @ExtendWith(ArtifactsDiskIsLow.class)
     public void shouldRemoveWarningLogAfterArtifactsDiskSpaceIsRecovered() {
-        when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(ArtifactsDiskIsLow.limitBytes() + 1L);
-        when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(LOADS_OF_DISK_SPACE);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(goConfigService.artifactsDir())).thenReturn(ArtifactsDiskIsLow.limitBytes() + 1L);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(LOADS_OF_DISK_SPACE);
 
         goDiskSpaceMonitor.onTimer();
 
         ServerHealthState logEntry = findByLogType(ArtifactsDiskSpaceFullChecker.ARTIFACTS_DISK_FULL_ID);
         assertThat(logEntry.getLogLevel()).isEqualTo(HealthStateLevel.WARNING);
 
-        when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
-        when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(LOADS_OF_DISK_SPACE);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(LOADS_OF_DISK_SPACE);
 
         goDiskSpaceMonitor.onTimer();
 
@@ -122,8 +122,8 @@ public class GoDiskSpaceMonitorTest {
     @Test
     @ExtendWith(ArtifactsDiskIsLow.class)
     public void shouldSendMailAboutArtifactsDiskSpaceLowWarningMessage() {
-        when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(ArtifactsDiskIsLow.limitBytes() + 1L);
-        when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(1000 * MEGA_BYTE);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(goConfigService.artifactsDir())).thenReturn(ArtifactsDiskIsLow.limitBytes() + 1L);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(fromMegaToBytes(1000));
         goDiskSpaceMonitor.onTimer();
         emailSender.assertHasMessageContaining("Low artifacts disk space warning message from Go Server");
     }
@@ -131,16 +131,16 @@ public class GoDiskSpaceMonitorTest {
     @Test
     @ExtendWith(ArtifactsDiskIsLow.class)
     public void shouldRemoveErrorLogAfterArtifactsDiskSpaceIsRecovered() {
-        when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(ArtifactsDiskIsLow.limitBytes() - 1L);
-        when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(LOADS_OF_DISK_SPACE);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(goConfigService.artifactsDir())).thenReturn(ArtifactsDiskIsLow.limitBytes() - 1L);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(LOADS_OF_DISK_SPACE);
 
         goDiskSpaceMonitor.onTimer();
 
         ServerHealthState logEntry = findByLogType(ArtifactsDiskSpaceFullChecker.ARTIFACTS_DISK_FULL_ID);
         assertThat(logEntry.getLogLevel()).isEqualTo(HealthStateLevel.ERROR);
 
-        when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
-        when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(LOADS_OF_DISK_SPACE);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(LOADS_OF_DISK_SPACE);
 
         goDiskSpaceMonitor.onTimer();
 
@@ -152,8 +152,8 @@ public class GoDiskSpaceMonitorTest {
     @Test
     @ExtendWith(ArtifactsDiskIsFull.class)
     public void shouldSendMailAboutArtifactsDiskSpaceFullErrorMessage() {
-        when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(ArtifactsDiskIsFull.limitBytes() - 1L);
-        when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(1000 * MEGA_BYTE);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(goConfigService.artifactsDir())).thenReturn(ArtifactsDiskIsFull.limitBytes() - 1L);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(fromMegaToBytes(1000));
 
         goDiskSpaceMonitor.onTimer();
         emailSender.assertHasMessageContaining("No artifacts disk space error message from Go Server");
@@ -162,8 +162,8 @@ public class GoDiskSpaceMonitorTest {
     @Test
     @ExtendWith(DatabaseDiskIsLow.class)
     public void shouldSendMailAboutDatabaseDiskSpaceLowWarningMessage() {
-        when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
-        when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(DatabaseDiskIsLow.limitBytes() + 1L);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(DatabaseDiskIsLow.limitBytes() + 1L);
 
         goDiskSpaceMonitor.onTimer();
         emailSender.assertHasMessageContaining("Low database disk space warning message from Go Server");
@@ -172,8 +172,8 @@ public class GoDiskSpaceMonitorTest {
     @Test
     @ExtendWith(DatabaseDiskIsFull.class)
     public void shouldSendMailAboutDatabaseDiskSpaceFullErrorMessage() {
-        when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
-        when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(DatabaseDiskIsFull.limitBytes() - 1L);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(DatabaseDiskIsFull.limitBytes() - 1L);
         goDiskSpaceMonitor.onTimer();
         emailSender.assertHasMessageContaining("No database disk space error message from Go Server");
     }
@@ -181,16 +181,16 @@ public class GoDiskSpaceMonitorTest {
     @Test
     @ExtendWith(DatabaseDiskIsFull.class)
     public void shouldRemoveErrorLogAfterDatabaseDiskSpaceIsRecovered() {
-        when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
-        when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(DatabaseDiskIsFull.limitBytes() - 1L);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(DatabaseDiskIsFull.limitBytes() - 1L);
 
         goDiskSpaceMonitor.onTimer();
 
         ServerHealthState logEntry = findByLogType(DatabaseDiskSpaceFullChecker.DATABASE_DISK_FULL_ID);
         assertThat(logEntry.getLogLevel()).isEqualTo(HealthStateLevel.ERROR);
 
-        when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
-        when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(LOADS_OF_DISK_SPACE);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(LOADS_OF_DISK_SPACE);
 
         goDiskSpaceMonitor.onTimer();
 
@@ -201,16 +201,16 @@ public class GoDiskSpaceMonitorTest {
     @Test
     @ExtendWith(DatabaseDiskIsFull.class)
     public void shouldRemoveWarningLogAfterDatabaseDiskSpaceIsRecovered() {
-        when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
-        when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(DatabaseDiskIsFull.limitBytes() + 1L);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(DatabaseDiskIsFull.limitBytes() + 1L);
 
         goDiskSpaceMonitor.onTimer();
 
         ServerHealthState logEntry = findByLogType(DatabaseDiskSpaceFullChecker.DATABASE_DISK_FULL_ID);
         assertThat(logEntry.getLogLevel()).isEqualTo(HealthStateLevel.WARNING);
 
-        when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
-        when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(LOADS_OF_DISK_SPACE);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(goConfigService.artifactsDir())).thenReturn(LOADS_OF_DISK_SPACE);
+        when(mockDiskSpaceChecker.getUsableSpaceBytes(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(LOADS_OF_DISK_SPACE);
 
         goDiskSpaceMonitor.onTimer();
 

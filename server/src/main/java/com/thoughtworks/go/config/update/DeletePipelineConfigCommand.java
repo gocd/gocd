@@ -26,6 +26,8 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
+import java.util.Optional;
+
 public class DeletePipelineConfigCommand implements EntityConfigUpdateCommand<PipelineConfig> {
     private final GoConfigService goConfigService;
     private final PipelineConfig pipelineConfig;
@@ -78,8 +80,8 @@ public class DeletePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        String groupName = goConfigService.findGroupNameByPipeline(pipelineConfig.name());
-        if (goConfigService.groups().hasGroup(groupName) && !goConfigService.isUserAdminOfGroup(currentUser.getUsername(), groupName)) {
+        Optional<String> groupName = goConfigService.findGroupNameByPipelineOptional(pipelineConfig.name());
+        if (groupName.map(g -> !goConfigService.isUserAdminOfGroup(currentUser.getUsername(), g)).orElse(false)) {
             result.forbidden(EntityType.Pipeline.forbiddenToDelete(pipelineConfig.getName(), currentUser.getUsername()), HealthStateType.forbidden());
             return false;
         }

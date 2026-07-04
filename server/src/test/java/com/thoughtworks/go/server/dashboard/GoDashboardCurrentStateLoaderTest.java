@@ -20,10 +20,8 @@ import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
 import com.thoughtworks.go.config.security.Permissions;
-import com.thoughtworks.go.config.security.permissions.EveryonePermission;
-import com.thoughtworks.go.config.security.permissions.NoOnePermission;
-import com.thoughtworks.go.config.security.users.Everyone;
-import com.thoughtworks.go.config.security.users.NoOne;
+import com.thoughtworks.go.config.security.permissions.PipelinePermission;
+import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -43,8 +41,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels.createPipelineInstanceModels;
@@ -82,6 +84,8 @@ public class GoDashboardCurrentStateLoaderTest {
 
         goConfigMother = new GoConfigMother();
         config = GoConfigMother.defaultCruiseConfig();
+
+        lenient().when(permissionsAuthority.permissionsForPipeline(any())).thenReturn(Permissions.NOONE);
     }
 
     @Test
@@ -91,7 +95,7 @@ public class GoDashboardCurrentStateLoaderTest {
         PipelineInstanceModel pimForP1 = pim(p1Config);
         PipelineInstanceModel pimForP2 = pim(p2Config);
 
-        when(pipelineSqlMapDao.loadHistoryForDashboard(List.of("pipeline1", "pipeline2"))).thenReturn(createPipelineInstanceModels(pimForP1, pimForP2));
+        when(pipelineSqlMapDao.loadHistoryForDashboard(List.of("pipeline2", "pipeline1"))).thenReturn(createPipelineInstanceModels(pimForP1, pimForP2));
 
         List<GoDashboardPipeline> models = loader.allPipelines(config);
 
@@ -119,7 +123,7 @@ public class GoDashboardCurrentStateLoaderTest {
         goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
 
         when(pipelineSqlMapDao.loadHistoryForDashboard(CaseInsensitiveString.toStringList(config.getAllPipelineNames()))).thenReturn(createPipelineInstanceModels());
-        when(triggerMonitor.isAlreadyTriggered(new CaseInsensitiveString("pipeline1"))).thenReturn(true);
+        when(triggerMonitor.isAlreadyTriggered(cis("pipeline1"))).thenReturn(true);
 
         List<GoDashboardPipeline> models = loader.allPipelines(config);
         assertThat(models.size()).isEqualTo(1);
@@ -142,7 +146,7 @@ public class GoDashboardCurrentStateLoaderTest {
     public void shouldFallBackToAnEmptyPipelineInstanceModelIfItCannotBeLoadedEvenFromHistory() {
         goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
 
-        when(triggerMonitor.isAlreadyTriggered(new CaseInsensitiveString("pipeline1"))).thenReturn(false);
+        when(triggerMonitor.isAlreadyTriggered(cis("pipeline1"))).thenReturn(false);
         when(pipelineSqlMapDao.loadHistoryForDashboard(List.of("pipeline1"))).thenReturn(createPipelineInstanceModels());
 
         List<GoDashboardPipeline> models = loader.allPipelines(config);
@@ -157,7 +161,7 @@ public class GoDashboardCurrentStateLoaderTest {
         assertThat(emptyPIM.getName()).isEqualTo("pipeline1");
         assertThat(emptyPIM.isPreparingToSchedule()).isFalse();
         assertThat(emptyPIM.getCounter()).isEqualTo(0);
-        assertThat(emptyPIM.getBuildCause()).isEqualTo(BuildCause.createWithEmptyModifications());
+        assertThat(emptyPIM.getBuildCause()).isEqualTo(BuildCause.createEmpty());
         assertStages(emptyPIM, "stage1");
     }
 
@@ -191,8 +195,7 @@ public class GoDashboardCurrentStateLoaderTest {
 
         PipelineInstanceModel pimForP2 = pim(p2Config);
 
-        when(pipelineSqlMapDao.loadHistoryForDashboard(List.of("pipeline1", "pipeline2"))).thenReturn(createPipelineInstanceModels(pimForP1, pimForP2));
-
+        when(pipelineSqlMapDao.loadHistoryForDashboard(List.of("pipeline2", "pipeline1"))).thenReturn(createPipelineInstanceModels(pimForP1, pimForP2));
 
         loader.allPipelines(config);
 
@@ -215,7 +218,7 @@ public class GoDashboardCurrentStateLoaderTest {
         PipelinePauseInfo pipeline1PauseInfo = PipelinePauseInfo.notPaused();
         PipelinePauseInfo pipeline2PauseInfo = PipelinePauseInfo.paused("Reason 1", "user1");
 
-        when(pipelineSqlMapDao.loadHistoryForDashboard(List.of("pipeline1", "pipeline2"))).thenReturn(createPipelineInstanceModels(pim(p1Config), pim(p2Config)));
+        when(pipelineSqlMapDao.loadHistoryForDashboard(List.of("pipeline2", "pipeline1"))).thenReturn(createPipelineInstanceModels(pim(p1Config), pim(p2Config)));
         when(pipelinePauseService.pipelinePauseInfo("pipeline1")).thenReturn(pipeline1PauseInfo);
         when(pipelinePauseService.pipelinePauseInfo("pipeline2")).thenReturn(pipeline2PauseInfo);
 
@@ -234,7 +237,7 @@ public class GoDashboardCurrentStateLoaderTest {
 
         PipelineConfig p2Config = goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2", "job2");
 
-        when(pipelineSqlMapDao.loadHistoryForDashboard(List.of("pipeline1", "pipeline2"))).thenReturn(createPipelineInstanceModels(pim(p1Config), pim(p2Config)));
+        when(pipelineSqlMapDao.loadHistoryForDashboard(List.of("pipeline2", "pipeline1"))).thenReturn(createPipelineInstanceModels(pim(p1Config), pim(p2Config)));
         when(pipelineLockService.isLocked("pipeline1")).thenReturn(true);
         when(pipelineUnlockApiService.isUnlockable("pipeline1")).thenReturn(true);
 
@@ -262,7 +265,7 @@ public class GoDashboardCurrentStateLoaderTest {
         PipelineConfig p2Config = goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2", "job2");
         p2Config.setOrigin(new RepoConfigOrigin());
 
-        when(pipelineSqlMapDao.loadHistoryForDashboard(List.of("pipeline1", "pipeline2"))).thenReturn(createPipelineInstanceModels(pim(p1Config), pim(p2Config)));
+        when(pipelineSqlMapDao.loadHistoryForDashboard(List.of("pipeline2", "pipeline1"))).thenReturn(createPipelineInstanceModels(pim(p1Config), pim(p2Config)));
 
         List<GoDashboardPipeline> models = loader.allPipelines(config);
 
@@ -275,7 +278,7 @@ public class GoDashboardCurrentStateLoaderTest {
         PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
         PipelineConfig p2Config = goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2", "job2");
 
-        when(pipelineSqlMapDao.loadHistoryForDashboard(List.of("pipeline1", "pipeline2"))).thenReturn(createPipelineInstanceModels(pim(p1Config), pim(p2Config)));
+        when(pipelineSqlMapDao.loadHistoryForDashboard(List.of("pipeline2", "pipeline1"))).thenReturn(createPipelineInstanceModels(pim(p1Config), pim(p2Config)));
         when(schedulingCheckerService.pipelineCanBeTriggeredManually(p1Config)).thenReturn(true);
         when(schedulingCheckerService.pipelineCanBeTriggeredManually(p2Config)).thenReturn(false);
 
@@ -292,10 +295,10 @@ public class GoDashboardCurrentStateLoaderTest {
         PipelineInstanceModel pimForP1 = pim(p1Config);
         PipelineInstanceModel pimForP2 = pim(p2Config);
 
-        Permissions permissionsForP1 = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE);
-        Permissions permissionsForP2 = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE, NoOnePermission.INSTANCE);
+        Permissions permissionsForP1 = new Permissions(Users.EVERYONE, Users.EVERYONE, Users.EVERYONE, PipelinePermission.EVERYONE);
+        Permissions permissionsForP2 = new Permissions(Users.NOONE, Users.NOONE, Users.EVERYONE, PipelinePermission.NOONE);
 
-        when(pipelineSqlMapDao.loadHistoryForDashboard(List.of("pipeline1", "pipeline2"))).thenReturn(createPipelineInstanceModels(pimForP1, pimForP2));
+        when(pipelineSqlMapDao.loadHistoryForDashboard(List.of("pipeline2", "pipeline1"))).thenReturn(createPipelineInstanceModels(pimForP1, pimForP2));
         when(permissionsAuthority.pipelinesAndTheirPermissions()).thenReturn(Map.of(p1Config.name(), permissionsForP1, p2Config.name(), permissionsForP2));
 
         List<GoDashboardPipeline> models = loader.allPipelines(config);
@@ -315,17 +318,17 @@ public class GoDashboardCurrentStateLoaderTest {
         List<GoDashboardPipeline> models = loader.allPipelines(config);
 
         Permissions permissions = models.getFirst().permissions();
-        assertThat(permissions.viewers()).isEqualTo(NoOne.INSTANCE);
-        assertThat(permissions.operators()).isEqualTo(NoOne.INSTANCE);
-        assertThat(permissions.admins()).isEqualTo(NoOne.INSTANCE);
-        assertThat(permissions.pipelineOperators()).isEqualTo(NoOne.INSTANCE);
+        assertThat(permissions.viewers()).isEqualTo(Users.NOONE);
+        assertThat(permissions.operators()).isEqualTo(Users.NOONE);
+        assertThat(permissions.admins()).isEqualTo(Users.NOONE);
+        assertThat(permissions.pipelineOperators()).isEqualTo(Users.NOONE);
     }
 
     @Test
     public void shouldGetAGoDashboardPipelineGivenASinglePipelineConfigAndItsGroupConfig() {
         String pipelineNameStr = "pipeline1";
-        CaseInsensitiveString pipelineName = new CaseInsensitiveString(pipelineNameStr);
-        Permissions permissions = new Permissions(Everyone.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE, NoOnePermission.INSTANCE);
+        CaseInsensitiveString pipelineName = cis(pipelineNameStr);
+        Permissions permissions = new Permissions(Users.EVERYONE, Users.NOONE, Users.EVERYONE, PipelinePermission.NOONE);
         PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", pipelineNameStr, "stage1", "job1");
         PipelineInstanceModels pipelineInstanceModels = createPipelineInstanceModels(pim(p1Config));
 
@@ -359,7 +362,7 @@ public class GoDashboardCurrentStateLoaderTest {
 
         List<GoDashboardPipeline> models = loader.allPipelines(config);
 
-        assertThat(models.getFirst().getTrackingTool()).isEqualTo(Optional.of(trackingTool));
+        assertThat(models.getFirst().getTrackingTool()).contains(trackingTool);
     }
 
     @Test
@@ -372,7 +375,7 @@ public class GoDashboardCurrentStateLoaderTest {
 
         GoDashboardPipeline model = loader.pipelineFor(p1Config, config.findGroup("group1"));
 
-        assertThat(model.getTrackingTool()).isEqualTo(Optional.of(trackingTool));
+        assertThat(model.getTrackingTool()).contains(trackingTool);
     }
 
     @Test
@@ -397,7 +400,7 @@ public class GoDashboardCurrentStateLoaderTest {
             List<String> pipelineNames = invocation.getArgument(0);
             List<PipelineInstanceModel> models = new ArrayList<>();
             for (String pipelineName : pipelineNames) {
-                PipelineInstanceModel pim = pim(config.getPipelineConfigByName(new CaseInsensitiveString(pipelineName)));
+                PipelineInstanceModel pim = pim(config.getPipelineConfigByName(cis(pipelineName)));
                 models.add(pim);
             }
             return createPipelineInstanceModels(models);

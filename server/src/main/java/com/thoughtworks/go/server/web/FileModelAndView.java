@@ -16,9 +16,8 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.domain.FileHandler;
-import com.thoughtworks.go.server.domain.ZippedArtifact;
+import com.thoughtworks.go.remote.StandardHeaders;
 import com.thoughtworks.go.util.ArtifactUtil;
-import com.thoughtworks.go.util.GoConstants;
 import lombok.experimental.UtilityClass;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.AbstractView;
@@ -27,13 +26,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import static java.net.HttpURLConnection.*;
 
 @UtilityClass
 public class FileModelAndView {
+    public static final String VIEW_NAME = "fileView";
 
     public static ModelAndView createFileView(File file, String sha) {
         boolean hasChanged = isFileChanged(file, sha);
@@ -47,12 +46,7 @@ public class FileModelAndView {
                 }
             });
         } else {
-            Map<String, Object> model = new HashMap<>();
-			if (file instanceof ZippedArtifact) {
-				model.put(FileView.NEED_TO_ZIP, true);
-			}
-            model.put("targetFile", file);
-            return new ModelAndView("fileView", model);
+            return new ModelAndView(VIEW_NAME, Map.of("targetFile", file));
         }
     }
 
@@ -86,8 +80,8 @@ public class FileModelAndView {
     }
 
     public static ModelAndView invalidUploadRequest() {
-        String content = "Invalid request. MultipartFile must have name '" + GoConstants.REGULAR_MULTIPART_FILENAME + "'"
-                + " or '" + GoConstants.ZIP_MULTIPART_FILENAME + "' (to automatically unzip stream)";
+        String content = "Invalid request. MultipartFile must have name '" + StandardHeaders.Multipart.REGULAR_FILENAME + "'"
+                + " or '" + StandardHeaders.Multipart.ZIP_FILENAME + "' (to automatically unzip stream)";
         return ResponseCodeView.create(HTTP_BAD_REQUEST, content);
     }
 

@@ -29,6 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -48,9 +49,9 @@ public class AddEnvironmentCommandTest {
 
     @BeforeEach
     public void setup() {
-        currentUser = new Username(new CaseInsensitiveString("user"));
+        currentUser = new Username(cis("user"));
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        environmentName = new CaseInsensitiveString("Dev");
+        environmentName = cis("Dev");
         environmentConfig = new BasicEnvironmentConfig(environmentName);
         result = new HttpLocalizedOperationResult();
         actionFailed = "Could not add environment " + environmentConfig.name();
@@ -66,7 +67,7 @@ public class AddEnvironmentCommandTest {
 
     @Test
     public void shouldValidateInvalidPipelineName() {
-        environmentConfig.addPipeline(new CaseInsensitiveString("Invalid-pipeline-name"));
+        environmentConfig.addPipeline(cis("Invalid-pipeline-name"));
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();

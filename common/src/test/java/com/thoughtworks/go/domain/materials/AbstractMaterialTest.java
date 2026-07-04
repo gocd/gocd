@@ -36,7 +36,7 @@ import static org.mockito.Mockito.*;
 
 public class AbstractMaterialTest {
 
-    public static class TestMaterial extends AbstractMaterial {
+    private static class TestMaterial extends AbstractMaterial {
         private static final AtomicInteger PIPELINE_UNIQUE_ATTRIBUTE_ADDED = new AtomicInteger(0);
         private final String displayName;
 
@@ -143,6 +143,16 @@ public class AbstractMaterialTest {
 
         @Override
         public String getLongDescription() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public MaterialConfig config() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Map<String, Object> getAttributes(boolean addSecureFields) {
             throw new UnsupportedOperationException();
         }
     }

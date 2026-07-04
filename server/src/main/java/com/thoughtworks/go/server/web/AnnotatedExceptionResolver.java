@@ -28,7 +28,6 @@ import java.lang.reflect.Method;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
-
 public class AnnotatedExceptionResolver extends SimpleMappingExceptionResolver {
     private static final Logger LOG = LoggerFactory.getLogger(AnnotatedExceptionResolver.class);
 

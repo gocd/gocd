@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.pipelineinstance;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceModelRepresenter;
 import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceModelsRepresenter;
@@ -42,13 +42,13 @@ import static spark.Spark.*;
 
 @Component
 public class PipelineInstanceControllerV1 extends ApiController implements SparkSpringController {
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final PipelineHistoryService pipelineHistoryService;
 
     @Autowired
-    public PipelineInstanceControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, PipelineHistoryService pipelineHistoryService) {
+    public PipelineInstanceControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, PipelineHistoryService pipelineHistoryService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.pipelineHistoryService = pipelineHistoryService;
     }
 
@@ -63,9 +63,9 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
             before("/*", mimeType, this::setContentType);
             before("/*", mimeType, this::verifyContentType);
 
-            before(Routes.PipelineInstance.INSTANCE_PATH, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
-            before(Routes.PipelineInstance.HISTORY_PATH, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
-            before(Routes.PipelineInstance.COMMENT_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateOfPipelineOrGroupInURLUserAnd403);
+            before(Routes.PipelineInstance.INSTANCE_PATH, mimeType, apiAuthorizationHelper::checkPipelineViewPermissionsAnd403);
+            before(Routes.PipelineInstance.HISTORY_PATH, mimeType, apiAuthorizationHelper::checkPipelineViewPermissionsAnd403);
+            before(Routes.PipelineInstance.COMMENT_PATH, mimeType, apiAuthorizationHelper::checkPipelineGroupOperateViaNameParamsAnd403);
 
             get(Routes.PipelineInstance.HISTORY_PATH, mimeType, this::getHistoryInfo);
             get(Routes.PipelineInstance.INSTANCE_PATH, mimeType, this::getInstanceInfo);

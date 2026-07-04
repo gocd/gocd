@@ -29,14 +29,13 @@ import com.thoughtworks.go.domain.feed.FeedEntries;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.fixture.PipelineWithMultipleStages;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
@@ -52,7 +51,10 @@ import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.StageSummaryModels;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.Dates;
+import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.TimeProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,12 +67,14 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.helper.BuildPlanMother.withBuildPlans;
 import static com.thoughtworks.go.helper.JobInstanceMother.building;
@@ -136,7 +140,7 @@ public class StageServiceIntegrationTest {
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         configHelper.addPipeline(PIPELINE_NAME, STAGE_NAME);
-        savedPipeline = scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), GoConstants.DEFAULT_APPROVED_BY);
+        savedPipeline = scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED);
         stage = savedPipeline.getStages().getFirst();
         job = stage.getJobInstances().getFirst();
         job.setAgentUuid(UUID);
@@ -450,11 +454,10 @@ public class StageServiceIntegrationTest {
         job2.setAgentUuid(UUID);
         JobInstance buildingJob = jobInstanceDao.save(stage11.getId(), job2);
 
-        final DurationBean duration = stageService.getBuildDuration("Cruise-1.1", STAGE_NAME, buildingJob);
-        assertThat(duration.getDuration())
+        assertThat(stageService.getBuildDuration(buildingJob))
             .describedAs("we should not load duration according to stage name + job name + agent uuid only, "
                 + "we should also use pipeline name as a parameter")
-            .isEqualTo(0L);
+            .isEqualTo(Duration.ZERO);
     }
 
     @Test
@@ -521,7 +524,7 @@ public class StageServiceIntegrationTest {
         assertThat(stages.size()).isEqualTo(1);
 
         CruiseConfig cruiseConfig = configHelper.currentConfig();
-        pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline-1"));
+        pipelineConfig = cruiseConfig.pipelineConfigByName(cis("pipeline-1"));
         ReflectionUtil.setField(pipelineConfig.getFirst(), "artifactCleanupProhibited", true);
         configHelper.writeConfigFile(cruiseConfig);
 
@@ -534,7 +537,7 @@ public class StageServiceIntegrationTest {
     @Test
     public void shouldLoadPageOfOldestStagesHavingArtifacts() {
         CruiseConfig cruiseConfig = configHelper.currentConfig();
-        PipelineConfig mingleConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME));
+        PipelineConfig mingleConfig = cruiseConfig.pipelineConfigByName(cis(PIPELINE_NAME));
         ReflectionUtil.setField(mingleConfig.getFirst(), "artifactCleanupProhibited", true);
         configHelper.writeConfigFile(cruiseConfig);
 
@@ -639,7 +642,7 @@ public class StageServiceIntegrationTest {
         configHelper.addAuthorizedUserForPipelineGroup("loser", "downstream");
         configHelper.addAuthorizedUserForPipelineGroup("boozer", "upstream-with-mingle");
 
-        FeedEntries feed = stageService.feed(downstream.name().toString(), new Username(new CaseInsensitiveString("loser")));
+        FeedEntries feed = stageService.feed(downstream.name().toString(), new Username(cis("loser")));
 
         assertAuthorsOnEntry((StageFeedEntry) feed.getFirst(),
             List.of(new Author("svn 3 guy", "svn.3@gmail.com"),
@@ -655,7 +658,7 @@ public class StageServiceIntegrationTest {
     public void shouldLoadStageAuthors_forFirstPageOfFeed() {
         PipelineConfig downstream = setup2DependentInstances();
 
-        FeedEntries feed = stageService.feed(downstream.name().toString(), new Username(new CaseInsensitiveString("loser")));
+        FeedEntries feed = stageService.feed(downstream.name().toString(), new Username(cis("loser")));
 
         assertStageEntryAuthor(feed);
     }
@@ -664,7 +667,7 @@ public class StageServiceIntegrationTest {
     public void shouldLoadStageAuthors_forSubsequentPages() {
         PipelineConfig downstream = setup2DependentInstances();
 
-        FeedEntries feed = stageService.feedBefore(Integer.MAX_VALUE, downstream.name().toString(), new Username(new CaseInsensitiveString("loser")));
+        FeedEntries feed = stageService.feedBefore(Integer.MAX_VALUE, downstream.name().toString(), new Username(cis("loser")));
 
         assertStageEntryAuthor(feed);
     }
@@ -681,7 +684,7 @@ public class StageServiceIntegrationTest {
     public void shouldReturnTheLatestAndOldestStageInstanceId() {
         StageHistoryEntry[] stages = createFiveStages();
 
-        PipelineRunIdInfo oldestAndLatestPipelineId = stageService.getOldestAndLatestStageInstanceId(new Username(new CaseInsensitiveString("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName());
+        PipelineRunIdInfo oldestAndLatestPipelineId = stageService.getOldestAndLatestStageInstanceId(new Username(cis("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName());
 
         assertThat(oldestAndLatestPipelineId.getLatestRunId()).isEqualTo(stages[4].getId());
         assertThat(oldestAndLatestPipelineId.getOldestRunId()).isEqualTo(stages[0].getId());
@@ -691,7 +694,7 @@ public class StageServiceIntegrationTest {
     public void shouldReturnLatestPipelineHistory() {
         StageHistoryEntry[] stages = createFiveStages();
 
-        StageInstanceModels history = stageService.findStageHistoryViaCursor(new Username(new CaseInsensitiveString("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName(), 0, 0, 10);
+        StageInstanceModels history = stageService.findStageHistoryViaCursor(new Username(cis("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName(), 0, 0, 10);
 
         assertThat(history.size()).isEqualTo(5);
         assertThat(history.get(0).getId()).isEqualTo(stages[4].getId());
@@ -702,7 +705,7 @@ public class StageServiceIntegrationTest {
     public void shouldReturnThePipelineHistoryAfterTheSpecifiedCursor() {
         StageHistoryEntry[] stages = createFiveStages();
 
-        StageInstanceModels history = stageService.findStageHistoryViaCursor(new Username(new CaseInsensitiveString("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName(), stages[2].getId(), 0, 10);
+        StageInstanceModels history = stageService.findStageHistoryViaCursor(new Username(cis("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName(), stages[2].getId(), 0, 10);
 
         assertThat(history.size()).isEqualTo(2);
         assertThat(history.get(0).getId()).isEqualTo(stages[1].getId());
@@ -713,7 +716,7 @@ public class StageServiceIntegrationTest {
     public void shouldReturnThePipelineHistoryBeforeTheSpecifiedCursor() {
         StageHistoryEntry[] stages = createFiveStages();
 
-        StageInstanceModels history = stageService.findStageHistoryViaCursor(new Username(new CaseInsensitiveString("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName(), 0, stages[2].getId(), 10);
+        StageInstanceModels history = stageService.findStageHistoryViaCursor(new Username(cis("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName(), 0, stages[2].getId(), 10);
 
         assertThat(history.size()).isEqualTo(2);
         assertThat(history.get(0).getId()).isEqualTo(stages[4].getId());
@@ -747,7 +750,7 @@ public class StageServiceIntegrationTest {
     }
 
     private PipelineConfig setup2DependentInstances() {
-        Username loser = new Username(new CaseInsensitiveString("loser"));
+        Username loser = new Username(cis("loser"));
         ManualBuild build = new ManualBuild(loser);
         Date checkinTime = new Date();
 

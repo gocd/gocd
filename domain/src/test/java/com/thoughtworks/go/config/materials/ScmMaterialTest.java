@@ -15,13 +15,14 @@
  */
 package com.thoughtworks.go.config.materials;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.SecretParam;
+import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.materials.DummyMaterial;
-import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.*;
+import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.util.command.UrlArgument;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -57,7 +60,7 @@ class ScmMaterialTest {
 
     @Test
     void displayNameShouldReturnNameWhenSet() {
-        material.setName(new CaseInsensitiveString("blah-name"));
+        material.setName(cis("blah-name"));
         assertThat(material.getDisplayName()).isEqualTo("blah-name");
     }
 
@@ -113,7 +116,7 @@ class ScmMaterialTest {
         assertThat(context.getProperty("GO_PROPERTY")).isEqualTo("value");
 
         context = new EnvironmentVariableContext();
-        material.setName(new CaseInsensitiveString("dummy"));
+        material.setName(cis("dummy"));
         material.setVariableWithName(context, "value", "GO_PROPERTY");
         assertThat(context.getProperty("GO_PROPERTY_DUMMY")).isEqualTo("value");
         assertThat(context.getProperty("GO_PROPERTY")).isNull();
@@ -135,7 +138,7 @@ class ScmMaterialTest {
     @Test
     void shouldEscapeHyphenFromMaterialNameWhenUsedInEnvVariable() {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
-        material.setName(new CaseInsensitiveString("material-name"));
+        material.setName(cis("material-name"));
         material.setVariableWithName(context, "value", "GO_PROPERTY");
         assertThat(context.getProperty("GO_PROPERTY_MATERIAL_NAME")).isEqualTo("value");
         assertThat(context.getProperty("GO_PROPERTY")).isNull();
@@ -160,7 +163,7 @@ class ScmMaterialTest {
         assertThat(material.getMaterialNameForEnvironmentVariable()).isEmpty();
         material.setFolder("dest-folder");
         assertThat(material.getMaterialNameForEnvironmentVariable()).isEqualTo("DEST_FOLDER");
-        material.setName(new CaseInsensitiveString("some-material"));
+        material.setName(cis("some-material"));
         assertThat(material.getMaterialNameForEnvironmentVariable()).isEqualTo("SOME_MATERIAL");
     }
 
@@ -194,11 +197,106 @@ class ScmMaterialTest {
         }
 
         @Test
-        void shouldBeAnEmptyListInAbsenceOfSecretParamsinMaterialPassword() {
+        void shouldBeAnEmptyListInAbsenceOfSecretParamsInMaterialPassword() {
             DummyMaterial dummyMaterial = new DummyMaterial();
 
             assertThat(dummyMaterial.getSecretParams()).isNull();
         }
     }
 
+    private static final class DummyMaterial extends ScmMaterial {
+        private String url;
+
+        public DummyMaterial() {
+            super("DummyMaterial");
+        }
+
+        @Override
+        public String getUrl() {
+            return url;
+        }
+
+        @Override
+        public String urlForCommandLine() {
+            return url;
+        }
+
+        @Override
+        protected UrlArgument getUrlArgument() {
+            return new UrlArgument(url);
+        }
+
+        @Override
+        public String getLongDescription() {
+            return "Dummy";
+        }
+
+        @Override
+        public MaterialConfig config() {
+            throw unsupported();
+        }
+
+        @Override
+        public Map<String, Object> getAttributes(boolean addSecureFields) {
+            throw unsupported();
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        @Override
+        protected String getLocation() {
+            return getUrl();
+        }
+
+        @Override
+        public String getTypeForDisplay() {
+            return "Dummy";
+        }
+
+        @Override
+        public Class<MaterialInstance> getInstanceType() {
+            throw unsupported();
+        }
+
+        @Override
+        public MaterialInstance createMaterialInstance() {
+            throw unsupported();
+        }
+
+        @Override
+        public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
+            throw unsupported();
+        }
+
+        @Override
+        public void checkout(File baseDir, Revision revision, SubprocessExecutionContext execCtx) {
+            throw unsupported();
+        }
+
+        @Override
+        public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
+            throw unsupported();
+        }
+
+        @Override
+        public boolean isCheckExternals() {
+            throw unsupported();
+        }
+
+        private UnsupportedOperationException unsupported() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        protected void appendCriteria(Map<String, Object> parameters) {
+        }
+
+        @Override
+        protected void appendAttributes(Map<String, Object> parameters) {
+            throw unsupported();
+        }
+
+    }
 }

@@ -23,47 +23,46 @@ dependencies {
   implementation project(':server')
   implementation project(':config:config-api')
 
-  implementation project.deps.commonsText
-  implementation project.deps.gson
-  implementation platform(project.deps.jacksonBom)
-  implementation project.deps.jacksonCore
-  api project.deps.jacksonDatabind
-  implementation project.deps.springWeb
-  if (project.deps.springWeb) {
-    runtimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
+  implementation rootProject.deps.commonsText
+  implementation rootProject.deps.gson
+  implementation platform(rootProject.deps.jacksonBom)
+  implementation rootProject.deps.jacksonCore
+  api rootProject.deps.jacksonDatabind
+  implementation rootProject.deps.springWeb
+  if (rootProject.deps.springWeb) {
+    runtimeOnly rootProject.deps.slf4jJcl // Allow commons-logging replacement
   }
 
-  api(project.deps.spark) {
+  api(rootProject.deps.spark) {
     exclude(group: 'org.eclipse.jetty')
     exclude(group: 'org.eclipse.jetty.websocket')
   }
-  api project.deps.servletApi
-  implementation project.deps.apacheHttpComponents
+  api rootProject.deps.servletApi
 
   testImplementation localGroovy()
 
-  testImplementation project.deps.junit5Api
-  testImplementation project.deps.junit5Params
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.junit5Api
+  testImplementation rootProject.deps.junit5Params
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
 
-  testImplementation project.deps.mockitoCore
-  testImplementation project.deps.mockitoJunit5
-  testImplementation project.deps.assertJ
+  testImplementation rootProject.deps.mockitoCore
+  testImplementation rootProject.deps.mockitoJunit5
+  testImplementation rootProject.deps.assertJ
 
   testRuntimeOnly project(':jetty')
 
   testFixturesImplementation localGroovy()
-  testFixturesApi(project.deps.spark) {
+  testFixturesApi(rootProject.deps.spark) {
     exclude(group: 'org.eclipse.jetty')
     exclude(group: 'org.eclipse.jetty.websocket')
   }
-  testFixturesApi project.deps.servletApi
+  testFixturesApi rootProject.deps.servletApi
   testFixturesApi(testFixtures(project(':test:http-mocks')))
-  testFixturesApi project.deps.springTest
+  testFixturesApi rootProject.deps.springTest
   testFixturesImplementation project(':server')
 
-  testFixturesApi project.deps.junit5Api
-  testFixturesImplementation project.deps.mockitoCore
-  testFixturesImplementation project.deps.jsonUnit
+  testFixturesApi rootProject.deps.junit5Api
+  testFixturesImplementation rootProject.deps.mockitoCore
+  testFixturesImplementation rootProject.deps.jsonUnit
 }

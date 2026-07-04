@@ -20,20 +20,19 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.server.presentation.FetchArtifactViewHelper;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static spark.Spark.*;
 
@@ -41,17 +40,14 @@ import static spark.Spark.*;
 public class InternalDependencyPipelinesControllerV1 extends ApiController implements SparkSpringController {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private final SystemEnvironment systemEnvironment;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final GoConfigService goConfigService;
 
     @Autowired
-    public InternalDependencyPipelinesControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,
-                                                   SystemEnvironment systemEnvironment,
+    public InternalDependencyPipelinesControllerV1(ApiAuthorizationHelper apiAuthorizationHelper,
                                                    GoConfigService goConfigService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
-        this.systemEnvironment = systemEnvironment;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.goConfigService = goConfigService;
     }
 
@@ -69,21 +65,34 @@ public class InternalDependencyPipelinesControllerV1 extends ApiController imple
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
 
-            before("", mimeType, apiAuthenticationHelper::checkUserAnd403);
+            before("", mimeType, this::checkPipelineOrTemplateViewPermissionsAnd403);
 
             get("", mimeType, this::index);
         });
     }
 
-    public String index(Request request, Response response) {
-        String pipelineName = request.params("pipeline_name");
-        String stageName = request.params("stage_name");
+    void checkPipelineOrTemplateViewPermissionsAnd403(Request request, Response response) {
+        if (isTemplateRequest(request)) {
+            apiAuthorizationHelper.checkViewAccessToTemplateAnd403(request, response, r -> r.params("pipeline_name"));
+        } else {
+            apiAuthorizationHelper.checkPipelineViewPermissionsAnd403(request, response);
+        }
+    }
 
+    public String index(Request request, Response response) {
         CruiseConfig config = goConfigService.getMergedConfigForEditing();
-        FetchArtifactViewHelper helper = new FetchArtifactViewHelper(systemEnvironment, config, new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName), isNotBlank(request.queryParams("template")));
+        FetchArtifactViewHelper helper = new FetchArtifactViewHelper(config,
+            cis(request.params("pipeline_name")),
+            cis(request.params("stage_name")),
+            isTemplateRequest(request),
+            name -> apiAuthorizationHelper.hasViewPermissionForPipeline(name.toString()));
 
         response.type("application/json");
         return GSON.toJson(helper.autosuggestMap());
+    }
+
+    private static boolean isTemplateRequest(Request request) {
+        return isNotBlank(request.queryParams("template"));
     }
 
 }

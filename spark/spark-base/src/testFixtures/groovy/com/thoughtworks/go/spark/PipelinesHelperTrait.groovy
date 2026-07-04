@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigs
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 
@@ -26,7 +27,7 @@ trait PipelinesHelperTrait {
   PipelineConfigs pipelinesFor(String... names) {
     List<PipelineConfig> configs = names.collect { String name ->
       PipelineConfig p = mock(PipelineConfig.class)
-      CaseInsensitiveString ciName = new CaseInsensitiveString(name)
+      CaseInsensitiveString ciName = cis(name)
       when(p.name()).thenReturn(ciName)
       when(p.getName()).thenReturn(ciName)
       return p

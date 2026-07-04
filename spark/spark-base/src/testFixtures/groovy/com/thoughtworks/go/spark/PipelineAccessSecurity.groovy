@@ -15,8 +15,10 @@
  */
 package com.thoughtworks.go.spark
 
+import groovy.transform.SelfType
 import org.junit.jupiter.api.Test
 
+@SelfType([SecurityServiceTrait, ControllerTrait, SecurityTestTraitBasics])
 trait PipelineAccessSecurity {
 
   @Test
@@ -39,7 +41,6 @@ trait PipelineAccessSecurity {
 
   @Test
   void 'should disallow normal users, with security enabled'() {
-    enableSecurity()
     loginAsUser()
 
     makeHttpCall()
@@ -48,7 +49,6 @@ trait PipelineAccessSecurity {
 
   @Test
   void 'should allow admin, with security enabled'() {
-    enableSecurity()
     loginAsAdmin()
 
     makeHttpCall()
@@ -57,14 +57,20 @@ trait PipelineAccessSecurity {
 
   @Test
   void "should allow pipeline view users, with security enabled"() {
-    enableSecurity()
-    loginAsPipelineViewUser(pipelineName)
+    loginAsPipelineViewUser(pipelineSpecifier)
 
     makeHttpCall()
 
     assertRequestAllowed()
   }
 
-  abstract String getPipelineName()
+  abstract SecurityServiceTrait.PipelineSpecifier getPipelineSpecifier()
 
+  String getGroupName() {
+    return pipelineSpecifier.groupName()
+  }
+
+  String getPipelineName() {
+    return pipelineSpecifier.pipelineName()
+  }
 }

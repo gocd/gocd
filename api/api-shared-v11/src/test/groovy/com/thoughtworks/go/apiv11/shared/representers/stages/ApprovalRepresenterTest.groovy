@@ -17,11 +17,15 @@ package com.thoughtworks.go.apiv11.shared.representers.stages
 
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv11.admin.shared.representers.stages.ApprovalRepresenter
-import com.thoughtworks.go.config.*
+import com.thoughtworks.go.config.AdminRole
+import com.thoughtworks.go.config.AdminUser
+import com.thoughtworks.go.config.Approval
+import com.thoughtworks.go.config.AuthConfig
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 
@@ -46,7 +50,7 @@ class ApprovalRepresenterTest {
   void 'should render error'() {
     def approval = new Approval()
     approval.setType("junk")
-    def authConfig = new AuthConfig(new AdminRole(new CaseInsensitiveString("role1")), new AdminUser(new CaseInsensitiveString("user1")))
+    def authConfig = new AuthConfig(new AdminRole(cis("role1")), new AdminUser(cis("user1")))
     approval.setAuthConfig(authConfig)
     authConfig.addError("name", "error")
     approval.addError("type", "You have defined approval type as 'junk'. Approval can only be of the type 'manual' or 'success'.")
@@ -120,8 +124,8 @@ class ApprovalRepresenterTest {
     ]
 
   static def getApproval() {
-    def authConfig = new AuthConfig(new AdminRole(new CaseInsensitiveString("role1")), new AdminRole(new CaseInsensitiveString("role2")),
-      new AdminUser(new CaseInsensitiveString("user1")), new AdminUser(new CaseInsensitiveString("user2")))
+    def authConfig = new AuthConfig(new AdminRole(cis("role1")), new AdminRole(cis("role2")),
+      new AdminUser(cis("user1")), new AdminUser(cis("user2")))
     return new Approval(authConfig)
   }
 

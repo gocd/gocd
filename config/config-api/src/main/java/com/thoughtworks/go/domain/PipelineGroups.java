@@ -98,12 +98,7 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
     }
 
     public @NotNull Optional<PipelineConfigs> findGroupOptional(String groupName) {
-        for (PipelineConfigs pipelines : this) {
-            if (pipelines.isNamed(groupName)) {
-                return Optional.of(pipelines);
-            }
-        }
-        return Optional.empty();
+        return stream().filter(group -> group.isNamed(groupName)).findFirst();
     }
 
     public boolean hasGroup(String groupName) {
@@ -116,18 +111,13 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
         }
     }
 
-    public String findGroupNameByPipeline(CaseInsensitiveString pipelineName) {
-        PipelineConfigs group = findGroupByPipeline(pipelineName);
-        return group == null ? null : group.getGroup();
+    public @NotNull PipelineConfigs findGroupByPipeline(@NotNull CaseInsensitiveString pipelineName) {
+        return findGroupByPipelineOptional(pipelineName)
+            .orElseThrow(() -> new RecordNotFoundException(EntityType.PipelineGroup, EntityType.Pipeline, pipelineName));
     }
 
-    public PipelineConfigs findGroupByPipeline(CaseInsensitiveString pipelineName) {
-        for (PipelineConfigs group : this) {
-            if (group.hasPipeline(pipelineName)) {
-                return group;
-            }
-        }
-        return null;
+    public @NotNull Optional<PipelineConfigs> findGroupByPipelineOptional(@NotNull CaseInsensitiveString pipelineName) {
+        return this.stream().filter(group -> group.hasPipeline(pipelineName)).findFirst();
     }
 
     @Override

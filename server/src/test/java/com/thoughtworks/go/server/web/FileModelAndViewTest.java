@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.domain.FileHandler;
-import com.thoughtworks.go.server.domain.ZippedArtifact;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -50,19 +49,6 @@ public class FileModelAndViewTest {
         ModelAndView modelAndView = FileModelAndView.createFileView(existFile, FileHandler.sha1Digest(existFile));
         modelAndView.getView().render(modelAndView.getModel(), new MockHttpServletRequest(), response);
         assertThat(response.getStatus()).isEqualTo(304);
-    }
-
-    @Test
-    public void shouldReturnModelWithZipFlagTurnedOnIfZipIsNeeded() {
-        ZippedArtifact zippedArtifact = new ZippedArtifact(existFile.getParentFile(), existFile.getName());
-        ModelAndView modelAndView = FileModelAndView.createFileView(zippedArtifact, "");
-        assertThat(modelAndView.getModel().containsKey(FileView.NEED_TO_ZIP)).isTrue();
-    }
-
-    @Test
-    public void shouldReturnModelWithZipFlagTurnedOffIfZipIsNotNeeded() {
-        ModelAndView modelAndView = FileModelAndView.createFileView(existFile, "");
-        assertThat(modelAndView.getModel().containsKey(FileView.NEED_TO_ZIP)).isFalse();
     }
 
     @Test

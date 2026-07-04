@@ -38,7 +38,7 @@ public class GitPostCommitHookImplementer implements PostCommitHookImplementer {
             String paramRepoUrl = params.get(REPO_URL_PARAM_KEY);
             if (isNotBlank(paramRepoUrl)) {
                 for (Material material : materials) {
-                    if (material instanceof GitMaterial && isUrlEqual(paramRepoUrl, (GitMaterial) material)) {
+                    if (material instanceof GitMaterial gitMaterial && isUrlEqual(paramRepoUrl, gitMaterial)) {
                         prunedCollection.add(material);
                     }
                 }

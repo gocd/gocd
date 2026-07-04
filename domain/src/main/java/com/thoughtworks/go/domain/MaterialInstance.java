@@ -16,7 +16,6 @@
 package com.thoughtworks.go.domain;
 
 import com.google.gson.reflect.TypeToken;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.AbstractMaterial;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.util.json.JsonHelper;
@@ -27,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 
 /**
@@ -107,7 +107,7 @@ public abstract class MaterialInstance extends PersistentObject {
     public abstract Material toOldMaterial(String name, String folder, String password);
 
     protected void setName(String name, AbstractMaterial material) {
-        material.setName(name == null ? null : new CaseInsensitiveString(name));
+        material.setName(name == null ? null : cis(name));
     }
 
     public String getFlyweightName() {

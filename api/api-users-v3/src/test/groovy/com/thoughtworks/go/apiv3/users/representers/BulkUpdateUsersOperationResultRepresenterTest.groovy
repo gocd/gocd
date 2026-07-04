@@ -28,7 +28,7 @@ class BulkUpdateUsersOperationResultRepresenterTest {
   void 'render the bulk deletion failure result'() {
     def nonExistingUsers = ['Bob', 'John']
     def enabledUsers = ['Tina']
-    def result = new HttpLocalizedOperationResult()
+    HttpLocalizedOperationResult result = new HttpLocalizedOperationResult()
     result.unprocessableEntity("Deletion failed because some users were either enabled or do not exist.")
 
     def bulkDeletionFailureResult = new BulkUpdateUsersOperationResult(nonExistingUsers, enabledUsers)

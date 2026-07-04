@@ -19,7 +19,7 @@ import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.mocks.StubTemplateEngine
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.junit.jupiter.MockitoSettings
@@ -33,6 +33,8 @@ class ArtifactStoresControllerTest implements ControllerTrait<ArtifactStoresCont
   class Index {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<ArtifactStoresController> c = ArtifactStoresControllerTest.this
+      @Delegate SecurityServiceTrait s = ArtifactStoresControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -62,6 +64,6 @@ class ArtifactStoresControllerTest implements ControllerTrait<ArtifactStoresCont
 
   @Override
   ArtifactStoresController createControllerInstance() {
-    return new ArtifactStoresController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+    return new ArtifactStoresController(new SpaAuthorizationHelper(securityService, goConfigService), templateEngine)
   }
 }

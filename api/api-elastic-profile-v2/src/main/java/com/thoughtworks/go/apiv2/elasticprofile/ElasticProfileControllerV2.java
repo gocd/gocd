@@ -19,7 +19,7 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv2.elasticprofile.representers.ElasticProfileRepresenter;
 import com.thoughtworks.go.apiv2.elasticprofile.representers.ElasticProfilesRepresenter;
@@ -53,15 +53,15 @@ import static spark.Spark.*;
 public class ElasticProfileControllerV2 extends ApiController implements SparkSpringController, CrudController<ElasticProfile> {
     private static final String PROFILE_ID_PARAM = "profile_id";
     private final ElasticProfileService elasticProfileService;
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final EntityHashingService entityHashingService;
     private ClusterProfilesService clusterProfilesService;
 
     @Autowired
-    public ElasticProfileControllerV2(ElasticProfileService elasticProfileService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, ClusterProfilesService clusterProfilesService) {
+    public ElasticProfileControllerV2(ElasticProfileService elasticProfileService, ApiAuthorizationHelper apiAuthorizationHelper, EntityHashingService entityHashingService, ClusterProfilesService clusterProfilesService) {
         super(ApiVersion.v2);
         this.elasticProfileService = elasticProfileService;
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.entityHashingService = entityHashingService;
         this.clusterProfilesService = clusterProfilesService;
     }
@@ -81,7 +81,7 @@ public class ElasticProfileControllerV2 extends ApiController implements SparkSp
                 String resourceToOperateOn = "*";
                 String resourceToOperateWithin = "*";
                 if (request.requestMethod().equalsIgnoreCase("GET")) {
-                    apiAuthenticationHelper.checkUserAnd403(request, response);
+                    apiAuthorizationHelper.checkUserAnd403(request, response);
                     return;
                 }
 
@@ -90,12 +90,12 @@ public class ElasticProfileControllerV2 extends ApiController implements SparkSp
                     resourceToOperateWithin = GsonTransformer.getInstance().jsonReaderFrom(request.body()).getString("cluster_profile_id");
                 }
 
-                apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ELASTIC_AGENT_PROFILE, resourceToOperateOn, resourceToOperateWithin);
+                apiAuthorizationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ELASTIC_AGENT_PROFILE, resourceToOperateOn, resourceToOperateWithin);
             });
 
             before(Routes.ElasticProfileAPI.ID, mimeType, (request, response) -> {
                 ElasticProfile elasticProfile = fetchEntityFromConfig(request.params(PROFILE_ID_PARAM));
-                apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ELASTIC_AGENT_PROFILE, elasticProfile.getId(), elasticProfile.getClusterProfileId());
+                apiAuthorizationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ELASTIC_AGENT_PROFILE, elasticProfile.getId(), elasticProfile.getClusterProfileId());
             });
 
             get("", mimeType, this::index);
@@ -109,7 +109,7 @@ public class ElasticProfileControllerV2 extends ApiController implements SparkSp
 
     public String index(Request request, Response response) throws IOException {
         final ElasticProfiles userSpecificElasticProfiles = elasticProfileService.getPluginProfiles().stream()
-                .filter(elasticProfile -> apiAuthenticationHelper.doesUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ELASTIC_AGENT_PROFILE, elasticProfile.getId(), elasticProfile.getClusterProfileId()))
+                .filter(elasticProfile -> apiAuthorizationHelper.doesUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ELASTIC_AGENT_PROFILE, elasticProfile.getId(), elasticProfile.getClusterProfileId()))
                 .collect(Collectors.toCollection(ElasticProfiles::new));
 
         return writerForTopLevelObject(request, response, outputWriter -> ElasticProfilesRepresenter.toJSON(outputWriter, userSpecificElasticProfiles));

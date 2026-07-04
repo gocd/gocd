@@ -53,8 +53,8 @@ public class AccessTokenRepresenter {
             outputWriter.add("revoked_because_user_deleted", token.isDeletedBecauseUserDeleted());
         }
 
-        if (token instanceof AccessToken.AccessTokenWithDisplayValue && token.persisted()) {
-            outputWriter.addIfNotNull("token", ((AccessToken.AccessTokenWithDisplayValue) token).getDisplayValue());
+        if (token instanceof AccessToken.AccessTokenWithDisplayValue accessTokenWithDisplayValue && token.persisted()) {
+            outputWriter.addIfNotNull("token", accessTokenWithDisplayValue.getDisplayValue());
         }
 
         if (!token.errors().isEmpty()) {

@@ -33,12 +33,11 @@ import dev.yumi.gradle.licenser.api.comment.CStyleHeaderComment
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 
 import java.security.SecureRandom
-import java.util.stream.Collectors
 
 plugins {
   id 'base'
   id 'org.owasp.dependencycheck' version '12.2.2'
-  id 'com.autonomousapps.dependency-analysis' version '3.10.0'
+  id 'com.autonomousapps.dependency-analysis' version '3.16.0'
 }
 
 // Updated via automated scripting
@@ -76,7 +75,7 @@ def libraries = [
   //
   // DO NOT interpolate version variables here because Dependabot is not smart enough to understand those. Dependabot's
   // version parsing is simply regex matching and never actually evaluates a gradle script.
-  activeMQ            : 'org.apache.activemq:activemq-broker:6.2.5',
+  activeMQ            : 'org.apache.activemq:activemq-broker:6.2.7',
   angusMailSmtp       : 'org.eclipse.angus:smtp:2.0.5',
   apacheAnt           : 'org.apache.ant:ant:1.10.17',
   apacheHttpComponents: 'org.apache.httpcomponents:httpclient:4.5.14',
@@ -85,21 +84,21 @@ def libraries = [
   assertJ_DB          : 'org.assertj:assertj-db:3.0.2',
   awaitility          : 'org.awaitility:awaitility:4.3.0',
   bouncyCastle        : 'org.bouncycastle:bcprov-jdk18on:1.84',
-  bucket4j            : 'com.bucket4j:bucket4j_jdk17-core:8.18.0',
+  bucket4j            : 'com.bucket4j:bucket4j_jdk17-core:8.19.0',
   bucket4jCaffeine    : 'com.bucket4j:bucket4j-caffeine:8.10.1',
   caffeine            : 'com.github.ben-manes.caffeine:caffeine:3.2.4',
-  cloning             : 'io.github.kostaskougios:cloning:1.12.0',
+  cloning             : 'io.github.kostaskougios:cloning:1.13.0',
   commonsCodec        : 'commons-codec:commons-codec:1.22.0',
   commonsCollections  : 'commons-collections:commons-collections:3.2.2',
   commonsCollections4 : 'org.apache.commons:commons-collections4:4.5.0',
-  commonsConfiguration: 'org.apache.commons:commons-configuration2:2.14.0',
+  commonsConfiguration: 'org.apache.commons:commons-configuration2:2.15.1',
   commonsDbcp         : 'org.apache.commons:commons-dbcp2:2.14.0',
   commonsFileUpload   : 'commons-fileupload:commons-fileupload:1.6.0',
   commonsIO           : 'commons-io:commons-io:2.22.0',
   commonsLang3        : 'org.apache.commons:commons-lang3:3.20.0',
   commonsPool         : 'org.apache.commons:commons-pool2:2.13.1',
   commonsText         : 'org.apache.commons:commons-text:1.15.0',
-  dbunit              : 'org.dbunit:dbunit:3.0.0',
+  dbunit              : 'org.dbunit:dbunit:3.2.0',
   dom4j               : 'org.dom4j:dom4j:2.2.0',
   ehcache             : 'net.sf.ehcache.internal:ehcache-core:2.11.1.3.11', // See https://repo.terracotta.org/maven2/net/sf/ehcache/internal/ehcache-core/maven-metadata.xml
   felix               : 'org.apache.felix:org.apache.felix.framework:7.0.5',
@@ -108,42 +107,41 @@ def libraries = [
   h2                  : 'com.h2database:h2:1.4.200',
   hamcrest            : 'org.hamcrest:hamcrest:3.0',
   hibernate           : 'org.hibernate:hibernate-ehcache:3.6.10.Final',
-  jacksonBom          : 'com.fasterxml.jackson:jackson-bom:2.21.3',
+  jacksonBom          : 'com.fasterxml.jackson:jackson-bom:2.22.0',
   jakartaAnnotation   : 'jakarta.annotation:jakarta.annotation-api:1.3.5',
   jakartaInject       : 'jakarta.inject:jakarta.inject-api:1.0.5',
   jakartaMail         : 'jakarta.mail:jakarta.mail-api:2.1.5',
   jakartaTransaction  : 'jakarta.transaction:jakarta.transaction-api:1.3.3',
-  javassist           : 'org.javassist:javassist:3.31.0-GA',
-  jaxbBom             : 'org.glassfish.jaxb:jaxb-bom:4.0.8',
-  jaxen               : 'jaxen:jaxen:2.0.1',
+  javassist           : 'org.javassist:javassist:3.32.0-GA',
+  jaxbBom             : 'org.glassfish.jaxb:jaxb-bom:4.0.9',
+  jaxen               : 'jaxen:jaxen:2.0.6',
   jcommander          : 'com.beust:jcommander:1.82',
   jdom                : 'org.jdom:jdom2:2.0.6.1',
   jetBrainsAnnotations: 'org.jetbrains:annotations:26.1.0',
   jetty               : 'org.eclipse.jetty:jetty-server:10.0.26',
   jgit                : 'org.eclipse.jgit:org.eclipse.jgit:6.10.1.202505221210-r',
   jolt                : 'com.bazaarvoice.jolt:jolt-core:0.1.8',
-  jruby               : 'org.jruby:jruby:9.4.14.0',
-  jsonUnit            : 'net.javacrumbs.json-unit:json-unit-assertj:5.1.1',
+  jruby               : 'org.jruby:jruby:9.4.15.0',
+  jsonUnit            : 'net.javacrumbs.json-unit:json-unit-assertj:5.1.2',
   jsoup               : 'org.jsoup:jsoup:1.22.2',
-  junit5Bom           : 'org.junit:junit-bom:6.0.3',
-  liquibase           : 'org.liquibase:liquibase-core:5.0.2',
+  junit5Bom           : 'org.junit:junit-bom:6.1.1',
+  liquibase           : 'org.liquibase:liquibase-core:5.0.3',
   liquibaseSlf4j      : 'com.mattbertolini:liquibase-slf4j:5.1.0',
-  logback             : 'ch.qos.logback:logback-classic:1.5.32',
+  logback             : 'ch.qos.logback:logback-classic:1.5.37',
   lombok              : 'org.projectlombok:lombok:1.18.46',
   mockitoBom          : 'org.mockito:mockito-bom:5.23.0',
   mybatis             : 'org.mybatis:mybatis:3.5.19',
   mybatisSpring       : 'org.mybatis:mybatis-spring:2.1.2',
   mysql               : 'com.mysql:mysql-connector-j:9.7.0',
   objenesis           : 'org.objenesis:objenesis:3.5',
-  oscache             : 'opensymphony:oscache:2.4.1',
-  oshi                : 'com.github.oshi:oshi-core:7.1.0',
-  postgresql          : 'org.postgresql:postgresql:42.7.11',
+  oshi                : 'com.github.oshi:oshi-core:7.3.2',
+  postgresql          : 'org.postgresql:postgresql:42.7.12',
   quartz              : 'org.quartz-scheduler:quartz:2.5.2',
-  rack                : 'com.github.gocd-contrib:jruby-rack:1.3.0.10',
+  rack                : 'com.github.gocd-contrib:jruby-rack:1.3.0.11',
   resilience4jRetry   : 'io.github.resilience4j:resilience4j-retry:2.4.0',
   semanticVersion     : 'de.skuzzle:semantic-version:2.1.1',
   servletApi          : 'jakarta.servlet:jakarta.servlet-api:4.0.4',
-  slf4jBom            : 'org.slf4j:slf4j-bom:2.0.17',
+  slf4jBom            : 'org.slf4j:slf4j-bom:2.0.18',
   spark               : 'com.sparkjava:spark-core:2.9.4',
   spring              : 'org.springframework:spring-core:4.3.30.RELEASE',
   springSecurity      : 'org.springframework.security:spring-security-config:4.2.20.RELEASE',
@@ -152,7 +150,7 @@ def libraries = [
   testcontainersBom   : 'org.testcontainers:testcontainers-bom:2.0.5',
   tinybundles         : 'org.ops4j.pax.tinybundles:tinybundles:4.0.1',
   urlrewrite          : 'org.tuckey:urlrewritefilter:3.2.0',
-  xmlUnit             : 'org.xmlunit:xmlunit-assertj:2.11.0',
+  xmlUnit             : 'org.xmlunit:xmlunit-assertj:2.12.0',
   ztExec              : 'org.zeroturnaround:zt-exec:1.12',
 ]
 
@@ -334,7 +332,7 @@ subprojects {
       // Force all sub-projects to have managed dependency versions for certain transitive dependencies
       api platform(project(':build-platform'))
       compileOnlyApi platform(project(':build-platform'))
-      testJavaAgents("${project.deps.mockitoCore}:${project.versions.mockitoBom}")
+      testJavaAgents("${rootProject.deps.mockitoCore}:${rootProject.versions.mockitoBom}")
 
       components {
         // workaround for Caffeine metadata declaring dependencies that are not needed at runtime
@@ -367,20 +365,20 @@ subprojects {
   configurations.configureEach {
     resolutionStrategy {
       dependencySubstitution {
-        substitute module("dom4j:dom4j") using module(project.deps.dom4j as String) because("Upgrade the legacy dom4j in old Hibernate 3.6; dom4j 2 should be sufficiently compatible")
-        substitute module("javassist:javassist") using module(project.deps.javassist as String) because("Upgrade the legacy javassist in old Hibernate 3.6")
-        substitute module("net.sf.ehcache:ehcache") using module(project.deps.ehcache as String) because("Use the much slimmer core artifact which is fine for our use case")
-        substitute module("commons-logging:commons-logging") using module("${project.deps.slf4jJcl}:${project.versions.slf4jBom}") because("Replace commons-logging implementations with the slf4j apis that redirect logs to slf4j per https://www.slf4j.org/legacy.html")
-        substitute module("com.bucket4j:bucket4j-core") using module(project.deps.bucket4j as String) because("Replace bucket4j-core with Java 17+ variant")
+        substitute module("dom4j:dom4j") using module(rootProject.deps.dom4j as String) because("Upgrade the legacy dom4j in old Hibernate 3.6; dom4j 2 should be sufficiently compatible")
+        substitute module("javassist:javassist") using module(rootProject.deps.javassist as String) because("Upgrade the legacy javassist in old Hibernate 3.6")
+        substitute module("net.sf.ehcache:ehcache") using module(rootProject.deps.ehcache as String) because("Use the much slimmer core artifact which is fine for our use case")
+        substitute module("commons-logging:commons-logging") using module("${rootProject.deps.slf4jJcl}:${rootProject.versions.slf4jBom}") because("Replace commons-logging implementations with the slf4j apis that redirect logs to slf4j per https://www.slf4j.org/legacy.html")
+        substitute module("com.bucket4j:bucket4j-core") using module(rootProject.deps.bucket4j as String) because("Replace bucket4j-core with Java 17+ variant")
 
-        substitute module("javax.annotation:javax.annotation-api") using module(project.deps.jakartaAnnotation as String) because("Javax Annotation has migrated to jakarta annotations")
-        substitute module("javax.inject:javax.inject") using module(project.deps.jakartaInject as String) because("Javax Inject API has migrated to jakarta Inject API")
-        substitute module("javax.servlet:javax.servlet-api") using module(project.deps.servletApi as String) because("Javax Servlet API has migrated to jakarta Servlet API")
-        substitute module("javax.servlet:servlet-api") using module(project.deps.servletApi as String) because("Javax Servlet API has migrated to jakarta Servlet API")
-        substitute module("org.eclipse.jetty.toolchain:jetty-servlet-api") using module(project.deps.servletApi as String) because("Javax Servlet API has migrated to jakarta Servlet API")
-        substitute module("javax.transaction:jta") using module(project.deps.jakartaTransaction as String) because("Javax Transaction API has migrated to jakarta Transaction API")
+        substitute module("javax.annotation:javax.annotation-api") using module(rootProject.deps.jakartaAnnotation as String) because("Javax Annotation has migrated to jakarta annotations")
+        substitute module("javax.inject:javax.inject") using module(rootProject.deps.jakartaInject as String) because("Javax Inject API has migrated to jakarta Inject API")
+        substitute module("javax.servlet:javax.servlet-api") using module(rootProject.deps.servletApi as String) because("Javax Servlet API has migrated to jakarta Servlet API")
+        substitute module("javax.servlet:servlet-api") using module(rootProject.deps.servletApi as String) because("Javax Servlet API has migrated to jakarta Servlet API")
+        substitute module("org.eclipse.jetty.toolchain:jetty-servlet-api") using module(rootProject.deps.servletApi as String) because("Javax Servlet API has migrated to jakarta Servlet API")
+        substitute module("javax.transaction:jta") using module(rootProject.deps.jakartaTransaction as String) because("Javax Transaction API has migrated to jakarta Transaction API")
 
-        substitute module("org.hamcrest:hamcrest-core") using module(project.deps.hamcrest as String) because("Hamcrest core/library/all have been merged together: https://hamcrest.org/JavaHamcrest/distributables")
+        substitute module("org.hamcrest:hamcrest-core") using module(rootProject.deps.hamcrest as String) because("Hamcrest core/library/all have been merged together: https://hamcrest.org/JavaHamcrest/distributables")
       }
     }
   }
@@ -446,9 +444,12 @@ subprojects {
     def tmpDir = project.file("${System.getProperty('java.io.tmpdir')}/gocd-tests/${new BigInteger(32, new SecureRandom()).toString(32)}")
     systemProperty 'java.io.tmpdir', tmpDir
 
-    if (testTask.project.name == 'agent') {
+    if (testTask.project.name == 'agent' && !testTask.name.contains('functional')) {
       jvmArgs += InstallerTypeAgent.instance.jvmInternalAccessArgs
-    } else if (testTask.project.name.startsWithAny('server', 'config', 'common', 'domain', 'go-plugin-infra', 'api')) {
+    } else if (testTask.project.name == 'agent') {
+      // Functional agent tests currently use server XML config for some reason.
+      jvmArgs += InstallerTypeServer.instance.jvmInternalAccessArgs
+    } else if (testTask.project.name.startsWithAny('server', 'api', 'config')) {
       // The tests for these projects often need modules to be opened or use server-style unsafe access which has warnings logged
       jvmArgs += InstallerTypeServer.instance.jvmInternalAccessArgs
     }
@@ -473,7 +474,7 @@ subprojects {
       testTask.testClassesDirs.files.each { File classDir ->
         if (classDir.exists()) {
           classDir.eachFileRecurse(groovy.io.FileType.FILES) { f ->
-            def relPath = new File(classDir.toURI().relativize(f.toURI()).toString()).toString().replaceAll(/\$.*/, '.*').replaceAll(/\.class/, '.*')
+            def relPath = new File(classDir.toURI().relativize(f.toURI()).toString()).toString().replaceAll(/\$.*/, '.*').replace('.class', '.*')
             if (relPath.endsWith("Test.*")) files << relPath
           }
         }
@@ -482,7 +483,7 @@ subprojects {
 
       def partition = new FilePartition(files)
       def testsToRun = partition.currentFiles()
-      allTestClasses = getTestClassesForTask(testsToRun)
+      allTestClasses = FilePartition.testClassesFromFiles(testsToRun)
       partition.logTo(rootProject.logger)
 
       (files - testsToRun).each { f ->
@@ -626,14 +627,6 @@ tasks.register('allTestsJunitHtmlReport', TestReport) { TestReport thisTask ->
   destinationDirectory = layout.buildDirectory.dir("reports/tests/allTests")
 }
 
-static List<String> getTestClassesForTask(List<String> testsToRun) {
-  return testsToRun.stream()
-    .filter { testToRun -> !testToRun.matches(".*[/|\\\\].*Abstract.*Test.*") }
-    .filter { testToRun -> testToRun.endsWith("Test.*") }
-    .map { testToRun -> testToRun.replaceAll(".\\*", "").replaceAll("[^\\w.*]", ".") }
-    .collect(Collectors.toList())
-}
-
 extensions.getByType(DependencyAnalysisExtension).with {
    // Temporarily disable dependency analysis until we can configure it to work with our multi-module setup and the fact that we have a lot of "internal" dependencies that are not declared as such in the module metadata of our dependencies, which causes a lot of false positives. See)
   abi { AbiHandler h ->
@@ -645,7 +638,7 @@ extensions.getByType(DependencyAnalysisExtension).with {
   issues { IssueHandler h ->
     h.all { ProjectIssueHandler ph ->
       ph.onCompileOnly { Issue i ->
-        i.exclude(project.deps.jakartaAnnotation as String) // Spring needs at runtime
+        i.exclude(rootProject.deps.jakartaAnnotation as String) // Spring needs at runtime
       }
       ph.onIncorrectConfiguration { Issue i ->
       }
@@ -659,6 +652,7 @@ extensions.getByType(DependencyAnalysisExtension).with {
 }
 
 dependencyCheck {
+  autoUpdate = true
   data.directory = layout.buildDirectory.dir("dependency-check-data").get().asFile.path
 
   failBuildOnCVSS = 1
@@ -666,13 +660,16 @@ dependencyCheck {
   suppressionFile = rootProject.file('build-platform/dependency-check-suppress.xml').toPath().toString()
   skipTestGroups = true
 
+  nvd.validForHours = 24
   nvd.datafeedUrl = 'https://nexus.gocd.io/repository/nvd-data-feeds-proxy/nvdcve-2.0-{0}.json.gz'
+  
   analyzers.ossIndex.password = System.getenv("OSS_INDEX_API_TOKEN") ?: ""
   analyzers.ossIndex.validForHours = 24 * 7 // save credits by checking only weekly
   analyzers.centralEnabled = true // Allow for matching jar dependencies which sit inside jruby gems etc
 
   analyzers.assemblyEnabled = false // Avoid dotnet false positives
   analyzers.retirejs.filterNonVulnerable = true // Reduces effort/memory processing retirejs results
+  analyzers.nodeAudit.skipDevDependencies = true // Reduce lower priority noise
 }
 
 dependencyCheckAggregate {
@@ -720,6 +717,7 @@ if (System.getenv().containsKey("NEXUS_CACHE_USERNAME")) {
   tasks.register('uploadDependencyCheckCache', Zip) {
     from layout.buildDirectory.file("dependency-check-data")
     archiveFileName = "dependency-check-data-updated.zip"
+    preserveFileTimestamps = true
     destinationDirectory = layout.buildDirectory
 
     def injected = project.objects.newInstance(Injected)

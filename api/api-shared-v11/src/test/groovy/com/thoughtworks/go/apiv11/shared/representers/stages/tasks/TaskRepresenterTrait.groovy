@@ -20,12 +20,17 @@ import com.thoughtworks.go.apiv11.admin.shared.representers.stages.tasks.TaskRep
 import com.thoughtworks.go.config.AntTask
 import com.thoughtworks.go.config.RunIfConfig
 import com.thoughtworks.go.domain.RunIfConfigs
+import com.thoughtworks.go.domain.Task
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 trait TaskRepresenterTrait {
+  abstract Task existingTask()
+  abstract Map<?, ?> getExpectedTaskHash()
+  abstract Map<?, ?> getExpectedTaskHashWithRunIf()
+  abstract Object getExpectedTaskHashWithOnCancelConfig()
 
   @Test
   void 'should render task json'() {

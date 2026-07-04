@@ -48,7 +48,8 @@ import {StageSettingsTabContent} from "views/pages/clicky_pipeline_config/tabs/s
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {SupportedTypes, TabHandler, TabLevel} from "views/pages/clicky_pipeline_config/tab_handler";
 import {PageState} from "views/pages/page";
-import {PipelinePauseHeader} from "views/pages/pipeline_activity/common/pipeline_pause_header";
+import {PipelineHeaderTitle} from "views/pages/partials/pipeline_header_title";
+import {PipelinePauseActions} from "views/pages/partials/pipeline_pause_actions";
 
 export class PipelineConfigPage<T> extends TabHandler<T> {
   private templateConfig?: TemplateConfig;
@@ -179,12 +180,14 @@ export class PipelineConfigPage<T> extends TabHandler<T> {
   }
 
   protected headerPanel(vnode: m.Vnode<null, T>): any {
-    const title = <PipelinePauseHeader pipelineName={PipelineConfigSPARouteHelper.routeInfo().params.pipeline_name}
-                                       flashMessage={this.flashMessage}
-                                       shouldShowPauseUnpause={true}
-                                       shouldShowPipelineSettings={false}/>;
+    const pipelineName = PipelineConfigSPARouteHelper.routeInfo().params.pipeline_name;
+    const title        = <PipelineHeaderTitle pipelineName={pipelineName}/>;
+    const actions      = <PipelinePauseActions pipelineName={pipelineName}
+                                               flashMessage={this.flashMessage}
+                                               shouldShowPauseUnpause={true}
+                                               shouldShowPipelineSettings={false}/>;
 
-    return <HeaderPanel title={title} sectionName={this.pageName()} help={this.helpText()}/>;
+    return <HeaderPanel title={title} sectionName={this.pageName()} buttons={actions} help={this.helpText()}/>;
   }
 
   protected hasEntityConfigChanged() {

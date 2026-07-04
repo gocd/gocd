@@ -124,30 +124,21 @@ class GoCDFreeMarkerViewTest {
     }
 
     @Test
-    public void shouldSetTemplateAdministratorIfUserIsTemplateAdministrator() throws Exception {
-        when(securityService.isAuthorizedToViewAndEditTemplates(any())).thenReturn(true);
-
-        view.exposeHelpers(context, request);
-
-        assertThat(context.get(GoCDFreeMarkerView.TEMPLATE_ADMINISTRATOR)).isEqualTo(Boolean.TRUE);
-    }
-
-    @Test
     public void shouldSetTemplateViewUserRightsForTemplateViewUser() throws Exception {
         when(securityService.isAuthorizedToViewTemplates(any())).thenReturn(true);
 
         view.exposeHelpers(context, request);
 
-        assertThat(context.get(GoCDFreeMarkerView.TEMPLATE_VIEW_USER)).isEqualTo(Boolean.TRUE);
+        assertThat(context.get(GoCDFreeMarkerView.CAN_VIEW_SOME_TEMPLATES)).isEqualTo(Boolean.TRUE);
     }
 
     @Test
     public void shouldSetViewAdministratorRightsIfUserHasAnyLevelOfAdministratorRights() throws Exception {
-        when(securityService.canViewAdminPage(any())).thenReturn(true);
+        when(securityService.canViewSomeAdminPage(any())).thenReturn(true);
 
         view.exposeHelpers(context, request);
 
-        assertThat(context.get(GoCDFreeMarkerView.VIEW_ADMINISTRATOR_RIGHTS)).isEqualTo(Boolean.TRUE);
+        assertThat(context.get(GoCDFreeMarkerView.CAN_VIEW_SOME_ADMIN_PAGES)).isEqualTo(Boolean.TRUE);
     }
 
     @Test

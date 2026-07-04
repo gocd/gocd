@@ -17,7 +17,7 @@
 package com.thoughtworks.go.apiv2.apiinfo
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv2.apiinfo.representers.RouteEntryRepresenter
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
@@ -42,7 +42,7 @@ class ApiInfoControllerV2Test implements SecurityServiceTrait, ControllerTrait<A
 
   @Override
   ApiInfoControllerV2 createControllerInstance() {
-    new ApiInfoControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), provider)
+    new ApiInfoControllerV2(new ApiAuthorizationHelper(securityService, goConfigService), provider)
   }
 
   @Nested
@@ -68,6 +68,8 @@ class ApiInfoControllerV2Test implements SecurityServiceTrait, ControllerTrait<A
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = ApiInfoControllerV2Test.this
+      @Delegate ControllerTrait<ApiInfoControllerV2> c = ApiInfoControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {

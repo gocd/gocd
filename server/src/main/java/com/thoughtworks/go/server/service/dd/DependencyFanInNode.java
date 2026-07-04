@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.server.service.dd.DependencyFanInNode.RevisionAlteration.*;
 
 class DependencyFanInNode extends FanInNode<DependencyMaterialConfig> {
@@ -153,7 +154,7 @@ class DependencyFanInNode extends FanInNode<DependencyMaterialConfig> {
 
         for (PipelineTimelineEntry.Revision revision; (revision = revisionQueue.poll()) != null; ){
             DependencyMaterialRevision dmr = DependencyMaterialRevision.create(revision.revision(), null);
-            PipelineTimelineEntry pte = pipelineTimeline.getEntryFor(new CaseInsensitiveString(dmr.getPipelineName()), dmr.getPipelineCounter());
+            PipelineTimelineEntry pte = pipelineTimeline.getEntryFor(cis(dmr.getPipelineName()), dmr.getPipelineCounter());
             addToRevisionQueue(pte, revisionQueue, scmMaterials, context, visitedNodes);
         }
 
@@ -217,9 +218,9 @@ class DependencyFanInNode extends FanInNode<DependencyMaterialConfig> {
                 continue;
             }
 
-            if (context.isDependencyMaterial(fingerprint) && !visitedNodes.contains(new CaseInsensitiveString(revision.revision()))) {
+            if (context.isDependencyMaterial(fingerprint) && !visitedNodes.contains(cis(revision.revision()))) {
                 revisionQueue.add(revision);
-                visitedNodes.add(new CaseInsensitiveString(revision.revision()));
+                visitedNodes.add(cis(revision.revision()));
             }
         }
     }

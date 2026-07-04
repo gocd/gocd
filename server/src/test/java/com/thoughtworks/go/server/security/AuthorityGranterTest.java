@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.security;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +23,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Set;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -41,7 +41,7 @@ public class AuthorityGranterTest {
     @Test
     public void shouldGrantTemplateSupervisorRoleToTemplateAdmins() {
         String templateAdmin = "template-admin";
-        when(securityService.isAuthorizedToViewAndEditTemplates(new Username(new CaseInsensitiveString(templateAdmin)))).thenReturn(true);
+        when(securityService.isAuthorizedToEditTemplates(new Username(cis(templateAdmin)))).thenReturn(true);
         Set<GrantedAuthority> authorities = authorityGranter.authorities(templateAdmin);
         assertThat(authorities).contains(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.asAuthority());
         assertThat(authorities).doesNotContain(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority());
@@ -51,7 +51,7 @@ public class AuthorityGranterTest {
     @Test
     public void shouldGrantTemplateViewUserRoleToTemplateViewUsers() {
         String templateViewUser = "templateViewUser";
-        when(securityService.isAuthorizedToViewAndEditTemplates(new Username(new CaseInsensitiveString(templateViewUser)))).thenReturn(false);
+        when(securityService.isAuthorizedToEditTemplates(new Username(cis(templateViewUser)))).thenReturn(false);
         when(securityService.isAuthorizedToViewTemplates(new Username(templateViewUser))).thenReturn(true);
 
         Set<GrantedAuthority> authorities = authorityGranter.authorities(templateViewUser);
@@ -63,7 +63,7 @@ public class AuthorityGranterTest {
 
     @Test
     public void shouldGrantGroupSupervisorRoleToPipelineGroupAdmins() {
-        when(securityService.isUserGroupAdmin(new Username(new CaseInsensitiveString("group-admin")))).thenReturn(true);
+        when(securityService.isUserGroupAdmin(new Username(cis("group-admin")))).thenReturn(true);
         Set<GrantedAuthority> authorities = authorityGranter.authorities("group-admin");
         assertThat(authorities).doesNotContain(GoAuthority.ROLE_SUPERVISOR.asAuthority());
         assertThat(authorities).contains(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority());
@@ -72,8 +72,8 @@ public class AuthorityGranterTest {
 
     @Test
     public void shouldGrantSupervisorRoleToUsersWhoAreAdminsAndGroupAdmins() {
-        when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("admin")))).thenReturn(true);
-        when(securityService.isUserGroupAdmin(new Username(new CaseInsensitiveString("admin")))).thenReturn(true);
+        when(securityService.isUserAdmin(new Username(cis("admin")))).thenReturn(true);
+        when(securityService.isUserGroupAdmin(new Username(cis("admin")))).thenReturn(true);
         Set<GrantedAuthority> authorities = authorityGranter.authorities("admin");
         assertThat(authorities).contains(GoAuthority.ROLE_SUPERVISOR.asAuthority());
         assertThat(authorities).contains(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority());
@@ -82,8 +82,8 @@ public class AuthorityGranterTest {
 
     @Test
     public void shouldGrantRoleUserToUsersWhoAreNotSpecial() {
-        when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("admin")))).thenReturn(false);
-        when(securityService.isUserGroupAdmin(new Username(new CaseInsensitiveString("admin")))).thenReturn(false);
+        when(securityService.isUserAdmin(new Username(cis("admin")))).thenReturn(false);
+        when(securityService.isUserGroupAdmin(new Username(cis("admin")))).thenReturn(false);
         Set<GrantedAuthority> authorities = authorityGranter.authorities("admin");
         assertThat(authorities).doesNotContain(GoAuthority.ROLE_SUPERVISOR.asAuthority());
         assertThat(authorities).doesNotContain(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority());

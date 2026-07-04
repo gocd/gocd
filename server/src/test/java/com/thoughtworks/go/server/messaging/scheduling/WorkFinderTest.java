@@ -19,10 +19,10 @@ import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.NoWork;
+import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.perf.WorkAssignmentPerformanceLogger;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.BuildAssignmentService;
-import com.thoughtworks.go.work.FakeWork;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.*;
 
 public class WorkFinderTest {
     private static final AgentIdentifier AGENT_1 = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
-    private static final FakeWork SOME_WORK = new FakeWork();
+    private static final Work SOME_WORK = mock(Work.class);
     private static final NoWork NO_WORK = new NoWork();
     private BuildAssignmentService workAssigner;
     private WorkAssignedTopic assignedWorkTopic;

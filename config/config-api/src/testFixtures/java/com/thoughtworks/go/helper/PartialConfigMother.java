@@ -30,6 +30,7 @@ import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 
 public class PartialConfigMother {
@@ -102,7 +103,7 @@ public class PartialConfigMother {
 
     public static PartialConfig invalidPartial(String name, RepoConfigOrigin repoOrigin) {
         PipelineConfig pipe = PipelineConfigMother.pipelineConfig(name);
-        pipe.getFirstStageConfig().setName(new CaseInsensitiveString(""));
+        pipe.getFirstStageConfig().setName(cis(""));
         BasicPipelineConfigs pipes = new BasicPipelineConfigs("grp", new Authorization(), pipe);
         PartialConfig partialConfig = new PartialConfig(new PipelineGroups(pipes));
         partialConfig.setOrigins(repoOrigin);

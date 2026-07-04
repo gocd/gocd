@@ -26,7 +26,7 @@ import com.thoughtworks.go.server.service.SecurityAuthConfigService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
@@ -53,11 +53,13 @@ class AccessTokensControllerTest implements ControllerTrait<AccessTokensControll
 
   @Override
   AccessTokensController createControllerInstance() {
-    return new AccessTokensController(new SPAAuthenticationHelper(securityService, goConfigService), authorizationExtensionCacheService, securityAuthConfigService, templateEngine)
+    return new AccessTokensController(new SpaAuthorizationHelper(securityService, goConfigService), authorizationExtensionCacheService, securityAuthConfigService, templateEngine)
   }
 
   @Nested
   class Security implements SecurityTestTrait, NormalUserSecurity {
+    @Delegate ControllerTrait<AccessTokensController> c = AccessTokensControllerTest.this
+    @Delegate SecurityServiceTrait s = AccessTokensControllerTest.this
 
     @Override
     String getControllerMethodUnderTest() {

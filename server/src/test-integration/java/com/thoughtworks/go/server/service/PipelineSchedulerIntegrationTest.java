@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.EnvironmentVariable;
 import com.thoughtworks.go.domain.EnvironmentVariables;
@@ -26,7 +24,7 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
@@ -54,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.EnvironmentVariablesConfigMother.env;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -110,7 +109,7 @@ public class PipelineSchedulerIntegrationTest {
 
     @BeforeEach
     public void setup() throws Exception {
-        cruise = new Username(new CaseInsensitiveString("cruise"));
+        cruise = new Username(cis("cruise"));
 
         dbHelper.onSetUp();
 
@@ -139,8 +138,8 @@ public class PipelineSchedulerIntegrationTest {
     public void shouldPassOverriddenEnvironmentVariablesForScheduling() {
         final ScheduleOptions scheduleOptions = new ScheduleOptions(new HashMap<>(), Map.of("KEY", "value"), new HashMap<>());
         HttpOperationResult operationResult = new HttpOperationResult();
-        goConfigService.pipelineConfigNamed(new CaseInsensitiveString(PIPELINE_MINGLE)).setVariables(env("KEY", "somejunk"));
-        serverHealthService.update(ServerHealthState.failToScheduling(HealthStateType.general(HealthStateScope.forPipeline(PIPELINE_MINGLE)), PIPELINE_MINGLE, "should wait till cleared"));
+        goConfigService.pipelineConfigNamed(cis(PIPELINE_MINGLE)).setVariables(env("KEY", "somejunk"));
+        serverHealthService.update(ScheduleService.stageSchedulingFailedState(PIPELINE_MINGLE, DEV_STAGE, "should wait till cleared", HealthStateType.general(HealthStateScope.forPipeline(PIPELINE_MINGLE))));
         pipelineScheduler.manualProduceBuildCauseAndSave(PIPELINE_MINGLE, Username.ANONYMOUS, scheduleOptions, operationResult);
         assertThat(operationResult.canContinue()).describedAs(operationResult.message()).isTrue();
 
@@ -148,7 +147,7 @@ public class PipelineSchedulerIntegrationTest {
             .atMost(1, TimeUnit.MINUTES)
             .until(() -> serverHealthService.logsSortedForScope(HealthStateScope.forPipeline(PIPELINE_MINGLE)).isEmpty());
 
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(PIPELINE_MINGLE));
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(cis(PIPELINE_MINGLE));
 
         EnvironmentVariables overriddenVariables = buildCause.getVariables();
         assertThat(overriddenVariables).isEqualTo(new EnvironmentVariables(List.of(new EnvironmentVariable("KEY", "value"))));
@@ -206,7 +205,7 @@ public class PipelineSchedulerIntegrationTest {
         String pipelineName = PIPELINE_NAME.toUpperCase();
         configHelper.addPipeline(pipelineName, "stage-name");
 
-        Username userName = new Username(new CaseInsensitiveString("pauseBy"));
+        Username userName = new Username(cis("pauseBy"));
         pipelinePauseService.pause(pipelineName, "pauseCause", userName);
 
         PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
@@ -224,7 +223,7 @@ public class PipelineSchedulerIntegrationTest {
         configHelper.setOperatePermissionForGroup("defaultGroup", "pausedBy");
         configHelper.addPipeline(PIPELINE_NAME, "stage-name");
 
-        Username userName = new Username(new CaseInsensitiveString("pauseBy"));
+        Username userName = new Username(cis("pauseBy"));
         pipelinePauseService.pause(PIPELINE_NAME, "pauseCause", userName);
 
         PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(PIPELINE_NAME);

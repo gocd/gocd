@@ -115,7 +115,7 @@ public class ElasticAgentExtensionConverterV5Test {
                   }
                 }""";
 
-        assertThatJson(expected).isEqualTo(actual);
+        assertThatJson(actual).isEqualTo(expected);
     }
 
     @Test
@@ -138,7 +138,7 @@ public class ElasticAgentExtensionConverterV5Test {
                   }
                 }""";
 
-        assertThatJson(expected).isEqualTo(actual);
+        assertThatJson(actual).isEqualTo(expected);
     }
 
     @Test
@@ -162,7 +162,7 @@ public class ElasticAgentExtensionConverterV5Test {
                 "    ]" +
                 "}";
 
-        assertThatJson(expected).isEqualTo(actual);
+        assertThatJson(actual).isEqualTo(expected);
     }
 
     @Test
@@ -176,7 +176,7 @@ public class ElasticAgentExtensionConverterV5Test {
                 "  \"elastic_agent_id\": \"%s\"" +
                 "}", elasticAgentId);
 
-        assertThatJson(expected).isEqualTo(actual);
+        assertThatJson(actual).isEqualTo(expected);
     }
 
     @Test
@@ -194,7 +194,7 @@ public class ElasticAgentExtensionConverterV5Test {
                   },
                 "cluster_profile_properties":  {     "key":"value"  }}""";
 
-        assertThatJson(expected).isEqualTo(actual);
+        assertThatJson(actual).isEqualTo(expected);
     }
 
     @Test
@@ -206,7 +206,7 @@ public class ElasticAgentExtensionConverterV5Test {
                 "   }" +
                 "}";
 
-        assertThatJson(expected).isEqualTo(actual);
+        assertThatJson(actual).isEqualTo(expected);
     }
 
     @Test
@@ -312,7 +312,7 @@ public class ElasticAgentExtensionConverterV5Test {
                 "    ]" +
                 "}\n";
 
-        assertThatJson(expectedRequestBody).isEqualTo(requestBody);
+        assertThatJson(requestBody).isEqualTo(expectedRequestBody);
     }
 
     @Test
@@ -364,7 +364,7 @@ public class ElasticAgentExtensionConverterV5Test {
                 "    ]" +
                 "}\n";
 
-        assertThatJson(expectedRequestBody).isEqualTo(requestBody);
+        assertThatJson(requestBody).isEqualTo(expectedRequestBody);
     }
 
     @Test

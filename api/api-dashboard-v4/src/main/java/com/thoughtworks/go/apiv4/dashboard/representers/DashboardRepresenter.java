@@ -22,16 +22,13 @@ public class DashboardRepresenter {
 
     public static void toJSON(OutputWriter jsonOutputWriter, DashboardFor dashboardFor) {
         jsonOutputWriter
-                .addLinks(linksWriter -> linksWriter.addLink("self", Routes.Dashboard.SELF)
-                        .addAbsoluteLink("doc", Routes.Dashboard.DOC))
-                .add("_personalization", dashboardFor.getPersonalizationEtag())
-                .addChild("_embedded", childWriter -> childWriter
-
-                        .addChildList("pipeline_groups", listWriter -> dashboardFor.getPipelineGroups().forEach(group -> listWriter.addChild(childItemWriter -> DashboardGroupRepresenter.toJSON(childItemWriter, group, dashboardFor.getUsername()))))
-
-                        .addChildList("environments", listWriter -> dashboardFor.getEnvironments().forEach(group -> listWriter.addChild(childItemWriter -> DashboardGroupRepresenter.toJSON(childItemWriter, group, dashboardFor.getUsername()))))
-
-                        .addChildList("pipelines", listWriter -> dashboardFor.getPipelines()
-                                    .forEach(pipeline -> listWriter.addChild(childItemWriter -> PipelineRepresenter.toJSON(childItemWriter, pipeline, dashboardFor.getUsername())))));
+            .addLinks(linksWriter -> linksWriter.addLink("self", Routes.Dashboard.SELF)
+                .addAbsoluteLink("doc", Routes.Dashboard.DOC))
+            .add("_personalization", dashboardFor.personalizationEtag())
+            .addChild("_embedded", childWriter -> childWriter
+                .addChildList("pipeline_groups", listWriter -> dashboardFor.pipelineGroups().forEach(group -> listWriter.addChild(childItemWriter -> DashboardGroupRepresenter.toJSON(childItemWriter, group, dashboardFor.username()))))
+                .addChildList("environments", listWriter -> dashboardFor.environments().forEach(group -> listWriter.addChild(childItemWriter -> DashboardGroupRepresenter.toJSON(childItemWriter, group, dashboardFor.username()))))
+                .addChildList("pipelines", listWriter -> dashboardFor.pipelines()
+                    .forEach(pipeline -> listWriter.addChild(childItemWriter -> PipelineRepresenter.toJSON(childItemWriter, pipeline, dashboardFor.username())))));
     }
 }

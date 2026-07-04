@@ -100,13 +100,13 @@ describe ValueStreamMapModel do
     #        -------X-----
 
     revision_p1_1 = PipelineRevision.new("p1", 1, "label-p1-1")
-    revision_p1_1.addStages(Stages.new([StageMother.passedStageInstance("stage-1-for-p1-1", "j1", "p1"), StageMother.passedStageInstance("stage-2-for-p1-1", "j2", "p1")]))
+    revision_p1_1.addStages(Stages.new([StageMother.passedStageInstance("p1", "stage-1-for-p1-1", "j1"), StageMother.passedStageInstance("p1", "stage-2-for-p1-1", "j2")]))
 
     revision_p1_2 = PipelineRevision.new("p1", 2, "label-p1-2")
-    revision_p1_2.addStages(Stages.new([StageMother.passedStageInstance("stage-1-for-p1-2", "j1", "p1")]))
+    revision_p1_2.addStages(Stages.new([StageMother.passedStageInstance("p1", "stage-1-for-p1-2", "j1")]))
 
     revision_p2_1 = PipelineRevision.new("p2", 1, "label-p2-1")
-    revision_p2_1.addStages(Stages.new([StageMother.passedStageInstance("stage-1-for-p2-1", "j1", "p2"), StageMother.unrunStage("unrun_stage")]))
+    revision_p2_1.addStages(Stages.new([StageMother.passedStageInstance("p2", "stage-1-for-p2-1", "j1"), StageMother.unrunStage("unrun_stage")]))
 
     revision_p3_1 = UnrunPipelineRevision.new("p3")
     revision_p3_1.addStages(Stages.new([StageMother.unrunStage("unrun_stage1"), StageMother.unrunStage("unrun_stage2")]))
@@ -208,10 +208,10 @@ describe ValueStreamMapModel do
     #        -------X-----
 
     revision_p1_1 = PipelineRevision.new("p1", 1, "label-p1-1")
-    revision_p1_1.addStages(Stages.new([StageMother.passedStageInstance("stage-1-for-p1-1", "j1", "p1"), StageMother.passedStageInstance("stage-2-for-p1-1", "j2", "p1")]))
+    revision_p1_1.addStages(Stages.new([StageMother.passedStageInstance("p1", "stage-1-for-p1-1", "j1"), StageMother.passedStageInstance("p1", "stage-2-for-p1-1", "j2")]))
 
     revision_p2_1 = PipelineRevision.new("p2", 1, "label-p2-1")
-    revision_p2_1.addStages(Stages.new([StageMother.passedStageInstance("stage-1-for-p2-1", "j1", "p2"), StageMother.unrunStage("unrun_stage")]))
+    revision_p2_1.addStages(Stages.new([StageMother.passedStageInstance("p2", "stage-1-for-p2-1", "j1"), StageMother.unrunStage("unrun_stage")]))
 
     vsm = ValueStreamMap.new(CaseInsensitiveString.new("current"), nil)
     vsm.addUpstreamPipelineNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_1, CaseInsensitiveString.new("current"))

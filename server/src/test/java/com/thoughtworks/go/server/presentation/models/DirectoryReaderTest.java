@@ -25,8 +25,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,8 +64,8 @@ public class DirectoryReaderTest {
         List<DirectoryEntry> entries = reader.listEntries(testFolder, folderRoot);
         assertThat(entries.size()).isEqualTo(1);
         assertThat(entries.getFirst().getFileName()).isEqualTo(filename);
-        assertThat(entries.getFirst().getUrl()).isEqualTo("/files/pipelineName/LATEST/stageName/LATEST/buildName" + folderRoot + "/"
-                + URLEncoder.encode(filename, StandardCharsets.UTF_8));
+        assertThat(entries.getFirst().getUrl()).isEqualTo("/files/pipelineName/LATEST/stageName/LATEST/buildName"
+            + folderRoot + "/text.html$%25");
     }
 
     @Test

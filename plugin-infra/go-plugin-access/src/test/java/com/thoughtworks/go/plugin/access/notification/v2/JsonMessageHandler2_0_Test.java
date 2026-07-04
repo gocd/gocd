@@ -24,16 +24,15 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.plugin.api.response.Result;
+import com.thoughtworks.go.util.Dates;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.thoughtworks.go.plugin.access.notification.v2.StageConverter.DATE_PATTERN;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -95,16 +94,16 @@ public class JsonMessageHandler2_0_Test {
     }
 
     @Test
-    public void shouldConstructTheStageNotificationRequest() throws Exception {
+    public void shouldConstructTheStageNotificationRequest() {
         Pipeline pipeline = createPipeline();
-        String gitModifiedTime = new SimpleDateFormat(DATE_PATTERN).format(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(0).getLatestModification().getModifiedTime());
-        String hgModifiedTime = new SimpleDateFormat(DATE_PATTERN).format(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(1).getLatestModification().getModifiedTime());
-        String svnModifiedTime = new SimpleDateFormat(DATE_PATTERN).format(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(2).getLatestModification().getModifiedTime());
-        String tfsModifiedTime = new SimpleDateFormat(DATE_PATTERN).format(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(3).getLatestModification().getModifiedTime());
-        String p4ModifiedTime = new SimpleDateFormat(DATE_PATTERN).format(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(4).getLatestModification().getModifiedTime());
-        String dependencyModifiedTime = new SimpleDateFormat(DATE_PATTERN).format(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(5).getLatestModification().getModifiedTime());
-        String packageMaterialModifiedTime = new SimpleDateFormat(DATE_PATTERN).format(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(6).getLatestModification().getModifiedTime());
-        String pluggableScmModifiedTime = new SimpleDateFormat(DATE_PATTERN).format(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(7).getLatestModification().getModifiedTime());
+        String gitModifiedTime = Dates.formatIso8601UtcWithMillis(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(0).getLatestModification().getModifiedTime());
+        String hgModifiedTime = Dates.formatIso8601UtcWithMillis(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(1).getLatestModification().getModifiedTime());
+        String svnModifiedTime = Dates.formatIso8601UtcWithMillis(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(2).getLatestModification().getModifiedTime());
+        String tfsModifiedTime = Dates.formatIso8601UtcWithMillis(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(3).getLatestModification().getModifiedTime());
+        String p4ModifiedTime = Dates.formatIso8601UtcWithMillis(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(4).getLatestModification().getModifiedTime());
+        String dependencyModifiedTime = Dates.formatIso8601UtcWithMillis(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(5).getLatestModification().getModifiedTime());
+        String packageMaterialModifiedTime = Dates.formatIso8601UtcWithMillis(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(6).getLatestModification().getModifiedTime());
+        String pluggableScmModifiedTime = Dates.formatIso8601UtcWithMillis(pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(7).getLatestModification().getModifiedTime());
         String expected = """
             {
             \t"pipeline": {
@@ -266,7 +265,7 @@ public class JsonMessageHandler2_0_Test {
             );
 
         String request = messageHandler.requestMessageForNotify(new StageNotificationData(pipeline.getFirstStage(), pipeline.getBuildCause(), "pipeline-group"));
-        assertThatJson(expected).isEqualTo(request);
+        assertThatJson(request).isEqualTo(expected);
     }
 
     @Test
@@ -313,11 +312,11 @@ public class JsonMessageHandler2_0_Test {
         return null;
     }
 
-    private Date getFixedDate() throws Exception {
-        return new SimpleDateFormat(DATE_PATTERN).parse("2011-07-13T19:43:37.100Z");
+    private Date getFixedDate() {
+        return Dates.parseIso8601StrictOffset("2011-07-13T19:43:37.100Z");
     }
 
-    private Pipeline createPipeline() throws Exception {
+    private Pipeline createPipeline() {
         Pipeline pipeline = PipelineMother.pipelineWithAllTypesOfMaterials("pipeline-name", "stage-name", "job-name", "1");
         List<MaterialRevision> materialRevisions = pipeline.getMaterialRevisions().getRevisions();
         PackageDefinition packageDefinition = ((PackageMaterial) materialRevisions.get(6).getMaterial()).getPackageDefinition();

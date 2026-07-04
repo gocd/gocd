@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TemplatesConfigTest {
@@ -31,7 +32,7 @@ public class TemplatesConfigTest {
         PipelineTemplateConfig template2 = template("template2");
         TemplatesConfig templates = new TemplatesConfig(template("template1"), template2);
 
-        templates.removeTemplateNamed(new CaseInsensitiveString("template1"));
+        templates.removeTemplateNamed(cis("template1"));
 
         assertThat(templates.size()).isEqualTo(1);
         assertThat(templates.getFirst()).isEqualTo(template2);
@@ -41,7 +42,7 @@ public class TemplatesConfigTest {
     public void shouldIgnoreTryingToRemoveNonExistentTemplate() {
         TemplatesConfig templates = new TemplatesConfig(template("template1"), template("template2"));
 
-        templates.removeTemplateNamed(new CaseInsensitiveString("sachin"));
+        templates.removeTemplateNamed(cis("sachin"));
 
         assertThat(templates.size()).isEqualTo(2);
     }
@@ -50,14 +51,14 @@ public class TemplatesConfigTest {
     public void shouldReturnTemplateByName() {
         PipelineTemplateConfig template1 = template("template1");
         TemplatesConfig templates = new TemplatesConfig(template1, template("template2"));
-        assertThat(templates.templateByName(new CaseInsensitiveString("template1"))).isEqualTo(template1);
+        assertThat(templates.templateByName(cis("template1"))).isEqualTo(template1);
     }
 
     @Test
     public void shouldReturnNullIfTemplateIsNotFound() {
         PipelineTemplateConfig template1 = template("template1");
         TemplatesConfig templates = new TemplatesConfig(template1);
-        assertThat(templates.templateByName(new CaseInsensitiveString("some_invalid_template"))).isNull();
+        assertThat(templates.templateByName(cis("some_invalid_template"))).isNull();
     }
 
     @Test
@@ -90,26 +91,26 @@ public class TemplatesConfigTest {
 
     @Test
     public void shouldReturnTrueIfUserCanViewAndEditAtLeastOneTemplate() {
-        CaseInsensitiveString templateAdmin = new CaseInsensitiveString("template-admin");
+        CaseInsensitiveString templateAdmin = cis("template-admin");
         TemplatesConfig templates = configForUserWhoCanViewATemplate();
         templates.add(PipelineTemplateConfigMother.createTemplate("template200", new Authorization(new AdminsConfig(new AdminUser(templateAdmin))), StageConfigMother.manualStage("stage-name")));
 
-        assertThat(templates.canViewAndEditTemplate(templateAdmin, null)).isTrue();
+        assertThat(templates.canUserEditTemplates(templateAdmin, null)).isTrue();
     }
 
     @Test
     public void shouldReturnFalseIfUserCannotViewAndEditAtLeastOneTemplate() {
-        CaseInsensitiveString templateAdmin = new CaseInsensitiveString("template-admin");
-        CaseInsensitiveString nonTemplateAdmin = new CaseInsensitiveString("some-random-user");
+        CaseInsensitiveString templateAdmin = cis("template-admin");
+        CaseInsensitiveString nonTemplateAdmin = cis("some-random-user");
         TemplatesConfig templates = configForUserWhoCanViewATemplate();
         templates.add(PipelineTemplateConfigMother.createTemplate("template200", new Authorization(new AdminsConfig(new AdminUser(templateAdmin))), StageConfigMother.manualStage("stage-name")));
 
-        assertThat(templates.canViewAndEditTemplate(nonTemplateAdmin, null)).isFalse();
+        assertThat(templates.canUserEditTemplates(nonTemplateAdmin, null)).isFalse();
     }
 
     @Test
     public void shouldReturnTrueIfUserCanViewAtLeastOneTemplate() {
-        CaseInsensitiveString templateViewUser = new CaseInsensitiveString("template-view");
+        CaseInsensitiveString templateViewUser = cis("template-view");
         TemplatesConfig templates = configForUserWhoCanViewATemplate();
         templates.add(PipelineTemplateConfigMother.createTemplate("template200", new Authorization(new ViewConfig(new AdminUser(templateViewUser))), StageConfigMother.manualStage("stage-name")));
 
@@ -118,15 +119,15 @@ public class TemplatesConfigTest {
 
     @Test
     public void shouldReturnFalseIfUserCannotViewAtLeastOneTemplate() {
-        CaseInsensitiveString templateViewUser = new CaseInsensitiveString("template-view");
+        CaseInsensitiveString templateViewUser = cis("template-view");
         TemplatesConfig templates = configForUserWhoCanViewATemplate();
 
         assertThat(templates.canUserViewTemplates(templateViewUser, null, false)).isFalse();
     }
 
     @Test
-    public void shouldReturnTrueIfUserWithinARoleCanViewAndEditTemplates() {
-        CaseInsensitiveString templateAdmin = new CaseInsensitiveString("template-admin");
+    public void shouldReturnTrueIfUserWithinARoleCanUserEditTemplates() {
+        CaseInsensitiveString templateAdmin = cis("template-admin");
         Role securityConfigRole = getSecurityConfigRole(templateAdmin);
         List<Role> roles = setupRoles(securityConfigRole);
 
@@ -134,26 +135,26 @@ public class TemplatesConfigTest {
         templateList.add(PipelineTemplateConfigMother.createTemplate("templateName", new Authorization(new AdminsConfig(new AdminRole(securityConfigRole))), StageConfigMother.manualStage("some-random-stage")));
         TemplatesConfig templates = new TemplatesConfig(templateList.toArray(new PipelineTemplateConfig[0]));
 
-        assertThat(templates.canViewAndEditTemplate(templateAdmin, roles)).isTrue();
+        assertThat(templates.canUserEditTemplates(templateAdmin, roles)).isTrue();
     }
 
 
     @Test
     public void shouldReturnFalseIfUserWithinARoleCannotViewAndEditTemplates() {
-        CaseInsensitiveString templateAdmin = new CaseInsensitiveString("template-admin");
+        CaseInsensitiveString templateAdmin = cis("template-admin");
         Role securityConfigRole = getSecurityConfigRole(templateAdmin);
         List<Role> roles = setupRoles(securityConfigRole);
 
         List<PipelineTemplateConfig> templateList = new ArrayList<>();
-        templateList.add(PipelineTemplateConfigMother.createTemplate("templateName", new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("random-user")))), StageConfigMother.manualStage("stage-name")));
+        templateList.add(PipelineTemplateConfigMother.createTemplate("templateName", new Authorization(new AdminsConfig(new AdminUser(cis("random-user")))), StageConfigMother.manualStage("stage-name")));
         TemplatesConfig templates = new TemplatesConfig(templateList.toArray(new PipelineTemplateConfig[0]));
 
-        assertThat(templates.canViewAndEditTemplate(templateAdmin, roles)).isFalse();
+        assertThat(templates.canUserEditTemplates(templateAdmin, roles)).isFalse();
     }
 
     @Test
     public void shouldReturnTrueIfUserCanEditTemplate() {
-        CaseInsensitiveString templateAdmin = new CaseInsensitiveString("template-admin");
+        CaseInsensitiveString templateAdmin = cis("template-admin");
         String templateName = "template1";
         PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate(templateName, new Authorization(new AdminsConfig(new AdminUser(templateAdmin))),
                 StageConfigMother.manualStage("stage-name"));
@@ -163,8 +164,8 @@ public class TemplatesConfigTest {
 
     @Test
     public void shouldReturnFalseIfUserCannotEditTemplate() {
-        CaseInsensitiveString templateAdmin = new CaseInsensitiveString("template-admin");
-        CaseInsensitiveString templateAdminWhoDoesNotHavePermissionToThisTemplate = new CaseInsensitiveString("user");
+        CaseInsensitiveString templateAdmin = cis("template-admin");
+        CaseInsensitiveString templateAdminWhoDoesNotHavePermissionToThisTemplate = cis("user");
         String templateName = "template1";
         PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate(templateName, new Authorization(new AdminsConfig(new AdminUser(templateAdmin))),
                 StageConfigMother.manualStage("stage-name"));
@@ -174,7 +175,7 @@ public class TemplatesConfigTest {
 
     @Test
     public void shouldReturnTrueIfUserWithinARoleCanEditTemplate() {
-        CaseInsensitiveString templateAdmin = new CaseInsensitiveString("template-admin");
+        CaseInsensitiveString templateAdmin = cis("template-admin");
         Role securityConfigRole = getSecurityConfigRole(templateAdmin);
         List<Role> roles = setupRoles(securityConfigRole);
 
@@ -189,12 +190,12 @@ public class TemplatesConfigTest {
 
     @Test
     public void shouldReturnFalseIfUserWithinARoleCannotEditTemplate() {
-        CaseInsensitiveString templateAdmin = new CaseInsensitiveString("template-admin");
+        CaseInsensitiveString templateAdmin = cis("template-admin");
         Role securityConfigRole = getSecurityConfigRole(templateAdmin);
         List<Role> roles = setupRoles(securityConfigRole);
 
         String templateName = "template1";
-        PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate(templateName, new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("another-role")))),
+        PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate(templateName, new Authorization(new AdminsConfig(new AdminRole(cis("another-role")))),
                 StageConfigMother.manualStage("random-stage"));
         TemplatesConfig templates = new TemplatesConfig(template);
 
@@ -203,7 +204,7 @@ public class TemplatesConfigTest {
 
     @Test
     public void shouldReturnTrueIfUserCanViewTemplate() {
-        CaseInsensitiveString templateViewUser = new CaseInsensitiveString("view");
+        CaseInsensitiveString templateViewUser = cis("view");
         String templateName = "template";
         PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate(templateName, StageConfigMother.manualStage("stage"));
         template.setAuthorization(new Authorization(new ViewConfig(new AdminUser(templateViewUser))));
@@ -214,7 +215,7 @@ public class TemplatesConfigTest {
 
     @Test
     public void shouldReturnTrueIfGroupAdminCanViewTemplate() {
-        CaseInsensitiveString templateViewUser = new CaseInsensitiveString("view");
+        CaseInsensitiveString templateViewUser = cis("view");
         String templateName = "template";
         PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate(templateName, StageConfigMother.manualStage("stage"));
         TemplatesConfig templates = new TemplatesConfig(template);
@@ -224,7 +225,7 @@ public class TemplatesConfigTest {
 
     @Test
     public void shouldReturnTrueIfUserWithinARoleCanViewTemplate() {
-        CaseInsensitiveString templateViewUser = new CaseInsensitiveString("template-admin");
+        CaseInsensitiveString templateViewUser = cis("template-admin");
         Role securityConfigRole = getSecurityConfigRole(templateViewUser);
         List<Role> roles = setupRoles(securityConfigRole);
         String templateName = "template1";
@@ -238,7 +239,7 @@ public class TemplatesConfigTest {
 
     @Test
     public void shouldReturnFalseIfUserCannotViewTemplate() {
-        CaseInsensitiveString templateViewUser = new CaseInsensitiveString("view");
+        CaseInsensitiveString templateViewUser = cis("view");
         String templateName = "template";
         PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate(templateName, StageConfigMother.manualStage("stage"));
         TemplatesConfig templates = new TemplatesConfig(template);
@@ -248,7 +249,7 @@ public class TemplatesConfigTest {
 
     @Test
     public void shouldReturnFalseIfGroupAdminCanViewTemplate() {
-        CaseInsensitiveString templateViewUser = new CaseInsensitiveString("view");
+        CaseInsensitiveString templateViewUser = cis("view");
         String templateName = "template";
         PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate(templateName, StageConfigMother.manualStage("stage"));
         template.getAuthorization().setAllowGroupAdmins(false);
@@ -259,24 +260,24 @@ public class TemplatesConfigTest {
 
     @Test
     public void shouldReturnFalseIfUserWithinARoleCannotViewTemplate() {
-        CaseInsensitiveString templateViewUser = new CaseInsensitiveString("template-admin");
+        CaseInsensitiveString templateViewUser = cis("template-admin");
         Role securityConfigRole = getSecurityConfigRole(templateViewUser);
         List<Role> roles = setupRoles(securityConfigRole);
         String templateName = "template1";
 
         PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate(templateName, StageConfigMother.manualStage("stage"));
-        template.setAuthorization(new Authorization(new ViewConfig(new AdminRole(new CaseInsensitiveString("another-role")))));
+        template.setAuthorization(new Authorization(new ViewConfig(new AdminRole(cis("another-role")))));
         TemplatesConfig templates = new TemplatesConfig(template);
 
         assertThat(templates.hasViewAccessToTemplate(template, templateViewUser, roles, false)).isFalse();
     }
 
     private PipelineTemplateConfig template(final String name) {
-        return new PipelineTemplateConfig(new CaseInsensitiveString(name), StageConfigMother.stageConfig("stage1"));
+        return new PipelineTemplateConfig(cis(name), StageConfigMother.stageConfig("stage1"));
     }
 
     private Role getSecurityConfigRole(CaseInsensitiveString templateAdmin) {
-        return new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(templateAdmin));
+        return new RoleConfig(cis("role1"), new RoleUser(templateAdmin));
     }
 
     private List<Role> setupRoles(Role securityConfigRole) {

@@ -24,10 +24,11 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 import java.io.Closeable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import static ch.qos.logback.classic.Level.convertAnSLF4JLevel;
 
 public class LogFixture implements Closeable {
 
@@ -43,7 +44,7 @@ public class LogFixture implements Closeable {
         this.appender = new ListAppender(LogHelper.encoder("%level %msg%n"));
         this.appender.start();
         logger.addAppender(appender);
-        logger.setLevel(ch.qos.logback.classic.Level.convertAnSLF4JLevel(level));
+        logger.setLevel(convertAnSLF4JLevel(level));
     }
 
     public static LogFixture logFixtureFor(Class<?> aClass, Level level) {
@@ -66,7 +67,7 @@ public class LogFixture implements Closeable {
     }
 
     public List<String> getFormattedMessages() {
-        return appender.getFormattedEvents();
+        return appender.getFormattedMessages();
     }
 
     public List<String> getRawMessages() {
@@ -82,10 +83,11 @@ public class LogFixture implements Closeable {
     }
 
     public synchronized boolean contains(Level level, String message) {
+        ch.qos.logback.classic.Level expectedLevel = convertAnSLF4JLevel(level);
         return appender
             .getRawEvents()
             .stream()
-            .anyMatch(event -> event.getLevel().equals(ch.qos.logback.classic.Level.convertAnSLF4JLevel(level)) && event.getFormattedMessage().contains(message));
+            .anyMatch(event -> event.getLevel() == expectedLevel && event.getFormattedMessage().contains(message));
     }
 
     private static class ListAppender extends AppenderBase<ILoggingEvent> {
@@ -110,20 +112,12 @@ public class LogFixture implements Closeable {
             events.clear();
         }
 
-        List<String> getFormattedEvents() {
-            List<String> strings = new ArrayList<>();
-            for (ILoggingEvent event : events) {
-                strings.add(new String(encoder.encode(event)));
-            }
-            return strings;
+        List<String> getFormattedMessages() {
+            return events.stream().map(event -> new String(encoder.encode(event))).toList();
         }
 
         List<String> getRawMessages() {
-            List<String> strings = new ArrayList<>();
-            for (ILoggingEvent event : events) {
-                strings.add(event.getFormattedMessage());
-            }
-            return strings;
+            return events.stream().map(ILoggingEvent::getFormattedMessage).toList();
         }
 
         @Override

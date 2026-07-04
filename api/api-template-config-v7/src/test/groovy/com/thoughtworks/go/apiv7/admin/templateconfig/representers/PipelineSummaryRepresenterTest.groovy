@@ -15,19 +15,19 @@
  */
 package com.thoughtworks.go.apiv7.admin.templateconfig.representers
 
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineEditabilityInfo
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class PipelineSummaryRepresenterTest {
 
   @Test
   void "should render pipeline summary"() {
-    def actualJson = toObjectString({ PipelineSummaryRepresenter.toJSON(it, new PipelineEditabilityInfo(new CaseInsensitiveString('pipeline1'), false, false))})
+    def actualJson = toObjectString({ PipelineSummaryRepresenter.toJSON(it, new PipelineEditabilityInfo(cis('pipeline1'), false, false))})
 
     def expected = [
       _links  : [
@@ -50,7 +50,7 @@ class PipelineSummaryRepresenterTest {
 
   @Test
   void "should render whether the current user can administer the pipeline"() {
-    def actualJson = toObjectString({ PipelineSummaryRepresenter.toJSON(it, new PipelineEditabilityInfo(new CaseInsensitiveString('pipeline1'), true, false))})
+    def actualJson = toObjectString({ PipelineSummaryRepresenter.toJSON(it, new PipelineEditabilityInfo(cis('pipeline1'), true, false))})
 
     def expected = [
       _links  : [
@@ -73,7 +73,7 @@ class PipelineSummaryRepresenterTest {
 
   @Test
   void "should render whether the current user can administer the pipeline regardless of the origin"() {
-    def actualJson = toObjectString({ PipelineSummaryRepresenter.toJSON(it, new PipelineEditabilityInfo(new CaseInsensitiveString('pipeline1'), true, true))})
+    def actualJson = toObjectString({ PipelineSummaryRepresenter.toJSON(it, new PipelineEditabilityInfo(cis('pipeline1'), true, true))})
 
     def expected = [
       _links  : [

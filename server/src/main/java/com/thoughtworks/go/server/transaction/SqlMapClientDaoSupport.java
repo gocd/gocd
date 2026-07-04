@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.transaction;
 
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.InitializingBean;
 

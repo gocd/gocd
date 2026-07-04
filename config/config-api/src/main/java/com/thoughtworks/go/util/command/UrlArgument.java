@@ -24,11 +24,11 @@ import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import static com.thoughtworks.go.util.command.UrlUserInfo.urlCannotHaveUserInfo;
 
 @ConfigAttributeValue(fieldName = "url")
 public class UrlArgument extends CommandArgument {
-    private static final String URL_DUMB_VALIDATION_REGEX = "^[a-zA-Z0-9/#].*";
-    private static final Pattern pattern = Pattern.compile(URL_DUMB_VALIDATION_REGEX);
+    private static final Pattern URL_DUMB_VALIDATION_REGEX = Pattern.compile("^[a-zA-Z0-9/#].*");
 
     protected String url;
 
@@ -42,27 +42,38 @@ public class UrlArgument extends CommandArgument {
         return url;
     }
 
-    //TODO: Change this later to use URIBuilder
     @Override
     public String forDisplay() {
+        return modifyUserInfo(sanitized(), UrlArgument::redactUserInfo);
+    }
+
+    static String modifyUserInfo(String url, UserInfoRedactor userInfoRedactor) {
+        // Short-circuit parsing of URLs without any userinfo.
+        if (urlCannotHaveUserInfo(url)) {
+            return url;
+        }
+
         try {
-            URI uri = new URI(sanitizeUrl());
+            URI uri = new URI(url);
             if (uri.getUserInfo() != null) {
-                uri = new URI(uri.getScheme(), clean(uri.getScheme(), uri.getUserInfo()), uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+                return new URI(uri.getScheme(), userInfoRedactor.redact(uri.getScheme(), uri.getUserInfo()), uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment())
+                    .toString();
             }
-            return uri.toString();
-        } catch (URISyntaxException e) {
+            return url;
+        } catch (URISyntaxException ignore) {
             return url;
         }
     }
 
-    private String clean(String scheme, String userInfo) {
-        if (userInfo.contains(":")) {
-            return userInfo.replaceFirst(":.*", ":******");
-        } else if ("ssh".equals(scheme) || "svn+ssh".equals(scheme)) {
-            return userInfo;
-        }
-        return "******";
+    interface UserInfoRedactor {
+        String redact(String scheme, String userInfo);
+    }
+
+    private static String redactUserInfo(String scheme, String userInfo) {
+        UrlUserInfo urlUserInfo = new UrlUserInfo(userInfo);
+        return urlUserInfo.isPossiblyToken() && ("ssh".equals(scheme) || "svn+ssh".equals(scheme))
+            ? userInfo
+            : urlUserInfo.maskedUserInfo();
     }
 
     @Override
@@ -70,10 +81,9 @@ public class UrlArgument extends CommandArgument {
         return this.url;
     }
 
-    protected String sanitizeUrl() {
+    String sanitized() {
         return this.url;
     }
-
 
     public static UrlArgument create(String url) {
         return new UrlArgument(url);
@@ -81,18 +91,18 @@ public class UrlArgument extends CommandArgument {
 
     @Override
     public @NotNull Redactable redactFrom(@NotNull Redactable toRedact) {
-        if (toRedact.isBlank() || this.url == null || this.url.isBlank()) {
+        if (toRedact.isBlank() || urlCannotHaveUserInfo(url)) {
             return toRedact;
         }
 
         try {
-            final URIBuilder uriBuilder = new URIBuilder(this.url).setPath(null).setCustomQuery(null).setFragment(null);
-            final UrlUserInfo urlUserInfo = new UrlUserInfo(uriBuilder.getUserInfo());
-            if (uriBuilder.getUserInfo() != null) {
-                return toRedact.next(toRedact.value().replace(uriBuilder.getUserInfo(), urlUserInfo.maskedUserInfo()));
+            final URI uri = new URI(url);
+            if (uri.getUserInfo() != null) {
+                UrlUserInfo urlUserInfo = new UrlUserInfo(uri.getUserInfo());
+                return toRedact.next(toRedact.value().replace(uri.getUserInfo(), urlUserInfo.maskedUserInfo()));
             }
         } catch (URISyntaxException ignore) {
-            //Ignore as url is not according to URI specs
+            // Ignore as url is not according to URI specs
         }
 
         return toRedact;
@@ -100,7 +110,7 @@ public class UrlArgument extends CommandArgument {
 
     @Override
     public boolean equal(CommandArgument that) {
-        //BUG #3276 - on windows svn info includes a password in svn+ssh
+        //BUG #3276 - on Windows svn info includes a password in svn+ssh
         if (url.startsWith("svn+ssh")) {
             return this.originalArgument().equals(that.originalArgument());
         }
@@ -116,14 +126,18 @@ public class UrlArgument extends CommandArgument {
     }
 
     public String withoutCredentials() {
+        if (urlCannotHaveUserInfo(url)) {
+            return url;
+        }
+
         try {
-            return new URIBuilder(this.sanitizeUrl()).setUserInfo(null).build().toString();
-        } catch (URISyntaxException e) {
+            return new URIBuilder(this.sanitized()).setUserInfo(null).build().toString();
+        } catch (URISyntaxException ignore) {
             return url;
         }
     }
 
     public boolean isValidURLOrLocalPath() {
-        return pattern.matcher(url).matches();
+        return URL_DUMB_VALIDATION_REGEX.matcher(url).matches();
     }
 }

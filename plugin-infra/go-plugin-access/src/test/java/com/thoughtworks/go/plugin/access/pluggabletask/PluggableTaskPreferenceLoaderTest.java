@@ -65,7 +65,7 @@ public class PluggableTaskPreferenceLoaderTest {
         when(taskExtension.canHandlePlugin(pluginId)).thenReturn(true);
 
         doAnswer(invocationOnMock -> {
-            @SuppressWarnings("unchecked") final Action<Task> action = (Action<Task>) invocationOnMock.getArguments()[1];
+            @SuppressWarnings("unchecked") final Action<Task> action = invocationOnMock.getArgument(1);
             action.execute(task, descriptor);
             return null;
         }).when(taskExtension).doOnTask(eq(pluginId), any());
@@ -111,7 +111,7 @@ public class PluggableTaskPreferenceLoaderTest {
         when(taskExtension.canHandlePlugin(pluginId)).thenReturn(false);
 
         doAnswer(invocationOnMock -> {
-            @SuppressWarnings("unchecked") final Action<Task> action = (Action<Task>) invocationOnMock.getArguments()[1];
+            @SuppressWarnings("unchecked") final Action<Task> action = invocationOnMock.getArgument(1);
             action.execute(task, descriptor);
             return null;
         }).when(taskExtension).doOnTask(eq(pluginId), any());

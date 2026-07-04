@@ -17,14 +17,14 @@
 description = 'GoCD Rack Delegator'
 dependencies {
   implementation project(':app-server')
-  compileOnly project.deps.servletApi
-  testCompileOnly project.deps.servletApi
+  compileOnly rootProject.deps.servletApi
+  testCompileOnly rootProject.deps.servletApi
   testImplementation(testFixtures(project(':test:test-utils')))
-  testImplementation project.deps.mockitoCore
-  testImplementation project.deps.mockitoJunit5
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.assertJ
-  testImplementation project.deps.springTest
+  testImplementation rootProject.deps.mockitoCore
+  testImplementation rootProject.deps.mockitoJunit5
+  testImplementation rootProject.deps.junit5Api
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.assertJ
+  testImplementation rootProject.deps.springTest
 }

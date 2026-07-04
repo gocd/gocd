@@ -18,8 +18,8 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Users;
-import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.domain.cctray.CcTrayCache;
+import com.thoughtworks.go.domain.cctray.ProjectStatus;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.Dates;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.thoughtworks.go.domain.cctray.ProjectStatus.Key.keyFrom;
 import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAs;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -110,7 +111,7 @@ public class CcTrayServiceTest {
     @Test
     public void shouldNotAppendNewLinesForNullProjectStatusesInList() {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
-        when(ccTrayCache.allEntriesInOrder()).thenReturn(List.of(statusFor("proj1", "user1"), new ProjectStatus.NullProjectStatus("proj1").updateViewers(viewers("user1"))));
+        when(ccTrayCache.allEntriesInOrder()).thenReturn(List.of(statusFor("proj1", "user1"), new ProjectStatus.NullProjectStatus(keyFrom("proj1")).updateViewers(viewers("user1"))));
 
         loginAs("user1");
         String xml = ccTrayService.renderCCTrayXML("prefix1", "user1", new StringBuilder(), etag -> {
@@ -126,7 +127,7 @@ public class CcTrayServiceTest {
     @Test
     public void shouldChangeEtagIfSitePrefixChanges() {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
-        when(ccTrayCache.allEntriesInOrder()).thenReturn(List.of(statusFor("proj1", "user1"), new ProjectStatus.NullProjectStatus("proj1").updateViewers(viewers("user1"))));
+        when(ccTrayCache.allEntriesInOrder()).thenReturn(List.of(statusFor("proj1", "user1"), new ProjectStatus.NullProjectStatus(keyFrom("proj1")).updateViewers(viewers("user1"))));
 
         AtomicReference<String> originalEtag = new AtomicReference<>();
         String originalXML = ccTrayService.renderCCTrayXML("prefix1", "user1", new StringBuilder(), originalEtag::set).toString();
@@ -142,8 +143,8 @@ public class CcTrayServiceTest {
     public void shouldChangeEtagIfProjectStatusChanges() {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(ccTrayCache.allEntriesInOrder())
-                .thenReturn(List.of(statusFor("proj1", "user1"), new ProjectStatus.NullProjectStatus("proj1").updateViewers(viewers("user1"))))
-                .thenReturn(List.of(statusFor("proj2", "user1"), new ProjectStatus.NullProjectStatus("proj1").updateViewers(viewers("user1"))));
+                .thenReturn(List.of(statusFor("proj1", "user1"), new ProjectStatus.NullProjectStatus(keyFrom("proj1")).updateViewers(viewers("user1"))))
+                .thenReturn(List.of(statusFor("proj2", "user1"), new ProjectStatus.NullProjectStatus(keyFrom("proj1")).updateViewers(viewers("user1"))));
 
         AtomicReference<String> originalEtag = new AtomicReference<>();
         String originalXML = ccTrayService.renderCCTrayXML("prefix1", "user1", new StringBuilder(), originalEtag::set).toString();
@@ -157,7 +158,7 @@ public class CcTrayServiceTest {
     }
 
     private ProjectStatus statusFor(String projectName, String... allowedUsers) {
-        ProjectStatus status = new ProjectStatus(projectName, "activity1", "build-status-1", "build-label-1", Dates.parseIso8601StrictOffset("2010-05-23T10:00:00+02:00"), "web-url");
+        ProjectStatus status = new ProjectStatus(keyFrom(projectName), 0, "activity1", "build-status-1", "build-label-1", Dates.parseIso8601StrictOffset("2010-05-23T10:00:00+02:00"), "web-url");
         status.updateViewers(viewers(allowedUsers));
         return status;
     }

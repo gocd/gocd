@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.dashboard;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.service.GoDashboardService;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,6 +43,6 @@ public class GoDashboardStageStatusChangeHandlerTest {
     public void shouldRefreshPipelineInCacheWhenStageStatusChanges() {
         handler.call(StageMother.scheduledStage("pipeline1", 1, "stage1", 2, "job1"));
 
-        verify(cacheUpdateService).updateCacheForPipeline(new CaseInsensitiveString("pipeline1"));
+        verify(cacheUpdateService).updateCacheForPipeline(cis("pipeline1"));
     }
 }

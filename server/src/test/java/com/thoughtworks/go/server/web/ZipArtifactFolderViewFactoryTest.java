@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.server.cache.ZipArtifactCache;
+import com.thoughtworks.go.server.caching.ZipArtifactCache;
 import com.thoughtworks.go.server.view.artifacts.PreparingArtifactFile;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,7 +55,7 @@ public class ZipArtifactFolderViewFactoryTest {
         folderViewFactory = new ZipArtifactFolderViewFactory(cacheAlreadyCreated());
 
         ModelAndView modelAndView = folderViewFactory.createView(JOB_IDENTIFIER, new ArtifactFolder(JOB_IDENTIFIER, folder.toFile(), "dir"));
-        assertThat(modelAndView.getViewName()).isEqualTo("fileView");
+        assertThat(modelAndView.getViewName()).isEqualTo(FileModelAndView.VIEW_NAME);
         File targetFile = (File) modelAndView.getModel().get("targetFile");
         assertThat(targetFile).isEqualTo(cacheZipFile);
     }

@@ -274,23 +274,23 @@ public class ServerConfig implements Validatable {
 
     public ServerSiteUrlConfig getHttpsUrl() {
         ServerSiteUrlConfig siteUrlPreferSecured = getSiteUrlPreferablySecured();
-        return siteUrlPreferSecured.isAHttpsUrl() ? siteUrlPreferSecured : new SecureSiteUrl();
+        return siteUrlPreferSecured.isHttps() ? siteUrlPreferSecured : new SecureSiteUrl();
     }
 
     public boolean hasAnyUrlConfigured() {
         return !getSiteUrl().isBlank() || !getSecureSiteUrl().isBlank();
     }
 
-    public Double getPurgeStart() {
+    public Double getPurgeStartDiskSpaceInGigabytes() {
         return artifactConfig.getPurgeSettings().getPurgeStart().getPurgeStartDiskSpace();
     }
 
-    public Double getPurgeUpto() {
+    public Double getPurgeUptoDiskSpaceInGigabytes() {
         return artifactConfig.getPurgeSettings().getPurgeUpto().getPurgeUptoDiskSpace();
     }
 
     public boolean isArtifactPurgingAllowed() {
-        return !(getPurgeStart() == null || getPurgeUpto() == null);
+        return getPurgeStartDiskSpaceInGigabytes() != null && getPurgeUptoDiskSpaceInGigabytes() != null;
     }
 
     public void setPurgeLimits(Double purgeStart, Double purgeUpto) {

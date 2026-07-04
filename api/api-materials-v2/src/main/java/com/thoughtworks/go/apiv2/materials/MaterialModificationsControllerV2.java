@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv2.materials;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.apiv2.materials.representers.ModificationsRepresenter;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modifications;
@@ -41,15 +41,15 @@ import static spark.Spark.*;
 @Component
 public class MaterialModificationsControllerV2 extends ApiController implements SparkSpringController {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final MaterialConfigService materialConfigService;
     private final MaterialService materialService;
 
     @Autowired
-    public MaterialModificationsControllerV2(ApiAuthenticationHelper apiAuthenticationHelper, MaterialConfigService materialConfigService,
+    public MaterialModificationsControllerV2(ApiAuthorizationHelper apiAuthorizationHelper, MaterialConfigService materialConfigService,
                                              MaterialService materialService) {
         super(ApiVersion.v2);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.materialConfigService = materialConfigService;
         this.materialService = materialService;
     }
@@ -66,8 +66,8 @@ public class MaterialModificationsControllerV2 extends ApiController implements 
             before("/*", mimeType, this::setContentType);
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
-            before("", this.mimeType, this.apiAuthenticationHelper::checkUserAnd403);
-            before("/*", this.mimeType, this.apiAuthenticationHelper::checkUserAnd403);
+            before("", this.mimeType, this.apiAuthorizationHelper::checkUserAnd403);
+            before("/*", this.mimeType, this.apiAuthorizationHelper::checkUserAnd403);
             get("", mimeType, this::modifications);
             get(Routes.MaterialModifications.OFFSET, mimeType, this::modifications);
         });

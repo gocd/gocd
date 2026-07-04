@@ -20,7 +20,6 @@ import com.thoughtworks.go.util.json.JsonAware;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_JSON;
 import static java.lang.String.valueOf;
 
 public class ValidationBean implements JsonAware {
@@ -45,7 +44,7 @@ public class ValidationBean implements JsonAware {
     public Map<String, Object> toJson() {
         Map<String, Object> jsonMap = new LinkedHashMap<>();
         jsonMap.put("isValid", valueOf(isValid));
-        jsonMap.put(ERROR_FOR_JSON, getError());
+        jsonMap.put(ERROR_KEY, getError());
         return jsonMap;
     }
 
@@ -61,7 +60,6 @@ public class ValidationBean implements JsonAware {
         return new ValidationBean(false, e.getMessage());
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -73,11 +71,7 @@ public class ValidationBean implements JsonAware {
 
         ValidationBean that = (ValidationBean) o;
 
-        if (isValid != that.isValid) {
-            return false;
-        }
-
-        return true;
+        return isValid == that.isValid;
     }
 
     @Override

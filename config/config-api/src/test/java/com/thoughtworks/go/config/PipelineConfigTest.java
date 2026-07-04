@@ -38,6 +38,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.Approval.*;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,25 +55,25 @@ public class PipelineConfigTest {
 
     @Test
     public void shouldFindByName() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null, completedStage(), buildingStage());
-        assertThat(pipelineConfig.findBy(new CaseInsensitiveString("completed stage")).name()).isEqualTo(new CaseInsensitiveString("completed stage"));
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("pipeline"), null, completedStage(), buildingStage());
+        assertThat(pipelineConfig.findBy(cis("completed stage")).name()).isEqualTo(cis("completed stage"));
     }
 
     @Test
     public void shouldGetStageByName() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null, completedStage(), buildingStage());
-        assertThat(pipelineConfig.getStage(new CaseInsensitiveString("COMpleTEd stage")).name()).isEqualTo(new CaseInsensitiveString("completed stage"));
-        assertThat(pipelineConfig.getStage(new CaseInsensitiveString("Does-not-exist"))).isNull();
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("pipeline"), null, completedStage(), buildingStage());
+        assertThat(pipelineConfig.getStage(cis("COMpleTEd stage")).name()).isEqualTo(cis("completed stage"));
+        assertThat(pipelineConfig.getStage(cis("Does-not-exist"))).isNull();
     }
 
     @Test
     public void shouldGetDependenciesAsNode() {
         PipelineConfig pipelineConfig = new PipelineConfig();
-        pipelineConfig.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("framework"), new CaseInsensitiveString("dev")));
-        pipelineConfig.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("middleware"), new CaseInsensitiveString("dev")));
+        pipelineConfig.addMaterialConfig(new DependencyMaterialConfig(cis("framework"), cis("dev")));
+        pipelineConfig.addMaterialConfig(new DependencyMaterialConfig(cis("middleware"), cis("dev")));
         assertThat(pipelineConfig.getDependenciesAsNode()).isEqualTo(new Node(
-                        new Node.DependencyNode(new CaseInsensitiveString("framework"), new CaseInsensitiveString("dev")),
-                        new Node.DependencyNode(new CaseInsensitiveString("middleware"), new CaseInsensitiveString("dev"))));
+                        new Node.DependencyNode(cis("framework"), cis("dev")),
+                        new Node.DependencyNode(cis("middleware"), cis("dev"))));
     }
 
     @Test
@@ -83,7 +85,7 @@ public class PipelineConfigTest {
 
     @Test
     public void shouldThrowExceptionForEmptyPipeline() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs());
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("cruise"), new MaterialConfigs());
         try {
             pipelineConfig.isFirstStageManualApproval();
             fail("Should throw exception if pipeline has no pipeline");
@@ -98,7 +100,7 @@ public class PipelineConfigTest {
         try {
             PipelineTemplateConfig template = new PipelineTemplateConfig();
             template.add(StageConfigMother.stageConfig("first"));
-            pipelineConfig.setTemplateName(new CaseInsensitiveString("some-template"));
+            pipelineConfig.setTemplateName(cis("some-template"));
             fail("Should throw exception because the pipeline has stages already");
         } catch (RuntimeException e) {
             assertThat(e.getMessage()).contains("Cannot set template 'some-template' on pipeline 'pipeline' because it already has stages defined");
@@ -107,9 +109,9 @@ public class PipelineConfigTest {
 
     @Test
     public void shouldBombWhenAddingStagesIfItAlreadyHasATemplate() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("mingle"), null);
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("mingle"), null);
         try {
-            pipelineConfig.setTemplateName(new CaseInsensitiveString("some-template"));
+            pipelineConfig.setTemplateName(cis("some-template"));
             pipelineConfig.add(StageConfigMother.stageConfig("second"));
             fail("Should throw exception because pipeline already has a template");
         } catch (RuntimeException e) {
@@ -131,7 +133,7 @@ public class PipelineConfigTest {
 
     @Test
     public void shouldValidateCorrectPipelineLabelWithoutAnyMaterial() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs(), new StageConfig(new CaseInsensitiveString("first"), new JobConfigs()));
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("cruise"), new MaterialConfigs(), new StageConfig(cis("first"), new JobConfigs()));
         pipelineConfig.setLabelTemplate("pipeline-${COUNT}-alpha");
         pipelineConfig.validate(null);
         assertThat(pipelineConfig.errors().isEmpty()).isTrue();
@@ -467,19 +469,19 @@ public class PipelineConfigTest {
 
         pipelineConfig.setConfigAttributes(map);
         assertThat(pipelineConfig.getConfigurationType()).isEqualTo(PipelineConfig.CONFIGURATION_TYPE_TEMPLATE);
-        assertThat(pipelineConfig.getTemplateName()).isEqualTo(new CaseInsensitiveString("foo-template"));
+        assertThat(pipelineConfig.getTemplateName()).isEqualTo(cis("foo-template"));
     }
 
     @Test
     public void shouldReturnListOfStageConfigWhichIsApplicableForFetchArtifact() {
         PipelineConfig superUpstream = PipelineConfigMother.createPipelineConfigWithStages("superUpstream", "s1", "s2", "s3");
         PipelineConfig upstream = PipelineConfigMother.createPipelineConfigWithStages("upstream", "s4", "s5", "s6");
-        upstream.addMaterialConfig(new DependencyMaterialConfig(superUpstream.name(), new CaseInsensitiveString("s2")));
+        upstream.addMaterialConfig(new DependencyMaterialConfig(superUpstream.name(), cis("s2")));
 
         PipelineConfig downstream = PipelineConfigMother.createPipelineConfigWithStages("downstream", "s7");
-        downstream.addMaterialConfig(new DependencyMaterialConfig(upstream.name(), new CaseInsensitiveString("s5")));
+        downstream.addMaterialConfig(new DependencyMaterialConfig(upstream.name(), cis("s5")));
 
-        List<StageConfig> fetchableStages = upstream.validStagesForFetchArtifact(downstream, new CaseInsensitiveString("s7"));
+        List<StageConfig> fetchableStages = upstream.validStagesForFetchArtifact(downstream, cis("s7"));
 
         assertThat(fetchableStages.size()).isEqualTo(2);
         assertThat(fetchableStages).contains(upstream.get(0));
@@ -489,7 +491,7 @@ public class PipelineConfigTest {
     @Test
     public void shouldReturnStagesBeforeCurrentForSelectedPipeline() {
         PipelineConfig downstream = PipelineConfigMother.createPipelineConfigWithStages("downstream", "s1", "s2");
-        @SuppressWarnings("CollectionAddedToSelf") List<StageConfig> fetchableStages = downstream.validStagesForFetchArtifact(downstream, new CaseInsensitiveString("s2"));
+        @SuppressWarnings("CollectionAddedToSelf") List<StageConfig> fetchableStages = downstream.validStagesForFetchArtifact(downstream, cis("s2"));
         assertThat(fetchableStages.size()).isEqualTo(1);
         assertThat(fetchableStages).contains(downstream.getFirst());
     }
@@ -514,7 +516,7 @@ public class PipelineConfigTest {
 
         pipelineConfig.setConfigAttributes(attributeMap);
 
-        assertThat(pipelineConfig.name()).isEqualTo(new CaseInsensitiveString("startup"));
+        assertThat(pipelineConfig.name()).isEqualTo(cis("startup"));
         assertThat(pipelineConfig.materialConfigs().getFirst()).isEqualTo(svn("http://url", "loser", "passwd", false));
     }
 
@@ -533,9 +535,9 @@ public class PipelineConfigTest {
 
         pipelineConfig.setConfigAttributes(attributeMap);
 
-        assertThat(pipelineConfig.name()).isEqualTo(new CaseInsensitiveString("startup"));
-        assertThat(pipelineConfig.getFirst().name()).isEqualTo(new CaseInsensitiveString("someStage"));
-        assertThat(pipelineConfig.getFirst().getJobs().getFirst().name()).isEqualTo(new CaseInsensitiveString("JobName"));
+        assertThat(pipelineConfig.name()).isEqualTo(cis("startup"));
+        assertThat(pipelineConfig.getFirst().name()).isEqualTo(cis("someStage"));
+        assertThat(pipelineConfig.getFirst().getJobs().getFirst().name()).isEqualTo(cis("JobName"));
     }
 
     @Test
@@ -548,9 +550,9 @@ public class PipelineConfigTest {
 
     @Test
     public void shouldRemoveExistingStagesWhileDoingAStageUpdate() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("foo"), new MaterialConfigs(), new StageConfig(new CaseInsensitiveString("first"), new JobConfigs()),
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("foo"), new MaterialConfigs(), new StageConfig(cis("first"), new JobConfigs()),
                 new StageConfig(
-                        new CaseInsensitiveString("second"), new JobConfigs()));
+                        cis("second"), new JobConfigs()));
 
         Map<String, Object> stageMap = new HashMap<>();
         List<Map<String, String>> jobList = List.of(Map.of(JobConfig.NAME, "JobName"));
@@ -563,10 +565,10 @@ public class PipelineConfigTest {
 
         pipelineConfig.setConfigAttributes(attributeMap);
 
-        assertThat(pipelineConfig.name()).isEqualTo(new CaseInsensitiveString("startup"));
+        assertThat(pipelineConfig.name()).isEqualTo(cis("startup"));
         assertThat(pipelineConfig.size()).isEqualTo(1);
-        assertThat(pipelineConfig.getFirst().name()).isEqualTo(new CaseInsensitiveString("someStage"));
-        assertThat(pipelineConfig.getFirst().getJobs().getFirst().name()).isEqualTo(new CaseInsensitiveString("JobName"));
+        assertThat(pipelineConfig.getFirst().name()).isEqualTo(cis("someStage"));
+        assertThat(pipelineConfig.getFirst().getJobs().getFirst().name()).isEqualTo(cis("JobName"));
     }
 
     @Test
@@ -581,9 +583,9 @@ public class PipelineConfigTest {
         secondJob.addTask(new ExecTask());
         FetchTask secondFetch = new FetchTask();
         secondJob.addTask(secondFetch);
-        pipelineConfig.add(new StageConfig(new CaseInsensitiveString("stage-2"), new JobConfigs(secondJob)));
+        pipelineConfig.add(new StageConfig(cis("stage-2"), new JobConfigs(secondJob)));
 
-        List<FetchTask> fetchTasks = pipelineConfig.getFetchTasks();
+        List<FetchTask> fetchTasks = pipelineConfig.getFetchTasks().toList();
         assertThat(fetchTasks.size()).isEqualTo(2);
         assertThat(fetchTasks.contains(firstFetch)).isTrue();
         assertThat(fetchTasks.contains(secondFetch)).isTrue();
@@ -592,12 +594,12 @@ public class PipelineConfigTest {
     @Test
     public void shouldTemplatizeAPipeline() {
         PipelineConfig config = PipelineConfigMother.createPipelineConfigWithStages("pipeline", "stage1", "stage2");
-        config.templatize(new CaseInsensitiveString("template"));
+        config.templatize(cis("template"));
         assertThat(config.hasTemplate()).isTrue();
         assertThat(config.hasTemplateApplied()).isFalse();
-        assertThat(config.getTemplateName()).isEqualTo(new CaseInsensitiveString("template"));
+        assertThat(config.getTemplateName()).isEqualTo(cis("template"));
         assertThat(config.isEmpty()).isTrue();
-        config.templatize(new CaseInsensitiveString(""));
+        config.templatize(cis(""));
         assertThat(config.hasTemplate()).isFalse();
         config.templatize(null);
         assertThat(config.hasTemplate()).isFalse();
@@ -605,39 +607,39 @@ public class PipelineConfigTest {
 
     @Test
     public void shouldAssignApprovalTypeOnFirstStageAsAuto() {
-        Map<String, Object> approvalAttributes = Map.of(Approval.TYPE, Approval.SUCCESS);
+        Map<String, Object> approvalAttributes = Map.of(TYPE, TYPE_SUCCESS);
         Map<String, Map<String, Object>> map = Map.of(StageConfig.APPROVAL, approvalAttributes);
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("p1", "s1", "j1");
         pipelineConfig.getFirst().updateApproval(Approval.manualApproval());
 
         pipelineConfig.setConfigAttributes(map);
 
-        assertThat(pipelineConfig.getFirst().getApproval().getType()).isEqualTo(Approval.SUCCESS);
+        assertThat(pipelineConfig.getFirst().getApproval().getType()).isEqualTo(TYPE_SUCCESS);
     }
 
     @Test
     public void shouldAssignApprovalTypeOnFirstStageAsManual() {
-        Map<String, Object> approvalAttributes = Map.of(Approval.TYPE, Approval.MANUAL);
+        Map<String, Object> approvalAttributes = Map.of(TYPE, TYPE_MANUAL);
         Map<String, Map<String, Object>> map = Map.of(StageConfig.APPROVAL, approvalAttributes);
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("p1", "s1", "j1");
         pipelineConfig.getFirst().updateApproval(Approval.manualApproval());
 
         pipelineConfig.setConfigAttributes(map);
 
-        assertThat(pipelineConfig.getFirst().getApproval().getType()).isEqualTo(Approval.MANUAL);
+        assertThat(pipelineConfig.getFirst().getApproval().getType()).isEqualTo(TYPE_MANUAL);
     }
 
     @Test
     public void shouldAssignApprovalTypeOnFirstStageAsManualAndRestOfStagesAsUntouched() {
-        Map<String, Object> approvalAttributes = Map.of(Approval.TYPE, Approval.MANUAL);
+        Map<String, Object> approvalAttributes = Map.of(TYPE, TYPE_MANUAL);
         Map<String, Map<String, Object>> map = Map.of(StageConfig.APPROVAL, approvalAttributes);
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("p1", StageConfigMother.custom("s1", Approval.automaticApproval()),
                 StageConfigMother.custom("s2", Approval.automaticApproval()));
 
         pipelineConfig.setConfigAttributes(map);
 
-        assertThat(pipelineConfig.getFirst().getApproval().getType()).isEqualTo(Approval.MANUAL);
-        assertThat(pipelineConfig.getLast().getApproval().getType()).isEqualTo(Approval.SUCCESS);
+        assertThat(pipelineConfig.getFirst().getApproval().getType()).isEqualTo(TYPE_MANUAL);
+        assertThat(pipelineConfig.getLast().getApproval().getType()).isEqualTo(TYPE_SUCCESS);
     }
 
     @Test
@@ -748,7 +750,7 @@ public class PipelineConfigTest {
     @Test
     public void shouldNotEncryptSecurePropertiesInStagesIfPipelineHasATemplate() {
         PipelineConfig pipelineConfig = new PipelineConfig();
-        pipelineConfig.setTemplateName(new CaseInsensitiveString("some-template"));
+        pipelineConfig.setTemplateName(cis("some-template"));
         StageConfig mockStageConfig = mock(StageConfig.class);
         pipelineConfig.addStageWithoutValidityAssertion(mockStageConfig);
 
@@ -762,10 +764,10 @@ public class PipelineConfigTest {
         PipelineConfig pipelineConfig = new PipelineConfig();
         StageConfig mockStageConfig = mock(StageConfig.class);
         pipelineConfig.add(mockStageConfig);
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"));
+        JobConfig jobConfig = new JobConfig(cis("job"));
         jobConfig.artifactTypeConfigs().add(new PluggableArtifactConfig("foo", "bar"));
         when(mockStageConfig.getJobs()).thenReturn(new JobConfigs(jobConfig));
-        when(mockStageConfig.name()).thenReturn(new CaseInsensitiveString("stage"));
+        when(mockStageConfig.name()).thenReturn(cis("stage"));
 
         pipelineConfig.encryptSecureProperties(new BasicCruiseConfig(), pipelineConfig);
 
@@ -777,9 +779,9 @@ public class PipelineConfigTest {
         PipelineConfig pipelineConfig = new PipelineConfig();
         StageConfig mockStageConfig = mock(StageConfig.class);
         pipelineConfig.add(mockStageConfig);
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"));
+        JobConfig jobConfig = new JobConfig(cis("job"));
         when(mockStageConfig.getJobs()).thenReturn(new JobConfigs(jobConfig));
-        when(mockStageConfig.name()).thenReturn(new CaseInsensitiveString("stage"));
+        when(mockStageConfig.name()).thenReturn(cis("stage"));
 
         pipelineConfig.encryptSecureProperties(new BasicCruiseConfig(), pipelineConfig);
 
@@ -789,20 +791,20 @@ public class PipelineConfigTest {
     private StageConfig completedStage() {
         JobConfigs plans = new JobConfigs();
         plans.add(new JobConfig("completed"));
-        return new StageConfig(new CaseInsensitiveString("completed stage"), plans);
+        return new StageConfig(cis("completed stage"), plans);
     }
 
     private StageConfig buildingStage() {
         JobConfigs plans = new JobConfigs();
         plans.add(new JobConfig(BUILDING_PLAN_NAME));
-        return new StageConfig(new CaseInsensitiveString("building stage"), plans);
+        return new StageConfig(cis("building stage"), plans);
     }
 
     private PipelineConfig createAndValidatePipelineLabel(String labelFormat) {
         GitMaterialConfig git = git("git@github.com:gocd/gocd.git");
-        git.setName(new CaseInsensitiveString("git"));
+        git.setName(cis("git"));
 
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs(git));
+        PipelineConfig pipelineConfig = new PipelineConfig(cis("cruise"), new MaterialConfigs(git));
         pipelineConfig.setLabelTemplate(labelFormat);
 
         pipelineConfig.validate(null);

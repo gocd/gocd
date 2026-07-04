@@ -30,6 +30,7 @@ import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.util.Dates;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,8 +38,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -54,7 +53,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class PackageRepositoryExtensionTest {
     public static final String PLUGIN_ID = "plugin-id";
-    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     @Mock(strictness = Mock.Strictness.LENIENT)
     private PluginManager pluginManager;
@@ -223,7 +221,7 @@ public class PackageRepositoryExtensionTest {
     }
 
     @Test
-    public void shouldTalkToPluginToGetLatestModification() throws Exception {
+    public void shouldTalkToPluginToGetLatestModification() {
         String expectedRequestBody = "{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}," +
                 "\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}}";
 
@@ -241,7 +239,7 @@ public class PackageRepositoryExtensionTest {
     }
 
     @Test
-    public void shouldTalkToPluginToGetLatestModificationSinceLastRevision() throws Exception {
+    public void shouldTalkToPluginToGetLatestModificationSinceLastRevision() {
         String expectedRequestBody = "{\"repository-configuration\":{\"key-one\":{\"value\":\"value-one\"},\"key-two\":{\"value\":\"value-two\"}}," +
                 "\"package-configuration\":{\"key-three\":{\"value\":\"value-three\"},\"key-four\":{\"value\":\"value-four\"}}," +
                 "\"previous-revision\":{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-13T19:43:37.100Z\",\"data\":{\"dataKeyOne\":\"data-value-one\",\"dataKeyTwo\":\"data-value-two\"}}}";
@@ -250,7 +248,7 @@ public class PackageRepositoryExtensionTest {
         String expectedResponseBody = "{\"revision\":\"abc.rpm\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"user\":\"some-user\",\"revisionComment\":\"comment\"," +
                 "\"trackbackUrl\":\"http:\\\\localhost:9999\",\"data\":{\"dataKeyOne\":\"data-value-one\",\"dataKeyTwo\":\"data-value-two\"}}";
 
-        Date timestamp = new SimpleDateFormat(DATE_FORMAT).parse("2011-07-13T19:43:37.100Z");
+        Date timestamp = Dates.parseIso8601StrictOffset("2011-07-13T19:43:37.100Z");
         Map<String, String> data = new LinkedHashMap<>();
         data.put("dataKeyOne", "data-value-one");
         data.put("dataKeyTwo", "data-value-two");
@@ -360,10 +358,10 @@ public class PackageRepositoryExtensionTest {
         assertThat(validationError.getMessage()).isEqualTo(expectedMessage);
     }
 
-    private void assertPackageRevision(PackageRevision packageRevision, String revision, String user, String timestamp, String comment, String trackbackUrl) throws ParseException {
+    private void assertPackageRevision(PackageRevision packageRevision, String revision, String user, String timestamp, String comment, String trackbackUrl) {
         assertThat(packageRevision.getRevision()).isEqualTo(revision);
         assertThat(packageRevision.getUser()).isEqualTo(user);
-        assertThat(packageRevision.getTimestamp()).isEqualTo(new SimpleDateFormat(DATE_FORMAT).parse(timestamp));
+        assertThat(packageRevision.getTimestamp()).isEqualTo(Dates.parseIso8601StrictOffset(timestamp));
         assertThat(packageRevision.getRevisionComment()).isEqualTo(comment);
         assertThat(packageRevision.getTrackbackUrl()).isEqualTo(trackbackUrl);
         assertThat(packageRevision.getData().size()).isEqualTo(2);

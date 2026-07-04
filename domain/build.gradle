@@ -24,48 +24,49 @@ dependencies {
   api project(':config:config-api')
   implementation project(':commandline')
   implementation project(':plugin-infra:plugin-metadata-store')
-  implementation(project.deps.apacheAnt)  {
+  implementation(rootProject.deps.apacheAnt)  {
     exclude(module: 'ant-launcher')
   }
-  implementation project.deps.jakartaAnnotation
-  implementation project.deps.gson
-  implementation project.deps.commonsCodec
-  implementation project.deps.commonsIO
-  implementation project.deps.commonsText
-  implementation project.deps.commonsLang3
-  implementation project.deps.cloning
-  implementation project.deps.springContext
-  implementation project.deps.springTx
-  implementation(project.deps.apacheHttpComponents) {
+  implementation rootProject.deps.jakartaAnnotation
+  implementation rootProject.deps.gson
+  implementation rootProject.deps.commonsCodec
+  implementation rootProject.deps.commonsIO
+  implementation rootProject.deps.commonsText
+  implementation rootProject.deps.commonsLang3
+  implementation rootProject.deps.cloning
+  implementation rootProject.deps.springContext
+  implementation rootProject.deps.springTx
+  implementation(rootProject.deps.apacheHttpComponents) {
     exclude(module: 'commons-codec')
   }
-  if (project.deps.springTx || project.deps.apacheHttpComponents) {
-    runtimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
+  if (rootProject.deps.springTx || rootProject.deps.apacheHttpComponents) {
+    runtimeOnly rootProject.deps.slf4jJcl // Allow commons-logging replacement
   }
-  implementation project.deps.semanticVersion
-  compileOnly project.deps.jetBrainsAnnotations
+  implementation rootProject.deps.semanticVersion
+  compileOnly rootProject.deps.jetBrainsAnnotations
 
   testImplementation(testFixtures(project(":config:config-api")))
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.jsonUnit
-  testImplementation project.deps.mockitoCore
-  testImplementation project.deps.mockitoJunit5
-  testImplementation project.deps.systemStubs
+  testImplementation rootProject.deps.junit5Api
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.jsonUnit
+  testImplementation rootProject.deps.mockitoCore
+  testImplementation rootProject.deps.mockitoJunit5
+  testImplementation rootProject.deps.systemStubs
 
   testFixturesApi project(":config:config-api")
   testFixturesApi project(':base')
   testFixturesApi project(':domain')
   testFixturesApi(testFixtures(project(':test:test-utils')))
-  testFixturesApi project.deps.junit5Api
+  testFixturesApi rootProject.deps.junit5Api
+  testFixturesImplementation rootProject.deps.mockitoCore
   testFixturesImplementation(testFixtures(project(":config:config-api")))
   testFixturesImplementation project(':commandline')
-  testFixturesImplementation project.deps.assertJ
-  testFixturesImplementation project.deps.awaitility
-  testFixturesImplementation project.deps.commonsIO
-  testFixturesImplementation project.deps.commonsLang3
-  testFixturesImplementation project.deps.springTx
+  testFixturesImplementation rootProject.deps.assertJ
+  testFixturesImplementation rootProject.deps.awaitility
+  testFixturesImplementation rootProject.deps.commonsIO
+  testFixturesImplementation rootProject.deps.commonsLang3
+  testFixturesImplementation rootProject.deps.springTx
 }
 
 license {

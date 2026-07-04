@@ -46,14 +46,13 @@ import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class SvnCommand extends SCMCommand implements Subversion {
-    private UrlArgument repositoryUrl;
-    private StringArgument userName;
-    private PasswordArgument password;
-    private boolean checkExternals;
-
     private static final Logger LOG = LoggerFactory.getLogger(SvnCommand.class);
-    public static final String SVN_DATE_FORMAT_OUT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
     private static final String ERR_SVN_NOT_FOUND = "Failed to find 'svn' on your PATH. Please ensure 'svn' is executable by the Go Server and on the Go Agents where this material will be used.";
+
+    private final UrlArgument repositoryUrl;
+    private final StringArgument userName;
+    private final PasswordArgument password;
+    private final boolean checkExternals;
 
 
     private final SvnLogXmlParser svnLogXmlParser;
@@ -240,12 +239,10 @@ public class SvnCommand extends SCMCommand implements Subversion {
         return runOrBomb(svnCmd);
     }
 
-    private int executeCommand(CommandLine svnCmd, ConsoleOutputStreamConsumer outputStreamConsumer) {
-        int returnValue = run(svnCmd, outputStreamConsumer);
-        if (returnValue != 0) {
+    private void executeCommand(CommandLine svnCmd, ConsoleOutputStreamConsumer outputStreamConsumer) {
+        if (run(svnCmd, outputStreamConsumer) != 0) {
             throw new RuntimeException("Failed to run " + svnCmd.toStringForDisplay());
         }
-        return returnValue;
     }
 
     private CommandLine svn(boolean needAuth) {

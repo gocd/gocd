@@ -18,20 +18,22 @@ package com.thoughtworks.go.spark.spa
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import org.junit.jupiter.api.Nested
 
 class ConfigReposControllerTest implements ControllerTrait<ConfigReposController>, SecurityServiceTrait {
 
   @Override
   ConfigReposController createControllerInstance() {
-    return new ConfigReposController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+    return new ConfigReposController(new SpaAuthorizationHelper(securityService, goConfigService), templateEngine)
   }
 
   @Nested
   class Index {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate ControllerTrait<ConfigReposController> c = ConfigReposControllerTest.this
+      @Delegate SecurityServiceTrait s = ConfigReposControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

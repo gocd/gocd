@@ -28,7 +28,6 @@ import java.util.stream.Stream;
 import static com.thoughtworks.go.server.service.ScheduleStageResult.*;
 import static org.mockito.Mockito.*;
 
-
 public class StageManualTriggerCheckerTest {
 
     private SchedulingCheckerService schedulingCheckerService;

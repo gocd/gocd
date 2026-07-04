@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service.builders;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.server.domain.MaterialForScheduling;
@@ -28,8 +27,8 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-
 
 public class ScheduleOptionsBuilder {
     private final GoConfigService goConfigService;
@@ -43,7 +42,7 @@ public class ScheduleOptionsBuilder {
     public ScheduleOptions build(HttpOperationResult result, String pipelineName, PipelineScheduleOptions pipelineScheduleOptions) {
         ScheduleOptions scheduleOptions = new ScheduleOptions();
         HealthStateType healthStateType = HealthStateType.general(HealthStateScope.forPipeline(pipelineName));
-        if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+        if (!goConfigService.hasPipelineNamed(cis(pipelineName))) {
             result.notFound(String.format("Pipeline '%s' not found.", pipelineName), "", healthStateType);
             return null;
         }

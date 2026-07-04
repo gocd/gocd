@@ -35,13 +35,12 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.listener.BaseUrlChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.server.security.GoAcl;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.Pair;
 import com.thoughtworks.go.util.SystemTimeClock;
@@ -68,6 +67,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.validation.GoConfigValidity.*;
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditPipeline;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
@@ -144,13 +144,13 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result) {
-        return canEditPipeline(pipelineName, username, result, findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)));
+        return canEditPipeline(pipelineName, username, result, findGroupNameByPipelineOptional(cis(pipelineName)).orElse(null));
     }
 
     public boolean canEditPipeline(String pipelineName,
                                    Username username,
                                    LocalizedOperationResult result,
-                                   String groupName) {
+                                   @Nullable String groupName) {
         if (!doesPipelineExist(pipelineName, result)) {
             return false;
         }
@@ -162,7 +162,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public boolean doesPipelineExist(String pipelineName, LocalizedOperationResult result) {
-        if (!getCurrentConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+        if (!getCurrentConfig().hasPipelineNamed(cis(pipelineName))) {
             result.notFound(EntityType.Pipeline.notFoundMessage(pipelineName), general(forPipeline(pipelineName)));
             return false;
         }
@@ -195,7 +195,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public StageConfig stageConfigNamed(String pipelineName, String stageName) {
-        return getCurrentConfig().stageConfigByName(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
+        return getCurrentConfig().stageConfigByName(cis(pipelineName), cis(stageName));
     }
 
     public boolean hasPipelineNamed(final CaseInsensitiveString pipelineName) {
@@ -203,7 +203,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public PipelineConfig editablePipelineConfigNamed(final String name) {
-        return getMergedConfigForEditing().pipelineConfigByName(new CaseInsensitiveString(name));
+        return getMergedConfigForEditing().pipelineConfigByName(cis(name));
     }
 
     public PipelineConfig pipelineConfigNamed(final CaseInsensitiveString name) {
@@ -219,10 +219,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         }
     }
 
-    public String fileLocation() {
-        return goConfigDao.fileLocation();
-    }
-
     public File artifactsDir() {
         ServerConfig serverConfig = serverConfig();
         String s = serverConfig.artifactsDir();
@@ -231,7 +227,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean hasStageConfigNamed(String pipelineName, String stageName) {
-        return getCurrentConfig().hasStageConfigNamed(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName), true);
+        return getCurrentConfig().hasStageConfigNamed(cis(pipelineName), cis(stageName), true);
     }
 
     public void updateConfig(UpdateConfigCommand command) {
@@ -277,8 +273,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     GoAcl readAclBy(String pipelineName, String stageName) {
-        PipelineConfig pipelineConfig = pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-        StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(stageName));
+        PipelineConfig pipelineConfig = pipelineConfigNamed(cis(pipelineName));
+        StageConfig stageConfig = pipelineConfig.findBy(cis(stageName));
         AdminsConfig adminsConfig = stageConfig.getApproval().getAuthConfig();
         List<CaseInsensitiveString> users = getAuthorizedUsers(adminsConfig);
         return new GoAcl(users);
@@ -325,12 +321,20 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return currentCruiseConfig().isSmtpEnabled();
     }
 
-    public String findGroupNameByPipeline(final CaseInsensitiveString pipelineName) {
-        return getCurrentConfig().getGroups().findGroupNameByPipeline(pipelineName);
+    public @NotNull String findGroupNameByPipeline(@NotNull CaseInsensitiveString pipelineName) {
+        return getCurrentConfig().getGroups().findGroupByPipeline(pipelineName).getGroup();
     }
 
-    public PipelineConfigs findGroupByPipeline(CaseInsensitiveString pipelineName) {
+    public @NotNull Optional<String> findGroupNameByPipelineOptional(@NotNull CaseInsensitiveString pipelineName) {
+        return getCurrentConfig().getGroups().findGroupByPipelineOptional(pipelineName).map(PipelineConfigs::getGroup);
+    }
+
+    public @NotNull PipelineConfigs findGroupByPipeline(CaseInsensitiveString pipelineName) {
         return getCurrentConfig().getGroups().findGroupByPipeline(pipelineName);
+    }
+
+    public @NotNull Optional<PipelineConfigs> findGroupByPipelineOptional(CaseInsensitiveString pipelineName) {
+        return getCurrentConfig().getGroups().findGroupByPipelineOptional(pipelineName);
     }
 
     public MailHost getMailHost() {
@@ -338,11 +342,11 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public JobConfigIdentifier translateToActualCase(JobConfigIdentifier identifier) {
-        PipelineConfig pipelineConfig = getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString(identifier.getPipelineName()));
+        PipelineConfig pipelineConfig = getCurrentConfig().pipelineConfigByName(cis(identifier.getPipelineName()));
         String translatedPipelineName = CaseInsensitiveString.str(pipelineConfig.name());
-        StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(identifier.getStageName()));
+        StageConfig stageConfig = pipelineConfig.findBy(cis(identifier.getStageName()));
         if (stageConfig == null) {
-            throw new StageNotFoundException(new CaseInsensitiveString(identifier.getPipelineName()), new CaseInsensitiveString(identifier.getStageName()));
+            throw new StageNotFoundException(cis(identifier.getPipelineName()), cis(identifier.getStageName()));
         }
         String translatedStageName = CaseInsensitiveString.str(stageConfig.name());
         JobConfig plan = stageConfig.jobConfigByInstanceName(identifier.getJobName(), true);
@@ -358,7 +362,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public CommentRenderer getCommentRendererFor(String pipelineName) {
-        return pipelineConfigNamed(new CaseInsensitiveString(pipelineName)).getCommentRenderer();
+        return pipelineConfigNamed(cis(pipelineName)).getCommentRenderer();
     }
 
     public List<PipelineConfig> getAllPipelineConfigs() {
@@ -396,8 +400,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         HashSet<DependencyMaterialConfig> dependencyMaterials = new HashSet<>();
 
         for (MaterialConfig materialConfig : getSchedulableMaterials()) {
-            if (materialConfig instanceof DependencyMaterialConfig) {
-                dependencyMaterials.add((DependencyMaterialConfig) materialConfig);
+            if (materialConfig instanceof DependencyMaterialConfig dependencyMaterialConfig) {
+                dependencyMaterials.add(dependencyMaterialConfig);
             }
         }
 
@@ -405,8 +409,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public Stage scheduleStage(String pipelineName, String stageName, SchedulingContext context) {
-        PipelineConfig pipelineConfig = getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        return instanceFactory.createStageInstance(pipelineConfig, new CaseInsensitiveString(stageName), context, getCurrentConfig().getMd5(), clock);
+        PipelineConfig pipelineConfig = getCurrentConfig().pipelineConfigByName(cis(pipelineName));
+        return instanceFactory.createStageInstance(pipelineConfig, cis(stageName), context, getCurrentConfig().getMd5(), clock);
     }
 
     public MaterialConfig findMaterial(final CaseInsensitiveString pipeline, String pipelineUniqueFingerprint) {
@@ -452,7 +456,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public MaterialConfig materialForPipelineWithFingerprint(String pipelineName, String fingerprint) {
-        for (MaterialConfig materialConfig : pipelineConfigNamed(new CaseInsensitiveString(pipelineName)).materialConfigs()) {
+        for (MaterialConfig materialConfig : pipelineConfigNamed(cis(pipelineName)).materialConfigs()) {
             if (materialConfig.getFingerprint().equals(fingerprint)) {
                 return materialConfig;
             }
@@ -498,11 +502,11 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public boolean hasNextStage(String pipelineName, String stageName) {
-        return getCurrentConfig().hasNextStage(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
+        return getCurrentConfig().hasNextStage(cis(pipelineName), cis(stageName));
     }
 
     public boolean isFirstStage(String pipelineName, String stageName) {
-        return !getCurrentConfig().hasPreviousStage(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
+        return !getCurrentConfig().hasPreviousStage(cis(pipelineName), cis(stageName));
     }
 
     public boolean requiresApproval(final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName) {
@@ -514,11 +518,11 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public StageConfig nextStage(String pipelineName, String lastStageName) {
-        return getCurrentConfig().nextStage(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(lastStageName));
+        return getCurrentConfig().nextStage(cis(pipelineName), cis(lastStageName));
     }
 
     public StageConfig previousStage(String pipelineName, String lastStageName) {
-        return getCurrentConfig().previousStage(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(lastStageName));
+        return getCurrentConfig().previousStage(cis(pipelineName), cis(lastStageName));
     }
 
     public Tabs getCustomizedTabs(String pipelineName, String stageName, String buildName) {
@@ -552,7 +556,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public PipelineConfigDependencyGraph upstreamDependencyGraphOf(String pipelineName, CruiseConfig currentConfig) {
-        return findUpstream(currentConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName)));
+        return findUpstream(currentConfig.pipelineConfigByName(cis(pipelineName)));
     }
 
     private PipelineConfigDependencyGraph findUpstream(PipelineConfig currentPipeline) {
@@ -580,33 +584,23 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return getCurrentConfig().getEnvironments().hasEnvironmentNamed(environmentName);
     }
 
-    public boolean isUserAdminOfGroup(final CaseInsensitiveString userName, String groupName) {
+    public boolean isUserAdminOfGroup(final CaseInsensitiveString userName, @Nullable String groupName) {
         if (!isSecurityEnabled()) {
             return true;
         }
-        PipelineConfigs group = null;
-        if (groupName != null) {
-            group = getCurrentConfig().findGroup(groupName);
-        }
+
+        // Ensure group exists
+        PipelineConfigs group = groupName == null ? null : getCurrentConfig().findGroup(groupName);
+
         return isUserAdmin(new Username(userName)) || isUserAdminOfGroup(userName, group);
     }
 
-    public boolean isUserAdminOfGroup(final CaseInsensitiveString userName, PipelineConfigs group) {
+    public boolean isUserAdminOfGroup(final CaseInsensitiveString userName, @Nullable PipelineConfigs group) {
         return group != null && group.isUserAnAdmin(userName, rolesForUser(userName));
     }
 
     public boolean isUserAdmin(Username username) {
         return isAdministrator(CaseInsensitiveString.str(username.getUsername()));
-    }
-
-    public GoConfigRevision getConfigAtVersion(String version) {
-        GoConfigRevision goConfigRevision = null;
-        try {
-            goConfigRevision = configRepository.getRevision(version);
-        } catch (Exception e) {
-            LOGGER.info("[Go Config Service] Could not fetch cruise config xml at version={}", version, e);
-        }
-        return goConfigRevision;
     }
 
     public CruiseConfig clonedConfigForEdit() {
@@ -639,7 +633,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public boolean isPipelineEditable(String pipelineName) {
-        return isPipelineEditable(new CaseInsensitiveString(pipelineName));
+        return isPipelineEditable(cis(pipelineName));
     }
 
     public boolean isPipelineEditable(CaseInsensitiveString pipelineName) {

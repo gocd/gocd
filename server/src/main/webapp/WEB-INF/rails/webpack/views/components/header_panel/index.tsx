@@ -37,7 +37,7 @@ export class HeaderPanel extends MithrilViewComponent<Attrs> {
 
     if (!_.isEmpty(vnode.attrs.buttons)) {
       buttons = (
-        <div data-test-id="pageActions">
+        <div class={style.pageActions} data-test-id="pageActions">
           {vnode.attrs.buttons}
         </div>
       );

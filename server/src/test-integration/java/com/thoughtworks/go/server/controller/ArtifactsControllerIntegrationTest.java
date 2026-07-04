@@ -18,9 +18,13 @@ package com.thoughtworks.go.server.controller;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.StubMultipartHttpServletRequest;
+import com.thoughtworks.go.remote.StandardHeaders.Multipart;
+import com.thoughtworks.go.server.controller.actions.JsonAction;
+import com.thoughtworks.go.server.controller.actions.TextAction;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.server.service.ConsoleService;
+import com.thoughtworks.go.server.web.FileModelAndView;
 import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ZipUtil;
@@ -50,8 +54,6 @@ import java.util.UUID;
 import java.util.zip.Deflater;
 
 import static com.thoughtworks.go.remote.StandardHeaders.REQUEST_CONFIRM_MODIFICATION;
-import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
-import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET_JSON;
 import static java.net.HttpURLConnection.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.readString;
@@ -148,7 +150,7 @@ public class ArtifactsControllerIntegrationTest {
     public void shouldReturn404WhenFileNotFound() throws Exception {
         ModelAndView mav = getNonFolder("/foo.xml");
 
-        assertThat(mav.getView().getContentType()).isEqualTo(RESPONSE_CHARSET);
+        assertThat(mav.getView().getContentType()).isEqualTo(TextAction.CONTENT_TYPE);
         assertThat(mav.getView()).isInstanceOf(ResponseCodeView.class);
         assertThat(((ResponseCodeView) mav.getView()).getContent()).contains("Artifact '/foo.xml' is unavailable as it may have been purged by Go or deleted externally.");
     }
@@ -201,7 +203,7 @@ public class ArtifactsControllerIntegrationTest {
         createFile(artifactsRoot, "foo.xml");
 
         ModelAndView mav = getNonFolder("/foo.xml");
-        assertThat(mav.getViewName()).isEqualTo("fileView");
+        assertThat(mav.getViewName()).isEqualTo(FileModelAndView.VIEW_NAME);
     }
 
     @Test
@@ -218,13 +220,13 @@ public class ArtifactsControllerIntegrationTest {
         createFile(artifactsRoot, "foo/bar.xml");
 
         ModelAndView mav = getNonFolder("/foo.html");
-        assertThat(mav.getViewName()).isEqualTo("fileView");
+        assertThat(mav.getViewName()).isEqualTo(FileModelAndView.VIEW_NAME);
 
         createFile(artifactsRoot, "foo.json");
         createFile(artifactsRoot, "foo/bar.xml");
 
         mav = getAsJson("/foo.json");
-        assertThat(mav.getViewName()).isEqualTo("fileView");
+        assertThat(mav.getViewName()).isEqualTo(FileModelAndView.VIEW_NAME);
     }
 
     @Test
@@ -251,7 +253,7 @@ public class ArtifactsControllerIntegrationTest {
         createFile(artifactsRoot, "foo/bar.xml");
 
         ModelAndView mav = getAsJson("/foo");
-        assertEquals(RESPONSE_CHARSET_JSON, mav.getView().getContentType());
+        assertEquals(JsonAction.CONTENT_TYPE, mav.getView().getContentType());
     }
 
     @Test
@@ -269,7 +271,7 @@ public class ArtifactsControllerIntegrationTest {
         createFile(artifactsRoot, "tmp/1.xml");
 
         ModelAndView mav = getNonFolder("//tmp/1.xml");
-        assertThat(mav.getViewName()).isEqualTo("fileView");
+        assertThat(mav.getViewName()).isEqualTo(FileModelAndView.VIEW_NAME);
     }
 
     @Test
@@ -386,7 +388,7 @@ public class ArtifactsControllerIntegrationTest {
         prepareConsoleOut(firstLine + secondLine + "\n");
         Stage firstStage = pipeline.getFirstStage();
         long startLineNumber = 1L;
-        ModelAndView view = artifactsController.consoleout(pipeline.getName(), pipeline.getLabel(),
+        ModelAndView view = artifactsController.consoleOutput(pipeline.getName(), pipeline.getLabel(),
                 firstStage.getName(),
                 "build", String.valueOf(firstStage.getCounter()), startLineNumber);
 
@@ -407,7 +409,7 @@ public class ArtifactsControllerIntegrationTest {
         String secondLine = "Build succeeded.";
         prepareConsoleOut(firstLine + "\n" + secondLine + "\n");
         Stage firstStage = pipeline.getFirstStage();
-        ModelAndView view = artifactsController.consoleout(pipeline.getName(), pipeline.getLabel(),
+        ModelAndView view = artifactsController.consoleOutput(pipeline.getName(), pipeline.getLabel(),
                 firstStage.getName(),
                 "build", String.valueOf(firstStage.getCounter()), null);
 
@@ -427,9 +429,9 @@ public class ArtifactsControllerIntegrationTest {
         prepareConsoleOut("");
         Stage firstStage = pipeline.getFirstStage();
         long startLineNumber = 0L;
-        ModelAndView view = artifactsController.consoleout("snafu", "snafu", "snafu", "build", String.valueOf(firstStage.getCounter()), startLineNumber);
+        ModelAndView view = artifactsController.consoleOutput("snafu", "snafu", "snafu", "build", String.valueOf(firstStage.getCounter()), startLineNumber);
 
-        assertThat(view.getView().getContentType()).isEqualTo(RESPONSE_CHARSET);
+        assertThat(view.getView().getContentType()).isEqualTo(TextAction.CONTENT_TYPE);
         assertThat(view.getView()).isInstanceOf(ResponseCodeView.class);
         assertThat(((ResponseCodeView) view.getView()).getContent()).contains("Job snafu/snafu/snafu/1/build not found.");
     }
@@ -442,7 +444,7 @@ public class ArtifactsControllerIntegrationTest {
         prepareTempConsoleOut(new JobIdentifier(pipeline.getName(), pipeline.getCounter(), pipeline.getLabel(), firstStage.getName(), String.valueOf(firstStage.getCounter()), firstJob.getName()), "fantastic curly coated retriever");
         ModelAndView view = getNonFolder("cruise-output/console.log");
 
-        assertThat(view.getViewName()).isEqualTo("fileView");
+        assertThat(view.getViewName()).isEqualTo(FileModelAndView.VIEW_NAME);
         File targetFile = (File) view.getModel().get("targetFile");
         String separator = File.separator;
         assertThat(targetFile.getPath()).isEqualTo(String.format("data%sconsole%s%s.log",
@@ -455,8 +457,8 @@ public class ArtifactsControllerIntegrationTest {
         Files.writeString(fooFile.toPath(), "FooBarBaz...", UTF_8);
         File checksumFile = createFile(artifactsRoot, "/tmp/foobar.html.checksum");
         Files.writeString(checksumFile.toPath(), "baz/foobar.html:FooMD5\n", UTF_8);
-        MockMultipartFile artifactMultipart = new MockMultipartFile("file", new FileInputStream(fooFile));
-        MockMultipartFile checksumMultipart = new MockMultipartFile("file_checksum", new FileInputStream(checksumFile));
+        MockMultipartFile artifactMultipart = new MockMultipartFile(Multipart.REGULAR_FILENAME, new FileInputStream(fooFile));
+        MockMultipartFile checksumMultipart = new MockMultipartFile(Multipart.CHECKSUM_FILENAME, new FileInputStream(checksumFile));
         request.addHeader(REQUEST_CONFIRM_MODIFICATION, "true");
         StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, artifactMultipart, checksumMultipart);
         postFileWithChecksum("baz/foobar.html", multipartRequest);
@@ -473,8 +475,8 @@ public class ArtifactsControllerIntegrationTest {
         createFileWithContent(artifactsRoot, "cruise-output/md5.checksum", "oldbaz/foobar.html:BazMD5\n");
         File checksumFile = createFileWithContent(artifactsRoot, "/tmp/foobar.html.checksum", "baz/foobar.html:FooMD5\n");
 
-        MockMultipartFile artifactMultipart = new MockMultipartFile("file", new FileInputStream(fooFile));
-        MockMultipartFile checksumMultipart = new MockMultipartFile("file_checksum", new FileInputStream(checksumFile));
+        MockMultipartFile artifactMultipart = new MockMultipartFile(Multipart.REGULAR_FILENAME, new FileInputStream(fooFile));
+        MockMultipartFile checksumMultipart = new MockMultipartFile(Multipart.CHECKSUM_FILENAME, new FileInputStream(checksumFile));
         request.addHeader(REQUEST_CONFIRM_MODIFICATION, "true");
         StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, artifactMultipart, checksumMultipart);
 
@@ -560,12 +562,12 @@ public class ArtifactsControllerIntegrationTest {
     }
 
     private ModelAndView postFile(String file) throws Exception {
-        return postFile(file, "file");
+        return postFile(file, Multipart.REGULAR_FILENAME);
     }
 
     @SuppressWarnings("UnusedReturnValue")
     private ModelAndView prepareConsoleOut(String content) throws Exception {
-        return postFile("/cruise-output/console.log", "file", new ByteArrayInputStream(content.getBytes()));
+        return postFile("/cruise-output/console.log", Multipart.REGULAR_FILENAME, new ByteArrayInputStream(content.getBytes()));
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -579,7 +581,7 @@ public class ArtifactsControllerIntegrationTest {
         File source = file(root, "/tmp" + folder);
         File zippedFile = zipUtil.zip(source, Files.createTempFile(source.getName(), null).toFile(), Deflater.NO_COMPRESSION);
         zippedFile.deleteOnExit();
-        return postFile("", "zipfile", new FileInputStream(zippedFile));
+        return postFile("", Multipart.ZIP_FILENAME, new FileInputStream(zippedFile));
     }
 
     private ModelAndView postFile(String requestFilename, String multipartFilename) throws Exception {

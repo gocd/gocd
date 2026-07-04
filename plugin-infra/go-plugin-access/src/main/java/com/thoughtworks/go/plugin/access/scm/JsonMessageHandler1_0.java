@@ -23,9 +23,9 @@ import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.json.JsonHelper;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -34,8 +34,6 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class JsonMessageHandler1_0 implements JsonMessageHandler {
-    private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-
     private final JSONResultMessageHandler jsonResultMessageHandler;
 
     public JsonMessageHandler1_0() {
@@ -363,7 +361,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         Date timestamp;
         try {
             String timestampString = (String) map.get("timestamp");
-            timestamp = new SimpleDateFormat(DATE_PATTERN).parse(timestampString);
+            timestamp = Dates.parseIso8601StrictOffset(timestampString);
         } catch (Exception e) {
             throw new RuntimeException("SCM revision timestamp should be of type string with format yyyy-MM-dd'T'HH:mm:ss.SSS'Z' and cannot be empty");
         }
@@ -440,7 +438,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     private Map scmRevisionToMap(SCMRevision scmRevision) {
         Map map = new LinkedHashMap();
         map.put("revision", scmRevision.getRevision());
-        map.put("timestamp", new SimpleDateFormat(DATE_PATTERN).format(scmRevision.getTimestamp()));
+        map.put("timestamp", Dates.formatIso8601UtcWithMillis(scmRevision.getTimestamp()));
         map.put("data", scmRevision.getData());
         return map;
     }

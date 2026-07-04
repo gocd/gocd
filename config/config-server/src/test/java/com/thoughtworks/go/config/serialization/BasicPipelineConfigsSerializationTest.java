@@ -18,9 +18,9 @@ package com.thoughtworks.go.config.serialization;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.GoConstants;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BasicPipelineConfigsSerializationTest {
@@ -59,7 +59,7 @@ public class BasicPipelineConfigsSerializationTest {
               </pipelines>
             </cruise>
 
-            """.formatted(GoConstants.CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
     private static final String VIEW_PERMISSION = """
                 <view>
@@ -79,8 +79,8 @@ public class BasicPipelineConfigsSerializationTest {
 
     @Test
     public void shouldWriteOperatePermissionForGroupCorrectly() {
-        OperationConfig operationConfig = new OperationConfig(new AdminUser(new CaseInsensitiveString("jez")), new AdminUser(new CaseInsensitiveString("lqiao")), new AdminRole(
-                new CaseInsensitiveString("mingle")));
+        OperationConfig operationConfig = new OperationConfig(new AdminUser(cis("jez")), new AdminUser(cis("lqiao")), new AdminRole(
+                cis("mingle")));
         Authorization authorization = new Authorization(operationConfig);
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1");
         PipelineConfigs pipelineConfigs = new BasicPipelineConfigs(authorization, pipelineConfig);
@@ -151,9 +151,9 @@ public class BasicPipelineConfigsSerializationTest {
     }
 
     private void assertion(AdminsConfig actualView) {
-        assertThat(actualView).contains(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat(actualView).contains(new AdminUser(new CaseInsensitiveString("lqiao")));
-        assertThat(actualView).contains(new AdminRole(new CaseInsensitiveString("mingle")));
+        assertThat(actualView).contains(new AdminUser(cis("jez")));
+        assertThat(actualView).contains(new AdminUser(cis("lqiao")));
+        assertThat(actualView).contains(new AdminRole(cis("mingle")));
     }
 
     private String configureAuthorization(String permission) {

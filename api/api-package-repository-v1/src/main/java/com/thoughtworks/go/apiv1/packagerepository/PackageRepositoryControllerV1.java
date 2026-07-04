@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.packagerepository.representers.PackageRepositoriesRepresenter;
 import com.thoughtworks.go.apiv1.packagerepository.representers.PackageRepositoryRepresenter;
@@ -47,14 +47,14 @@ import static spark.Spark.*;
 @Component
 public class PackageRepositoryControllerV1 extends ApiController implements SparkSpringController, CrudController<PackageRepository> {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final EntityHashingService entityHashingService;
     private final PackageRepositoryService packageRepositoryService;
 
     @Autowired
-    public PackageRepositoryControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, PackageRepositoryService packageRepositoryService) {
+    public PackageRepositoryControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, EntityHashingService entityHashingService, PackageRepositoryService packageRepositoryService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.entityHashingService = entityHashingService;
         this.packageRepositoryService = packageRepositoryService;
     }
@@ -69,8 +69,8 @@ public class PackageRepositoryControllerV1 extends ApiController implements Spar
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
-            before("/*", mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before("", mimeType, this.apiAuthorizationHelper::checkAnyPipelineGroupAdminUserAnd403);
+            before("/*", mimeType, this.apiAuthorizationHelper::checkAnyPipelineGroupAdminUserAnd403);
 
             get("", mimeType, this::index);
             get(Routes.PackageRepository.REPO_ID, mimeType, this::show);

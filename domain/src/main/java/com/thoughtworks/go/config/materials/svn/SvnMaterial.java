@@ -23,8 +23,6 @@ import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.svn.*;
-import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
@@ -37,6 +35,7 @@ import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static com.thoughtworks.go.util.FileUtil.mkdirsParentQuietly;
+import static com.thoughtworks.go.work.GoPublisher.PRODUCT_NAME;
 import static java.lang.String.format;
 
 /**
@@ -44,14 +43,19 @@ import static java.lang.String.format;
  */
 public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, PasswordAwareMaterial {
     private static final Logger LOGGER = LoggerFactory.getLogger(SvnMaterial.class);
+    private final boolean checkExternals;
     private UrlArgument url;
-    private boolean checkExternals;
     private transient Subversion svnLazyLoaded;
 
     public static final String TYPE = "SvnMaterial";
 
     public SvnMaterial(String url, String userName, String password, boolean checkExternals) {
-        this(url, userName, password, checkExternals, new GoCipher());
+        super("SvnMaterial");
+        bombIfNull(url, "null url");
+        setUrl(url);
+        this.userName = userName;
+        setPassword(password);
+        this.checkExternals = checkExternals;
     }
 
     public SvnMaterial(Subversion svn) {
@@ -65,21 +69,12 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     }
 
     public SvnMaterial(SvnMaterialConfig config) {
-        this(config.getUrl(), config.getUserName(), config.getPassword(), config.isCheckExternals(), config.getGoCipher());
+        this(config.getUrl(), config.getUserName(), config.getPassword(), config.isCheckExternals());
         this.autoUpdate = config.getAutoUpdate();
         this.filter = config.rawFilter();
         this.invertFilter = config.getInvertFilter();
         this.folder = config.getFolder();
         this.name = config.getName();
-    }
-
-    public SvnMaterial(String url, String userName, String password, boolean checkExternals, GoCipher goCipher) {
-        super("SvnMaterial");
-        bombIfNull(url, "null url");
-        setUrl(url);
-        this.userName = userName;
-        setPassword(password);
-        this.checkExternals = checkExternals;
     }
 
     @Override
@@ -135,8 +130,10 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         Revision revision = revisionContext.getLatestRevision();
         File workingDir = execCtx.isServer() ? baseDir : workingdir(baseDir);
-        LOGGER.debug("Updating to revision: {} in workingdirectory {}", revision, workingDir);
-        outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), url));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Updating to revision: {} in working directory {}", revision, workingDir);
+        }
+        outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", PRODUCT_NAME, updatingTarget(), revision.getRevision(), url));
         boolean shouldDoFreshCheckout = !workingDir.isDirectory() || isRepositoryChanged(workingDir);
         if (shouldDoFreshCheckout) {
             freshCheckout(outputStreamConsumer, new SubversionRevision(revision), workingDir);
@@ -144,7 +141,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
             cleanupAndUpdate(outputStreamConsumer, new SubversionRevision(revision), workingDir);
         }
         LOGGER.debug("done with update");
-        outputStreamConsumer.stdOutput(format("[%s] Done.\n", GoConstants.PRODUCT_NAME));
+        outputStreamConsumer.stdOutput(format("[%s] Done.\n", PRODUCT_NAME));
     }
 
     public boolean isRepositoryChanged(File workingFolder) {
@@ -166,7 +163,9 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         if (workingFolder.isDirectory()) {
             FileUtils.deleteQuietly(workingFolder);
         }
-        LOGGER.trace("Checking out to revision {} in {}", revision, workingFolder);
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Checking out to revision {} in {}", revision, workingFolder);
+        }
         mkdirsParentQuietly(workingFolder);
         svn().checkoutTo(outputStreamConsumer, workingFolder, revision);
     }
@@ -178,9 +177,13 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         } catch (Exception e) {
             String message = "Failed to do cleanup and revert in " + workingFolder.getAbsolutePath();
             LOGGER.error(message);
-            LOGGER.debug(message, e);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(message, e);
+            }
         }
-        LOGGER.trace("Updating to revision {} on {}", revision, workingFolder);
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Updating to revision {} on {}", revision, workingFolder);
+        }
         svn().updateTo(outputStreamConsumer, workingFolder, revision);
     }
 

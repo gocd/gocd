@@ -21,14 +21,14 @@ private File destFile(String url) {
 }
 
 tasks.register('downloadMacJreArm64Checksum', DownloadFile) {
-  def goVersions = project.goVersions as GoVersions
+  def goVersions = rootProject.goVersions as GoVersions
   src goVersions.packagedJavaVersion.toSha256SumURLFor(OperatingSystem.mac, Architecture.aarch64)
   dest destFile(src.toString())
 }
 
 tasks.register('downloadMacJreArm64', DownloadFile) {
   dependsOn downloadMacJreArm64Checksum
-  def goVersions = project.goVersions as GoVersions
+  def goVersions = rootProject.goVersions as GoVersions
   src goVersions.packagedJavaVersion.toDownloadURLFor(OperatingSystem.mac, Architecture.aarch64)
   dest destFile(src.toString())
   checksum = { downloadMacJreArm64Checksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
@@ -47,7 +47,7 @@ def configureMacZip(Zip zipTask, InstallerType installerType, Zip genericZipTask
     archiveBaseName = installerType.baseName
     archiveClassifier = arch == Architecture.aarch64 ? 'osx-aarch64' : 'osx'
 
-    def goVersions = project.goVersions as GoVersions
+    def goVersions = rootProject.goVersions as GoVersions
     def genericZipTree = zipTree(genericZipTask.archiveFile)
 
     // dont include the wrapper.conf, and tanuki wrappers for OSes other than osx

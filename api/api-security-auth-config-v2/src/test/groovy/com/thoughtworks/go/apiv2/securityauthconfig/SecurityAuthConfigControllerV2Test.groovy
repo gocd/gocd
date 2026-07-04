@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv2.securityauthconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv2.securityauthconfig.representers.SecurityAuthConfigRepresenter
 import com.thoughtworks.go.apiv2.securityauthconfig.representers.SecurityAuthConfigsRepresenter
 import com.thoughtworks.go.config.SecurityAuthConfig
@@ -26,7 +26,6 @@ import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.SecurityAuthConfigService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -35,7 +34,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
@@ -61,13 +59,16 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
 
   @Override
   SecurityAuthConfigControllerV2 createControllerInstance() {
-    new SecurityAuthConfigControllerV2(securityAuthConfigService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService)
+    new SecurityAuthConfigControllerV2(securityAuthConfigService, new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService)
   }
 
   @Nested
   class Index {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = SecurityAuthConfigControllerV2Test.this
+      @Delegate ControllerTrait<SecurityAuthConfigControllerV2> c = SecurityAuthConfigControllerV2Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'index'
@@ -83,7 +84,6 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -113,6 +113,9 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = SecurityAuthConfigControllerV2Test.this
+      @Delegate ControllerTrait<SecurityAuthConfigControllerV2> c = SecurityAuthConfigControllerV2Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'show'
@@ -128,7 +131,6 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -195,6 +197,8 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = SecurityAuthConfigControllerV2Test.this
+      @Delegate ControllerTrait<SecurityAuthConfigControllerV2> c = SecurityAuthConfigControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -211,7 +215,6 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -227,7 +230,7 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
             ]
           ]]
 
-        when(entityHashingService.hashForEntity(Mockito.any() as SecurityAuthConfig)).thenReturn('some-digest')
+        when(entityHashingService.hashForEntity(any() as SecurityAuthConfig)).thenReturn('some-digest')
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
 
@@ -250,11 +253,11 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
             ]
           ]]
 
-        when(securityAuthConfigService.create(Mockito.any() as Username, Mockito.any() as SecurityAuthConfig, Mockito.any() as LocalizedOperationResult))
+        when(securityAuthConfigService.create(any(), any() as SecurityAuthConfig, any()))
           .then({ InvocationOnMock invocation ->
-          SecurityAuthConfig authConfig = invocation.getArguments()[1]
+          SecurityAuthConfig authConfig = invocation.getArgument(1)
           authConfig.addError("plugin_id", "Plugin not installed.")
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.unprocessableEntity("validation failed")
         })
 
@@ -287,7 +290,7 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
           properties                       : []
         ]
 
-        when(entityHashingService.hashForEntity(Mockito.any() as SecurityAuthConfig)).thenReturn('some-digest')
+        when(entityHashingService.hashForEntity(any() as SecurityAuthConfig)).thenReturn('some-digest')
         when(securityAuthConfigService.findProfile("file")).thenReturn(existingElasticProfile)
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
@@ -316,6 +319,8 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = SecurityAuthConfigControllerV2Test.this
+      @Delegate ControllerTrait<SecurityAuthConfigControllerV2> c = SecurityAuthConfigControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -332,7 +337,6 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -458,11 +462,11 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
         when(entityHashingService.hashForEntity(existingAuthConfig)).thenReturn('some-digest')
         when(securityAuthConfigService.findProfile("file")).thenReturn(existingAuthConfig)
 
-        when(securityAuthConfigService.update(Mockito.any() as Username, Mockito.any() as String, Mockito.any() as SecurityAuthConfig, Mockito.any() as LocalizedOperationResult))
+        when(securityAuthConfigService.update(any(), any() as String, any() as SecurityAuthConfig, any()))
           .then({ InvocationOnMock invocation ->
-          SecurityAuthConfig authConfig = invocation.getArguments()[2]
+          SecurityAuthConfig authConfig = invocation.getArgument(2)
           authConfig.addError("plugin_id", "Plugin not installed.")
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          HttpLocalizedOperationResult result = invocation.getArgument(3)
           result.unprocessableEntity("validation failed")
         })
 
@@ -491,6 +495,8 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
   class Destroy {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = SecurityAuthConfigControllerV2Test.this
+      @Delegate ControllerTrait<SecurityAuthConfigControllerV2> c = SecurityAuthConfigControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -507,7 +513,6 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -516,8 +521,8 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
         def authConfig = new SecurityAuthConfig("file", "cd.go.authorization.file")
 
         when(securityAuthConfigService.findProfile("file")).thenReturn(authConfig)
-        when(securityAuthConfigService.delete(Mockito.any() as Username, Mockito.any() as SecurityAuthConfig, Mockito.any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.arguments.last()
+        when(securityAuthConfigService.delete(any(), any() as SecurityAuthConfig, any())).then({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArgument(2)
           result.setMessage(resourceDeleteSuccessful(EntityType.SecurityAuthConfig.getEntityNameLowerCase(), authConfig.getId()))
         })
 
@@ -547,8 +552,8 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
 
         when(securityAuthConfigService.findProfile('file')).thenReturn(authConfig)
         doAnswer({ InvocationOnMock invocation ->
-          ((HttpLocalizedOperationResult) invocation.arguments.last()).unprocessableEntity("save failed")
-        }).when(securityAuthConfigService).delete(any() as Username, eq(authConfig), any() as LocalizedOperationResult)
+          ((HttpLocalizedOperationResult) invocation.getArgument(2)).unprocessableEntity("save failed")
+        }).when(securityAuthConfigService).delete(any() as Username, eq(authConfig), any())
 
         deleteWithApiHeader(controller.controllerPath('/file'))
 

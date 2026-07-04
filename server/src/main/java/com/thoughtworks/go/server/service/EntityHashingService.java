@@ -31,7 +31,7 @@ import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.initializers.Initializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -226,8 +226,8 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     }
 
     public String hashForEntity(EnvironmentConfig config) {
-        if (config instanceof MergeEnvironmentConfig) {
-            return hashForEntity((MergeEnvironmentConfig) config);
+        if (config instanceof MergeEnvironmentConfig environmentConfigs) {
+            return hashForEntity(environmentConfigs);
         }
 
         String cacheKey = cacheKey(config, config.name());

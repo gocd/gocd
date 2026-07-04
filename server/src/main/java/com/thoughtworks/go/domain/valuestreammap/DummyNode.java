@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.domain.valuestreammap;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-
 import java.util.List;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 public class DummyNode extends Node {
     public DummyNode(String nodeId, String nodeName) {
-        super(DependencyNodeType.DUMMY, new CaseInsensitiveString(nodeId), nodeName);
+        super(DependencyNodeType.DUMMY, cis(nodeId), nodeName);
     }
 
     @Override

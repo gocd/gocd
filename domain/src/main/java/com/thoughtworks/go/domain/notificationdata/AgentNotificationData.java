@@ -16,88 +16,17 @@
 package com.thoughtworks.go.domain.notificationdata;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 
-public class AgentNotificationData implements Serializable {
-    private final String uuid;
-    private final String hostName;
-    private final boolean isElastic;
-    private final String ipAddress;
-    private final String operatingSystem;
-    private final String freeSpace;
-    private final String agentConfigState;
-    private final String agentState;
-    private final String buildState;
-    private final Date transitionTime;
-
-    public AgentNotificationData(String uuid, String hostName, boolean isElastic, String ipAddress,
-                                 String operatingSystem, String freeSpace, String agentConfigState, String agentState,
-                                 String buildState, Date transitionTime) {
-        this.uuid = uuid;
-        this.hostName = hostName;
-        this.isElastic = isElastic;
-        this.ipAddress = ipAddress;
-        this.operatingSystem = operatingSystem;
-        this.freeSpace = freeSpace;
-        this.agentConfigState = agentConfigState;
-        this.agentState = agentState;
-        this.buildState = buildState;
-        this.transitionTime = transitionTime;
-    }
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    public String getHostName() {
-        return hostName;
-    }
-
-    public boolean isElastic() {
-        return isElastic;
-    }
-
-    public String getIpAddress() {
-        return ipAddress;
-    }
-
-    public String getOperatingSystem() {
-        return operatingSystem;
-    }
-
-    public String getFreeSpace() {
-        return freeSpace;
-    }
-
-    public String getAgentConfigState() {
-        return agentConfigState;
-    }
-
-    public String getAgentState() {
-        return agentState;
-    }
-
-    public String getBuildState() {
-        return buildState;
-    }
-
-    public Date getTransitionTime() {
-        return transitionTime;
-    }
-
-    @Override
-    public String toString() {
-        return "AgentNotificationData{" +
-                "uuid='" + uuid + '\'' +
-                ", hostName='" + hostName + '\'' +
-                ", isElastic=" + isElastic +
-                ", ipAddress='" + ipAddress + '\'' +
-                ", operatingSystem='" + operatingSystem + '\'' +
-                ", freeSpace='" + freeSpace + '\'' +
-                ", agentConfigState='" + agentConfigState + '\'' +
-                ", agentState='" + agentState + '\'' +
-                ", buildState='" + buildState + '\'' +
-                ", transitionTime=" + transitionTime +
-                '}';
-    }
-}
+public record AgentNotificationData(
+    String uuid,
+    String hostName,
+    boolean isElastic,
+    String ipAddress,
+    String operatingSystem,
+    String freeSpace,
+    String agentConfigState,
+    String agentState,
+    String buildState,
+    Instant transitionTime
+) implements Serializable {}

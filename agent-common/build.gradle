@@ -25,35 +25,40 @@ java {
 CapabilitySupport.extendMain(project, 'agentClient')
 
 dependencies {
-  annotationProcessor project.deps.lombok
-  compileOnly project.deps.lombok
+  annotationProcessor rootProject.deps.lombok
+  compileOnly rootProject.deps.lombok
 
   api(project(':base')) { capabilities { requireFeature('logging') } }
-  agentClientApi(project(':base')) { capabilities { requireFeature('agent-client') } }
-  implementation project.deps.jcommander
-  agentClientRuntimeOnly project.deps.jcommander
+  agentClientApi(project(':base'))
 
-  agentClientImplementation(project.deps.apacheHttpComponents) {
+  implementation rootProject.deps.jcommander
+  agentClientRuntimeOnly rootProject.deps.jcommander
+
+  agentClientCompileOnly rootProject.deps.jakartaAnnotation
+  agentClientImplementation rootProject.deps.bouncyCastle
+  agentClientImplementation rootProject.deps.bouncyCastlePkix
+
+  agentClientImplementation(rootProject.deps.apacheHttpComponents) {
     exclude(module: 'commons-codec')
   }
-  if (project.deps.apacheHttpComponents) {
-    agentClientRuntimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
+  if (rootProject.deps.apacheHttpComponents) {
+    agentClientRuntimeOnly rootProject.deps.slf4jJcl // Allow commons-logging replacement
   }
 
-  testImplementation project.deps.mockitoCore
+  testImplementation rootProject.deps.mockitoCore
   testImplementation(testFixtures(project(':test:test-utils')))
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.assertJ
+  testImplementation rootProject.deps.junit5Api
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.assertJ
 
   testFixturesImplementation(testFixtures(project(':test:test-utils')))
-  testFixturesImplementation project.deps.jetty
-  testFixturesImplementation project.deps.jettyUtil
-  testFixturesImplementation project.deps.jettyServlet
-  testFixturesImplementation project.deps.jettyWebapp
+  testFixturesImplementation rootProject.deps.jetty
+  testFixturesImplementation rootProject.deps.jettyUtil
+  testFixturesImplementation rootProject.deps.jettyServlet
+  testFixturesImplementation rootProject.deps.jettyWebapp
 
-  testFixturesApi project.deps.assertJ
-  testFixturesApi enforcedPlatform(project.deps.junit5Bom)
-  testFixturesApi project.deps.junit5Api
+  testFixturesApi rootProject.deps.assertJ
+  testFixturesApi enforcedPlatform(rootProject.deps.junit5Bom)
+  testFixturesApi rootProject.deps.junit5Api
 }

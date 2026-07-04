@@ -69,7 +69,7 @@ abstract class BuildDockerImageTask extends DefaultTask {
   // We don't declare an output here and multiple tasks share dir from parent with unique tarballs per
   // distribution, so the dirs are not "owned" by the task.
   @Internal abstract DirectoryProperty getDistributionDir()
-  @Internal final goVersions = project.goVersions as GoVersions
+  @Internal final goVersions = project.rootProject.goVersions as GoVersions
 
   @Internal Closure templateHelper
   @Internal Closure verifyHelper

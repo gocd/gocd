@@ -17,6 +17,7 @@ package com.thoughtworks.go.config;
 
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -31,7 +32,7 @@ public class AdminUserTest {
 
     @Test
     public void shouldValidateNonBlankUsers() {
-        AdminUser adminUser = new AdminUser(new CaseInsensitiveString("foo"));
+        AdminUser adminUser = new AdminUser(cis("foo"));
         adminUser.validate(null);
         assertNull(adminUser.errors().firstErrorOn(AdminUser.NAME));
     }

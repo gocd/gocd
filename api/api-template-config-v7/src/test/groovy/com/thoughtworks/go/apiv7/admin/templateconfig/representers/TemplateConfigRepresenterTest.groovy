@@ -16,12 +16,16 @@
 package com.thoughtworks.go.apiv7.admin.templateconfig.representers
 
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.config.*
+import com.thoughtworks.go.config.JobConfig
+import com.thoughtworks.go.config.JobConfigs
+import com.thoughtworks.go.config.PipelineTemplateConfig
+import com.thoughtworks.go.config.StageConfig
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 
@@ -31,7 +35,7 @@ class TemplateConfigRepresenterTest {
 
   @BeforeEach
   void setUp() {
-    pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString('some-template'), new StageConfig(new CaseInsensitiveString('stage'), new JobConfigs(new JobConfig(new CaseInsensitiveString('job')))))
+    pipelineTemplateConfig = new PipelineTemplateConfig(cis('some-template'), new StageConfig(cis('stage'), new JobConfigs(new JobConfig(cis('job')))))
   }
 
   @Test

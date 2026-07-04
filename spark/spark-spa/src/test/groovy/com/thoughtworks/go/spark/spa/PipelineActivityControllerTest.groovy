@@ -15,17 +15,18 @@
  */
 package com.thoughtworks.go.spark.spa
 
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.PipelineAccessSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import spark.ModelAndView
 import spark.Request
+import spark.Response
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
@@ -34,7 +35,7 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
 
   @Override
   PipelineActivityController createControllerInstance() {
-    return new PipelineActivityController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, goConfigService, securityService)
+    return new PipelineActivityController(new SpaAuthorizationHelper(securityService, goConfigService), templateEngine, goConfigService, securityService)
   }
 
   @Test
@@ -42,7 +43,7 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
     def pipelineName = "up42"
     def request = mock(Request)
     when(request.params("pipeline_name")).thenReturn(pipelineName)
-    ModelAndView modelAndView = controller.index(request, response)
+    ModelAndView modelAndView = controller.index(request, mock(Response))
 
     Map<Object, Object> model = modelAndView.getModel() as Map<Object, Object>
 
@@ -56,7 +57,7 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
     def request = mock(Request)
     when(request.params("pipeline_name")).thenReturn(pipelineName)
     when(goConfigService.isPipelineEditable(pipelineName)).thenReturn(true)
-    ModelAndView modelAndView = controller.index(request, response)
+    ModelAndView modelAndView = controller.index(request, mock(Response))
 
     Map<Object, Object> model = modelAndView.getModel() as Map<Object, Object>
 
@@ -70,7 +71,7 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
     def request = mock(Request)
     when(request.params("pipeline_name")).thenReturn(pipelineName)
     when(securityService.hasOperatePermissionForPipeline(currentUserLoginName(), pipelineName)).thenReturn(true)
-    ModelAndView modelAndView = controller.index(request, response)
+    ModelAndView modelAndView = controller.index(request, mock(Response))
 
     Map<Object, Object> model = modelAndView.getModel() as Map<Object, Object>
 
@@ -82,10 +83,12 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
   class Index {
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate ControllerTrait<PipelineActivityController> c = PipelineActivityControllerTest.this
+      @Delegate SecurityServiceTrait s = PipelineActivityControllerTest.this
 
       @BeforeEach
       void setUp() {
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(getPipelineName()))).thenReturn(true)
+        when(goConfigService.hasPipelineNamed(cis(getPipelineName()))).thenReturn(true)
       }
 
       @Override
@@ -95,12 +98,12 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
 
       @Override
       void makeHttpCall() {
-        get(controller.controllerBasePath().replaceAll(":pipeline_name", getPipelineName()))
+        get(controller.controllerBasePath().replace(":pipeline_name", getPipelineName()))
       }
 
       @Override
-      String getPipelineName() {
-        return "up42"
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: "up42")
       }
     }
   }

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.apiv2.materials.representers.materials
 
 import com.thoughtworks.go.config.BasicCruiseConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
@@ -26,6 +25,7 @@ import com.thoughtworks.go.util.command.UrlArgument
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
@@ -36,8 +36,8 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait<GitMaterial
   }
 
   GitMaterialConfig existingMaterialWithErrors() {
-    def gitConfig = git(new UrlArgument(''), null, null, '', '', true, null, false, '', new CaseInsensitiveString('!nV@l!d'), false)
-    def dupGitMaterial = git(new UrlArgument(''), null, null, '', '', true, null, false, '', new CaseInsensitiveString('!nV@l!d'), false)
+    def gitConfig = git(new UrlArgument(''), null, null, '', '', true, null, false, '', cis('!nV@l!d'), false)
+    def dupGitMaterial = git(new UrlArgument(''), null, null, '', '', true, null, false, '', cis('!nV@l!d'), false)
     def materialConfigs = new MaterialConfigs(gitConfig)
     materialConfigs.add(dupGitMaterial)
 
@@ -117,7 +117,8 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait<GitMaterial
       type       : 'git',
       fingerprint: existingMaterial().fingerprint,
       attributes : [
-        url             : "http://user:password@funk.com/blank",
+        url             : "http://funk.com/blank",
+        username        : "user",
         destination     : "destination",
         filter          : [
           ignore: ['**/*.html', '**/foobar/']
@@ -131,5 +132,4 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait<GitMaterial
       ]
     ]
   }
-
 }

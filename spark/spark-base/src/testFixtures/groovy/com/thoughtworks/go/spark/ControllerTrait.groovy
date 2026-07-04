@@ -202,7 +202,7 @@ trait ControllerTrait<T extends SparkController> {
     return currentUsername().getUsername()
   }
 
-  Long currentUserLoginId() {
+  long currentUserLoginId() {
     if (currentUsername().isAnonymous()) {
       return -1L
     }

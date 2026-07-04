@@ -15,13 +15,12 @@
  */
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -35,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -75,7 +75,7 @@ public class MaterialDatabaseDependencyUpdaterIntegrationTest  {
         Pipeline passed1 = dbHelper.schedulePipeline(mingleConfig, new TimeProvider());
         dbHelper.passStage(passed1.getStages().getFirst());
 
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("acceptance"), new CaseInsensitiveString("stage-name"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("acceptance"), cis("stage-name"));
         String revision1 = String.format("acceptance/%s/stage-name/1", passed1.getCounter());
 
         updater.updateMaterial(dependencyMaterial);

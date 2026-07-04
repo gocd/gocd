@@ -33,6 +33,7 @@ import com.thoughtworks.go.util.XsdValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -175,7 +176,7 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
         xmlWriter.write(cruiseConfig, output, false);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(output.toString());
-        PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("test"));
+        PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(cis("test"));
         MaterialConfig materialConfig = pipelineConfig.materialConfigs().getFirst();
         assertThat(materialConfig instanceof PluggableSCMMaterialConfig).isTrue();
         assertThat(((PluggableSCMMaterialConfig) materialConfig).getScmId()).isEqualTo(scmId);
@@ -209,7 +210,7 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
         xmlWriter.write(cruiseConfig, output, false);
 
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(output.toString());
-        PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("test"));
+        PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(cis("test"));
         MaterialConfig materialConfig = pipelineConfig.materialConfigs().getFirst();
         assertThat(materialConfig instanceof PluggableSCMMaterialConfig).isTrue();
         assertThat(((PluggableSCMMaterialConfig) materialConfig).getScmId()).isEqualTo(scmId);

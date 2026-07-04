@@ -17,7 +17,6 @@ package com.thoughtworks.go.apiv1.internalpipelinestructure.representers
 
 import com.thoughtworks.go.apiv1.internalpipelinestructure.models.PipelineStructureViewModel
 import com.thoughtworks.go.config.BasicEnvironmentConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.EnvironmentsConfig
 import com.thoughtworks.go.config.TemplatesConfig
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
@@ -30,6 +29,7 @@ import com.thoughtworks.go.util.Node
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class InternalPipelineStructuresRepresenterTest {
@@ -50,7 +50,7 @@ class InternalPipelineStructuresRepresenterTest {
     def group2 = PipelineConfigMother.createGroup("second-group", pipeline2, templateBasedPipeline)
 
     def environmentConfigs = new EnvironmentsConfig()
-    def environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("test_env"))
+    def environmentConfig = new BasicEnvironmentConfig(cis("test_env"))
     environmentConfig.addPipeline(pipeline1.name)
     environmentConfigs.add(environmentConfig)
 

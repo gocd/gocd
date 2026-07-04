@@ -31,39 +31,39 @@ dependencies {
   api project(':plugin-infra:plugin-metadata-store')
   implementation project(':plugin-infra:go-plugin-domain')
   implementation project(':plugin-infra:go-plugin-api')
-  implementation project.deps.jakartaAnnotation
+  implementation rootProject.deps.jakartaAnnotation
 
-  implementation project.deps.gson
-  api project.deps.jdom
-  implementation project.deps.commonsCodec
-  implementation project.deps.commonsIO
-  implementation project.deps.commonsText
-  implementation project.deps.commonsLang3
-  serverOnlyImplementation project.deps.quartz
+  implementation rootProject.deps.gson
+  api rootProject.deps.jdom
+  implementation rootProject.deps.commonsCodec
+  implementation rootProject.deps.commonsIO
+  implementation rootProject.deps.commonsText
+  implementation rootProject.deps.commonsLang3
+  serverOnlyImplementation rootProject.deps.quartz
   serverOnlyImplementation platform(project(':build-platform'))
-  implementation project.deps.cloning
-  implementation(project.deps.apacheHttpComponents) {
+  implementation rootProject.deps.cloning
+  implementation(rootProject.deps.apacheHttpComponents) {
     exclude(module: 'commons-codec')
   }
-  implementation project.deps.springWeb
-  if (project.deps.springWeb || project.deps.apacheHttpComponents) {
-    runtimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
+  implementation rootProject.deps.springWeb
+  if (rootProject.deps.springWeb || rootProject.deps.apacheHttpComponents) {
+    runtimeOnly rootProject.deps.slf4jJcl // Allow commons-logging replacement
   }
-  implementation project.deps.slf4jApi
-  annotationProcessor project.deps.lombok
-  compileOnly project.deps.lombok
-  compileOnlyApi project.deps.jetBrainsAnnotations
+  implementation rootProject.deps.slf4jApi
+  annotationProcessor rootProject.deps.lombok
+  compileOnly rootProject.deps.lombok
+  compileOnlyApi rootProject.deps.jetBrainsAnnotations
 
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.mockitoCore
-  testImplementation project.deps.junit5Params
-  testImplementation project.deps.assertJ
-  testImplementation project.deps.systemStubs
+  testImplementation rootProject.deps.junit5Api
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.mockitoCore
+  testImplementation rootProject.deps.junit5Params
+  testImplementation rootProject.deps.assertJ
+  testImplementation rootProject.deps.systemStubs
   testImplementation(testFixtures(project(':test:test-utils')))
 
-  testFixturesApi project.deps.junit5Api
+  testFixturesApi rootProject.deps.junit5Api
   testFixturesImplementation project(':util')
   testFixturesImplementation(testFixtures(project(':test:test-utils')))
 }

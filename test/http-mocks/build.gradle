@@ -15,16 +15,16 @@
  */
 
 dependencies {
-  testFixturesApi project.deps.apacheHttpComponents
-  testFixturesImplementation project.deps.commonsLang3
-  testFixturesImplementation project.deps.servletApi
-  testFixturesImplementation project.deps.gson
-  testFixturesImplementation project.deps.spring
-  testFixturesImplementation project.deps.springTest
-  if (project.deps.apacheHttpComponents || project.deps.spring) {
-    testFixturesRuntimeOnly project.deps.slf4jJcl // Allow commons-logging replacement
+  testFixturesApi rootProject.deps.apacheHttpComponents
+  testFixturesImplementation rootProject.deps.commonsLang3
+  testFixturesImplementation rootProject.deps.servletApi
+  testFixturesImplementation rootProject.deps.gson
+  testFixturesImplementation rootProject.deps.spring
+  testFixturesImplementation rootProject.deps.springTest
+  if (rootProject.deps.apacheHttpComponents || rootProject.deps.spring) {
+    testFixturesRuntimeOnly rootProject.deps.slf4jJcl // Allow commons-logging replacement
   }
 
-  testFixturesImplementation project.deps.assertJ
-  testFixturesImplementation project.deps.jsonUnit
+  testFixturesImplementation rootProject.deps.assertJ
+  testFixturesImplementation rootProject.deps.jsonUnit
 }

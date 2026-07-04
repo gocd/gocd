@@ -38,6 +38,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -194,7 +195,7 @@ public class SchedulingCheckerServiceUnitTest {
             pipelineName = "pipeline";
             stageName = "current_stage";
             Stages stages = mock(Stages.class);
-            previousStageName = new CaseInsensitiveString("previous_stage");
+            previousStageName = cis("previous_stage");
 
             when(pipeline.getName()).thenReturn(pipelineName);
             when(pipeline.hasStageBeenRun(stageName)).thenReturn(false);
@@ -298,8 +299,8 @@ public class SchedulingCheckerServiceUnitTest {
 
     private void flatten(List<SchedulingChecker> value, List<SchedulingChecker> containerForAllCheckers) {
         for (SchedulingChecker checker : value) {
-            if (checker instanceof CompositeChecker) {
-                List<SchedulingChecker> schedulingCheckers = List.of(((CompositeChecker) checker).getCheckers());
+            if (checker instanceof CompositeChecker compositeChecker1) {
+                List<SchedulingChecker> schedulingCheckers = List.of(compositeChecker1.getCheckers());
                 flatten(schedulingCheckers, containerForAllCheckers);
             } else {
                 containerForAllCheckers.add(checker);

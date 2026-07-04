@@ -27,7 +27,7 @@ import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.helper.PartialConfigMother;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.serverhealth.HealthStateLevel;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -43,6 +43,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -103,7 +104,7 @@ public class PartialConfigServiceIntegrationTest {
     @Test
     public void shouldSaveConfigWhenANewValidPartialGetsAdded() {
         partialConfigService.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(repoConfig1, "4567")));
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1"))).isTrue();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis("p1"))).isTrue();
     }
 
     @Test
@@ -111,7 +112,7 @@ public class PartialConfigServiceIntegrationTest {
         PartialConfig invalidPartial = PartialConfigMother.invalidPartial("p1");
         invalidPartial.setOrigins(new RepoConfigOrigin(repoConfig1, "sha-2"));
         partialConfigService.onSuccessPartialConfig(repoConfig1, invalidPartial);
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1"))).isFalse();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis("p1"))).isFalse();
         List<ServerHealthState> serverHealthStates = serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1));
         assertThat(serverHealthStates.isEmpty()).isFalse();
         assertThat(serverHealthStates.getFirst().getLogLevel()).isEqualTo(HealthStateLevel.ERROR);
@@ -120,12 +121,12 @@ public class PartialConfigServiceIntegrationTest {
     @Test
     public void shouldTryToValidateMergeAndSaveAllKnownPartialsWhenAPartialChange() {
         cachedGoPartials.cacheAsLastKnown(repoConfig1.getRepo().getFingerprint(), PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1234")));
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1"))).isFalse();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis("p1_repo1"))).isFalse();
 
         partialConfigService.onSuccessPartialConfig(repoConfig2, PartialConfigMother.withPipeline("p2_repo2", new RepoConfigOrigin(repoConfig2, "4567")));
 
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1"))).isTrue();
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p2_repo2"))).isTrue();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis("p1_repo1"))).isTrue();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis("p2_repo2"))).isTrue();
 
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty()).isTrue();
     }
@@ -133,7 +134,7 @@ public class PartialConfigServiceIntegrationTest {
     @Test
     public void shouldValidateAndMergeJustTheChangedPartialAlongWithAllValidPartialsIfValidationOfAllKnownPartialsFail() {
         partialConfigService.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1")));
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1"))).isTrue();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis("p1_repo1"))).isTrue();
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1.getRepo().getFingerprint())).isEmpty()).isTrue();
 
         final String invalidPipelineInPartial = "p1_repo1_invalid";
@@ -142,7 +143,7 @@ public class PartialConfigServiceIntegrationTest {
 
         assertThat(findPartial(invalidPipelineInPartial, cachedGoPartials.lastValidPartials())).isNull();
         assertThat(findPartial(invalidPipelineInPartial, cachedGoPartials.lastKnownPartials())).isEqualTo(invalidPartial);
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(invalidPipelineInPartial))).isFalse();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis(invalidPipelineInPartial))).isFalse();
         List<ServerHealthState> serverHealthStatesForRepo1 = serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1));
         assertThat(serverHealthStatesForRepo1.isEmpty()).isFalse();
         assertThat(serverHealthStatesForRepo1.getFirst().getLogLevel()).isEqualTo(HealthStateLevel.ERROR);
@@ -151,9 +152,9 @@ public class PartialConfigServiceIntegrationTest {
         assertThat(findPartial(invalidPipelineInPartial, cachedGoPartials.lastValidPartials())).isNull();
         assertThat(findPartial(invalidPipelineInPartial, cachedGoPartials.lastKnownPartials())).isEqualTo(invalidPartial);
 
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1"))).isTrue();
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p2_repo2"))).isTrue();
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(invalidPipelineInPartial))).isFalse();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis("p1_repo1"))).isTrue();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis("p2_repo2"))).isTrue();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis(invalidPipelineInPartial))).isFalse();
 
         serverHealthStatesForRepo1 = serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1));
         assertThat(serverHealthStatesForRepo1.isEmpty()).isFalse();
@@ -163,7 +164,7 @@ public class PartialConfigServiceIntegrationTest {
     }
 
     private PartialConfig findPartial(final String invalidPipelineInPartial, List<PartialConfig> partials) {
-        return partials.stream().filter(item -> item.getGroups().getFirst().findBy(new CaseInsensitiveString(invalidPipelineInPartial)) != null).findFirst().orElse(null);
+        return partials.stream().filter(item -> item.getGroups().getFirst().findBy(cis(invalidPipelineInPartial)) != null).findFirst().orElse(null);
     }
 
     @Test
@@ -225,15 +226,15 @@ public class PartialConfigServiceIntegrationTest {
         configHelper.addTemplate("t1", "stage");
         partialConfigService.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipelineAssociatedWithTemplate("pipe-with-template", "t1", new RepoConfigOrigin(repoConfig1, "124")));
 
-        assertThat(goConfigDao.loadConfigHolder().config.hasPipelineNamed(new CaseInsensitiveString("pipe-with-template"))).isTrue();
-        assertThat(goConfigDao.loadConfigHolder().config.getPipelineConfigByName(new CaseInsensitiveString("pipe-with-template")).hasTemplateApplied()).isTrue();
+        assertThat(goConfigDao.loadConfigHolder().config.hasPipelineNamed(cis("pipe-with-template"))).isTrue();
+        assertThat(goConfigDao.loadConfigHolder().config.getPipelineConfigByName(cis("pipe-with-template")).hasTemplateApplied()).isTrue();
     }
 
     @Test
     public void shouldPerformParamResolutionOnCRPipelines() {
         partialConfigService.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withParams("pipe-with-params", "paramName", "paramValue", new RepoConfigOrigin(repoConfig1, "124")));
-        assertThat(goConfigDao.loadConfigHolder().config.hasPipelineNamed(new CaseInsensitiveString("pipe-with-params"))).isTrue();
-        String resolvedParam = goConfigDao.loadConfigHolder().config.getPipelineConfigByName(new CaseInsensitiveString("pipe-with-params")).getStage("stage").getVariables().getFirst().getValue();
+        assertThat(goConfigDao.loadConfigHolder().config.hasPipelineNamed(cis("pipe-with-params"))).isTrue();
+        String resolvedParam = goConfigDao.loadConfigHolder().config.getPipelineConfigByName(cis("pipe-with-params")).getStage("stage").getVariables().getFirst().getValue();
         assertThat(resolvedParam).isEqualTo("paramValue");
     }
 
@@ -259,7 +260,7 @@ public class PartialConfigServiceIntegrationTest {
         configHelper.addTemplate("t1", "param1", "stage");
         partialConfigService.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipelineAssociatedWithTemplate("pipe-with-template", "t1", new RepoConfigOrigin(repoConfig1, "124")));
 
-        assertThat(goConfigDao.loadConfigHolder().config.hasPipelineNamed(new CaseInsensitiveString("pipe-with-template"))).isFalse();
+        assertThat(goConfigDao.loadConfigHolder().config.hasPipelineNamed(cis("pipe-with-template"))).isFalse();
         List<ServerHealthState> serverHealthStates = serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1));
         assertThat(serverHealthStates.isEmpty()).isFalse();
         assertThat(serverHealthStates.getFirst().getLogLevel()).isEqualTo(HealthStateLevel.ERROR);
@@ -269,7 +270,7 @@ public class PartialConfigServiceIntegrationTest {
     @Test // See Error #1 from https://github.com/gocd/gocd/issues/8368
     public void shouldRemovePipelinesWhenRulesAreUpdatedToSpecifyNoWhitelist() {
         partialConfigService.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1")));
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1"))).isTrue();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis("p1_repo1"))).isTrue();
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1.getRepo().getFingerprint())).isEmpty()).isTrue();
 
         goConfigRepoConfigDataSource.onConfigRepoConfigChange(repoConfig1);
@@ -278,7 +279,7 @@ public class PartialConfigServiceIntegrationTest {
         repoConfig1Cloned.setRules(new Rules());
 
         partialConfigService.onSuccessPartialConfig(repoConfig1Cloned, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1Cloned, "1")));
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1"))).isFalse();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis("p1_repo1"))).isFalse();
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty()).isFalse();
         ServerHealthState healthStateForInvalidConfigMerge = serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).getFirst();
         assertThat(healthStateForInvalidConfigMerge.getMessage()).isEqualTo("Invalid Merged Configuration");
@@ -297,7 +298,7 @@ public class PartialConfigServiceIntegrationTest {
     @Test // See Error #2 from https://github.com/gocd/gocd/issues/8368
     public void shouldAddPipelinesWhenRulesAreUpdatedToSpecifyAllowAllPipelines() {
         partialConfigService.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1")));
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1"))).isTrue();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis("p1_repo1"))).isTrue();
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1.getRepo().getFingerprint())).isEmpty()).isTrue();
 
         goConfigRepoConfigDataSource.onConfigRepoConfigChange(repoConfig1);
@@ -306,7 +307,7 @@ public class PartialConfigServiceIntegrationTest {
         repoConfig1Cloned.setRules(new Rules());
 
         partialConfigService.onSuccessPartialConfig(repoConfig1Cloned, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1Cloned, "1")));
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1"))).isFalse();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis("p1_repo1"))).isFalse();
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty()).isFalse();
         ServerHealthState healthStateForInvalidConfigMerge = serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).getFirst();
         assertThat(healthStateForInvalidConfigMerge.getMessage()).isEqualTo("Invalid Merged Configuration");
@@ -323,14 +324,14 @@ public class PartialConfigServiceIntegrationTest {
         goConfigRepoConfigDataSource.onConfigRepoConfigChange(repoConfig1Cloned);
 
         partialConfigService.onSuccessPartialConfig(repoConfig1Cloned, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1Cloned, "1")));
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1"))).isTrue();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis("p1_repo1"))).isTrue();
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1.getRepo().getFingerprint())).isEmpty()).isTrue();
     }
 
     @Test
     public void shouldKeepLastValidPartialsWhenLatestPartialsAreInvalid() {
         partialConfigService.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1")));
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1"))).isTrue();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis("p1_repo1"))).isTrue();
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1.getRepo().getFingerprint())).isEmpty()).isTrue();
 
         final String invalidPipelineInPartial = "p1_repo1_invalid";
@@ -339,7 +340,7 @@ public class PartialConfigServiceIntegrationTest {
 
         assertThat(findPartial(invalidPipelineInPartial, cachedGoPartials.lastValidPartials())).isNull();
         assertThat(findPartial(invalidPipelineInPartial, cachedGoPartials.lastKnownPartials())).isEqualTo(invalidPartial);
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(invalidPipelineInPartial))).isFalse();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis(invalidPipelineInPartial))).isFalse();
         List<ServerHealthState> serverHealthStatesForRepo1 = serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1));
         assertThat(serverHealthStatesForRepo1.isEmpty()).isFalse();
         assertThat(serverHealthStatesForRepo1.getFirst().getLogLevel()).isEqualTo(HealthStateLevel.ERROR);
@@ -348,7 +349,7 @@ public class PartialConfigServiceIntegrationTest {
     @Test // See Error #3 from https://github.com/gocd/gocd/issues/8368
     public void shouldDiscardLastValidPartialsWhenLatestPartialsAreInvalidWRTRules() {
         partialConfigService.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1")));
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1"))).isTrue();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis("p1_repo1"))).isTrue();
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1.getRepo().getFingerprint())).isEmpty()).isTrue();
 
 
@@ -364,8 +365,8 @@ public class PartialConfigServiceIntegrationTest {
 
         assertThat(findPartial(invalidPipelineInPartial, cachedGoPartials.lastValidPartials())).isNull();
         assertThat(findPartial(invalidPipelineInPartial, cachedGoPartials.lastKnownPartials())).isEqualTo(invalidPartial);
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1"))).isFalse();
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(invalidPipelineInPartial))).isFalse();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis("p1_repo1"))).isFalse();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis(invalidPipelineInPartial))).isFalse();
         List<ServerHealthState> serverHealthStatesForRepo1 = serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1));
         assertThat(serverHealthStatesForRepo1.isEmpty()).isFalse();
         assertThat(serverHealthStatesForRepo1.getFirst().getLogLevel()).isEqualTo(HealthStateLevel.ERROR);
@@ -376,7 +377,7 @@ public class PartialConfigServiceIntegrationTest {
     @Test
     public void onFailedPartialConfig_shouldRemoveLastValidPartialsFromConfigInCaseOfRuleViolations() {
         partialConfigService.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1")));
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1"))).isTrue();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis("p1_repo1"))).isTrue();
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig1.getRepo().getFingerprint())).isEmpty()).isTrue();
 
         goConfigRepoConfigDataSource.onConfigRepoConfigChange(repoConfig1);
@@ -387,7 +388,7 @@ public class PartialConfigServiceIntegrationTest {
         partialConfigService.onFailedPartialConfig(repoConfig1Cloned, null);
 
         assertThat(cachedGoPartials.getValid(repoConfig1Cloned.getRepo().getFingerprint())).isNull();
-        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1"))).isFalse();
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(cis("p1_repo1"))).isFalse();
 
         cachedGoPartials.clear();
     }

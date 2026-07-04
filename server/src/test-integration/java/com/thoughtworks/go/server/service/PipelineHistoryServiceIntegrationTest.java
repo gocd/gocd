@@ -32,7 +32,7 @@ import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.presentation.pipelinehistory.*;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
@@ -62,6 +62,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -232,7 +233,7 @@ public class PipelineHistoryServiceIntegrationTest {
         saveRev(new MaterialRevision(pipeline.getMaterialRevisions().getMaterialRevision(0).getMaterial(), new Modification(new Date(), "2", "MOCK_LABEL-12", null)));
         configHelper.setViewPermissionForGroup("group1", "username");
 
-        PipelineInstanceModel latest = pipelineHistoryService.latest(pipeline.getName(), new Username(new CaseInsensitiveString("username")));
+        PipelineInstanceModel latest = pipelineHistoryService.latest(pipeline.getName(), new Username(cis("username")));
         assertThat(latest.getLatestRevisions().getMaterialRevision(0).getRevision()).isEqualTo(new SubversionRevision("2"));
     }
 
@@ -265,10 +266,10 @@ public class PipelineHistoryServiceIntegrationTest {
     @Test
     public void shouldReturnNullForLatestWhenPipelineNotViewable() {
         configHelper.addPipelineWithGroup("admin_only", "admin_pipeline", "stage", "deploy");
-        configHelper.addRole(new RoleConfig(new CaseInsensitiveString("deployers"), new RoleUser(new CaseInsensitiveString("root"))));
+        configHelper.addRole(new RoleConfig(cis("deployers"), new RoleUser(cis("root"))));
         configHelper.blockPipelineGroupExceptFor("admin_only", "deployers");
-        assertThat(pipelineHistoryService.latest("admin_pipeline", new Username(new CaseInsensitiveString("root")))).isNotNull();
-        assertThat(pipelineHistoryService.latest("admin_pipeline", new Username(new CaseInsensitiveString("someone_else")))).isNull();
+        assertThat(pipelineHistoryService.latest("admin_pipeline", new Username(cis("root")))).isNotNull();
+        assertThat(pipelineHistoryService.latest("admin_pipeline", new Username(cis("someone_else")))).isNull();
     }
 
     @Test
@@ -276,7 +277,7 @@ public class PipelineHistoryServiceIntegrationTest {
         configHelper.removePipeline(pipelineTwo.pipelineName);
         Pipeline pipeline = pipelineOne.createdPipelineWithAllStagesPassed();
         configHelper.setViewPermissionForGroup("group1", "foo");
-        PipelineInstanceModels pipelines = pipelineHistoryService.latestInstancesForConfiguredPipelines(new Username(new CaseInsensitiveString("foo")));
+        PipelineInstanceModels pipelines = pipelineHistoryService.latestInstancesForConfiguredPipelines(new Username(cis("foo")));
         assertThat(pipelines.size()).isEqualTo(1);
         assertThat(pipelines.getFirst().getId()).isEqualTo(pipeline.getId());
     }
@@ -285,11 +286,11 @@ public class PipelineHistoryServiceIntegrationTest {
     public void shouldNotLoadLatestOrEmptyInstanceForAllConfiguredPipelinesWhenNotViewable() {
         configHelper.removePipeline(pipelineTwo.pipelineName);
         Pipeline pipeline = pipelineOne.createdPipelineWithAllStagesPassed();
-        String groupName = configHelper.currentConfig().getGroups().findGroupNameByPipeline(new CaseInsensitiveString(pipeline.getName()));
+        String groupName = configHelper.currentConfig().getGroups().findGroupByPipeline(cis(pipeline.getName())).getGroup();
         configHelper.setViewPermissionForGroup(groupName, "admin");
-        PipelineInstanceModels pipelines = pipelineHistoryService.latestInstancesForConfiguredPipelines(new Username(new CaseInsensitiveString("foo")));
+        PipelineInstanceModels pipelines = pipelineHistoryService.latestInstancesForConfiguredPipelines(new Username(cis("foo")));
         assertThat(pipelines.size()).isEqualTo(0);
-        pipelines = pipelineHistoryService.latestInstancesForConfiguredPipelines(new Username(new CaseInsensitiveString("admin")));
+        pipelines = pipelineHistoryService.latestInstancesForConfiguredPipelines(new Username(cis("admin")));
         assertThat(pipelines.size()).isEqualTo(1);
         assertThat(pipelines.getFirst().getId()).isEqualTo(pipeline.getId());
     }
@@ -300,9 +301,9 @@ public class PipelineHistoryServiceIntegrationTest {
         configHelper.addPipeline("pipeline-name", "stage-1");
         configHelper.addAuthorizedUserForPipelineGroup("admin", BasicPipelineConfigs.DEFAULT_GROUP);
 
-        triggerMonitor.markPipelineAsAlreadyTriggered(new CaseInsensitiveString("pipeline-name"));
+        triggerMonitor.markPipelineAsAlreadyTriggered(cis("pipeline-name"));
 
-        PipelineInstanceModel instance = pipelineHistoryService.latest("pipeline-name", new Username(new CaseInsensitiveString("admin")));
+        PipelineInstanceModel instance = pipelineHistoryService.latest("pipeline-name", new Username(cis("admin")));
         assertThat(instance.getName()).isEqualTo("pipeline-name");
         assertThat(instance.getStageHistory().size()).isEqualTo(1);
         assertThat(instance.getStageHistory().getFirst().isScheduled()).isFalse();
@@ -321,8 +322,8 @@ public class PipelineHistoryServiceIntegrationTest {
         configHelper.addAuthorizedUserForPipelineGroup("user1", "pipeline-group");
 
         HttpOperationResult operationResult = new HttpOperationResult();
-        assertPipeline(pipelineHistoryService.findPipelineInstance("mingle", 1, new Username(new CaseInsensitiveString("user1")), operationResult), instance1, operationResult);
-        assertPipeline(pipelineHistoryService.findPipelineInstance("mingle", 2, new Username(new CaseInsensitiveString("user1")), operationResult), instance2, operationResult);
+        assertPipeline(pipelineHistoryService.findPipelineInstance("mingle", 1, new Username(cis("user1")), operationResult), instance1, operationResult);
+        assertPipeline(pipelineHistoryService.findPipelineInstance("mingle", 2, new Username(cis("user1")), operationResult), instance2, operationResult);
     }
 
     @Test
@@ -331,29 +332,29 @@ public class PipelineHistoryServiceIntegrationTest {
         configHelper.addPipeline("pipeline-group", mingleConfig);
         configHelper.addAuthorizedUserForPipelineGroup("user1", "pipeline-group");
 
-        PipelineInstanceModel pim = pipelineHistoryService.findPipelineInstance("mingle", 0, new Username(new CaseInsensitiveString("user1")), new HttpOperationResult());
+        PipelineInstanceModel pim = pipelineHistoryService.findPipelineInstance("mingle", 0, new Username(cis("user1")), new HttpOperationResult());
         assertThat(pim).isInstanceOf(EmptyPipelineInstanceModel.class);
     }
 
     @Test
     public void findPipelineInstanceShouldNotFindPipelineInstancesNotViewableByUser() {
         Pipeline pipeline = pipelineOne.createdPipelineWithAllStagesPassed();
-        String groupName = configHelper.currentConfig().getGroups().findGroupNameByPipeline(new CaseInsensitiveString(pipeline.getName()));
+        String groupName = configHelper.currentConfig().getGroups().findGroupByPipeline(cis(pipeline.getName())).getGroup();
         configHelper.setViewPermissionForGroup(groupName, "admin");
 
         HttpOperationResult result = new HttpOperationResult();
-        PipelineInstanceModel pipelineInstance = pipelineHistoryService.findPipelineInstance(pipeline.getName(), pipeline.getCounter(), new Username(new CaseInsensitiveString("foo")), result);
+        PipelineInstanceModel pipelineInstance = pipelineHistoryService.findPipelineInstance(pipeline.getName(), pipeline.getCounter(), new Username(cis("foo")), result);
         assertThat(pipelineInstance).isNull();
         assertThat(result.httpCode()).isEqualTo(403);
         assertThat(result.message()).isEqualTo("Not authorized to view pipeline");
-        pipelineInstance = pipelineHistoryService.findPipelineInstance(pipeline.getName(), pipeline.getCounter(), new Username(new CaseInsensitiveString("admin")), new HttpOperationResult());
+        pipelineInstance = pipelineHistoryService.findPipelineInstance(pipeline.getName(), pipeline.getCounter(), new Username(cis("admin")), new HttpOperationResult());
         assertThat(pipelineInstance).isNotNull();
     }
 
     @Test
     public void findPipelineInstanceShouldPopulateResultAsNotFoundWhenPipelineNotFound() {
         HttpOperationResult result = new HttpOperationResult();
-        PipelineInstanceModel pipelineInstance = pipelineHistoryService.findPipelineInstance("blahName", 1, new Username(new CaseInsensitiveString("foo")), result);
+        PipelineInstanceModel pipelineInstance = pipelineHistoryService.findPipelineInstance("blahName", 1, new Username(cis("foo")), result);
         assertThat(pipelineInstance).isNull();
         assertThat(result.httpCode()).isEqualTo(404);
     }
@@ -381,7 +382,7 @@ public class PipelineHistoryServiceIntegrationTest {
         Pipeline instance4 = dbHelper.schedulePipeline(pipelineConfig, new TimeProvider());
         dbHelper.passStage(instance4.getStages().getFirst());
 
-        PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", "h-1", limit, new Username(new CaseInsensitiveString("user")), new HttpLocalizedOperationResult());
+        PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", "h-1", limit, new Username(cis("user")), new HttpLocalizedOperationResult());
         assertThat(actual.size()).isEqualTo(3);
         assertThat(actual.get(0).getCounter()).isEqualTo(4);
         assertThat(actual.get(1).getCounter()).isEqualTo(3);
@@ -411,10 +412,10 @@ public class PipelineHistoryServiceIntegrationTest {
         Pipeline instance4 = dbHelper.schedulePipeline(pipelineConfig, new TimeProvider());
         dbHelper.passStage(instance4.getStages().getFirst());
 
-        PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", "h-1", limit, new Username(new CaseInsensitiveString("user")), new HttpLocalizedOperationResult());
+        PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", "h-1", limit, new Username(cis("user")), new HttpLocalizedOperationResult());
         assertThat(actual.size()).isEqualTo(3);
 
-        actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", "h%-%1_5", limit, new Username(new CaseInsensitiveString("user")), new HttpLocalizedOperationResult());
+        actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", "h%-%1_5", limit, new Username(cis("user")), new HttpLocalizedOperationResult());
         assertThat(actual.size()).isEqualTo(0);
     }
 
@@ -441,7 +442,7 @@ public class PipelineHistoryServiceIntegrationTest {
         Pipeline instance4 = dbHelper.schedulePipeline(pipelineConfig, new TimeProvider());
         dbHelper.passStage(instance4.getStages().getFirst());
 
-        PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", " h-1   ", limit, new Username(new CaseInsensitiveString("user")), new HttpLocalizedOperationResult());
+        PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", " h-1   ", limit, new Username(cis("user")), new HttpLocalizedOperationResult());
         assertThat(actual.size()).isEqualTo(3);
         assertThat(actual.get(0).getCounter()).isEqualTo(4);
         assertThat(actual.get(1).getCounter()).isEqualTo(3);
@@ -452,7 +453,7 @@ public class PipelineHistoryServiceIntegrationTest {
     public void findMatchingPipelineInstances_shouldPopulatePipelineFieldsIncludingPlaceholderStages() {
         configHelper.setViewPermissionForGroup("group1", "jez");
         Pipeline pipeline = pipelineOne.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
-        PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances(pipeline.getName(), pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(0).getLatestComment(), 2, new Username(new CaseInsensitiveString(
+        PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances(pipeline.getName(), pipeline.getBuildCause().getMaterialRevisions().getMaterialRevision(0).getLatestComment(), 2, new Username(cis(
                 "jez")), new HttpLocalizedOperationResult());
         assertThat(actual.size()).isEqualTo(1);
         PipelineInstanceModel actualPipeline = actual.getFirst();
@@ -486,7 +487,7 @@ public class PipelineHistoryServiceIntegrationTest {
                 new TimeProvider());
         dbHelper.cancelStage(shouldNotMatch.getStages().getFirst());
 
-        PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", "ello", limit, new Username(new CaseInsensitiveString("user")), new HttpLocalizedOperationResult());
+        PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", "ello", limit, new Username(cis("user")), new HttpLocalizedOperationResult());
         assertThat(actual.size()).isEqualTo(3);
         assertThat(actual.get(0).getCounter()).isEqualTo(3);
         assertThat(actual.get(1).getCounter()).isEqualTo(2);
@@ -508,7 +509,7 @@ public class PipelineHistoryServiceIntegrationTest {
                 new TimeProvider());
         dbHelper.cancelStage(shouldMatch2.getStages().getFirst());
 
-        PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", String.format("%s-ABC", shouldMatch1.getCounter()), limit, new Username(new CaseInsensitiveString(
+        PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", String.format("%s-ABC", shouldMatch1.getCounter()), limit, new Username(cis(
                 "user")), new HttpLocalizedOperationResult());
         assertThat(actual.size()).isEqualTo(2);
         assertThat(actual.getFirst().getCounter()).isEqualTo(shouldMatch1.getCounter());
@@ -532,7 +533,7 @@ public class PipelineHistoryServiceIntegrationTest {
                 new TimeProvider());
         dbHelper.cancelStage(shouldMatch2.getStages().getFirst());
 
-        PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", "abc", limit, new Username(new CaseInsensitiveString("user")), new HttpLocalizedOperationResult());
+        PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", "abc", limit, new Username(cis("user")), new HttpLocalizedOperationResult());
         assertThat(actual.size()).isEqualTo(2);
         assertThat(actual.getFirst().getCounter()).isEqualTo(shouldMatch2.getCounter());
         assertThat(actual.getLast().getCounter()).isEqualTo(shouldMatch1.getCounter());
@@ -551,7 +552,7 @@ public class PipelineHistoryServiceIntegrationTest {
         Pipeline shouldMatch1 = dbHelper.schedulePipeline(pipelineConfig, buildCause, new TimeProvider());
         dbHelper.cancelStage(shouldMatch1.getStages().getFirst());
 
-        PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", "user", limit, new Username(new CaseInsensitiveString("user")), new HttpLocalizedOperationResult());
+        PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", "user", limit, new Username(cis("user")), new HttpLocalizedOperationResult());
         assertThat( actual.size()).isEqualTo(1);
         assertThat(actual.getFirst().getCounter()).isEqualTo(shouldMatch1.getCounter());
     }
@@ -563,7 +564,7 @@ public class PipelineHistoryServiceIntegrationTest {
         upstreamConfig.setLabelTemplate("${COUNT}-hello-world-${COUNT}");
         PipelineConfig downstreamConfig = PipelineConfigMother.createPipelineConfig("downstream", "stage", "job");
         downstreamConfig.materialConfigs().clear();
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("stage"));
+        DependencyMaterial dependencyMaterial = new DependencyMaterial(cis("upstream"), cis("stage"));
         downstreamConfig.addMaterialConfig(dependencyMaterial.config());
         configHelper.addPipeline("pipeline-group", upstreamConfig);
         configHelper.addPipeline("pipeline-group", downstreamConfig);
@@ -576,7 +577,7 @@ public class PipelineHistoryServiceIntegrationTest {
         Pipeline downstreamPipeline = dbHelper.schedulePipeline(downstreamConfig, BuildCause.createWithModifications(materialRevisions, "cruise"), new TimeProvider());
         dbHelper.passStage(downstreamPipeline.getStages().getFirst());
 
-        PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances("downstream", "hello-world", limit, new Username(new CaseInsensitiveString("user")), new HttpLocalizedOperationResult());
+        PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances("downstream", "hello-world", limit, new Username(cis("user")), new HttpLocalizedOperationResult());
         assertThat(actual.size()).isEqualTo(1);
         assertThat(actual.getFirst().getCounter()).isEqualTo(downstreamPipeline.getCounter());
     }
@@ -588,7 +589,7 @@ public class PipelineHistoryServiceIntegrationTest {
         configHelper.addAuthorizedUserForPipelineGroup("valid-user");
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        PipelineInstanceModels pipelineInstances = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", "ABCD", 1000, new Username(new CaseInsensitiveString("fraud-user")), result);
+        PipelineInstanceModels pipelineInstances = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", "ABCD", 1000, new Username(cis("fraud-user")), result);
         assertThat(pipelineInstances.size()).isEqualTo(0);
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.httpCode()).isEqualTo(403);
@@ -600,7 +601,7 @@ public class PipelineHistoryServiceIntegrationTest {
         pipelineTwo.createdPipelineWithAllStagesPassed();
         Pipeline pipeline3 = pipelineTwo.createdPipelineWithAllStagesPassed();
 
-        PipelineRunIdInfo oldestAndLatestPipelineId = pipelineHistoryService.getOldestAndLatestPipelineId(pipelineTwo.pipelineName, new Username(new CaseInsensitiveString("admin1")));
+        PipelineRunIdInfo oldestAndLatestPipelineId = pipelineHistoryService.getOldestAndLatestPipelineId(pipelineTwo.pipelineName, new Username(cis("admin1")));
 
         assertThat(oldestAndLatestPipelineId.getLatestRunId()).isEqualTo(pipeline3.getId());
         assertThat(oldestAndLatestPipelineId.getOldestRunId()).isEqualTo(pipeline1.getId());
@@ -612,7 +613,7 @@ public class PipelineHistoryServiceIntegrationTest {
                 .mapToObj(i -> pipelineTwo.createdPipelineWithAllStagesPassed())
                 .toList();
 
-        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadPipelineHistoryData(new Username(new CaseInsensitiveString("admin1")), pipelineTwo.pipelineName, 0, 0, 10);
+        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadPipelineHistoryData(new Username(cis("admin1")), pipelineTwo.pipelineName, 0, 0, 10);
 
         assertThat(pipelineInstanceModels.size()).isEqualTo(5);
         assertThat(pipelineInstanceModels.get(0).getId()).isEqualTo(pipelineList.get(4).getId());
@@ -625,7 +626,7 @@ public class PipelineHistoryServiceIntegrationTest {
                 .mapToObj(i -> pipelineTwo.createdPipelineWithAllStagesPassed())
                 .toList();
 
-        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadPipelineHistoryData(new Username(new CaseInsensitiveString("admin1")), pipelineTwo.pipelineName, pipelineList.get(2).getId(), 0, 10);
+        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadPipelineHistoryData(new Username(cis("admin1")), pipelineTwo.pipelineName, pipelineList.get(2).getId(), 0, 10);
 
         assertThat(pipelineInstanceModels.size()).isEqualTo(2);
         assertThat(pipelineInstanceModels.get(0).getId()).isEqualTo(pipelineList.get(1).getId());
@@ -638,7 +639,7 @@ public class PipelineHistoryServiceIntegrationTest {
                 .mapToObj(i -> pipelineTwo.createdPipelineWithAllStagesPassed())
                 .toList();
 
-        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadPipelineHistoryData(new Username(new CaseInsensitiveString("admin1")), pipelineTwo.pipelineName, 0, pipelineList.get(2).getId(), 10);
+        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadPipelineHistoryData(new Username(cis("admin1")), pipelineTwo.pipelineName, 0, pipelineList.get(2).getId(), 10);
 
         assertThat(pipelineInstanceModels.size()).isEqualTo(2);
         assertThat(pipelineInstanceModels.get(0).getId()).isEqualTo(pipelineList.get(4).getId());

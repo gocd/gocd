@@ -18,17 +18,20 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.config.ConfigValue;
 import org.apache.commons.lang3.StringUtils;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 public abstract class ServerSiteUrlConfig {
-    private static final String HTTPS_URL_REGEX = "^https://.+";
+    private static final Pattern HTTPS_URL_REGEX = Pattern.compile("^https://.+");
     @ConfigValue
     protected String url;
 
-    public ServerSiteUrlConfig() {
-    }
+    public ServerSiteUrlConfig() {}
 
     public ServerSiteUrlConfig(String url) {
         this.url = url;
@@ -47,54 +50,39 @@ public abstract class ServerSiteUrlConfig {
         if (this == o) {
             return true;
         }
-        if (!o.getClass().equals(this.getClass())) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         ServerSiteUrlConfig that = (ServerSiteUrlConfig) o;
-
         return Objects.equals(url, that.url);
     }
 
     @Override
     public int hashCode() {
-        return url != null ? url.hashCode() : 0;
+        return Objects.hashCode(url);
     }
 
-    public String siteUrlFor(String givenUrl) throws URISyntaxException {
-        if (isBlank() || isPath(givenUrl)) {
-            return givenUrl; //it is a path
+    public Optional<URL> withPath(String absolutePathQueryFragment) throws URISyntaxException, MalformedURLException {
+        if (isBlank()) {
+            return Optional.empty();
         }
 
         URI baseUri = new URI(url);
-        URI givenUri = new URI(givenUrl);
+        URI givenUri = new URI(absolutePathQueryFragment);
 
-        return new URI(
+        return Optional.of(new URI(
             baseUri.getScheme(),
-            getOrDefault(givenUri, baseUri, URI::getUserInfo),
+            null,
             baseUri.getHost(),
             baseUri.getPort(),
-            getOrDefault(givenUri, baseUri, URI::getPath),
-            getOrDefault(givenUri, baseUri, URI::getQuery),
-            getOrDefault(givenUri, baseUri, URI::getFragment)
-        ).toString();
+            givenUri.getPath(),
+            givenUri.getQuery(),
+            givenUri.getFragment()
+        ).toURL());
     }
 
-    private boolean isPath(String givenUrl) {
-        return !givenUrl.matches("^https?://.+");
-    }
-
-    private String getOrDefault(URI givenUri, URI baseUri, Getter getter) {
-        String given = getter.get(givenUri);
-        return given == null ? getter.get(baseUri) : given;
-    }
-
-    public boolean isAHttpsUrl() {
-        return !isBlank() && url.matches(HTTPS_URL_REGEX);
-    }
-
-    interface Getter {
-        String get(URI uri);
+    public boolean isHttps() {
+        return !isBlank() && HTTPS_URL_REGEX.matcher(url).matches();
     }
 
     @Override

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.security;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +24,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.server.security.GoAuthority.ALL_AUTHORITIES;
 import static com.thoughtworks.go.server.security.GoAuthority.ROLE_ANONYMOUS;
 
@@ -68,7 +68,7 @@ public class AuthorityGranter {
     }
 
     private void checkAndAddTemplateAdmin(String username, Set<GrantedAuthority> authorities) {
-        if (securityService.isAuthorizedToViewAndEditTemplates(new Username(new CaseInsensitiveString(username)))) {
+        if (securityService.isAuthorizedToEditTemplates(new Username(cis(username)))) {
             authorities.add(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.asAuthority());
         }
     }
@@ -80,13 +80,13 @@ public class AuthorityGranter {
     }
 
     private void checkAndAddGroupAdmin(String username, Set<GrantedAuthority> authorities) {
-        if (securityService.isUserGroupAdmin(new Username(new CaseInsensitiveString(username)))) {
+        if (securityService.isUserGroupAdmin(new Username(cis(username)))) {
             authorities.add(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority());
         }
     }
 
     private void checkAndAddSuperAdmin(String username, Set<GrantedAuthority> authorities) {
-        if (securityService.isUserAdmin(new Username(new CaseInsensitiveString(username)))) {
+        if (securityService.isUserAdmin(new Username(cis(username)))) {
             authorities.add(GoAuthority.ROLE_SUPERVISOR.asAuthority());
         }
     }

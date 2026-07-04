@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.internalpipelinegroups;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.apiv1.internalpipelinegroups.models.PipelineGroupsViewModel;
 import com.thoughtworks.go.apiv1.internalpipelinegroups.representers.InternalPipelineGroupsRepresenter;
@@ -46,19 +46,19 @@ import static spark.Spark.*;
 @Component
 public class InternalPipelineGroupsControllerV1 extends ApiController implements SparkSpringController {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final Map<String, Supplier<PipelineGroups>> pipelineGroupAuthorizationRegistry;
     private final EnvironmentConfigService environmentConfigService;
 
     @Autowired
-    public InternalPipelineGroupsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,
+    public InternalPipelineGroupsControllerV1(ApiAuthorizationHelper apiAuthorizationHelper,
                                               PipelineConfigService pipelineConfigService,
                                               EnvironmentConfigService environmentConfigService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.pipelineGroupAuthorizationRegistry = Map.of(
                 "view", () -> pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername()),
-                "operate", () -> pipelineConfigService.viewableOrOperatableGroupsForIncludingConfigRepos(currentUsername()),
+                "operate", () -> pipelineConfigService.operableGroupsForIncludingConfigRepos(currentUsername()),
                 "administer", () -> pipelineConfigService.adminGroupsForIncludingConfigRepos(currentUsername())
         );
         this.environmentConfigService = environmentConfigService;
@@ -75,8 +75,8 @@ public class InternalPipelineGroupsControllerV1 extends ApiController implements
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", this.mimeType, this.apiAuthenticationHelper::checkUserAnd403);
-            before("/*", this.mimeType, this.apiAuthenticationHelper::checkUserAnd403);
+            before("", this.mimeType, this.apiAuthorizationHelper::checkUserAnd403);
+            before("/*", this.mimeType, this.apiAuthorizationHelper::checkUserAnd403);
 
             get("", mimeType, this::index);
         });

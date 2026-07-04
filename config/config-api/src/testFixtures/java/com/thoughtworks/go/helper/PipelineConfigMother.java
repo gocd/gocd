@@ -25,24 +25,26 @@ import com.thoughtworks.go.util.ClonerFactory;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+
 public class PipelineConfigMother {
     public static PipelineConfig pipelineConfig(String pipelineName, String stageName, MaterialConfigs materialConfigs, String... buildNames) {
-        return new PipelineConfig(new CaseInsensitiveString(pipelineName), materialConfigs,
-                new StageConfig(new CaseInsensitiveString(stageName), BuildPlanMother.jobConfigs(buildNames)));
+        return new PipelineConfig(cis(pipelineName), materialConfigs,
+                new StageConfig(cis(stageName), BuildPlanMother.jobConfigs(buildNames)));
     }
 
     public static PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {
-        return new PipelineConfig(new CaseInsensitiveString(pipelineName), MaterialConfigsMother.defaultMaterialConfigs(),
-                new StageConfig(new CaseInsensitiveString(stageName), BuildPlanMother.jobConfigs(buildNames)));
+        return new PipelineConfig(cis(pipelineName), MaterialConfigsMother.defaultMaterialConfigs(),
+                new StageConfig(cis(stageName), BuildPlanMother.jobConfigs(buildNames)));
     }
 
     public static PipelineConfig createPipelineConfigWithStages(String pipelineName, String... stageNames) {
         StageConfig[] configs = new StageConfig[stageNames.length];
         int i = 0;
         for (String stageName : stageNames) {
-            configs[i++] = new StageConfig(new CaseInsensitiveString(stageName), BuildPlanMother.jobConfigs("dev"));
+            configs[i++] = new StageConfig(cis(stageName), BuildPlanMother.jobConfigs("dev"));
         }
-        return new PipelineConfig(new CaseInsensitiveString(pipelineName), MaterialConfigsMother.defaultMaterialConfigs(), configs);
+        return new PipelineConfig(cis(pipelineName), MaterialConfigsMother.defaultMaterialConfigs(), configs);
     }
 
     public static PipelineConfig createPipelineConfigWithStage(String pipelineName, String stageName) {
@@ -50,7 +52,7 @@ public class PipelineConfigMother {
     }
 
     public static PipelineConfig pipelineConfig(String name) {
-        return new PipelineConfig(new CaseInsensitiveString(name), MaterialConfigsMother.defaultMaterialConfigs(), new StageConfig(new CaseInsensitiveString("mingle"), new JobConfigs()));
+        return new PipelineConfig(cis(name), MaterialConfigsMother.defaultMaterialConfigs(), new StageConfig(cis("mingle"), new JobConfigs()));
     }
 
     public static PipelineConfig pipelineConfig(String name, MaterialConfig materialConfig, JobConfigs jobConfigs) {
@@ -66,7 +68,7 @@ public class PipelineConfigMother {
     }
 
     public static PipelineConfig pipelineConfig(String name, MaterialConfigs materialConfigs, JobConfigs jobConfigs) {
-        return new PipelineConfig(new CaseInsensitiveString(name), materialConfigs, new StageConfig(new CaseInsensitiveString("mingle"), jobConfigs));
+        return new PipelineConfig(cis(name), materialConfigs, new StageConfig(cis("mingle"), jobConfigs));
     }
 
     public static PipelineConfigs createGroup(String groupName, PipelineConfig... pipelineConfigs) {
@@ -82,7 +84,7 @@ public class PipelineConfigMother {
     }
 
     public static PipelineConfig pipelineConfig(String name, StageConfig... stageConfigs) {
-        return new PipelineConfig(new CaseInsensitiveString(name), MaterialConfigsMother.defaultMaterialConfigs(), stageConfigs);
+        return new PipelineConfig(cis(name), MaterialConfigsMother.defaultMaterialConfigs(), stageConfigs);
     }
 
     public static PipelineConfig pipelineConfigWithTimer(String name, String cronSpec) {
@@ -90,13 +92,13 @@ public class PipelineConfigMother {
     }
 
     public static PipelineConfig pipelineConfigWithTimer(String name, String timerSpec, boolean timerShouldTriggerOnlyOnMaterialChanges) {
-        List<StageConfig> stages = List.of(new StageConfig(new CaseInsensitiveString("mingle"), new JobConfigs()));
-        return new PipelineConfig(new CaseInsensitiveString(name), PipelineLabel.COUNT_TEMPLATE, timerSpec, timerShouldTriggerOnlyOnMaterialChanges, MaterialConfigsMother.defaultMaterialConfigs(), stages);
+        List<StageConfig> stages = List.of(new StageConfig(cis("mingle"), new JobConfigs()));
+        return new PipelineConfig(cis(name), PipelineLabel.COUNT_TEMPLATE, timerSpec, timerShouldTriggerOnlyOnMaterialChanges, MaterialConfigsMother.defaultMaterialConfigs(), stages);
     }
 
     public static PipelineConfig pipelineConfigWithTemplate(String name, String templateName) {
-        PipelineConfig pipelineWithTemplate = new PipelineConfig(new CaseInsensitiveString(name), MaterialConfigsMother.defaultMaterialConfigs());
-        pipelineWithTemplate.setTemplateName(new CaseInsensitiveString(templateName));
+        PipelineConfig pipelineWithTemplate = new PipelineConfig(cis(name), MaterialConfigsMother.defaultMaterialConfigs());
+        pipelineWithTemplate.setTemplateName(cis(templateName));
         return pipelineWithTemplate;
     }
 
@@ -146,22 +148,22 @@ public class PipelineConfigMother {
     }
 
     public static PipelineConfig templateBasedPipelineWithElasticJobs(String templateName, String elasticProfileId, String pipelineName, String stageName, String... jobNames) {
-        final StageConfig stageConfig = new StageConfig(new CaseInsensitiveString(stageName), BuildPlanMother.jobConfigs(jobNames));
+        final StageConfig stageConfig = new StageConfig(cis(stageName), BuildPlanMother.jobConfigs(jobNames));
         for (JobConfig job : stageConfig.getJobs()) {
             job.setElasticProfileId(elasticProfileId);
         }
 
         final PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.setName(pipelineName);
-        pipelineConfig.setTemplateName(new CaseInsensitiveString(templateName));
-        pipelineConfig.usingTemplate(new PipelineTemplateConfig(new CaseInsensitiveString(templateName), stageConfig));
+        pipelineConfig.setTemplateName(cis(templateName));
+        pipelineConfig.usingTemplate(new PipelineTemplateConfig(cis(templateName), stageConfig));
         pipelineConfig.setOrigin(new FileConfigOrigin());
 
         return pipelineConfig;
     }
 
     public static PipelineConfig templateBasedPipelineWithSecretParams(String templateName, SecretParam secretParam, String pipelineName, String stageName, String... jobNames) {
-        final StageConfig stageConfig = new StageConfig(new CaseInsensitiveString(stageName), BuildPlanMother.jobConfigs(jobNames));
+        final StageConfig stageConfig = new StageConfig(cis(stageName), BuildPlanMother.jobConfigs(jobNames));
         for (JobConfig job : stageConfig.getJobs()) {
             job.setVariables(
                     new EnvironmentVariablesConfig(
@@ -174,8 +176,8 @@ public class PipelineConfigMother {
 
         final PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.setName(pipelineName);
-        pipelineConfig.setTemplateName(new CaseInsensitiveString(templateName));
-        pipelineConfig.usingTemplate(new PipelineTemplateConfig(new CaseInsensitiveString(templateName), stageConfig));
+        pipelineConfig.setTemplateName(cis(templateName));
+        pipelineConfig.usingTemplate(new PipelineTemplateConfig(cis(templateName), stageConfig));
         pipelineConfig.setOrigin(new FileConfigOrigin());
 
         return pipelineConfig;
@@ -184,7 +186,7 @@ public class PipelineConfigMother {
     public static PipelineConfig createManualTriggerPipelineConfig(MaterialConfig materialConfig, String pipelineName, String stageName, String... buildNames) {
         PipelineConfig pipelineConfig = createPipelineConfig(pipelineName, stageName, buildNames);
         pipelineConfig.materialConfigs().clear();
-        materialConfig.setName(new CaseInsensitiveString(String.format("%s-%s", pipelineName, materialConfig.getType())));
+        materialConfig.setName(cis(String.format("%s-%s", pipelineName, materialConfig.getType())));
         materialConfig.setAutoUpdate(false);
         pipelineConfig.materialConfigs().add(materialConfig);
         pipelineConfig.getFirst().setApproval(Approval.manualApproval());

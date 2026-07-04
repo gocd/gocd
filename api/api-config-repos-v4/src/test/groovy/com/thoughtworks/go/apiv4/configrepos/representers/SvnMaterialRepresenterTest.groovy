@@ -49,8 +49,7 @@ class SvnMaterialRepresenterTest {
 
   @Test
   void 'toJSON() with auth'() {
-    def cipher = new GoCipher()
-    SvnMaterialConfig config = svn(REPO_URL, USER, PASSWORD, false, cipher)
+    SvnMaterialConfig config = svn(REPO_URL, USER, PASSWORD, false)
 
     String json = toObjectString({ w -> new SvnMaterialRepresenter().toJSON(w, config) })
 
@@ -60,7 +59,7 @@ class SvnMaterialRepresenterTest {
       check_externals   : false,
       auto_update       : true,
       username          : USER,
-      encrypted_password: cipher.encrypt(PASSWORD)
+      encrypted_password: new GoCipher().encrypt(PASSWORD)
     ])
   }
 
@@ -76,10 +75,9 @@ class SvnMaterialRepresenterTest {
     ])
 
     MaterialConfig materialConfig = new SvnMaterialRepresenter().fromJSON(json)
-    def goCipher = new GoCipher()
-    SvnMaterialConfig expected = svn(REPO_URL, USER, PASSWORD, false, goCipher)
+    SvnMaterialConfig expected = svn(REPO_URL, USER, PASSWORD, false)
 
     assertEquals(expected, materialConfig)
-    assertTrue(goCipher.passwordEquals(expected.encryptedPassword, materialConfig.encryptedPassword))
+    assertTrue(new GoCipher().passwordEquals(expected.encryptedPassword, materialConfig.encryptedPassword))
   }
 }

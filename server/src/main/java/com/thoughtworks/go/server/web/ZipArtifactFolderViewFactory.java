@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.server.cache.ZipArtifactCache;
+import com.thoughtworks.go.server.caching.ZipArtifactCache;
 import com.thoughtworks.go.server.view.artifacts.PreparingArtifactFile;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -36,7 +36,7 @@ public class ZipArtifactFolderViewFactory implements ArtifactFolderViewFactory {
         if (zipArtifactCache.cacheCreated(artifactFolder)) {
             Map<String, Object> data = new HashMap<>();
             data.put("targetFile", zipArtifactCache.cachedFile(artifactFolder));
-            return new ModelAndView("fileView", data);
+            return new ModelAndView(FileModelAndView.VIEW_NAME, data);
         } else {
             return new ModelAndView(new PreparingArtifactFile());
         }

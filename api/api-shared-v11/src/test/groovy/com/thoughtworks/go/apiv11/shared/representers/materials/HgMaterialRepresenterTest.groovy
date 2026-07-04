@@ -19,18 +19,19 @@ import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv11.admin.shared.representers.materials.MaterialsRepresenter
 import com.thoughtworks.go.apiv11.admin.shared.representers.stages.ConfigHelperOptions
 import com.thoughtworks.go.config.BasicCruiseConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
 import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
+import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.util.command.HgUrlArgument
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import static org.assertj.core.api.Assertions.assertThat
 import static org.junit.jupiter.api.Assertions.assertEquals
@@ -39,16 +40,16 @@ import static org.mockito.Mockito.mock
 
 class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
 
-  static def existingMaterial() {
+  MaterialConfig existingMaterial() {
     return MaterialConfigsMother.hgMaterialConfigFull("http://domain/path")
   }
 
-  def getOptions() {
+  ConfigHelperOptions getOptions() {
     return new ConfigHelperOptions(mock(BasicCruiseConfig.class), new PasswordDeserializer())
   }
 
-  def existingMaterialWithErrors() {
-    def hgConfig = hg(new HgUrlArgument(''), null, null, null, true, null, false, '/dest/', new CaseInsensitiveString('!nV@l!d'))
+  MaterialConfig existingMaterialWithErrors() {
+    def hgConfig = hg(new HgUrlArgument(''), null, null, null, true, null, false, '/dest/', cis('!nV@l!d'))
     def materialConfigs = new MaterialConfigs(hgConfig)
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
     return materialConfigs.getFirst()

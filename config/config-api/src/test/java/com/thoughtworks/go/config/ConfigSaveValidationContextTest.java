@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,8 +82,8 @@ public class ConfigSaveValidationContextTest {
     void shouldGetPipelineConfigByName() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1");
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
-        assertThat(context.getPipelineConfigByName(new CaseInsensitiveString("p1"))).isEqualTo(cruiseConfig.allPipelines().getFirst());
-        assertThat(context.getPipelineConfigByName(new CaseInsensitiveString("does_not_exist"))).isNull();
+        assertThat(context.getPipelineConfigByName(cis("p1"))).isEqualTo(cruiseConfig.allPipelines().getFirst());
+        assertThat(context.getPipelineConfigByName(cis("does_not_exist"))).isNull();
     }
 
     @Test
@@ -210,6 +211,6 @@ public class ConfigSaveValidationContextTest {
 
         Map<CaseInsensitiveString, Boolean> pipelinesWithMaterial = context.getPipelineToMaterialAutoUpdateMapByFingerprint(hg.getFingerprint());
         assertThat(pipelinesWithMaterial.size()).isEqualTo(5);
-        assertThat(pipelinesWithMaterial.keySet()).doesNotContain(new CaseInsensitiveString("another-pipeline"));
+        assertThat(pipelinesWithMaterial.keySet()).doesNotContain(cis("another-pipeline"));
     }
 }

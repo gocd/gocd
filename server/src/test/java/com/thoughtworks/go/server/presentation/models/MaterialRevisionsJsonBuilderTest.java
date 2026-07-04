@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.presentation.models;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
@@ -34,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 
@@ -61,7 +61,7 @@ public class MaterialRevisionsJsonBuilderTest {
     public void shouldShowEachMaterialInJson() {
         MaterialRevision materialRevision = materialRevisions.getMaterialRevision(0);
         String expectedRevision = materialRevision.getRevision().getRevision();
-        String expectedDate = Dates.formatIso8601CompactOffset(materialRevision.getDateOfLatestModification());
+        String expectedDate = Dates.formatIso8601SystemCompactOffsetNoMillis(materialRevision.getDateOfLatestModification());
 
         String jsonRevisions = buildJson();
         assertThatJson(jsonRevisions)
@@ -99,7 +99,7 @@ public class MaterialRevisionsJsonBuilderTest {
             .and(
                 a -> a.node("user").isEqualTo(ModificationsMother.MOD_USER),
                 a -> a.node("comment").isEqualTo(ModificationsMother.MOD_COMMENT),
-                a -> a.node("date").isEqualTo(Dates.formatIso8601CompactOffset(ModificationsMother.TWO_DAYS_AGO_CHECKIN)),
+                a -> a.node("date").isEqualTo(Dates.formatIso8601SystemCompactOffsetNoMillis(ModificationsMother.TWO_DAYS_AGO_CHECKIN)),
                 a -> a.node("modifiedFiles").isArray().hasSize(1)
                     .first()
                     .and(
@@ -133,7 +133,7 @@ public class MaterialRevisionsJsonBuilderTest {
     @Test
     public void shouldRenderDependencyMaterialRevision() {
         String revision = "cruise/10/dev/1";
-        MaterialRevisions revisions = new MaterialRevisions(new MaterialRevision(new DependencyMaterial(new CaseInsensitiveString("cruise"), new CaseInsensitiveString("dev")), new Modification(new Date(), revision, "MOCK_LABEL-12", null)));
+        MaterialRevisions revisions = new MaterialRevisions(new MaterialRevision(new DependencyMaterial(cis("cruise"), cis("dev")), new Modification(new Date(), revision, "MOCK_LABEL-12", null)));
         MaterialRevisionsJsonBuilder jsonBuilder = new MaterialRevisionsJsonBuilder(new TrackingTool());
         revisions.accept(jsonBuilder);
         assertThatJson(jsonBuilder.json())

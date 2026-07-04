@@ -24,11 +24,11 @@ import com.thoughtworks.go.plugin.access.artifact.models.FetchArtifactEnvironmen
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import com.thoughtworks.go.util.json.JsonHelper;
 import com.thoughtworks.go.work.DefaultGoPublisher;
+import com.thoughtworks.go.work.GoPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
+import static com.thoughtworks.go.work.GoPublisher.PRODUCT_NAME;
 import static java.lang.String.format;
 
 public class FetchPluggableArtifactBuilder extends Builder {
@@ -72,7 +73,7 @@ public class FetchPluggableArtifactBuilder extends Builder {
         downloadMetadataFile(publisher);
         try {
             pluginRequestProcessorRegistry.registerProcessorFor(CONSOLE_LOG.requestName(), ArtifactRequestProcessor.forFetchArtifact(publisher, environmentVariableContext));
-            final String message = format("[%s] Fetching pluggable artifact using plugin `%s`.", GoConstants.PRODUCT_NAME, artifactStore.getPluginId());
+            final String message = format("[%s] Fetching pluggable artifact using plugin `%s`.", PRODUCT_NAME, artifactStore.getPluginId());
             LOGGER.info(message);
             publisher.taggedConsumeLine(TaggedStreamConsumer.OUT, message);
 
@@ -90,7 +91,7 @@ public class FetchPluggableArtifactBuilder extends Builder {
         }
     }
 
-    private void updateEnvironmentVariableContextWith(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, List<FetchArtifactEnvironmentVariable> newEnvironmentVariables) {
+    private void updateEnvironmentVariableContextWith(GoPublisher publisher, EnvironmentVariableContext environmentVariableContext, List<FetchArtifactEnvironmentVariable> newEnvironmentVariables) {
         for (FetchArtifactEnvironmentVariable variable : newEnvironmentVariables) {
             String name = variable.name();
 

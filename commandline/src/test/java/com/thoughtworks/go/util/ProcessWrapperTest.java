@@ -94,7 +94,7 @@ class ProcessWrapperTest {
         return "../commandline/src/test/java/" + scriptFilename;
     }
 
-    private static String jshellScriptFromInput(String echoMe) {
+    private static String jShellScriptFromInput(String echoMe) {
         return "System.out.println(\"%s\")".formatted(echoMe);
     }
 
@@ -102,7 +102,7 @@ class ProcessWrapperTest {
     void shouldAcceptInputString() {
         String input = "Hello World!";
         CommandLine line = CommandLine.createCommandLine("jshell").withEncoding(UTF_8);
-        ConsoleResult result = run(line, jshellScriptFromInput(input));
+        ConsoleResult result = run(line, jShellScriptFromInput(input));
         assertThat(result.returnValue()).isEqualTo(0);
         assertThat(result.output()).anyMatch(out -> out.contains(input));
     }
@@ -113,8 +113,8 @@ class ProcessWrapperTest {
         String input2 = "SYSIN: Line 2!";
         CommandLine line = CommandLine.createCommandLine("jshell").withEncoding(UTF_8);
         ConsoleResult result = run(line,
-            jshellScriptFromInput(input1),
-            jshellScriptFromInput(input2)
+            jShellScriptFromInput(input1),
+            jShellScriptFromInput(input2)
         );
         assertThat(result.returnValue()).isEqualTo(0);
         assertThat(result.output())

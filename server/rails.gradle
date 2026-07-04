@@ -142,8 +142,8 @@ tasks.register('cleanRails', Delete) {
   def injected = project.objects.newInstance(Injected)
   doFirst {
     injected.fileOps.delete {
-      delete jrubyScriptsDir
-      delete bundlePath
+      it.delete(jrubyScriptsDir)
+      it.delete(bundlePath)
     }
   }
 }
@@ -155,6 +155,7 @@ def generateJSRoutes = tasks.register('generateJSRoutes', ExecuteUnderRailsTask)
   dependsOn configurations.railsRuntimeClasspath
   classpath(configurations.railsRuntimeClasspath)
 
+  inputs.file("${project.railsRoot}/Rakefile")
   inputs.dir("${project.railsRoot}/lib/tasks")
   inputs.files(fileTree(dir: "${project.railsRoot}/config", includes: ['**/*.rb']))
 
@@ -175,7 +176,7 @@ def generateJSRoutes = tasks.register('generateJSRoutes', ExecuteUnderRailsTask)
   }
 }
 
-tasks.register('compileAssetsWebpackDev', YarnRunTask) {
+def compileAssetsWebpackDev = tasks.register('compileAssetsWebpackDev', YarnRunTask) {
   dependsOn yarnInstall, generateJSRoutes
 
   def yarnLicenseReportFile = layout.buildDirectory.file("reports/yarn-license/license-report.json").get().asFile
@@ -192,13 +193,9 @@ tasks.register('compileAssetsWebpackDev', YarnRunTask) {
   workingDir = project.railsRoot
   destinationDir = project.file("${project.railsRoot}/public/assets/webpack")
   yarnCommand = ['webpack-dev', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${yarnLicenseReportFile}"]
-
-  doFirst {
-    delete "${workingDir}/tmp" // Clean the cacheDir from webpack/config/webpack.config.ts
-  }
 }
 
-tasks.register('compileAssetsWebpackProd', YarnRunTask) {
+def compileAssetsWebpackProd = tasks.register('compileAssetsWebpackProd', YarnRunTask) {
   dependsOn yarnInstall, generateJSRoutes
 
   def yarnLicenseReportFile = layout.buildDirectory.file("reports/yarn-license-prod/license-report.json").get().asFile
@@ -225,9 +222,15 @@ def compileAssetsRailsTest = tasks.register('compileAssetsRailsTest', ExecuteUnd
   dependsOn yarnInstall, configurations.railsRuntimeClasspath
   classpath(configurations.railsRuntimeClasspath)
 
+  inputs.file("${project.railsRoot}/Rakefile")
   inputs.dir("${project.railsRoot}/config")
   inputs.dir("${project.railsRoot}/app/assets")
-  inputs.files(compileAssetsWebpackDev) // This is solely because webpack-dev generates assets under public/assets/webpack :(
+
+  inputs.dir("${project.railsRoot}/webpack/rails-shared") // on the sprockets load path via config/initializers/assets.rb
+  inputs.dir("${project.railsRoot}/node-vendor/opensans") // on the sprockets load path via config/initializers/assets.rb
+  inputs.files(yarnInstall)                               // on the sprockets load path via config/initializers/assets.rb
+
+  inputs.files(compileAssetsWebpackDev)                   // This is solely because webpack-dev generates assets under public/assets/webpack :(
 
   def railsPublicAssets = fileTree(dir: "${project.railsRoot}/public/assets", excludes: ['webpack'])
   outputs.files(railsPublicAssets)
@@ -249,17 +252,21 @@ def compileAssetsRailsTest = tasks.register('compileAssetsRailsTest', ExecuteUnd
   }
 }
 
-tasks.register('compileAssetsRailsProd', ExecuteUnderRailsTask) {
+def compileAssetsRailsProd = tasks.register('compileAssetsRailsProd', ExecuteUnderRailsTask) {
   dependsOn yarnInstall, configurations.railsRuntimeClasspath
   classpath(configurations.railsRuntimeClasspath)
 
+  inputs.file("${project.railsRoot}/Rakefile")
   inputs.dir("${project.railsRoot}/config")
   inputs.dir("${project.railsRoot}/app/assets")
 
-  def outputAssetsDir = layout.buildDirectory.dir("rails-assets")
-  def publicAssetsDir = layout.buildDirectory.dir("public/assets")
+  inputs.dir("${project.railsRoot}/webpack/rails-shared") // on the sprockets load path via config/initializers/assets.rb
+  inputs.dir("${project.railsRoot}/node-vendor/opensans") // on the sprockets load path via config/initializers/assets.rb
+  inputs.files(yarnInstall)                               // on the sprockets load path via config/initializers/assets.rb
+
+  def railsPublicAssets = file("${project.railsRoot}/public/assets") // where rails will generate things
+  def outputAssetsDir = layout.buildDirectory.dir("rails-assets")    // where we want them to go
   outputs.dir(outputAssetsDir)
-  outputs.dir(publicAssetsDir)
   outputs.cacheIf { true }
 
   environment(
@@ -271,55 +278,35 @@ tasks.register('compileAssetsRailsProd', ExecuteUnderRailsTask) {
   args = ['-S', 'rake', 'assets:clobber', 'assets:precompile']
   errorOutput = System.out // Rails/sprockets seems to be noisy on STDERR
 
-  def injected = project.objects.newInstance(Injected)
   doFirst {
-    injected.fileOps.delete {
-      delete "${workingDir}/tmp"
-      delete outputAssetsDir
-    }
+    delete "${workingDir}/tmp"
+    delete outputAssetsDir
+    delete railsPublicAssets // guarantee a clean compile regardless of which task last touched this dir
     outputAssetsDir.get().asFile.parentFile.mkdirs()
   }
 
   doLast {
-    injected.fileOps.copy {
-      from publicAssetsDir
-      into outputAssetsDir
-    }
-    injected.fileOps.delete {
-      delete publicAssetsDir
-    }
+    copy { from railsPublicAssets; into outputAssetsDir }
+    delete railsPublicAssets // Remove the rails generation location so things don't accidentally end up in the war
   }
 }
 
 tasks.register('compileAssets') {
-  dependsOn compileAssetsWebpackProd
-  dependsOn licenseReportAggregate
-  dependsOn compileAssetsRailsProd
-  inputs.files licenseReportAggregate
-  inputs.files compileAssetsRailsProd
-  inputs.files compileAssetsWebpackProd
+  dependsOn compileAssetsWebpackProd, licenseReportAggregate, compileAssetsRailsProd
+  inputs.files(licenseReportAggregate)
+  inputs.files(compileAssetsRailsProd)
+  inputs.files(compileAssetsWebpackProd)
 
   def outputDir = layout.buildDirectory.dir("assets").get().asFile
   outputs.dir(outputDir)
 
-  def injected = project.objects.newInstance(Injected)
   doFirst {
     delete outputDir
 
-    injected.fileOps.copy {
-      from licenseReportAggregate
-      // assets are cached with a long lived cache header
-      // we purposefully add a version string in the path so every new build will basically use a different url
-      into "${outputDir}/dependency-license-report-${version}"
-    }
-    injected.fileOps.copy {
-      from compileAssetsRailsProd
-      into outputDir
-    }
-    injected.fileOps.copy {
-      from compileAssetsWebpackProd
-      into "${outputDir}/webpack"
-    }
+    copy { from compileAssetsRailsProd; into outputDir }
+    copy { from compileAssetsWebpackProd; into "${outputDir}/webpack" }
+    // assets are cached with a long lived cache header - purposefully add a version string in the path so every new build will basically use a different url
+    copy { from licenseReportAggregate; into "${outputDir}/dependency-license-report-${version}" }
   }
 }
 
@@ -355,13 +342,9 @@ tasks.register('rspec', ExecuteUnderRailsTask) {
     'go.enforce.server.immutability': 'N',
   ]
 
-  def injected = project.objects.newInstance(Injected)
   doFirst {
-    injected.fileOps.delete {  delete(testDataDir) }
-    injected.fileOps.copy {
-      from 'config'
-      into testConfigDir
-    }
+    delete testDataDir
+    copy { from 'config'; into testConfigDir }
   }
 }
 

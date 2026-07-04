@@ -15,12 +15,11 @@
  */
 package com.thoughtworks.go.apiv1.admin.encryption;
 
-
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiMessages;
 import com.thoughtworks.go.api.util.HaltApiResponses;
@@ -51,12 +50,12 @@ public class EncryptionControllerDelegate extends ApiController {
 
     private final GoCipher cipher;
     private final long requestsPerMinute;
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final ProxyManager<Username> rateLimiters;
 
-    public EncryptionControllerDelegate(ApiAuthenticationHelper apiAuthenticationHelper, GoCipher cipher, long requestsPerMinute, TimeMeter timeMeter) {
+    public EncryptionControllerDelegate(ApiAuthorizationHelper apiAuthorizationHelper, GoCipher cipher, long requestsPerMinute, TimeMeter timeMeter) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.cipher = cipher;
         this.requestsPerMinute = requestsPerMinute;
         this.rateLimiters = new CaffeineProxyManager<>(
@@ -78,8 +77,8 @@ public class EncryptionControllerDelegate extends ApiController {
             before("", mimeType, this::verifyContentType);
             before("/*", mimeType, this::verifyContentType);
 
-            before("", mimeType, apiAuthenticationHelper::checkAnyAdminUserAnd403);
-            before("/*", mimeType, apiAuthenticationHelper::checkAnyAdminUserAnd403);
+            before("", mimeType, apiAuthorizationHelper::checkAnyPipelineGroupAdminOrTemplateAdminUserAnd403);
+            before("/*", mimeType, apiAuthorizationHelper::checkAnyPipelineGroupAdminOrTemplateAdminUserAnd403);
 
             before("", mimeType, this::checkRateLimitAvailable);
 

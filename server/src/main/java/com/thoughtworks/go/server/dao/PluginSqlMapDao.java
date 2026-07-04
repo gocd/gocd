@@ -17,8 +17,8 @@ package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
-import com.thoughtworks.go.server.cache.CacheKeyGenerator;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.CacheKeyGenerator;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;

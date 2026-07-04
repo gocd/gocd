@@ -24,7 +24,7 @@ import com.thoughtworks.go.server.service.support.toggle.Toggles
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -40,13 +40,15 @@ class NewDashboardControllerTest implements ControllerTrait<NewDashboardControll
 
   @Override
   NewDashboardController createControllerInstance() {
-    return new NewDashboardController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, securityService, systemEnvironment, pipelineConfigService)
+    return new NewDashboardController(new SpaAuthorizationHelper(securityService, goConfigService), templateEngine, securityService, systemEnvironment, pipelineConfigService)
   }
 
   @Nested
   class Index {
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate ControllerTrait<NewDashboardController> c = NewDashboardControllerTest.this
+      @Delegate SecurityServiceTrait s = NewDashboardControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -63,7 +65,6 @@ class NewDashboardControllerTest implements ControllerTrait<NewDashboardControll
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         Toggles.initializeWith(mock(FeatureToggleService.class))
       }

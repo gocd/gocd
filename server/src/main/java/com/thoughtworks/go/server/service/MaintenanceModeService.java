@@ -68,7 +68,7 @@ public class MaintenanceModeService {
     }
 
     public String updatedOn() {
-        return Dates.formatIso8601StrictOffsetUtcWithoutMillis(updatedOnTimeStamp());
+        return Dates.formatIso8601UtcNoMillis(updatedOnTimeStamp());
     }
 
     public String updatedBy() {
@@ -83,7 +83,7 @@ public class MaintenanceModeService {
     }
 
     public void mduStartedForMaterial(Material material) {
-        runningMDUs.put(material.getFingerprint(), new MaterialPerformingMDU(material, new Timestamp(timeProvider.currentTimeMillis())));
+        runningMDUs.put(material.getFingerprint(), new MaterialPerformingMDU(material, timeProvider.currentSqlTimestamp()));
     }
 
     public void mduFinishedForMaterial(Material material) {

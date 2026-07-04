@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.domain.valuestreammap;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class NodeLevelMapTest {
@@ -29,11 +29,11 @@ public class NodeLevelMapTest {
         NodeLevelMap nodeLevelMap = new NodeLevelMap();
         Node svn = new SCMDependencyNode("svn-fingerprint", "svn", "svn");
         svn.setLevel(-1);
-        Node current = new PipelineDependencyNode(new CaseInsensitiveString("current"),"current");
+        Node current = new PipelineDependencyNode(cis("current"),"current");
         current.setLevel(0);
-        Node p1 = new PipelineDependencyNode(new CaseInsensitiveString("p1"), "p1");
+        Node p1 = new PipelineDependencyNode(cis("p1"), "p1");
         p1.setLevel(1);
-        Node p2 = new PipelineDependencyNode(new CaseInsensitiveString("p2"), "p2");
+        Node p2 = new PipelineDependencyNode(cis("p2"), "p2");
         p2.setLevel(1);
 
         svn.addEdge(current);

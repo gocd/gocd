@@ -39,6 +39,7 @@ import java.util.UUID;
 
 import static com.thoughtworks.go.agent.common.util.Downloader.*;
 import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.TEST_AGENT_LAUNCHER;
+import static com.thoughtworks.go.util.SystemEnvironment.WEBAPP_CONTEXT_PATH;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -95,7 +96,7 @@ public class AgentBootstrapperFunctionalTest {
     }
 
     private @NonNull URL getServerUrl() throws MalformedURLException {
-        return URI.create("http://localhost:" + server.getPort() + "/go").toURL();
+        return URI.create("http://localhost:" + server.getPort() + WEBAPP_CONTEXT_PATH).toURL();
     }
 
     @Test

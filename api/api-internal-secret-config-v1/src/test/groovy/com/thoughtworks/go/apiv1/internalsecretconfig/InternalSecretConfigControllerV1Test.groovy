@@ -17,7 +17,7 @@
 package com.thoughtworks.go.apiv1.internalsecretconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.internalsecretconfig.models.SecretConfigsViewModel
 import com.thoughtworks.go.apiv1.internalsecretconfig.representers.SecretConfigsViewModelRepresenter
 import com.thoughtworks.go.config.SecretConfig
@@ -69,7 +69,7 @@ class InternalSecretConfigControllerV1Test implements SecurityServiceTrait, Cont
 
   @Override
   InternalSecretConfigControllerV1 createControllerInstance() {
-    new InternalSecretConfigControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), secretConfigService,
+    new InternalSecretConfigControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), secretConfigService,
       pipelineConfigService, environmentConfigService, pluggableScmService, packageRepositoryService, clusterProfilesService)
   }
 
@@ -78,6 +78,8 @@ class InternalSecretConfigControllerV1Test implements SecurityServiceTrait, Cont
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = InternalSecretConfigControllerV1Test.this
+      @Delegate ControllerTrait<InternalSecretConfigControllerV1> c = InternalSecretConfigControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -96,7 +98,6 @@ class InternalSecretConfigControllerV1Test implements SecurityServiceTrait, Cont
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
 
         def groups = new PipelineGroups()

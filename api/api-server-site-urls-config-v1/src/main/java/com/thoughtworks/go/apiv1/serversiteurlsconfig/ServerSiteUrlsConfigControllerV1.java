@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.serversiteurlsconfig;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.serversiteurlsconfig.representers.ServerSiteUrlsConfigRepresenter;
@@ -41,13 +41,13 @@ import static spark.Spark.*;
 @Component
 public class ServerSiteUrlsConfigControllerV1 extends ApiController implements SparkSpringController {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private ServerConfigService serverConfigService;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
+    private final ServerConfigService serverConfigService;
 
     @Autowired
-    public ServerSiteUrlsConfigControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, ServerConfigService serverConfigService) {
+    public ServerSiteUrlsConfigControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, ServerConfigService serverConfigService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.serverConfigService = serverConfigService;
     }
 
@@ -60,7 +60,7 @@ public class ServerSiteUrlsConfigControllerV1 extends ApiController implements S
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
-            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before("", mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::index);
             post("", mimeType, this::createOrUpdate);

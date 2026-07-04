@@ -17,7 +17,7 @@
 package com.thoughtworks.go.apiv1.internalmaterials
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.internalmaterials.representers.ModificationsRepresenter
 import com.thoughtworks.go.domain.PipelineRunIdInfo
 import com.thoughtworks.go.domain.materials.MaterialConfig
@@ -27,7 +27,6 @@ import com.thoughtworks.go.helper.ModificationsMother
 import com.thoughtworks.go.server.service.MaterialConfigService
 import com.thoughtworks.go.server.service.MaterialService
 import com.thoughtworks.go.server.service.result.HttpOperationResult
-import com.thoughtworks.go.server.service.result.OperationResult
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
@@ -58,7 +57,7 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
 
   @Override
   InternalMaterialModificationsControllerV1 createControllerInstance() {
-    return new InternalMaterialModificationsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), materialConfigService, materialService)
+    return new InternalMaterialModificationsControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), materialConfigService, materialService)
   }
 
   @Nested
@@ -66,6 +65,8 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Delegate SecurityServiceTrait s = InternalMaterialModificationsControllerV1Test.this
+      @Delegate ControllerTrait<InternalMaterialModificationsControllerV1> c = InternalMaterialModificationsControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -79,7 +80,7 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       def info = new PipelineRunIdInfo(10, 1)
 
       @BeforeEach
@@ -93,7 +94,7 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
         def git = MaterialConfigsMother.git("http://example.com")
         def modifications = new Modifications(ModificationsMother.withModifiedFileWhoseNameLengthIsOneK())
 
-        when(materialConfigService.getMaterialConfig(anyString(), anyString(), any(OperationResult.class))).thenReturn(git)
+        when(materialConfigService.getMaterialConfig(anyString(), anyString(), any())).thenReturn(git)
         when(materialService.getModificationsFor(any(MaterialConfig.class), anyString(), anyLong(), anyLong(), anyInt())).thenReturn(modifications)
 
         getWithApiHeader("/api/internal/materials/abc123/modifications")
@@ -107,9 +108,9 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
 
       @Test
       void 'should return 404 value if material does not exist'() {
-        when(materialConfigService.getMaterialConfig(anyString(), anyString(), any(OperationResult.class))).then({
+        when(materialConfigService.getMaterialConfig(anyString(), anyString(), any())).then({
           InvocationOnMock invocation ->
-            HttpOperationResult result = (HttpOperationResult) invocation.arguments.last()
+            HttpOperationResult result = (HttpOperationResult) invocation.getArgument(2)
             result.notFound("Material not found", "Some message", HealthStateType.notFound())
         })
 
@@ -127,7 +128,7 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
         def git = MaterialConfigsMother.git("http://example.com")
         def modifications = new Modifications(ModificationsMother.withModifiedFileWhoseNameLengthIsOneK())
 
-        when(materialConfigService.getMaterialConfig(anyString(), anyString(), any(OperationResult.class))).thenReturn(git)
+        when(materialConfigService.getMaterialConfig(anyString(), anyString(), any())).thenReturn(git)
         when(materialService.getModificationsFor(any(MaterialConfig.class), anyString(), anyLong(), anyLong(), anyInt())).thenReturn(modifications)
 
         getWithApiHeader("/api/internal/materials/abc123/modifications?after=3")
@@ -144,7 +145,7 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
         def git = MaterialConfigsMother.git("http://example.com")
         def modifications = new Modifications(ModificationsMother.withModifiedFileWhoseNameLengthIsOneK())
 
-        when(materialConfigService.getMaterialConfig(anyString(), anyString(), any(OperationResult.class))).thenReturn(git)
+        when(materialConfigService.getMaterialConfig(anyString(), anyString(), any())).thenReturn(git)
         when(materialService.getModificationsFor(any(MaterialConfig.class), anyString(), anyLong(), anyLong(), anyInt())).thenReturn(modifications)
 
         getWithApiHeader("/api/internal/materials/abc123/modifications?before=3")
@@ -197,7 +198,7 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
         def git = MaterialConfigsMother.git("http://example.com")
         def modifications = new Modifications(ModificationsMother.withModifiedFileWhoseNameLengthIsOneK())
 
-        when(materialConfigService.getMaterialConfig(anyString(), anyString(), any(OperationResult.class))).thenReturn(git)
+        when(materialConfigService.getMaterialConfig(anyString(), anyString(), any())).thenReturn(git)
         when(materialService.getModificationsFor(any(MaterialConfig.class), anyString(), anyLong(), anyLong(), anyInt())).thenReturn(modifications)
 
         getWithApiHeader("/api/internal/materials/abc123/modifications?pattern=hello")

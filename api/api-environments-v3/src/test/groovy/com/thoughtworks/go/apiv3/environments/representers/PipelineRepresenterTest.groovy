@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.apiv3.environments.representers
 
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.EnvironmentPipelineConfig
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class PipelineRepresenterTest {
@@ -27,7 +27,7 @@ class PipelineRepresenterTest {
   @Test
   void 'should serialize to JSON'() {
     EnvironmentPipelineConfig config = new EnvironmentPipelineConfig(
-      new CaseInsensitiveString("pipeline1")
+      cis("pipeline1")
     )
 
     def json = toObjectString({ PipelineRepresenter.toJSON(it, config) })

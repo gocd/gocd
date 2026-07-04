@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.featuretoggles
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.featuretoggles.representers.FeatureTogglesRepresenter
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle
@@ -44,7 +44,7 @@ class FeatureTogglesControllerV1Test implements SecurityServiceTrait, Controller
 
   @Override
   FeatureTogglesControllerV1 createControllerInstance() {
-    new FeatureTogglesControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), featureToggleService)
+    new FeatureTogglesControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), featureToggleService)
   }
 
   @Nested
@@ -56,6 +56,8 @@ class FeatureTogglesControllerV1Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = FeatureTogglesControllerV1Test.this
+      @Delegate ControllerTrait<FeatureTogglesControllerV1> c = FeatureTogglesControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -90,6 +92,8 @@ class FeatureTogglesControllerV1Test implements SecurityServiceTrait, Controller
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = FeatureTogglesControllerV1Test.this
+      @Delegate ControllerTrait<FeatureTogglesControllerV1> c = FeatureTogglesControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {

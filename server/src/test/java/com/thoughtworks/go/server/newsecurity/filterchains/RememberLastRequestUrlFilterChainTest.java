@@ -40,10 +40,6 @@ class RememberLastRequestUrlFilterChainTest {
     private Filter filter;
     private FilterChain filterChain;
 
-    private static Stream<String> rememberedUrls() {
-        return Stream.of("/", "/home", "/dashboard", "/foobar");
-    }
-
     @BeforeEach
     void setUp() {
         response = new MockHttpServletResponse();
@@ -52,62 +48,56 @@ class RememberLastRequestUrlFilterChainTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/cctray.xml", "/api/foo", "/remoting/foo", "/auth/foo", "/plugin/foo/login", "/plugin/foo/authenticate", "/assets/images/logo.png"})
+    @ValueSource(strings = {
+        "/cctray.xml",
+        "/api/foo",
+        "/remoting/foo",
+        "/auth/foo",
+        "/plugin/foo/login",
+        "/plugin/foo/authenticate",
+        "/assets/images/logo.png",
+        "/files/build-windows/8531/build-non-server/1/FastTests-runInstance-1/cruise-output/console.log?startLineNumber=0",
+        "/console-websocket/build-linux/8839/build-non-server/1/jasmine-rspec?startLine=0",
+        "/pipelines/build-windows/8531/build-non-server/1/stats_iframe",
+        "/admin/config_change/between/4f0288d15e3855288102dda9ebd45e52/and/233cd2b905cd5fec7435d9fdb72f79b7",
+        "/history/stage/Security-Checks/8812/Security-Checks/1?page=5&tab=overview",
+    })
     void shouldNotSaveIncomingRequestFromUrls(String url) throws IOException, ServletException {
-        request = HttpRequestBuilder.GET(url)
-                .build();
-
-        assertThat(SessionUtils.savedRequest(request))
-                .isNull();
-        filter.doFilter(request, response, filterChain);
-        assertThat(SessionUtils.savedRequest(request))
-                .isNull();
+        assertNotRemembered(HttpRequestBuilder.GET(url));
     }
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "/pipelines/installer-tests/663/install-tests/2.json?stage-history-page=1",
-            "/pipelines/installer-tests/2.json?stage-history-page=1",
-            "/pipelines/2.json?stage-history-page=1",
-            "/api/server_health_messages",
-            "/pipelines.json"})
+        "/pipelines/Security-Checks/8812/Security-Checks/1/overview.json?stage-history-page=3",
+        "/jobStatus.json?pipelineName=Security-Checks&stageName=Security-Checks&jobId=1887084"
+    })
     void shouldNotSaveIncomingRequestForJSONUrls(String url) throws IOException, ServletException {
-        request = HttpRequestBuilder.GET(url)
-                .build();
+        assertNotRemembered(HttpRequestBuilder.GET(url));
+    }
 
-        assertThat(SessionUtils.savedRequest(request))
-                .isNull();
+    private void assertNotRemembered(HttpRequestBuilder url) throws IOException, ServletException {
+        request = url.build();
+        assertThat(SessionUtils.savedRequest(request)).isNull();
         filter.doFilter(request, response, filterChain);
-        assertThat(SessionUtils.savedRequest(request))
-                .isNull();
+        assertThat(SessionUtils.savedRequest(request)).isNull();
     }
 
     @ParameterizedTest
     @MethodSource("rememberedUrls")
     void shouldSaveIncomingRequestForAllOtherCalls(String url) throws IOException, ServletException {
-        request = HttpRequestBuilder.GET(url)
-                .build();
-
-        assertThat(SessionUtils.savedRequest(request))
-                .isNull();
+        request = HttpRequestBuilder.GET(url).build();
+        assertThat(SessionUtils.savedRequest(request)).isNull();
         filter.doFilter(request, response, filterChain);
-        assertThat(SessionUtils.savedRequest(request).getRedirectUrl())
-                .isEqualTo("http://test.host/go" + url);
+        assertThat(SessionUtils.savedRequest(request).getRedirectUrl()).isEqualTo("http://test.host/go" + url);
     }
 
     @ParameterizedTest
     @MethodSource("rememberedUrls")
     void shouldNotRememberPostUrls(String url) throws IOException, ServletException {
-        request = HttpRequestBuilder.POST(url)
-                .build();
+        assertNotRemembered(HttpRequestBuilder.POST(url));
+    }
 
-        assertThat(SessionUtils.savedRequest(request))
-                .isNull();
-
-        filter.doFilter(request, response, filterChain);
-
-
-        assertThat(SessionUtils.savedRequest(request))
-                .isNull();
+    private static Stream<String> rememberedUrls() {
+        return Stream.of("/", "/home", "/dashboard", "/foobar");
     }
 }

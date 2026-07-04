@@ -22,10 +22,13 @@ import com.thoughtworks.go.util.command.StreamPumper;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
+
+import static com.thoughtworks.go.util.Clock.min;
 
 public class ProcessWrapper {
 
@@ -33,7 +36,7 @@ public class ProcessWrapper {
     private final StreamPumper processOutputStream;
     private final StreamPumper processErrorStream;
     private final PrintWriter processInputStream;
-    private final long startTime;
+    private final long startTimeMillis;
     private final ProcessTag processTag;
     private final String command;
 
@@ -41,7 +44,7 @@ public class ProcessWrapper {
         this.process = process;
         this.processTag = processTag;
         this.command = command;
-        this.startTime = System.currentTimeMillis();
+        this.startTimeMillis = System.currentTimeMillis();
         this.processOutputStream = StreamPumper.pump(process.getInputStream(), new OutputConsumer(consumer), "", encoding);
         this.processErrorStream = StreamPumper.pump(process.getErrorStream(), new ErrorConsumer(consumer), errorPrefix, encoding);
         this.processInputStream = new PrintWriter(new OutputStreamWriter(process.getOutputStream()));
@@ -75,9 +78,9 @@ public class ProcessWrapper {
         processInputStream.close();
     }
 
-    private long lastHeardTime() {
+    private Instant lastHeard() {
         if (processErrorStream == null && processOutputStream == null) {
-            return System.currentTimeMillis();
+            return Instant.now();
         }
         if (processErrorStream == null) {
             return processOutputStream.getLastHeard();
@@ -85,7 +88,7 @@ public class ProcessWrapper {
         if (processOutputStream == null) {
             return processErrorStream.getLastHeard();
         }
-        return Math.min(processOutputStream.getLastHeard(), processErrorStream.getLastHeard());
+        return min(processOutputStream.getLastHeard(), processErrorStream.getLastHeard());
     }
 
     public void closeOutputStream() throws IOException {
@@ -102,15 +105,15 @@ public class ProcessWrapper {
     }
 
     public String getStartTimeForDisplay() {
-        return new SimpleDateFormat("dd/MM/yy - H:mm:ss:S").format(new Date(startTime));
+        return DateTimeFormatter.ISO_DATE_TIME.format(Instant.ofEpochMilli(startTimeMillis));
     }
 
     public ProcessTag getProcessTag() {
         return processTag;
     }
 
-    public long getIdleTime() {
-        return System.currentTimeMillis() - lastHeardTime();
+    public Duration idleFor() {
+        return Duration.between(lastHeard(), Instant.now());
     }
 
     public String getCommand() {

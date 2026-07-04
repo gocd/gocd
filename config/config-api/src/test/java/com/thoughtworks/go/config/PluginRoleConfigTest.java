@@ -36,6 +36,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.config.policy.SupportedEntity.ENVIRONMENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -126,7 +127,7 @@ public class PluginRoleConfigTest {
     public void shouldAnswerWhetherItHasPermissionsForGivenEntityOfTypeAndName() {
         final Policy directives = new Policy();
         directives.add(new Allow("view", ENVIRONMENT.getType(), "env_1"));
-        RoleConfig role = new RoleConfig(new CaseInsensitiveString(""), new Users(), directives);
+        RoleConfig role = new RoleConfig(cis(""), new Users(), directives);
 
         assertTrue(role.hasPermissionsFor(SupportedAction.VIEW, EnvironmentConfig.class, "env_1"));
         assertFalse(role.hasPermissionsFor(SupportedAction.VIEW, EnvironmentConfig.class, "env_2"));
@@ -192,7 +193,7 @@ public class PluginRoleConfigTest {
         ValidationContext validationContext = ValidationContextMother.validationContext(securityConfig);
 
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("auth_config_id", "plugin_id"));
-        securityConfig.getRoles().add(new RoleConfig(new CaseInsensitiveString("admin")));
+        securityConfig.getRoles().add(new RoleConfig(cis("admin")));
         securityConfig.getRoles().add(role);
 
         v.validate(role, validationContext);

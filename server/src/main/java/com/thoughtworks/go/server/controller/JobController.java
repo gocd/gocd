@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.Tabs;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
@@ -33,7 +32,6 @@ import com.thoughtworks.go.server.presentation.models.JobStatusJsonPresentationM
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ErrorHandler;
-import com.thoughtworks.go.util.GoConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,9 +45,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
+import static com.thoughtworks.go.server.controller.ExceptionsPage.ERROR_MESSAGE_KEY;
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound;
+import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonNotFound;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_PAGE;
+import static com.thoughtworks.go.util.json.JsonAware.ERROR_KEY;
 import static org.apache.commons.lang3.StringUtils.isNumeric;
 
 /*
@@ -59,6 +61,8 @@ import static org.apache.commons.lang3.StringUtils.isNumeric;
 public class JobController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobController.class);
+    private static final String BUILD_DETAIL_PAGE_VIEW_NAME = "build_detail/build_detail_page";
+
     private JobInstanceService jobInstanceService;
     private AgentService agentService;
     private JobInstanceDao jobInstanceDao;
@@ -128,7 +132,7 @@ public class JobController {
     @ErrorHandler
     public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Exception e) {
         LOGGER.error("Job detail page error: ", e);
-        return new ModelAndView("exceptions_page", Map.of(ERROR_FOR_PAGE, e.getMessage()));
+        return new ModelAndView(ExceptionsPage.VIEW_NAME, Map.of(ERROR_MESSAGE_KEY, e.getMessage()));
     }
 
     @RequestMapping(value = "/**/jobStatus.json", method = RequestMethod.GET)
@@ -139,15 +143,21 @@ public class JobController {
         Object json;
         try {
             JobInstance requestedInstance = jobInstanceService.buildByIdWithTransitions(jobId);
+
+            if (!requestedInstance.getPipelineName().equalsIgnoreCase(pipelineName) ||
+                !requestedInstance.getStageName().equalsIgnoreCase(stageName)) {
+                return jsonNotFound(Map.of(ERROR_KEY, resourceNotFound("jobId", String.valueOf(jobId)))).respond(response);
+            }
+
             JobInstance mostRecentJobInstance = jobInstanceDao.mostRecentJobWithTransitions(requestedInstance.getIdentifier());
 
             JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(mostRecentJobInstance,
                     agentService.findAgentByUUID(mostRecentJobInstance.getAgentUuid()),
-                    stageService.getBuildDuration(pipelineName, stageName, mostRecentJobInstance));
+                    stageService.getBuildDuration(mostRecentJobInstance));
             json = createBuildInfo(presenter);
         } catch (Exception e) {
             LOGGER.warn("Unexpected error rendering job status as JSON", e);
-            json = Map.of(GoConstants.ERROR_FOR_JSON, e.getMessage());
+            json = Map.of(ERROR_KEY, e.getMessage());
         }
         return jsonFound(json).respond(response);
     }
@@ -160,7 +170,7 @@ public class JobController {
         Tabs customizedTabs = goConfigService.getCustomizedTabs(pipelineWithOneBuild.getName(),
                 pipelineWithOneBuild.getFirstStage().getName(), current.getName());
         TrackingTool trackingTool = goConfigService.pipelineConfigNamed(
-                new CaseInsensitiveString(pipelineWithOneBuild.getName())).trackingToolOrDefault();
+                cis(pipelineWithOneBuild.getName())).trackingToolOrDefault();
         Stage stage = stageService.getStageByBuild(current);
         return new JobDetailPresentationModel(current, recent25, pipelineWithOneBuild, customizedTabs, trackingTool, artifactService, stage);
     }
@@ -177,7 +187,7 @@ public class JobController {
         data.put("isEditableViaUI", goConfigService.isPipelineEditable(jobDetail.getPipelineName()));
         data.put("isAgentAlive", agentService.isRegistered(jobDetail.getAgentUuid()));
         addElasticAgentInfo(jobDetail, data);
-        return new ModelAndView("build_detail/build_detail_page", data);
+        return new ModelAndView(BUILD_DETAIL_PAGE_VIEW_NAME, data);
     }
 
     private void addElasticAgentInfo(JobInstance jobInstance, Map<String, Object> data) {

@@ -42,8 +42,8 @@ public class HeaderUtil {
             return Arrays.stream(headerValue.trim().split(" +"))
                     .map(property -> property.split("="))
                     .collect(Collectors.toMap(
-                            keyAndValue -> keyAndValue[0].replaceAll("%20", " "),
-                            keyAndValue -> keyAndValue[1].replaceAll("%20", " "),
+                            keyAndValue -> keyAndValue[0].replace("%20", " "),
+                            keyAndValue -> keyAndValue[1].replace("%20", " "),
                             (value1, value2) -> value1,
                             LinkedHashMap::new));
         } catch (Exception e) {

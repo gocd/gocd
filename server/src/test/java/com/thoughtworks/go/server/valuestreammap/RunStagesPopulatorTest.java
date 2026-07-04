@@ -29,6 +29,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -50,15 +51,15 @@ public class RunStagesPopulatorTest {
         * +---> p2 -----+
         * **/
 
-        CaseInsensitiveString p3 = new CaseInsensitiveString("p3");
-        CaseInsensitiveString p1 = new CaseInsensitiveString("p1");
-        CaseInsensitiveString p2 = new CaseInsensitiveString("p2");
+        CaseInsensitiveString p3 = cis("p3");
+        CaseInsensitiveString p1 = cis("p1");
+        CaseInsensitiveString p2 = cis("p2");
         ValueStreamMap graph = new ValueStreamMap(p3, new PipelineRevision(p3.toString(), 1, "labelp3-1"));
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(p1, p1.toString()), new PipelineRevision(p1.toString(), 1, "labelp1-1"), p3);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(p2, p2.toString()), new PipelineRevision(p2.toString(), 1, "labelp2-1"), p3);
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(p1, p1.toString()), new PipelineRevision(p1.toString(), 2, "labelp1-2"), p2);
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"), new CaseInsensitiveString("git"), p1, new MaterialRevision(null));
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"), new CaseInsensitiveString("git"), p2, new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"), cis("git"), p1, new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"), cis("git"), p2, new MaterialRevision(null));
 
         Stages stagesForP1_1 = stages("stages-for-p1-1");
         Stages stagesForP1_2 = stages("stages-for-p1-2");
@@ -83,13 +84,13 @@ public class RunStagesPopulatorTest {
         /*
             git --> p1 --> p2 --> p3
          */
-        CaseInsensitiveString p2 = new CaseInsensitiveString("p2");
-        CaseInsensitiveString p1 = new CaseInsensitiveString("p1");
-        CaseInsensitiveString p3 = new CaseInsensitiveString("p3");
+        CaseInsensitiveString p2 = cis("p2");
+        CaseInsensitiveString p1 = cis("p1");
+        CaseInsensitiveString p3 = cis("p3");
         ValueStreamMap graph = new ValueStreamMap(p2, new PipelineRevision(p2.toString(), 1, ""));
 
         graph.addUpstreamPipelineNode(new PipelineDependencyNode(p1, p1.toString()), new PipelineRevision(p1.toString(), 1, "1"), p2);
-        graph.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"), new CaseInsensitiveString("git"), p1, new MaterialRevision(null));
+        graph.addUpstreamMaterialNode(new SCMDependencyNode("g1", "g1", "git"), cis("git"), p1, new MaterialRevision(null));
         Node p3_node = graph.addDownstreamNode(new PipelineDependencyNode(p3, p3.toString()), p2);
 
         p3_node.addRevision(new PipelineRevision(p3.toString(), 1, "1"));

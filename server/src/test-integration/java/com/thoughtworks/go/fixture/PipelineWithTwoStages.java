@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.fixture;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.StageConfig;
@@ -34,7 +33,6 @@ import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TempDirUtils;
@@ -46,6 +44,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.CommandUtils.exec;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -115,7 +114,7 @@ public class PipelineWithTwoStages {
 
         MaterialConfigs materialConfigs = MaterialConfigsMother.mockMaterialConfigs(svnTestRepo.projectRepositoryUrl());
         SvnMaterialConfig svnMaterialConfig = (SvnMaterialConfig) materialConfigs.getFirst();
-        svnMaterialConfig.setName(new CaseInsensitiveString(DEFAULT_MATERIAL));
+        svnMaterialConfig.setName(cis(DEFAULT_MATERIAL));
         svnMaterialConfig.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "default-folder"));
         configHelper.addPipelineWithGroup(groupName, pipelineName, materialConfigs, devStage, jobsOfDevStage);
         configHelper.addStageToPipeline(pipelineName, ftStage, JOB_FOR_FT_STAGE);
@@ -144,15 +143,15 @@ public class PipelineWithTwoStages {
     }
 
     public PipelineConfig pipelineConfig() {
-        return configHelper.currentConfig().pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        return configHelper.currentConfig().pipelineConfigByName(cis(pipelineName));
     }
 
     public StageConfig devStage() {
-        return pipelineConfig().findBy(new CaseInsensitiveString(devStage));
+        return pipelineConfig().findBy(cis(devStage));
     }
 
     public StageConfig ftStage() {
-        return pipelineConfig().findBy(new CaseInsensitiveString(ftStage));
+        return pipelineConfig().findBy(cis(ftStage));
     }
 
     public Pipeline createPipelineWithFirstStageScheduled() {
@@ -187,7 +186,7 @@ public class PipelineWithTwoStages {
     public Pipeline createPipelineWithFirstStagePassedAndSecondStageRunning() {
         Pipeline pipeline = createPipelineWithFirstStageScheduled();
         dbHelper.passStage(pipeline.getFirstStage());
-        dbHelper.scheduleStage(pipeline, pipelineConfig().findBy(new CaseInsensitiveString(ftStage)));
+        dbHelper.scheduleStage(pipeline, pipelineConfig().findBy(cis(ftStage)));
         return dbHelper.getPipelineDao().mostRecentPipeline(pipeline.getName());
     }
 
@@ -215,17 +214,7 @@ public class PipelineWithTwoStages {
     }
 
     private Pipeline latestPipelineWithIdentifiers() {
-        Pipeline pipeline;
-        pipeline = dbHelper.getPipelineDao().mostRecentPipeline(pipelineName);
-
-        //TODO: #2318 - pipeline loaded from DB should contain identifiers
-        for (Stage stage : pipeline.getStages()) {
-            stage.setIdentifier(new StageIdentifier(pipeline, stage));
-            for (JobInstance jobInstance : stage.getJobInstances()) {
-                jobInstance.setIdentifier(new JobIdentifier(pipeline, stage, jobInstance));
-            }
-        }
-        return pipeline;
+        return dbHelper.getPipelineDao().mostRecentPipeline(pipelineName);
     }
 
     protected void scheduleAndCompleteFollowingStages(Pipeline pipeline, JobResult result) {

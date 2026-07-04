@@ -16,10 +16,9 @@
 package com.thoughtworks.go.apiv1.jobinstance
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.jobinstance.representers.JobInstanceRepresenter
 import com.thoughtworks.go.apiv1.jobinstance.representers.JobInstancesRepresenter
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
@@ -45,6 +44,7 @@ import org.mockito.quality.Strictness
 import java.util.stream.Stream
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 
@@ -57,7 +57,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
   @Override
   JobInstanceControllerV1 createControllerInstance() {
-    new JobInstanceControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), jobInstanceService)
+    new JobInstanceControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), jobInstanceService)
   }
 
   @Nested
@@ -69,11 +69,13 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
     @BeforeEach
     void setUp() {
-      when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true)
+      when(goConfigService.hasPipelineNamed(cis(pipelineName))).thenReturn(true)
     }
 
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate SecurityServiceTrait s = JobInstanceControllerV1Test.this
+      @Delegate ControllerTrait<JobInstanceControllerV1> c = JobInstanceControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -82,17 +84,17 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history'), [:])
+        getWithApiHeader(controller.controllerPath(History.this.pipelineName, History.this.stageName, History.this.jobName, 'history'), [:])
       }
 
       @Override
-      String getPipelineName() {
-        return History.this.pipelineName
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: History.this.pipelineName)
       }
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
         loginAsAdmin()
@@ -225,11 +227,13 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
     @BeforeEach
     void setUp() {
-      when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true)
+      when(goConfigService.hasPipelineNamed(cis(pipelineName))).thenReturn(true)
     }
 
     @Nested
     class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Delegate SecurityServiceTrait s = JobInstanceControllerV1Test.this
+      @Delegate ControllerTrait<JobInstanceControllerV1> c = JobInstanceControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -238,17 +242,17 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(pipelineName, 2, stageName, 2, jobName), [:])
+        getWithApiHeader(controller.controllerPath(Instance.this.pipelineName, 2, Instance.this.stageName, 2, Instance.this.jobName), [:])
       }
 
       @Override
-      String getPipelineName() {
-        return Instance.this.pipelineName
+      PipelineSpecifier getPipelineSpecifier() {
+        new PipelineSpecifier(pipelineName: Instance.this.pipelineName)
       }
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsNormalUser {
       @BeforeEach
       void setUp() {
         loginAsAdmin()

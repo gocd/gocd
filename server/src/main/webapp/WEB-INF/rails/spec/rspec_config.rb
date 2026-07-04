@@ -26,7 +26,7 @@ RSpec.configure do |config|
   config.include AuthenticationSpecHelper
   config.include MiscSpecExtensions
 
-# clear flash messages for every spec
+  # clear flash messages for every spec
   config.before(:each) do
     com.thoughtworks.go.server.web.FlashMessageService.useFlash(com.thoughtworks.go.server.web.FlashMessageService::Flash.new)
   end

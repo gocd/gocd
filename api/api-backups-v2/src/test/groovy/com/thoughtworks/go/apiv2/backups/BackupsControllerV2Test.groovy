@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv2.backups
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv2.backups.representers.BackupRepresenter
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.server.domain.BackupStatus
@@ -42,6 +42,8 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = BackupsControllerV2Test.this
+      @Delegate ControllerTrait<BackupsControllerV2> c = BackupsControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -58,7 +60,6 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
     class AsAdmin {
       @Test
       void 'should schedule a backup creation'() {
-        enableSecurity()
         loginAsAdmin()
         def backup = new ServerBackup("/foo/bar", new Date(), currentUserLoginName().toString(), BackupStatus.IN_PROGRESS, "", BACKUP_ID)
 
@@ -80,7 +81,6 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
     class CORS {
       @Test
       void 'bails if confirm header is missing'() {
-        enableSecurity()
         loginAsAdmin()
         postWithApiHeader(controller.controllerBasePath(), null)
         assertThatResponse()
@@ -95,6 +95,8 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
   class Show {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = BackupsControllerV2Test.this
+      @Delegate ControllerTrait<BackupsControllerV2> c = BackupsControllerV2Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -103,7 +105,7 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(BACKUP_ID))
+        getWithApiHeader(controller.controllerPath(BackupsControllerV2Test.this.BACKUP_ID))
       }
     }
 
@@ -112,7 +114,6 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -169,6 +170,6 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
 
   @Override
   BackupsControllerV2 createControllerInstance() {
-    return new BackupsControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), backupService)
+    return new BackupsControllerV2(new ApiAuthorizationHelper(securityService, goConfigService), backupService)
   }
 }

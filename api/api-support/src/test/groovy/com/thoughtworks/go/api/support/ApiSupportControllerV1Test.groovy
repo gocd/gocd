@@ -15,22 +15,20 @@
  */
 package com.thoughtworks.go.api.support
 
-import com.thoughtworks.go.server.domain.Username
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.api.SecurityTestTrait
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.server.service.support.ServerStatusService
+import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.invocation.InvocationOnMock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
-import static org.mockito.ArgumentMatchers.any
-import static org.mockito.ArgumentMatchers.eq
-import static org.mockito.Mockito.doAnswer
 import static org.mockito.Mockito.when
 
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -41,53 +39,99 @@ class ApiSupportControllerV1Test implements SecurityServiceTrait, ControllerTrai
 
   @Override
   ApiSupportController createControllerInstance() {
-    new ApiSupportController(serverStatusService)
+    new ApiSupportController(new ApiAuthorizationHelper(securityService, goConfigService), serverStatusService)
   }
 
   @Nested
-  class Get {
+  class Show {
 
-    @Test
-    void 'should return agent json'() {
-      loginAsAdmin()
-      def res = [foo: "bar"]
-      when(serverStatusService.asJsonCompatibleMap(any() as Username, any() as HttpLocalizedOperationResult)).thenReturn(res)
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = ApiSupportControllerV1Test.this
+      @Delegate ControllerTrait<ApiSupportController> c = ApiSupportControllerV1Test.this
 
-      get(controller.controllerPath())
+      @Override
+      String getControllerMethodUnderTest() {
+        return "show"
+      }
 
-      assertThatResponse()
-        .isOk()
-        .hasJsonBody(res)
-        .hasContentType("application/json")
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath())
+      }
     }
 
-    @Test
-    void 'should return error response'() {
-      loginAsAdmin()
-      def message = "Failed to get information"
-      doAnswer({ InvocationOnMock invocation ->
-        def result = invocation.getArgument(1) as HttpLocalizedOperationResult
-        result.unprocessableEntity(message)
-      }).when(serverStatusService).asJsonCompatibleMap(eq(currentUsername()), any() as HttpLocalizedOperationResult)
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        loginAsAdmin()
+      }
 
-      get(controller.controllerPath())
+      @Test
+      void 'should return support information'() {
+        loginAsAdmin()
+        def res = [foo: "bar"]
+        when(serverStatusService.asJsonCompatibleMap()).thenReturn(res)
 
-      assertThatResponse()
-        .isUnprocessableEntity()
-        .hasJsonMessage(message)
-        .hasContentType("application/json")
+        get(controller.controllerPath())
+
+        assertThatResponse()
+          .isOk()
+          .hasJsonBody(res)
+          .hasContentType("application/json")
+      }
+
+      @Test
+      void 'should return error response'() {
+        loginAsAdmin()
+        def message = "Failed to get information"
+        when(serverStatusService.asJsonCompatibleMap()).thenThrow(new RuntimeException(message))
+
+        get(controller.controllerPath())
+
+        assertThatResponse()
+          .isInternalServerError()
+          .hasJsonAttribute("error", message)
+          .hasContentType("application/json")
+      }
     }
   }
 
   @Nested
   class ProcessList {
-    @Test
-    void 'should return process list json'() {
-      get(controller.controllerPath(Routes.Support.PROCESS_LIST))
 
-      assertThatResponse()
-        .isOk()
-        .hasContentType("application/json")
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = ApiSupportControllerV1Test.this
+      @Delegate ControllerTrait<ApiSupportController> c = ApiSupportControllerV1Test.this
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "processList"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath(Routes.Support.PROCESS_LIST))
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should return process list json'() {
+        get(controller.controllerPath(Routes.Support.PROCESS_LIST))
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType("application/json")
+      }
     }
   }
 }

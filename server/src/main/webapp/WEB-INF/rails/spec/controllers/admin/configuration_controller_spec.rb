@@ -30,8 +30,7 @@ describe Admin::ConfigurationController do
   describe "tab_name" do
     before :each do
       cruise_config_revision = GoConfigRevision.new("config-content", "md5", "loser", "2.3.0", TimeProvider.new)
-      expect(@go_config_service).to receive(:fileLocation).and_return('/foo/bar')
-      expect(@go_config_service).to receive(:getConfigAtVersion).with('current').and_return(cruise_config_revision)
+      expect(@config_repository).to receive(:getRevision).with('current').and_return(cruise_config_revision)
       expect(@config_repository).to receive(:getRevision).with('md5').and_return(cruise_config_revision)
       login_as_admin
     end
@@ -51,8 +50,7 @@ describe Admin::ConfigurationController do
     before :each do
       login_as_admin
       cruise_config_revision = GoConfigRevision.new("config-content", "md5", "loser", "2.3.0", TimeProvider.new)
-      expect(@go_config_service).to receive(:fileLocation).and_return('/foo/bar')
-      expect(@go_config_service).to receive(:getConfigAtVersion).with('current').and_return(cruise_config_revision)
+      expect(@config_repository).to receive(:getRevision).with('current').and_return(cruise_config_revision)
       expect(@config_repository).to receive(:getRevision).with('md5').and_return(cruise_config_revision)
     end
 
@@ -102,32 +100,30 @@ describe Admin::ConfigurationController do
     describe "show" do
       it "should render view with config" do
         cruise_config_revision = GoConfigRevision.new("config-content", "md5", "loser", "2.3.0", TimeProvider.new)
-        expect(@go_config_service).to receive(:fileLocation).and_return('/foo/bar')
-        expect(@go_config_service).to receive(:getConfigAtVersion).with('current').and_return(cruise_config_revision)
+        expect(@config_repository).to receive(:getRevision).with('current').and_return(cruise_config_revision)
         expect(@config_repository).to receive(:getRevision).with('md5').and_return(cruise_config_revision)
         get :show
 
         expect(response).to render_template "show"
         expect(assigns[:go_config].content).to eq("config-content")
         expect(assigns[:go_config].md5).to eq("md5")
-        expect(assigns[:go_config].location).to eq("/foo/bar")
         expect(assigns[:go_config_revision]).to eq(cruise_config_revision)
+        expect(assigns[:config_valid]).to eq(true)
       end
     end
 
     describe "edit" do
       it "should render edit" do
         cruise_config_revision = GoConfigRevision.new("config-content", "md5", "loser", "2.3.0", TimeProvider.new)
-        expect(@go_config_service).to receive(:fileLocation).and_return('/foo/bar')
-        expect(@go_config_service).to receive(:getConfigAtVersion).with('current').and_return(cruise_config_revision)
+        expect(@config_repository).to receive(:getRevision).with('current').and_return(cruise_config_revision)
         expect(@config_repository).to receive(:getRevision).with('md5').and_return(cruise_config_revision)
         get :edit
 
         expect(response).to render_template "edit"
         expect(assigns[:go_config].content).to eq("config-content")
         expect(assigns[:go_config].md5).to eq("md5")
-        expect(assigns[:go_config].location).to eq("/foo/bar")
         expect(assigns[:go_config_revision]).to eq(cruise_config_revision)
+        expect(assigns[:config_valid]).to eq(true)
       end
     end
 
@@ -140,19 +136,18 @@ describe Admin::ConfigurationController do
 
         expect(flash[:success]).to eq('Saved successfully.')
         assert_redirect config_view_path
+        expect(assigns[:config_valid]).to eq(true)
       end
 
       it "should render edit page when config save fails" do
-        expect(@go_config_service).to receive(:fileLocation).and_return('/foo/bar')
-
         current_config = GoConfigRevision.new("config-content", "current-md5", "loser", "2.3.0", TimeProvider.new)
-        expect(@go_config_service).to receive(:getConfigAtVersion).with('current').and_return(current_config)
+        expect(@config_repository).to receive(:getRevision).with('current').and_return(current_config)
 
         submitted_copy = {"content" => "edited-content", "md5" => "md5"}
         config_validity = double('config validity')
         expect(config_validity).to receive(:isValid).and_return(false)
         expect(config_validity).to receive(:errorMessage).and_return('Wrong config xml')
-        allow(controller).to receive(:switch_to_split_pane?).once.with(config_validity).and_return(false)
+        allow(controller).to receive(:config_edit_conflicted?).once.with(config_validity).and_return(false)
         expect(@admin_service).to receive(:updateConfig).with(submitted_copy, an_instance_of(HttpLocalizedOperationResult)).and_return(config_validity)
         cruise_config_revision = double('cruise config revision')
         expect(@config_repository).to receive(:getRevision).with(submitted_copy['md5']).and_return(cruise_config_revision)
@@ -164,15 +159,12 @@ describe Admin::ConfigurationController do
         expect(assigns[:errors][0]).to eq("Wrong config xml")
         expect(assigns[:go_config].content).to eq("edited-content")
         expect(assigns[:go_config].md5).to eq("md5")
-        expect(assigns[:go_config].location).to eq("/foo/bar")
         expect(assigns[:go_config_revision]).to eq(cruise_config_revision)
       end
 
       it "should render split pane when config save fails because of merge conflict" do
-        expect(@go_config_service).to receive(:fileLocation).and_return('/foo/bar')
-
         current_config = GoConfigRevision.new("config-content", "md5", "loser", "2.3.0", TimeProvider.new)
-        expect(@go_config_service).to receive(:getConfigAtVersion).with('current').and_return(current_config)
+        expect(@config_repository).to receive(:getRevision).with('current').and_return(current_config)
         expect(@config_repository).to receive(:getRevision).with('md5').and_return(current_config)
 
         submitted_copy = {"content" => "content-which-caused-conflict", "md5" => "md5"}
@@ -180,7 +172,7 @@ describe Admin::ConfigurationController do
         config_validity = double('config validity')
         expect(config_validity).to receive(:isValid).and_return(false)
         expect(config_validity).to receive(:errorMessage).and_return('Conflict in merging')
-        allow(controller).to receive(:switch_to_split_pane?).once.with(config_validity).and_return(true)
+        allow(controller).to receive(:config_edit_conflicted?).once.with(config_validity).and_return(true)
         expect(@admin_service).to receive(:updateConfig).with(submitted_copy, an_instance_of(HttpLocalizedOperationResult)).and_return(config_validity)
 
         put :update, params: {:go_config => submitted_copy}
@@ -188,13 +180,10 @@ describe Admin::ConfigurationController do
         expect(response).to render_template "split_pane"
         expect(flash.now[:error]).to eq("Someone has modified the configuration and your changes are in conflict. Please review, amend and retry.")
         expect(assigns[:errors][0]).to eq("Conflict in merging")
-        expect(assigns[:flash_help_link]).to eq("<a class='' href='#{com.thoughtworks.go.CurrentGoCDVersion.docsUrl '/configuration/configuration_reference.html'}' target='_blank'>Help Topic: Configuration</a>")
         expect(assigns[:conflicted_config].content).to eq(submitted_copy['content'])
         expect(assigns[:conflicted_config].md5).to eq(submitted_copy['md5'])
-        expect(assigns[:conflicted_config].location).to eq(submitted_copy['location'])
         expect(assigns[:go_config].content).to eq(current_config.getContent)
         expect(assigns[:go_config].md5).to eq(current_config.getMd5)
-        expect(assigns[:go_config].location).to eq('/foo/bar')
         expect(assigns[:go_config_revision]).to eq(current_config)
       end
 
@@ -218,7 +207,7 @@ describe Admin::ConfigurationController do
         expect(config_validity).to receive(:isValid).and_return(true)
         expect(config_validity).to receive(:isMergeConflict).never
         expect(config_validity).to receive(:isPostValidationError).never
-        actual = @controller.send(:switch_to_split_pane?, config_validity)
+        actual = @controller.send(:config_edit_conflicted?, config_validity)
         expect(actual).to eq(false)
       end
 
@@ -227,7 +216,7 @@ describe Admin::ConfigurationController do
         expect(config_validity).to receive(:isValid).and_return(false)
         expect(config_validity).to receive(:isMergeConflict).and_return(true)
         expect(config_validity).to receive(:isPostValidationError).never
-        actual = @controller.send(:switch_to_split_pane?, config_validity)
+        actual = @controller.send(:config_edit_conflicted?, config_validity)
         expect(actual).to eq(true)
       end
 
@@ -236,7 +225,7 @@ describe Admin::ConfigurationController do
         expect(config_validity).to receive(:isValid).and_return(false)
         expect(config_validity).to receive(:isMergeConflict).and_return(false)
         expect(config_validity).to receive(:isPostValidationError).and_return(true)
-        actual = @controller.send(:switch_to_split_pane?, config_validity)
+        actual = @controller.send(:config_edit_conflicted?, config_validity)
         expect(actual).to eq(true)
       end
     end
@@ -246,8 +235,7 @@ describe Admin::ConfigurationController do
     it 'should allow anyone, with security disabled' do
       disable_security
       cruise_config_revision = GoConfigRevision.new("config-content", "md5", "loser", "2.3.0", TimeProvider.new)
-      expect(@go_config_service).to receive(:fileLocation).and_return('/foo/bar')
-      expect(@go_config_service).to receive(:getConfigAtVersion).with('current').and_return(cruise_config_revision)
+      expect(@config_repository).to receive(:getRevision).with('current').and_return(cruise_config_revision)
       expect(controller).to allow_action(:get, :show)
     end
 
@@ -265,8 +253,7 @@ describe Admin::ConfigurationController do
     it 'should allow admin users, with security enabled' do
       login_as_admin
       cruise_config_revision = GoConfigRevision.new("config-content", "md5", "loser", "2.3.0", TimeProvider.new)
-      expect(@go_config_service).to receive(:fileLocation).and_return('/foo/bar')
-      expect(@go_config_service).to receive(:getConfigAtVersion).with('current').and_return(cruise_config_revision)
+      expect(@config_repository).to receive(:getRevision).with('current').and_return(cruise_config_revision)
       expect(controller).to allow_action(:get, :show)
     end
 

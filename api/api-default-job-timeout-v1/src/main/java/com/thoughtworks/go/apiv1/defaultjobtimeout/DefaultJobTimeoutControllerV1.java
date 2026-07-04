@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.defaultjobtimeout;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.defaultjobtimeout.representers.DefaultJobTimeOutRepresenter;
 import com.thoughtworks.go.server.service.ServerConfigService;
@@ -37,13 +37,13 @@ import static spark.Spark.*;
 @Component
 public class DefaultJobTimeoutControllerV1 extends ApiController implements SparkSpringController {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final ServerConfigService serverConfigService;
 
     @Autowired
-    public DefaultJobTimeoutControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, ServerConfigService serverConfigService) {
+    public DefaultJobTimeoutControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, ServerConfigService serverConfigService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.serverConfigService = serverConfigService;
     }
 
@@ -57,7 +57,7 @@ public class DefaultJobTimeoutControllerV1 extends ApiController implements Spar
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", mimeType, this.apiAuthorizationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::index);
             post("", mimeType, this::createOrUpdate);

@@ -30,7 +30,6 @@ import java.nio.file.Path;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-
 public class SvnRemoteRepository {
     private static final String HOST = "127.0.0.1";
     

@@ -15,8 +15,10 @@
  */
 package com.thoughtworks.go.spark
 
+import groovy.transform.SelfType
 import org.junit.jupiter.api.Test
 
+@SelfType([SecurityServiceTrait, ControllerTrait, SecurityTestTraitBasics])
 trait GroupAdminUserSecurity {
 
   @Test
@@ -39,7 +41,6 @@ trait GroupAdminUserSecurity {
 
   @Test
   void 'should disallow normal users, with security enabled'() {
-    enableSecurity()
     loginAsUser()
 
     makeHttpCall()
@@ -48,7 +49,6 @@ trait GroupAdminUserSecurity {
 
   @Test
   void 'should allow admin, with security enabled'() {
-    enableSecurity()
     loginAsAdmin()
 
     makeHttpCall()
@@ -56,20 +56,36 @@ trait GroupAdminUserSecurity {
   }
 
   @Test
-  void 'should allow pipeline group admin users, with security enabled'() {
-    enableSecurity()
-    loginAsGroupAdmin()
+  void 'should allow specific pipeline group admin user, with security enabled'() {
+    loginAsGroupAdmin(pipelineSpecifier)
 
     makeHttpCall()
     assertRequestAllowed()
   }
 
   @Test
+  void 'should disallow other pipeline group admin user, with security enabled'() {
+    loginAsGroupAdmin()
+
+    makeHttpCall()
+    assertRequestForbidden()
+  }
+
+  @Test
   void 'should disallow template admin users, with security enabled'() {
-    enableSecurity()
     loginAsTemplateAdmin()
 
     makeHttpCall()
     assertRequestForbidden()
+  }
+
+  abstract SecurityServiceTrait.PipelineSpecifier getPipelineSpecifier()
+
+  String getGroupName() {
+    return pipelineSpecifier.groupName()
+  }
+
+  String getPipelineName() {
+    return pipelineSpecifier.pipelineName()
   }
 }

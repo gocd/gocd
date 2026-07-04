@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineIdentifier;
 import com.thoughtworks.go.domain.StageIdentifier;
@@ -25,6 +24,7 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -48,15 +48,15 @@ public class PipelineUnlockApiServiceTest {
 
     @Test
     public void unlockShouldSetResultToOkWhenSuccessful() {
-        when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("pipeline-name"))).thenReturn(true);
+        when(securityService.hasOperatePermissionForPipeline(cis("username"), "pipeline-name")).thenReturn(true);
+        when(goConfigService.hasPipelineNamed(cis("pipeline-name"))).thenReturn(true);
         when(goConfigService.isLockable("pipeline-name")).thenReturn(true);
         when(pipelineLockService.lockedPipeline("pipeline-name")).thenReturn(new StageIdentifier("pipeline-name", 10, "10", "stage", "2"));
         Pipeline pipeline = new Pipeline();
         when(pipelineDao.findPipelineByNameAndCounter("pipeline-name", 10)).thenReturn(pipeline);
         HttpOperationResult result = new HttpOperationResult();
 
-        pipelineUnlockApiService.unlock("pipeline-name", new Username(new CaseInsensitiveString("username")), result);
+        pipelineUnlockApiService.unlock("pipeline-name", new Username(cis("username")), result);
 
         assertThat(result.httpCode()).isEqualTo(200);
         assertThat(result.message()).isEqualTo("Pipeline lock released for pipeline-name");
@@ -65,26 +65,26 @@ public class PipelineUnlockApiServiceTest {
 
     @Test
     public void unlockShouldSetResultToNotFoundWhenPipelineDoesNotExist() {
-        when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("does-not-exist"))).thenReturn(false);
+        when(securityService.hasOperatePermissionForPipeline(cis("username"), "pipeline-name")).thenReturn(true);
+        when(goConfigService.hasPipelineNamed(cis("does-not-exist"))).thenReturn(false);
         HttpOperationResult result = new HttpOperationResult();
 
-        pipelineUnlockApiService.unlock("does-not-exist", new Username(new CaseInsensitiveString("username")), result);
+        pipelineUnlockApiService.unlock("does-not-exist", new Username(cis("username")), result);
 
         assertThat(result.httpCode()).isEqualTo(404);
         assertThat(result.message()).isEqualTo("pipeline name does-not-exist is incorrect");
-        verify(goConfigService).hasPipelineNamed(new CaseInsensitiveString("does-not-exist"));
+        verify(goConfigService).hasPipelineNamed(cis("does-not-exist"));
         verify(pipelineLockService, never()).unlock("does-not-exist");
     }
 
     @Test
     public void unlockShouldSetResultToNotAcceptableWhenPipelineIsNotLockable() {
-        when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("pipeline-name"))).thenReturn(true);
+        when(securityService.hasOperatePermissionForPipeline(cis("username"), "pipeline-name")).thenReturn(true);
+        when(goConfigService.hasPipelineNamed(cis("pipeline-name"))).thenReturn(true);
         when(goConfigService.isLockable("pipeline-name")).thenReturn(false);
 
         HttpOperationResult result = new HttpOperationResult();
-        pipelineUnlockApiService.unlock("pipeline-name", new Username(new CaseInsensitiveString("username")), result);
+        pipelineUnlockApiService.unlock("pipeline-name", new Username(cis("username")), result);
 
         assertThat(result.httpCode()).isEqualTo(409);
         assertThat(result.message()).isEqualTo("No lock exists within the pipeline configuration for pipeline-name");
@@ -93,13 +93,13 @@ public class PipelineUnlockApiServiceTest {
 
     @Test
     public void unlockShouldSetResultToNotAcceptableWhenNoPipelineInstanceIsCurrentlyLocked() {
-        when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("pipeline-name"))).thenReturn(true);
+        when(securityService.hasOperatePermissionForPipeline(cis("username"), "pipeline-name")).thenReturn(true);
+        when(goConfigService.hasPipelineNamed(cis("pipeline-name"))).thenReturn(true);
         when(goConfigService.isLockable("pipeline-name")).thenReturn(true);
         when(pipelineLockService.lockedPipeline("pipeline-name")).thenReturn(null);
 
         HttpOperationResult result = new HttpOperationResult();
-        pipelineUnlockApiService.unlock("pipeline-name", new Username(new CaseInsensitiveString("username")), result);
+        pipelineUnlockApiService.unlock("pipeline-name", new Username(cis("username")), result);
 
         assertThat(result.httpCode()).isEqualTo(409);
         assertThat(result.message()).isEqualTo("Lock exists within the pipeline configuration but no pipeline instance is currently in progress");
@@ -107,15 +107,15 @@ public class PipelineUnlockApiServiceTest {
 
     @Test
     public void unlockShouldSetResultToNotAcceptableWhenAPipelineInstanceIsCurrentlyRunning() {
-        when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("pipeline-name"))).thenReturn(true);
+        when(securityService.hasOperatePermissionForPipeline(cis("username"), "pipeline-name")).thenReturn(true);
+        when(goConfigService.hasPipelineNamed(cis("pipeline-name"))).thenReturn(true);
         when(goConfigService.isLockable("pipeline-name")).thenReturn(true);
         StageIdentifier identifier = new StageIdentifier("pipeline-name", 10, "10", "stage", "1");
         when(pipelineLockService.lockedPipeline("pipeline-name")).thenReturn(identifier);
         when(stageService.isAnyStageActiveForPipeline(identifier.pipelineIdentifier())).thenReturn(true);
 
         HttpOperationResult result = new HttpOperationResult();
-        pipelineUnlockApiService.unlock("pipeline-name", new Username(new CaseInsensitiveString("username")), result);
+        pipelineUnlockApiService.unlock("pipeline-name", new Username(cis("username")), result);
 
         assertThat(result.httpCode()).isEqualTo(409);
         assertThat(result.message()).isEqualTo("Locked pipeline instance is currently running (one of the stages is in progress)");
@@ -124,15 +124,15 @@ public class PipelineUnlockApiServiceTest {
     @Test
     public void unlockShouldSetResultToNotAuthorizedWhenUserDoesNotHaveOperatePermissions() {
         String pipelineName = "pipeline-name";
-        when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), pipelineName)).thenReturn(false);
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+        when(securityService.hasOperatePermissionForPipeline(cis("username"), pipelineName)).thenReturn(false);
+        when(goConfigService.hasPipelineNamed(cis(pipelineName))).thenReturn(true);
         when(goConfigService.isLockable(pipelineName)).thenReturn(true);
         StageIdentifier identifier = new StageIdentifier(pipelineName, 10, "10", "stage", "1");
         when(pipelineLockService.lockedPipeline(pipelineName)).thenReturn(identifier);
         when(stageService.isAnyStageActiveForPipeline(new PipelineIdentifier(pipelineName, 10, "10"))).thenReturn(false);
 
         HttpOperationResult result = new HttpOperationResult();
-        pipelineUnlockApiService.unlock(pipelineName, new Username(new CaseInsensitiveString("username")), result);
+        pipelineUnlockApiService.unlock(pipelineName, new Username(cis("username")), result);
 
         assertThat(result.httpCode()).isEqualTo(403);
         assertThat(result.message()).isEqualTo("user does not have operate permission on the pipeline");

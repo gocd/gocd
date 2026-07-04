@@ -27,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -95,7 +96,7 @@ public class PluginRoleServiceTest {
     public void updatePluginRolesShouldNotChangeRoleConfig() {
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.authorization.github"));
         securityConfig.addRole(new PluginRoleConfig("blackbird", "github"));
-        securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("go_system_admin")));
+        securityConfig.addRole(new RoleConfig(cis("go_system_admin")));
         PluginRoleService pluginRoleService = new PluginRoleService(goConfigService, pluginManager);
 
         pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.list("blackbird", "non_existent_role", "go_system_admin"));

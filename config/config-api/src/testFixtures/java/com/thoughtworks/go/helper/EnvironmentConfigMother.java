@@ -16,10 +16,11 @@
 package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 public class EnvironmentConfigMother {
     public static final String OMNIPRESENT_AGENT = "omnipresent-agent";
@@ -33,7 +34,7 @@ public class EnvironmentConfigMother {
     }
 
     private static BasicEnvironmentConfig env(String name) {
-        return new BasicEnvironmentConfig(new CaseInsensitiveString(name));
+        return new BasicEnvironmentConfig(cis(name));
     }
 
     public static BasicEnvironmentConfig remote(String name) {
@@ -43,15 +44,15 @@ public class EnvironmentConfigMother {
     }
 
     public static BasicEnvironmentConfig environment(String name) {
-        BasicEnvironmentConfig uat = new BasicEnvironmentConfig(new CaseInsensitiveString(name));
-        uat.addPipeline(new CaseInsensitiveString(name + "-pipeline"));
+        BasicEnvironmentConfig uat = new BasicEnvironmentConfig(cis(name));
+        uat.addPipeline(cis(name + "-pipeline"));
         return uat;
     }
 
     public static BasicEnvironmentConfig environment(String name, String... pipelines) {
         BasicEnvironmentConfig config = env(name);
         for (String pipeline : pipelines) {
-            config.addPipeline(new CaseInsensitiveString(pipeline));
+            config.addPipeline(cis(pipeline));
         }
         return config;
     }

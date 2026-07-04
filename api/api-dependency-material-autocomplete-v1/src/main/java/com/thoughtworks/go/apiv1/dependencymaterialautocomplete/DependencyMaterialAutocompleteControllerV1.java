@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv1.dependencymaterialautocomplete;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
 import com.thoughtworks.go.apiv1.dependencymaterialautocomplete.representers.SuggestionsRepresenter;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
@@ -35,13 +35,13 @@ import static spark.Spark.*;
 @Component
 public class DependencyMaterialAutocompleteControllerV1 extends ApiController implements SparkSpringController {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private GoConfigService configService;
 
     @Autowired
-    public DependencyMaterialAutocompleteControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, GoConfigService configService) {
+    public DependencyMaterialAutocompleteControllerV1(ApiAuthorizationHelper apiAuthorizationHelper, GoConfigService configService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.configService = configService;
     }
 
@@ -57,7 +57,7 @@ public class DependencyMaterialAutocompleteControllerV1 extends ApiController im
             before("/*", mimeType, this::setContentType);
 
             // change the line below to enable appropriate security
-            before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before("", this.mimeType, this.apiAuthorizationHelper::checkAnyPipelineGroupAdminUserAnd403);
             get("", mimeType, this::suggest);
             head("", mimeType, this::suggest);
         });

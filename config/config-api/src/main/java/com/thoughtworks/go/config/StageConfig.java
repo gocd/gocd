@@ -21,13 +21,14 @@ import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.service.TaskFactory;
-import com.thoughtworks.go.util.GoConstants;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 /**
  * Understands the configuration for a stage
@@ -89,8 +90,8 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
         for (StageConfig stage : stages) {
             for (JobConfig job : stage.getJobs()) {
                 for (Task task : job.getTasks()) {
-                    if (task instanceof PluggableTask) {
-                        pluggableTasks.add((PluggableTask) task);
+                    if (task instanceof PluggableTask pluggableTask) {
+                        pluggableTasks.add(pluggableTask);
                     }
                 }
             }
@@ -137,7 +138,7 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
     }
 
     public JobConfig jobConfigByConfigName(String jobName) {
-        return jobConfigByConfigName(new CaseInsensitiveString(jobName));
+        return jobConfigByConfigName(cis(jobName));
     }
 
     // TODO - #2491 - rename jobConfig to job
@@ -147,7 +148,7 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
     }
 
     public String approvalType() {
-        return requiresApproval() ? GoConstants.APPROVAL_MANUAL : GoConstants.APPROVAL_SUCCESS;
+        return requiresApproval() ? Approval.TYPE_MANUAL : Approval.TYPE_SUCCESS;
     }
 
     @Override
@@ -312,7 +313,7 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
         }
         Map<String, Object> attributeMap = (Map<String, Object>) attributes;
         if (attributeMap.containsKey(NAME)) {
-            name = new CaseInsensitiveString((String) attributeMap.get(NAME));
+            name = cis((String) attributeMap.get(NAME));
         }
         if (attributeMap.containsKey(ARTIFACT_CLEANUP_PROHIBITED)) {
             artifactCleanupProhibited = attributeMap.get(ARTIFACT_CLEANUP_PROHIBITED).equals("1");

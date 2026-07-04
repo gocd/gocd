@@ -41,7 +41,7 @@ public class SvnPostCommitHookImplementer implements PostCommitHookImplementer {
 
             final Map<String, String> urlToRemoteUUIDMap = createUrlToRemoteUUIDMap(materials);
             for (Material material : materials) {
-                if (material instanceof SvnMaterial && isQualified(targetUUID, (SvnMaterial) material, urlToRemoteUUIDMap)) {
+                if (material instanceof SvnMaterial svnMaterial && isQualified(targetUUID, svnMaterial, urlToRemoteUUIDMap)) {
                     prunedMaterials.add(material);
                 }
             }
@@ -49,7 +49,7 @@ public class SvnPostCommitHookImplementer implements PostCommitHookImplementer {
             String paramRepoUrl = params.get(REPO_URL_PARAM_KEY);
             if (isNotBlank(paramRepoUrl)) {
                 for (Material material : materials) {
-                    if (material instanceof SvnMaterial && isUrlEqual(paramRepoUrl, (SvnMaterial) material)) {
+                    if (material instanceof SvnMaterial svnMaterial && isUrlEqual(paramRepoUrl, svnMaterial)) {
                         prunedMaterials.add(material);
                     }
                 }
@@ -69,8 +69,8 @@ public class SvnPostCommitHookImplementer implements PostCommitHookImplementer {
     Map<String, String> createUrlToRemoteUUIDMap(Set<Material> materials) {
         final HashSet<SvnMaterial> setOfSvnMaterials = new HashSet<>();
         for (Material material : materials) {
-            if (material instanceof SvnMaterial) {
-                setOfSvnMaterials.add((SvnMaterial) material);
+            if (material instanceof SvnMaterial svnMaterial) {
+                setOfSvnMaterials.add(svnMaterial);
             }
         }
         return getEmptySvnCommand().createUrlToRemoteUUIDMap(setOfSvnMaterials);

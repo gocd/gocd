@@ -18,13 +18,15 @@ package com.thoughtworks.go.spark.spring;
 
 import spark.route.HttpMethod;
 
-import java.util.Set;
+import java.util.EnumSet;
+
+import static spark.route.HttpMethod.*;
 
 public record RouteEntry(HttpMethod httpMethod, String path, String acceptedType, Object target) {
-    private final static Set<String> METHODS = Set.of("get", "post", "put", "patch", "delete", "trace");
+    private final static EnumSet<HttpMethod> METHODS = EnumSet.of(get, post, put, patch, delete, trace);
 
     public boolean isAPI() {
-        return METHODS.contains(httpMethod.name().toLowerCase())
+        return METHODS.contains(httpMethod)
             && acceptedType != null
             && acceptedType.startsWith("application/vnd.go.cd");
     }

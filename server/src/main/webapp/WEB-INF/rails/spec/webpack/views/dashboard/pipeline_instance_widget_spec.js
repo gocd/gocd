@@ -153,7 +153,7 @@ describe("Dashboard Pipeline Instance Widget", () => {
     await helper.delayRedraw();
 
     expect(helper.q('.material_changes')).toBeInDOM();
-    expect(helper.q('.comment')).toHaveHtml('<p>Initial commit <a target="story_tracker" href="http://example.com/1234">#1234</a></p>');
+    expect(helper.q('.comment')).toHaveHtml('<p>Initial commit <a href="http://example.com/1234" target="story_tracker">#1234</a></p>');
   });
 
   it("should render vsm link", () => {

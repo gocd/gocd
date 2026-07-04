@@ -20,7 +20,8 @@ import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.api.ControllerMethods;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper;
+import com.thoughtworks.go.api.support.representers.ProcessListRepresenter;
 import com.thoughtworks.go.server.service.support.ServerStatusService;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
@@ -38,9 +39,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
-import static com.thoughtworks.go.api.support.representers.ProcessListRepresenter.toJSON;
-import static spark.Spark.get;
-import static spark.Spark.path;
+import static spark.Spark.*;
 
 @Component
 public class ApiSupportController implements SparkController, ControllerMethods, SparkSpringController {
@@ -51,11 +50,18 @@ public class ApiSupportController implements SparkController, ControllerMethods,
         .disableHtmlEscaping()
         .create();
 
+    private final ApiAuthorizationHelper apiAuthorizationHelper;
     private final ServerStatusService serverStatusService;
 
     @Autowired
-    public ApiSupportController(ServerStatusService serverStatusService) {
+    public ApiSupportController(ApiAuthorizationHelper apiAuthorizationHelper, ServerStatusService serverStatusService) {
+        this.apiAuthorizationHelper = apiAuthorizationHelper;
         this.serverStatusService = serverStatusService;
+    }
+
+    @Override
+    public String getMimeType() {
+        return "application/json";
     }
 
     @Override
@@ -66,27 +72,26 @@ public class ApiSupportController implements SparkController, ControllerMethods,
     @Override
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
+            before("", this::setContentType);
+            before("/*", this::setContentType);
+
+            before("", this.apiAuthorizationHelper::checkAdminUserAnd403);
+            before("/*", this.apiAuthorizationHelper::checkAdminUserAnd403);
+
             get("", this::show);
             get(Routes.Support.PROCESS_LIST, this::processList);
         });
     }
 
     public String show(Request request, Response response) throws IOException {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Map<String, Object> information = serverStatusService.asJsonCompatibleMap(currentUsername(), result);
-        response.type("application/json");
-        if (result.isSuccessful()) {
-            GSON.toJson(information, response.raw().getWriter());
-            return "";
-        }
-
-        return renderHTTPOperationResult(result, request, response);
+        Map<String, Object> information = serverStatusService.asJsonCompatibleMap();
+        GSON.toJson(information, response.raw().getWriter());
+        return NOTHING;
     }
 
     public String processList(Request request, Response response) throws IOException {
         Collection<ProcessWrapper> processList = ProcessManager.getInstance().currentProcessListForDisplay();
-        response.type("application/json");
-        return writerForTopLevelObject(request, response, outputWriter -> toJSON(outputWriter, processList));
+        return writerForTopLevelObject(request, response, outputWriter -> ProcessListRepresenter.toJSON(outputWriter, processList));
     }
 
     private static ExclusionStrategy excludeLocks() {
@@ -102,5 +107,10 @@ public class ApiSupportController implements SparkController, ControllerMethods,
                 return Lock.class.isAssignableFrom(clazz);
             }
         };
+    }
+
+    public void setContentType(Request request, Response response) {
+        response.raw().setCharacterEncoding("utf-8");
+        response.type(getMimeType());
     }
 }

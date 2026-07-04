@@ -17,11 +17,10 @@ package com.thoughtworks.go.agent.launcher;
 
 import com.thoughtworks.go.agent.ServerUrlGenerator;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
-import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
+import com.thoughtworks.go.agent.common.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.common.util.HeaderUtil;
 import com.thoughtworks.go.util.PerfTimer;
-import com.thoughtworks.go.util.SslVerificationMode;
 import com.thoughtworks.go.util.SystemUtil;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -62,7 +61,7 @@ public class ServerBinaryDownloader implements Downloader {
     public ServerBinaryDownloader(ServerUrlGenerator urlGenerator, AgentBootstrapperArgs bootstrapperArgs) {
         this(new GoAgentServerHttpClientBuilder(
                 bootstrapperArgs.getRootCertFile(),
-                SslVerificationMode.valueOf(bootstrapperArgs.getSslVerificationMode().name()),
+                bootstrapperArgs.getSslVerificationMode().name(),
                 bootstrapperArgs.getSslCertificateFile(),
                 bootstrapperArgs.getSslPrivateKeyFile(),
                 bootstrapperArgs.getSslPrivateKeyPassphraseFile()

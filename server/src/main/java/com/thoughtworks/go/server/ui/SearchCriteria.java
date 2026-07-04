@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.ui;
 
 import java.util.regex.Pattern;
 
-
 public class SearchCriteria {
     private static final Pattern PATTERN = Pattern.compile("^\".*\"$");
     private String searchToken;

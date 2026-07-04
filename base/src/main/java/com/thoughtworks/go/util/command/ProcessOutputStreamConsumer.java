@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.util.command;
 
+import org.jetbrains.annotations.NotNull;
+
 public class ProcessOutputStreamConsumer<T extends StreamConsumer, T2 extends StreamConsumer> implements ConsoleOutputStreamConsumer{
     private final T stdConsumer;
     private final T2 errorConsumer;
@@ -37,28 +39,28 @@ public class ProcessOutputStreamConsumer<T extends StreamConsumer, T2 extends St
     }
 
     @Override
-    public void stdOutput(String line) {
+    public void stdOutput(@NotNull String line) {
         taggedStdOutput(TaggedStreamConsumer.OUT, line);
     }
 
     @Override
-    public void errOutput(String line) {
+    public void errOutput(@NotNull String line) {
         taggedErrOutput(TaggedStreamConsumer.ERR, line);
     }
 
     @Override
-    public void taggedStdOutput(String tag, String line) {
+    public void taggedStdOutput(@NotNull String tag, @NotNull String line) {
         taggedOutput(stdConsumer, tag, line);
     }
 
     @Override
-    public void taggedErrOutput(String tag, String line) {
+    public void taggedErrOutput(@NotNull String tag, @NotNull String line) {
         taggedOutput(errorConsumer, tag, line);
     }
 
-    private void taggedOutput(StreamConsumer consumer, String tag, String line) {
-        if (consumer instanceof TaggedStreamConsumer) {
-            ((TaggedStreamConsumer) consumer).taggedConsumeLine(tag, line);
+    private void taggedOutput(StreamConsumer consumer, @NotNull String tag, @NotNull String line) {
+        if (consumer instanceof TaggedStreamConsumer taggedStreamConsumer) {
+            taggedStreamConsumer.taggedConsumeLine(tag, line);
         } else {
             consumer.consumeLine(line);
         }

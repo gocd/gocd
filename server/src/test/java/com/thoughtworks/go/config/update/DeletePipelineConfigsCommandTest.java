@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -49,7 +50,7 @@ public class DeletePipelineConfigsCommandTest {
         pipelineConfigs = new BasicPipelineConfigs("group", new Authorization());
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.setGroup(new PipelineGroups(pipelineConfigs));
-        user = new Username(new CaseInsensitiveString("user"));
+        user = new Username(cis("user"));
     }
 
     @Test

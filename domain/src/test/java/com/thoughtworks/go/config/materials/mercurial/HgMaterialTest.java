@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.materials.mercurial;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
@@ -43,6 +42,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
@@ -517,7 +517,7 @@ public class HgMaterialTest {
         void shouldBuildFromConfigObject() {
             final HgMaterialConfig materialConfig = hg(new HgUrlArgument("http://example.com"), "bob", "pass",
                     "feature", true, Filter.create("igrnored"), false, "destination",
-                    new CaseInsensitiveString("example"));
+                    cis("example"));
 
             final HgMaterial hgMaterial = new HgMaterial(materialConfig);
 
@@ -542,7 +542,7 @@ public class HgMaterialTest {
             hgMaterial.setPassword("pass");
             hgMaterial.setBranch("feature");
             hgMaterial.setAutoUpdate(true);
-            hgMaterial.setName(new CaseInsensitiveString("example"));
+            hgMaterial.setName(cis("example"));
             hgMaterial.setInvertFilter(true);
             hgMaterial.setFolder("destination");
             hgMaterial.setFilter(Filter.create("allow"));

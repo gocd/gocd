@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-public class Lockfile implements Runnable {
+public class Lockfile {
     private static final Logger LOG = LoggerFactory.getLogger(Lockfile.class);
 
     static final String TOUCH_FREQUENCY_PROPERTY = "lockfile.touch.frequency.millis";
@@ -38,7 +38,7 @@ public class Lockfile implements Runnable {
     private final long touchFrequencyMillis;
     private final long sleepTimeBeforeLastModifiedCheckMillis;
 
-    private Thread touchLoop;
+    private volatile Thread touchLoop;
     private volatile boolean keepRunning;
 
     public Lockfile(File filename) {
@@ -78,22 +78,27 @@ public class Lockfile implements Runnable {
         }
     }
 
-    void setHooks() throws IOException {
+    void createLock() throws IOException {
         touch();
-        spawnTouchLoop();
+        spawnTouchLoopIfNecessary();
     }
 
     void touch() throws IOException {
         FileUtils.touch(lockFile);
     }
 
-    synchronized void spawnTouchLoop() {
+    void spawnTouchLoopIfNecessary() {
         if (touchLoop == null) {
-            keepRunning = true;
-            touchLoop = new Thread(this);
-            touchLoop.setName("TouchLoop" + touchLoop.getName());
-            touchLoop.setDaemon(true);
-            touchLoop.start();
+            synchronized (this) {
+                if (touchLoop != null) {
+                    return;
+                }
+                keepRunning = true;
+                touchLoop = Thread.ofVirtual().unstarted(this::touchPeriodically);
+                touchLoop.setName("LockFileTouchLoop" + touchLoop.getName());
+                touchLoop.setDaemon(true);
+                touchLoop.start();
+            }
         }
     }
 
@@ -102,8 +107,7 @@ public class Lockfile implements Runnable {
         return "<Lockfile: " + lockFile.getAbsolutePath() + ">";
     }
 
-    @Override
-    public void run() {
+    private void touchPeriodically() {
         LOG.info("Using lock file: {}", lockFile.getAbsolutePath());
         do {
             try {
@@ -150,29 +154,27 @@ public class Lockfile implements Runnable {
     private void waitForTouchLoopThread() {
         try {
             if (touchLoop != null) {
-                touchLoop.join(TimeUnit.SECONDS.toMillis(10));
+                touchLoop.join(Duration.ofSeconds(10));
             }
         } catch (InterruptedException ignore) {
+            Thread.currentThread().interrupt();
         }
     }
 
     public boolean tryLock() {
         if (exists()) {
             String alreadyRunningMsg = "Already running agent launcher in this folder.";
-            System.out.println(alreadyRunningMsg);
             LOG.error(alreadyRunningMsg);
             return false;
         }
 
         try {
-            setHooks();
+            createLock();
             return true;
         } catch (IOException e) {
             String lockFileFailMsg = "Unable to lock file (" + lockFile.getAbsolutePath() + ")";
-            System.err.println(lockFileFailMsg);
             LOG.error(lockFileFailMsg, e);
             return false;
         }
     }
-
 }

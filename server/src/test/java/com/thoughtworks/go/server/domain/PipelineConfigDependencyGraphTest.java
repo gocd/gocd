@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.domain;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
@@ -37,6 +36,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.filteredHgMaterialConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,12 +45,12 @@ public class PipelineConfigDependencyGraphTest {
     @Test
     public void shouldFindPipelineConfigQueueEntryWithCorrespondingPath() {
         HgMaterialConfig hgConfig = MaterialConfigsMother.hgMaterialConfig();
-        PipelineConfig current = GoConfigMother.createPipelineConfigWithMaterialConfig("current", hgConfig, new DependencyMaterialConfig(new CaseInsensitiveString("up1"), new CaseInsensitiveString("first")),
-                new DependencyMaterialConfig(new CaseInsensitiveString("up2"), new CaseInsensitiveString("first")));
+        PipelineConfig current = GoConfigMother.createPipelineConfigWithMaterialConfig("current", hgConfig, new DependencyMaterialConfig(cis("up1"), cis("first")),
+                new DependencyMaterialConfig(cis("up2"), cis("first")));
         PipelineConfig up1 = GoConfigMother.createPipelineConfigWithMaterialConfig("up1", hgConfig,
-                new DependencyMaterialConfig(new CaseInsensitiveString("uppest"), new CaseInsensitiveString("first")));
+                new DependencyMaterialConfig(cis("uppest"), cis("first")));
         PipelineConfig up2 = GoConfigMother.createPipelineConfigWithMaterialConfig("up2", hgConfig,
-                new DependencyMaterialConfig(new CaseInsensitiveString("uppest"), new CaseInsensitiveString("first")));
+                new DependencyMaterialConfig(cis("uppest"), cis("first")));
         PipelineConfig uppest = GoConfigMother.createPipelineConfigWithMaterialConfig("uppest", hgConfig);
 
         PipelineConfigDependencyGraph dependencyGraph = new PipelineConfigDependencyGraph(current,
@@ -100,9 +100,9 @@ public class PipelineConfigDependencyGraphTest {
         GitMaterialConfig firstOrderGitMaterial = MaterialConfigsMother.gitMaterialConfig("url", "submodule", "branch", false);
         P4MaterialConfig firstOrderP4Material = MaterialConfigsMother.p4MaterialConfig();
 
-        DependencyMaterialConfig up1DependencyMaterial = new DependencyMaterialConfig(new CaseInsensitiveString("up1"), new CaseInsensitiveString("first"));
-        DependencyMaterialConfig up2DependencyMaterial = new DependencyMaterialConfig(new CaseInsensitiveString("up2"), new CaseInsensitiveString("first"));
-        DependencyMaterialConfig uppestDependencyMaterial = new DependencyMaterialConfig(new CaseInsensitiveString("uppest"), new CaseInsensitiveString("first"));
+        DependencyMaterialConfig up1DependencyMaterial = new DependencyMaterialConfig(cis("up1"), cis("first"));
+        DependencyMaterialConfig up2DependencyMaterial = new DependencyMaterialConfig(cis("up2"), cis("first"));
+        DependencyMaterialConfig uppestDependencyMaterial = new DependencyMaterialConfig(cis("uppest"), cis("first"));
 
         PipelineConfig current = GoConfigMother.createPipelineConfigWithMaterialConfig("current", common1, up1DependencyMaterial, up2DependencyMaterial);
         PipelineConfig up1 = GoConfigMother.createPipelineConfigWithMaterialConfig("up1", common2, firstOrderGitMaterial, uppestDependencyMaterial);
@@ -138,9 +138,9 @@ public class PipelineConfigDependencyGraphTest {
         GitMaterialConfig firstOrderGitMaterial = MaterialConfigsMother.gitMaterialConfig("url", "submodule", "branch", false);
         P4MaterialConfig firstOrderP4Material = MaterialConfigsMother.p4MaterialConfig();
 
-        DependencyMaterialConfig up1DependencyMaterial = new DependencyMaterialConfig(new CaseInsensitiveString("up1"), new CaseInsensitiveString("first"));
-        DependencyMaterialConfig up2DependencyMaterial = new DependencyMaterialConfig(new CaseInsensitiveString("up2"), new CaseInsensitiveString("first"));
-        DependencyMaterialConfig uppestDependencyMaterial = new DependencyMaterialConfig(new CaseInsensitiveString("uppest"), new CaseInsensitiveString("first"));
+        DependencyMaterialConfig up1DependencyMaterial = new DependencyMaterialConfig(cis("up1"), cis("first"));
+        DependencyMaterialConfig up2DependencyMaterial = new DependencyMaterialConfig(cis("up2"), cis("first"));
+        DependencyMaterialConfig uppestDependencyMaterial = new DependencyMaterialConfig(cis("uppest"), cis("first"));
 
         PipelineConfig current = GoConfigMother.createPipelineConfigWithMaterialConfig("current", common, up1DependencyMaterial, up2DependencyMaterial);
         PipelineConfig up1 = GoConfigMother.createPipelineConfigWithMaterialConfig("up1", common, firstOrderGitMaterial, uppestDependencyMaterial);
@@ -164,13 +164,13 @@ public class PipelineConfigDependencyGraphTest {
         P4MaterialConfig firstOrderP4Material = MaterialConfigsMother.p4MaterialConfig();
         firstOrderP4Material.setFilter(new Filter(new IgnoredFiles("foo")));
 
-        PipelineConfig current = GoConfigMother.createPipelineConfigWithMaterialConfig("current", MaterialConfigsMother.hgMaterialConfig(), new DependencyMaterialConfig(new CaseInsensitiveString("up1"),
-                new CaseInsensitiveString("first")), new DependencyMaterialConfig(
-                new CaseInsensitiveString("up2"), new CaseInsensitiveString("first")));
-        PipelineConfig up1 = GoConfigMother.createPipelineConfigWithMaterialConfig("up1", filteredHgMaterialConfig("phigar"), firstOrderGitMaterial, new DependencyMaterialConfig(new CaseInsensitiveString("uppest"),
-                new CaseInsensitiveString("first")));
+        PipelineConfig current = GoConfigMother.createPipelineConfigWithMaterialConfig("current", MaterialConfigsMother.hgMaterialConfig(), new DependencyMaterialConfig(cis("up1"),
+                cis("first")), new DependencyMaterialConfig(
+                cis("up2"), cis("first")));
+        PipelineConfig up1 = GoConfigMother.createPipelineConfigWithMaterialConfig("up1", filteredHgMaterialConfig("phigar"), firstOrderGitMaterial, new DependencyMaterialConfig(cis("uppest"),
+                cis("first")));
         PipelineConfig up2 = GoConfigMother.createPipelineConfigWithMaterialConfig("up2", firstOrderSVNMaterial, firstOrderP4Material, filteredHgMaterialConfig("phigar"), new DependencyMaterialConfig(
-                new CaseInsensitiveString("uppest"), new CaseInsensitiveString("first")));
+                cis("uppest"), cis("first")));
         PipelineConfig uppest = GoConfigMother.createPipelineConfigWithMaterialConfig("uppest", filteredHgMaterialConfig("phigar"), firstOrderP4Material);
 
         PipelineConfigDependencyGraph uppestGraph = new PipelineConfigDependencyGraph(uppest);

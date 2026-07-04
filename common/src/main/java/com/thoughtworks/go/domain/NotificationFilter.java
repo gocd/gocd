@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
@@ -23,6 +22,7 @@ import org.apache.commons.lang3.Strings;
 
 import java.util.Objects;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.lang.String.format;
 
 public class NotificationFilter extends PersistentObject implements Validatable {
@@ -86,16 +86,13 @@ public class NotificationFilter extends PersistentObject implements Validatable 
         return !myCheckin;
     }
 
-    public boolean matchStage(StageConfigIdentifier stageIdentifier, StageEvent event) {
-        return this.event.include(event) && appliesTo(stageIdentifier.getPipelineName(), stageIdentifier.getStageName());
+    public boolean appliesTo(StageEvent event, StageConfigIdentifier stageIdentifier) {
+        return this.event.include(event) && appliesTo(stageIdentifier);
     }
 
-    public boolean appliesTo(String pipelineName, String stageName) {
-        boolean pipelineMatches = this.pipelineName.equals(pipelineName) ||
-            this.pipelineName.equals(ANY_PIPELINE);
-        boolean stageMatches = this.stageName.equals(stageName) ||
-            this.stageName.equals(ANY_STAGE);
-
+    public boolean appliesTo(StageConfigIdentifier stageIdentifier) {
+        boolean pipelineMatches = this.pipelineName.equals(ANY_PIPELINE) || this.pipelineName.equals(stageIdentifier.getPipelineName());
+        boolean stageMatches = this.stageName.equals(ANY_STAGE) || this.stageName.equals(stageIdentifier.getStageName());
         return pipelineMatches && stageMatches;
     }
 
@@ -148,8 +145,7 @@ public class NotificationFilter extends PersistentObject implements Validatable 
             return;
         }
 
-        PipelineConfig pipelineConfig = validationContext.getCruiseConfig()
-            .getPipelineConfigByName(new CaseInsensitiveString(this.pipelineName));
+        PipelineConfig pipelineConfig = validationContext.getCruiseConfig().getPipelineConfigByName(cis(this.pipelineName));
         if (pipelineConfig == null) {
             addError("pipelineName", format("Pipeline with name '%s' was not found!", this.pipelineName));
             return;

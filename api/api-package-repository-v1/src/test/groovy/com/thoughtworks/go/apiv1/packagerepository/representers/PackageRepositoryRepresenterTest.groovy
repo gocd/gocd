@@ -103,7 +103,7 @@ class PackageRepositoryRepresenterTest {
     def actualPkgRepo = fromJSON(jsonReader)
 
     assertEquals(actualPkgRepo.name, packageRepository.name)
-    assertEquals(actualPkgRepo.repoId, packageRepository.repoId)
+    assertEquals(actualPkgRepo.id, packageRepository.id)
     assertEquals(actualPkgRepo.pluginConfiguration, packageRepository.pluginConfiguration)
     assertEquals(actualPkgRepo.configuration, packageRepository.configuration)
   }

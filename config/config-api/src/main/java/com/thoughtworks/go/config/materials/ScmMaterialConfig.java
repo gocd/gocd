@@ -90,10 +90,6 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         return name.matches(regex);
     }
 
-    public final GoCipher getGoCipher() {
-        return goCipher;
-    }
-
     public final void setUserName(String userName) {
         this.userName = userName;
     }
@@ -164,6 +160,10 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
 
     public abstract boolean isCheckExternals();
 
+    /**
+     * @return The raw configured url/uri. Note that this MAY include unredacted credentials.
+     * @see #getUriForDisplay() for the redacted version
+     */
     public abstract String getUrl();
 
     public abstract void setUrl(String url);
@@ -262,10 +262,10 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     protected final void validateConcreteMaterial(ValidationContext validationContext) {
         validateNotOutsideSandbox();
         validateDestFolderPath();
-        validateConcreteScmMaterial(validationContext);
+        validateConcreteScmMaterial();
     }
 
-    public abstract void validateConcreteScmMaterial(ValidationContext validationContext);
+    public abstract void validateConcreteScmMaterial();
 
     private void validateDestFolderPath() {
         if (isBlank(folder)) {

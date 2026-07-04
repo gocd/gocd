@@ -53,7 +53,6 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.ConsoleResult;
@@ -81,9 +80,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.*;
 
@@ -179,11 +178,11 @@ public class CachedGoConfigIntegrationTest {
         assertThat(messageForInvalidMerge.isEmpty()).isFalse();
         assertThat(messageForInvalidMerge.getFirst().getDescription()).contains("tries to fetch artifact from pipeline &quot;pipe1&quot;");
         // and current config is still old
-        assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream"))).isFalse();
+        assertThat(goConfigService.hasPipelineNamed(cis("downstream"))).isFalse();
         assertThat(cachedGoPartials.lastKnownPartials().size()).isEqualTo(1);
         assertThat(cachedGoPartials.lastValidPartials().size()).isEqualTo(0);
         //here downstream partial is waiting to be merged
-        assertThat(cachedGoPartials.lastKnownPartials().getFirst().getGroups().getFirst().hasPipeline(new CaseInsensitiveString("downstream"))).isTrue();
+        assertThat(cachedGoPartials.lastKnownPartials().getFirst().getGroups().getFirst().hasPipeline(cis("downstream"))).isTrue();
 
         // Finally upstream config repository is parsed
         repoConfigDataSource.onCheckoutComplete(configRepo.getRepo(), externalConfigRepo, latestModification);
@@ -191,8 +190,8 @@ public class CachedGoConfigIntegrationTest {
         // now server should be healthy and contain all pipelines
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(configRepo)).isEmpty()).isTrue();
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(downstreamConfigRepo)).isEmpty()).isTrue();
-        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1"))).isTrue();
-        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("downstream"))).isTrue();
+        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(cis("pipe1"))).isTrue();
+        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(cis("downstream"))).isTrue();
     }
 
     @Test
@@ -220,11 +219,11 @@ public class CachedGoConfigIntegrationTest {
         assertThat(messageForInvalidMerge.isEmpty()).isFalse();
         assertThat(messageForInvalidMerge.getFirst().getDescription()).contains("tries to fetch artifact from pipeline &quot;downstream&quot;");
         // and current config is still old
-        assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream2"))).isFalse();
+        assertThat(goConfigService.hasPipelineNamed(cis("downstream2"))).isFalse();
         assertThat(cachedGoPartials.lastKnownPartials().size()).isEqualTo(1);
         assertThat(cachedGoPartials.lastValidPartials().size()).isEqualTo(0);
         //here downstream2 partial is waiting to be merged
-        assertThat(cachedGoPartials.lastKnownPartials().getFirst().getGroups().getFirst().hasPipeline(new CaseInsensitiveString("downstream2"))).isTrue();
+        assertThat(cachedGoPartials.lastKnownPartials().getFirst().getGroups().getFirst().hasPipeline(cis("downstream2"))).isTrue();
 
         // Then middle upstream config repository is parsed
         repoConfigDataSource.onCheckoutComplete(firstDownstreamConfigRepo.getRepo(), firstDownstreamExternalConfigRepo, firstDownstreamLatestModification);
@@ -234,8 +233,8 @@ public class CachedGoConfigIntegrationTest {
         assertThat(messageForInvalidMerge.isEmpty()).isFalse();
         assertThat(messageForInvalidMerge.getFirst().getDescription()).contains("Pipeline 'pipe1' does not exist. It is used from pipeline 'downstream'");
         // and current config is still old
-        assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream"))).isFalse();
-        assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream2"))).isFalse();
+        assertThat(goConfigService.hasPipelineNamed(cis("downstream"))).isFalse();
+        assertThat(goConfigService.hasPipelineNamed(cis("downstream2"))).isFalse();
         assertThat(cachedGoPartials.lastKnownPartials().size()).isEqualTo(2);
         assertThat(cachedGoPartials.lastValidPartials().size()).isEqualTo(0);
 
@@ -246,9 +245,9 @@ public class CachedGoConfigIntegrationTest {
 
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(firstDownstreamConfigRepo)).isEmpty()).isTrue();
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(secondDownstreamConfigRepo)).isEmpty()).isTrue();
-        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1"))).isTrue();
-        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("downstream"))).isTrue();
-        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("downstream2"))).isTrue();
+        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(cis("pipe1"))).isTrue();
+        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(cis("downstream"))).isTrue();
+        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(cis("downstream2"))).isTrue();
     }
 
     @Test
@@ -267,15 +266,15 @@ public class CachedGoConfigIntegrationTest {
 
         repoConfigDataSource.onCheckoutComplete(configRepo.getRepo(), externalConfigRepo, latestModification);
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(configRepo)).isEmpty()).isTrue();
-        assertThat(repoConfigDataSource.latestPartialConfigForMaterial(configRepo.getRepo()).getGroups().findGroup("first").findBy(new CaseInsensitiveString("pipe1"))).isNotNull();
-        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1"))).isTrue();
+        assertThat(repoConfigDataSource.latestPartialConfigForMaterial(configRepo.getRepo()).getGroups().findGroup("first").findBy(cis("pipe1"))).isNotNull();
+        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(cis("pipe1"))).isTrue();
     }
 
     @Test
     public void shouldFailWhenTryingToAddPipelineWithTheSameNameAsAnotherPipelineDefinedRemotely_EntitySave() {
         assertThat(configWatchList.getCurrentConfigRepos().size()).isEqualTo(1);
         repoConfigDataSource.onCheckoutComplete(configRepo.getRepo(), externalConfigRepo, latestModification);
-        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1"))).isTrue();
+        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(cis("pipe1"))).isTrue();
 
         PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("pipe1", "ut",
             "www.spring.com");
@@ -283,7 +282,7 @@ public class CachedGoConfigIntegrationTest {
         assertThatThrownBy(() -> goConfigDao.updateConfig(new CreatePipelineConfigCommand(goConfigService, dupPipelineConfig, Username.ANONYMOUS, new DefaultLocalizedOperationResult(), "default", externalArtifactsService), Username.ANONYMOUS))
             .isInstanceOf(RuntimeException.class);
 
-        PipelineConfig pipe1 = goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipe1"));
+        PipelineConfig pipe1 = goConfigService.pipelineConfigNamed(cis("pipe1"));
         String errorMessage = dupPipelineConfig.errors().firstErrorOn(PipelineConfig.NAME);
         assertThat(errorMessage).contains("You have defined multiple pipelines named 'pipe1'. Pipeline names must be unique. Source(s):");
         Matcher matcher = Pattern.compile("^.*\\[(.*),\\s(.*)].*$", Pattern.DOTALL).matcher(errorMessage);
@@ -301,7 +300,7 @@ public class CachedGoConfigIntegrationTest {
     public void shouldFailWhenTryingToAddPipelineWithTheSameNameAsAnotherPipelineDefinedRemotely_FullConfigSave() {
         assertThat(configWatchList.getCurrentConfigRepos().size()).isEqualTo(1);
         repoConfigDataSource.onCheckoutComplete(configRepo.getRepo(), externalConfigRepo, latestModification);
-        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1"))).isTrue();
+        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(cis("pipe1"))).isTrue();
 
         final PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("pipe1", "ut",
             "www.spring.com");
@@ -315,7 +314,7 @@ public class CachedGoConfigIntegrationTest {
                 Matcher matcher = Pattern.compile("^.*\\[(.*),\\s(.*)].*$", Pattern.DOTALL).matcher(errorMessage);
                 assertThat(matcher.matches()).isTrue();
                 assertThat(matcher.groupCount()).isEqualTo(2);
-                PipelineConfig pipe1 = goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipe1"));
+                PipelineConfig pipe1 = goConfigService.pipelineConfigNamed(cis("pipe1"));
                 List<String> expectedSources = List.of(dupPipelineConfig.getOriginDisplayName(), pipe1.getOriginDisplayName());
                 List<String> actualSources = new ArrayList<>();
                 for (int i = 1; i <= matcher.groupCount(); i++) {
@@ -330,7 +329,7 @@ public class CachedGoConfigIntegrationTest {
         assertThat(configWatchList.getCurrentConfigRepos().size()).isEqualTo(1);
 
         repoConfigDataSource.onCheckoutComplete(configRepo.getRepo(), externalConfigRepo, latestModification);
-        assertThat(cachedGoConfig.loadMergedForEditing().hasPipelineNamed(new CaseInsensitiveString("pipe1"))).isTrue();
+        assertThat(cachedGoConfig.loadMergedForEditing().hasPipelineNamed(cis("pipe1"))).isTrue();
     }
 
     private List<ServerHealthState> findMessageFor(final HealthStateType type) {
@@ -346,7 +345,7 @@ public class CachedGoConfigIntegrationTest {
 
         repoConfigDataSource.onCheckoutComplete(configRepo.getRepo(), externalConfigRepo, latestModification);
 
-        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipe1"))).as("currentConfigShouldBeMerged").isTrue();
+        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(cis("pipe1"))).as("currentConfigShouldBeMerged").isTrue();
         assertThat(listener.invocationCount).isEqualTo(2);
     }
 
@@ -362,7 +361,7 @@ public class CachedGoConfigIntegrationTest {
         assertThat(listener.invocationCount).isEqualTo(1);
         repoConfigDataSource.onCheckoutComplete(configRepo.getRepo(), externalConfigRepo, latestModification);
 
-        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(new CaseInsensitiveString("pipeline_with_no_stage"))).as("currentConfigShouldBeMainXmlOnly").isFalse();
+        assertThat(cachedGoConfig.currentConfig().hasPipelineNamed(cis("pipeline_with_no_stage"))).as("currentConfigShouldBeMainXmlOnly").isFalse();
         assertThat(listener.invocationCount).isEqualTo(1);
     }
 
@@ -468,25 +467,25 @@ public class CachedGoConfigIntegrationTest {
               </pipeline>
             </templates>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         configHelper.writeXmlToConfigFile(content);
 
         cachedGoConfig.forceReload();
 
         CruiseConfig cruiseConfig = cachedGoConfig.currentConfig();
-        ExecTask devExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().getFirst();
+        ExecTask devExec = (ExecTask) cruiseConfig.pipelineConfigByName(cis("dev")).getFirstStageConfig().jobConfigByConfigName(cis("job1")).getTasks().getFirst();
         assertThat(devExec).isEqualTo(new ExecTask("/bin/ls", "/tmp", (String) null));
 
-        ExecTask acceptanceExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("acceptance")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().getFirst();
+        ExecTask acceptanceExec = (ExecTask) cruiseConfig.pipelineConfigByName(cis("acceptance")).getFirstStageConfig().jobConfigByConfigName(cis("job1")).getTasks().getFirst();
         assertThat(acceptanceExec).isEqualTo(new ExecTask("/bin/twist", "./acceptance", (String) null));
 
         cruiseConfig = cachedGoConfig.loadForEditing();
-        devExec = (ExecTask) cruiseConfig.getTemplateByName(new CaseInsensitiveString("abc")).getFirst().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().getFirst();
+        devExec = (ExecTask) cruiseConfig.getTemplateByName(cis("abc")).getFirst().jobConfigByConfigName(cis("job1")).getTasks().getFirst();
         assertThat(devExec).isEqualTo(new ExecTask("/bin/#{command}", "#{dir}", (String) null));
 
-        assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).size()).isEqualTo(0);
-        assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("acceptance")).size()).isEqualTo(0);
+        assertThat(cruiseConfig.pipelineConfigByName(cis("dev")).size()).isEqualTo(0);
+        assertThat(cruiseConfig.pipelineConfigByName(cis("acceptance")).size()).isEqualTo(0);
     }
 
     @Test
@@ -519,14 +518,14 @@ public class CachedGoConfigIntegrationTest {
             </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         configHelper.writeXmlToConfigFile(content);
 
         cachedGoConfig.forceReload();
 
         CruiseConfig cruiseConfig = cachedGoConfig.currentConfig();
-        ExecTask devExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().getFirst();
+        ExecTask devExec = (ExecTask) cruiseConfig.pipelineConfigByName(cis("dev")).getFirstStageConfig().jobConfigByConfigName(cis("job1")).getTasks().getFirst();
         assertThat(devExec).isEqualTo(new ExecTask("/bin/ls#{a}#{b}", "/tmp", (String) null));
     }
 
@@ -559,14 +558,14 @@ public class CachedGoConfigIntegrationTest {
             </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         configHelper.writeXmlToConfigFile(content);
 
         cachedGoConfig.forceReload();
 
         CruiseConfig cruiseConfig = cachedGoConfig.currentConfig();
-        assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).getLabelTemplate()).isEqualTo("cruise-1.2-${COUNT}");
+        assertThat(cruiseConfig.pipelineConfigByName(cis("dev")).getLabelTemplate()).isEqualTo("cruise-1.2-${COUNT}");
     }
 
     @Test
@@ -602,7 +601,7 @@ public class CachedGoConfigIntegrationTest {
             </pipeline>
             </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION);
+            """.formatted(GoConfigSchema.VERSION);
 
         configHelper.writeXmlToConfigFile(content);
 
@@ -676,11 +675,11 @@ public class CachedGoConfigIntegrationTest {
         addPipelineWithParams(cruiseConfig);
         configHelper.writeConfigFile(cruiseConfig);
 
-        PipelineConfig config = cachedGoConfig.currentConfig().pipelineConfigByName(new CaseInsensitiveString("mingle"));
+        PipelineConfig config = cachedGoConfig.currentConfig().pipelineConfigByName(cis("mingle"));
         HgMaterialConfig hgMaterialConfig = (HgMaterialConfig) byFolder(config.materialConfigs(), "folder");
         assertThat(hgMaterialConfig.getUrl()).isEqualTo("http://hg-server/repo-name");
 
-        config = cachedGoConfig.loadForEditing().pipelineConfigByName(new CaseInsensitiveString("mingle"));
+        config = cachedGoConfig.loadForEditing().pipelineConfigByName(cis("mingle"));
         hgMaterialConfig = (HgMaterialConfig) byFolder(config.materialConfigs(), "folder");
         assertThat(hgMaterialConfig.getUrl()).isEqualTo("http://#{foo}/#{bar}");
     }
@@ -691,20 +690,20 @@ public class CachedGoConfigIntegrationTest {
         CruiseConfig configToBeWritten = magicalGoConfigXmlLoader.deserializeConfig(configXmlWithPipeline(pipelineName));
         cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(configToBeWritten, cachedGoConfig.currentConfig().getMd5()));
 
-        PipelineConfig reloadedPipelineConfig = cachedGoConfig.currentConfig().pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        PipelineConfig reloadedPipelineConfig = cachedGoConfig.currentConfig().pipelineConfigByName(cis(pipelineName));
         HgMaterialConfig hgMaterialConfig = (HgMaterialConfig) byFolder(reloadedPipelineConfig.materialConfigs(), "folder");
         assertThat(hgMaterialConfig.getUrl()).isEqualTo("http://hg-server/repo-name");
 
-        reloadedPipelineConfig = cachedGoConfig.loadForEditing().pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        reloadedPipelineConfig = cachedGoConfig.loadForEditing().pipelineConfigByName(cis(pipelineName));
         hgMaterialConfig = (HgMaterialConfig) byFolder(reloadedPipelineConfig.materialConfigs(), "folder");
         assertThat(hgMaterialConfig.getUrl()).isEqualTo("http://#{foo}/#{bar}");
 
         GoConfigHolder configHolder = cachedGoConfig.loadConfigHolder();
-        reloadedPipelineConfig = configHolder.config.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        reloadedPipelineConfig = configHolder.config.pipelineConfigByName(cis(pipelineName));
         hgMaterialConfig = (HgMaterialConfig) byFolder(reloadedPipelineConfig.materialConfigs(), "folder");
         assertThat(hgMaterialConfig.getUrl()).isEqualTo("http://hg-server/repo-name");
 
-        reloadedPipelineConfig = configHolder.configForEdit.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        reloadedPipelineConfig = configHolder.configForEdit.pipelineConfigByName(cis(pipelineName));
         hgMaterialConfig = (HgMaterialConfig) byFolder(reloadedPipelineConfig.materialConfigs(), "folder");
         assertThat(hgMaterialConfig.getUrl()).isEqualTo("http://#{foo}/#{bar}");
     }
@@ -715,11 +714,11 @@ public class CachedGoConfigIntegrationTest {
             addPipelineWithParams(cruiseConfig);
             return cruiseConfig;
         });
-        PipelineConfig reloadedPipelineConfig = cachedGoConfig.currentConfig().pipelineConfigByName(new CaseInsensitiveString("mingle"));
+        PipelineConfig reloadedPipelineConfig = cachedGoConfig.currentConfig().pipelineConfigByName(cis("mingle"));
         HgMaterialConfig hgMaterialConfig = (HgMaterialConfig) byFolder(reloadedPipelineConfig.materialConfigs(), "folder");
         assertThat(hgMaterialConfig.getUrl()).isEqualTo("http://hg-server/repo-name");
 
-        reloadedPipelineConfig = cachedGoConfig.loadForEditing().pipelineConfigByName(new CaseInsensitiveString("mingle"));
+        reloadedPipelineConfig = cachedGoConfig.loadForEditing().pipelineConfigByName(cis("mingle"));
         hgMaterialConfig = (HgMaterialConfig) byFolder(reloadedPipelineConfig.materialConfigs(), "folder");
         assertThat(hgMaterialConfig.getUrl()).isEqualTo("http://#{foo}/#{bar}");
     }
@@ -754,7 +753,7 @@ public class CachedGoConfigIntegrationTest {
                 </pipeline>
               </pipelines>
             </cruise>
-            """.formatted(CONFIG_SCHEMA_VERSION, pipelineName);
+            """.formatted(GoConfigSchema.VERSION, pipelineName);
     }
 
     @Test
@@ -831,7 +830,7 @@ public class CachedGoConfigIntegrationTest {
         assertThatThrownBy(() -> cachedGoConfig.writeWithLock(new NoOverwriteUpdateConfigCommand() {
             @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) {
-                cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString(upstream)).getFirstStageConfig().setName(new CaseInsensitiveString("new_name"));
+                cruiseConfig.getPipelineConfigByName(cis(upstream)).getFirstStageConfig().setName(cis("new_name"));
                 return cruiseConfig;
             }
 
@@ -850,7 +849,7 @@ public class CachedGoConfigIntegrationTest {
 
         PartialConfig partialWithStageRenamed = GoConfigMother.deepClone(cachedGoPartials.lastValidPartials().getFirst());
         PipelineConfig pipelineInRemoteConfigRepo = partialWithStageRenamed.getGroups().getFirst().getPipelines().getFirst();
-        pipelineInRemoteConfigRepo.materialConfigs().getDependencyMaterial().setStageName(new CaseInsensitiveString("new_name"));
+        pipelineInRemoteConfigRepo.materialConfigs().getDependencyMaterial().setStageName(cis("new_name"));
         partialWithStageRenamed.setOrigin(new RepoConfigOrigin(configRepo, "r2"));
 
         partialConfigService.onSuccessPartialConfig(configRepo, partialWithStageRenamed);
@@ -873,7 +872,7 @@ public class CachedGoConfigIntegrationTest {
         ConfigSaveState saveState = cachedGoConfig.writeWithLock(new NoOverwriteUpdateConfigCommand() {
             @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) {
-                cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString(upstream)).getFirstStageConfig().setName(new CaseInsensitiveString("new_name"));
+                cruiseConfig.getPipelineConfigByName(cis(upstream)).getFirstStageConfig().setName(cis("new_name"));
                 return cruiseConfig;
             }
 
@@ -883,9 +882,9 @@ public class CachedGoConfigIntegrationTest {
             }
         });
         assertThat(saveState).isEqualTo(ConfigSaveState.MERGED);
-        assertThat(cachedGoPartials.lastValidPartials().getFirst().getGroups().getFirst().getFirst().materialConfigs().getDependencyMaterial().getStageName()).isEqualTo(new CaseInsensitiveString("new_name"));
-        assertThat(goConfigService.getConfigForEditing().getPipelineConfigByName(new CaseInsensitiveString(upstream)).getFirstStageConfig().name()).isEqualTo(new CaseInsensitiveString("new_name"));
-        assertThat(goConfigService.getCurrentConfig().getPipelineConfigByName(new CaseInsensitiveString(upstream)).getFirstStageConfig().name()).isEqualTo(new CaseInsensitiveString("new_name"));
+        assertThat(cachedGoPartials.lastValidPartials().getFirst().getGroups().getFirst().getFirst().materialConfigs().getDependencyMaterial().getStageName()).isEqualTo(cis("new_name"));
+        assertThat(goConfigService.getConfigForEditing().getPipelineConfigByName(cis(upstream)).getFirstStageConfig().name()).isEqualTo(cis("new_name"));
+        assertThat(goConfigService.getCurrentConfig().getPipelineConfigByName(cis(upstream)).getFirstStageConfig().name()).isEqualTo(cis("new_name"));
     }
 
     private void setupExternalConfigRepoWithDependencyMaterialOnPipelineInMainXml(String upstream, String remoteDownstreamPipelineName) {
@@ -954,8 +953,8 @@ public class CachedGoConfigIntegrationTest {
         assertThat(configSaveState).isEqualTo(ConfigSaveState.UPDATED);
         assertThat(cachedGoConfig.currentConfig().getConfigRepos().size()).isEqualTo(countBeforeDeletion - 1);
         assertThat(cachedGoConfig.currentConfig().getConfigRepos().contains(repoConfig2)).isTrue();
-        assertThat(cachedGoConfig.currentConfig().getAllPipelineNames().contains(new CaseInsensitiveString("pipeline_in_repo1"))).isFalse();
-        assertThat(cachedGoConfig.currentConfig().getAllPipelineNames().contains(new CaseInsensitiveString("pipeline_in_repo2"))).isTrue();
+        assertThat(cachedGoConfig.currentConfig().getAllPipelineNames().contains(cis("pipeline_in_repo1"))).isFalse();
+        assertThat(cachedGoConfig.currentConfig().getAllPipelineNames().contains(cis("pipeline_in_repo2"))).isTrue();
         assertThat(cachedGoPartials.lastKnownPartials().size()).isEqualTo(1);
         assertThat(((RepoConfigOrigin) cachedGoPartials.lastKnownPartials().getFirst().getOrigin()).getMaterial().getFingerprint().equals(repoConfig2.getRepo().getFingerprint())).isTrue();
         assertThat(cachedGoPartials.lastKnownPartials().stream().filter(item -> ((RepoConfigOrigin) item.getOrigin()).getMaterial().getFingerprint().equals(repoConfig1.getRepo().getFingerprint())).findFirst().orElse(null)).isNull();
@@ -1155,7 +1154,7 @@ public class CachedGoConfigIntegrationTest {
         cachedGoConfig.forceReload();
 
         Configuration ancestorPluggablePublishArtifactConfigAfterEncryption = goConfigDao.loadConfigHolder()
-            .configForEdit.pipelineConfigByName(new CaseInsensitiveString("ancestor"))
+            .configForEdit.pipelineConfigByName(cis("ancestor"))
             .getExternalArtifactConfigs().getFirst().getConfiguration();
         assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getValue()).isEqualTo("IMAGE_SECRET");
         assertThat(ancestorPluggablePublishArtifactConfigAfterEncryption.getProperty("Image").getEncryptedValue()).isEqualTo(new GoCipher().encrypt("IMAGE_SECRET"));
@@ -1175,7 +1174,7 @@ public class CachedGoConfigIntegrationTest {
 
         cachedGoConfig.forceReload();
 
-        PipelineConfig child = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(new CaseInsensitiveString("child"));
+        PipelineConfig child = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(cis("child"));
         Configuration childFetchConfigAfterEncryption = ((FetchPluggableArtifactTask) child
             .getFirst().getJobs().getFirst().tasks().getFirst()).getConfiguration();
 

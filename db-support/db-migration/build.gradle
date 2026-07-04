@@ -15,15 +15,15 @@
  */
 
 dependencies {
-  annotationProcessor project.deps.lombok
-  compileOnly project.deps.lombok
+  annotationProcessor rootProject.deps.lombok
+  compileOnly rootProject.deps.lombok
 
-  implementation project.deps.commonsLang3
-  implementation project.deps.gson
-  implementation project.deps.jakartaAnnotation
-  compileOnly project.deps.jetBrainsAnnotations
+  implementation rootProject.deps.commonsLang3
+  implementation rootProject.deps.gson
+  implementation rootProject.deps.jakartaAnnotation
+  compileOnly rootProject.deps.jetBrainsAnnotations
 
-  implementation(project.deps.liquibase) {
+  implementation(rootProject.deps.liquibase) {
     // Not needed, according to https://github.com/liquibase/liquibase/issues/1866
     exclude group: 'javax.xml.bind', module: 'jaxb-api'
 
@@ -32,22 +32,22 @@ dependencies {
     exclude group: 'org.yaml', module: 'snakeyaml'
     exclude group: 'com.opencsv', module: 'opencsv'
   }
-  implementation project.deps.slf4jApi
-  runtimeOnly project.deps.liquibaseSlf4j
+  implementation rootProject.deps.slf4jApi
+  runtimeOnly rootProject.deps.liquibaseSlf4j
 
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5PlatformLauncher
-  testImplementation project.deps.assertJ
-  testImplementation project.deps.mockitoCore
-  testImplementation project.deps.mockitoJunit5
+  testImplementation rootProject.deps.junit5Api
+  testRuntimeOnly rootProject.deps.junit5Engine
+  testRuntimeOnly rootProject.deps.junit5PlatformLauncher
+  testImplementation rootProject.deps.assertJ
+  testImplementation rootProject.deps.mockitoCore
+  testImplementation rootProject.deps.mockitoJunit5
 
-  testImplementation project.deps.commonsDbcp
-  testImplementation project.deps.h2
+  testImplementation rootProject.deps.commonsDbcp
+  testImplementation rootProject.deps.h2
   testRuntimeOnly project(':db-support:db-support-h2')
 
-  testFixturesApi project.deps.testcontainersJdbc
-  testFixturesImplementation project.deps.assertJ_DB
-  testFixturesImplementation project.deps.assertJ
-  testFixturesRuntimeOnly project.deps.logback
+  testFixturesApi rootProject.deps.testcontainersJdbc
+  testFixturesImplementation rootProject.deps.assertJ_DB
+  testFixturesImplementation rootProject.deps.assertJ
+  testFixturesRuntimeOnly rootProject.deps.logback
 }

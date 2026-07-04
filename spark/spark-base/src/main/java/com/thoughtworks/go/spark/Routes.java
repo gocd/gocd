@@ -16,12 +16,12 @@
 package com.thoughtworks.go.spark;
 
 import org.apache.commons.text.StringSubstitutor;
-import org.springframework.web.util.UriUtils;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
+import static com.thoughtworks.go.util.UriEncodingUtil.encodePathSegment;
+import static com.thoughtworks.go.util.UriEncodingUtil.encodeQueryParam;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class Routes {
@@ -51,7 +51,7 @@ public class Routes {
         public static final String ID_PATH = "/:id";
 
         public static String serverBackup(String id) {
-            return BASE + ID_PATH.replaceAll(":id", id);
+            return BASE + ID_PATH.replace(":id", id);
         }
     }
 
@@ -77,7 +77,7 @@ public class Routes {
         public static final String PLUGIN_ID_HASH_PATH = "/:plugin_id/:hash";
 
         public static String pluginImage(String pluginId, String hash) {
-            return BASE + PLUGIN_ID_HASH_PATH.replaceAll(":plugin_id", pluginId).replaceAll(":hash", hash);
+            return BASE + PLUGIN_ID_HASH_PATH.replace(":plugin_id", pluginId).replace(":hash", hash);
         }
     }
 
@@ -111,7 +111,7 @@ public class Routes {
         }
 
         public static String id(String id) {
-            return find().replaceAll(":id", id);
+            return find().replace(":id", id);
         }
     }
 
@@ -132,7 +132,7 @@ public class Routes {
         }
 
         public static String name(String name) {
-            return BASE + NAME_PATH.replaceAll(":role_name", name);
+            return BASE + NAME_PATH.replace(":role_name", name);
         }
     }
 
@@ -153,8 +153,8 @@ public class Routes {
 
         public static String vsm(String materialFingerprint, String revision) {
             return StringSubstitutor.replace("/materials/value_stream_map/${material_fingerprint}/${revision}", Map.of(
-                    "material_fingerprint", materialFingerprint,
-                    "revision", revision));
+                    "material_fingerprint", encodePathSegment(materialFingerprint),
+                    "revision", encodePathSegment(revision)));
         }
     }
 
@@ -170,7 +170,7 @@ public class Routes {
         public static final String FIND = BASE + "/{offset}";
 
         public static String modification(String fingerprint) {
-            return BASE.replaceAll(":fingerprint", fingerprint);
+            return BASE.replace(":fingerprint", fingerprint);
         }
     }
 
@@ -198,7 +198,7 @@ public class Routes {
         }
 
         public static String name(String name) {
-            return BASE + NAME_PATH.replaceAll(":group_name", name);
+            return BASE + NAME_PATH.replace(":group_name", name);
         }
     }
 
@@ -218,7 +218,7 @@ public class Routes {
         }
 
         public static String name(String name) {
-            return find().replaceAll(":material_name", name);
+            return find().replace(":material_name", name);
         }
     }
 
@@ -227,7 +227,7 @@ public class Routes {
         static final String NAME = "/api/admin/environments/:name";
 
         public static String name(String name) {
-            return NAME.replaceAll(":name", name);
+            return NAME.replace(":name", name);
         }
     }
 
@@ -241,7 +241,7 @@ public class Routes {
         }
 
         public static String name(String name) {
-            return BASE + NAME.replaceAll(":name", name);
+            return BASE + NAME.replace(":name", name);
         }
     }
 
@@ -259,18 +259,18 @@ public class Routes {
         public static final String SCHEDULE_PATH = "/:pipeline_name/schedule";
 
         public static String triggerOptions(String pipelineName) {
-            return BASE + TRIGGER_OPTIONS_PATH.replaceAll(":pipeline_name", pipelineName);
+            return BASE + TRIGGER_OPTIONS_PATH.replace(":pipeline_name", pipelineName);
         }
 
         public static String schedule(String pipelineName) {
-            return BASE + SCHEDULE_PATH.replaceAll(":pipeline_name", pipelineName);
+            return BASE + SCHEDULE_PATH.replace(":pipeline_name", pipelineName);
         }
     }
 
     public static class PipelineInstance {
         public static String vsm(String pipelineName, int pipelineCounter) {
             return StringSubstitutor.replace("/pipelines/value_stream_map/${pipeline_name}/${pipeline_counter}",
-                    Map.of("pipeline_name", pipelineName, "pipeline_counter", pipelineCounter));
+                    Map.of("pipeline_name", encodePathSegment(pipelineName), "pipeline_counter", pipelineCounter));
         }
 
         public static final String BASE = "/api/pipelines";
@@ -281,20 +281,20 @@ public class Routes {
 
         public static String instance(String pipelineName, int pipelineCounter) {
             return BASE + INSTANCE_PATH
-                    .replaceAll(":pipeline_name", pipelineName)
-                    .replaceAll(":pipeline_counter", String.valueOf(pipelineCounter));
+                    .replace(":pipeline_name", encodePathSegment(pipelineName))
+                    .replace(":pipeline_counter", String.valueOf(pipelineCounter));
         }
 
         public static String history(String pipelineName) {
-            return BASE + HISTORY_PATH.replaceAll(":pipeline_name", pipelineName);
+            return BASE + HISTORY_PATH.replace(":pipeline_name", pipelineName);
         }
 
         public static String previous(String pipelineName, long before) {
-            return BASE + HISTORY_PATH.replaceAll(":pipeline_name", pipelineName) + "?before=" + before;
+            return BASE + HISTORY_PATH.replace(":pipeline_name", pipelineName) + "?before=" + before;
         }
 
         public static String next(String pipelineName, long after) {
-            return BASE + HISTORY_PATH.replaceAll(":pipeline_name", pipelineName) + "?after=" + after;
+            return BASE + HISTORY_PATH.replace(":pipeline_name", pipelineName) + "?after=" + after;
         }
     }
 
@@ -328,11 +328,11 @@ public class Routes {
 
 
         public static String previous(String pipelineName, String stageName, long before) {
-            return BASE + STAGE_HISTORY.replaceAll(":pipeline_name", pipelineName).replaceAll(":stage_name", stageName) + "?before=" + before;
+            return BASE + STAGE_HISTORY.replace(":pipeline_name", pipelineName).replace(":stage_name", stageName) + "?before=" + before;
         }
 
         public static String next(String pipelineName, String stageName, long after) {
-            return BASE + STAGE_HISTORY.replaceAll(":pipeline_name", pipelineName).replaceAll(":stage_name", stageName) + "?after=" + after;
+            return BASE + STAGE_HISTORY.replace(":pipeline_name", pipelineName).replace(":stage_name", stageName) + "?after=" + after;
         }
     }
 
@@ -343,17 +343,17 @@ public class Routes {
 
         public static String previous(String pipelineName, String stageName, String jobConfigName, long before) {
             return BASE
-                    + JOB_HISTORY.replaceAll(":pipeline_name", pipelineName)
-                    .replaceAll(":stage_name", stageName)
-                    .replaceAll(":job_name", jobConfigName)
+                    + JOB_HISTORY.replace(":pipeline_name", pipelineName)
+                    .replace(":stage_name", stageName)
+                    .replace(":job_name", jobConfigName)
                     + "?before=" + before;
         }
 
         public static String next(String pipelineName, String stageName, String jobConfigName, long after) {
             return BASE
-                    + JOB_HISTORY.replaceAll(":pipeline_name", pipelineName)
-                    .replaceAll(":stage_name", stageName)
-                    .replaceAll(":job_name", jobConfigName)
+                    + JOB_HISTORY.replace(":pipeline_name", pipelineName)
+                    .replace(":stage_name", stageName)
+                    .replace(":job_name", jobConfigName)
                     + "?after=" + after;
         }
     }
@@ -364,7 +364,7 @@ public class Routes {
         public static final String BASE = "/api/users/";
 
         public static String self(String loginName) {
-            return StringSubstitutor.replace(BASE + "${loginName}", Map.of("loginName", loginName));
+            return StringSubstitutor.replace(BASE + "${loginName}", Map.of("loginName", encodePathSegment(loginName)));
         }
 
         public static String find() {
@@ -395,7 +395,7 @@ public class Routes {
         }
 
         public static String id(String id) {
-            return find().replaceAll(":id", id);
+            return find().replace(":id", id);
         }
     }
 
@@ -413,7 +413,7 @@ public class Routes {
         }
 
         public static String name(String name) {
-            return find().replaceAll(":pipeline_name", name);
+            return find().replace(":pipeline_name", name);
         }
     }
 
@@ -435,7 +435,7 @@ public class Routes {
         }
 
         public static String name(String name) {
-            return find().replaceAll(":template_name", name);
+            return find().replace(":template_name", name);
         }
     }
 
@@ -451,7 +451,7 @@ public class Routes {
         }
 
         public static String id(String id) {
-            return find().replaceAll(":profile_id", id);
+            return find().replace(":profile_id", id);
         }
     }
 
@@ -466,7 +466,7 @@ public class Routes {
         }
 
         public static String id(String id) {
-            return find().replaceAll(":config_id", id);
+            return find().replace(":config_id", id);
         }
     }
 
@@ -484,7 +484,7 @@ public class Routes {
         }
 
         public static String id(String id) {
-            return find().replaceAll(":cluster_id", id);
+            return find().replace(":cluster_id", id);
         }
     }
 
@@ -498,7 +498,7 @@ public class Routes {
         }
 
         public static String id(String id) {
-            return find().replaceAll(":plugin_id", id);
+            return find().replace(":plugin_id", id);
         }
     }
 
@@ -514,7 +514,7 @@ public class Routes {
         }
 
         public static String id(String id) {
-            return find().replaceAll(":id", id);
+            return find().replace(":id", id);
         }
     }
 
@@ -528,7 +528,7 @@ public class Routes {
         }
 
         public static String id(String id) {
-            return find().replaceAll(":id", id);
+            return find().replace(":id", id);
         }
     }
 
@@ -543,7 +543,7 @@ public class Routes {
         }
 
         public static String uuid(String uuid) {
-            return find().replaceAll(":uuid", uuid);
+            return find().replace(":uuid", uuid);
         }
     }
 
@@ -574,7 +574,7 @@ public class Routes {
 
         @Override
         public String find(Long id) {
-            return find().replaceAll(":id", String.valueOf(id));
+            return find().replace(":id", String.valueOf(id));
         }
 
         @Override
@@ -601,7 +601,7 @@ public class Routes {
 
         @Override
         public String find(Long id) {
-            return find().replaceAll(":id", String.valueOf(id));
+            return find().replace(":id", String.valueOf(id));
         }
 
         @Override
@@ -891,17 +891,17 @@ public class Routes {
         public static final String INTERNAL_BASE_MODIFICATIONS = "/api/internal/materials/:fingerprint/modifications";
 
         public static String usages(String fingerprint) {
-            return (MaterialConfig.BASE + USAGES).replaceAll(":fingerprint", fingerprint);
+            return (MaterialConfig.BASE + USAGES).replace(":fingerprint", fingerprint);
         }
 
         public static String previous(String pipelineName, long before, String pattern, int pageSize) {
-            String link = INTERNAL_BASE_MODIFICATIONS.replaceAll(":fingerprint", pipelineName) + "?before=" + before;
+            String link = INTERNAL_BASE_MODIFICATIONS.replace(":fingerprint", pipelineName) + "?before=" + before;
             link = appendQueryString(link, pattern, pageSize);
             return link;
         }
 
         public static String next(String pipelineName, long after, String pattern, int pageSize) {
-            String link = INTERNAL_BASE_MODIFICATIONS.replaceAll(":fingerprint", pipelineName) + "?after=" + after;
+            String link = INTERNAL_BASE_MODIFICATIONS.replace(":fingerprint", pipelineName) + "?after=" + after;
             link = appendQueryString(link, pattern, pageSize);
             return link;
         }
@@ -930,13 +930,5 @@ public class Routes {
         public static final String IS_IGNORED = "/is_ignored";
         public static final String GET_COOKIE = "/get_cookie";
         public static final String GET_WORK = "/get_work";
-    }
-
-    private static String encodeQueryParam(String value) {
-        try {
-            return UriUtils.encodeQueryParam(value, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

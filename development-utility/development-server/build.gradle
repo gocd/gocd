@@ -27,20 +27,20 @@ dependencies {
   testFixturesImplementation project(':base')
   testFixturesRuntimeOnly findProject(':api').subprojects.collect { project(it.path) }
   testFixturesRuntimeOnly findProject(':spark').subprojects.collect { project(it.path) }
-  testFixturesRuntimeOnly project.deps.jetty
-  testFixturesRuntimeOnly project.deps.jettyJmx
-  testFixturesRuntimeOnly project.deps.jettyServlets
-  testFixturesRuntimeOnly project.deps.jettyUtil
-  testFixturesRuntimeOnly project.deps.jettyDeploy
-  testFixturesRuntimeOnly project.deps.jettyWebsocket
+  testFixturesRuntimeOnly rootProject.deps.jetty
+  testFixturesRuntimeOnly rootProject.deps.jettyJmx
+  testFixturesRuntimeOnly rootProject.deps.jettyServlets
+  testFixturesRuntimeOnly rootProject.deps.jettyUtil
+  testFixturesRuntimeOnly rootProject.deps.jettyDeploy
+  testFixturesRuntimeOnly rootProject.deps.jettyWebsocket
 
-  testFixturesRuntimeOnly(project.deps.jgitServer) {
+  testFixturesRuntimeOnly(rootProject.deps.jgitServer) {
     exclude(module: 'jsch')
     exclude(module: 'jzlib')
   }
   testFixturesRuntimeOnly project(':jetty')
-  testFixturesImplementation project.deps.servletApi
-  testFixturesImplementation project.deps.slf4jApi
+  testFixturesImplementation rootProject.deps.servletApi
+  testFixturesImplementation rootProject.deps.slf4jApi
 
   copyOnly project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')
   copyOnly project(':plugin-infra:go-plugin-activator')

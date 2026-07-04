@@ -16,7 +16,6 @@
 package com.thoughtworks.go.apiv3.users.representers
 
 import com.thoughtworks.go.apiv3.users.model.UserToRepresent
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.RoleConfig
 import com.thoughtworks.go.config.RolesConfig
 import com.thoughtworks.go.helper.UsersMother
@@ -24,6 +23,7 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class UsersRepresenterTest {
@@ -31,7 +31,7 @@ class UsersRepresenterTest {
   @Test
   void 'render a list of users'() {
     def gocdRole = new RoleConfig()
-    gocdRole.setName(new CaseInsensitiveString("gocdRole"))
+    gocdRole.setName(cis("gocdRole"))
 
     def users = List.of(UserToRepresent.from(UsersMother.withName("Bob"), true, new RolesConfig(gocdRole)))
     def json = toObject({ UsersRepresenter.toJSON(it, users) })

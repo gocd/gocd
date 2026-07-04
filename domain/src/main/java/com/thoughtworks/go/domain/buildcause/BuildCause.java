@@ -26,6 +26,7 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.server.domain.Username;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -38,10 +39,13 @@ import java.util.Objects;
  */
 public class BuildCause implements Serializable {
 
+    public static final String APPROVER_AUTOMATICALLY_TRIGGERED = "changes";
+    public static final String APPROVER_NONE = "";
+
+    private static final BuildCause NEVER_RUN = new BuildCause(MaterialRevisions.EMPTY, BuildTrigger.forNeverRun(), APPROVER_NONE);
+
     private MaterialRevisions materialRevisions = MaterialRevisions.EMPTY;
     private BuildTrigger trigger;
-    private static final BuildCause NEVER_RUN = new BuildCause(MaterialRevisions.EMPTY, BuildTrigger.forNeverRun(), "");
-
     private String approver;
     private EnvironmentVariables variables;
 
@@ -51,11 +55,11 @@ public class BuildCause implements Serializable {
 
     private BuildCause(MaterialRevisions materialRevisions, BuildTrigger trigger, String approver) {
         this();
-        this.approver = approver;
         if (materialRevisions != null) {
             this.materialRevisions = materialRevisions;
         }
         this.trigger = trigger;
+        this.approver = approver;
     }
 
     public MaterialRevisions getMaterialRevisions() {
@@ -222,48 +226,8 @@ public class BuildCause implements Serializable {
         return this.equals(createNeverRun());
     }
 
-    public static BuildCause createManualForced(MaterialRevisions materialRevisions, Username username) {
-        if (username == null) {
-            throw new IllegalArgumentException("Username cannot be null");
-        }
-
-        String message = String.format("Forced by %s", username.getDisplayName());
-
-        return new BuildCause(materialRevisions, BuildTrigger.forForced(message), CaseInsensitiveString.str(username.getUsername()));
-    }
-
-    public static BuildCause createManualForced() {
-        return createManualForced(MaterialRevisions.EMPTY, Username.ANONYMOUS);
-    }
-
-    public static BuildCause fromDbString(String text) {
-        return switch (text) {
-            case BuildTrigger.FORCED_BUILD_CAUSE ->
-                    BuildCause.createManualForced(MaterialRevisions.EMPTY, Username.ANONYMOUS);
-            case BuildTrigger.MODIFICATION_BUILD_CAUSE -> createWithEmptyModifications();
-            case BuildTrigger.EXTERNAL_BUILD_CAUSE -> createExternal();
-            default -> createWithEmptyModifications();
-        };
-    }
-
     public String toDbString() {
         return trigger.getDbName();
-    }
-
-    public static BuildCause createWithModifications(MaterialRevisions materialRevisions, String approver) {
-        return new BuildCause(materialRevisions, BuildTrigger.forModifications(materialRevisions), approver);
-    }
-
-    public static BuildCause createWithEmptyModifications() {
-        return createWithModifications(MaterialRevisions.EMPTY, "");
-    }
-
-    public static BuildCause createExternal() {
-        return new BuildCause(MaterialRevisions.EMPTY, BuildTrigger.forExternal(), "");
-    }
-
-    public static BuildCause createNeverRun() {
-        return NEVER_RUN;
     }
 
     public String getApprover() {
@@ -285,5 +249,49 @@ public class BuildCause implements Serializable {
 
     public void addOverriddenVariables(EnvironmentVariables variables) {
         this.variables.addAll(variables);
+    }
+
+
+    public static BuildCause createExternal() {
+        return new BuildCause(MaterialRevisions.EMPTY, BuildTrigger.forExternal(), APPROVER_NONE);
+    }
+
+    public static BuildCause createManualForced(MaterialRevisions materialRevisions, Username username) {
+        if (username == null) {
+            throw new IllegalArgumentException("Username cannot be null");
+        }
+
+        return new BuildCause(materialRevisions, BuildTrigger.forForced(String.format("Forced by %s", username.getDisplayName())), CaseInsensitiveString.str(username.getUsername()));
+    }
+
+    public static BuildCause createManualForced() {
+        return createManualForced(MaterialRevisions.EMPTY, Username.ANONYMOUS);
+    }
+
+    public static BuildCause createNeverRun() {
+        return NEVER_RUN;
+    }
+
+    public static BuildCause createWithModificationsAutomaticallyTriggered(MaterialRevisions materialRevisions) {
+        return createWithModifications(materialRevisions, APPROVER_AUTOMATICALLY_TRIGGERED);
+    }
+
+    public static BuildCause createEmpty() {
+        return createWithModifications(MaterialRevisions.EMPTY, APPROVER_NONE);
+    }
+
+    @VisibleForTesting
+    public static BuildCause createWithModifications(MaterialRevisions materialRevisions, String approver) {
+        return new BuildCause(materialRevisions, BuildTrigger.forModifications(materialRevisions), approver);
+    }
+
+    @SuppressWarnings("DuplicateBranchesInSwitch")
+    public static BuildCause fromDbString(String text) {
+        return switch (text) {
+            case BuildTrigger.FORCED_BUILD_CAUSE -> createManualForced();
+            case BuildTrigger.MODIFICATION_BUILD_CAUSE -> createEmpty();
+            case BuildTrigger.EXTERNAL_BUILD_CAUSE -> createExternal();
+            default -> createEmpty();
+        };
     }
 }

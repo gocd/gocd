@@ -17,10 +17,9 @@
 package com.thoughtworks.go.apiv1.templateauthorization
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.templateauthorization.representers.AuthorizationRepresenter
 import com.thoughtworks.go.config.*
-import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.TemplateConfigService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
@@ -37,6 +36,7 @@ import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectWithoutLinks
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
@@ -53,13 +53,15 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
 
   @Override
   TemplateAuthorizationControllerV1 createControllerInstance() {
-    new TemplateAuthorizationControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, templateConfigService)
+    new TemplateAuthorizationControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), entityHashingService, templateConfigService)
   }
 
   @Nested
   class show {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = TemplateAuthorizationControllerV1Test.this
+      @Delegate ControllerTrait<TemplateAuthorizationControllerV1> c = TemplateAuthorizationControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -78,7 +80,6 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         result = new HttpLocalizedOperationResult()
       }
@@ -87,8 +88,8 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
       void 'should render template authorization as JSON'() {
         def templateName = "template-name"
         def templateConfig = createTemplate(templateName)
-        def viewConfig = new ViewConfig(new AdminRole(new CaseInsensitiveString("role_view")), new AdminUser("view"))
-        def adminsConfig = new AdminsConfig(new AdminRole(new CaseInsensitiveString("role_admin")), new AdminUser("admin"))
+        def viewConfig = new ViewConfig(new AdminRole(cis("role_view")), new AdminUser("view"))
+        def adminsConfig = new AdminsConfig(new AdminRole(cis("role_admin")), new AdminUser("admin"))
         def authorization = new Authorization(viewConfig, null, adminsConfig)
 
         templateConfig.setAuthorization(authorization)
@@ -133,12 +134,15 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
   class update {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = TemplateAuthorizationControllerV1Test.this
+      @Delegate ControllerTrait<TemplateAuthorizationControllerV1> c = TemplateAuthorizationControllerV1Test.this
+
       Authorization authorization
 
       @BeforeEach
       void setUp() {
-        def viewConfig = new ViewConfig(new AdminRole(new CaseInsensitiveString("role_view")), new AdminUser("view"))
-        def adminsConfig = new AdminsConfig(new AdminRole(new CaseInsensitiveString("role_admin")), new AdminUser("admin"))
+        def viewConfig = new ViewConfig(new AdminRole(cis("role_view")), new AdminUser("view"))
+        def adminsConfig = new AdminsConfig(new AdminRole(cis("role_admin")), new AdminUser("admin"))
         authorization = new Authorization(viewConfig, null, adminsConfig)
       }
 
@@ -163,7 +167,6 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
 
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
         result = new HttpLocalizedOperationResult()
       }
@@ -174,14 +177,14 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
         def templateConfig = createTemplate(templateName)
         def templateConfigAfterUpdate = createTemplate(templateName)
 
-        def viewConfig = new ViewConfig(new AdminRole(new CaseInsensitiveString("role_view")), new AdminUser("view"))
-        def adminsConfig = new AdminsConfig(new AdminRole(new CaseInsensitiveString("role_admin")), new AdminUser("admin"))
+        def viewConfig = new ViewConfig(new AdminRole(cis("role_view")), new AdminUser("view"))
+        def adminsConfig = new AdminsConfig(new AdminRole(cis("role_admin")), new AdminUser("admin"))
         def authorizationRequest = new Authorization(viewConfig, new OperationConfig(), adminsConfig)
         templateConfigAfterUpdate.setAuthorization(authorizationRequest)
 
         when(entityHashingService.hashForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('digest').thenReturn('digest_after_update')
         when(templateConfigService.loadForView(templateName, result)).thenReturn(templateConfig).thenReturn(templateConfigAfterUpdate)
-        doNothing().when(templateConfigService).updateTemplateAuthConfig(any(Username.class) as Username, eq(templateConfig),
+        doNothing().when(templateConfigService).updateTemplateAuthConfig(any(), eq(templateConfig),
           any(), eq(result), eq("digest"))
 
         def headers = [
@@ -246,8 +249,8 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
         def templateName = "template-name"
         def templateConfig = createTemplate(templateName)
 
-        def viewConfig = new ViewConfig(new AdminRole(new CaseInsensitiveString("role_view")), new AdminUser("view"))
-        def adminsConfig = new AdminsConfig(new AdminRole(new CaseInsensitiveString("role_admin")), new AdminUser("admin"))
+        def viewConfig = new ViewConfig(new AdminRole(cis("role_view")), new AdminUser("view"))
+        def adminsConfig = new AdminsConfig(new AdminRole(cis("role_admin")), new AdminUser("admin"))
         def authorizationRequest = new Authorization(viewConfig, null, adminsConfig)
 
         when(entityHashingService.hashForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('digest').thenReturn('digest')
@@ -255,9 +258,9 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
         doAnswer({ InvocationOnMock invocation ->
           authorizationRequest.addError("name", "Role \"role_admin\" does not exist.")
 
-          HttpLocalizedOperationResult result = invocation.arguments[3]
+          HttpLocalizedOperationResult result = invocation.getArgument(3)
           result.unprocessableEntity("Validation Errors.")
-        }).when(templateConfigService).updateTemplateAuthConfig(any(Username.class) as Username, eq(templateConfig),
+        }).when(templateConfigService).updateTemplateAuthConfig(any(), eq(templateConfig),
           any(), eq(result), eq("digest"))
 
 

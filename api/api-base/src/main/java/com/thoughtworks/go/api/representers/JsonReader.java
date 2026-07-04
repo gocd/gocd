@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 
 @SuppressWarnings("UnusedReturnValue")
 public class JsonReader {
@@ -98,7 +99,7 @@ public class JsonReader {
     public Optional<CaseInsensitiveString> optCaseInsensitiveString(String property) {
         if (hasJsonObject(property)) {
             try {
-                return Optional.of(new CaseInsensitiveString(jsonObject.get(property).getAsString()));
+                return Optional.of(cis(jsonObject.get(property).getAsString()));
             } catch (Exception e) {
                 throw haltBecausePropertyIsNotAJsonString(property, jsonObject);
             }

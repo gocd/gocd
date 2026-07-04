@@ -15,22 +15,22 @@
  */
 package com.thoughtworks.go.apiv7.admin.templateconfig.representers
 
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineEditabilityInfo
 import com.thoughtworks.go.config.TemplateToPipelines
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 
 class TemplateSummaryRepresenterTest {
 
   @Test
   void 'should render a template name and its associated pipelines in hal representation'() {
-    def templates = new TemplateToPipelines(new CaseInsensitiveString("template-name"), true, true)
-    templates.add(new PipelineEditabilityInfo(new CaseInsensitiveString("pipeline2"), false, true))
-    templates.add(new PipelineEditabilityInfo(new CaseInsensitiveString("pipeline1"), true, true))
+    def templates = new TemplateToPipelines(cis("template-name"), true, true)
+    templates.add(new PipelineEditabilityInfo(cis("pipeline2"), false, true))
+    templates.add(new PipelineEditabilityInfo(cis("pipeline1"), true, true))
 
     def actualJson = toObjectString({ TemplateSummaryRepresenter.toJSON(it, templates) })
 

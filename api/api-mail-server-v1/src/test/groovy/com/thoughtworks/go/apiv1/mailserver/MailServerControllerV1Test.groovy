@@ -16,7 +16,7 @@
 package com.thoughtworks.go.apiv1.mailserver
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv1.mailserver.representers.MailServerRepresenter
 import com.thoughtworks.go.config.MailHost
@@ -52,13 +52,16 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
 
   @Override
   MailServerControllerV1 createControllerInstance() {
-    new MailServerControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigService, serverConfigService)
+    new MailServerControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), goConfigService, serverConfigService)
   }
 
   @Nested
   class Show {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = MailServerControllerV1Test.this
+      @Delegate ControllerTrait<MailServerControllerV1> c = MailServerControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'show'
@@ -74,7 +77,6 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -107,6 +109,9 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
   class Create {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = MailServerControllerV1Test.this
+      @Delegate ControllerTrait<MailServerControllerV1> c = MailServerControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'createOrUpdate'
@@ -122,7 +127,6 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -157,6 +161,9 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
   class Update {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = MailServerControllerV1Test.this
+      @Delegate ControllerTrait<MailServerControllerV1> c = MailServerControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return 'createOrUpdate'
@@ -172,7 +179,6 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -207,6 +213,9 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
   class Delete {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = MailServerControllerV1Test.this
+      @Delegate ControllerTrait<MailServerControllerV1> c = MailServerControllerV1Test.this
+
       @Override
       String getControllerMethodUnderTest() {
         return "deleteMailConfig"
@@ -222,7 +231,6 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -246,6 +254,8 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
   class SendTestEmail {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate SecurityServiceTrait s = MailServerControllerV1Test.this
+      @Delegate ControllerTrait<MailServerControllerV1> c = MailServerControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {
@@ -262,7 +272,6 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
     class AsAdmin {
       @BeforeEach
       void setUp() {
-        enableSecurity()
         loginAsAdmin()
       }
 
@@ -280,13 +289,13 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
           admin_email : mailhost.adminMail
         ]
 
-        when(serverConfigService.sendTestMail(eq(mailHost), any(HttpLocalizedOperationResult.class))).thenAnswer({ InvocationOnMock invocation ->
-          def result = invocation.getArgument(1) as HttpLocalizedOperationResult
+        when(serverConfigService.sendTestMail(eq(mailHost), any())).thenAnswer({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArgument(1)
           result.setMessage("woohoo!")
         })
         postWithApiHeader(controller.controllerPath(Routes.MailServer.TEST_EMAIL), json)
 
-        verify(serverConfigService).sendTestMail(eq(mailHost), any(HttpLocalizedOperationResult.class))
+        verify(serverConfigService).sendTestMail(eq(mailHost), any())
 
         assertThatResponse()
           .isOk()

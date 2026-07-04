@@ -27,7 +27,7 @@ import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import com.thoughtworks.go.plugin.infra.monitor.PluginJarLocationMonitor;
-import com.thoughtworks.go.publishers.GoArtifactsManipulator;
+import com.thoughtworks.go.publishers.GoArtifactManipulator;
 import com.thoughtworks.go.remote.work.DeniedAgentWork;
 import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.remote.work.Work;
@@ -48,7 +48,7 @@ public class AgentHTTPClientControllerTest {
     @Mock
     private RemotingClient loopServer;
     @Mock
-    private GoArtifactsManipulator artifactsManipulator;
+    private GoArtifactManipulator artifactManipulator;
     @Mock
     private SslInfrastructureService sslInfrastructureService;
     @Mock
@@ -200,7 +200,7 @@ public class AgentHTTPClientControllerTest {
 
         return new AgentHTTPClientController(
             loopServer,
-            artifactsManipulator,
+            artifactManipulator,
             sslInfrastructureService,
             agentRegistry,
             agentUpgradeService,

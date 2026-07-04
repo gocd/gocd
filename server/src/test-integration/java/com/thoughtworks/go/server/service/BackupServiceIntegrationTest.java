@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.server.messaging.ServerBackupQueue;
 import com.thoughtworks.go.server.persistence.ServerBackupRepository;
 import com.thoughtworks.go.server.service.backup.BackupUpdateListener;
-import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
@@ -62,6 +61,7 @@ import java.util.concurrent.Semaphore;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.TestUtils.doInterruptiblyQuietlyRethrowInterrupt;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.codec.binary.Hex.encodeHexString;
@@ -107,7 +107,7 @@ public class BackupServiceIntegrationTest {
     public void setUp() throws Exception {
         configHelper.onSetUp();
         dbHelper.onSetUp();
-        admin = new Username(new CaseInsensitiveString("admin"));
+        admin = new Username(cis("admin"));
         configHelper.enableSecurity();
         configHelper.addAdmins(CaseInsensitiveString.str(admin.getUsername()));
         goConfigDao.forceReload();
@@ -197,7 +197,7 @@ public class BackupServiceIntegrationTest {
             createWrapperConfigFile("foo", "foo_foo");
             createWrapperConfigFile("bar", "bar_bar");
 
-            when(systemEnvSpy.wrapperConfigDirPath()).thenReturn(Optional.ofNullable(null));
+            when(systemEnvSpy.wrapperConfigDirPath()).thenReturn(Optional.empty());
 
             ServerBackup backup = backupService.startBackup(admin);
 
@@ -358,7 +358,7 @@ public class BackupServiceIntegrationTest {
 
     @Test
     public void shouldReturnBackupRunningSinceValue_inISO8601_format() throws InterruptedException {
-        assertThat(backupService.backupRunningSinceISO8601()).isEqualTo(Optional.empty());
+        assertThat(backupService.backupRunningSinceISO8601()).isEmpty();
 
         final Semaphore waitForBackupToStart = new Semaphore(1);
         final Semaphore waitForAssertionToCompleteWhileBackupIsOn = new Semaphore(1);
@@ -390,7 +390,7 @@ public class BackupServiceIntegrationTest {
         waitForBackupToStart.acquire();
         try {
             String backupStartedTimeString = backupService.backupRunningSinceISO8601().get();
-            Date backupTime = Dates.parseIso8601CompactOffset(backupStartedTimeString);
+            Date backupTime = Dates.parseIso8601CompactOffsetNoMillis(backupStartedTimeString);
 
             ServerBackup runningBackup = ReflectionUtil.getField(backupService, "runningBackup");
             assertThat(runningBackup.getTime()).isCloseTo(backupTime, 1000L); // No millis in format
@@ -402,7 +402,7 @@ public class BackupServiceIntegrationTest {
 
     @Test
     public void shouldReturnBackupStartedBy() throws InterruptedException {
-        assertThat(backupService.backupStartedBy()).isEqualTo(Optional.empty());
+        assertThat(backupService.backupStartedBy()).isEmpty();
 
         final Semaphore waitForBackupToStart = new Semaphore(1);
         final Semaphore waitForAssertionToCompleteWhileBackupIsOn = new Semaphore(1);

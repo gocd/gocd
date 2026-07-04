@@ -13,31 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thoughtworks.go.util;
 
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UrlUtilTest {
-
+class UrlUtilTest {
     @Test
-    public void shouldEncodeUrl() {
-        assertThat(UrlUtil.encodeInUtf8("a%b")).isEqualTo("a%25b");
+    void shouldRemoveTrailingSlashWhenNormalizing() {
+        assertThat(UrlUtil.normalizeUrlString("http://example.com/")).isEqualTo("http://example.com");
+        assertThat(UrlUtil.normalizeUrlString("http://example.com/hello/")).isEqualTo("http://example.com/hello");
+        assertThat(UrlUtil.normalizeUrlString("http://example.com/hello")).isEqualTo("http://example.com/hello");
     }
 
     @Test
-    public void shouldEncodeAllPartsInUrl() {
-        assertThat(UrlUtil.encodeInUtf8("a%b/c%d")).isEqualTo("a%25b/c%25d");
-    }
-
-    @Test
-    public void shouldKeepPrecedingSlash() {
-        assertThat(UrlUtil.encodeInUtf8("/a%b/c%d")).isEqualTo("/a%25b/c%25d");
-    }
-
-    @Test
-    public void shouldKeepTrailingSlash() {
-        assertThat(UrlUtil.encodeInUtf8("a%b/c%d/")).isEqualTo("a%25b/c%25d/");
+    public void shouldJoinPathPartsPreEncoded() {
+        assertThat(UrlUtil.joinPathPartsPreEncoded("a", "b")).isEqualTo("a/b");
+        assertThat(UrlUtil.joinPathPartsPreEncoded("a", "/b")).isEqualTo("a/b");
+        assertThat(UrlUtil.joinPathPartsPreEncoded("a/", "b")).isEqualTo("a/b");
+        assertThat(UrlUtil.joinPathPartsPreEncoded("a/", "/b")).isEqualTo("a/b");
     }
 }

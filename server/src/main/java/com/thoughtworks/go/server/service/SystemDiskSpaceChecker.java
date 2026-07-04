@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.service;
 import java.io.File;
 
 public class SystemDiskSpaceChecker {
-    public long getUsableSpace(File targetFolder) {
+    public long getUsableSpaceBytes(File targetFolder) {
         long usableSpace = targetFolder.getUsableSpace();
         if (usableSpace < 0) {
             // See https://bugs.openjdk.java.net/browse/JDK-8162520

@@ -177,7 +177,7 @@ class AccessTokenServiceTest {
 
             assertThatCode(() -> accessTokenService.updateLastUsedCacheWith(mock(AccessToken.class)))
                     .isInstanceOf(UnsupportedOperationException.class)
-                    .hasMessage("Security is disable. Updating cache is not allowed.");
+                    .hasMessage("Security is disabled. Updating cache is not allowed.");
         }
 
         @Test

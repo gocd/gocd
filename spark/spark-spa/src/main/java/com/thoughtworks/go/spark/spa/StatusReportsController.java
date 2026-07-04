@@ -25,7 +25,7 @@ import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -43,14 +43,14 @@ import static spark.Spark.*;
 public class StatusReportsController implements SparkController {
     private static final Logger LOGGER = LoggerFactory.getLogger(StatusReportsController.class);
     private static final String UNKNOWN_ERROR_MESSAGE = "Something went wrong while trying to fetch the Status Report. Please check the server and plugin logs for more details.";
-    private final SPAAuthenticationHelper authenticationHelper;
+    private final SpaAuthorizationHelper authorizationHelper;
     private final TemplateEngine engine;
     private final ElasticAgentPluginService elasticAgentPluginService;
     private final JobInstanceService jobInstanceService;
 
-    public StatusReportsController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine,
+    public StatusReportsController(SpaAuthorizationHelper authorizationHelper, TemplateEngine engine,
                                    ElasticAgentPluginService elasticAgentPluginService, JobInstanceService jobInstanceService) {
-        this.authenticationHelper = authenticationHelper;
+        this.authorizationHelper = authorizationHelper;
         this.engine = engine;
         this.elasticAgentPluginService = elasticAgentPluginService;
         this.jobInstanceService = jobInstanceService;
@@ -64,11 +64,11 @@ public class StatusReportsController implements SparkController {
     @Override
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
-            before("/:plugin_id", authenticationHelper::checkAdminUserAnd403);
+            before("/:plugin_id", authorizationHelper::checkAdminUserAnd403);
 
-            before("/:plugin_id/agent/:elastic_agent_id", (request, response) -> authenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ELASTIC_AGENT_PROFILE, request.params("elastic_agent_id")));
+            before("/:plugin_id/agent/:elastic_agent_id", (request, response) -> authorizationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ELASTIC_AGENT_PROFILE, request.params("elastic_agent_id")));
 
-            before("/:plugin_id/cluster/:cluster_profile_id", (request, response) -> authenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.CLUSTER_PROFILE, request.params("cluster_profile_id")));
+            before("/:plugin_id/cluster/:cluster_profile_id", (request, response) -> authorizationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.CLUSTER_PROFILE, request.params("cluster_profile_id")));
 
             get("/:plugin_id", this::pluginStatusReport, engine);
             get("/:plugin_id/agent/:elastic_agent_id", this::agentStatusReport, engine);

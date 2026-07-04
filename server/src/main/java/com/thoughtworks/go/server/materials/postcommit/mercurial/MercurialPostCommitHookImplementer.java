@@ -38,7 +38,7 @@ public class MercurialPostCommitHookImplementer implements PostCommitHookImpleme
             String paramRepoUrl = params.get(REPO_URL_PARAM_KEY);
             if (isNotBlank(paramRepoUrl)) {
                 for (Material material : materials) {
-                    if (material instanceof HgMaterial && isUrlEqual(paramRepoUrl, (HgMaterial) material)) {
+                    if (material instanceof HgMaterial hgMaterial && isUrlEqual(paramRepoUrl, hgMaterial)) {
                         prunedCollection.add(material);
                     }
                 }

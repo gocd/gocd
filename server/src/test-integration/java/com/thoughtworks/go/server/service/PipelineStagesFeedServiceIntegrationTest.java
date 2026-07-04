@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.BasicPipelineConfigs;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -29,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -69,7 +69,7 @@ public class PipelineStagesFeedServiceIntegrationTest {
     public void shouldReturnTheCorrectLocalizedMessage() {
         FeedResolver feedResolver = new PipelineStagesFeedService(stageService, securityService).feedResolverFor("cruise");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        feedResolver.feed(new Username(new CaseInsensitiveString("evil_hacker")), result);
+        feedResolver.feed(new Username(cis("evil_hacker")), result);
         assertThat(result.message()).isEqualTo("User 'evil_hacker' does not have view permission on pipeline 'cruise'");
     }
 }

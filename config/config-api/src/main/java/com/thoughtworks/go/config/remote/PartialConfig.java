@@ -183,8 +183,8 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
     private ConfigRepoConfig configRepoConfig() {
         final ConfigOrigin origin = getOrigin();
 
-        if (origin instanceof RepoConfigOrigin) {
-            return ((RepoConfigOrigin) origin).getConfigRepo();
+        if (origin instanceof RepoConfigOrigin repoConfigOrigin) {
+            return repoConfigOrigin.getConfigRepo();
         } else {
             return null;
         }

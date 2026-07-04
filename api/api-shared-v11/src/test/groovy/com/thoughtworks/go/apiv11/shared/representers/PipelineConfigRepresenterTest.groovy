@@ -40,6 +40,7 @@ import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.junit.jupiter.api.Assertions.*
@@ -114,9 +115,9 @@ class PipelineConfigRepresenterTest {
       ]
 
     static def pipelineWithTemplate() {
-      def pipelineConfig = new PipelineConfig(new CaseInsensitiveString('wunderbar'), '${COUNT}', null, true, MaterialConfigsMother.defaultMaterialConfigs(), new ArrayList())
+      def pipelineConfig = new PipelineConfig(cis('wunderbar'), '${COUNT}', null, true, MaterialConfigsMother.defaultMaterialConfigs(), new ArrayList())
       pipelineConfig.setOrigin(new FileConfigOrigin())
-      pipelineConfig.setTemplateName(new CaseInsensitiveString('template1'))
+      pipelineConfig.setTemplateName(cis('template1'))
       return pipelineConfig
     }
   }
@@ -241,7 +242,7 @@ class PipelineConfigRepresenterTest {
     }
 
     @Test
-    void 'should convert pipeline hash with materials  to PipelineConfig'() {
+    void 'should convert pipeline hash with materials to PipelineConfig'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         materials:
           [
@@ -249,7 +250,7 @@ class PipelineConfigRepresenterTest {
               type      : 'git',
               attributes:
                 [
-                  url             : 'http://user:password@funk.com/blank',
+                  url             : 'http://user:******@funk.com/blank',
                   destination     : 'destination',
                   filter          :
                     [
@@ -451,7 +452,7 @@ class PipelineConfigRepresenterTest {
 
     @Test
     void 'should convert a pipeline config with a lock to a hash'() {
-      def pipelineConfig = new PipelineConfig(new CaseInsensitiveString('wunderbar'), '${COUNT}', null, true, MaterialConfigsMother.defaultMaterialConfigs(), new ArrayList())
+      def pipelineConfig = new PipelineConfig(cis('wunderbar'), '${COUNT}', null, true, MaterialConfigsMother.defaultMaterialConfigs(), new ArrayList())
       pipelineConfig.setLockBehaviorIfNecessary(PipelineConfig.LOCK_VALUE_UNLOCK_WHEN_FINISHED)
       pipelineConfig.setOrigin(new FileConfigOrigin())
       def actualJson = toObject({ PipelineConfigRepresenter.toJSON(it, pipelineConfig, 'default') })
@@ -462,7 +463,7 @@ class PipelineConfigRepresenterTest {
 
     @Test
     void 'should render errors'() {
-      def pipelineConfig = new PipelineConfig(new CaseInsensitiveString('wunderbar'), '', '', true, null, new ArrayList())
+      def pipelineConfig = new PipelineConfig(cis('wunderbar'), '', '', true, null, new ArrayList())
       pipelineConfig.setOrigin(new FileConfigOrigin())
       def config = new BasicCruiseConfig(new BasicPipelineConfigs('grp', new Authorization(), pipelineConfig))
 
@@ -598,7 +599,7 @@ class PipelineConfigRepresenterTest {
     git.setFolder(null)
     materialConfigs.add(git)
 
-    def pipelineConfig = new PipelineConfig(new CaseInsensitiveString('wunderbar'), 'foo-1.0.${COUNT}-${svn}', '0 0 22 ? * MON-FRI', true, materialConfigs, new ArrayList())
+    def pipelineConfig = new PipelineConfig(cis('wunderbar'), 'foo-1.0.${COUNT}-${svn}', '0 0 22 ? * MON-FRI', true, materialConfigs, new ArrayList())
     pipelineConfig.addParam(new ParamConfig(null, 'echo'))
     pipelineConfig.addEnvironmentVariable('', '')
     pipelineConfig.add(StageConfigMother.stageConfig('stage1'))
@@ -611,7 +612,7 @@ class PipelineConfigRepresenterTest {
 
   static def getPipelineConfig() {
     def materialConfigs = MaterialConfigsMother.defaultMaterialConfigs()
-    def pipelineConfig = new PipelineConfig(new CaseInsensitiveString('wunderbar'), 'foo-1.0.${COUNT}-${svn}', '0 0 22 ? * MON-FRI', true, materialConfigs, new ArrayList())
+    def pipelineConfig = new PipelineConfig(cis('wunderbar'), 'foo-1.0.${COUNT}-${svn}', '0 0 22 ? * MON-FRI', true, materialConfigs, new ArrayList())
     pipelineConfig.setVariables(EnvironmentVariablesConfigMother.environmentVariables())
     pipelineConfig.addParam(new ParamConfig('COMMAND', 'echo'))
     pipelineConfig.addParam(new ParamConfig('WORKING_DIR', '/repo/branch'))

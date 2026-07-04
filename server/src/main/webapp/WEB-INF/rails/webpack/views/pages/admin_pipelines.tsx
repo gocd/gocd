@@ -271,7 +271,7 @@ export class AdminPipelinesPage extends Page<null, State> {
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
     this.pageState = PageState.LOADING;
 
-    return Promise.all([PipelineStructureCRUD.allPipelines("administer", "view"),
+    return Promise.all([PipelineStructureCRUD.allPipelinesPrivileged("administer", "view"),
                          PluginInfoCRUD.all({type: ExtensionTypeString.CONFIG_REPO})
                        ]).then((args) => {
       const pipelineGroups: ApiResult<PipelineStructureWithAdditionalInfo> = args[0];

@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -67,10 +68,10 @@ public class RolesConfigSerializationTest {
     }
 
     private RoleUser user(String name) {
-        return new RoleUser(new CaseInsensitiveString(name));
+        return new RoleUser(cis(name));
     }
 
     private Role role(String name, RoleUser... users) {
-        return new RoleConfig(new CaseInsensitiveString(name), users);
+        return new RoleConfig(cis(name), users);
     }
 }

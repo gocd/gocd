@@ -30,12 +30,12 @@ import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevisio
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.util.Dates;
-import com.thoughtworks.go.util.GoConstants;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 public class ModificationsMother {
@@ -67,7 +67,7 @@ public class ModificationsMother {
     }
 
     public static BuildCause modifySomeFiles(PipelineConfig pipelineConfig) {
-        return modifySomeFilesAndTriggerAs(pipelineConfig, GoConstants.DEFAULT_APPROVED_BY);
+        return modifySomeFilesAndTriggerAs(pipelineConfig, BuildCause.APPROVER_AUTOMATICALLY_TRIGGERED);
     }
 
     public static BuildCause modifySomeFilesAndTriggerAs(PipelineConfig pipelineConfig, String approver) {
@@ -173,7 +173,7 @@ public class ModificationsMother {
     }
 
     public static MaterialRevision dependencyMaterialRevision(String pipelineName, int pipelineCounter, String pipelineLabel, String stageName, int stageCounter, Date modifiedTime) {
-        return dependencyMaterialRevision(pipelineCounter, pipelineLabel, stageCounter, new DependencyMaterial(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName)), modifiedTime);
+        return dependencyMaterialRevision(pipelineCounter, pipelineLabel, stageCounter, new DependencyMaterial(cis(pipelineName), cis(stageName)), modifiedTime);
     }
 
     public static MaterialRevision changedDependencyMaterialRevision(String pipelineName, int pipelineCounter, String pipelineLabel, String stageName, int stageCounter, Date modifiedTime) {
@@ -189,7 +189,7 @@ public class ModificationsMother {
     public static MaterialRevisions oneUserOneFile() {
         MaterialRevisions materialRevisions = new MaterialRevisions();
         SvnMaterial material = MaterialsMother.svnMaterial();
-        material.setName(new CaseInsensitiveString("svnMaterial"));
+        material.setName(cis("svnMaterial"));
         materialRevisions.addRevision(material, oneModifiedFile(nextRevision()));
         return materialRevisions;
     }
@@ -244,7 +244,7 @@ public class ModificationsMother {
 
     public static MaterialRevisions multipleModifications(String name) {
         SvnMaterial material = MaterialsMother.svnMaterial("http://foo/bar/baz", "folder", "username", "password", false, "*.txt");
-        material.setName(new CaseInsensitiveString(name));
+        material.setName(cis(name));
         return multipleModifications(material);
     }
 

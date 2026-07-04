@@ -19,7 +19,7 @@ import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineState;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.service.StubGoCache;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
@@ -64,7 +64,7 @@ class PipelineStateDaoTest {
         goCache.put(pipelineStateDao.pipelineLockStateCacheKey(pipelineName), pipelineState);
 
         when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
-            org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
+            org.springframework.transaction.support.TransactionCallbackWithoutResult callback = invocation.getArgument(0);
             callback.doInTransaction(new SimpleTransactionStatus());
             return null;
         });
@@ -90,7 +90,7 @@ class PipelineStateDaoTest {
         goCache.put(pipelineStateDao.pipelineLockStateCacheKey(pipelineName), pipelineState);
 
         when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
-            org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
+            org.springframework.transaction.support.TransactionCallbackWithoutResult callback = invocation.getArgument(0);
             callback.doInTransaction(new SimpleTransactionStatus());
             return null;
         });

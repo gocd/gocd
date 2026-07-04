@@ -25,6 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.dependencyMaterialConfig;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -75,8 +76,8 @@ class PartialConfigTest {
         configRepo.getRules().add(new Allow("refer", "environment", "prod"));
 
         EnvironmentsConfig allEnvs = new EnvironmentsConfig();
-        CaseInsensitiveString prodEnv = new CaseInsensitiveString("prod");
-        CaseInsensitiveString uatEnv = new CaseInsensitiveString("uat");
+        CaseInsensitiveString prodEnv = cis("prod");
+        CaseInsensitiveString uatEnv = cis("uat");
         allEnvs.add(new BasicEnvironmentConfig(uatEnv));
         allEnvs.add(new BasicEnvironmentConfig(prodEnv));
         partial.setEnvironments(allEnvs);

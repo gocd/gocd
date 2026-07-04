@@ -30,7 +30,6 @@ import com.thoughtworks.go.domain.User;
  * <br/>
  * @since Users API v3
  */
-
 public class UserToRepresent extends User {
     private final boolean isAdmin;
     private final RolesConfig rolesConfig;

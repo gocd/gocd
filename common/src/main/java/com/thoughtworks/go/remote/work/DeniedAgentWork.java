@@ -27,7 +27,7 @@ public class DeniedAgentWork implements Work {
 
     @Override
     public void doWork(EnvironmentVariableContext environmentVariableContext, AgentWorkContext agentWorkContext) {
-        agentWorkContext.getAgentRuntimeInfo().idle();
+        agentWorkContext.agentRuntimeInfo().idle();
     }
 
     @Override

@@ -16,13 +16,12 @@
 
 package com.thoughtworks.go.spark.spa
 
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.server.service.AuthorizationExtensionCacheService
 import com.thoughtworks.go.server.service.SecurityAuthConfigService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
@@ -32,6 +31,7 @@ import spark.ModelAndView
 import spark.Request
 import spark.Response
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis
 import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
@@ -48,11 +48,16 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
 
   @Override
   ClickyPipelineConfigController createControllerInstance() {
-    return new ClickyPipelineConfigController(new SPAAuthenticationHelper(securityService, goConfigService), goConfigService, templateEngine)
+    return new ClickyPipelineConfigController(new SpaAuthorizationHelper(securityService, goConfigService), goConfigService, templateEngine)
   }
 
   @Nested
   class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    @Delegate ControllerTrait<ClickyPipelineConfigController> c = ClickyPipelineConfigControllerTest.this
+    @Delegate SecurityServiceTrait s = ClickyPipelineConfigControllerTest.this
+
+    String pipelineName = "foo"
+
     @Override
     String getControllerMethodUnderTest() {
       return "index"
@@ -60,7 +65,12 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
 
     @Override
     void makeHttpCall() {
-      get(controller.controllerPath("foo", "edit"))
+      get(controller.controllerPath(pipelineName, "edit"))
+    }
+
+    @Override
+    PipelineSpecifier getPipelineSpecifier() {
+      new PipelineSpecifier(pipelineName: pipelineName)
     }
   }
 
@@ -83,7 +93,7 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
     def groupName = "first"
     def request = mock(Request)
     when(request.params("pipeline_name")).thenReturn(pipelineName)
-    when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName))).thenReturn(groupName)
+    when(goConfigService.findGroupNameByPipeline(cis(pipelineName))).thenReturn(groupName)
 
     ModelAndView modelAndView = controller.index(request, response)
     Map<Object, Object> model = modelAndView.getModel() as Map<Object, Object>

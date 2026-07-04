@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.p4;
 import static com.thoughtworks.go.util.ReflectionUtil.setField;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,8 +39,8 @@ public class ParamResolverTest {
     @Test
     public void shouldResolve_ConfigValue_MappedAsObject() {
         SecurityConfig securityConfig = new SecurityConfig();
-        securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("lo#{foo}")));
-        securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("boo#{bar}"), new RoleUser(new CaseInsensitiveString("choo#{foo}"))));
+        securityConfig.adminsConfig().add(new AdminUser(cis("lo#{foo}")));
+        securityConfig.addRole(new RoleConfig(cis("boo#{bar}"), new RoleUser(cis("choo#{foo}"))));
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "ser"), param("bar", "zer")))).resolve(securityConfig);
         assertThat(CaseInsensitiveString.str(securityConfig.adminsConfig().getFirst().getName())).isEqualTo("loser");
         assertThat(CaseInsensitiveString.str(securityConfig.getRoles().getFirst().getName())).isEqualTo("boozer");
@@ -70,7 +71,7 @@ public class ParamResolverTest {
         pipelineConfig.setLabelTemplate("2.1-${COUNT}-#{foo}-bar-#{bar}");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj")))).resolve(pipelineConfig);
         assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("2.1-${COUNT}-pavan-bar-jj");
-        assertThat(pipelineConfig.name()).isEqualTo(new CaseInsensitiveString("cruise-#{foo}-#{bar}"));
+        assertThat(pipelineConfig.name()).isEqualTo(cis("cruise-#{foo}-#{bar}"));
         assertThat(((SvnMaterialConfig) pipelineConfig.materialConfigs().getFirst()).getPassword()).isEqualTo("#quux-#{foo}-#{bar}");
         assertThat(pipelineConfig.getClass().getDeclaredField("name").getAnnotation(SkipParameterResolution.class)).isInstanceOf(SkipParameterResolution.class);
     }
@@ -130,12 +131,12 @@ public class ParamResolverTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("2.1-${COUNT}-#{foo}-bar-#{bar}");
         StageConfig stageConfig = pipelineConfig.getFirst();
-        stageConfig.updateApproval(new Approval(new AuthConfig(new AdminUser(new CaseInsensitiveString("#{foo}")), new AdminUser(new CaseInsensitiveString("#{bar}")))));
+        stageConfig.updateApproval(new Approval(new AuthConfig(new AdminUser(cis("#{foo}")), new AdminUser(cis("#{bar}")))));
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj")))).resolve(pipelineConfig);
 
         assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("2.1-${COUNT}-pavan-bar-jj");
-        assertThat(stageConfig.getApproval().getAuthConfig()).isEqualTo(new AuthConfig(new AdminUser(new CaseInsensitiveString("pavan")), new AdminUser(new CaseInsensitiveString("jj"))));
+        assertThat(stageConfig.getApproval().getAuthConfig()).isEqualTo(new AuthConfig(new AdminUser(cis("pavan")), new AdminUser(cis("jj"))));
     }
 
     @Test
@@ -204,8 +205,8 @@ public class ParamResolverTest {
     @Test
     public void shouldUseValidationErrorKeyAnnotationForFieldNameInCaseOfException() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant", "nant");
-        FetchTask task = new FetchTask(new CaseInsensitiveString("cruise"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("ant"), "#a", "dest");
-        pipelineConfig.getFirst().getJobs().getJob(new CaseInsensitiveString("nant")).addTask(task);
+        FetchTask task = new FetchTask(cis("cruise"), cis("dev"), cis("ant"), "#a", "dest");
+        pipelineConfig.getFirst().getJobs().getJob(cis("nant")).addTask(task);
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj")))).resolve(pipelineConfig);
         assertThat(task.errors().isEmpty()).isFalse();
         assertThat(task.errors().firstErrorOn(FetchTask.SRC)).isEqualTo("Error when processing params for '#a' used in field 'src', # must be followed by a parameter pattern or escaped by another #");
@@ -219,7 +220,7 @@ public class ParamResolverTest {
 
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("#a");
-        pipelineConfig.getFirst().getJobs().addJobWithoutValidityAssertion(new JobConfig(new CaseInsensitiveString("another"), new ResourceConfigs(resourceConfig), new ArtifactTypeConfigs()));
+        pipelineConfig.getFirst().getJobs().addJobWithoutValidityAssertion(new JobConfig(cis("another"), new ResourceConfigs(resourceConfig), new ArtifactTypeConfigs()));
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj")))).resolve(pipelineConfig);
 

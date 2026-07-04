@@ -23,12 +23,11 @@ import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.util.Dates;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,8 +35,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SuppressWarnings("SameParameterValue")
 public class JsonMessageHandler1_0Test {
-    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-
     private JsonMessageHandler1_0 messageHandler;
     private SCMPropertyConfiguration scmPropertyConfiguration;
     private Map<String, String> materialData;
@@ -135,7 +132,7 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldBuildSCMRevisionFromLatestRevisionResponse() throws Exception {
+    public void shouldBuildSCMRevisionFromLatestRevisionResponse() {
         String revisionJSON = "{\"revision\":\"r1\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"user\":\"some-user\",\"revisionComment\":\"comment\",\"data\":{\"dataKeyTwo\":\"data-value-two\",\"dataKeyOne\":\"data-value-one\"}," +
             "\"modifiedFiles\":[{\"fileName\":\"f1\",\"action\":\"added\"},{\"fileName\":\"f2\",\"action\":\"modified\"},{\"fileName\":\"f3\",\"action\":\"deleted\"}]}";
         String responseBody = "{\"revision\": " + revisionJSON + "}";
@@ -157,8 +154,8 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldBuildRequestBodyForLatestRevisionsSinceRequest() throws Exception {
-        Date timestamp = new SimpleDateFormat(DATE_FORMAT).parse("2011-07-13T19:43:37.100Z");
+    public void shouldBuildRequestBodyForLatestRevisionsSinceRequest() {
+        Date timestamp = Dates.parseIso8601StrictOffset("2011-07-13T19:43:37.100Z");
         Map<String, String> data = new LinkedHashMap<>();
         data.put("dataKeyOne", "data-value-one");
         data.put("dataKeyTwo", "data-value-two");
@@ -171,7 +168,7 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldBuildSCMRevisionsFromLatestRevisionsSinceResponse() throws Exception {
+    public void shouldBuildSCMRevisionsFromLatestRevisionsSinceResponse() {
         String r1 = "{\"revision\":\"r1\",\"timestamp\":\"2011-07-14T19:43:37.100Z\",\"user\":\"some-user\",\"revisionComment\":\"comment\",\"data\":{\"dataKeyTwo\":\"data-value-two\",\"dataKeyOne\":\"data-value-one\"}," +
             "\"modifiedFiles\":[{\"fileName\":\"f1\",\"action\":\"added\"},{\"fileName\":\"f2\",\"action\":\"modified\"},{\"fileName\":\"f3\",\"action\":\"deleted\"}]}";
         String r2 = "{\"revision\":\"r2\",\"timestamp\":\"2011-07-14T19:43:37.101Z\",\"user\":\"new-user\",\"revisionComment\":\"comment\",\"data\":{\"dataKeyTwo\":\"data-value-two\",\"dataKeyOne\":\"data-value-one\"}," +
@@ -208,8 +205,8 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldBuildRequestBodyForCheckoutRequest() throws Exception {
-        Date timestamp = new SimpleDateFormat(DATE_FORMAT).parse("2011-07-13T19:43:37.100Z");
+    public void shouldBuildRequestBodyForCheckoutRequest() {
+        Date timestamp = Dates.parseIso8601StrictOffset("2011-07-13T19:43:37.100Z");
         Map<String, String> data = new LinkedHashMap<>();
         data.put("dataKeyOne", "data-value-one");
         data.put("dataKeyTwo", "data-value-two");
@@ -308,10 +305,10 @@ public class JsonMessageHandler1_0Test {
         assertThat(errorMessageForSCMData("{\"scm-data\":[]}")).isEqualTo("Unable to de-serialize json response. SCM data should be of type map");
     }
 
-    private void assertSCMRevision(SCMRevision scmRevision, String revision, String user, String timestamp, String comment, List<ModifiedFile> modifiedFiles) throws ParseException {
+    private void assertSCMRevision(SCMRevision scmRevision, String revision, String user, String timestamp, String comment, List<ModifiedFile> modifiedFiles) {
         assertThat(scmRevision.getRevision()).isEqualTo(revision);
         assertThat(scmRevision.getUser()).isEqualTo(user);
-        assertThat(scmRevision.getTimestamp()).isEqualTo(new SimpleDateFormat(DATE_FORMAT).parse(timestamp));
+        assertThat(scmRevision.getTimestamp()).isEqualTo(Dates.parseIso8601StrictOffset(timestamp));
         assertThat(scmRevision.getRevisionComment()).isEqualTo(comment);
         assertThat(scmRevision.getData().size()).isEqualTo(2);
         assertThat(scmRevision.getDataFor("dataKeyOne")).isEqualTo("data-value-one");

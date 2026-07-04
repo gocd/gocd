@@ -17,7 +17,7 @@
 package com.thoughtworks.go.apiv1.internalscms
 
 import com.thoughtworks.go.api.SecurityTestTrait
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.spring.ApiAuthorizationHelper
 import com.thoughtworks.go.apiv1.internalscms.representers.SCMRepresenter
 import com.thoughtworks.go.apiv1.internalscms.representers.VerifyConnectionResultRepresenter
 import com.thoughtworks.go.domain.config.Configuration
@@ -26,8 +26,8 @@ import com.thoughtworks.go.domain.scm.SCM
 import com.thoughtworks.go.domain.scm.SCMMother
 import com.thoughtworks.go.server.service.materials.PluggableScmService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.spark.AnyGroupAdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -48,7 +48,7 @@ class InternalSCMsControllerV1Test implements SecurityServiceTrait, ControllerTr
 
   @Override
   InternalSCMsControllerV1 createControllerInstance() {
-    new InternalSCMsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), pluggableScmService)
+    new InternalSCMsControllerV1(new ApiAuthorizationHelper(securityService, goConfigService), pluggableScmService)
   }
 
   @Nested
@@ -60,7 +60,9 @@ class InternalSCMsControllerV1Test implements SecurityServiceTrait, ControllerTr
     }
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AnyGroupAdminUserSecurity {
+      @Delegate SecurityServiceTrait s = InternalSCMsControllerV1Test.this
+      @Delegate ControllerTrait<InternalSCMsControllerV1> c = InternalSCMsControllerV1Test.this
 
       @Override
       String getControllerMethodUnderTest() {

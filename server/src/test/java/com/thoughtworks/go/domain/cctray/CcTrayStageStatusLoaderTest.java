@@ -18,7 +18,6 @@ package com.thoughtworks.go.domain.cctray;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.helper.StageMother;
@@ -32,6 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
+import static com.thoughtworks.go.domain.cctray.ProjectStatus.Key.keyFrom;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -60,7 +60,7 @@ public class CcTrayStageStatusLoaderTest {
 
     @Test
     public void shouldConvertToStatusesIfAStageIsFoundInDB() {
-        List<ProjectStatus> expectedStatuses = List.of(new ProjectStatus("pipeline1 :: stage1", "Sleeping", "some-status", "some-label", new Date(), "some-url"));
+        List<ProjectStatus> expectedStatuses = List.of(new ProjectStatus(keyFrom("pipeline1", "stage1"), 0, "Sleeping", "some-status", "some-label", new Date(), "some-url"));
         List<Stage> stages = setupStagesInDB(new StageIdentity("pipeline1", "stage1", 12L), new StageIdentity("pipeline2", "stage2", 14L));
         when(stageChangeHandler.statusesOfStageAndItsJobsFor(stages.getFirst())).thenReturn(expectedStatuses);
 

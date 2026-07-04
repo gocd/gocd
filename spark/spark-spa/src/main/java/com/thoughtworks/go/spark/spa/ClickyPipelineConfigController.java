@@ -16,12 +16,11 @@
 
 package com.thoughtworks.go.spark.spa;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
@@ -30,15 +29,16 @@ import spark.TemplateEngine;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static spark.Spark.*;
 
 public class ClickyPipelineConfigController implements SparkController {
-    private final SPAAuthenticationHelper authenticationHelper;
-    private GoConfigService goConfigService;
+    private final SpaAuthorizationHelper authorizationHelper;
+    private final GoConfigService goConfigService;
     private final TemplateEngine engine;
 
-    public ClickyPipelineConfigController(SPAAuthenticationHelper authenticationHelper, GoConfigService goConfigService, TemplateEngine engine) {
-        this.authenticationHelper = authenticationHelper;
+    public ClickyPipelineConfigController(SpaAuthorizationHelper authorizationHelper, GoConfigService goConfigService, TemplateEngine engine) {
+        this.authorizationHelper = authorizationHelper;
         this.goConfigService = goConfigService;
         this.engine = engine;
     }
@@ -51,7 +51,7 @@ public class ClickyPipelineConfigController implements SparkController {
     @Override
     public void setupRoutes(GlobalExceptionMapper exceptionMapper) {
         path(controllerBasePath(), () -> {
-            before(Routes.PipelineConfig.NAME + "/edit", authenticationHelper::checkPipelineGroupAdminOfPipelineOrGroupInURLUserAnd403);
+            before(Routes.PipelineConfig.NAME + "/edit", authorizationHelper::checkPipelineGroupAdminViaNameParamsAnd403);
             get(Routes.PipelineConfig.NAME + "/edit", this::index, engine);
         });
     }
@@ -68,7 +68,7 @@ public class ClickyPipelineConfigController implements SparkController {
     private Map<String, Object> meta(String pipelineName) {
         final Map<String, Object> meta = new HashMap<>();
         meta.put("pipelineName", pipelineName);
-        meta.put("pipelineGroupName", this.goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)));
+        meta.put("pipelineGroupName", this.goConfigService.findGroupNameByPipeline(cis(pipelineName)));
         return meta;
     }
 }

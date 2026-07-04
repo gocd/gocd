@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.JobInstance;
@@ -28,11 +27,12 @@ import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forJob;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.error;
@@ -92,9 +92,7 @@ public class ScheduledPipelineLoader {
 
     private void updateServerHealthStateToError(JobInstance jobInstance, String message, String description) {
         HealthStateScope scope = forJob(jobInstance.getPipelineName(), jobInstance.getStageName(), jobInstance.getName());
-        final ServerHealthState error = error(message, description, general(scope));
-        error.setTimeout(Timeout.FIVE_MINUTES);
-        serverHealthService.update(error);
+        serverHealthService.update(error(message, description, general(scope), Duration.ofMinutes(5)));
     }
 
     private MaterialConfig materialFrom(MaterialConfigs knownMaterials, MaterialRevision materialRevision) {
@@ -112,7 +110,7 @@ public class ScheduledPipelineLoader {
         for (MaterialRevision revision : scheduledRevs) {
             String fingerprint = revision.getMaterial().getFingerprint();
             // first try to find material config from current pipeline config
-            MaterialConfig configuredMaterial = currentConfig.materialConfigFor(new CaseInsensitiveString(pipeline.getName()), fingerprint);
+            MaterialConfig configuredMaterial = currentConfig.materialConfigFor(cis(pipeline.getName()), fingerprint);
             if (configuredMaterial != null) {
                 configuredMaterials.add(configuredMaterial);
             }

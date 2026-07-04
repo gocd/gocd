@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.transaction.TransactionCallbackWithoutResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -34,6 +34,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -75,7 +76,7 @@ public class GoConfigValidationIntegrationTest {
 
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(PIPELINE_FOO, StageConfigMother.manualStage(STAGE_BAR));
         configHelper.addPipelineToGroup(pipelineConfig, MY_GROUP);
-        configHelper.addRole(new RoleConfig(new CaseInsensitiveString(ADMIN_ROLE), new RoleUser(new CaseInsensitiveString(MEMBER_OF_GO_ROLE))));
+        configHelper.addRole(new RoleConfig(cis(ADMIN_ROLE), new RoleUser(cis(MEMBER_OF_GO_ROLE))));
         configHelper.blockPipelineGroupExceptFor(MY_GROUP, ADMIN_ROLE);
         configHelper.setOperatePermissionForGroup(MY_GROUP, USER_WITH_PERMISSION_TO_OPERATE_ON_GROUP);
     }
@@ -94,9 +95,9 @@ public class GoConfigValidationIntegrationTest {
             fail("should allow loser to operate on stage, as he is a member of " + ADMIN_ROLE);
         }
 
-        PipelineConfig pipelineConfig = configHelper.load().pipelineConfigByName(new CaseInsensitiveString(PIPELINE_FOO));
-        StageConfig stage = pipelineConfig.getStage(new CaseInsensitiveString(STAGE_BAR));
-        assertThat(stage.getApproval().getAuthConfig().getUsers()).contains(new AdminUser(new CaseInsensitiveString(MEMBER_OF_GO_ROLE)));
+        PipelineConfig pipelineConfig = configHelper.load().pipelineConfigByName(cis(PIPELINE_FOO));
+        StageConfig stage = pipelineConfig.getStage(cis(STAGE_BAR));
+        assertThat(stage.getApproval().getAuthConfig().getUsers()).contains(new AdminUser(cis(MEMBER_OF_GO_ROLE)));
     }
 
     @Test
@@ -108,16 +109,16 @@ public class GoConfigValidationIntegrationTest {
             fail("should allow boozer to operate on stage, as he has operate permission on the group");
         }
 
-        PipelineConfig pipelineConfig = configHelper.load().pipelineConfigByName(new CaseInsensitiveString(PIPELINE_FOO));
-        StageConfig stage = pipelineConfig.getStage(new CaseInsensitiveString(STAGE_BAR));
-        assertThat(stage.getApproval().getAuthConfig().getUsers()).contains(new AdminUser(new CaseInsensitiveString(USER_WITH_PERMISSION_TO_OPERATE_ON_GROUP)));
+        PipelineConfig pipelineConfig = configHelper.load().pipelineConfigByName(cis(PIPELINE_FOO));
+        StageConfig stage = pipelineConfig.getStage(cis(STAGE_BAR));
+        assertThat(stage.getApproval().getAuthConfig().getUsers()).contains(new AdminUser(cis(USER_WITH_PERMISSION_TO_OPERATE_ON_GROUP)));
     }
 
     private void addApproverToStage(final String userName) {
         goConfigDao.updateConfig(cruiseConfig -> {
-            PipelineConfig pConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(PIPELINE_FOO));
-            StageConfig stage = pConfig.getStage(new CaseInsensitiveString(STAGE_BAR));
-            stage.getApproval().addAdmin(new AdminUser(new CaseInsensitiveString(userName)));
+            PipelineConfig pConfig = cruiseConfig.pipelineConfigByName(cis(PIPELINE_FOO));
+            StageConfig stage = pConfig.getStage(cis(STAGE_BAR));
+            stage.getApproval().addAdmin(new AdminUser(cis(userName)));
             return cruiseConfig;
         });
     }

@@ -19,14 +19,14 @@ package com.thoughtworks.go.spark.spa
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import com.thoughtworks.go.spark.spring.SpaAuthorizationHelper
 import org.junit.jupiter.api.Nested
 
 class AdminAccessTokensControllerTest implements ControllerTrait<AdminAccessTokensController>, SecurityServiceTrait {
 
   @Override
   AdminAccessTokensController createControllerInstance() {
-    return new AdminAccessTokensController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+    return new AdminAccessTokensController(new SpaAuthorizationHelper(securityService, goConfigService), templateEngine)
   }
 
 
@@ -34,6 +34,8 @@ class AdminAccessTokensControllerTest implements ControllerTrait<AdminAccessToke
   class Index {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Delegate ControllerTrait<AdminAccessTokensController> c = AdminAccessTokensControllerTest.this
+      @Delegate SecurityServiceTrait s = AdminAccessTokensControllerTest.this
 
       @Override
       String getControllerMethodUnderTest() {

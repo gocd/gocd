@@ -24,16 +24,10 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv11.admin.shared.representers.materials.MaterialsRepresenter;
 import com.thoughtworks.go.apiv11.admin.shared.representers.stages.ConfigHelperOptions;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigCloner;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.server.service.CheckConnectionSubprocessExecutionContext;
@@ -41,16 +35,17 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.SecretParamResolver;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.jetbrains.annotations.NotNull;
 import spark.Request;
 import spark.Response;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEntityFailedValidation;
 import static java.lang.String.join;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public abstract class AbstractMaterialTestController extends ApiController {
     private final GoConfigService goConfigService;
@@ -68,76 +63,62 @@ public abstract class AbstractMaterialTestController extends ApiController {
         this.secretParamResolver = secretParamResolver;
     }
 
+    /**
+     * Tests the connection for the passed request. It is assumed that the caller has validated permissions as correct
+     * for the user to access or edit pipeline's/materials within the relevant context or will do so within
+     * {@link #resolveTestMaterial}
+     */
     public String testConnection(Request request, Response response) {
-        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
-        String type = jsonReader.getString("type");
-        String pipelineName = jsonReader.getStringOrDefault("pipeline_name", "");
-        String pipelineGroupName = jsonReader.getStringOrDefault("pipeline_group", "");
+        JsonReader requestReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
 
+        String type = requestReader.getString("type");
         haltIfMaterialTypeIsInvalid(type);
         haltIfMaterialTypeDoesNotSupportsCheckConnection(type);
 
-        ScmMaterialConfig scmMaterialConfig = buildSCMMaterialFromRequestBody(request);
+        ScmMaterialConfig scmMaterialConfig = parseValidatedScmMaterialFromRequest(requestReader);
 
-        validateMaterialConfig(scmMaterialConfig, pipelineName, pipelineGroupName);
+        Material material = resolveTestMaterial(request, scmMaterialConfig);
+
+        ValidationBean checkConnectionResult = material.checkConnection(new CheckConnectionSubprocessExecutionContext(systemEnvironment));
+        if (!checkConnectionResult.isValid()) {
+            throw haltBecauseEntityFailedValidation(checkConnectionResult);
+        }
+
+        response.status(200);
+        return MessageJson.create("Connection OK.");
+    }
+
+    abstract protected Material resolveTestMaterial(Request request, ScmMaterialConfig materialConfig);
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    protected Material resolveMaterialSecretsFor(ScmMaterialConfig scmMaterialConfig, Optional<String> pipelineGroupName) {
+        Material material = materialConfigConverter.toMaterial(scmMaterialConfig);
+        if (material instanceof ScmMaterial scmMaterial) {
+            secretParamResolver.resolve(scmMaterial, pipelineGroupName);
+        }
+        return material;
+    }
+
+    private @NotNull ScmMaterialConfig parseValidatedScmMaterialFromRequest(JsonReader requestBody) {
+        ScmMaterialConfig scmMaterialConfig = buildScmMaterialFromRequestBody(requestBody);
+        scmMaterialConfig.validateConcreteScmMaterial();
 
         if (!scmMaterialConfig.errors().isEmpty()) {
             String errorMessage = scmMaterialConfig.errors().entrySet().stream()
                 .map(e -> String.format("- %s: %s", e.getKey(), join(", ", e.getValue())))
                 .collect(Collectors.joining("\n", "There was an error with the material configuration.\n", ""));
-            response.status(422);
-            return MessageJson.create(errorMessage, jsonWriter(scmMaterialConfig));
+            throw haltBecauseEntityFailedValidation(errorMessage, jsonWriter(scmMaterialConfig));
         }
-
-        performParamExpansion(scmMaterialConfig, pipelineName);
-        Material material = materialConfigConverter.toMaterial(scmMaterialConfig);
-        resolveSecrets(pipelineGroupName, material);
-        ValidationBean validationBean = material.checkConnection(new CheckConnectionSubprocessExecutionContext(systemEnvironment));
-        return handleValidationBeanResponse(validationBean, response);
+        return scmMaterialConfig;
     }
 
-    private void resolveSecrets(String pipelineGroupName, Material material) {
-        if (material instanceof ScmMaterial) {
-            secretParamResolver.resolve((ScmMaterial) material, pipelineGroupName);
-        }
-    }
-
-    public ScmMaterialConfig buildSCMMaterialFromRequestBody(Request req) {
-        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+    private ScmMaterialConfig buildScmMaterialFromRequestBody(JsonReader requestBody) {
         ConfigHelperOptions options = new ConfigHelperOptions(goConfigService.getCurrentConfig(), passwordDeserializer);
-        return (ScmMaterialConfig) MaterialsRepresenter.fromJSON(jsonReader, options);
+        return (ScmMaterialConfig) MaterialsRepresenter.fromJSON(requestBody, options);
     }
 
-    public Consumer<OutputWriter> jsonWriter(ScmMaterialConfig materialConfig) {
+    private Consumer<OutputWriter> jsonWriter(ScmMaterialConfig materialConfig) {
         return outputWriter -> MaterialsRepresenter.toJSON(outputWriter, materialConfig);
-    }
-
-    private String handleValidationBeanResponse(ValidationBean validationBean, Response response) {
-        if (validationBean.isValid()) {
-            response.status(200);
-            return MessageJson.create("Connection OK.");
-        } else {
-            response.status(422);
-            return MessageJson.create(validationBean.getError());
-        }
-    }
-
-    private void performParamExpansion(ScmMaterialConfig scmMaterialConfig, String pipelineName) {
-        MaterialConfigs materialConfigs = new MaterialConfigs(scmMaterialConfig);
-        PipelineConfig pipelineConfig;
-        // If the pipeline name is provided, find the pipeline and add the params to the new pipeline config object
-        if (isNotBlank(pipelineName)) {
-            PipelineConfig existingPipeline = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-            pipelineConfig = new PipelineConfig(existingPipeline.name(), materialConfigs);
-
-            GoConfigCloner goConfigCloner = new GoConfigCloner();
-            pipelineConfig.setParams(goConfigCloner.deepClone(existingPipeline.getParams()));
-        } else {
-            // If the pipeline name is not provided, this means that the pipeline is still in creation and hence no params exist
-            pipelineConfig = new PipelineConfig(new CaseInsensitiveString(""), materialConfigs);
-        }
-        ConfigParamPreprocessor configParamPreprocessor = new ConfigParamPreprocessor();
-        configParamPreprocessor.process(pipelineConfig);
     }
 
     private void haltIfMaterialTypeIsInvalid(String type) {
@@ -152,12 +133,5 @@ public abstract class AbstractMaterialTestController extends ApiController {
         if (!scmMaterialTypes.contains(type)) {
             throw new UnprocessableEntityException(String.format("The material of type '%s' does not support connection testing.", type));
         }
-    }
-
-    private void validateMaterialConfig(ScmMaterialConfig scmMaterialConfig, String pipelineName, String pipelineGrpName) {
-        if (isBlank(pipelineGrpName)) {
-            pipelineGrpName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
-        }
-        scmMaterialConfig.validateConcreteScmMaterial(PipelineConfigSaveValidationContext.forChain(false, pipelineGrpName, goConfigService.getCurrentConfig(), scmMaterialConfig));
     }
 }

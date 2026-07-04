@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiPredicate;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -166,7 +167,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         if (!isSameGroup(groupName)) {
             return;
         }
-        CaseInsensitiveString caseName = new CaseInsensitiveString(pipelineName);
+        CaseInsensitiveString caseName = cis(pipelineName);
         this.replaceIfNotEmpty(c -> c.name().equals(caseName), pipeline);
     }
 
@@ -186,12 +187,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     @Override
     public boolean hasPipeline(CaseInsensitiveString pipelineName) {
-        for (PipelineConfig pipelineConfig : this) {
-            if (pipelineConfig.name().equals(pipelineName)) {
-                return true;
-            }
-        }
-        return false;
+        return this.stream().anyMatch(pipelineConfig -> pipelineConfig.name().equals(pipelineName));
     }
 
     @Override
@@ -212,8 +208,8 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     @Override
-    public boolean hasViewPermission(final CaseInsensitiveString username, UserRoleMatcher userRoleMatcher, boolean everyoneIsAllowedToViewIfNoAuthIsDefined) {
-        return (!hasAuthorizationDefined() && everyoneIsAllowedToViewIfNoAuthIsDefined) || authorization.hasViewPermission(username, userRoleMatcher);
+    public boolean hasViewPermission(final CaseInsensitiveString username, UserRoleMatcher userRoleMatcher) {
+        return authorization.hasViewPermission(username, userRoleMatcher);
     }
 
     @Override
@@ -227,8 +223,8 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     @Override
-    public boolean hasOperatePermission(final CaseInsensitiveString username, UserRoleMatcher userRoleMatcher, boolean everyoneIsAllowedToOperateIfNoAuthIsDefined) {
-        return (!hasAuthorizationDefined() && everyoneIsAllowedToOperateIfNoAuthIsDefined) || authorization.hasOperatePermission(username, userRoleMatcher);
+    public boolean hasOperatePermission(final CaseInsensitiveString username, UserRoleMatcher userRoleMatcher) {
+        return authorization.hasOperatePermission(username, userRoleMatcher);
     }
 
     @Override

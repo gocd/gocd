@@ -45,7 +45,8 @@ import static java.lang.String.format;
 
 @Service
 public class ConfigRepoService {
-    public static final Logger LOGGER = LoggerFactory.getLogger(ConfigRepoService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigRepoService.class);
+
     private final GoConfigService goConfigService;
     private final EntityHashingService entityHashingService;
     private final ConfigRepoExtension configRepoExtension;

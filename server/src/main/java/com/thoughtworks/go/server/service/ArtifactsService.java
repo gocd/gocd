@@ -24,7 +24,10 @@ import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
 import com.thoughtworks.go.server.view.artifacts.BuildIdArtifactLocator;
 import com.thoughtworks.go.server.view.artifacts.PathBasedArtifactsLocator;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.ArtifactUtil;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.IllegalPathException;
+import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +42,8 @@ import static java.lang.String.format;
 @Service
 public class ArtifactsService implements ArtifactUrlReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactsService.class);
+    static final int PUBLISH_MAX_RETRIES = 3;
+
     private final ArtifactsDirHolder artifactsDirHolder;
     private final ZipUtil zipUtil;
     private final JobResolverService jobResolverService;
@@ -83,7 +88,7 @@ public class ArtifactsService implements ArtifactUrlReader {
             return true;
         } catch (IOException e) {
             final String message = format("Failed to save the file to: [%s]", destPath);
-            if (attempt < GoConstants.PUBLISH_MAX_RETRIES) {
+            if (attempt < PUBLISH_MAX_RETRIES) {
                 LOGGER.warn(message, e);
             } else {
                 LOGGER.error(message, e);

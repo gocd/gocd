@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.service.support.toggle;
 
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
 import org.apache.commons.collections4.MultiMapUtils;

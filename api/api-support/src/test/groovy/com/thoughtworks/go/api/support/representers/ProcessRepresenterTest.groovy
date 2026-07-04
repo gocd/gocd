@@ -18,6 +18,8 @@ package com.thoughtworks.go.api.support.representers
 import com.thoughtworks.go.util.ProcessWrapper
 import org.junit.jupiter.api.Test
 
+import java.time.Duration
+
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import static org.mockito.Mockito.mock
@@ -29,7 +31,7 @@ class ProcessRepresenterTest {
     def process = mock(ProcessWrapper)
     when(process.getCommand()).thenReturn("ls")
     when(process.getStartTimeForDisplay()).thenReturn("20/12/19 - 12:23:16:624")
-    when(process.getIdleTime()).thenReturn(2 * 60000L)
+    when(process.idleFor()).thenReturn(Duration.ofMinutes(2))
 
     def json = toObjectString({
       ProcessRepresenter.toJSON(it, process)

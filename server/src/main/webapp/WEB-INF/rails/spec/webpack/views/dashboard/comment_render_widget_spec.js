@@ -38,7 +38,7 @@ describe("Comment Render Widget", () => {
       mountView(text, trackingTool);
       const commentRenderWidget = helper.q('.comment');
 
-      expect(commentRenderWidget).toHaveHtml("<p>Fix issues <a target='story_tracker' href='http://example.com/8076'>#8076</a> and <a target='story_tracker' href='http://example.com/8077'>#8077</a></p>");
+      expect(commentRenderWidget).toHaveHtml('<p>Fix issues <a href="http://example.com/8076" target="story_tracker">#8076</a> and <a href="http://example.com/8077" target="story_tracker">#8077</a></p>');
     });
 
     it('should render using regex without a prefix', () => {
@@ -47,7 +47,7 @@ describe("Comment Render Widget", () => {
       mountView(text, trackingTool);
       const commentRenderWidget = helper.q('.comment');
 
-      expect(commentRenderWidget).toHaveHtml("<p>Fix issues <a target='story_tracker' href='http://example.com/8076'>8076</a></p>");
+      expect(commentRenderWidget).toHaveHtml('<p>Fix issues <a href="http://example.com/8076" target="story_tracker">8076</a></p>');
     });
 
     it('should render blank for an empty comment', () => {
@@ -56,7 +56,7 @@ describe("Comment Render Widget", () => {
       mountView(text, trackingTool);
       const commentRenderWidget = helper.q('.comment');
 
-      expect(commentRenderWidget).toHaveHtml("<p/>");
+      expect(commentRenderWidget).toHaveHtml('<p/>');
     });
 
     it('should render string without specified regex and link if has groups and none materialize', () => {
@@ -68,7 +68,7 @@ describe("Comment Render Widget", () => {
       mountView(text, trackingTool);
       const commentRenderWidget = helper.q('.comment');
 
-      expect(commentRenderWidget).toHaveHtml("<p>evo-abc: checkin message</p>");
+      expect(commentRenderWidget).toHaveHtml('<p>evo-abc: checkin message</p>');
     });
 
     it('should render string with specified regex and link if has groups and other than first materializes', () => {
@@ -79,7 +79,7 @@ describe("Comment Render Widget", () => {
       const text         = "evo-abc: checkin message";
       mountView(text, trackingTool);
       const commentRenderWidget = helper.q('.comment');
-      expect(commentRenderWidget).toHaveHtml("<p><a target='story_tracker' href='http://mingle05/projects/cce/cards/ab'>evo-ab</a>c: checkin message</p>");
+      expect(commentRenderWidget).toHaveHtml('<p><a href="http://mingle05/projects/cce/cards/ab" target="story_tracker">evo-ab</a>c: checkin message</p>');
     });
 
     it('should render string with regex that has sub select', () => {
@@ -90,7 +90,7 @@ describe("Comment Render Widget", () => {
       const text         = "evo-111: checkin message";
       mountView(text, trackingTool);
       const commentRenderWidget = helper.q('.comment');
-      expect(commentRenderWidget).toHaveHtml("<p><a target='story_tracker' href='http://mingle05/projects/cce/cards/111'>evo-111</a>: checkin message</p>");
+      expect(commentRenderWidget).toHaveHtml('<p><a href="http://mingle05/projects/cce/cards/111" target="story_tracker">evo-111</a>: checkin message</p>');
     });
 
     it('should return matched string if regex does not have group', () => {
@@ -101,7 +101,7 @@ describe("Comment Render Widget", () => {
       const text         = "evo-1020: checkin message";
       mountView(text, trackingTool);
       const commentRenderWidget = helper.q('.comment');
-      expect(commentRenderWidget).toHaveHtml("<p>evo-<a target='story_tracker' href='http://mingle05/projects/cce/cards/1020'>1020</a>: checkin message</p>");
+      expect(commentRenderWidget).toHaveHtml('<p>evo-<a href="http://mingle05/projects/cce/cards/1020" target="story_tracker">1020</a>: checkin message</p>');
     });
 
     it('should return matched string from first group if multiple groups are defined', () => {
@@ -112,7 +112,7 @@ describe("Comment Render Widget", () => {
       const text         = "1020-evo1: checkin message";
       mountView(text, trackingTool);
       const commentRenderWidget = helper.q('.comment');
-      expect(commentRenderWidget).toHaveHtml("<p><a target='story_tracker' href='http://mingle05/projects/cce/cards/1020'>1020-evo1</a>: checkin message</p>");
+      expect(commentRenderWidget).toHaveHtml('<p><a href="http://mingle05/projects/cce/cards/1020" target="story_tracker">1020-evo1</a>: checkin message</p>');
     });
 
     it('should return original string if regex does not match', () => {
@@ -123,7 +123,7 @@ describe("Comment Render Widget", () => {
       const text         = "evo-abc: checkin message";
       mountView(text, trackingTool);
       const commentRenderWidget = helper.q('.comment');
-      expect(commentRenderWidget).toHaveHtml("<p>evo-abc: checkin message</p>");
+      expect(commentRenderWidget).toHaveHtml('<p>evo-abc: checkin message</p>');
     });
 
     it('should return original string if regex is illegal', () => {
@@ -134,7 +134,7 @@ describe("Comment Render Widget", () => {
       const text         = "evo-abc: checkin message";
       mountView(text, trackingTool);
       const commentRenderWidget = helper.q('.comment');
-      expect(commentRenderWidget).toHaveHtml("<p>evo-abc: checkin message</p>");
+      expect(commentRenderWidget).toHaveHtml('<p>evo-abc: checkin message</p>');
     });
 
     it('should render using fixed url if link does not contain variable', () => {
@@ -145,7 +145,7 @@ describe("Comment Render Widget", () => {
       const text         = "evo-111: checkin message";
       mountView(text, trackingTool);
       const commentRenderWidget = helper.q('.comment');
-      expect(commentRenderWidget).toHaveHtml("<p><a target='story_tracker' href='http://mingle05/projects/cce/cards/wall-E'>evo-111</a>: checkin message</p>");
+      expect(commentRenderWidget).toHaveHtml('<p><a href="http://mingle05/projects/cce/cards/wall-E" target="story_tracker">evo-111</a>: checkin message</p>');
     });
 
     it('should use link from configuration regardless of its validity', () => {
@@ -156,7 +156,7 @@ describe("Comment Render Widget", () => {
       const text         = "111: checkin message";
       mountView(text, trackingTool);
       const commentRenderWidget = helper.q('.comment');
-      expect(commentRenderWidget).toHaveHtml("<p><a target='story_tracker' href='aaa111'>111</a>: checkin message</p>");
+      expect(commentRenderWidget).toHaveHtml('<p><a href="aaa111" target="story_tracker">111</a>: checkin message</p>');
     });
 
     it('should replace based on regex instead of pure string replacement', () => {
@@ -167,7 +167,7 @@ describe("Comment Render Widget", () => {
       const text         = "Replace evo-1994.  Don't replace 1994";
       mountView(text, trackingTool);
       const commentRenderWidget = helper.q('.comment');
-      expect(commentRenderWidget).toHaveHtml("<p>Replace <a target='story_tracker' href='http://mingle05/projects/cce/cards/1994'>evo-1994</a>.  Don't replace 1994</p>");
+      expect(commentRenderWidget).toHaveHtml('<p>Replace <a href="http://mingle05/projects/cce/cards/1994" target="story_tracker">evo-1994</a>.  Don\'t replace 1994</p>');
     });
 
     it('should support UTF8', () => {
@@ -178,7 +178,7 @@ describe("Comment Render Widget", () => {
       const text         = "The story #111 is fixed by 德里克. #122 is also related to this";
       mountView(text, trackingTool);
       const commentRenderWidget = helper.q('.comment');
-      expect(commentRenderWidget).toHaveHtml("<p>The story <a target='story_tracker' href='http://mingle05/projects/cce/cards/111'>#111</a> is fixed by 德里克. <a target='story_tracker' href='http://mingle05/projects/cce/cards/122'>#122</a> is also related to this");
+      expect(commentRenderWidget).toHaveHtml('<p>The story <a href="http://mingle05/projects/cce/cards/111" target="story_tracker">#111</a> is fixed by 德里克. <a href="http://mingle05/projects/cce/cards/122" target="story_tracker">#122</a> is also related to this');
     });
 
     it('should escape the whole comment if none is matched', () => {
@@ -189,7 +189,7 @@ describe("Comment Render Widget", () => {
       const text         = "some <string>";
       mountView(text, trackingTool);
       const commentRenderWidget = helper.q('.comment');
-      expect(commentRenderWidget).toHaveHtml("<p>some &lt;string&gt;</p>");
+      expect(commentRenderWidget).toHaveHtml('<p>some &lt;string&gt;</p>');
     });
 
     it('should escape dynamic link without id group', () => {
@@ -200,7 +200,7 @@ describe("Comment Render Widget", () => {
       const text         = "ABC-\"><svg/onload=\"alert(1)";
       mountView(text, trackingTool);
       expect(helper.q('.comment a')).toHaveAttr('href', "http://jira.example.com/ABC-%22%3E%3Csvg%2Fonload%3D%22alert(1)?hello&gocd=true");
-      expect(helper.q('.comment')).toHaveHtml('<p><a target="story_tracker" href="http://jira.example.com/ABC-%22%3E%3Csvg%2Fonload%3D%22alert(1)?hello&amp;gocd=true">ABC-&quot;&gt;&lt;svg/onload=&quot;alert(1)</a></p>');
+      expect(helper.q('.comment')).toHaveHtml('<p><a href="http://jira.example.com/ABC-%22%3E%3Csvg%2Fonload%3D%22alert(1)?hello&amp;gocd=true" target="story_tracker">ABC-&quot;&gt;&lt;svg/onload=&quot;alert(1)</a></p>');
     });
 
     it('should escape dynamic link with id group', () => {
@@ -211,7 +211,7 @@ describe("Comment Render Widget", () => {
       const text         = "ABC-\"><svg/onload=\"alert(1)";
       mountView(text, trackingTool);
       expect(helper.q('.comment a')).toHaveAttr('href', "http://jira.example.com/%22%3E%3Csvg%2Fonload%3D%22alert(1)?hello&gocd=true");
-      expect(helper.q('.comment')).toHaveHtml('<p><a target="story_tracker" href="http://jira.example.com/%22%3E%3Csvg%2Fonload%3D%22alert(1)?hello&amp;gocd=true">ABC-&quot;&gt;&lt;svg/onload=&quot;alert(1)</a></p>');
+      expect(helper.q('.comment')).toHaveHtml('<p><a href="http://jira.example.com/%22%3E%3Csvg%2Fonload%3D%22alert(1)?hello&amp;gocd=true" target="story_tracker">ABC-&quot;&gt;&lt;svg/onload=&quot;alert(1)</a></p>');
     });
 
     it('should URI encode identifiers', () => {
@@ -222,7 +222,7 @@ describe("Comment Render Widget", () => {
       const text         = "ABC-1/2德";
       mountView(text, trackingTool);
       expect(helper.q('.comment a')).toHaveAttr('href', "http://website.com/ABC-1%2F2%E5%BE%B7");
-      expect(helper.q('.comment')).toHaveHtml('<p><a target="story_tracker" href="http://website.com/ABC-1%2F2%E5%BE%B7">ABC-1/2德</a></p>');
+      expect(helper.q('.comment')).toHaveHtml('<p><a href="http://website.com/ABC-1%2F2%E5%BE%B7" target="story_tracker">ABC-1/2德</a></p>');
     });
 
     it('should URI encode identifiers with id group', () => {
@@ -233,7 +233,29 @@ describe("Comment Render Widget", () => {
       const text         = "ABC-1/2德";
       mountView(text, trackingTool);
       expect(helper.q('.comment a')).toHaveAttr('href', "http://website.com/1%2F2%E5%BE%B7");
-      expect(helper.q('.comment')).toHaveHtml('<p><a target="story_tracker" href="http://website.com/1%2F2%E5%BE%B7">ABC-1/2德</a></p>');
+      expect(helper.q('.comment')).toHaveHtml('<p><a href="http://website.com/1%2F2%E5%BE%B7" target="story_tracker">ABC-1/2德</a></p>');
+    });
+
+    it('should URI encode identifiers into query', () => {
+      const trackingTool = {
+        "link":  "http://website.com/?id=${ID}",
+        "regex": "ABC-[^ ]+"
+      };
+      const text         = "ABC-1?=2";
+      mountView(text, trackingTool);
+      expect(helper.q('.comment a')).toHaveAttr('href', "http://website.com/?id=ABC-1%3F%3D2");
+      expect(helper.q('.comment')).toHaveHtml('<p><a href="http://website.com/?id=ABC-1%3F%3D2" target="story_tracker">ABC-1?=2</a></p>');
+    });
+
+    it('should URI encode identifiers with id group into query', () => {
+      const trackingTool = {
+        "link":  "http://website.com/?id=${ID}",
+        "regex": "ABC-([^ ]+)"
+      };
+      const text         = "ABC-1?=2";
+      mountView(text, trackingTool);
+      expect(helper.q('.comment a')).toHaveAttr('href', "http://website.com/?id=1%3F%3D2");
+      expect(helper.q('.comment')).toHaveHtml('<p><a href="http://website.com/?id=1%3F%3D2" target="story_tracker">ABC-1?=2</a></p>');
     });
 
     it('does not double URI encode link', () => {
@@ -244,7 +266,7 @@ describe("Comment Render Widget", () => {
       const text         = "ABC-123";
       mountView(text, trackingTool);
       expect(helper.q('.comment a')).toHaveAttr('href', "http://website.com/ABC-123?encoded=%2F%22");
-      expect(helper.q('.comment')).toHaveHtml('<p><a target="story_tracker" href="http://website.com/ABC-123?encoded=%2F%22">ABC-123</a></p>');
+      expect(helper.q('.comment')).toHaveHtml('<p><a href="http://website.com/ABC-123?encoded=%2F%22" target="story_tracker">ABC-123</a></p>');
     });
 
     it('does not double URI encode link with id group', () => {
@@ -255,7 +277,7 @@ describe("Comment Render Widget", () => {
       const text         = "ABC-123";
       mountView(text, trackingTool);
       expect(helper.q('.comment a')).toHaveAttr('href', "http://website.com/123?encoded=%2F%22");
-      expect(helper.q('.comment')).toHaveHtml('<p><a target="story_tracker" href="http://website.com/123?encoded=%2F%22">ABC-123</a></p>');
+      expect(helper.q('.comment')).toHaveHtml('<p><a href="http://website.com/123?encoded=%2F%22" target="story_tracker">ABC-123</a></p>');
     });
 
     it('should render escaped entities correctly if they match the project management regex', () => {
@@ -266,7 +288,7 @@ describe("Comment Render Widget", () => {
       const text         = "Don't render the apostrophe as a link";
       mountView(text, trackingTool);
       const commentRenderWidget = helper.q('.comment');
-      expect(commentRenderWidget).toHaveHtml("<p>Don't render the apostrophe as a link</p>");
+      expect(commentRenderWidget).toHaveHtml('<p>Don\'t render the apostrophe as a link</p>');
     });
 
     it('should escape text when no match is found', () => {
@@ -277,7 +299,7 @@ describe("Comment Render Widget", () => {
       const text         = "<b>This should not be bold</b>";
       mountView(text, trackingTool);
       const commentRenderWidget = helper.q('.comment');
-      expect(commentRenderWidget).toHaveHtml("<p>&lt;b&gt;This should not be bold&lt;/b&gt;</p>");
+      expect(commentRenderWidget).toHaveHtml('<p>&lt;b&gt;This should not be bold&lt;/b&gt;</p>');
     });
 
     describe('should render string with specified regex and link', () => {
@@ -293,21 +315,21 @@ describe("Comment Render Widget", () => {
         const text = "Task 111: checkin message";
         mountView(text, trackingTool);
         const commentRenderWidget = helper.q('.comment');
-        expect(commentRenderWidget).toHaveHtml("<p><a target='story_tracker' href='http://mingle05/projects/cce/cards/111'>Task 111</a>: checkin message</p>");
+        expect(commentRenderWidget).toHaveHtml('<p><a href="http://mingle05/projects/cce/cards/111" target="story_tracker">Task 111</a>: checkin message</p>');
       });
 
       it('should render comment with bug', () => { //no pun intended
         const text = "Bug 111: checkin message";
         mountView(text, trackingTool);
         const commentRenderWidget = helper.q('.comment');
-        expect(commentRenderWidget).toHaveHtml("<p><a target='story_tracker' href='http://mingle05/projects/cce/cards/111'>Bug 111</a>: checkin message</p>");
+        expect(commentRenderWidget).toHaveHtml('<p><a href="http://mingle05/projects/cce/cards/111" target="story_tracker">Bug 111</a>: checkin message</p>');
       });
 
       it('should render comment with #', () => {
         const text = "#111: checkin message";
         mountView(text, trackingTool);
         const commentRenderWidget = helper.q('.comment');
-        expect(commentRenderWidget).toHaveHtml("<p><a target='story_tracker' href='http://mingle05/projects/cce/cards/111'>#111</a>: checkin message</p>");
+        expect(commentRenderWidget).toHaveHtml('<p><a href="http://mingle05/projects/cce/cards/111" target="story_tracker">#111</a>: checkin message</p>');
       });
     });
   });

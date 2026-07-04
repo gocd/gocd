@@ -58,7 +58,7 @@ public class ElasticAgentProcessorConverterV1Test {
                   }
                 ]""";
 
-        assertThatJson(expectedStr).isEqualTo(responseBody);
+        assertThatJson(responseBody).isEqualTo(expectedStr);
     }
 
     @Test

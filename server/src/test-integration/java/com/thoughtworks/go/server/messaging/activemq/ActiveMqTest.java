@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.thoughtworks.go.util.TestUtils.doInterruptiblyQuietly;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -51,7 +52,7 @@ public class ActiveMqTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        messaging = new ActiveMqMessagingService(new DaemonThreadStatsCollector(), new SystemEnvironment(), new ServerHealthService());
+        messaging = new ActiveMqMessagingService(new DaemonThreadStatsCollector(), new SystemEnvironment(), new ServerHealthService(mock()));
     }
 
     @AfterEach

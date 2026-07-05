@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {renderCommentToHtml} from "helpers/render_comment";
 import {timeFormatter} from "helpers/time_formatter";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
@@ -70,7 +71,8 @@ export class PipelineInstanceWidget extends MithrilViewComponent<InstanceAttrs> 
             const data: Map<string, m.Children> = new Map<string, m.Children>();
             data.set("Revision", modification.revision());
             data.set("Username", modification.userName());
-            data.set("Comment", modification.comment());
+            data.set("Comment", m.trust(renderCommentToHtml(modification.comment() || '',
+              materialRev.material().type().toLowerCase() === "package" ? "json" : "raw")));
             data.set("Modified On", PipelineInstanceWidget.getTimeToDisplay(modification.modifiedTime()));
             return <KeyValuePair data={data}/>;
           });

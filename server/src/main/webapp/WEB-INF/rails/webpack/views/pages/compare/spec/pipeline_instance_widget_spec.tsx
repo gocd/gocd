@@ -94,4 +94,19 @@ describe('PipelineInstanceWidgetSpec', () => {
     expect(values[1].innerText.trim()).toBe(instance.buildCause().materialRevisions()[1].material().description());
     expect(values[2].innerText.trim()).toBe(timeFormatter.format(instance.buildCause().materialRevisions()[1].modifications()[0].modifiedTime()));
   });
+
+  it('should unpack and escape a package material json comment', () => {
+    const instance    = PipelineInstance.fromJSON(PipelineInstanceData.pipeline());
+    const materialRev = instance.buildCause().materialRevisions()[0];
+    materialRev.material().type("Package");
+    materialRev.modifications()[0].comment('{"COMMENT":"<script>alert(1)</script>","TRACKBACK_URL":"https://tracker/1"}');
+    mount(instance);
+
+    const material = helper.qa("ul", helper.byTestId("instance-material-revisions"))[0];
+    const comment  = helper.qa("[data-test-id^='key-value-value-']", material)[2]; // Revision, Username, Comment, Modified On
+    expect(comment.textContent).toContain("<script>alert(1)</script>"); // escaped, shown literally
+    expect(comment.textContent).toContain("Trackback: https://tracker/1");
+    expect(comment.querySelector("script")).toBeNull();
+    expect(comment.innerHTML).not.toContain('"TYPE"'); // not the raw JSON envelope
+  });
 });

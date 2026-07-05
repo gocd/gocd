@@ -316,7 +316,7 @@ def webAppLicenseHeaderFiles = project.files(webAppDir).asFileTree.matching {
   // generated code | libs | output
   exclude('**/*.scss.d.ts', '**/rails/webpack/gen')
   exclude('**/rails/node_modules', '**/rails/node-vendor', '**/rails/gems', '**/rails/app/assets/javascripts/lib')
-  exclude('**/tmp', '**/rails/public', '**/rails/yarn-license-report')
+  exclude('**/tmp', '**/rails/public', '**/rails/yarn-license-report', '**/rails/logs', '**/rails/db')
 }
 
 // Create license tasks for webapp since we do not have a dedicated sourceSet for it

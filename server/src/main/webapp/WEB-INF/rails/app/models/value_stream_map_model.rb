@@ -85,7 +85,7 @@ class VSMPipelineDependencyNodeModel < VSMDependencyNodeModel
   def initialize(id, name, dependents, parents, node_type, depth, revisions, message, view_type, can_edit, pdg_path_partial, stage_detail_path_partial, pipeline_edit_path_partial, template_name)
     super(id, name, dependents, parents, node_type, depth)
 
-    @instances = revisions.map { |revision| VSMPipelineInstanceModel.new(name, revision.getLabel(), revision.getCounter(), revision.getStages() || [], pdg_path_partial, stage_detail_path_partial, pipeline_edit_path_partial) } unless revisions == nil
+    @instances = revisions.map { |revision| VSMPipelineInstanceModel.new(name, revision.getLabel(), revision.getCounter(), revision.getStages() || [], pdg_path_partial, stage_detail_path_partial) } unless revisions == nil
     @locator = "/go/pipeline/activity/#{name}" if  view_type == nil
     @message = message unless  message == nil
     @view_type = view_type.to_s unless view_type == nil
@@ -111,7 +111,7 @@ end
 class VSMPipelineInstanceModel
   attr_accessor :label, :counter, :locator, :stages
 
-  def initialize(name, label, counter, stages, pdg_path_partial, stage_detail_path_partial, pipeline_edit_path_partial)
+  def initialize(name, label, counter, stages, pdg_path_partial, stage_detail_path_partial)
     @label = label
     @counter = counter
     @locator = ""

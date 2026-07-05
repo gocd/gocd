@@ -173,7 +173,7 @@ describe("value_stream_map_renderer", function () {
                   "modifications": [{
                     "modified_time": "5 months ago",
                     "user": "anonymous",
-                    "comment": "{\"COMMENT\":\"Built on server.\",\"TRACKBACK_URL\":\"google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}",
+                    "comment": "{\"COMMENT\":\"Built on server.\",\"TRACKBACK_URL\":\"https://google.com\",\"TYPE\":\"PACKAGE_MATERIAL\"}",
                     "revision": "go-agent-13.1.1-16714.noarch"
                   }]
                 }
@@ -205,11 +205,169 @@ describe("value_stream_map_renderer", function () {
     expect($('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('0').text().trim())
       .toBe("Revision: go-agent-13.1.1-16714.noarch");
     expect($('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('1').html())
-      .toBe('Built on server.<br>Trackback: <a href="google.com">google.com</a>');
+      .toBe('Built on server.<br>Trackback: <a href="https://google.com" target="trackback">https://google.com</a>');
     expect($('#pkg_id .material_revisions_label').html())
-      .toBe('Built on server.<br>Trackback: <a href="google.com">google.com</a>');
+      .toBe('Built on server.<br>Trackback: <a href="https://google.com" target="trackback">https://google.com</a>');
     expect($('#pkg_id .material_revisions_label').attr("title"))
-      .toBe('Built on server.\nTrackback: google.com');
+      .toBe('Built on server.\nTrackback: https://google.com');
+  });
+
+
+  it("testShouldRenderNonHttpTrackbackUrlAsTextInsteadOfLink", function () {
+    var vsm = {
+      "current_pipeline": "sample", "levels": [
+        {
+          "nodes": [
+            {
+              "name": "Repository: [repo_url=file:///tmp/repo] - Package: [package_spec=go-agent]",
+              "node_type": "PACKAGE",
+              "depth": 1,
+              "parents": [],
+              "material_revisions": [
+                {
+                  "modifications": [{
+                    "modified_time": "5 months ago",
+                    "user": "anonymous",
+                    "comment": "{\"COMMENT\":\"Built on server.\",\"TRACKBACK_URL\":\"javascript:alert(1)\",\"TYPE\":\"PACKAGE_MATERIAL\"}",
+                    "revision": "go-agent-13.1.1-16714.noarch"
+                  }]
+                }
+              ],
+              "locator": "",
+              "id": "pkg_id",
+              "dependents": ["sample"],
+              "material_names": ["yum:go-agent"]
+            }
+          ]
+        },
+        {
+          "nodes": [
+            {
+              "name": "sample", "node_type": "PIPELINE", "locator": "/go/pipeline/activity/sample", "instances": [
+                {
+                  "stages": [
+                    {"locator": "/go/pipelines/sample/1/defaultStage/1", "status": "Building", "name": "defaultStage"}
+                  ], "locator": "/go/pipelines/value_stream_map/sample/1", "counter": 1, "label": "1"
+                }
+              ], "parents": ["pkg_id"], "depth": 1, "id": "sample", "dependents": []
+            }
+          ]
+        }
+      ]
+    };
+    new Graph_Renderer("#vsm-container").invoke(vsm);
+
+    expect($('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('1').html())
+      .toBe('Built on server.<br>Trackback: javascript:alert(1)');
+    expect($('#pkg_id .material_revisions_label').html())
+      .toBe('Built on server.<br>Trackback: javascript:alert(1)');
+    expect($('#pkg_id .material_revisions_label').attr("title"))
+      .toBe('Built on server.\nTrackback: javascript:alert(1)');
+  });
+
+
+  it("testShouldRenderScmCommentAsPlainTextEvenWhenItLooksLikeAPackagePayload", function () {
+    // Defense in depth: rendering is decided by the node type, not by sniffing the comment content. A regular
+    // SCM comment that happens to contain a package-material JSON payload must be shown verbatim (escaped), not
+    // parsed into a comment/trackback link.
+    var packageLookingComment = '{"COMMENT":"<script>alert(1)</script>","TRACKBACK_URL":"http://evil.example","TYPE":"PACKAGE_MATERIAL"}';
+    var vsm = {
+      "current_pipeline": "sample", "levels": [
+        {
+          "nodes": [
+            {
+              "name": "git-repo",
+              "node_type": "GIT",
+              "depth": 1,
+              "parents": [],
+              "material_revisions": [
+                {
+                  "modifications": [{
+                    "modified_time": "5 months ago",
+                    "user": "anonymous",
+                    "comment": packageLookingComment,
+                    "revision": "abc123"
+                  }]
+                }
+              ],
+              "locator": "",
+              "id": "git_id",
+              "dependents": ["sample"],
+              "material_names": ["git-repo"]
+            }
+          ]
+        },
+        {
+          "nodes": [
+            {
+              "name": "sample", "node_type": "PIPELINE", "locator": "/go/pipeline/activity/sample", "instances": [
+                {
+                  "stages": [
+                    {"locator": "/go/pipelines/sample/1/defaultStage/1", "status": "Building", "name": "defaultStage"}
+                  ], "locator": "/go/pipelines/value_stream_map/sample/1", "counter": 1, "label": "1"
+                }
+              ], "parents": ["git_id"], "depth": 1, "id": "sample", "dependents": []
+            }
+          ]
+        }
+      ]
+    };
+    new Graph_Renderer("#vsm-container").invoke(vsm);
+
+    var comment = $('ul[data-materialname="git_id"] li.instance').eq('0').find('.usercomment');
+    expect(comment.text()).toBe(packageLookingComment);
+    expect(comment.find('a').length).toBe(0);
+  });
+
+
+  it("testShouldRenderEmptyPackageMaterialCommentWithoutFailingToParseItAsJson", function () {
+    var vsm = {
+      "current_pipeline": "sample", "levels": [
+        {
+          "nodes": [
+            {
+              "name": "Repository: [repo_url=file:///tmp/repo] - Package: [package_spec=go-agent]",
+              "node_type": "PACKAGE",
+              "depth": 1,
+              "parents": [],
+              "material_revisions": [
+                {
+                  "modifications": [{
+                    "modified_time": "5 months ago",
+                    "user": "anonymous",
+                    "comment": "",
+                    "revision": "go-agent-13.1.1-16714.noarch"
+                  }]
+                }
+              ],
+              "locator": "",
+              "id": "pkg_id",
+              "dependents": ["sample"],
+              "material_names": ["yum:go-agent"]
+            }
+          ]
+        },
+        {
+          "nodes": [
+            {
+              "name": "sample", "node_type": "PIPELINE", "locator": "/go/pipeline/activity/sample", "instances": [
+                {
+                  "stages": [
+                    {"locator": "/go/pipelines/sample/1/defaultStage/1", "status": "Building", "name": "defaultStage"}
+                  ], "locator": "/go/pipelines/value_stream_map/sample/1", "counter": 1, "label": "1"
+                }
+              ], "parents": ["pkg_id"], "depth": 1, "id": "sample", "dependents": []
+            }
+          ]
+        }
+      ]
+    };
+    expect(function () {
+      new Graph_Renderer("#vsm-container").invoke(vsm);
+    }).not.toThrow();
+
+    expect($('#pkg_id .material_revisions_label').html()).toBe('');
+    expect($('#pkg_id .material_revisions_label').attr("title")).toBe('');
   });
 
 

@@ -120,6 +120,21 @@ describe("BuildCauseWidget", () => {
     expect(helper.byTestId("comment", modificationDiv)).toContainText("<h1> this is html </h1>");
   });
 
+  it("should render a package material (json) comment with the extracted comment and trackback, escaping html", () => {
+    const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo());
+    const modification    = pipelineRunInfo.materialRevisions()[0].modifications()[0];
+    modification.commentFormat("json");
+    modification.comment('{"COMMENT":"<script>alert(1)</script>","TRACKBACK_URL":"https://tracker.example/42"}');
+    mount(pipelineRunInfo);
+
+    helper.clickByTestId("trigger-with-changes-button");
+
+    const comment = helper.byTestId("comment", helper.byTestId(`modification-${modification.revision()}`));
+    expect(comment).toContainText("<script>alert(1)</script>"); // rendered as escaped text, not executed
+    expect(comment).toContainText("Trackback: https://tracker.example/42");
+    expect(comment.querySelector("script")).toBeNull();
+  });
+
   it("should render modification in yellow when is changed", () => {
     const pipelineRunInfo     = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo());
     const materialRevisionOne = pipelineRunInfo.materialRevisions()[0];

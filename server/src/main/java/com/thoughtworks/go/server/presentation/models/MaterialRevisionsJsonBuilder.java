@@ -74,9 +74,9 @@ public class MaterialRevisionsJsonBuilder extends ModificationVisitorAdapter {
         jsonMap.put("user", modification.getUserDisplayName());
         jsonMap.put("revision", modification.getRevision());
         jsonMap.put("date", Dates.formatIso8601SystemCompactOffsetNoMillis(modification.getModifiedTime()));
-        jsonMap.put("comment", PackageMaterial.TYPE.equals(revision.getMaterial().getMaterialType())
-            ? modification.getComment() // Send back what should be raw JSON for rendering on UI :-(
-            : commentRenderer.render(modification.getComment())
+        jsonMap.putAll(PackageMaterial.TYPE.equals(revision.getMaterial().getMaterialType())
+            ? Map.of("commentFormat", "json", "comment", modification.getComment())
+            : Map.of("commentFormat", "html", "comment", commentRenderer.render(modification.getComment()))
         );
         jsonMap.put("modifiedFiles", modifiedFilesJson);
 

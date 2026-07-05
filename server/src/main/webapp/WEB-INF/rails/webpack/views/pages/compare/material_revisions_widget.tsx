@@ -27,17 +27,20 @@ import {PipelineInstanceWidget} from "./pipeline_instance_widget";
 interface MaterialRevisionsAttrs {
   result: MaterialRevisions;
   pipelineConfig: PipelineConfig;
+  materialType: string;
 }
 
 export class MaterialRevisionsWidget extends MithrilViewComponent<MaterialRevisionsAttrs> {
   view(vnode: m.Vnode<MaterialRevisionsAttrs, this>): m.Children | void | null {
+    // Package material comments are a JSON envelope that the server sends unrendered; everything else is plain text.
+    const commentTextType = vnode.attrs.materialType === "package" ? "json" : "raw";
     const data = vnode.attrs.result.map((materialRev) => {
       return [
         <div className={styles.truncate}><span title={materialRev.revisionSha}>{materialRev.revisionSha}</span></div>
         , <div>{materialRev.modifiedBy}</div>
         , <div>{PipelineInstanceWidget.getTimeToDisplay(materialRev.modifiedAt)}</div>
         , <div className={styles.commitMsg}>
-          <CommentRenderWidget text={materialRev.commitMessage} trackingTool={this.createTrackingTool(vnode.attrs.pipelineConfig.trackingTool())}/>
+          <CommentRenderWidget text={materialRev.commitMessage} textType={commentTextType} trackingTool={this.createTrackingTool(vnode.attrs.pipelineConfig.trackingTool())}/>
         </div>];
     });
     return <div data-test-id="material-revisions-widget" className={styles.materialModifications}>

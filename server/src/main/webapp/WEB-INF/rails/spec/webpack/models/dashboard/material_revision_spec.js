@@ -156,7 +156,7 @@ describe("Dashboard Material Revision Model", () => {
 
       const packageModification = packageRevision.modifications[0];
 
-      expect(packageModification.comment).toEqual("SOME COMMENTTrackback: trackback url");
+      expect(packageModification.comment).toEqual("SOME COMMENT\nTrackback: trackback url");
     });
   });
 });

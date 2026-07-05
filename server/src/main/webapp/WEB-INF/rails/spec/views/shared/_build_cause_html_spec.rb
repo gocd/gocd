@@ -150,7 +150,7 @@ describe "shared/_build_cause.html.erb" do
   end
 
   it "should render comment for package material" do
-    modification = Modification.new("user", '{"TYPE":"PACKAGE_MATERIAL","TRACKBACK_URL" : "http://google.com", "COMMENT" : "Some comment."}', "", @date=java.util.Date.new, "12345")
+    modification = Modification.new("user", '{"TYPE":"PACKAGE_MATERIAL", "TRACKBACK_URL": "https://google.com", "COMMENT" : "Some comment."}', "", @date=java.util.Date.new, "12345")
     package_material = MaterialsMother.packageMaterial()
     package_material_revision = MaterialRevision.new(package_material, [modification].to_java(Modification))
     revisions = MaterialRevisions.new([package_material_revision].to_java(MaterialRevision))
@@ -161,10 +161,10 @@ describe "shared/_build_cause.html.erb" do
       expect(material).to have_selector(".material_name", :text => "Package - repo-name_package-name")
       material.find(".change").tap do |change|
         change.find(".modified_by").tap do |revision|
-          expect(revision).to have_selector("dd", :text => "user on #{@date.iso8601}")
+          expect(revision.find("dd").native.to_s).to include "user on #{@date.iso8601}"
         end
         change.find(".comment").tap do |revision|
-          expect(revision).to have_selector("dd", :text => "Some comment.Trackback: http://google.com")
+          expect(revision.find("dd").native.to_s).to include 'Some comment.<br>Trackback: <a href="https://google.com" target="trackback">https://google.com</a>'
         end
       end
     end
@@ -175,7 +175,7 @@ describe "shared/_build_cause.html.erb" do
     material = MaterialsMother.svnMaterial()
     material_revision = MaterialRevision.new(material, [modification].to_java(Modification))
     revisions = MaterialRevisions.new([material_revision].to_java(MaterialRevision))
-    allow(view).to receive(:render_comment).with(modification, 'foo').and_return('something')
+    allow(view).to receive(:render_comment).with(modification, material.getMaterialType(), 'foo').and_return('something')
 
     render :partial => "shared/build_cause", :locals => {:scope => {:material_revisions => revisions, :show_files => false, :pipeline_name => "foo"}}
     Capybara.string(response.body).find(".build_cause #material_#{material.getPipelineUniqueFingerprint()}").tap do |material|

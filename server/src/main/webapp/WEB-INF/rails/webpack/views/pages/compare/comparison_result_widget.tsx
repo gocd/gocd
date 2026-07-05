@@ -62,7 +62,7 @@ export class ComparisonResultWidget extends MithrilViewComponent<Attrs> {
                 break;
               default:
                 viewBody = <div>
-                  <MaterialRevisionsWidget pipelineConfig={vnode.attrs.pipelineConfig} result={change.revision as MaterialRevisions}/>
+                  <MaterialRevisionsWidget pipelineConfig={vnode.attrs.pipelineConfig} result={change.revision as MaterialRevisions} materialType={change.material.type()}/>
                 </div>;
             }
             return <div data-test-id="material-changes">

@@ -15,16 +15,50 @@
  */
 import _ from "lodash";
 
+export type CommentServerFormat = 'html' | 'json' | 'raw';
+
 export interface TrackingTool {
   regex: string;
   link: string;
 }
 
-export function renderComment(text: string, trackingTool: TrackingTool) {
+// See legacy JS render at (app/assets/javascripts/vsm_renderer.js)
+export function renderCommentToHtml(text: string, textType: CommentServerFormat, trackingTool?: TrackingTool) {
+  switch (textType) {
+    case "html":
+      // Assume it is already escaped and safe to render directly as trusted
+      return text;
+    case "json":
+      // We need to extract comment from json; then make it safe, possibly with tracking tool links
+      return renderRawCommentToHtml(renderJsonCommentUnsafe(text), trackingTool);
+    case "raw":
+      // The default case; assume it is unsafe from server. If this is passed incorrectly, it'll lead to
+      // double-escaping and bad rendering.
+      return renderRawCommentToHtml(text, trackingTool);
+  }
+}
+
+function renderJsonCommentUnsafe(text: string) {
+  try {
+    // Renders JSON comments but does not yet render actual links like the server-side legacy Rails and sprockets code.
+    const commentJSON   = JSON.parse(text);
+    const trackbackURL  = commentJSON?.TRACKBACK_URL || "Not Provided";
+    const packageOrigin = _.isEmpty(commentJSON.COMMENT) ? "" : `${commentJSON.COMMENT}\n`;
+    return `${packageOrigin}Trackback: ${trackbackURL}`;
+  } catch (e) {
+    return text;
+  }
+}
+
+function renderRawCommentToHtml(text: string, trackingTool?: TrackingTool) {
   if (!trackingTool || !trackingTool.regex) {
     return _.escape(text);
+  } else {
+    return renderRawCommentWithTrackingToolToHtml(text, trackingTool);
   }
+}
 
+function renderRawCommentWithTrackingToolToHtml(text: string, trackingTool: TrackingTool) {
   try {
     const regex              = new RegExp(trackingTool.regex);
     const linkIdFromGroup    = regexHasGroups();
@@ -43,14 +77,14 @@ export function renderComment(text: string, trackingTool: TrackingTool) {
   }
 
   function regexHasGroups() {
-    return (new RegExp(`${trackingTool.regex}|`)).exec("")!.length - 1 !== 0;
+    return (new RegExp(`${trackingTool!.regex}|`)).exec("")!.length - 1 !== 0;
   }
 
   function toLink(matchResult: RegExpMatchArray, linkIdFromGroup: boolean) {
     const matchedWord = matchResult[0];
     const trackingId = firstMatchingGroup(matchResult);
     if (trackingId || !linkIdFromGroup) {
-      const href = trackingTool.link.replace("${ID}", encodeURIComponent(trackingId || matchedWord));
+      const href = trackingTool!.link.replace("${ID}", encodeURIComponent(trackingId || matchedWord));
       return `<a href="${_.escape(href)}" target="story_tracker">${_.escape(matchedWord)}</a>`;
     } else {
       return _.escape(matchedWord);

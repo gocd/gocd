@@ -15,8 +15,9 @@
  */
 import {TestHelper} from "../../../../../webpack/views/pages/spec/test_helper";
 import {timeFormatter} from "helpers/time_formatter";
-import {MaterialInfoWidget} from "views/dashboard/trigger_with_options/material_info_widget";
+import {Material} from "models/dashboard/material";
 import {TriggerWithOptionsInfo} from "models/dashboard/trigger_with_options_info";
+import {MaterialInfoWidget} from "views/dashboard/trigger_with_options/material_info_widget";
 import m from "mithril";
 
 describe("Dashboard Trigger With Options Material Info Widget", () => {
@@ -83,6 +84,28 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
   it('should render searched material revision spinner', () => {
     mount(triggerWithOptionsInfo.materials[0]);
     expect(helper.q('.commits')).toBeInDOM();
+  });
+
+  it("should unpack and escape package material (json) comments", () => {
+    const material = new Material({
+      type:         'Package',
+      name:         'pkg',
+      fingerprint:  'fp',
+      revision:     {
+        revision: 'pkg-1',
+        user:     'bob',
+        date:     '2018-02-12T11:02:48Z',
+        comment:  '{"COMMENT":"<script>alert(1)</script>","TRACKBACK_URL":"https://tracker/1"}'
+      },
+      pipelineName: 'p'
+    });
+    mount(material);
+
+    const comment = helper.q('.name-value .comment');
+    expect(comment.textContent).toContain('<script>alert(1)</script>'); // escaped, shown literally
+    expect(comment.textContent).toContain('Trackback: https://tracker/1');
+    expect(comment.querySelector('script')).toBeNull();
+    expect(comment.innerHTML).not.toContain('"TYPE"'); // not the raw JSON envelope
   });
 
   const json = {

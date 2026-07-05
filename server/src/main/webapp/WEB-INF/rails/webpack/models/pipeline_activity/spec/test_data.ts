@@ -52,6 +52,7 @@ export class PipelineActivityData {
       revision,
       date: "2019-11-21T1:3:20+0:30",
       comment: "Adding test file",
+      commentFormat: "html",
       modifiedFiles: []
     } as ModificationJSON;
   }
@@ -140,6 +141,7 @@ export class PipelineActivityData {
               revision: "b0982fa2ff92d126ad003c9e007959b4b8dd96a9",
               date: "2019-11-21T1:3:20+0:30",
               comment: "Adding test file",
+              commentFormat: "html",
               modifiedFiles: []
             }]
           }],
@@ -246,6 +248,7 @@ export class PipelineActivityData {
               revision: "b0982fa2ff92d126ad003c9e007959b4b8dd96a9",
               date: "2019-11-21T1:3:20+0:30",
               comment: "Adding test file",
+              commentFormat: "html",
               modifiedFiles: []
             }]
           }],

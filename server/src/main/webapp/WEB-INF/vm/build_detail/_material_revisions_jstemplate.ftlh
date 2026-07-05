@@ -40,24 +40,29 @@
             <tr>
                 <th colspan="2" class="highlight-${% revision.changed %}">
 
-                    <span class="normal revision_information">Revision: ${% modification.revision %}, modified by ${% _.escape(modification.user) %} on ${% modification.date %} </span>
+                    <span class="normal revision_information">Revision: ${% _.escape(modification.revision) %}, modified by ${% _.escape(modification.user) %} on ${% modification.date %} </span>
                     <br/>
 
                     <span title="Comment" class="comment">
-                        {if revision.scmType == 'Package' }
+                        {if modification.commentFormat == 'json' }
                             {if modification.comment != null && modification.comment != ""}
                                 {var comment_map = JSON.parse(modification.comment)}
                                 {if comment_map.COMMENT != null}
-                                    ${% comment_map.COMMENT %}<br/>
+                                    ${% _.escape(comment_map.COMMENT) %}<br/>
                                 {/if}
                                 {if comment_map.TRACKBACK_URL != null}
-                                    Trackback: <a href="${% comment_map.TRACKBACK_URL %}">${% comment_map.TRACKBACK_URL %}</a>
+                                    {if /^https?:\/\//i.test(comment_map.TRACKBACK_URL)}
+                                        Trackback: <a href="${% _.escape(comment_map.TRACKBACK_URL) %}" target="trackback">${% _.escape(comment_map.TRACKBACK_URL) %}</a>
+                                    {else}
+                                        Trackback: ${% _.escape(comment_map.TRACKBACK_URL) %}
+                                    {/if}
                                 {else}
                                     Trackback: Not Provided
                                 {/if}
                             {/if}
                         {else}
-                            "${% modification.comment.replace(/\n/g,"<br/>") %}"
+                            </#noparse><#-- Unlike the rest, should be HTML escaped by the server inside the JSON response --><#noparse>
+                            "${% modification.comment.replace(/\n/g, "<br/>") %}"
                         {/if}
                     </span>
                 </th>
@@ -65,7 +70,7 @@
             {for file in modification.modifiedFiles}
             <tr class="{if file_index%2==0} even {else} odd {/if}">
                 <td title="${% file.action %}" class="${% file.action %}">
-                     <span class="modified_file">${% file.fileName %}</span>
+                     <span class="modified_file">${% _.escape(file.fileName) %}</span>
                 </td>
             </tr>
             {/for}

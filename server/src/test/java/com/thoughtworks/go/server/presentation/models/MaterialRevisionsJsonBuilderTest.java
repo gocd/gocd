@@ -152,4 +152,18 @@ public class MaterialRevisionsJsonBuilderTest {
         assertThatJson(buildJson())
             .node("[0].modifications[0].comment").isEqualTo(JsonHelper.toJsonExposeOnly(packageMaterialComment));
     }
+
+    @Test
+    public void shouldSetCommentFormatToHtmlForNonPackageMaterial() {
+        assertThatJson(buildJson())
+            .node("[0].modifications[0].commentFormat").isEqualTo("html");
+    }
+
+    @Test
+    public void shouldSetCommentFormatToJsonForPackageMaterial() {
+        Modification modification = new Modification("user", "{\"TYPE\":\"PACKAGE_MATERIAL\"}", "some@com", new Date(), "1234");
+        materialRevisions = new MaterialRevisions(new MaterialRevision(MaterialsMother.packageMaterial(), modification));
+        assertThatJson(buildJson())
+            .node("[0].modifications[0].commentFormat").isEqualTo("json");
+    }
 }

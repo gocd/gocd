@@ -19,10 +19,6 @@ require 'rails_helper'
 describe MaterialsHelper do
   include MaterialsHelper
 
-  before do
-    @material = SvnMaterial.new("http://foo:bar@sf.net", "user", "pass", false)
-  end
-
   it "should replace tracking tool text with a link" do
     expect(self).to receive(:go_config_service).at_least(1).times.and_return(service = double("go config service"))
     expect(service).to receive(:getCommentRendererFor).with("pipeline").and_return(TrackingTool.new("http://pavan/${ID}", "\\d+"))
@@ -33,18 +29,38 @@ describe MaterialsHelper do
 
   describe "render_comment_markup_for" do
     it "should display comment and trackback url" do
-      comment_str = '{"TYPE":"PACKAGE_MATERIAL","COMMENT":"Built on blrstdgobgr03.","TRACKBACK_URL":"google.com"}'
-      expect(render_comment_markup_for(comment_str, 'pipeline')).to eq("Built on blrstdgobgr03.<br>Trackback: <a href=\"google.com\">google.com</a>")
+      comment_str = '{"TYPE":"PACKAGE_MATERIAL","COMMENT":"Built on blrstdgobgr03.","TRACKBACK_URL":"https://google.com"}'
+      expect(render_comment_markup_for(comment_str, "PackageMaterial", 'pipeline')).to eq("Built on blrstdgobgr03.<br/>Trackback: <a target=\"trackback\" href=\"https://google.com\">https://google.com</a>")
     end
 
     it "should display trackback url when comment is not provided" do
-      comment_str = '{"TYPE":"PACKAGE_MATERIAL", "TRACKBACK_URL":"google.com"}'
-      expect(render_comment_markup_for(comment_str, 'pipeline')).to eq("Trackback: <a href=\"google.com\">google.com</a>")
+      comment_str = '{"TYPE":"PACKAGE_MATERIAL", "TRACKBACK_URL":"https://google.com"}'
+      expect(render_comment_markup_for(comment_str, "PackageMaterial", 'pipeline')).to eq("Trackback: <a target=\"trackback\" href=\"https://google.com\">https://google.com</a>")
     end
 
     it "should display trackback url as not provided when trackback_url and comment are not there" do
       comment_str = '{"TYPE":"PACKAGE_MATERIAL"}'
-      expect(render_comment_markup_for(comment_str, 'pipeline')).to eq("Trackback: Not Provided")
+      expect(render_comment_markup_for(comment_str, "PackageMaterial", 'pipeline')).to eq("Trackback: Not Provided")
+    end
+
+    it "should escape package comments comment" do
+      comment_str = '{"TYPE":"PACKAGE_MATERIAL","COMMENT":"<script>alert(1)</script>","TRACKBACK_URL":"https://google.com"}'
+      expect(render_comment_markup_for(comment_str, "PackageMaterial", 'pipeline')).to eq("&lt;script&gt;alert(1)&lt;/script&gt;<br/>Trackback: <a target=\"trackback\" href=\"https://google.com\">https://google.com</a>")
+    end
+
+    it "should render a non-http(s) trackback url as escaped text rather than a link" do
+      comment_str = '{"TYPE":"PACKAGE_MATERIAL","TRACKBACK_URL":"badscheme://something"}'
+      expect(render_comment_markup_for(comment_str, "PackageMaterial", 'pipeline')).to eq("Trackback: badscheme://something")
+    end
+
+    it "should render a schemeless trackback url as escaped text rather than a link" do
+      comment_str = '{"TYPE":"PACKAGE_MATERIAL","TRACKBACK_URL":"google.com"}'
+      expect(render_comment_markup_for(comment_str, "PackageMaterial", 'pipeline')).to eq("Trackback: google.com")
+    end
+
+    it "should render a blank package material comment as empty without failing to parse it as JSON" do
+      expect(render_comment_markup_for("", "PackageMaterial", 'pipeline')).to eq("")
+      expect(render_comment_markup_for(nil, "PackageMaterial", 'pipeline')).to eq("")
     end
 
     it "should render a nil comment as empty" do
@@ -52,7 +68,18 @@ describe MaterialsHelper do
       expect(service).to receive(:getCommentRendererFor).with("pipeline").and_return(TrackingTool.new("http://somehost/${ID}", "\\d+"))
 
       comment_str = nil
-      expect(render_comment_markup_for(comment_str, 'pipeline')).to eq("<p></p>")
+      expect(render_comment_markup_for(comment_str, "SvnMaterial", 'pipeline')).to eq("<p></p>")
+    end
+
+    it "should not treat a non-package comment as a package payload even if it looks like one" do
+      expect(self).to receive(:go_config_service).at_least(1).times.and_return(service = double("go config service"))
+      expect(service).to receive(:getCommentRendererFor).with("pipeline").and_return(TrackingTool.new("http://somehost/${ID}", "\\d+"))
+
+      comment_str = '{"TYPE":"PACKAGE_MATERIAL","COMMENT":"<script>alert(document.cookie)</script>","TRACKBACK_URL":"http://evil"}'
+      result = render_comment_markup_for(comment_str, "SvnMaterial", 'pipeline')
+      expect(result).to include("PACKAGE_MATERIAL") # rendered verbatim, not parsed out as a package comment
+      expect(result).to include("&lt;script&gt;")
+      expect(result).not_to include("<script>")
     end
   end
 end

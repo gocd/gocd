@@ -60,11 +60,23 @@ describe('MaterialRevisionsWidgetSpec', () => {
     expect(helper.qa('a', tableRow[3])[1]).toHaveAttr("href", "http://example.com/456");
   });
 
+  it('should unpack and escape a package material json comment', () => {
+    const materialRevisions            = defaultRevs();
+    materialRevisions[0].commitMessage = '{"COMMENT":"<script>alert(1)</script>","TRACKBACK_URL":"https://tracker/1"}';
+    mount(materialRevisions, new PipelineConfig(), "package");
+
+    const comment = helper.qa("td", helper.byTestId("table-row"))[3];
+    expect(comment.textContent).toContain("<script>alert(1)</script>"); // escaped, shown literally
+    expect(comment.textContent).toContain("Trackback: https://tracker/1");
+    expect(comment.querySelector("script")).toBeNull();
+    expect(comment.innerHTML).not.toContain('"TYPE"'); // not the raw JSON envelope
+  });
+
   function defaultRevs() {
     return MaterialRevisions.fromJSON(ComparisonData.materialRevisions());
   }
 
-  function mount(revisions: MaterialRevisions = defaultRevs(), pipelineConfig = new PipelineConfig()) {
-    helper.mount(() => <MaterialRevisionsWidget result={revisions} pipelineConfig={pipelineConfig}/>);
+  function mount(revisions: MaterialRevisions = defaultRevs(), pipelineConfig = new PipelineConfig(), materialType = "git") {
+    helper.mount(() => <MaterialRevisionsWidget result={revisions} pipelineConfig={pipelineConfig} materialType={materialType}/>);
   }
 });

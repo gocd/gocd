@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {renderComment, TrackingTool} from "helpers/render_comment";
+import {CommentServerFormat, renderCommentToHtml, TrackingTool} from "helpers/render_comment";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 
 export interface Attrs {
   text: string;
+  textType?: CommentServerFormat; // defaults to 'raw' (server-provided, unrendered text)
   trackingTool: TrackingTool;
 }
 
 export class CommentRenderWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const text         = vnode.attrs.text;
+    const textType     = vnode.attrs.textType || 'raw';
     const trackingTool = vnode.attrs.trackingTool;
 
-    return (<div class="item comment"><p>{m.trust(renderComment(text, trackingTool))}</p></div>);
+    return (<div class="item comment"><p>{m.trust(renderCommentToHtml(text, textType, trackingTool))}</p></div>);
   }
 }

@@ -20,12 +20,12 @@
         scope[:material] = material_revision_in_build_cause.getMaterial() %>
         <div id="material_<%= material_revision_in_build_cause.getMaterial().getPipelineUniqueFingerprint() -%>" class="material<%= material_revision_in_build_cause.isChanged() ? ' changed' : ""  -%>">
             <div class="material_name"><%= "#{scope[:material].getTypeForDisplay()}" %> - <%= "#{scope[:material].getDisplayName()}" -%></div>
-            <% if !dependency_material?(scope[:material]) %>
+            <% if !dependency_material?(scope[:material].getMaterialType()) %>
                 <%if scope[:show_latest_only]%>
-                    <%= render :partial => "shared/modification", :locals => {:scope => {:modification => material_revision_in_build_cause.getLatestModification(), :pipeline_name => scope[:pipeline_name], :show_files => scope[:show_files]}}-%>
+                    <%= render :partial => "shared/modification", :locals => {:scope => {:modification => material_revision_in_build_cause.getLatestModification(), :material_type => scope[:material].getMaterialType(), :pipeline_name => scope[:pipeline_name], :show_files => scope[:show_files]}}-%>
                 <%else%>
                     <% material_revision_in_build_cause.getModifications().each do |mod_in_build_cause| %>
-                        <%= render :partial => "shared/modification", :locals => {:scope => {:modification => mod_in_build_cause, :pipeline_name => scope[:pipeline_name], :show_files => scope[:show_files]}}-%>
+                        <%= render :partial => "shared/modification", :locals => {:scope => {:modification => mod_in_build_cause, :material_type => scope[:material].getMaterialType(), :pipeline_name => scope[:pipeline_name], :show_files => scope[:show_files]}}-%>
                     <% end %>
                 <%end%>
 

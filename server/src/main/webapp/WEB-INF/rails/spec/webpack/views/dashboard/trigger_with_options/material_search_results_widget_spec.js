@@ -57,6 +57,23 @@ describe("Dashboard Material Search Results Widget", () => {
     expect(helper.text('.commit_info .commit_message')).toContain(json[0].comment);
   });
 
+  it("should unpack and escape package material (json) comments", () => {
+    material.type = 'Package';
+    material.searchResults([{
+      "revision": "pkg-1",
+      "user":     "bob",
+      "date":     "2018-02-12T11:02:48Z",
+      "comment":  '{"COMMENT":"<script>alert(1)</script>","TRACKBACK_URL":"https://tracker/1"}'
+    }]);
+    helper.redraw();
+
+    const msg = helper.q('.commit_info .commit_message');
+    expect(msg.textContent).toContain('<script>alert(1)</script>'); // escaped, shown literally
+    expect(msg.textContent).toContain('Trackback: https://tracker/1');
+    expect(msg.querySelector('script')).toBeNull();
+    expect(msg.innerHTML).not.toContain('"TYPE"'); // not the raw JSON envelope
+  });
+
   it("should render no revisions found message", () => {
     material.searchText('foo');
     material.searchResults([]);

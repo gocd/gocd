@@ -26,6 +26,7 @@ import {
   StageConfigJSON,
   StageJSON
 } from "models/pipeline_activity/pipeline_activity_json";
+import {CommentServerFormat} from "../../helpers/render_comment";
 
 const TimeFormatter = require("helpers/time_formatter");
 
@@ -88,13 +89,15 @@ export class Modification {
   revision: Stream<string>;
   date: Stream<string>;
   comment: Stream<string>;
+  commentFormat: Stream<CommentServerFormat>;
   modifiedFiles: Stream<string[]>;
 
-  constructor(user: string, revision: string, date: string, comment: string, modifiedFiles: string[]) {
+  constructor(user: string, revision: string, date: string, comment: string, commentFormat: CommentServerFormat, modifiedFiles: string[]) {
     this.user          = Stream(user);
     this.revision      = Stream(revision);
     this.date          = Stream(date);
     this.comment       = Stream(comment);
+    this.commentFormat = Stream(commentFormat);
     this.modifiedFiles = Stream(modifiedFiles);
   }
 
@@ -103,6 +106,7 @@ export class Modification {
       modification.revision,
       modification.date,
       modification.comment,
+      modification.commentFormat,
       modification.modifiedFiles);
   }
 }

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import classNames from "classnames/bind";
+import {renderCommentToHtml} from "helpers/render_comment";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -101,7 +102,7 @@ class ModificationWidget extends MithrilViewComponent<ModificationAttrs> {
     const modification = vnode.attrs.modification;
     return <div class={styles.modification} data-test-id={`modification-${modification.revision()}`}>
       <span class={styles.user} data-test-id="user">{modification.user()}</span>
-      <span class={styles.comment} data-test-id="comment">{m.trust(modification.comment())}</span>
+      <span class={styles.comment} data-test-id="comment">{m.trust(renderCommentToHtml(modification.comment(), modification.commentFormat()))}</span>
       <span class={styles.revision} data-test-id="revision">{modification.revision()}</span>
     </div>;
   }

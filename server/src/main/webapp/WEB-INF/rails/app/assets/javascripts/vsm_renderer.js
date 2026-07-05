@@ -284,16 +284,16 @@ Graph_Renderer = function (container) {
       nodeClassName = node.node_type.toLowerCase();
       var pluginClassName = isNodeTypeScm() ? "scm " : "";
       gui += `<div class= "material_revisions ${pluginClassName}${nodeClassName}"></div>`;
-      if (node.node_type == 'PACKAGE' && typeof (node.material_names) !== "undefined") {
+      if (node.node_type === 'PACKAGE' && typeof (node.material_names) !== "undefined") {
         node_name = node.material_names.join();
       } else {
         node_name = node.name;
       }
       gui += `<h3 class="material_type" title="${nodeClassName}: ${node_name}">${node_name}</h3>`;
 
-      if (modification && modification.revision) {
-        gui += `<div title="${parseCommentForTooltip(modification.comment)}" class= "material_revisions_label">`;
-        gui += parseComment(modification.comment);
+      if (modification.revision) {
+        gui += `<div title="${renderCommentAttribute(modification.comment, node.node_type)}" class= "material_revisions_label">`;
+        gui += renderCommentMarkup(modification.comment, node.node_type);
         gui += '</div>';
 
         gui += '<div class="more">...</div>';
@@ -330,11 +330,10 @@ Graph_Renderer = function (container) {
       }
       gui += `<ul class="instances" data-materialname=${node.id} style="display: none;">`;
       gui += '<li></li>';
-      for (var j = 0; j < instancesCount; j++) {
+      for (let j = 0; j < instancesCount; j++) {
         gui += `<li class="material_revision_header"><div title="${node.name}">${node.name}</div></li>`;
-        var modificationsCount = node.material_revisions[j].modifications.length;
-        for (var k = 0; k < modificationsCount; k++) {
-          gui += renderScmInstance(node.material_revisions[j].modifications[k]);
+        for (let k = 0; k < node.material_revisions[j].modifications.length; k++) {
+          gui += renderScmInstance(node.material_revisions[j].modifications[k], node.node_type);
         }
       }
       gui += '</ul>';
@@ -385,11 +384,11 @@ Graph_Renderer = function (container) {
 
   }
 
-  function renderScmInstance(instance) {
+  function renderScmInstance(instance, node_type) {
 
     return `<li class="instance">`
       + `<div title="${instance.revision}" class="revision"><span>Revision: </span><a href="${instance.locator}">${instance.revision}</a>` + ` </div>`
-      + `<div class="usercomment wraptext">${parseComment(instance.comment)}</div>`
+      + `<div class="usercomment wraptext">${renderCommentMarkup(instance.comment, node_type)}</div>`
       + `<div class="author">`
       + `<p>${_.escape(instance.user)} </p>`
       + `<p>${_.escape(instance.modified_time)}</p>`
@@ -397,38 +396,40 @@ Graph_Renderer = function (container) {
       + `</li>`;
   }
 
-  function parseComment(comment) {
-    if (/"TYPE":"PACKAGE_MATERIAL"/.test(comment)) {
-      var comment_markup = "";
-      var comment_map = JSON.parse(comment);
-      var package_comment = comment_map['COMMENT'];
-      var trackback_url = comment_map['TRACKBACK_URL'];
-      if (typeof package_comment !== "undefined" || package_comment != null) {
-        comment_markup = `${_.escape(package_comment)}<br/>`;
-      }
-      if (typeof trackback_url !== "undefined" || trackback_url != null) {
-        return `${comment_markup}Trackback: <a href="${encodeURI(trackback_url)}">${_.escape(trackback_url)}</a>`;
-      }
-      return `${comment_markup}Trackback: Not Provided`;
+  // See webpack/helpers/render_comment.ts (renderCommentToHtml).
+  function renderCommentMarkup(comment, node_type) {
+    if (node_type !== 'PACKAGE' || _.isEmpty(comment)) {
+      return _.escape(comment);
     }
-    return _.escape(comment);
+
+    const comment_map = JSON.parse(comment);
+    const package_comment = comment_map['COMMENT'];
+    const comment_markup = _.isEmpty(package_comment) ? "" : `${_.escape(package_comment)}<br/>`;
+
+    const trackback_url = comment_map['TRACKBACK_URL'];
+    let trackback;
+    if (_.isEmpty(trackback_url)) {
+      trackback = "Not Provided";
+    } else if (/^https?:\/\//i.test(trackback_url)) {
+      trackback = `<a href="${_.escape(trackback_url)}" target="trackback">${_.escape(trackback_url)}</a>`;
+    } else {
+      trackback = _.escape(trackback_url);
+    }
+    return `${comment_markup}Trackback: ${trackback}`;
   }
 
-  function parseCommentForTooltip(comment) {
-    if (/"TYPE":"PACKAGE_MATERIAL"/.test(comment)) {
-      var comment_tooltip = "";
-      var comment_map = JSON.parse(comment);
-      var package_comment = comment_map['COMMENT'];
-      var trackback_url = comment_map['TRACKBACK_URL'];
-      if (typeof package_comment !== "undefined" || package_comment != null) {
-        comment_tooltip = `${_.escape(package_comment)}\n`;
-      }
-      if (typeof trackback_url !== "undefined" || trackback_url != null) {
-        return `${comment_tooltip}Trackback: ${_.escape(trackback_url)}`;
-      }
-      return `${comment_tooltip}Trackback: Not Provided`;
+  function renderCommentAttribute(comment, node_type) {
+    if (node_type !== 'PACKAGE' || _.isEmpty(comment)) {
+      return _.escape(comment);
     }
-    return _.escape(comment);
+
+    const comment_map = JSON.parse(comment);
+    const package_comment = comment_map['COMMENT'];
+    const comment_tooltip = _.isEmpty(package_comment) ? "" : `${_.escape(package_comment)}\n`;
+
+    const trackback_url = comment_map['TRACKBACK_URL'];
+    const trackback = _.isEmpty(trackback_url) ? "Not Provided" : _.escape(trackback_url);
+    return `${comment_tooltip}Trackback: ${trackback}`;
   }
 
   function renderPipelineEntity(node) {

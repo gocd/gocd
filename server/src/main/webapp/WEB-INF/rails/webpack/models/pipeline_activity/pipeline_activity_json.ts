@@ -44,6 +44,7 @@ export interface ModificationJSON {
   revision: string;
   date: string;
   comment: string;
+  commentFormat: 'html' | 'json';
   modifiedFiles: any[];
 }
 

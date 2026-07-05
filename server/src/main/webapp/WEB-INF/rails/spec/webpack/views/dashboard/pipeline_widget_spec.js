@@ -208,7 +208,7 @@ describe("Dashboard Pipeline Widget", () => {
         };
 
         mount(true, pauseInfo, undefined, false);
-        expect(helper.text('.pipeline_pause-message')).toContain('Paused by admin ()');
+        expect(helper.text('.pipeline_pause-message')).toContain('Paused by admin');
       });
 
       it("should not render the pipeline flash message", () => {

@@ -170,7 +170,7 @@ export const PipelineOperationsWidget = {
       playTitlenLabel            = "Trigger Pipeline Disabled";
       playWithOptionsTitlenLabel = "Trigger with Options Disabled";
       pauseUnpauseClass          = `pipeline_btn unpause ${(pipeline.canPause) ? '' : 'disabled'}`;
-      pausedMessage              = `Paused by ${pipeline.pausedBy} (${pipeline.pausedCause || ''})`;
+      pausedMessage              = `Paused by ${pipeline.pausedBy}${pipeline.pausedCause ? ` (${pipeline.pausedCause.trim()})` : ''}`;
       onPauseUnpauseClick        = (pipeline.canPause) && vnode.state.unpause.bind(vnode.state, pipeline);
     } else {
       pauseUnpauseClass          = `pipeline_btn pause ${(pipeline.canPause) ? '' : 'disabled'}`;

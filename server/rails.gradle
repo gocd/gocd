@@ -190,6 +190,9 @@ def compileAssetsWebpackDev = tasks.register('compileAssetsWebpackDev', YarnRunT
   source("${project.railsRoot}/webpack")
   source("${project.railsRoot}/config")
 
+  // Also need to compile test code?
+  source("${project.railsRoot}/spec/webpack")
+
   workingDir = project.railsRoot
   destinationDir = project.file("${project.railsRoot}/public/assets/webpack")
   yarnCommand = ['webpack-dev', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${yarnLicenseReportFile}"]

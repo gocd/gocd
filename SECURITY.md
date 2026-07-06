@@ -25,11 +25,12 @@ Having said this, wherever possible we will try and provide suggested mitigation
 
 This represents the oldest versions which have **no known exploitable vulnerabilities** of a given severity, as assessed by GoCD maintainers and/or NIST NVD via CVSS 4.0 or 3.1. Users are strongly recommended to be on at least these versions; and preferably the latest version. 
 
-| Without known vulns             | Version                                            |
-|---------------------------------|----------------------------------------------------|
-| No >= **high** severity vulns   | [`24.5.0`](https://www.gocd.org/releases/#24-5-0)+ |
-| No >= **medium** severity vulns | [`26.1.0`](https://www.gocd.org/releases/#26-1-0)+ |
-| No known vulns of any severity  | [`26.1.0`](https://www.gocd.org/releases/#26-1-0)+ |
+| Without known vulns               | Version                                            |
+|-----------------------------------|----------------------------------------------------|
+| No >= **critical** severity vulns | [`24.5.0`](https://www.gocd.org/releases/#24-5-0)+ |
+| No >= **high** severity vulns     | [`26.1.0`](https://www.gocd.org/releases/#26-1-0)+ |
+| No >= **medium** severity vulns   | [`26.1.0`](https://www.gocd.org/releases/#26-1-0)+ |
+| No known vulns of any severity    | [`26.1.0`](https://www.gocd.org/releases/#26-1-0)+ |
 
 Please note that this does *not* mean that there are zero potential vulnerabilities known from GoCD's dependencies
 in this or subsequent versions. However where such vulnerabilities exist, none have been confirmed to be exploitable via GoCD

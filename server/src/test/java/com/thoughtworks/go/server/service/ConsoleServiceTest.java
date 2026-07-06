@@ -188,7 +188,7 @@ public class ConsoleServiceTest {
             .hasMessageContaining("final_console.log")
             .cause()
             .isInstanceOf(IOException.class)
-            .hasMessageMatching("Cannot create directory.*/blocker.*");
+            .hasMessageMatching("Cannot create directory.*blocker.*");
     }
 
 }

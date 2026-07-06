@@ -18,12 +18,12 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.helper.JobIdentifierMother;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
-import org.apache.commons.io.FileExistsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -133,11 +133,50 @@ public class ConsoleServiceTest {
     }
 
     @Test
+    public void shouldLeaveExistingFinalLogAloneWhenTemporaryFileDoesNotExist(@TempDir Path testFolder) throws Exception {
+        JobIdentifier jobIdentifier = JobIdentifierMother.anyBuildIdentifier();
+
+        File temporaryConsoleLog = testFolder.resolve("temporary_console.log").toFile();
+        File finalConsoleLog = Files.writeString(testFolder.resolve("final_console.log"), "from earlier run\n").toFile();
+
+        when(chooser.temporaryConsoleFile(jobIdentifier)).thenReturn(temporaryConsoleLog);
+        when(chooser.findArtifact(jobIdentifier, CONSOLE_LOG_FILE_RELATIVE_PATH)).thenReturn(finalConsoleLog);
+
+        service.moveConsoleArtifacts(jobIdentifier);
+
+        assertThat(temporaryConsoleLog).doesNotExist();
+        assertThat(finalConsoleLog).content().isEqualTo("from earlier run\n");
+    }
+
+    @Test
+    public void shouldDiscardLeftoverTemporaryFileWhenFinalLogAlreadyExists(@TempDir Path testFolder) throws Exception {
+        JobIdentifier jobIdentifier = JobIdentifierMother.anyBuildIdentifier();
+
+        File temporaryConsoleLog = Files.writeString(testFolder.resolve("temporary_console.log"), "residue already at final location\n").toFile();
+        File finalConsoleLog = Files.writeString(testFolder.resolve("final_console.log"), """
+            from earlier run
+            from later run
+            """).toFile();
+
+        when(chooser.temporaryConsoleFile(jobIdentifier)).thenReturn(temporaryConsoleLog);
+        when(chooser.findArtifact(jobIdentifier, CONSOLE_LOG_FILE_RELATIVE_PATH)).thenReturn(finalConsoleLog);
+
+            service.moveConsoleArtifacts(jobIdentifier);
+
+        assertThat(temporaryConsoleLog).doesNotExist();
+        assertThat(finalConsoleLog).content().isEqualTo("""
+            from earlier run
+            from later run
+            """);
+    }
+
+    @Test
     public void shouldReturnUsefulErrorIfMoveConsoleArtifactsFails(@TempDir Path testFolder) throws Exception {
         JobIdentifier jobIdentifier = JobIdentifierMother.anyBuildIdentifier();
 
         File temporaryConsoleLog = testFolder.resolve("temporary_console.log").toFile();
-        File finalConsoleLog = Files.createFile(testFolder.resolve("final_console.log")).toFile();
+        File blockingFile = Files.createFile(testFolder.resolve("blocker")).toFile();
+        File finalConsoleLog = new File(blockingFile, "final_console.log");
 
         when(chooser.temporaryConsoleFile(jobIdentifier)).thenReturn(temporaryConsoleLog);
         when(chooser.findArtifact(jobIdentifier, CONSOLE_LOG_FILE_RELATIVE_PATH)).thenReturn(finalConsoleLog);
@@ -148,8 +187,8 @@ public class ConsoleServiceTest {
             .hasMessageContaining("temporary_console.log")
             .hasMessageContaining("final_console.log")
             .cause()
-            .isInstanceOf(FileExistsException.class)
-            .hasMessageContaining("File element in parameter 'destFile' already exists");
+            .isInstanceOf(IOException.class)
+            .hasMessageMatching("Cannot create directory.*/blocker.*");
     }
 
 }

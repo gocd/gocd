@@ -96,7 +96,7 @@ public class ConsoleService {
 
     public boolean appendToConsoleLogIoSafe(File dest, InputStream in) {
         FileUtil.mkdirsParentQuietly(dest);
-        try (OutputStream out = new FileOutputStream(dest, dest.exists())) {
+        try (OutputStream out = new FileOutputStream(dest, true)) {
             in.transferTo(out);
         } catch (IOException e) {
             LOGGER.error("Failed to update console log at : [{}]", dest.getAbsolutePath(), e);
@@ -125,9 +125,17 @@ public class ConsoleService {
         File from = chooser.temporaryConsoleFile(locatableEntity);
         File to = consoleLogArtifactUnchecked(locatableEntity);
         try {
-            // Job cancellation can skip temporary file creation. Force create one if it does not exist.
-            FileUtils.touch(from);
-            FileUtils.moveFile(from, to);
+            if (to.exists()) {
+                // A log may already exist at the artifact location if an earlier run of a job with the same identity
+                // completed, e.g. after a database restore alongside a newer artifact store. Appends during this run
+                // will have gone directly to the existing artifact (see consoleLogFile), so there is nothing to move;
+                // any leftover temporary file is residue whose content already reached the artifact location.
+                FileUtils.deleteQuietly(from);
+            } else {
+                // Job cancellation can skip temporary file creation. Force create one if it does not exist.
+                FileUtils.touch(from);
+                FileUtils.moveFile(from, to);
+            }
         } catch (IOException e) {
             throw new RuntimeException("Unexpected error moving console log from temporary location [%s] to permanent artifact location [%s]".formatted(from, to), e);
         }

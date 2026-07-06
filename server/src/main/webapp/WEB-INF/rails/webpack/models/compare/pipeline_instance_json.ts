@@ -61,7 +61,7 @@ export interface MaterialJSON {
   id: number;
   name: string;
   fingerprint: string;
-  type: string;
+  type: string; // "display" type (sentence case style), more strictly
   description: string;
 }
 

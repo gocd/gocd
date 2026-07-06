@@ -19,7 +19,7 @@ import m from "mithril";
 import _ from "lodash";
 import inflection from "lodash-inflection";
 import {timeFormatter as TimeFormatter} from "helpers/time_formatter";
-import {renderCommentToHtml} from "helpers/render_comment";
+import {renderCommentToHtmlByType} from "helpers/render_comment";
 
 export const MaterialSearchResultsWidget = {
   view(vnode) {
@@ -51,7 +51,7 @@ export const MaterialSearchResultsWidget = {
             <span class="committer">{result.user}</span>
             <span class="time">{TimeFormatter.format(result.date)}</span>
           </div>
-          <div class="commit_message">{m.trust(renderCommentToHtml(result.comment, material.type === 'Package' ? 'json' : 'raw'))}</div>
+          <div class="commit_message">{m.trust(renderCommentToHtmlByType(result.comment, material.type))}</div>
         </li>
       );
       return li;

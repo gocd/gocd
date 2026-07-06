@@ -18,7 +18,7 @@
 import m from "mithril";
 import $ from "jquery";
 import {timeFormatter} from "helpers/time_formatter";
-import {renderCommentToHtml} from "helpers/render_comment";
+import {renderCommentToHtmlByType} from "helpers/render_comment";
 import {MaterialSearchResultsWidget} from "views/dashboard/trigger_with_options/material_search_results_widget";
 
 export const MaterialInfoWidget = {
@@ -54,7 +54,7 @@ export const MaterialInfoWidget = {
 
     if (material.revision.revision) {
       comment = material.revision.comment
-        ? m.trust(renderCommentToHtml(material.revision.comment, material.type === 'Package' ? 'json' : 'raw'))
+        ? m.trust(renderCommentToHtmlByType(material.revision.comment, material.type))
         : <em>not specified</em>;
       date    = material.revision.date ? timeFormatter.format(material.revision.date) : <em>not specified</em>;
       lastRun = material.revision.revision ? material.revision.revision : <em>not specified</em>;

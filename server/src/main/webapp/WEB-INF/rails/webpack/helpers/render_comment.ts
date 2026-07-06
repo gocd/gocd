@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import _ from "lodash";
+import {MaterialType} from "../models/materials/materials";
 
 export type CommentServerFormat = 'html' | 'json' | 'raw';
 
@@ -30,7 +31,7 @@ export function renderCommentToHtml(text: string, textType: CommentServerFormat,
       return text;
     case "json":
       // We need to extract comment from json; then make it safe, possibly with tracking tool links
-      return renderRawCommentToHtml(renderJsonCommentUnsafe(text), trackingTool);
+      return renderRawCommentToHtml(parseJsonCommentUnsafe(text), trackingTool);
     case "raw":
       // The default case; assume it is unsafe from server. If this is passed incorrectly, it'll lead to
       // double-escaping and bad rendering.
@@ -38,9 +39,24 @@ export function renderCommentToHtml(text: string, textType: CommentServerFormat,
   }
 }
 
-function renderJsonCommentUnsafe(text: string) {
+// Renders to safe HTML, assuming input is raw or json. Case-insensitive on materialType, since callers pass both
+// the config type ("package") and the display type ("Package").
+export function renderCommentToHtmlByType(text: string, materialType: MaterialType | string) {
+  return renderCommentToHtml(text, materialType?.toLowerCase() === "package" ? "json" : "raw");
+}
+
+// Parses server comments assuming they are being returned raw. Does not make changes that affect style of rendering
+// but does adapt the comment by material type.
+export function parseRawCommentUnsafe(text: string, materialType: MaterialType) {
+  return materialType === "package" ? parseJsonCommentUnsafe(text) : text;
+}
+
+// Extracts a package-material JSON comment envelope into human-readable *unescaped* plain text
+// (COMMENT + trackback). Callers must escape the result before inserting as HTML (e.g. render it as mithril text,
+// or pass it through renderRawCommentToHtml). Does not render the trackback as a link at this stage (unlike the legacy
+// Rails and sprockets raw JS code).
+function parseJsonCommentUnsafe(text: string) {
   try {
-    // Renders JSON comments but does not yet render actual links like the server-side legacy Rails and sprockets code.
     const commentJSON   = JSON.parse(text);
     const trackbackURL  = commentJSON?.TRACKBACK_URL || "Not Provided";
     const packageOrigin = _.isEmpty(commentJSON.COMMENT) ? "" : `${commentJSON.COMMENT}\n`;

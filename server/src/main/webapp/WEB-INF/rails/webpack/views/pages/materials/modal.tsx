@@ -92,7 +92,7 @@ export class ShowModificationsModal extends Modal {
       {header}
       <div class={styles.modificationWrapper}>
         {this.modifications().map((mod, index) => {
-          const details = MaterialWidget.showModificationDetails(mod);
+          const details = MaterialWidget.showModificationDetails(mod, this.material.type());
           ShowModificationsModal.updateWithVsmLink(details, mod, this.material.fingerprint());
           const username = details.get("Username");
           return <div data-test-id={`mod-${index}`} class={styles.modification}>

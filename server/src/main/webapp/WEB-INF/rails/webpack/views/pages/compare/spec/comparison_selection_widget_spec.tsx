@@ -41,7 +41,7 @@ describe('ComparisonSelectionWidgetSpec', () => {
 
     const widget       = helper.byTestId("comparison-selection-widget");
     const tableElement = helper.q("table", widget);
-    const tableCols    = helper.qa("tbody > tr > td", tableElement);
+    const tableCols    = helper.qa(":scope > tbody > tr > td", tableElement);
 
     expect(widget).toBeInDOM();
     expect(tableElement).toBeInDOM();

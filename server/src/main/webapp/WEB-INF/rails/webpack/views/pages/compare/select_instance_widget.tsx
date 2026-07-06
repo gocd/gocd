@@ -15,6 +15,7 @@
  */
 
 import classNames from "classnames/bind";
+import {renderCommentToHtmlByType} from "helpers/render_comment";
 import {timeFormatter} from "helpers/time_formatter";
 import _ from "lodash";
 import m from "mithril";
@@ -113,12 +114,12 @@ export class SelectInstanceWidget extends Dropdown<DropdownAttrs & Attrs> {
     vnode.attrs.onInstanceChange(instance.counter());
   }
 
-  private materialRevisions(materialRevison: MaterialRevisions) {
-    return materialRevison.map((revision) => {
-      if (revision.material().type().toLowerCase() !== "pipeline") {
-        return this.materialRevision(revision);
-      } else {
+  private materialRevisions(materialRevision: MaterialRevisions) {
+    return materialRevision.map((revision) => {
+      if (revision.material().displayType().toLowerCase() === "pipeline") {
         return this.pipelineRevision(revision);
+      } else {
+        return this.materialRevision(revision);
       }
     });
   }
@@ -127,18 +128,20 @@ export class SelectInstanceWidget extends Dropdown<DropdownAttrs & Attrs> {
     return revision.modifications().map((modification, index) => {
       return <table data-test-id={InstanceSelectionWidget.dataTestId("modification", index)}
                     class={styles.modification}>
-        <tr>
-          <th>Revision</th>
-          <td>{modification.revision()}</td>
-        </tr>
-        <tr>
-          <th>Comment</th>
-          <td>{modification.comment()}</td>
-        </tr>
-        <tr>
-          <th>Modified by</th>
-          <td>{`${modification.userName()} on ${timeFormatter.format(modification.modifiedTime())}`}</td>
-        </tr>
+        <tbody>
+          <tr>
+            <th>Revision</th>
+            <td>{modification.revision()}</td>
+          </tr>
+          <tr>
+            <th>Comment</th>
+            <td>{m.trust(renderCommentToHtmlByType(modification.comment() || "", revision.material().displayType().toLowerCase()))}</td>
+          </tr>
+          <tr>
+            <th>Modified by</th>
+            <td>{`${modification.userName()} on ${timeFormatter.format(modification.modifiedTime())}`}</td>
+          </tr>
+        </tbody>
       </table>;
     });
   }
@@ -147,18 +150,20 @@ export class SelectInstanceWidget extends Dropdown<DropdownAttrs & Attrs> {
     return revision.modifications().map((modification, index) => {
       return <table data-test-id={InstanceSelectionWidget.dataTestId("pipeline-modification", index)}
                     class={styles.modification}>
-        <tr>
-          <th>Revision</th>
-          <td>{modification.revision()}</td>
-        </tr>
-        <tr>
-          <th>Comment</th>
-          <td>{modification.pipelineLabel()}</td>
-        </tr>
-        <tr>
-          <th>Modified On</th>
-          <td>{timeFormatter.format(modification.modifiedTime())}</td>
-        </tr>
+        <tbody>
+          <tr>
+            <th>Revision</th>
+            <td>{modification.revision()}</td>
+          </tr>
+          <tr>
+            <th>Comment</th>
+            <td>{modification.pipelineLabel()}</td>
+          </tr>
+          <tr>
+            <th>Modified On</th>
+            <td>{timeFormatter.format(modification.modifiedTime())}</td>
+          </tr>
+        </tbody>
       </table>;
     });
   }

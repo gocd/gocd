@@ -15,12 +15,13 @@
  */
 
 import classnames from "classnames";
+import {parseRawCommentUnsafe} from "helpers/render_comment";
 import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import {MaterialModification} from "models/config_repos/types";
-import {MaterialWithModification} from "models/materials/materials";
+import {MaterialType, MaterialWithModification} from "models/materials/materials";
 import {Link} from "views/components/link";
 import headerStyles from "views/pages/config_repos/index.scss";
 import styles from "./index.scss";
@@ -43,7 +44,7 @@ export class MaterialHeaderWidget extends MithrilViewComponent<MaterialAttrs> {
         <span data-test-id="material-display-name" className={headerStyles.headerTitleUrl}>{material.config.attributesAsString()}</span>
       </div>,
       <div data-test-id="latest-mod-in-header">
-        {MaterialHeaderWidget.showLatestModificationDetails(material.config.fingerprint(), material.modification)}
+        {MaterialHeaderWidget.showLatestModificationDetails(material.config.fingerprint(), material.config.type(), material.modification)}
       </div>
     ];
   }
@@ -76,15 +77,16 @@ export class MaterialHeaderWidget extends MithrilViewComponent<MaterialAttrs> {
     return <div data-test-id="material-icon" className={classnames(styles.material, style)}/>;
   }
 
-  private static showLatestModificationDetails(fingerprint: string, modification: MaterialModification | null) {
+  private static showLatestModificationDetails(fingerprint: string, materialType: MaterialType, modification: MaterialModification | null) {
     if (modification === null) {
       return "This material was never parsed";
     }
-    const commentLength         = modification.comment.includes('\n')
-      ? modification.comment.indexOf('\n') + 3 // the lodash replaces the last 3 digit with ellipse
+    const fullComment           = parseRawCommentUnsafe(modification.comment, materialType);
+    const firstCommentLineLength         = fullComment.includes('\n')
+      ? fullComment.indexOf('\n') + 3 // the lodash replaces the last 3 digit with ellipse
       : MaterialHeaderWidget.MAX_COMMIT_MSG_LENGTH;
     // Math.min is required if the first line is greater than 90 chars
-    const comment               = _.truncate(modification.comment, {length: Math.min(commentLength, MaterialHeaderWidget.MAX_COMMIT_MSG_LENGTH)});
+    const comment               = _.truncate(fullComment, {length: Math.min(firstCommentLineLength, MaterialHeaderWidget.MAX_COMMIT_MSG_LENGTH)});
     const username              = _.truncate(modification.username, {length: MaterialHeaderWidget.MAX_USERNAME_LENGTH});
     const revision              = _.truncate(modification.revision, {length: MaterialHeaderWidget.MAX_REVISION_LENGTH});
     const usernameAndRevElement = _.isEmpty(username)

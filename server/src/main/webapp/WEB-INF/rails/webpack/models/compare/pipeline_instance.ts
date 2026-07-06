@@ -177,14 +177,14 @@ export class MaterialRevisions extends Array<MaterialRevision> {
 class Material {
   id: Stream<number>;
   name: Stream<string>;
-  type: Stream<string>;
+  displayType: Stream<string>;
   fingerprint: Stream<string>;
   description: Stream<string>;
 
-  constructor(id: number, name: string, type: string, fingerprint: string, description: string) {
+  constructor(id: number, name: string, displayType: string, fingerprint: string, description: string) {
     this.id          = Stream(id);
     this.name        = Stream(name);
-    this.type        = Stream(type);
+    this.displayType = Stream(displayType);
     this.fingerprint = Stream(fingerprint);
     this.description = Stream(description);
   }

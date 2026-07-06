@@ -41,6 +41,7 @@ import s from "underscore.string";
 import urlParse from "url-parse";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
 import {Filter} from "../maintenance_mode/material";
+import {MaterialType} from "./materials";
 
 export const mapTypeToDisplayType: { [key: string]: string; } = {
   git:        "Git",
@@ -90,10 +91,10 @@ export class Materials {
 export class Material extends ValidatableMixin {
   private static API_VERSION_HEADER = ApiVersion.v1;
 
-  type: Stream<string | undefined>;
+  type: Stream<MaterialType | undefined>;
   attributes: Stream<MaterialAttributes | undefined>;
 
-  constructor(type?: string, attributes?: MaterialAttributes) {
+  constructor(type?: MaterialType, attributes?: MaterialAttributes) {
     super();
     this.attributes = Stream(attributes);
     this.type       = Stream(type);
@@ -109,9 +110,9 @@ export class Material extends ValidatableMixin {
       const newType = value;
       if (this.type() !== newType) {
         this.attributes(MaterialAttributes.deserialize({
-                                                         type:       newType,
-                                                         attributes: ({ auto_update: true } as MaterialAttributesJSON)
-                                                       }));
+          type: newType,
+          attributes: ({auto_update: true} as MaterialAttributesJSON)
+        }));
       }
       this.type(newType);
     }

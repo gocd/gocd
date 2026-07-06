@@ -15,10 +15,11 @@
  */
 
 import {FilterJSON} from "../maintenance_mode/material";
+import {MaterialType} from "../materials/materials";
 import {ErrorsJSON} from "../mixins/errors";
 
 export interface MaterialJSON {
-  type: string;
+  type: MaterialType;
   attributes: MaterialAttributesJSON;
 }
 

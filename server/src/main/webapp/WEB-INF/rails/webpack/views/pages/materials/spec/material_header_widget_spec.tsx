@@ -18,6 +18,7 @@ import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import {MaterialModification} from "models/config_repos/types";
 import {
+  MaterialType,
   MaterialWithFingerprint,
   MaterialWithModification,
   P4MaterialAttributes,
@@ -63,7 +64,7 @@ describe('MaterialHeaderWidgetSpec', () => {
     {type: "dependency", classname: styles.unknown},
   ].forEach((parameter) => {
     it(`should display icon for ${parameter.type} `, () => {
-      material.config.type(parameter.type);
+      material.config.type(parameter.type as MaterialType);
       mount();
 
       expect(helper.byTestId("material-icon")).toHaveClass(parameter.classname);
@@ -77,7 +78,7 @@ describe('MaterialHeaderWidgetSpec', () => {
   ].forEach((parameter) => {
     it(`should display icon for ${parameter.type} `, () => {
       material.config.attributes(parameter.attrs);
-      material.config.type(parameter.type);
+      material.config.type(parameter.type as MaterialType);
       mount();
 
       expect(helper.byTestId("material-icon")).toHaveClass(parameter.classname);
@@ -137,6 +138,17 @@ describe('MaterialHeaderWidgetSpec', () => {
 
     expect(helper.byTestId("latest-mod-in-header")).toBeInDOM();
     expect(helper.q(`.${headerStyles.comment}`).textContent).toBe("A very long comment to be shown on the header which should be trimmed and rest part sho...");
+  });
+
+  it('should unpack a package material json comment and show its first line', () => {
+    material.config       = new MaterialWithFingerprint("package", "fingerprint", new PackageMaterialAttributes(undefined, true, "pkg-id", "pkg-name", "pkg-repo-name"));
+    material.modification = new MaterialModification("user", null, "pkg-1", '{"TYPE":"PACKAGE_MATERIAL","COMMENT":"Built on server","TRACKBACK_URL":"https://tracker/1"}', "");
+    mount();
+
+    const comment = helper.q(`.${headerStyles.comment}`);
+    expect(comment.textContent).toContain("Built on server"); // unpacked, not the raw JSON envelope
+    expect(comment.textContent).not.toContain('"TYPE"');
+    expect(comment.textContent).not.toContain("Trackback"); // header shows only the first line
   });
 
   function mount() {

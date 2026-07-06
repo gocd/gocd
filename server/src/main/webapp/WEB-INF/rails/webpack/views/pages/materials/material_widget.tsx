@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {parseRawCommentUnsafe} from "helpers/render_comment";
 import {SparkRoutes} from "helpers/spark_routes";
 import {timeFormatter} from "helpers/time_formatter";
 import {MithrilViewComponent} from "jsx/mithril-component";
@@ -23,6 +24,7 @@ import {MaterialModification} from "models/config_repos/types";
 import {
   MaterialMessage,
   MaterialMessages,
+  MaterialType,
   MaterialWithFingerprint,
   MaterialWithModification,
   PackageMaterialAttributes,
@@ -47,12 +49,12 @@ interface MaterialWithInfoAttrs extends MaterialAttrs, AdditionalInfoAttrs {
 
 export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> {
 
-  public static showModificationDetails(modification: MaterialModification) {
+  public static showModificationDetails(modification: MaterialModification, materialType: MaterialType) {
     const attrs = new Map();
     attrs.set("Username", modification.username);
     attrs.set("Email", modification.emailAddress);
     attrs.set("Revision", modification.revision);
-    attrs.set("Comment", modification.comment);
+    attrs.set("Comment", parseRawCommentUnsafe(modification.comment, materialType));
     attrs.set("Modified Time", <span
       title={timeFormatter.formatInServerTime(modification.modifiedTime)}>{timeFormatter.format(modification.modifiedTime)}</span>);
 
@@ -64,7 +66,7 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
     const config            = material.config;
     let modificationDetails = <FlashMessage type={MessageType.info}>This material was never parsed</FlashMessage>;
     if (material.modification !== null) {
-      const modDetails = MaterialWidget.showModificationDetails(material.modification);
+      const modDetails = MaterialWidget.showModificationDetails(material.modification, config.type());
       modDetails.set('Comment', <div class={styles.comment}>{modDetails.get('Comment')}</div>);
       modificationDetails = <KeyValuePair data={modDetails}/>;
     }

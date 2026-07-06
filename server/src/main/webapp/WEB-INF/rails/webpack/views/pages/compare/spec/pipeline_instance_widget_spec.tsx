@@ -98,7 +98,7 @@ describe('PipelineInstanceWidgetSpec', () => {
   it('should unpack and escape a package material json comment', () => {
     const instance    = PipelineInstance.fromJSON(PipelineInstanceData.pipeline());
     const materialRev = instance.buildCause().materialRevisions()[0];
-    materialRev.material().type("Package");
+    materialRev.material().displayType("Package");
     materialRev.modifications()[0].comment('{"COMMENT":"<script>alert(1)</script>","TRACKBACK_URL":"https://tracker/1"}');
     mount(instance);
 

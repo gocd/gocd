@@ -16,9 +16,10 @@
 
 import {ErrorsJSON} from "models/mixins/errors";
 import {FilterJSON} from "../maintenance_mode/material";
+import {MaterialType} from "./materials";
 
 export interface MaterialJSON {
-  type: string;
+  type: MaterialType;
   attributes: MaterialAttributesJSON;
   errors?: ErrorsJSON;
 }

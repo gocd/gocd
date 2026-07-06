@@ -124,6 +124,18 @@ describe('MaterialWidgetSpec', () => {
     expect(helper.q('span span', attrs[4])).toHaveAttr('title', '23 Dec, 2019 at 10:25:52 +00:00 Server Time');
   });
 
+  it('should unpack and escape a package material json comment', () => {
+    material.config       = new MaterialWithFingerprint("package", "fingerprint", new PackageMaterialAttributes(undefined, true, "pkg-id", "pkg-name", "pkg-repo-name"));
+    material.modification = new MaterialModification("user", null, "pkg-1", '{"TYPE":"PACKAGE_MATERIAL","COMMENT":"<script>alert(1)</script>","TRACKBACK_URL":"https://tracker/1"}', "2019-12-23T10:25:52Z");
+    mount();
+
+    const comment = helper.qa('li', helper.byTestId('latest-modification-details'))[3];
+    expect(comment.textContent).toContain("<script>alert(1)</script>"); // escaped, shown literally
+    expect(comment.textContent).toContain("Trackback: https://tracker/1");
+    expect(comment.querySelector("script")).toBeNull();
+    expect(comment.innerHTML).not.toContain('"TYPE"'); // not the raw JSON envelope
+  });
+
   it('should disable modifications icon when modification is null', () => {
     mount();
 

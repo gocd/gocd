@@ -16,6 +16,7 @@
 import Stream from "mithril/stream";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
 import {Filter} from "../maintenance_mode/material";
+import {MaterialType} from "../materials/materials";
 import {
   DependencyMaterialAttributesJSON,
   GitMaterialAttributesJSON,
@@ -30,10 +31,10 @@ import {
 import {stringOrNull} from "./pipeline_instance_json";
 
 export class ChangeMaterial {
-  type: Stream<string>;
+  type: Stream<MaterialType>;
   attributes: Stream<MaterialAttributes>;
 
-  constructor(type: string, attributes: MaterialAttributes) {
+  constructor(type: MaterialType, attributes: MaterialAttributes) {
     this.attributes = Stream(attributes);
     this.type       = Stream(type);
   }
@@ -83,8 +84,7 @@ abstract class MaterialAttributes {
 }
 
 abstract class ScmMaterialAttributes extends MaterialAttributes {
-  static readonly DESTINATION_REGEX = new RegExp(
-    "^(?!\\/)((([\\.]\\/)?[\\.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ]))$");
+  static readonly DESTINATION_REGEX = new RegExp("^(?!\\/)((([.]\\/)?[.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ]))$");
   destination: Stream<string>       = Stream();
   username: Stream<string | undefined>;
   password: Stream<EncryptedValue>;

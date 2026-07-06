@@ -22,9 +22,10 @@ import {Errors, ErrorsJSON} from "models/mixins/errors";
 import {ErrorMessages} from "models/mixins/error_messages";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
+import {MaterialType} from "../materials/materials";
 
 export interface MaterialJSON {
-  type: string;
+  type: MaterialType;
   mdu_start_time: string;
   attributes: AnyMaterialAttributesJSON;
 }

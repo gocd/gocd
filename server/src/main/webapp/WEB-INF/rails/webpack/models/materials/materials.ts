@@ -69,6 +69,8 @@ interface PluggableScmMaterialAttributesJSON extends BaseAttributesJSON {
   origin: OriginJSON;
 }
 
+export type MaterialType = "git" | "svn" | "hg" | "p4" | "tfs" | "dependency" | "package" | "plugin";
+
 type MaterialAttributesJSON =
   GitMaterialAttributesJSON
   | SvnMaterialAttributesJSON
@@ -79,7 +81,7 @@ type MaterialAttributesJSON =
   | PluggableScmMaterialAttributesJSON;
 
 export interface MaterialWithFingerprintJSON {
-  type: string;
+  type: MaterialType;
   fingerprint: string;
   attributes: MaterialAttributesJSON;
 }
@@ -290,11 +292,11 @@ export class PluggableScmMaterialAttributes extends MaterialAttributes {
 }
 
 export class MaterialWithFingerprint {
-  type: Stream<string>;
+  type: Stream<MaterialType>;
   fingerprint: Stream<string>;
   attributes: Stream<MaterialAttributes>;
 
-  constructor(type: string, fingerprint: string, attributes: MaterialAttributes) {
+  constructor(type: MaterialType, fingerprint: string, attributes: MaterialAttributes) {
     this.type        = Stream(type);
     this.fingerprint = Stream(fingerprint);
     this.attributes  = Stream(attributes);

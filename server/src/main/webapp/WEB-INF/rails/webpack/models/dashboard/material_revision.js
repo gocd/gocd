@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import _ from "lodash";
+import {parseRawCommentUnsafe} from "helpers/render_comment";
 
 const Modifications = {};
 
@@ -28,17 +29,10 @@ Modifications.Modification.Pipeline = function (modification) {
   this.stageDetailsUrl = modification._links.stage_details_url.href;
 };
 
-const renderJsonCommentUnsafe = (comment) => {
-  const commentJSON   = JSON.parse(comment);
-  const trackbackURL  = commentJSON['TRACKBACK_URL'] ? commentJSON['TRACKBACK_URL'] : "Not Provided";
-  const packageOrigin = commentJSON.COMMENT ? `${commentJSON.COMMENT}\n` : "";
-  return `${packageOrigin}Trackback: ${trackbackURL}`;
-};
-
 Modifications.Modification.SCM = function (modification, materialType) {
   Modifications.Modification.call(this, modification);
   this.username = modification.user_name;
-  this.comment  = isPackageMaterial(materialType) ? renderJsonCommentUnsafe(modification.comment) : modification.comment;
+  this.comment  = parseRawCommentUnsafe(modification.comment, materialType.toLowerCase());
   this.vsmPath  = modification._links.vsm.href;
 };
 
@@ -53,7 +47,6 @@ export const MaterialRevision = function (info) {
 };
 
 const isDependencyMaterial = (type) => (type === 'Pipeline');
-const isPackageMaterial = (type) => (type === 'Package');
 
 const getModificationsFor = (info) => {
   const materialType   = info.material_type;

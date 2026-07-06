@@ -69,7 +69,9 @@ export class StagesWidget extends MithrilViewComponent<Attrs> {
     });
 
     return <table data-test-id="stages" class={styles.stagesContainer}>
-      <tr>{stages}</tr>
+      <tbody>
+        <tr>{stages}</tr>
+      </tbody>
     </table>;
   }
 }

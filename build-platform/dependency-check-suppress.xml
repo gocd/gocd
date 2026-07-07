@@ -359,7 +359,7 @@
     <cve>CVE-2025-4949</cve>
   </suppress>
 
-  <suppress until="2026-07-07">
+  <suppress until="2026-07-21">
     <notes><![CDATA[
     Only affects 3.1.0+ according to maintainer at https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-5jmj-h7xm-6q6v
     however there is some debate over affected versions, https://github.com/FasterXML/jackson-databind/pull/5964
@@ -367,6 +367,15 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson-databind@2\..*$</packageUrl>
     <vulnerabilityName>CVE-2026-54515</vulnerabilityName>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+    False positive due to bad NVD data; this does not affect 4.x according to the CNA (Apache Software Foundation)
+    at https://www.cve.org/CVERecord?id=CVE-2026-54399
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpcore@4\..*$</packageUrl>
+    <cve>CVE-2026-54399</cve>
   </suppress>
 
   <suppress>
@@ -419,6 +428,14 @@
     Suppress false positive vulnerabilities from dev/test/documentation code that sits inside Javascript node_modules or vendored node_modules
     ]]></notes>
     <filePath regex="true">^.*/(node_modules/.*/tests?/|webpack/vendors-node_modules).*\.js$</filePath>
+    <vulnerabilityName regex="true">.*</vulnerabilityName>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+    Webrick is not used in production by GoCD; only a transitive dependency of rackup, via Rails 7.2.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:gem/webrick@.*$</packageUrl>
     <vulnerabilityName regex="true">.*</vulnerabilityName>
   </suppress>
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {apiDocsUrl, docsUrl, GoCDVersion} from "gen/gocd_version";
+import {apiDocsUrl, docsUrl, GoCDVersion, releaseNotesUrl} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {Link} from "views/components/link";
@@ -34,7 +34,7 @@ export class SiteFooter extends MithrilViewComponent<Attrs> {
       {SiteFooter.maintenanceModeOrLegacyBrowserBanner(vnode)}
       <div class={styles.left}>
         <p class={styles.content}>
-          GoCD version: <Link href={`https://www.gocd.org/releases#${GoCDVersion.version}`} target="_blank">{GoCDVersion.version}</Link> ({GoCDVersion.distVersion}-{GoCDVersion.gitShortRevision})
+          GoCD version: <Link href={releaseNotesUrl()} target="_blank">{GoCDVersion.version}</Link> ({GoCDVersion.distVersion}-{GoCDVersion.gitShortRevision})
           &mdash; includes <Link href={`/go/assets/dependency-license-report-${GoCDVersion.version}`} target="_blank">licensed third-party software</Link>.<br/>
           Created by <Link href="https://www.thoughtworks.com/what-we-do" target="_blank">Thoughtworks, Inc</Link>.
           &mdash; now a sponsored community project licensed under <Link href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License, Version 2.0</Link>.

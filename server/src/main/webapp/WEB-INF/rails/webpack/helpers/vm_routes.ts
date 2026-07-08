@@ -15,6 +15,10 @@
  */
 
 export class VMRoutes {
+  static stageDetailsTabDefaultPath(pipelineName: string, pipelineCounter: string, stageName: string, stageCounter: string) {
+    return `/go/pipelines/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}`;
+  }
+
   static pipelineHistoryPath(pipelineName: string) {
     return `/go/pipeline/activity/${pipelineName}`;
   }

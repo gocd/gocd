@@ -31,7 +31,7 @@ module Go
 
     # Load extensions which cannot be auto-loaded. These patch Java server classes for use in views at
     # server runtime, and are unwanted (GoCD classes are not on the classpath) when booting solely to
-    # generate assets or routes, e.g. from the Gradle generateJSRoutes task.
+    # generate assets
     unless ENV["RAILS_GROUPS"] =~ /assets/
       require_relative '../lib/extensions/case_insensitive_string'
       require_relative '../lib/extensions/java_util_date'

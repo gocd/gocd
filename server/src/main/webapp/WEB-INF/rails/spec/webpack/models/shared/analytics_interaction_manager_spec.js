@@ -24,7 +24,7 @@ function fakeReq(key, body) {
   return {head: {type: "request", reqId: 0, key}, body};
 }
 
-const BASE64_RE         = /^[A-Za-z0-9/+]+(?:[=]{1,2})?$/;
+const BASE64_RE         = /^[A-Za-z0-9/+]+(?:={1,2})?$/;
 
 describe("AnalyticsInteractionManager", () => {
   beforeEach(() => {
@@ -60,9 +60,11 @@ describe("AnalyticsInteractionManager", () => {
       const ordinal = 5, plugin = "ohai", type = "lolcat", id = "canhas";
       const uid = Models.uid(ordinal, plugin, type, id);
 
-      expect(typeof uid).toBe("string", "uid() should always output a string");
-      expect(uid.startsWith("Namespacely:")).toBe(true, "uids should be namespaced");
-      expect(uid.replace(/^Namespacely:/, "").match(BASE64_RE)).not.toBe(null, "the uid body is a base64 output");
+      expect(typeof uid).withContext("uid() should always output a string").toBe("string");
+      expect(uid.startsWith("Namespacely:")).withContext("uids should be namespaced").toBe(true);
+      expect(uid.replace(/^Namespacely:/, "").match(BASE64_RE))
+        .withContext("the uid body is a base64 output")
+        .not.toBe(null);
     });
 
     it("unpack() reverses uid() to its source data", () => {
@@ -70,7 +72,9 @@ describe("AnalyticsInteractionManager", () => {
       const ordinal = 5, plugin = "ohai", type = "lolcat", id = "canhas";
       const uid = Models.uid(ordinal, plugin, type, id);
 
-      expect(Models.unpack(uid)).toEqual({ordinal, plugin, type, id}, "unpack() returns an object with original source values");
+      expect(Models.unpack(uid))
+        .withContext("unpack() returns an object with original source values")
+        .toEqual({ordinal, plugin, type, id});
     });
 
     it("toUrl() constructs an analytics URL based on uid", () => {
@@ -78,8 +82,10 @@ describe("AnalyticsInteractionManager", () => {
       const ordinal = 5, plugin = "ohai", type = "lolcat", id = "canhas";
       const uid = Models.uid(ordinal, plugin, type, id);
 
-      expect(Models.toUrl(uid)).toBe("/go/analytics/ohai/lolcat/canhas");
-      expect(Models.toUrl(uid, {chzbrgr: "absolutely"})).toBe("/go/analytics/ohai/lolcat/canhas?chzbrgr=absolutely", "toUrl() converts extra params to query paramters");
+      expect(Models.toUrl(uid)).toBe("/go/analytics/ohai/lolcat/canhas?");
+      expect(Models.toUrl(uid, {chzbrgr: "absolutely", orly: "yarly"}))
+        .withContext("toUrl() converts extra params to query parameters")
+        .toBe("/go/analytics/ohai/lolcat/canhas?chzbrgr=absolutely&orly=yarly");
     });
 
     it("modelFor() idempotently ensures a model exists for a given uid", () => {
@@ -88,8 +94,12 @@ describe("AnalyticsInteractionManager", () => {
       const uid = Models.uid(ordinal, plugin, type, id);
 
       const model = Models.modelFor(uid);
-      expect(model.url()).toBe(Models.toUrl(uid), "modelFor() returns a model preconfigured to a specific analytics plugin frame");
-      expect(Models.modelFor(uid)).toEqual(model, "modelFor() should be return the existing model for a given uid");
+      expect(model.url())
+        .withContext("modelFor() returns a model preconfigured to a specific analytics plugin frame")
+        .toBe(Models.toUrl(uid));
+      expect(Models.modelFor(uid))
+        .withContext("modelFor() should be return the existing model for a given uid")
+        .toEqual(model);
     });
 
     it("modelFor() takes an optional params arg to append to the url", () => {
@@ -98,8 +108,12 @@ describe("AnalyticsInteractionManager", () => {
       const uid = Models.uid(ordinal, plugin, type, id);
 
       const model = Models.modelFor(uid, {hi: "there"});
-      expect(model.url()).toBe(Models.toUrl(uid, {hi: "there"}), "modelFor() should append query params");
-      expect(Models.modelFor(uid, {shouldNot: "change"}).url()).toBe(Models.toUrl(uid, {hi: "there"}), "subsequent calls to modelFor() do not alter query params of url once model has been constructed");
+      expect(model.url())
+        .withContext("modelFor() should append query params")
+        .toBe(Models.toUrl(uid, {hi: "there"}));
+      expect(Models.modelFor(uid, {shouldNot: "change"}).url())
+        .withContext("subsequent calls to modelFor() do not alter query params of url once model has been constructed")
+        .toBe(Models.toUrl(uid, {hi: "there"}));
     });
 
     it("all() returns models pertaining only to a given namespace", () => {
@@ -124,13 +138,18 @@ describe("AnalyticsInteractionManager", () => {
       const expectedAlpha = _.reduce(world, (m, v, k) => { if (k.startsWith("Alpha")) {m[k] = v;} return m; }, {});
       const expectedBeta = _.reduce(world, (m, v, k) => { if (k.startsWith("Beta")) {m[k] = v;} return m; }, {});
 
-      expect(Object.keys(M1.all()).length).toBe(2, "all() returned wrong number of models returned from the Alpha namespace");
-      expect(M1.all()).toEqual(expectedAlpha, "all() should return the entire subset of models under the Alpha namespace");
+      expect(Object.keys(M1.all()).length).withContext("all() returned wrong number of models returned from the Alpha namespace")
+        .toBe(2);
+      expect(M1.all()).withContext("all() should return the entire subset of models under the Alpha namespace")
+        .toEqual(expectedAlpha);
 
-      expect(Object.keys(M2.all()).length).toBe(2, "all() returned wrong number of models returned from the Beta namespace");
-      expect(M2.all()).toEqual(expectedBeta, "all() should return the entire subset of models under the Beta namespace");
+      expect(Object.keys(M2.all()).length).withContext("all() returned wrong number of models returned from the Beta namespace")
+        .toBe(2);
+      expect(M2.all()).withContext("all() should return the entire subset of models under the Beta namespace")
+        .toEqual(expectedBeta);
 
-      expect(Interactions.all()).toEqual(world, "AnalyticsInteractionManager.all() returns the global set");
+      expect(Interactions.all()).withContext("AnalyticsInteractionManager.all() returns the global set")
+        .toEqual(world);
     });
   });
 });

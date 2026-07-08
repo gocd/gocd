@@ -81,8 +81,6 @@ GEM
       rake (~> 13.3)
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
-    js-routes (1.4.14)
-      railties (>= 4)
     logger (1.7.0)
     loofah (2.25.1)
       crass (~> 1.0.2)
@@ -162,9 +160,7 @@ GEM
       activesupport (>= 6.1)
       sprockets (>= 3.0.0)
     thor (1.5.0)
-    tilt (2.7.0)
-    ts_routes (1.0.3)
-      railties (>= 4.0)
+    tilt (2.8.0)
     tsort (0.2.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
@@ -188,14 +184,12 @@ DEPENDENCIES
   capybara
   dartsass-sprockets
   irb!
-  js-routes (~> 1.4)
   rack (~> 2.2.0)
   rails-controller-testing
   railties (~> 7.2.0)
   rspec-rails
   rspec_junit_formatter
   sprockets-rails
-  ts_routes
   tzinfo-data
 
 CHECKSUMS
@@ -224,7 +218,6 @@ CHECKSUMS
   google-protobuf (4.35.1-x86_64-linux-gnu) sha256=c786439087512a3fbd199e9897d265b855f951d4027e218ea55e858d45969edd
   i18n (1.15.2) sha256=00f9eb62412fe593b2a65a97daa75300d37abb8f7202ec748e94b6d46a9dd1b5
   irb (1.99.0)
-  js-routes (1.4.14) sha256=bc48a346bb77e9fe526881deaebbd8811d3c0cdcdc1b22d5af170ad6be33be51
   logger (1.7.0) sha256=196edec7cc44b66cfb40f9755ce11b392f21f7967696af15d274dde7edff0203
   loofah (2.25.1) sha256=d436c73dbd0c1147b16c4a41db097942d217303e1f7728704b37e4df9f6d2e04
   matrix (0.4.3) sha256=a0d5ab7ddcc1973ff690ab361b67f359acbb16958d1dc072b8b956a286564c5b
@@ -257,8 +250,7 @@ CHECKSUMS
   sprockets (4.2.2) sha256=761e5a49f1c288704763f73139763564c845a8f856d52fba013458f8af1b59b1
   sprockets-rails (3.5.2) sha256=a9e88e6ce9f8c912d349aa5401509165ec42326baf9e942a85de4b76dbc4119e
   thor (1.5.0) sha256=e3a9e55fe857e44859ce104a84675ab6e8cd59c650a49106a05f55f136425e73
-  tilt (2.7.0) sha256=0d5b9ba69f6a36490c64b0eee9f6e9aad517e20dcc848800a06eb116f08c6ab3
-  ts_routes (1.0.3) sha256=a8f3f2f8d3e4787d2a037143a6832c3fb8ed7f9238290d85f8d1bc7cbe42e7ad
+  tilt (2.8.0) sha256=ba472eb2716fe1e04112d6d219a9dae938ec09a6a1e2ad3ecc7922e79bde3721
   tsort (0.2.0) sha256=9650a793f6859a43b6641671278f79cfead60ac714148aabe4e3f0060480089f
   tzinfo (2.0.6) sha256=8daf828cc77bcf7d63b0e3bdb6caa47e2272dcfaf4fbfe46f8c3a9df087a829b
   tzinfo-data (1.2026.2) sha256=7db0d3d3d53b8d7601fc183fccc8c6d056a3004e14eb59ea995bf6aec4ae10bc

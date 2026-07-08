@@ -17,7 +17,6 @@ import {SparkRoutes} from "helpers/spark_routes";
 import {MaterialRevision} from "models/dashboard/material_revision";
 import {AjaxHelper} from "helpers/ajax_helper";
 import {VMRoutes} from "helpers/vm_routes";
-import Routes from "gen/js-routes";
 import _ from "lodash";
 
 const StageInstance = function (json, pipelineName, pipelineCounter) {
@@ -27,7 +26,7 @@ const StageInstance = function (json, pipelineName, pipelineCounter) {
   this.counter               = json.counter;
   this.status                = json.status;
   this.cancelledBy           = json.cancelled_by;
-  this.stageDetailTabPath    = Routes.stageDetailTabDefaultPath(pipelineName, pipelineCounter, json.name, json.counter);
+  this.stageDetailTabPath    = VMRoutes.stageDetailsTabDefaultPath(pipelineName, pipelineCounter, json.name, json.counter);
   this.isBuilding            = () => json.status === 'Building';
   this.isFailing             = () => json.status === 'Failing';
   this.isFailed              = () => json.status === 'Failed';

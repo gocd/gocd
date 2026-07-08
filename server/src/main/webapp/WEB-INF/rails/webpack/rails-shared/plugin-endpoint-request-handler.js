@@ -18,8 +18,6 @@
   "use strict";
 
   if ("undefined" !== typeof module) {
-    // Darn.. externally require while coming from spa
-    var Routes          = require('gen/js-routes');
     var PluginEndpoint  = require('rails-shared/plugin-endpoint');
     var GoCDLinkSupport = require('rails-shared/gocd-link-support');
   } else {

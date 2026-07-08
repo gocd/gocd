@@ -16,7 +16,6 @@
 
 import Requests from "rails-shared/plugin-endpoint-request-handler";
 import {Frame} from "models/shared/frame";
-import Routes from "gen/js-routes";
 
 function Namespace(models, name) {
   const prefix = `${encodeURIComponent(name)}:`;
@@ -54,9 +53,19 @@ function Namespace(models, name) {
     return result;
   };
 
+  function serialize(obj) {
+    const str = [];
+    for (const p in obj) {
+      if (Object.hasOwnProperty.call(obj, p)) {
+        str.push(`${encodeURIComponent(p)}=${encodeURIComponent(obj[p])}`);
+      }
+    }
+    return str.join("&");
+  }
+
   function toUrl(uid, params = {}) {
     const c = decodeUID(uid);
-    return Routes.showAnalyticsPath(c.plugin, c.type, c.id, params);
+    return `/go/analytics/${c.plugin}/${c.type}/${c.id}?${serialize(params)}`;
   }
 
   this.toUrl = toUrl;

@@ -359,13 +359,14 @@
     <cve>CVE-2025-4949</cve>
   </suppress>
 
-  <suppress>
+  <suppress until="2026-10-07">
     <notes><![CDATA[
-    False positive due to bad NVD data; this does not affect 4.x according to the CNA (Apache Software Foundation)
-    at https://www.cve.org/CVERecord?id=CVE-2026-54399
+    False positives in GoCD usage as GoCD only uses HttpComponents as an agent client where it also controls
+    the server implementation it is talking to (via Jetty).
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpcore@4\..*$</packageUrl>
     <cve>CVE-2026-54399</cve>
+    <cve>CVE-2026-54428</cve>
   </suppress>
 
   <suppress>

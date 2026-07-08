@@ -45,6 +45,11 @@ Rails.application.configure do
     config.action_controller.perform_caching = false
 
     config.cache_store = :null_store
+
+    # Force browsers to revalidate static assets (e.g. webpack output) on each use. Without an explicit
+    # Cache-Control, browsers heuristically cache based on Last-Modified WITHOUT revalidating, serving stale
+    # webpack chunks whose (stable) filenames survive `webpack --watch` rebuilds with changed content.
+    config.public_file_server.headers = { "Cache-Control" => "private, max-age=0, must-revalidate" }
   end
 
   # Print deprecation notices to the Rails logger.

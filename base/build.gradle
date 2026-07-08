@@ -64,10 +64,11 @@ tasks.register('generateResources', Copy) {
 
   def goVersions = rootProject.goVersions as GoVersions
   def props = [
-    'goVersion'    : goVersions.goVersion,
-    'distVersion'  : goVersions.distVersion,
-    'fullVersion'  : goVersions.fullVersion,
-    'gitRevision'  : goVersions.gitRevision,
+    'goVersion'       : goVersions.goVersion,
+    'distVersion'     : goVersions.distVersion,
+    'fullVersion'     : goVersions.fullVersion,
+    'gitRevision'     : goVersions.gitRevision,
+    'gitShortRevision': goVersions.gitShortRevision,
   ]
   inputs.properties(props)
 

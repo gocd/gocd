@@ -60,7 +60,6 @@ $maintenance-mode-banner-message-font-size: 17px;
 }
 
 .content {
-  word-break: break-all;
   font-size: 12px;
   margin: 0;
   line-height: 19px;
@@ -83,10 +82,6 @@ $maintenance-mode-banner-message-font-size: 17px;
   @media (min-width: $screen-lg) {
     width: 30%;
   }
-}
-
-.gocd-version {
-  display: block;
 }
 
 .social a {

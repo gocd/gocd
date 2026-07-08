@@ -29,10 +29,14 @@ module Go
   class Application < Rails::Application
     config.load_defaults 7.2
 
-    # Load extensions which cannot be auto-loaded
-    require_relative '../lib/extensions/case_insensitive_string'
-    require_relative '../lib/extensions/java_util_date'
-    require_relative '../lib/extensions/route_ext'
+    # Load extensions which cannot be auto-loaded. These patch Java server classes for use in views at
+    # server runtime, and are unwanted (GoCD classes are not on the classpath) when booting solely to
+    # generate assets or routes, e.g. from the Gradle generateJSRoutes task.
+    unless ENV["RAILS_GROUPS"] =~ /assets/
+      require_relative '../lib/extensions/case_insensitive_string'
+      require_relative '../lib/extensions/java_util_date'
+      require_relative '../lib/extensions/route_ext'
+    end
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
@@ -61,8 +65,13 @@ module Go
       end
     end
 
-    require Rails.root.join("lib", "slf4j_logger.rb")
-    config.logger = Slf4jLogger::Logger.new("com.thoughtworks.go.server.Rails")
+    if ENV["RAILS_GROUPS"] =~ /assets/
+      # slf4j is not on the classpath when booting solely to generate assets or routes
+      config.logger = ActiveSupport::Logger.new($stdout)
+    else
+      require Rails.root.join("lib", "slf4j_logger.rb")
+      config.logger = Slf4jLogger::Logger.new("com.thoughtworks.go.server.Rails")
+    end
 
     config.generators do |g|
       g.test_framework        :rspec, :fixture_replacement => nil

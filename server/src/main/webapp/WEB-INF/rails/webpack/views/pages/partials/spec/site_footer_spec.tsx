@@ -36,12 +36,17 @@ describe("SiteFooter", () => {
     };
     mount(attrs);
 
-    expect(helper.root).toContainHtml(`Copyright &copy;`);
-    expect(helper.root).toContainElement(`a[href="/go/assets/dependency-license-report-${GoCDVersion.fullVersion}"]`);
-    expect(helper.root).toContainText(`GoCD Version: ${GoCDVersion.formattedVersion}`);
-    expect(helper.root).not.toContainText("maintenance");
+    expect(helper.root?.textContent).toContain(`GoCD version: ${GoCDVersion.version} (${GoCDVersion.distVersion}-${GoCDVersion.gitShortRevision}) — includes licensed third-party software.`);
+    expect(helper.root).toContainElement(`a[href="https://www.gocd.org/releases#${GoCDVersion.version}"]`);
+    expect(helper.root).toContainElement(`a[href="/go/assets/dependency-license-report-${GoCDVersion.version}"]`);
+
+    expect(helper.root?.textContent).toContain(`Created by Thoughtworks, Inc. — now a sponsored community project licensed under Apache License, Version 2.0.`);
+    expect(helper.root).toContainElement(`a[href="https://www.thoughtworks.com/what-we-do"]`);
+    expect(helper.root).toContainElement(`a[href="https://www.apache.org/licenses/LICENSE-2.0"]`);
+
+    expect(helper.root?.textContent).not.toContain("maintenance");
     expect(helper.byTestId("maintenance-mode-banner")).toBeFalsy();
-    expect(helper.root).not.toContainText("unsupported browser");
+    expect(helper.root?.textContent).not.toContain("unsupported browser");
   });
 
   it("should render maintenance mode banner", () => {

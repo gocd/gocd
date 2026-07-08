@@ -359,16 +359,6 @@
     <cve>CVE-2025-4949</cve>
   </suppress>
 
-  <suppress until="2026-07-21">
-    <notes><![CDATA[
-    Only affects 3.1.0+ according to maintainer at https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-5jmj-h7xm-6q6v
-    however there is some debate over affected versions, https://github.com/FasterXML/jackson-databind/pull/5964
-    No fix available for now, so suppressing for a week.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson-databind@2\..*$</packageUrl>
-    <vulnerabilityName>CVE-2026-54515</vulnerabilityName>
-  </suppress>
-
   <suppress>
     <notes><![CDATA[
     False positive due to bad NVD data; this does not affect 4.x according to the CNA (Apache Software Foundation)

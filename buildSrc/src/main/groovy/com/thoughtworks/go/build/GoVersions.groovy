@@ -30,6 +30,7 @@ class GoVersions implements Serializable {
   String nextVersion
 
   String gitRevision = determineGitRevision()
+  String gitShortRevision = determineGitShortRevision()
   String distVersion = determineReleaseRevision()
 
   String getFullVersion() { distVersion ? "${goVersion}-${distVersion}" : goVersion }
@@ -47,13 +48,19 @@ class GoVersions implements Serializable {
   }
 
   private static String determineGitRevision() {
-    def process = "git rev-list HEAD --max-count=1".execute(null, null)
-    process.waitFor()
-    return process.text.stripIndent().trim()
+    outputFor("git rev-list HEAD --max-count=1")
+  }
+
+  private static String determineGitShortRevision() {
+    outputFor("git rev-list HEAD --max-count=1 --abbrev-commit")
   }
 
   private static String determineReleaseRevision() {
-    def process = "git rev-list HEAD --count".execute(null, null)
+    outputFor("git rev-list HEAD --count")
+  }
+
+  private static outputFor(String command) {
+    def process = command.execute(null, null)
     process.waitFor()
     return process.text.stripIndent().trim()
   }
@@ -84,7 +91,7 @@ class GoVersions implements Serializable {
       println("        goVersion: ${goVersions.goVersion}")
       println("      distVersion: ${goVersions.distVersion}        (will be inaccurate on shallow clones!)")
       println("      fullVersion: ${goVersions.fullVersion}")
-      println("      gitRevision: ${goVersions.gitRevision}")
+      println(" gitShortRevision: ${goVersions.gitShortRevision}")
       println("targetJavaVersion: ${goVersions.targetJavaVersion}")
       println(" buildJavaVersion: ${goVersions.buildJavaVersion}")
       println("   javaPreference: ${goVersions.preferredJavaVersions()}")

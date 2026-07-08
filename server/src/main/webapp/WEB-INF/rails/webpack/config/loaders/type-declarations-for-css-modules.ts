@@ -15,7 +15,6 @@
  */
 
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import type {LoaderDefinitionFunction} from "webpack";
 
@@ -86,13 +85,19 @@ const loader: LoaderDefinitionFunction = function(content, map, meta){
     typeDecls += `export const ${key}: string;\n`;
   }
 
-  if ("" !== typeDecls) {
-    fs.writeFile(typingsFilename(this.resourcePath), typeDecls.replace(/\n/g, os.EOL), { encoding: "utf-8", mode: 0o644 }, () => {
+  const filename = typingsFilename(this.resourcePath);
+
+  // Only touch the file if the content actually changed, so that mtime-based watchers
+  // (fork-ts-checker, IDEs) are not flooded by regeneration of identical content
+  fs.readFile(filename, "utf-8", (_err, existingTypeDecls) => {
+    if (existingTypeDecls === typeDecls) {
       callback(null, content, map, meta);
-    });
-  } else {
-    callback(null, content, map, meta);
-  }
+    } else {
+      fs.writeFile(filename, typeDecls, { encoding: "utf-8", mode: 0o644 }, () => {
+        callback(null, content, map, meta);
+      });
+    }
+  });
 };
 
 function acceptName(key: string) {

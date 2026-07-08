@@ -68,16 +68,19 @@ Rails.application.configure do
   config.java_services_cache = :TestServiceCache
 end
 
-require_relative '../../lib/spring'
+# Override load_context of Spring for rspec. Not wanted (and Spring is not on the classpath) when
+# booting solely to compile assets.
+unless ENV["RAILS_GROUPS"] =~ /assets/
+  require_relative '../../lib/spring'
 
-# Override load_context of Spring for rspec.
-java_import org.springframework.context.support.ClassPathXmlApplicationContext
+  java_import org.springframework.context.support.ClassPathXmlApplicationContext
 
-def Spring.load_context
-  ctx_files = Dir[File.expand_path(File.join(Rails.root, "..", "..", "..", "resources", "applicationContext*.xml"))].map { |path| "/#{File.basename(path)}" }
-  ClassPathXmlApplicationContext.new(ctx_files.to_java(:string))
-end
+  def Spring.load_context
+    ctx_files = Dir[File.expand_path(File.join(Rails.root, "..", "..", "..", "resources", "applicationContext*.xml"))].map { |path| "/#{File.basename(path)}" }
+    ClassPathXmlApplicationContext.new(ctx_files.to_java(:string))
+  end
 
-def Spring.test_close_context
-  @context&.close
+  def Spring.test_close_context
+    @context&.close
+  end
 end

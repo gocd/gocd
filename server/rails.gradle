@@ -152,8 +152,8 @@ clean.dependsOn cleanRails
 def generateJSRoutes = tasks.register('generateJSRoutes', ExecuteUnderRailsTask) {
   group = LifecycleBasePlugin.BUILD_GROUP
 
-  dependsOn configurations.railsRuntimeClasspath
-  classpath(configurations.railsRuntimeClasspath)
+  dependsOn configurations.jruby
+  classpath(configurations.jruby)
 
   inputs.file("${project.railsRoot}/Rakefile")
   inputs.dir("${project.railsRoot}/lib/tasks")
@@ -163,17 +163,21 @@ def generateJSRoutes = tasks.register('generateJSRoutes', ExecuteUnderRailsTask)
   outputs.dir(outputDir)
   outputs.cacheIf { true }
 
-  environment(
+  def goVersions = rootProject.goVersions as GoVersions
+  def versionEnv = [
+    GOCD_VERSION           : goVersions.goVersion,
+    GOCD_DIST_VERSION      : goVersions.distVersion,
+    GOCD_GIT_SHORT_REVISION: goVersions.gitShortRevision,
+  ]
+  inputs.properties(versionEnv)
+
+  environment(versionEnv + [
     RAILS_ENV:    'production',
     RAILS_GROUPS: 'assets',
     OUTPUT_DIR:   outputDir,
-  )
+  ])
 
   args = ['-S', 'rake', 'generated_js']
-
-  doFirst {
-    delete outputDir
-  }
 }
 
 def compileAssetsWebpackDev = tasks.register('compileAssetsWebpackDev', YarnRunTask) {
@@ -222,8 +226,8 @@ def compileAssetsWebpackProd = tasks.register('compileAssetsWebpackProd', YarnRu
 }
 
 def compileAssetsRailsTest = tasks.register('compileAssetsRailsTest', ExecuteUnderRailsTask) {
-  dependsOn yarnInstall, configurations.railsRuntimeClasspath
-  classpath(configurations.railsRuntimeClasspath)
+  dependsOn yarnInstall, configurations.jruby
+  classpath(configurations.jruby)
 
   inputs.file("${project.railsRoot}/Rakefile")
   inputs.dir("${project.railsRoot}/config")
@@ -256,8 +260,8 @@ def compileAssetsRailsTest = tasks.register('compileAssetsRailsTest', ExecuteUnd
 }
 
 def compileAssetsRailsProd = tasks.register('compileAssetsRailsProd', ExecuteUnderRailsTask) {
-  dependsOn yarnInstall, configurations.railsRuntimeClasspath
-  classpath(configurations.railsRuntimeClasspath)
+  dependsOn yarnInstall, configurations.jruby
+  classpath(configurations.jruby)
 
   inputs.file("${project.railsRoot}/Rakefile")
   inputs.dir("${project.railsRoot}/config")
@@ -309,7 +313,7 @@ tasks.register('compileAssets') {
     copy { from compileAssetsRailsProd; into outputDir }
     copy { from compileAssetsWebpackProd; into "${outputDir}/webpack" }
     // assets are cached with a long lived cache header - purposefully add a version string in the path so every new build will basically use a different url
-    copy { from licenseReportAggregate; into "${outputDir}/dependency-license-report-${version}" }
+    copy { from licenseReportAggregate; into "${outputDir}/dependency-license-report-${rootProject.goVersions.goVersion}" }
   }
 }
 

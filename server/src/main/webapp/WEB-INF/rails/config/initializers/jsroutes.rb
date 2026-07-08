@@ -16,21 +16,10 @@
 
 if ENV["RAILS_GROUPS"] =~ /assets/
   JsRoutes.setup do |config|
-    config.prefix = com.thoughtworks.go.util.SystemEnvironment::WEBAPP_CONTEXT_PATH
+    config.prefix = "/go" # Matches com.thoughtworks.go.util.SystemEnvironment::WEBAPP_CONTEXT_PATH, which is not on the classpath when generating routes
     config.camel_case = true
-    config.include = [
+    config.include = [ # See ../config/routes.rb
       /analytics/,
-      /^api_internal/,
-      /^apiv\d/,
-      /^admin_elastic_profile/,
-      /^admin_status_report/,
-      /^admin_cluster_status_report/,
-      /^pipeline_groups/,
-      /^environments/,
-      /^environment/,
-      /^pipeline_group/,
-      /^pipeline_edit/,
-      /^edit_admin_pipeline_config/,
       /stage_detail_tab/
     ]
   end

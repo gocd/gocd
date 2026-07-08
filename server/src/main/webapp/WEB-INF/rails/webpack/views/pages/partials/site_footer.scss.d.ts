@@ -7,7 +7,6 @@ export const footer: string;
 export const footerWarningBanner: string;
 export const forums: string;
 export const github: string;
-export const gocdVersion: string;
 export const left: string;
 export const mappings: string;
 export const names: string;

@@ -424,14 +424,6 @@
 
   <suppress>
     <notes><![CDATA[
-    Webrick is not used in production by GoCD; only a transitive dependency of rackup, via Rails 7.2.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:gem/webrick@.*$</packageUrl>
-    <vulnerabilityName regex="true">.*</vulnerabilityName>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
     Suppress false positive vulnerabilities from test JS code that sits inside Ruby gems
     ]]></notes>
     <filePath regex="true">^.*/gems/.*/capybara/.*\.js$</filePath>

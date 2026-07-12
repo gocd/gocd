@@ -16,7 +16,6 @@
 package com.thoughtworks.go.plugin.infra;
 
 import com.thoughtworks.go.plugin.api.GoPlugin;
-import com.thoughtworks.go.plugin.api.GoPluginApiMarker;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.PluginRegistry;
@@ -27,6 +26,7 @@ import com.thoughtworks.go.plugin.internal.api.PluginRegistryService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.felix.framework.cache.BundleCache;
 import org.apache.felix.framework.util.FelixConstants;
+import org.apache.felix.framework.util.Util;
 import org.osgi.framework.*;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
@@ -37,6 +37,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toMap;
@@ -128,27 +130,44 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     }
 
     protected Map<String, String> generateOSGiFrameworkConfig() {
-        String osgiFrameworkPackage = Bundle.class.getPackage().getName();
-        String goPluginApiPackage = GoPluginApiMarker.class.getPackage().getName();
-        String subPackagesOfGoPluginApiPackage = goPluginApiPackage + ".*";
-        String internalServicesPackage = PluginRegistryService.class.getPackage().getName();
-        String javaxPackages = "javax.*";
-        String orgXmlSaxPackages = "org.xml.sax, org.xml.sax.*";
-        String orgW3cDomPackages = "org.w3c.dom, org.w3c.dom.*";
-
         Map<String, String> config = new HashMap<>();
+
+        // Allow, and force load of classes in these packages from the framework classloader
         config.put(Constants.FRAMEWORK_BUNDLE_PARENT, Constants.FRAMEWORK_BUNDLE_PARENT_FRAMEWORK);
-        config.put(Constants.FRAMEWORK_BOOTDELEGATION, String.join(", ", osgiFrameworkPackage, goPluginApiPackage, subPackagesOfGoPluginApiPackage, internalServicesPackage, javaxPackages, orgXmlSaxPackages, orgW3cDomPackages));
-        config.put(Constants.FRAMEWORK_STORAGE_CLEAN, "onFirstInit");
+        config.put(Constants.FRAMEWORK_BOOTDELEGATION, Stream.of(
+            classesInPackageOf(org.osgi.framework.Bundle.class),
+            classesInPackageOfWithSubPackages(com.thoughtworks.go.plugin.api.GoPluginApiMarker.class),
+            classesInPackageOf(com.thoughtworks.go.plugin.internal.api.PluginRegistryService.class),
+            jdkPackages()
+        ).flatMap(s -> s).collect(Collectors.joining(", ")));
+
+        config.put(Constants.FRAMEWORK_STORAGE_CLEAN, Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
         config.put(BundleCache.CACHE_LOCKING_PROP, "false");
         config.put(FelixConstants.SERVICE_URLHANDLERS_PROP, "false");
         return config;
     }
 
+    private static Stream<String> classesInPackageOf(Class<?> clazz) {
+        return Stream.of(clazz.getPackageName());
+    }
+
+    private Stream<String> classesInPackageOfWithSubPackages(@SuppressWarnings("SameParameterValue") Class<?> clazz) {
+        return Stream.of(clazz.getPackageName(), clazz.getPackageName() + ".*");
+    }
+
+    private Stream<String> jdkPackages() {
+        return Util.initializeJPMS(new Properties())
+            .values()
+            .stream() // by module
+            .flatMap(Collection::stream) // packages per module
+            .filter(p -> !p.startsWith("java."))
+            .distinct()
+            .sorted();
+    }
+
     @Override
     public <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, String extensionType, ActionWithReturn<T, R> action) {
-        if (framework == null) {
-            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", serviceReferenceClass);
+        if (pluginsDisabledFor(serviceReferenceClass)) {
             return null;
         }
 
@@ -163,8 +182,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
 
     @Override
     public <T> boolean hasReferenceFor(Class<T> serviceReferenceClass, String pluginId, String extensionType) {
-        if (framework == null) {
-            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", serviceReferenceClass);
+        if (pluginsDisabledFor(serviceReferenceClass)) {
             return false;
         }
 
@@ -176,8 +194,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
 
     @Override
     public Map<String, List<String>> getExtensionsInfoFromThePlugin(String pluginId) {
-        if (framework == null) {
-            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", GoPlugin.class);
+        if (pluginsDisabledFor(GoPlugin.class)) {
             return null;
         }
 
@@ -192,6 +209,14 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
                     GoPlugin service = bundleContext.getService(serviceReference);
                     return executeActionOnTheService(action, service, registry.getPlugin(pluginId));
                 }).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    private <T> boolean pluginsDisabledFor(Class<T> serviceReferenceClass) {
+        if (framework == null) {
+            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", serviceReferenceClass);
+            return true;
+        }
+        return false;
     }
 
     private <T, R> R executeActionOnTheService(ActionWithReturn<T, R> action, T service, GoPluginDescriptor goPluginDescriptor) {

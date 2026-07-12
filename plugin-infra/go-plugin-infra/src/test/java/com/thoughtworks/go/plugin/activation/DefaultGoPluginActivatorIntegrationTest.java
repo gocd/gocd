@@ -77,6 +77,11 @@ class DefaultGoPluginActivatorIntegrationTest {
         framework.start();
     }
 
+    @AfterEach
+    void tearDown() {
+        framework.stop();
+    }
+
     @Test
     void shouldRegisterAClassImplementingGoPluginAsAnOSGiService() throws Exception {
         assertThatPluginWithThisExtensionClassLoadsSuccessfully(DummyTestPlugin.class);
@@ -295,30 +300,15 @@ class DefaultGoPluginActivatorIntegrationTest {
     }
 
     @Test
-    void shouldBeAbleToUsePackagesFromJavaxWithinThePluginSinceItHasBeenExportedUsingBootDelegationInTheOSGIFramework() throws Exception {
-        assertThatPluginWithThisExtensionClassLoadsSuccessfully(ClassWhichUsesSomeClassInJavaxPackage.class);
-    }
-
-    @Test
-    void shouldBeAbleToUsePackagesFromOrgXmlSaxPackageWithinThePluginSinceItHasBeenExportedUsingBootDelegationInTheOSGIFramework() throws Exception {
-        assertThatPluginWithThisExtensionClassLoadsSuccessfully(ClassWhichUsesSomeClassesInOrgXMLSaxPackage.class);
-    }
-
-    @Test
-    void shouldBeAbleToUsePackagesFromOrgW3cDomPackageWithinThePluginSinceItHasBeenExportedUsingBootDelegationInTheOSGIFramework() throws Exception {
-        assertThatPluginWithThisExtensionClassLoadsSuccessfully(ClassWhichUsesSomeClassesInOrgW3CDomPackage.class);
-    }
-
-    @AfterEach
-    void tearDown() {
-        framework.stop();
+    void shouldBeAbleToUsePackagesFromJdkSinceItHasBeenExportedUsingBootDelegationInTheOSGIFramework() throws Exception {
+        assertThatPluginWithThisExtensionClassLoadsSuccessfully(ClassWhichUsesVariousJdkPackages.class);
     }
 
     private void assertThatPluginWithThisExtensionClassLoadsSuccessfully(Class<?> extensionClass) throws IOException, InvalidSyntaxException {
         BundleContext installedBundleContext = bundleContext(installBundleWithClasses(extensionClass));
 
         ServiceReference<?>[] references = installedBundleContext.getServiceReferences(GoPlugin.class.getName(), null);
-        assertThat(references.length).as("No service registered for GoPlugin class").isEqualTo(1);
+        assertThat(references).as("No service registered for GoPlugin class").hasSize(1);
         assertThat(references[0].getProperty(Constants.BUNDLE_SYMBOLICNAME)).as("Symbolic Name property should be present").isEqualTo(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(references[0].getProperty("PLUGIN_ID")).as("Plugin ID property should be present").isEqualTo(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(installedBundleContext.getService(references[0]).getClass().getName()).isEqualTo(extensionClass.getName());

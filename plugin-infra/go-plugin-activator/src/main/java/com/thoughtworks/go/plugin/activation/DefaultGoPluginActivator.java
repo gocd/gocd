@@ -423,18 +423,9 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         return null;
     }
 
-    private static class UnloadMethodInvoker {
-        private final Object object;
-        private final Method unloadMethod;
-
-        UnloadMethodInvoker(Object object, Method unloadMethod) {
-            this.object = object;
-            this.unloadMethod = unloadMethod;
-        }
-
+    private record UnloadMethodInvoker(Object object, Method unloadMethod) {
         void invokeUnloadMethod() throws InvocationTargetException, IllegalAccessException {
-            this.unloadMethod.invoke(this.object, DUMMY_PLUGIN_CONTEXT);
+                this.unloadMethod.invoke(this.object, DUMMY_PLUGIN_CONTEXT);
+            }
         }
-    }
-
 }

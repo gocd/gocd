@@ -19,19 +19,34 @@ import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.annotation.Extension;
+import com.thoughtworks.go.plugin.api.logging.Logger;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
-import javax.xml.parsers.DocumentBuilderFactory;
+import java.net.Socket;
 import java.util.List;
 
+@SuppressWarnings({"FieldCanBeLocal", "ResultOfMethodCallIgnored", "removal", "ThrowableNotThrown"})
 @Extension
-public class ClassWhichUsesSomeClassInJavaxPackage implements GoPlugin {
-    private final DocumentBuilderFactory documentBuilderFactory;
+public class ClassWhichUsesVariousJdkPackages implements GoPlugin {
+    public ClassWhichUsesVariousJdkPackages() {
+        // jdk.net
+        System.out.println(jdk.net.Sockets.supportedOptions(Socket.class));
 
-    public ClassWhichUsesSomeClassInJavaxPackage() {
-        documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        // javax
+        var documentBuilderFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
         documentBuilderFactory.getClass();
+
+        // org.w3c
+        var domException = new org.w3c.dom.DOMException((short) 1, "abc");
+        domException.getClass();
+
+        // org.xml.sax
+        org.xml.sax.Attributes locator = new org.xml.sax.helpers.AttributesImpl();
+        locator.getClass();
+
+        // Double-check the logger
+        Logger.getLoggerFor(ClassWhichUsesVariousJdkPackages.class).info("ClassWhichUsesVariousJdkPackages initialized");
     }
 
     @Override

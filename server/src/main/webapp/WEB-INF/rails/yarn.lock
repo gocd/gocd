@@ -4809,7 +4809,7 @@ __metadata:
     prismjs: "npm:^1.30.0"
     sass-embedded: "npm:^1.100.0"
     sass-loader: "npm:^17.0.0"
-    shell-quote: "npm:^1.9.0"
+    shell-quote: "npm:^1.10.0"
     shellwords-ts: "npm:^3.0.1"
     simulate-event: "npm:^1.4.0"
     sourcemapped-stacktrace: "npm:^1.1.11"
@@ -7985,10 +7985,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"shell-quote@npm:^1.9.0":
-  version: 1.9.0
-  resolution: "shell-quote@npm:1.9.0"
-  checksum: 10c0/a39960107eb086b02394cfceb3c732bd3bf567b568719ff47101448fc3f1bf4a59ecfdd8960ff7ea564d749ef8bda70f2c82a768f22d8c7aeeabf2b64f53b7e8
+"shell-quote@npm:^1.10.0":
+  version: 1.10.0
+  resolution: "shell-quote@npm:1.10.0"
+  checksum: 10c0/46ee59bfd972ce6a45500c44ed130dff2d0a7d6fbac9841e59d548518cad8060a06393c9a5dcbc0cede294ad80b2a2cd8c904679e09265f53efc0a0879f30961
   languageName: node
   linkType: hard
 

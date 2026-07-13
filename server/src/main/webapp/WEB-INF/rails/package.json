@@ -52,7 +52,7 @@
     "normalize-scss": "^8.0.0",
     "opensans": "file:node-vendor/opensans#node-vendor/opensans::hash=930bae&locator=gocd-server-ui%40workspace%3A.",
     "prismjs": "^1.30.0",
-    "shell-quote": "^1.9.0",
+    "shell-quote": "^1.10.0",
     "shellwords-ts": "^3.0.1",
     "underscore.string": "^3.3.6",
     "url-parse": "^1.5.10",

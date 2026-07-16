@@ -97,10 +97,11 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-    According to https://spring.io/security/cve-2026-22740 this only affects webflux applications, which GoCD is not.
+    These vulnerabilities only affects Spring WebFlux applications, which GoCD is not.
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
     <cve>CVE-2026-22740</cve>
+    <cve>CVE-2026-41839</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[

@@ -123,7 +123,7 @@ public class JobInstances extends BaseCollection<JobInstance> {
     }
 
     public long latestTransitionId() {
-        long latest = JobStateTransition.NOT_PERSISTED;
+        long latest = PersistentObject.NOT_PERSISTED;
         for (JobInstance jobInstance : this) {
             long id = jobInstance.latestTransitionId();
             if (id > latest) {

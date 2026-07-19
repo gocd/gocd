@@ -25,9 +25,9 @@ import static com.thoughtworks.go.domain.StageState.*;
 import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JobInstancesTest {
+class JobInstancesTest {
     @Test
-    public void shouldFilterByStatus() {
+    void shouldFilterByStatus() {
         final JobInstance instance1 = new JobInstance("test");
         final JobInstance instance2 = new JobInstance("test2");
         instance2.setState(JobState.Assigned);
@@ -38,28 +38,28 @@ public class JobInstancesTest {
     }
 
     @Test
-    public void shouldGetMostRecentCompletedBuild() {
+    void shouldGetMostRecentCompletedBuild() {
         JobInstances jobInstances = mixedBuilds();
         JobInstance mostRecentCompleted = jobInstances.mostRecentCompleted();
         assertThat(mostRecentCompleted).isEqualTo(jobInstances.get(2));
     }
 
     @Test
-    public void shouldGetMostRecentPassedBuild() {
+    void shouldGetMostRecentPassedBuild() {
         JobInstances jobInstances = mixedBuilds();
         JobInstance mostRecent = jobInstances.mostRecentPassed();
         assertThat(mostRecent).isEqualTo(jobInstances.get(1));
     }
 
     @Test
-    public void shouldGetMostRecentPassedWhenBuilding() {
+    void shouldGetMostRecentPassedWhenBuilding() {
         JobInstances jobInstances = new JobInstances(passed("passed"), building("unit"));
         JobInstance mostRecent = jobInstances.mostRecentPassed();
         assertThat(mostRecent.getName()).isEqualTo("passed");
     }
 
     @Test
-    public void shouldGetMostRecentPassedBuildIfThereAreFailedBuilds() {
+    void shouldGetMostRecentPassedBuildIfThereAreFailedBuilds() {
         JobInstances jobInstances = new JobInstances(failed("foo"), passed("foo"));
         JobInstance mostRecent = jobInstances.mostRecentPassed();
         assertThat(mostRecent).isEqualTo(jobInstances.get(1));
@@ -82,13 +82,13 @@ public class JobInstancesTest {
     }
 
     @Test
-    public void shouldReturnNullObjectWhenNoMostRecentPassedInstance() {
+    void shouldReturnNullObjectWhenNoMostRecentPassedInstance() {
         JobInstance actual = new JobInstances().mostRecentPassed();
         assertThat(actual.isNull()).isTrue();
     }
 
     @Test
-    public void shouldReturnStatusBuildingWhenAnyBuildsAreBuilding() {
+    void shouldReturnStatusBuildingWhenAnyBuildsAreBuilding() {
         JobInstances builds = new JobInstances();
         builds.add(completed("passports", JobResult.Passed));
         builds.add(completed("visas", JobResult.Cancelled));
@@ -97,7 +97,7 @@ public class JobInstancesTest {
     }
 
     @Test
-    public void jobShouldBeCancelledWhenNoActiveBuildAndHaveAtLeastOneCancelledJob() {
+    void jobShouldBeCancelledWhenNoActiveBuildAndHaveAtLeastOneCancelledJob() {
         JobInstances builds = new JobInstances();
         builds.add(completed("passports", JobResult.Passed));
         builds.add(completed("passports-failed", JobResult.Failed));
@@ -107,7 +107,7 @@ public class JobInstancesTest {
     }
 
     @Test
-    public void shouldReturnStatusFailingWhenAnyPlansHaveFailedAndNotAllAreCompleted() {
+    void shouldReturnStatusFailingWhenAnyPlansHaveFailedAndNotAllAreCompleted() {
         JobInstances builds = new JobInstances();
         builds.add(completed("passports", JobResult.Failed));
         builds.add(completed("visas", JobResult.Passed));
@@ -116,7 +116,7 @@ public class JobInstancesTest {
     }
 
     @Test
-    public void shouldReturnLatestTransitionDate() {
+    void shouldReturnLatestTransitionDate() {
         Date expectedLatest = date(3908, 10, 12);
         Date actualLatest = new JobInstances(
             completed(completed("job1"), JobResult.Failed, expectedLatest),

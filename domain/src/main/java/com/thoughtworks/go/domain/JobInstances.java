@@ -51,7 +51,7 @@ public class JobInstances extends BaseCollection<JobInstance> {
         AtomicReference<JobInstance> removed = new AtomicReference<>();
         if (!removeFirstIf(jobInstance -> jobInstance.getName().equals(name) && removed.getAndSet(jobInstance) == null)) {
             throw bomb("Does not contain plan with name " + name);
-        };
+        }
         return removed.get();
     }
 
@@ -123,7 +123,7 @@ public class JobInstances extends BaseCollection<JobInstance> {
     }
 
     public long latestTransitionId() {
-        long latest = JobStateTransition.NOT_PERSISTED;
+        long latest = PersistentObject.NOT_PERSISTED;
         for (JobInstance jobInstance : this) {
             long id = jobInstance.latestTransitionId();
             if (id > latest) {

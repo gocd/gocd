@@ -51,7 +51,7 @@ public class JobInstances extends BaseCollection<JobInstance> {
         AtomicReference<JobInstance> removed = new AtomicReference<>();
         if (!removeFirstIf(jobInstance -> jobInstance.getName().equals(name) && removed.getAndSet(jobInstance) == null)) {
             throw bomb("Does not contain plan with name " + name);
-        };
+        }
         return removed.get();
     }
 

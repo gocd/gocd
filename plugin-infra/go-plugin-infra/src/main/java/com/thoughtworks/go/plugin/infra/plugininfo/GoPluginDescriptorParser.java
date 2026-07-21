@@ -185,6 +185,9 @@ public final class GoPluginDescriptorParser {
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         try {
             schemaFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            schemaFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
             return schemaFactory.newSchema(klass.getResource(schemaResourcePath));
         } catch (SAXException e) {
             throw new RuntimeException(e);

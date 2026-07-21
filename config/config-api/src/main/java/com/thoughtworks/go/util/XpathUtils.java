@@ -98,6 +98,7 @@ public class XpathUtils {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             return factory;
         } catch (ParserConfigurationException e) {
             throw new RuntimeException(e);

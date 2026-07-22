@@ -18,6 +18,7 @@ package com.thoughtworks.go.build.docker
 
 import com.thoughtworks.go.build.AdoptiumVersion
 import com.thoughtworks.go.build.Architecture
+import com.thoughtworks.go.build.OperatingSystem
 
 enum Distro implements DistroBehavior {
 
@@ -32,6 +33,11 @@ enum Distro implements DistroBehavior {
     @Override
     boolean isContinuousRelease() {
       true
+    }
+
+    @Override
+    OperatingSystem getOperatingSystemVariant() {
+      OperatingSystem.linux_alpine
     }
 
     @Override
@@ -54,46 +60,6 @@ enum Distro implements DistroBehavior {
         // procps is needed for tanuki wrapper shell script
         'apk add --no-cache tini-static git openssh-client bash curl procps',
       ]
-    }
-
-    @Override
-    String getMultiStageInputImage() {
-      "frolvlad/alpine-glibc:alpine-3"
-    }
-
-    @Override
-    String getMultiStageInputDirectory() {
-      "/usr/glibc-compat"
-    }
-
-    @Override
-    List<String> getInstallJavaCommands(AdoptiumVersion version) {
-      // Tanuki Wrapper currently requires glibc, which is not available in Alpine (which is a musl libc distro). See https://github.com/gocd/gocd/issues/11355
-      // for a discussion of this problem. To workaround this, use glibc built within https://hub.docker.com/r/frolvlad/alpine-glibc from source at
-      // https://github.com/Docker-Hub-frolvlad/docker-alpine-glibc since he original project at https://github.com/sgerrand/alpine-pkg-glibc is unmaintained.
-      //
-      // Logic needs to match
-      // - package contents from https://github.com/Docker-Hub-frolvlad/docker-alpine-glibc/blob/master/APKBUILD
-      // - pre-generated locales from pre-generated locales at https://github.com/Docker-Hub-frolvlad/docker-alpine-glibc/blob/master/Dockerfile
-      //
-      // Note that this means the JRE used also must be glibc-linked.
-      [
-        '# install glibc for the Tanuki Wrapper, and use by glibc-linked Adoptium JREs',
-        "  GLIBC_DIR=${getMultiStageInputDirectory()}",
-        '  GLIBC_LIB=$([ "$(arch)" = "aarch64" ] && echo ld-linux-aarch64.so.1 || echo ld-linux-x86-64.so.2)',
-        '  ln -s ${GLIBC_DIR}/lib/${GLIBC_LIB} /lib/${GLIBC_LIB}',
-        '  mkdir -p /lib64 && ln -s ${GLIBC_DIR}/lib/${GLIBC_LIB} /lib64/${GLIBC_LIB}',
-        '  ln -s ${GLIBC_DIR}/etc/ld.so.cache /etc/ld.so.cache',
-        '  echo "export LANG=C.UTF-8" > /etc/profile.d/locale.sh',
-        '  ${GLIBC_DIR}/sbin/ldconfig',
-        '# end installing glibc',
-      ] + super.getInstallJavaCommands(version)
-    }
-
-    @Override
-    Map<String, String> getEnvironmentVariables(DistroVersion v) {
-      // See pre-generated locales at https://github.com/Docker-Hub-frolvlad/docker-alpine-glibc/blob/master/Dockerfile
-      ['LANG': 'C.UTF-8'] + super.getEnvironmentVariables(v)
     }
   },
 
@@ -241,6 +207,11 @@ enum Distro implements DistroBehavior {
       [
         new DistroVersion(version: 'dind', releaseName: 'dind', eolDate: parseDate('2099-01-01'))
       ]
+    }
+
+    @Override
+    OperatingSystem getOperatingSystemVariant() {
+      OperatingSystem.linux_alpine
     }
 
     @Override

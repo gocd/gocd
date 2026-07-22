@@ -17,17 +17,19 @@
 package com.thoughtworks.go.build
 
 enum OperatingSystem {
-  windows("zip", "windows"),
-  linux("tar.gz", "linux"),
-  alpine_linux("tar.gz", "alpine-linux"),
-  mac("tar.gz", "mac")
+  windows("zip", "windows", "windows"),
+  linux("tar.gz", "linux", "linux"),
+  linux_alpine("tar.gz", "alpine-linux", "alpine"),
+  mac("tar.gz", "mac", "macosx")
 
   final String extension
   final String adoptiumAlias
+  final String tanukiWrapperAlias
 
-  OperatingSystem(String extension, String adoptiumAlias) {
+  OperatingSystem(String extension, String adoptiumAlias, String tanukiWrapperAlias) {
     this.extension = extension
     this.adoptiumAlias = adoptiumAlias
+    this.tanukiWrapperAlias = tanukiWrapperAlias
   }
 }
 

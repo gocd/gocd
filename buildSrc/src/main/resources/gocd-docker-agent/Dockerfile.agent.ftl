@@ -36,13 +36,10 @@ RUN curl --fail --location --silent --show-error "https://download.gocd.org/bina
     mv -v /go-agent-${goVersions.goVersion}/run /go-agent/run && \
     mv -v /go-agent-${goVersions.goVersion}/wrapper-config /go-agent/wrapper-config && \
     WRAPPERARCH=${dockerAliasToWrapperArchAsShell} && \
-    mv -v /go-agent-${goVersions.goVersion}/wrapper/wrapper-linux-$WRAPPERARCH* /go-agent/wrapper/ && \
-    mv -v /go-agent-${goVersions.goVersion}/wrapper/libwrapper-linux-$WRAPPERARCH* /go-agent/wrapper/ && \
+    mv -v /go-agent-${goVersions.goVersion}/wrapper/wrapper-${distro.operatingSystemVariant.tanukiWrapperAlias}-$WRAPPERARCH /go-agent/wrapper/wrapper && \
+    mv -v /go-agent-${goVersions.goVersion}/wrapper/libwrapper-${distro.operatingSystemVariant.tanukiWrapperAlias}-$WRAPPERARCH.so /go-agent/wrapper/libwrapper.so && \
     mv -v /go-agent-${goVersions.goVersion}/wrapper/wrapper.jar /go-agent/wrapper/ && \
     chown -R ${r"${UID}"}:0 /go-agent && chmod -R g=u /go-agent
-<#if distro.getMultiStageInputImage()?has_content >
-FROM ${distro.getMultiStageInputImage()} AS multistageinput
-</#if>
 FROM ${distro.getBaseImageLocation(distroVersion)}
 ARG TARGETARCH
 
@@ -61,9 +58,6 @@ ENV ${key}="${value}"
 
 ARG UID=1000
 ARG GID=1000
-<#if distro.getMultiStageInputImage()?has_content >
-COPY --from=multistageinput ${distro.getMultiStageInputDirectory()} ${distro.getMultiStageInputDirectory()}
-</#if>
 RUN \
 <#list distro.getBaseImageUpdateCommands(distroVersion) as command>
   ${command} && \

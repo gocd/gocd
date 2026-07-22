@@ -58,7 +58,7 @@ def configureMacZip(Zip zipTask, InstallerType installerType, Zip genericZipTask
       exclude "${installerType.baseName}-${goVersions.goVersion}/bin/*.bat"
     }
 
-    def wrapperArch = arch == Architecture.aarch64 ? 'arm-64' : 'universal-64'
+    def wrapperArch = arch == Architecture.aarch64 ? 'arm-64' : 'x86-64'
 
     from(genericZipTree) {
       include "${installerType.baseName}-${goVersions.goVersion}/wrapper/wrapper-macosx-${wrapperArch}"

@@ -35,8 +35,8 @@ RUN curl --fail --location --silent --show-error "https://download.gocd.org/bina
     mv -v /go-server-${goVersions.goVersion}/run /go-server/run && \
     mv -v /go-server-${goVersions.goVersion}/wrapper-config /go-server/wrapper-config && \
     WRAPPERARCH=${dockerAliasToWrapperArchAsShell} && \
-    mv -v /go-server-${goVersions.goVersion}/wrapper/wrapper-linux-$WRAPPERARCH* /go-server/wrapper/ && \
-    mv -v /go-server-${goVersions.goVersion}/wrapper/libwrapper-linux-$WRAPPERARCH* /go-server/wrapper/ && \
+    mv -v /go-server-${goVersions.goVersion}/wrapper/wrapper-${distro.operatingSystemVariant.tanukiWrapperAlias}-$WRAPPERARCH /go-server/wrapper/wrapper && \
+    mv -v /go-server-${goVersions.goVersion}/wrapper/libwrapper-${distro.operatingSystemVariant.tanukiWrapperAlias}-$WRAPPERARCH.so /go-server/wrapper/libwrapper.so && \
     mv -v /go-server-${goVersions.goVersion}/wrapper/wrapper.jar /go-server/wrapper/ && \
     chown -R ${r"${UID}"}:0 /go-server && chmod -R g=u /go-server
 

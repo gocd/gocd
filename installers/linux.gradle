@@ -298,14 +298,14 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
       injected.fileOps.copy {
         into "${buildRoot}/usr/share/${installerType.baseName}/wrapper"
         from("${extractDeltaPack.destinationDir}/bin") {
-          include 'wrapper-linux-x86-64*'
-          include 'wrapper-linux-arm-64*'
+          include "wrapper-${OperatingSystem.linux.tanukiWrapperAlias}-${Architecture.x64.tanukiWrapperAlias}*"
+          include "wrapper-${OperatingSystem.linux.tanukiWrapperAlias}-${Architecture.aarch64.tanukiWrapperAlias}*"
         }
 
         from("${extractDeltaPack.destinationDir}/lib") {
           include 'wrapper.jar'
-          include 'libwrapper-linux-x86-64*'
-          include 'libwrapper-linux-arm-64*'
+          include "libwrapper-${OperatingSystem.linux.tanukiWrapperAlias}-${Architecture.x64.tanukiWrapperAlias}*"
+          include "libwrapper-${OperatingSystem.linux.tanukiWrapperAlias}-${Architecture.aarch64.tanukiWrapperAlias}*"
         }
       }
     }

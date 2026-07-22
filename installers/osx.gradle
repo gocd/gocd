@@ -58,11 +58,9 @@ def configureMacZip(Zip zipTask, InstallerType installerType, Zip genericZipTask
       exclude "${installerType.baseName}-${goVersions.goVersion}/bin/*.bat"
     }
 
-    def wrapperArch = arch == Architecture.aarch64 ? 'arm-64' : 'x86-64'
-
     from(genericZipTree) {
-      include "${installerType.baseName}-${goVersions.goVersion}/wrapper/wrapper-macosx-${wrapperArch}"
-      include "${installerType.baseName}-${goVersions.goVersion}/wrapper/libwrapper-macosx-${wrapperArch}*"
+      include "${installerType.baseName}-${goVersions.goVersion}/wrapper/wrapper-${OperatingSystem.mac.tanukiWrapperAlias}-${arch.tanukiWrapperAlias}"
+      include "${installerType.baseName}-${goVersions.goVersion}/wrapper/libwrapper-${OperatingSystem.mac.tanukiWrapperAlias}-${arch.tanukiWrapperAlias}*"
     }
 
     // include the wrapper.conf, but replace the java command

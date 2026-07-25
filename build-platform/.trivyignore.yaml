@@ -19,6 +19,11 @@ vulnerabilities:
       while modifying the path to remove a prefix and support routing to Rails-handled code.
       org.eclipse.jetty:jetty-http (go.jar) Fixed: 12.0.12
       https://avd.aquasec.com/nvd/cve-2024-6763/
+  - id: CVE-2026-10050
+    statement: >
+      False positive as GoCD does not use Jetty digest authentication.
+      org.eclipse.jetty:jetty-security (go.jar) Fixed: 12.0.37
+      https://avd.aquasec.com/nvd/cve-2026-10050
   # Leave whitespace at the end of the file for appending suppressions from OWASP dependency check :-)
   # Augment to this file with
   # grep -oE '<(cve|vulnerabilityName)>(CVE|GHSA).*</(cve|vulnerabilityName)>' build-platform/dependency-check-suppress.xml | sed -E 's/<(cve|vulnerabilityName)>(.*)<\/(cve|vulnerabilityName)>/  - id: \2/' >> build-platform/.trivyignore.yaml

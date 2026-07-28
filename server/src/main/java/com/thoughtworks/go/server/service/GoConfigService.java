@@ -136,10 +136,10 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             }
         }
         if (!dir.canRead()) {
-            bomb("Cruise does not have read permission on " + dir.getAbsolutePath());
+            bomb("Go does not have read permission on " + dir.getAbsolutePath());
         }
         if (!dir.canWrite()) {
-            bomb("Cruise does not have write permission on " + dir.getAbsolutePath());
+            bomb("Go does not have write permission on " + dir.getAbsolutePath());
         }
     }
 

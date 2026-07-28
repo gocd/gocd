@@ -548,7 +548,7 @@ public class GoConfigMigrationIntegrationTest {
 
         try {
             migrateXmlString(configXml, 99);
-            fail(String.format("Expected a failure. Reason: Cruise config file with version 98 is invalid. Unable to upgrade. Message:%s", message));
+            fail(String.format("Expected a failure. Reason: Go config file with version 98 is invalid. Unable to upgrade. Message:%s", message));
         } catch (Exception e) {
             assertThat(e.getCause().getMessage()).isEqualTo(message);
         }

@@ -171,7 +171,7 @@ public class GoConfigMigratorIntegrationTest {
         Files.writeString(configFile, "<cruise></cruise>", UTF_8);
         goConfigMigrator.migrate();
         assertThat(exceptions.size()).isEqualTo(1);
-        assertThat(exceptions.getFirst().getMessage()).contains("Cruise config file with version 0 is invalid. Unable to upgrade.");
+        assertThat(exceptions.getFirst().getMessage()).contains("Go config file with version 0 is invalid. Unable to upgrade.");
     }
 
     @Test
@@ -196,7 +196,7 @@ public class GoConfigMigratorIntegrationTest {
         configRepository.checkin(new GoConfigRevision("<cruise></cruise>", "md5", "ps", "123", new TimeProvider()));
         Files.writeString(configFile, "<cruise></cruise>", UTF_8);
         goConfigMigrator.migrate();
-        assertThat(exceptions.getFirst().getMessage()).contains("Cruise config file with version 0 is invalid. Unable to upgrade.");
+        assertThat(exceptions.getFirst().getMessage()).contains("Go config file with version 0 is invalid. Unable to upgrade.");
     }
 
     @Test

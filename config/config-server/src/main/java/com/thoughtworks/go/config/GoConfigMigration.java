@@ -105,7 +105,7 @@ public class GoConfigMigration {
         try {
             XmlUtils.buildValidatedXmlDocument(new ByteArrayInputStream(content.getBytes()), GoConfigSchema.getResource(currentVersion));
         } catch (Exception e) {
-            throw bomb("Cruise config file with version " + currentVersion + " is invalid. Unable to upgrade.", e);
+            throw bomb("Go config file with version " + currentVersion + " is invalid. Unable to upgrade.", e);
         }
     }
 

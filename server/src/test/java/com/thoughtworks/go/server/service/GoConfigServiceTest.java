@@ -257,7 +257,7 @@ public class GoConfigServiceTest {
                 </cruise>
                 """;
         GoConfigValidity validity = goConfigService.fileSaver(true).saveXml(configContent, "md5");
-        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).isEqualTo("Cruise config file with version 14 is invalid. Unable to upgrade.");
+        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage()).isEqualTo("Go config file with version 14 is invalid. Unable to upgrade.");
     }
 
     @Test
@@ -431,7 +431,7 @@ public class GoConfigServiceTest {
             goConfigService.initialize();
             fail("should throw when cruise has no read permission on artifacts dir " + artifactsDir.getAbsolutePath());
         } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("Cruise does not have read permission on " + artifactsDir.getAbsolutePath());
+            assertThat(e.getMessage()).isEqualTo("Go does not have read permission on " + artifactsDir.getAbsolutePath());
         } finally {
             FileUtils.deleteQuietly(artifactsDir);
         }
@@ -450,7 +450,7 @@ public class GoConfigServiceTest {
             goConfigService.initialize();
             fail("should throw when cruise has no write permission on artifacts dir " + artifactsDir.getAbsolutePath());
         } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("Cruise does not have write permission on " + artifactsDir.getAbsolutePath());
+            assertThat(e.getMessage()).isEqualTo("Go does not have write permission on " + artifactsDir.getAbsolutePath());
         } finally {
             FileUtils.deleteQuietly(artifactsDir);
         }

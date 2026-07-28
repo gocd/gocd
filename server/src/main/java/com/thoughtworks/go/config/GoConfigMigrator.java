@@ -61,11 +61,11 @@ public class GoConfigMigrator {
                     //noinspection CallToPrintStackTrace
                     e.printStackTrace();
                     System.err.printf("""
-                        There are errors in the Cruise config file.  Please read the error message and correct the errors.
+                        There are errors in the config file.  Please read the error message and correct the errors.
                         Once fixed, please restart GoCD.
                         Error: %s%n""", e.getMessage());
                     LOGGER.error(MarkerFactory.getMarker("FATAL"), """
-                        There are errors in the Cruise config file.  Please read the error message and correct the errors.
+                        There are errors in the config file.  Please read the error message and correct the errors.
                         Once fixed, please restart GoCD.
                         Error: {}""", e.getMessage());
                     // Send exit signal in a separate thread otherwise it will deadlock jetty

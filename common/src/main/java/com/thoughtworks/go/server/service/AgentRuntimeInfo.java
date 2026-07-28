@@ -22,8 +22,6 @@ import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.domain.DiskSpace;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.Serializable;
@@ -39,8 +37,6 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class AgentRuntimeInfo implements Serializable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AgentRuntimeInfo.class);
-
     @Expose
     private AgentIdentifier identifier;
     @Expose
@@ -221,11 +217,7 @@ public class AgentRuntimeInfo implements Serializable {
     }
 
     public static long usableSpace(String currentWorkingDir) {
-        File file = new File(currentWorkingDir, "pipelines");
-        if (!file.exists()) {
-            LOGGER.warn("the [{}] should be created when agent starts up, but it seems missing at the moment. Cruise should be able to automatically create it later", file.getAbsolutePath());
-        }
-        return file.getUsableSpace();
+        return new File(currentWorkingDir, "pipelines").getUsableSpace();
     }
 
     public Long getUsableSpace() {

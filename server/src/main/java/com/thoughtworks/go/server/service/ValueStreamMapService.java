@@ -128,6 +128,7 @@ public class ValueStreamMapService {
         return cruiseConfig.pipelineConfigByName(pipelineName).name();
     }
 
+    @SuppressWarnings("unused") // Use by Rails
     public ValueStreamMapPresentationModel getValueStreamMap(String materialFingerprint, String revision, Username username, LocalizedOperationResult result) {
         try {
             MaterialConfig materialConfig = null;

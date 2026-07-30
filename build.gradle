@@ -132,7 +132,7 @@ def libraries = [
   mockitoBom          : 'org.mockito:mockito-bom:5.23.0',
   mybatis             : 'org.mybatis:mybatis:3.5.19',
   mybatisSpring       : 'org.mybatis:mybatis-spring:2.1.2',
-  mysql               : 'com.mysql:mysql-connector-j:9.7.0',
+  mysql               : 'com.mysql:mysql-connector-j:26.7.0',
   objenesis           : 'org.objenesis:objenesis:3.5',
   oshi                : 'com.github.oshi:oshi-core:7.4.2',
   postgresql          : 'org.postgresql:postgresql:42.7.13',

@@ -10,7 +10,7 @@
     },
     "packageManager": {
       "name": "yarn",
-      "version": "4.17.1+sha256.471ffb15e0523663865bbf46a69e7d157ecf532412eb436c48dfab6e3f2abe88"
+      "version": "4.18.0+sha256.fb8b1d20be72a0b544a35bcec4c7ed0ff55a9b173c01f191b02ba164b2051db5"
     }
   },
   "scripts": {

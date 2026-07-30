@@ -659,6 +659,7 @@ dependencyCheck {
   failBuildOnUnusedSuppressionRule = true
   suppressionFile = rootProject.file('build-platform/dependency-check-suppress.xml').toPath().toString()
   skipTestGroups = true
+  skipConfigurations = ['dependencyAnalysisKotlinMetadataClasspath']
 
   nvd.validForHours = 24
   nvd.datafeedUrl = 'https://nexus.gocd.io/repository/nvd-data-feeds-proxy/nvdcve-2.0-{0}.json.gz'

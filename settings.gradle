@@ -23,7 +23,7 @@ pluginManagement {
 }
 
 def terracottaGroups = ['net.sf.ehcache', 'org.terracotta']
-def jitpackGroups = ['com.github.gocd-contrib', 'com.github.sbrannen']
+def jitpackGroups = ['com.github.sbrannen']
 def excludeNicheGroups = { repo ->
   repo.content {
     terracottaGroups.each { excludeGroupAndSubgroups it }

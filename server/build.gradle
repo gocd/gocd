@@ -468,6 +468,7 @@ def configureWar = tasks.register('configureWar') {
       exclude("**/rails/karma.conf.js")
       exclude("**/rails/Rakefile")
       exclude("**/rails/*.json")
+      exclude("**/rails/.claude/")
 
       // Unrelated Rails/Ruby stuff
       exclude("**/rails/*.log")

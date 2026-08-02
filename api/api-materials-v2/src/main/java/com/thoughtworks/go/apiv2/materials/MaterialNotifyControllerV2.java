@@ -106,7 +106,7 @@ public class MaterialNotifyControllerV2 extends ApiController implements SparkSp
 
     private String notify(Request req, Response res, String materialType, String paramName, String paramValue) throws IOException {
         Map<String, String> params = new HashMap<>();
-        params.put(MaterialUpdateService.TYPE, materialType);
+        params.put(MaterialUpdateService.POST_COMMIT_HOOK_MATERIAL_ATTRIBUTE, materialType);
         params.put(paramName, paramValue);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();

@@ -317,7 +317,7 @@ public class MaterialUpdateServiceTest {
             when(goConfigService.isUserAdmin(username)).thenReturn(true);
             when(postCommitHookMaterialType.toType("some_invalid_type")).thenReturn(invalidMaterialType);
             Map<String, String> params = new HashMap<>();
-            params.put(MaterialUpdateService.TYPE, "some_invalid_type");
+            params.put(MaterialUpdateService.POST_COMMIT_HOOK_MATERIAL_ATTRIBUTE, "some_invalid_type");
             service.notifyMaterialsForUpdate(username, params, result);
 
             HttpLocalizedOperationResult badRequestResult = new HttpLocalizedOperationResult();
@@ -345,7 +345,7 @@ public class MaterialUpdateServiceTest {
             when(hookImplementer.prune(anySet(), anyMap())).thenReturn(new HashSet<>());
 
             Map<String, String> params = new HashMap<>();
-            params.put(MaterialUpdateService.TYPE, "type");
+            params.put(MaterialUpdateService.POST_COMMIT_HOOK_MATERIAL_ATTRIBUTE, "type");
 
             service.notifyMaterialsForUpdate(username, params, result);
 
@@ -360,7 +360,7 @@ public class MaterialUpdateServiceTest {
         @Test
         void shouldReturnImplementerOfSvnPostCommitHookAndPerformMaterialUpdate_WhenInvokingPostCommitHookMaterialUpdate() {
             Map<String, String> params = new HashMap<>();
-            params.put(MaterialUpdateService.TYPE, "svn");
+            params.put(MaterialUpdateService.POST_COMMIT_HOOK_MATERIAL_ATTRIBUTE, "svn");
             when(goConfigService.isUserAdmin(username)).thenReturn(true);
             final CruiseConfig cruiseConfig = new BasicCruiseConfig(PipelineConfigMother.createGroup("groupName", "pipeline1", "pipeline2"));
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
@@ -384,7 +384,7 @@ public class MaterialUpdateServiceTest {
         @Test
         void shouldResolveSecretParamsOnlyForSvnMaterials() {
             Map<String, String> params = new HashMap<>();
-            params.put(MaterialUpdateService.TYPE, "svn");
+            params.put(MaterialUpdateService.POST_COMMIT_HOOK_MATERIAL_ATTRIBUTE, "svn");
             final PostCommitHookImplementer svnPostCommitHookImplementer = mock(PostCommitHookImplementer.class);
             final SvnMaterial svnMaterial = new SvnMaterial("http://url.com", "bob", "{{SECRET:[config_id][username]}}", false);
             GitMaterial gitMaterial = new GitMaterial("http://example.com");

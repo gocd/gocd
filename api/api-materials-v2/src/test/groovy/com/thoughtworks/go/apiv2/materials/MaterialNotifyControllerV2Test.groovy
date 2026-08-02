@@ -76,7 +76,7 @@ class MaterialNotifyControllerV2Test implements SecurityServiceTrait, Controller
 
         postWithApiHeader(Routes.MaterialNotify.BASE + Routes.MaterialNotify.SVN, payload)
 
-        def expectedParams = [(MaterialUpdateService.TYPE): "svn", repository_url: "ssh+svn://smiling-red-panda"]
+        def expectedParams = [(MaterialUpdateService.POST_COMMIT_HOOK_MATERIAL_ATTRIBUTE): "svn", repository_url: "ssh+svn://smiling-red-panda"]
         verify(materialUpdateService).notifyMaterialsForUpdate(
           eq(currentUsername()), eq(expectedParams), any())
       }
@@ -87,7 +87,7 @@ class MaterialNotifyControllerV2Test implements SecurityServiceTrait, Controller
 
         postWithApiHeader(Routes.MaterialNotify.BASE + Routes.MaterialNotify.SVN, payload)
 
-        def expectedParams = [(MaterialUpdateService.TYPE): "svn", uuid: "some-uuid-value"]
+        def expectedParams = [(MaterialUpdateService.POST_COMMIT_HOOK_MATERIAL_ATTRIBUTE): "svn", uuid: "some-uuid-value"]
         verify(materialUpdateService).notifyMaterialsForUpdate(
           eq(currentUsername()), eq(expectedParams), any())
       }
@@ -134,7 +134,7 @@ class MaterialNotifyControllerV2Test implements SecurityServiceTrait, Controller
 
         postWithApiHeader(Routes.MaterialNotify.BASE+ Routes.MaterialNotify.GIT, payload)
 
-        def expectedParams = [(MaterialUpdateService.TYPE): "git", repository_url: "http://nonstop-moose/"]
+        def expectedParams = [(MaterialUpdateService.POST_COMMIT_HOOK_MATERIAL_ATTRIBUTE): "git", repository_url: "http://nonstop-moose/"]
         verify(materialUpdateService).notifyMaterialsForUpdate(
           eq(currentUsername()), eq(expectedParams), any())
       }
@@ -181,7 +181,7 @@ class MaterialNotifyControllerV2Test implements SecurityServiceTrait, Controller
 
         postWithApiHeader(Routes.MaterialNotify.BASE + Routes.MaterialNotify.HG, payload)
 
-        def expectedParams = [(MaterialUpdateService.TYPE): "hg", repository_url: "http://psychotic-sumatran-rhinoceros/"]
+        def expectedParams = [(MaterialUpdateService.POST_COMMIT_HOOK_MATERIAL_ATTRIBUTE): "hg", repository_url: "http://psychotic-sumatran-rhinoceros/"]
         verify(materialUpdateService).notifyMaterialsForUpdate(
           eq(currentUsername()), eq(expectedParams), any())
       }
@@ -228,7 +228,7 @@ class MaterialNotifyControllerV2Test implements SecurityServiceTrait, Controller
 
         postWithApiHeader(Routes.MaterialNotify.BASE + Routes.MaterialNotify.SCM, payload)
 
-        def expectedParams = [(MaterialUpdateService.TYPE): "scm", scm_name: "pale-lionfish"]
+        def expectedParams = [(MaterialUpdateService.POST_COMMIT_HOOK_MATERIAL_ATTRIBUTE): "scm", scm_name: "pale-lionfish"]
         verify(materialUpdateService).notifyMaterialsForUpdate(
           eq(currentUsername()), eq(expectedParams), any())
       }

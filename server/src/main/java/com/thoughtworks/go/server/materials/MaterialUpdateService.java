@@ -54,6 +54,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -65,6 +66,7 @@ import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
  */
 @Service
 public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCompletedMessage>, ConfigChangedListener {
+    public static final String POST_COMMIT_HOOK_MATERIAL_ATTRIBUTE = "post_commit_hook_material_type";
     private static final Logger LOGGER = LoggerFactory.getLogger(MaterialUpdateService.class);
 
     private final MaterialUpdateQueue updateQueue;
@@ -76,16 +78,15 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
     private final GoConfigWatchList watchList;
     private final GoConfigService goConfigService;
     private final SystemEnvironment systemEnvironment;
-    private ServerHealthService serverHealthService;
+    private final ServerHealthService serverHealthService;
 
-    private ConcurrentMap<Material, Date> inProgress = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Material, Date> inProgress = new ConcurrentHashMap<>();
 
     private final PostCommitHookMaterialTypeResolver postCommitHookMaterialType;
     private final MDUPerformanceLogger mduPerformanceLogger;
     private final MaterialConfigConverter materialConfigConverter;
     private final Set<MaterialSource> materialSources = new HashSet<>();
-    private final Set<MaterialUpdateCompleteListener> materialUpdateCompleteListeners = new HashSet<>();
-    public static final String TYPE = "post_commit_hook_material_type";
+    private final Set<MaterialUpdateCompleteListener> materialUpdateCompleteListeners = new CopyOnWriteArraySet<>();
 
     @Autowired
     public MaterialUpdateService(MaterialUpdateQueue queue, ConfigMaterialUpdateQueue configUpdateQueue,
@@ -124,13 +125,17 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
 
         for (MaterialSource materialSource : materialSources) {
             Set<Material> materialsForUpdate = materialSource.materialsForUpdate();
-            LOGGER.debug("[Material Update] [On Timer] materials IN-PROGRESS: {}, ALL-MATERIALS: {}", inProgress, materialsForUpdate);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("[Material Update] [On Timer] materials IN-PROGRESS: {}, ALL-MATERIALS: {}", inProgress, materialsForUpdate);
+            }
 
             for (Material material : materialsForUpdate) {
                 BackOffResult backOffResult = exponentialBackoffService.shouldBackOff(material);
                 if (backOffResult.shouldBackOff()) {
-                    LOGGER.debug("[Material Update] [On Timer] Backing Off Material Update for: {}, failing since: {}, last failure time: {}, next retry will be attempted after: {}",
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("[Material Update] [On Timer] Backing Off Material Update for: {}, failing since: {}, last failure time: {}, next retry will be attempted after: {}",
                             material, backOffResult.getFailureStartTime(), backOffResult.getLastFailureTime(), backOffResult.getNextRetryAttempt());
+                    }
                     continue;
                 }
 
@@ -144,8 +149,8 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             result.forbidden("Unauthorized to access this API.", HealthStateType.forbidden());
             return;
         }
-        if (attributes.containsKey(MaterialUpdateService.TYPE)) {
-            PostCommitHookMaterialType materialType = postCommitHookMaterialType.toType(attributes.get(MaterialUpdateService.TYPE));
+        if (attributes.containsKey(POST_COMMIT_HOOK_MATERIAL_ATTRIBUTE)) {
+            PostCommitHookMaterialType materialType = postCommitHookMaterialType.toType(attributes.get(POST_COMMIT_HOOK_MATERIAL_ATTRIBUTE));
             if (!materialType.isKnown()) {
                 result.badRequest("The request could not be understood by Go Server due to malformed syntax. The client SHOULD NOT repeat the request without modifications.");
                 return;
@@ -190,7 +195,9 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
     public boolean updateMaterial(@NotNull Material material) {
         Date inProgressSince = inProgress.putIfAbsent(material, new Date());
         if (inProgressSince == null || !material.isAutoUpdate()) {
-            LOGGER.debug("[Material Update] Starting update of material {}", material);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("[Material Update] Starting update of material {}", material);
+            }
             try {
                 long trackingId = mduPerformanceLogger.materialSentToUpdateQueue(material);
                 queueFor(material).post(new MaterialUpdateMessage(material, trackingId));
@@ -207,8 +214,8 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
                 HealthStateScope scope = HealthStateScope.forMaterialUpdate(material);
                 serverHealthService.removeByScope(scope);
                 serverHealthService.update(warning("Material update for " + material.getUriForDisplay() + " hung:",
-                        "Material update is currently running but has not shown any activity in the last " + idleTime.toMinutes() + " minute(s). This may be hung. Details - " + material.getLongDescription(),
-                        general(scope)));
+                    "Material update is currently running but has not shown any activity in the last " + idleTime.toMinutes() + " minute(s). This may be hung. Details - " + material.getLongDescription(),
+                    general(scope)));
             }
             return false;
         }
@@ -218,8 +225,8 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
 //      Secrets are resolved only for SvnMaterials, since only SvnMaterial prune requires resolved password.
 
         allUniquePostCommitSchedulableMaterials.stream()
-                .filter(material -> material instanceof SvnMaterial)
-                .forEach(secretParamResolver::resolve);
+            .filter(material -> material instanceof SvnMaterial)
+            .forEach(secretParamResolver::resolve);
     }
 
     public void registerMaterialSources(MaterialSource materialSource) {
@@ -234,7 +241,9 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         }
 
         try {
-            LOGGER.debug("[Material Update] Material update completed for material {}", message.getMaterial());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("[Material Update] Material update completed for material {}", message.getMaterial());
+            }
 
             Date addedOn = inProgress.remove(message.getMaterial());
             serverHealthService.removeByScope(HealthStateScope.forMaterialUpdate(message.getMaterial()));
@@ -319,22 +328,17 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         @Override
         public boolean test(Material material) {
             return material instanceof GitMaterial gitMaterial &&
-                    gitMaterial.getBranch().equals(branchName) &&
-                    possibleUrls.contains(gitMaterial.getUrlArgument().withoutCredentials());
+                gitMaterial.getBranch().equals(branchName) &&
+                possibleUrls.contains(gitMaterial.getUrlArgument().withoutCredentials());
         }
     }
 
-    private static class PluggableScmPredicate implements Predicate<Material> {
-        private final List<String> scmNames;
-
-        public PluggableScmPredicate(List<String> scmNames) {
-            this.scmNames = scmNames;
-        }
+    private record PluggableScmPredicate(List<String> scmNames) implements Predicate<Material> {
 
         @Override
         public boolean test(Material material) {
             return material instanceof PluggableSCMMaterial pluggableSCMMaterial &&
-                    scmNames.contains(pluggableSCMMaterial.getScmConfig().getName());
+                scmNames.contains(pluggableSCMMaterial.getScmConfig().getName());
         }
     }
 }

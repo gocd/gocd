@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.config;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.TimeProvider;
@@ -27,27 +29,27 @@ import java.nio.file.Path;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ConfigMigrator {
+
+    /**
+     * Schema-migrating config content is expensive - common test fixtures are ~120 schema versions old, and are
+     * repeatedly migrated with identical input across tests - so cache upgrade output per unique input. Since some
+     * migrations generate random ids, this also keeps the migrated form of a given fixture stable within a run.
+     * (Tests of migration behaviour itself use GoConfigMigration/GoConfigMigrator directly)
+     */
+    private static final LoadingCache<String, String> migratedXmlCache = Caffeine.newBuilder()
+        .maximumSize(32)
+        .build(xml -> new GoConfigMigration(new TimeProvider()).upgradeIfNecessary(xml));
+
     public static void migrate(final Path configFile) {
         try {
-            String content = Files.readString(configFile, UTF_8);
-
-            GoConfigMigration upgrader = new GoConfigMigration(new TimeProvider());
-            //TODO: LYH & GL GoConfigMigration should be able to handle stream instead of binding to file
-            String upgradedContent = upgrader.upgradeIfNecessary(content);
-
-            Files.writeString(configFile, upgradedContent, UTF_8);
+            Files.writeString(configFile, migrate(Files.readString(configFile, UTF_8)), UTF_8);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static String migrate(String configXml) throws IOException {
-        Path tempFile = Files.createTempFile("cruise-config", ".xml");
-        Files.writeString(tempFile, configXml, UTF_8);
-        migrate(tempFile);
-        String newConfigXml = Files.readString(tempFile, UTF_8);
-        Files.delete(tempFile);
-        return newConfigXml;
+    public static String migrate(String configXml) {
+        return migratedXmlCache.get(configXml);
     }
 
     public static String migrate(String content, int fromVersion, int toVersion) {
@@ -86,10 +88,9 @@ public class ConfigMigrator {
 
     public static CruiseConfig load(String content) {
         try {
-            ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
-
-            return new MagicalGoConfigXmlLoader(registry).loadConfigHolder(migrate(content)).config;
-        } catch (IOException | JDOMException e) {
+            return new MagicalGoConfigXmlLoader(ConfigElementImplementationRegistryMother.withNoPlugins())
+                .loadConfigHolder(migrate(content)).config;
+        } catch (JDOMException e) {
             throw new RuntimeException(e);
         }
     }

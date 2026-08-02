@@ -59,6 +59,7 @@ dependencies {
   }
   testFixturesImplementation project(':base')
   testFixturesImplementation project(':util')
+  testFixturesImplementation rootProject.deps.caffeine
   testFixturesApi rootProject.deps.assertJ
 }
 

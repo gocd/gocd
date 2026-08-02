@@ -37,6 +37,7 @@ import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.apache.commons.io.FileUtils;
+import org.jdom2.JDOMException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -194,7 +195,7 @@ public class GoConfigFileHelper {
         return Files.readString(this.configFile.toPath(), UTF_8);
     }
 
-    public void saveFullConfig(String configFileContent, boolean shouldMigrate) throws Exception {
+    public void saveFullConfig(String configFileContent, boolean shouldMigrate) throws JDOMException {
         if (shouldMigrate) {
             configFileContent = ConfigMigrator.migrate(configFileContent);
         }
@@ -229,7 +230,7 @@ public class GoConfigFileHelper {
         }
     }
 
-    public void onSetUp() throws IOException {
+    public void onSetUp() {
         initializeConfigFile();
         writeConfigFile(load());
         originalConfigDir = sysEnv.getConfigDir();
@@ -237,7 +238,7 @@ public class GoConfigFileHelper {
         sysEnv.setProperty(SystemEnvironment.CONFIG_DIR_PROPERTY, configDir.getAbsolutePath());
     }
 
-    public void initializeConfigFile() throws IOException {
+    public void initializeConfigFile() {
         writeXmlToConfigFile(ConfigMigrator.migrate(originalXml));
     }
 
@@ -584,12 +585,12 @@ public class GoConfigFileHelper {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             getXml(cruiseConfig, buffer);
             saveFullConfig(buffer.toString(), false);
-        } catch (Exception e) {
+        } catch (IOException | JDOMException e) {
             throw bomb(e);
         }
     }
 
-    public void getXml(CruiseConfig cruiseConfig, ByteArrayOutputStream buffer) throws Exception {
+    public void getXml(CruiseConfig cruiseConfig, ByteArrayOutputStream buffer) throws IOException, JDOMException {
         new MagicalGoConfigXmlWriter(com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins()).write(cruiseConfig, buffer, false);
     }
 

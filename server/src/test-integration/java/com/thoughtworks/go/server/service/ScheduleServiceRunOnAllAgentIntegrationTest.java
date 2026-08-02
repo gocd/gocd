@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.CannotScheduleException;
 import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
@@ -76,8 +75,6 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
     @Autowired
     private PipelineScheduleQueue pipelineScheduleQueue;
     @Autowired
-    private AgentAssignment agentAssignment;
-    @Autowired
     private GoCache goCache;
     @Autowired
     private DependencyMaterialUpdateNotifier notifier;
@@ -105,7 +102,6 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
         configHelper.onSetUp();
 
         goConfigService.forceNotifyListeners();
-        agentAssignment.clear();
         goCache.clear();
 
         configHelper.addPipeline("blahPipeline", "blahStage", MaterialConfigsMother.hgMaterialConfig(UUID.randomUUID().toString()), "job1", "job2");
@@ -120,7 +116,6 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
         notifier.enableUpdates();
         FileUtils.deleteQuietly(goConfigService.artifactsDir());
         pipelineScheduleQueue.clear();
-        agentAssignment.clear();
         configHelper.onTearDown();
     }
 

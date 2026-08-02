@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
@@ -113,8 +112,6 @@ public class ScheduleServiceIntegrationTest {
     @Autowired
     private ScheduleHelper scheduleHelper;
     @Autowired
-    private AgentAssignment agentAssignment;
-    @Autowired
     private PipelineLockService pipelineLockService;
     @Autowired
     private MaterialRepository materialRepository;
@@ -162,7 +159,6 @@ public class ScheduleServiceIntegrationTest {
         repository = new SvnCommand(null, testRepo.projectRepositoryUrl());
         mingleConfig = configHelper.addPipeline("mingle", STAGE_NAME, repository, JOB_NAME, "functional");
         goConfigService.forceNotifyListeners();
-        agentAssignment.clear();
         goCache.clear();
     }
 
@@ -172,7 +168,6 @@ public class ScheduleServiceIntegrationTest {
         dbHelper.onTearDown();
         FileUtils.deleteQuietly(goConfigService.artifactsDir());
         pipelineScheduleQueue.clear();
-        agentAssignment.clear();
         configHelper.onTearDown();
     }
 

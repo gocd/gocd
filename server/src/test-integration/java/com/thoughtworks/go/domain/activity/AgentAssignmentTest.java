@@ -24,7 +24,6 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -49,18 +48,8 @@ public class AgentAssignmentTest {
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
 
-    private PipelineWithTwoStages pipelineFixture;
-
-    @BeforeEach
-    public void setUp(@TempDir Path tempDir) throws Exception {
-        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
-        pipelineFixture.usingConfigHelper(new GoConfigFileHelper()).usingDbHelper(dbHelper).onSetUp();
-        agentAssignment.clear();
-    }
-
     @AfterEach
-    public void tearDown() throws Exception {
-        pipelineFixture.onTearDown();
+    public void tearDown() {
         agentAssignment.clear();
     }
 
@@ -81,12 +70,20 @@ public class AgentAssignmentTest {
     }
 
     @Test
-    public void shouldGetLatestActiveJobOnAgentFromDatabase() {
-        Pipeline pipeline = pipelineFixture.createPipelineWithFirstStageAssigned("uuid");
-        JobInstance expected = pipeline.getFirstStage().getJobInstances().getFirst();
+    public void shouldGetLatestActiveJobOnAgentFromDatabase(@TempDir Path tempDir) throws Exception {
+        PipelineWithTwoStages pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
 
-        assertThat(agentAssignment.latestActiveJobOnAgent("uuid").getId()).isEqualTo(expected.getId());
-        assertThat(agentAssignment.size()).isEqualTo(1);
+        try {
+            pipelineFixture.usingConfigHelper(new GoConfigFileHelper()).usingDbHelper(dbHelper).onSetUp();
+
+            Pipeline pipeline = pipelineFixture.createPipelineWithFirstStageAssigned("uuid");
+            JobInstance expected = pipeline.getFirstStage().getJobInstances().getFirst();
+
+            assertThat(agentAssignment.latestActiveJobOnAgent("uuid").getId()).isEqualTo(expected.getId());
+            assertThat(agentAssignment.size()).isEqualTo(1);
+        } finally {
+            pipelineFixture.onTearDown();
+        }
     }
 
     @Test

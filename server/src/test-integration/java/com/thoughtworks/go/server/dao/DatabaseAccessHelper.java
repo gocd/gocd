@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -33,6 +34,7 @@ import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
+import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.ManualBuild;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.PipelineService;
@@ -90,9 +92,13 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     private final InstanceFactory instanceFactory;
     private final JobAgentMetadataDao jobAgentMetadataDao;
 
-    // Optional, since not all test application contexts using this helper include the material update service
+    // Optional, since not all test application contexts using this helper include these services
     @Autowired(required = false)
     private MaterialUpdateService materialUpdateService;
+    @Autowired(required = false)
+    private AgentService agentService;
+    @Autowired(required = false)
+    private AgentAssignment agentAssignment;
 
     @Autowired
     public DatabaseAccessHelper(DataSource dataSource,
@@ -171,6 +177,21 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         waitForMaterialUpdatesNotInProgress();
         databaseTester.onTearDown();
         goCache.clear();
+        clearInMemoryAgentRegistry();
+    }
+
+    /**
+     * The in-memory agent registry is a singleton that otherwise outlives the (wiped) agents table rows it
+     * mirrors, leaking agents registered by one test into the next - which breaks tests whose expectations
+     * depend on which agents exist (e.g. whether scheduling run-on-all-agents jobs is possible).
+     */
+    private void clearInMemoryAgentRegistry() {
+        if (agentService != null) {
+            agentService.clearAll();
+        }
+        if (agentAssignment != null) {
+            agentAssignment.clear();
+        }
     }
 
     /**

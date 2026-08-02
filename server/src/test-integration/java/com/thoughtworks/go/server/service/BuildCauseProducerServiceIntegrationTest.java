@@ -191,10 +191,6 @@ public class BuildCauseProducerServiceIntegrationTest {
         SvnMaterial svnMaterial = new SvnMaterial(repository);
         svnMaterialRevs.addRevision(svnMaterial, svnMaterial.latestModification(null, new ServerSubprocessExecutionContext(goConfigService, new SystemEnvironment())));
 
-        final MaterialRevisions materialRevisions = new MaterialRevisions();
-        SvnMaterial anotherSvnMaterial = new SvnMaterial(repository);
-        materialRevisions.addRevision(anotherSvnMaterial, anotherSvnMaterial.latestModification(null, subprocessExecutionContext));
-
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {

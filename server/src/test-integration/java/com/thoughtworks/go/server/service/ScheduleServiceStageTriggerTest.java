@@ -50,6 +50,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 
 import java.nio.file.Path;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -190,6 +191,9 @@ public class ScheduleServiceStageTriggerTest {
         pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
         long cancelledStageId = oldest.getStages().byName(pipelineFixture.ftStage).getId();
         pipelineFixture.setRunOnAllAgentsForSecondStage();
+        // Require a resource no agent can have, so scheduling is guaranteed to fail even if agents have been
+        // registered in the (in-memory, JVM-wide) agent registry by earlier tests sharing this JVM
+        configHelper.addResourcesFor(pipelineFixture.pipelineName, pipelineFixture.ftStage, PipelineWithTwoStages.JOB_FOR_FT_STAGE, UUID.randomUUID().toString());
         try {
             scheduleService.cancelAndTriggerRelevantStages(cancelledStageId, null, null);
             fail("Must have failed scheduling the next stage as it has run on all agents");

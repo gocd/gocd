@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;
@@ -102,8 +101,6 @@ public class BuildAssignmentServiceIntegrationTest {
     private JobInstanceDao jobInstanceDao;
     @Autowired
     private AgentService agentService;
-    @Autowired
-    private AgentAssignment agentAssignment;
     @Autowired
     private ScheduleService scheduleService;
     @Autowired
@@ -187,10 +184,8 @@ public class BuildAssignmentServiceIntegrationTest {
     public void teardown() throws Exception {
         notifier.enableUpdates();
         goCache.clear();
-        agentService.clearAll();
         pipelineFixture.onTearDown();
         FileUtils.deleteQuietly(goConfigService.artifactsDir());
-        agentAssignment.clear();
     }
 
     @Test

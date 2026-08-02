@@ -28,6 +28,7 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.TestOnly;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
@@ -94,6 +95,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
         uuidToAgentInstanceMap.remove(uuid);
     }
 
+    @TestOnly
     public void clearAll() {
         uuidToAgentInstanceMap.clear();
     }

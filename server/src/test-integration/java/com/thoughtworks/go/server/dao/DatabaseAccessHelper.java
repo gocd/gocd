@@ -171,6 +171,9 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
                 cache.clear();
             }
         }
+        // Also cleared on setup since the registry is synced from the (shared, on-disk) database when the Spring
+        // context boots - which can capture agents registered by tests still running in a previously forked JVM.
+        clearInMemoryAgentRegistry();
     }
 
     public void onTearDown() throws Exception {

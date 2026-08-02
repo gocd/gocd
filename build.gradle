@@ -88,7 +88,7 @@ def libraries = [
   bucket4jCaffeine    : 'com.bucket4j:bucket4j-caffeine:8.10.1',
   caffeine            : 'com.github.ben-manes.caffeine:caffeine:3.2.4',
   cloning             : 'io.github.kostaskougios:cloning:1.13.0',
-  commonsCodec        : 'commons-codec:commons-codec:1.22.0',
+  commonsCodec        : 'commons-codec:commons-codec:1.22.1',
   commonsCollections  : 'commons-collections:commons-collections:3.2.2',
   commonsCollections4 : 'org.apache.commons:commons-collections4:4.5.0',
   commonsConfiguration: 'org.apache.commons:commons-configuration2:2.15.1',

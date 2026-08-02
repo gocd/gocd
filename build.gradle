@@ -123,7 +123,7 @@ def libraries = [
   jolt                : 'com.bazaarvoice.jolt:jolt-core:0.1.8',
   jruby               : 'org.jruby:jruby:9.4.15.0',
   jsonUnit            : 'net.javacrumbs.json-unit:json-unit-assertj:6.0.1',
-  jsoup               : 'org.jsoup:jsoup:1.22.2',
+  jsoup               : 'org.jsoup:jsoup:1.23.1',
   junit5Bom           : 'org.junit:junit-bom:6.1.2',
   liquibase           : 'org.liquibase:liquibase-core:5.0.3',
   liquibaseSlf4j      : 'com.mattbertolini:liquibase-slf4j:5.1.0',

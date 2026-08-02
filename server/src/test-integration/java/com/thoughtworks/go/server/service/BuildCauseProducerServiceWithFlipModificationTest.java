@@ -44,6 +44,9 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,6 +67,7 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
+@ExtendWith(SoftAssertionsExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -72,6 +76,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 })
 public class BuildCauseProducerServiceWithFlipModificationTest {
     private static final String STAGE_NAME = "dev";
+
+    @InjectSoftAssertions
+    SoftAssertions softly;
 
     @Autowired private GoConfigService goConfigService;
     @Autowired private GoConfigDao goConfigDao;
@@ -227,9 +234,9 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
         for (BuildCause buildCause : load.values()) {
             for (MaterialRevision revision : buildCause.getMaterialRevisions()) {
                 if (revision.getMaterial() instanceof HgMaterial) {
-                    assertThat(revision.isChanged()).isFalse();
+                    softly.assertThat(revision.isChanged()).isFalse();
                 } else {
-                    assertThat(revision.isChanged()).isTrue();
+                    softly.assertThat(revision.isChanged()).isTrue();
                 }
             }
         }
@@ -249,7 +256,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
 
     private void assertBuildCauseWithModificationHasChangedStatus(boolean changed, BuildCause buildCause) {
         for (MaterialRevision revision : buildCause.getMaterialRevisions()) {
-            assertThat(revision.isChanged()).isEqualTo(changed);
+            softly.assertThat(revision.isChanged()).isEqualTo(changed);
         }
     }
 }

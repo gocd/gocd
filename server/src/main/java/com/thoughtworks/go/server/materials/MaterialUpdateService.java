@@ -45,6 +45,7 @@ import com.thoughtworks.go.util.MaterialFingerprintTag;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -312,8 +313,18 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         return false;
     }
 
+    @TestOnly
+    public boolean anyUpdatesInProgress() {
+        return !inProgress.isEmpty();
+    }
+
     public void registerMaterialUpdateCompleteListener(MaterialUpdateCompleteListener materialUpdateCompleteListener) {
         this.materialUpdateCompleteListeners.add(materialUpdateCompleteListener);
+    }
+
+    @TestOnly
+    public void removeMaterialUpdateCompleteListener(MaterialUpdateCompleteListener materialUpdateCompleteListener) {
+        this.materialUpdateCompleteListeners.remove(materialUpdateCompleteListener);
     }
 
     private static class MaterialPredicate implements Predicate<Material> {

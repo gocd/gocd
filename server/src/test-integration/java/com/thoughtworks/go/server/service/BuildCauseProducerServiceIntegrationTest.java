@@ -46,7 +46,8 @@ import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.MaterialDatabaseUpdater;
-import com.thoughtworks.go.server.materials.MaterialUpdateStatusListener;
+import com.thoughtworks.go.server.materials.MaterialUpdateCompleteListener;
+import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.materials.MaterialUpdateStatusNotifier;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.BuildCauseProducerService;
@@ -62,8 +63,10 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthMatcher;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -78,15 +81,19 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
+@ExtendWith(SoftAssertionsExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -100,6 +107,9 @@ public class BuildCauseProducerServiceIntegrationTest {
     private static final String GO_PIPELINE_NAME = "go";
     private static final String GO_PIPELINE_UPSTREAM = "go-parent";
     private static final String STAGE_NAME = "dev";
+
+    @InjectSoftAssertions
+    SoftAssertions softly;
 
     @Autowired
     private GoConfigDao goConfigDao;
@@ -130,6 +140,8 @@ public class BuildCauseProducerServiceIntegrationTest {
     @Autowired
     private BuildCauseProducerService service;
     @Autowired
+    private MaterialUpdateService materialUpdateService;
+    @Autowired
     private MaterialUpdateStatusNotifier materialUpdateStatusNotifier;
     @Autowired
     private TriggerMonitor triggerMonitor;
@@ -154,6 +166,10 @@ public class BuildCauseProducerServiceIntegrationTest {
     private PipelineConfig manualTriggerPipeline;
     private SvnMaterial materialForManualTriggerPipeline;
     private Username username;
+
+    /** Records which materials have had (async) updates run to completion, however triggered. */
+    private final Set<Material> updatedMaterials = ConcurrentHashMap.newKeySet();
+    private final MaterialUpdateCompleteListener materialUpdateRecorder = updatedMaterials::add;
 
     @BeforeEach
     public void setup(@TempDir Path tempDir) throws Exception {
@@ -200,10 +216,12 @@ public class BuildCauseProducerServiceIntegrationTest {
         u.checkinInOrder(materialForManualTriggerPipeline, u.d(1), "s1");
         manualTriggerPipeline = configHelper.addPipeline(UUID.randomUUID().toString(), STAGE_NAME, materialForManualTriggerPipeline.config(), "build");
         username = Username.ANONYMOUS;
+        materialUpdateService.registerMaterialUpdateCompleteListener(materialUpdateRecorder);
     }
 
     @AfterEach
     public void teardown() throws Exception {
+        materialUpdateService.removeMaterialUpdateCompleteListener(materialUpdateRecorder);
         diskSpaceSimulator.onTearDown();
         dbHelper.onTearDown();
         pipelineScheduleQueue.clear();
@@ -266,9 +284,9 @@ public class BuildCauseProducerServiceIntegrationTest {
         buildCauseProducer.manualProduceBuildCauseAndSave(MINGLE_PIPELINE_NAME, Username.ANONYMOUS, new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
 
         Map<CaseInsensitiveString, BuildCause> afterLoad = scheduleHelper.waitForAnyScheduled(5);
-        assertThat(afterLoad.keySet()).contains(cis(MINGLE_PIPELINE_NAME));
+        softly.assertThat(afterLoad.keySet()).contains(cis(MINGLE_PIPELINE_NAME));
         BuildCause cause = afterLoad.get(cis(MINGLE_PIPELINE_NAME));
-        assertThat(cause.getBuildCauseMessage()).contains("Forced by anonymous");
+        softly.assertThat(cause.getBuildCauseMessage()).contains("Forced by anonymous");
     }
 
     @Test
@@ -277,7 +295,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         final Map<String, String> environmentVariables = new HashMap<>();
         buildCauseProducer.manualProduceBuildCauseAndSave(MINGLE_PIPELINE_NAME, Username.ANONYMOUS, new ScheduleOptions(revisions, environmentVariables, new HashMap<>()),
                 new ServerHealthStateOperationResult());
-        assertThat(scheduleHelper.waitForAnyScheduled(5).keySet()).contains(cis(MINGLE_PIPELINE_NAME));
+        softly.assertThat(scheduleHelper.waitForAnyScheduled(5).keySet()).contains(cis(MINGLE_PIPELINE_NAME));
     }
 
     @Test
@@ -286,8 +304,8 @@ public class BuildCauseProducerServiceIntegrationTest {
 
         scheduleHelper.autoSchedulePipelinesWithRealMaterials();
 
-        assertThat(serverHealthService).satisfies(ServerHealthMatcher.containsState(HealthStateType.artifactsDiskFull(), HealthStateLevel.ERROR, "GoCD Server has run out of artifacts disk space. Scheduling has been stopped"));
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(cis(MINGLE_PIPELINE_NAME));
+        softly.assertThat(serverHealthService).satisfies(ServerHealthMatcher.containsState(HealthStateType.artifactsDiskFull(), HealthStateLevel.ERROR, "GoCD Server has run out of artifacts disk space. Scheduling has been stopped"));
+        softly.assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(cis(MINGLE_PIPELINE_NAME));
     }
 
     @Test
@@ -299,8 +317,8 @@ public class BuildCauseProducerServiceIntegrationTest {
         buildCauseProducer.manualProduceBuildCauseAndSave(MINGLE_PIPELINE_NAME, Username.ANONYMOUS, new ScheduleOptions(revisions, environmentVariables, new HashMap<>()),
                 new ServerHealthStateOperationResult());
 
-        assertThat(serverHealthService).satisfies(ServerHealthMatcher.containsState(HealthStateType.artifactsDiskFull(), HealthStateLevel.ERROR, "GoCD Server has run out of artifacts disk space. Scheduling has been stopped"));
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(cis(MINGLE_PIPELINE_NAME));
+        softly.assertThat(serverHealthService).satisfies(ServerHealthMatcher.containsState(HealthStateType.artifactsDiskFull(), HealthStateLevel.ERROR, "GoCD Server has run out of artifacts disk space. Scheduling has been stopped"));
+        softly.assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(cis(MINGLE_PIPELINE_NAME));
     }
 
     @Test
@@ -319,12 +337,12 @@ public class BuildCauseProducerServiceIntegrationTest {
         pipelineTimeline.update();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(mingleDownstreamPipelineName);
 
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(mingleDownstreamPipelineName));
+        softly.assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(mingleDownstreamPipelineName));
         BuildCause downstreamBuildCause = pipelineScheduleQueue.toBeScheduled().get(cis(mingleDownstreamPipelineName));
         for (MaterialRevision materialRevision : downstreamBuildCause.getMaterialRevisions()) {
-            assertThat(materialRevision.isChanged()).isTrue();
+            softly.assertThat(materialRevision.isChanged()).isTrue();
         }
-        assertThat(downstreamBuildCause.getMaterialRevisions().getRevisions().size()).isEqualTo(2);
+        softly.assertThat(downstreamBuildCause.getMaterialRevisions().getRevisions().size()).isEqualTo(2);
     }
 
     @Test
@@ -341,12 +359,12 @@ public class BuildCauseProducerServiceIntegrationTest {
         String revisionForFingerPrint = revsAfterBar.findRevisionForFingerPrint(svn.getFingerprint()).getRevision().getRevision();
         scheduleHelper.manuallySchedulePipelineWithRealMaterials(MINGLE_PIPELINE_NAME, new Username(cis("loser")), Map.of(mingleConfig.materialConfigs().getFirst().getPipelineUniqueFingerprint(), revisionForFingerPrint));
 
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(MINGLE_PIPELINE_NAME));
+        softly.assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(MINGLE_PIPELINE_NAME));
         BuildCause bisectAfterBisectBuildCause = pipelineScheduleQueue.toBeScheduled().get(cis(MINGLE_PIPELINE_NAME));
         for (MaterialRevision materialRevision : bisectAfterBisectBuildCause.getMaterialRevisions()) {
-            assertThat(materialRevision.isChanged()).isFalse();
+            softly.assertThat(materialRevision.isChanged()).isFalse();
         }
-        assertThat(bisectAfterBisectBuildCause.getMaterialRevisions().getRevisions().size()).isEqualTo(1);
+        softly.assertThat(bisectAfterBisectBuildCause.getMaterialRevisions().getRevisions().size()).isEqualTo(1);
     }
 
     @Test
@@ -361,9 +379,9 @@ public class BuildCauseProducerServiceIntegrationTest {
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(MINGLE_PIPELINE_NAME));
         BuildCause bisectAfterBisectBuildCause = pipelineScheduleQueue.toBeScheduled().get(cis(MINGLE_PIPELINE_NAME));
         for (MaterialRevision materialRevision : bisectAfterBisectBuildCause.getMaterialRevisions()) {
-            assertThat(materialRevision.isChanged()).isTrue();
+            softly.assertThat(materialRevision.isChanged()).isTrue();
         }
-        assertThat(bisectAfterBisectBuildCause.getMaterialRevisions().getRevisions().size()).isEqualTo(1);
+        softly.assertThat(bisectAfterBisectBuildCause.getMaterialRevisions().getRevisions().size()).isEqualTo(1);
     }
 
     @Test
@@ -384,7 +402,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(MINGLE_PIPELINE_NAME);
 
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(MINGLE_PIPELINE_NAME));
+        softly.assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(MINGLE_PIPELINE_NAME));
         BuildCause mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(cis(MINGLE_PIPELINE_NAME));
         verifyChanged(svn2, mingleBuildCause, true);
         verifyChanged(svn1, mingleBuildCause, false);//this should not have changed, as foo.c was already built in the previous instance
@@ -394,7 +412,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         mingleConfig = configHelper.replaceMaterialForPipeline(MINGLE_PIPELINE_NAME, svn1.config());
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(MINGLE_PIPELINE_NAME);
 
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(MINGLE_PIPELINE_NAME));
+        softly.assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(MINGLE_PIPELINE_NAME));
         mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(cis(MINGLE_PIPELINE_NAME));
         verifyChanged(svn1, mingleBuildCause, false);//this should not have changed, as foo.c was already built in the previous instance
         runAndPassWith(svn1, "baz.c", svnRepository);
@@ -405,7 +423,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(MINGLE_PIPELINE_NAME);
 
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(MINGLE_PIPELINE_NAME));
+        softly.assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(MINGLE_PIPELINE_NAME));
         mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(cis(MINGLE_PIPELINE_NAME));
         verifyChanged(svn2, mingleBuildCause, false);
         verifyChanged(svn1, mingleBuildCause, true);
@@ -427,7 +445,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(MINGLE_PIPELINE_NAME);
 
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(MINGLE_PIPELINE_NAME));
+        softly.assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(MINGLE_PIPELINE_NAME));
         mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(cis(MINGLE_PIPELINE_NAME));
         verifyChanged(svn1, mingleBuildCause, false);//because material configuration changed, and not actual revisions
     }
@@ -457,16 +475,16 @@ public class BuildCauseProducerServiceIntegrationTest {
         scheduleOptions.shouldPerformMDUBeforeScheduling(false);
         service.manualSchedulePipeline(username, manualTriggerPipeline.name(), scheduleOptions, result);
 
-        assertThat(result.isSuccess()).isTrue();
-        assertThat(result.message()).isEqualTo(String.format("Request to schedule pipeline %s accepted", manualTriggerPipeline.name()));
-        assertThat(materialUpdateStatusNotifier.hasListenerFor(manualTriggerPipeline)).isFalse();
-        assertThat(triggerMonitor.isAlreadyTriggered(manualTriggerPipeline.name())).isFalse();
+        softly.assertThat(result.isSuccess()).isTrue();
+        softly.assertThat(result.message()).isEqualTo(String.format("Request to schedule pipeline %s accepted", manualTriggerPipeline.name()));
+        softly.assertThat(materialUpdateStatusNotifier.hasListenerFor(manualTriggerPipeline)).isFalse();
+        softly.assertThat(triggerMonitor.isAlreadyTriggered(manualTriggerPipeline.name())).isFalse();
 
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(manualTriggerPipeline.name());
-        assertNotNull(buildCause);
-        assertThat(buildCause.getApprover()).isEqualTo(username.getDisplayName());
-        assertThat(buildCause.getMaterialRevisions().numberOfRevisions()).isEqualTo(1);
-        assertThat(buildCause.getMaterialRevisions().getModifications(materialForManualTriggerPipeline).getRevision()).isEqualTo("s1");
+        softly.assertThat(buildCause).isNotNull();
+        softly.assertThat(buildCause.getApprover()).isEqualTo(username.getDisplayName());
+        softly.assertThat(buildCause.getMaterialRevisions().numberOfRevisions()).isEqualTo(1);
+        softly.assertThat(buildCause.getMaterialRevisions().getModifications(materialForManualTriggerPipeline).getRevision()).isEqualTo("s1");
     }
 
     @Test
@@ -487,15 +505,24 @@ public class BuildCauseProducerServiceIntegrationTest {
         scheduleOptions.shouldPerformMDUBeforeScheduling(false);
 
         service.manualSchedulePipeline(username, remotePipeline.name(), scheduleOptions, result);
-        assertThat(result.isSuccess()).isTrue();
-        assertThat(result.message()).isEqualTo("Request to schedule pipeline remote_pipeline accepted");
-        assertThat(materialUpdateStatusNotifier.hasListenerFor(remotePipeline)).isTrue();
-        assertMDUPendingForMaterial(remotePipeline, configRepoMaterial);
-        assertMDUNotPendingForMaterial(remotePipeline, svn);
-        assertMDUNotPendingForMaterial(remotePipeline, git);
-        assertThat(triggerMonitor.isAlreadyTriggered(remotePipeline.name())).isTrue();
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(cis(remotePipeline.name().toString()));
-        assertNull(buildCause);
+
+        // Accepted synchronously; an update of the config repo material - and only the config repo material - is
+        // triggered asynchronously even though the MDU option was off. (Race-free assertions on exactly which
+        // materials have updates *requested* for the various trigger modes also live in
+        // BuildCauseProducerServiceTest against a mocked MaterialUpdateService.)
+        softly.assertThat(result.isSuccess()).isTrue();
+        softly.assertThat(result.message()).isEqualTo("Request to schedule pipeline remote_pipeline accepted");
+
+        awaitUpdateOf(configRepoMaterial);
+        dbHelper.waitForMaterialUpdatesNotInProgress();
+        softly.assertThat(wasUpdated(svn)).describedAs("pipeline's own svn material should not have been updated").isFalse();
+        softly.assertThat(wasUpdated(git)).describedAs("pipeline's own git material should not have been updated").isFalse();
+
+        // Scheduling was deferred pending the config repo material update rather than happening immediately (compare
+        // the non-config-repo MDU-off case); since that update failed (fake URL) the pipeline is never scheduled,
+        // and the trigger lock is released once the update's completion has been fully processed.
+        awaitTriggerReleased(remotePipeline);
+        softly.assertThat(pipelineScheduleQueue.toBeScheduled().get(remotePipeline.name())).isNull();
     }
 
     @Test
@@ -503,31 +530,44 @@ public class BuildCauseProducerServiceIntegrationTest {
         scheduleOptions.shouldPerformMDUBeforeScheduling(true);
         service.manualSchedulePipeline(username, manualTriggerPipeline.name(), scheduleOptions, result);
 
-        assertThat(materialUpdateStatusNotifier.hasListenerFor(manualTriggerPipeline)).isTrue();
-        assertMDUPendingForMaterial(manualTriggerPipeline, materialForManualTriggerPipeline);
-        assertThat(result.isSuccess()).isTrue();
-        assertThat(result.message()).isEqualTo(String.format("Request to schedule pipeline %s accepted", manualTriggerPipeline.name()));
-        assertThat(triggerMonitor.isAlreadyTriggered(manualTriggerPipeline.name())).isTrue();
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(cis(manualTriggerPipeline.name().toString()));
-        assertNull(buildCause);
+        softly.assertThat(result.isSuccess()).isTrue();
+        softly.assertThat(result.message()).isEqualTo(String.format("Request to schedule pipeline %s accepted", manualTriggerPipeline.name()));
+
+        awaitUpdateOf(materialForManualTriggerPipeline);
+
+        // Scheduling was deferred pending the material update rather than happening immediately (compare the MDU-off
+        // case, which schedules from database state without waiting); since the update failed (fake URL) the
+        // pipeline is never scheduled, and the trigger lock is released once the completion has been processed.
+        awaitTriggerReleased(manualTriggerPipeline);
+        softly.assertThat(pipelineScheduleQueue.toBeScheduled().get(manualTriggerPipeline.name())).isNull();
     }
 
-    private void assertMDUPendingForMaterial(PipelineConfig remotePipeline, Material material) {
-        assertMDUPending(remotePipeline, material, true);
+    private void awaitUpdateOf(Material material) {
+        await()
+            .atMost(10, TimeUnit.SECONDS)
+            .alias("No update of " + material.getUriForDisplay() + " was ever triggered")
+            .until(() -> wasUpdated(material));
     }
 
-    private void assertMDUNotPendingForMaterial(PipelineConfig remotePipeline, Material material) {
-        assertMDUPending(remotePipeline, material, false);
+    /**
+     * The trigger lock is the last state released once the async material updates a manual trigger waits on have
+     * been fully processed (see WaitForPipelineMaterialUpdate#produceBuildCauseForPipeline), after which the
+     * scheduling outcome can be asserted race-free.
+     */
+    private void awaitTriggerReleased(PipelineConfig pipelineConfig) {
+        await()
+            .atMost(10, TimeUnit.SECONDS)
+            .alias("Trigger of " + pipelineConfig.name() + " was never released")
+            .until(() -> !triggerMonitor.isAlreadyTriggered(pipelineConfig.name()));
     }
 
-    private void assertMDUPending(PipelineConfig remotePipeline, Material material, boolean pending) {
-        ConcurrentMap<String, MaterialUpdateStatusListener> pendingListeners = ReflectionUtil.getField(materialUpdateStatusNotifier, "pending");
-        assertThat(pendingListeners.get(CaseInsensitiveString.str(remotePipeline.name())).isListeningFor(material)).isEqualTo(pending);
+    private boolean wasUpdated(Material material) {
+        return updatedMaterials.stream().anyMatch(updated -> updated.isSameFlyweight(material));
     }
 
     private void verifyChanged(Material material, BuildCause bc, final boolean changed) {
         MaterialRevision svn2MaterialRevision = bc.getMaterialRevisions().findRevisionForFingerPrint(material.getFingerprint());
-        assertThat(svn2MaterialRevision.isChanged()).describedAs("material revision " + svn2MaterialRevision + " was marked as" + (changed ? " not" : "") + " changed").isEqualTo(changed);
+        softly.assertThat(svn2MaterialRevision.isChanged()).describedAs("material revision " + svn2MaterialRevision + " was marked as" + (changed ? " not" : "") + " changed").isEqualTo(changed);
     }
 
     @SuppressWarnings("UnusedReturnValue")

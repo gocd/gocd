@@ -46,6 +46,9 @@ import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,9 +64,9 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
+@ExtendWith(SoftAssertionsExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -72,6 +75,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 })
 public class BuildCauseProducerServiceDependencyIntegrationTest {
     private static final String STAGE_NAME = "dev";
+
+    @InjectSoftAssertions
+    SoftAssertions softly;
 
     @Autowired
     private GoConfigDao goConfigDao;
@@ -227,7 +233,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         minglePipeline.runAndPass(newRevs);
         pipelineTimeline.update();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(mingleDownstreamPipelineName);
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(cis(mingleDownstreamPipelineName));
+        softly.assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(cis(mingleDownstreamPipelineName));
     }
 
     @Test
@@ -264,7 +270,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         goPipeline.runAndPass(newRevs);
         pipelineTimeline.update();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(downstreamPipelineName);
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(cis(downstreamPipelineName));
+        softly.assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(cis(downstreamPipelineName));
     }
 
     @Test
@@ -301,7 +307,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         goPipeline.runAndPass(newRevs);
         pipelineTimeline.update();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(downstreamPipelineName);
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(downstreamPipelineName));
+        softly.assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(downstreamPipelineName));
     }
 
     @Test
@@ -333,7 +339,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         //schedule the pipeline
         pipelineTimeline.update();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(downstreamPipelineName);
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(downstreamPipelineName));
+        softly.assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(downstreamPipelineName));
     }
 
     @Test
@@ -361,7 +367,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         minglePipeline.runAndPass(newRevs);
         pipelineTimeline.update();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(downstreamPipelineName);
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(cis(downstreamPipelineName));
+        softly.assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(cis(downstreamPipelineName));
     }
 
     private MaterialRevisions checkinFile(SvnMaterial svn, @SuppressWarnings("SameParameterValue") String checkinFile, final SvnTestRepo svnRepository) throws Exception {

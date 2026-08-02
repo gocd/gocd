@@ -163,7 +163,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
     @Test
     public void shouldParseEmptyRepository() throws Exception {
         materialUpdateService.updateMaterial(material);
-        waitForMaterialNotInProgress();
+        dbHelper.waitForMaterialUpdatesNotInProgress();
 
         String revision = goConfigRepoConfigDataSource.getRevisionAtLastAttempt(materialConfig);
         assertNotNull(revision);
@@ -173,22 +173,11 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         assertThat(partial.getEnvironments().size()).isEqualTo(0);
     }
 
-    private void waitForMaterialNotInProgress() throws InterruptedException {
-        // time for messages to pass through all services
-
-        int i = 0;
-        while (materialUpdateService.isInProgress(material)) {
-            Thread.sleep(100);
-            if (i++ > 100)
-                fail("material is hung - more than 10 seconds in progress");
-        }
-    }
-
     @Test
     public void shouldParseAgainWhenChangesInMaterial() throws Exception {
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
-        waitForMaterialNotInProgress();
+        dbHelper.waitForMaterialUpdatesNotInProgress();
         String revision = goConfigRepoConfigDataSource.getRevisionAtLastAttempt(materialConfig);
         assertNotNull(revision);
         PartialConfig partial = goConfigRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
@@ -197,7 +186,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
 
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
-        waitForMaterialNotInProgress();
+        dbHelper.waitForMaterialUpdatesNotInProgress();
         PartialConfig partial2 = goConfigRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
         assertNotSame(partial, partial2);
         assertThat(partial2.getOrigin()).isNotEqualTo(partial.getOrigin());
@@ -214,7 +203,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
 
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
-        waitForMaterialNotInProgress();
+        dbHelper.waitForMaterialUpdatesNotInProgress();
         PartialConfig partial = goConfigRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
         assertNotNull(partial);
         assertThat(partial.getGroups().getFirst().size()).isEqualTo(1);
@@ -233,7 +222,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         materialUpdateService.updateMaterial(material);
        assertThat(materialUpdateService.isInProgress(material)).isTrue();
         // time for messages to pass through all services
-        waitForMaterialNotInProgress();
+        dbHelper.waitForMaterialUpdatesNotInProgress();
 
         cachedGoConfig.forceReload();
 
@@ -250,7 +239,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
 
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
-        waitForMaterialNotInProgress();
+        dbHelper.waitForMaterialUpdatesNotInProgress();
 
         File flyweightDir = materialRepository.folderFor(material);
        assertThat(flyweightDir.exists()).isTrue();
@@ -266,13 +255,13 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
 
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
-        waitForMaterialNotInProgress();
+        dbHelper.waitForMaterialUpdatesNotInProgress();
 
         configTestRepo.addPipelineToRepositoryAndPush("pipe2.gocd.xml", pipelineConfig);
 
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
-        waitForMaterialNotInProgress();
+        dbHelper.waitForMaterialUpdatesNotInProgress();
 
         File flyweightDir = materialRepository.folderFor(material);
        assertThat(flyweightDir.exists()).isTrue();
@@ -291,7 +280,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
 
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
-        waitForMaterialNotInProgress();
+        dbHelper.waitForMaterialUpdatesNotInProgress();
 
         cachedGoConfig.forceReload();
 
@@ -313,7 +302,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
                 """);
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
-        waitForMaterialNotInProgress();
+        dbHelper.waitForMaterialUpdatesNotInProgress();
 
         cachedGoConfig.forceReload();
         // but we still have the old part

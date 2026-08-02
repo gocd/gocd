@@ -29,6 +29,7 @@ import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
@@ -60,8 +61,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
+import static org.awaitility.Awaitility.await;
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
@@ -86,6 +89,10 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     private final GoCache goCache;
     private final InstanceFactory instanceFactory;
     private final JobAgentMetadataDao jobAgentMetadataDao;
+
+    // Optional, since not all test application contexts using this helper include the material update service
+    @Autowired(required = false)
+    private MaterialUpdateService materialUpdateService;
 
     @Autowired
     public DatabaseAccessHelper(DataSource dataSource,
@@ -161,8 +168,26 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     }
 
     public void onTearDown() throws Exception {
+        waitForMaterialUpdatesNotInProgress();
         databaseTester.onTearDown();
         goCache.clear();
+    }
+
+    /**
+     * Waits for all in-flight material updates to complete. Also called before wiping the database on teardown:
+     * materials that tests trigger updates of are often fake, so their async updates fail quickly - potentially
+     * while a test's teardown is already underway. If such an update is still in-flight when the database is wiped,
+     * its completion handling can re-cache a MaterialInstance whose row no longer exists, poisoning the (already
+     * cleared) cache for whichever test next uses a material with the same fingerprint.
+     */
+    public void waitForMaterialUpdatesNotInProgress() {
+        if (materialUpdateService == null) {
+            return;
+        }
+        await()
+            .atMost(10, TimeUnit.SECONDS)
+            .alias("Material updates still in progress")
+            .until(() -> !materialUpdateService.anyUpdatesInProgress());
     }
 
     public TransactionTemplate txTemplate() {

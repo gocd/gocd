@@ -35,6 +35,9 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,9 +55,9 @@ import java.util.Map;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
+@ExtendWith(SoftAssertionsExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -64,6 +67,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BuildCauseProducerServiceIntegrationHgTest {
 
     private static final String STAGE_NAME = "dev";
+
+    @InjectSoftAssertions
+    SoftAssertions softly;
 
     @Autowired private GoConfigService goConfigService;
     @Autowired private GoConfigDao goConfigDao;
@@ -117,7 +123,7 @@ public class BuildCauseProducerServiceIntegrationHgTest {
         scheduleHelper.autoSchedulePipelinesWithRealMaterials();
 
         Map<CaseInsensitiveString, BuildCause> afterLoad = pipelineScheduleQueue.toBeScheduled();
-        assertThat(afterLoad.size()).isEqualTo(beforeLoad.size());
+        softly.assertThat(afterLoad.size()).isEqualTo(beforeLoad.size());
 
     }
 

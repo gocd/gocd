@@ -35,6 +35,9 @@ import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResul
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TempDirUtils;
 import org.apache.commons.io.FileUtils;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,6 +55,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
+@ExtendWith(SoftAssertionsExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -61,6 +65,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BuildCauseProducerServiceIntegrationSvnTest {
 
     private static final String STAGE_NAME = "dev";
+
+    @InjectSoftAssertions
+    SoftAssertions softly;
 
     @TempDir
     Path tempDir;
@@ -120,10 +127,10 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
         BuildCause mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(mingleConfig.name());
 
         MaterialRevisions materialRevisions = mingleBuildCause.getMaterialRevisions();
-        assertThat(materialRevisions.getRevisions().size()).isEqualTo(1);
+        softly.assertThat(materialRevisions.getRevisions().size()).isEqualTo(1);
         Materials materials = materialRevisions.getMaterials();
         assertThat(materials.size()).isEqualTo(1);
-        assertThat(materials.getFirst()).isEqualTo(svnMaterial);
+        softly.assertThat(materials.getFirst()).isEqualTo(svnMaterial);
     }
 
     @Test
@@ -143,12 +150,12 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
         BuildCause mingleBuildCause = pipelineScheduleQueue.toBeScheduled().get(mingleConfig.name());
 
         MaterialRevisions materialRevisions = mingleBuildCause.getMaterialRevisions();
-        assertThat(materialRevisions.getRevisions().size()).isEqualTo(2);
+        softly.assertThat(materialRevisions.getRevisions().size()).isEqualTo(2);
         Materials materials = materialRevisions.getMaterials();
         assertThat(materials.size()).isEqualTo(2);
-        assertThat(materials.getFirst()).isEqualTo(svnMaterial);
+        softly.assertThat(materials.getFirst()).isEqualTo(svnMaterial);
         SvnMaterial external = (SvnMaterial) materials.getLast();
-        assertThat(external.getUrl()).isEqualTo(repo.externalRepositoryUrl());
+        softly.assertThat(external.getUrl()).isEqualTo(repo.externalRepositoryUrl());
     }
 
     private void prepareAPipelineWithHistory() {

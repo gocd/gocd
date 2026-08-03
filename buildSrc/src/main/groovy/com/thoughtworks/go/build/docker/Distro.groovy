@@ -118,7 +118,7 @@ enum Distro implements DistroBehavior {
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       [
         "microdnf remove -y shadow-utils",
-        "printf '[epel9]\\nname=Extra Packages for Enterprise Linux 9 - \$basearch\\nbaseurl=https://download.fedoraproject.org/pub/epel/9/Everything/\$basearch/\\nenabled=0\\ngpgcheck=1\\ngpgkey=https://download.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9' > /etc/yum.repos.d/epel.repo",
+        "printf '[epel9]\\nname=Extra Packages for Enterprise Linux 9 - \$basearch\\nbaseurl=https://dl.fedoraproject.org/pub/epel/9/Everything/\$basearch/ https://download.fedoraproject.org/pub/epel/9/Everything/\$basearch/\\nenabled=0\\ngpgcheck=1\\ngpgkey=https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9' > /etc/yum.repos.d/epel.repo",
         "microdnf --enablerepo=epel9 install -y tini-static",
         "rm /etc/yum.repos.d/epel.repo",
         "microdnf install -y git-core openssh-clients bash unzip curl-minimal procps-ng coreutils-single glibc-langpack-en tar",

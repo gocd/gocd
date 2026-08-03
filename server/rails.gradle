@@ -378,5 +378,5 @@ tasks.register('railsExec', ExecuteUnderRailsTask) {
 
   description = "rails exec (pass '-Pcmd=...' to pass options)"
 
-  args(Commandline.translateCommandline(project.properties.get('cmd') as String))
+  args(Commandline.translateCommandline(project.findProperty('cmd') as String))
 }

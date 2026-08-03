@@ -22,8 +22,32 @@ pluginManagement {
   }
 }
 
-rootProject.name = 'gocd'
+dependencyResolutionManagement {
+  repositories {
+    mavenCentral()
+    mavenLocal()
+    exclusiveContent {
+      forRepository {
+        maven { url = 'https://repo.terracotta.org/maven2/' } // Needed for later ehcache repos
+      }
+      filter {
+        includeGroupAndSubgroups 'net.sf.ehcache'
+        includeGroupAndSubgroups 'org.terracotta'
+      }
+    }
+    exclusiveContent {
+      forRepository {
+        maven { url = 'https://jitpack.io' } // Needed for spring-test-junit5 and jruby-rack
+      }
+      filter {
+        includeGroup 'com.github.gocd-contrib'
+        includeGroup 'com.github.sbrannen'
+      }
+    }
+  }
+}
 
+rootProject.name = 'gocd'
 enableFeaturePreview('GROOVY_COMPILATION_AVOIDANCE')
 
 include ':agent'
@@ -145,4 +169,3 @@ include ':tw-go-plugins'
 include ':util'
 
 apply from: 'settings-docker.gradle'
-

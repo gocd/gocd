@@ -217,31 +217,6 @@ allprojects {
   version = goVersions.fullVersion
   layout.buildDirectory = "${projectDir}/target"
 
-  repositories {
-    mavenCentral()
-    mavenLocal()
-    exclusiveContent {
-      forRepository {
-        maven { url = 'https://repo.terracotta.org/maven2/' } // Needed for later ehcache repos
-      }
-      filter {
-        // Covers both the .internal groups of ehcache-core and its transitives, and the parent
-        // POMs which are in the non-internal parent groups (e.g net.sf.ehcache:ehcache-root)
-        includeGroupAndSubgroups 'net.sf.ehcache'
-        includeGroupAndSubgroups 'org.terracotta'
-      }
-    }
-    exclusiveContent {
-      forRepository {
-        maven { url = 'https://jitpack.io' } // Needed for spring-test-junit5 and jruby-rack
-      }
-      filter {
-        includeGroup 'com.github.gocd-contrib'
-        includeGroup 'com.github.sbrannen'
-      }
-    }
-  }
-
   if (project.path.startsWith(':api:') && !project.path.endsWith(':api-base')) {
     extensions.getByType(DependencyAnalysisSubExtension).with {
       issues { ProjectIssueHandler ph ->

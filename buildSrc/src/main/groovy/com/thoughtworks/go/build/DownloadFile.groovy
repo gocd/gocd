@@ -37,6 +37,8 @@ class DownloadFile extends Download {
   boolean shouldDownload
 
   DownloadFile() {
+    retries(5)
+
     doLast {
       if (shouldDownload && expectedChecksum != null) {
         logger.info("Verifying checksum of ${dest}")

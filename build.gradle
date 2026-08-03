@@ -33,10 +33,11 @@ import dev.yumi.gradle.licenser.api.comment.CStyleHeaderComment
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 
 import java.security.SecureRandom
+import java.time.Duration
 
 plugins {
   id 'base'
-  id 'org.owasp.dependencycheck' version '12.2.2'
+  id 'org.owasp.dependencycheck' version '13.0.0'
   id 'com.autonomousapps.dependency-analysis' version '3.18.0'
 }
 
@@ -654,6 +655,7 @@ extensions.getByType(DependencyAnalysisExtension).with {
 dependencyCheck {
   autoUpdate = true
   data.directory = layout.buildDirectory.dir("dependency-check-data").get().asFile.path
+  readTimeout = Duration.ofMinutes(5) // Allow for slow dataFeed downloads
 
   failBuildOnCVSS = 1
   failBuildOnUnusedSuppressionRule = true
@@ -665,7 +667,7 @@ dependencyCheck {
   nvd.datafeedUrl = 'https://nexus.gocd.io/repository/nvd-data-feeds-proxy/nvdcve-2.0-{0}.json.gz'
   
   analyzers.ossIndex.password = System.getenv("OSS_INDEX_API_TOKEN") ?: ""
-  analyzers.ossIndex.validForHours = 24 * 7 // save credits by checking only weekly
+  analyzers.ossIndex.validForHours = 24 * 2 // save credits by checking only every 2 days
   analyzers.centralEnabled = true // Allow for matching jar dependencies which sit inside jruby gems etc
 
   analyzers.assemblyEnabled = false // Avoid dotnet false positives

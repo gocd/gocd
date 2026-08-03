@@ -27,6 +27,7 @@ public class GitMaterialRepresenter extends ScmMaterialRepresenter<GitMaterialCo
         jsonWriter.addWithDefaultIfBlank("branch", gitMaterialConfig.getBranch(), "master");
         jsonWriter.add("submodule_folder", gitMaterialConfig.getSubmoduleFolder());
         jsonWriter.add("shallow_clone", gitMaterialConfig.isShallowClone());
+        jsonWriter.addIfNotBlank("sparse_checkout", gitMaterialConfig.getSparseCheckout());
     }
 
     @Override
@@ -43,6 +44,7 @@ public class GitMaterialRepresenter extends ScmMaterialRepresenter<GitMaterialCo
         });
         jsonReader.readStringIfPresent("submodule_folder", gitMaterialConfig::setSubmoduleFolder);
         jsonReader.optBoolean("shallow_clone").ifPresent(gitMaterialConfig::setShallowClone);
+        jsonReader.readStringIfPresent("sparse_checkout", gitMaterialConfig::setSparseCheckout);
 
         return gitMaterialConfig;
     }

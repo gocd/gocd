@@ -558,6 +558,28 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
+    void shouldLoadSparseCheckoutFromGitPartial() throws Exception {
+        String gitPartial =
+            """
+                <git url='file:///tmp/testGitRepo/project1'>
+                            <sparseCheckout>
+                                src/app
+                                docs/*
+                            </sparseCheckout>
+                        </git>""";
+        GitMaterialConfig gitMaterial = xmlLoader.fromXmlPartial(gitPartial, GitMaterialConfig.class);
+        assertThat(gitMaterial.sparseCheckoutPatterns()).containsExactly("src/app", "docs/*");
+    }
+
+    @Test
+    void shouldNotHaveASparseCheckoutByDefaultInGitPartial() throws Exception {
+        String gitPartial = "<git url='file:///tmp/testGitRepo/project1' />";
+        GitMaterialConfig gitMaterial = xmlLoader.fromXmlPartial(gitPartial, GitMaterialConfig.class);
+        assertThat(gitMaterial.getSparseCheckout()).isNull();
+        assertThat(gitMaterial.sparseCheckoutPatterns()).isEmpty();
+    }
+
+    @Test
     void shouldLoadBranchFromGitPartial() throws Exception {
         String gitPartial = "<git url='file:///tmp/testGitRepo/project1' branch='foo'/>";
         GitMaterialConfig gitMaterial = xmlLoader.fromXmlPartial(gitPartial, GitMaterialConfig.class);

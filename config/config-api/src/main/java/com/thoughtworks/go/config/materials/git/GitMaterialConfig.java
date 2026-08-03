@@ -16,11 +16,13 @@
 package com.thoughtworks.go.config.materials.git;
 
 import com.thoughtworks.go.config.ConfigAttribute;
+import com.thoughtworks.go.config.ConfigSubtag;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.util.command.UrlArgument;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -34,6 +36,7 @@ public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwar
     public static final String BRANCH = "branch";
     public static final String DEFAULT_BRANCH = "master";
     public static final String SHALLOW_CLONE = "shallowClone";
+    public static final String SPARSE_CHECKOUT = "sparseCheckout";
 
     @ConfigAttribute(value = "url")
     private UrlArgument url;
@@ -43,6 +46,9 @@ public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwar
 
     @ConfigAttribute(value = "shallowClone")
     private boolean shallowClone;
+
+    @ConfigSubtag
+    private GitSparseCheckoutConfig sparseCheckout;
 
     private String submoduleFolder;
 
@@ -135,6 +141,7 @@ public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwar
                 ", branch='" + branch + '\'' +
                 ", submoduleFolder='" + submoduleFolder + '\'' +
                 ", shallowClone=" + shallowClone +
+                ", sparseCheckout=" + sparseCheckout +
                 '}';
     }
 
@@ -160,6 +167,9 @@ public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwar
         if (map.containsKey(URL)) {
             this.url = new UrlArgument(map.get(URL));
         }
+        if (map.containsKey(SPARSE_CHECKOUT)) {
+            setSparseCheckout(map.get(SPARSE_CHECKOUT));
+        }
 
         this.shallowClone = "true".equals(map.get(SHALLOW_CLONE));
     }
@@ -172,6 +182,21 @@ public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwar
         if (shallowClone != null) {
             this.shallowClone = shallowClone;
         }
+    }
+
+    public String getSparseCheckout() {
+        return sparseCheckout == null ? null : sparseCheckout.getValue();
+    }
+
+    /**
+     * @return the configured sparse checkout patterns, or empty to check out the entire repository.
+     */
+    public List<String> sparseCheckoutPatterns() {
+        return sparseCheckout == null ? List.of() : sparseCheckout.patterns();
+    }
+
+    public void setSparseCheckout(String patterns) {
+        this.sparseCheckout = isBlank(patterns) ? null : new GitSparseCheckoutConfig(patterns);
     }
 
     @Override

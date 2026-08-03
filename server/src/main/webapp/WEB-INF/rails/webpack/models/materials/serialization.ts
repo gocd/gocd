@@ -46,6 +46,7 @@ export interface GitMaterialAttributesJSON extends ScmAttributesJSON {
   url: string;
   branch: string;
   shallow_clone: boolean;
+  sparse_checkout?: string;
 }
 
 export interface SvnMaterialAttributesJSON extends ScmAttributesJSON {

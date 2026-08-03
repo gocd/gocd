@@ -588,6 +588,7 @@
   </xsd:complexType>
   <xsd:complexType name="gitType">
     <xsd:sequence>
+      <xsd:element name="sparseCheckout" type="xsd:string" minOccurs="0" maxOccurs="1"/>
       <xsd:element name="filter" type="filterType" minOccurs="0" maxOccurs="1"/>
     </xsd:sequence>
     <xsd:attribute name="url" type="xsd:string" use="required"/>

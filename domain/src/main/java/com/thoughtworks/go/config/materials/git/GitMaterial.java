@@ -233,12 +233,13 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         GitMaterial that = (GitMaterial) o;
         return Objects.equals(url, that.url) &&
                 Objects.equals(refSpecOrBranch, that.refSpecOrBranch) &&
+                Objects.equals(sparseCheckout, that.sparseCheckout) &&
                 Objects.equals(submoduleFolder, that.submoduleFolder);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), url, refSpecOrBranch, submoduleFolder);
+        return Objects.hash(super.hashCode(), url, refSpecOrBranch, sparseCheckout, submoduleFolder);
     }
 
     @Override
@@ -339,6 +340,11 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
     protected void appendCriteria(Map<String, Object> parameters) {
         parameters.put(ScmMaterialConfig.URL, url.originalArgument());
         parameters.put("branch", refSpecOrBranch);
+        // Must stay in step with GitMaterialConfig#appendCriteria, including the fact that this is
+        // only contributed when configured — see the explanation there.
+        if (sparseCheckout != null) {
+            parameters.put(GitMaterialConfig.SPARSE_CHECKOUT, sparseCheckout);
+        }
     }
 
     @Override

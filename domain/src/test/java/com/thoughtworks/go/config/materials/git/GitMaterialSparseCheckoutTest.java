@@ -129,6 +129,50 @@ class GitMaterialSparseCheckoutTest {
     }
 
     @Test
+    void materialsRestrictedToDifferentPathsAreDifferentMaterials() {
+        // Otherwise fan-in treats them as interchangeable and can resolve a pipeline against a
+        // working copy that never contained the paths it needs.
+        assertThat(materialWithSparseCheckout("first.txt").getFingerprint())
+                .isNotEqualTo(materialWithSparseCheckout("build.xml").getFingerprint());
+    }
+
+    @Test
+    void materialsRestrictedToTheSamePathsShareAFingerprint() {
+        assertThat(materialWithSparseCheckout("first.txt").getFingerprint())
+                .isEqualTo(materialWithSparseCheckout("first.txt").getFingerprint());
+    }
+
+    @Test
+    void fingerprintOfAMaterialWithoutSparseCheckoutIsUntouched() {
+        // The fingerprint joins every criteria entry as "key=value" with nulls included, so
+        // contributing this key unconditionally would re-fingerprint every existing git material on
+        // upgrade and orphan its pipeline history. It must be absent, not null.
+        GitMaterialConfig plain = new GitMaterialConfig();
+        plain.setUrl(repo.projectRepositoryUrl());
+
+        assertThat(plain.getSqlCriteria()).doesNotContainKey(GitMaterialConfig.SPARSE_CHECKOUT);
+        assertThat(materialWithSparseCheckout(null).getFingerprint())
+                .isEqualTo(new GitMaterial(repo.projectRepositoryUrl()).getFingerprint());
+    }
+
+    @Test
+    void blankSparseCheckoutDoesNotAffectTheFingerprintEither() {
+        assertThat(materialWithSparseCheckout("   \n  ").getFingerprint())
+                .isEqualTo(materialWithSparseCheckout(null).getFingerprint());
+    }
+
+    @Test
+    void configAndMaterialAgreeOnTheFingerprint() {
+        // The server fingerprints from the config and the agent from the material; if the two
+        // disagree, every build looks like a brand new material.
+        GitMaterialConfig config = new GitMaterialConfig();
+        config.setUrl(repo.projectRepositoryUrl());
+        config.setSparseCheckout("first.txt");
+
+        assertThat(new GitMaterial(config).getFingerprint()).isEqualTo(config.getFingerprint());
+    }
+
+    @Test
     void attributesShouldIncludeSparseCheckout() {
         GitMaterial material = materialWithSparseCheckout("first.txt");
 

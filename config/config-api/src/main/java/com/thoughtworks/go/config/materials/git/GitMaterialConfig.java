@@ -87,12 +87,13 @@ public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwar
         GitMaterialConfig that = (GitMaterialConfig) o;
         return Objects.equals(url, that.url) &&
                 Objects.equals(branch, that.branch) &&
+                Objects.equals(sparseCheckout, that.sparseCheckout) &&
                 Objects.equals(submoduleFolder, that.submoduleFolder);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), url, branch, submoduleFolder);
+        return Objects.hash(super.hashCode(), url, branch, sparseCheckout, submoduleFolder);
     }
 
     @Override
@@ -203,6 +204,16 @@ public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwar
     protected void appendCriteria(Map<String, Object> parameters) {
         parameters.put(ScmMaterialConfig.URL, url.originalArgument());
         parameters.put("branch", branch);
+        // Two materials on the same URL and branch but restricted to different paths are genuinely
+        // different materials, and conflating them would make fan-in resolve against a working copy
+        // that never contained the paths a pipeline needs.
+        //
+        // Only contributed when actually configured. The fingerprint is built by joining every
+        // criteria entry as "key=value" with nulls included, so adding this unconditionally would
+        // change the fingerprint of every existing git material and orphan its pipeline history.
+        if (sparseCheckout != null) {
+            parameters.put(SPARSE_CHECKOUT, sparseCheckout.getValue());
+        }
     }
 
     /**

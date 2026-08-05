@@ -760,11 +760,31 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     @Override
+    public void deletePipeline(Pipeline pipeline) {
+        if (pipeline == null) {
+            return;
+        }
+
+        getSqlMapClientTemplate().delete("deletePipelineMaterialRevisions", nullableMapOf("pipelineId", pipeline.getId()));
+
+        Map<String, Object> args = nullableMapOf("pipelineName", pipeline.getName(), "pipelineCounter", pipeline.getCounter());
+        getSqlMapClientTemplate().delete("deletePipeline", args);
+
+        goCache.remove(cacheKeyForBuildCauseByNameAndCounter(pipeline.getName(), pipeline.getCounter()));
+        goCache.remove(cacheKeyForPipelineHistoryByNameAndCounter(pipeline.getName(), pipeline.getCounter()));
+        goCache.remove(pipelineHistoryCacheKey(pipeline.getId()));
+        goCache.remove(cacheKeyForLatestPipelineIdByPipelineName(pipeline.getName()));
+        pipelineByBuildIdCache.flushOnCommit();
+    }
+
+    @Override
     public void updateComment(String pipelineName, int pipelineCounter, String comment) {
         Map<String, Object> args = nullableMapOf("pipelineName", pipelineName, "pipelineCounter", pipelineCounter, "comment", comment);
         getSqlMapClientTemplate().update("updatePipelineComment", args);
 
         Pipeline pipeline = findPipelineByNameAndCounter(pipelineName, pipelineCounter);
-        goCache.remove(pipelineHistoryCacheKey(pipeline.getId()));
+        if (pipeline != null) {
+            goCache.remove(pipelineHistoryCacheKey(pipeline.getId()));
+        }
     }
 }

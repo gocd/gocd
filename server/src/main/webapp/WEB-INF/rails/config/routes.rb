@@ -47,6 +47,7 @@ Rails.application.routes.draw do
   get "materials/value_stream_map/:material_fingerprint/:revision(.:format)" => "value_stream_map#show_material", defaults: {:format => :html}, constraints: {:revision => /[^\/]+(?=\.html\z|\.json\z)|[^\/]+/}, as: :vsm_show_material
 
   post "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/rerun-jobs" => "stages#rerun_jobs", as: :rerun_jobs, constraints: STAGE_LOCATOR_CONSTRAINTS
+  delete "pipelines/:pipeline_name/:pipeline_counter" => "stages#delete", as: :delete_pipeline_instance, constraints: PIPELINE_LOCATOR_CONSTRAINTS
   get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter" => "stages#overview", as: "stage_detail_tab_default", constraints: STAGE_LOCATOR_CONSTRAINTS
 
   %w(overview pipeline materials jobs stats stats_iframe).each do |controller_action_method|

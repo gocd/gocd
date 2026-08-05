@@ -54,6 +54,11 @@ public class LazyCache {
     }
 
     public void flushOnCommit() {
+        if (!transactionSynchronizationManager.isActualTransactionActive()) {
+            ehCache.flush();
+            return;
+        }
+
         transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
             @Override
             public void afterCommit() {

@@ -108,6 +108,17 @@ class StagesController < ApplicationController
     end
   end
 
+  def delete
+    result = HttpLocalizedOperationResult.new
+    pipeline_history_service.deletePipelineInstance(params[:pipeline_name], params[:pipeline_counter].to_i, current_user, result)
+
+    if result.isSuccessful()
+      redirect_to(root_path, notice: result.message())
+    else
+      redirect_to(root_path, alert: result.message())
+    end
+  end
+
   def redirect_to_first_stage
     stage_instance = @pipeline_instance.getStageHistory.first
     stage_name = stage_instance.getName
@@ -177,6 +188,7 @@ class StagesController < ApplicationController
 
     @pipeline = pipeline_history_service.findPipelineInstance(pipeline_name, params[:pipeline_counter].to_i, @stage.getPipelineId(), current_user, result = HttpOperationResult.new)
     @lockedPipeline = pipeline_lock_service.lockedPipeline(pipeline_name)
+    @can_delete_pipeline_instance = security_service.hasOperatePermissionForPipeline(current_user.getUsername(), pipeline_name)
   end
 
   def date_range(stage_summary_models)

@@ -211,6 +211,17 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
+    public void shouldDeletePipelineByNameAndCounter() {
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("Test");
+        Pipeline pipeline = schedulePipelineWithStages(pipelineConfig);
+
+        pipelineDao.deletePipeline(pipeline);
+
+        assertThat(pipelineDao.findPipelineByNameAndCounter(pipeline.getName(), pipeline.getCounter())).isNull();
+        assertThat(pipelineDao.loadHistory(pipeline.getName())).isEmpty();
+    }
+
+    @Test
     public void shouldReserveModificationsOrder() {
         MaterialRevisions materialRevisions = ModificationsMother.multipleModifications();
         Pipeline pipeline = new Pipeline("Test", BuildCause.createWithModifications(materialRevisions, ""));

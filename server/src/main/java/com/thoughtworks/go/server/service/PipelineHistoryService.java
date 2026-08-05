@@ -366,6 +366,22 @@ public class PipelineHistoryService {
         model.setMaterialRevisionsOnBuildCause(materialRepository.findMaterialRevisionsForPipeline(model.getId()));
     }
 
+    public void deletePipelineInstance(String pipelineName, int pipelineCounter, Username username, HttpLocalizedOperationResult result) {
+        if (!securityService.hasOperatePermissionForPipeline(username.getUsername(), pipelineName)) {
+            result.forbidden(format("You do not have operate permissions for pipeline '%s'.", pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            return;
+        }
+
+        Pipeline pipeline = pipelineDao.findPipelineByNameAndCounter(pipelineName, pipelineCounter);
+        if (pipeline == null) {
+            result.notFound(format("Pipeline instance for '%s' with counter '%d' was not found.", pipelineName, pipelineCounter), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            return;
+        }
+
+        pipelineDao.deletePipeline(pipeline);
+        result.setMessage(format("Deleted pipeline instance '%s/%d'.", pipelineName, pipelineCounter));
+    }
+
     public void updateComment(String pipelineName, int pipelineCounter, String comment, Username username) {
         if (!securityService.hasOperatePermissionForPipeline(username.getUsername(), pipelineName)) {
             throw new NotAuthorizedException(format("You do not have operate permissions for pipeline '%s'.", pipelineName));

@@ -28,3 +28,14 @@
                     :title => 'Compare with the previous build')
         %>
 </span>
+
+<% if @can_delete_pipeline_instance %>
+  <span class="delete_pipeline">
+    <%= button_to('Delete',
+                  delete_pipeline_instance_path(pipeline_name: @stage.getPipelineName(), pipeline_counter: @stage.getPipelineCounter()),
+                  method: :delete,
+                  data: { confirm: 'Are you sure you want to delete this pipeline run?' },
+                  title: 'Delete this pipeline run',
+                  class: 'delete') %>
+  </span>
+<% end %>

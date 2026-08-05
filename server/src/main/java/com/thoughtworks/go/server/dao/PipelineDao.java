@@ -40,6 +40,8 @@ public interface PipelineDao {
 
     void updateComment(String pipelineName, int pipelineCounter, String comment);
 
+    void deletePipeline(Pipeline pipeline);
+
     PipelineIdentifier mostRecentPipelineIdentifier(String pipelineName);
 
     int getCounterForPipeline(String name);

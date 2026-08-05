@@ -132,6 +132,16 @@
               )
     </delete>
 
+    <delete id="deletePipelineMaterialRevisions">
+        DELETE FROM pipelineMaterialRevisions
+        WHERE pipelineId = #{pipelineId}
+    </delete>
+
+    <delete id="deletePipeline">
+        DELETE FROM pipelines
+        WHERE name = #{pipelineName} AND counter = #{pipelineCounter}
+    </delete>
+
     <update id="updatePipelineComment">
         UPDATE pipelines
         SET comment = #{comment}

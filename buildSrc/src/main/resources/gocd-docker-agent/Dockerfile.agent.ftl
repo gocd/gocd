@@ -36,8 +36,8 @@ RUN curl --fail --location --silent --show-error "https://download.gocd.org/bina
     mv -v /go-agent-${goVersions.goVersion}/run /go-agent/run && \
     mv -v /go-agent-${goVersions.goVersion}/wrapper-config /go-agent/wrapper-config && \
     WRAPPERARCH=${dockerAliasToWrapperArchAsShell} && \
-    mv -v /go-agent-${goVersions.goVersion}/wrapper/wrapper-${distro.operatingSystemVariant.tanukiWrapperAlias}-$WRAPPERARCH /go-agent/wrapper/wrapper && \
-    mv -v /go-agent-${goVersions.goVersion}/wrapper/libwrapper-${distro.operatingSystemVariant.tanukiWrapperAlias}-$WRAPPERARCH.so /go-agent/wrapper/libwrapper.so && \
+    mv -v /go-agent-${goVersions.goVersion}/wrapper/wrapper-${distro.operatingSystemVariant.tanukiWrapperAlias}-$WRAPPERARCH /go-agent/wrapper/ && \
+    mv -v /go-agent-${goVersions.goVersion}/wrapper/libwrapper-${distro.operatingSystemVariant.tanukiWrapperAlias}-$WRAPPERARCH.so /go-agent/wrapper/ && \
     mv -v /go-agent-${goVersions.goVersion}/wrapper/wrapper.jar /go-agent/wrapper/ && \
     chown -R ${r"${UID}"}:0 /go-agent && chmod -R g=u /go-agent
 FROM ${distro.getBaseImageLocation(distroVersion)}

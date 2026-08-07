@@ -61,9 +61,9 @@ def goVersions = new GoVersions(
   packagedJavaVersion: new AdoptiumVersion(
     feature: 25,
     interim: 0,    // set to `null` for the first release of a new featureVersion
-    update:  4,    // set to `null` for the first release of a new featureVersion
+    update:  3,    // set to `null` for the first release of a new featureVersion
     patch:   null, // set to `null` for most releases. Patch releases are "exceptional".
-    build:   7
+    build:   9
   ),
 )
 ext.goVersions = goVersions
@@ -122,7 +122,7 @@ def libraries = [
   jetty               : 'org.eclipse.jetty:jetty-server:10.0.26',
   jgit                : 'org.eclipse.jgit:org.eclipse.jgit:6.10.1.202505221210-r',
   jolt                : 'com.bazaarvoice.jolt:jolt-core:0.1.8',
-  jruby               : 'org.jruby:jruby:9.4.15.0',
+  jruby               : 'org.jruby:jruby:10.0.6.0',
   jsonUnit            : 'net.javacrumbs.json-unit:json-unit-assertj:6.0.1',
   jsoup               : 'org.jsoup:jsoup:1.23.1',
   junit5Bom           : 'org.junit:junit-bom:6.1.2',

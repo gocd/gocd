@@ -16,6 +16,7 @@
 package com.thoughtworks.go.domain.materials.git;
 
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.config.materials.git.GitSparseCheckoutConfig;
 import com.thoughtworks.go.config.materials.git.RefSpecHelper;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
@@ -61,6 +62,7 @@ public class GitCommand extends SCMCommand {
     private final List<SecretRedactor> secrets;
     private final String branch;
     private final boolean isSubmodule;
+    private List<String> sparseCheckout = List.of();
 
     public GitCommand(String materialFingerprint, File workingDir, String branch, boolean isSubmodule, List<SecretRedactor> secrets) {
         super(materialFingerprint);
@@ -68,6 +70,15 @@ public class GitCommand extends SCMCommand {
         this.secrets = secrets != null ? secrets : new ArrayList<>();
         this.branch = defaultIfBlank(branch, GitMaterialConfig.DEFAULT_BRANCH);
         this.isSubmodule = isSubmodule;
+    }
+
+    /**
+     * Restricts the working copy to the given patterns, in the syntax accepted by
+     * {@code git sparse-checkout set --no-cone}. Blank restores a full checkout.
+     */
+    public GitCommand withSparseCheckout(String patterns) {
+        this.sparseCheckout = new GitSparseCheckoutConfig(patterns).patterns();
+        return this;
     }
 
     private static boolean hasExactlyOneMatchingBranch(ConsoleResult branchList) {
@@ -141,6 +152,8 @@ public class GitCommand extends SCMCommand {
         CommandLine gitClone = cloneCommand()
             .when(!hasRefSpec(), git -> git.withArgs("--branch", branch))
             .when(depth < Integer.MAX_VALUE, git -> git.withArg(format("--depth=%s", depth)))
+            // Avoid populating files we are about to exclude; resetWorkingDir() does the real checkout.
+            .when(!sparseCheckout.isEmpty(), git -> git.withArg("--no-checkout"))
             .withArg(new UrlArgument(url)).withArg(workingDir.getAbsolutePath());
 
         if (!hasRefSpec()) {
@@ -168,6 +181,7 @@ public class GitCommand extends SCMCommand {
         log(outputStreamConsumer, "Reset working directory {}", workingDir);
         cleanAllUnversionedFiles(outputStreamConsumer);
         removeSubmoduleSectionsFromGitConfig(outputStreamConsumer);
+        applySparseCheckout(outputStreamConsumer);
         resetHard(outputStreamConsumer, revision);
         checkoutAllModifiedFilesInSubmodules(outputStreamConsumer);
         updateSubmoduleWithInit(outputStreamConsumer, shallow);
@@ -360,6 +374,17 @@ public class GitCommand extends SCMCommand {
         return new File(workingDir, ".git/shallow").exists();
     }
 
+    /**
+     * Note that {@code git sparse-checkout disable} leaves {@code .git/info/sparse-checkout} behind
+     * and only flips {@code core.sparseCheckout}, so the config flag is what actually decides whether
+     * the working copy is sparse. The file check is purely a cheap short-circuit for the common case
+     * of a repository that has never been sparse.
+     */
+    public boolean isSparse() {
+        return new File(workingDir, ".git/info/sparse-checkout").exists() &&
+            "true".equals(runOrBomb(gitWd().withArgs("config", "--get", "core.sparseCheckout"), false).outputAsString());
+    }
+
     public boolean containsRevisionInBranch(Revision revision) {
         String[] args = {"branch", "-r", "--contains", revision.getRevision()};
         CommandLine gitCommand = gitWd().withArgs(args);
@@ -538,6 +563,24 @@ public class GitCommand extends SCMCommand {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Applies (or removes) the configured sparse checkout before the working copy is reset, so that
+     * excluded paths are never written. Deliberately a no-op on repositories that neither are nor
+     * should be sparse, so that materials which don't use this feature never invoke
+     * {@code git sparse-checkout} (which requires a newer git than GoCD otherwise needs).
+     */
+    private void applySparseCheckout(ConsoleOutputStreamConsumer outputStreamConsumer) {
+        if (sparseCheckout.isEmpty()) {
+            if (isSparse()) {
+                log(outputStreamConsumer, "Restoring full checkout");
+                runOrBomb(gitWd().withArgs("sparse-checkout", "disable"));
+            }
+            return;
+        }
+        log(outputStreamConsumer, "Restricting checkout to: {}", join(", ", sparseCheckout));
+        runOrBomb(gitWd().withArgs("sparse-checkout", "set", "--no-cone").withArgs(sparseCheckout));
     }
 
     private void cleanAllUnversionedFiles(ConsoleOutputStreamConsumer outputStreamConsumer) {

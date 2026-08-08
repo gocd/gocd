@@ -28,6 +28,7 @@ public class GitMaterialRepresenter extends ScmMaterialRepresenter<GitMaterialCo
                     jsonWriter.addWithDefaultIfBlank("branch", gitMaterialConfig.getBranch(), "master");
                     jsonWriter.add("submodule_folder", gitMaterialConfig.getSubmoduleFolder());
                     jsonWriter.add("shallow_clone", gitMaterialConfig.isShallowClone());
+                    jsonWriter.addIfNotBlank("sparse_checkout", gitMaterialConfig.getSparseCheckout());
                 });
     }
 }

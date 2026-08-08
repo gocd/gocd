@@ -61,6 +61,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
     private final UrlArgument url;
     private String refSpecOrBranch = GitMaterialConfig.DEFAULT_BRANCH;
     private boolean shallowClone = false;
+    private String sparseCheckout;
     private String submoduleFolder;
 
     public GitMaterial(String url) {
@@ -97,6 +98,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         this.autoUpdate = config.getAutoUpdate();
         this.filter = config.rawFilter();
         this.name = config.getName();
+        this.sparseCheckout = config.getSparseCheckout();
         this.submoduleFolder = config.getSubmoduleFolder();
         this.invertFilter = config.getInvertFilter();
         this.userName = config.getUserName();
@@ -116,6 +118,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         gitMaterialConfig.setFolder(this.folder);
         gitMaterialConfig.setName(this.name);
         gitMaterialConfig.setShallowClone(this.shallowClone);
+        gitMaterialConfig.setSparseCheckout(this.sparseCheckout);
         Optional.ofNullable(this.refSpecOrBranch).ifPresent(gitMaterialConfig::setBranch);
         return gitMaterialConfig;
     }
@@ -230,12 +233,13 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         GitMaterial that = (GitMaterial) o;
         return Objects.equals(url, that.url) &&
                 Objects.equals(refSpecOrBranch, that.refSpecOrBranch) &&
+                Objects.equals(sparseCheckout, that.sparseCheckout) &&
                 Objects.equals(submoduleFolder, that.submoduleFolder);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), url, refSpecOrBranch, submoduleFolder);
+        return Objects.hash(super.hashCode(), url, refSpecOrBranch, sparseCheckout, submoduleFolder);
     }
 
     @Override
@@ -264,6 +268,10 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         return shallowClone;
     }
 
+    public String getSparseCheckout() {
+        return sparseCheckout;
+    }
+
     @Override
     public String getShortRevision(String revision) {
         if (revision == null) {
@@ -287,6 +295,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         }
         configurationMap.put("branch", refSpecOrBranch);
         configurationMap.put("shallow-clone", shallowClone);
+        configurationMap.put("sparse-checkout", sparseCheckout);
         materialMap.put("git-configuration", configurationMap);
         return materialMap;
     }
@@ -302,6 +311,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
                 "url=" + url +
                 ", branch='" + refSpecOrBranch + '\'' +
                 ", shallowClone=" + shallowClone +
+                ", sparseCheckout='" + sparseCheckout + '\'' +
                 ", submoduleFolder='" + submoduleFolder + '\'' +
                 '}';
     }
@@ -310,6 +320,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
     public void updateFromConfig(MaterialConfig materialConfig) {
         super.updateFromConfig(materialConfig);
         this.shallowClone = ((GitMaterialConfig) materialConfig).isShallowClone();
+        this.sparseCheckout = ((GitMaterialConfig) materialConfig).getSparseCheckout();
     }
 
     public GitMaterial withShallowClone(boolean value) {
@@ -329,6 +340,11 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
     protected void appendCriteria(Map<String, Object> parameters) {
         parameters.put(ScmMaterialConfig.URL, url.originalArgument());
         parameters.put("branch", refSpecOrBranch);
+        // Must stay in step with GitMaterialConfig#appendCriteria, including the fact that this is
+        // only contributed when configured — see the explanation there.
+        if (sparseCheckout != null) {
+            parameters.put(GitMaterialConfig.SPARSE_CHECKOUT, sparseCheckout);
+        }
     }
 
     @Override
@@ -336,6 +352,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         parameters.put("url", url);
         parameters.put("branch", refSpecOrBranch);
         parameters.put("shallowClone", shallowClone);
+        parameters.put("sparseCheckout", sparseCheckout);
     }
 
     @Override
@@ -363,7 +380,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
             return new GitCommand(getFingerprint(), new File(workingFolder.getPath()), GitMaterialConfig.DEFAULT_BRANCH, true, secrets());
         }
 
-        GitCommand gitCommand = new GitCommand(getFingerprint(), workingFolder, refSpecOrBranch, false, secrets());
+        GitCommand gitCommand = new GitCommand(getFingerprint(), workingFolder, refSpecOrBranch, false, secrets()).withSparseCheckout(sparseCheckout);
         if (!isGitRepository(workingFolder) || isRepositoryChanged(gitCommand, workingFolder)) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Invalid git working copy or repository changed. Delete folder: {}", workingFolder);

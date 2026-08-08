@@ -178,7 +178,10 @@ export class GitFields extends ScmFields {
     const fields = [
       <TextField label="Repository Branch" property={mat.branch} errorText={this.errs(attrs, "branch")} placeholder="master"/>,
       <TextField label="Username" property={mat.username}/>,
-      <PasswordField label="Password" property={mat.password}/>
+      <PasswordField label="Password" property={mat.password}/>,
+      <TextAreaField label="Sparse checkout" property={mat.sparseCheckout}
+                     helpText="Check out only these paths, one pattern per line (gitignore syntax). Leave blank to check out the whole repository."
+                     rows={5} size={Size.MATCH_PARENT} resizable={true}/>
     ];
 
     if (vnode.attrs.showGitMaterialShallowClone === undefined || vnode.attrs.showGitMaterialShallowClone === true) {

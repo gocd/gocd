@@ -395,14 +395,16 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
   url: Stream<string | undefined>;
   branch: Stream<string | undefined>;
   shallowClone: Stream<boolean>;
+  sparseCheckout: Stream<string | undefined>;
 
   constructor(name?: string, autoUpdate?: boolean, url?: string, branch?: string,
               shallowClone?: boolean, username?: string, password?: string,
-              encryptedPassword?: string) {
+              encryptedPassword?: string, sparseCheckout?: string) {
     super(name, autoUpdate, username, password, encryptedPassword);
-    this.url          = Stream(url);
-    this.branch       = Stream(branch);
-    this.shallowClone = Stream(shallowClone === undefined ? false : shallowClone);
+    this.url            = Stream(url);
+    this.branch         = Stream(branch);
+    this.shallowClone   = Stream(shallowClone === undefined ? false : shallowClone);
+    this.sparseCheckout = Stream(sparseCheckout);
 
     this.validatePresenceOf("url");
     this.validateWith(new AuthNotSetInUrlAndUserPassFieldsValidator(), "url");
@@ -419,6 +421,7 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
       json.username,
       json.password,
       json.encrypted_password,
+      json.sparse_checkout,
     );
     if (undefined !== json.destination) {
       attrs.destination(json.destination);

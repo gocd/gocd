@@ -29,13 +29,13 @@ import com.thoughtworks.go.work.GoPublisher;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class GoArtifactManipulatorStub extends GoArtifactManipulator {
-    private final List<String> consoleOuts = new ArrayList<>();
-    private final List<FetchHandler> savedTo = new ArrayList<>();
-    private final List<UploadEntry> uploads = new ArrayList<>();
+    private final List<String> consoleOuts = new CopyOnWriteArrayList<>();
+    private final List<FetchHandler> savedTo = new CopyOnWriteArrayList<>();
+    private final List<UploadEntry> uploads = new CopyOnWriteArrayList<>();
 
     public GoArtifactManipulatorStub() {
         this(new HttpServiceStub());

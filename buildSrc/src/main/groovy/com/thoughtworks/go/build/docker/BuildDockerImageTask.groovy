@@ -242,7 +242,7 @@ abstract class BuildDockerImageTask extends DefaultTask {
     execOps.exec {
       workingDir = gitRepoDirectory
       commandLine = args
-      errorOutput = standardOutput // docker buildx and git love putting stuff on stderr by default, which can be misleading with GoCD's console colouring
+      errorOutput = System.out // docker buildx and git love putting stuff on stderr by default, which can be misleading with GoCD's console colouring
     }
   }
 

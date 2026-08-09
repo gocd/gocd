@@ -117,7 +117,7 @@ def libraries = [
   javassist           : 'org.javassist:javassist:3.32.0-GA',
   jaxbBom             : 'org.glassfish.jaxb:jaxb-bom:4.0.9',
   jaxen               : 'jaxen:jaxen:2.0.6',
-  jcommander          : 'com.beust:jcommander:1.82',
+  jcommander          : 'org.jcommander:jcommander:1.83',
   jdom                : 'org.jdom:jdom2:2.0.6.1',
   jetBrainsAnnotations: 'org.jetbrains:annotations:26.1.0',
   jetty               : 'org.eclipse.jetty:jetty-server:10.0.26',

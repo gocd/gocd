@@ -39,10 +39,11 @@ class DownloadFile extends Download {
   DownloadFile() {
     retries(5)
 
+    def action = new VerifyAction(project.layout)
+
     doLast {
       if (shouldDownload && expectedChecksum != null) {
         logger.info("Verifying checksum of ${dest}")
-        def action = new VerifyAction(project)
         action.checksum(expectedChecksum)
         action.algorithm('SHA-256')
         action.src(dest)

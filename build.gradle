@@ -88,7 +88,6 @@ def libraries = [
   bouncyCastle        : 'org.bouncycastle:bcprov-jdk18on:1.85.2',
   bouncyCastlePkix    : 'org.bouncycastle:bcpkix-jdk18on:1.85',
   bucket4j            : 'com.bucket4j:bucket4j_jdk17-core:8.19.0',
-  bucket4jCaffeine    : 'com.bucket4j:bucket4j-caffeine:8.10.1',
   caffeine            : 'com.github.ben-manes.caffeine:caffeine:3.2.4',
   cloning             : 'io.github.kostaskougios:cloning:1.13.0',
   commonsCodec        : 'commons-codec:commons-codec:1.22.1',
@@ -170,6 +169,7 @@ def v = libraries.collectEntries { lib, libGav -> [lib, libGav.split(':').last()
 // This is just a workaround to be DRY while still benefiting from Dependabot's automatic PR upgrades.
 def relatedLibraries = [
   apacheHttpMime          : "org.apache.httpcomponents:httpmime:${v.apacheHttpComponents}",
+  bucket4jCaffeine        : "com.bucket4j:bucket4j_jdk17-caffeine:${v.bucket4j}",
   jacksonCore             : "com.fasterxml.jackson.core:jackson-core",
   jacksonDatabind         : "com.fasterxml.jackson.core:jackson-databind",
   jaxbApi                 : "jakarta.xml.bind:jakarta.xml.bind-api",

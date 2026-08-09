@@ -716,21 +716,21 @@ dependencyCheckAnalyze.dependsOn unzipDependencyCheckCache
 dependencyCheckAggregate.dependsOn unzipDependencyCheckCache
 
 if (System.getenv().containsKey("NEXUS_CACHE_USERNAME")) {
-  tasks.register('uploadDependencyCheckCache', Zip) {
+  def uploadDependencyCheckCache = tasks.register('uploadDependencyCheckCache', Zip) {
     from layout.buildDirectory.file("dependency-check-data")
     archiveFileName = "dependency-check-data-updated.zip"
     preserveFileTimestamps = true
     destinationDirectory = layout.buildDirectory
 
     def injected = project.objects.newInstance(Injected)
-    doLast {
+    doLast { Zip up ->
       injected.execOps.exec {
         workingDir = projectDir
         commandLine = [
           "curl",
           "-u", "${System.getenv("NEXUS_CACHE_USERNAME")}:${System.getenv("NEXUS_CACHE_PASSWORD")}",
           "--include",
-          "--upload-file", uploadDependencyCheckCache.archiveFile.get(), 'https://nexus.gocd.io/repository/cache/dependency-check-data.zip'
+          "--upload-file", up.archiveFile.get().toString(), 'https://nexus.gocd.io/repository/cache/dependency-check-data.zip'
         ]
         ignoreExitValue = true
       }

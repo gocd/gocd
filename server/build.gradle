@@ -589,7 +589,7 @@ tasks.register('verifyWar', VerifyJarTask) {
         "backport9-1.13.jar",
         "base-${project.version}.jar",
         "bucket4j_jdk17-core-${rootProject.versions.bucket4j}.jar",
-        "bucket4j-caffeine-${rootProject.versions.bucket4jCaffeine}.jar",
+        "bucket4j_jdk17-caffeine-${rootProject.versions.bucket4jCaffeine}.jar",
         "caffeine-${rootProject.versions.caffeine}.jar",
         "cloning-${rootProject.versions.cloning}.jar",
         "commandline-${project.version}.jar",

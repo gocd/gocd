@@ -176,7 +176,6 @@ def relatedLibraries = [
   jettyDeploy             : "org.eclipse.jetty:jetty-deploy:${v.jetty}",
   jettyJmx                : "org.eclipse.jetty:jetty-jmx:${v.jetty}",
   jettyServlet            : "org.eclipse.jetty:jetty-servlet:${v.jetty}",
-  jettyServlets           : "org.eclipse.jetty:jetty-servlets:${v.jetty}",
   jettyUtil               : "org.eclipse.jetty:jetty-util:${v.jetty}",
   jettyWebapp             : "org.eclipse.jetty:jetty-webapp:${v.jetty}",
   jettyWebsocket          : "org.eclipse.jetty.websocket:websocket-jetty-server:${v.jetty}",

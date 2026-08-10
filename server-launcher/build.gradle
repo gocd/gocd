@@ -56,7 +56,6 @@ dependencies {
 
   packagingInLibDir rootProject.deps.jetty
   packagingInLibDir rootProject.deps.jettyJmx
-  packagingInLibDir rootProject.deps.jettyServlets
   packagingInLibDir rootProject.deps.jettyUtil
   packagingInLibDir rootProject.deps.jettyDeploy
   packagingInLibDir rootProject.deps.jettyWebsocket
@@ -191,7 +190,6 @@ tasks.register('verifyFatJar', VerifyJarTask) {
       "jetty-security-${rootProject.versions.jetty}.jar",
       "jetty-server-${rootProject.versions.jetty}.jar",
       "jetty-servlet-${rootProject.versions.jetty}.jar",
-      "jetty-servlets-${rootProject.versions.jetty}.jar",
       "jetty-util-${rootProject.versions.jetty}.jar",
       "jetty-webapp-${rootProject.versions.jetty}.jar",
       "jetty-xml-${rootProject.versions.jetty}.jar",

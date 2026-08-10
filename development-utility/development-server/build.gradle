@@ -29,7 +29,6 @@ dependencies {
   testFixturesRuntimeOnly findProject(':spark').subprojects.collect { project(it.path) }
   testFixturesRuntimeOnly rootProject.deps.jetty
   testFixturesRuntimeOnly rootProject.deps.jettyJmx
-  testFixturesRuntimeOnly rootProject.deps.jettyServlets
   testFixturesRuntimeOnly rootProject.deps.jettyUtil
   testFixturesRuntimeOnly rootProject.deps.jettyDeploy
   testFixturesRuntimeOnly rootProject.deps.jettyWebsocket

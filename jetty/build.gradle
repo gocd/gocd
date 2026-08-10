@@ -23,7 +23,6 @@ dependencies {
 
   compileOnly rootProject.deps.jetty
   compileOnly rootProject.deps.jettyJmx
-  compileOnly rootProject.deps.jettyServlets
   compileOnly rootProject.deps.jettyUtil
   compileOnly rootProject.deps.jettyDeploy
   compileOnly rootProject.deps.jettyWebsocket

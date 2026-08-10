@@ -153,6 +153,7 @@ dependencies {
   runtimeOnly rootProject.deps.angusMailSmtp
 
   implementation rootProject.deps.slf4jApi
+  implementation rootProject.deps.slf4jJul
   implementation(rootProject.deps.jgitServer) {
     exclude(module: 'jsch')
     exclude(module: 'jzlib')
@@ -522,7 +523,7 @@ def war = tasks.register('war', Jar) {
         + configurations.allApis
         + configurations.spark
         // Rely on logging libs from launcher parent classloader; JettyServer pins org.slf4j/org.apache.commons.logging as system classes
-        - configurations.runtimeClasspath.findAll { jar -> ['logback', 'slf4j-api', 'jcl-over-slf4j'].any { jar.name.startsWith(it) } }
+        - configurations.runtimeClasspath.findAll { jar -> ['logback', 'slf4j-api', 'jcl-over-slf4j', 'jul-to-slf4j'].any { jar.name.startsWith(it) } }
     )
       .collect { f -> f.toString() }
       .toSet()

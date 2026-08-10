@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server;
 
-import com.thoughtworks.go.logging.LogConfigurator;
+import com.thoughtworks.go.server.util.ServerLogging;
 import com.thoughtworks.go.util.SystemEnvironment;
 
 import java.io.File;
@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static com.thoughtworks.go.server.util.GoLauncher.DEFAULT_LOGBACK_CONFIGURATION_FILE;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.hibernate.cfg.Environment.GENERATE_STATISTICS;
 
@@ -44,8 +43,8 @@ import static org.hibernate.cfg.Environment.GENERATE_STATISTICS;
  */
 public class DevelopmentServer {
     public static void main(String[] args) throws Exception {
-        LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOGBACK_CONFIGURATION_FILE);
-        logConfigurator.initialize();
+        ServerLogging.initialize();
+
         copyPluginAssets();
         File webApp = new File("src/main/webapp");
         if (!webApp.exists()) {
@@ -84,10 +83,9 @@ public class DevelopmentServer {
         }
     }
 
-    private static void assertPluginsZipExists() {
-        if (DevelopmentServer.class.getResource("/plugins.zip") == null) {
-            throw new IllegalArgumentException("Could not find plugins.zip. Hint: Did you run `./gradlew prepare`?");
-        }
+    private static void copyPluginAssets() throws IOException {
+        Path classPathRoot = Path.of(DevelopmentServer.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        Files.copy(Path.of("src/main/webapp/WEB-INF/rails/webpack/rails-shared/plugin-endpoint.js"), classPathRoot.resolve("plugin-endpoint.js"), REPLACE_EXISTING);
     }
 
     private static void setupPeriodicGC(SystemEnvironment systemEnvironment) {
@@ -98,9 +96,10 @@ public class DevelopmentServer {
         systemEnvironment.setProperty("go.config.repo.gc.check.interval", "10000");
     }
 
-    private static void copyPluginAssets() throws IOException {
-        Path classPathRoot = Path.of(DevelopmentServer.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-        Files.copy(Path.of("src/main/webapp/WEB-INF/rails/webpack/rails-shared/plugin-endpoint.js"), classPathRoot.resolve("plugin-endpoint.js"), REPLACE_EXISTING);
+    private static void assertPluginsZipExists() {
+        if (DevelopmentServer.class.getResource("/plugins.zip") == null) {
+            throw new IllegalArgumentException("Could not find plugins.zip. Hint: Did you run `./gradlew prepare`?");
+        }
     }
 
     private static void assertActivationJarPresent() {

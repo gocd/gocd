@@ -93,6 +93,7 @@ tasks.register('mainJar', Jar) {
   from({ configurations.packagingInMainJarServerJar.collect { it.isDirectory() ? it : zipTree(it) } }) {
     include "**/GoLauncher*.class"
     include "**/GoServer*.class"
+    include "**/ServerLogging*.class"
     include "**/util/validators/*.class"
 
     into('/')

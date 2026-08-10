@@ -142,6 +142,14 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
           eachLine = 'set _PASS_THROUGH=true'
         }
 
+        // Workaround issues with JVM arch detection scripts on Windows in Tanuki Wrapper 3.7.1. Should be fixed on 3.7.2.
+        if (eachLine == 'for /f "delims=" %%I in (\'"%_WRAPPER_EXE% --jvm_arch %_WRAPPER_CONF%"\') do (') {
+          eachLine = 'for /f "delims=" %%I in (\'call %_WRAPPER_EXE% --jvm_arch %_WRAPPER_CONF%\') do ('
+        }
+        if (eachLine == '    set "_JVM_ARCH=%%I"') {
+          eachLine = '    if "%%I"=="amd64" (set "_JVM_ARCH=amd64") else if "%%I"=="aarch64" (set "_JVM_ARCH=arm64")'
+        }
+
         return eachLine
       })
 

@@ -31,7 +31,6 @@ import de.undercouch.gradle.tasks.download.Download
 import dev.yumi.gradle.licenser.YumiLicenserGradleExtension
 import dev.yumi.gradle.licenser.api.comment.CStyleHeaderComment
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
-import org.owasp.dependencycheck.gradle.tasks.AbstractAnalyze
 
 import java.security.SecureRandom
 import java.time.Duration
@@ -670,7 +669,7 @@ dependencyCheck {
 }
 
 // Temporary workaround until ODC 13.0.1: https://github.com/dependency-check/dependency-check-gradle/issues/517
-tasks.withType(AbstractAnalyze).configureEach {
+tasks.withType(org.owasp.dependencycheck.gradle.tasks.ConfiguredTask).configureEach {
   data.directory = layout.buildDirectory.dir("dependency-check-data").get().asFile.path
 }
 

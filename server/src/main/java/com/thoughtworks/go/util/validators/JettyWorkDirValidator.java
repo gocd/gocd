@@ -15,13 +15,10 @@
  */
 package com.thoughtworks.go.util.validators;
 
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
-
-import static java.text.MessageFormat.format;
 
 public class JettyWorkDirValidator implements Validator {
 
@@ -46,14 +43,8 @@ public class JettyWorkDirValidator implements Validator {
         File home = new File(jettyHome);
         File work = new File(jettyHome, "work");
         if (home.exists()) {
-            if (work.exists()) {
-                try {
-                    FileUtils.deleteDirectory(work);
-                } catch (IOException e) {
-                    String message = format("Error trying to remove Jetty working directory {0}: {1}",
-                            work.getAbsolutePath(), e);
-                    return val.addError(new RuntimeException(message));
-                }
+            if (work.exists() && !FileUtil.deleteQuietly(work)) {
+                return val.addError(new RuntimeException("Jetty working directory not able to be removed: " + work.getAbsolutePath()));
             }
             work.mkdir();
         }

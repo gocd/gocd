@@ -236,15 +236,15 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
     zipTask.inputs.file("include/wrapper-properties.${installerType.baseName}.conf.example")
 
     from("${extractDeltaPack.destinationDir}/bin") {
-      include 'wrapper-*'
+      include 'wrapper-*64*'
       into "wrapper"
     }
 
     from("${extractDeltaPack.destinationDir}/lib") {
       into "wrapper"
-      include 'libwrapper-*'
       include 'wrapper.jar'
-      include 'wrapper-*.dll'
+      include 'libwrapper-*64.so'
+      include 'wrapper-*64.dll'
     }
 
     from('empty-ignore-file') {

@@ -131,11 +131,11 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
 
       filter({ String eachLine ->
         if (eachLine == 'set _WRAPPER_DIR=') {
-          eachLine = 'set _WRAPPER_DIR="../wrapper"'
+          eachLine = 'set _WRAPPER_DIR="..\\wrapper"'
         }
 
         if (eachLine == 'set _WRAPPER_CONF_DEFAULT="../conf/%_WRAPPER_BASE%.conf"') {
-          eachLine = 'set _WRAPPER_CONF_DEFAULT="../wrapper-config/%_WRAPPER_BASE%.conf"'
+          eachLine = 'set _WRAPPER_CONF_DEFAULT="..\\wrapper-config\\%_WRAPPER_BASE%.conf"'
         }
 
         if (eachLine =~ /^rem set _PASS_THROUGH=/ && installerType.allowPassthrough) {

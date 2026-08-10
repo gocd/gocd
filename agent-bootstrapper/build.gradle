@@ -21,7 +21,6 @@ description = 'GoCD Agent Bootstrapper'
 dependencies {
   implementation project(':base')
   implementation project(':agent-common')
-  implementation rootProject.deps.commonsIO
   implementation rootProject.deps.slf4jApi
 
   testImplementation project(':base')
@@ -72,7 +71,6 @@ tasks.register('verifyJar', VerifyJarTask) {
       "agent-bootstrapper-${project.version}-classes.jar",
       "agent-common-${project.version}.jar",
       "base-${project.version}.jar",
-      "commons-io-${rootProject.versions.commonsIO}.jar",
       "jcommander-${rootProject.versions.jcommander}.jar",
       "logback-classic-${rootProject.versions.logback}.jar",
       "logback-core-${rootProject.versions.logback}.jar",

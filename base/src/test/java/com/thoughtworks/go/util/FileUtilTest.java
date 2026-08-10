@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.nio.file.Files;
 
 import static com.thoughtworks.go.util.FileUtil.isSubdirectoryOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,5 +54,49 @@ public class FileUtilTest {
     void folderIsNotEmptyWhenItHasContents() throws Exception {
         new File(folder, "subfolder").createNewFile();
         assertThat(FileUtil.isFolderEmpty(folder)).isFalse();
+    }
+
+    @Test
+    void deleteQuietlyShouldDeleteAFile() throws Exception {
+        File file = new File(folder, "file.txt");
+        assertThat(file.createNewFile()).isTrue();
+
+        assertThat(FileUtil.deleteQuietly(file)).isTrue();
+        assertThat(file).doesNotExist();
+    }
+
+    @Test
+    void deleteQuietlyShouldDeleteADirectoryRecursively() throws Exception {
+        File dir = new File(folder, "dir");
+        FileUtil.createFilesByPath(dir, "a.txt", "sub/b.txt", "sub/subsub/c.txt", "empty/");
+
+        assertThat(FileUtil.deleteQuietly(dir)).isTrue();
+        assertThat(dir).doesNotExist();
+    }
+
+    @Test
+    void deleteQuietlyShouldNotThrowForMissingOrNullFiles() {
+        assertThat(FileUtil.deleteQuietly(null)).isFalse();
+        assertThat(FileUtil.deleteQuietly(new File(folder, "does-not-exist"))).isFalse();
+    }
+
+    @Test
+    void touchShouldCreateFileAndMissingParentDirs() throws Exception {
+        File file = new File(folder, "parent/child/file.txt");
+
+        FileUtil.touch(file);
+        assertThat(file).exists().isFile();
+    }
+
+    @Test
+    void touchShouldUpdateLastModifiedTimeOfExistingFile() throws Exception {
+        File file = new File(folder, "file.txt");
+        Files.writeString(file.toPath(), "contents");
+        assertThat(file.setLastModified(System.currentTimeMillis() - 60_000)).isTrue();
+        long originalLastModified = file.lastModified();
+
+        FileUtil.touch(file);
+        assertThat(file.lastModified()).isGreaterThan(originalLastModified);
+        assertThat(Files.readString(file.toPath())).isEqualTo("contents");
     }
 }

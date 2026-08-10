@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.agent.launcher;
 
-import org.apache.commons.io.FileUtils;
+import com.thoughtworks.go.util.FileUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -121,7 +121,7 @@ public class LockfileTest {
 
     @Test
     public void shouldNotDeleteLockFileIfTryLockDidntWork() throws IOException {
-        FileUtils.touch(LOCK_FILE);
+        FileUtil.touch(LOCK_FILE);
         Lockfile lockfile = new Lockfile(LOCK_FILE);
         assertThat(lockfile.tryLock()).isFalse();
         lockfile.delete();

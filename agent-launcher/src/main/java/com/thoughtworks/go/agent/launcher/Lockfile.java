@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.agent.launcher;
 
-import org.apache.commons.io.FileUtils;
+import com.thoughtworks.go.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +84,7 @@ public class Lockfile {
     }
 
     void touch() throws IOException {
-        FileUtils.touch(lockFile);
+        FileUtil.touch(lockFile);
     }
 
     void spawnTouchLoopIfNecessary() {

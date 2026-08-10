@@ -25,22 +25,21 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.validators.FileValidator;
 import com.thoughtworks.go.util.validators.Validation;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOCase;
-import org.apache.commons.io.filefilter.FalseFileFilter;
-import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 
 public class AgentBootstrapper {
 
     private static final int DEFAULT_WAIT_TIME_BEFORE_RELAUNCH_IN_MS = 10000;
     public static final String WAIT_TIME_BEFORE_RELAUNCH_IN_MS = "agent.bootstrapper.wait.time.before.relaunch.in.ms";
     public static final String DEFAULT_LOGBACK_CONFIGURATION_FILE = "agent-bootstrapper-logback.xml";
-    public static final RegexFileFilter AGENT_LAUNCHER_TMP_FILE_FILTER = new RegexFileFilter("([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})agent-launcher.jar", IOCase.INSENSITIVE);
+    public static final Pattern AGENT_LAUNCHER_TMP_FILE_PATTERN = Pattern.compile("([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})agent-launcher.jar", Pattern.CASE_INSENSITIVE);
 
     int waitTimeBeforeRelaunch = SystemUtil.getIntProperty(WAIT_TIME_BEFORE_RELAUNCH_IN_MS, DEFAULT_WAIT_TIME_BEFORE_RELAUNCH_IN_MS);
     private static final Logger LOG = LoggerFactory.getLogger(AgentBootstrapper.class);
@@ -114,10 +113,11 @@ public class AgentBootstrapper {
     }
 
     private void cleanupTempFiles() {
-        FileUtils.deleteQuietly(new File(FileUtil.TMP_PARENT_DIR));
-        FileUtils.deleteQuietly(new File("exploded_agent_launcher_dependencies")); // launchers extracted from old versions
-        FileUtils.listFiles(new File("."), AGENT_LAUNCHER_TMP_FILE_FILTER, FalseFileFilter.INSTANCE).forEach(FileUtils::deleteQuietly);
-        FileUtils.deleteQuietly(new File(new SystemEnvironment().getConfigDir(), "trust.jks"));
+        FileUtil.deleteQuietly(new File(FileUtil.TMP_PARENT_DIR));
+        FileUtil.deleteQuietly(new File("exploded_agent_launcher_dependencies")); // launchers extracted from old versions
+        Arrays.stream(Objects.requireNonNullElseGet(new File(".").listFiles((dir, name) -> AGENT_LAUNCHER_TMP_FILE_PATTERN.matcher(name).matches()), () -> new File[0]))
+            .forEach(FileUtil::deleteQuietly);
+        FileUtil.deleteQuietly(new File(new SystemEnvironment().getConfigDir(), "trust.jks"));
     }
 
     void waitForRelaunchTime() {

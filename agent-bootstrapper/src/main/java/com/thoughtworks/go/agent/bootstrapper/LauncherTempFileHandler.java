@@ -16,7 +16,6 @@
 package com.thoughtworks.go.agent.bootstrapper;
 
 import com.thoughtworks.go.util.FileUtil;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,9 +59,9 @@ class LauncherTempFileHandler implements Runnable {
             Set<String> fileSet = new HashSet<>(fileList);
             for (String fileName : fileSet) {
                 File file = new File(fileName);
-                FileUtils.deleteQuietly(file);
+                FileUtil.deleteQuietly(file);
                 File depsDir = new File(FileUtil.TMP_PARENT_DIR, fileName);
-                FileUtils.deleteQuietly(depsDir);
+                FileUtil.deleteQuietly(depsDir);
                 if (!file.exists() && !depsDir.exists()) {
                     fileList.remove(fileName);
                 }

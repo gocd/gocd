@@ -20,7 +20,6 @@ import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.common.util.JarUtil;
 import com.thoughtworks.go.util.FileUtil;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,8 +83,8 @@ public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
             }
             LOG.info("Attempt {} to cleanup launcher temp files", retryCount + 1);
 
-            FileUtils.deleteQuietly(inUseLauncher);
-            FileUtils.deleteQuietly(getDepsDir());
+            FileUtil.deleteQuietly(inUseLauncher);
+            FileUtil.deleteQuietly(getDepsDir());
 
             ++retryCount;
 

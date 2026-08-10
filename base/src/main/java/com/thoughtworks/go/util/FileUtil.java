@@ -15,9 +15,19 @@
  */
 package com.thoughtworks.go.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.UUID;
+
+import static java.nio.file.StandardOpenOption.APPEND;
+import static java.nio.file.StandardOpenOption.CREATE;
 
 public class FileUtil {
     public static final String TMP_PARENT_DIR = "data";
@@ -47,6 +57,52 @@ public class FileUtil {
     private static void mkdirsQuietly(File directory) {
         if (directory != null && !directory.exists()) {
             directory.mkdirs();
+        }
+    }
+
+    /**
+     * Deletes a file or directory (recursively), never throwing an exception. Equivalent to Commons IO
+     * {@code FileUtils.deleteQuietly}.
+     *
+     * @return true if the file or directory was deleted, false otherwise
+     */
+    public static boolean deleteQuietly(File file) {
+        if (file == null) {
+            return false;
+        }
+        try {
+            Files.walkFileTree(file.toPath(), new SimpleFileVisitor<>() {
+                @Override
+                public @NotNull FileVisitResult visitFile(@NotNull Path path, @NotNull BasicFileAttributes attrs) throws IOException {
+                    Files.deleteIfExists(path);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public @NotNull FileVisitResult postVisitDirectory(@NotNull Path dir, IOException exc) throws IOException {
+                    if (exc != null) {
+                        throw exc;
+                    }
+                    Files.deleteIfExists(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Creates the file (and any missing parent directories) if it does not exist, or updates its last-modified
+     * time if it does. Equivalent to Commons IO {@code FileUtils.touch}.
+     */
+    public static void touch(File file) throws IOException {
+        mkdirsParentQuietly(file);
+        // atomically creates the file if absent; closing alone doesn't bump the last-modified time
+        Files.newOutputStream(file.toPath(), CREATE, APPEND).close();
+        if (!file.setLastModified(System.currentTimeMillis())) {
+            throw new IOException("Unable to update the last modified time of " + file);
         }
     }
 

@@ -25,7 +25,6 @@ import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.common.util.JarUtil;
 import com.thoughtworks.go.logging.LogConfigurator;
 import com.thoughtworks.go.util.FileUtil;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,7 +140,7 @@ public class AgentLauncherImpl implements AgentLauncher {
                     throw new RuntimeException(e);
                 }
             } finally {
-                FileUtils.deleteQuietly(tempDir);
+                FileUtil.deleteQuietly(tempDir);
             }
         }
 

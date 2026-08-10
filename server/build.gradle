@@ -521,7 +521,8 @@ def war = tasks.register('war', Jar) {
         + configurations.packagingOnly
         + configurations.allApis
         + configurations.spark
-        - configurations.runtimeClasspath.findAll { it.name.startsWith('logback') } // Rely on logback from launcher
+        // Rely on logging libs from launcher parent classloader; JettyServer pins org.slf4j/org.apache.commons.logging as system classes
+        - configurations.runtimeClasspath.findAll { jar -> ['logback', 'slf4j-api', 'jcl-over-slf4j'].any { jar.name.startsWith(it) } }
     )
       .collect { f -> f.toString() }
       .toSet()
@@ -650,7 +651,6 @@ tasks.register('verifyWar', VerifyJarTask) {
         "jaxb-core-${rootProject.versions.jaxbBom}.jar",
         "jaxb-runtime-${rootProject.versions.jaxbBom}.jar",
         "jaxen-${rootProject.versions.jaxen}.jar",
-        "jcl-over-slf4j-${rootProject.versions.slf4jBom}.jar",
         "jcodings-1.0.63.jar",
         "jdom2-${rootProject.versions.jdom}.jar",
         "jffi-1.3.15.jar",
@@ -688,7 +688,6 @@ tasks.register('verifyWar', VerifyJarTask) {
         "quartz-${rootProject.versions.quartz}.jar",
         "rack_hack-${project.version}.jar",
         "semantic-version-${rootProject.versions.semanticVersion}.jar",
-        "slf4j-api-${rootProject.versions.slf4jBom}.jar",
         "smtp-${rootProject.versions.angusMailSmtp}.jar",
         "spark-core-${rootProject.versions.spark}.jar",
         "spring-aop-${rootProject.versions.spring}.jar",

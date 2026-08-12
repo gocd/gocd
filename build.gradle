@@ -91,7 +91,7 @@ def libraries = [
   cloning             : 'io.github.kostaskougios:cloning:1.13.0',
   commonsCodec        : 'commons-codec:commons-codec:1.22.1',
   commonsCollections  : 'commons-collections:commons-collections:3.2.2',
-  commonsCollections4 : 'org.apache.commons:commons-collections4:4.5.0',
+  commonsCollections4 : 'org.apache.commons:commons-collections4:4.6.0',
   commonsConfiguration: 'org.apache.commons:commons-configuration2:2.15.1',
   commonsDbcp         : 'org.apache.commons:commons-dbcp2:2.14.0',
   commonsFileUpload   : 'commons-fileupload:commons-fileupload:1.6.0',

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.util;
+package com.thoughtworks.go.domain.materials.tfs;
 
-import org.apache.commons.io.FileUtils;
+import com.thoughtworks.go.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,30 +31,30 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 /**
- * Loads the classes from the given jars.
+ * Loads classes from the given jar (including jars nested within it) in preference to the parent classloader,
+ * while classes and resources the jar does not contain resolve against the parent as usual. Resources are
+ * never served from the parent, isolating the jar's contents.
  */
-public class NestedJarClassLoader extends ClassLoader {
+class NestedJarClassLoader extends ClassLoader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NestedJarClassLoader.class);
     private final ClassLoader jarClassLoader;
-    private final String[] excludes;
     private final File jarDir;
     private static final File TEMP_DIR = new File("data/njcl");
 
     static {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> FileUtils.deleteQuietly(TEMP_DIR)));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> FileUtil.deleteQuietly(TEMP_DIR)));
     }
 
-    public NestedJarClassLoader(URL jarURL, String... excludes) {
-        this(jarURL, NestedJarClassLoader.class.getClassLoader(), excludes);
+    NestedJarClassLoader(URL jarURL) {
+        this(jarURL, NestedJarClassLoader.class.getClassLoader());
     }
 
-    NestedJarClassLoader(URL jarURL, ClassLoader parentClassLoader, String... excludes) {
+    NestedJarClassLoader(URL jarURL, ClassLoader parentClassLoader) {
         super(parentClassLoader);
         this.jarDir = new File(TEMP_DIR, UUID.randomUUID().toString());
         this.jarClassLoader = createLoaderForJar(jarURL);
-        this.excludes = excludes;
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> FileUtils.deleteQuietly(jarDir)));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> FileUtil.deleteQuietly(jarDir)));
     }
 
     private ClassLoader createLoaderForJar(URL jarURL) {
@@ -111,9 +111,6 @@ public class NestedJarClassLoader extends ClassLoader {
             return false;
         }
         String classAsResourceName = name.replace('.', '/') + ".class";
-        if (isExcluded(classAsResourceName)) {
-            return false;
-        }
         URL url = jarClassLoader.getResource(classAsResourceName);
         LOGGER.debug("Loading {} from jar returned {} for url: {}  ", name, url != null, url);
         return url != null;
@@ -121,19 +118,7 @@ public class NestedJarClassLoader extends ClassLoader {
 
     @Override
     public URL getResource(String name) {
-        if (isExcluded(name)) {
-            return super.getResource(name);
-        }
         return null;
-    }
-
-    private boolean isExcluded(String name) {
-        for (String excluded : excludes) {
-            if (name.startsWith(excluded)) {
-                return true;
-            }
-        }
-        return false;
     }
 
 }

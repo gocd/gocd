@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.util;
+package com.thoughtworks.go.domain.materials.tfs;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,12 +59,8 @@ class NestedJarClassLoaderTest {
     }
 
     @Test
-    public void canExcludeLoadingResourcesFromJar() {
-        // Not sure of the intention of this; this characterises existing behaviour
-        assertThat(new NestedJarClassLoader(testJar, "helloworld").getResource("helloworld.jar"))
-                .isNotNull();
-        assertThat(new NestedJarClassLoader(testJar).getResource("helloworld.jar"))
-                .isNull();
+    public void doesNotServeResourcesFromJarOrParent() {
+        assertThat(nestedJarClassLoader.getResource("helloworld.jar")).isNull();
     }
 
     @Test

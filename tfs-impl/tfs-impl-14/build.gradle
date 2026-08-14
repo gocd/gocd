@@ -56,11 +56,87 @@ tasks.register('extractTfsSdk', Copy) {
   into sdkTarget
 }
 
+// Repackages the TFS SDK jar without features GoCD does not use. GoCD only uses the SDK's version control
+// client (checkout/get), so the web-service proxies and client APIs for other TFS features can be removed.
+// The JVM resolves classes lazily, so the remaining references to these (e.g. lazy accessors such as
+// TFSTeamProjectCollection.getBuildServer()) are only a problem if actually called.
+def trimTfsSdkJar = tasks.register('trimTfsSdkJar', Jar) {
+  dependsOn extractTfsSdk
+  archiveFileName = "com.microsoft.tfs.sdk-${rootProject.versions.tfsSdk}.jar"
+  destinationDirectory = layout.buildDirectory.dir('tfssdk-trimmed')
+  // Retain Microsoft's original timestamps rather than the fixed epoch used for GoCD's own archives; still
+  // reproducible, since the timestamps come from the (checksum-verified) SDK release zip
+  preserveFileTimestamps = true
+
+  from({ zipTree(new File(extractTfsSdk.outputs.files.singleFile, "lib/com.microsoft.tfs.sdk-${rootProject.versions.tfsSdk}.jar")) }) {
+    // Note that ms/ws (identity) and ms/tfs/services (location/registration) proxies must be retained: they
+    // are used by the framework/connection machinery of every TFS connection. TfsSDKJarTrimTest verifies that
+    // every class remaining in the trimmed jar is still loadable.
+
+    // Remove feature clients GoCD never uses, referenced only from lazily-resolved factory/accessor code
+    exclude 'com/microsoft/tfs/core/clients/authorization/**'
+    exclude 'com/microsoft/tfs/core/clients/build/**'
+    exclude 'com/microsoft/tfs/core/clients/commonstructure/**'
+    exclude 'com/microsoft/tfs/core/clients/favorites/**'
+    exclude 'com/microsoft/tfs/core/clients/groupsecurity/**'
+    exclude 'com/microsoft/tfs/core/clients/linking/**'
+    exclude 'com/microsoft/tfs/core/clients/reporting/**'
+    exclude 'com/microsoft/tfs/core/clients/serverstatus/**'
+    exclude 'com/microsoft/tfs/core/clients/sharepoint/**'
+    exclude 'com/microsoft/tfs/core/clients/team/**'
+    exclude 'com/microsoft/tfs/core/clients/teamsettings/**'
+    exclude 'com/microsoft/tfs/core/clients/teamstore/**'
+    exclude 'com/microsoft/tfs/core/clients/workitem/**'
+
+    // Remove service proxies for unused features
+    exclude 'ms/tfs/build/**'                      // TFS build service proxies
+    exclude 'ms/tfs/workitemtracking/**'           // work item tracking service proxies
+    exclude 'ms/tfs/services/admin/**'
+    exclude 'ms/tfs/services/authorization/**'
+    exclude 'ms/tfs/services/classification/**'
+    exclude 'ms/tfs/services/linking/**'
+    exclude 'ms/tfs/services/teamconfiguration/**'
+    exclude 'ms/tfs/services/groupsecurity/**'
+    exclude 'ms/tfs/services/serverstatus/**'
+    exclude 'ms/sql/**'                            // SQL Server Reporting Services proxies
+    exclude 'ms/wss/**'                            // SharePoint service proxies
+    exclude 'com/microsoft/alm/**'                 // partial leftovers of ALM REST/secret libraries that were never fully bundled
+
+    // Embedded third-party libraries with no remaining references after the removals above (they supported
+    // the removed ALM REST client and feature clients).
+    exclude 'com/fasterxml/**'                     // jackson
+    exclude 'com/google/**'                        // guava
+    exclude 'eu/infomas/**'                        // annotation-detector
+    exclude 'javax/annotation/**'                  // JSR-305 annotations (class-retention; not used at runtime)
+    exclude 'org/apache/commons/io/**'
+    exclude 'org/apache/commons/lang3/**'
+    exclude 'org/apache/http/**'                   // httpclient 4.x (the SDK's SOAP stack uses its own fork)
+    exclude 'META-INF/services/com.fasterxml*'
+    exclude 'META-INF/services/javax.annotation.processing.Processor'
+
+    // Remove DB, as GoCD only ever creates SERVER workspaces, never hsqldb-backed local ones
+    exclude 'com/microsoft/tfs/core/internal/db/**'
+    exclude 'org/hsqldb/**'
+    exclude 'hsqlServlet.class'                    // hsqldb's own top-level launcher class
+    exclude 'db.properties'
+
+    // Remove misleading loading code / config
+    // GoCD routes all SDK logging to slf4j via the commons-logging API, provided via jcl-over-slf4j from the parent classpath
+    exclude 'org/apache/commons/logging/**', 'commons-logging.properties'
+    exclude 'com/microsoft/tfs/logging/**'
+    exclude 'org/apache/logging/log4j/**', 'META-INF/org/apache/logging/**', 'META-INF/log4j-provider.properties'
+    exclude 'log4j2.xml', 'Log4j-*'
+
+    // Unloadable even in the original SDK jar: compiled against Eclipse OSGi NLS, which was never bundled
+    exclude 'com/microsoft/tfs/core/clients/webservices/Messages.class'
+  }
+}
+
 dependencies {
   implementation project(':base')
   implementation project(':common')
   implementation project(':domain')
-  implementation files(tasks.named('extractTfsSdk').map { Copy copy -> new File(copy.destinationDir, "lib/com.microsoft.tfs.sdk-${rootProject.versions.tfsSdk}.jar") })
+  implementation files(trimTfsSdkJar.map { Jar jarTask -> jarTask.archiveFile })
   compileOnly rootProject.deps.jetBrainsAnnotations
 
   testImplementation rootProject.deps.junit5Api
@@ -68,6 +144,7 @@ dependencies {
   testRuntimeOnly rootProject.deps.junit5PlatformLauncher
   testImplementation rootProject.deps.mockitoCore
   testImplementation rootProject.deps.assertJ
+  testRuntimeOnly rootProject.deps.slf4jJcl
 }
 
 def fatJar = tasks.register('fatJar', Jar) {
@@ -78,12 +155,22 @@ def fatJar = tasks.register('fatJar', Jar) {
 
   from(jar.archiveFile) { into('lib/') }
 
-  from("${processedSdk}/lib") {
-    include "*.jar"
+  from(trimTfsSdkJar) {
     into 'lib/'
   }
   from("${extractTfsSdk.outputs.files.singleFile}/native") {
     into 'tfssdk/native'
+    // Excludes platforms agents cannot run on: those without Java 21+ runtimes, and all 32-bit architectures
+    // (GoCD does not support 32-bit; for AIX the libraries are 32-bit-only). The SDK's NativeLoader resolves
+    // libraries only within the <os>/<arch> directory for the current platform, so other platforms are unaffected.
+    exclude 'aix/**'
+    exclude 'hpux/**'
+    exclude 'solaris/**'
+    exclude 'freebsd/x86/**'
+    exclude 'linux/arm/**'
+    exclude 'linux/ppc/**'
+    exclude 'linux/x86/**'
+    exclude 'win32/x86/**'
   }
 }
 

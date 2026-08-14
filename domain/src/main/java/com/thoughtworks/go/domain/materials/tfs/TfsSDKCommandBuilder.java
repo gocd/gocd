@@ -16,7 +16,6 @@
 package com.thoughtworks.go.domain.materials.tfs;
 
 import com.thoughtworks.go.domain.JarDetector;
-import com.thoughtworks.go.util.NestedJarClassLoader;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CommandArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
@@ -93,7 +92,7 @@ class TfsSDKCommandBuilder {
         registerShutdownHook();
         explodeNatives();
         setNativePath(tempFolder);
-        return new NestedJarClassLoader(getJarURL(), "org/apache/commons/logging/");
+        return new NestedJarClassLoader(getJarURL());
     }
 
     private void registerShutdownHook() {

@@ -18,6 +18,7 @@ package com.thoughtworks.go.tfssdk14;
 import com.microsoft.tfs.core.TFSTeamProjectCollection;
 import com.microsoft.tfs.core.clients.versioncontrol.GetOptions;
 import com.microsoft.tfs.core.clients.versioncontrol.soapextensions.Changeset;
+import com.microsoft.tfs.core.httpclient.UsernamePasswordCredentials;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.tfssdk14.wrapper.GoTfsVersionControlClient;
@@ -27,6 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.net.URI;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,13 +46,32 @@ class TfsSDKCommandTest {
     private final String TFS_PROJECT = "$/project_path";
     private final String TFS_WORKSPACE = "workspace";
     private GoTfsVersionControlClient client;
-    private TFSTeamProjectCollection collection;
+    private CloseTrackingCollection collection;
 
     @BeforeEach
     void setUp() {
         client = mock(GoTfsVersionControlClient.class);
-        collection = mock(TFSTeamProjectCollection.class);
+        collection = new CloseTrackingCollection();
         tfsCommand = new TfsSDKCommand(client, collection, null, new StringArgument(TFS_COLLECTION), DOMAIN, USERNAME, PASSWORD, TFS_WORKSPACE, TFS_PROJECT);
+    }
+
+    /**
+     * A hand-rolled test double rather than a Mockito mock: generating a mock overrides every method, which
+     * eagerly loads the types in all of TFSTeamProjectCollection's method signatures. That would require the
+     * SDK client classes for features (build, work items, ...) that trimTfsSdkJar removes from the SDK jar
+     * precisely because runtime lazy class resolution never needs them.
+     */
+    private static class CloseTrackingCollection extends TFSTeamProjectCollection {
+        private boolean closed;
+
+        CloseTrackingCollection() {
+            super(URI.create("http://some.repo.local:8000/"), new UsernamePasswordCredentials("username", "password"));
+        }
+
+        @Override
+        public void close() {
+            closed = true;
+        }
     }
 
     @Test
@@ -229,12 +250,11 @@ class TfsSDKCommandTest {
     @Test
     void destroyShouldCloseClientAndCollection() {
         doNothing().when(client).close();
-        doNothing().when(collection).close();
 
         tfsCommand.destroy();
 
         verify(client).close();
-        verify(collection).close();
+        assertThat(collection.closed).isTrue();
     }
 
     private Changeset[] getChangeSets(int changeSetID) {

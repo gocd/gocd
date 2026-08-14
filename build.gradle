@@ -464,12 +464,11 @@ subprojects {
       tmpDir.mkdirs()
 
       List<String> files = []
-      testTask.testClassesDirs.files.each { File classDir ->
-        if (classDir.exists()) {
-          classDir.eachFileRecurse(groovy.io.FileType.FILES) { f ->
-            def relPath = new File(classDir.toURI().relativize(f.toURI()).toString()).toString().replaceAll(/\$.*/, '.*').replace('.class', '.*')
-            if (relPath.endsWith("Test.*")) files << relPath
-          }
+      testTask.testClassesDirs.asFileTree.visit { FileVisitDetails details ->
+        if (!details.directory) {
+          // RelativePath.pathString is always /-separated regardless of OS, as needed for Ant-style patterns
+          def relPath = details.relativePath.pathString.replaceAll(/\$.*/, '.*').replace('.class', '.*')
+          if (relPath.endsWith("Test.*")) files << relPath
         }
       }
       files = files.unique()

@@ -484,6 +484,12 @@ subprojects {
       testsToRun.each { f ->
         testTask.include f
       }
+      if (testsToRun.isEmpty()) {
+        // An empty partition (fewer test files than buckets) must run nothing. Without this, the empty include
+        // set means "include everything", and the excludes above do not match nested classes (e.g. Foo$Bar),
+        // which then get handed to JUnit as test-class candidates.
+        testTask.exclude '**'
+      }
     }
 
     //noinspection unused

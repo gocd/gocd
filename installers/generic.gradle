@@ -237,14 +237,16 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
 
     from("${extractDeltaPack.destinationDir}/bin") {
       include 'wrapper-*64*'
+      exclude 'wrapper-solaris-*'
       into "wrapper"
     }
 
     from("${extractDeltaPack.destinationDir}/lib") {
       into "wrapper"
       include 'wrapper.jar'
-      include 'libwrapper-*64.so'
       include 'wrapper-*64.dll'
+      include 'libwrapper-*64.so'
+      exclude 'libwrapper-solaris-*'
     }
 
     from('empty-ignore-file') {

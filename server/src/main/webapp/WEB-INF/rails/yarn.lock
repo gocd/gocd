@@ -1964,10 +1964,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mithril@npm:2.2.8":
-  version: 2.2.8
-  resolution: "@types/mithril@npm:2.2.8"
-  checksum: 10c0/983da266637eeee0b079551433905f9f493696c08edec6ee5b1e4243bf2c9e64b948323df6959321135eec893d590168c491ce50c4ec723e624e883d82cfe4c8
+"@types/mithril@npm:2.2.9":
+  version: 2.2.9
+  resolution: "@types/mithril@npm:2.2.9"
+  checksum: 10c0/2e49be4ba741defcaa9b15e00d5027710083e22baf39c763ebba8c4c71cae6aa2a1029487ba5b1e9bc4d19c022e5af2e4d3051c4021f8a1dc70e1a71144455f6
   languageName: node
   linkType: hard
 
@@ -4736,7 +4736,7 @@ __metadata:
     "@types/jquery": "npm:^3.5.34"
     "@types/license-checker": "npm:^25.0.6"
     "@types/lodash": "npm:^4.17.24"
-    "@types/mithril": "npm:2.2.8"
+    "@types/mithril": "npm:2.2.9"
     "@types/node": "npm:^26.2.0"
     "@types/prismjs": "npm:^1.26.6"
     "@types/shell-quote": "npm:^1.7.5"

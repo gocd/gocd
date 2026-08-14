@@ -31,47 +31,31 @@ import java.io.File;
 import java.net.URI;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.Mockito.*;
 
 class TfsSDKCommandTest {
 
-    private TfsSDKCommand tfsCommand;
-    private final String DOMAIN = "domain";
-    private final String USERNAME = "username";
-    private final String PASSWORD = "password";
-    private final String TFS_COLLECTION = "http://some.repo.local:8000/";
-    private final String TFS_PROJECT = "$/project_path";
-    private final String TFS_WORKSPACE = "workspace";
+    private static final String DOMAIN = "domain";
+    private static final String USERNAME = "username";
+    private static final String PASSWORD = "password";
+    private static final String TFS_COLLECTION = "http://some.repo.local:8000/";
+    private static final String TFS_PROJECT = "$/project_path";
+    private static final String TFS_WORKSPACE = "workspace";
+
     private GoTfsVersionControlClient client;
-    private CloseTrackingCollection collection;
+    private TFSTeamProjectCollection collection;
+    private TfsSDKCommand tfsCommand;
 
     @BeforeEach
     void setUp() {
         client = mock(GoTfsVersionControlClient.class);
-        collection = new CloseTrackingCollection();
+        // A real (unconnected) instance; do NOT mock or subclass TFSTeamProjectCollection. Reflection over a
+        // mock/subclass (by Mockito or JUnit test discovery) eagerly loads the types in its method signatures,
+        // which reference SDK classes deliberately removed by trimTfsSdkJar.
+        collection = new TFSTeamProjectCollection(URI.create(TFS_COLLECTION), new UsernamePasswordCredentials(USERNAME, PASSWORD));
         tfsCommand = new TfsSDKCommand(client, collection, null, new StringArgument(TFS_COLLECTION), DOMAIN, USERNAME, PASSWORD, TFS_WORKSPACE, TFS_PROJECT);
-    }
-
-    /**
-     * A hand-rolled test double rather than a Mockito mock: generating a mock overrides every method, which
-     * eagerly loads the types in all of TFSTeamProjectCollection's method signatures. That would require the
-     * SDK client classes for features (build, work items, ...) that trimTfsSdkJar removes from the SDK jar
-     * precisely because runtime lazy class resolution never needs them.
-     */
-    private static class CloseTrackingCollection extends TFSTeamProjectCollection {
-        private boolean closed;
-
-        CloseTrackingCollection() {
-            super(URI.create("http://some.repo.local:8000/"), new UsernamePasswordCredentials("username", "password"));
-        }
-
-        @Override
-        public void close() {
-            closed = true;
-        }
     }
 
     @Test
@@ -93,11 +77,8 @@ class TfsSDKCommandTest {
         when(client.queryHistory(TFS_PROJECT, null, 1)).thenReturn(changeSets);
         TfsSDKCommand spy = spy(tfsCommand);
         doReturn(null).when(spy).getModifiedFiles(changeSets[0]);
-        try {
-            spy.checkConnection();
-        } catch (Exception e) {
-            fail("Should not have thrown exception");
-        }
+        assertThatNoException().isThrownBy(spy::checkConnection);
+
         verify(client).queryHistory(TFS_PROJECT, null, 1);
         verify(spy).getModifiedFiles(changeSets[0]);
     }
@@ -105,12 +86,10 @@ class TfsSDKCommandTest {
     @Test
     void shouldThrowExceptionDuringCheckConnectionIfInvalid() {
         when(client.queryHistory(TFS_PROJECT, null, 1)).thenThrow(new RuntimeException("could not connect"));
-        try {
-            tfsCommand.checkConnection();
-            fail("should have thrown an exception");
-        } catch (RuntimeException e) {
-            assertThat(e.getMessage()).isEqualTo("Failed while checking connection using Url: http://some.repo.local:8000/, Project Path: $/project_path, Username: username, Domain: domain, Root Cause: could not connect");
-        }
+        assertThatThrownBy(tfsCommand::checkConnection)
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Failed while checking connection using Url: http://some.repo.local:8000/, Project Path: $/project_path, Username: username, Domain: domain, Root Cause: could not connect");
+
         verify(client).queryHistory(TFS_PROJECT, null, 1);
     }
 
@@ -176,11 +155,11 @@ class TfsSDKCommandTest {
     @Test
     void shouldThrowUpWhenUrlIsInvalid() {
         TfsSDKCommand tfsCommandForInvalidCollection = new TfsSDKCommand(null, new StringArgument("invalid_url"), DOMAIN, USERNAME, PASSWORD, TFS_WORKSPACE, TFS_PROJECT);
-        try {
-            tfsCommandForInvalidCollection.init();
-        } catch (RuntimeException e) {
-            assertThat(e.getMessage()).isEqualTo("Unable to connect to TFS Collection invalid_url java.lang.RuntimeException: [TFS] Failed when converting the url string to a uri: invalid_url, Project Path: $/project_path, Username: username, Domain: domain");
-        }
+
+        assertThatThrownBy(tfsCommandForInvalidCollection::init)
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Unable to connect to TFS Collection invalid_url java.lang.RuntimeException: [TFS] Failed when " +
+                "converting the url string to a uri: invalid_url, Project Path: $/project_path, Username: username, Domain: domain");
     }
 
     @Test
@@ -254,7 +233,7 @@ class TfsSDKCommandTest {
         tfsCommand.destroy();
 
         verify(client).close();
-        assertThat(collection.closed).isTrue();
+        assertThat(collection.isClosed()).isTrue();
     }
 
     private Changeset[] getChangeSets(int changeSetID) {

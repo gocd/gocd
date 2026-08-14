@@ -67,6 +67,7 @@ dependencies {
   testFixturesImplementation rootProject.deps.commonsIO
   testFixturesImplementation rootProject.deps.commonsLang3
   testFixturesImplementation rootProject.deps.springTx
+  testFixturesImplementation rootProject.deps.ztExec
 }
 
 license {

@@ -37,19 +37,22 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.TimeProvider;
+import org.zeroturnaround.exec.ProcessExecutor;
+import org.zeroturnaround.exec.ProcessResult;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
-import static com.thoughtworks.go.util.CommandUtils.exec;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PipelineWithTwoStages {
     private SvnCommand svnClient;
@@ -231,9 +234,21 @@ public class PipelineWithTwoStages {
 
         try {
             newFile.createNewFile();
-            exec("svn", "add", newFile.getAbsolutePath());
-            exec("svn", "ci", "-m \"test\"", newFile.getAbsolutePath());
+            exec(workingFolder, "svn", "add", newFile.getPath());
+            exec(workingFolder, "svn", "ci", "-m \"test\"", newFile.getPath());
         } catch (IOException e) {
+            bomb(e);
+        }
+    }
+
+    private void exec(File workingDir, String... command) {
+        try {
+            ProcessResult result = new ProcessExecutor().directory(workingDir).command(command).readOutput(true).execute();
+
+            assertThat(result.getExitValue())
+                .as("output:\n%s", result.outputUTF8())
+                .isZero();
+        } catch (IOException | InterruptedException | TimeoutException e) {
             bomb(e);
         }
     }

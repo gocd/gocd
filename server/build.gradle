@@ -203,6 +203,7 @@ dependencies {
     exclude(group: 'org.postgresql')
     exclude(group: 'com.oracle.database.jdbc')
   }
+  integrationTestImplementation rootProject.deps.ztExec
 
   testFixturesApi project(':domain')
   testFixturesImplementation project(':util')

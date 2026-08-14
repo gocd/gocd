@@ -23,8 +23,6 @@ dependencies {
     runtimeOnly rootProject.deps.slf4jJcl // Allow commons-logging replacement
   }
   api rootProject.deps.gson
-  implementation rootProject.deps.commonsIO
-  api rootProject.deps.cloning
   implementation rootProject.deps.jdom
   implementation rootProject.deps.slf4jApi
   compileOnly rootProject.deps.jetBrainsAnnotations

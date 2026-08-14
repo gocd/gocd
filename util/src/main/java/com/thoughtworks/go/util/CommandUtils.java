@@ -15,44 +15,12 @@
  */
 package com.thoughtworks.go.util;
 
-import org.apache.commons.io.input.UnixLineEndingInputStream;
-
-import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-
 public class CommandUtils {
-    public static String exec(String... commands) {
-        return exec(null, commands);
-    }
 
-    public static String exec(File workingDirectory, String... commands) {
-        try {
-            Process process = Runtime.getRuntime().exec(commands, null, workingDirectory);
-            return captureOutput(process);
-        } catch (Exception e) {
-            throw bomb(e);
-        }
-    }
-
-    private static String captureOutput(Process process) throws IOException, InterruptedException {
-        PrintStream result = new PrintStream(new ByteArrayOutputStream(), true, StandardCharsets.UTF_8);
-        result.append("output:\n");
-        dump(result, process.getInputStream());
-        result.append("error:\n");
-        dump(result, process.getErrorStream());
-        process.waitFor();
-        return result.toString();
-    }
-
-    private static void dump(PrintStream result, InputStream inputStream) throws IOException {
-        try (UnixLineEndingInputStream unixLineEndingInputStream = new UnixLineEndingInputStream(inputStream, true)) {
-            unixLineEndingInputStream.transferTo(result);
-        }
-    }
+    private CommandUtils() {}
 
     /**
      * Surrounds a string with double quotes if it is not already surrounded by single or double quotes, or if it contains

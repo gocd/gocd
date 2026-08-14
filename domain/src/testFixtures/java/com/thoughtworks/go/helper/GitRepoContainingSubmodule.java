@@ -24,6 +24,8 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.util.MaterialFingerprintTag;
 import com.thoughtworks.go.util.NamedProcessTag;
 import com.thoughtworks.go.util.command.CommandLine;
+import org.zeroturnaround.exec.ProcessExecutor;
+import org.zeroturnaround.exec.ProcessResult;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,11 +33,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
-import static com.thoughtworks.go.util.CommandUtils.exec;
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class GitRepoContainingSubmodule extends TestRepo {
     public static final String NAME = "repo-containing-submodule";
@@ -111,6 +115,18 @@ public class GitRepoContainingSubmodule extends TestRepo {
         exec(submoduleDir, "git", "clean", "-dffx");
         exec(remoteRepoDir, "git", "add", ".");
         git(remoteRepoDir).commit("Went to previous commit in submodule");
+    }
+
+    private void exec(File workingDir, String... command) {
+        try {
+            ProcessResult result = new ProcessExecutor().directory(workingDir).command(command).readOutput(true).execute();
+
+            assertThat(result.getExitValue())
+                .as("output:\n%s", result.outputUTF8())
+                .isZero();
+        } catch (IOException | InterruptedException | TimeoutException e) {
+            bomb(e);
+        }
     }
 
     @Override

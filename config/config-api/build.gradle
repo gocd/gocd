@@ -41,7 +41,7 @@ dependencies {
   implementation rootProject.deps.commonsLang3
   serverOnlyImplementation rootProject.deps.quartz
   serverOnlyImplementation platform(project(':build-platform'))
-  implementation rootProject.deps.cloning
+  api rootProject.deps.cloning
   implementation(rootProject.deps.apacheHttpComponents) {
     exclude(module: 'commons-codec')
   }
@@ -64,6 +64,5 @@ dependencies {
   testImplementation(testFixtures(project(':test:test-utils')))
 
   testFixturesApi rootProject.deps.junit5Api
-  testFixturesImplementation project(':util')
   testFixturesImplementation(testFixtures(project(':test:test-utils')))
 }

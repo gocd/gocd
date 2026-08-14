@@ -72,7 +72,7 @@
     "@types/jquery": "^3.5.34",
     "@types/license-checker": "^25.0.6",
     "@types/lodash": "^4.17.24",
-    "@types/mithril": "2.2.8",
+    "@types/mithril": "2.2.9",
     "@types/node": "^26.2.0",
     "@types/prismjs": "^1.26.6",
     "@types/shell-quote": "^1.7.5",

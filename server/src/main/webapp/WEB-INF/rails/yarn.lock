@@ -4666,10 +4666,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"globals@npm:^17.10.0":
-  version: 17.10.0
-  resolution: "globals@npm:17.10.0"
-  checksum: 10c0/b1035f63a1070ebb4361096bb8d0037d0d6bb5a023618ab6307ac1a635fd8daeafbd161f6ebbcc5e2f25b364919beed66788f374c46b07135a9abf3c7ac9a245
+"globals@npm:^17.11.0":
+  version: 17.11.0
+  resolution: "globals@npm:17.11.0"
+  checksum: 10c0/5e1be3d816e04d4d0d01b1cdd40e46b5fb6b5e9f15aece9a5919b060e0fb1b3f1b9e7327dce97ef19e05513a6d65872e0834999ddea251557556dddd0f5fde30
   languageName: node
   linkType: hard
 
@@ -4761,7 +4761,7 @@ __metadata:
     fork-ts-checker-webpack-plugin: "npm:^9.1.0"
     foundation-sites: "npm:^6.9.0"
     fs-extra: "npm:^11.4.0"
-    globals: "npm:^17.10.0"
+    globals: "npm:^17.11.0"
     hack-font: "npm:^3.3.0"
     html-webpack-plugin: "npm:^5.6.8"
     jasmine: "npm:^6.3.0"

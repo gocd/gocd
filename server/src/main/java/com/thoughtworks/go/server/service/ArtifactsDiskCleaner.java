@@ -26,11 +26,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 public class ArtifactsDiskCleaner extends DiskSpaceChecker {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactsDiskCleaner.class);
-    private final Object triggerCleanup = new Object();
-    private final Thread cleaner;
+    private final Semaphore triggerCleanup = new Semaphore(0);
     private final ArtifactsService artifactService;
     private final StageService stageService;
     private final ConfigDbStateRepository configDbStateRepository;
@@ -41,26 +41,29 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
         this.artifactService = artifactService;
         this.stageService = stageService;
         this.configDbStateRepository = configDbStateRepository;
-        cleaner = new Thread(() -> {
-            try {
-                while (true) {
-                    synchronized (triggerCleanup) {
-                        triggerCleanup.wait();
+
+        Thread.ofPlatform()
+            .name("goArtifactsDiskCleaner")
+            .daemon(true)
+            .start(() -> {
+                while (!Thread.currentThread().isInterrupted()) {
+                    try {
+                        triggerCleanup.acquire();
+                        triggerCleanup.drainPermits(); // In case signal multiple times while cleaning
+                        deleteOldArtifacts();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
                     }
-                    deleteOldArtifacts();
                 }
-            } catch (Exception e) {
-                LOGGER.error("Artifact disk cleanup task aborted. Error encountered: '{}'", e.getMessage());//logging not tested
-                throw new RuntimeException(e);
-            }
-        }, "goArtifactsDiskCleaner");
-        cleaner.setDaemon(true);
-        cleaner.start();
+            });
     }
 
     void deleteOldArtifacts() {
         ServerConfig serverConfig = goConfigService.serverConfig();
-        if (serverConfig.isArtifactPurgingAllowed()) {
+        if (!serverConfig.isArtifactPurgingAllowed()) {
+            return;
+        }
+        try {
             double requiredSpaceBytes = FileSizeUtils.fromGigaToBytes(serverConfig.getPurgeUptoDiskSpaceInGigabytes().longValue());
             LOGGER.info("Clearing old artifacts as the disk space is low. Current space: '{}'. Need to clear till we hit: '{}'.", availableSpaceBytes(), requiredSpaceBytes);
             List<Stage> stages;
@@ -81,14 +84,15 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
                 LOGGER.warn("Ran out of stages to clear artifacts from but the disk space is still low");
             }
             LOGGER.info("Finished clearing old artifacts. Deleted artifacts for '{}' stages. Current space: '{}'", numberOfStagesPurged, availableSpaceBytes());
+        } catch (Throwable e) {
+            LOGGER.error("Artifact disk cleanup task aborted. Error encountered: '{}'", e.getMessage());//logging not tested
+            throw new RuntimeException(e);
         }
     }
 
     @Override
     protected void createFailure(OperationResult result, long limitMegabytes, long availableSpace) {
-        synchronized (triggerCleanup) {
-            triggerCleanup.notify();
-        }
+        triggerCleanup.release();
     }
 
     @Override

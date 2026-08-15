@@ -83,7 +83,7 @@ public class MultiplexingQueueProcessor implements Daemonized {
                         }
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         LOGGER.warn("Failed to handle action in {} queue", queueName, e);
                     }
                 }

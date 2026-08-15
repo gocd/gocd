@@ -63,7 +63,7 @@ public class AgentStatusHttpd {
             server.start();
             LOG.info("Agent status HTTP API server running on http://{}:{}.", server.getAddress().getHostName(), server.getAddress().getPort());
         } catch (Exception e) {
-            LOG.warn("Could not start agent status HTTP API server on host {}, port {}.", address.getHostName(), address.getPort(), e);
+            LOG.warn("Could not start agent status HTTP API server on {}:{} due to {}. Ignoring...", address.getHostName(), address.getPort(), e.toString());
         }
     }
 

@@ -126,7 +126,6 @@ def trimTfsSdkJar = tasks.register('trimTfsSdkJar', Jar) {
   exclude 'com/microsoft/tfs/core/clients/team/**'
   exclude 'com/microsoft/tfs/core/clients/teamsettings/**'
   exclude 'com/microsoft/tfs/core/clients/teamstore/**'
-  exclude 'com/microsoft/tfs/core/clients/workitem/**'
 
   // The SDK's default factories, bypassed by the Minimal* factories supplied via MinimalTfsConnectionAdvisor:
   // their initialization eagerly resolves class literals for every SDK feature, most of which are trimmed away

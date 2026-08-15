@@ -161,13 +161,17 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         @Override
         public void run() {
             do {
-                oneShot();
+                try {
+                    oneShot();
 
-                long interval = systemEnvironment.getPluginLocationMonitorIntervalInMillis();
-                if (interval <= 0) {
-                    break;
+                    long interval = systemEnvironment.getPluginLocationMonitorIntervalInMillis();
+                    if (interval <= 0) {
+                        break;
+                    }
+                    waitForMonitorInterval(interval);
+                } catch (Throwable t) {
+                    LOGGER.error("Failed to check plugin location for changes", t);
                 }
-                waitForMonitorInterval(interval);
             } while (!Thread.currentThread().isInterrupted());
         }
 

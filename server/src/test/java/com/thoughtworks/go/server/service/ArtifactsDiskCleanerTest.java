@@ -23,7 +23,6 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -94,10 +93,6 @@ public class ArtifactsDiskCleanerTest {
                 sem.release();
             }
         };
-        Thread cleaner = ReflectionUtil.getField(artifactsDiskCleaner, "cleaner");
-        while (!cleaner.getState().equals(Thread.State.WAITING)) {
-            Thread.sleep(5);
-        }
         artifactsDiskCleaner.createFailure(new HttpOperationResult(), 10, 100);
         sem.acquire();
         assertThat(artifactsDeletionTriggered[0]).isTrue();

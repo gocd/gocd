@@ -94,7 +94,7 @@ dependencies {
 
   packagingOnly rootProject.deps.servletApi
 
-  copyOnly project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
+  copyOnly project(path: ':tfs-impl-14', configuration: 'fatJarConfig')
   copyOnly project(path: ':agent', configuration: 'fatJarConfig')
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   copyOnlyTestData(testFixtures(project(':test:test-agent')))
@@ -723,7 +723,7 @@ tasks.register('verifyWar', VerifyJarTask) {
     denylistedContents.each {denylist ->
       archiveOps.zipTree(jar).matching {
         include denylist.key
-      }.visit { element ->
+      }.visit { FileVisitDetails element ->
         if (!element.directory) denylistedErrors << "war ${denylist.value}: ${element.relativePath.pathString}"
       }
     }
@@ -805,19 +805,6 @@ tasks.register('licenseReportAggregate') {
         [
           moduleLicense   : 'Apache-2.0',
           moduleLicenseUrl: "https://spdx.org/licenses/Apache-2.0.html"
-        ]
-      ]
-    ],
-    [
-      moduleName    : ':com.microsoft.tfs.sdk',
-      moduleVersion : rootProject.versions.tfsSdk,
-      moduleUrls    : [
-        "https://github.com/Microsoft/team-explorer-everywhere"
-      ],
-      moduleLicenses: [
-        [
-          moduleLicense   : 'MIT',
-          moduleLicenseUrl: "https://spdx.org/licenses/MIT.html"
         ]
       ]
     ],

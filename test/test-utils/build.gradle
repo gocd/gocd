@@ -35,7 +35,7 @@ dependencies {
 
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   copyOnly(testFixtures(project(':test:test-agent')))
-  copyOnly project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
+  copyOnly project(path: ':tfs-impl-14', configuration: 'fatJarConfig')
 }
 
 def generatedResourcesOutput = file("resources-generated")

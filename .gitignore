@@ -281,9 +281,9 @@ test/test-agent/out/
 test/test-agent/target/
 test/test-utils/out/
 test/test-utils/target/
-tfs-impl/tfs-impl-14/logs/
-tfs-impl/tfs-impl-14/out/
-tfs-impl/tfs-impl-14/target/
+tfs-impl-14/logs/
+tfs-impl-14/out/
+tfs-impl-14/target/
 tools/jruby/
 tools/target/
 tw-go-plugins/target/

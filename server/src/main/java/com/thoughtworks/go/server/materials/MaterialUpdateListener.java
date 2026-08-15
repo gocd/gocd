@@ -65,6 +65,11 @@ public class MaterialUpdateListener implements GoMessageListener<MaterialUpdateM
             mduPerformanceLogger.postingMessageAboutMDUCompletion(message.trackingId(), material);
             channel.post(new MaterialUpdateSuccessfulMessage(material, message.trackingId())); //This should happen only if the transaction is committed.
         } catch (Exception e) {
+            LOGGER.warn("Material update failed for material {}. Error: {}", material, e.toString());
+            channel.post(new MaterialUpdateFailedMessage(material, message.trackingId(), e));
+            mduPerformanceLogger.postingMessageAboutMDUFailure(message.trackingId(), material);
+        } catch (Error e) {
+            LOGGER.error("Material update failed for material {}.", material, e);
             channel.post(new MaterialUpdateFailedMessage(material, message.trackingId(), e));
             mduPerformanceLogger.postingMessageAboutMDUFailure(message.trackingId(), material);
         } finally {

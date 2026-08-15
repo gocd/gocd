@@ -23,7 +23,7 @@ import com.thoughtworks.go.domain.materials.Material;
 public class MaterialUpdateFailedMessage extends MaterialUpdateCompletedMessage {
     private final String reason;
 
-    public MaterialUpdateFailedMessage(Material material, long trackingId, Exception e) {
+    public MaterialUpdateFailedMessage(Material material, long trackingId, Throwable e) {
         super(material, trackingId);
         this.reason = computeReason(e);
     }
@@ -32,7 +32,7 @@ public class MaterialUpdateFailedMessage extends MaterialUpdateCompletedMessage 
         return reason;
     }
 
-    private String computeReason(Exception e) {
+    private String computeReason(Throwable e) {
         String message = message(e);
         if (e.getCause() != null) {
             String causeMessage = message(e.getCause());

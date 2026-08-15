@@ -51,7 +51,7 @@ public class ExponentialBackoffService implements GoMessageListener<MaterialUpda
         if (message instanceof MaterialUpdateFailedMessage) {
             ExponentialBackOff backOff = materials.get(message.getMaterial());
 
-            if (null == backOff) {
+            if (backOff == null) {
                 materials.put(message.getMaterial(), new ExponentialBackOff(systemEnvironment.getMDUExponentialBackOffMultiplier()));
             } else {
                 backOff.failedAgain();

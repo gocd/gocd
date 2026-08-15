@@ -16,15 +16,20 @@
 package com.thoughtworks.go.tfssdk;
 
 import com.microsoft.tfs.core.TFSTeamProjectCollection;
+import com.microsoft.tfs.core.config.ConnectionInstanceData;
+import com.microsoft.tfs.core.config.persistence.PersistenceStoreProvider;
 import com.microsoft.tfs.core.httpclient.UsernamePasswordCredentials;
+import com.microsoft.tfs.core.persistence.FilesystemPersistenceStore;
 import com.thoughtworks.go.tfssdk.wrapper.VersionControlConnectionAdvisor;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.net.URI;
-import java.util.HashMap;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -57,6 +62,75 @@ public class TfsSDKJarTrimTest {
         } finally {
             collection.close();
         }
+    }
+
+    /**
+     * Recreates the production failure mode that a fresh test environment cannot see: a server that has
+     * previously run TFS materials has a populated workspace cache, and scanning it during
+     * VersionControlClient creation is what first links Workspace (the dedupe scan in InternalCache.load
+     * compares each loaded workspace against those already loaded, so at least two entries are needed).
+     * Overriding the persistence store points the SDK at a seeded cache without touching the real user home.
+     */
+    @Test
+    public void versionControlClientCreationShouldSurviveAPopulatedWorkspaceCache(@TempDir Path cacheDir) throws Exception {
+        Files.writeString(cacheDir.resolve("VersionControl.config"), """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <VersionControlServer>
+              <Servers>
+                <ServerInfo uri="http://tfs.invalid:8080/tfs/collection" repositoryGuid="ba99f1f5-d1fa-4029-8621-28b72ed1b4fb">
+                  <WorkspaceInfo name="workspace-one" ownerName="user" computer="go-server" comment="">
+                    <MappedPaths><MappedPath path="/tmp/one"/></MappedPaths>
+                  </WorkspaceInfo>
+                  <WorkspaceInfo name="workspace-two" ownerName="user" computer="go-server" comment="">
+                    <MappedPaths><MappedPath path="/tmp/two"/></MappedPaths>
+                  </WorkspaceInfo>
+                </ServerInfo>
+              </Servers>
+            </VersionControlServer>
+            """);
+
+
+        TFSTeamProjectCollection collection = new TFSTeamProjectCollection(
+            URI.create("http://tfs.invalid:8080/"), new UsernamePasswordCredentials("user", "password"),
+            connectionAdvisorFromLocalStore(cacheDir));
+        try {
+            collection.getVersionControlClient();
+        } catch (UnsatisfiedLinkError acceptable) {
+            // the SDK has no natives for some dev platforms (e.g. macOS arm64); on platforms with natives
+            // (all CI platforms) this path runs through the seeded cache scan
+        } catch (LinkageError e) {
+            fail("Trimmed SDK jar is missing classes required when the workspace cache is populated; adjust trimTfsSdkJar in build.gradle", e);
+        } catch (Exception acceptable) {
+            // expected: no TFS server is reachable from tests
+        } finally {
+            collection.close();
+        }
+    }
+
+    private static @NonNull VersionControlConnectionAdvisor connectionAdvisorFromLocalStore(Path cacheDir) {
+        return new VersionControlConnectionAdvisor() {
+            final FilesystemPersistenceStore store = new FilesystemPersistenceStore(cacheDir.toFile());
+
+            @Override
+            public PersistenceStoreProvider getPersistenceStoreProvider(ConnectionInstanceData instanceData) {
+                return new PersistenceStoreProvider() {
+                    @Override
+                    public FilesystemPersistenceStore getCachePersistenceStore() {
+                        return store;
+                    }
+
+                    @Override
+                    public FilesystemPersistenceStore getConfigurationPersistenceStore() {
+                        return store;
+                    }
+
+                    @Override
+                    public FilesystemPersistenceStore getLogPersistenceStore() {
+                        return store;
+                    }
+                };
+            }
+        };
     }
 
     /**

@@ -92,12 +92,7 @@ def tfsSdkSourcesJar = tasks.register('tfsSdkSourcesJar', Jar) {
 
 // Content excluded when repackaging the TFS SDK jar: features GoCD does not use. GoCD only uses the SDK's
 // version control client (checkout/get), so the web-service proxies and client APIs for other TFS features
-// can be removed. The JVM resolves classes lazily, so the remaining references to these (e.g. lazy accessors
-// such as TFSTeamProjectCollection.getBuildServer()) are only a problem if actually called.
-// Note that ms/ws (identity) and ms/tfs/services (location/registration) proxies must be retained: they
-// are used by the framework/connection machinery of every TFS connection. TfsSDKJarTrimTest verifies that
-// every class remaining in the trimmed jar is still loadable.
-
+// can be removed.
 def trimTfsSdkJar = tasks.register('trimTfsSdkJar', Jar) {
   archiveBaseName = tfsSdkModuleId
   archiveVersion = tfsSdkVersion
@@ -105,13 +100,7 @@ def trimTfsSdkJar = tasks.register('trimTfsSdkJar', Jar) {
 
   from(zipTree(extractTfsSdk.map { new File(it.destinationDir, "lib/${tfsSdkModuleId}-${rootProject.versions.tfsSdk}.jar") }))
 
-
-  // Remove feature clients GoCD never uses. GoCD supplies its own minimal client/web service factories
-  // (see GoTfsConnectionAdvisor) so these are never resolved. Retained despite being unused, because the
-  // ClientFactory/WebServiceFactory interfaces and TFSConnection.getClient() reference a few individual
-  // classes from these features in method signatures or always-executed class literals, so those classes
-  // must remain resolvable: empty stand-ins (WSSClient, ProjectInfo, _ListsSoap, _IntegrationServiceSoap)
-  // are provided in this module's own sources.
+  // Remove feature clients GoCD never uses. GoCD supplies its own minimal client/web service factories so these are never resolved.
   exclude 'com/microsoft/tfs/core/clients/authorization/**'
   exclude 'com/microsoft/tfs/core/clients/build/**'
   exclude 'com/microsoft/tfs/core/clients/commonstructure/**'
@@ -126,8 +115,12 @@ def trimTfsSdkJar = tasks.register('trimTfsSdkJar', Jar) {
   exclude 'com/microsoft/tfs/core/clients/team/**'
   exclude 'com/microsoft/tfs/core/clients/teamsettings/**'
   exclude 'com/microsoft/tfs/core/clients/teamstore/**'
+  exclude 'com/microsoft/tfs/core/clients/workitem/**'
+  exclude 'com/microsoft/tfs/core/credentials/**'  // platform credential-store integration; GoCD passes explicit credentials
+  exclude 'com/microsoft/tfs/core/pguidance/**'
+  exclude 'com/microsoft/tfs/core/search/**'
 
-  // The SDK's default factories, bypassed by the Minimal* factories supplied via MinimalTfsConnectionAdvisor:
+  // The SDK's default factories, bypassed by the factories supplied via VersionControlConnectionAdvisor:
   // their initialization eagerly resolves class literals for every SDK feature, most of which are trimmed away
   exclude 'com/microsoft/tfs/core/config/client/DefaultClientFactory*'
   exclude 'com/microsoft/tfs/core/config/webservice/DefaultWebServiceFactory*'
@@ -141,11 +134,13 @@ def trimTfsSdkJar = tasks.register('trimTfsSdkJar', Jar) {
   exclude 'ms/tfs/services/linking/**'
   exclude 'ms/tfs/services/teamconfiguration/**'
   exclude 'ms/tfs/services/groupsecurity/**'
+  exclude 'ms/tfs/services/notification/**'
   exclude 'ms/tfs/services/serverstatus/**'
+  exclude 'ms/tfs/versioncontrol/statistics/**'
   exclude 'ms/tfs/versioncontrol/admin/**'  // version control admin service, only referenced by the excluded DefaultWebServiceFactory
   exclude 'ms/sql/**'  // SQL Server Reporting Services proxies
   exclude 'ms/wss/**'  // SharePoint service proxies
-  exclude 'ms/ws/_CatalogWebService*'  // catalog/identity services are not registered by MinimalTfsWebServiceFactory
+  exclude 'ms/ws/_CatalogWebService*'  // catalog/identity services are not registered by VersionControlClientWebServiceFactory
   exclude 'ms/ws/_IdentityManagementWebService*'
   exclude 'com/microsoft/alm/**'  // partial leftovers of ALM REST/secret libraries that were never fully bundled
   exclude 'com/microsoft/tfs/console/**'  // command-line client console helpers, referenced by nothing else in the SDK
@@ -159,6 +154,7 @@ def trimTfsSdkJar = tasks.register('trimTfsSdkJar', Jar) {
   exclude 'javax/annotation/**'  // JSR-305 annotations (class-retention; not used at runtime)
   exclude 'org/apache/commons/io/**'
   exclude 'org/apache/commons/lang3/**'
+  exclude 'org/apache/commons/codec/language/**'  // phonetic matching; the SDK only uses the embedded codec's binary/net packages
   exclude 'org/apache/http/**'  // httpclient 4.x (the SDK's SOAP stack uses its own fork)
   exclude 'META-INF/services/com.fasterxml*'
   exclude 'META-INF/services/javax.annotation.processing.Processor'
@@ -175,9 +171,6 @@ def trimTfsSdkJar = tasks.register('trimTfsSdkJar', Jar) {
   exclude 'com/microsoft/tfs/logging/**'
   exclude 'org/apache/logging/log4j/**', 'META-INF/org/apache/logging/**', 'META-INF/log4j-provider.properties'
   exclude 'log4j2.xml', 'Log4j-*'
-
-  // Unloadable even in the original SDK jar: compiled against Eclipse OSGi NLS, which was never bundled
-  exclude 'com/microsoft/tfs/core/clients/webservices/Messages.class'
 }
 
 publishing {
@@ -210,6 +203,15 @@ generateLicenseReport.dependsOn(publishTfsSdkPublicationToMavenLocal)
 
 tasks.withType(JavaCompile).configureEach {
   dependsOn publishTfsSdkPublicationToMavenLocal // makes the module dependency below resolvable from mavenLocal
+}
+
+test {
+  dependsOn extractTfsSdk
+  doFirst {
+    // Lets tests load the SDK's native libraries where ones exist for the test platform, so the canaries in
+    // TfsSDKJarTrimTest exercise the workspace-cache path rather than stopping at an UnsatisfiedLinkError
+    systemProperty 'com.microsoft.tfs.jni.native.base-directory', new File(extractTfsSdk.get().destinationDir, 'native')
+  }
 }
 
 dependencies {

@@ -91,7 +91,7 @@ public class JMSMessageListenerAdapter<T extends GoMessage> implements Runnable 
             listener.onMessage(object);
         } catch (JMSException e) {
             slowDownAndWarnAboutPossibleProblems(e);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOG.error("Exception thrown in message handling by listener {}", listener, e);
         } finally {
             daemonThreadStatsCollector.clearStats(thread.threadId());

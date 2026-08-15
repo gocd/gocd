@@ -91,6 +91,17 @@ public class JMSMessageListenerAdapterTest {
     }
 
     @Test
+    public void shouldNotKillTheThreadWhenThereIsAnError() throws Exception {
+        when(consumer.receive()).thenThrow(new NoClassDefFoundError("should swallow me"));
+
+        daemonThreadStatsCollector = mock(DaemonThreadStatsCollector.class);
+        JMSMessageListenerAdapter<GoMessage> listenerAdapter = JMSMessageListenerAdapter.startListening(consumer, mockListener, daemonThreadStatsCollector, systemEnvironment, serverHealthService);
+        listenerAdapter.runImpl();
+
+        verify(consumer, atLeastOnce()).receive();
+    }
+
+    @Test
     public void shouldBackOffForABitIfAJMSExceptionHappens() throws JMSException {
         when(consumer.receive()).thenThrow(new JMSException("should back off for a bit after this"));
         when(systemEnvironment.get(SystemEnvironment.JMS_LISTENER_BACKOFF_TIME_IN_MILLIS)).thenReturn(3000L);

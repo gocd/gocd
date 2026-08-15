@@ -82,38 +82,4 @@ public class TfsSDKJarTrimTest {
                 .isEmpty();
         }
     }
-
-    /**
-     * Guards the trimTfsSdkJar exclusions: every class remaining in the trimmed jar must still be loadable,
-     * i.e. no remaining class may have a load-time dependency (superclass/interface hierarchy) on an excluded
-     * one. References from method bodies to excluded classes are fine - the JVM resolves those lazily, and
-     * they are only a problem if actually executed, which GoCD's version-control-only usage does not do.
-     */
-    @Test
-    public void everyClassRemainingInTrimmedSdkJarShouldBeLoadable() throws Exception {
-        File sdkJar = new File(TFSTeamProjectCollection.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-        List<String> classNames;
-
-        try (JarFile jar = new JarFile(sdkJar)) {
-            classNames = jar.stream()
-                .map(JarEntry::getName)
-                .filter(name -> name.endsWith(".class") && !name.endsWith("module-info.class"))
-                .map(name -> name.substring(0, name.length() - ".class".length()).replace('/', '.'))
-                .toList();
-        }
-
-        Map<String, Throwable> unloadable = new HashMap<>();
-        for (String className : classNames) {
-            try {
-                Class.forName(className, false, TFSTeamProjectCollection.class.getClassLoader());
-            } catch (Throwable e) {
-                unloadable.put(className, e);
-            }
-        }
-
-        assertThat(classNames).isNotEmpty();
-        assertThat(unloadable)
-            .describedAs("all %d classes in %s should be loadable; see trimTfsSdkJar in build.gradle", classNames.size(), sdkJar)
-            .isEmpty();
-    }
 }

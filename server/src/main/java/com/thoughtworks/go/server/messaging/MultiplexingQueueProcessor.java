@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static com.thoughtworks.go.util.ExceptionUtils.uncaughtExceptionHandlerFor;
+
 /*
  * Multiplexes added actions asynchronously and processes them in a single thread.
  *
@@ -61,30 +63,31 @@ public class MultiplexingQueueProcessor implements Daemonized {
             throw new RuntimeException(String.format("Cannot start queue processor for %s multiple times.", queueName));
         }
 
-        processorThread = new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    Action action = queue.take();
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Acting on item in {} queue for {}", queueName, action.description());
-                    }
+        processorThread = Thread.ofPlatform()
+            .name("Queue-Processor-" + queueName)
+            .daemon(true)
+            .uncaughtExceptionHandler(uncaughtExceptionHandlerFor(LOGGER))
+            .start(() -> {
+                while (!Thread.currentThread().isInterrupted()) {
+                    try {
+                        Action action = queue.take();
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Acting on item in {} queue for {}", queueName, action.description());
+                        }
 
-                    long startTime = System.currentTimeMillis();
-                    action.call();
+                        long startTime = System.currentTimeMillis();
+                        action.call();
 
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Finished acting on item in {} queue for {}. Time taken: {} ms", queueName, action.description(), System.currentTimeMillis() - startTime);
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Finished acting on item in {} queue for {}. Time taken: {} ms", queueName, action.description(), System.currentTimeMillis() - startTime);
+                        }
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    } catch (Exception e) {
+                        LOGGER.warn("Failed to handle action in {} queue", queueName, e);
                     }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                } catch (Exception e) {
-                    LOGGER.warn("Failed to handle action in {} queue", queueName, e);
                 }
-            }
-        });
-        processorThread.setName(String.format("Queue-Processor-%s", queueName));
-        processorThread.setDaemon(true);
-        processorThread.start();
+            });
     }
 
     @Override

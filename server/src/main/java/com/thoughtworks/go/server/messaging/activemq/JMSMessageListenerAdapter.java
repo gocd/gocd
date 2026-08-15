@@ -31,13 +31,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ThreadFactory;
 
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
+import static com.thoughtworks.go.util.ExceptionUtils.uncaughtExceptionHandlerFor;
 
 public class JMSMessageListenerAdapter<T extends GoMessage> implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(JMSMessageListenerAdapter.class);
-    private static final ConcurrentMap<Class<?>, AtomicInteger> THREAD_COUNT = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<Class<?>, ThreadFactory> THREAD_FACTORIES = new ConcurrentHashMap<>();
 
     private final MessageConsumer consumer;
     private final GoMessageListener<T> listener;
@@ -54,12 +55,12 @@ public class JMSMessageListenerAdapter<T extends GoMessage> implements Runnable 
         this.systemEnvironment = systemEnvironment;
         this.serverHealthService = serverHealthService;
 
-        thread = new Thread(this);
-        thread.setName(String.format("%s-%s",
-            listener.getClass().getSimpleName(),
-            THREAD_COUNT.computeIfAbsent(listener.getClass(), clz -> new AtomicInteger(0)).incrementAndGet()
-        ));
-        thread.setDaemon(true);
+        thread = THREAD_FACTORIES.computeIfAbsent(listener.getClass(), clz -> Thread.ofPlatform()
+                .name(clz.getSimpleName() + "-", 1)
+                .daemon(true)
+                .uncaughtExceptionHandler(uncaughtExceptionHandlerFor(clz))
+                .factory())
+            .newThread(this);
         thread.start();
     }
 
@@ -102,8 +103,8 @@ public class JMSMessageListenerAdapter<T extends GoMessage> implements Runnable 
         LOG.warn("Error receiving message. Message receiving will continue despite this error. Backing off for a few seconds. This error is unexpected and should be reported to https://github.com/gocd/gocd/issues", e);
 
         serverHealthService.update(ServerHealthState.error("Message queue closed",
-                "It looks like a message queue has been closed. This is an unrecoverable error and should be reported to https://github.com/gocd/gocd/issues",
-                HealthStateType.general(GLOBAL)));
+            "It looks like a message queue has been closed. This is an unrecoverable error and should be reported to https://github.com/gocd/gocd/issues",
+            HealthStateType.general(GLOBAL)));
 
         try {
             Thread.sleep(systemEnvironment.get(SystemEnvironment.JMS_LISTENER_BACKOFF_TIME_IN_MILLIS));

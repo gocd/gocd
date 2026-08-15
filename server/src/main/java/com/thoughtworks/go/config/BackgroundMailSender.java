@@ -22,12 +22,19 @@ import lombok.EqualsAndHashCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
+
+import static com.thoughtworks.go.util.ExceptionUtils.uncaughtExceptionHandlerFor;
 
 @EqualsAndHashCode
 public class BackgroundMailSender implements GoMailSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(BackgroundMailSender.class);
+    private static final ThreadFactory THREAD_FACTORY = Thread.ofVirtual()
+        .name("MailSender-", 1)
+        .uncaughtExceptionHandler(uncaughtExceptionHandlerFor(LOGGER))
+        .factory();
 
     private final GoMailSender mailSender;
     private final int timeoutMillis;
@@ -53,9 +60,7 @@ public class BackgroundMailSender implements GoMailSender {
 
     private ValidationBean execute(Supplier<ValidationBean> sender) {
         AtomicReference<ValidationBean> validation = new AtomicReference<>(null);
-        Thread thread = Thread.ofVirtual().unstarted(() -> validation.set(sender.get()));
-        thread.setName("MailSender" + thread.getName());
-        thread.setDaemon(true);
+        Thread thread = THREAD_FACTORY.newThread(() -> validation.set(sender.get()));
         thread.start();
         try {
             thread.join(timeoutMillis);

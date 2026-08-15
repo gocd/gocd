@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 public class Lockfile {
@@ -33,6 +34,7 @@ public class Lockfile {
     private static final long DEFAULT_TOUCH_FREQUENCY_MILLIS = TimeUnit.MINUTES.toMillis(5);
     private static final Duration DEFAULT_LOCK_FILE_TIMEOUT = Duration.ofMinutes(10);
     private static final long DEFAULT_SLEEP_TIME_FOR_LAST_MODIFIED_CHECK_MILLIS = TimeUnit.SECONDS.toMillis(10);
+    private static final ThreadFactory THREAD_FACTORY = Thread.ofVirtual().name("LockFileTouchLoop-", 1).factory();
 
     private final File lockFile;
     private final long touchFrequencyMillis;
@@ -94,9 +96,7 @@ public class Lockfile {
                     return;
                 }
                 keepRunning = true;
-                touchLoop = Thread.ofVirtual().unstarted(this::touchPeriodically);
-                touchLoop.setName("LockFileTouchLoop" + touchLoop.getName());
-                touchLoop.setDaemon(true);
+                touchLoop = THREAD_FACTORY.newThread(this::touchPeriodically);
                 touchLoop.start();
             }
         }

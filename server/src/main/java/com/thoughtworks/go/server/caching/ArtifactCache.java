@@ -19,30 +19,41 @@ import com.thoughtworks.go.server.service.ArtifactsDirHolder;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ThreadFactory;
+
+import static com.thoughtworks.go.util.ExceptionUtils.uncaughtExceptionHandlerFor;
 
 /**
  * Understands serving prepared artifacts and preparing artifact offline
  */
 public abstract class ArtifactCache<T extends Comparable<T>> {
+    public static final String CACHE_ARTIFACTS_FOLDER = "cache/artifacts/";
+    private static final ThreadFactory THREAD_FACTORY = Thread.ofVirtual()
+        .name("cache-creator-thread-", 1)
+        .uncaughtExceptionHandler(uncaughtExceptionHandlerFor(ArtifactCache.class))
+        .factory();
+
     protected final ArtifactsDirHolder artifactsDirHolder;
     protected ConcurrentSkipListSet<T> pendingCacheFiles = new ConcurrentSkipListSet<>();
     protected ConcurrentMap<T, Exception> pendingExceptions = new ConcurrentHashMap<>();
-    public static final String CACHE_ARTIFACTS_FOLDER = "cache/artifacts/";
 
     public ArtifactCache(ArtifactsDirHolder artifactsDirHolder) {
         this.artifactsDirHolder = artifactsDirHolder;
     }
 
     public boolean cacheCreated(T artifactLocation) throws IOException {
-        if (currentlyCreatingCache(artifactLocation)) { return false; }
+        if (currentlyCreatingCache(artifactLocation)) {
+            return false;
+        }
 
         throwOnExceptionFor(artifactLocation);
 
-        if (cacheAlreadyCreated(artifactLocation)) { return true; }
+        if (cacheAlreadyCreated(artifactLocation)) {
+            return true;
+        }
 
         startCacheCreationThread(artifactLocation);
         return false;
@@ -70,9 +81,7 @@ public abstract class ArtifactCache<T extends Comparable<T>> {
     protected void startCacheCreationThread(final T artifactLocation) {
         boolean inserted = pendingCacheFiles.add(artifactLocation);
         if (inserted) {
-            Thread cacheCreatorThread = new Thread("cache-creator-thread-" + UUID.randomUUID()) {
-                @Override
-                public void run() {
+            THREAD_FACTORY.newThread(() -> {
                     try {
                         createCachedFile(artifactLocation);
                     } catch (Exception e) {
@@ -80,9 +89,7 @@ public abstract class ArtifactCache<T extends Comparable<T>> {
                     } finally {
                         pendingCacheFiles.remove(artifactLocation);
                     }
-                }
-            };
-            cacheCreatorThread.start();
+                }).start();
         }
     }
 

@@ -20,14 +20,19 @@ import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ThreadFactory;
+
 /**
  * Understands handling subprocesses
  */
 public class SubprocessLogger {
     private static final Logger LOGGER = LoggerFactory.getLogger(SubprocessLogger.class);
+    private static final ThreadFactory THREAD_FACTORY = Thread.ofVirtual()
+        .name("SubprocessLogger-", 1)
+        .factory();
 
     private final CurrentProcess currentProcess;
-    private Thread exitHook;
+    private volatile Thread exitHook;
     private String warnMessage = "Logged all subprocesses.";
 
     public SubprocessLogger() {
@@ -46,8 +51,7 @@ public class SubprocessLogger {
     @VisibleForTesting
     Thread exitHook() {
         if (exitHook == null) {
-            exitHook = new Thread(this::logSubprocess);
-            exitHook.setName("SubprocessLogger" + exitHook.getName());
+            exitHook = THREAD_FACTORY.newThread(this::logSubprocess);
         }
         return exitHook;
     }

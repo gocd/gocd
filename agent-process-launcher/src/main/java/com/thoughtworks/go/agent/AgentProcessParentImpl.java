@@ -31,10 +31,17 @@ import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadFactory;
+
+import static com.thoughtworks.go.util.ExceptionUtils.uncaughtExceptionHandlerFor;
 
 public class AgentProcessParentImpl implements AgentProcessParent {
 
     private static final Logger LOG = LoggerFactory.getLogger(AgentProcessParentImpl.class);
+    private static final ThreadFactory THREAD_FACTORY = Thread.ofVirtual()
+        .name("Shutdown-", 1)
+        .uncaughtExceptionHandler(uncaughtExceptionHandlerFor(LOG))
+        .factory();
     private static final int EXCEPTION_OCCURRED = -373;
     static final String ENV_GO_AGENT_STARTUP_ARGS = "AGENT_STARTUP_ARGS";
     static final String GO_AGENT_STDERR_LOG = "go-agent-stderr.log";
@@ -80,8 +87,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
             AgentConsoleLogThread stdOutThd = new AgentConsoleLogThread(agent.getInputStream(), agentOutputAppenderForStdOut);
             stdOutThd.start();
 
-            Shutdown shutdownHook = new Shutdown(agent);
-            Runtime.getRuntime().addShutdownHook(shutdownHook);
+            Thread shutdownHook = registerShutdownHook(agent);
             try {
                 LOG.info("Waiting for agent to complete...");
                 exitValue = agent.waitFor();
@@ -100,9 +106,18 @@ public class AgentProcessParentImpl implements AgentProcessParent {
         return exitValue;
     }
 
-    private void removeShutdownHook(Shutdown shutdownHook) {
+    private static Thread registerShutdownHook(Process agent) {
+        Thread shutdownHook = THREAD_FACTORY.newThread(() -> {
+            LOG.info("Shutdown hook invoked. Shutting down {}", agent);
+            agent.destroy();
+        });
+        Runtime.getRuntime().addShutdownHook(shutdownHook);
+        return shutdownHook;
+    }
+
+    private void removeShutdownHook(Thread thread) {
         try {
-            Runtime.getRuntime().removeShutdownHook(shutdownHook);
+            Runtime.getRuntime().removeShutdownHook(thread);
         } catch (Exception ignore) {
         }
     }
@@ -179,21 +194,5 @@ public class AgentProcessParentImpl implements AgentProcessParent {
     Process invoke(String[] command) throws IOException {
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         return processBuilder.start();
-    }
-
-    private static class Shutdown extends Thread {
-        private static final Logger LOG = LoggerFactory.getLogger(Shutdown.class);
-        private final Process agent;
-
-        public Shutdown(Process agent) {
-            setName("Shutdown" + getName());
-            this.agent = agent;
-        }
-
-        @Override
-        public void run() {
-            LOG.info("Shutdown hook invoked. Shutting down {}", agent);
-            agent.destroy();
-        }
     }
 }

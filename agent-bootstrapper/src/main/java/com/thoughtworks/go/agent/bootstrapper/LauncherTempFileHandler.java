@@ -26,8 +26,10 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import static com.thoughtworks.go.util.ExceptionUtils.uncaughtExceptionHandlerFor;
 import static java.lang.String.join;
 import static java.lang.System.lineSeparator;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -35,6 +37,10 @@ import static java.nio.file.StandardOpenOption.*;
 
 class LauncherTempFileHandler implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(LauncherTempFileHandler.class);
+    private static final ThreadFactory THREAD_FACTORY = Thread.ofVirtual()
+        .name("TempFileReaper-", 1)
+        .uncaughtExceptionHandler(uncaughtExceptionHandlerFor(LOG))
+        .factory();
 
     private static final Path LAUNCHER_TMP_FILE_LIST = Path.of(".tmp.file.list");
     private static final int LAUNCHER_TMP_CLEANUP_INTERVAL_MINUTES = 10;
@@ -73,9 +79,7 @@ class LauncherTempFileHandler implements Runnable {
 
     public synchronized static void startReaperIfNecessary() {
         if (reaperThread == null) {
-            reaperThread = new Thread(new LauncherTempFileHandler());
-            reaperThread.setName("TempFileReaper" + reaperThread.getName());
-            reaperThread.setDaemon(true);
+            reaperThread = THREAD_FACTORY.newThread(new LauncherTempFileHandler());
             reaperThread.start();
         }
     }

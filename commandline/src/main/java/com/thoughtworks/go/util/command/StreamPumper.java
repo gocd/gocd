@@ -21,11 +21,14 @@
 package com.thoughtworks.go.util.command;
 
 import com.thoughtworks.go.util.Clock;
+import com.thoughtworks.go.util.ExceptionUtils;
 import com.thoughtworks.go.util.SystemTimeClock;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.annotations.VisibleForTesting;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,10 +36,16 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.ThreadFactory;
 
 import static java.time.Duration.between;
 
 public class StreamPumper implements Runnable {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StreamPumper.class);
+    private static final ThreadFactory THREAD_FACTORY = Thread.ofVirtual()
+        .name("StreamPumper-", 1)
+        .uncaughtExceptionHandler(ExceptionUtils.uncaughtExceptionHandlerFor(LOGGER))
+        .factory();
 
     private final Reader in;
     private final StreamConsumer streamConsumer;
@@ -94,9 +103,7 @@ public class StreamPumper implements Runnable {
     @VisibleForTesting
     static StreamPumper pump(InputStream stream, StreamConsumer streamConsumer, String prefix, Charset encoding, Clock clock) {
         StreamPumper pumper = new StreamPumper(stream, streamConsumer, prefix, encoding, clock);
-        Thread thread = Thread.ofVirtual().unstarted(pumper);
-        thread.setName("StreamPumper" + thread.getName());
-        thread.start();
+        THREAD_FACTORY.newThread(pumper).start();
         return pumper;
     }
 

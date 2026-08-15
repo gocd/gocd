@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.plugin.infra.monitor;
 
+import com.thoughtworks.go.util.ExceptionUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -153,6 +154,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
 
         public PluginLocationMonitorThread() {
             super("goPluginLocationMonitor");
+            setUncaughtExceptionHandler(ExceptionUtils.uncaughtExceptionHandlerFor(LOGGER));
             setDaemon(true);
         }
 

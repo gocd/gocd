@@ -15,6 +15,9 @@
  */
 package com.thoughtworks.go.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.function.Supplier;
 
 public final class ExceptionUtils {
@@ -63,5 +66,13 @@ public final class ExceptionUtils {
     public static String messageOf(Throwable t) {
         String message = t.getMessage();
         return message == null || message.isEmpty() ? t.getClass().toString() : message;
+    }
+
+    public static Thread.UncaughtExceptionHandler uncaughtExceptionHandlerFor(Class<?> clazz) {
+        return uncaughtExceptionHandlerFor(LoggerFactory.getLogger(clazz));
+    }
+
+    public static Thread.UncaughtExceptionHandler uncaughtExceptionHandlerFor(Logger logger) {
+        return (t, e) -> logger.error("Uncaught exception in thread {}", t.getName(), e);
     }
 }

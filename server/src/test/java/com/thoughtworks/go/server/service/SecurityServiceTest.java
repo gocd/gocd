@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.policy.*;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -37,7 +36,6 @@ public class SecurityServiceTest {
     @BeforeEach
     public void setUp() {
         goConfigService = mock(GoConfigService.class);
-        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(goConfigService.security()).thenReturn(new SecurityConfig());
         securityService = new SecurityService(goConfigService);
     }

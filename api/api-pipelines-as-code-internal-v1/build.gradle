@@ -22,7 +22,6 @@ dependencies {
   implementation project(':api:api-base')
   implementation project(':api:api-shared-v11')
   implementation rootProject.deps.commonsLang3
-  implementation rootProject.deps.commonsIO
   implementation rootProject.deps.springWeb
 
   testImplementation(testFixtures(project(":api:api-base")))

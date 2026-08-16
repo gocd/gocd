@@ -42,7 +42,6 @@ import com.thoughtworks.go.spark.GlobalExceptionMapper;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -169,7 +168,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
             return MessageJson.create(e.getMessage());
         } finally {
             if (null != folder) {
-                FileUtils.deleteQuietly(folder);
+                FileUtil.deleteQuietly(folder);
             }
         }
     }

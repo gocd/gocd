@@ -65,7 +65,7 @@ tasks.register('javadocJar', Jar) {
 assemble.dependsOn sourcesJar, javadocJar
 
 publishing {
-  publications.withType(MavenPublication).configureEach {
+  publications.register("mavenJava", MavenPublication) {
     groupId = 'cd.go.plugin'
     from components.java
 

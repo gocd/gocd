@@ -95,15 +95,14 @@ public class AccessTokenService {
             throw new InvalidAccessTokenException();
         }
 
-        String userSuppliedSalt = userSuppliedToken.substring(0, 8);
-
-        AccessToken token = accessTokenDao.findAccessTokenBySaltId(userSuppliedSalt);
+        String userSuppliedSaltId = userSuppliedToken.substring(0, 8);
+        AccessToken token = accessTokenDao.findAccessTokenBySaltId(userSuppliedSaltId);
         if (token == null) {
             throw new InvalidAccessTokenException();
         }
 
         String userSuppliedTokenValue = userSuppliedToken.substring(8);
-        boolean isValid = token.equalsSecure(userSuppliedTokenValue, userSuppliedSalt);
+        boolean isValid = token.equalsSecure(userSuppliedTokenValue);
 
         if (!isValid) {
             throw new InvalidAccessTokenException();

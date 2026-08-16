@@ -155,8 +155,8 @@ public class AccessToken extends PersistentObject implements Validatable {
         this.errors.add(fieldName, message);
     }
 
-    public boolean equalsSecure(@NonNull String otherTokenValue, @NonNull String otherSalt) {
-        return SystemUtil.equalsSecure(getValue(), digestToHexString(otherTokenValue, otherSalt));
+    public boolean equalsSecure(@NonNull String otherTokenValue) {
+        return SystemUtil.equalsSecure(this.value, digestToHexString(otherTokenValue, this.saltValue));
     }
 
     @Getter

@@ -23,6 +23,7 @@ import java.security.MessageDigest;
 import java.util.Set;
 import java.util.function.Function;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class GitLab implements ValidateAuth.Provider {
@@ -37,7 +38,7 @@ public class GitLab implements ValidateAuth.Provider {
             throw fail.apply("No token specified in the 'X-Gitlab-Token' header!");
         }
 
-        if (!MessageDigest.isEqual(token.getBytes(), webhookSecret.getBytes())) {
+        if (!MessageDigest.isEqual(token.getBytes(UTF_8), webhookSecret.getBytes(UTF_8))) {
             throw fail.apply("Token specified in the 'X-Gitlab-Token' header did not match!");
         }
     }

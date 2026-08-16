@@ -25,6 +25,7 @@ import java.security.MessageDigest;
 import java.util.Set;
 import java.util.function.Function;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class GitHub implements ValidateAuth.Provider {
@@ -46,7 +47,7 @@ public class GitHub implements ValidateAuth.Provider {
 
         final String expectedSignature = calculateSignature(webhookSecret, request.contents());
 
-        if (!MessageDigest.isEqual(expectedSignature.getBytes(), signature.getBytes())) {
+        if (!MessageDigest.isEqual(expectedSignature.getBytes(UTF_8), signature.getBytes(UTF_8))) {
             throw fail.apply("HMAC signature specified via 'X-Hub-Signature' did not match!");
         }
     }

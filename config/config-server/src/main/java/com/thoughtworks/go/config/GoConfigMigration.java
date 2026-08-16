@@ -41,6 +41,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
@@ -63,9 +64,7 @@ public class GoConfigMigration {
         File backupFile = invalidBackupFileFor(configFile);
         try {
             backup(configFile, backupFile);
-            // FIXME the lack of charset here looks rather suspicious. But unclear how to fix without possible regressions.
-            // Related to similar issue in MagicalGoConfigXmlWriter?
-            Files.writeString(configFile.toPath(), currentConfigRevision.getContent());
+            Files.writeString(configFile.toPath(), currentConfigRevision.getContent(), UTF_8);
         } catch (IOException e1) {
             throw new RuntimeException(String.format("Could not write to config file '%s'.", configFile.getAbsolutePath()), e1);
         }
@@ -101,6 +100,7 @@ public class GoConfigMigration {
     }
 
     private void validate(String content) {
+        // FIXME two parses here. This is insane.
         int currentVersion = getCurrentSchemaVersion(content);
         try {
             XmlUtils.buildValidatedXmlDocument(new ByteArrayInputStream(content.getBytes()), GoConfigSchema.getResource(currentVersion));

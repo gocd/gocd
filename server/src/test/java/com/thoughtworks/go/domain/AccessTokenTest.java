@@ -70,8 +70,8 @@ class AccessTokenTest {
     void hashToken_shouldGenerateTheSameHashValueForTheSameInputString() {
         String tokenValue = "new-token";
         String saltValue = "new-salt";
-        String hashed1 = AccessToken.digestToken(tokenValue, saltValue);
-        String hashed2 = AccessToken.digestToken(tokenValue, saltValue);
+        String hashed1 = AccessToken.digestToHexString(tokenValue, saltValue);
+        String hashed2 = AccessToken.digestToHexString(tokenValue, saltValue);
 
         assertThat(hashed1).isEqualTo(hashed2);
     }

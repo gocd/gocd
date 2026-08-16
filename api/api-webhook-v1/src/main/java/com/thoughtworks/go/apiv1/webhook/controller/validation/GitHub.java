@@ -18,14 +18,13 @@ package com.thoughtworks.go.apiv1.webhook.controller.validation;
 
 import com.thoughtworks.go.apiv1.webhook.request.WebhookRequest;
 import com.thoughtworks.go.config.exceptions.HttpException;
+import com.thoughtworks.go.util.SystemUtil;
 import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.apache.commons.codec.digest.HmacUtils;
 
-import java.security.MessageDigest;
 import java.util.Set;
 import java.util.function.Function;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class GitHub implements ValidateAuth.Provider {
@@ -47,7 +46,7 @@ public class GitHub implements ValidateAuth.Provider {
 
         final String expectedSignature = calculateSignature(webhookSecret, request.contents());
 
-        if (!MessageDigest.isEqual(expectedSignature.getBytes(UTF_8), signature.getBytes(UTF_8))) {
+        if (!SystemUtil.equalsSecure(expectedSignature, signature)) {
             throw fail.apply("HMAC signature specified via 'X-Hub-Signature' did not match!");
         }
     }

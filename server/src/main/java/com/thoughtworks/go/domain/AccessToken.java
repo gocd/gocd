@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.util.Clock;
+import com.thoughtworks.go.util.SystemUtil;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.commons.codec.binary.Hex;
@@ -27,15 +28,12 @@ import org.slf4j.LoggerFactory;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.Timestamp;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.substring;
 
 @EqualsAndHashCode(callSuper = true, doNotUseGetters = true)
 @ToString(callSuper = true)
@@ -84,7 +82,7 @@ public class AccessToken extends PersistentObject implements Validatable {
         ACCESS_TOKEN_LOGGER.debug("[Access Token] Generating Secure Random String of length {} bytes for salt value.", SALT_LENGTH);
         String saltValue = generateSecureRandomString(SALT_LENGTH);
         ACCESS_TOKEN_LOGGER.debug("[Access Token] Generating hashed token from original token and salt value.");
-        String hashedToken = digestToken(originalToken, saltValue);
+        String hashedToken = digestToHexString(originalToken, saltValue);
         String finalTokenValue = String.format("%s%s", saltId, originalToken);
         ACCESS_TOKEN_LOGGER.debug("[Access Token] Done creating new access token for user '{}' description '{}' using auth config '{}'.", username, description, authConfigId);
 
@@ -105,7 +103,7 @@ public class AccessToken extends PersistentObject implements Validatable {
         return Hex.encodeHexString(randomBytes);
     }
 
-    static String digestToken(String originalToken, String salt) {
+    static String digestToHexString(String originalToken, String salt) {
         try {
             ACCESS_TOKEN_LOGGER.debug("Generating secret using algorithm: {} with spec: DEFAULT_ITERATIONS: {}, DESIRED_KEY_LENGTH: {}", KEY_ALGORITHM, DEFAULT_ITERATIONS, DESIRED_KEY_LENGTH);
             SecretKeyFactory factory = SecretKeyFactory.getInstance(KEY_ALGORITHM);
@@ -157,13 +155,8 @@ public class AccessToken extends PersistentObject implements Validatable {
         this.errors.add(fieldName, message);
     }
 
-    public boolean isValidToken(String actualToken) {
-        String originalToken = substring(actualToken, 8);
-        String saltValue = getSaltValue();
-        String digestOfUserProvidedToken = digestToken(originalToken, saltValue);
-
-        // to avoid timing attacks. See https://security.stackexchange.com/a/83670
-        return MessageDigest.isEqual(getValue().getBytes(StandardCharsets.UTF_8), digestOfUserProvidedToken.getBytes(StandardCharsets.UTF_8));
+    public boolean equalsSecure(@NonNull String otherTokenValue, @NonNull String otherSalt) {
+        return SystemUtil.equalsSecure(getValue(), digestToHexString(otherTokenValue, otherSalt));
     }
 
     @Getter

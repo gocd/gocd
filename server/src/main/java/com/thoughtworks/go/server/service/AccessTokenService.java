@@ -36,8 +36,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.apache.commons.lang3.StringUtils.substring;
-
 @Service
 public class AccessTokenService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessTokenService.class);
@@ -92,19 +90,20 @@ public class AccessTokenService {
         return token;
     }
 
-    public AccessToken findByAccessToken(String actualToken) {
-        if (actualToken.length() != 40) {
+    public AccessToken findByAccessToken(String userSuppliedToken) {
+        if (userSuppliedToken.length() != 40) {
             throw new InvalidAccessTokenException();
         }
 
-        String saltId = substring(actualToken, 0, 8);
+        String userSuppliedSalt = userSuppliedToken.substring(0, 8);
 
-        AccessToken token = accessTokenDao.findAccessTokenBySaltId(saltId);
+        AccessToken token = accessTokenDao.findAccessTokenBySaltId(userSuppliedSalt);
         if (token == null) {
             throw new InvalidAccessTokenException();
         }
 
-        boolean isValid = token.isValidToken(actualToken);
+        String userSuppliedTokenValue = userSuppliedToken.substring(8);
+        boolean isValid = token.equalsSecure(userSuppliedTokenValue, userSuppliedSalt);
 
         if (!isValid) {
             throw new InvalidAccessTokenException();

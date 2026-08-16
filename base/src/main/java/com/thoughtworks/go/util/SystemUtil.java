@@ -15,12 +15,15 @@
  */
 package com.thoughtworks.go.util;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.*;
 
 public class SystemUtil {
@@ -167,5 +170,22 @@ public class SystemUtil {
         } catch (Exception e) {
             return SystemUtil.getFirstLocalNonLoopbackIpAddress();
         }
+    }
+
+    /**
+     * @return whether the two strings are equal when compared in a secure (non-timing attackable) way.
+     * This is useful for comparing passwords and other sensitive information.
+     */
+    public static boolean equalsSecure(@NotNull String left, @NotNull String right) {
+        return equalsSecure(left.getBytes(StandardCharsets.UTF_8), right.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * @return whether the two byte arrays are equal when compared in a secure (non-timing attackable) way.
+     * This is useful for comparing passwords and other sensitive information.
+     */
+    public static boolean equalsSecure(byte[] left, byte[] right) {
+        // to avoid timing attacks. See https://security.stackexchange.com/a/83670
+        return MessageDigest.isEqual(left, right);
     }
 }

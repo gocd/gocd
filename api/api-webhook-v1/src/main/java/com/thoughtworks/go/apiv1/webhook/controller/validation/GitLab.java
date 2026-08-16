@@ -18,12 +18,11 @@ package com.thoughtworks.go.apiv1.webhook.controller.validation;
 
 import com.thoughtworks.go.apiv1.webhook.request.WebhookRequest;
 import com.thoughtworks.go.config.exceptions.HttpException;
+import com.thoughtworks.go.util.SystemUtil;
 
-import java.security.MessageDigest;
 import java.util.Set;
 import java.util.function.Function;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class GitLab implements ValidateAuth.Provider {
@@ -38,7 +37,7 @@ public class GitLab implements ValidateAuth.Provider {
             throw fail.apply("No token specified in the 'X-Gitlab-Token' header!");
         }
 
-        if (!MessageDigest.isEqual(token.getBytes(UTF_8), webhookSecret.getBytes(UTF_8))) {
+        if (!SystemUtil.equalsSecure(token, webhookSecret)) {
             throw fail.apply("Token specified in the 'X-Gitlab-Token' header did not match!");
         }
     }

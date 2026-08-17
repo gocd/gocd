@@ -16,11 +16,13 @@
 package com.thoughtworks.go.domain;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.tools.ant.DirectoryScanner;
+import org.codehaus.plexus.util.DirectoryScanner;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class WildcardScanner  {
     private final File rootPath;
@@ -36,19 +38,18 @@ public class WildcardScanner  {
         scanner.setBasedir(rootPath);
         scanner.setIncludes(new String[]{pattern});
         scanner.scan();
-        String[] allPaths = scanner.getIncludedFiles();
-        List<File> allFiles = new ArrayList<>();
-        String[] directories = scanner.getIncludedDirectories();
-        for (String directory : directories) {
-            allFiles.add(new File(rootPath, directory));
+        Set<File> includedDirs = new LinkedHashSet<>();
+        for (String directory : scanner.getIncludedDirectories()) {
+            includedDirs.add(new File(rootPath, directory));
         }
 
-        for (String allPath : allPaths) {
-            File file = new File(rootPath, allPath);
-            if (!allFiles.contains(file.getParentFile())) {
+        List<File> allFiles = new ArrayList<>(includedDirs);
+        for (String path : scanner.getIncludedFiles()) {
+            File file = new File(rootPath, path);
+            if (!includedDirs.contains(file.getParentFile())) {
                 allFiles.add(file);
             }
         }
-        return allFiles.toArray(new File[]{});
+        return allFiles.toArray(new File[0]);
     }
 }

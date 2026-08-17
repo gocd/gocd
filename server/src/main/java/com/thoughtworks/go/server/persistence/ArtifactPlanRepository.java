@@ -50,8 +50,7 @@ public class ArtifactPlanRepository extends HibernateDaoSupport {
     }
 
     public ArtifactPlan saveCopyOf(long jobId, ArtifactPlan artifactPlan) {
-        ArtifactPlan copyOfArtifactPlan = new ArtifactPlan(artifactPlan);
-        copyOfArtifactPlan.setBuildId(jobId);
+        ArtifactPlan copyOfArtifactPlan = new ArtifactPlan(jobId, artifactPlan);
         save(copyOfArtifactPlan);
         return copyOfArtifactPlan;
     }

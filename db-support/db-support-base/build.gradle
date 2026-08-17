@@ -19,6 +19,7 @@ dependencies {
   if (rootProject.deps.commonsDbcp) {
     runtimeOnly rootProject.deps.slf4jJcl // Allow commons-logging replacement
   }
+  implementation rootProject.deps.plexusUtils
 
   annotationProcessor rootProject.deps.lombok
   compileOnly rootProject.deps.lombok

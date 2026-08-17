@@ -25,17 +25,19 @@ import com.thoughtworks.go.util.FilenameUtil;
 import com.thoughtworks.go.util.json.JsonHelper;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.io.FilenameUtils.separatorsToUnix;
 import static org.apache.commons.lang3.Strings.CS;
-import static org.apache.tools.ant.types.selectors.SelectorUtils.rtrimWildcardTokens;
 
 public class ArtifactPlan extends PersistentObject {
     private static final Logger LOG = LoggerFactory.getLogger(ArtifactPlan.class);
@@ -63,9 +65,10 @@ public class ArtifactPlan extends PersistentObject {
         }
     }
 
-    public ArtifactPlan(ArtifactPlan artifactPlan) {
+    public ArtifactPlan(long buildId, ArtifactPlan artifactPlan) {
         this(artifactPlan.artifactPlanType, artifactPlan.src, artifactPlan.dest);
         this.pluggableArtifactConfigJson = artifactPlan.pluggableArtifactConfigJson;
+        this.buildId = buildId;
     }
 
     public ArtifactPlan(ArtifactPlanType artifactType, String src, String dest) {
@@ -112,65 +115,64 @@ public class ArtifactPlan extends PersistentObject {
     }
 
     public void printArtifactInfo(StringBuilder builder) {
-        if (artifactPlanType == ArtifactPlanType.file || artifactPlanType == ArtifactPlanType.unit) {
-            builder.append('[').append(getSrc()).append(']');
-        } else {
-            builder.append('[').append(getPluggableArtifactConfiguration().get("id")).append(']');
+        builder.append('[');
+        switch (artifactPlanType) {
+            case file, unit -> builder.append(getSrc());
+            case external -> builder.append(getPluggableArtifactConfiguration().get("id"));
         }
+        builder.append(']');
     }
 
     public void publishBuiltInArtifacts(GoPublisher publisher, final File rootPath) {
         switch (artifactPlanType) {
-            case unit:
-                publishTestArtifact(publisher, rootPath);
-                break;
-            case file:
-                publishBuildArtifact(publisher, rootPath);
-                break;
+            case unit -> publishTestArtifact(publisher, rootPath);
+            case file -> publishBuildArtifact(publisher, rootPath);
         }
     }
 
     private void publishBuildArtifact(GoPublisher publisher, File rootPath) {
-        File[] files = getArtifactFiles(rootPath, ArtifactPlan.this);
-        if (files.length == 0) {
+        List<File> files = getArtifactFiles(rootPath);
+        if (files.isEmpty()) {
             String message = "The rule [" + getSrc() + "] cannot match any resource under [" + rootPath + "]";
             publisher.taggedConsumeLineWithPrefix(GoPublisher.PUBLISH_ERR, message);
             throw new RuntimeException(message);
         }
-        uploadArtifactFiles(publisher, rootPath, getSrc(), getDest(), files);
+        uploadArtifactFiles(publisher, rootPath, files);
     }
 
     private void publishTestArtifact(GoPublisher goPublisher, File rootPath) {
         mergeAndUploadTestResult(goPublisher, uploadTestResults(goPublisher, rootPath));
     }
 
-    public List<File> uploadTestResults(GoPublisher publisher, File rootPath) {
-        List<File> uploadedFiles = new ArrayList<>();
-        for (ArtifactPlan artifactPlan : testArtifactPlansForMerging) {
-            File[] files = getArtifactFiles(rootPath, artifactPlan);
-            if (files.length > 0) {
-                uploadedFiles.addAll(uploadArtifactFiles(publisher, rootPath, artifactPlan.getSrc(), artifactPlan.getDest(), files));
-            } else {
-                final String message = MessageFormat.format("The directory {0} specified as a test artifact was not found."
-                        + " Please check your configuration", separatorsToUnix(artifactPlan.getSource(rootPath).getPath()));
-                publisher.taggedConsumeLineWithPrefix(GoPublisher.PUBLISH_ERR, message);
-                LOG.error(message);
-            }
-        }
-        return uploadedFiles;
+    private List<File> uploadTestResults(GoPublisher publisher, File rootPath) {
+        return testArtifactPlansForMerging.stream()
+            .flatMap(testPlan -> testPlan.uploadTestResult(publisher, rootPath).stream())
+            .toList();
     }
 
-    private List<File> uploadArtifactFiles(GoPublisher publisher, File rootPath, String src, String dest, File[] files) {
-        final List<File> fileList = files == null ? new ArrayList<>() : Arrays.asList(files);
-        for (File file : fileList) {
-            publisher.upload(file, destinationURL(rootPath, file, src, dest));
+    private List<File> uploadTestResult(GoPublisher publisher, File rootPath) {
+        List<File> files = getArtifactFiles(rootPath);
+
+        if (files.isEmpty()) {
+            final String message = MessageFormat.format("The directory {0} specified as a test artifact was not found."
+                    + " Please check your configuration", separatorsToUnix(getSource(rootPath).getPath()));
+            publisher.taggedConsumeLineWithPrefix(GoPublisher.PUBLISH_ERR, message);
+            LOG.warn(message);
+            return Collections.emptyList();
         }
-        return fileList;
+
+        uploadArtifactFiles(publisher, rootPath, files);
+        return files;
     }
 
-    private File[] getArtifactFiles(File rootPath, ArtifactPlan artifactPlan) {
-        WildcardScanner wildcardScanner = new WildcardScanner(rootPath, artifactPlan.getSrc());
-        return wildcardScanner.getFiles();
+    private void uploadArtifactFiles(GoPublisher publisher, File rootPath, List<File> files) {
+        for (File file : files) {
+            publisher.upload(file, destinationUrl(rootPath, file));
+        }
+    }
+
+    private List<File> getArtifactFiles(File rootPath) {
+        return List.of(new WildcardScanner(rootPath, getSrc()).getFiles());
     }
 
     private void mergeAndUploadTestResult(GoPublisher publisher, List<File> allFiles) {
@@ -196,28 +198,36 @@ public class ArtifactPlan extends PersistentObject {
         }
     }
 
-    protected File getSource(File rootPath) {
+    private File getSource(File rootPath) {
         return new File(FilenameUtil.applyBaseDirIfRelativeAndNormalize(rootPath, new File(getSrc())));
     }
 
-    public String destinationURL(File rootPath, File file) {
-        return destinationURL(rootPath, file, getSrc(), getDest());
+    @VisibleForTesting
+    String destinationUrl(File rootPath, File file) {
+        String unixSrc = getSrc();
+        String unixSrcBeforePattern = removeAntPatternFromEnd(unixSrc);
+
+        if (unixSrcBeforePattern.equals(unixSrc)) {
+            return getDest();
+        }
+
+        // Get the bits before any pattern and map relative to dest
+        String destRelativeUnixPath = CS.removeStart(toUnixPathWithoutRoot(file, rootPath), unixSrcBeforePattern);
+        return destRelativeUnixPath.isEmpty() || destRelativeUnixPath.charAt(0) == '/'
+            ? getDest() + destRelativeUnixPath
+            : getDest() + "/" + destRelativeUnixPath;
     }
 
-    protected String destinationURL(File rootPath, File file, String src, String dest) {
-        String trimmedPattern = rtrimWildcardTokens(separatorsToUnix(src).replace('/', File.separatorChar));
-        if (CS.equals(separatorsToUnix(trimmedPattern), separatorsToUnix(src))) {
-            return dest;
-        }
-        String trimmedPath = CS.removeStart(subtractPath(rootPath, file), separatorsToUnix(trimmedPattern));
-        if (!trimmedPath.isEmpty() && !CS.startsWith(trimmedPath, "/")) {
-            trimmedPath = "/" + trimmedPath;
-        }
-        return dest + trimmedPath;
+    private static @NotNull String removeAntPatternFromEnd(String unixPattern) {
+        String prefix = Arrays.stream(StringUtils.split(unixPattern, '/'))
+            .takeWhile(token -> !StringUtils.containsAny(token, '*', '?'))
+            .collect(Collectors.joining("/"));
+
+        // Restore any leading `/` removed by the split since these seem to be allowed
+        return unixPattern.startsWith("/") ? "/" + prefix : prefix;
     }
 
-
-    private static @NotNull String subtractPath(File rootPath, File file) {
+    private static @NotNull String toUnixPathWithoutRoot(File file, File rootPath) {
         String fullPath = separatorsToUnix(file.getParentFile().getPath());
         String basePath = separatorsToUnix(rootPath.getPath());
         return CS.removeStart(CS.removeStart(fullPath, basePath), "/");

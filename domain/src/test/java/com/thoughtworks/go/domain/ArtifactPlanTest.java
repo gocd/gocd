@@ -78,35 +78,35 @@ public class ArtifactPlanTest {
     @Test
     public void shouldProvideAppendFilePathToDest() {
         ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "test/**/*/a.log", "logs");
-        assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
+        assertThat(artifactPlan.destinationUrl(new File("pipelines/pipelineA"),
             new File("pipelines/pipelineA/test/a/b/a.log"))).isEqualTo("logs/a/b");
     }
 
     @Test
     public void shouldProvideAppendFilePathToDestWhenUsingDoubleStart() {
         ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "**/*/a.log", "logs");
-        assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
+        assertThat(artifactPlan.destinationUrl(new File("pipelines/pipelineA"),
             new File("pipelines/pipelineA/test/a/b/a.log"))).isEqualTo("logs/test/a/b");
     }
 
     @Test
     public void shouldProvideAppendFilePathToDestWhenPathProvidedAreSame() {
         ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "test/a/b/a.log", "logs");
-        assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
+        assertThat(artifactPlan.destinationUrl(new File("pipelines/pipelineA"),
             new File("pipelines/pipelineA/test/b/a.log"))).isEqualTo("logs");
     }
 
     @Test
     public void shouldProvideAppendFilePathToDestWhenUsingSingleStarToMatchFile() {
         ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "test/a/b/*.log", "logs");
-        assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
+        assertThat(artifactPlan.destinationUrl(new File("pipelines/pipelineA"),
             new File("pipelines/pipelineA/test/a/b/a.log"))).isEqualTo("logs");
     }
 
     @Test
     public void shouldProvideAppendFilePathToDestWhenPathMatchingAtTheRoot() {
         ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "*.jar", "logs");
-        assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
+        assertThat(artifactPlan.destinationUrl(new File("pipelines/pipelineA"),
             new File("pipelines/pipelineA/a.jar"))).isEqualTo("logs");
     }
 

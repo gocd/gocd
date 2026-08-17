@@ -78,7 +78,6 @@ def libraries = [
   // version parsing is simply regex matching and never actually evaluates a gradle script.
   activeMQ            : 'org.apache.activemq:activemq-broker:6.3.1',
   angusMailSmtp       : 'org.eclipse.angus:smtp:2.0.5',
-  apacheAnt           : 'org.apache.ant:ant:1.10.17',
   apacheHttpComponents: 'org.apache.httpcomponents:httpclient:4.5.14',
   aspectj             : 'org.aspectj:aspectjweaver:1.9.25.1',
   assertJ             : 'org.assertj:assertj-core:3.27.7',
@@ -136,6 +135,7 @@ def libraries = [
   mysql               : 'com.mysql:mysql-connector-j:26.7.0',
   objenesis           : 'org.objenesis:objenesis:3.6',
   oshi                : 'com.github.oshi:oshi-core:7.4.4',
+  plexusUtils         : 'org.codehaus.plexus:plexus-utils:4.0.3',
   postgresql          : 'org.postgresql:postgresql:42.7.13',
   quartz              : 'org.quartz-scheduler:quartz:2.5.2',
   rack                : 'com.github.gocd-contrib:jruby-rack:1.3.0.13',

@@ -24,9 +24,8 @@ dependencies {
   api project(':config:config-api')
   implementation project(':commandline')
   implementation project(':plugin-infra:plugin-metadata-store')
-  implementation(rootProject.deps.apacheAnt)  {
-    exclude(module: 'ant-launcher')
-  }
+  implementation rootProject.deps.plexusUtils
+
   implementation rootProject.deps.jakartaAnnotation
   implementation rootProject.deps.gson
   implementation rootProject.deps.commonsCodec

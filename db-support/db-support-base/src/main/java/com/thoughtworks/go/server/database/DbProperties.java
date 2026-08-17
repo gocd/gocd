@@ -22,6 +22,8 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import org.codehaus.plexus.util.cli.CommandLineException;
+import org.codehaus.plexus.util.cli.CommandLineUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -90,5 +92,17 @@ public class DbProperties {
 
     public String connectionPropertiesAsString() {
         return connectionProperties.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining(";"));
+    }
+
+    public String[] extraBackupCommandArgsAsArray() {
+        try {
+            return CommandLineUtils.translateCommandline(extraBackupCommandArgs());
+        } catch (CommandLineException e) {
+            throw new RuntimeException(e.getMessage());
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

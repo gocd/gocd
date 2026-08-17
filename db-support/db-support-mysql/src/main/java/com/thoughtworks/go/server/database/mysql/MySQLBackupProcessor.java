@@ -21,7 +21,6 @@ import com.mysql.cj.conf.HostInfo;
 import com.thoughtworks.go.server.database.BackupProcessor;
 import com.thoughtworks.go.server.database.DbProperties;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tools.ant.types.Commandline;
 import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.ProcessInitException;
 import org.zeroturnaround.exec.ProcessResult;
@@ -86,7 +85,7 @@ public class MySQLBackupProcessor implements BackupProcessor {
 
         // append any user specified args for mysqldump
         if (!dbProperties.extraBackupCommandArgs().isBlank()) {
-            Collections.addAll(argv, Commandline.translateCommandline(dbProperties.extraBackupCommandArgs()));
+            Collections.addAll(argv, dbProperties.extraBackupCommandArgsAsArray());
         }
 
         argv.add("--result-file=" + new File(targetDir, "db." + dbName));

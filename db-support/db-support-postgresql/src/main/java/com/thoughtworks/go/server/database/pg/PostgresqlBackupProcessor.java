@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.database.pg;
 import com.thoughtworks.go.server.database.BackupProcessor;
 import com.thoughtworks.go.server.database.DbProperties;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tools.ant.types.Commandline;
 import org.postgresql.Driver;
 import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.ProcessInitException;
@@ -84,7 +83,7 @@ public class PostgresqlBackupProcessor implements BackupProcessor {
         argv.add("--no-password");
         // append any user specified args for pg_dump
         if (!dbProperties.extraBackupCommandArgs().isBlank()) {
-            Collections.addAll(argv, Commandline.translateCommandline(dbProperties.extraBackupCommandArgs()));
+            Collections.addAll(argv, dbProperties.extraBackupCommandArgsAsArray());
         }
         argv.add("--file=" + new File(targetDir, "db." + dbName));
         ProcessExecutor processExecutor = new ProcessExecutor();
@@ -94,4 +93,5 @@ public class PostgresqlBackupProcessor implements BackupProcessor {
         processExecutor.command(argv);
         return processExecutor;
     }
+
 }

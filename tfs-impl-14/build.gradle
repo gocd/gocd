@@ -218,6 +218,7 @@ dependencies {
   implementation project(':base')
   implementation project(':common')
   implementation project(':domain')
+  implementation files().builtBy(publishTfsSdkPublicationToMavenLocal) // construct dummy dependency to ensure built
   implementation "${tfsSdkGroupId}:${tfsSdkModuleId}:${tfsSdkVersion}" // from the project-local repository declared above
   compileOnly rootProject.deps.jetBrainsAnnotations
 

@@ -380,15 +380,6 @@
     <vulnerabilityName>CVE-2026-17459</vulnerabilityName>
   </suppress>
 
-  <suppress until="2026-08-20">
-    <notes><![CDATA[
-    Fixes have not been released for these jackson-databind vulns.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson-databind@.*$</packageUrl>
-    <cve>CVE-2026-19032</cve>
-    <cve>CVE-2026-68497</cve>
-  </suppress>
-
   <suppress>
     <notes><![CDATA[
     GoCD does not seem to be vulnerable to these issues as it does not use Angular in a vulnerable way.

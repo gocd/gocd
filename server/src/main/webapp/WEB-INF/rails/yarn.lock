@@ -5403,14 +5403,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jasmine-core@npm:^6":
-  version: 6.3.0
-  resolution: "jasmine-core@npm:6.3.0"
-  checksum: 10c0/4176118dce0545f841a9bd57b22db82eff7a974d94fc73e06b4c7148d29ea276cdc00fbe2bb9631bc4264e6868b423650c818987b4f79bd512295c9abef0d344
-  languageName: node
-  linkType: hard
-
-"jasmine-core@npm:~7.0.0":
+"jasmine-core@npm:^7, jasmine-core@npm:~7.0.0":
   version: 7.0.1
   resolution: "jasmine-core@npm:7.0.1"
   checksum: 10c0/25b15c46ca44df8160cb73c5449f93457d2c64947d84fc4858b11f60ea70361192d196e25babdfcd0905d5944ef5b9ed0dcf9809a86e1bb0666c642f25116091

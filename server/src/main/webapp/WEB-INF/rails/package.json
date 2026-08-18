@@ -124,7 +124,7 @@
     "webpack-cli": "^7.2.2"
   },
   "resolutions": {
-    "karma-jasmine@npm:5.1.0/jasmine-core": "^6",
+    "karma-jasmine@npm:5.1.0/jasmine-core": "^7",
     "angular": "portal:node-vendor/angular",
     "opensans": "portal:node-vendor/opensans"
   }

@@ -490,11 +490,13 @@
 
   <suppress>
     <notes><![CDATA[
-    Suppress false positive from jline 2.14.16 embedded within jruby-stdlib. This issue appears to only apply to jline 3.x where 2.x is not vulnerable
-    after reading https://nvd.nist.gov/vuln/detail/CVE-2023-50572 and https://github.com/jline/jline3/issues/909 (different project to jline 2)
+    Suppress false positives from jline 2.14.6 embedded within jruby-stdlib. These issue appear to only apply to
+    jline-groovy and jline-remote-telnet, not the main jline artifact.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/jline/jline@2\..*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/jline/jline@.*$</packageUrl>
     <cve>CVE-2023-50572</cve>
+    <cve>CVE-2026-56740</cve>
+    <cve>CVE-2026-56741</cve>
   </suppress>
 
   <suppress>

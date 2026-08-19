@@ -66,6 +66,6 @@ public class SystemInfo {
     }
 
     private static Optional<String> optionalFrom(String systemInfoValue) {
-        return Util.isBlankOrUnknown(systemInfoValue) ? Optional.empty() : Optional.of(systemInfoValue);
+        return Util.isBlank(systemInfoValue) ? Optional.empty() : Optional.of(systemInfoValue);
     }
 }

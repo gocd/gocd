@@ -67,7 +67,7 @@ describe("NewElasticAgentsWidget", () => {
     //@ts-ignore
     const elasticAgentPluginInfo = new PluginInfo(elasticAgent.elasticPluginId,
                                                   null,
-                                                  "foo",
+                                                  "/go/assets/foo",
                                                   null,
                                                   null,
                                                   false,

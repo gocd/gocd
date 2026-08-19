@@ -191,7 +191,7 @@ describe("New Plugins Widget", () => {
     return {
       _links: {
         image: {
-          href: "some-image-link"
+          href: "/go/assets/some-image-link"
         }
       },
       id: "cd.go.contrib.elastic-agent.docker",
@@ -369,7 +369,7 @@ describe("New Plugins Widget", () => {
     return {
       _links: {
         image: {
-          href: "some-image-link"
+          href: "/go/assets/some-image-link"
         }
       },
       plugin_file_location: '/tmp/foo.jar',

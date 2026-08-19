@@ -52,11 +52,11 @@ describe("Analytics iFrame Widget", () => {
   });
 
   it('should load view path from model and create an iframe with sandbox', () => {
-    mount(newModel({a: 1}, "/some/path"), noop);
+    mount(newModel({a: 1}, "/go/api/some/path"), noop);
     const iframe = helper.q('iframe');
 
     expect(iframe.getAttribute('sandbox')).toBe('allow-scripts');
-    expect(iframe.getAttribute('src')).toBe('/some/path');
+    expect(iframe.getAttribute('src')).toBe('/go/api/some/path');
   });
 
   it('should show errors if any', () => {

@@ -109,6 +109,7 @@ abstract class YarnRunTask extends DefaultTask {
         execSpec.environment = normalizeEnvironmentPath(execSpec.environment)
         execSpec.environment("PATH", ([additionalPath] + execSpec.environment["PATH"].toString()).join(File.pathSeparator))
       }
+      execSpec.environment("CI", GoVersions.isCi())
       execSpec.environment("FORCE_COLOR", "true")
       execSpec.workingDir = this.getWorkingDir()
       execSpec.commandLine = [yarnExecutable(execSpec.workingDir), "run"] + getYarnCommand()

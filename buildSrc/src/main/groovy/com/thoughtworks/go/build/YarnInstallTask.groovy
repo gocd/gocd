@@ -59,10 +59,11 @@ class YarnInstallTask extends DefaultTask {
 
   @TaskAction
   def install() {
-    execOperations.exec { execTask ->
-      execTask.environment("FORCE_COLOR", "true")
-      execTask.workingDir = this.getWorkingDir()
-      execTask.commandLine = [YarnRunTask.yarnExecutable(execTask.workingDir), "install", "--immutable"]
-    }  
+    execOperations.exec { execSpec ->
+      execSpec.environment("CI", GoVersions.isCi())
+      execSpec.environment("FORCE_COLOR", "true")
+      execSpec.workingDir = this.getWorkingDir()
+      execSpec.commandLine = [YarnRunTask.yarnExecutable(execSpec.workingDir), "install", "--immutable"]
+    }
   }
 }

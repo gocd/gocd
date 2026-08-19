@@ -32,10 +32,22 @@ if (process.platform === 'darwin') {
   browsers = ['FirefoxHeadless'];
 }
 
+// Workaround for lack of properly mapping assets to files; and use of dummy URLs in specs
+function stubAssets() {
+  return (req, res, next) => {
+    if (req.url.startsWith('/go/api') || req.url.startsWith('/go/assets')) {
+      res.writeHead(204);
+      return res.end();
+    }
+    next();
+  };
+}
+
 export default function (config) {
   config.set({
     basePath: 'public/assets/webpack',
     frameworks: ['jasmine'],
+    middleware: ['stubAssets'],
     client: {
       captureConsole: true,
       jasmine: {
@@ -43,7 +55,11 @@ export default function (config) {
         seed: process.env['JASMINE_SEED']
       }
     },
-    plugins: [jasmineSeedReporter, "karma-*"],
+    plugins: [
+      jasmineSeedReporter,
+      "karma-*",
+      { 'middleware:stubAssets': ['factory', stubAssets] }
+    ],
     preprocessors: {
       '**/*.js': ['sourcemap']
     },
@@ -55,20 +71,17 @@ export default function (config) {
         served: true
       };
     }),
-    reporters: ['dots', 'kjhtml', 'html', 'jasmine-seed'],
+    reporters: ['kjhtml', 'html', 'jasmine-seed'].concat(process.env['CI'] === 'false' ? ['progress'] : []),
     htmlReporter: {
       outputDir: path.resolve('../../../../../target/karma_reports'),
-      templatePath: null,
       focusOnFailures: true,
       namedFiles: false,
-      pageTitle: null,
-      urlFriendlyName: false,
-      preserveDescribeNesting: false,
-      foldAll: false,
+      urlFriendlyName: true,
+      foldAll: false
     },
     port: 9876,
     colors: true,
-    logLevel: process.env['KARMA_LOG_LEVEL'] ? config[`LOG_${process.env['KARMA_LOG_LEVEL'].toUpperCase()}`] : config.LOG_INFO,
+    logLevel: config.LOG_INFO,
     autoWatch: true,
     browsers,
     singleRun: false,

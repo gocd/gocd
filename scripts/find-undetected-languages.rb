@@ -2,6 +2,14 @@
 require "rugged"
 require "linguist"
 
+explicitly_unknown = [
+  %r{^.*/META-INF/services}, # Java service loader files
+  %r{-sudo$},                # sudoers format
+  %r{hg\.template$},         # Mercurial formatting template
+  %r{\.bundle/config$},      # Ruby Bundler config
+  %r{\.(enc|key)$},          # Ruby sample key files
+]
+
 repo = Rugged::Repository.new(Dir.pwd)
 tree = repo.last_commit.tree
 
@@ -10,7 +18,7 @@ def counted?(blob)
   return false unless blob.language
   return false if blob.vendored? || blob.generated? || blob.documentation?
   d = blob.detectable?                    # attribute override: true / false / nil
-  return d unless d.nil?                   # explicit linguist-detectable wins
+  return d unless d.nil?                  # explicit linguist-detectable wins
   %i[programming markup].include?(blob.language.type)   # default rule
 end
 
@@ -19,6 +27,8 @@ tree.walk_blobs(:preorder) do |root, entry|
   path = root + entry[:name]
   blob = Linguist::LazyBlob.new(repo, entry[:oid], path, entry[:filemode].to_s(8))
 
+  next if explicitly_unknown.any? { |re| re.match?(path) }      # ignore explicitly unknown files
+  next if blob.size == 0                                        # empty files
   next if counted?(blob)                                        # it's already in the bar — skip
   next if blob.binary? || blob.vendored? || blob.documentation? # assume these are detected correctly
   next if %w[data prose].include? blob.language&.type.to_s      # assume these are detected correctly

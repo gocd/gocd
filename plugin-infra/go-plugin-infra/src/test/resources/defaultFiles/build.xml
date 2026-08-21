@@ -150,7 +150,7 @@
     <sequential>
       <delete file="@{file}.osgi.jar"/>
       <unzip src="@{file}.jar" dest="target"/>
-      <copy file="MANIFEST.WITH.BUNDLE.INFO.MF" tofile="target/META-INF/MANIFEST.MF" overwrite="true"/>
+      <copy file="MANIFEST.MF" tofile="target/META-INF/MANIFEST.MF" overwrite="true"/>
       <replace file="target/META-INF/MANIFEST.MF" token="${defaultPluginId}" value="@{pluginId}"/>
       <copy file="go-plugin-activator.jar" tofile="target/lib/go-plugin-activator.jar"/>
       <zip destfile="@{file}.osgi.jar" basedir="target"/>

@@ -248,7 +248,7 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
     @Test
     void shouldParseGitOutputCorrectly() throws IOException {
         List<String> stringList;
-        try (InputStream resourceAsStream = Objects.requireNonNull(getClass().getResourceAsStream("git_sample_output.text"))) {
+        try (InputStream resourceAsStream = Objects.requireNonNull(getClass().getResourceAsStream("git_sample_output.txt"))) {
             stringList = new String(resourceAsStream.readAllBytes(), UTF_8).lines().toList();
         }
 

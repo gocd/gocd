@@ -66,11 +66,12 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-    GoCD is not vulnerable to the default as described at https://nvd.nist.gov/vuln/detail/CVE-2022-22970 as we do not
-    rely on data binding for dealing with MultipartFile or javax.servlet.Part objects into models.
+    GoCD is not vulnerable to these as we do not rely on data binding for dealing with MultipartFile or javax.servlet.Part objects into models
+    nor allow users to control data binding paths.
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
     <cve>CVE-2022-22970</cve>
+    <cve>CVE-2026-59282</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[

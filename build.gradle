@@ -125,7 +125,7 @@ def libraries = [
   jsonUnit            : 'net.javacrumbs.json-unit:json-unit-assertj:6.2.0',
   jsoup               : 'org.jsoup:jsoup:1.23.1',
   junit5Bom           : 'org.junit:junit-bom:6.1.3',
-  liquibase           : 'org.liquibase:liquibase-core:5.0.3',
+  liquibase           : 'org.liquibase:liquibase-core:5.0.4',
   liquibaseSlf4j      : 'com.mattbertolini:liquibase-slf4j:5.1.0',
   logback             : 'ch.qos.logback:logback-classic:1.6.3',
   lombok              : 'org.projectlombok:lombok:1.18.46',

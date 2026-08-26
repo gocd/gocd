@@ -156,6 +156,36 @@
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
     <cve>CVE-2026-41853</cve>
   </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not use XsltView or UrlFileNameView rendering so is not subject to these vulnerabilities.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@.*$</packageUrl>
+    <cve>CVE-2026-47884</cve>
+    <cve>CVE-2026-47887</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    While GoCD uses FreeMarker views and SpringTemplateLoader, it does not allow view names to be supplied from
+    arbitrary user input, so not vulnerable to https://spring.io/security/cve-2026-59280
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <cve>CVE-2026-59280</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not rely on data binding getFieldError(s) to render responses that would allow cross-site scripting.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <cve>CVE-2026-59281</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not dynamically build Content-Disposition headers via Spring based on untrusted user input.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <cve>CVE-2026-59314</cve>
+  </suppress>
 
   <suppress>
     <notes><![CDATA[

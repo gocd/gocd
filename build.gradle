@@ -62,8 +62,8 @@ def goVersions = new GoVersions(
     feature: 25,
     interim: 0,    // set to `null` for the first release of a new featureVersion
     update:  4,    // set to `null` for the first release of a new featureVersion
-    patch:   null, // set to `null` for most releases. Patch releases are "exceptional".
-    build:   7
+    patch:   1,    // set to `null` for most releases. Patch releases are "exceptional".
+    build:   1
   ),
 )
 ext.goVersions = goVersions

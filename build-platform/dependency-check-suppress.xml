@@ -475,11 +475,13 @@
 
   <suppress>
     <notes><![CDATA[
-    Suppress false positive from nokogiri. GoCD does not use Ruby/nokogiri to validate docs against HTML schemas, so
-    is not vulnerable to https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-8678-w3jw-xfc2
+    Suppress false positive from nokogiri. GoCD does not use Ruby/nokogiri to validate docs against HTML schemas, let
+    users influence CSS selectors, or use XSLT transforms - so is not vulnerable to these vulnerabilities.
     ]]></notes>
     <packageUrl regex="true">^pkg:gem/nokogiri@.*$</packageUrl>
     <cve>CVE-2026-57234</cve>
+    <cve>CVE-2026-79770</cve>
+    <cve>CVE-2026-79771</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[

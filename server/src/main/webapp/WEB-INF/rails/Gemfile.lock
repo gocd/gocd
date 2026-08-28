@@ -151,7 +151,7 @@ GEM
     sassc-embedded (1.80.9)
       sass-embedded (~> 1.80)
     securerandom (0.4.1)
-    sprockets (4.4.0)
+    sprockets (4.4.1)
       concurrent-ruby (~> 1.1)
       logger
       rack (>= 2.2.4, < 4)
@@ -247,7 +247,7 @@ CHECKSUMS
   sass-embedded (1.102.0) sha256=a73388d442b4409cc99e8ac02037069a9cc4419c895360f5ad17ad291fe43059
   sassc-embedded (1.80.9) sha256=bf90ad875181548646c1dcc317f985471980a7f5a71a87103536a6d3810dfeaa
   securerandom (0.4.1) sha256=cc5193d414a4341b6e225f0cb4446aceca8e50d5e1888743fac16987638ea0b1
-  sprockets (4.4.0) sha256=84d5819b31e65bf3e61d71241465e65b341947322f6bd57400648bb11e6bb024
+  sprockets (4.4.1) sha256=fbd665edad0916de5c7abefef0fc616866a60c5e48ce2846f39ac3fc5df9e184
   sprockets-rails (3.5.2) sha256=a9e88e6ce9f8c912d349aa5401509165ec42326baf9e942a85de4b76dbc4119e
   thor (1.5.0) sha256=e3a9e55fe857e44859ce104a84675ab6e8cd59c650a49106a05f55f136425e73
   tilt (2.9.0) sha256=da5735d0280bba96e9a91041bb14aee435ccad5c17b0fa519249ae543d9aa3a5

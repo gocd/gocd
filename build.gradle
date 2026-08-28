@@ -38,7 +38,7 @@ import java.time.Duration
 plugins {
   id 'base'
   id 'org.owasp.dependencycheck' version '13.0.0'
-  id 'com.autonomousapps.dependency-analysis' version '3.18.0'
+  id 'com.autonomousapps.dependency-analysis' version '3.19.1'
 }
 
 // Updated via automated scripting

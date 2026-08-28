@@ -249,6 +249,10 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
       into 'wrapper'
       Architecture.supportedWrapperArchs().each { arch -> include "wrapper-*-${arch}*" }
       exclude '*solaris*'
+
+      filePermissions {
+        unix(0755)
+      }
     }
 
     from("${extractDeltaPack.destinationDir}/lib") {

@@ -36,6 +36,10 @@ enum Architecture {
     canonicalize(System.getProperty("os.arch"))
   }
 
+  static supportedWrapperArchs() {
+    values().collect { it.tanukiWrapperAlias }.findAll { it != null }
+  }
+
   static Architecture canonicalize(String arch) {
     switch (arch.trim().toLowerCase()) {
       case ['all', 'noarch', 'none', 'N/A', '-', '']: return all

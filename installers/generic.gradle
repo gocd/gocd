@@ -142,14 +142,6 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
           eachLine = 'set _PASS_THROUGH=true'
         }
 
-        // Workaround issues with JVM arch detection scripts on Windows in Tanuki Wrapper 3.7.1. Should be fixed on 3.7.2.
-        if (eachLine == 'for /f "delims=" %%I in (\'"%_WRAPPER_EXE% --jvm_arch %_WRAPPER_CONF%"\') do (') {
-          eachLine = 'for /f "delims=" %%I in (\'call %_WRAPPER_EXE% --jvm_arch %_WRAPPER_CONF%\') do ('
-        }
-        if (eachLine == '    set "_JVM_ARCH=%%I"') {
-          eachLine = '    if "%%I"=="amd64" (set "_JVM_ARCH=amd64") else if "%%I"=="aarch64" (set "_JVM_ARCH=arm64")'
-        }
-
         return eachLine
       })
 
@@ -236,17 +228,17 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
     zipTask.inputs.file("include/wrapper-properties.${installerType.baseName}.conf.example")
 
     from("${extractDeltaPack.destinationDir}/bin") {
-      include 'wrapper-*64*'
-      exclude 'wrapper-solaris-*'
       into "wrapper"
+      Architecture.supportedWrapperArchs().each { arch -> include "wrapper-*-${arch}*" }
+      exclude '*solaris*'
     }
 
     from("${extractDeltaPack.destinationDir}/lib") {
       into "wrapper"
       include 'wrapper.jar'
-      include 'wrapper-*64.dll'
-      include 'libwrapper-*64.so'
-      exclude 'libwrapper-solaris-*'
+      Architecture.supportedWrapperArchs().each { arch -> include "wrapper-windows-${arch}.dll" }
+      Architecture.supportedWrapperArchs().each { arch -> include "libwrapper-*-${arch}*" }
+      exclude '*solaris*'
     }
 
     from('empty-ignore-file') {

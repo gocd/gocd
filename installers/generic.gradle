@@ -19,7 +19,7 @@ import com.thoughtworks.go.build.*
 import org.apache.tools.ant.filters.ConcatFilter
 import org.apache.tools.ant.filters.FixCrLfFilter
 
-tasks.register('agentGenericZip', Zip) { Zip thisTask ->
+def agentGenericZip = tasks.register('agentGenericZip', Zip) { Zip thisTask ->
   dependsOn configurations.agentBootstrapperJar
   configureGenericZip(thisTask, InstallerTypeAgent.instance)
 
@@ -33,7 +33,7 @@ tasks.register('agentGenericZip', Zip) { Zip thisTask ->
   finalizedBy "${thisTask.name}Metadata"
 }
 
-tasks.register('serverGenericZip', Zip) { Zip thisTask ->
+def serverGenericZip = tasks.register('serverGenericZip', Zip) { Zip thisTask ->
   dependsOn configurations.serverJar
   configureGenericZip(thisTask, InstallerTypeServer.instance)
 
@@ -45,16 +45,16 @@ tasks.register('serverGenericZip', Zip) { Zip thisTask ->
   finalizedBy "${thisTask.name}Metadata"
 }
 
-['agent', 'server'].each { installerType ->
-  def packageTaskName = "${installerType}GenericZip"
+[InstallerTypeAgent.instance, InstallerTypeServer.instance].each { installerType ->
+  def packageTaskName = "${installerType.name}GenericZip"
   tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
     architecture = Architecture.all
     packageTask = project.tasks.named(packageTaskName)
-    type = installerType == "agent" ? InstallerTypeAgent.instance : InstallerTypeServer.instance
+    type = installerType
   }
 }
 
-assemble.dependsOn(":installers:agentGenericZip", ":installers:serverGenericZip")
+assemble.dependsOn(agentGenericZip, serverGenericZip)
 
 def configureGenericZip(Zip zipTask, InstallerType installerType) {
   zipTask.with {
@@ -228,16 +228,19 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
     zipTask.inputs.file("include/wrapper-properties.${installerType.baseName}.conf.example")
 
     from("${extractDeltaPack.destinationDir}/bin") {
-      into "wrapper"
+      into 'wrapper'
       Architecture.supportedWrapperArchs().each { arch -> include "wrapper-*-${arch}*" }
       exclude '*solaris*'
     }
 
     from("${extractDeltaPack.destinationDir}/lib") {
-      into "wrapper"
+      into 'wrapper'
       include 'wrapper.jar'
-      Architecture.supportedWrapperArchs().each { arch -> include "wrapper-windows-${arch}.dll" }
-      Architecture.supportedWrapperArchs().each { arch -> include "libwrapper-*-${arch}*" }
+      Architecture.supportedWrapperArchs().each { arch ->
+        include "*-${arch}.dll"
+        include "*-${arch}.so"
+        include "*-${arch}.dylib"
+      }
       exclude '*solaris*'
     }
 

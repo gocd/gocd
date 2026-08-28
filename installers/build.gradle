@@ -38,7 +38,7 @@ dependencies {
   serverJar project(path: ':server-launcher', configuration: 'fatJarConfig')
 }
 
-tasks.register('versionFile') {
+def versionFile = tasks.register('versionFile') {
   outputs.upToDateWhen { false }
 
   def goVersions = rootProject.goVersions as GoVersions
@@ -71,7 +71,7 @@ tasks.register('versionFile') {
   }
 }
 
-assemble.dependsOn(':installers:versionFile')
+assemble.dependsOn(versionFile)
 
 apply from: 'tanuki.gradle'
 apply from: 'generic.gradle'

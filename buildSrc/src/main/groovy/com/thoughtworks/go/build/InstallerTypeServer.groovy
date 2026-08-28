@@ -20,6 +20,11 @@ class InstallerTypeServer implements InstallerType {
   static instance = new InstallerTypeServer()
 
   @Override
+  String getName() {
+    'server'
+  }
+
+  @Override
   String getBaseName() {
     'go-server'
   }

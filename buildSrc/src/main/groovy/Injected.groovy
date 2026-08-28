@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.model.ObjectFactory
 import org.gradle.process.ExecOperations
@@ -24,6 +23,5 @@ import javax.inject.Inject
 interface Injected {
   @Inject ExecOperations getExecOps()
   @Inject FileSystemOperations getFileOps()
-  @Inject ArchiveOperations getArchiveOps()
   @Inject ObjectFactory getObjectFactory()
 }

@@ -20,6 +20,11 @@ class InstallerTypeAgent implements InstallerType {
   static instance = new InstallerTypeAgent()
 
   @Override
+  String getName() {
+    'agent'
+  }
+
+  @Override
   String getBaseName() {
     'go-agent'
   }

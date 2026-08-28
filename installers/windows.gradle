@@ -56,7 +56,7 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
       injected.fileOps.copy {
         into buildRoot
 
-        def genericZipTree = injected.archiveOps.zipTree(genericZipTask.archiveFile)
+        def genericZipTree = zipTree(genericZipTask.archiveFile)
         // dont include the wrapper.conf, and tanuki wrappers for OSes other than windows
         from(genericZipTree) {
           exclude "${installerBaseDirName}/wrapper-config/wrapper.conf"
@@ -94,7 +94,7 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
           filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance("dos"))
         }
 
-        from(injected.archiveOps.zipTree(downloadWindowsJre.outputs.files.singleFile)) {
+        from(zipTree(downloadWindowsJre.outputs.files.singleFile)) {
           eachFile { FileCopyDetails fcd ->
             List<String> segments = fcd.relativePath.segments
             segments.set(1, "jre")
@@ -169,7 +169,7 @@ def configureNSIS(Task packageTask, InstallerType installerType, File buildRoot,
   }
 }
 
-tasks.register('agentWindows64bitExe') { thisTask ->
+def agentWindows64bitExe = tasks.register('agentWindows64bitExe') { thisTask ->
   def installerType = InstallerTypeAgent.instance
   def buildRoot = project.file("${layout.buildDirectory.get()}/${installerType.baseName}/win/BUILD_ROOT")
   def destDir = project.file("${layout.buildDirectory.get()}/distributions/win")
@@ -181,7 +181,7 @@ tasks.register('agentWindows64bitExe') { thisTask ->
   finalizedBy "${thisTask.name}Metadata"
 }
 
-tasks.register('serverWindows64bitExe') { thisTask ->
+def serverWindows64bitExe = tasks.register('serverWindows64bitExe') { thisTask ->
   def installerType = InstallerTypeServer.instance
   def buildRoot = project.file("${layout.buildDirectory.get()}/${installerType.baseName}/win/BUILD_ROOT")
   def destDir = project.file("${layout.buildDirectory.get()}/distributions/win")
@@ -193,14 +193,14 @@ tasks.register('serverWindows64bitExe') { thisTask ->
   finalizedBy "${thisTask.name}Metadata"
 }
 
-['agent', 'server'].each { installerType ->
-  def packageTaskName = "${installerType}Windows64bitExe"
+[InstallerTypeAgent.instance, InstallerTypeServer.instance].each { installerType ->
+  def packageTaskName = "${installerType.name}Windows64bitExe"
   tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
     architecture = Architecture.x64
     packagedJavaVersion = (rootProject.goVersions as GoVersions).packagedJavaVersion
     packageTask = project.tasks.named(packageTaskName)
-    type = installerType == "agent" ? InstallerTypeAgent.instance : InstallerTypeServer.instance
+    type = installerType
   }
 }
 
-assemble.dependsOn(":installers:agentWindows64bitExe", ":installers:serverWindows64bitExe")
+assemble.dependsOn(agentWindows64bitExe, serverWindows64bitExe)

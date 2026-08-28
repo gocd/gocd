@@ -20,6 +20,8 @@ import groovy.transform.MapConstructor
 
 interface InstallerType {
 
+  String getName()
+
   String getBaseName()
 
   String getJarFileName()

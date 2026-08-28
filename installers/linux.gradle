@@ -43,7 +43,7 @@ enum PackageType {
     }
 
     @SuppressWarnings('unused')
-    List<String> fpmArgs(Injected injected, File buildRoot, InstallerType installerType, GoVersions goVersions) {
+    List<String> fpmArgs(File buildRoot, FileTree buildRootFileTree, InstallerType installerType, GoVersions goVersions) {
       List<String> fpmArgs = []
       fpmArgs += ['-t', 'deb']
       fpmArgs += ['--deb-no-default-config-files']
@@ -91,7 +91,7 @@ enum PackageType {
     }
 
     @SuppressWarnings('unused')
-    List<String> fpmArgs(Injected injected, File buildRoot, InstallerType installerType, GoVersions goVersions) {
+    List<String> fpmArgs(File buildRoot, FileTree buildRootFileTree, InstallerType installerType, GoVersions goVersions) {
       List<String> fpmArgs = []
 
       fpmArgs += ['-t', 'rpm']
@@ -112,7 +112,7 @@ enum PackageType {
         fpmArgs += ['--rpm-attr', "${Integer.toOctalString(permissions.mode)},${permissions.owner},${permissions.group}:${dirName}"]
       }
 
-      injected.objectFactory.fileTree().from(buildRoot).files.forEach({ File eachFile ->
+      buildRootFileTree.files.forEach({ File eachFile ->
         if (eachFile.canExecute()) {
           def relativePath = buildRoot.toURI().relativize(eachFile.toURI()).getPath()
           fpmArgs += ['--rpm-attr', "0755,root,root:/${relativePath}"]
@@ -132,7 +132,7 @@ enum PackageType {
    * @return POSIX shell script that will find a path to the optimal JRE java binary for the relevant package
    */
   abstract jreBinaryLocator(GoVersions goVersions)
-  abstract List<String> fpmArgs(Injected injected, File buildRoot, InstallerType installerType, GoVersions goVersions)
+  abstract List<String> fpmArgs(File buildRoot, FileTree buildRootFileTree, InstallerType installerType, GoVersions goVersions)
 }
 
 def configureLinuxPackage(Task packageTask, InstallerType installerType, PackageType packageType, File buildRoot, Configuration configuration, File destDir) {
@@ -360,7 +360,7 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
           cmd += ['--config-files', fileName.replaceAll(/^\//, '')]
         }
 
-        cmd += packageType.fpmArgs(injected, buildRoot, installerType, goVersions)
+        cmd += packageType.fpmArgs(buildRoot, injected.objectFactory.fileTree().from(buildRoot), installerType, goVersions)
 
         commandLine = cmd
         environment += ['JRE_BINARY_LOCATOR': packageType.jreBinaryLocator(goVersions)]
@@ -382,7 +382,7 @@ def copyMultipleAgentsReadme(Task packageTask, File buildRoot, InstallerType ins
   }
 }
 
-tasks.register('agentPackageRpm') { thisTask ->
+def agentPackageRpm = tasks.register('agentPackageRpm') { thisTask ->
   def installerType = InstallerTypeAgent.instance
   def packageType = PackageType.rpm
   def buildRoot = layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
@@ -393,8 +393,7 @@ tasks.register('agentPackageRpm') { thisTask ->
   configureLinuxPackage(thisTask, installerType, packageType, buildRoot, configurations.agentBootstrapperJar, destDir)
 }
 
-
-tasks.register('agentPackageDeb') { thisTask ->
+def agentPackageDeb = tasks.register('agentPackageDeb') { thisTask ->
   def installerType = InstallerTypeAgent.instance
   def packageType = PackageType.deb
   def buildRoot = layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
@@ -405,7 +404,7 @@ tasks.register('agentPackageDeb') { thisTask ->
   configureLinuxPackage(thisTask, installerType, packageType, buildRoot, configurations.agentBootstrapperJar, destDir)
 }
 
-tasks.register('serverPackageRpm') { thisTask ->
+def serverPackageRpm = tasks.register('serverPackageRpm') { thisTask ->
   def installerType = InstallerTypeServer.instance
   def packageType = PackageType.rpm
   def buildRoot = layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
@@ -415,7 +414,7 @@ tasks.register('serverPackageRpm') { thisTask ->
   configureLinuxPackage(thisTask, installerType, packageType, buildRoot, configurations.serverJar, destDir)
 }
 
-tasks.register('serverPackageDeb') { thisTask ->
+def serverPackageDeb = tasks.register('serverPackageDeb') { thisTask ->
   def installerType = InstallerTypeServer.instance
   def packageType = PackageType.deb
   def buildRoot = layout.buildDirectory.file("${installerType.baseName}/${packageType.toString()}/BUILD_ROOT").get().asFile
@@ -425,15 +424,15 @@ tasks.register('serverPackageDeb') { thisTask ->
   configureLinuxPackage(thisTask, installerType, packageType, buildRoot, configurations.serverJar, destDir)
 }
 
-['agent', 'server'].each { installerType ->
-  ['Deb', 'Rpm'].each { packageType ->
-    def packageTaskName = "${installerType}Package${packageType}"
+[InstallerTypeAgent.instance, InstallerTypeServer.instance].each { installerType ->
+  [PackageType.deb, PackageType.rpm].each { packageType ->
+    def packageTaskName = "${installerType.name}Package${packageType.name().capitalize()}"
     tasks.register("${packageTaskName}Metadata", InstallerMetadataTask) {
       architecture = Architecture.all
       packageTask = project.tasks.named(packageTaskName)
-      type = installerType == "agent" ? InstallerTypeAgent.instance : InstallerTypeServer.instance
+      type = installerType
     }
   }
 }
 
-assemble.dependsOn(":installers:agentPackageRpm", ":installers:serverPackageRpm", ":installers:agentPackageDeb", ":installers:serverPackageDeb")
+assemble.dependsOn(agentPackageRpm, serverPackageRpm, agentPackageDeb, serverPackageDeb)

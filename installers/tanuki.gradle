@@ -31,7 +31,7 @@ def downloadTanukiDeltaPack = tasks.register('downloadTanukiDeltaPack', Download
 tasks.register('extractDeltaPack', Copy) {
   dependsOn downloadTanukiDeltaPack
   destinationDir = layout.buildDirectory.dir("tanuki").get().asFile
-  from(project.tarTree(downloadTanukiDeltaPack.map { it.outputFiles.first() })) {
+  from(tarTree(downloadTanukiDeltaPack.map { it.outputFiles.first() })) {
     eachFile { FileCopyDetails fcd ->
       fcd.relativePath = new RelativePath(true, fcd.relativePath.segments.drop(1))
     }

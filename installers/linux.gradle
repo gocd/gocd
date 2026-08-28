@@ -201,6 +201,18 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
               eachLine = 'RUN_AS_USER=go'
             }
 
+            // Work around Tanuki 3.7.2 regression: on platforms marked FALLBACK_32=false
+            // (Linux aarch64/ppc64le/s390x) the script skips the only block that detects the
+            // arch-suffixed delta-pack binaries, leaving no usable wrapper. Detect unconditionally,
+            // using FALLBACK_32 only to skip the 32-bit license check (always unnecessary for GoCD).
+            if (eachLine == 'if [ "$BIN_BITS" != "32" -a "$FALLBACK_32" = "true" ] ; then') {
+              eachLine = 'if [ "$BIN_BITS" != "32" ] ; then'
+            }
+
+            if (eachLine == '    if tryDetectWrapperBinary "$BIN_ARCH" "$BIN_BITS" ; then') {
+              eachLine = '    if tryDetectWrapperBinary "$BIN_ARCH" "$BIN_BITS" && [ "$FALLBACK_32" = "true" ] ; then'
+            }
+
             return eachLine
           })
           rename 'App.sh.in', installerType.baseName

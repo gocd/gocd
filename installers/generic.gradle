@@ -90,6 +90,24 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
           eachLine = 'PASS_THROUGH=true'
         }
 
+        // Work around Tanuki 3.7.2 regression: on platforms marked FALLBACK_32=false (macOS,
+        // Linux aarch64/ppc64le/s390x) the script skips the only block that detects the
+        // arch-suffixed delta-pack binaries, leaving no usable wrapper. Detect unconditionally,
+        // using FALLBACK_32 only to skip the 32-bit license check (always unnecessary for GoCD).
+        if (eachLine == 'if [ "$BIN_BITS" != "32" -a "$FALLBACK_32" = "true" ] ; then') {
+          eachLine = 'if [ "$BIN_BITS" != "32" ] ; then'
+        }
+        if (eachLine == '    if tryDetectWrapperBinary "$BIN_ARCH" "$BIN_BITS" ; then') {
+          eachLine = '    if tryDetectWrapperBinary "$BIN_ARCH" "$BIN_BITS" && [ "$FALLBACK_32" = "true" ] ; then'
+        }
+
+        // Never consider the x86_64 wrapper binary (Rosetta) on Apple Silicon; 3.7.2 otherwise
+        // selects it for non-launch commands, or for launch when the JVM is x86_64. Skipping this
+        // block leaves the main detection later in the script to always pick the arm binary.
+        if (eachLine == '    if tryDetectWrapperBinary "arm" "$DIST_BITS" || tryDetectWrapperBinary "x86" "$DIST_BITS" ; then') {
+          eachLine = '    if false ; then'
+        }
+
         return eachLine
       })
 

@@ -72,11 +72,17 @@ class InstallerTypeServer implements InstallerType {
   }
 
   @Override
+  InstallerLayout getLinuxPackageLayout() {
+    InstallerLayout.linuxPackageLayout(baseName).tap { configDir = '/etc/go' }
+  }
+
+  @Override
   List<String> getLinuxJvmArgs() {
+    def layout = linuxPackageLayout
     [
-      '-Dgocd.server.log.dir=/var/log/go-server',
-      '-Dcruise.config.dir=/etc/go',
-      '-Dcruise.config.file=/etc/go/cruise-config.xml',
+      "-Dgocd.server.log.dir=${layout.logDir}",
+      "-Dcruise.config.dir=${layout.configDir}",
+      "-Dcruise.config.file=${layout.configDir}/cruise-config.xml",
     ]
   }
 
@@ -86,24 +92,23 @@ class InstallerTypeServer implements InstallerType {
   }
 
   @Override
-  Map<String, Permission> getDirectories() {
+  Map<String, Permission> getLinuxDirectoryPerms() {
     [
-      '/usr/share/doc/go-server'           : perm(mode: 0755, owner: 'root', group: 'root'),
-      '/usr/share/go-server/wrapper-config': perm(mode: 0750, owner: 'root', group: 'go'),
-      '/var/lib/go-server'                 : perm(mode: 0750, owner: 'go',   group: 'go'),
-      '/var/lib/go-server/run'             : perm(mode: 0750, owner: 'go',   group: 'go'),
-      '/var/log/go-server'                 : perm(mode: 0750, owner: 'go',   group: 'go'),
-      '/var/run/go-server'                 : perm(mode: 0750, owner: 'go',   group: 'go'),
-      '/etc/go'                            : perm(mode: 0750, owner: 'go',   group: 'go'),
-      '/var/go'                            : perm(mode: 0750, owner: 'go',   group: 'go'),
+      (linuxPackageLayout.docsDir)                       : perm(mode: 0755, owner: 'root', group: 'root'),
+      (linuxPackageLayout.installDir + '/wrapper-config'): perm(mode: 0750, owner: 'root', group: 'go'),
+      (linuxPackageLayout.workingDir)                    : perm(mode: 0750, owner: 'go',   group: 'go'),
+      (linuxPackageLayout.workingDir + '/run')           : perm(mode: 0750, owner: 'go',   group: 'go'),
+      (linuxPackageLayout.logDir)                        : perm(mode: 0750, owner: 'go',   group: 'go'),
+      (linuxPackageLayout.configDir)                     : perm(mode: 0750, owner: 'go',   group: 'go'),
+      (linuxPackageLayout.dataDir)                       : perm(mode: 0750, owner: 'go',   group: 'go'),
     ]
   }
 
   @Override
-  Map<String, Permission> getConfigFiles() {
+  Map<String, Permission> getLinuxConfigFilePerms() {
     [
-      '/usr/share/go-server/wrapper-config/wrapper.conf'           : perm(mode: 0640, owner: 'root', group: 'go'),
-      '/usr/share/go-server/wrapper-config/wrapper-properties.conf': perm(mode: 0640, owner: 'root', group: 'go'),
+      (linuxPackageLayout.installDir + '/wrapper-config/wrapper.conf')           : perm(mode: 0640, owner: 'root', group: 'go'),
+      (linuxPackageLayout.installDir + '/wrapper-config/wrapper-properties.conf'): perm(mode: 0640, owner: 'root', group: 'go'),
     ]
   }
 

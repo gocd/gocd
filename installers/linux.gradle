@@ -63,8 +63,8 @@ enum PackageType {
       fpmArgs += ['--template-value', "dir_permissions=${dirPermissions}"]
       fpmArgs += ['--template-value', "file_permissions=${filePermissions}"]
 
-      dirPermissions.write(JsonOutput.toJson(installerType.directories))
-      filePermissions.write(JsonOutput.toJson(installerType.configFiles))
+      dirPermissions.write(JsonOutput.toJson(installerType.linuxDirectoryPerms))
+      filePermissions.write(JsonOutput.toJson(installerType.linuxConfigFilePerms))
       return fpmArgs
     }
   },
@@ -108,7 +108,7 @@ enum PackageType {
       fpmArgs += ['--rpm-defattrfile', '0444']
       fpmArgs += ['--rpm-defattrdir', '0755']
 
-      installerType.directories.each { dirName, permissions ->
+      installerType.linuxDirectoryPerms.each { dirName, permissions ->
         fpmArgs += ['--rpm-attr', "${Integer.toOctalString(permissions.mode)},${permissions.owner},${permissions.group}:${dirName}"]
       }
 
@@ -119,7 +119,7 @@ enum PackageType {
         }
       })
 
-      installerType.configFiles.each { fileName, permissions ->
+      installerType.linuxConfigFilePerms.each { fileName, permissions ->
         // set ownership and mode on the rpm manifest
         fpmArgs += ['--rpm-attr', "${Integer.toOctalString(permissions.mode)},${permissions.owner},${permissions.group}:${fileName}"]
       }
@@ -136,6 +136,8 @@ enum PackageType {
 }
 
 def configureLinuxPackage(Task packageTask, InstallerType installerType, PackageType packageType, File buildRoot, Configuration configuration, File destDir) {
+  def installLayout = installerType.linuxPackageLayout
+
   packageTask.with {
     dependsOn configuration, extractDeltaPack
     inputs.files(configuration)
@@ -153,147 +155,41 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
       destDir.mkdirs()
 
       injected.fileOps.copy {
+        into file("${buildRoot.path}${installLayout.installDir}/lib")
+
         from(configuration.singleFile) {
           rename "(.*)", installerType.jarFileName
         }
-        into file("${buildRoot.path}/usr/share/${installerType.baseName}/lib")
       }
 
-      installerType.directories.each { dirName, permissions ->
+      installerType.linuxDirectoryPerms.each { dirName, permissions ->
         file("${buildRoot.path}/${dirName}").mkdirs()
       }
 
       injected.fileOps.copy {
+        into "${buildRoot.path}${installLayout.docsDir}"
+
         from(licenseSource)
-        into "${buildRoot.path}/usr/share/doc/${installerType.baseName}"
       }
 
       injected.fileOps.copy {
-        into "${buildRoot.path}/usr/share/${installerType.baseName}/bin"
+        into "${buildRoot.path}${installLayout.installDir}/bin"
+
         filePermissions {
           unix(0755)
         }
 
         from("${extractDeltaPack.destinationDir}/src/bin/App.sh.in") {
-          filter({ String eachLine ->
-            eachLine = eachLine
-              .replace('@app.name@', installerType.baseName)
-              .replace('@app.long.name@', installerType.baseName)
-              .replace('@app.description@', installerType.baseName)
-
-            if (eachLine == 'WRAPPER_CMD="./wrapper"') {
-              eachLine = 'WRAPPER_CMD="../wrapper/wrapper"'
-            }
-
-            if (eachLine == 'WRAPPER_CONF="../conf/wrapper.conf"') {
-              eachLine = "WRAPPER_CONF=\"/usr/share/${installerType.baseName}/wrapper-config/wrapper.conf\""
-            }
-
-            if (eachLine == 'PIDDIR="."') {
-              eachLine = "PIDDIR=\"/var/lib/${installerType.baseName}/run\""
-            }
-
-            if (eachLine =~ /^#PASS_THROUGH=/ && installerType.allowPassthrough) {
-              eachLine = 'PASS_THROUGH=true'
-            }
-
-            if (eachLine == '#RUN_AS_USER=') {
-              eachLine = 'RUN_AS_USER=go'
-            }
-
-            // Work around Tanuki 3.7.2 regression: on platforms marked FALLBACK_32=false
-            // (Linux aarch64/ppc64le/s390x) the script skips the only block that detects the
-            // arch-suffixed delta-pack binaries, leaving no usable wrapper. Detect unconditionally,
-            // using FALLBACK_32 only to skip the 32-bit license check (always unnecessary for GoCD).
-            if (eachLine == 'if [ "$BIN_BITS" != "32" -a "$FALLBACK_32" = "true" ] ; then') {
-              eachLine = 'if [ "$BIN_BITS" != "32" ] ; then'
-            }
-
-            if (eachLine == '    if tryDetectWrapperBinary "$BIN_ARCH" "$BIN_BITS" ; then') {
-              eachLine = '    if tryDetectWrapperBinary "$BIN_ARCH" "$BIN_BITS" && [ "$FALLBACK_32" = "true" ] ; then'
-            }
-
-            return eachLine
-          })
+          filter(installerType.wrapperShTemplateFilter(installLayout, ['#RUN_AS_USER=': 'RUN_AS_USER=go']))
           rename 'App.sh.in', installerType.baseName
         }
       }
 
       injected.fileOps.copy {
-        into "${buildRoot}/usr/share/${installerType.baseName}/wrapper-config"
+        into "${buildRoot}${installLayout.installDir}/wrapper-config"
+
         from("${extractDeltaPack.destinationDir}/src/conf/wrapper.conf.in") {
-          filter({ String eachLine ->
-            eachLine = eachLine
-              .replace('@app.name@', installerType.baseName)
-              .replace('@app.long.name@', installerType.baseName)
-              .replace('@app.description@', installerType.baseName)
-
-//            uncomment the lines below to enable debugging of installers
-//            if (eachLine == '# wrapper.debug=TRUE') {
-//              eachLine = 'wrapper.debug=TRUE'
-//            }
-//            if (eachLine == '#@include.debug') {
-//              eachLine = '@include.debug'
-//            }
-//            if (eachLine == '#wrapper.license.debug=TRUE') {
-//              eachLine = 'wrapper.license.debug=TRUE'
-//            }
-
-            if (eachLine == 'wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperSimpleApp') {
-              eachLine = 'wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperJarApp'
-            }
-
-            if (eachLine == '@encoding=UTF-8') {
-              def newLines = [
-                '@encoding=UTF-8',
-                "wrapper.working.dir=/var/lib/${installerType.baseName}",
-                'wrapper.console_input=DISABLED',
-                'wrapper.console.flush=TRUE'
-              ]
-
-              (installerType.additionalEnvVars + installerType.additionalLinuxEnvVars).forEach { k, v ->
-                newLines.add("set.default.${k}=${v}")
-              }
-
-              eachLine = newLines.join('\n')
-            }
-
-            def allJvmArgs = installerType.jvmArgs + installerType.linuxJvmArgs
-
-            if (eachLine == 'wrapper.java.additional.1=' && !allJvmArgs.isEmpty()) {
-              def newLines = []
-
-              allJvmArgs.eachWithIndex { String eachArg, int index ->
-                newLines << "wrapper.java.additional.${index + 1}=${eachArg}"
-              }
-
-
-              eachLine = newLines.join('\n')
-            }
-
-            if (eachLine == 'wrapper.jarfile=../lib/wrapper.jar') {
-              eachLine = "wrapper.jarfile=/usr/share/${installerType.baseName}/wrapper/wrapper.jar"
-            }
-
-            if (eachLine == '#wrapper.java.classpath.1=') {
-              eachLine = "wrapper.java.classpath.1=/usr/share/${installerType.baseName}/lib/${installerType.jarFileName}"
-            }
-
-            if (eachLine == 'wrapper.java.library.path.1=../lib') {
-              eachLine = "wrapper.java.library.path.1=/usr/share/${installerType.baseName}/wrapper"
-            }
-
-            if (eachLine == 'wrapper.app.parameter.1=<YourMainClass>') {
-              eachLine = "wrapper.app.parameter.1=/usr/share/${installerType.baseName}/lib/${installerType.jarFileName}"
-            }
-
-            if (eachLine == 'wrapper.logfile=../logs/wrapper.log') {
-              eachLine = "wrapper.logfile=/var/log/${installerType.baseName}/${installerType.logFileName}"
-            }
-
-            return eachLine
-          })
-
+          filter(installerType.wrapperConfTemplateFilter(installLayout, installerType.additionalLinuxEnvVars, installerType.linuxJvmArgs))
           filter(ConcatFilter, append: file("include/wrapper-license-linux-${installerType.baseName}.conf"))
           filter(ConcatFilter, append: file("include/additional-properties.conf"))
 
@@ -308,7 +204,8 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
       }
 
       injected.fileOps.copy {
-        into "${buildRoot}/usr/share/${installerType.baseName}/wrapper"
+        into "${buildRoot}${installLayout.installDir}/wrapper"
+
         from("${extractDeltaPack.destinationDir}/bin") {
           include "wrapper-${OperatingSystem.linux.tanukiWrapperAlias}-${Architecture.x64.tanukiWrapperAlias}*"
           include "wrapper-${OperatingSystem.linux.tanukiWrapperAlias}-${Architecture.aarch64.tanukiWrapperAlias}*"
@@ -364,11 +261,11 @@ def configureLinuxPackage(Task packageTask, InstallerType installerType, Package
         cmd += ['--template-value', "install_scripts_dir=${installScriptsDir}"]
         cmd += ['--template-scripts']
 
-        installerType.directories.each { dirName, permissions ->
+        installerType.linuxDirectoryPerms.each { dirName, permissions ->
           cmd += ['--directories', dirName]
         }
 
-        installerType.configFiles.each { fileName, permissions ->
+        installerType.linuxConfigFilePerms.each { fileName, permissions ->
           cmd += ['--config-files', fileName.replaceAll(/^\//, '')]
         }
 
@@ -389,7 +286,7 @@ def copyMultipleAgentsReadme(Task packageTask, File buildRoot, InstallerType ins
   packageTask.doFirst {
     injected.fileOps.copy {
       from "go-agent/release/README-running-multiple-agents.md"
-      into "${buildRoot.path}/usr/share/doc/${installerType.baseName}"
+      into "${buildRoot.path}${installerType.linuxPackageLayout.docsDir}"
     }
   }
 }

@@ -18,7 +18,7 @@ package com.thoughtworks.go.build
 
 import groovy.transform.MapConstructor
 
-interface InstallerType {
+interface InstallerType extends WrapperTemplateFilters {
 
   String getName()
 
@@ -37,15 +37,18 @@ interface InstallerType {
 
   boolean getAllowPassthrough()
 
-  Map<String, Permission> getDirectories()
-
-  Map<String, Permission> getConfigFiles()
+  Map<String, Permission> getLinuxDirectoryPerms()
+  Map<String, Permission> getLinuxConfigFilePerms()
 
   String getPackageDescription()
 
   String getWindowsAndOSXServiceName()
 
   default Permission perm(Map args) { return new Permission(args) }
+
+  default InstallerLayout getLinuxPackageLayout() {
+    InstallerLayout.linuxPackageLayout(baseName)
+  }
 
   @MapConstructor
   class Permission {int mode; String owner; String group}

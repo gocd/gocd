@@ -57,6 +57,8 @@ def serverGenericZip = tasks.register('serverGenericZip', Zip) { Zip thisTask ->
 assemble.dependsOn(agentGenericZip, serverGenericZip)
 
 def configureGenericZip(Zip zipTask, InstallerType installerType) {
+  def installLayout = InstallerLayout.genericZipLayout()
+
   zipTask.with {
     dependsOn extractDeltaPack
 
@@ -68,49 +70,7 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
     from("${rootProject.projectDir}/LICENSE")
 
     from("${extractDeltaPack.destinationDir}/src/bin/App.sh.in") {
-      filter({ String eachLine ->
-        eachLine = eachLine
-          .replace('@app.name@', installerType.baseName)
-          .replace('@app.long.name@', installerType.baseName)
-          .replace('@app.description@', installerType.baseName)
-
-        if (eachLine == 'WRAPPER_CMD="./wrapper"') {
-          eachLine = 'WRAPPER_CMD="../wrapper/wrapper"'
-        }
-
-        if (eachLine == 'WRAPPER_CONF="../conf/wrapper.conf"') {
-          eachLine = 'WRAPPER_CONF="../wrapper-config/wrapper.conf"'
-        }
-
-        if (eachLine == 'PIDDIR="."') {
-          eachLine = 'PIDDIR="../run"'
-        }
-
-        if (eachLine =~ /^#PASS_THROUGH=/ && installerType.allowPassthrough) {
-          eachLine = 'PASS_THROUGH=true'
-        }
-
-        // Work around Tanuki 3.7.2 regression: on platforms marked FALLBACK_32=false (macOS,
-        // Linux aarch64/ppc64le/s390x) the script skips the only block that detects the
-        // arch-suffixed delta-pack binaries, leaving no usable wrapper. Detect unconditionally,
-        // using FALLBACK_32 only to skip the 32-bit license check (always unnecessary for GoCD).
-        if (eachLine == 'if [ "$BIN_BITS" != "32" -a "$FALLBACK_32" = "true" ] ; then') {
-          eachLine = 'if [ "$BIN_BITS" != "32" ] ; then'
-        }
-        if (eachLine == '    if tryDetectWrapperBinary "$BIN_ARCH" "$BIN_BITS" ; then') {
-          eachLine = '    if tryDetectWrapperBinary "$BIN_ARCH" "$BIN_BITS" && [ "$FALLBACK_32" = "true" ] ; then'
-        }
-
-        // Never consider the x86_64 wrapper binary (Rosetta) on Apple Silicon; 3.7.2 otherwise
-        // selects it for non-launch commands, or for launch when the JVM is x86_64. Skipping this
-        // block leaves the main detection later in the script to always pick the arm binary.
-        if (eachLine == '    if tryDetectWrapperBinary "arm" "$DIST_BITS" || tryDetectWrapperBinary "x86" "$DIST_BITS" ; then') {
-          eachLine = '    if false ; then'
-        }
-
-        return eachLine
-      })
-
+      filter(installerType.wrapperShTemplateFilter(installLayout))
       filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance("unix"))
       rename 'App.sh.in', installerType.baseName
       into "bin"
@@ -147,84 +107,12 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
 
       into "bin"
 
-      filter({ String eachLine ->
-        if (eachLine == 'set _WRAPPER_DIR=') {
-          eachLine = 'set _WRAPPER_DIR="..\\wrapper"'
-        }
-
-        if (eachLine == 'set _WRAPPER_CONF_DEFAULT="../conf/%_WRAPPER_BASE%.conf"') {
-          eachLine = 'set _WRAPPER_CONF_DEFAULT="..\\wrapper-config\\%_WRAPPER_BASE%.conf"'
-        }
-
-        if (eachLine =~ /^rem set _PASS_THROUGH=/ && installerType.allowPassthrough) {
-          eachLine = 'set _PASS_THROUGH=true'
-        }
-
-        return eachLine
-      })
-
+      filter(installerType.wrapperBatTemplateFilter())
       filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.newInstance("dos"))
     }
 
     from("${extractDeltaPack.destinationDir}/src/conf/wrapper.conf.in") {
-      filter({ String eachLine ->
-        eachLine = eachLine
-          .replace('@app.name@', installerType.baseName)
-          .replace('@app.long.name@', installerType.baseName)
-          .replace('@app.description@', installerType.baseName)
-
-        if (eachLine == 'wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperSimpleApp') {
-          eachLine = 'wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperJarApp'
-        }
-
-        if (eachLine == '@encoding=UTF-8') {
-          def newLines = [
-            '@encoding=UTF-8',
-            'wrapper.working.dir=..',
-            'wrapper.console_input=DISABLED',
-            'wrapper.console.flush=TRUE'
-          ]
-
-          installerType.additionalEnvVars.forEach { k, v ->
-            newLines.add("set.default.${k}=${v}")
-          }
-
-          eachLine = newLines.join('\n')
-        }
-
-        if (eachLine == 'wrapper.java.additional.1=' && !installerType.jvmArgs.isEmpty()) {
-          def newLines = []
-
-          installerType.jvmArgs.eachWithIndex { String eachArg, int index ->
-            newLines << "wrapper.java.additional.${index + 1}=${eachArg}"
-          }
-
-          eachLine = newLines.join('\n')
-        }
-
-        if (eachLine == 'wrapper.jarfile=../lib/wrapper.jar') {
-          eachLine = "wrapper.jarfile=wrapper/wrapper.jar"
-        }
-
-        if (eachLine == '#wrapper.java.classpath.1=') {
-          eachLine = "wrapper.java.classpath.1=lib/${installerType.jarFileName}"
-        }
-
-        if (eachLine == 'wrapper.java.library.path.1=../lib') {
-          eachLine = 'wrapper.java.library.path.1=wrapper'
-        }
-
-        if (eachLine == 'wrapper.app.parameter.1=<YourMainClass>') {
-          eachLine = "wrapper.app.parameter.1=lib/${installerType.jarFileName}"
-        }
-
-        if (eachLine == 'wrapper.logfile=../logs/wrapper.log') {
-          eachLine = "wrapper.logfile=logs/${installerType.logFileName}"
-        }
-
-        return eachLine
-      })
-
+      filter(installerType.wrapperConfTemplateFilter(installLayout))
       filter(ConcatFilter, append: file("include/wrapper-license-relative-path-${installerType.baseName}.conf"))
       filter(ConcatFilter, append: file("include/additional-properties.conf"))
       filter(FixCrLfFilter, eol: FixCrLfFilter.CrLf.newInstance("unix"))

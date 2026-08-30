@@ -78,7 +78,7 @@ class InstallerTypeAgent implements InstallerType {
   @Override
   List<String> getLinuxJvmArgs() {
     [
-      '-Dgocd.agent.log.dir=/var/log/go-agent'
+      "-Dgocd.agent.log.dir=${linuxPackageLayout.logDir}"
     ]
   }
 
@@ -88,23 +88,22 @@ class InstallerTypeAgent implements InstallerType {
   }
 
   @Override
-  Map<String, Permission> getDirectories() {
+  Map<String, Permission> getLinuxDirectoryPerms() {
     [
-      '/usr/share/doc/go-agent'           : perm(mode: 0755, owner: 'root', group: 'root'),
-      '/usr/share/go-agent/wrapper-config': perm(mode: 0750, owner: 'root', group: 'go'),
-      '/var/lib/go-agent'                 : perm(mode: 0750, owner: 'go',   group: 'go'),
-      '/var/lib/go-agent/run'             : perm(mode: 0750, owner: 'go',   group: 'go'),
-      '/var/log/go-agent'                 : perm(mode: 0750, owner: 'go',   group: 'go'),
-      '/var/run/go-agent'                 : perm(mode: 0750, owner: 'go',   group: 'go'),
-      '/var/go'                           : perm(mode: 0750, owner: 'go',   group: 'go'),
+      (linuxPackageLayout.docsDir)                       : perm(mode: 0755, owner: 'root', group: 'root'),
+      (linuxPackageLayout.installDir + '/wrapper-config'): perm(mode: 0750, owner: 'root', group: 'go'),
+      (linuxPackageLayout.workingDir)                    : perm(mode: 0750, owner: 'go',   group: 'go'),
+      (linuxPackageLayout.workingDir + '/run')           : perm(mode: 0750, owner: 'go',   group: 'go'),
+      (linuxPackageLayout.logDir)                        : perm(mode: 0750, owner: 'go',   group: 'go'),
+      (linuxPackageLayout.dataDir)                       : perm(mode: 0750, owner: 'go',   group: 'go'),
     ]
   }
 
   @Override
-  Map<String, Permission> getConfigFiles() {
+  Map<String, Permission> getLinuxConfigFilePerms() {
     [
-      '/usr/share/go-agent/wrapper-config/wrapper.conf'           : perm(mode: 0640, owner: 'root', group: 'go'),
-      '/usr/share/go-agent/wrapper-config/wrapper-properties.conf': perm(mode: 0640, owner: 'root', group: 'go'),
+      (linuxPackageLayout.installDir + '/wrapper-config/wrapper.conf')           : perm(mode: 0640, owner: 'root', group: 'go'),
+      (linuxPackageLayout.installDir + '/wrapper-config/wrapper-properties.conf'): perm(mode: 0640, owner: 'root', group: 'go'),
     ]
   }
 

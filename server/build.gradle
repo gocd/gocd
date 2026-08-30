@@ -128,7 +128,7 @@ dependencies {
   implementation rootProject.deps.dom4j
 
   jruby rootProject.deps.jruby
-  runtimeOnly rootProject.deps.rack
+  runtimeOnly rootProject.deps.jrubyRack
   implementation rootProject.deps.apacheHttpComponents
 
   implementation rootProject.deps.jakartaAnnotation
@@ -670,7 +670,7 @@ tasks.register('verifyWar', VerifyJarTask) {
         "joni-2.2.5.jar",
         "jruby-${rootProject.versions.jruby}.jar",
         "jruby-base-${rootProject.versions.jruby}.jar",
-        "jruby-rack-${rootProject.versions.rack}.jar",
+        "jruby-rack-${rootProject.versions.jrubyRack}.jar",
         "jruby-stdlib-${rootProject.versions.jruby}.jar",
         "json-utils-${rootProject.versions.jolt}.jar",
         "jzlib-1.1.5.jar",

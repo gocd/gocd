@@ -48,6 +48,17 @@ def configureMacZip(Zip zipTask, InstallerType installerType, Zip genericZipTask
     def goVersions = rootProject.goVersions as GoVersions
     def genericZipTree = zipTree(genericZipTask.archiveFile)
 
+    // Archive tasks do not take entry permissions from their sources, so restore the execute
+    // bit on anything executable within the source archives (the App.sh launcher script, the
+    // Tanuki wrapper binary, and the JRE's executables such as bin/java
+    eachFile { FileCopyDetails fcd ->
+      if (fcd.file.canExecute()) {
+        fcd.permissions {
+          unix(0755)
+        }
+      }
+    }
+
     // dont include the wrapper.conf, and tanuki wrappers for OSes other than osx
     from(genericZipTree) {
       exclude "${installerType.baseName}-${goVersions.goVersion}/wrapper-config/wrapper.conf"

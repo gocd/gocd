@@ -19,7 +19,7 @@ ENV["BUNDLE_GEMFILE"] ||= File.expand_path("../Gemfile", __dir__)
 require "bundler"
 
 # When running in production (NOT just building FOR production), force bundler to ignore non default groups (incl the assets pipeline)
-if ENV["RAILS_ENV"] == "production" and ENV["RAILS_GROUPS"]&.empty?
+if ENV["RAILS_ENV"] == "production" and !ENV["RAILS_GROUPS"]
   Bundler.ui.silence { Bundler.setup(:default) }
 else
   Bundler.setup

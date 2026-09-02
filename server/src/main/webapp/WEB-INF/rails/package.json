@@ -81,7 +81,7 @@
     "add-matchers": "^0.6.2",
     "babel-loader": "^10.1.1",
     "cross-env": "^10.1.0",
-    "css-loader": "^7.1.4",
+    "css-loader": "^7.1.5",
     "eslint": "^9.39.5",
     "eslint-plugin-react": "^7.37.5",
     "eslint-webpack-plugin": "^6.0.0",
@@ -105,7 +105,7 @@
     "mini-css-extract-plugin": "^2.10.2",
     "mockdate": "^3.0.5",
     "sass-embedded": "^1.103.1",
-    "sass-loader": "^17.0.0",
+    "sass-loader": "^17.0.1",
     "simulate-event": "^1.4.0",
     "sourcemapped-stacktrace": "^1.1.11",
     "style-loader": "^4.0.0",
@@ -119,9 +119,9 @@
     "typescript": "^6.0.3",
     "upath": "^3.0.8",
     "url-loader": "^4.1.1",
-    "webpack": "^5.109.2",
+    "webpack": "^5.110.2",
     "webpack-assets-manifest": "^6.5.2",
-    "webpack-cli": "^7.2.2"
+    "webpack-cli": "^7.2.3"
   },
   "resolutions": {
     "karma-jasmine@npm:5.1.0/jasmine-core": "^7",

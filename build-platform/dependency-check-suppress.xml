@@ -106,6 +106,7 @@
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
     <cve>CVE-2026-22740</cve>
     <cve>CVE-2026-41839</cve>
+    <cve>CVE-2026-47893</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
@@ -496,6 +497,7 @@
     <cve>CVE-2026-57436</cve>
     <cve>CVE-2026-57437</cve>
     <cve>CVE-2026-57438</cve>
+    <cve>CVE-2026-79772</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[

@@ -135,7 +135,7 @@ def libraries = [
   mybatisSpring       : 'org.mybatis:mybatis-spring:2.1.2',
   mysql               : 'com.mysql:mysql-connector-j:26.7.0',
   objenesis           : 'org.objenesis:objenesis:3.6',
-  oshi                : 'com.github.oshi:oshi-core:7.6.0',
+  oshi                : 'com.github.oshi:oshi-core:7.6.1',
   plexusUtils         : 'org.codehaus.plexus:plexus-utils:4.1.0',
   postgresql          : 'org.postgresql:postgresql:42.7.13',
   quartz              : 'org.quartz-scheduler:quartz:2.5.2',

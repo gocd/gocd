@@ -106,6 +106,7 @@
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
     <cve>CVE-2026-22740</cve>
     <cve>CVE-2026-41839</cve>
+    <cve>CVE-2026-47891</cve>
     <cve>CVE-2026-47893</cve>
   </suppress>
   <suppress>
@@ -304,6 +305,14 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@.*$</packageUrl>
     <cve>CVE-2026-47838</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    False positive as GoCD does not authenticate users with the vulnerable comparison mechanisms noted at
+    https://spring.io/security/cve-2026-59276
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring-security-(core|web|config)@.*$</packageUrl>
+    <cve>CVE-2026-59276</cve>
   </suppress>
 
   <suppress>

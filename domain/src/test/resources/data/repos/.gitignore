@@ -1,0 +1,7 @@
+# Perforce server runtime state that p4d recreates on demand (e.g. when running
+# ../upgrade-p4-repos); not part of the versioned repo fixtures.
+p4*/journal
+p4*/state.xu
+p4*/server.locks/
+p4*/db.monitor
+p4*/monfile.mem

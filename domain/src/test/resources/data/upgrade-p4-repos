@@ -9,5 +9,16 @@ for repo in p4* ; do
   p4d -C0 -r "$repo" -p 10000 &
   sleep 2
   kill %%
+  wait %% || true
+  # p4d 2026.1+ is "secure by default": upgrades force-bump the security level to 4 as an
+  # upgrade step (applied at first startup, so this must run after the start/stop cycle
+  # above), and the binary default for dm.user.noautocreate changed from 0 to 2, so users
+  # are no longer auto-created on first use. Both break the passwordless test users these
+  # throwaway test repos rely upon, so pin the historical defaults.
+  # See https://help.perforce.com/helix-core/server-apps/p4sag/current/Content/P4SAG/secure-by-default-overview.html
+  p4d -C0 -r "$repo" "-cset security=0"
+  p4d -C0 -r "$repo" "-cset dm.user.noautocreate=0"
+  # Runtime state that p4d recreates on demand; no need to version it with the fixtures.
+  rm -rf "$repo/journal" "$repo/state.xu" "$repo/server.locks" "$repo/db.monitor" "$repo/monfile.mem"
 done
 popd

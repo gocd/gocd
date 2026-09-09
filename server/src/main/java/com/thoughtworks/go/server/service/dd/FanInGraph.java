@@ -212,6 +212,16 @@ public class FanInGraph {
     private Set<FaninScmMaterial> scmMaterialsOfDepChildren(List<DependencyFanInNode> depChildren) {
         Set<FaninScmMaterial> allScmMaterials = new HashSet<>();
         for (DependencyFanInNode child : depChildren) {
+            // An ignoreForScheduling dependency material's own state must never gate or influence
+            // this pipeline's scheduling -- but RootFanInNode.setScmRevision (fed by this method)
+            // was pinning a shared direct SCM material's final revision to whatever revision an
+            // ignored dependency's CURRENT instance happens to embed, discarding a genuinely newer,
+            // filter-matching commit on the direct material in favor of that stale one. Excluding
+            // ignored dependencies here keeps them from contributing any pin at all, matching the
+            // ignoreForScheduling contract.
+            if (child.materialConfig.ignoreForScheduling()) {
+                continue;
+            }
             allScmMaterials.addAll(child.scmMaterialForCurrentRevision());
         }
         return allScmMaterials;

@@ -238,7 +238,11 @@ public class GitCommand extends SCMCommand {
 
     @TestOnly
     public void add(File fileToAdd) {
-        String[] args = new String[]{"add", "--", fileToAdd.getName()};
+        // Relative to workingDir (not fileToAdd.getName()) so a file inside a subdirectory --
+        // e.g. new File(workingDir, "some-dir/file.c") -- resolves to a pathspec git actually
+        // has, instead of a bare basename that only ever matched files at the repo root.
+        String relativePath = workingDir.toPath().relativize(fileToAdd.toPath()).toString();
+        String[] args = new String[]{"add", "--", relativePath};
         CommandLine gitAdd = gitWd().withArgs(args);
         runOrBomb(gitAdd);
     }

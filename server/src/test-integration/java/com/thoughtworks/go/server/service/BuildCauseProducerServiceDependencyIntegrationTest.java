@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -60,6 +61,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -337,6 +339,60 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         dbHelper.saveRevs(gitMaterialRevisions);
 
         //schedule the pipeline
+        pipelineTimeline.update();
+        scheduleHelper.autoSchedulePipelinesWithRealMaterials(downstreamPipelineName);
+        softly.assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(downstreamPipelineName));
+    }
+
+    // Reproduces a live cbp-org (github.com/cbp-org/cbp-org) finding: a pipeline combining a
+    // *filtered* (whitelist/invertFilter) SCM material with an ignoreForScheduling dependency
+    // material stops picking up new, filter-matching SCM commits after some point, freezing at a
+    // stale revision indefinitely with no error or health warning. This test is identical in shape
+    // to shouldScheduleDownStreamPipeline_withSCMAndDependencyMaterials_whenSCMMaterialHasChanges
+    // above -- the only difference is that the git material here carries an includes-only filter
+    // (invertFilter=true), exactly like a real cbp-org pipeline's material.filter.includes, and the
+    // triggering commit lands inside the whitelisted directory so it unambiguously matches. If this
+    // fails, the pipeline was NOT queued despite a matching, real, unconsumed commit -- reproducing
+    // the freeze.
+    @Test
+    public void shouldScheduleDownStreamPipeline_withFilteredSCMAndDependencyMaterials_whenFilteredSCMMaterialHasMatchingChanges() throws Exception {
+        String downstreamPipelineName = "downstream_pipeline_filtered";
+        //first upstream pipeline - "mingle", ignored for scheduling (mirrors cbp-org's
+        //dns-deploy-gate pipeline-dependency material, added specifically so an unrelated upstream
+        //pipeline's own advancement can never gate this one's scheduling)
+        DependencyMaterialConfig mingleMaterialConfig = new DependencyMaterialConfig(cis(MINGLE_PIPELINE_NAME), cis(STAGE_NAME));
+        mingleMaterialConfig.ignoreForScheduling(true);
+
+        //git material carries an includes-only whitelist filter (invertFilter=true), mirroring
+        //cbp-org's real "infrastructure/nginx-proxy/*,infrastructure/nginx-proxy/**/*" material filter
+        GitMaterialConfig filteredGitMaterialConfig = (GitMaterialConfig) gitMaterial.config();
+        filteredGitMaterialConfig.setFilter(Filter.fromDisplayString("important-dir/*,important-dir/**/*"));
+        filteredGitMaterialConfig.setInvertFilter(true);
+
+        //setup the pipeline
+        PipelineConfig downstreamPipelineConfig = configHelper.addPipeline(downstreamPipelineName, STAGE_NAME, new MaterialConfigs(mingleMaterialConfig, filteredGitMaterialConfig), "unit");
+        Pipeline latestMinglePipeline = minglePipeline.latest;
+        String revision = String.format("%s/%s/%s/%s", latestMinglePipeline.getName(), latestMinglePipeline.getCounter(), STAGE_NAME, latestMinglePipeline.getStages().getLast().getCounter());
+        MaterialRevision mingleMaterialRevision = new MaterialRevision(new DependencyMaterial(mingleMaterialConfig), true, new Modification(latestMinglePipeline.getModifiedDate(), revision, latestMinglePipeline.getLabel(), latestMinglePipeline.getId()));
+
+        MaterialRevision gitMaterialRevision = new MaterialRevision(gitMaterial, gitTestRepo.checkInOneFile("new_file.c", "Adding a new file"));
+        MaterialRevisions initialMaterialRevisions = new MaterialRevisions(mingleMaterialRevision, gitMaterialRevision);
+        dbHelper.saveRevs(initialMaterialRevisions);
+        Pipeline latestDownstreamInstance = PipelineMother.schedule(downstreamPipelineConfig, BuildCause.createManualForced(initialMaterialRevisions, new Username(cis("loser"))));
+        latestDownstreamInstance = pipelineDao.saveWithStages(latestDownstreamInstance);
+        dbHelper.passStage(latestDownstreamInstance.getStages().getFirst());
+
+        //make a commit INSIDE the whitelisted directory -- this is exactly the shape of a real
+        //cbp-org commit under infrastructure/nginx-proxy/ that should (and, per the live Phase 186
+        //finding, silently does not) trigger the downstream pipeline despite matching its own filter
+        new File(gitTestRepo.gitRepository(), "important-dir").mkdirs();
+        List<Modification> newGitModifications = gitTestRepo.checkInOneFile("important-dir/another_file.c", "Adding a new file inside the whitelisted directory");
+        MaterialRevision materialRevision = new MaterialRevision(gitMaterial, newGitModifications);
+        MaterialRevisions gitMaterialRevisions = new MaterialRevisions(materialRevision);
+        dbHelper.saveRevs(gitMaterialRevisions);
+
+        //schedule the pipeline -- the filtered commit matches the whitelist, so this pipeline
+        //SHOULD be queued exactly like the unfiltered case above
         pipelineTimeline.update();
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(downstreamPipelineName);
         softly.assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(cis(downstreamPipelineName));

@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
@@ -28,6 +29,8 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
+import com.thoughtworks.go.domain.materials.ModifiedAction;
+import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.server.caching.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -46,6 +49,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.Date;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.cis;
 import static com.thoughtworks.go.util.SystemEnvironment.RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT;
@@ -845,6 +850,72 @@ public class FaninDependencyResolutionTest {
 
         MaterialRevisions revisionsBasedOnDependencies = getRevisionsBasedOnDependencies(p5, goConfigDao.currentConfig(), given);
         assertThat(revisionsBasedOnDependencies).isEqualTo(given);
+    }
+
+    // Reproduces a live cbp-org (github.com/cbp-org/cbp-org) finding: dns_deploy -> nginx_proxy_deploy
+    // froze at a stale git revision for 4+ days despite later commits squarely matching
+    // nginx_proxy_deploy's own material filter. nginx_proxy_deploy's real shape is a genuine DIAMOND:
+    // the same git repo reaches it directly (whitelist-filtered to infrastructure/nginx-proxy/*) AND
+    // indirectly via dns_deploy's own (unfiltered) material -- with the dns_deploy dependency material
+    // marked ignoreForScheduling so dns_deploy's own advancement never gates scheduling. This is
+    // exactly what FanInGraph/getRevisionsBasedOnDependencies exists to reconcile, and is a shape none
+    // of this class's other tests (nor BuildCauseProducerServiceDependencyIntegrationTest's simpler,
+    // non-diamond dependency-material case) exercise with a FILTERED shared material.
+    //
+    //        +----[whitelist filter: important-dir/*]----+
+    //        |                                            v
+    //  git --+                                    nginx_proxy_deploy
+    //        |                                            ^
+    //        +--> dns_deploy --[ignoreForScheduling]-------+
+    @Test
+    public void shouldScheduleDownstreamPipeline_withDiamondSharedFilteredMaterialAndIgnoredDependencyMaterial_whenFilteredMaterialHasMatchingChanges() {
+        GitMaterial gitForDns = u.wf(new GitMaterial("shared-git-url"), "f1");
+        u.checkinInOrder(gitForDns, "g1");
+
+        ScheduleTestUtil.AddedPipeline dnsDeploy = u.saveConfigWith("dns_deploy", u.m(gitForDns));
+        String dns1 = u.runAndPass(dnsDeploy, "g1");
+
+        GitMaterial gitForNginx = new GitMaterial("shared-git-url");
+        gitForNginx.setFolder("f2");
+        gitForNginx.setInvertFilter(true);
+        gitForNginx.setFilter(Filter.fromDisplayString("important-dir/*,important-dir/**/*"));
+
+        DependencyMaterial ignoredDnsDependency = new DependencyMaterial(
+            dnsDeploy.material.getName(), dnsDeploy.material.getPipelineName(), dnsDeploy.material.getStageName(), true);
+
+        ScheduleTestUtil.AddedPipeline nginxProxyDeploy = u.saveConfigWith("nginx_proxy_deploy", u.m(gitForNginx), u.m(ignoredDnsDependency));
+
+        // nginx_proxy_deploy already has a real run history -- exactly like the live cbp-org
+        // pipeline (which has deployed many times before), not a freshly-created never-run pipeline.
+        u.runAndPass(nginxProxyDeploy, "g1", dns1);
+
+        // A commit lands INSIDE the whitelisted directory -- exactly the shape of a real cbp-org
+        // commit under infrastructure/nginx-proxy/ that should trigger nginx_proxy_deploy.
+        // ScheduleTestUtil.checkinFile always calls File.getName() (basename only) when building
+        // the ModifiedFile, so it can never represent a file inside a subdirectory -- the repo-
+        // relative path has to be passed as the filename directly for the filter engine (which
+        // matches only on ModifiedFile.getFileName(), never folderName) to see "important-dir/".
+        transactionTemplate.execute(status -> {
+            Modification modification = new Modification("user", "comment", "a@b.com", new Date(), "g2");
+            modification.createModifiedFile("important-dir/another_file.c", null, ModifiedAction.added);
+            materialRepository.saveMaterialRevision(new MaterialRevision(gitForNginx, modification));
+            return null;
+        });
+
+        MaterialRevisions previous = u.mrs(
+            u.mr(ignoredDnsDependency, false, dns1),
+            u.mr(gitForNginx, false, "g1"));
+
+        MaterialRevisions given = u.mrs(
+            u.mr(ignoredDnsDependency, false, dns1),
+            u.mr(gitForNginx, true, "g2"));
+
+        BuildCause buildCause = getBuildCause(nginxProxyDeploy, given, previous);
+        assertThat(buildCause)
+            .as("nginx_proxy_deploy should be triggered by the filter-matching commit on its shared, "
+                + "whitelisted git material, even though its ignoreForScheduling dependency material "
+                + "(dns_deploy) did not itself advance")
+            .isNotNull();
     }
 
     private BuildCause getBuildCause(ScheduleTestUtil.AddedPipeline staging, MaterialRevisions given, MaterialRevisions previous) {

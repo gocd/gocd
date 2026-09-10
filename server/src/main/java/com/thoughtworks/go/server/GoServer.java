@@ -54,6 +54,7 @@ public class GoServer {
     }
 
     protected void startServer() throws Exception {
+        LOG.info("GoCD server starting...");
         server = configureServer();
         server.start();
         if (!server.hasStarted()) {

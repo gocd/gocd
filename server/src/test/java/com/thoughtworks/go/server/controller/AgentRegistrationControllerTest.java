@@ -70,6 +70,7 @@ public class AgentRegistrationControllerTest {
         Files.writeString(pluginZipFile.toPath(), "content", UTF_8);
         when(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH)).thenReturn(pluginZipFile.getAbsolutePath());
         when(systemEnvironment.get(AGENT_EXTRA_PROPERTIES)).thenReturn("");
+        when(systemEnvironment.isDevMode()).thenReturn(true);
         pluginsZip = mock(PluginsZip.class);
         controller = new AgentRegistrationController(agentService, goConfigService, systemEnvironment, pluginsZip, ephemeralAutoRegisterKeyService);
         controller.populateAgentChecksum();

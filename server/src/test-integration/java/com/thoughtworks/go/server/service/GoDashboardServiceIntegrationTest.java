@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.result.DefaultLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,10 +55,6 @@ import static org.assertj.core.api.Assertions.assertThat;
         "classpath:/spring-all-servlet.xml",
 })
 public class GoDashboardServiceIntegrationTest {
-    static {
-        new SystemEnvironment().setProperty(SystemEnvironment.USE_COMPRESSED_JAVASCRIPT, "false");
-    }
-
     @Autowired
     private GoConfigService goConfigService;
     @Autowired

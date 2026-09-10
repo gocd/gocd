@@ -24,7 +24,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.NamedProcessTag;
 import com.thoughtworks.go.util.PerfTimer;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.junit.jupiter.api.AfterEach;
@@ -64,10 +63,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 })
 public class PipelineConfigServicePerformanceTest {
     private static final Logger LOG = LoggerFactory.getLogger(PipelineConfigServicePerformanceTest.class);
-
-    static {
-        new SystemEnvironment().setProperty(SystemEnvironment.USE_COMPRESSED_JAVASCRIPT, "false");
-    }
 
     @TempDir
     Path tempDir;
@@ -173,7 +168,7 @@ public class PipelineConfigServicePerformanceTest {
         for (Thread t : threads) {
             Thread.sleep(1000 * (new Random().nextInt(3) + 1));
             t.setUncaughtExceptionHandler((t1, e) -> {
-                LOG.error("Exception " + e + " from thread " + t1);
+                LOG.error("Exception {} from thread {}", e, t1);
                 results.put(t1.getName(), false);
             });
             t.start();

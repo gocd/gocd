@@ -52,7 +52,7 @@ public class RailsAssetsService implements ServletContextAware {
     }
 
     public void initialize() throws IOException {
-        if (!systemEnvironment.useCompressedJs()) {
+        if (systemEnvironment.isDevMode()) {
             return;
         }
         String assetsDirPath = servletContext.getRealPath(servletContext.getInitParameter("rails.root") + "/public/assets/");
@@ -74,7 +74,7 @@ public class RailsAssetsService implements ServletContextAware {
     }
 
     public String getAssetPath(String asset) {
-        String assetFileName = systemEnvironment.useCompressedJs() ? railsAssetsManifest.getAssetWithDigest(asset) : asset;
+        String assetFileName = systemEnvironment.isDevMode() ? asset : railsAssetsManifest.getAssetWithDigest(asset);
         return isBlank(assetFileName) ? null : "assets/" + assetFileName;
     }
 

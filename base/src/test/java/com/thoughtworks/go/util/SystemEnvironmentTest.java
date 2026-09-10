@@ -51,12 +51,12 @@ class SystemEnvironmentTest {
     }
 
     @Test
-    void shouldUnderstandWhetherToUseCompressedJs() {
-        assertThat(systemEnvironment.useCompressedJs()).isTrue();
-        systemEnvironment.setProperty(SystemEnvironment.USE_COMPRESSED_JAVASCRIPT, Boolean.FALSE.toString());
-        assertThat(systemEnvironment.useCompressedJs()).isFalse();
-        systemEnvironment.setProperty(SystemEnvironment.USE_COMPRESSED_JAVASCRIPT, Boolean.TRUE.toString());
-        assertThat(systemEnvironment.useCompressedJs()).isTrue();
+    void shouldUnderstandWhetherToUseDevelopmentMode() {
+        assertThat(systemEnvironment.isDevMode()).isFalse();
+        systemEnvironment.set(SystemEnvironment.GO_SERVER_MODE, "development");
+        assertThat(systemEnvironment.isDevMode()).isTrue();
+        systemEnvironment.set(SystemEnvironment.GO_SERVER_MODE, "production");
+        assertThat(systemEnvironment.isDevMode()).isFalse();
     }
 
     @Test

@@ -361,7 +361,7 @@ tasks.register('rspec', ExecuteUnderRailsTask) {
   systemProperties += [
     'cruise.config.dir'             : testConfigDir.get().asFile,
     'plugins.all.zip.path'          : testDataDir.map { it.file('plugins.zip') }.get().asFile,
-    'rails.use.compressed.js'       : false,
+    'go.server.mode'                : 'development',
     'go.enforce.server.immutability': 'N',
   ]
 

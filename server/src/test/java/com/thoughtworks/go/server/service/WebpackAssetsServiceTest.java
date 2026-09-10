@@ -114,7 +114,7 @@ public class WebpackAssetsServiceTest {
     public void shouldServeManifestFromCacheInProductionMode() throws IOException {
         TestFileUtil.resourceToPath("/com/thoughtworks/go/server/service/webpackassetstest/good-manifest.json", manifestFile);
 
-        when(systemEnvironment.useCompressedJs()).thenReturn(true);
+        when(systemEnvironment.isDevMode()).thenReturn(false);
 
         webpackAssetsService.getJSAssetPathsFor("single_page_apps/agents");
         webpackAssetsService.getJSAssetPathsFor("single_page_apps/agents");

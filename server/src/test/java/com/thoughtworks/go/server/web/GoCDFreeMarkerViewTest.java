@@ -174,7 +174,6 @@ class GoCDFreeMarkerViewTest {
     @Test
     public void shouldSetAssetsPathVariables() throws Exception {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
-        when(systemEnvironment.useCompressedJs()).thenReturn(true);
         when(railsAssetsService.getAssetPath("g9/stage_bar_cancelled_icon.png")).thenReturn("assets/g9/stage_bar_cancelled_icon.png");
         when(railsAssetsService.getAssetPath("cruise.ico")).thenReturn("assets/cruise.ico");
         GoCDFreeMarkerView view = spy(new GoCDFreeMarkerView(systemEnvironment));

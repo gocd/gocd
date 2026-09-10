@@ -26,9 +26,6 @@ import static com.thoughtworks.go.server.dao.FeedModifier.*;
 
 @UtilityClass
 public class MaterialQueries {
-    private static final Map<FeedModifier, String> modificationsQueryMap;
-    private static final Map<FeedModifier, String> modificationsForPatternQueryMap;
-
     private static final String latestModification = """
         SELECT * \
         FROM modifications \
@@ -92,17 +89,17 @@ public class MaterialQueries {
         ORDER BY id DESC \
         """;
 
-    static {
-        modificationsQueryMap = new EnumMap<>(FeedModifier.class);
-        modificationsQueryMap.put(Latest, latestModification);
-        modificationsQueryMap.put(After, modificationsAfter);
-        modificationsQueryMap.put(Before, modificationsBefore);
+    private static final Map<FeedModifier, String> modificationsQueryMap = new EnumMap<>(Map.of(
+            Latest, latestModification,
+            After, modificationsAfter,
+            Before, modificationsBefore
+    ));
 
-        modificationsForPatternQueryMap = new EnumMap<>(FeedModifier.class);
-        modificationsForPatternQueryMap.put(Latest, latestModificationForPattern);
-        modificationsForPatternQueryMap.put(After, afterModificationForPattern);
-        modificationsForPatternQueryMap.put(Before, beforeModificationForPattern);
-    }
+    private static final Map<FeedModifier, String> modificationsForPatternQueryMap = new EnumMap<>(Map.of(
+            Latest, latestModificationForPattern,
+            After, afterModificationForPattern,
+            Before, beforeModificationForPattern
+    ));
 
     public static String loadModificationQuery(FeedModifier modifier) {
         return modificationsQueryMap.get(modifier);

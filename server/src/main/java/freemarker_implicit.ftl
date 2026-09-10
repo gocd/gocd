@@ -17,7 +17,6 @@
 [#-- @ftlvariable name="userHasViewAdministratorRights" type="boolean" --]
 [#-- @ftlvariable name="userHasTemplateViewUserRights" type="boolean" --]
 [#-- @ftlvariable name="userHasGroupAdministratorRights" type="boolean" --]
-[#-- @ftlvariable name="useCompressJS" type="boolean" --]
 
 [#-- @ftlvariable name="currentGoCDVersion" type="com.thoughtworks.go.CurrentGoCDVersion" --]
 [#-- @ftlvariable name="concatenatedStageBarCancelledIconFilePath" type="java.lang.String" --]

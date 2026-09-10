@@ -18,25 +18,21 @@ package com.thoughtworks.go.apiv7.plugininfos.representers;
 import com.thoughtworks.go.apiv7.plugininfos.representers.extensions.*;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class ExtensionRepresenterResolver {
-    private static final Map<String, ExtensionRepresenter> extensionRepresenter;
-
-    static {
-        extensionRepresenter = new HashMap<>();
-        extensionRepresenter.put("authorization", new AuthorizationExtensionRepresenter());
-        extensionRepresenter.put("scm", new SCMExtensionRepresenter());
-        extensionRepresenter.put("configrepo", new ConfigRepoExtensionRepresenter());
-        extensionRepresenter.put("elastic-agent", new ElasticAgentExtensionRepresenter());
-        extensionRepresenter.put("task", new TaskExtensionRepresenter());
-        extensionRepresenter.put("package-repository", new PackageMaterialExtensionRepresenter());
-        extensionRepresenter.put("notification", new NotificationPluginInfoRepresenter());
-        extensionRepresenter.put("analytics", new AnalyticsPluginInfoRepresenter());
-        extensionRepresenter.put("artifact", new ArtifactPluginInfoRepresenter());
-        extensionRepresenter.put("secrets", new SecretsExtensionRepresenter());
-    }
+    private static final Map<String, ExtensionRepresenter> extensionRepresenter = Map.of(
+        "authorization", new AuthorizationExtensionRepresenter(),
+        "scm", new SCMExtensionRepresenter(),
+        "configrepo", new ConfigRepoExtensionRepresenter(),
+        "elastic-agent", new ElasticAgentExtensionRepresenter(),
+        "task", new TaskExtensionRepresenter(),
+        "package-repository", new PackageMaterialExtensionRepresenter(),
+        "notification", new NotificationPluginInfoRepresenter(),
+        "analytics", new AnalyticsPluginInfoRepresenter(),
+        "artifact", new ArtifactPluginInfoRepresenter(),
+        "secrets", new SecretsExtensionRepresenter()
+    );
 
     static ExtensionRepresenter resolveRepresenterFor(PluginInfo extension) {
         return extensionRepresenter.get(extension.getExtensionName());

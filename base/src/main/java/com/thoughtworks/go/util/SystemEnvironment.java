@@ -63,8 +63,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final String CRUISE_PROPERTIES = "/cruise.properties";
 
-    public static final String USE_COMPRESSED_JAVASCRIPT = "rails.use.compressed.js";
-
     public static final String AGENT_SIZE_LIMIT = "agent.size.limit";
     public static final String ARTIFACT_FULL_SIZE_LIMIT = "artifact.full.size.limit";
     public static final String DATABASE_FULL_SIZE_LIMIT = "db.full.size.limit";
@@ -447,8 +445,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return getPropertyImpl(AGENT_SSL_VERIFICATION_MODE, "NONE");
     }
 
-    public boolean useCompressedJs() {
-        return Boolean.parseBoolean(getPropertyImpl(USE_COMPRESSED_JAVASCRIPT, "true"));
+    public boolean isDevMode() {
+        return GO_SERVER_MODE.getValue().equalsIgnoreCase("development");
     }
 
     public Map<String, String> getGitAllowedProtocols() {

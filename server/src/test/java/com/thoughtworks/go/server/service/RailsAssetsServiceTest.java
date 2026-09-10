@@ -49,14 +49,14 @@ public class RailsAssetsServiceTest {
     public void setup() {
         context = mock(ServletContext.class);
         systemEnvironment = mock(SystemEnvironment.class);
-        when(systemEnvironment.useCompressedJs()).thenReturn(true);
+        when(systemEnvironment.isDevMode()).thenReturn(false);
         railsAssetsService = new RailsAssetsService(systemEnvironment);
         railsAssetsService.setServletContext(context);
     }
 
     @Test
     public void shouldNotInitializeAssetManifestWhenUsingRails4InDevelopmentMode() throws IOException {
-        when(systemEnvironment.useCompressedJs()).thenReturn(false);
+        when(systemEnvironment.isDevMode()).thenReturn(true);
         railsAssetsService = new RailsAssetsService(systemEnvironment);
         railsAssetsService.setServletContext(context);
         railsAssetsService.initialize();
@@ -100,7 +100,7 @@ public class RailsAssetsServiceTest {
 
     @Test
     public void shouldNotIncludeDigestPathInDevelopmentEnvironment() throws IOException {
-        when(systemEnvironment.useCompressedJs()).thenReturn(false);
+        when(systemEnvironment.isDevMode()).thenReturn(true);
         railsAssetsService.initialize();
         assertThat(railsAssetsService.getAssetPath("junk.js")).isEqualTo("assets/junk.js");
     }

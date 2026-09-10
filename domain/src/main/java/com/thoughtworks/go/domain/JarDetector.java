@@ -26,7 +26,7 @@ public abstract class JarDetector {
     private static final String JAR_STORAGE_PREFIX = "defaultFiles";
 
     public static InputStreamSrc createFromRelativeDefaultFile(SystemEnvironment env, String file) throws IOException {
-        if (!env.useCompressedJs()) {
+        if (env.isDevMode()) {
             return new DefaultFilesFileInputStreamSource(file);
         } else {
             return new DefaultFilesClasspathInputStreamSource(file);

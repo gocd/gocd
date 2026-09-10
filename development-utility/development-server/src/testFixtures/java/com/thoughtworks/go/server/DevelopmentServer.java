@@ -65,7 +65,6 @@ public class DevelopmentServer {
         setupPeriodicGC(systemEnvironment);
         assertPluginsZipExists();
         GoServer server = new GoServer();
-        systemEnvironment.setProperty(SystemEnvironment.USE_COMPRESSED_JAVASCRIPT, Boolean.toString(false));
         try {
             server.startServer();
 

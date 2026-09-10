@@ -16,15 +16,12 @@
 package com.thoughtworks.go.server.util;
 
 import com.thoughtworks.go.server.GoServer;
-import com.thoughtworks.go.util.SystemEnvironment;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public final class GoLauncher {
     public static void main(String[] args) {
         ServerLogging.initialize();
-
-        new SystemEnvironment().setProperty(SystemEnvironment.USE_COMPRESSED_JAVASCRIPT, Boolean.toString(true));
 
         try {
             new GoServer().go();

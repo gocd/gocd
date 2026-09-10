@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Locale;
-import java.util.Map;
+import java.util.SequencedMap;
 
 import static java.lang.Math.min;
 import static java.time.Duration.*;
@@ -37,7 +37,7 @@ public class TimeConverter {
         String toFuzzyDuration(Duration duration);
     }
 
-    private static final Map<Duration, DurationFormatter> BOUNDARY_TO_FORMATTER = new LinkedHashMap<>();
+    private static final SequencedMap<Duration, DurationFormatter> BOUNDARY_TO_FORMATTER = new LinkedHashMap<>();
     static {
         BOUNDARY_TO_FORMATTER.put(ofMinutes(1).minusSeconds(31),
             d -> "less than a minute ago");

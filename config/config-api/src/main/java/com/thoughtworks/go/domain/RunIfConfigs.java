@@ -24,14 +24,9 @@ import java.util.Arrays;
 
 @ConfigCollection(value = RunIfConfig.class)
 public class RunIfConfigs extends BaseCollection<RunIfConfig> implements Validatable {
-    public static final RunIfConfigs CONFIGS = new RunIfConfigs();
-    private final ConfigErrors configErrors = new ConfigErrors();
+    public static final RunIfConfigs CONFIGS = new RunIfConfigs(RunIfConfig.ANY, RunIfConfig.FAILED, RunIfConfig.PASSED);
 
-    static {
-        CONFIGS.add(RunIfConfig.ANY);
-        CONFIGS.add(RunIfConfig.FAILED);
-        CONFIGS.add(RunIfConfig.PASSED);
-    }
+    private final ConfigErrors configErrors = new ConfigErrors();
 
     public RunIfConfigs() {
     }

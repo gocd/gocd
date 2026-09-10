@@ -185,7 +185,7 @@ public class JettyServer extends AppServer {
 
         deploymentManager.addApp(new App(deploymentManager, webAppProvider, "welcomeHandler", rootHandler()));
 
-        if (systemEnvironment.useCompressedJs()) {
+        if (!systemEnvironment.isDevMode()) {
             AssetsContextHandler assetsContextHandler = new AssetsContextHandler(systemEnvironment);
             deploymentManager.addApp(new App(deploymentManager, webAppProvider, "assetsHandler", assetsContextHandler));
             webAppContext.addEventListener(new AssetsContextHandlerInitializer(assetsContextHandler, webAppContext));

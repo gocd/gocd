@@ -39,7 +39,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,10 +64,6 @@ import static org.assertj.core.api.Assertions.assertThat;
         "classpath:/spring-all-servlet.xml",
 })
 public class PipelineConfigServiceIntegrationTest {
-    static {
-        new SystemEnvironment().setProperty(SystemEnvironment.USE_COMPRESSED_JAVASCRIPT, "false");
-    }
-
     @Autowired
     private PipelineConfigService pipelineConfigService;
     @Autowired

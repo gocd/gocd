@@ -64,7 +64,17 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     private static final PackageDefinition packageDefinition = PackageDefinitionMother.create("id", "name1", new Configuration(create("k2", false, "v2")), packageRepo);
     private static final SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(create("k1", false, "v1")));
 
-    private static final Map<Class<?>, String[]> fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack = new HashMap<>();
+    private static final Map<Class<?>, String[]> fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack = Map.of(
+        GitMaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"},
+        HgMaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"},
+        SvnMaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"},
+        P4MaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"},
+        TfsMaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"},
+        PackageMaterialConfig.class, new String[]{"filter", "packageId", "packageDefinition", "fingerprint"},
+        PluggableSCMMaterialConfig.class, new String[]{"filter", "scmId", "scmConfig", "fingerprint"},
+        DependencyMaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"}
+    );
+
     private final MaterialConfigConverter materialConfigConverter = new MaterialConfigConverter();
 
     @SuppressWarnings("unused")
@@ -78,17 +88,6 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
                 new PackageMaterialConfig(cis("name"), "pkg-id", packageDefinition),
                 new PluggableSCMMaterialConfig(cis("name"), scmConfig, "folder", filterFor("*.txt"), false),
                 new DependencyMaterialConfig(cis("name1"), cis("pipeline1"), cis("stage1")));
-    }
-
-    static {
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(GitMaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"});
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(HgMaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"});
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(SvnMaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"});
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(P4MaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"});
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(TfsMaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"});
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(PackageMaterialConfig.class, new String[]{"filter", "packageId", "packageDefinition", "fingerprint"});
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(PluggableSCMMaterialConfig.class, new String[]{"filter", "scmId", "scmConfig", "fingerprint"});
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(DependencyMaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"});
     }
 
     @ParameterizedTest

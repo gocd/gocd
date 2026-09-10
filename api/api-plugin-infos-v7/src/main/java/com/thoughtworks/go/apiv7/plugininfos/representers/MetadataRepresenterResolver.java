@@ -22,17 +22,13 @@ import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.MetadataWithPartOfIdentity;
 import com.thoughtworks.go.plugin.domain.common.PackageMaterialMetadata;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class MetadataRepresenterResolver {
-    private static final Map<Class<? extends Metadata>, MetadataRepresenter> representerMap;
-
-    static {
-        representerMap = new HashMap<>();
-        representerMap.put(PackageMaterialMetadata.class, new PackageMaterialMetadataRepresenter());
-        representerMap.put(MetadataWithPartOfIdentity.class, new MetadataWithPartOfIdentityRepresenter());
-    }
+    private static final Map<Class<? extends Metadata>, MetadataRepresenter> representerMap = Map.of(
+        PackageMaterialMetadata.class, new PackageMaterialMetadataRepresenter(),
+        MetadataWithPartOfIdentity.class, new MetadataWithPartOfIdentityRepresenter()
+    );
 
     public static MetadataRepresenter resolve(Metadata metadata) {
         return representerMap.getOrDefault(metadata.getClass(), new MetadataRepresenter());

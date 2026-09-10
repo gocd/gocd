@@ -40,7 +40,6 @@ public class GoCDFreeMarkerView extends FreeMarkerView {
     public static final String CAN_VIEW_SOME_ADMIN_PAGES = "userHasViewAdministratorRights";
     public static final String CAN_VIEW_SOME_TEMPLATES = "userHasTemplateViewUserRights";
 
-    public static final String USE_COMPRESS_JS = "useCompressJS";
     public static final String CURRENT_GOCD_VERSION = "currentGoCDVersion";
     public static final String CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH = "concatenatedStageBarCancelledIconFilePath";
     public static final String CONCATENATED_CRUISE_ICON_FILE_PATH = "concatenatedCruiseIconFilePath";
@@ -93,7 +92,6 @@ public class GoCDFreeMarkerView extends FreeMarkerView {
         model.put(GROUP_ADMINISTRATOR, securityService.isUserGroupAdmin(username));
         model.put(CAN_VIEW_SOME_ADMIN_PAGES, securityService.canViewSomeAdminPage(username));
         model.put(CAN_VIEW_SOME_TEMPLATES, securityService.isAuthorizedToViewTemplates(username));
-        model.put(USE_COMPRESS_JS, systemEnvironment.useCompressedJs());
 
         model.put(CURRENT_GOCD_VERSION, CurrentGoCDVersion.getInstance());
         model.put(CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH, railsAssetsService.getAssetPath("g9/stage_bar_cancelled_icon.png"));

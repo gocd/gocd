@@ -407,7 +407,7 @@ tasks.withType(Test).configureEach {
     'db.password'                   : '',
     'db.name'                       : 'cruise',
     'db.port'                       : '',
-    'rails.use.compressed.js'       : false,
+    'go.server.mode'                : 'development',
     'go.enforce.server.immutability': 'N',
   ]
 

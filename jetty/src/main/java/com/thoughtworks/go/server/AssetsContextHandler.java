@@ -49,10 +49,6 @@ public class AssetsContextHandler extends ContextHandler {
         }
     }
 
-    private boolean shouldNotHandle() {
-        return !systemEnvironment.useCompressedJs();
-    }
-
     AssetsHandler getAssetsHandler() {
         return assetsHandler;
     }
@@ -76,10 +72,9 @@ public class AssetsContextHandler extends ContextHandler {
 
         @Override
         public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-            if (shouldNotHandle()) {
-                return;
+            if (!systemEnvironment.isDevMode()) {
+                this.resourceHandler.handle(target, baseRequest, request, response);
             }
-            this.resourceHandler.handle(target, baseRequest, request, response);
         }
 
         private void setAssetsDir(String assetsDir) {

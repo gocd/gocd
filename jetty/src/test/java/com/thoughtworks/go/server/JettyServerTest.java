@@ -101,7 +101,7 @@ public class JettyServerTest {
         when(systemEnvironment.getServerPort()).thenReturn(1234);
         when(systemEnvironment.getCruiseWar()).thenReturn("cruise.war");
         when(systemEnvironment.getParentLoaderPriority()).thenReturn(true);
-        when(systemEnvironment.useCompressedJs()).thenReturn(true);
+        when(systemEnvironment.isDevMode()).thenReturn(false);
         when(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE)).thenReturn(1000);
         when(systemEnvironment.get(SystemEnvironment.GO_SERVER_CONNECTION_IDLE_TIMEOUT_IN_MILLIS)).thenReturn(2000L);
         when(systemEnvironment.configDir()).thenReturn(configDir);

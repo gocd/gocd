@@ -78,8 +78,8 @@ public class AssetsContextHandlerTest {
     }
 
     @Test
-    public void shouldNotHandleForRails4DevelopmentMode() throws IOException, ServletException {
-        when(systemEnvironment.useCompressedJs()).thenReturn(false);
+    public void shouldNotHandleForDevelopmentMode() throws IOException, ServletException {
+        when(systemEnvironment.isDevMode()).thenReturn(true);
 
         String target = "/go/assets/junk";
         Request request = mock(Request.class);

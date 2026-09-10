@@ -60,10 +60,10 @@ public class WebpackAssetsService implements ServletContextAware {
     }
 
     private WebpackManifest getManifest() {
-        if (systemEnvironment.useCompressedJs()) {
-            return this.cachedManifest.updateAndGet(existing -> existing == null ? loadManifest() : existing);
-        } else {
+        if (systemEnvironment.isDevMode()) {
             return loadManifest();
+        } else {
+            return this.cachedManifest.updateAndGet(existing -> existing == null ? loadManifest() : existing);
         }
     }
 

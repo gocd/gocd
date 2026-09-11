@@ -56,7 +56,8 @@ class InstallerTypeServer implements InstallerType {
       '--add-opens=java.base/java.util=ALL-UNNAMED', // Required at least for cloning GoConfig subclasses of java.util classes :(
       '--enable-native-access=ALL-UNNAMED',          // JDK 25+: Needed by com.kenai.jffi.internal.StubLoader at least
       '--sun-misc-unsafe-memory-access=allow',       // JDK 25+: sun.misc.Unsafe needed by Felix SecureAction, object cloning and probably others
-      '-XX:+IgnoreUnrecognizedVMOptions',            // JDK <25: Allow use of --sun-misc-unsafe-memory-access on older JVMs without errors
+      '-XX:+UseCompactObjectHeaders',                // JDK 25+: Reduce memory usage where possible
+      '-XX:+IgnoreUnrecognizedVMOptions',            // JDK <25: Allow use of --sun-misc-unsafe-memory-access and CompactObjectHeaders on older JVMs without errors
     ]
   }
 

@@ -64,14 +64,18 @@ class InstallerTypeAgent implements InstallerType {
     [
       '--enable-native-access=ALL-UNNAMED',    // JDK 25+: Needed by JNA used by OSHI library at least
       '--sun-misc-unsafe-memory-access=allow', // JDK 25+: sun.misc.Unsafe needed by Felix SecureAction and probably others
-      '-XX:+IgnoreUnrecognizedVMOptions',      // JDK <25: Allow use of --sun-misc-unsafe-memory-access on older JVMs without errors
+      '-XX:+UseCompactObjectHeaders',          // JDK 25+: Reduce memory usage where possible
+      '-XX:+IgnoreUnrecognizedVMOptions',      // JDK <25: Allow use of --sun-misc-unsafe-memory-access and CompactObjectHeaders on older JVMs without errors
     ]
   }
 
   // Note that these apply to the bootstrapper/launcher, but not necessarily the agent itself (see AGENT_STARTUP_ARGS for that)
   @Override
   List<String> getJvmArgs() {
-    []
+    [
+      '-XX:+UseCompactObjectHeaders',     // JDK 25+: Reduce memory usage where possible
+      '-XX:+IgnoreUnrecognizedVMOptions', // JDK <25: Allow use of CompactObjectHeaders on older JVMs without errors
+    ]
   }
 
   // Note that these apply to both the launcher/bootstrapper and the agent itself

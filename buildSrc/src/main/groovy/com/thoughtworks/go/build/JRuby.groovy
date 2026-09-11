@@ -25,8 +25,8 @@ abstract class JRuby extends JavaExec {
     '--add-opens=java.base/java.io=ALL-UNNAMED',     // JDK 17+: Enable native sub-process control by default
     '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',  //          Often needed by bundler and such to fork processes
     '--enable-native-access=ALL-UNNAMED',            // JDK 25+: Needed by com.kenai.jffi.internal.StubLoader at least
-    '--sun-misc-unsafe-memory-access=allow',         // JDK 25+: sun.misc.Unsafe needed by org.jruby.util.StringSupport at least
-    '-XX:+IgnoreUnrecognizedVMOptions',              // JDK <25: Allow use of --sun-misc-unsafe-memory-access on older JVMs without errors
+    '--sun-misc-unsafe-memory-access=allow',         // JDK 25+: sun.misc.Unsafe needed by Jruby 9.4 org.jruby.util.StringSupport at least
+    '-XX:+UseCompactObjectHeaders',                  // JDK 25+: Reduce memory usage where possible
   ]
 
   static jrubySystemProperties = [

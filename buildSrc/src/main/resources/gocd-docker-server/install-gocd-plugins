@@ -12,7 +12,10 @@ fi
 
 (while IFS='=' read -r name value ; do
   if [[ "${name}" == "GOCD_PLUGIN_INSTALL_"* ]]; then
+    # the value may optionally carry an expected checksum at the end, e.g `https://example.com/plugin.jar@<sha256>`
     plugin_url="${value}"
+    plugin_checksum=""
+    [[ "${value}" =~ ^(.+)@([0-9A-Fa-f]+)$ ]] && plugin_url="${BASH_REMATCH[1]}" plugin_checksum="${BASH_REMATCH[2]}"
 
     # remove the `GOCD_PLUGIN_INSTALL_` prefix and grab the plugin name
     plugin_name="${name//GOCD_PLUGIN_INSTALL_/}"
@@ -24,5 +27,13 @@ fi
       try rm "${plugin_dest}"
     fi
     try curl --silent --location --fail --retry 3 "${plugin_url}" --output "${plugin_dest}"
+
+    if [ -n "${plugin_checksum}" ]; then
+      echo "$ sha256sum -c <(echo \"${plugin_checksum}  ${plugin_dest}\")" 1>&2
+      if ! sha256sum -c <(echo "${plugin_checksum}  ${plugin_dest}"); then
+        rm -f "${plugin_dest}"
+        die "SHA-256 checksum verification failed for '${plugin_dest}' downloaded from '${plugin_url}'"
+      fi
+    fi
   fi
 done) < <(env)

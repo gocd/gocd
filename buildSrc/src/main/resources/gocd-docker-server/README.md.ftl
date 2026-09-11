@@ -48,6 +48,9 @@ docker run \
   gocd/${imageName}:v${goVersions.goVersion}
 ```
 
+A SHA256 checksum can be provided to verify the integrity of the downloaded plugin by appending it to the URL with an `@`
+e.g `GOCD_PLUGIN_INSTALL_a-plugin=https://example.com/a-plugin.jar@expected-sha256-sum`
+
 To install multiple plugins, add several `-e` arguments as such:
 
 ```shell

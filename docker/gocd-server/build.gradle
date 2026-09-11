@@ -87,9 +87,13 @@ subprojects {
 
       cleanContainer.call(OutputStream.nullOutputStream()) // Clean-up after any previous aborted runs
 
+      // Doesn't really need to be updated; only used to test the install
+      def testPluginUrl = "https://github.com/gocd/gocd-yum-repository-poller-plugin/releases/download/v3.0.0-435/gocd-yum-repo-plugin-3.0.0-435.jar"
+      def testPluginChecksum = "03c1ea2b5d088fa7a3b799b635fe108ad5bc441f0f0caccdefb9cdbb095c8a90"
+
       // daemonize the container
       execOps.exec {
-        commandLine = ["docker", "run", "-d", "--name", docker.dockerImageName, docker.imageNameWithTag]
+        commandLine = ["docker", "run", "-d", "--name", docker.dockerImageName, "-e", "GOCD_PLUGIN_INSTALL_test_plugin=${testPluginUrl}@${testPluginChecksum}", docker.imageNameWithTag]
       }
 
       def start = System.currentTimeMillis()

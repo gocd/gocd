@@ -103,7 +103,8 @@
     <notes><![CDATA[
     These vulnerabilities only affects Spring WebFlux applications, which GoCD is not.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring-.*@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework(\.security)?/spring-.*@4\.[23].*$</packageUrl>
+    <cve>CVE-2024-38821</cve>
     <cve>CVE-2026-22740</cve>
     <cve>CVE-2026-41839</cve>
     <cve>CVE-2026-47891</cve>
@@ -112,7 +113,7 @@
   <suppress>
     <notes><![CDATA[
     According to https://spring.io/security/cve-2026-22741, https://spring.io/security/cve-2026-22745 and
-    https://spring.io/security/cve-2026-41841 these issues only affects serving of static resources via spring-web/webflux.
+    https://spring.io/security/cve-2026-41841 these issues only affect serving of static resources via spring-web/webflux.
     GoCD does not serve static assets from the filesystem via Spring Web resource handler mechanisms (it uses Jetty for
     static assets alongside custom handlers for artifact downloading.
     ]]></notes>

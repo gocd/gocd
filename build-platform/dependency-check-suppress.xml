@@ -405,9 +405,17 @@
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*/.*@10.*$</packageUrl>
     <cve>CVE-2026-10050</cve>
   </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not enable HTTP/2 so this vulnerability is not exploitable right now.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*/.*@10.*$</packageUrl>
+    <cve>CVE-2026-12611</cve>
+  </suppress>
   <suppress until="2026-10-10">
     <notes><![CDATA[
-    There are no details of this vulnerability and the GHSA has been removed, so no possibility to determine validity.
+    There are very few details of this vulnerability as the GHSAs have not been disclosed, so difficult to establish
+    validity for GoCD: https://osv.dev/vulnerability/CVE-2026-19204
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*/.*@10.*$</packageUrl>
     <cve>CVE-2026-19204</cve>

@@ -47,7 +47,7 @@
     "lodash-inflection": "^1.5.0",
     "lru-cache": "~11.2.7",
     "mithril": "^2.3.8",
-    "moment": "^2.30.1",
+    "moment": "^2.31.0",
     "moment-duration-format": "^2.3.2",
     "normalize-scss": "^8.0.0",
     "opensans": "file:node-vendor/opensans#node-vendor/opensans::hash=930bae&locator=gocd-server-ui%40workspace%3A.",
@@ -119,7 +119,7 @@
     "typescript": "^6.0.3",
     "upath": "^3.0.8",
     "url-loader": "^4.1.1",
-    "webpack": "^5.110.3",
+    "webpack": "^5.111.0",
     "webpack-assets-manifest": "^6.5.2",
     "webpack-cli": "^7.2.3"
   },

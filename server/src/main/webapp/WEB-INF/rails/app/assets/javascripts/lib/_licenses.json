@@ -106,7 +106,7 @@
   },
   "momentjs": {
     "moduleName": "momentjs",
-    "moduleVersion": "2.30.1",
+    "moduleVersion": "2.31.0",
     "moduleUrls": [
       "https://github.com/moment/moment"
     ],

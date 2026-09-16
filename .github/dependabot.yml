@@ -6,6 +6,8 @@ registries:
 updates:
   - package-ecosystem: gradle
     directory: /
+    commit-message:
+      prefix: build(deps)
     registries:
       - gradle-plugins-portal
     schedule:
@@ -14,11 +16,18 @@ updates:
     cooldown:
       default-days: 2
     open-pull-requests-limit: 99
+    groups:
+      bouncycastle:
+        patterns: [ "*bouncycastle*" ]
+      gradle-plugins:
+        patterns: [ "*gradle*", "*dependency-analysis*", "*dependencycheck*" ]
+      test:
+        patterns: [ "*junit*", "*mockito*", "*dbunit*", "*xmlunit*", "*json-unit*", "*assert*", "*system-stubs*", "*testcontainers*" ]
   - package-ecosystem: npm
     directory: /server/src/main/webapp/WEB-INF/rails
     commit-message:
-      prefix: ui
-      prefix-development: ui-dev
+      prefix: build(deps-ui)
+      prefix-development: build(deps-ui-dev)
     schedule:
       interval: weekly
       day: friday
@@ -42,8 +51,8 @@ updates:
   - package-ecosystem: bundler
     directory: /server/src/main/webapp/WEB-INF/rails
     commit-message:
-      prefix: ui
-      prefix-development: ui-dev
+      prefix: build(deps-ui)
+      prefix-development: build(deps-ui-dev)
     schedule:
       interval: weekly
       day: friday
@@ -66,6 +75,10 @@ updates:
   - package-ecosystem: docker-compose
     directories:
       - "*"
+    commit-message:
+      prefix: build(deps-dev)
     schedule:
       interval: weekly
       day: friday
+    cooldown:
+      default-days: 2

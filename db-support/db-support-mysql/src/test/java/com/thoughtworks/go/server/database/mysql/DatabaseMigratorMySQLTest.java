@@ -28,7 +28,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @EnabledOnOs({OS.LINUX, OS.MAC})
 class DatabaseMigratorMySQLTest extends AbstractMigratorIntegrationTest {
     @Container
-    private final MySQLContainer mySQLContainer = new MySQLContainer("mysql:8.4")
+    private final MySQLContainer mySQLContainer = new MySQLContainer("mysql:9.7")
             .withUsername("root")
             .withPassword("")
             .withCommand("--lower-case-table-names=1");

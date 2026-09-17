@@ -96,6 +96,24 @@ public class XpathUtilsTest {
     }
 
     @Test
+    void shouldRejectXmlContainingDocTypeDeclarationToPreventXXE() throws Exception {
+        String maliciousXml = """
+            <?xml version="1.0"?>
+            <!DOCTYPE root [
+              <!ENTITY xxe SYSTEM "file:///etc/passwd">
+            ]>
+            <root>
+            <son>
+            <grandson name="&xxe;"/>
+            </son>
+            </root>""";
+
+        File file = getTestFile(maliciousXml);
+
+        assertThrows(XPathExpressionException.class, () -> XpathUtils.evaluate(file, "/root/son/grandson/@name"));
+    }
+
+    @Test
     public void shouldReturnEmptyStringWhenMatchedNodeIsNotTextNode() throws Exception {
         String xpath = "/root/son";
         String value = XpathUtils.evaluate(getTestFile(), xpath);

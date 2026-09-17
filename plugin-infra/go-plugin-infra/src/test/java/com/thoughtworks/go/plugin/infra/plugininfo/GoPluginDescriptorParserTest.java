@@ -16,6 +16,7 @@
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
 import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.ValidationException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -71,6 +72,34 @@ class GoPluginDescriptorParserTest {
                 "GoCD Team", "https://gocd.org", List.of("Linux", "Windows"));
 
             assertTrue(pluginDescriptor.extensionClasses().isEmpty());
+        }
+
+        @Test
+        void shouldRejectPluginXmlContainingDoctypeDeclarationToPreventXXE() throws IOException {
+            String maliciousXml = """
+            <?xml version="1.0"?>
+            <!DOCTYPE go-plugin [
+              <!ENTITY xxe SYSTEM "file:///etc/passwd">
+            ]>
+            <go-plugin id="com.thoughtworks.gocd.analytics" version="1">
+              <about>
+                <name>GoCD Analytics Plugin</name>
+                <version>3.1.1-1113</version>
+                <target-go-version>20.9.0</target-go-version>
+                <description>&xxe; attempt</description>
+                <vendor>
+                  <name>NoThoughtWorks, Inc.</name>
+                  <url>https://github.com/gocd/fake-gocd-analytics-plugin</url>
+                </vendor>
+                <target-os>
+                  <value>Linux</value>
+                </target-os>
+              </about>
+            </go-plugin>""";
+
+            try (InputStream pluginXml = new ByteArrayInputStream(maliciousXml.getBytes(UTF_8))) {
+                assertThrows(ValidationException.class, () -> parseXml(pluginXml, "/tmp/", new File("/tmp/"), true));
+            }
         }
 
         @SuppressWarnings("SameParameterValue")

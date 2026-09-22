@@ -637,9 +637,9 @@ tasks.register('verifyWar', VerifyJarTask) {
         "httpcore-4.4.16.jar",
         "invokebinder-1.13.jar",
         "istack-commons-runtime-4.1.2.jar",
-        "jackson-annotations-${rootProject.versions.jacksonBom.replaceFirst(/\.\d+$/, '')}.jar",
-        "jackson-core-${rootProject.versions.jacksonBom}.jar",
-        "jackson-databind-${rootProject.versions.jacksonBom}.jar",
+        "jackson-annotations-[\\d.]+\\.jar",
+        "jackson-core-[\\d.]+\\.jar",
+        "jackson-databind-[\\d.]+\\.jar",
         "jakarta.activation-api-2.1.4.jar",
         "jakarta.annotation-api-${rootProject.versions.jakartaAnnotation}.jar",
         "jakarta.inject-api-${rootProject.versions.jakartaInject}.jar",
@@ -742,6 +742,10 @@ tasks.register('licenseReportAggregate') {
 
   dependsOn compileAssetsWebpackProd
   dependsOn generateRubygemsLicenseReport
+
+  // try our best to run verifications first since logic here relies on the expectations here
+  def verifyJarTasks = rootProject.subprojects.collectMany { eachProject -> eachProject.tasks.withType(VerifyJarTask) }
+  shouldRunAfter verifyJarTasks
 
   def rubygemsReportFile = (generateRubygemsLicenseReport as Task).outputs.files.singleFile
   def extraJavascriptLicenses = project.file("${project.railsRoot}/app/assets/javascripts/lib/_licenses.json")
@@ -864,16 +868,16 @@ tasks.register('licenseReportAggregate') {
     allReportJarDependencies
   }
 
-  def getLicenseDataFor = { Set<String> allJars, Set<Map<String, Object>> allDependenciesInReport ->
-    allJars.inject(new LinkedHashMap<String, Map<String, Object>>(), { result, eachPackagedJar ->
+  def getLicenseDataFor = { Set<String> allExpectedJarRegexes, Set<Map<String, Object>> allDependenciesInReport ->
+    allExpectedJarRegexes.inject(new LinkedHashMap<String, Map<String, Object>>(), { result, packagedJarRegex ->
       Map<String, Object> module = allDependenciesInReport.find { Map<String, Object> eachDependencyInReport ->
         def (_, artifactId) = (eachDependencyInReport.moduleName as String).split(':')
         def version = eachDependencyInReport.moduleVersion
-        eachPackagedJar =~ /^${artifactId}-${version}(-.+)?\.jar/
+        packagedJarRegex =~ /^${artifactId}-${version}(-.+)?\.jar/ || "${artifactId}-${version}.jar" =~ packagedJarRegex
       }
 
       if (module == null) {
-        throw new GradleException("Expected to find packaged jar ${eachPackagedJar} but was not found in the license report")
+        throw new GradleException("Expected to find packaged jar ${packagedJarRegex} but was not found in the license report")
       }
 
       result.put(module.moduleName as String, module)
@@ -895,21 +899,17 @@ tasks.register('licenseReportAggregate') {
   doFirst {
     LinkedHashSet<Map<String, Object>> allJarDependencyLicenses = getJarDependencyLicenses()
 
-    List<VerifyJarTask> verifyJarTasks = rootProject.subprojects.collectMany { eachProject ->
-      eachProject.tasks.withType(VerifyJarTask)
-    }
-
-    // list of all jars that we package
-    Set<String> allJars = verifyJarTasks.collectMany { VerifyJarTask eachTask ->
-      eachTask.expectedJars.values().flatten()
-    }.collect { name -> name.toString() }.sort().unique()
+    // list of all jars that we expect to package
+    Set<String> allExpectedJarRegexes = verifyJarTasks
+      .collectMany { VerifyJarTask eachTask -> eachTask.expectedJars.values().flatten() }
+      .collect { name -> name.toString() }.sort().unique()
 
     // remove unwanted stuff, mostly nested zip files and jars with GoCD package version
-    allJars.removeIf { name -> name.endsWith(".zip") || name.endsWith("-${version}.jar") || name.contains("-${version}-") }
-    allJars.removeAll(goCDJarsWithoutLicenses)
+    allExpectedJarRegexes.removeIf { name -> name.endsWith(".zip") || name.endsWith("-${version}.jar") || name.contains("-${version}-") }
+    allExpectedJarRegexes.removeAll(goCDJarsWithoutLicenses)
 
     // get the licenses corresponding to the jars we actually package.
-    def licensesForPackagedJarDependencies = getLicenseDataFor(allJars, allJarDependencyLicenses) as Map<String, Map<String, Object>>
+    def licensesForPackagedJarDependencies = getLicenseDataFor(allExpectedJarRegexes, allJarDependencyLicenses) as Map<String, Map<String, Object>>
 
     delete(licenseReportAggregateOutputDir)
     licenseReportAggregateOutputDir.get().asFile.mkdirs()

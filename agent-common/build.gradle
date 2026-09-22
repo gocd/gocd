@@ -35,7 +35,7 @@ dependencies {
   agentClientRuntimeOnly rootProject.deps.jcommander
 
   agentClientCompileOnly rootProject.deps.jakartaAnnotation
-  agentClientImplementation rootProject.deps.bouncyCastle
+  agentClientImplementation rootProject.deps.bouncyCastleProv
   agentClientImplementation rootProject.deps.bouncyCastlePkix
 
   agentClientImplementation(rootProject.deps.apacheHttpComponents) {

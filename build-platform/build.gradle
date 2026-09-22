@@ -28,6 +28,7 @@ javaPlatform {
 dependencies {
   // Use BOMs to control versions of dependencies for other projects where possible.
   // This is following https://docs.gradle.org/current/userguide/platforms.html#sub:bom_import
+  api enforcedPlatform(rootProject.deps.bouncyCastleBom)
   api enforcedPlatform(rootProject.deps.slf4jBom)
   api enforcedPlatform(rootProject.deps.jacksonBom)
   api platform(rootProject.deps.jaxbBom)

@@ -17,8 +17,6 @@ updates:
       default-days: 2
     open-pull-requests-limit: 99
     groups:
-      bouncycastle:
-        patterns: [ "*bouncycastle*" ]
       gradle-plugins:
         patterns: [ "*gradle*", "*dependency-analysis*", "*dependencycheck*" ]
       test:

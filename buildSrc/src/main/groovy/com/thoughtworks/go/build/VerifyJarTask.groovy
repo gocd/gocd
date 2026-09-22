@@ -30,7 +30,7 @@ import javax.inject.Inject
 
 abstract class VerifyJarTask extends DefaultTask {
 
-  @Input TaskProvider<? extends Zip> jarTask
+  @Internal TaskProvider<? extends Zip> jarTask
   @Input Map<String, List<String>> expectedJars
 
   @Internal abstract RegularFileProperty getJar()
@@ -53,19 +53,19 @@ abstract class VerifyJarTask extends DefaultTask {
       }
       def allJars = tree.files.collect { it.name }.sort()
 
-      if (!allJars.equals(expectedJarsInDir.sort())) {
-        if (!(allJars - expectedJarsInDir).empty) {
-          expectedMessages += ["Got some extra jars in ${jar.get()}!${directoryInJar} that were not expected"]
-          (allJars - expectedJarsInDir).each { jar ->
-            expectedMessages += ["  - ${jar}"]
-          }
+      def extra = allJars.findAll {actual -> !expectedJarsInDir.any { expected -> actual =~ expected } }
+      if (!extra.empty) {
+        expectedMessages += ["Got some extra jars in ${jar.get()}!${directoryInJar} that were not expected"]
+        extra.each { jar ->
+          expectedMessages += ["  - ${jar}"]
         }
+      }
 
-        if (!(expectedJarsInDir - allJars).empty) {
-          expectedMessages += ["Some jars that were expected in ${jar.get()}!${directoryInJar} were not present"]
-          (expectedJarsInDir - allJars).each { jar ->
-            expectedMessages += ["  - ${jar}"]
-          }
+      def missing = expectedJarsInDir.findAll {expected -> !allJars.any { actual -> actual =~ expected } }
+      if (!missing.empty) {
+        expectedMessages += ["Some jars that were expected in ${jar.get()}!${directoryInJar} were not present"]
+        missing.each { jar ->
+          expectedMessages += ["  - ${jar}"]
         }
       }
     }

@@ -214,7 +214,7 @@
     This appears to be a false positive. Vulnerability is only reported against Spring `5.2.0` to `5.2.3` (not 4.3)
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-webmvc@4\.3.*$</packageUrl>
-    <vulnerabilityName>CVE-2020-5397</vulnerabilityName>
+    <cve>CVE-2020-5397</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
@@ -224,7 +224,7 @@
     for a GoCD instance in production, and not in the default configuration
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring-webmvc@4\.3.*$</packageUrl>
-    <vulnerabilityName>CVE-2021-22060</vulnerabilityName>
+    <cve>CVE-2021-22060</cve>
   </suppress>
 
   <suppress>
@@ -339,7 +339,7 @@
     GoCD is not subject to this defect, because GoCD does not use JSONPath nor Oracle/DB2 or HANA dialects.
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.hibernate/hibernate-(core|ehcache)@.*$</packageUrl>
-    <vulnerabilityName>CVE-2026-77874</vulnerabilityName>
+    <cve>CVE-2026-77874</cve>
   </suppress>
 
   <suppress>
@@ -363,7 +363,7 @@
     <cve>CVE-2021-42392</cve>
     <cve>CVE-2022-23221</cve>
     <cve>CVE-2022-45868</cve>
-    <vulnerabilityName>CVE-2018-14335</vulnerabilityName>
+    <cve>CVE-2018-14335</cve>
   </suppress>
 
   <suppress>
@@ -488,7 +488,7 @@
     Suppress false positive from bad OSSIndex data on foundation-sites issue which only affects <= 6.3.3 according to https://nvd.nist.gov/vuln/detail/CVE-2020-26304
     ]]></notes>
     <packageUrl regex="true">^pkg:npm/foundation-sites@.*$</packageUrl>
-    <vulnerabilityName>CVE-2020-26304</vulnerabilityName>
+    <cve>CVE-2020-26304</cve>
   </suppress>
 
   <suppress>
@@ -497,7 +497,7 @@
     file name: protobuf_java.jar (shaded: com.google.code.gson:gson:2.8.9)
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/com\.google\.code\.gson/gson@2\.8\..*$</packageUrl>
-    <vulnerabilityName>CVE-2025-53864</vulnerabilityName>
+    <cve>CVE-2025-53864</cve>
   </suppress>
 
   <!-- Suppression rules for dependencies only visible after a ./gradlew prepare (yarn install / bundle install / tw-go-plugins bundled download -->
@@ -549,8 +549,8 @@
     on conversation at https://github.com/dependency-check/DependencyCheck/issues/4614
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/xerces/xercesImpl@.*$</packageUrl>
-    <vulnerabilityName>CVE-2017-7503</vulnerabilityName>
-    <vulnerabilityName>CVE-2017-10355</vulnerabilityName>
+    <cve>CVE-2017-7503</cve>
+    <cve>CVE-2017-10355</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[

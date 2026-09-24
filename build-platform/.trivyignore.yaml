@@ -19,13 +19,9 @@ vulnerabilities:
       org.springframework:spring-webmvc (go.jar) Fixed: 6.1.14
       https://avd.aquasec.com/nvd/cve-2024-38819
   - id: CVE-2026-8763
-    purls:
-      - pkg:maven/org.bouncycastle:bcprov-jdk18on@1.84
     statement: >
       Embedded within JRuby 9.4.15.0; GoCD does not rely on jruby-openssl. Remove suppression after 10.0.7.0 upgrade.
   - id: CVE-2026-13506
-    purls:
-      - pkg:maven/org.bouncycastle:bcprov-jdk18on@1.84
     statement: >
       Embedded within JRuby 9.4.15.0; GoCD does not rely on jruby-openssl. Remove suppression after 10.0.7.0 upgrade.
   - id: CVE-2026-85091

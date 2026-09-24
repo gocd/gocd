@@ -439,15 +439,6 @@
     <cve>CVE-2026-17459</cve>
   </suppress>
 
-  <suppress until="2026-10-10">
-    <notes><![CDATA[
-    There are no binary-released fixes available for these issues at the current time.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson-.*@.*$</packageUrl>
-    <cve>CVE-2026-91776</cve>
-    <cve>CVE-2026-91777</cve>
-  </suppress>
-
   <suppress>
     <notes><![CDATA[
     GoCD does not seem to be vulnerable to these issues as it does not use Angular in a vulnerable way.

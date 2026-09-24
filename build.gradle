@@ -85,7 +85,7 @@ def libraries = [
   awaitility          : 'org.awaitility:awaitility:4.3.0',
   bouncyCastleBom     : 'org.bouncycastle:bc-jdk18on-bom:1.86.1',
   bucket4j            : 'com.bucket4j:bucket4j_jdk17-core:8.20.0',
-  caffeine            : 'com.github.ben-manes.caffeine:caffeine:3.2.4',
+  caffeine            : 'com.github.ben-manes.caffeine:caffeine:3.3.0',
   cloning             : 'io.github.kostaskougios:cloning:1.13.0',
   commonsCodec        : 'commons-codec:commons-codec:1.22.1',
   commonsCollections  : 'commons-collections:commons-collections:3.2.2',

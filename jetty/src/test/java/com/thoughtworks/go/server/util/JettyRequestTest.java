@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.server.util;
 
+import org.eclipse.jetty.ee8.nested.Request;
 import org.eclipse.jetty.http.HttpURI;
-import org.eclipse.jetty.server.Request;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

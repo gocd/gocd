@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.server.util;
 
+import org.eclipse.jetty.ee8.nested.Request;
 import org.eclipse.jetty.http.HttpURI;
-import org.eclipse.jetty.server.Request;
 
 import javax.servlet.ServletRequestWrapper;
 import java.util.function.Function;
 
-public class JettyRequest implements ServletRequest {
+public class JettyRequest implements PathModifiable {
     private final Request request;
 
     public JettyRequest(javax.servlet.ServletRequest request) {

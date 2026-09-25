@@ -17,12 +17,11 @@ package com.thoughtworks.go.agent.testhelper;
 
 import com.thoughtworks.go.util.TestFileUtil;
 import org.assertj.core.util.Hexadecimals;
+import org.eclipse.jetty.ee8.servlet.ServletHolder;
+import org.eclipse.jetty.ee8.webapp.WebAppContext;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.*;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jetty.webapp.WebAppContext;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
@@ -34,6 +33,7 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Properties;
 
 import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.*;
@@ -55,7 +55,7 @@ public class FakeGoServer implements AutoCloseable {
         }
 
         public String getMd5() {
-            try (Resource resource = Resource.newClassPathResource(source); InputStream input = resource.getInputStream()) {
+            try (InputStream input = Objects.requireNonNull(FakeGoServer.class.getResource(source)).openStream()) {
                 MessageDigest digester = MessageDigest.getInstance("MD5");
                 try (DigestInputStream digest = new DigestInputStream(input, digester)) {
                     digest.transferTo(OutputStream.nullOutputStream());
@@ -67,15 +67,17 @@ public class FakeGoServer implements AutoCloseable {
         }
 
         public void copyTo(OutputStream outputStream) throws IOException {
-            try (Resource resource = Resource.newClassPathResource(source); InputStream input = resource.getInputStream()) {
+            try (InputStream input = Objects.requireNonNull(FakeGoServer.class.getResource(source)).openStream()) {
                 input.transferTo(outputStream);
             }
         }
 
         // Because the resource can be a jar resource, which extracts to dir instead of a simple copy.
         public void copyTo(File output) throws IOException {
-            try (Resource resource = Resource.newClassPathResource(source); InputStream input = resource.getInputStream()) {
-                if (output.toPath().getParent() != null) Files.createDirectories(output.toPath().getParent());
+            try (InputStream input = Objects.requireNonNull(FakeGoServer.class.getResource(source)).openStream()) {
+                if (output.toPath().getParent() != null) {
+                    Files.createDirectories(output.toPath().getParent());
+                }
                 Files.copy(input, output.toPath(), REPLACE_EXISTING);
             }
         }
@@ -163,10 +165,10 @@ public class FakeGoServer implements AutoCloseable {
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
         sslContextFactory.setCertAlias("1");
         sslContextFactory.setKeyStoreType("PKCS12");
-        sslContextFactory.setKeyStoreResource(Resource.newClassPathResource("testdata/server-localhost-ec.p12"));
+        sslContextFactory.setKeyStorePath("classpath:testdata/server-localhost.p12");
         sslContextFactory.setKeyStorePassword(TestFileUtil.resourceToString("/testdata/keystore.pass"));
         sslContextFactory.setTrustStoreType("PKCS12");
-        sslContextFactory.setTrustStoreResource(Resource.newClassPathResource("testdata/root-ca-ec.p12"));
+        sslContextFactory.setTrustStorePath("classpath:testdata/root-ca.p12");
         sslContextFactory.setTrustStorePassword(TestFileUtil.resourceToString("/testdata/keystore.pass"));
         return sslContextFactory;
     }

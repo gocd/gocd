@@ -21,15 +21,13 @@ import com.thoughtworks.go.server.service.BackupService;
 import com.thoughtworks.go.server.util.ServletHelper;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.eclipse.jetty.http.*;
-import org.eclipse.jetty.server.HttpChannel;
-import org.eclipse.jetty.server.HttpInput;
-import org.eclipse.jetty.server.Request;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -62,30 +60,30 @@ public class BackupFilterTest {
     @Test
     public void shouldPassRequestWhenBackupIsNotBeingTaken() throws Exception {
         when(backupService.isBackingUp()).thenReturn(false);
-        Request request = request(HttpMethod.GET, "", "/go/agents");
+        ServletRequest request = request(HttpMethod.GET, "", "/go/agents");
         backupFilter.doFilter(request, res, chain);
-        verify(res, times(0)).setContentType("text/html");
-        verify(writer, times(0)).print("some test data for my input stream");
+        verify(res, never()).setContentType("text/html");
+        verify(writer, never()).print("some test data for my input stream");
         verify(res, never()).setStatus(anyInt());
     }
 
     @Test
     public void shouldPassHealthCheckRequestWhenBackupIsBeingTaken() throws Exception {
         when(backupService.isBackingUp()).thenReturn(true);
-        Request request = request(HttpMethod.GET, "", "/api/v1/health");
+        ServletRequest request = request(HttpMethod.GET, "", "/api/v1/health");
         backupFilter.doFilter(request, res, chain);
-        verify(res, times(0)).setContentType("text/html");
-        verify(writer, times(0)).print("some test data for my input stream");
+        verify(res, never()).setContentType("text/html");
+        verify(writer, never()).print("some test data for my input stream");
         verify(res, never()).setStatus(anyInt());
     }
 
     @Test
     public void shouldPassBackupPageSPARequestWhenBackupIsBeingTaken() throws Exception {
         when(backupService.isBackingUp()).thenReturn(true);
-        Request request = request(HttpMethod.GET, "", "/admin/backup");
+        ServletRequest request = request(HttpMethod.GET, "", "/admin/backup");
         backupFilter.doFilter(request, res, chain);
-        verify(res, times(0)).setContentType("text/html");
-        verify(writer, times(0)).print("some test data for my input stream");
+        verify(res, never()).setContentType("text/html");
+        verify(writer, never()).print("some test data for my input stream");
         verify(res, never()).setStatus(anyInt());
     }
 
@@ -96,7 +94,7 @@ public class BackupFilterTest {
         when(backupService.backupStartedBy()).thenReturn(BACKUP_STARTED_BY);
 
         String content = backupFilter.replaceStringLiterals(TestFileUtil.resourceToString("/backup_in_progress.html"));
-        Request request = request(HttpMethod.GET, "", "/go/agents");
+        ServletRequest request = request(HttpMethod.GET, "", "/go/agents");
 
         backupFilter.doFilter(request, res, chain);
 
@@ -110,33 +108,33 @@ public class BackupFilterTest {
     @Test
     public void shouldGetServerBackupByIdWhenBackupIsBeingTaken() throws Exception {
         when(backupService.isBackingUp()).thenReturn(true);
-        Request request = request(HttpMethod.GET, "", "/api/backups/12");
+        ServletRequest request = request(HttpMethod.GET, "", "/api/backups/12");
         backupFilter.doFilter(request, res, chain);
 
-        verify(res, times(0)).setContentType("text/html");
-        verify(writer, times(0)).print("some test data for my input stream");
+        verify(res, never()).setContentType("text/html");
+        verify(writer, never()).print("some test data for my input stream");
         verify(res, never()).setStatus(anyInt());
     }
 
     @Test
     public void shouldGetRunningServerBackupWhenBackupIsBeingTaken() throws Exception {
         when(backupService.isBackingUp()).thenReturn(true);
-        Request request = request(HttpMethod.GET, "", "/api/backups/running");
+        ServletRequest request = request(HttpMethod.GET, "", "/api/backups/running");
         backupFilter.doFilter(request, res, chain);
 
-        verify(res, times(0)).setContentType("text/html");
-        verify(writer, times(0)).print("some test data for my input stream");
+        verify(res, never()).setContentType("text/html");
+        verify(writer, never()).print("some test data for my input stream");
         verify(res, never()).setStatus(anyInt());
     }
 
     @Test
     public void shouldGetStaticAssetsWhenBackupIsBeingTaken() throws IOException, ServletException {
         when(backupService.isBackingUp()).thenReturn(true);
-        Request request = request(HttpMethod.GET, "", "/assets/foo.js");
+        ServletRequest request = request(HttpMethod.GET, "", "/assets/foo.js");
         backupFilter.doFilter(request, res, chain);
 
-        verify(res, times(0)).setContentType("text/html");
-        verify(writer, times(0)).print("some test data for my input stream");
+        verify(res, never()).setContentType("text/html");
+        verify(writer, never()).print("some test data for my input stream");
         verify(res, never()).setStatus(anyInt());
     }
 
@@ -145,7 +143,7 @@ public class BackupFilterTest {
         when(backupService.isBackingUp()).thenReturn(true);
         when(backupService.backupRunningSinceISO8601()).thenReturn(BACKUP_STARTED_AT);
         when(backupService.backupStartedBy()).thenReturn(BACKUP_STARTED_BY);
-        Request request = request(HttpMethod.GET, "application/json", "/go/is_backup_finished.json");
+        ServletRequest request = request(HttpMethod.GET, "application/json", "/go/is_backup_finished.json");
 
         backupFilter.doFilter(request, res, chain);
 
@@ -194,13 +192,9 @@ public class BackupFilterTest {
         verify(res).setStatus(503);
     }
 
-    private Request request(HttpMethod method, String contentType, String uri) {
-        Request request = new Request(mock(HttpChannel.class, RETURNS_DEEP_STUBS), mock(HttpInput.class));
-        HttpURI httpURI = HttpURI.from("http", "url", 8153, uri);
-        MetaData.Request metadata = new MetaData.Request(method.asString(), httpURI, HttpVersion.HTTP_2, HttpFields.from());
-        request.setMetaData(metadata);
-        request.setContentType(contentType);
-        request.setHttpURI(httpURI);
+    private ServletRequest request(HttpMethod method, String acceptContentType, String uri) {
+        MockHttpServletRequest request = new MockHttpServletRequest(method.toString(), "http://url:8153" + uri);
+        request.addHeader("Accept", acceptContentType);
         return request;
     }
 }

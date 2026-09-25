@@ -18,8 +18,8 @@ package com.thoughtworks.go.server.websocket;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.SecurityService;
-import org.eclipse.jetty.websocket.server.JettyWebSocketServlet;
-import org.eclipse.jetty.websocket.server.JettyWebSocketServletFactory;
+import org.eclipse.jetty.ee8.websocket.server.JettyWebSocketServlet;
+import org.eclipse.jetty.ee8.websocket.server.JettyWebSocketServletFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 

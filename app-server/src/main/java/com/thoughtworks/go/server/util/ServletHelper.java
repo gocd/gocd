@@ -16,9 +16,9 @@
 package com.thoughtworks.go.server.util;
 
 public abstract class ServletHelper {
-    public abstract ServletRequest getRequest(javax.servlet.ServletRequest servletRequest);
+    public abstract PathModifiable getRequest(javax.servlet.ServletRequest servletRequest);
 
-    public abstract ServletResponse getResponse(javax.servlet.ServletResponse servletResponse);
+    public abstract StatusSupplier getResponse(javax.servlet.ServletResponse servletResponse);
 
     private static ServletHelper instance;
 

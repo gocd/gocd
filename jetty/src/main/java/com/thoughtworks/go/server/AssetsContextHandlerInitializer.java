@@ -16,8 +16,8 @@
 package com.thoughtworks.go.server;
 
 
+import org.eclipse.jetty.ee8.webapp.WebAppContext;
 import org.eclipse.jetty.util.component.LifeCycle;
-import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.IOException;
 

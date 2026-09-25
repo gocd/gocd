@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.server;
 
+import org.eclipse.jetty.ee8.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.http.HttpStatus;
-import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.util.StringUtil;
 
 import javax.servlet.http.HttpServletRequest;

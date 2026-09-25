@@ -194,6 +194,8 @@ dependencies {
   testImplementation(testFixtures(project(':domain')))
 
   integrationTestImplementation(project(':base'))
+  integrationTestImplementation rootProject.deps.jetty
+  integrationTestImplementation rootProject.deps.jettyWebapp
   integrationTestImplementation rootProject.deps.urlrewrite
   integrationTestImplementation rootProject.deps.apacheHttpComponents
   integrationTestImplementation rootProject.deps.springTest

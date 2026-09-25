@@ -20,7 +20,8 @@ import lombok.experimental.UtilityClass;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.HttpServletRequest;
 
-import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
+import static org.eclipse.jetty.ee8.nested.Request.__MULTIPART_CONFIG_ELEMENT;
+
 
 @UtilityClass
 public class RequestUtils {

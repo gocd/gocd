@@ -18,12 +18,12 @@ package com.thoughtworks.go.server.util;
 //Do not delete. Invoked using reflection
 public class JettyServletHelper extends ServletHelper {
     @Override
-    public ServletRequest getRequest(javax.servlet.ServletRequest servletRequest) {
+    public PathModifiable getRequest(javax.servlet.ServletRequest servletRequest) {
         return new JettyRequest(servletRequest);
     }
 
     @Override
-    public ServletResponse getResponse(javax.servlet.ServletResponse servletResponse) {
+    public StatusSupplier getResponse(javax.servlet.ServletResponse servletResponse) {
         return new JettyResponse(servletResponse);
     }
 

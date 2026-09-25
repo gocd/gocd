@@ -16,10 +16,12 @@
 package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.eclipse.jetty.ee8.webapp.WebAppContext;
 import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.util.Callback;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -30,12 +32,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -183,19 +183,18 @@ class GoServerLoadingIndicationHandlerTest {
             .done());
     }
 
-    private MockResponse request(String target, String acceptHeaderValue) throws IOException, ServletException {
+    private MockResponse request(String target, String acceptHeaderValue) throws Exception {
         Request baseRequest = mock(Request.class);
         HttpFields httpFields = acceptHeaderValue != null ? HttpFields.from(new HttpField("Accept", acceptHeaderValue)) : HttpFields.from();
-        lenient().when(baseRequest.getHttpFields()).thenReturn(httpFields);
+        lenient().when(baseRequest.getHeaders()).thenReturn(httpFields);
 
-        HttpServletRequest servletRequest = mock(HttpServletRequest.class);
-        HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+        Request request = mock(Request.class);
+        Response response = mock(Response.class);
         PrintWriter printWriter = mock(PrintWriter.class);
-        lenient().when(servletResponse.getWriter()).thenReturn(printWriter);
 
-        handler.getHandler().handle(target, baseRequest, servletRequest, servletResponse);
+        handler.getHandler().handle(request, response, mock(Callback.class));
 
-        return new MockResponse(servletResponse, printWriter);
+        return new MockResponse(response, printWriter);
     }
 
     private void webAppIsStarting() {
@@ -211,10 +210,10 @@ class GoServerLoadingIndicationHandlerTest {
     }
 
     private static class MockResponse {
-        private final HttpServletResponse response;
+        private final Response response;
         private final PrintWriter printWriter;
 
-        MockResponse(HttpServletResponse response, PrintWriter printWriter) {
+        MockResponse(Response response, PrintWriter printWriter) {
             this.response = response;
             this.printWriter = printWriter;
         }
@@ -225,17 +224,17 @@ class GoServerLoadingIndicationHandlerTest {
         }
 
         MockResponse withNoCaching() {
-            verify(response).setHeader("Cache-Control", "no-cache, must-revalidate, no-store");
+            verify(response).getHeaders().put("Cache-Control", "no-cache, must-revalidate, no-store");
             return this;
         }
 
         MockResponse withContentType(String expectedContentType) {
-            verify(response).setContentType(expectedContentType);
+            verify(response).getHeaders().put("Content-Type", expectedContentType);
             return this;
         }
 
-        MockResponse wasRedirectedTo(@SuppressWarnings("SameParameterValue") String redirectLocation) throws IOException {
-            verify(response).sendRedirect(redirectLocation);
+        MockResponse wasRedirectedTo(@SuppressWarnings("SameParameterValue") String redirectLocation) {
+            fail("cannot verify redirects yet");
             return this;
         }
 

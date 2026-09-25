@@ -17,7 +17,7 @@ package com.thoughtworks.go.server.util;
 
 import org.eclipse.jetty.server.Response;
 
-public class JettyResponse implements ServletResponse {
+public class JettyResponse implements StatusSupplier {
     private final javax.servlet.ServletResponse servletResponse;
 
     public JettyResponse(javax.servlet.ServletResponse servletResponse) {
@@ -27,10 +27,5 @@ public class JettyResponse implements ServletResponse {
     @Override
     public int getStatus() {
         return ((Response) servletResponse).getStatus();
-    }
-
-    @Override
-    public long getContentCount() {
-        return ((Response) servletResponse).getContentCount();
     }
 }

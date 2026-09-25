@@ -29,7 +29,6 @@ import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinde
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.eclipse.jetty.server.Request;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -181,8 +180,8 @@ class GoCDFreeMarkerViewTest {
         doReturn(webpackAssetsService).when(view).webpackAssetsService();
         doReturn(maintenanceModeService).when(view).getMaintenanceModeService();
         doReturn(securityService).when(view).getSecurityService();
-        Request servletRequest = mock(Request.class);
-        when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
+        HttpServletRequest servletRequest = mock(HttpServletRequest.class);
+        when(servletRequest.getSession(true)).thenReturn(mock(HttpSession.class));
 
         view.exposeHelpers(context, servletRequest);
 

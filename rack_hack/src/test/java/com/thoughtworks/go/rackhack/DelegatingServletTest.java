@@ -16,7 +16,7 @@
 package com.thoughtworks.go.rackhack;
 
 import com.thoughtworks.go.server.util.ServletHelper;
-import com.thoughtworks.go.server.util.ServletRequest;
+import com.thoughtworks.go.server.util.PathModifiable;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 public class DelegatingServletTest {
 
     @Mock
-    private ServletRequest servletRequestWrapper;
+    private PathModifiable servletRequestWrapper;
 
     @Mock
     private HttpServletRequest httpServletRequest;

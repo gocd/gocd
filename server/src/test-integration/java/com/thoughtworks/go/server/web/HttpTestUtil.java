@@ -16,19 +16,17 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.util.TestUtils;
+import org.eclipse.jetty.ee8.nested.SessionHandler;
+import org.eclipse.jetty.ee8.webapp.WebAppContext;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.session.SessionHandler;
-import org.eclipse.jetty.util.UrlEncoded;
-import org.eclipse.jetty.webapp.WebAppContext;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
 
 import static com.thoughtworks.go.util.SystemEnvironment.WEBAPP_CONTEXT_PATH;
 
@@ -64,12 +62,7 @@ public class HttpTestUtil {
             try (PrintWriter writer = resp.getWriter()) {
                 Request req = (Request) request;
 
-                writer.write(req.getRequestURL().toString());
-
-                if (req.getQueryParameters() != null) {
-                    String query = UrlEncoded.encode(req.getQueryParameters(), StandardCharsets.UTF_8, true);
-                    writer.write(query.isBlank() ? "" : "?" + query);
-                }
+                writer.write(req.getHttpURI().toString());
             }
         }
     }

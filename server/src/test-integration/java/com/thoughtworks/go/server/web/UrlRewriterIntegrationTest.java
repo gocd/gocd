@@ -20,7 +20,7 @@ import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -31,7 +31,6 @@ import org.tuckey.web.filters.urlrewrite.UrlRewriteFilter;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 import java.util.stream.Stream;
@@ -201,7 +200,7 @@ public class UrlRewriterIntegrationTest {
         httpUtil = new HttpTestUtil(ctx -> {
             wac = mock(WebApplicationContext.class);
             ctx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
-            ctx.setBaseResource(Resource.newResource(new File("src/main/webapp/WEB-INF/urlrewrite.xml").getParentFile()));
+            ctx.setBaseResource(ResourceFactory.root().newResource("src/main/webapp/WEB-INF"));
             ctx.addFilter(UrlRewriteFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST)).setInitParameter("confPath", "/urlrewrite.xml");
             ctx.addServlet(HttpTestUtil.EchoServlet.class, "/*");
         });

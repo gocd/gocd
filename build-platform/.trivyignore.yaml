@@ -1,15 +1,6 @@
 # Additional suppressions for issues detected by Trivy that are not found by OWASP dependency check
 
 vulnerabilities:
-  - id: CVE-2024-6763
-    purls:
-      - pkg:maven/org.eclipse.jetty/jetty-http@10.0.26
-    statement: >
-      False positive as this was actually fixed in 10.0.x, however while GoCD does use the HttpURI class directly, 
-      it does not parse authority names from this, it only reconstructs a URL with the entire URI portion in tact, 
-      while modifying the path to remove a prefix and support routing to Rails-handled code.
-      org.eclipse.jetty:jetty-http (go.jar) Fixed: 12.0.12
-      https://avd.aquasec.com/nvd/cve-2024-6763/
   - id: CVE-2024-38819
     purls:
       - pkg:maven/org.springframework/spring-webmvc@4.3.30.RELEASE

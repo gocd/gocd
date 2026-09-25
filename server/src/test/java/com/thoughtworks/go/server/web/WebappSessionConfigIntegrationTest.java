@@ -16,8 +16,8 @@
 package com.thoughtworks.go.server.web;
 
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jetty.ee8.webapp.WebAppContext;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -52,7 +52,7 @@ public class WebappSessionConfigIntegrationTest {
         server.setHandler(webAppContext);
         try {
             server.start();
-            Set<SessionTrackingMode> effectiveSessionTrackingModes = ((WebAppContext) server.getHandlers()[0]).getServletContext().getEffectiveSessionTrackingModes();
+            Set<SessionTrackingMode> effectiveSessionTrackingModes = ((WebAppContext) server.getHandlers().get(0)).getServletContext().getEffectiveSessionTrackingModes();
             assertThat(effectiveSessionTrackingModes.size()).isEqualTo(1);
             assertThat(effectiveSessionTrackingModes.contains(SessionTrackingMode.COOKIE)).isTrue();
         } finally {

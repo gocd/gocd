@@ -10,7 +10,7 @@
     },
     "packageManager": {
       "name": "yarn",
-      "version": "4.18.0+sha256.fb8b1d20be72a0b544a35bcec4c7ed0ff55a9b173c01f191b02ba164b2051db5"
+      "version": "4.18.1+sha256.a28ad591febb769f939c11f82f89bacad0b0fac0c884d3b78fa2aaaee970907e"
     }
   },
   "scripts": {
@@ -39,7 +39,7 @@
     "chartjs-plugin-zoom": "^2.2.0",
     "classnames": "^2.5.1",
     "core-js": "^3.50.0",
-    "filesize": "^11.0.23",
+    "filesize": "^11.0.24",
     "foundation-sites": "^6.9.0",
     "hack-font": "^3.3.0",
     "jquery": "^3.7.1",
@@ -61,7 +61,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
-    "@babel/eslint-parser": "^7.29.7",
+    "@babel/eslint-parser": "^7.29.9",
     "@babel/preset-env": "^7.29.7",
     "@babel/preset-react": "^7.29.7",
     "@eslint/js": "^9.39.5",
@@ -87,7 +87,7 @@
     "eslint-webpack-plugin": "^6.0.0",
     "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^9.1.0",
-    "fs-extra": "^11.4.0",
+    "fs-extra": "^11.4.1",
     "globals": "^17.12.0",
     "html-webpack-plugin": "^5.6.8",
     "jasmine": "^7.0.0",
@@ -104,7 +104,7 @@
     "license-checker": "^25.0.1",
     "mini-css-extract-plugin": "^2.10.2",
     "mockdate": "^3.0.5",
-    "sass-embedded": "^1.104.1",
+    "sass-embedded": "^1.105.0",
     "sass-loader": "^17.0.1",
     "simulate-event": "^1.4.0",
     "sourcemapped-stacktrace": "^1.1.11",
@@ -120,7 +120,7 @@
     "upath": "^3.0.8",
     "url-loader": "^4.1.1",
     "webpack": "^5.111.1",
-    "webpack-assets-manifest": "^6.5.2",
+    "webpack-assets-manifest": "^6.5.3",
     "webpack-cli": "^7.2.3"
   },
   "resolutions": {

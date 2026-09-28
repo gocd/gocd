@@ -17,12 +17,12 @@ package com.thoughtworks.go.agent.testhelper;
 
 import com.thoughtworks.go.util.TestFileUtil;
 import org.assertj.core.util.Hexadecimals;
+import org.eclipse.jetty.ee8.servlet.ServletHolder;
+import org.eclipse.jetty.ee8.webapp.WebAppContext;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.*;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jetty.webapp.WebAppContext;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
@@ -34,6 +34,7 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Properties;
 
 import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.*;
@@ -43,10 +44,10 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 @SuppressWarnings("try")
 public class FakeGoServer implements AutoCloseable {
     public enum TestResource {
-        TEST_AGENT("testdata/gen/test-agent.jar"),
-        TEST_AGENT_LAUNCHER("testdata/gen/agent-launcher.jar"),
-        TEST_AGENT_PLUGINS("testdata/agent-plugins.zip"),
-        TEST_TFS_IMPL("testdata/gen/tfs-impl-14.jar");
+        TEST_AGENT("/testdata/gen/test-agent.jar"),
+        TEST_AGENT_LAUNCHER("/testdata/gen/agent-launcher.jar"),
+        TEST_AGENT_PLUGINS("/testdata/agent-plugins.zip"),
+        TEST_TFS_IMPL("/testdata/gen/tfs-impl-14.jar");
 
         private final String source;
 
@@ -55,7 +56,7 @@ public class FakeGoServer implements AutoCloseable {
         }
 
         public String getMd5() {
-            try (Resource resource = Resource.newClassPathResource(source); InputStream input = resource.getInputStream()) {
+            try (InputStream input = Objects.requireNonNull(FakeGoServer.class.getResource(source)).openStream()) {
                 MessageDigest digester = MessageDigest.getInstance("MD5");
                 try (DigestInputStream digest = new DigestInputStream(input, digester)) {
                     digest.transferTo(OutputStream.nullOutputStream());
@@ -67,15 +68,17 @@ public class FakeGoServer implements AutoCloseable {
         }
 
         public void copyTo(OutputStream outputStream) throws IOException {
-            try (Resource resource = Resource.newClassPathResource(source); InputStream input = resource.getInputStream()) {
+            try (InputStream input = Objects.requireNonNull(FakeGoServer.class.getResource(source)).openStream()) {
                 input.transferTo(outputStream);
             }
         }
 
         // Because the resource can be a jar resource, which extracts to dir instead of a simple copy.
         public void copyTo(File output) throws IOException {
-            try (Resource resource = Resource.newClassPathResource(source); InputStream input = resource.getInputStream()) {
-                if (output.toPath().getParent() != null) Files.createDirectories(output.toPath().getParent());
+            try (InputStream input = Objects.requireNonNull(FakeGoServer.class.getResource(source)).openStream()) {
+                if (output.toPath().getParent() != null) {
+                    Files.createDirectories(output.toPath().getParent());
+                }
                 Files.copy(input, output.toPath(), REPLACE_EXISTING);
             }
         }
@@ -114,7 +117,7 @@ public class FakeGoServer implements AutoCloseable {
         }
     }
 
-    void start() throws Exception {
+    void start() throws Throwable {
         server = new Server();
         ServerConnector connector = new ServerConnector(server);
         server.addConnector(connector);
@@ -136,6 +139,8 @@ public class FakeGoServer implements AutoCloseable {
         server.addConnector(secureMtlsConnector);
 
         WebAppContext wac = new WebAppContext(".", WEBAPP_CONTEXT_PATH);
+        wac.setConfigurationDiscovered(false);
+        wac.setDefaultsDescriptor(null);
         ServletHolder holder = new ServletHolder();
         holder.setServlet(new HttpServlet() {
             @Override
@@ -154,6 +159,11 @@ public class FakeGoServer implements AutoCloseable {
         server.setStopAtShutdown(true);
         server.start();
 
+        if (!wac.isAvailable()) {
+            Throwable exceptionAtServerStart = wac.getUnavailableException();
+            throw exceptionAtServerStart != null ? exceptionAtServerStart : new RuntimeException("FakeGoServer WebAppContext is not available.");
+        }
+
         port = connector.getLocalPort();
         securePort = secureConnector.getLocalPort();
         secureMtlsRequiredPort = secureMtlsConnector.getLocalPort();
@@ -161,12 +171,14 @@ public class FakeGoServer implements AutoCloseable {
 
     private static SslContextFactory.Server newServerSslContextFactory() throws IOException {
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+        sslContextFactory.setWantClientAuth(false);
+        sslContextFactory.setNeedClientAuth(false);
         sslContextFactory.setCertAlias("1");
         sslContextFactory.setKeyStoreType("PKCS12");
-        sslContextFactory.setKeyStoreResource(Resource.newClassPathResource("testdata/server-localhost-ec.p12"));
+        sslContextFactory.setKeyStoreResource(ResourceFactory.root().newClassLoaderResource("/testdata/server-localhost-ec.p12"));
         sslContextFactory.setKeyStorePassword(TestFileUtil.resourceToString("/testdata/keystore.pass"));
         sslContextFactory.setTrustStoreType("PKCS12");
-        sslContextFactory.setTrustStoreResource(Resource.newClassPathResource("testdata/root-ca-ec.p12"));
+        sslContextFactory.setTrustStoreResource(ResourceFactory.root().newClassLoaderResource("/testdata/root-ca-ec.p12"));
         sslContextFactory.setTrustStorePassword(TestFileUtil.resourceToString("/testdata/keystore.pass"));
         return sslContextFactory;
     }

@@ -17,8 +17,8 @@ package com.thoughtworks.go.server.websocket;
 
 import com.thoughtworks.go.server.service.RestfulService;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.eclipse.jetty.websocket.server.JettyServerUpgradeRequest;
-import org.eclipse.jetty.websocket.server.JettyServerUpgradeResponse;
+import org.eclipse.jetty.ee8.websocket.server.JettyServerUpgradeRequest;
+import org.eclipse.jetty.ee8.websocket.server.JettyServerUpgradeResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

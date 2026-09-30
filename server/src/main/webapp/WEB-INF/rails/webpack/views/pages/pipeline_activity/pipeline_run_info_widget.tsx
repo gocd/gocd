@@ -75,6 +75,23 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
   view(vnode: m.Vnode<PipelineRunAttrs>): m.Children | void | null {
     const pipelineRunInfo = vnode.attrs.pipelineRunInfo;
 
+    const commitMessage = pipelineRunInfo
+      .materialRevisions()
+      .flatMap((materialRevision) => materialRevision.modifications())
+      .map((modification) => modification.comment())
+      .find((comment) => comment);
+
+    const decodeCommitMessage = () => {
+      const textarea = document.createElement("textarea");
+      textarea.innerHTML = commitMessage ?? "";
+      return textarea.value;
+    };
+
+    const setOverflowTitle = (vnode: m.VnodeDOM) => {
+      const element = vnode.dom as HTMLElement;
+      element.title = element.scrollWidth > element.clientWidth ? decodeCommitMessage() : "";
+    }
+
     return <tr class={styles.groupContent}
                data-test-id={this.dataTestId("pipeline-instance", pipelineRunInfo.label())}>
       <td class={styles.left} data-test-id={"meta"}>
@@ -87,6 +104,12 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
           </span>
         </div>
         <div class={styles.revision}>Revision: {pipelineRunInfo.revision()}</div>
+        <div
+          data-test-id={"commit-message"}
+          class={styles.commitMessage}
+          oncreate={setOverflowTitle}
+          onupdate={setOverflowTitle}
+        >{commitMessage}</div>
         <div class={styles.scheduleInfo}
              data-test-id={"time"}
              title={PipelineRunWidget.getTimeServer(pipelineRunInfo.scheduledTimestamp())}>

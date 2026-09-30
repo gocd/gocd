@@ -49,8 +49,42 @@ class ArtifactConfigRepresenterTest {
       ],
       "artifacts_dir" : "some-directory",
       "purge_settings": [
-        "purge_start_disk_space": 50.9,
-        "purge_upto_disk_space" : 101.23
+        "purge_start_disk_space"    : 50.9,
+        "purge_upto_disk_space"     : 101.23,
+        "purge_artifact_directories": false
+      ]
+    ]
+
+    assertThatJson(json).isEqualTo(expectedJSON)
+  }
+
+  @Test
+  void 'renders artifacts config if artifact directories are to be purged'() {
+    ArtifactConfig artifactConfig = new ArtifactConfig()
+    artifactConfig.setArtifactsDir(new ArtifactDirectory("some-directory"))
+    PurgeSettings purgeSettings = new PurgeSettings()
+    purgeSettings.setPurgeStart(new PurgeStart(50.9))
+    purgeSettings.setPurgeUpto(new PurgeUpto(101.23))
+    purgeSettings.setPurgeArtifactDirectories(true)
+    artifactConfig.setPurgeSettings(purgeSettings)
+    def json = toObjectString({
+      ArtifactConfigRepresenter.toJSON(it, artifactConfig)
+    })
+
+    def expectedJSON = [
+      "_links"        : [
+        "self": [
+          "href": "http://test.host/go/api/admin/config/server/artifact_config"
+        ],
+        "doc" : [
+          "href": apiDocsUrl("#artifact_config")
+        ]
+      ],
+      "artifacts_dir" : "some-directory",
+      "purge_settings": [
+        "purge_start_disk_space"    : 50.9,
+        "purge_upto_disk_space"     : 101.23,
+        "purge_artifact_directories": true
       ]
     ]
 
@@ -94,6 +128,22 @@ class ArtifactConfigRepresenterTest {
     assertThat(actualArtifactsConfig.getArtifactsDir().artifactDir).isEqualTo(artifactsJSON.artifacts_dir)
     assertThat(actualArtifactsConfig.getPurgeSettings().purgeStart.purgeStartDiskSpace).isCloseTo(artifactsJSON.purge_settings.purge_start_disk_space.toDouble(), withPercentage(0.0001))
     assertThat(actualArtifactsConfig.getPurgeSettings().purgeUpto.purgeUptoDiskSpace).isCloseTo(artifactsJSON.purge_settings.purge_upto_disk_space.toDouble(), withPercentage(0.0001))
+    assertThat(actualArtifactsConfig.getPurgeSettings().purgeArtifactDirectories).isFalse()
+  }
+
+  @Test
+  void 'load artifacts config from json if artifact directories are to be purged'() {
+    def artifactsJSON = [
+      "artifacts_dir" : "some-directory",
+      "purge_settings": [
+        "purge_start_disk_space"    : 50.9,
+        "purge_upto_disk_space"     : 101.23,
+        "purge_artifact_directories": true
+      ]
+    ]
+    def jsonReader = GsonTransformer.instance.jsonReaderFrom(artifactsJSON)
+    def actualArtifactsConfig = ArtifactConfigRepresenter.fromJSON(jsonReader)
+    assertThat(actualArtifactsConfig.getPurgeSettings().purgeArtifactDirectories).isTrue()
   }
 
   @Test
@@ -126,9 +176,10 @@ class ArtifactConfigRepresenterTest {
       ],
       "artifacts_dir" : "",
       "purge_settings": [
-        "purge_start_disk_space": Double.valueOf(20.0),
-        "purge_upto_disk_space" : Double.valueOf(10.0),
-        "errors"                : [
+        "purge_start_disk_space"    : Double.valueOf(20.0),
+        "purge_upto_disk_space"     : Double.valueOf(10.0),
+        "purge_artifact_directories": false,
+        "errors"                    : [
           "purge_start_disk_space": ["purge-start-error"],
           "purge_upto_disk_space" : ["purge-upto-error"]
         ]

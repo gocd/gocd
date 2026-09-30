@@ -507,6 +507,17 @@ public class StageServiceTest {
         assertThat(stages).contains(stageBaz);
         assertThat(stages).contains(stageQuux);
     }
+
+    @Test
+    public void shouldOnlyLoadStagesArtifactsOfWhichHaveBeenPurgedAfterTheGivenStage() {
+        StageService service = new StageService(stageDao, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
+            goCache);
+        Stage stageFoo = StageMother.passedStageInstance("pipeline-baz", "stage-foo", "job");
+        Stage stageBar = StageMother.passedStageInstance("pipeline-quux", "stage-bar", "job");
+        when(stageDao.oldestStagesHavingPurgedArtifacts(42)).thenReturn(List.of(stageFoo, stageBar));
+
+        assertThat(service.oldestStagesWithPurgedArtifacts(42)).containsExactly(stageFoo, stageBar);
+    }
     
     @Test
     public void shouldPopulateErrorWhenPipelineNotFound_findStageWithIdentifier() {

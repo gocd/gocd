@@ -67,7 +67,7 @@
     "@eslint/js": "^9.39.5",
     "@types/awesomplete": "^1.1.16",
     "@types/fs-extra": "^11.0.4",
-    "@types/jasmine": "^6.0.0",
+    "@types/jasmine": "^7.0.0",
     "@types/jasmine-ajax": "^3.3.5",
     "@types/jquery": "^3.5.34",
     "@types/license-checker": "^25.0.6",

@@ -373,13 +373,13 @@ describe("PipelineRunInfoWidget", () => {
 
     it("should display the first available commit message", () => {
       const pipelineRunInfoJSON = PipelineActivityData.pipelineRunInfo(passed("Test"));
-      pipelineRunInfoJSON.materialRevisions[0].modifications[0].comment = "Initial commit message";
+      pipelineRunInfoJSON.materialRevisions[0].modifications[0].comment = "";
       pipelineRunInfoJSON.materialRevisions[0].modifications[1].comment = "Main commit message";
 
       const pipelineRunInfo = PipelineRunInfo.fromJSON(pipelineRunInfoJSON);
       mount(pipelineRunInfo);
 
-      expect(helper.byTestId("commit-message")).toHaveAttr("title", "Main commit message");
+      expect(helper.byTestId("commit-message")).toHaveText("Main commit message");
     });
   });
 

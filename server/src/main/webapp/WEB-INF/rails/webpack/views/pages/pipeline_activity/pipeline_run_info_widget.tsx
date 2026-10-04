@@ -90,7 +90,7 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
     const setOverflowTitle = (vnode: m.VnodeDOM) => {
       const element = vnode.dom as HTMLElement;
       element.title = element.scrollWidth > element.clientWidth ? decodeCommitMessage() : "";
-    }
+    };
 
     return <tr class={styles.groupContent}
                data-test-id={this.dataTestId("pipeline-instance", pipelineRunInfo.label())}>

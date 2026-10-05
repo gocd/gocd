@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0"?>
 <!--
   ~ Copyright Thoughtworks, Inc.
   ~
@@ -15,10 +15,14 @@
   ~ limitations under the License.
   -->
 
-<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="140">
-  <server>
-    <artifacts>
-      <artifactsDir>artifacts</artifactsDir>
-    </artifacts>
-  </server>
-</cruise>
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+    <xsl:template match="/cruise/@schemaVersion">
+        <xsl:attribute name="schemaVersion">140</xsl:attribute>
+    </xsl:template>
+    <!-- Copy everything -->
+    <xsl:template match="@*|node()">
+        <xsl:copy>
+            <xsl:apply-templates select="@*|node()"/>
+        </xsl:copy>
+    </xsl:template>
+</xsl:stylesheet>

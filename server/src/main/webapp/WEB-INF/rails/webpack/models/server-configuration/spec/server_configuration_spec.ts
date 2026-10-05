@@ -55,6 +55,32 @@ describe("ArtifactConfig", () => {
       };
       const artifactConfig     = ArtifactConfig.fromJSON(artifactConfigJSON);
       expect(artifactConfig.artifactsDir()).toBe("artifacts");
+      expect(artifactConfig.purgeSettings().purgeArtifactDirectories()).toBe(false);
+    });
+
+    it("should deserialize purge artifact directories", () => {
+      const artifactConfigJSON = {
+        artifacts_dir: "artifacts",
+        purge_settings: {
+          purge_start_disk_space: 10,
+          purge_upto_disk_space: 20,
+          purge_artifact_directories: true
+        }
+      };
+      const artifactConfig     = ArtifactConfig.fromJSON(artifactConfigJSON);
+      expect(artifactConfig.purgeSettings().purgeArtifactDirectories()).toBe(true);
+    });
+
+    it("should not purge artifact directories if it is not provided", () => {
+      const artifactConfigJSON = {
+        artifacts_dir: "artifacts",
+        purge_settings: {
+          purge_start_disk_space: 10,
+          purge_upto_disk_space: 20
+        }
+      };
+      const artifactConfig     = ArtifactConfig.fromJSON(artifactConfigJSON);
+      expect(artifactConfig.purgeSettings().purgeArtifactDirectories()).toBe(false);
     });
   });
 
@@ -133,6 +159,23 @@ describe("ArtifactConfig", () => {
       expect(artifactConfigJSON).toEqual(expectedJSON);
     });
 
+    it("should serialize artifact config when artifact directories are to be purged", () => {
+      const artifactConfig = new ArtifactConfig("foo");
+      artifactConfig.purgeSettings().purgeStartDiskSpace(10);
+      artifactConfig.purgeSettings().purgeUptoDiskSpace(20);
+      artifactConfig.purgeSettings().purgeArtifactDirectories(true);
+      const artifactConfigJSON = artifactConfig.toJSON();
+      const expectedJSON       = {
+        artifacts_dir: "foo",
+        purge_settings: {
+          purge_start_disk_space: 10,
+          purge_upto_disk_space: 20,
+          purge_artifact_directories: true
+        }
+      };
+      expect(artifactConfigJSON).toEqual(expectedJSON);
+    });
+
     it("should serialize artifact config when only purgeStartDiskSpace is specified", () => {
       const artifactConfig = new ArtifactConfig("foo");
       artifactConfig.purgeSettings().purgeStartDiskSpace(10);
@@ -149,10 +192,12 @@ describe("ArtifactConfig", () => {
 
   it('should clone', () => {
     const artifactConfig       = new ArtifactConfig("foo", 12, 37);
+    artifactConfig.purgeSettings().purgeArtifactDirectories(true);
     const clonedArtifactConfig = artifactConfig.clone();
 
     expect(artifactConfig).not.toBe(clonedArtifactConfig);
     expect(artifactConfig.toJSON()).toEqual(clonedArtifactConfig.toJSON());
+    expect(clonedArtifactConfig.purgeSettings().purgeArtifactDirectories()).toBe(true);
   });
 });
 

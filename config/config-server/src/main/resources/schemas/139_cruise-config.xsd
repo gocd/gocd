@@ -84,7 +84,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="140"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="139"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -340,7 +340,6 @@
       <xsd:element name="purgeStartDiskSpace" minOccurs="0" maxOccurs="1" type="xsd:double" />
       <xsd:element name="purgeUptoDiskSpace" minOccurs="0" maxOccurs="1" type="xsd:double" />
     </xsd:all>
-    <xsd:attribute name="purgeArtifactDirectories" type="xsd:boolean"/>
   </xsd:complexType>
   <xsd:complexType name="elasticConfigType">
     <xsd:all>

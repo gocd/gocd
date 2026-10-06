@@ -120,7 +120,7 @@
     "upath": "^3.0.8",
     "url-loader": "^4.1.1",
     "webpack": "^5.111.1",
-    "webpack-assets-manifest": "^6.5.3",
+    "webpack-assets-manifest": "^6.5.4",
     "webpack-cli": "^7.2.3"
   },
   "resolutions": {

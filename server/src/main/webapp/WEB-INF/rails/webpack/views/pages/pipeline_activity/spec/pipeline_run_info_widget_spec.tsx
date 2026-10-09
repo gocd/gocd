@@ -322,6 +322,67 @@ describe("PipelineRunInfoWidget", () => {
     });
   });
 
+  describe("Commit message", () => {
+    it("should render the commit message", () => {
+      const pipelineRunInfoJSON = PipelineActivityData.pipelineRunInfo(passed("Test"));
+      pipelineRunInfoJSON.materialRevisions[0].modifications[0].comment = "Fix pipeline configuration";
+
+      const pipelineRunInfo = PipelineRunInfo.fromJSON(pipelineRunInfoJSON);
+      mount(pipelineRunInfo);
+
+      const commitMessage = helper.byTestId("commit-message");
+      expect(commitMessage).toBeInDOM();
+      expect(commitMessage).toHaveText("Fix pipeline configuration");
+    });
+
+    it("should display the full commit message as a tooltip when it overflows", () => {
+      const comment = "This is a long commit message that exceeds the available display width";
+      const pipelineRunInfoJSON = PipelineActivityData.pipelineRunInfo(passed("Test"));
+      pipelineRunInfoJSON.materialRevisions[0].modifications[0].comment = comment;
+
+      const pipelineRunInfo = PipelineRunInfo.fromJSON(pipelineRunInfoJSON);
+      mount(pipelineRunInfo);
+
+      const commitMessage = helper.byTestId("commit-message");
+
+      Object.defineProperty(commitMessage, "scrollWidth", { value: 300, configurable: true });
+      Object.defineProperty(commitMessage, "clientWidth", { value: 100, configurable: true });
+
+      m.redraw.sync();
+
+      expect(commitMessage).toHaveAttr("title", comment);
+    });
+
+    it("should not display a tooltip when the commit message does not overflow", () => {
+      const comment = "Short commit message";
+      const pipelineRunInfoJSON = PipelineActivityData.pipelineRunInfo(passed("Test"));
+      pipelineRunInfoJSON.materialRevisions[0].modifications[0].comment = comment;
+
+      const pipelineRunInfo = PipelineRunInfo.fromJSON(pipelineRunInfoJSON);
+      mount(pipelineRunInfo);
+
+      const commitMessage = helper.byTestId("commit-message");
+
+      Object.defineProperty(commitMessage, "scrollWidth", { value: 100, configurable: true });
+      Object.defineProperty(commitMessage, "clientWidth", { value: 200, configurable: true });
+
+      m.redraw.sync();
+
+      expect(commitMessage).toHaveAttr("title", "");
+    });
+
+    it("should display the first available commit message", () => {
+      const pipelineRunInfoJSON = PipelineActivityData.pipelineRunInfo(passed("Test"));
+      pipelineRunInfoJSON.materialRevisions[0].modifications[0].comment = "";
+      pipelineRunInfoJSON.materialRevisions[0].modifications[1].comment = "Main commit message";
+
+      const pipelineRunInfo = PipelineRunInfo.fromJSON(pipelineRunInfoJSON);
+      mount(pipelineRunInfo);
+
+      expect(helper.byTestId("commit-message")).toHaveText("Main commit message");
+    });
+  });
+
   function mount(pipelineRunInfo: PipelineRunInfo, stageConfigs?: StageConfigs) {
     helper.mount(() => <PipelineRunWidget pipelineRunInfo={pipelineRunInfo}
                                           pipelineName={"up42"}

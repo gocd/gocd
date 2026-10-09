@@ -110,11 +110,15 @@ $stage-action-icon-z-index: 1;
 }
 
 .group-content {
-  .revision {
+  .revision, .commit-message {
     overflow: hidden;
     font-size: 12px;
     white-space: nowrap;
     text-overflow: ellipsis;
+  }
+
+  .commit-message::before {
+    content: "✉️ ";
   }
 
   .schedule-info {

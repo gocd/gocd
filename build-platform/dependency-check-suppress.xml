@@ -413,10 +413,12 @@
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*/.*@10.*$</packageUrl>
     <cve>CVE-2026-12611</cve>
   </suppress>
-  <suppress until="2026-10-10">
+  <suppress until="2026-12-10">
     <notes><![CDATA[
-    There are very few details of this vulnerability as the GHSAs have not been disclosed, so difficult to establish
-    validity for GoCD: https://osv.dev/vulnerability/CVE-2026-19204
+    GoCD may be vulnerable to this DoS error, if websockets are enabled, but there is nothing we can do right now, prior to Jetty
+    12 upgrade in https://github.com/gocd/gocd/pull/14624 . Users concerned are advised to disable use of Websockets
+    for console logs at their reverse proxy or decode and block reserved opcodes at the reverse proxy.
+    See https://github.com/jetty/jetty.project/security/advisories/GHSA-85fq-fc5f-7j7g
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*/.*@10.*$</packageUrl>
     <cve>CVE-2026-19204</cve>
@@ -557,6 +559,15 @@
     <cve>CVE-2023-26119</cve>
     <cve>CVE-2023-49093</cve>
     <cve>CVE-2024-23635</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    Suppress false positives from nokogiri-java via embedded xalan and xaln's embedded BCEL. We do not rely on Nokoiri to do any XSLT
+    transforms via Ruby code. xalan-2.7.3.jar (shaded: org.apache.bcel:bcel:6.7.0)
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.apache\.bcel/bcel@.*$</packageUrl>
+    <cve>CVE-2026-94114</cve>
+    <cve>CVE-2026-105111</cve>
   </suppress>
 
   <suppress>

@@ -136,7 +136,7 @@ def libraries = [
   objenesis           : 'org.objenesis:objenesis:3.6',
   oshi                : 'com.github.oshi:oshi-core:7.7.0',
   plexusUtils         : 'org.codehaus.plexus:plexus-utils:4.1.0',
-  postgresql          : 'org.postgresql:postgresql:42.7.13',
+  postgresql          : 'org.postgresql:postgresql:42.7.14',
   quartz              : 'org.quartz-scheduler:quartz:2.5.2',
   resilience4jRetry   : 'io.github.resilience4j:resilience4j-retry:2.4.0',
   semanticVersion     : 'de.skuzzle:semantic-version:2.1.1',

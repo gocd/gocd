@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.server.util;
 
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Response;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,13 +29,13 @@ public class JettyServletHelperTest {
 
     @Test
     public void shouldGetJettyRequest() {
-        ServletRequest request = new JettyServletHelper().getRequest(mock(Request.class));
+        PathModifiable request = new JettyServletHelper().getRequest(mock(javax.servlet.ServletRequest.class));
         assertThat(request).isInstanceOf(JettyRequest.class);
     }
 
     @Test
     public void shouldGetJettyResponse() {
-        ServletResponse response = new JettyServletHelper().getResponse(mock(Response.class));
+        StatusSupplier response = new JettyServletHelper().getResponse(mock(javax.servlet.ServletResponse.class));
         assertThat(response).isInstanceOf(JettyResponse.class);
     }
 }

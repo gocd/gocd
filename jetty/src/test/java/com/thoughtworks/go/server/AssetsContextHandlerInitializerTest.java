@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server;
 
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.ee8.webapp.WebAppContext;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

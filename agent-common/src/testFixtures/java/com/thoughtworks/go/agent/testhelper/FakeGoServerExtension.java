@@ -53,7 +53,7 @@ public class FakeGoServerExtension implements BeforeEachCallback {
         FakeGoServer server = new FakeGoServer();
         try {
             server.start();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new ExtensionConfigurationException("Unable to start FakeGoServer", e);
         }
         return server;

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.util;
 
-public interface ServletResponse {
+public interface StatusSupplier {
     int getStatus();
-    long getContentCount();
 }

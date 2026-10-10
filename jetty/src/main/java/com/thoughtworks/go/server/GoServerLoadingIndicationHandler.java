@@ -16,18 +16,20 @@
 package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.eclipse.jetty.ee8.webapp.WebAppContext;
+import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.http.MimeTypes;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.util.Callback;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
@@ -51,37 +53,39 @@ class GoServerLoadingIndicationHandler extends ContextHandler {
         this.systemEnvironment = systemEnvironment;
     }
 
-    private class LoadingHandler extends AbstractHandler {
+    private class LoadingHandler extends Handler.Abstract {
         @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        public boolean handle(Request request, Response response, Callback callback) throws IOException {
             if (isWebAppStarting()) {
-                handleQueriesWhenWebAppIsStarting(baseRequest, response);
-            } else if ("/".equals(target)) {
-                addHeaders(response);
-                response.sendRedirect(systemEnvironment.getLandingPage());
+                handleQueriesWhenWebAppIsStarting(request, response);
+                return true;
+            } else if ("/".equals(request.getHttpURI().getPath())) {
+                addHeaders(response.getHeaders());
+                Response.sendRedirect(request, response, callback, systemEnvironment.getLandingPage());
+                return true;
             }
+            return false;
         }
 
-        private void handleQueriesWhenWebAppIsStarting(Request baseRequest, HttpServletResponse response) throws IOException {
+        private void handleQueriesWhenWebAppIsStarting(Request baseRequest, Response response) throws IOException {
             if (acceptHeaderValue(baseRequest).contains("json")) {
-                respondWith503(baseRequest, response, APPLICATION_JSON.asString(), "{ \"message\": \"GoCD server is starting\" }");
+                respondWith503(response, APPLICATION_JSON.asString(), "{ \"message\": \"GoCD server is starting\" }");
             } else if (acceptHeaderValue(baseRequest).contains("html")) {
-                respondWith503(baseRequest, response, TEXT_HTML.asString(), loadingPage());
+                respondWith503(response, TEXT_HTML.asString(), loadingPage());
             } else {
-                respondWith503(baseRequest, response, TEXT_PLAIN.asString(), "GoCD server is starting");
+                respondWith503(response, TEXT_PLAIN.asString(), "GoCD server is starting");
             }
         }
 
-        private void respondWith503(Request baseRequest, HttpServletResponse response, String contentType, String body) throws IOException {
-            addHeaders(response);
+        private void respondWith503(Response response, String contentType, String body) {
+            addHeaders(response.getHeaders());
             response.setStatus(HttpStatus.SERVICE_UNAVAILABLE_503);
-            response.setContentType(contentType);
-            response.getWriter().println(body);
-            baseRequest.setHandled(true);
+            response.getHeaders().put(HttpHeader.CONTENT_TYPE, contentType);
+            response.write(true, ByteBuffer.wrap(body.getBytes(StandardCharsets.UTF_8)), null);
         }
 
-        private String acceptHeaderValue(Request baseRequest) {
-            List<String> qualityCSV = baseRequest.getHttpFields().getQualityCSV(HttpHeader.ACCEPT);
+        private String acceptHeaderValue(Request request) {
+            List<String> qualityCSV = request.getHeaders().getQualityCSV(HttpHeader.ACCEPT);
             return qualityCSV.isEmpty() ? MimeTypes.Type.TEXT_HTML.asString() : qualityCSV.getFirst();
         }
 
@@ -94,14 +98,13 @@ class GoServerLoadingIndicationHandler extends ContextHandler {
             return isWebAppStarting;
         }
 
-        private void addHeaders(HttpServletResponse response) {
-            response.setHeader("Cache-Control", "no-cache, must-revalidate, no-store");
-            response.setHeader("X-XSS-Protection", "1; mode=block");
-            response.setHeader("X-Content-Type-Options", "nosniff");
-            response.setHeader("X-Frame-Options", "SAMEORIGIN");
-            response.setHeader("X-UA-Compatible", "chrome=1");
+        private void addHeaders(HttpFields.Mutable headers) {
+            headers.put(HttpHeader.CACHE_CONTROL, "no-cache, must-revalidate, no-store");
+            headers.put("X-XSS-Protection", "1; mode=block");
+            headers.put("X-Content-Type-Options", "nosniff");
+            headers.put("X-Frame-Options", "SAMEORIGIN");
+            headers.put("X-UA-Compatible", "chrome=1");
         }
-
     }
 
     static String loadingPage() throws IOException {

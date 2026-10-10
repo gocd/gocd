@@ -17,7 +17,7 @@ package com.thoughtworks.go.server.util;
 
 import java.util.function.Function;
 
-public interface ServletRequest {
+public interface PathModifiable {
     void modifyPath(Function<String, String> pathModifier);
     String getRootURL();
 }

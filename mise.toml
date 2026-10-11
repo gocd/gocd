@@ -4,7 +4,8 @@
   { version = "temurin-25", os = ["linux", "macos"] },
   { version = "microsoft-25", os = ["windows"] }
 ]
-"node" = { version = "26", postinstall = "npm install -g corepack && corepack enable && ./gradlew --stop" }
+"node" = "26"
+"npm:corepack" = "latest"
 
 # Unit tests only
 "ant" = "1"

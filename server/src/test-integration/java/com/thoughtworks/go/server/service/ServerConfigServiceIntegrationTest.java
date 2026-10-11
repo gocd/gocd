@@ -145,6 +145,24 @@ public class ServerConfigServiceIntegrationTest {
     }
 
     @Test
+    public void shouldUpdateArtifactConfigToPurgeArtifactDirectoriesIfValid() {
+        ArtifactConfig artifactConfig = new ArtifactConfig();
+        artifactConfig.setArtifactsDir(new ArtifactDirectory("test"));
+        PurgeSettings purgeSettings = new PurgeSettings();
+        purgeSettings.setPurgeStart(new PurgeStart(10.0));
+        purgeSettings.setPurgeUpto(new PurgeUpto(20.0));
+        purgeSettings.setPurgeArtifactDirectories(true);
+        artifactConfig.setPurgeSettings(purgeSettings);
+
+        assertThat(goConfigService.serverConfig().isArtifactDirectoryPurgingAllowed()).isFalse();
+
+        serverConfigService.updateArtifactConfig(artifactConfig);
+
+        assertThat(goConfigService.serverConfig().isArtifactPurgingAllowed()).isTrue();
+        assertThat(goConfigService.serverConfig().isArtifactDirectoryPurgingAllowed()).isTrue();
+    }
+
+    @Test
     public void shouldNotUpdateArtifactConfigIfInvalid() {
         ArtifactConfig artifactConfig = new ArtifactConfig();
 

@@ -52,6 +52,7 @@ import static com.thoughtworks.go.server.service.ArtifactsService.PUBLISH_MAX_RE
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.mockito.Mockito.*;
 
 public class ArtifactsServiceTest {
@@ -364,6 +365,225 @@ public class ArtifactsServiceTest {
             assertThat(logFixture.contains(Level.ERROR, "Error occurred while clearing artifacts for 'pipeline/10/stage/20'. Error: 'holy cow!'")).isTrue();
         }
         verify(stageService).markArtifactsDeletedFor(stage);
+    }
+
+    @Test
+    void shouldPurgeEntireStageDirectoryIncludingConsoleLogsAndMarkItCleaned() throws IOException {
+        File artifactsRoot = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
+        assumeArtifactsRoot(artifactsRoot);
+        willCleanUp(artifactsRoot);
+        File jobDir = createJobArtifactFolder(artifactsRoot + "/pipelines/pipeline/10/stage/20/job");
+        createFile(new File(jobDir, "bar/baz"), "quux");
+        createFile(new File(jobDir, "cruise-output/console.log"), "Build Logs");
+        createFile(new File(jobDir, "cruise-output/md5.checksum"), "foo:25463254625346");
+        createFile(new File(jobDir, "pluggable-artifact-metadata/cd.go.artifact.docker.json"), "{\"image\": \"alpine:foo\", \"digest\": \"sha\"}");
+        File anotherJobDir = createJobArtifactFolder(artifactsRoot + "/pipelines/pipeline/10/stage/20/another-job");
+        createFile(new File(anotherJobDir, "cruise-output/console.log"), "More Build Logs");
+
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
+        artifactsService.initialize();
+        Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", Instant.now());
+
+        assertThat(artifactsService.purgeArtifactDirectoriesForStage(stage)).isTrue();
+
+        assertThat(new File(artifactsRoot, "pipelines/pipeline/10")).doesNotExist();
+        assertThat(new File(artifactsRoot, "pipelines/pipeline")).isEmptyDirectory();
+        verify(stageService).markArtifactsDeletedFor(stage);
+    }
+
+    @Test
+    void shouldRetainOtherStageRunsOfPipelineInstanceWhilePurgingArtifactDirectoriesForAStage() throws IOException {
+        File artifactsRoot = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
+        assumeArtifactsRoot(artifactsRoot);
+        willCleanUp(artifactsRoot);
+        File jobDir = createJobArtifactFolder(artifactsRoot + "/pipelines/pipeline/10/stage/20/job");
+        File jobDirFromRerunOfStage = createJobArtifactFolder(artifactsRoot + "/pipelines/pipeline/10/stage/21/job");
+        File jobDirFromAnotherStage = createJobArtifactFolder(artifactsRoot + "/pipelines/pipeline/10/another-stage/1/job");
+        File jobDirFromAnotherPipelineInstance = createJobArtifactFolder(artifactsRoot + "/pipelines/pipeline/11/stage/20/job");
+
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
+        artifactsService.initialize();
+
+        artifactsService.purgeArtifactDirectoriesForStage(StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", Instant.now()));
+
+        assertThat(jobDir.getParentFile()).doesNotExist();
+        assertThat(new File(jobDirFromRerunOfStage, "foo")).exists();
+        assertThat(new File(jobDirFromAnotherStage, "foo")).exists();
+        assertThat(new File(jobDirFromAnotherPipelineInstance, "foo")).exists();
+
+        artifactsService.purgeArtifactDirectoriesForStage(StageMother.createPassedStage("pipeline", 10, "stage", 21, "job", Instant.now()));
+
+        assertThat(new File(artifactsRoot, "pipelines/pipeline/10/stage")).doesNotExist();
+        assertThat(new File(jobDirFromAnotherStage, "foo")).exists();
+        assertThat(new File(jobDirFromAnotherPipelineInstance, "foo")).exists();
+    }
+
+    @Test
+    void shouldPurgeCachedArtifactsAndTheirEmptyDirectoriesWhilePurgingArtifactDirectoriesForAStage() throws IOException {
+        File artifactsRoot = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
+        assumeArtifactsRoot(artifactsRoot);
+        willCleanUp(artifactsRoot);
+        createJobArtifactFolder(artifactsRoot + "/pipelines/pipeline/10/stage/20/job1");
+        File job1CacheDir = createJobArtifactFolder(artifactsRoot + "/cache/artifacts/pipelines/pipeline/10/stage/20/job1");
+        File job2CacheDir = createJobArtifactFolder(artifactsRoot + "/cache/artifacts/pipelines/pipeline/10/stage/20/job2");
+        File job2CacheDirFromADifferentStageRun = createJobArtifactFolder(artifactsRoot + "/cache/artifacts/pipelines/pipeline/10/stage/25/job2");
+        File job1CacheDirFromADifferentPipelineInstance = createJobArtifactFolder(artifactsRoot + "/cache/artifacts/pipelines/pipeline/11/stage/20/job1");
+
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
+        artifactsService.initialize();
+
+        artifactsService.purgeArtifactDirectoriesForStage(StageMother.createPassedStage("pipeline", 10, "stage", 20, "job1", Instant.now()));
+
+        assertThat(job1CacheDir).doesNotExist();
+        assertThat(job2CacheDir).doesNotExist();
+        assertThat(new File(artifactsRoot, "cache/artifacts/pipelines/pipeline/10/stage/20")).doesNotExist();
+        assertThat(new File(job2CacheDirFromADifferentStageRun, "foo")).exists();
+        assertThat(new File(job1CacheDirFromADifferentPipelineInstance, "foo")).exists();
+
+        artifactsService.purgeArtifactDirectoriesForStage(StageMother.createPassedStage("pipeline", 10, "stage", 25, "job2", Instant.now()));
+
+        assertThat(new File(artifactsRoot, "cache/artifacts/pipelines/pipeline/10")).doesNotExist();
+        assertThat(new File(job1CacheDirFromADifferentPipelineInstance, "foo")).exists();
+    }
+
+    @Test
+    void shouldPurgeDirectoriesLeftBehindForStageThatHadItsArtifactsPurgedEarlier() throws IOException {
+        File artifactsRoot = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
+        assumeArtifactsRoot(artifactsRoot);
+        willCleanUp(artifactsRoot);
+        File jobDir = createJobArtifactFolder(artifactsRoot + "/pipelines/pipeline/10/stage/20/job");
+        File consoleLog = new File(jobDir, "cruise-output/console.log");
+        createFile(consoleLog, "Build Logs");
+
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
+        artifactsService.initialize();
+        Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", Instant.now());
+        artifactsService.purgeArtifactsForStage(stage);
+        stage.setArtifactsDeleted(true);
+        assertThat(consoleLog).exists();
+        reset(stageService);
+
+        assertThat(artifactsService.purgeArtifactDirectoriesForStage(stage)).isTrue();
+
+        assertThat(new File(artifactsRoot, "pipelines/pipeline/10")).doesNotExist();
+        verifyNoInteractions(stageService);
+    }
+
+    @Test
+    void shouldHaveNothingToPurgeWhenArtifactDirectoriesOfStageAreAlreadyGone() throws IOException {
+        File artifactsRoot = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
+        assumeArtifactsRoot(artifactsRoot);
+        willCleanUp(artifactsRoot);
+        File jobDirFromAnotherPipelineInstance = createJobArtifactFolder(artifactsRoot + "/pipelines/pipeline/11/stage/20/job");
+
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
+        artifactsService.initialize();
+        Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", Instant.now());
+
+        try (LogFixture logFixture = logFixtureFor(ArtifactsService.class, Level.DEBUG)) {
+            assertThat(artifactsService.purgeArtifactDirectoriesForStage(stage)).isFalse();
+            assertThat(artifactsService.purgeArtifactDirectoriesForStage(stage)).isFalse();
+            assertThat(logFixture.getLog()).doesNotContain("Error");
+        }
+
+        assertThat(new File(jobDirFromAnotherPipelineInstance, "foo")).exists();
+        verify(stageService, times(2)).markArtifactsDeletedFor(stage);
+    }
+
+    @Test
+    void shouldRemoveEmptyDirectoriesOfPipelineInstanceEvenWhenStageDirectoryIsAlreadyGone() throws IOException {
+        File artifactsRoot = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
+        assumeArtifactsRoot(artifactsRoot);
+        willCleanUp(artifactsRoot);
+        new File(artifactsRoot, "pipelines/pipeline/10/stage").mkdirs();
+
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
+        artifactsService.initialize();
+        Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", Instant.now());
+
+        assertThat(artifactsService.purgeArtifactDirectoriesForStage(stage)).isFalse();
+
+        assertThat(new File(artifactsRoot, "pipelines/pipeline")).isEmptyDirectory();
+    }
+
+    @Test
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldNotRemoveLinkToDirectoryOfPipelineInstanceThatStillHasOtherStageRunsWhilePurgingArtifactDirectoriesForAStage() throws IOException {
+        File artifactsRoot = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
+        assumeArtifactsRoot(artifactsRoot);
+        willCleanUp(artifactsRoot);
+        File relocatedPipelineInstanceDir = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
+        File jobDir = createJobArtifactFolder(relocatedPipelineInstanceDir + "/stage/20/job");
+        File jobDirFromAnotherStage = createJobArtifactFolder(relocatedPipelineInstanceDir + "/another-stage/1/job");
+        File pipelineInstanceDir = new File(artifactsRoot, "pipelines/pipeline/10");
+        pipelineInstanceDir.getParentFile().mkdirs();
+        Files.createSymbolicLink(pipelineInstanceDir.toPath(), relocatedPipelineInstanceDir.toPath());
+
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
+        artifactsService.initialize();
+
+        assertThat(artifactsService.purgeArtifactDirectoriesForStage(StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", Instant.now()))).isTrue();
+
+        assertThat(jobDir).doesNotExist();
+        assertThat(new File(relocatedPipelineInstanceDir, "stage")).doesNotExist();
+        assertThat(new File(jobDirFromAnotherStage, "foo")).exists();
+        assertThat(pipelineInstanceDir.toPath()).isSymbolicLink();
+        assertThat(new File(pipelineInstanceDir, "another-stage/1/job/foo")).exists();
+
+        artifactsService.purgeArtifactDirectoriesForStage(StageMother.createPassedStage("pipeline", 10, "another-stage", 1, "job", Instant.now()));
+
+        assertThat(relocatedPipelineInstanceDir).isEmptyDirectory();
+        assertThat(pipelineInstanceDir.toPath()).isSymbolicLink();
+    }
+
+    @Test
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldLogAndMarkStageCleanedWhenItsArtifactDirectoriesCouldNotBeDeleted() throws IOException {
+        File artifactsRoot = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
+        assumeArtifactsRoot(artifactsRoot);
+        willCleanUp(artifactsRoot);
+        File jobDir = createJobArtifactFolder(artifactsRoot + "/pipelines/pipeline/10/stage/20/job");
+        File jobDirFromAnotherStage = createJobArtifactFolder(artifactsRoot + "/pipelines/pipeline/10/another-stage/1/job");
+
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
+        artifactsService.initialize();
+        Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", Instant.now());
+
+        assertThat(jobDir.setWritable(false)).isTrue();
+        try (LogFixture logFixture = logFixtureFor(ArtifactsService.class, Level.DEBUG)) {
+            assumeThat(Files.isWritable(jobDir.toPath())).as("cannot make a directory read-only when running as a privileged user").isFalse();
+
+            assertThat(artifactsService.purgeArtifactDirectoriesForStage(stage)).isTrue();
+
+            assertThat(logFixture.contains(Level.ERROR, "Directory '" + new File(artifactsRoot, "pipelines/pipeline/10/stage/20").getAbsolutePath() + "' was not successfully deleted")).isTrue();
+        } finally {
+            jobDir.setWritable(true);
+        }
+        assertThat(new File(jobDir, "foo")).exists();
+        assertThat(new File(jobDirFromAnotherStage, "foo")).exists();
+        verify(stageService).markArtifactsDeletedFor(stage);
+    }
+
+    @Test
+    void shouldLogAndIgnoreExceptionsWhenDeletingStageArtifactDirectories() {
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
+        Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", Instant.now());
+
+        ArtifactDirectoryChooser chooser = mock(ArtifactDirectoryChooser.class);
+        ReflectionUtil.setField(artifactsService, "chooser", chooser);
+
+        when(chooser.preferredRoot(any())).thenThrow(new RuntimeException("holy cow!"));
+
+        try (LogFixture logFixture = logFixtureFor(ArtifactsService.class, Level.DEBUG)) {
+            assertThat(artifactsService.purgeArtifactDirectoriesForStage(stage)).isFalse();
+            assertThat(logFixture.contains(Level.ERROR, "Error occurred while clearing artifact directories for 'pipeline/10/stage/20'. Error: 'holy cow!'")).isTrue();
+        }
+        verify(stageService).markArtifactsDeletedFor(stage);
+    }
+
+    private void createFile(File file, String content) throws IOException {
+        file.getParentFile().mkdirs();
+        Files.writeString(file.toPath(), content, UTF_8);
     }
 
     private void assumeArtifactsRoot(final File artifactsRoot) {

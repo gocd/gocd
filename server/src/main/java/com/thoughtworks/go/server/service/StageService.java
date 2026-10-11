@@ -523,6 +523,10 @@ public class StageService implements StageFinder {
         return stageDao.oldestStagesHavingArtifacts();
     }
 
+    public List<Stage> oldestStagesWithPurgedArtifacts(long afterStageId) {
+        return stageDao.oldestStagesHavingPurgedArtifacts(afterStageId);
+    }
+
     public interface JobOperation {
         void invoke();
     }

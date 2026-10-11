@@ -75,6 +75,10 @@ public class ArtifactDirectoryChooser {
         return null;
     }
 
+    public @Nullable File preferredCachedArtifact(LocatableEntity locatableEntity) {
+        return locators.getFirst().findCachedArtifact(locatableEntity);
+    }
+
     public File temporaryConsoleFile(LocatableEntity locatableEntity) {
         return new File("data/console", format("%s.log", DigestUtils.md5Hex(locatableEntity.entityLocator())));
     }

@@ -567,6 +567,13 @@ public class MagicalGoConfigXmlWriterTest {
 
         assertThat(out.toString()).contains("<purgeStartDiskSpace>10.0</purgeStartDiskSpace>");
         assertThat(out.toString()).contains("<purgeUptoDiskSpace>20.0</purgeUptoDiskSpace>");
+        assertThat(out.toString()).doesNotContain("purgeArtifactDirectories");
+
+        cruiseConfig.server().getArtifactConfig().getPurgeSettings().setPurgeArtifactDirectories(true);
+
+        xmlWriter.write(cruiseConfig, out, false);
+
+        assertThat(out.toString()).contains("<purgeSettings purgeArtifactDirectories=\"true\">");
     }
 
     @Test

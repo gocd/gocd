@@ -476,6 +476,15 @@
 
   <suppress>
     <notes><![CDATA[
+    CVE is complete bot-slop nonsense via VulnCheck that Sonatype and GHSA are disgracefully picking up and scoring
+    without any real validation.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:npm/sprintf-js@.*$</packageUrl>
+    <vulnerabilityName regex="true">CVE-2026-97058|GHSA-hp3w-g68c-fv3c</vulnerabilityName>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
     Suppress false positive from bas OSSIndex data on shaded gson issue which actually only affects connect2id according to https://ossindex.sonatype.org/vulnerability/CVE-2025-53864
     file name: protobuf_java.jar (shaded: com.google.code.gson:gson:2.8.9)
     ]]></notes>

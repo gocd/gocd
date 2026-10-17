@@ -145,15 +145,15 @@ export class ClusterProfileWidget extends MithrilComponent<ClusterProfileWidgetA
     }
 
     actionButtons.push(
-      <Buttons.Secondary onclick={(e: MouseEvent) => {
+      <Buttons.Primary onclick={(e: MouseEvent) => {
         vnode.attrs.elasticAgentOperations.onAdd(new ElasticAgentProfile("", vnode.attrs.clusterProfile.pluginId(), vnode.attrs.clusterProfile.id(), true, new Configurations([])), e);
       }}
-                         data-test-id={"new-elastic-agent-profile-button"}
-                         disabled={!pluginInfo}
-                         title={disabledReason}
-                         icon={ButtonIcon.ADD}>
-        Elastic Agent Profile
-      </Buttons.Secondary>);
+                       data-test-id={"new-elastic-agent-profile-button"}
+                       disabled={!pluginInfo}
+                       title={disabledReason}
+                       icon={ButtonIcon.ADD}>
+        Create Elastic Agent Profile
+      </Buttons.Primary>);
 
     actionButtons.push(<div class={styles.clusterProfileCrudActions}>
       <IconGroup>

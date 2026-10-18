@@ -310,6 +310,14 @@ subprojects {
     }
   }
 
+  // Force all sub-projects and all configurations to have managed dependency versions
+  // for transitive dependencies defined in the build-platform project.
+  configurations.matching { it.canBeDeclared }.configureEach {
+    project.dependencies.with {
+      it.add(name, platform(project(':build-platform')))
+    }
+  }
+
   if (hasJavaSources) {
     apply plugin: 'java-library'
 
@@ -324,9 +332,6 @@ subprojects {
     test.dependsOn configurations.testJavaAgents
 
     dependencies {
-      // Force all sub-projects to have managed dependency versions for certain transitive dependencies
-      api platform(project(':build-platform'))
-      compileOnlyApi platform(project(':build-platform'))
       testJavaAgents("${rootProject.deps.mockitoCore}:${rootProject.versions.mockitoBom}")
 
       components {
@@ -350,11 +355,6 @@ subprojects {
     apply plugin: 'java-test-fixtures'
 
     layout.buildDirectory = "${projectDir}/target"
-
-    dependencies {
-      // Force all sub-projects to have managed dependency versions for certain transitive dependencies
-      testFixturesImplementation platform(project(':build-platform'))
-    }
   }
 
   configurations.configureEach {
@@ -449,9 +449,8 @@ subprojects {
       jvmArgs += InstallerTypeServer.instance.jvmInternalAccessArgs
     }
 
-    jvmArgs += testTask.project.configurations.hasProperty('testJavaAgents') ? ["-javaagent:${testTask.project.configurations.testJavaAgents.asPath}", "-XX:-PrintWarnings"] : []
-
     doFirst {
+      jvmArgs += testTask.project.configurations.hasProperty('testJavaAgents') ? ["-javaagent:${testTask.project.configurations.testJavaAgents.asPath}", "-XX:-PrintWarnings"] : []
       classpath += rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
     }
 

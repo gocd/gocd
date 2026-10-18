@@ -48,8 +48,6 @@ configurations {
 }
 
 dependencies {
-  packagingInLibDir platform(project(':build-platform'))
-
   packagingInDefaultFilesDir project(path: ':agent-launcher', configuration: 'fatJarConfig')
   packagingInDefaultFilesDir project(path: ':agent', configuration: 'fatJarConfig')
   packagingInDefaultFilesDir project(path: ':tfs-impl-14', configuration: 'fatJarConfig')

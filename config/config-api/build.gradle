@@ -40,7 +40,6 @@ dependencies {
   implementation rootProject.deps.commonsText
   implementation rootProject.deps.commonsLang3
   serverOnlyImplementation rootProject.deps.quartz
-  serverOnlyImplementation platform(project(':build-platform'))
   api rootProject.deps.cloning
   implementation(rootProject.deps.apacheHttpComponents) {
     exclude(module: 'commons-codec')

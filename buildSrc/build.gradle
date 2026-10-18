@@ -24,5 +24,11 @@ dependencies {
   implementation 'de.undercouch:gradle-download-task:5.7.0'
   implementation 'com.github.jk1:gradle-license-report:3.1.4'
   implementation 'org.freemarker:freemarker:2.3.35'
-  implementation 'dev.yumi:yumi-gradle-licenser:4.0.0'
+  implementation('dev.yumi:yumi-gradle-licenser:4.0.0') {
+    // Unnecessary jgit transitives
+    exclude group: 'com.googlecode.javaewah'
+    exclude group: 'org.slf4j'
+    exclude group: 'commons-codec'
+    exclude group: 'org.jetbrains'
+  }
 }

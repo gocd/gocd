@@ -32,6 +32,7 @@ dependencies {
   api enforcedPlatform(rootProject.deps.slf4jBom)
   api enforcedPlatform(rootProject.deps.jacksonBom)
   api platform(rootProject.deps.jaxbBom)
+  api platform(rootProject.deps.asmBom)
 
   constraints {
     api rootProject.deps.commonsCodec

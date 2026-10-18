@@ -3560,7 +3560,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^5.25.0":
+"enhanced-resolve@npm:^5.26.0":
   version: 5.26.0
   resolution: "enhanced-resolve@npm:5.26.0"
   dependencies:
@@ -4660,7 +4660,7 @@ __metadata:
     url-loader: "npm:^4.1.1"
     url-parse: "npm:^1.5.10"
     uuid: "npm:^14.0.3"
-    webpack: "npm:^5.111.1"
+    webpack: "npm:^5.112.0"
     webpack-assets-manifest: "npm:^6.5.4"
     webpack-cli: "npm:^7.2.3"
     what-input: "npm:^5.2.12"
@@ -6060,7 +6060,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimizer-webpack-plugin@npm:^5.7.0":
+"minimizer-webpack-plugin@npm:^5.13.0":
   version: 5.13.0
   resolution: "minimizer-webpack-plugin@npm:5.13.0"
   dependencies:
@@ -8906,12 +8906,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"watchpack@npm:^2.5.2":
-  version: 2.5.2
-  resolution: "watchpack@npm:2.5.2"
+"watchpack@npm:^2.6.1":
+  version: 2.6.1
+  resolution: "watchpack@npm:2.6.1"
   dependencies:
     graceful-fs: "npm:^4.1.2"
-  checksum: 10c0/8290e89f03e1e7136e1ef9b8d04bd03822963fa4b442781a40999e7b9ba29ab333a7a5285312b2d4f3e91bc8c5c526cf1f91f5ce0e857dafe56db28ab1c17dca
+  checksum: 10c0/43929cc2ed2482a52cba0578046977e7e39ce9a967b5d5bb350da2c1246f6b623b89fa6d24ea94051a6a5b01a7c9c85c9eb5e52e20c75428431adab531167b81
   languageName: node
   linkType: hard
 
@@ -8976,16 +8976,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-sources@npm:^3.5.1":
+"webpack-sources@npm:^3.6.0":
   version: 3.6.0
   resolution: "webpack-sources@npm:3.6.0"
   checksum: 10c0/c7ec73fc07177421eff4ab9f6ec100d7923d3864fb62d271ff4b264328e5ab0122fa50345450646f3631b5a1ed6330b53bb8f78fa9b5d3c0a655dea836e79bcc
   languageName: node
   linkType: hard
 
-"webpack@npm:^5.111.1":
-  version: 5.111.1
-  resolution: "webpack@npm:5.111.1"
+"webpack@npm:^5.112.0":
+  version: 5.112.0
+  resolution: "webpack@npm:5.112.0"
   dependencies:
     "@types/estree": "npm:^1.0.8"
     "@types/json-schema": "npm:^7.0.15"
@@ -8994,22 +8994,22 @@ __metadata:
     "@webassemblyjs/wasm-parser": "npm:^1.14.1"
     browserslist: "npm:^4.28.1"
     chrome-trace-event: "npm:^1.0.2"
-    enhanced-resolve: "npm:^5.25.0"
+    enhanced-resolve: "npm:^5.26.0"
     es-module-lexer: "npm:^2.1.0"
     events: "npm:^3.2.0"
     graceful-fs: "npm:^4.2.11"
     mime-db: "npm:^1.54.0"
-    minimizer-webpack-plugin: "npm:^5.7.0"
+    minimizer-webpack-plugin: "npm:^5.13.0"
     schema-utils: "npm:^4.5.0"
     tapable: "npm:^2.3.0"
-    watchpack: "npm:^2.5.2"
-    webpack-sources: "npm:^3.5.1"
+    watchpack: "npm:^2.6.1"
+    webpack-sources: "npm:^3.6.0"
   peerDependenciesMeta:
     webpack-cli:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: 10c0/e14333a01f4a547950d4844f3da9de7311be3644ec6fedede569f203aa4289a2dab7323cdb88f746e2d3cbc7f8c465bd2b030b30292c2d6ef1e5d2ead39cead2
+  checksum: 10c0/dee2e7ad612138536e1b8d5dc306955fc5b110146085061e43ed5e100293ebeb23d3521a1b400da9f4e11e99396305bba8aabb5fc35be9480c15c38759c163f9
   languageName: node
   linkType: hard
 

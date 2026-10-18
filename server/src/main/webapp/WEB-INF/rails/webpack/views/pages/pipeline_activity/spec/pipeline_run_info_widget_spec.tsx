@@ -326,13 +326,37 @@ describe("PipelineRunInfoWidget", () => {
     it("should render the commit message", () => {
       const pipelineRunInfoJSON = PipelineActivityData.pipelineRunInfo(passed("Test"));
       pipelineRunInfoJSON.materialRevisions[0].modifications[0].comment = "Fix pipeline configuration";
+      pipelineRunInfoJSON.materialRevisions[0].modifications[0].user = "username@example.com";
 
       const pipelineRunInfo = PipelineRunInfo.fromJSON(pipelineRunInfoJSON);
       mount(pipelineRunInfo);
 
       const commitMessage = helper.byTestId("commit-message");
+      const commitUser = helper.byTestId("commit-user");
       expect(commitMessage).toBeInDOM();
+      expect(commitUser).toBeInDOM();
       expect(commitMessage).toHaveText("Fix pipeline configuration");
+      expect(commitUser).toHaveText("username@example.com");
+    });
+
+    it("should not render neither the commit message nor the commit user when there is no commit message", () => {
+      const pipelineRunInfoJSON = PipelineActivityData.pipelineRunInfo(passed("Test"));
+
+      pipelineRunInfoJSON.materialRevisions.forEach((materialRevision) => {
+        materialRevision.modifications.forEach((modification) => {
+          modification.comment = "";
+        });
+      });
+
+      pipelineRunInfoJSON.materialRevisions[0].modifications[0].user = "newusername@example.com";
+
+      const pipelineRunInfo = PipelineRunInfo.fromJSON(pipelineRunInfoJSON);
+      mount(pipelineRunInfo);
+
+      const commitMessage = helper.byTestId("commit-message");
+      const commitUser = helper.byTestId("commit-user");
+      expect(commitMessage).not.toBeInDOM();
+      expect(commitUser).not.toBeInDOM();
     });
 
     it("should display the full commit message as a tooltip when it overflows", () => {

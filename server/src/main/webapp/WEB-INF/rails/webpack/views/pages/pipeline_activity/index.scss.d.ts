@@ -7,6 +7,7 @@ export const changed: string;
 export const closeButtonWrapper: string;
 export const comment: string;
 export const commitMessage: string;
+export const commitUser: string;
 export const disabled: string;
 export const disabledIcon: string;
 export const failed: string;

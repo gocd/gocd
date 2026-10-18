@@ -110,7 +110,7 @@ $stage-action-icon-z-index: 1;
 }
 
 .group-content {
-  .revision, .commit-message {
+  .revision, .commit-message, .commit-user {
     overflow: hidden;
     font-size: 12px;
     white-space: nowrap;
@@ -119,6 +119,10 @@ $stage-action-icon-z-index: 1;
 
   .commit-message::before {
     content: "✉️ ";
+  }
+
+  .commit-user::before {
+    content: "👤 ";
   }
 
   .schedule-info {

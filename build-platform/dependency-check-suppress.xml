@@ -406,6 +406,14 @@
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*/.*@10.*$</packageUrl>
     <cve>CVE-2026-10050</cve>
   </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not rely on Servlet spec http-method-omission configuration, so is not vulnerable to these issues.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*/.*@10.*$</packageUrl>
+    <cve>CVE-2026-18659</cve>
+    <cve>CVE-2026-18662</cve>
+  </suppress>
   <suppress until="2026-12-10">
     <notes><![CDATA[
     GoCD may be vulnerable to this DoS error, if websockets are enabled, but there is nothing we can do right now, prior to Jetty
@@ -415,6 +423,13 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*/.*@10.*$</packageUrl>
     <cve>CVE-2026-19204</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not persist its session stores or use Java serialization for this purpose, so is not vulnerable to this issue.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty.*/.*@10.*$</packageUrl>
+    <cve>CVE-2026-19864</cve>
   </suppress>
 
   <suppress>

@@ -85,6 +85,23 @@ describe("ResourcesDropdownButton", () => {
     expect(helper.byTestId("resources-to-apply")).toBeInDOM();
   });
 
+  it("should display resources in case-insensitive alphabetical order", () => {
+    agentsVM.selectAgent(agent.uuid);
+    mount(agentsVM, new DummyService(["linux", "db-updater", "Zulu", "Alpha"]));
+
+    helper.clickByTestId("modify-resources-association");
+    m.redraw.sync();
+
+    expect(resourceLabels()).toEqual(["Alpha", "db-updater", "linux", "Zulu"]);
+
+    helper.oninput("input", "beta", helper.byTestId("resource-to-add"));
+    m.redraw.sync();
+    helper.click("button", helper.byTestId("resource-to-add"));
+    m.redraw.sync();
+
+    expect(resourceLabels()).toEqual(["Alpha", "beta", "db-updater", "linux", "Zulu"]);
+  });
+
   describe("TriStateCheckBox", () => {
     it("should render checkboxes unchecked when none of the agents is associated with resources ", () => {
       agentsVM.selectAgent(agent.uuid);
@@ -146,6 +163,10 @@ describe("ResourcesDropdownButton", () => {
                                                 show={agentsVM.showResources}
                                                 flashMessage={new FlashMessageModelWithTimeout()}
                                                 service={dummyService}/>);
+  }
+
+  function resourceLabels() {
+    return helper.textAll("input[type='checkbox'] + label", helper.byTestId("association"));
   }
 });
 

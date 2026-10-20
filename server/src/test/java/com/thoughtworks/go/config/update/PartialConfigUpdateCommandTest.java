@@ -62,7 +62,7 @@ class PartialConfigUpdateCommandTest {
         partial.validatePermissionsOnSubtree();
         assertFalse(partial.hasErrors());
 
-        PartialConfigUpdateCommand command = new PartialConfigUpdateCommand(partial, fingerprint, resolver);
+        PartialConfigUpdateCommand command = new PartialConfigUpdateCommand(fingerprint, partial, resolver);
         CruiseConfig updated = command.update(cruiseConfig);
 
         assertTrue(updated.hasPipelineGroup("first"));
@@ -84,7 +84,7 @@ class PartialConfigUpdateCommandTest {
         partial.validatePermissionsOnSubtree();
         assertTrue(partial.hasErrors());
 
-        PartialConfigUpdateCommand command = new PartialConfigUpdateCommand(partial, fingerprint, resolver);
+        PartialConfigUpdateCommand command = new PartialConfigUpdateCommand(fingerprint, partial, resolver);
         CruiseConfig updated = command.update(cruiseConfig);
 
         assertEquals(1, updated.getPartials().size());

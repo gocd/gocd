@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class PartialConfigServiceTest {
-    File folder = new File("dir");
+    private final File folder = new File("dir");
     private GoConfigWatchList configWatchList;
     private PartialConfigProvider plugin;
     private GoConfigRepoConfigDataSource repoConfigDataSource;
@@ -73,15 +73,15 @@ public class PartialConfigServiceTest {
         configWatchList = new GoConfigWatchList(cachedGoConfig, mock(GoConfigService.class));
         goConfigService = mock(GoConfigService.class);
         repoConfigDataSource = new GoConfigRepoConfigDataSource(configWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
-        cachedGoPartials = new CachedGoPartials(serverHealthService);
+        cachedGoPartials = new CachedGoPartials(serverHealthService, partialConfigHelper);
         serverHealthService = mock(ServerHealthService.class);
 
         updateCommand = null;
         service = new PartialConfigService(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService, partialConfigHelper) {
             @Override
-            protected PartialConfigUpdateCommand buildUpdateCommand(PartialConfig partial, String fingerprint) {
+            protected PartialConfigUpdateCommand buildUpdateCommand(String fingerprint, PartialConfig partial) {
                 if (null == updateCommand) {
-                    return super.buildUpdateCommand(partial, fingerprint);
+                    return super.buildUpdateCommand(fingerprint, partial);
                 }
                 return updateCommand;
             }
@@ -105,7 +105,7 @@ public class PartialConfigServiceTest {
         updateCommand = mock(PartialConfigUpdateCommand.class);
         PartialConfig partial = new PartialConfig();
 
-        service.merge(partial, "finger", cruiseConfig);
+        service.merge("finger", partial, cruiseConfig);
         verify(updateCommand, times(1)).update(cruiseConfig);
     }
 
@@ -141,7 +141,7 @@ public class PartialConfigServiceTest {
         configWatchList = mock(GoConfigWatchList.class);
         when(configWatchList.hasConfigRepoWithFingerprint(any())).thenReturn(true);
 
-        when(partialConfigHelper.isEquivalent(any(PartialConfig.class), any(PartialConfig.class))).thenReturn(false);
+        when(cachedGoPartials.isPartialDifferentFromLastKnown(any(), any(PartialConfig.class))).thenReturn(true);
 
         service = new PartialConfigService(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService, partialConfigHelper);
 

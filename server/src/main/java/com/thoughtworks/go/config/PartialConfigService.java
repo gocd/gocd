@@ -73,7 +73,7 @@ public class PartialConfigService implements PartialConfigUpdateCompletedListene
         final String fingerprint = repoConfig.getRepo().getFingerprint();
 
         if (this.configWatchList.hasConfigRepoWithFingerprint(fingerprint)) {
-            if (shouldMergePartial(incoming, fingerprint, repoConfig)) {
+            if (shouldMergePartial(fingerprint, incoming, repoConfig)) {
                 // mark the fingerprint as last known
                 cachedGoPartials.cacheAsLastKnown(fingerprint, incoming);
 
@@ -84,7 +84,7 @@ public class PartialConfigService implements PartialConfigUpdateCompletedListene
                 UpdateConfig will fail to update the configuration if there are validation errors.
                 Even in case of rules violation, the updateConfig method is required to populate a server health message
                 of rule violation, which also will be shown on the config repo spa.*/
-                if (updateConfig(incoming, fingerprint, repoConfig)) {
+                if (updateConfig(fingerprint, incoming, repoConfig)) {
                     // mark the partial as valid when config is updated successfully for it.
                     cachedGoPartials.markAsValid(fingerprint, incoming);
                 } else {
@@ -119,14 +119,13 @@ public class PartialConfigService implements PartialConfigUpdateCompletedListene
         }
     }
 
-    public CruiseConfig merge(PartialConfig partialConfig, String fingerprint, CruiseConfig cruiseConfig) throws InvalidPartialConfigException {
-        PartialConfigUpdateCommand command = buildUpdateCommand(partialConfig, fingerprint);
-        command.update(cruiseConfig);
+    public CruiseConfig merge(String fingerprint, PartialConfig incoming, CruiseConfig cruiseConfig) throws InvalidPartialConfigException {
+        buildUpdateCommand(fingerprint, incoming).update(cruiseConfig);
         return cruiseConfig;
     }
 
-    protected PartialConfigUpdateCommand buildUpdateCommand(final PartialConfig partial, final String fingerprint) {
-        return new PartialConfigUpdateCommand(partial, fingerprint, cachedGoPartials);
+    protected PartialConfigUpdateCommand buildUpdateCommand(final String fingerprint, final PartialConfig incoming) {
+        return new PartialConfigUpdateCommand(fingerprint, incoming, cachedGoPartials);
     }
 
     private void removeCachedLastValidPartial(String fingerprint) {
@@ -154,13 +153,13 @@ public class PartialConfigService implements PartialConfigUpdateCompletedListene
         return hasRuleViolations(previousValidPartial);
     }
 
-    private boolean updateConfig(final PartialConfig newPart, final String fingerprint, ConfigRepoConfig repoConfig) {
+    private boolean updateConfig(final String fingerprint, final PartialConfig incoming, ConfigRepoConfig repoConfig) {
         try {
-            goConfigService.updateConfig(buildUpdateCommand(newPart, fingerprint));
+            goConfigService.updateConfig(buildUpdateCommand(fingerprint, incoming));
             return true;
         } catch (Exception e) {
             if (repoConfig != null) {
-                String description = format("%s- For Config Repo: %s", e.getMessage(), newPart.getOrigin().displayName());
+                String description = format("%s- For Config Repo: %s", e.getMessage(), incoming.getOrigin().displayName());
                 ServerHealthState state = ServerHealthState.error(INVALID_CRUISE_CONFIG_MERGE, description, HealthStateType.general(HealthStateScope.forPartialConfigRepo(repoConfig)));
                 serverHealthService.update(state);
             }
@@ -168,22 +167,9 @@ public class PartialConfigService implements PartialConfigUpdateCompletedListene
         }
     }
 
-    private boolean shouldMergePartial(PartialConfig partial, String fingerprint, ConfigRepoConfig repoConfig) {
-        return isPartialDifferentFromLastKnown(partial, fingerprint) ||
-                repoConfigDataSource.hasConfigRepoConfigChangedSinceLastUpdate(repoConfig.getRepo());
-    }
-
-    /**
-     * Tests whether a given {@link PartialConfig} is different from the last known cached attempt.
-     *
-     * @param partial     a {@link PartialConfig}
-     * @param fingerprint the config repo material fingerprint ({@link String})
-     * @return whether or not the incoming partial is different from the last cached partial
-     */
-    private boolean isPartialDifferentFromLastKnown(PartialConfig partial, String fingerprint) {
-        final PartialConfig previous = cachedGoPartials.getKnown(fingerprint);
-
-        return !partialConfigHelper.isEquivalent(previous, partial);
+    private boolean shouldMergePartial(String fingerprint, PartialConfig incoming, ConfigRepoConfig repoConfig) {
+        return repoConfigDataSource.hasConfigRepoConfigChangedSinceLastUpdate(repoConfig.getRepo()) ||
+                    cachedGoPartials.isPartialDifferentFromLastKnown(fingerprint, incoming);
     }
 
     private boolean hasRuleViolations(PartialConfig partial) {

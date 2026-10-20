@@ -22,12 +22,14 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.rules.Allow;
 import com.thoughtworks.go.config.rules.Rules;
+import com.thoughtworks.go.config.update.CreateOrUpdateDefaultJobTimeoutCommand;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.server.caching.GoCache;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.serverhealth.HealthStateLevel;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -77,15 +79,15 @@ public class PartialConfigServiceIntegrationTest {
         goCache.clear();
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        repoConfig1 = createConfigRepoWithDefaultRules(git("url1"), "plugin", "id-1");
-        repoConfig2 = createConfigRepoWithDefaultRules(git("url2"), "plugin", "id-2");
+        repoConfig1 = createConfigRepoWithDefaultRules(git("url1"), "id-1");
+        repoConfig2 = createConfigRepoWithDefaultRules(git("url2"), "id-2");
         configHelper.addConfigRepo(repoConfig1);
         configHelper.addConfigRepo(repoConfig2);
 
     }
 
-    private ConfigRepoConfig createConfigRepoWithDefaultRules(GitMaterialConfig materialConfig, String plugin, String id) {
-        ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(materialConfig, plugin, id);
+    private ConfigRepoConfig createConfigRepoWithDefaultRules(GitMaterialConfig materialConfig, String id) {
+        ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(materialConfig, "plugin", id);
         config.getRules().add(new Allow("refer", "*", "*"));
         return config;
     }
@@ -163,13 +165,32 @@ public class PartialConfigServiceIntegrationTest {
         assertThat(serverHealthStatesForRepo2.isEmpty()).isTrue();
     }
 
+    @Test
+    public void shouldKeepPartialThatChangedAtTheSameRevisionAcrossAnEntitySave() {
+        // A config repo plugin doing branch/PR scanning can produce different output for the same material revision.
+        // Entity saves (admin UI) merge with the LAST VALID partials, so the newer partial must have been marked valid,
+        // or the pipelines it added vanish from the merged config on the next unrelated entity save.
+        partialConfigService.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1")));
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames()).contains(cis("p1_repo1"));
+
+        partialConfigService.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipeline("p2_repo1", new RepoConfigOrigin(repoConfig1, "1")));
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames()).contains(cis("p2_repo1")).doesNotContain(cis("p1_repo1"));
+        assertThat(findPartial("p2_repo1", cachedGoPartials.lastValidPartials())).isNotNull();
+        assertThat(findPartial("p1_repo1", cachedGoPartials.lastValidPartials())).isNull();
+
+        goConfigDao.updateConfig(new CreateOrUpdateDefaultJobTimeoutCommand("10"), Username.ANONYMOUS);
+
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames()).contains(cis("p2_repo1")).doesNotContain(cis("p1_repo1"));
+        assertThat(goConfigDao.loadConfigHolder().mergedConfigForEdit.getAllPipelineNames()).contains(cis("p2_repo1")).doesNotContain(cis("p1_repo1"));
+    }
+
     private PartialConfig findPartial(final String invalidPipelineInPartial, List<PartialConfig> partials) {
         return partials.stream().filter(item -> item.getGroups().getFirst().findBy(cis(invalidPipelineInPartial)) != null).findFirst().orElse(null);
     }
 
     @Test
     public void shouldMarkAnInvalidKnownPartialAsValidWhenLoadingAnotherPartialMakesThisOneValid_InterConfigRepoDependency() {
-        ConfigRepoConfig repoConfig3 = createConfigRepoWithDefaultRules(git("url3"), "plugin", "id-3");
+        ConfigRepoConfig repoConfig3 = createConfigRepoWithDefaultRules(git("url3"), "id-3");
         configHelper.addConfigRepo(repoConfig3);
 
         PartialConfig repo1 = PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1"));
@@ -187,7 +208,12 @@ public class PartialConfigServiceIntegrationTest {
         assertThat(serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty()).isFalse();
         ServerHealthState healthStateForInvalidConfigMerge = serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).getFirst();
         assertThat(healthStateForInvalidConfigMerge.getMessage()).isEqualTo("Invalid Merged Configuration");
-        assertThat(healthStateForInvalidConfigMerge.getDescription()).isEqualTo("Number of errors: 3+\n1. Pipeline 'p1_repo1' does not exist. It is used from pipeline 'p2_repo2'.\n2. Pipeline with name 'p1_repo1' does not exist, it is defined as a dependency for pipeline 'p2_repo2' (url2 at revision 1)\n3. Pipeline with name 'p3_repo3' does not exist, it is defined as a dependency for pipeline 'p2_repo2' (url2 at revision 1)\n- For Config Repo: url2 at revision 1");
+        assertThat(healthStateForInvalidConfigMerge.getDescription()).isEqualTo("""
+            Number of errors: 3+
+            1. Pipeline 'p1_repo1' does not exist. It is used from pipeline 'p2_repo2'.
+            2. Pipeline with name 'p1_repo1' does not exist, it is defined as a dependency for pipeline 'p2_repo2' (url2 at revision 1)
+            3. Pipeline with name 'p3_repo3' does not exist, it is defined as a dependency for pipeline 'p2_repo2' (url2 at revision 1)
+            - For Config Repo: url2 at revision 1""");
         assertThat(healthStateForInvalidConfigMerge.getLogLevel()).isEqualTo(HealthStateLevel.ERROR);
         assertThat(cachedGoPartials.lastValidPartials().isEmpty()).isTrue();
         assertThat(cachedGoPartials.lastKnownPartials().size()).isEqualTo(1);
@@ -275,7 +301,7 @@ public class PartialConfigServiceIntegrationTest {
 
         goConfigRepoConfigDataSource.onConfigRepoConfigChange(repoConfig1);
 
-        ConfigRepoConfig repoConfig1Cloned = createConfigRepoWithDefaultRules(git("url1"), "plugin", "id-1");
+        ConfigRepoConfig repoConfig1Cloned = createConfigRepoWithDefaultRules(git("url1"), "id-1");
         repoConfig1Cloned.setRules(new Rules());
 
         partialConfigService.onSuccessPartialConfig(repoConfig1Cloned, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1Cloned, "1")));
@@ -303,7 +329,7 @@ public class PartialConfigServiceIntegrationTest {
 
         goConfigRepoConfigDataSource.onConfigRepoConfigChange(repoConfig1);
 
-        ConfigRepoConfig repoConfig1Cloned = createConfigRepoWithDefaultRules(git("url1"), "plugin", "id-1");
+        ConfigRepoConfig repoConfig1Cloned = createConfigRepoWithDefaultRules(git("url1"), "id-1");
         repoConfig1Cloned.setRules(new Rules());
 
         partialConfigService.onSuccessPartialConfig(repoConfig1Cloned, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1Cloned, "1")));
@@ -320,7 +346,7 @@ public class PartialConfigServiceIntegrationTest {
                 - For Config Repo: url1 at revision 1""");
         assertThat(healthStateForInvalidConfigMerge.getLogLevel()).isEqualTo(HealthStateLevel.ERROR);
 
-        repoConfig1Cloned = createConfigRepoWithDefaultRules(git("url1"), "plugin", "id-1");
+        repoConfig1Cloned = createConfigRepoWithDefaultRules(git("url1"), "id-1");
         goConfigRepoConfigDataSource.onConfigRepoConfigChange(repoConfig1Cloned);
 
         partialConfigService.onSuccessPartialConfig(repoConfig1Cloned, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1Cloned, "1")));
@@ -355,7 +381,7 @@ public class PartialConfigServiceIntegrationTest {
 
         goConfigRepoConfigDataSource.onConfigRepoConfigChange(repoConfig1);
 
-        ConfigRepoConfig repoConfig1Cloned = createConfigRepoWithDefaultRules(git("url1"), "plugin", "id-1");
+        ConfigRepoConfig repoConfig1Cloned = createConfigRepoWithDefaultRules(git("url1"), "id-1");
         repoConfig1Cloned.setRules(new Rules());
 
         final String invalidPipelineInPartial = "p1_repo1_invalid";
@@ -382,7 +408,7 @@ public class PartialConfigServiceIntegrationTest {
 
         goConfigRepoConfigDataSource.onConfigRepoConfigChange(repoConfig1);
 
-        ConfigRepoConfig repoConfig1Cloned = createConfigRepoWithDefaultRules(git("url1"), "plugin", "id-1");
+        ConfigRepoConfig repoConfig1Cloned = createConfigRepoWithDefaultRules(git("url1"), "id-1");
         repoConfig1Cloned.setRules(new Rules());
 
         partialConfigService.onFailedPartialConfig(repoConfig1Cloned, null);

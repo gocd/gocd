@@ -382,7 +382,7 @@ public class GoFileConfigDataSource {
             try {
                 validatedConfigHolder = trySavingConfigWithLastKnownPartials(updatingCommand, configHolder);
             } catch (Exception e) {
-                if (cannotUpdateConfigWithLastValidPartials()) {
+                if (cachedGoPartials.hasEquivalentPartials()) {
                     throw e;
                 }
 
@@ -432,7 +432,7 @@ public class GoFileConfigDataSource {
             try {
                 goConfigHolder = fullConfigSaveNormalFlow.execute(new FullConfigUpdateCommand(cruiseConfig, null), cachedGoPartials.lastKnownPartials(), FILESYSTEM);
             } catch (GoConfigInvalidException e) {
-                if (cannotUpdateConfigWithLastValidPartials()) {
+                if (cachedGoPartials.hasEquivalentPartials()) {
                     throw e;
                 }
 
@@ -456,12 +456,11 @@ public class GoFileConfigDataSource {
                 List<PartialConfig> lastKnownPartials = cloner.deepClone(cachedGoPartials.lastKnownPartials());
                 return internalLoad(Files.readString(configFile, UTF_8), new ConfigModifyingUser(FILESYSTEM), lastKnownPartials);
             } catch (GoConfigInvalidException e) {
-                if (cannotUpdateConfigWithLastValidPartials()) {
+                if (cachedGoPartials.hasEquivalentPartials()) {
                     throw e;
-                } else {
-                    List<PartialConfig> lastValidPartials = cloner.deepClone(cachedGoPartials.lastValidPartials());
-                    return internalLoad(Files.readString(configFile, UTF_8), new ConfigModifyingUser(FILESYSTEM), lastValidPartials);
                 }
+                List<PartialConfig> lastValidPartials = cloner.deepClone(cachedGoPartials.lastValidPartials());
+                return internalLoad(Files.readString(configFile, UTF_8), new ConfigModifyingUser(FILESYSTEM), lastValidPartials);
             }
         } catch (Exception e) {
             logConfigLoadException(configFile, e);
@@ -523,7 +522,7 @@ public class GoFileConfigDataSource {
         GoConfigHolder goConfigHolder;
 
         try {
-            goConfigHolder = trySavingFullConfig(updateCommand, configHolder, cachedGoPartials.lastValidPartials());
+            goConfigHolder = trySavingFullConfig(updateCommand, configHolder, lastValidPartials);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Update operation on merged configuration succeeded with old {} LAST VALID partials.", lastValidPartials.size());
             }
@@ -532,13 +531,6 @@ public class GoFileConfigDataSource {
             throw new GoConfigInvalidMergeException(fallbackFailed);
         }
         return goConfigHolder;
-    }
-
-    private boolean cannotUpdateConfigWithLastValidPartials() {
-        List<PartialConfig> lastKnownPartials = cachedGoPartials.lastKnownPartials();
-        List<PartialConfig> lastValidPartials = cachedGoPartials.lastValidPartials();
-
-        return lastKnownPartials.isEmpty() || partials.isEquivalent(lastKnownPartials, lastValidPartials);
     }
 
     private void updateMergedConfigForEdit(GoConfigHolder validatedConfigHolder, List<PartialConfig> partialConfigs) {

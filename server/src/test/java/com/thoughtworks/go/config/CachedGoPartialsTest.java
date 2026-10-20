@@ -19,10 +19,12 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.PartialConfigMother;
+import com.thoughtworks.go.server.service.EntityHashes;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -44,7 +46,7 @@ public class CachedGoPartialsTest {
     @BeforeEach
     public void setUp() {
         serverHealthService = new ServerHealthService(mock());
-        partials = new CachedGoPartials(serverHealthService);
+        partials = new CachedGoPartials(serverHealthService, new PartialConfigHelper(new EntityHashes(ConfigElementImplementationRegistryMother.withNoPlugins())));
         configRepo1 = ConfigRepoConfig.createConfigRepoConfig(git("url1"), "plugin", "id1");
         part1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(configRepo1, "1"));
         configRepo2 = ConfigRepoConfig.createConfigRepoConfig(git("url2"), "plugin", "id2");
@@ -60,6 +62,44 @@ public class CachedGoPartialsTest {
         partials.markAsValid(fingerprintForRepo1, part1);
         assertTrue(partials.lastValidPartials().contains(part1));
         assertFalse(partials.lastValidPartials().contains(part2));
+    }
+
+    @Test
+    public void shouldReplaceValidPartialWhenStructureChangesAtTheSameOrigin() {
+        // e.g. a plugin doing branch/PR scanning produces different output for the same material revision
+        partials.markAsValid(fingerprintForRepo1, part1);
+
+        PartialConfig part1WithExtraPipeline = PartialConfigMother.withPipeline("p1-and-p3", new RepoConfigOrigin(configRepo1, "1"));
+        assertEquals(part1.getOrigin(), part1WithExtraPipeline.getOrigin());
+
+        partials.markAsValid(fingerprintForRepo1, part1WithExtraPipeline);
+
+        assertSame(part1WithExtraPipeline, partials.getValid(fingerprintForRepo1));
+        assertFalse(partials.lastValidPartials().contains(part1));
+    }
+
+    @Test
+    public void shouldReplaceValidPartialWhenOriginChanges() {
+        partials.markAsValid(fingerprintForRepo1, part1);
+
+        PartialConfig part1AtNewRevision = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(configRepo1, "2"));
+        partials.markAsValid(fingerprintForRepo1, part1AtNewRevision);
+
+        assertSame(part1AtNewRevision, partials.getValid(fingerprintForRepo1));
+    }
+
+    @Test
+    public void shouldNotClearServerHealthMessageWhenReMarkingAnEquivalentPartialAsValid() {
+        // Fallback path: a save that fails on last-known partials is retried with last-valid partials, and re-marks
+        // them as valid. That must not clear the health message describing why the newer partial was rejected.
+        partials.markAsValid(fingerprintForRepo1, part1);
+        serverHealthService.update(ServerHealthState.error("error-repo-1", "latest partial is broken", HealthStateType.general(HealthStateScope.forPartialConfigRepo(fingerprintForRepo1))));
+
+        PartialConfig equivalentToPart1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(configRepo1, "1"));
+        partials.markAsValid(fingerprintForRepo1, equivalentToPart1);
+
+        assertSame(part1, partials.getValid(fingerprintForRepo1));
+        assertEquals("error-repo-1", serverHealthService.logsSortedForScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo1)).getFirst().getMessage());
     }
 
     @Test

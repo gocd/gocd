@@ -16,7 +16,8 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.remote.PartialConfig;
+import org.jetbrains.annotations.Nullable;
 
 public interface PartialConfigResolver {
-    PartialConfig findPartialByFingerprint(CruiseConfig cruiseConfig, String fingerprint);
+    @Nullable PartialConfig findPartialByFingerprint(CruiseConfig cruiseConfig, String fingerprint);
 }

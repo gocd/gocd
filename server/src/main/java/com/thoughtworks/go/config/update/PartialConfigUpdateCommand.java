@@ -23,13 +23,13 @@ import com.thoughtworks.go.util.ClonerFactory;
 public class PartialConfigUpdateCommand implements UpdateConfigCommand {
     private static final Cloner CLONER = ClonerFactory.instance();
 
-    private final PartialConfig partial;
     private final String fingerprint;
+    private final PartialConfig partial;
     private final PartialConfigResolver resolver;
 
-    public PartialConfigUpdateCommand(final PartialConfig partial, final String fingerprint, PartialConfigResolver resolver) {
-        this.partial = partial;
+    public PartialConfigUpdateCommand(final String fingerprint, final PartialConfig partial, PartialConfigResolver resolver) {
         this.fingerprint = fingerprint;
+        this.partial = partial;
         this.resolver = resolver;
     }
 
@@ -38,7 +38,8 @@ public class PartialConfigUpdateCommand implements UpdateConfigCommand {
         if (partial != null && fingerprint != null) {
             PartialConfig config = resolver.findPartialByFingerprint(cruiseConfig, fingerprint);
 
-            if (null != config) {
+            if (config != null) {
+                // TODO this seems dodgy. Other than races, what if something fails below? Aren't we missing a partial?
                 cruiseConfig.getPartials().remove(config);
             }
 

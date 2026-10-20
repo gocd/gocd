@@ -117,6 +117,17 @@ describe("EnvironmentsDropdownButton", () => {
     expect(helper.byTestId("environment-to-apply")).toBeInDOM();
   });
 
+  it("should list environments in case-insensitive alphabetical order", () => {
+    staticAgentsVM.selectAgent(agent.uuid);
+    agent.environments.push(new AgentsEnvironment("uat", "gocd"));
+    mount(staticAgentsVM, new DummyService(["QA", "dev", "Production"]));
+
+    helper.clickByTestId("modify-environments-association");
+
+    const labels = helper.byTestId("association").querySelectorAll("label");
+    expect(Array.from(labels).map((label) => label.textContent)).toEqual(["dev", "Production", "QA", "uat"]);
+  });
+
   it("should disable apply button if no changes allowed", () => {
     const agentJSON = AgentsTestData.buildingAgent();
     agentJSON.environments = [{name: "env-config", origin: {type: "config-repo"}}];

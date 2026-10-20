@@ -18,11 +18,11 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {Job} from "models/pipeline_configs/job";
 import {JobTestData} from "models/pipeline_configs/spec/test_data";
-import {ExecTask, ExecTaskAttributes} from "models/pipeline_configs/task";
+import {ExecTask, ExecTaskAttributes, FetchArtifactTask, FetchTaskAttributes, Task} from "models/pipeline_configs/task";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {EntityReOrderHandler} from "views/pages/clicky_pipeline_config/tabs/common/re_order_entity_widget";
-import {TasksWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab_content";
+import {Attrs, State, TasksWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab_content";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Tasks Tab Content", () => {
@@ -92,6 +92,101 @@ describe("Tasks Tab Content", () => {
 
     expect(job.tasks()).toHaveLength(1);
   });
+
+  for (const adding of [true, false]) {
+    it(`should bind only the modal task errors when ${adding ? "adding" : "editing"} and restore tasks on failure`, async () => {
+      const task = FetchArtifactTask.from({
+        artifact_origin: "external", pipeline: "upstream", stage: "build", job: "job",
+        artifact_id: "artifact", configuration: [{key: "prefix", value: "invalid-prefix"}], run_if: []
+      });
+      task.attributes().onCancel(new ExecTask("cleanup", []));
+      const original = [FetchArtifactTask.from(task.toJSON().attributes), FetchArtifactTask.from(task.toJSON().attributes)];
+      const tasks = Stream<Task[]>(original.slice());
+      const widget = new TasksWidget();
+      const save = jasmine.createSpy();
+      const modal = TasksWidget.getTaskModal("Fetch Artifact", task, () => Promise.resolve(), true,
+                                             new PluginInfos(), save, () => undefined, false, Stream({}));
+      const close = spyOn(modal, "close");
+      const flashMessage = new FlashMessageModelWithTimeout();
+      const reset = () => undefined;
+      const vnode: m.Vnode<Attrs, State> = {tag: "div", attrs: {
+        tasks, stageName: "selected-stage", jobName: "selected-job", pipelineConfigSave: save,
+        flashMessage, isEditable: true, pluginInfos: Stream(new PluginInfos()), autoSuggestions: Stream({}),
+        pipelineConfigReset: reset, entityReOrderHandler: new EntityReOrderHandler("Task", flashMessage, save, reset, () => false)
+      }, state: {modal, allTaskTypes: [], selectedTaskTypeToAdd: Stream("Fetch Artifact")}};
+      const index = adding ? original.length : 1;
+      const taskResponse = {
+        attributes: {
+          errors: {artifact_id: ["Invalid artifact"], unknown: ["Unknown task field"]},
+          configuration: [{errors: {configuration_value: ["Invalid prefix"]}}],
+          on_cancel: {attributes: {errors: {command: ["Invalid cleanup"]}}}
+        }
+      };
+      const siblingResponse = JSON.parse(JSON.stringify(taskResponse));
+      siblingResponse.attributes.errors = {artifact_id: ["Sibling artifact error"]};
+      siblingResponse.attributes.on_cancel.attributes.errors = {command: ["Sibling cleanup error"]};
+      siblingResponse.attributes.configuration[0].errors.configuration_value = ["Sibling prefix error"];
+      const responseTasks: any[] = [siblingResponse, siblingResponse];
+      responseTasks[index] = taskResponse;
+      const data = {
+        errors: {name: ["Invalid configuration"]},
+        stages: [{name: "other-stage", jobs: [{name: "selected-job", tasks: [siblingResponse]}]}, {
+          name: "selected-stage", jobs: [{name: "other-job", tasks: [siblingResponse]}, {
+            name: "selected-job", tasks: responseTasks
+          }]
+        }]
+      };
+      save.and.callFake(() => {
+        // The enclosing tab consumes errors before rejecting the modal's save.
+        task.consumeErrorsResponseForPipelineConfigSPA(taskResponse);
+        return Promise.reject(JSON.stringify({body: JSON.stringify({message: "Save failed", data})}));
+      });
+
+      helper.mount(() => modal.renderFlashMessage());
+      for (let attempt = 0; attempt < 2; attempt++) {
+        await (adding ? widget.onTaskSave(vnode) : widget.onTaskUpdate(vnode, index, task));
+        expect(tasks()).toEqual(original);
+        expect(close).not.toHaveBeenCalled();
+        expect(task.attributes().errors().errorsForDisplay("artifactId")).toBe("Invalid artifact.");
+        expect(task.attributes().onCancel()!.attributes().errors().errorsForDisplay("command")).toBe("Invalid cleanup.");
+        expect((task.attributes() as FetchTaskAttributes).configuration().get(0).errors).toEqual(["Invalid prefix"]);
+        expect(original[0].attributes().errors().hasErrors()).toBe(false);
+        helper.redraw();
+        expect(helper.root).toContainText("Save failed");
+        expect(helper.root).toContainText("Invalid configuration");
+        expect(helper.root).toContainText("Unknown task field");
+        expect(helper.root).toContainText("Sibling prefix error");
+        expect(helper.root).not.toContainText("Invalid prefix");
+        expect(helper.root).not.toContainText("Invalid artifact");
+        expect(helper.root).not.toContainText("Invalid cleanup");
+      }
+
+      for (const missing of ["stage", "job", "task"]) {
+        const missingData = JSON.parse(JSON.stringify(data));
+        if (missing === "stage") {
+          missingData.stages[1].name = "missing";
+        } else if (missing === "job") {
+          missingData.stages[1].jobs[1].name = "missing";
+        } else {
+          missingData.stages[1].jobs[1].tasks.splice(index, 1);
+        }
+        save.and.returnValue(Promise.reject(JSON.stringify({body: JSON.stringify({message: "Save failed", data: missingData})})));
+        await (adding ? widget.onTaskSave(vnode) : widget.onTaskUpdate(vnode, index, task));
+        helper.redraw();
+        expect(helper.root).toContainText(missing === "task" ? "Sibling prefix error" : "Invalid prefix");
+        expect(tasks()).toEqual(original);
+      }
+
+      save.and.returnValue(Promise.reject(JSON.stringify({message: "Save failed"})));
+      await (adding ? widget.onTaskSave(vnode) : widget.onTaskUpdate(vnode, index, task));
+      expect(modal.flashMessage.message).toBe("Save failed");
+      expect(tasks()).toEqual(original);
+
+      save.and.returnValue(Promise.resolve());
+      await (adding ? widget.onTaskSave(vnode) : widget.onTaskUpdate(vnode, index, task));
+      expect(close).toHaveBeenCalled();
+    });
+  }
 
   describe("Exec Task", () => {
     let job: Job;
@@ -183,7 +278,7 @@ describe("Tasks Tab Content", () => {
                                                             pipelineConfigReset,
                                                             () => false);
 
-      return <TasksWidget tasks={job.tasks}
+      return <TasksWidget stageName="stage" jobName="test" tasks={job.tasks}
                           isEditable={isEditable}
                           entityReOrderHandler={entityReOrderHandler}
                           flashMessage={flashMessage}

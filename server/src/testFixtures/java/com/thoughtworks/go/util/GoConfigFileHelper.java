@@ -34,6 +34,7 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.server.service.EntityHashes;
 import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.apache.commons.io.FileUtils;
@@ -128,7 +129,7 @@ public class GoConfigFileHelper {
             configRepository.initialize();
             
             ConfigElementImplementationRegistry configElementImplementationRegistry = ConfigElementImplementationRegistryMother.withNoPlugins();
-            CachedGoPartials cachedGoPartials = new CachedGoPartials(serverHealthService);
+            CachedGoPartials cachedGoPartials = new CachedGoPartials(serverHealthService, new PartialConfigHelper(new EntityHashes(configElementImplementationRegistry)));
             FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(configElementImplementationRegistry, systemEnvironment, new TimeProvider(), configRepository, cachedGoPartials);
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
                     configElementImplementationRegistry, cachedGoPartials, null, normalFlow, mock(PartialConfigHelper.class));

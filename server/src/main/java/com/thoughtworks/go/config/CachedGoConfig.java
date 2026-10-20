@@ -127,7 +127,7 @@ public class CachedGoConfig {
     }
 
     public void loadConfigIfNull() {
-        if (currentConfig == null || currentConfigForEdit == null || configHolder == null || (mergedCurrentConfigForEdit == null && !cachedGoPartials.lastValidPartials().isEmpty())) {
+        if (currentConfig == null || currentConfigForEdit == null || configHolder == null || (mergedCurrentConfigForEdit == null && cachedGoPartials.hasValidPartials())) {
             forceReload();
         }
     }

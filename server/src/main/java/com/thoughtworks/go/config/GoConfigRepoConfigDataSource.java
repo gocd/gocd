@@ -36,12 +36,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import static java.util.Collections.synchronizedSet;
 
 /**
  * Parses partial configurations and exposes latest configurations as soon as possible.
@@ -55,7 +53,7 @@ public class GoConfigRepoConfigDataSource implements ChangedRepoConfigWatchListL
     private final ConfigReposMaterialParseResultManager configReposMaterialParseResultManager;
 
     private final List<PartialConfigUpdateCompletedListener> listeners = new CopyOnWriteArrayList<>();
-    private final Set<ConfigRepoConfig> modifiedConfigRepoConfigsAwaitingParse = synchronizedSet(new HashSet<>());
+    private final Set<ConfigRepoConfig> modifiedConfigRepoConfigsAwaitingParse = ConcurrentHashMap.newKeySet();
 
     @Autowired
     public GoConfigRepoConfigDataSource(GoConfigWatchList configWatchList, GoConfigPluginService configPluginService,
@@ -160,17 +158,17 @@ public class GoConfigRepoConfigDataSource implements ChangedRepoConfigWatchListL
                 //TODO put modifications and previous partial config in context
                 // the context is just a helper for plugin.
                 PartialConfigLoadContext context = new LoadContext(repoConfig);
-                PartialConfig newPart = plugin.load(folder, context);
-                if (newPart == null) {
+                PartialConfig incoming = plugin.load(folder, context);
+                if (incoming == null) {
                     LOGGER.warn("Parsed configuration material {} by {} is null", material.getDisplayName(), plugin.displayName());
-                    newPart = new PartialConfig();
+                    incoming = new PartialConfig();
                 }
 
-                newPart.setOrigins(new RepoConfigOrigin(repoConfig, modification.getRevision()));
-                this.configReposMaterialParseResultManager.parseSuccess(fingerprint, modification, newPart);
+                incoming.setOrigins(new RepoConfigOrigin(repoConfig, modification.getRevision()));
+                this.configReposMaterialParseResultManager.parseSuccess(fingerprint, modification, incoming);
 
                 // it is the responsibility of the success listeners to clear the ServerHealthState
-                notifySuccessListeners(repoConfig, newPart);
+                notifySuccessListeners(repoConfig, incoming);
             } catch (Exception ex) {
                 this.configReposMaterialParseResultManager.parseFailed(fingerprint, modification, ex);
                 LOGGER.error("Failed to parse configuration material {} by {}", material.getDisplayName(), plugin.displayName(), ex);

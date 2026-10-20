@@ -135,10 +135,10 @@ public class ConfigReposMaterialParseResultManager {
         }
     }
 
-    PartialConfigParseResult parseSuccess(String fingerprint, Modification modification, PartialConfig newPart) {
+    PartialConfigParseResult parseSuccess(String fingerprint, Modification modification, PartialConfig incoming) {
         //if no result exists in the map, create a new one
         //if already a result exists in the map, override the result, as the latest modification is successful. regardless of the result being successful or failed
-        return fingerprintOfPartialToParseResultMap.put(fingerprint, PartialConfigParseResult.parseSuccess(modification, newPart));
+        return fingerprintOfPartialToParseResultMap.put(fingerprint, PartialConfigParseResult.parseSuccess(modification, incoming));
     }
 
     static class ConfigRepoReparseListener extends EntityConfigChangedListener<Object> {

@@ -132,7 +132,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
         def cruiseConfig = mock(CruiseConfig.class)
         when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenReturn(partialConfig)
         when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
-        when(partialConfigService.merge(eq(partialConfig), any() as String, any() as CruiseConfig)).thenReturn(cruiseConfig)
+        when(partialConfigService.merge(any() as String, eq(partialConfig), any() as CruiseConfig)).thenReturn(cruiseConfig)
 
         postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
 
@@ -152,7 +152,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
 
         postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
 
-        verify(partialConfigService, never()).merge(any(PartialConfig.class), anyString(), any(CruiseConfig.class))
+        verify(partialConfigService, never()).merge(anyString(), any(PartialConfig.class), any(CruiseConfig.class))
         verify(goConfigService, never()).validateCruiseConfig(any() as CruiseConfig)
 
         assertThatResponse().hasJsonBody([
@@ -168,7 +168,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
         def cruiseConfig = mock(CruiseConfig.class)
         when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenReturn(partialConfig)
         when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
-        when(partialConfigService.merge(eq(partialConfig), any() as String, any() as CruiseConfig)).thenReturn(cruiseConfig)
+        when(partialConfigService.merge(any() as String, eq(partialConfig), any() as CruiseConfig)).thenReturn(cruiseConfig)
         when(goConfigService.validateCruiseConfig(cruiseConfig)).thenThrow(new GoConfigInvalidException(cruiseConfig, "nope!"))
 
         postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])

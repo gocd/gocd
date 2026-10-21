@@ -278,7 +278,7 @@ export class AdminTemplatesPage extends Page<null, State> {
                        title={isEnabled ? "Create a new template" : "You are not authorized to create a new template. Only system administrators and pipeline group administrators can create templates."}
                        disabled={!isEnabled}
                        onclick={vnode.state.onCreate.bind(vnode.state)}
-                       data-test-id="create-new-template">Create a new template</Buttons.Primary>
+                       data-test-id="create-new-template">Create Template</Buttons.Primary>
     ];
     if (!_.isEmpty(vnode.state.templates)) {
       const searchBox = <div className={configRepoStyles.wrapperForSearchBox}>

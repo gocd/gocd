@@ -176,7 +176,7 @@ export class GitFields extends ScmFields {
     const mat = attrs as GitMaterialAttributes;
 
     const fields = [
-      <TextField label="Repository Branch" property={mat.branch} errorText={this.errs(attrs, "branch")} placeholder="master"/>,
+      <TextField label="Repository Branch" property={mat.branch} errorText={this.errs(attrs, "branch")} placeholder="main"/>,
       <TextField label="Username" property={mat.username}/>,
       <PasswordField label="Password" property={mat.password}/>
     ];

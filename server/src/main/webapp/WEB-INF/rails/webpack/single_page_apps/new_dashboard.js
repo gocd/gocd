@@ -214,7 +214,7 @@ $(() => {
       '/:searchedBy': component
     });
 
-    dashboardVM.searchText(m.route.param('searchedBy') || '');
+    dashboardVM.searchText(m.route.param('searchedBy') || '', m.route.param('exact') === 'true');
   };
 
   const onInitialAPIsResponse = (responses) => {

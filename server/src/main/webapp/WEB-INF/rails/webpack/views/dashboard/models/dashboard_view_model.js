@@ -21,9 +21,10 @@ import state from "./stage_overview_state";
 function FilterMixin() {
   const self = this;
   const internalSearchText = Stream("");
+  let exactSearch = false;
 
   const performSearch = _.debounce(() => {
-    m.route.set(`/${internalSearchText()}`);
+    m.route.set(`/${internalSearchText()}${exactSearch ? "?exact=true" : ""}`);
     m.redraw();
   }, 200);
 
@@ -31,13 +32,17 @@ function FilterMixin() {
 
   this.filteredGroups = (filter) => {
     return this.selectedGroups().select((pipelineName) => {
-      return _.includes(pipelineName.toLowerCase(), internalSearchText()) && filter.acceptsStatusOf(self.dashboard.findPipeline(pipelineName));
+      const nameMatches = exactSearch
+        ? pipelineName.toLowerCase() === internalSearchText()
+        : _.includes(pipelineName.toLowerCase(), internalSearchText());
+      return nameMatches && filter.acceptsStatusOf(self.dashboard.findPipeline(pipelineName));
     }).groups;
   };
 
-  this.searchText = function searchText(searchedBy) {
+  this.searchText = function searchText(searchedBy, exact = false) {
     if (arguments.length) {
       internalSearchText(searchedBy.toLowerCase());
+      exactSearch = exact;
       self._performRouting();
     } else {
       return internalSearchText();

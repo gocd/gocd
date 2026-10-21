@@ -34,6 +34,7 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
     private final ArtifactsService artifactService;
     private final StageService stageService;
     private final ConfigDbStateRepository configDbStateRepository;
+    private long lastRevisitedStageId;
 
     public ArtifactsDiskCleaner(SystemEnvironment systemEnvironment, GoConfigService goConfigService, final SystemDiskSpaceChecker diskSpaceChecker, ArtifactsService artifactService,
                                 StageService stageService, ConfigDbStateRepository configDbStateRepository) {
@@ -66,6 +67,7 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
         try {
             double requiredSpaceBytes = FileSizeUtils.fromGigaToBytes(serverConfig.getPurgeUptoDiskSpaceInGigabytes().longValue());
             LOGGER.info("Clearing old artifacts as the disk space is low. Current space: '{}'. Need to clear till we hit: '{}'.", availableSpaceBytes(), requiredSpaceBytes);
+            purgeDirectoriesOfStagesWithPurgedArtifacts(requiredSpaceBytes, maxStagesToRevisitInVain());
             List<Stage> stages;
             int numberOfStagesPurged = 0;
             do {
@@ -76,9 +78,18 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
                         break;
                     }
                     numberOfStagesPurged++;
-                    artifactService.purgeArtifactsForStage(stage);
+                    if (shouldPurgeArtifactDirectories()) {
+                        artifactService.purgeArtifactDirectoriesForStage(stage);
+                    } else {
+                        artifactService.purgeArtifactsForStage(stage);
+                    }
                 }
             } while (availableSpaceBytes() < requiredSpaceBytes && !stages.isEmpty());
+
+            if (availableSpaceBytes() < requiredSpaceBytes) {
+                // There is nothing else left to purge, so it no longer holds anything up to revisit every last stage
+                purgeDirectoriesOfStagesWithPurgedArtifacts(requiredSpaceBytes, Integer.MAX_VALUE);
+            }
 
             if (availableSpaceBytes() < requiredSpaceBytes) {
                 LOGGER.warn("Ran out of stages to clear artifacts from but the disk space is still low");
@@ -88,6 +99,54 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
             LOGGER.error("Artifact disk cleanup task aborted. Error encountered: '{}'", e.getMessage());//logging not tested
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Stages that had their artifacts purged earlier, or by an older version of GoCD, may still have console logs and
+     * directories on disk. Artifacts are purged oldest stage first, so these tend to be the oldest stages of all and
+     * are dealt with before anything else is purged.
+     * <p>
+     * The last stage to have been revisited is remembered, so that the same stages are not checked all over again each
+     * time the cleanup is triggered. That is forgotten when the server restarts though, so to keep a long history of
+     * stages which turn out to have nothing left on disk from holding up the purging of artifacts, this gives up after
+     * revisiting the given number of such stages in vain and carries on from there the next time.
+     */
+    private void purgeDirectoriesOfStagesWithPurgedArtifacts(double requiredSpaceBytes, int maxStagesToRevisitInVain) {
+        if (!shouldPurgeArtifactDirectories()) {
+            lastRevisitedStageId = 0; // Stages purged in the meantime leave their directories behind, so all have to be revisited
+            return;
+        }
+        configDbStateRepository.flushConfigState();
+        List<Stage> stages;
+        int numberOfStagesPurged = 0;
+        int numberOfStagesRevisitedInVain = 0;
+        do {
+            stages = stageService.oldestStagesWithPurgedArtifacts(lastRevisitedStageId);
+            for (Stage stage : stages) {
+                if (availableSpaceBytes() > requiredSpaceBytes || numberOfStagesRevisitedInVain >= maxStagesToRevisitInVain) {
+                    break;
+                }
+                if (artifactService.purgeArtifactDirectoriesForStage(stage)) {
+                    numberOfStagesPurged++;
+                } else {
+                    numberOfStagesRevisitedInVain++;
+                }
+                lastRevisitedStageId = stage.getId();
+            }
+        } while (availableSpaceBytes() < requiredSpaceBytes && numberOfStagesRevisitedInVain < maxStagesToRevisitInVain && !stages.isEmpty() && shouldPurgeArtifactDirectories());
+
+        if (numberOfStagesPurged > 0) {
+            LOGGER.info("Deleted console logs and directories left behind for '{}' stages that had their artifacts cleared earlier. Current space: '{}'", numberOfStagesPurged, availableSpaceBytes());
+        }
+    }
+
+    int maxStagesToRevisitInVain() {
+        return 10_000;
+    }
+
+    // Consulted as the cleanup goes along rather than once up front, so that turning it off also stops a cleanup that is underway
+    private boolean shouldPurgeArtifactDirectories() {
+        return goConfigService.serverConfig().isArtifactDirectoryPurgingAllowed();
     }
 
     @Override

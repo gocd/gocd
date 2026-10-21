@@ -23,7 +23,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class GoConfigSchema {
 
-    public static final int VERSION = 139;
+    public static final int VERSION = 140;
 
     public static URI getCurrentSchema() {
         return getResource(VERSION);

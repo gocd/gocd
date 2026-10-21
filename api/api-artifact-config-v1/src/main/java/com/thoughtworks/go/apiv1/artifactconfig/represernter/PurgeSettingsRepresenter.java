@@ -27,7 +27,8 @@ public class PurgeSettingsRepresenter {
 
         purgeSettingWriter
                 .addIfNotNull("purge_start_disk_space", purgeSettings.getPurgeStart().getPurgeStartDiskSpace())
-                .addIfNotNull("purge_upto_disk_space", purgeSettings.getPurgeUpto().getPurgeUptoDiskSpace());
+                .addIfNotNull("purge_upto_disk_space", purgeSettings.getPurgeUpto().getPurgeUptoDiskSpace())
+                .add("purge_artifact_directories", purgeSettings.isPurgeArtifactDirectories());
 
         if (!purgeSettings.errors().isEmpty()) {
             Map<String, String> fieldMapping = new HashMap<>();

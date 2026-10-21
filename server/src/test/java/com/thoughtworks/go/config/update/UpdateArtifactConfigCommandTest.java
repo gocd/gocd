@@ -83,6 +83,18 @@ public class UpdateArtifactConfigCommandTest {
             assertThat(artifactConfig.getPurgeSettings().errors().firstError()).isEqualTo("Error in artifact cleanup values. The trigger value has to be specified when a goal is set");
 
         }
+
+        @Test
+        void shouldRaiseAnExceptionWhenArtifactDirectoriesAreToBePurgedWithoutPurgeStartAndPurgeUptoValues() {
+            ArtifactConfig artifactConfig = new ArtifactConfig();
+            artifactConfig.setArtifactsDir(new ArtifactDirectory("artifactsDir"));
+            artifactConfig.setPurgeSettings(new PurgeSettings().setPurgeArtifactDirectories(true));
+            cruiseConfig.server().setArtifactConfig(artifactConfig);
+            UpdateArtifactConfigCommand updateArtifactConfigCommand = new UpdateArtifactConfigCommand(artifactConfig);
+
+            assertThatCode(() -> updateArtifactConfigCommand.isValid(cruiseConfig)).isInstanceOf(GoConfigInvalidException.class).hasMessage("Error in artifact cleanup values. Console logs and artifact directories can only be cleaned up when the trigger and goal values are specified");
+            assertThat(artifactConfig.getPurgeSettings().errors().size()).isEqualTo(1);
+        }
     }
 
     @Nested

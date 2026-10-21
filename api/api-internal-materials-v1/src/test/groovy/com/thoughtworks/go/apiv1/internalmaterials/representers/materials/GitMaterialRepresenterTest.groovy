@@ -41,7 +41,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait<GitMaterial
         url        : "http://funk.com/blank",
         name       : null,
         auto_update: true,
-        branch     : "master",
+        branch     : "main",
       ]
     ])
   }
@@ -58,7 +58,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait<GitMaterial
         url        : "http://funk.com/blank",
         name       : null,
         auto_update: true,
-        branch     : "master",
+        branch     : "main",
       ]
     ])
   }

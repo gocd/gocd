@@ -653,7 +653,7 @@ extensions.getByType(DependencyAnalysisExtension).with {
 dependencyCheck {
   autoUpdate = true
   data.directory = layout.buildDirectory.dir("dependency-check-data").get().asFile.path
-  readTimeout = Duration.ofMinutes(5) // Allow for slow dataFeed downloads
+  readTimeout = Duration.ofMinutes(10) // Allow for slow dataFeed downloads
 
   failBuildOnCVSS = 1
   failBuildOnUnusedSuppressionRule = true

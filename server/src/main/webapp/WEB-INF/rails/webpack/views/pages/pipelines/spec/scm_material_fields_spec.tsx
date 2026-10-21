@@ -50,6 +50,19 @@ describe("AddPipeline: SCM Material Fields", () => {
     expect(helper.byTestId("test-connection-button")).toBeInDOM();
   });
 
+  it("shows the Git branch after the URL and before Test Connection, outside Advanced Settings", () => {
+    const material = new Material("git", new GitMaterialAttributes());
+    helper.mount(() => <GitFields material={material} showLocalWorkingCopyOptions={true}/>);
+
+    const url = helper.byTestId("form-field-input-repository-url");
+    const branch = helper.byTestId("form-field-input-repository-branch");
+    const testConnection = helper.byTestId("test-connection-button");
+
+    expect(url.compareDocumentPosition(branch)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(branch.compareDocumentPosition(testConnection)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(helper.q("dl").contains(branch)).toBe(false);
+  });
+
   it("GitFields structure for Config Repo", () => {
     const material = new Material("git", new GitMaterialAttributes());
     helper.mount(() => <GitFields showGitMaterialShallowClone={false} material={material} showLocalWorkingCopyOptions={true}/>);

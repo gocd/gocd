@@ -169,14 +169,16 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
 export class GitFields extends ScmFields {
   requiredFields(attrs: MaterialAttributes): m.ChildArray {
     const mat = attrs as GitMaterialAttributes;
-    return [<TextField label="Repository URL" property={mat.url} errorText={this.errs(attrs, "url")} required={true}/>];
+    return [
+      <TextField label="Repository URL" property={mat.url} errorText={this.errs(attrs, "url")} required={true}/>,
+      <TextField label="Repository Branch" property={mat.branch} errorText={this.errs(attrs, "branch")} placeholder="main"/>
+    ];
   }
 
   extraFields(attrs: MaterialAttributes, vnode: m.Vnode<Attrs>): m.ChildArray {
     const mat = attrs as GitMaterialAttributes;
 
     const fields = [
-      <TextField label="Repository Branch" property={mat.branch} errorText={this.errs(attrs, "branch")} placeholder="main"/>,
       <TextField label="Username" property={mat.username}/>,
       <PasswordField label="Password" property={mat.password}/>
     ];

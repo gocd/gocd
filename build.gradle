@@ -661,7 +661,6 @@ dependencyCheck {
   skipTestGroups = true
   skipConfigurations = ['dependencyAnalysisKotlinMetadataClasspath']
 
-  nvd.validForHours = 24
   nvd.datafeedUrl = 'https://nexus.gocd.io/repository/nvd-data-feeds-proxy/nvdcve-{0}.json.gz'
   
   analyzers.ossIndex.password = System.getenv("OSS_INDEX_API_TOKEN") ?: ""

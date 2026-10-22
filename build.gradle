@@ -133,7 +133,7 @@ def libraries = [
   mockitoBom          : 'org.mockito:mockito-bom:5.24.0',
   mybatis             : 'org.mybatis:mybatis:3.5.19',
   mybatisSpring       : 'org.mybatis:mybatis-spring:2.1.2',
-  mysql               : 'com.mysql:mysql-connector-j:26.7.0',
+  mysql               : 'com.mysql:mysql-connector-j:26.10.0',
   objenesis           : 'org.objenesis:objenesis:3.6',
   oshi                : 'com.github.oshi:oshi-core:7.7.1',
   plexusUtils         : 'org.codehaus.plexus:plexus-utils:4.1.0',

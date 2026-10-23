@@ -181,7 +181,9 @@ export class PipelineConfigPage<T> extends TabHandler<T> {
 
   protected headerPanel(vnode: m.Vnode<null, T>): any {
     const pipelineName = PipelineConfigSPARouteHelper.routeInfo().params.pipeline_name;
-    const title        = <PipelineHeaderTitle pipelineName={pipelineName}/>;
+    const title        = <PipelineHeaderTitle pipelineName={pipelineName}
+                                               link={`/go/pipelines?viewName=Default#!/${encodeURIComponent(pipelineName)}?exact=true`}
+                                               linkTitle="View pipeline on dashboard"/>;
     const actions      = <PipelinePauseActions pipelineName={pipelineName}
                                                flashMessage={this.flashMessage}
                                                shouldShowPauseUnpause={true}

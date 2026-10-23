@@ -24,7 +24,7 @@ public class GitMaterialRepresenter extends ScmMaterialRepresenter<GitMaterialCo
     @Override
     public void toJSON(OutputWriter jsonWriter, GitMaterialConfig gitMaterialConfig) {
         super.toJSON(jsonWriter, gitMaterialConfig);
-        jsonWriter.addWithDefaultIfBlank("branch", gitMaterialConfig.getBranch(), "master");
+        jsonWriter.addWithDefaultIfBlank("branch", gitMaterialConfig.getBranch(), GitMaterialConfig.DEFAULT_BRANCH);
         jsonWriter.add("submodule_folder", gitMaterialConfig.getSubmoduleFolder());
         jsonWriter.add("shallow_clone", gitMaterialConfig.isShallowClone());
     }
@@ -38,7 +38,7 @@ public class GitMaterialRepresenter extends ScmMaterialRepresenter<GitMaterialCo
             if (!branch.isBlank()) {
                 gitMaterialConfig.setBranch(branch);
             } else {
-                gitMaterialConfig.setBranch("master");
+                gitMaterialConfig.setBranch(GitMaterialConfig.DEFAULT_BRANCH);
             }
         });
         jsonReader.readStringIfPresent("submodule_folder", gitMaterialConfig::setSubmoduleFolder);

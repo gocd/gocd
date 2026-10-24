@@ -39,7 +39,7 @@
     "chartjs-plugin-zoom": "^2.2.0",
     "classnames": "^2.5.1",
     "core-js": "^3.51.0",
-    "filesize": "^11.0.26",
+    "filesize": "^11.0.28",
     "foundation-sites": "^6.9.0",
     "hack-font": "^3.3.0",
     "jquery": "^3.7.1",

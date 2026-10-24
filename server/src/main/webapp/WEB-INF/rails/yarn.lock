@@ -2830,12 +2830,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chart.js@npm:^4.5.1":
-  version: 4.5.1
-  resolution: "chart.js@npm:4.5.1"
+"chart.js@npm:^4.6.1":
+  version: 4.6.1
+  resolution: "chart.js@npm:4.6.1"
   dependencies:
     "@kurkle/color": "npm:^0.3.0"
-  checksum: 10c0/3f2a11dcaae9079e8e6b8ad077e2ae311f04996f9da14815730891e66215ee8b5f2c0eb70b5a156e5bde0f89a41bae13506dc6153e50fd22dcb282b21eec706f
+  checksum: 10c0/442e3f3958ddbb217b19ec9f57f997f59695d5543af246a8023f3d373bdca494d67ed4dd080600fef71b0894441cd36d7eaebb8e164b2686a97ceef43d91faa4
   languageName: node
   linkType: hard
 
@@ -4599,7 +4599,7 @@ __metadata:
     awesomplete: "npm:^1.1.7"
     babel-loader: "npm:^10.1.1"
     bourbon: "npm:~7.1.0"
-    chart.js: "npm:^4.5.1"
+    chart.js: "npm:^4.6.1"
     chartjs-plugin-zoom: "npm:^2.2.0"
     classnames: "npm:^2.5.1"
     core-js: "npm:^3.51.0"

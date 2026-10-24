@@ -4661,7 +4661,7 @@ __metadata:
     url-parse: "npm:^1.5.10"
     uuid: "npm:^14.0.3"
     webpack: "npm:^5.112.0"
-    webpack-assets-manifest: "npm:^6.5.4"
+    webpack-assets-manifest: "npm:^6.5.5"
     webpack-cli: "npm:^7.2.3"
     what-input: "npm:^5.2.12"
   languageName: unknown
@@ -7573,6 +7573,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"schema-utils@npm:^4.8.1":
+  version: 4.8.1
+  resolution: "schema-utils@npm:4.8.1"
+  dependencies:
+    "@types/json-schema": "npm:^7.0.15"
+    ajv: "npm:^8.20.0"
+    ajv-formats: "npm:^3.0.1"
+    ajv-keywords: "npm:^5.1.0"
+  peerDependencies:
+    webpack: ^5.112.0
+  peerDependenciesMeta:
+    webpack:
+      optional: true
+  bin:
+    schema-utils: bin/schema-utils.js
+  checksum: 10c0/b18b816e5628adb6a703883dbbb672aa3368e6462e16097c9df16d9ca192e41191b98c1b63b6cf18b0ee17a7223268ec9ca76935e8c50337cfa8484d3d289eea
+  languageName: node
+  linkType: hard
+
 "selenium-webdriver@npm:^4.12.0":
   version: 4.51.0
   resolution: "selenium-webdriver@npm:4.51.0"
@@ -8915,17 +8934,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-assets-manifest@npm:^6.5.4":
-  version: 6.5.4
-  resolution: "webpack-assets-manifest@npm:6.5.4"
+"webpack-assets-manifest@npm:^6.5.5":
+  version: 6.5.5
+  resolution: "webpack-assets-manifest@npm:6.5.5"
   dependencies:
     deepmerge: "npm:^4.3.1"
     proper-lockfile: "npm:^4.1.2"
-    schema-utils: "npm:^4.5.0"
+    schema-utils: "npm:^4.8.1"
     tapable: "npm:^2.3.3"
   peerDependencies:
     webpack: ^5.61.0
-  checksum: 10c0/836b87b49818d99d1dd7978c298dcb15f9dee8841ece923640f8cdbfc3e522015e0ef6f781de5b6396e7d11ec9256bb3e598210b6709059bbd5a9c906677dbb8
+  checksum: 10c0/780605c8571e4331df6a2fca18445be60aa7667c02bb99a75cbe633b86117ef0ff346a7e0adfd1a787e74ee46ad9489af46a3fa377fbc16971d9016d3bf0b026
   languageName: node
   linkType: hard
 

@@ -493,16 +493,6 @@
     <cve>CVE-2025-53864</cve>
   </suppress>
 
-  <suppress>
-    <notes><![CDATA[
-    Suppress false positive from file name: mybatis-3.5.19.jar (shaded: ognl:ognl:3.4.4) - GoCD
-    does not allow user-supplied anything through mybatis in the area that OGNL seems to be used
-    so seems unlikelt that GoCD is affected by this.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/ognl/ognl@.*$</packageUrl>
-    <cve>CVE-2026-113730</cve>
-  </suppress>
-
   <!-- Suppression rules for dependencies only visible after a ./gradlew prepare (yarn install / bundle install / tw-go-plugins bundled download -->
   <suppress>
     <notes><![CDATA[

@@ -131,7 +131,7 @@ def libraries = [
   logback             : 'ch.qos.logback:logback-classic:1.6.5',
   lombok              : 'org.projectlombok:lombok:1.18.48',
   mockitoBom          : 'org.mockito:mockito-bom:5.24.0',
-  mybatis             : 'org.mybatis:mybatis:3.5.19',
+  mybatis             : 'org.mybatis:mybatis:3.6.0',
   mybatisSpring       : 'org.mybatis:mybatis-spring:2.1.2',
   mysql               : 'com.mysql:mysql-connector-j:26.10.0',
   objenesis           : 'org.objenesis:objenesis:3.6',

@@ -56,6 +56,17 @@ describe("Dashboard View Model", () => {
       expect(performSpy).toHaveBeenCalled();
     });
 
+    it("should show only the named pipeline for an exact search", () => {
+      dashboardVM._performRouting = _.noop;
+      const filter = {acceptsStatusOf: () => true};
+
+      dashboardVM.searchText("UP42", true);
+      expect(dashboardVM.filteredGroups(filter)[0].pipelines).toEqual(["up42"]);
+
+      dashboardVM.searchText("up");
+      expect(dashboardVM.filteredGroups(filter)[0].pipelines).toEqual(["up42", "up43"]);
+    });
+
   });
 
   describe("Dropdown", () => {

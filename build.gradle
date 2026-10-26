@@ -157,8 +157,8 @@ def libraries = [
 
 // Export versions that are needed outside of this file (and elsewhere within)
 def v = libraries.collectEntries { lib, libGav -> [lib, libGav.split(':').last()] } + [
-  tanuki         : '3.7.3-st', // https://wrapper.tanukisoftware.com/doc/english/download.jsp#stable
-  tanukiSha256sum: '9a676b8224907ee2b413de63874f8920c393ad994a7440301ed278e40af7169b',
+  tanuki         : '3.7.4-st', // https://wrapper.tanukisoftware.com/doc/english/download.jsp#stable
+  tanukiSha256sum: 'e99a5bd5afe62674a76a64678e05a1051f862849ab054689c066f498b48b98d4',
   tfsSdk         : '14.139.0', // https://github.com/microsoft/team-explorer-everywhere/releases
   tfsSdkSha256sum: '744df70f70d28f6039938917ce02b07cbe07a577bdd662a64bb7dffb42512b90',
 ] as Map<String, String>

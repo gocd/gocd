@@ -1,7 +1,7 @@
 {
   "ansi_up": {
     "moduleName": "ansi_up",
-    "moduleVersion": "6.1.0-gocd",
+    "moduleVersion": "6.1.1-gocd",
     "moduleUrls": [
       "https://github.com/gocd-contrib/ansi_up"
     ],

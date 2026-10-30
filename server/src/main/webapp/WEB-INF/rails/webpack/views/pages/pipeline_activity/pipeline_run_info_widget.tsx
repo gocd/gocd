@@ -23,6 +23,7 @@ import Stream from "mithril/stream";
 import {PipelineRunInfo, Stage, StageConfigs} from "models/pipeline_activity/pipeline_activity";
 import s from "underscore.string";
 import * as Icons from "views/components/icons";
+import {renderCommentToHtml} from "../../../helpers/render_comment";
 import {StageOverview} from "../../dashboard/stage_overview";
 import {BuildCauseWidget} from "./build_cause_widget";
 import {CommentWidget} from "./comment_widget";
@@ -75,6 +76,17 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
   view(vnode: m.Vnode<PipelineRunAttrs>): m.Children | void | null {
     const pipelineRunInfo = vnode.attrs.pipelineRunInfo;
 
+    const modifications = pipelineRunInfo.materialRevisions().flatMap((materialRevisions) => materialRevisions.modifications());
+    const commitModification = modifications.find((modification) => modification.comment());
+
+    const commitMessage = renderCommentToHtml(commitModification?.comment() ?? "", commitModification?.commentFormat() ?? "html");
+    const commitUser = commitModification?.user();
+
+    const setOverflowTitle = (vnode: m.VnodeDOM) => {
+      const element = vnode.dom as HTMLElement;
+      element.title = element.scrollWidth > element.clientWidth ? commitMessage : "";
+    };
+
     return <tr class={styles.groupContent}
                data-test-id={this.dataTestId("pipeline-instance", pipelineRunInfo.label())}>
       <td class={styles.left} data-test-id={"meta"}>
@@ -87,6 +99,18 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
           </span>
         </div>
         <div class={styles.revision}>Revision: {pipelineRunInfo.revision()}</div>
+        {(commitMessage && commitMessage.length > 0) && (<>
+          <div
+          data-test-id={"commit-message"}
+          class={styles.commitMessage}
+          oncreate={setOverflowTitle}
+          onupdate={setOverflowTitle}
+        >{m.trust(commitMessage)}</div>
+          <div
+            data-test-id={"commit-user"}
+            class={styles.commitUser}
+          >{commitUser}</div>
+        </>)}
         <div class={styles.scheduleInfo}
              data-test-id={"time"}
              title={PipelineRunWidget.getTimeServer(pipelineRunInfo.scheduledTimestamp())}>

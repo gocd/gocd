@@ -103,6 +103,29 @@ public class PurgeSettingsTest {
         assertThat(purgeSettings.errors().firstErrorOn(ServerConfig.PURGE_START)).isEqualTo("Error in artifact cleanup values. The trigger value has to be specified when a goal is set");
     }
 
+    @Test
+    public void validate_shouldAddErrorIfArtifactDirectoriesAreToBePurgedButThePurgeStartAndPurgeUptoAreBothNotSet() {
+        PurgeSettings purgeSettings = createPurgeSettings(null, null).setPurgeArtifactDirectories(true);
+
+        assertThat(purgeSettings.errors().isEmpty()).isTrue();
+
+        purgeSettings.validate(null);
+
+        assertThat(purgeSettings.errors().isEmpty()).isFalse();
+        assertThat(purgeSettings.errors().firstErrorOn(ServerConfig.PURGE_ARTIFACT_DIRECTORIES)).isEqualTo("Error in artifact cleanup values. Console logs and artifact directories can only be cleaned up when the trigger and goal values are specified");
+    }
+
+    @Test
+    public void validate_shouldNotAddErrorsIfArtifactDirectoriesAreToBePurgedAndThePurgeStartIsSmallerThanPurgeUpto() {
+        PurgeSettings purgeSettings = createPurgeSettings(20.0, 20.05).setPurgeArtifactDirectories(true);
+
+        assertThat(purgeSettings.errors().isEmpty()).isTrue();
+
+        purgeSettings.validate(null);
+
+        assertThat(purgeSettings.errors().isEmpty()).isTrue();
+    }
+
     private PurgeSettings createPurgeSettings(Double purgeStart, Double purgeUpto) {
         PurgeSettings purgeSettings = new PurgeSettings();
         purgeSettings.setPurgeStart(new PurgeStart(purgeStart));

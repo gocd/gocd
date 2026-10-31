@@ -98,6 +98,8 @@ public interface StageDao extends JobDurationStrategy {
 
     List<Stage> oldestStagesHavingArtifacts();
 
+    List<Stage> oldestStagesHavingPurgedArtifacts(long afterStageId);
+
     void markArtifactsDeletedFor(Stage stage);
 
     void clearCachedStage(StageIdentifier stageIdentifier);

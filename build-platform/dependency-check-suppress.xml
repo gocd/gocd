@@ -572,6 +572,15 @@
 
   <suppress>
     <notes><![CDATA[
+    GoCD does not use rack session encrypted cookies, it backs sessions with servlet session insteas, vis jruby-rack
+    so should not be vulnerable to this issue.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:gem/rack@.*$</packageUrl>
+    <vulnerabilityName>CVE-2026-39324</vulnerabilityName>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
     Suppress false positives from jline 2.14.6 embedded within jruby-stdlib. These issue appear to only apply to
     jline-groovy and jline-remote-telnet, not the main jline artifact.
     ]]></notes>

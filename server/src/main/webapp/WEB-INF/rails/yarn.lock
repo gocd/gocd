@@ -4672,7 +4672,6 @@ __metadata:
     webpack: "npm:^5.112.2"
     webpack-assets-manifest: "npm:^6.5.5"
     webpack-cli: "npm:^7.2.3"
-    what-input: "npm:^5.2.12"
   languageName: unknown
   linkType: soft
 
@@ -9038,13 +9037,6 @@ __metadata:
   bin:
     webpack: bin/webpack.js
   checksum: 10c0/e3b299c0ce691f22d9c9bd75731f6406d9fb5166c20eb0f61f5a4f8f59c55ddddda9b4633a0348c272dfded407735b8d20311bc8a5d6d13d80d0088440e93283
-  languageName: node
-  linkType: hard
-
-"what-input@npm:^5.2.12":
-  version: 5.2.12
-  resolution: "what-input@npm:5.2.12"
-  checksum: 10c0/151d30f6f97c20e4703cb1db93ec05a496cd3efdb27917a03f897da445132144c505203d814e00adf4227a70a521531ff8705d23ce5ed9bb5e91831ac2d775f2
   languageName: node
   linkType: hard
 

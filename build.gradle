@@ -449,8 +449,10 @@ subprojects {
       jvmArgs += InstallerTypeServer.instance.jvmInternalAccessArgs
     }
 
+    def testConfigs = testTask.project.configurations
+
     doFirst {
-      jvmArgs += testTask.project.configurations.hasProperty('testJavaAgents') ? ["-javaagent:${testTask.project.configurations.testJavaAgents.asPath}", "-XX:-PrintWarnings"] : []
+      jvmArgs += testConfigs.hasProperty('testJavaAgents') ? ["-javaagent:${testConfigs.testJavaAgents.asPath}", "-XX:-PrintWarnings"] : []
       classpath += rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
     }
 

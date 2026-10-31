@@ -100,7 +100,7 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
         GitTestRepo remoteRepo = new GitTestRepo(tempDir);
         gitInRepo("remote", "rm", "origin");
         gitInRepo("remote", "add", "origin", remoteRepo.projectRepositoryUrl());
-        GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, null);
+        GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, GitMaterialConfig.DEFAULT_BRANCH, false, null);
 
         Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").getFirst();
 
@@ -113,7 +113,7 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
         GitTestRepo remoteRepo = new GitTestRepo(tempDir);
         gitInRepo("remote", "rm", "origin");
         gitInRepo("remote", "add", "origin", remoteRepo.projectRepositoryUrl());
-        GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, null);
+        GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, GitMaterialConfig.DEFAULT_BRANCH, false, null);
 
         Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").getFirst();
 
@@ -125,7 +125,7 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
         GitTestRepo remoteRepo = new GitTestRepo(tempDir);
         gitInRepo("remote", "rm", "origin");
         gitInRepo("remote", "add", "origin", remoteRepo.projectRepositoryUrl());
-        GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, null);
+        GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, GitMaterialConfig.DEFAULT_BRANCH, false, null);
 
         Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").getFirst();
         setColoring();
@@ -138,7 +138,7 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
         GitTestRepo remoteRepo = new GitTestRepo(tempDir);
         gitInRepo("remote", "rm", "origin");
         gitInRepo("remote", "add", "origin", remoteRepo.projectRepositoryUrl());
-        GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, null);
+        GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, GitMaterialConfig.DEFAULT_BRANCH, false, null);
 
         Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").getFirst();
         setLogDecoration();
@@ -151,7 +151,7 @@ public class GitCommandModificationsTest extends GitCommandIntegrationTestBase {
         GitTestRepo remoteRepo = new GitTestRepo(tempDir);
         gitInRepo("remote", "rm", "origin");
         gitInRepo("remote", "add", "origin", remoteRepo.projectRepositoryUrl());
-        GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, null);
+        GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, GitMaterialConfig.DEFAULT_BRANCH, false, null);
 
         Modification modification = remoteRepo.checkInOneFile("foo", "Adding a commit").getFirst();
         remoteRepo.addFileAndAmend("bar", "amendedCommit");

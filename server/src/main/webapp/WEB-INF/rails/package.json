@@ -57,7 +57,7 @@
     "underscore.string": "^3.3.6",
     "url-parse": "^1.5.10",
     "uuid": "^14.0.3",
-    "what-input": "^5.2.12"
+    "what-input": "^6.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",

@@ -1,12 +1,11 @@
-#SetCompress off
-
-Unicode true
-SetCompressor /SOLID /FINAL lzma
-SetCompress auto
-
 !ifndef TARGET_ARCH
   !error "TARGET_ARCH not defined!"
 !endif
+
+Target ${TARGET_ARCH}
+Unicode true
+SetCompressor /SOLID /FINAL lzma
+SetCompress auto
 
 !ifndef COMPONENT_NAME
   !error "COMPONENT_NAME not defined (Agent or Server)!"
@@ -67,7 +66,6 @@ SetCompress auto
 !include "uninstall-helpers.nsi"
 !include "cli-helpers.nsi"
 
-Target ${TARGET_ARCH}
 OutFile ${OUTPUT_FILE}
 Name "GoCD ${COMPONENT_NAME} ${COMPONENT_FULL_VERSION}"
 Icon ${GOCD_ICON}

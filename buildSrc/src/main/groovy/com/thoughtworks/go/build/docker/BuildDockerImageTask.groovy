@@ -272,7 +272,7 @@ abstract class BuildDockerImageTask extends DefaultTask {
   }
 
   void writeTemplateToFile(String templateFile, String outputFile) {
-    Configuration configuration = new Configuration(Configuration.VERSION_2_3_34)
+    Configuration configuration = new Configuration(Configuration.VERSION_2_3_35)
     configuration.setDefaultEncoding("utf-8")
     configuration.setLogTemplateExceptions(true)
     configuration.setNumberFormat("computer")

@@ -59,7 +59,7 @@ public class FreemarkerTemplateEngineFactory implements ServletContextAware, Ini
     @Override
     public void afterPropertiesSet() {
         System.setProperty(Logger.SYSTEM_PROPERTY_NAME_LOGGER_LIBRARY, "SLF4J");
-        Configuration configuration = new Configuration(Configuration.VERSION_2_3_34);
+        Configuration configuration = new Configuration(Configuration.VERSION_2_3_35);
         configuration.setDefaultEncoding("utf-8");
         configuration.setLogTemplateExceptions(true);
         configuration.setNumberFormat("computer");

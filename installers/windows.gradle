@@ -119,10 +119,13 @@ def configureNSIS(Task packageTask, InstallerType installerType, File buildRoot,
 
     def installerContents = project.file("${buildRoot.path}/${installerType.baseName}-${goVersions.goVersion}")
     def unInstallManifestFile = project.file("${buildRoot.path}/uninstall-manifest.nsi")
-    def nsisPluginsDir = project.file("windows/nsis-plugins")
+    def targetArch = "x86-unicode"
+    def nsisPluginsDir = project.file("windows/nsis-plugins-${targetArch}")
     def icon = project.file('windows/gocd.ico')
     def nsiPath = project.file("windows/${installerType.baseName}.nsi").path
     def licenseSourceFile = rootProject.file("LICENSE")
+
+    inputs.dir('windows')
 
     def injected = project.objects.newInstance(Injected)
 
@@ -140,6 +143,7 @@ def configureNSIS(Task packageTask, InstallerType installerType, File buildRoot,
       }
 
       List<String> cmdArgs = [
+        "-DTARGET_ARCH=${targetArch}",
         "-DADDITIONAL_PLUGINS_DIR=${nsisPluginsDir}",
         "-DCOMPONENT_FULL_VERSION=${goVersions.fullVersion}",
         "-DCOMPONENT_NAME=${installerType.baseName.replace("go-", "").capitalize()}",

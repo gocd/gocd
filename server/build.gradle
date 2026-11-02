@@ -749,10 +749,10 @@ tasks.register('licenseReportAggregate') {
 
   def rubygemsReportFile = (generateRubygemsLicenseReport as Task).outputs.files.singleFile
   def extraJavascriptLicenses = project.file("${project.railsRoot}/app/assets/javascripts/lib/_licenses.json")
+  def extraInstallerLicenses = findProject(':installers').file("windows/nsis-plugins-x86-unicode/_licenses.json")
   def yarnLicenseReportDir = (compileAssetsWebpackProd as Task).outputs.files.find { f -> f.name == 'yarn-license-prod' } as File
   def goVersions = rootProject.goVersions as GoVersions
-  inputs.file(rubygemsReportFile)
-  inputs.file(extraJavascriptLicenses)
+  inputs.files(rubygemsReportFile, extraJavascriptLicenses, extraInstallerLicenses)
   inputs.dir(yarnLicenseReportDir)
   inputs.property('goVersions', goVersions)
 
@@ -914,11 +914,14 @@ tasks.register('licenseReportAggregate') {
     delete(licenseReportAggregateOutputDir)
     licenseReportAggregateOutputDir.get().asFile.mkdirs()
 
-    def licenseReport = new LicenseReport(
+    new LicenseReport(
       injected.fileOps, injected.objectFactory,
-      licenseReportTasks, licenseReportAggregateOutputDir, licensesForPackagedJarDependencies,
-      [ Ruby: rubygemsReportFile, Javascript: extraJavascriptLicenses ], new File(yarnLicenseReportDir, 'license-report.json'), goVersions)
-    licenseReport.generate()
+      licenseReportTasks, licenseReportAggregateOutputDir,
+      licensesForPackagedJarDependencies,
+      [ Ruby: rubygemsReportFile, Javascript: extraJavascriptLicenses, WindowsNSIS: extraInstallerLicenses ],
+      new File(yarnLicenseReportDir, 'license-report.json'),
+      goVersions
+    ).generate()
   }
 }
 

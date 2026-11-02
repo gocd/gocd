@@ -1,0 +1,51 @@
+{
+  "AccessControl": {
+    "moduleName": "AccessControl",
+    "moduleVersion": "1.0.8.3-x86-unicode",
+    "moduleUrls": [
+      "https://nsis.sourceforge.io/AccessControl_plug-in"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "Zlib",
+        "moduleLicenseUrl": "https://spdx.org/licenses/Zlib.html"
+      }
+    ]
+  },
+  "SimpleFC": {
+    "moduleName": "SimpleFC",
+    "moduleVersion": "1.30-x86-unicode",
+    "moduleUrls": [
+      "https://nsis.sourceforge.io/NSIS_Simple_Firewall_Plugin",
+      "https://github.com/Speed7811/nsis-simple-firewall-plugin"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MPL-1.1",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MPL-1.1.html"
+      },
+      {
+        "moduleLicense": "LGPL-2.1-or-later",
+        "moduleLicenseUrl": "https://spdx.org/licenses/LGPL-2.1-or-later.html"
+      }
+    ]
+  },
+  "SimpleSC": {
+    "moduleName": "SimpleSC",
+    "moduleVersion": "1.21-x86-unicode",
+    "moduleUrls": [
+      "https://nsis.sourceforge.io/NSIS_Simple_Service_Plugin",
+      "https://github.com/Speed7811/nsis-simple-service-plugin"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MPL-1.1",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MPL-1.1.html"
+      },
+      {
+        "moduleLicense": "LGPL-2.1-or-later",
+        "moduleLicenseUrl": "https://spdx.org/licenses/LGPL-2.1-or-later.html"
+      }
+    ]
+  }
+}

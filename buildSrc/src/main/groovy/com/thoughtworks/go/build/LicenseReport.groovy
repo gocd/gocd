@@ -30,6 +30,9 @@ import org.gradle.api.provider.Provider
 class LicenseReport {
   private static final Logger LOGGER = Logging.getLogger(LicenseReport.class)
 
+  /**
+   * These licenses are those allowed for REDISTRIBUTION within GoCD as binaries.
+   */
   private static final Set<String> ALLOWED_LICENSES = Set.of(
     "Apache-1.1",
     "Apache-2.0",
@@ -47,15 +50,16 @@ class LicenseReport {
     "GPL-2.0-only WITH Universal-FOSS-exception-1.0",
     "ISC",
     "LGPL-2.1-only",
+    "LGPL-2.1-or-later",
     "LGPL-3.0-only",
+    "LGPL-3.0-or-later",
     "MIT",
     "MPL-1.1",
     "MPL-2.0",
     "OFL-1.1",
-    "Plexus",
     "Public Domain",
     "Ruby",
-    "Unlicense",
+    "Zlib"
   ).sort()
 
   private final FileSystemOperations fileOps

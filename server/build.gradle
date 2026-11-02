@@ -740,6 +740,8 @@ tasks.register('licenseReportAggregate') {
   dependsOn(licenseReportTasks)
   licenseReportTasks.each { rt -> inputs.dir(rt.outputFolder) }
 
+  def tanukiDeltaPackLicense = findProject(':installers').tasks.named('tanukiDeltaPackLicense')
+  dependsOn tanukiDeltaPackLicense
   dependsOn compileAssetsWebpackProd
   dependsOn generateRubygemsLicenseReport
 
@@ -747,13 +749,14 @@ tasks.register('licenseReportAggregate') {
   def verifyJarTasks = rootProject.subprojects.collectMany { eachProject -> eachProject.tasks.withType(VerifyJarTask) }
   shouldRunAfter verifyJarTasks
 
-  def rubygemsReportFile = (generateRubygemsLicenseReport as Task).outputs.files.singleFile
-  def extraJavascriptLicenses = project.file("${project.railsRoot}/app/assets/javascripts/lib/_licenses.json")
-  def extraInstallerLicenses = findProject(':installers').file("windows/nsis-plugins-x86-unicode/_licenses.json")
   def yarnLicenseReportDir = (compileAssetsWebpackProd as Task).outputs.files.find { f -> f.name == 'yarn-license-prod' } as File
-  def goVersions = rootProject.goVersions as GoVersions
-  inputs.files(rubygemsReportFile, extraJavascriptLicenses, extraInstallerLicenses)
   inputs.dir(yarnLicenseReportDir)
+  def extraJavascriptLicenses = project.file("${project.railsRoot}/app/assets/javascripts/lib/_licenses.json")
+  def rubygemsReportFile = (generateRubygemsLicenseReport as Task).outputs.files.singleFile
+  def extraInstallerLicenses = rootProject.findProject(':installers').file("windows/nsis-plugins-x86-unicode/_licenses.json")
+  def tanukiLicenses = tanukiDeltaPackLicense.map { it.outputs.files.singleFile }
+  inputs.files(extraJavascriptLicenses, rubygemsReportFile, extraInstallerLicenses, tanukiLicenses)
+  def goVersions = rootProject.goVersions as GoVersions
   inputs.property('goVersions', goVersions)
 
   def licenseReportAggregateOutputDir = layout.getBuildDirectory().dir('reports/license-report-aggregate') as Provider<Directory>
@@ -917,10 +920,15 @@ tasks.register('licenseReportAggregate') {
     new LicenseReport(
       injected.fileOps, injected.objectFactory,
       licenseReportTasks, licenseReportAggregateOutputDir,
-      licensesForPackagedJarDependencies,
-      [ Ruby: rubygemsReportFile, Javascript: extraJavascriptLicenses, WindowsNSIS: extraInstallerLicenses ],
-      new File(yarnLicenseReportDir, 'license-report.json'),
-      goVersions
+      licensesForPackagedJarDependencies,                    // Java
+      new File(yarnLicenseReportDir, 'license-report.json'), // JavaScript
+      [
+        Javascript: extraJavascriptLicenses,
+        Ruby: rubygemsReportFile,
+        'NsisPlugins (Windows installers only)': extraInstallerLicenses,
+        Runtime: tanukiLicenses.get()
+      ],
+      goVersions                                             // Runtime
     ).generate()
   }
 }

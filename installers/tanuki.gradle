@@ -16,6 +16,7 @@
 
 import com.thoughtworks.go.build.DownloadFile
 import com.thoughtworks.go.build.TextUtils
+import groovy.json.JsonOutput
 
 def destFile(String url) {
   new File(gradle.gradleUserHomeDir, "download-cache/${TextUtils.md5Hex(url)}/${new File(URI.create(url).toURL().path).name}")
@@ -28,6 +29,37 @@ def downloadTanukiDeltaPack = tasks.register('downloadTanukiDeltaPack', Download
   checksum = rootProject.versions.tanukiSha256sum
 }
 
+def tanukiDeltaPackLicense = tasks.register('tanukiDeltaPackLicense') {
+  inputs.property('version', rootProject.versions.tanuki)
+
+  def licenseFile = layout.buildDirectory.file("_tanuki-licenses.json")
+  outputs.file licenseFile
+
+  doFirst {
+    licenseFile.get().asFile.with {
+      parentFile.mkdirs()
+      withWriter { out ->
+        def moduleName = "com.tanukisoftware:java-service-wrapper" as String
+        out.write(JsonOutput.prettyPrint(JsonOutput.toJson([
+          (moduleName as String): [
+            "moduleName"    : moduleName,
+            "moduleVersion" : rootProject.versions.tanuki,
+            "moduleUrls"    : [
+              "https://wrapper.tanukisoftware.com/",
+            ],
+            "moduleLicenses": [
+              [
+                "moduleLicense"   : "Tanuki Development Software License 1.3",
+                "moduleLicenseUrl": "https://wrapper.tanukisoftware.com/doc/english/licenseDevelopment.html#text"
+              ]
+            ]
+          ],
+        ])))
+      }
+    }
+  }
+}
+
 tasks.register('extractDeltaPack', Copy) {
   dependsOn downloadTanukiDeltaPack
   destinationDir = layout.buildDirectory.dir("tanuki").get().asFile
@@ -37,4 +69,5 @@ tasks.register('extractDeltaPack', Copy) {
     }
     includeEmptyDirs = false
   }
+  finalizedBy tanukiDeltaPackLicense
 }

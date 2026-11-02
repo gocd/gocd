@@ -59,6 +59,7 @@ class LicenseReport {
     "OFL-1.1",
     "Public Domain",
     "Ruby",
+    "Tanuki Development Software License 1.3",
     "Zlib"
   ).sort()
 
@@ -76,7 +77,7 @@ class LicenseReport {
   LicenseReport(FileSystemOperations fileOps, ObjectFactory objectFactory,
                 List<ReportTask> licenseReportTasks, Provider<Directory> reportDir,
                 Map<String, Map<String, Object>> licensesForPackagedJarDependencies,
-                Map<String, File> extraEcosystemLicenseFiles, File yarnLicenseReport, GoVersions goVersions) {
+                File yarnLicenseReport, Map<String, File> extraEcosystemLicenseFiles, GoVersions goVersions) {
     this.fileOps = fileOps
     this.objectFactory = objectFactory
     this.licenseReportTasks = licenseReportTasks
@@ -122,12 +123,6 @@ class LicenseReport {
             renderModuleData(markup, "Java", moduleName, moduleLicenseData)
           }
 
-          this.extraEcosystemLicenseFiles.each {
-            new JsonSlurper().parse(it.value, "utf-8").each { String moduleName, Map<String, Object> moduleLicenseData ->
-              renderModuleData(markup, it.key, moduleName, moduleLicenseData)
-            }
-          }
-
           new JsonSlurper().parse(this.yarnLicenseReport, "utf-8").each { String moduleName, Map<String, Object> moduleLicenseData ->
             def yarnLicenseReportDir = this.yarnLicenseReport.parentFile
             fileOps.copy {
@@ -136,6 +131,12 @@ class LicenseReport {
             }
 
             renderModuleData(markup, "Javascript", moduleName, moduleLicenseData)
+          }
+
+          this.extraEcosystemLicenseFiles.each {
+            new JsonSlurper().parse(it.value, "utf-8").each { String moduleName, Map<String, Object> moduleLicenseData ->
+              renderModuleData(markup, it.key, moduleName, moduleLicenseData)
+            }
           }
 
           def jreLicense = goVersions.packagedJavaVersion.toLicenseMetadata()
